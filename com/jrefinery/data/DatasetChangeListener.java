@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -34,20 +34,27 @@
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
  * 15-Oct-2001 : Moved to new package (com.jrefinery.data.*) (DG);
  * 22-Oct-2001 : Renamed DataSource.java --> Dataset.java etc. (DG);
+ * 07-Aug-2002 : Now extends EventListener (DG);
+ * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.data;
 
+import java.util.EventListener;
+
 /**
- * The interface that must be supported by classes that wish to receive notification of
- * changes to a dataset.
+ * The interface that must be supported by classes that wish to receive
+ * notification of changes to a dataset.
+ *
+ * @author DG
  */
-public interface DatasetChangeListener {
+public interface DatasetChangeListener extends EventListener {
 
     /**
      * Receives notification of an dataset change event.
-     * @param event Information about the event.
+     *
+     * @param event  information about the event.
      */
     public void datasetChanged(DatasetChangeEvent event);
 

@@ -42,22 +42,28 @@ package com.jrefinery.chart;
 import com.jrefinery.data.Range;
 
 /**
- * An interface defining methods for interrogating a plot that displays values along the
- * vertical axis.
+ * An interface defining methods for interrogating a plot that displays values
+ * along the vertical axis.
  * <P>
- * Used by vertical axes (when auto-adjusting the axis range) to determine the minimum and
- * maximum data values.
+ * Used by vertical axes (when auto-adjusting the axis range) to determine the
+ * minimum and maximum data values.  Also used by the ChartPanel class for zooming.
  *
+ * @author DG
  */
 public interface VerticalValuePlot {
 
     /**
      * Returns the range for the data to be plotted against the vertical axis.
      *
-     * @return The range.
+     * @return the range.
      */
     public Range getVerticalDataRange();
 
+    /**
+     * Returns the vertical axis.
+     *
+     * @return the axis.
+     */
     public ValueAxis getVerticalValueAxis();
 
 }

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 06-Jun-2002 : Version 1 (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,24 +43,28 @@ import java.util.List;
 /**
  * A very basic representation of a list of tasks and time allocations.
  * <P>
- * This class is used as a building block for the GanttSeriesCollection class that implements
- * the IntervalCategoryDataset that, in turn, can be used to construct simple Gantt charts.
+ * This class is used as a building block for the GanttSeriesCollection class
+ * that implements the IntervalCategoryDataset that, in turn, can be used to
+ * construct simple Gantt charts.
  * <P>
- * This class is incomplete.  It implements the bare minimum required to get a simple demo running.
+ * This class is incomplete.  It implements the bare minimum required to get
+ * a simple demo running.
+ *
+ * @author DG
  *
  */
 public class GanttSeries extends Series {
 
     /** A list of tasks. */
-    protected List tasks;
+    private List tasks;
 
     /** A list of time allocations corresponding to the above tasks. */
-    protected List times;
+    private List times;
 
     /**
      * Constructs a new series with the specified name.
      *
-     * @param name The series name.
+     * @param name  the series name.
      */
     public GanttSeries(String name) {
         super(name);
@@ -68,9 +73,18 @@ public class GanttSeries extends Series {
     }
 
     /**
+     * Returns the tasks.
+     *
+     * @return the tasks.
+     */
+    public List getTasks() {
+        return this.tasks;
+    }
+
+    /**
      * Returns the number of items in the series.
      *
-     * @return The item count.
+     * @return the item count.
      */
     public int getItemCount() {
         return tasks.size();
@@ -79,11 +93,13 @@ public class GanttSeries extends Series {
     /**
      * Returns the time allocation for a task.
      *
-     * @param task The task.
+     * @param task  the task.
+     *
+     * @return the time allocation for a task.
      */
     public TimeAllocation getTimeAllocation(Object task) {
         int index = tasks.indexOf(task);
-        return (TimeAllocation)times.get(index);
+        return (TimeAllocation) times.get(index);
     }
 
     /**
@@ -91,8 +107,8 @@ public class GanttSeries extends Series {
      * <P>
      * The task can be represented by an arbitrary Object.
      *
-     * @param task The task.
-     * @param allocation The time allocation.
+     * @param task  the task.
+     * @param allocation  the time allocation.
      */
     public void add(Object task, TimeAllocation allocation) {
         tasks.add(task);

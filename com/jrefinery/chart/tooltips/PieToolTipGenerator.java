@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,7 @@
  * -------
  * 13-Dec-2001 : Version 1 (DG);
  * 16-Jan-2002 : Completed Javadocs (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,14 +43,18 @@ import com.jrefinery.data.PieDataset;
 
 /**
  * Interface for a tooltip generator for plots that use data from a PieDataset.
+ *
+ * @author DG
  */
 public interface PieToolTipGenerator extends ToolTipGenerator {
 
     /**
-     * Generates a tooltip text item for a particular category in the dataset.
+     * Generates a tool tip text item for a particular category in the dataset.
      *
-     * @param data The dataset.
-     * @param category The category.
+     * @param data  the dataset.
+     * @param category  the category.
+     *
+     * @return the tool tip text.
      */
     public String generateToolTip(PieDataset data, Object category);
 

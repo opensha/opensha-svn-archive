@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 11-Feb-2002 : Version 1 (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -47,6 +48,8 @@ import com.jrefinery.chart.ChartFactory;
 
 /**
  * A simple applet containing two sample charts in a JTabbedPane.
+ *
+ * @author DG
  */
 public class JFreeChartAppletDemo extends JApplet {
 
@@ -65,13 +68,14 @@ public class JFreeChartAppletDemo extends JApplet {
         tabs.add("Chart 1", panel1);
 
         CategoryDataset data2 = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart2 = ChartFactory.createHorizontalBarChart("Bar Chart", "Categories", "Value",
+        JFreeChart chart2 = ChartFactory.createHorizontalBarChart("Bar Chart",
+                                                                  "Categories", "Value",
                                                                   data2, true);
         ChartPanel panel2 = new ChartPanel(chart2, 400, 300, 200, 100, 400, 200,
                                            true, false, false, false, true, true);
         tabs.add("Chart 2", panel2);
 
-        this.getContentPane().add(tabs);
+        getContentPane().add(tabs);
 
     }
 

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -33,6 +33,10 @@
  * --------
  * 23-May-2002 : Version 1 (DG);
  * 12-Jun-2002 : Added Javadoc comments (DG);
+ * 26-Jun-2002 : Added getImageMapAreaTag() method (DG);
+ * 05-Aug-2002 : Added new constructor to populate URLText
+ *               Moved getImageMapAreaTag() to ChartEntity (superclass) (RA);
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,33 +46,63 @@ import java.awt.Shape;
 
 /**
  * A chart entity that represents one item within a category plot.
+ *
+ * @author DG
  */
 public class CategoryItemEntity extends ChartEntity {
 
     /** The series (zero-based index). */
-    protected int series;
+    private int series;
 
     /** The category. */
-    protected Object category;
+    private Object category;
+
+    /** The category index. */
+    private int categoryIndex;
 
     /**
      * Creates a new category item entity.
      *
-     * @param area The area.
-     * @param toolTipText The tool tip text.
-     * @param series The series (zero-based index).
-     * @param category The category.
+     * @param area  the area.
+     * @param toolTipText  the tool tip text.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     * @param categoryIndex  the index of the category.
      */
-    public CategoryItemEntity(Shape area, String toolTipText, int series, Object category) {
+    public CategoryItemEntity(Shape area, String toolTipText,
+                              int series, Object category, int categoryIndex) {
+
         super(area, toolTipText);
         this.series = series;
         this.category = category;
+        this.categoryIndex = categoryIndex;
+
+    }
+
+    /**
+     * Creates a new category item entity.
+     *
+     * @param area  the area.
+     * @param toolTipText  the tool tip text.
+     * @param urlText  the URL text for HTML image maps.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     * @param categoryIndex  the category index.
+     */
+    public CategoryItemEntity(Shape area, String toolTipText, String urlText,
+                              int series, Object category, int categoryIndex) {
+
+        super(area, toolTipText, urlText);
+        this.series = series;
+        this.category = category;
+        this.categoryIndex = categoryIndex;
+
     }
 
     /**
      * Returns the series index.
      *
-     * @return The series index.
+     * @return the series index.
      */
     public int getSeries() {
         return this.series;
@@ -77,7 +111,7 @@ public class CategoryItemEntity extends ChartEntity {
     /**
      * Sets the series index.
      *
-     * @param series The series index (zero-based).
+     * @param series  the series index (zero-based).
      */
     public void setSeries(int series) {
         this.series = series;
@@ -86,7 +120,7 @@ public class CategoryItemEntity extends ChartEntity {
     /**
      * Returns the category.
      *
-     * @return The category.
+     * @return the category.
      */
     public Object getCategory() {
         return this.category;
@@ -95,19 +129,37 @@ public class CategoryItemEntity extends ChartEntity {
     /**
      * Sets the category.
      *
-     * @param category The category.
+     * @param category  the category.
      */
     public void setCategory(Object category) {
         this.category = category;
     }
 
     /**
+     * Returns the category index.
+     *
+     * @return the category index.
+     */
+    public int getCategoryIndex() {
+        return this.categoryIndex;
+    }
+
+    /**
+     * Sets the category index.
+     *
+     * @param index  the category index.
+     */
+    public void setCategoryIndex(int index) {
+        this.categoryIndex = index;
+    }
+
+    /**
      * Returns a string representing this object.
      *
-     * @return A string representing this object.
+     * @return a string representing this object.
      */
     public String toString() {
-        return "Category Item: series="+series+", category="+category.toString();
+        return "Category Item: series=" + series + ", category=" + category.toString();
     }
 
 }

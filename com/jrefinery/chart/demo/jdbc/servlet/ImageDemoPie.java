@@ -30,8 +30,9 @@
  *
  * Changes
  * -------
- * 14-Mar-2002 : Version 1 contributed by Bryan Scott (DG);\
+ * 14-Mar-2002 : Version 1 contributed by Bryan Scott (DG);
  * 05-Apr-2002 : BRS. Changed servlet name
+ * 02-Jul-2002 : Removed unnecessary import (DG);
  *
  */
 
@@ -43,7 +44,6 @@ import java.util.ArrayList;
 import java.awt.Font;
 
 import com.jrefinery.chart.*;
-import com.jrefinery.data.*;
 
 /**
  * A generic image producer.  The servlet takes an sql string from the request and generates an
@@ -81,30 +81,30 @@ public class ImageDemoPie extends BaseImageServlet {
    * @return          The generated sql
    */
   protected String generateSQL(HttpServletRequest request) {
-    String query = null ;
+    String query = null;
 
-    String plotYear   ;
-    String plotMonth  ;
-    String plotDay    ;
-    String voyage     ;
+    String plotYear;
+    String plotMonth;
+    String plotDay;
+    String voyage;
 
     try {
       voyage = request.getParameter("voyage");
     } catch (Exception e) {
-      voyage = "200102040" ;
+      voyage = "200102040";
     }
 
 
     try {
       plotDay = request.getParameter("date");
     } catch (Exception e) {
-      plotDay = "05" ;
+      plotDay = "05";
     }
 
     try {
       plotMonth = request.getParameter("month");
     } catch (Exception e) {
-      plotMonth = "01" ;
+      plotMonth = "01";
     }
 
     try {
@@ -116,19 +116,19 @@ public class ImageDemoPie extends BaseImageServlet {
     /// Sort out date thing as different servers handle differently
     switch (sqlServerType) {
       case MYSQL:
-        query = " and timestamp = '"+plotYear+"-"+plotMonth+"-"+plotDay+" 00:00:00'" ;
-        break ;
+        query = " and timestamp = '"+plotYear+"-"+plotMonth+"-"+plotDay+" 00:00:00'";
+        break;
 
       case ORACLE:
       default:
-        query = " and timestamp = to_date('"+plotYear+"-"+plotMonth+"-"+plotDay+"', 'yyyy-mon-dd')" ;
-        break ;
+        query = " and timestamp = to_date('"+plotYear+"-"+plotMonth+"-"+plotDay+"', 'yyyy-mon-dd')";
+        break;
     }
 
     query = "select obs_code, record_count"
           + " from " + dbSchema_ + "summary_data"
           + " where set_code = " + voyage
-          + query ;
+          + query;
 
     if (debug)
       System.out.println(": " + query);
@@ -138,12 +138,12 @@ public class ImageDemoPie extends BaseImageServlet {
 
   /// Override to create a default title
   public void modifyChart(JFreeChart chart, HttpServletRequest request) {
-    String title = null ;
+    String title = null;
 
-    String plotYear   ;
-    String plotMonth  ;
-    String plotDay    ;
-    String voyage     ;
+    String plotYear;
+    String plotMonth;
+    String plotDay;
+    String voyage;
 
     try {
       title = request.getParameter("title");
@@ -154,19 +154,19 @@ public class ImageDemoPie extends BaseImageServlet {
       try {
         voyage = request.getParameter("voyage");
       } catch (Exception e) {
-        voyage = "200102040" ;
+        voyage = "200102040";
       }
 
       try {
         plotDay = request.getParameter("date");
       } catch (Exception e) {
-        plotDay = "05" ;
+        plotDay = "05";
       }
 
       try {
         plotMonth = request.getParameter("month");
       } catch (Exception e) {
-        plotMonth = "01" ;
+        plotMonth = "01";
       }
 
       try {
@@ -175,7 +175,7 @@ public class ImageDemoPie extends BaseImageServlet {
         plotYear = "2002";
       }
 
-      title = "Voyage " + voyage + " on " + plotYear + "-" + plotMonth + "-" + plotDay ;
+      title = "Voyage " + voyage + " on " + plotYear + "-" + plotMonth + "-" + plotDay;
 
       if (chart != null) {
         ArrayList titles = new ArrayList();

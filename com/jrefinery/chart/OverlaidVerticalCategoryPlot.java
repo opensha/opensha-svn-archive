@@ -22,42 +22,33 @@
  * ---------------------------------
  * OverlaidVerticalCategoryPlot.java
  * ---------------------------------
- * (C) Copyright 2002, by Jeremy Bowman.
+ * (C) Copyright 2002, by Jeremy Bowman and Contributors.
  *
  * Original Author:  Jeremy Bowman;
- * Contributor(s):   -;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
  * 13-May-2002 : Version 1 (JB);
- *
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 18-Sep-2002 : Overided the setSeriesPaint, setSeriesStroke, setSeriesOutlinePaint,
+ *               setSeriesOutlineStroke methods to ensure better functionality and to keep
+ *               the legend colors consistent with the plot colors.
+ * 20-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 27-Sep-2002 : Removed obsolete methods (AS)
  */
 
 package com.jrefinery.chart;
 
 import java.awt.Graphics2D;
-import java.awt.Shape;
-import java.awt.Composite;
-import java.awt.AlphaComposite;
 import java.awt.geom.Rectangle2D;
+import java.awt.Shape;
 import java.util.List;
 import java.util.Iterator;
-import com.jrefinery.data.Dataset;
-import com.jrefinery.data.CategoryDataset;
-import com.jrefinery.data.DatasetUtilities;
 import com.jrefinery.data.DefaultCategoryDataset;
 import com.jrefinery.data.Range;
-import com.jrefinery.chart.HorizontalAxis;
-import com.jrefinery.chart.HorizontalCategoryAxis;
-import com.jrefinery.chart.VerticalAxis;
-import com.jrefinery.chart.VerticalNumberAxis;
-import com.jrefinery.chart.CrosshairInfo;
-import com.jrefinery.chart.CategoryPlot;
-import com.jrefinery.chart.ChartRenderingInfo;
-import com.jrefinery.chart.ValueAxis;
-import com.jrefinery.chart.tooltips.ToolTipsCollection;
 
 /**
  * An extension of VerticalCategoryPlot that allows multiple
@@ -68,20 +59,19 @@ import com.jrefinery.chart.tooltips.ToolTipsCollection;
 public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
 
     /** Storage for the subplot references. */
-    protected List subplots;
+    private List subplots;
 
     /** The total number of series. */
-    protected int seriesCount = 0;
+    private int seriesCount = 0;
 
     /**
      * Constructs a new overlaid vertical category plot.
      *
-     * @param domainAxisLabel The label for the domain axis.
-     * @param rangeAxisLabel The label for the range axis.
-     * @param categories The categories to be shown on the domain axis.
+     * @param domainAxisLabel  the label for the domain axis.
+     * @param rangeAxisLabel  the label for the range axis.
+     * @param categories  the categories to be shown on the domain axis.
      */
-    public OverlaidVerticalCategoryPlot(String domainAxisLabel,
-                                        String rangeAxisLabel,
+    public OverlaidVerticalCategoryPlot(String domainAxisLabel, String rangeAxisLabel,
                                         Object[] categories) {
 
         this(new HorizontalCategoryAxis(domainAxisLabel),
@@ -91,21 +81,23 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
     }
 
     /**
-     * Constructs an OverlaidVerticalCategoryPlot.
+     * Constructs a new overlaid vertical category plot.
      *
-     * @param domain Horizontal axis to use for all sub-plots.
-     * @param range Vertical axis to use for all sub-plots.
-     * @param categories The categories to be shown on the domain axis.
+     * @param domain  horizontal axis to use for all sub-plots.
+     * @param range  vertical axis to use for all sub-plots.
+     * @param categories  the categories to be shown on the domain axis.
      */
     public OverlaidVerticalCategoryPlot(CategoryAxis domain, ValueAxis range,
                                         Object categories[]) {
+
         super(null, domain, range, null);
-        // Create an empty dataset to hold the category labels
+        // create an empty dataset to hold the category labels
         double[][] emptyArray = new double[1][categories.length];
         DefaultCategoryDataset empty = new DefaultCategoryDataset(emptyArray);
         empty.setCategories(categories);
         setDataset(empty);
         this.subplots = new java.util.ArrayList();
+
     }
 
     /**
@@ -113,20 +105,23 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
      * <P>
      * This method sets the axes of the subplot to null.
      *
-     * @param subplot The subplot.
+     * @param subplot  the subplot.
      */
     public void add(VerticalCategoryPlot subplot) {
 
         subplot.setParent(this);
         subplot.setDomainAxis(null);
         subplot.setRangeAxis(null);
-        subplot.setFirstSeriesIndex(seriesCount);
         seriesCount = seriesCount + subplot.getSeriesCount();
         subplots.add(subplot);
         CategoryAxis domain = this.getDomainAxis();
-        if (domain!=null) domain.configure();
+        if (domain != null) {
+            domain.configure();
+        }
         ValueAxis range = this.getRangeAxis();
-        if (range!=null) range.configure();
+        if (range != null) {
+            range.configure();
+        }
 
     }
 
@@ -134,15 +129,17 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
      * Returns an array of labels to be displayed by the legend.
      *
      * @return An array of legend item labels (or null).
+     *
+     * @deprecated use getLegendItems().
      */
     public List getLegendItemLabels() {
 
         List result = new java.util.ArrayList();
 
-        if (subplots!=null) {
+        if (subplots != null) {
             Iterator iterator = subplots.iterator();
             while (iterator.hasNext()) {
-                VerticalCategoryPlot plot = (VerticalCategoryPlot)iterator.next();
+                VerticalCategoryPlot plot = (VerticalCategoryPlot) iterator.next();
                 List more = plot.getLegendItemLabels();
                 result.addAll(more);
             }
@@ -152,26 +149,66 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
 
     }
 
-    public void render(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
-                       Shape backgroundPlotArea) {
+    /***
+     * Returns the legend items.
+     *
+     * @return the legend items.
+     */
+    public LegendItemCollection getLegendItems() {
+
+        LegendItemCollection result = new LegendItemCollection();
+
+        if (subplots != null) {
+            Iterator iterator = subplots.iterator();
+            while (iterator.hasNext()) {
+                CategoryPlot plot = (CategoryPlot) iterator.next();
+                LegendItemCollection more = plot.getLegendItems();
+                result.addAll(more);
+            }
+        }
+
+        return result;
+
+    }
+    /**
+     * Performs the actual drawing of the  data.
+     *
+     * @param g2  the graphics device.
+     * @param dataArea  the data area.
+     * @param info  the chart rendering info.
+     * @param backgroundPlotArea  ??
+     */
+    public void render(Graphics2D g2, Rectangle2D dataArea,
+                       ChartRenderingInfo info, Shape backgroundPlotArea) {
+
         Iterator iterator = subplots.iterator();
         while (iterator.hasNext()) {
-            VerticalCategoryPlot subplot = (VerticalCategoryPlot)iterator.next();
+            VerticalCategoryPlot subplot = (VerticalCategoryPlot) iterator.next();
             subplot.render(g2, dataArea, info, backgroundPlotArea);
         }
     }
 
+    /**
+     * Returns a string for the plot type.
+     *
+     * @return a string for the plot type.
+     */
     public String getPlotType() {
         return "Overlaid Vertical Category Plot";
     }
 
+    /**
+     * Returns the number of series in the plot.
+     *
+     * @return the series count.
+     */
     public int getSeriesCount() {
 
         int result = 0;
 
         Iterator iterator = subplots.iterator();
         while (iterator.hasNext()) {
-            VerticalCategoryPlot subplot = (VerticalCategoryPlot)iterator.next();
+            VerticalCategoryPlot subplot = (VerticalCategoryPlot) iterator.next();
             result = result + subplot.getSeriesCount();
         }
 
@@ -179,34 +216,22 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
 
     }
 
-    public void setFirstSeriesIndex(int index) {
-
-        this.firstSeriesIndex = index;
-        int seriesCount = index;
-        Iterator iterator = subplots.iterator();
-        while (iterator.hasNext()) {
-            VerticalCategoryPlot subplot = (VerticalCategoryPlot)iterator.next();
-            subplot.setFirstSeriesIndex(seriesCount);
-            seriesCount = seriesCount + subplot.getSeriesCount();
-        }
-
-    }
-
     /**
-     * Returns the range of data values that will be plotted against the range axis.
+     * Returns the range of data values that will be plotted against the range
+     * axis.
      * <P>
      * If the dataset is null, this method returns null.
      *
-     * @return The data range.
+     * @return the data range.
      */
     public Range getVerticalDataRange() {
 
         Range result = null;
 
-        if (subplots!=null) {
+        if (subplots != null) {
             Iterator iterator = subplots.iterator();
             while (iterator.hasNext()) {
-                VerticalCategoryPlot plot = (VerticalCategoryPlot)iterator.next();
+                VerticalCategoryPlot plot = (VerticalCategoryPlot) iterator.next();
                 result = Range.combine(result, plot.getVerticalDataRange());
             }
         }
@@ -216,8 +241,8 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
     }
 
     /**
-     * Returns the minimum value in the range (since this is plotted against the vertical axis by
-     * VerticalBarPlot).
+     * Returns the minimum value in the range (since this is plotted against
+     * the vertical axis by VerticalBarPlot).
      * <P>
      * This method will return null if the dataset is null.
      *
@@ -227,16 +252,18 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
 
         Number result = null;
 
-        if (subplots!=null) {
+        if (subplots != null) {
             Iterator iterator = subplots.iterator();
             while (iterator.hasNext()) {
-                VerticalCategoryPlot plot = (VerticalCategoryPlot)iterator.next();
+                VerticalCategoryPlot plot = (VerticalCategoryPlot) iterator.next();
                 Number subMin = plot.getMinimumVerticalDataValue();
-                if (result == null)
+                if (result == null) {
                     result = subMin;
-                else if (subMin != null) {
-                    result = new Double(Math.min(result.doubleValue(),
-                                                 subMin.doubleValue()));
+                }
+                else {
+                    if (subMin != null) {
+                        result = new Double(Math.min(result.doubleValue(), subMin.doubleValue()));
+                    }
                 }
             }
         }
@@ -246,8 +273,8 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
     }
 
     /**
-     * Returns the maximum value in the range (since the range values are plotted against the
-     * vertical axis by this plot).
+     * Returns the maximum value in the range (since the range values are
+     * plotted against the vertical axis by this plot).
      * <P>
      * This method will return null if the dataset is null.
      *
@@ -257,21 +284,23 @@ public class OverlaidVerticalCategoryPlot extends VerticalCategoryPlot {
 
         Number result = null;
 
-        if (subplots!=null) {
+        if (subplots != null) {
             Iterator iterator = subplots.iterator();
             while (iterator.hasNext()) {
-                VerticalCategoryPlot plot = (VerticalCategoryPlot)iterator.next();
+                VerticalCategoryPlot plot = (VerticalCategoryPlot) iterator.next();
                 Number subMax = plot.getMaximumVerticalDataValue();
-                if (result == null)
+                if (result == null) {
                     result = subMax;
-                else if (subMax != null)
-                    result = new Double(Math.max(result.doubleValue(),
-                                                 subMax.doubleValue()));
+                }
+                else {
+                    if (subMax != null) {
+                        result = new Double(Math.max(result.doubleValue(), subMax.doubleValue()));
+                    }
+                }
             }
         }
 
         return result;
 
     }
-
 }

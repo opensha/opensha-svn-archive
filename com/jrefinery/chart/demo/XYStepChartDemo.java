@@ -25,13 +25,15 @@
  * (C) Copyright 2002, by Roger Studner and Contributors.
  *
  * Original Author:  Roger Studner;
- * Contributor(s):   David Gilbert;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
  * 13-May-2002 : Version 1, contributed by Roger Studner (DG);
+ * 11-Oct-2002 : Moved create method to ChartFactory class, and fixed issues reported by
+ *               Checkstyle (DG);
  *
  */
 package com.jrefinery.chart.demo;
@@ -39,24 +41,17 @@ package com.jrefinery.chart.demo;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-import java.util.Date;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import com.jrefinery.data.XYDataset;
-import com.jrefinery.data.DefaultXYDataset;
 import com.jrefinery.chart.JFreeChart;
+import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartFrame;
 import com.jrefinery.chart.XYPlot;
-import com.jrefinery.chart.DateAxis;
-import com.jrefinery.chart.HorizontalDateAxis;
-import com.jrefinery.chart.NumberAxis;
-import com.jrefinery.chart.VerticalNumberAxis;
-import com.jrefinery.chart.NumberTickUnit;
-import com.jrefinery.chart.XYStepRenderer;
+import com.jrefinery.data.XYDataset;
 import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A demonstration of the XYStepRenderer class.
+ *
+ * @author RS
  */
 public class XYStepChartDemo {
 
@@ -64,60 +59,31 @@ public class XYStepChartDemo {
     private ChartFrame frame = null;
 
     /**
-     * Creates a stepped XY plot with default settings.
-     * <P>
-     * Move this to the ChartFactory class?
-     *
-     * @param title The chart title.
-     * @param xAxisLabel A label for the X-axis.
-     * @param yAxisLabel A label for the Y-axis.
-     * @param data The dataset for the chart.
-     * @param legend A flag specifying whether or not a legend is required.
-     *
-     * @return A chart.
+     * Displays a sample chart in its own frame.
      */
-    public static JFreeChart createXYStepChart(String title,
-                                               String xAxisLabel,
-                                               String yAxisLabel,
-                                               XYDataset data,
-                                               boolean legend) {
+    private void displayChart() {
 
-        DateAxis xAxis = new HorizontalDateAxis(xAxisLabel);
-        NumberAxis yAxis = new VerticalNumberAxis(yAxisLabel);
-
-        xAxis.setCrosshairVisible(false);
-
-        yAxis.setAutoTickUnitSelection(false);
-        yAxis.setTickUnit(new NumberTickUnit(1.0, new java.text.DecimalFormat("0")));
-        yAxis.setCrosshairVisible(false);
-
-        XYPlot plot = new XYPlot(data, xAxis, yAxis);
-        Stroke[] s = new BasicStroke[] {new BasicStroke((float)2.0), new BasicStroke((float)2.0)};
-        plot.setSeriesStroke(s);
-        plot.setXYItemRenderer(new XYStepRenderer());
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, legend);
-        return chart;
-
-    }
-
-    /**
-     * Displays an XYPlot in its own frame.
-     */
-    private void displayXYPlot() {
-
-        if (frame==null) {
+        if (frame == null) {
 
             // create a default chart based on some sample data...
             String title = "LCACs in use at given time";
             String xAxisLabel = "Time";
             String yAxisLabel = "Number of Transports";
-            XYDataset data1 = createTestXYDataset();
 
-            JFreeChart chart = this.createXYStepChart(title, xAxisLabel, yAxisLabel, data1, true);
+            XYDataset data = DemoDatasetFactory.createStepXYDataset();
+
+            JFreeChart chart = ChartFactory.createXYStepChart(title,
+                                                              xAxisLabel, yAxisLabel,
+                                                              data,
+                                                              true  // legend
+                                                              );
 
             // then customise it a little...
             chart.setBackgroundPaint(new Color(216, 216, 216));
-
+            XYPlot plot = chart.getXYPlot();
+            Stroke[] s = new BasicStroke[] { new BasicStroke((float) 2.0),
+                                             new BasicStroke((float) 2.0) };
+            plot.setSeriesStroke(s);
             // and present it in a frame...
             frame = new ChartFrame("Plan Comparison", chart);
             frame.pack();
@@ -133,61 +99,14 @@ public class XYStepChartDemo {
     }
 
     /**
-     * Returns a java.util.Date for the specified year, month, day, hour and minute.
-     */
-    private Date createDateTime(int year, int month, int day, int hour, int minute) {
-        GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute);
-        return calendar.getTime();
-    }
-
-    /**
-     * Creates and returns a XYDataset for the demo charts.
-     */
-    public XYDataset createTestXYDataset() {
-
-        String[] sNames = {"Plan 1", "Plan 2"};
-        DefaultXYDataset d;
-        Object[][][] data = new Object[][][]
-        { {
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 8, 0), new Integer(0) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 8, 0), new Integer(2) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 9, 5), new Integer(4) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 10, 6), new Integer(4) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 11, 6), new Integer(5) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 12, 6), new Integer(3) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 13, 6), new Integer(6) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 14, 6), new Integer(6) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 15, 30), new Integer(2) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 16, 7), new Integer(0) }
-          },
-          {
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 8, 45), new Integer(0) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 8, 45), new Integer(1) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 9, 0), new Integer(6) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 10, 6), new Integer(2) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 10, 45), new Integer(4) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 12, 0), new Integer(7) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 13, 0), new Integer(5) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 14, 6), new Integer(4) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 15, 15), new Integer(4) },
-            { createDateTime(2002, Calendar.FEBRUARY, 19, 16, 0), new Integer(0) },
-          }
-        };
-
-        d = new DefaultXYDataset(data);
-        d.setSeriesNames(sNames);
-        return d;
-    }
-
-
-
-    /**
      * The starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         XYStepChartDemo demo = new XYStepChartDemo();
-        demo.displayXYPlot();
+        demo.displayChart();
 
     }
 

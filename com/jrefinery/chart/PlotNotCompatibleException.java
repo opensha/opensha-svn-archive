@@ -34,26 +34,28 @@
  * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
  * 30-Nov-2001 : Now extends RuntimeException rather than Exception, as suggested by Joao Guilherme
  *               Del Valle (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
 /**
- * An exception that is generated when assigning a plot to a chart *if* the plot is not compatible
- * with the chart's current data source.  For example, a HorizontalBarPlot is not compatible with
- * an XYDataset.
- * <P>
- * Note:  there is more work to be done on these exceptions.
+ * An exception that is generated when assigning a plot to a chart *if* the
+ * plot is not compatible with the chart's current data source.  For example,
+ * a HorizontalBarPlot is not compatible with an XYDataset.
+ *
+ * @author DG
  */
 public class PlotNotCompatibleException extends RuntimeException {
 
     /**
      * Constructs a new exception.
-     * @param message A message describing the exception.
+     *
+     * @param message  a message describing the exception.
      */
     public PlotNotCompatibleException(String message) {
-	super(message);
+        super(message);
     }
 
 }

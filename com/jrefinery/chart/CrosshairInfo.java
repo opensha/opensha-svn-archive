@@ -33,6 +33,7 @@
  * -------
  * 24-Jan-2002 : Version 1 (DG);
  * 05-Mar-2002 : Added Javadoc comments (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -40,23 +41,25 @@ package com.jrefinery.chart;
 
 /**
  * Maintains information about crosshairs on a plot.
+ *
+ * @author DG
  */
 public class CrosshairInfo {
 
     /** The x-value for the anchor point. */
-    protected double anchorX;
+    private double anchorX;
 
     /** The y-value for the anchor point. */
-    protected double anchorY;
+    private double anchorY;
 
     /** The x-value for the crosshair point. */
-    protected double crosshairX;
+    private double crosshairX;
 
     /** The y-value for the crosshair point. */
-    protected double crosshairY;
+    private double crosshairY;
 
     /** The smallest distance so far between the anchor point and a data point. */
-    protected double distance;
+    private double distance;
 
     /**
      * Default constructor.
@@ -66,23 +69,30 @@ public class CrosshairInfo {
 
     /**
      * Sets the distance.
+     *
+     * @param distance  the distance.
      */
     public void setCrosshairDistance(double distance) {
         this.distance = distance;
     }
 
     /**
-     * Evaluates a data point and if it is the closest to the anchor point it becomes the new
-     * crosshair point.
+     * Evaluates a data point and if it is the closest to the anchor point it
+     * becomes the new crosshair point.
      * <P>
-     * To understand this method, you need to know the context in which it will be called.  An
-     * instance of this class is passed to an XYItemRenderer as each data point is plotted.  As the
-     * point is plotted, it is passed to this method to see if it should be the new crosshair point.
+     * To understand this method, you need to know the context in which it will
+     * be called.  An instance of this class is passed to an XYItemRenderer as
+     * each data point is plotted.  As the point is plotted, it is passed to
+     * this method to see if it should be the new crosshair point.
+     *
+     * @param candidateX  x position of candidate for the new crosshair point.
+     * @param candidateY  y position of candidate for the new crosshair point.
      */
     public void updateCrosshairPoint(double candidateX, double candidateY) {
 
-        double d = (candidateX-anchorX)*(candidateX-anchorX) +
-                   (candidateY-anchorY)*(candidateY-anchorY);
+        double d = (candidateX - anchorX) * (candidateX - anchorX)
+                 + (candidateY - anchorY) * (candidateY - anchorY);
+
         if (d < distance) {
             crosshairX = candidateX;
             crosshairY = candidateY;
@@ -92,14 +102,16 @@ public class CrosshairInfo {
     }
 
     /**
-     * Evaluates an x-value and if it is the closest to the anchor point it becomes the new
-     * crosshair point.
+     * Evaluates an x-value and if it is the closest to the anchor point it
+     * becomes the new crosshair point.
      * <P>
      * Used in cases where only the x-axis is numerical.
+     *
+     * @param candidateX  x position of the candidate for the new crosshair point.
      */
     public void updateCrosshairX(double candidateX) {
 
-        double d = Math.abs(candidateX-anchorX);
+        double d = Math.abs(candidateX - anchorX);
         if (d < distance) {
             crosshairX = candidateX;
             distance = d;
@@ -108,14 +120,16 @@ public class CrosshairInfo {
     }
 
     /**
-     * Evaluates a y-value and if it is the closest to the anchor point it becomes the new
-     * crosshair point.
+     * Evaluates a y-value and if it is the closest to the anchor point it
+     * becomes the new crosshair point.
      * <P>
      * Used in cases where only the y-axis is numerical.
+     *
+     * @param candidateY  y position of the candidate for the new crosshair point.
      */
     public void updateCrosshairY(double candidateY) {
 
-        double d = Math.abs(candidateY-anchorY);
+        double d = Math.abs(candidateY - anchorY);
         if (d < distance) {
             crosshairY = candidateY;
             distance = d;
@@ -124,28 +138,36 @@ public class CrosshairInfo {
     }
 
     /**
-     * Sets the x-value for the anchor point.
+     * Set the x-value for the anchor point.
+     *
+     * @param x  the x position.
      */
     public void setAnchorX(double x) {
         this.anchorX = x;
     }
 
     /**
-     * Sets the y-value for the anchor point.
+     * Set the y-value for the anchor point.
+     *
+     * @param y  the y position.
      */
     public void setAnchorY(double y) {
         this.anchorY = y;
     }
 
     /**
-     * Sets the x-value for the crosshair point.
+     * Get the x-value for the crosshair point.
+     *
+     * @return the x position of the crosshair point.
      */
     public double getCrosshairX() {
         return this.crosshairX;
     }
 
     /**
-     * Sets the y-value for the crosshair point.
+     * Get the y-value for the crosshair point.
+     *
+     * @return the y position of the crosshair point.
      */
     public double getCrosshairY() {
         return this.crosshairY;

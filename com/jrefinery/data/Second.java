@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,6 +39,8 @@
  * 26-Feb-2002 : Changed getStart(), getMiddle() and getEnd() methods to evaluate with reference
  *               to a particular time zone (DG);
  * 13-Mar-2002 : Added parseSecond() method (DG);
+ * 10-Sep-2002 : Added getSerialIndex() method (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -46,7 +48,6 @@ package com.jrefinery.data;
 
 import java.util.Date;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
@@ -54,20 +55,22 @@ import java.util.TimeZone;
  * <P>
  * This class is immutable, which is a requirement for all TimePeriod subclasses.
  *
+ * @author DG
+ *
  */
 public class Second extends TimePeriod {
 
     /** Useful constant for the first second in a day. */
-    private static int FIRST_SECOND_IN_MINUTE = 0;
+    public static final int FIRST_SECOND_IN_MINUTE = 0;
 
     /** Useful constant for the last second in a day. */
-    private static int LAST_SECOND_IN_MINUTE = 59;
+    public static final int LAST_SECOND_IN_MINUTE = 59;
 
     /** The day. */
-    protected Minute minute;
+    private Minute minute;
 
     /** The second. */
-    protected int second;
+    private int second;
 
     /**
      * Constructs a new Second, based on the system date/time.
@@ -80,8 +83,9 @@ public class Second extends TimePeriod {
 
     /**
      * Constructs a new Second.
-     * @param second The second (0 to 24*60*60-1).
-     * @param day The day.
+     *
+     * @param second  the second (0 to 24*60*60-1).
+     * @param minute  the minute.
      */
     public Second(int second, Minute minute) {
 
@@ -92,12 +96,19 @@ public class Second extends TimePeriod {
 
     /**
      * Constructs a second.
-     * @param time The time.
+     *
+     * @param time  the time.
      */
     public Second(Date time) {
         this(time, TimePeriod.DEFAULT_TIME_ZONE);
     }
 
+    /**
+     * Creates a new second based on the supplied time and time zone.
+     *
+     * @param time  the instant in time.
+     * @param zone  the time zone.
+     */
     public Second(Date time, TimeZone zone) {
 
         this.minute = new Minute(time, zone);
@@ -110,6 +121,8 @@ public class Second extends TimePeriod {
 
     /**
      * Returns the second.
+     *
+     * @return the second.
      */
     public int getSecond() {
         return this.second;
@@ -117,6 +130,8 @@ public class Second extends TimePeriod {
 
     /**
      * Returns the minute.
+     *
+     * @return the minute.
      */
     public Minute getMinute() {
         return this.minute;
@@ -124,17 +139,19 @@ public class Second extends TimePeriod {
 
     /**
      * Returns the second preceding this one.
+     *
+     * @return the second preceding this one.
      */
     public TimePeriod previous() {
 
         Second result = null;
 
-        if (this.second!=FIRST_SECOND_IN_MINUTE) {
-            result = new Second(second-1, this.minute);
+        if (this.second != FIRST_SECOND_IN_MINUTE) {
+            result = new Second(second - 1, this.minute);
         }
         else {
-            Minute previous = (Minute)this.minute.previous();
-            if (previous!=null) {
+            Minute previous = (Minute) this.minute.previous();
+            if (previous != null) {
                 result = new Second(LAST_SECOND_IN_MINUTE, previous);
             }
         }
@@ -145,17 +162,19 @@ public class Second extends TimePeriod {
 
     /**
      * Returns the second following this one.
+     *
+     * @return the second following this one.
      */
     public TimePeriod next() {
 
         Second result = null;
 
-        if (this.second!=LAST_SECOND_IN_MINUTE) {
-            result = new Second(second+1, this.minute);
+        if (this.second != LAST_SECOND_IN_MINUTE) {
+            result = new Second(second + 1, this.minute);
         }
         else {
-            Minute next = (Minute)this.minute.next();
-            if (next!=null) {
+            Minute next = (Minute) this.minute.next();
+            if (next != null) {
                 result = new Second(FIRST_SECOND_IN_MINUTE, next);
             }
         }
@@ -165,23 +184,64 @@ public class Second extends TimePeriod {
     }
 
     /**
-     * Tests the equality of this object against an arbitrary Object.
-     * <P>
-     * This method will return true ONLY if the object is a Second object representing the same
-     * second as this instance.
+     * Returns a serial index number for the minute.
+     *
+     * @return the serial index number.
      */
-    public boolean equals(Object object) {
-        if (object instanceof Second) {
-            Second s = (Second)object;
-            return ((this.second==s.getSecond()) && (this.minute.equals(s.getMinute())));
-        }
-        else return false;
+    public long getSerialIndex() {
+        return this.minute.getSerialIndex() * 60L + this.second;
     }
 
     /**
-     * Returns an integer indicating the order of this Second object relative to the specified
+     * Returns the first millisecond of the minute.
+     *
+     * @param calendar  the calendar/timezone.
+     *
+     * @return  the first millisecond.
+     */
+    public long getStart(Calendar calendar) {
+        return this.minute.getStart(calendar) + second * 1000L;
+    }
+
+    /**
+     * Returns the last millisecond of the minute.
+     *
+     * @param calendar  the calendar/timezone.
+     *
+     * @return the last millisecond.
+     */
+    public long getEnd(Calendar calendar) {
+        return this.minute.getStart(calendar) + second * 1000L + 999L;
+    }
+
+    /**
+     * Tests the equality of this object against an arbitrary Object.
+     * <P>
+     * This method will return true ONLY if the object is a Second object
+     * representing the same second as this instance.
+     *
+     * @param object  the object to compare.
+     *
+     * @return <code>true</code> if second and minute of this and the object are the same.
+     */
+    public boolean equals(Object object) {
+        if (object instanceof Second) {
+            Second s = (Second) object;
+            return ((this.second == s.getSecond()) && (this.minute.equals(s.getMinute())));
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Returns an integer indicating the order of this Second object relative
+     * to the specified
      * object: negative == before, zero == same, positive == after.
      *
+     * @param o1  the object to compare.
+     *
+     * @return negative == before, zero == same, positive == after.
      */
     public int compareTo(Object o1) {
 
@@ -190,10 +250,10 @@ public class Second extends TimePeriod {
         // CASE 1 : Comparing to another Second object
         // -------------------------------------------
         if (o1 instanceof Second) {
-            Second s = (Second)o1;
+            Second s = (Second) o1;
             result = this.minute.compareTo(s.minute);
-            if (result==0) {
-                result = this.second-s.second;
+            if (result == 0) {
+                result = this.second - s.second;
             }
         }
 
@@ -206,23 +266,24 @@ public class Second extends TimePeriod {
 
         // CASE 3 : Comparing to a non-TimePeriod object
         // ---------------------------------------------
-        else result = 1;  // consider time periods to be ordered after general objects
+        else {
+            // consider time periods to be ordered after general objects
+            result = 1;
+        }
 
         return result;
 
     }
 
-    public long getStart(Calendar calendar) {
-        return this.minute.getStart(calendar)+second*1000L;
-    }
-
-    public long getEnd(Calendar calendar) {
-        return this.minute.getStart(calendar)+second*1000L+999L;
-    }
-
     /**
-     * Creates a Minute instance by parsing a string.  The string is assumed to be in the format
-     * "YYYY-MM-DD HH:MM:SS", perhaps with leading or trailing whitespace.
+     * Creates a Minute instance by parsing a string.  The string is assumed to
+     * be in the format "YYYY-MM-DD HH:MM:SS", perhaps with leading or trailing
+     * whitespace.
+     *
+     * @param s  the string to parse.
+     *
+     * @return <code>null</code> if the string is not parseable, the Second
+     *      otherwise.
      */
     public static Second parseSecond(String s) {
 
@@ -231,8 +292,8 @@ public class Second extends TimePeriod {
 
         String daystr = s.substring(0, Math.min(10, s.length()));
         Day day = Day.parseDay(daystr);
-        if (day!=null) {
-            String hmsstr = s.substring(Math.min(daystr.length()+1, s.length()),
+        if (day != null) {
+            String hmsstr = s.substring(Math.min(daystr.length() + 1, s.length()),
                                         s.length());
             hmsstr = hmsstr.trim();
 
@@ -242,14 +303,14 @@ public class Second extends TimePeriod {
             String secstr = hmsstr.substring(Math.min(6, l), Math.min(8, l));
             int hour = Integer.parseInt(hourstr);
 
-            if ((hour>=0) && (hour<=23)) {
+            if ((hour >= 0) && (hour <= 23)) {
 
                 int minute = Integer.parseInt(minstr);
-                if ((minute>=0) && (minute<=59)) {
+                if ((minute >= 0) && (minute <= 59)) {
 
                     Minute m = new Minute(minute, new Hour(hour, day));
                     int second = Integer.parseInt(secstr);
-                    if ((second>=0) && (second<=59)) {
+                    if ((second >= 0) && (second <= 59)) {
                         result = new Second(second, m);
                     }
                 }
@@ -257,33 +318,6 @@ public class Second extends TimePeriod {
         }
 
         return result;
-
-    }
-
-    /**
-     * Test code - please ignore.
-     */
-    public static void main(String[] args) {
-
-        String[] ids = TimeZone.getAvailableIDs();
-
-        for (int i=0; i<ids.length; i++) {
-            System.out.println(ids[i]);
-        }
-
-        TimeZone zone = TimeZone.getTimeZone("America/Chicago");
-        Calendar calendar = new GregorianCalendar(zone);
-        calendar.clear();
-        calendar.set(2002, 2, 21, 16, 55, 59);
-        System.out.println("4.55:59pm on 21-Mar-2002 in Chicago: "+calendar.getTime().getTime());
-
-        Date time = new Date(1014307200000L);
-        calendar.setTime(time);
-        Hour hour = new Hour(time);
-        System.out.println("Hour = "+hour.toString());
-        System.out.println("Start = "+hour.getStart(zone));
-        System.out.println("End = "+hour.getEnd(zone));
-        System.out.println("Offset = "+zone.getRawOffset());
 
     }
 

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, by Simba Management Limited and Contributors.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Chuanhao Chiu;
  *
  * $Id$
  *
@@ -35,6 +35,9 @@
  * 30-Apr-2002 : Added getLength() and getCentralValue() methods.  Changed argument check in
  *               constructor (DG);
  * 13-Jun-2002 : Added contains(double) method (DG);
+ * 22-Aug-2002 : Added fix to combine method where both ranges are null, thanks to Chuanhao Chiu
+ *               for reporting and fixing this (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,24 +45,26 @@ package com.jrefinery.data;
 
 /**
  * Represents the visible range for an axis.
+ *
+ * @author DG
  */
 public class Range {
 
     /** The lower bound for the visible range. */
-    protected double lower;
+    private double lower;
 
     /** The upper bound for the visible range. */
-    protected double upper;
+    private double upper;
 
     /**
      * Constructs a new axis range.
      *
-     * @param lower The lower bound.
-     * @param upper The upper bound.
+     * @param lower  the lower bound.
+     * @param upper  the upper bound.
      */
     public Range(double lower, double upper) {
 
-        if (lower>upper) {
+        if (lower > upper) {
             throw new IllegalArgumentException("Range(double, double): require lower<=upper.");
         }
 
@@ -71,7 +76,7 @@ public class Range {
     /**
      * Returns the lower bound for the range.
      *
-     * @return The lower bound.
+     * @return the lower bound.
      */
     public double getLowerBound() {
         return this.lower;
@@ -80,7 +85,7 @@ public class Range {
     /**
      * Returns the upper bound for the range.
      *
-     * @return The upper bound.
+     * @return the upper bound.
      */
     public double getUpperBound() {
         return this.upper;
@@ -89,52 +94,61 @@ public class Range {
     /**
      * Returns the length of the range.
      *
-     * @return The length.
+     * @return the length.
      */
     public double getLength() {
-        return upper-lower;
+        return upper - lower;
     }
 
     /**
      * Returns the central value for the range.
      *
-     * @return The central value.
+     * @return the central value.
      */
     public double getCentralValue() {
-        return lower/2 + upper/2;
+        return lower / 2 + upper / 2;
     }
 
     /**
      * Returns true if the range contains the specified value.
+     *
+     * @param value  the value to lookup.
+     *
+     * @return <code>true</code> if the range contains the specified value.
      */
     public boolean contains(double value) {
-        return (value>=lower && value<=upper);
+        return (value >= lower && value <= upper);
     }
 
     /**
      * Creates a new range by combining two existing ranges.
+     * <P>
+     * Note that:
+     * <ul>
+     *   <li>either range can be null, in which case the other range is returned;</li>
+     *   <li>if both ranges are null the return value is null.</li>
+     * </ul>
      *
-     * @param range1 The first range.
-     * @param range2 The second range.
+     * @param range1  the first range.
+     * @param range2  the second range.
+     *
+     * @return a new range.
      */
     public static Range combine(Range range1, Range range2) {
 
-        Range result = null;
-
-        if ((range1!=null) && (range2==null)) {
-            result = range1;
-        }
-        else if ((range1==null) && (range2!=null)) {
-            result = range2;
+        if (range1 == null) {
+            return range2;
         }
         else {
-            double l = Math.min(range1.getLowerBound(), range2.getLowerBound());
-            double u = Math.max(range1.getUpperBound(), range2.getUpperBound());
-            result = new Range(l, u);
+            if (range2 == null) {
+                return range1;
+            }
+            else {
+                double l = Math.min(range1.getLowerBound(), range2.getLowerBound());
+                double u = Math.max(range1.getUpperBound(), range2.getUpperBound());
+                return new Range(l, u);
+            }
         }
-
-        return result;
-
     }
 
 }

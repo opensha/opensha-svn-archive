@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -34,38 +34,41 @@
  * 15-Nov-2001 : Version 1 (DG);
  * 29-Nov-2001 : Added cloning and property change support (DG);
  * 30-Jan-2002 : Added a description attribute and changed the constructors to protected (DG);
- *
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  */
 
 package com.jrefinery.data;
 
-import java.beans.*;
-import java.util.*;
+import java.beans.PropertyChangeSupport;
+import java.beans.PropertyChangeListener;
+import java.util.List;
+import java.util.Iterator;
 
 /**
- * Base class representing a data series.  Subclasses are left to implement the actual data
- * structures.
+ * Base class representing a data series.  Subclasses are left to implement the
+ * actual data structures.
  * <P>
- * The series has two properties ("Name" and "Description") for which you can register a
- * PropertyChangeListener.
+ * The series has two properties ("Name" and "Description") for which you can
+ * register a PropertyChangeListener.
  * <P>
- * You can also register a SeriesChangeListener to receive notification of changes to the series
- * data.
+ * You can also register a SeriesChangeListener to receive notification of
+ * changes to the series data.
  *
+ * @author DG
  */
 public class Series implements Cloneable {
 
     /** The name of the series. */
-    protected String name;
+    private String name;
 
     /** A description of the series. */
-    protected String description;
+    private String description;
 
     /** Storage for registered change listeners. */
-    protected List listeners;
+    private List listeners;
 
     /** Object to support property change notification. */
-    protected PropertyChangeSupport propertyChangeSupport;
+    private PropertyChangeSupport propertyChangeSupport;
 
     /**
      * Constructs a series.
@@ -79,14 +82,14 @@ public class Series implements Cloneable {
     /**
      * Constructs a series.
      *
-     * @param name The series name.
-     * @param description The series description.
+     * @param name  the series name.
+     * @param description  the series description.
      */
     protected Series(String name, String description) {
 
         this.name = name;
         this.description = description;
-        this.listeners = new ArrayList();
+        this.listeners = new java.util.ArrayList();
         propertyChangeSupport = new PropertyChangeSupport(this);
 
     }
@@ -94,7 +97,7 @@ public class Series implements Cloneable {
     /**
      * Returns the name of the series.
      *
-     * @return The name of the series.
+     * @return the name of the series.
      */
     public String getName() {
 
@@ -105,7 +108,7 @@ public class Series implements Cloneable {
     /**
      * Sets the name of the series.
      *
-     * @param name The name.
+     * @param name the name.
      */
     public void setName(String name) {
 
@@ -118,7 +121,7 @@ public class Series implements Cloneable {
     /**
      * Returns the description of the series (possibly null).
      *
-     * @return The description of the series.
+     * @return the description of the series.
      */
     public String getDescription() {
 
@@ -129,7 +132,7 @@ public class Series implements Cloneable {
     /**
      * Sets the description of the series.
      *
-     * @param description The new description (null permitted).
+     * @param description the new description (null permitted).
      */
     public void setDescription(String description) {
 
@@ -146,6 +149,8 @@ public class Series implements Cloneable {
      * 1.  No need to clone the name or description, since String object is immutable.
      * 2.  We set the listener list to empty, since the listeners did not register with the clone.
      * 3.  Same applies to the PropertyChangeSupport instance.
+     *
+     * @return a clone of the series.
      */
     public Object clone() {
 
@@ -158,8 +163,8 @@ public class Series implements Cloneable {
             System.err.println("Series.clone(): unexpected exception.");
         }
 
-        Series clone = (Series)obj;
-        clone.listeners = new ArrayList();
+        Series clone = (Series) obj;
+        clone.listeners = new java.util.ArrayList();
         clone.propertyChangeSupport = new PropertyChangeSupport(clone);
 
         return clone;
@@ -167,9 +172,11 @@ public class Series implements Cloneable {
     }
 
     /**
-     * Registers an object with this series, to receive notification whenever the series changes.
+     * Registers an object with this series, to receive notification whenever
+     * the series changes.
      * <P>
-     * Objects being registered must implement the SeriesChangeListener interface.
+     * Objects being registered must implement the SeriesChangeListener
+     * interface.
      *
      * @param listener The object to register.
      */
@@ -180,10 +187,11 @@ public class Series implements Cloneable {
     }
 
     /**
-     * Deregisters an object, so that it not longer receives notification whenever the series
-     * changes.
+     * Deregisters an object, so that it not longer receives notification
+     * whenever the series changes.
      * <P>
-     * Call this method when an object no longer needs to be notified of changes to the series.
+     * Call this method when an object no longer needs to be notified of
+     * changes to the series.
      *
      * @param listener The object to deregister.
      */
@@ -194,8 +202,8 @@ public class Series implements Cloneable {
     }
 
     /**
-     * General method for signalling to registered listeners that the series has been
-     * changed.
+     * General method for signalling to registered listeners that the series
+     * has been changed.
      */
     public void fireSeriesChanged() {
 
@@ -212,7 +220,7 @@ public class Series implements Cloneable {
 
         Iterator iterator = listeners.iterator();
         while (iterator.hasNext()) {
-            SeriesChangeListener listener = (SeriesChangeListener)iterator.next();
+            SeriesChangeListener listener = (SeriesChangeListener) iterator.next();
             listener.seriesChanged(event);
         }
 
@@ -224,7 +232,7 @@ public class Series implements Cloneable {
      * @param listener The listener.
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.addPropertyChangeListener(listener);
+        this.propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
     /**
@@ -233,7 +241,18 @@ public class Series implements Cloneable {
      * @param listener The listener.
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        propertyChangeSupport.removePropertyChangeListener(listener);
+        this.propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Fires a property change event.
+     *
+     * @param property  the property key.
+     * @param oldValue  the old value.
+     * @param newValue  the new value.
+     */
+    protected void firePropertyChange(String property, Object oldValue, Object newValue) {
+       this.propertyChangeSupport.firePropertyChange(property, oldValue, newValue);
     }
 
 }

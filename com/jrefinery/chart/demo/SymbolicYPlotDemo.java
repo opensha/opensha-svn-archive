@@ -22,14 +22,17 @@
  * ----------------------
  * SymbolicYPlotDemo.java
  * ----------------------
+ * (C) Copyright 2002, by Anthony Boulestreau and Contributors.
  *
  * Original Author:  Anthony Boulestreau;
- * Contributor(s):   David Gilbert (Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * Changes
  * -------
  * 29-Mar-2002 : Version 1 (AB);
  * 23-Apr-2002 : Updated to reflect revisions in combined plot classes (DG);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -38,14 +41,11 @@ package com.jrefinery.chart.demo;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import javax.swing.JFrame;
-import com.jrefinery.data.Dataset;
-import com.jrefinery.data.SeriesDataset;
 import com.jrefinery.data.SubSeriesDataset;
 import com.jrefinery.data.XYDataset;
 import com.jrefinery.data.YisSymbolic;
 import com.jrefinery.data.CombinedDataset;
 import com.jrefinery.chart.JFreeChart;
-import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartFrame;
 import com.jrefinery.chart.XYPlot;
 import com.jrefinery.chart.CombinedXYPlot;
@@ -54,25 +54,25 @@ import com.jrefinery.chart.StandardXYItemRenderer;
 import com.jrefinery.chart.ValueAxis;
 import com.jrefinery.chart.HorizontalNumberAxis;
 import com.jrefinery.chart.VerticalSymbolicAxis;
-import com.jrefinery.chart.AxisNotCompatibleException;
-import com.jrefinery.chart.PlotNotCompatibleException;
 import com.jrefinery.chart.OverlaidXYPlot;
 import com.jrefinery.chart.tooltips.SymbolicXYToolTipGenerator;
 import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A demonstration application for the symbolic axis plots.
+ *
+ * @author AB
  */
 public class SymbolicYPlotDemo {
 
     /**
      * Displays an XYPlot with Y symbolic data.
      *
-     * @param frameTitle The frame title.
-     * @param data The data.
-     * @param chartTitle The chart title.
-     * @param xAxisLabel The x-axis label.
-     * @param yAxisLabel The y-axis label.
+     * @param frameTitle  the frame title.
+     * @param data  the data.
+     * @param chartTitle  the chart title.
+     * @param xAxisLabel  the x-axis label.
+     * @param yAxisLabel  the y-axis label.
      */
     private static void displayYSymbolic(String frameTitle,
                                          XYDataset data, String chartTitle,
@@ -91,9 +91,9 @@ public class SymbolicYPlotDemo {
     /**
      * Create and display an overlaid chart.
      *
-     * @param frameTitle The frame title.
-     * @param data1 Dataset1.
-     * @param data2 Dataset2.
+     * @param frameTitle  the frame title.
+     * @param data1  dataset1.
+     * @param data2  dataset2.
      */
     private static void displayYSymbolicOverlaid(String frameTitle,
                                                  XYDataset data1, XYDataset data2) {
@@ -103,8 +103,9 @@ public class SymbolicYPlotDemo {
         String yAxisLabel = "Animal";
 
         // combine the y symbolic values of the two data sets...
-        String[] combinedYSymbolicValues = SampleYSymbolicDataset.combineYSymbolicDataset(
-                                                            (YisSymbolic)data1, (YisSymbolic)data2);
+        String[] combinedYSymbolicValues
+            = SampleYSymbolicDataset.combineYSymbolicDataset((YisSymbolic) data1,
+                                                             (YisSymbolic) data2);
 
         // make master dataset...
         CombinedDataset data = new CombinedDataset();
@@ -130,13 +131,21 @@ public class SymbolicYPlotDemo {
         // create sub-plots (no axes required, subplots use axes from main plot)...
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
         XYPlot subplot0 = new XYPlot(series0, null, null, renderer);
+        subplot0.setSeriesPaint(0, Color.red);
         XYPlot subplot1 = new XYPlot(series1, null, null, renderer);
+        subplot1.setSeriesPaint(0, Color.blue);
         XYPlot subplot2 = new XYPlot(series2, null, null, renderer);
+        subplot2.setSeriesPaint(0, Color.green);
         XYPlot subplot3 = new XYPlot(series3, null, null, renderer);
+        subplot3.setSeriesPaint(0, Color.yellow);
         XYPlot subplot4 = new XYPlot(series4, null, null, renderer);
+        subplot4.setSeriesPaint(0, Color.gray);
         XYPlot subplot5 = new XYPlot(series5, null, null, renderer);
+        subplot5.setSeriesPaint(0, Color.orange);
         XYPlot subplot6 = new XYPlot(series6, null, null, renderer);
+        subplot6.setSeriesPaint(0, Color.magenta);
         XYPlot subplot7 = new XYPlot(series7, null, null, renderer);
+        subplot7.setSeriesPaint(0, Color.cyan);
 
         // add subplots to main plot...
         mainPlot.add(subplot0);
@@ -150,7 +159,7 @@ public class SymbolicYPlotDemo {
 
         // make the chart...
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, mainPlot, true);
-        chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white,0, 1000, Color.blue));
+        chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
 
         // and present it in a frame...
         JFrame frame = new ChartFrame(frameTitle, chart);
@@ -163,9 +172,9 @@ public class SymbolicYPlotDemo {
     /**
      * Create and display a multi XY plot with horizontal layout.
      *
-     * @param frameTitle The frame title.
-     * @param data1 Dataset1.
-     * @param data2 Dataset2.
+     * @param frameTitle  the frame title.
+     * @param data1  dataset1.
+     * @param data2  dataset2.
      */
     private static void displayYSymbolicCombinedHorizontally(String frameTitle,
                                                              SampleYSymbolicDataset data1,
@@ -176,8 +185,9 @@ public class SymbolicYPlotDemo {
         String yAxisLabel = null;
 
         // combine the y symbolic values of the two data sets
-        String[] combinedYSymbolicValues = SampleYSymbolicDataset.combineYSymbolicDataset(
-                                                            (YisSymbolic)data1, (YisSymbolic)data2);
+        String[] combinedYSymbolicValues
+            = SampleYSymbolicDataset.combineYSymbolicDataset((YisSymbolic) data1,
+                                                             (YisSymbolic) data2);
 
         // make master dataset...
         CombinedDataset data = new CombinedDataset();
@@ -206,13 +216,21 @@ public class SymbolicYPlotDemo {
         // add the sub-plots
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
         XYPlot subplot0 = new XYPlot(series0, valueAxis1, null, renderer);
+        subplot0.setSeriesPaint(0, Color.red);
         XYPlot subplot1 = new XYPlot(series1, valueAxis1, null, renderer);
+        subplot1.setSeriesPaint(0, Color.blue);
         XYPlot subplot2 = new XYPlot(series2, valueAxis1, null, renderer);
+        subplot2.setSeriesPaint(0, Color.green);
         XYPlot subplot3 = new XYPlot(series3, valueAxis1, null, renderer);
+        subplot3.setSeriesPaint(0, Color.yellow);
         XYPlot subplot4 = new XYPlot(series4, valueAxis2, null, renderer);
+        subplot4.setSeriesPaint(0, Color.gray);
         XYPlot subplot5 = new XYPlot(series5, valueAxis2, null, renderer);
+        subplot5.setSeriesPaint(0, Color.orange);
         XYPlot subplot6 = new XYPlot(series6, valueAxis2, null, renderer);
+        subplot6.setSeriesPaint(0, Color.magenta);
         XYPlot subplot7 = new XYPlot(series7, valueAxis2, null, renderer);
+        subplot7.setSeriesPaint(0, Color.cyan);
 
         mainPlot.add(subplot0, 1);
         mainPlot.add(subplot1, 1);
@@ -227,7 +245,7 @@ public class SymbolicYPlotDemo {
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, mainPlot, true);
 
         // then customise it a little...
-        chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white,0, 1000, Color.blue));
+        chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
 
         // and present it in a frame...
         JFrame ySymbolicFrame = new ChartFrame(frameTitle, chart);
@@ -240,9 +258,9 @@ public class SymbolicYPlotDemo {
     /**
      * Displays a vertically combined symbolic plot.
      *
-     * @param frameTitle The frame title.
-     * @param data1 Dataset 1.
-     * @param data2 Dataset 2.
+     * @param frameTitle  the frame title.
+     * @param data1  dataset 1.
+     * @param data2  dataset 2.
      */
     private static void displayYSymbolicCombinedVertically(String frameTitle,
                                                            SampleYSymbolicDataset data1,
@@ -269,10 +287,10 @@ public class SymbolicYPlotDemo {
 
         // common horizontal and vertical axes
         ValueAxis valueAxis = new HorizontalNumberAxis(xAxisLabel);
-        VerticalSymbolicAxis symbolicAxis1 = new VerticalSymbolicAxis(yAxisLabel,
-                                                         ((YisSymbolic)data1).getYSymbolicValues());
-        VerticalSymbolicAxis symbolicAxis2 = new VerticalSymbolicAxis(yAxisLabel,
-                                                         ((YisSymbolic)data2).getYSymbolicValues());
+        VerticalSymbolicAxis symbolicAxis1
+            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data1).getYSymbolicValues());
+        VerticalSymbolicAxis symbolicAxis2
+            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data2).getYSymbolicValues());
 
         // create the main plot...
         CombinedXYPlot mainPlot = new CombinedXYPlot(valueAxis, CombinedXYPlot.VERTICAL);
@@ -280,13 +298,21 @@ public class SymbolicYPlotDemo {
         // and the sub-plots...
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
         XYPlot subplot0 = new XYPlot(series0, null, symbolicAxis1, renderer);
+        subplot0.setSeriesPaint(0, Color.red);
         XYPlot subplot1 = new XYPlot(series1, null, symbolicAxis1, renderer);
+        subplot1.setSeriesPaint(0, Color.blue);
         XYPlot subplot2 = new XYPlot(series2, null, symbolicAxis1, renderer);
+        subplot2.setSeriesPaint(0, Color.green);
         XYPlot subplot3 = new XYPlot(series3, null, symbolicAxis1, renderer);
+        subplot3.setSeriesPaint(0, Color.yellow);
         XYPlot subplot4 = new XYPlot(series4, null, symbolicAxis2, renderer);
+        subplot4.setSeriesPaint(0, Color.gray);
         XYPlot subplot5 = new XYPlot(series5, null, symbolicAxis2, renderer);
+        subplot5.setSeriesPaint(0, Color.orange);
         XYPlot subplot6 = new XYPlot(series6, null, symbolicAxis2, renderer);
+        subplot6.setSeriesPaint(0, Color.magenta);
         XYPlot subplot7 = new XYPlot(series7, null, symbolicAxis2, renderer);
+        subplot7.setSeriesPaint(0, Color.cyan);
 
         // add the subplots to the main plot...
         mainPlot.add(subplot0, 1);
@@ -300,7 +326,7 @@ public class SymbolicYPlotDemo {
 
         // construct the chart...
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, mainPlot, true);
-        chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white,0, 1000, Color.blue));
+        chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
 
         // and present it in a frame...
         JFrame frame = new ChartFrame(frameTitle, chart);
@@ -313,26 +339,26 @@ public class SymbolicYPlotDemo {
     /**
      * Creates a XY graph with symbolic value on Y axis.
      *
-     * @param title The chart title.
-     * @param xAxisLabel The x-axis label.
-     * @param yAxisLabel The y-axis label.
-     * @param data The data.
-     * @param legend A flag controlling whether or not the legend is created for the chart.
+     * @param title  the chart title.
+     * @param xAxisLabel  the x-axis label.
+     * @param yAxisLabel  the y-axis label.
+     * @param data  the data.
+     * @param legend  a flag controlling whether or not the legend is created for the chart.
      *
-     * @return The chart.
+     * @return the chart.
      */
     public static JFreeChart createYSymbolicPlot(String title, String xAxisLabel,
                                                  String yAxisLabel, XYDataset data,
                                                  boolean legend) {
 
         ValueAxis valueAxis = new HorizontalNumberAxis(xAxisLabel);
-        VerticalSymbolicAxis symbolicAxis = new VerticalSymbolicAxis(yAxisLabel,
-                                                          ((YisSymbolic)data).getYSymbolicValues());
+        VerticalSymbolicAxis symbolicAxis
+            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data).getYSymbolicValues());
 
         XYPlot plot = new XYPlot(data, valueAxis, symbolicAxis);
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES,
                                                              new SymbolicXYToolTipGenerator());
-        plot.setXYItemRenderer(renderer);
+        plot.setRenderer(renderer);
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, legend);
         return chart;
 
@@ -341,13 +367,14 @@ public class SymbolicYPlotDemo {
     /**
      * Creates a sample symbolic dataset.
      *
-     * @return The dataset.
+     * @return the dataset.
      */
     public static SampleYSymbolicDataset createYSymbolicSample1() {
 
-        String[] sData = {"Lion", "Elephant", "Monkey", "Hippopotamus","Giraffe"};
-        SampleYSymbolicDataset data = new SampleYSymbolicDataset("AY Sample", 20, sData, 4, 20,
-                                          new String[] {"A Fall","A Spring","A Summer","A Winter"});
+        String[] sData = {"Lion", "Elephant", "Monkey", "Hippopotamus", "Giraffe"};
+        SampleYSymbolicDataset data
+            = new SampleYSymbolicDataset("AY Sample", 20, sData, 4, 20,
+                new String[] {"A Fall", "A Spring", "A Summer", "A Winter"});
         return data;
 
     }
@@ -360,14 +387,17 @@ public class SymbolicYPlotDemo {
     public static SampleYSymbolicDataset createYSymbolicSample2() {
 
         String[] sData = {"Giraffe", "Gazelle", "Zebra", "Gnu"};
-        SampleYSymbolicDataset data = new SampleYSymbolicDataset("BY Sample", 40, sData, 4, 20,
-                                          new String[] {"B Fall","B Spring","B Summer","B Winter"});
+        SampleYSymbolicDataset data
+            = new SampleYSymbolicDataset("BY Sample", 40, sData, 4, 20,
+                new String[] {"B Fall", "B Spring", "B Summer", "B Winter"});
         return data;
 
     }
 
     /**
      * The starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
@@ -378,14 +408,14 @@ public class SymbolicYPlotDemo {
 
         displayYSymbolic("Example 2", s2, "Animal B", "Miles", "Animal");
 
-        displayYSymbolicCombinedHorizontally("Example 3", (SampleYSymbolicDataset)s1.clone(),
-                                                          (SampleYSymbolicDataset)s2.clone());
+        displayYSymbolicCombinedHorizontally("Example 3", (SampleYSymbolicDataset) s1.clone(),
+                                                          (SampleYSymbolicDataset) s2.clone());
 
-        displayYSymbolicCombinedVertically("Example 4", (SampleYSymbolicDataset)s1.clone(),
-                                                        (SampleYSymbolicDataset)s2.clone());
+        displayYSymbolicCombinedVertically("Example 4", (SampleYSymbolicDataset) s1.clone(),
+                                                        (SampleYSymbolicDataset) s2.clone());
 
-        displayYSymbolicOverlaid("Example 5", (SampleYSymbolicDataset)s1.clone(),
-                                              (SampleYSymbolicDataset)s2.clone());
+        displayYSymbolicOverlaid("Example 5", (SampleYSymbolicDataset) s1.clone(),
+                                              (SampleYSymbolicDataset) s2.clone());
     }
 
 }

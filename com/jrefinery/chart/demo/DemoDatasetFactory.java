@@ -25,7 +25,7 @@
  * (C) Copyright 2001, 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Bryan Scott;
  *
  * $Id$
  *
@@ -33,6 +33,9 @@
  * -------
  * 10-Dec-2001 : Version 1 (DG);
  * 15-Mar-2002 : Added createHighLowOpenCloseDataset() method (DG);
+ * 20-Jun-2002 : Added createMeterDataset() method (BRS);
+ * 24-Jun-2002 : Moved createGantDataset() method from GantDemo (BRS);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -41,13 +44,39 @@ package com.jrefinery.chart.demo;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Date;
-import com.jrefinery.data.*;
-import com.jrefinery.date.*;
+import com.jrefinery.data.DefaultMeterDataset;
+import com.jrefinery.data.CategoryDataset;
+import com.jrefinery.data.DefaultCategoryDataset;
+import com.jrefinery.data.IntervalCategoryDataset;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.DefaultXYDataset;
+import com.jrefinery.data.SignalsDataset;
+import com.jrefinery.data.HighLowDataset;
+import com.jrefinery.data.DefaultHighLowDataset;
+import com.jrefinery.data.WindDataset;
+import com.jrefinery.data.DefaultWindDataset;
+import com.jrefinery.data.TimeSeriesCollection;
+import com.jrefinery.data.BasicTimeSeries;
+import com.jrefinery.data.Year;
+import com.jrefinery.data.Day;
+import com.jrefinery.data.FixedMillisecond;
+import com.jrefinery.data.GanttSeries;
+import com.jrefinery.data.GanttSeriesCollection;
+import com.jrefinery.data.TimeAllocation;
+import com.jrefinery.date.DateUtilities;
+import com.jrefinery.date.SerialDate;
 
+/**
+ * A utility class for generating sample datasets for the demos.
+ *
+ * @author DG
+ */
 public class DemoDatasetFactory {
 
     /**
      * Creates and returns a category dataset for the demo charts.
+     *
+     * @return a sample category dataset.
      */
     public static CategoryDataset createCategoryDataset() {
 
@@ -68,6 +97,8 @@ public class DemoDatasetFactory {
 
     /**
      * Creates and returns a category dataset with JUST ONE CATEGORY for the demo charts.
+     *
+     * @return a sample category dataset.
      */
     public static CategoryDataset createSingleCategoryDataset() {
 
@@ -88,6 +119,8 @@ public class DemoDatasetFactory {
 
     /**
      * Creates and returns a category dataset for the demo charts.
+     *
+     * @return a sample category dataset.
      */
     public static CategoryDataset createSingleSeriesCategoryDataset() {
 
@@ -98,27 +131,71 @@ public class DemoDatasetFactory {
 
     }
 
+    /**
+     * Returns a null interval category dataset.
+     *
+     * @return null.
+     */
     public static IntervalCategoryDataset createIntervalCategoryDataset() {
 
         return null;
 
     }
 
+    /**
+     * Returns a sample XY dataset.
+     *
+     * @return a sample XY dataset.
+     */
     public static XYDataset createSampleXYDataset() {
         return new SampleXYDataset();
     }
 
     /**
-     * Returns a java.util.Date for the specified year, month, day, hour and minute.
+     * Creates and returns a sample dataset for the XY 'Step' chart.
+     *
+     * @return the sample dataset.
      */
-    private static Date createDateTime(int year, int month, int day, int hour, int minute) {
-        GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute);
-        return calendar.getTime();
-    }
+    public static XYDataset createStepXYDataset() {
 
+        int feb = 2;
+        Object[][][] data = new Object[][][] { {
+
+            { DateUtilities.createDate(2002, feb, 19, 8, 0), new Integer(0) },
+            { DateUtilities.createDate(2002, feb, 19, 8, 0), new Integer(2) },
+            { DateUtilities.createDate(2002, feb, 19, 9, 5), new Integer(4) },
+            { DateUtilities.createDate(2002, feb, 19, 10, 6), new Integer(4) },
+            { DateUtilities.createDate(2002, feb, 19, 11, 6), new Integer(5) },
+            { DateUtilities.createDate(2002, feb, 19, 12, 6), new Integer(3) },
+            { DateUtilities.createDate(2002, feb, 19, 13, 6), new Integer(6) },
+            { DateUtilities.createDate(2002, feb, 19, 14, 6), new Integer(6) },
+            { DateUtilities.createDate(2002, feb, 19, 15, 30), new Integer(2) },
+            { DateUtilities.createDate(2002, feb, 19, 16, 7), new Integer(0) }
+          },
+          {
+            { DateUtilities.createDate(2002, feb, 19, 8, 45), new Integer(0) },
+            { DateUtilities.createDate(2002, feb, 19, 8, 45), new Integer(1) },
+            { DateUtilities.createDate(2002, feb, 19, 9, 0), new Integer(6) },
+            { DateUtilities.createDate(2002, feb, 19, 10, 6), new Integer(2) },
+            { DateUtilities.createDate(2002, feb, 19, 10, 45), new Integer(4) },
+            { DateUtilities.createDate(2002, feb, 19, 12, 0), new Integer(7) },
+            { DateUtilities.createDate(2002, feb, 19, 13, 0), new Integer(5) },
+            { DateUtilities.createDate(2002, feb, 19, 14, 6), new Integer(4) },
+            { DateUtilities.createDate(2002, feb, 19, 15, 15), new Integer(4) },
+            { DateUtilities.createDate(2002, feb, 19, 16, 0), new Integer(0) },
+          }
+        };
+
+        DefaultXYDataset dataset = new DefaultXYDataset(data);
+        String[] sNames = {"Plan 1", "Plan 2"};
+        dataset.setSeriesNames(sNames);
+        return dataset;
+    }
 
     /**
      * Creates and returns a XYDataset for the demo charts.
+     *
+     * @return a sample XY dataset.
      */
     public static XYDataset createTestXYDataset() {
 
@@ -139,6 +216,8 @@ public class DemoDatasetFactory {
 
     /**
      * Returns a dataset consisting of one annual series.
+     *
+     * @return a sample time series collection.
      */
     public static TimeSeriesCollection createTimeSeriesCollection1() {
 
@@ -167,6 +246,8 @@ public class DemoDatasetFactory {
 
     /**
      * Creates a time series collection containing JPY/GBP exchange rates.
+     *
+     * @return a sample time series collection.
      */
     public static TimeSeriesCollection createTimeSeriesCollection2() {
 
@@ -178,6 +259,8 @@ public class DemoDatasetFactory {
 
     /**
      * Creates a time series collection containing USD/GBP and EUR/GBP exchange rates.
+     *
+     * @return a sample time series collection.
      */
     public static TimeSeriesCollection createTimeSeriesCollection3() {
 
@@ -190,24 +273,27 @@ public class DemoDatasetFactory {
 
     /**
      * Returns a time series dataset using millisecond data.
+     *
+     * @return a sample time series collection.
      */
     public static TimeSeriesCollection createTimeSeriesCollection4() {
 
-        BasicTimeSeries t4 = new BasicTimeSeries("Test", "Millisecond", "Value", FixedMillisecond.class);
+        BasicTimeSeries t4 = new BasicTimeSeries("Test",
+                                                 "Millisecond", "Value", FixedMillisecond.class);
         Date now = new Date();
         try {
-            t4.add(new FixedMillisecond(now.getTime()+0), new Double(50.1));
-            t4.add(new FixedMillisecond(now.getTime()+1), new Double(12.3));
-            t4.add(new FixedMillisecond(now.getTime()+2), new Double(23.9));
-            t4.add(new FixedMillisecond(now.getTime()+3), new Double(83.4));
-            t4.add(new FixedMillisecond(now.getTime()+4), new Double(34.7));
-            t4.add(new FixedMillisecond(now.getTime()+5), new Double(76.5));
-            t4.add(new FixedMillisecond(now.getTime()+6), new Double(150.0));
-            t4.add(new FixedMillisecond(now.getTime()+7), new Double(414.7));
-            t4.add(new FixedMillisecond(now.getTime()+8), new Double(1500.9));
-            t4.add(new FixedMillisecond(now.getTime()+9), new Double(4530.6));
-            t4.add(new FixedMillisecond(now.getTime()+10), new Double(7337.2));
-            t4.add(new FixedMillisecond(now.getTime()+11), new Double(9117.1));
+            t4.add(new FixedMillisecond(now.getTime() + 0), new Double(50.1));
+            t4.add(new FixedMillisecond(now.getTime() + 1), new Double(12.3));
+            t4.add(new FixedMillisecond(now.getTime() + 2), new Double(23.9));
+            t4.add(new FixedMillisecond(now.getTime() + 3), new Double(83.4));
+            t4.add(new FixedMillisecond(now.getTime() + 4), new Double(34.7));
+            t4.add(new FixedMillisecond(now.getTime() + 5), new Double(76.5));
+            t4.add(new FixedMillisecond(now.getTime() + 6), new Double(150.0));
+            t4.add(new FixedMillisecond(now.getTime() + 7), new Double(414.7));
+            t4.add(new FixedMillisecond(now.getTime() + 8), new Double(1500.9));
+            t4.add(new FixedMillisecond(now.getTime() + 9), new Double(4530.6));
+            t4.add(new FixedMillisecond(now.getTime() + 10), new Double(7337.2));
+            t4.add(new FixedMillisecond(now.getTime() + 11), new Double(9117.1));
         }
         catch (Exception e) {
             System.err.println(e.getMessage());
@@ -224,12 +310,14 @@ public class DemoDatasetFactory {
      * You wouldn't normally create a time series in this way.  Typically, values would
      * be read from a database.
      *
+     * @return a time series.
+     *
      */
     public static BasicTimeSeries createUSDTimeSeries() {
 
         BasicTimeSeries t1 = new BasicTimeSeries("USD/GBP");
         try {
-            t1.add(new Day(2, SerialDate.JANUARY, 2001), new Double(1.4956));
+            t1.add(new Day(2, SerialDate.JANUARY, 2001), 1.4956);
             t1.add(new Day(3, SerialDate.JANUARY, 2001), new Double(1.5047));
             t1.add(new Day(4, SerialDate.JANUARY, 2001), new Double(1.4931));
             t1.add(new Day(5, SerialDate.JANUARY, 2001), new Double(1.4955));
@@ -476,6 +564,8 @@ public class DemoDatasetFactory {
      * <P>
      * You wouldn't normally create a time series in this way.  Typically, values would
      * be read from a database.
+     *
+     * @return a time series.
      *
      */
     public static BasicTimeSeries createEURTimeSeries() {
@@ -730,6 +820,7 @@ public class DemoDatasetFactory {
      * You wouldn't normally create a time series in this way.  Typically, values would
      * be read from a database.
      *
+     * @return a sample time series.
      */
     public static BasicTimeSeries createJPYTimeSeries() {
 
@@ -975,17 +1066,20 @@ public class DemoDatasetFactory {
         return t1;
     }
 
+    /**
+     * Returns a sample signal dataset.
+     *
+     * @return a sample signal dataset.
+     */
     public static SignalsDataset createSampleSignalDataset() {
         return new SampleSignalDataset();
     }
 
-    private static Calendar cal = new GregorianCalendar();
-
-    private static Date createDate(int year, int month, int day) {
-        cal.set(year, month, day);
-        return cal.getTime();
-    }
-
+    /**
+     * Creates a sample high low dataset.
+     *
+     * @return a sample high low dataset.
+     */
     public static HighLowDataset createSampleHighLowDataset() {
 
         Date[] date = new Date[47];
@@ -995,329 +1089,332 @@ public class DemoDatasetFactory {
         double[] close = new double[47];
         double[] volume = new double[47];
 
-        date[0]  = createDate(2001, Calendar.JANUARY,4);
-        high[0]  =47.0;
+        int jan = 1;
+        int feb = 2;
+
+        date[0]  = DateUtilities.createDate(2001, jan, 4);
+        high[0]  = 47.0;
         low[0]   = 33.0;
         open[0]  = 35.0;
         close[0] = 33.0;
         volume[0] = 100.0;
 
-        date[1]  = createDate(2001, Calendar.JANUARY,5);
+        date[1]  = DateUtilities.createDate(2001, jan, 5);
         high[1]  = 47.0;
         low[1]   = 32.0;
         open[1]  = 41.0;
         close[1] = 37.0;
         volume[1] = 150.0;
 
-        date[2]  = createDate(2001, Calendar.JANUARY,6);
+        date[2]  = DateUtilities.createDate(2001, jan, 6);
         high[2]  = 49.0;
         low[2]   = 43.0;
         open[2]  = 46.0;
         close[2] = 48.0;
         volume[2] = 70.0;
 
-        date[3]  = createDate(2001, Calendar.JANUARY,7);
+        date[3]  = DateUtilities.createDate(2001, jan, 7);
         high[3]  = 51.0;
         low[3]   = 39.0;
         open[3]  = 40.0;
         close[3] = 47.0;
         volume[3] = 200.0;
 
-        date[4]  = createDate(2001, Calendar.JANUARY,8);
+        date[4]  = DateUtilities.createDate(2001, jan, 8);
         high[4]  = 60.0;
         low[4]   = 40.0;
         open[4]  = 46.0;
         close[4] = 53.0;
         volume[4] = 120.0;
 
-        date[5]  = createDate(2001, Calendar.JANUARY,9);
+        date[5]  = DateUtilities.createDate(2001, jan, 9);
         high[5]  = 62.0;
         low[5]   = 55.0;
         open[5]  = 57.0;
         close[5] = 61.0;
         volume[5] = 110.0;
 
-        date[6]  = createDate(2001, Calendar.JANUARY,10);
+        date[6]  = DateUtilities.createDate(2001, jan, 10);
         high[6]  = 65.0;
         low[6]   = 56.0;
         open[6]  = 62.0;
         close[6] = 59.0;
         volume[6] = 70.0;
 
-        date[7]  = createDate(2001, Calendar.JANUARY,11);
+        date[7]  = DateUtilities.createDate(2001, jan, 11);
         high[7]  = 55.0;
         low[7]   = 43.0;
         open[7]  = 45.0;
         close[7] = 47.0;
         volume[7] = 20.0;
 
-        date[8]  = createDate(2001, Calendar.JANUARY,12);
+        date[8]  = DateUtilities.createDate(2001, jan, 12);
         high[8]  = 54.0;
         low[8]   = 33.0;
         open[8]  = 40.0;
         close[8] = 51.0;
         volume[8] = 30.0;
 
-        date[9]  = createDate(2001, Calendar.JANUARY,13);
+        date[9]  = DateUtilities.createDate(2001, jan, 13);
         high[9]  = 47.0;
         low[9]   = 33.0;
         open[9]  = 35.0;
         close[9] = 33.0;
         volume[9] = 100.0;
 
-        date[10]  = createDate(2001, Calendar.JANUARY,14);
+        date[10]  = DateUtilities.createDate(2001, jan, 14);
         high[10]  = 54.0;
         low[10]   = 38.0;
         open[10]  = 43.0;
         close[10] = 52.0;
         volume[10] = 50.0;
 
-        date[11]  = createDate(2001, Calendar.JANUARY,15);
+        date[11]  = DateUtilities.createDate(2001, jan, 15);
         high[11]  = 48.0;
         low[11]   = 41.0;
         open[11]  = 44.0;
         close[11] = 41.0;
         volume[11] = 80.0;
 
-        date[12]  = createDate(2001, Calendar.JANUARY,17);
+        date[12]  = DateUtilities.createDate(2001, jan, 17);
         high[12]  = 60.0;
         low[12]   = 30.0;
         open[12]  = 34.0;
         close[12] = 44.0;
         volume[12] = 90.0;
 
-        date[13]  = createDate(2001, Calendar.JANUARY,18);
+        date[13]  = DateUtilities.createDate(2001, jan, 18);
         high[13]  = 58.0;
         low[13]   = 44.0;
         open[13]  = 54.0;
         close[13] = 56.0;
         volume[13] = 20.0;
 
-        date[14]  = createDate(2001, Calendar.JANUARY,19);
+        date[14]  = DateUtilities.createDate(2001, jan, 19);
         high[14]  = 54.0;
         low[14]   = 32.0;
         open[14]  = 42.0;
         close[14] = 53.0;
         volume[14] = 70.0;
 
-        date[15]  = createDate(2001, Calendar.JANUARY,20);
+        date[15]  = DateUtilities.createDate(2001, jan, 20);
         high[15]  = 53.0;
         low[15]   = 39.0;
         open[15]  = 50.0;
         close[15] = 49.0;
         volume[15] = 60.0;
 
-        date[16]  = createDate(2001, Calendar.JANUARY,21);
+        date[16]  = DateUtilities.createDate(2001, jan, 21);
         high[16]  = 47.0;
         low[16]   = 33.0;
         open[16]  = 41.0;
         close[16] = 40.0;
         volume[16] = 30.0;
 
-        date[17]  = createDate(2001, Calendar.JANUARY,22);
+        date[17]  = DateUtilities.createDate(2001, jan, 22);
         high[17]  = 55.0;
         low[17]   = 37.0;
         open[17]  = 43.0;
         close[17] = 45.0;
         volume[17] = 90.0;
 
-        date[18]  = createDate(2001, Calendar.JANUARY,23);
+        date[18]  = DateUtilities.createDate(2001, jan, 23);
         high[18]  = 54.0;
         low[18]   = 42.0;
         open[18]  = 50.0;
         close[18] = 42.0;
         volume[18] = 150.0;
 
-        date[19]  = createDate(2001, Calendar.JANUARY,24);
+        date[19]  = DateUtilities.createDate(2001, jan, 24);
         high[19]  = 48.0;
         low[19]   = 37.0;
         open[19]  = 37.0;
         close[19] = 47.0;
         volume[19] = 120.0;
 
-        date[20]  = createDate(2001, Calendar.JANUARY,25);
+        date[20]  = DateUtilities.createDate(2001, jan, 25);
         high[20]  = 58.0;
         low[20]   = 33.0;
         open[20]  = 39.0;
         close[20] = 41.0;
         volume[20] = 80.0;
 
-        date[21]  = createDate(2001, Calendar.JANUARY,26);
+        date[21]  = DateUtilities.createDate(2001, jan, 26);
         high[21]  = 47.0;
         low[21]   = 31.0;
         open[21]  = 36.0;
         close[21] = 41.0;
         volume[21] = 40.0;
 
-        date[22]  = createDate(2001, Calendar.JANUARY,27);
+        date[22]  = DateUtilities.createDate(2001, jan, 27);
         high[22]  = 58.0;
         low[22]   = 44.0;
         open[22]  = 49.0;
         close[22] = 44.0;
         volume[22] = 20.0;
 
-        date[23]  = createDate(2001, Calendar.JANUARY,28);
+        date[23]  = DateUtilities.createDate(2001, jan, 28);
         high[23]  = 46.0;
         low[23]   = 41.0;
         open[23]  = 43.0;
         close[23] = 44.0;
         volume[23] = 60.0;
 
-        date[24]  = createDate(2001, Calendar.JANUARY,29);
+        date[24]  = DateUtilities.createDate(2001, jan, 29);
         high[24]  = 56.0;
         low[24]   = 39.0;
         open[24]  = 39.0;
         close[24] = 51.0;
         volume[24] = 40.0;
 
-        date[25]  = createDate(2001, Calendar.JANUARY,30);
+        date[25]  = DateUtilities.createDate(2001, jan, 30);
         high[25]  = 56.0;
         low[25]   = 39.0;
         open[25]  = 47.0;
         close[25] = 49.0;
         volume[25] = 70.0;
 
-        date[26]  = createDate(2001, Calendar.JANUARY,31);
+        date[26]  = DateUtilities.createDate(2001, jan, 31);
         high[26]  = 53.0;
         low[26]   = 39.0;
         open[26]  = 52.0;
         close[26] = 47.0;
         volume[26] = 60.0;
 
-        date[27]  = createDate(2001, Calendar.FEBRUARY,1);
+        date[27]  = DateUtilities.createDate(2001, feb, 1);
         high[27]  = 51.0;
         low[27]   = 30.0;
         open[27]  = 45.0;
         close[27] = 47.0;
         volume[27] = 90.0;
 
-        date[28]  = createDate(2001, Calendar.FEBRUARY,2);
+        date[28]  = DateUtilities.createDate(2001, feb, 2);
         high[28]  = 47.0;
         low[28]   = 30.0;
         open[28]  = 34.0;
         close[28] = 46.0;
         volume[28] = 100.0;
 
-        date[29]  = createDate(2001, Calendar.FEBRUARY,3);
+        date[29]  = DateUtilities.createDate(2001, feb, 3);
         high[29]  = 57.0;
         low[29]   = 37.0;
         open[29]  = 44.0;
         close[29] = 56.0;
         volume[29] = 20.0;
 
-        date[30]  = createDate(2001, Calendar.FEBRUARY,4);
+        date[30]  = DateUtilities.createDate(2001, feb, 4);
         high[30]  = 49.0;
         low[30]   = 40.0;
         open[30]  = 47.0;
         close[30] = 44.0;
         volume[30] = 50.0;
 
-        date[31]  = createDate(2001, Calendar.FEBRUARY,5);
+        date[31]  = DateUtilities.createDate(2001, feb, 5);
         high[31]  = 46.0;
         low[31]   = 38.0;
         open[31]  = 43.0;
         close[31] = 40.0;
         volume[31] = 70.0;
 
-        date[32]  = createDate(2001, Calendar.FEBRUARY,6);
+        date[32]  = DateUtilities.createDate(2001, feb, 6);
         high[32]  = 55.0;
         low[32]   = 38.0;
         open[32]  = 39.0;
         close[32] = 53.0;
         volume[32] = 120.0;
 
-        date[33]  = createDate(2001, Calendar.FEBRUARY,7);
+        date[33]  = DateUtilities.createDate(2001, feb, 7);
         high[33]  = 50.0;
         low[33]   = 33.0;
         open[33]  = 37.0;
         close[33] = 37.0;
         volume[33] = 140.0;
 
-        date[34]  = createDate(2001, Calendar.FEBRUARY,8);
+        date[34]  = DateUtilities.createDate(2001, feb, 8);
         high[34]  = 59.0;
         low[34]   = 34.0;
         open[34]  = 57.0;
         close[34] = 43.0;
         volume[34] = 70.0;
 
-        date[35]  = createDate(2001, Calendar.FEBRUARY,9);
+        date[35]  = DateUtilities.createDate(2001, feb, 9);
         high[35]  = 48.0;
         low[35]   = 39.0;
         open[35]  = 46.0;
         close[35] = 47.0;
         volume[35] = 70.0;
 
-        date[36]  = createDate(2001, Calendar.FEBRUARY,10);
+        date[36]  = DateUtilities.createDate(2001, feb, 10);
         high[36]  = 55.0;
         low[36]   = 30.0;
         open[36]  = 37.0;
         close[36] = 30.0;
         volume[36] = 30.0;
 
-        date[37]  = createDate(2001, Calendar.FEBRUARY,11);
+        date[37]  = DateUtilities.createDate(2001, feb, 11);
         high[37]  = 60.0;
         low[37]   = 32.0;
         open[37]  = 56.0;
         close[37] = 36.0;
         volume[37] = 70.0;
 
-        date[38]  = createDate(2001, Calendar.FEBRUARY,12);
+        date[38]  = DateUtilities.createDate(2001, feb, 12);
         high[38]  = 56.0;
         low[38]   = 42.0;
         open[38]  = 53.0;
         close[38] = 54.0;
         volume[38] = 40.0;
 
-        date[39]  = createDate(2001, Calendar.FEBRUARY,13);
+        date[39]  = DateUtilities.createDate(2001, feb, 13);
         high[39]  = 49.0;
         low[39]   = 42.0;
         open[39]  = 45.0;
         close[39] = 42.0;
         volume[39] = 90.0;
 
-        date[40]  = createDate(2001, Calendar.FEBRUARY,14);
+        date[40]  = DateUtilities.createDate(2001, feb, 14);
         high[40]  = 55.0;
         low[40]   = 42.0;
         open[40]  = 47.0;
         close[40] = 54.0;
         volume[40] = 70.0;
 
-        date[41]  = createDate(2001, Calendar.FEBRUARY,15);
+        date[41]  = DateUtilities.createDate(2001, feb, 15);
         high[41]  = 49.0;
         low[41]   = 35.0;
         open[41]  = 38.0;
         close[41] = 35.0;
         volume[41] = 20.0;
 
-        date[42]  = createDate(2001, Calendar.FEBRUARY,16);
+        date[42]  = DateUtilities.createDate(2001, feb, 16);
         high[42]  = 47.0;
         low[42]   = 38.0;
         open[42]  = 43.0;
         close[42] = 42.0;
         volume[42] = 10.0;
 
-        date[43]  = createDate(2001, Calendar.FEBRUARY,17);
+        date[43]  = DateUtilities.createDate(2001, feb, 17);
         high[43]  = 53.0;
         low[43]   = 42.0;
         open[43]  = 47.0;
         close[43] = 48.0;
         volume[43] = 20.0;
 
-        date[44]  = createDate(2001, Calendar.FEBRUARY,18);
+        date[44]  = DateUtilities.createDate(2001, feb, 18);
         high[44]  = 47.0;
         low[44]   = 44.0;
         open[44]  = 46.0;
         close[44] = 44.0;
         volume[44] = 30.0;
 
-        date[45]  = createDate(2001, Calendar.FEBRUARY,19);
+        date[45]  = DateUtilities.createDate(2001, feb, 19);
         high[45]  = 46.0;
         low[45]   = 40.0;
         open[45]  = 43.0;
         close[45] = 44.0;
         volume[45] = 50.0;
 
-        date[46]  = createDate(2001, Calendar.FEBRUARY,20);
+        date[46]  = DateUtilities.createDate(2001, feb, 20);
         high[46]  = 48.0;
         low[46]   = 41.0;
         open[46]  = 46.0;
@@ -1328,24 +1425,174 @@ public class DemoDatasetFactory {
 
     }
 
+    /**
+     * Creates a sample wind dataset.
+     *
+     * @return a sample wind dataset.
+     */
     public static WindDataset createWindDataset1() {
+
+        int jan = 1;
         Object[][][] data = new Object[][][] { {
-            { createDate(1999, Calendar.JANUARY, 3), new Double(0.0), new Double(10.0)},
-            { createDate(1999, Calendar.JANUARY, 4), new Double(1.0), new Double(8.5)},
-            { createDate(1999, Calendar.JANUARY,5), new Double(2.0), new Double(10.0)},
-            { createDate(1999, Calendar.JANUARY,6), new Double(3.0), new Double(10.0)},
-            { createDate(1999, Calendar.JANUARY,7), new Double(4.0), new Double(7.0)},
-            { createDate(1999, Calendar.JANUARY,8), new Double(5.0), new Double(10.0)},
-            { createDate(1999, Calendar.JANUARY,9), new Double(6.0), new Double(8.0)},
-            { createDate(1999, Calendar.JANUARY,10), new Double(7.0), new Double(11.0)},
-            { createDate(1999, Calendar.JANUARY,11), new Double(8.0), new Double(10.0)},
-            { createDate(1999, Calendar.JANUARY,12), new Double(9.0), new Double(11.0)},
-            { createDate(1999, Calendar.JANUARY,13), new Double(10.0), new Double(3.0)},
-            { createDate(1999, Calendar.JANUARY,14), new Double(11.0), new Double(9.0)},
-            { createDate(1999, Calendar.JANUARY,15), new Double(12.0), new Double(11.0)},
-            { createDate(1999, Calendar.JANUARY,16), new Double(0.0), new Double(0.0)} } };
+            { DateUtilities.createDate(1999, jan, 3), new Double(0.0), new Double(10.0)},
+            { DateUtilities.createDate(1999, jan, 4), new Double(1.0), new Double(8.5)},
+            { DateUtilities.createDate(1999, jan, 5), new Double(2.0), new Double(10.0)},
+            { DateUtilities.createDate(1999, jan, 6), new Double(3.0), new Double(10.0)},
+            { DateUtilities.createDate(1999, jan, 7), new Double(4.0), new Double(7.0)},
+            { DateUtilities.createDate(1999, jan, 8), new Double(5.0), new Double(10.0)},
+            { DateUtilities.createDate(1999, jan, 9), new Double(6.0), new Double(8.0)},
+            { DateUtilities.createDate(1999, jan, 10), new Double(7.0), new Double(11.0)},
+            { DateUtilities.createDate(1999, jan, 11), new Double(8.0), new Double(10.0)},
+            { DateUtilities.createDate(1999, jan, 12), new Double(9.0), new Double(11.0)},
+            { DateUtilities.createDate(1999, jan, 13), new Double(10.0), new Double(3.0)},
+            { DateUtilities.createDate(1999, jan, 14), new Double(11.0), new Double(9.0)},
+            { DateUtilities.createDate(1999, jan, 15), new Double(12.0), new Double(11.0)},
+            { DateUtilities.createDate(1999, jan, 16), new Double(0.0), new Double(0.0)} } };
 
         return new DefaultWindDataset(new String[] {"Wind!!"}, data);
+    }
+
+    /**
+     * Creates a sample meter dataset.
+     *
+     * @return a sample meter dataset.
+     */
+    public static DefaultMeterDataset createMeterDataset() {
+        DefaultMeterDataset x = new DefaultMeterDataset(
+            new Double(0), new Double(100),
+            new Double(50),
+            "Units",
+            new Double(80), new Double(100),
+            new Double(50), new Double(80),
+            new Double(30), new Double(50),
+            0
+        );
+        return x;
+    }
+
+    /**
+     * Creates a sample dataset.
+     *
+     * @return a sample interval category dataset.
+     *
+     * @deprecated use createSampleGanttDataset().
+     */
+    public static IntervalCategoryDataset createSampleGantDataset() {
+        return createSampleGanttDataset();
+    }
+
+    /**
+     * Creates a sample dataset.
+     *
+     * @return a sample interval category dataset.
+     */
+    public static IntervalCategoryDataset createSampleGanttDataset() {
+
+        // tasks...
+        Object task1 = new String("Write Proposal");
+        Object task2 = new String("Obtain Approval");
+        Object task3 = new String("Requirements Analysis");
+        Object task4 = new String("Design Phase");
+        Object task5 = new String("Design Signoff");
+        Object task6 = new String("Alpha Implementation");
+        Object task7 = new String("Design Review");
+        Object task8 = new String("Revised Design Signoff");
+        Object task9 = new String("Beta Implementation");
+        Object task10 = new String("Testing");
+        Object task11 = new String("Final Implementation");
+        Object task12 = new String("Signoff");
+
+        GanttSeries s1 = new GanttSeries("Scheduled");
+        s1.add(task1, new TimeAllocation(date(1, Calendar.APRIL, 2001),
+                                         date(5, Calendar.APRIL, 2001)));
+        s1.add(task2, new TimeAllocation(date(9, Calendar.APRIL, 2001),
+                                         date(9, Calendar.APRIL, 2001)));
+        s1.add(task3, new TimeAllocation(date(10, Calendar.APRIL, 2001),
+                                         date(5, Calendar.MAY, 2001)));
+        s1.add(task4, new TimeAllocation(date(6, Calendar.MAY, 2001),
+                                         date(30, Calendar.MAY, 2001)));
+        s1.add(task5, new TimeAllocation(date(2, Calendar.JUNE, 2001),
+                                         date(2, Calendar.JUNE, 2001)));
+        s1.add(task6, new TimeAllocation(date(3, Calendar.JUNE, 2001),
+                                         date(31, Calendar.JULY, 2001)));
+        s1.add(task7, new TimeAllocation(date(1, Calendar.AUGUST, 2001),
+                                         date(8, Calendar.AUGUST, 2001)));
+        s1.add(task8, new TimeAllocation(date(10, Calendar.AUGUST, 2001),
+                                         date(10, Calendar.AUGUST, 2001)));
+        s1.add(task9, new TimeAllocation(date(12, Calendar.AUGUST, 2001),
+                                         date(12, Calendar.SEPTEMBER, 2001)));
+        s1.add(task10, new TimeAllocation(date(13, Calendar.SEPTEMBER, 2001),
+                                          date(31, Calendar.OCTOBER, 2001)));
+        s1.add(task11, new TimeAllocation(date(1, Calendar.NOVEMBER, 2001),
+                                          date(15, Calendar.NOVEMBER, 2001)));
+        s1.add(task12, new TimeAllocation(date(28, Calendar.NOVEMBER, 2001),
+                                          date(30, Calendar.NOVEMBER, 2001)));
+
+        GanttSeries s2 = new GanttSeries("Actual");
+        s2.add(task1, new TimeAllocation(date(1, Calendar.APRIL, 2001),
+                                         date(5, Calendar.APRIL, 2001)));
+        s2.add(task2, new TimeAllocation(date(9, Calendar.APRIL, 2001),
+                                         date(9, Calendar.APRIL, 2001)));
+        s2.add(task3, new TimeAllocation(date(10, Calendar.APRIL, 2001),
+                                         date(15, Calendar.MAY, 2001)));
+        s2.add(task4, new TimeAllocation(date(15, Calendar.MAY, 2001),
+                                         date(17, Calendar.JUNE, 2001)));
+        s2.add(task5, new TimeAllocation(date(30, Calendar.JUNE, 2001),
+                                         date(30, Calendar.JUNE, 2001)));
+        s2.add(task6, new TimeAllocation(date(1, Calendar.JULY, 2001),
+                                         date(12, Calendar.SEPTEMBER, 2001)));
+        s2.add(task7, new TimeAllocation(date(12, Calendar.SEPTEMBER, 2001),
+                                         date(22, Calendar.SEPTEMBER, 2001)));
+        s2.add(task8, new TimeAllocation(date(25, Calendar.SEPTEMBER, 2001),
+                                         date(27, Calendar.SEPTEMBER, 2001)));
+        s2.add(task9, new TimeAllocation(date(27, Calendar.SEPTEMBER, 2001),
+                                         date(30, Calendar.OCTOBER, 2001)));
+        s2.add(task10, new TimeAllocation(date(31, Calendar.OCTOBER, 2001),
+                                          date(17, Calendar.NOVEMBER, 2001)));
+        s2.add(task11, new TimeAllocation(date(18, Calendar.NOVEMBER, 2001),
+                                          date(5, Calendar.DECEMBER, 2001)));
+        s2.add(task12, new TimeAllocation(date(10, Calendar.DECEMBER, 2001),
+                                          date(11, Calendar.DECEMBER, 2001)));
+
+        GanttSeriesCollection collection = new GanttSeriesCollection();
+        collection.add(s1);
+        collection.add(s2);
+
+        return collection;
+    }
+
+    /**
+     * Utility class for creating Date objects.
+     *
+     * @param day  the date.
+     * @param month  the month.
+     * @param year  the year.
+     *
+     * @return a date.
+     */
+    private static Date date(int day, int month, int year) {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month, day);
+        Date result = calendar.getTime();
+        return result;
+
+    }
+
+    /**
+     * Returns a java.util.Date for the specified year, month, day, hour and minute.
+     *
+     * @param year  the year.
+     * @param month  the month.
+     * @param day  the day.
+     * @param hour  the hour.
+     * @param minute  the minute.
+     *
+     * @return a date.
+     */
+    private static Date createDateTime(int year, int month, int day, int hour, int minute) {
+        GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute);
+        return calendar.getTime();
     }
 
 }

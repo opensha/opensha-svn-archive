@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -32,28 +32,32 @@
  * Changes
  * -------
  * 15-Nov-2001 : Version 1 (DG);
+ * 24-Jun-2002 : Removed unnecessary import (DG);
+ * 27-Aug-2002 : Implemented cloneable (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import java.util.*;
-
 /**
  * Represents one (x, y) data item for an xy-series.
+ *
+ * @author DG
  */
-public class XYDataPair implements Comparable {
+public class XYDataPair implements Cloneable, Comparable {
 
     /** The x-value. */
-    protected Number x;
+    private Number x;
 
     /** The y-value. */
-    protected Number y;
+    private Number y;
 
     /**
      * Constructs a new data pair.
-     * @param x The x-value.
-     * @param y The y-value.
+     *
+     * @param x  the x-value.
+     * @param y  the y-value.
      */
     public XYDataPair(Number x, Number y) {
         this.x = x;
@@ -62,8 +66,9 @@ public class XYDataPair implements Comparable {
 
     /**
      * Constructs a new data pair.
-     * @param x The x-value.
-     * @param y The y-value.
+     *
+     * @param x  the x-value.
+     * @param y  the y-value.
      */
     public XYDataPair(double x, double y) {
         this(new Double(x), new Double(y));
@@ -71,7 +76,8 @@ public class XYDataPair implements Comparable {
 
     /**
      * Returns the x-value.
-     * @return The x-value.
+     *
+     * @return the x-value.
      */
     public Number getX() {
         return this.x;
@@ -79,7 +85,8 @@ public class XYDataPair implements Comparable {
 
     /**
      * Returns the y-value.
-     * @return The y-value.
+     *
+     * @return the y-value.
      */
     public Number getY() {
         return this.y;
@@ -89,7 +96,8 @@ public class XYDataPair implements Comparable {
      * Sets the y-value for this data pair.
      * <P>
      * Note that there is no corresponding method to change the x-value.
-     * @param y The new y-value.
+     *
+     * @param y  the new y-value.
      */
     public void setY(Number y) {
         this.y = y;
@@ -98,10 +106,13 @@ public class XYDataPair implements Comparable {
     /**
      * Returns an integer indicating the order of this data pair object relative to another object.
      * <P>
-     * For the order we consider only the x-value:  negative == "less-than", zero == "equal",
-     *                                              positive == "greater-than".
-     * @param o1 The object being compared to.
-     * @return An integer indicating the order of this data pair object relative to another object.
+     * For the order we consider only the x-value:
+     * negative == "less-than", zero == "equal", positive == "greater-than".
+     *
+     * @param o1  the object being compared to.
+     *
+     * @return  an integer indicating the order of this data pair object
+     *      relative to another object.
      */
     public int compareTo(Object o1) {
 
@@ -110,18 +121,50 @@ public class XYDataPair implements Comparable {
         // CASE 1 : Comparing to another TimeSeriesDataPair object
         // -------------------------------------------------------
         if (o1 instanceof XYDataPair) {
-            XYDataPair datapair = (XYDataPair)o1;
-            double compare = this.x.doubleValue()-datapair.getX().doubleValue();
-            if (compare>0) result = 1;
-            else if (compare<0) result = -1;
-            else result = 0;
+            XYDataPair datapair = (XYDataPair) o1;
+            double compare = this.x.doubleValue() - datapair.getX().doubleValue();
+            if (compare > 0) {
+                result = 1;
+            }
+            else {
+                if (compare < 0) {
+                    result = -1;
+                }
+                else {
+                    result = 0;
+                }
+            }
         }
 
         // CASE 2 : Comparing to a general object
         // ---------------------------------------------
-        else result = 1;  // consider time periods to be ordered after general objects
+        else {
+            // consider time periods to be ordered after general objects
+            result = 1;
+        }
 
         return result;
 
     }
+
+    /**
+     * Returns a clone of this XYDataPair.
+     *
+     * @return a clone of the data pair.
+     */
+    public Object clone() {
+
+        Object clone = null;
+
+        try {
+            clone = super.clone();
+        }
+        catch (CloneNotSupportedException e) { // won't get here...
+            System.err.println("XYDataPair.clone(): operation not supported.");
+        }
+
+        return clone;
+
+    }
+
 }

@@ -31,20 +31,24 @@
  * Changes
  * -------
  * 14-Mar-2002 : Version 1 contributed by Bryan Scott (DG);
+ * 25-Jun-2002 : Updated import statements (DG);
  *
  */
 
 package com.jrefinery.chart.demo.jdbc.swing;
 
-import javax.swing.UIManager;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JLabel;
+import javax.swing.JComboBox;
+import javax.swing.JPasswordField;
+import javax.swing.JOptionPane;
+import javax.swing.BoxLayout;
 
 /**
  * This class creates a dialog box with default connection parameters to connect to
@@ -53,12 +57,13 @@ import java.sql.SQLException;
  */
 
 public class dbConnection {
+
     static String[] ConnectOptionNames = { "Connect", "Cancel" };
     static String   ConnectTitle = "Connection Information";
-    String username_  = "marine" ;
-    String driver_    = null ;
-    String conn_      = null ;
-    String schema_    = "" ;
+    String username_  = "marine";
+    String driver_    = null;
+    String conn_      = null;
+    String schema_    = "";
 
     Dimension   origin = new Dimension(0, 0);
     JPanel      connectionPanel;
@@ -114,29 +119,29 @@ public class dbConnection {
     public dbConnection (String Header, String username, String url, String driver,
                          String labels[], String fields[], boolean activate )  {
         ConnectTitle = Header;
-        username_  = username ;
-        driver_    = driver ;
-        conn_      = url ;
+        username_  = username;
+        driver_    = driver;
+        conn_      = url;
 
         extraLabels  = new JLabel[ labels.length ];
         extraFields  = new JTextField[ labels.length ];
 
-        for ( int i = 0; i < labels.length ; i++ )  {
+        for ( int i = 0; i < labels.length; i++ )  {
             extraLabels[i] = new JLabel( labels[i], JLabel.RIGHT );
             extraFields[i] = new JTextField( fields[i] );
         }
         jbinit();
-	if (activate)
+        if (activate)
             activateConnectionDialog();
     }
 
     private void jbinit() {
         /// Create the labels and text fields.
-	userNameLabel = new JLabel("User name: ", JLabel.RIGHT);
- 	userNameField = new JTextField();
+        userNameLabel = new JLabel("User name: ", JLabel.RIGHT);
+        userNameField = new JTextField();
 
         passwordLabel = new JLabel("Password: ", JLabel.RIGHT);
-	passwordField = new JPasswordField();
+        passwordField = new JPasswordField();
 
         serverLabel   = new JLabel("Database URL: ", JLabel.RIGHT);
         serverField   = new JComboBox();
@@ -145,15 +150,15 @@ public class dbConnection {
         serverField.addItem("jdbc:oracle:thin:@server:1521:PROD");
 
         driverLabel   = new JLabel("Driver: ", JLabel.RIGHT);
-	driverField   = new JComboBox();
+        driverField   = new JComboBox();
         driverField.setEditable( true );
 
         driverField.addItem( "oracle.jdbc.driver.OracleDriver" );
         driverField.addItem( "postgresql.Driver" );
         driverField.addItem( "com.informix.jdbc.IfxDriver" );
 
-	schemaLabel = new JLabel("Schema: ", JLabel.RIGHT);
- 	schemaField = new JTextField();
+        schemaLabel = new JLabel("Schema: ", JLabel.RIGHT);
+        schemaField = new JTextField();
     }
 
     /**
@@ -161,20 +166,20 @@ public class dbConnection {
      * If the user clicks on the 'Connect' button the connection is reset.
      */
     public void activateConnectionDialog() {
-        int i = 0 ;
-        boolean found = false ;
+        int i = 0;
+        boolean found = false;
 
-        gotParameters = false ;
+        gotParameters = false;
 
         /// Set the defaults
         if (username_ != null)
             userNameField.setText(username_);
 
         if (conn_ != null) {
-            found = false ;
-            for (i = 0 ; i < serverField.getItemCount() ; ++i) {
+            found = false;
+            for (i = 0; i < serverField.getItemCount(); ++i) {
                 if (conn_.equals(serverField.getItemAt(i).toString())) {
-                    found = true ;
+                    found = true;
                     serverField.setSelectedIndex(i);
                     i = serverField.getItemCount();
                 }
@@ -186,10 +191,10 @@ public class dbConnection {
         }
 
         if (driver_ != null) {
-            found = false ;
-            for (i = 0 ; i < driverField.getItemCount() ; ++i) {
+            found = false;
+            for (i = 0; i < driverField.getItemCount(); ++i) {
                 if (driver_.equals(driverField.getItemAt(i).toString())) {
-                    found = true ;
+                    found = true;
                     driverField.setSelectedIndex(i);
                     i = driverField.getItemCount();
                 }
@@ -205,40 +210,40 @@ public class dbConnection {
         connectionPanel = new JPanel(false);
         connectionPanel.setLayout( new BoxLayout(connectionPanel, BoxLayout.X_AXIS) );
 
-	 JPanel namePanel = new JPanel(false);
-	 namePanel.setLayout(new GridLayout(0, 1));
-	 namePanel.add(userNameLabel);
-	 namePanel.add(passwordLabel);
-	 namePanel.add(serverLabel);
-	 namePanel.add(driverLabel);
+         JPanel namePanel = new JPanel(false);
+         namePanel.setLayout(new GridLayout(0, 1));
+         namePanel.add(userNameLabel);
+         namePanel.add(passwordLabel);
+         namePanel.add(serverLabel);
+         namePanel.add(driverLabel);
          namePanel.add(schemaLabel);
 
          //System.out.println( "Adding extra labels - number to add is " + extraLabels.length );
 
-         for ( i = 0; i < extraLabels.length ; i++ ) {
+         for ( i = 0; i < extraLabels.length; i++ ) {
             namePanel.add( extraLabels[i] );
          }
 
-	 JPanel fieldPanel = new JPanel(false);
-	 fieldPanel.setLayout(new GridLayout(0, 1));
-	 fieldPanel.add(userNameField);
-	 fieldPanel.add(passwordField);
-	 fieldPanel.add(serverField);
+         JPanel fieldPanel = new JPanel(false);
+         fieldPanel.setLayout(new GridLayout(0, 1));
+         fieldPanel.add(userNameField);
+         fieldPanel.add(passwordField);
+         fieldPanel.add(serverField);
          fieldPanel.add(driverField);
          fieldPanel.add(schemaField);
 
-         for ( i = 0; i < extraFields.length ; i++ ) {
+         for ( i = 0; i < extraFields.length; i++ ) {
             fieldPanel.add( extraFields[i] );
          }
 
-	 connectionPanel.add(namePanel);
-	 connectionPanel.add(fieldPanel);
+         connectionPanel.add(namePanel);
+         connectionPanel.add(fieldPanel);
 
-	 if (JOptionPane.showOptionDialog(
+         if (JOptionPane.showOptionDialog(
                          JOptionPane.getRootFrame(),
                          connectionPanel,
                          ConnectTitle,
-	                 JOptionPane.DEFAULT_OPTION,
+                         JOptionPane.DEFAULT_OPTION,
                          JOptionPane.INFORMATION_MESSAGE,
                          null,
                          ConnectOptionNames,
@@ -248,13 +253,13 @@ public class dbConnection {
             username_  = userNameField.getText();
             driver_    = driverField.getSelectedItem().toString();
             conn_      = serverField.getSelectedItem().toString();
-	 } else {
+         } else {
          }
      }
 
     public Connection showDialog() {
-      int i = 0 ;
-      Connection conn = null ;
+      int i = 0;
+      Connection conn = null;
       while ((i < 3) && (conn == null)) {
         ++i;
         activateConnectionDialog();
@@ -277,7 +282,7 @@ public class dbConnection {
           i = 4;
         }
       }
-      return conn ;
+      return conn;
     }
 
     public void setDefaults(String driver  , String user  , String url,
@@ -309,14 +314,14 @@ public class dbConnection {
         schema_ = schemaField.getText();
 
         if ((schema_ == null) || (schema_.length() < 1)) {
-            schema_ = getUserName() ;
+            schema_ = getUserName();
         }
 
         if (!schema_.endsWith(".") && (schema_.length() > 0))
-            schema_ += "." ;
+            schema_ += ".";
 
         schemaField.setText(schema_);
-        return schema_ ;
+        return schema_;
     }
 
     public void setSchema(String schema) {
@@ -327,15 +332,15 @@ public class dbConnection {
     }
 
     public void setDriver(String driver) {
-        boolean found = false ;
+        boolean found = false;
 
         if (driver == null)
-            return ;
+            return;
 
         for (int i = 0; i < driverField.getItemCount(); ++i) {
             if (driverField.getItemAt(i).toString().toLowerCase().equals(driver.toLowerCase())) {
                 driverField.setSelectedIndex(i);
-                found = true ;
+                found = true;
                 i = driverField.getItemCount();
             }
         }
@@ -345,19 +350,19 @@ public class dbConnection {
             driverField.setSelectedItem(driver);
         }
 
-        driver_ = driver ;
+        driver_ = driver;
     }
 
     public void setURL(String url) {
-        boolean found = false ;
+        boolean found = false;
 
         if (url == null)
-            return ;
+            return;
 
         for (int i = 0; i < serverField.getItemCount(); ++i) {
             if (serverField.getItemAt(i).toString().toLowerCase().equals(url.toLowerCase())) {
                 serverField.setSelectedIndex(i);
-                found = true ;
+                found = true;
                 i = serverField.getItemCount();
             }
         }
@@ -367,15 +372,15 @@ public class dbConnection {
             serverField.setSelectedItem(url);
         }
 
-        conn_ = url ;
+        conn_ = url;
 
     }
 
     public void setUserName(String name) {
         if (name == null)
-            return ;
+            return;
 
-        username_  = name ;
+        username_  = name;
         userNameField.setText(name);
     }
 

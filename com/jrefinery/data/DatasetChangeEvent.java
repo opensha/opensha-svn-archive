@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -36,6 +36,7 @@
  * 22-Oct-2001 : Renamed DataSource.java --> Dataset.java etc. (DG);
  * 11-Jun-2002 : Separated the event source from the dataset to cover the case where the dataset
  *               is changed to null in the Plot class.  Updated Javadocs (DG);
+ * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,22 +44,24 @@ package com.jrefinery.data;
 
 /**
  * A change event that encapsulates information about a change to a dataset.
+ *
+ * @author DG
  */
 public class DatasetChangeEvent extends java.util.EventObject {
 
     /**
      * The dataset that generated the change event.
      */
-    protected Dataset data;
+    private Dataset data;
 
     /**
      * Constructs a new event.
      * <P>
-     * The source is either the dataset or the Plot class.  The dataset can be null (in this case
-     * the source will be the Plot class).
+     * The source is either the dataset or the Plot class.  The dataset can be
+     * null (in this case the source will be the Plot class).
      *
-     * @param source The source of the event.
-     * @param data The dataset that generated the event.
+     * @param source  the source of the event.
+     * @param data  the dataset that generated the event.
      */
     public DatasetChangeEvent(Object source, Dataset data) {
         super(source);
@@ -68,7 +71,7 @@ public class DatasetChangeEvent extends java.util.EventObject {
     /**
      * Returns the dataset that generated the event.
      *
-     * @return The dataset.
+     * @return the dataset.
      */
     public Dataset getDataset() {
         return data;

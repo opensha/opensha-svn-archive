@@ -58,20 +58,17 @@
  *               comments (DG);
  * 10-Jun-2002 : Overridden datasetChanged(...) method to update the upper and lower bound on the
  *               range axis (if necessary), updated Javadocs (DG);
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 20-Aug-2002 : Changed the constructor for Marker (DG);
+ * 28-Aug-2002 : Added listener notification to setDomainAxis(...) and setRangeAxis(...) (DG);
+ * 23-Sep-2002 : Added getLegendItems() method and fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
-import com.jrefinery.data.SeriesDataset;
-import com.jrefinery.data.CategoryDataset;
-import com.jrefinery.data.DatasetChangeEvent;
-import com.jrefinery.chart.event.PlotChangeEvent;
-import com.jrefinery.chart.tooltips.CategoryToolTipGenerator;
-
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.Insets;
@@ -80,10 +77,15 @@ import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import java.util.List;
+import com.jrefinery.data.SeriesDataset;
+import com.jrefinery.data.CategoryDataset;
+import com.jrefinery.data.DatasetChangeEvent;
+import com.jrefinery.chart.event.PlotChangeEvent;
+
 
 /**
- * A general plotting class that uses data from a CategoryDataset, and uses a plug-in renderer
- * to draw individual data items.
+ * A general plotting class that uses data from a CategoryDataset, and uses a
+ * plug-in renderer to draw individual data items.
  *
  * @see Plot
  * @see CategoryItemRenderer
@@ -100,11 +102,11 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /** The range axis. */
     protected ValueAxis rangeAxis;
 
-    /** A list of markers (optional) for the range axis. */
-    protected List markers;
-
     /** The renderer for the data items. */
     protected CategoryItemRenderer renderer;
+
+    /** A list of markers (optional) for the range axis. */
+    protected List rangeMarkers;
 
     /** The gap before the first item in the plot. */
     protected double introGapPercent;
@@ -113,8 +115,8 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     protected double trailGapPercent;
 
     /**
-     * The percentage of the overall drawing space allocated to providing gaps between the last
-     * item in one category and the first item in the next category.
+     * The percentage of the overall drawing space allocated to providing gaps
+     * between the last item in one category and the first item in the next category.
      */
     protected double categoryGapsPercent;
 
@@ -122,7 +124,7 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     protected double itemGapsPercent;
 
     /** A flag indicating whether or not value labels are shown. */
-    protected boolean labelsVisible;
+    protected boolean valueLabelsVisible;
 
     /** The value label font. */
     protected Font labelFont;
@@ -142,14 +144,15 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /**
      * Constructs a category plot, using default values where necessary.
      *
-     * @param data The dataset.
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param renderer The item renderer.
+     * @param data  The dataset.
+     * @param domainAxis  The domain axis.
+     * @param rangeAxis  The range axis.
+     * @param renderer  The item renderer.
      *
      */
     protected CategoryPlot(CategoryDataset data,
-                           CategoryAxis domainAxis, ValueAxis rangeAxis,
+                           CategoryAxis domainAxis,
+                           ValueAxis rangeAxis,
                            CategoryItemRenderer renderer) {
 
         this(data, domainAxis, rangeAxis, renderer,
@@ -170,34 +173,42 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /**
      * Constructs a category plot.
      *
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param renderer The item renderer.
-     * @param insets The insets for the plot.
-     * @param backgroundPaint An optional color for the plot's background.
-     * @param backgroundImage An optional image for the plot's background.
-     * @param backgroundAlpha Alpha-transparency for the plot's background.
-     * @param outlineStroke The stroke used to draw the plot outline.
-     * @param outlinePaint The paint used to draw the plot outline.
-     * @param foregroundAlpha The alpha transparency.
-     * @param introGapPercent The gap before the first item in the plot, as a percentage of the
-     *                        available drawing space.
-     * @param trailGapPercent The gap after the last item in the plot, as a percentage of the
-     *                        available drawing space.
-     * @param categoryGapsPercent The percentage of drawing space allocated to the gap between the
-     *                            last item in one category and the first item in the next category.
-     * @param itemGapsPercent The gap between items within the same category.
+     * @param data  The dataset.
+     * @param domainAxis  The domain axis.
+     * @param rangeAxis  The range axis.
+     * @param renderer  The item renderer.
+     * @param insets  The insets for the plot.
+     * @param backgroundPaint  An optional color for the plot's background.
+     * @param backgroundImage  An optional image for the plot's background.
+     * @param backgroundAlpha  Alpha-transparency for the plot's background.
+     * @param outlineStroke  The stroke used to draw the plot outline.
+     * @param outlinePaint  The paint used to draw the plot outline.
+     * @param foregroundAlpha  The alpha transparency.
+     * @param introGapPercent  The gap before the first item in the plot, as a
+     *                         percentage of the available drawing space.
+     * @param trailGapPercent  The gap after the last item in the plot, as a
+     *                         percentage of the available drawing space.
+     * @param categoryGapsPercent  The percentage of drawing space allocated
+     *                             to the gap between the last item in one category
+     *                             and the first item in the next category.
+     * @param itemGapsPercent  The gap between items within the same category.
      *
      */
     protected CategoryPlot(CategoryDataset data,
-                           CategoryAxis domainAxis, ValueAxis rangeAxis,
+                           CategoryAxis domainAxis,
+                           ValueAxis rangeAxis,
                            CategoryItemRenderer renderer,
                            Insets insets,
-                           Paint backgroundPaint, Image backgroundImage, float backgroundAlpha,
-                           Stroke outlineStroke, Paint outlinePaint,
+                           Paint backgroundPaint,
+                           Image backgroundImage,
+                           float backgroundAlpha,
+                           Stroke outlineStroke,
+                           Paint outlinePaint,
                            float foregroundAlpha,
-                           double introGapPercent, double trailGapPercent,
-                           double categoryGapsPercent, double itemGapsPercent) {
+                           double introGapPercent,
+                           double trailGapPercent,
+                           double categoryGapsPercent,
+                           double itemGapsPercent) {
 
         super(data,
               insets,
@@ -207,42 +218,51 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
               );
 
         this.renderer = renderer;
+        if (renderer != null) {
+            renderer.setPlot(this);
+        }
 
         this.domainAxis = domainAxis;
-        if (domainAxis!=null) {
+        if (domainAxis != null) {
             domainAxis.setPlot(this);
             domainAxis.addChangeListener(this);
         }
+
         this.rangeAxis = rangeAxis;
-        if (rangeAxis!=null) {
+        if (rangeAxis != null) {
             rangeAxis.setPlot(this);
             rangeAxis.addChangeListener(this);
         }
 
-        this.markers = new java.util.ArrayList();
-        this.markers.add(new Marker(0.0,
-                                    new Color(0.8f, 0.8f, 0.8f, 0.5f),
-                                    new Color(0.85f, 0.85f, 0.95f, 0.5f), 0.6f));
         this.insets = insets;
         this.introGapPercent = introGapPercent;
         this.trailGapPercent = trailGapPercent;
         this.categoryGapsPercent = categoryGapsPercent;
         this.itemGapsPercent = itemGapsPercent;
-        this.labelsVisible = false;
+        this.valueLabelsVisible = false;
         this.labelFont = DEFAULT_LABEL_FONT;
         this.labelPaint = Color.black;
         this.labelFormatter = java.text.NumberFormat.getInstance();
         this.labelFormatPattern = null;
         this.verticalLabels = false;
 
+        this.rangeMarkers = null;
+
+        Marker baseline = new Marker(0.0,
+                                     new Color(0.8f, 0.8f, 0.8f, 0.5f),
+                                     new java.awt.BasicStroke(1.0f),
+                                     new Color(0.85f, 0.85f, 0.95f, 0.5f), 0.6f);
+        addRangeMarker(baseline);
+
     }
 
     /**
-     * Returns true if this plot is part of a combined plot structure, and
-     * false otherwise.
+     * Returns true if this plot is part of a combined plot structure.
+     *
+     * @return <code>true</code> if this plot is part of a combined plot structure.
      */
     public boolean isSubplot() {
-        return (this.parent!=null);
+        return (this.parent != null);
     }
 
     /**
@@ -268,8 +288,8 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /**
      * Returns the number of series in this plot.
      * <P>
-     * This gets used when the plot is part of a combined chart...there may be a better mechanism
-     * in the future.
+     * This gets used when the plot is part of a combined chart... there may be
+     * a better mechanism in the future.
      *
      * @return The series count.
      */
@@ -278,7 +298,9 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
         int result = 0;
 
         SeriesDataset data = this.getCategoryDataset();
-        if (data!=null) result = data.getSeriesCount();
+        if (data != null) {
+            result = data.getSeriesCount();
+        }
 
         return result;
 
@@ -288,16 +310,40 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * Returns a list of labels for the legend.
      *
      * @return The list of labels.
+     *
+     * @deprecated use getLegendItems().
      */
     public List getLegendItemLabels() {
 
         List result = new java.util.ArrayList();
 
         SeriesDataset data = getCategoryDataset();
-        if (data!=null) {
+        if (data != null) {
             int seriesCount = data.getSeriesCount();
-            for (int i=0; i<seriesCount; i++) {
+            for (int i = 0; i < seriesCount; i++) {
                 result.add(data.getSeriesName(i));
+            }
+        }
+
+        return result;
+
+    }
+
+    /**
+     * Returns the legend items for the plot.
+     *
+     * @return the legend items.
+     */
+    public LegendItemCollection getLegendItems() {
+
+        LegendItemCollection result = new LegendItemCollection();
+
+        SeriesDataset data = getCategoryDataset();
+        if (data != null) {
+            int seriesCount = data.getSeriesCount();
+            for (int i = 0; i < seriesCount; i++) {
+                LegendItem item = this.renderer.getLegendItem(i);
+                result.add(item);
             }
         }
 
@@ -319,18 +365,21 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * <p>
      * If you set the renderer to null, no data will be plotted on the chart.
      *
-     * @param renderer The renderer (null permitted).
+     * @param renderer      The renderer (null permitted).
      */
     public void setRenderer(CategoryItemRenderer renderer) {
 
         this.renderer = renderer;
+        if (renderer != null) {
+            renderer.setPlot(this);
+        }
         this.notifyListeners(new PlotChangeEvent(this));
 
     }
 
     /**
-     * Returns the gap before the first bar on the chart, as a percentage of the available drawing
-     * space (0.05 = 5 percent).
+     * Returns the gap before the first bar on the chart, as a percentage of
+     * the available drawing space (0.05 = 5 percent).
      *
      * @return The "intro gap" (percentage).
      */
@@ -339,30 +388,30 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
-     * Sets the gap before the first bar on the chart, and notifies registered listeners that the
-     * plot has been modified.
+     * Sets the gap before the first bar on the chart, and notifies registered
+     * listeners that the plot has been modified.
      *
-     * @param percent The new gap value, expressed as a percentage of the width of the plot area
-     *                (0.05 = 5 percent).
+     * @param percent  The new gap value, expressed as a percentage of the
+     *                 width of the plot area (0.05 = 5 percent).
      */
     public void setIntroGapPercent(double percent) {
 
         // check argument...
-        if ((percent<0.0) || (percent>MAX_INTRO_GAP_PERCENT)) {
-            throw new IllegalArgumentException("BarPlot.setIntroGapPercent(double): argument "
-                                              +"outside valid range.");
+        if ((percent < 0.0) || (percent > MAX_INTRO_GAP_PERCENT)) {
+            throw new IllegalArgumentException(
+                "CategoryPlot.setIntroGapPercent(double): argument outside valid range.");
         }
 
         // make the change...
-        if (this.introGapPercent!=percent) {
+        if (this.introGapPercent != percent) {
             this.introGapPercent = percent;
             notifyListeners(new PlotChangeEvent(this));
         }
     }
 
     /**
-     * Returns the gap following the last bar on the chart, as a percentage of the available
-     * drawing space.
+     * Returns the gap following the last bar on the chart, as a percentage of
+     * the available drawing space.
      *
      * @return The "trail gap" (percentage);
      */
@@ -371,22 +420,22 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
-     * Sets the gap after the last bar on the chart, and notifies registered listeners that the plot
-     * has been modified.
+     * Sets the gap after the last bar on the chart, and notifies registered
+     * listeners that the plot has been modified.
      *
-     * @param percent The new gap value, expressed as a percentage of the width of the plot area
-     *                (0.05 = 5 percent).
+     * @param percent  The new gap value, expressed as a percentage of the
+     *                 width of the plot area (0.05 = 5 percent).
      */
     public void setTrailGapPercent(double percent) {
 
         // check argument...
-        if ((percent<0.0) || (percent>MAX_TRAIL_GAP_PERCENT)) {
-            throw new IllegalArgumentException("BarPlot.setTrailGapPercent(double): argument "
-                                              +"outside valid range.");
+        if ((percent < 0.0) || (percent > MAX_TRAIL_GAP_PERCENT)) {
+            throw new IllegalArgumentException(
+                "CategoryPlot.setTrailGapPercent(double): argument outside valid range.");
         }
 
         // make the change...
-        if (this.trailGapPercent!=percent) {
+        if (this.trailGapPercent != percent) {
             trailGapPercent = percent;
             notifyListeners(new PlotChangeEvent(this));
         }
@@ -394,8 +443,8 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
-     * Returns the percentage of the drawing space that is allocated to providing gaps between the
-     * categories.
+     * Returns the percentage of the drawing space that is allocated to
+     * providing gaps between the categories.
      *
      * @return The "category gaps" (percentage).
      */
@@ -404,31 +453,32 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
-     * Sets the gap between the last bar in one category and the first bar in the
-     * next category, and notifies registered listeners that the plot has been modified.
+     * Sets the gap between the last bar in one category and the first bar in
+     * the next category, and notifies registered listeners that the plot has
+     * been modified.
      *
-     * @param percent The new gap value, expressed as a percentage of the width of the plot area
-     *                (0.05 = 5 percent).
+     * @param percent  The new gap value, expressed as a percentage of the
+     *                 width of the plot area (0.05 = 5 percent).
      */
     public void setCategoryGapsPercent(double percent) {
 
         // check argument...
-        if ((percent<0.0) || (percent>MAX_CATEGORY_GAPS_PERCENT)) {
-            throw new IllegalArgumentException("BarPlot.setCategoryGapsPercent(double): argument "
-                                              +"outside valid range.");
+        if ((percent < 0.0) || (percent > MAX_CATEGORY_GAPS_PERCENT)) {
+            throw new IllegalArgumentException(
+                "CategoryPlot.setCategoryGapsPercent(double): argument outside valid range.");
         }
 
         // make the change...
-        if (this.categoryGapsPercent!=percent) {
-            this.categoryGapsPercent=percent;
+        if (this.categoryGapsPercent != percent) {
+            this.categoryGapsPercent = percent;
             notifyListeners(new PlotChangeEvent(this));
         }
 
     }
 
     /**
-     * Returns the percentage of the drawing space that is allocated to providing gaps between the
-     * items in a category.
+     * Returns the percentage of the drawing space that is allocated to
+     * providing gaps between the items in a category.
      *
      * @return The "item gaps" (percentage).
      */
@@ -437,22 +487,22 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
-     * Sets the gap between one bar and the next within the same category, and notifies registered
-     * listeners that the plot has been modified.
+     * Sets the gap between one bar and the next within the same category, and
+     * notifies registered listeners that the plot has been modified.
      *
-     * @param percent The new gap value, expressed as a percentage of the width of the plot area
-     *                (0.05 = 5 percent).
+     * @param percent  The new gap value, expressed as a percentage of the width
+     *                 of the plot area (0.05 = 5 percent).
      */
     public void setItemGapsPercent(double percent) {
 
         // check argument...
-        if ((percent<0.0) || (percent>MAX_ITEM_GAPS_PERCENT)) {
-            throw new IllegalArgumentException("BarPlot.setItemGapsPercent(double): argument "
-                                              +"outside valid range.");
+        if ((percent < 0.0) || (percent > MAX_ITEM_GAPS_PERCENT)) {
+            throw new IllegalArgumentException(
+                "CategoryPlot.setItemGapsPercent(double): argument outside valid range.");
         }
 
         // make the change...
-        if (percent!=this.itemGapsPercent) {
+        if (percent != this.itemGapsPercent) {
             this.itemGapsPercent = percent;
             notifyListeners(new PlotChangeEvent(this));
         }
@@ -465,12 +515,13 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * @return The dataset.
      */
     public CategoryDataset getCategoryDataset() {
-        return (CategoryDataset)dataset;
+        return (CategoryDataset) dataset;
     }
 
     /**
-     * Returns the domain axis for the plot.  If the domain axis for this plot is null, then the
-     * method will return the parent plot's domain axis (if there is a parent plot).
+     * Returns the domain axis for the plot.  If the domain axis for this plot
+     * is null, then the method will return the parent plot's domain axis (if
+     * there is a parent plot).
      *
      * @return The domain axis.
      */
@@ -478,7 +529,7 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
 
         CategoryAxis result = domainAxis;
 
-        if ((result==null) && (this.parent!=null)) {
+        if ((result == null) && (this.parent != null)) {
             result = parent.getDomainAxis();
         }
 
@@ -490,48 +541,53 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * Sets the domain axis for the plot (this must be compatible with the
      * plot type or an exception is thrown).
      *
-     * @param axis The new axis.
+     * @param axis  The new axis.
+     *
+     * @throws AxisNotCompatibleException  if axis are not compatible.
      */
     public void setDomainAxis(CategoryAxis axis) throws AxisNotCompatibleException {
 
         if (isCompatibleDomainAxis(axis)) {
 
-            if (axis!=null) {
-
+            if (axis != null) {
                 try {
                     axis.setPlot(this);
                 }
                 catch (PlotNotCompatibleException e) {
-                    throw new AxisNotCompatibleException("CategoryPlot.setDomainAxis(...): "
-                                                        +"plot not compatible with axis.");
+                    throw new AxisNotCompatibleException(
+                        "CategoryPlot.setDomainAxis(...): plot not compatible with axis.");
                 }
                 axis.addChangeListener(this);
             }
 
             // plot is likely registered as a listener with the existing axis...
-            if (this.domainAxis!=null) {
+            if (this.domainAxis != null) {
                 this.domainAxis.removeChangeListener(this);
             }
 
             this.domainAxis = axis;
+            notifyListeners(new PlotChangeEvent(this));
 
         }
-        else throw new AxisNotCompatibleException("CategoryPlot.setDomainAxis(...): "
-                                                 +"axis not compatible with plot.");
+        else {
+            throw new AxisNotCompatibleException(
+                "CategoryPlot.setDomainAxis(...): axis not compatible with plot.");
+        }
 
     }
 
     /**
-     * Returns the range axis for the plot.  If the range axis for this plot is null, then the
-     * method will return the parent plot's range axis (if there is a parent plot).
+     * Returns the range axis for the plot.  If the range axis for this plot is
+     * null, then the method will return the parent plot's range axis (if there
+     * is a parent plot).
      *
-     * @return The range axis.
+     * @return  The range axis.
      */
     public ValueAxis getRangeAxis() {
 
         ValueAxis result = rangeAxis;
 
-        if ((result==null) && (this.parent!=null)) {
+        if ((result == null) && (this.parent != null)) {
             result = parent.getRangeAxis();
         }
 
@@ -542,47 +598,51 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /**
      * Sets the range axis for the plot.
      * <P>
-     * An exception is thrown if the new axis and the plot are not mutually
-     * compatible.
+     * An exception is thrown if the new axis and the plot are not mutually compatible.
      *
-     * @param axis The new axis (null permitted).
+     * @param axis  The new axis.
+     *
+     * @throws AxisNotCompatibleException  if axis are not compatible.
      */
     public void setRangeAxis(ValueAxis axis)
         throws AxisNotCompatibleException {
 
         if (isCompatibleRangeAxis(axis)) {
 
-            if (axis!=null) {
+            if (axis != null) {
                 try {
                     axis.setPlot(this);
                 }
                 catch (PlotNotCompatibleException e) {
-                    throw new AxisNotCompatibleException("CategoryPlot.setRangeAxis(...): "
-                                                        +"plot not compatible with axis.");
+                    throw new AxisNotCompatibleException(
+                        "CategoryPlot.setRangeAxis(...): "
+                            + "plot not compatible with axis.");
                 }
                 axis.addChangeListener(this);
             }
 
             // plot is likely registered as a listener with the existing axis...
-            if (this.rangeAxis!=null) {
+            if (this.rangeAxis != null) {
                 this.rangeAxis.removeChangeListener(this);
             }
 
             this.rangeAxis = axis;
+            notifyListeners(new PlotChangeEvent(this));
 
         }
-        else throw new AxisNotCompatibleException("Plot.setRangeAxis(...): "
-                                                 +"axis not compatible with plot.");
-
+        else {
+            throw new AxisNotCompatibleException(
+                "Plot.setRangeAxis(...): axis not compatible with plot.");
+        }
     }
 
     /**
      * Checks the compatibility of a domain axis, returning true if the axis
      * is compatible with the plot, and false otherwise.
      *
-     * @param axis The proposed axis.
+     * @param axis  The proposed axis.
      *
-     * @return True if the axis is compatible with the plot, and false otherwise.
+     * @return <code>true</code> if the axis is compatible with the plot.
      */
     public abstract boolean isCompatibleDomainAxis(CategoryAxis axis);
 
@@ -590,35 +650,37 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * Checks the compatibility of a range axis, returning true if the axis is
      * compatible with the plot, and false otherwise.
      *
-     * @param axis The proposed axis.
+     * @param axis  The proposed axis.
      *
-     * @return True if the axis is compatible with the plot, and false otherwise.
+     * @return <code>true</code> if the axis is compatible with the plot.
      */
     public abstract boolean isCompatibleRangeAxis(ValueAxis axis);
 
     /**
-     * Returns the x or y coordinate (depending on the orientation of the plot) in Java 2D User
-     * Space of the center of the specified category.
+     * Returns the x or y coordinate (depending on the orientation of the plot)
+     * in Java 2D User Space of the center of the specified category.
      *
-     * @param category The category (zero-based index).
-     * @param area The region within which the plot will be drawn.
+     * @param category  The category (zero-based index).
+     * @param area  The region within which the plot will be drawn.
+     *
+     * @return the center of the specified category.
      */
     public abstract double getCategoryCoordinate(int category, Rectangle2D area);
 
     /**
      * Zooms (in or out) on the plot's value axis.
      * <p>
-     * If the value 0.0 is passed in as the zoom percent, the auto-range calculation for the axis
-     * is restored (which sets the range to include the minimum and maximum data values, thus
-     * displaying all the data).
+     * If the value 0.0 is passed in as the zoom percent, the auto-range
+     * calculation for the axis is restored (which sets the range to include
+     * the minimum and maximum data values, thus displaying all the data).
      *
-     * @param percent The zoom amount.
+     * @param percent  The zoom amount.
      */
     public void zoom(double percent) {
 
         ValueAxis rangeAxis = this.getRangeAxis();
-        if (percent>0.0) {
-            double range = rangeAxis.getMaximumAxisValue()-rangeAxis.getMinimumAxisValue();
+        if (percent > 0.0) {
+            double range = rangeAxis.getMaximumAxisValue() - rangeAxis.getMinimumAxisValue();
             double scaledRange = range * percent;
             rangeAxis.setAnchoredRange(scaledRange);
         }
@@ -629,28 +691,52 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
-     * Sets the flag that indicates whether or not the value labels are
-     * showing.
-     * <P>
-     * Registered listeners are notified of a general change to the axis.
+     * Returns a flag that indicates whether or not the value labels are showing.
      *
-     * @param flag The flag.
+     * @return the flag.
+     *
+     * @deprecated use getValueLabelsVisible().
      */
-    public void setLabelsVisible(boolean flag) {
-        if (this.labelsVisible != flag) {
-            this.labelsVisible = flag;
-            notifyListeners(new PlotChangeEvent(this));
-        }
+    public boolean getLabelsVisible() {
+        return getValueLabelsVisible();
     }
 
     /**
-     * Returns a flag that indicates whether or not the value labels are
-     * showing.
+     * Returns a flag that indicates whether or not the value labels are showing.
      *
-     * @return The flag.
+     * @return the flag.
      */
-    public boolean getLabelsVisible() {
-        return this.labelsVisible;
+    public boolean getValueLabelsVisible() {
+        return this.valueLabelsVisible;
+    }
+
+    /**
+     * Sets the flag that indicates whether or not the value labels are showing.
+     * <P>
+     * Registered listeners are notified of a general change to the axis.
+     *
+     * @param flag  the flag.
+     *
+     * @deprecated use setValueLabelsVisible(boolean).
+     */
+    public void setLabelsVisible(boolean flag) {
+        setValueLabelsVisible(flag);
+    }
+
+    /**
+     * Sets the flag that indicates whether or not the value labels are showing.
+     * <P>
+     * Registered listeners are notified of a general change to the axis.
+     * <P>
+     * Not all renderers support this yet.
+     *
+     * @param flag  the flag.
+     */
+    public void setValueLabelsVisible(boolean flag) {
+        if (this.valueLabelsVisible != flag) {
+            this.valueLabelsVisible = flag;
+            notifyListeners(new PlotChangeEvent(this));
+        }
     }
 
     /**
@@ -658,14 +744,14 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * <P>
      * Notifies registered listeners that the plot has been changed.
      *
-     * @param font The new value label font.
+     * @param font  The new value label font.
      */
     public void setLabelFont(Font font) {
 
         // check arguments...
-        if (labelFont==null) {
-            throw new IllegalArgumentException("CategoryPlot.setLabelFont(...): "
-                                               +"null font not allowed.");
+        if (labelFont == null) {
+            throw new IllegalArgumentException(
+                "CategoryPlot.setLabelFont(...): null font not allowed.");
         }
 
         // make the change...
@@ -679,7 +765,7 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /**
      * Returns the value label font.
      *
-     * @return The value label font
+     * @return The value label font.
      */
     public Font getLabelFont() {
         return labelFont;
@@ -690,14 +776,14 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * <P>
      * Notifies registered listeners that the plot has been changed.
      *
-     * @param font The new value label paint.
+     * @param paint  The new value label paint.
      */
     public void setLabelPaint(Paint paint) {
 
         // check arguments...
-        if (labelPaint==null) {
-            throw new IllegalArgumentException("CategoryPlot.setLabelPaint(...): "
-                                               +"null paint not allowed.");
+        if (labelPaint == null) {
+            throw new IllegalArgumentException(
+                "CategoryPlot.setLabelPaint(...): null paint not allowed.");
         }
 
         // make the change...
@@ -722,20 +808,21 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      * <P>
      * Notifies registered listeners that the plot has been changed.
      *
-     * @param format The new value label format pattern.  Use null if labels are not to be shown
+     * @param format  The new value label format pattern. Use <code>null</code> if labels are
+     *                not to be shown.
      */
     public void setLabelFormatString(String format) {
 
         boolean changed = false;
 
-        if (format==null) {
-             if (labelFormatter!=null) {
-                    this.labelFormatPattern = null;
+        if (format == null) {
+             if (labelFormatter != null) {
+                 this.labelFormatPattern = null;
                  this.labelFormatter = null;
                  changed = true;
              }
         }
-        else if (labelFormatter==null || !format.equals(labelFormatPattern)) {
+        else if (labelFormatter == null || !format.equals(labelFormatPattern)) {
             this.labelFormatPattern = format;
             this.labelFormatter = new DecimalFormat(format);
             changed = true;
@@ -744,6 +831,7 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
         if (changed) {
             notifyListeners(new PlotChangeEvent(this));
         }
+
     }
 
     /**
@@ -753,19 +841,6 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
      */
     public NumberFormat getLabelFormatter() {
         return labelFormatter;
-    }
-
-    /**
-     * Sets the flag that determines the orientation of the value labels.
-     * Registered listeners are notified that the plot has been changed.
-     *
-     * @param flag The flag.
-     */
-    public void setVerticalLabels(boolean flag) {
-        if (this.verticalLabels != flag) {
-            this.verticalLabels = flag;
-            notifyListeners(new PlotChangeEvent(this));
-        }
     }
 
     /**
@@ -779,15 +854,29 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     }
 
     /**
+     * Sets the flag that determines the orientation of the value labels.
+     * Registered listeners are notified that the plot has been changed.
+     *
+     * @param flag  The flag.
+     */
+    public void setVerticalLabels(boolean flag) {
+        if (this.verticalLabels != flag) {
+            this.verticalLabels = flag;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+    }
+
+    /**
      * Receives notification of a change to the plot's dataset.
      * <P>
-     * The chart reacts by passing on a chart change event to all registered listeners.
+     * The chart reacts by passing on a chart change event to all registered
+     * listeners.
      *
-     * @param event Information about the event (not used here).
+     * @param event  Information about the event (not used here).
      */
     public void datasetChanged(DatasetChangeEvent event) {
 
-        if (this.rangeAxis!=null) {
+        if (this.rangeAxis != null) {
             this.rangeAxis.configure();
         }
         super.datasetChanged(event);
@@ -797,13 +886,29 @@ public abstract class CategoryPlot extends Plot implements CategoryPlotConstants
     /**
      * Adds a marker for the range axis.
      * <P>
-     * Typically a marker will be drawn by the renderer as a line perpendicular to the range
-     * axis, however this is entirely up to the renderer.
+     * Typically a marker will be drawn by the renderer as a line perpendicular
+     * to the range axis, however this is entirely up to the renderer.
      *
      * @param marker The marker.
      */
     public void addRangeMarker(Marker marker) {
-        this.markers.add(marker);
+
+        if (this.rangeMarkers == null) {
+            this.rangeMarkers = new java.util.ArrayList();
+        }
+        this.rangeMarkers.add(marker);
+        notifyListeners(new PlotChangeEvent(this));
+
+    }
+
+    /**
+     * Clears all the range markers for the plot.
+     */
+    public void clearRangeMarkers() {
+        if (this.rangeMarkers != null) {
+            this.rangeMarkers.clear();
+            notifyListeners(new PlotChangeEvent(this));
+        }
     }
 
 }

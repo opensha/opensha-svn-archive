@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -42,35 +42,40 @@ package com.jrefinery.data;
 
 /**
  * An interface through which data in the form of (x, y) pairs can be accessed.
- * <P>
- * JFreeChart (http://www.jrefinery.com/jfreechart) uses this interface to obtain (x, y) data for
- * plotting charts.
+ *
+ * @author DG
  */
 public interface XYDataset extends SeriesDataset {
 
     /**
      * Returns the number of items in a series.
-     * @param series The series (zero-based index).
-     * @return The number of items within a series.
+     *
+     * @param series  the series (zero-based index).
+     *
+     * @return the number of items within the series.
      */
     public int getItemCount(int series);
 
     /**
      * Returns the x-value for an item within a series.
      * <P>
-     * The implementation is responsible for ensuring that the x-values are presented in ascending
-     * order.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The x-value for an item within a series.
+     * The implementation is responsible for ensuring that the x-values are
+     * presented in ascending order.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the x-value.
      */
     public Number getXValue(int series, int item);
 
     /**
      * Returns the y-value for an item within a series.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The y-value for an item within a series.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the y-value.
      */
     public Number getYValue(int series, int item);
 

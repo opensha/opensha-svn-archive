@@ -33,29 +33,35 @@
  * --------------------------
  * 19-Dec-2001 : Added standard header (DG);
  * 01-May-2002 : Changed the unit size from Number to double (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
 /**
- * Base class representing a tick unit.  This determines the spacing of the tick marks on an axis.
+ * Base class representing a tick unit.  This determines the spacing of the
+ * tick marks on an axis.
  * <P>
- * This class (and subclasses) should be immutable, the reason being that ordered collections of
- * tick units are maintained and if one instance can be changed, it may destroy the order of the
- * collection that it belongs to.  In addition, if the implementations are immutable, they can
- * belong to multiple collections.
+ * This class (and any subclasses) should be immutable, the reason being that
+ * ORDERED collections of tick units are maintained and if one instance can be
+ * changed, it may destroy the order of the collection that it belongs to.
+ * In addition, if the implementations are immutable, they can belong to
+ * multiple collections.
  *
+ * @see ValueAxis
+ *
+ * @author DG
  */
 public abstract class TickUnit implements Comparable {
 
     /** The size of the tick unit. */
-    protected double size;
+    private double size;
 
     /**
      * Constructs a new tick unit.
      *
-     * @param size The tick unit size.
+     * @param size  the tick unit size.
      */
     public TickUnit(double size) {
         this.size = size;
@@ -63,6 +69,8 @@ public abstract class TickUnit implements Comparable {
 
     /**
      * Returns the size of the tick unit.
+     *
+     * @return the size of the tick unit.
      */
     public double getSize() {
         return this.size;
@@ -73,7 +81,9 @@ public abstract class TickUnit implements Comparable {
      * <P>
      * Subclasses of TickUnit may implement special formatting by overriding this method.
      *
-     * @param The data value.
+     * @param value  the data value.
+     *
+     * @return value as string.
      */
     public String valueToString(double value) {
         return String.valueOf(value);
@@ -82,21 +92,29 @@ public abstract class TickUnit implements Comparable {
     /**
      * Compares this tick unit to an arbitrary object.
      *
-     * @param object The object to compare against.
+     * @param object  the object to compare against.
+     *
+     * @return <code>1</code> if the size of the other object is less than this,
+     *      <code>0</code> if both have the same size and <code>-1</code> this
+     *      size is less than the others.
      */
     public int compareTo(Object object) {
 
         if (object instanceof TickUnit) {
-            TickUnit other = (TickUnit)object;
-            if (this.size>other.getSize()) {
+            TickUnit other = (TickUnit) object;
+            if (this.size > other.getSize()) {
                 return 1;
             }
-            else if (this.size<other.getSize()) {
+            else if (this.size < other.getSize()) {
                 return -1;
             }
-            else return 0;
+            else {
+                return 0;
+            }
         }
-        else return -1;
+        else {
+            return -1;
+        }
 
     }
 

@@ -36,22 +36,27 @@
  * 22-Oct-2001 : Renamed DataSource.java --> Dataset.java etc. (DG);
  *               Added translate factor, used for demonstrating dynamic chart (DG);
  * 07-Nov-2001 : Updated source header (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import com.jrefinery.data.*;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.AbstractSeriesDataset;
+import com.jrefinery.data.DatasetChangeEvent;
 
 /**
  * A dummy dataset for an XY plot.
  * <P>
  * Note that the aim of this class is to create a self-contained data source for demo purposes -
  * it is NOT intended to show how you should go about writing your own datasets.
+ *
+ * @author DG
  */
 public class SampleXYDataset extends AbstractSeriesDataset implements XYDataset {
 
-    // use the translate to change the data and demonstrate dynamic data changes
+    /** Use the translate to change the data and demonstrate dynamic data changes. */
     private double translate;
 
     /**
@@ -61,6 +66,11 @@ public class SampleXYDataset extends AbstractSeriesDataset implements XYDataset 
         this.translate = 0.0;
     }
 
+    /**
+     * Returns the translation factor.
+     *
+     * @return  the translation factor.
+     */
     public double getTranslate() {
         return this.translate;
     }
@@ -68,7 +78,7 @@ public class SampleXYDataset extends AbstractSeriesDataset implements XYDataset 
     /**
      * Sets the translation constant for the x-axis.
      *
-     * @param translate The translation constant.
+     * @param translate  the translation factor.
      */
     public void setTranslate(double translate) {
         this.translate = translate;
@@ -77,30 +87,37 @@ public class SampleXYDataset extends AbstractSeriesDataset implements XYDataset 
 
     /**
      * Returns the x-value for the specified series and item.  Series are numbered 0, 1, ...
-     * @param series The index (zero-based) of the series;
-     * @param item The index (zero-based) of the required item;
-     * @return The x-value for the specified series and item.
+     *
+     * @param series  the index (zero-based) of the series.
+     * @param item  the index (zero-based) of the required item.
+     *
+     * @return the x-value for the specified series and item.
      */
     public Number getXValue(int series, int item) {
-        return new Double(-10.0+translate+(item/10.0));
+        return new Double(-10.0 + translate + (item / 10.0));
     }
 
     /**
      * Returns the y-value for the specified series and item.  Series are numbered 0, 1, ...
-     * @param series The index (zero-based) of the series;
-     * @param item The index (zero-based) of the required item;
-     * @return The y-value for the specified series and item.
+     *
+     * @param series  the index (zero-based) of the series.
+     * @param item  the index (zero-based) of the required item.
+     *
+     * @return the y-value for the specified series and item.
      */
     public Number getYValue(int series, int item) {
-        if (series==0) {
-            return new Double(Math.cos(-10.0+translate+(item/10.0)));
+        if (series == 0) {
+            return new Double(Math.cos(-10.0 + translate + (item / 10.0)));
         }
-        else return new Double(2*(Math.sin(-10.0+translate+(item/10.0))));
+        else {
+            return new Double(2 * (Math.sin(-10.0 + translate + (item / 10.0))));
+        }
     }
 
     /**
-     * Returns the number of series in the data source.
-     * @return The number of series in the data source.
+     * Returns the number of series in the dataset.
+     *
+     * @return the number of series in the dataset.
      */
     public int getSeriesCount() {
         return 2;
@@ -108,23 +125,29 @@ public class SampleXYDataset extends AbstractSeriesDataset implements XYDataset 
 
     /**
      * Returns the name of the series.
-     * @param series The index (zero-based) of the series;
-     * @return The name of the series.
+     *
+     * @param series  the index (zero-based) of the series.
+     *
+     * @return the name of the series.
      */
     public String getSeriesName(int series) {
-        if (series==0) {
+        if (series == 0) {
             return "y = cosine(x)";
         }
-        else if (series==1) {
+        else if (series == 1) {
             return "y = 2*sine(x)";
         }
-        else return "Error";
+        else {
+            return "Error";
+        }
     }
 
     /**
      * Returns the number of items in the specified series.
-     * @param series The index (zero-based) of the series;
-     * @return The number of items in the specified series.
+     *
+     * @param series  the index (zero-based) of the series.
+     * @return the number of items in the specified series.
+     *
      */
     public int getItemCount(int series) {
         return 200;

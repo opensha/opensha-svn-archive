@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,13 +39,15 @@ package com.jrefinery.data;
 
 /**
  * Methods for receiving notification of changes to a data series.
+ *
+ * @author DG
  */
 public interface SeriesChangeListener {
 
     /**
      * Called when an observed series changes in some way.
      *
-     * @param event Information about the change.
+     * @param event  information about the change.
      */
     public void seriesChanged(SeriesChangeEvent event);
 

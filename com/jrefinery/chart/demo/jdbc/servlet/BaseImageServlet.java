@@ -19,9 +19,9 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ------------------
+ * ---------------------
  * BaseImageServlet.java
- * ------------------
+ * ---------------------
  * (C) Copyright 2002, by Bryan Scott and Contributors.
  *
  * Original Author:  Bryan Scott;
@@ -40,83 +40,164 @@
  * 17-May-2002 : BRS. Did a fix for non timeseries XY Charts
  * 11-Jun-2002 : Changed createHorizontalStackedBarChart() --> createStackedHorizontalBarChart() for
  *               consistency (DG);
+ * 25-Jun-2002 : Updated import statements (DG);
+ *
  */
 
 package com.jrefinery.chart.demo.jdbc.servlet;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.awt.image.*;
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import com.jrefinery.chart.JFreeChart;
+import com.jrefinery.chart.ChartFactory;
+import com.jrefinery.chart.ChartUtilities;
+import com.jrefinery.chart.Legend;
+import com.jrefinery.chart.Axis;
+import com.jrefinery.chart.ValueAxis;
+import com.jrefinery.chart.VerticalNumberAxis;
+import com.jrefinery.chart.Plot;
+import com.jrefinery.chart.PiePlot;
+import com.jrefinery.chart.XYPlot;
+import com.jrefinery.chart.TextTitle;
+import com.jrefinery.chart.data.PlotFit;
+import com.jrefinery.chart.data.LinearPlotFitAlgorithm;
+import com.jrefinery.chart.data.MovingAveragePlotFitAlgorithm;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.JdbcCategoryDataset;
+import com.jrefinery.data.JdbcPieDataset;
+import com.jrefinery.data.JdbcXYDataset;
+import java.awt.Graphics2D;
+import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.awt.Font;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import javax.servlet.*;
 import javax.servlet.http.*;
-
-import javax.swing.*;
-
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.data.*;
-import com.jrefinery.chart.ui.*;
-import com.jrefinery.data.*;
 
 /// SVG Support
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.*;
-import org.w3c.dom.*;
 import org.w3c.dom.DOMImplementation;
 
 /**
- * A Base image servlet generator.  Used to provide common base and methods to servlets which
- * need to generate a chart from sql data sources
+ * A Base image servlet generator.  Used to provide common base and methods to
+ * servlets which need to generate a chart from sql data sources
  *
  * To extend overwrite method : generateSQL.
  *
- * Will attempt to get configuration constants from the firstly the servlet container configuration
- * and then secondly the servlet's initialization parameters.  The servlets initialization
- * parameters taking precedence.  Available configuration options are
- *  a. DBuser   - The database user to connect as
- *  b. DBpwd    - The password for the database user
- *  c. DBschema - The schema to utilise
- *  d. DBurl    - The connection URL to the database
- *  e. DBdriver - The JDBC driver to utilise to connect to the database
+ * Will attempt to get configuration constants from the firstly the servlet
+ * container configuration and then secondly the servlet's initialization
+ * parameters.  The servlets initialization parameters taking precedence.
+ * Available configuration options are:
+ * <table>
+ *  <tr><td>DBuser</td> <td>The database user to connect as</td></tr>
+ *  <tr><td>DBpwd</td>  <td>The password for the database user</td></tr>
+ *  <tr><td>DBschema</td><td>The schema to utilise</td></tr>
+ *  <tr><td>DBurl</td>  <td>The connection URL to the database</td></tr>
+ *  <tr><td>DBdriver</td><td>The JDBC driver to utilise to connect to the
+ *      database</td></tr>
+ * </table>
  *
  * The servlet will check to see if a connection is shared amongst the servlets context already. If
  * not it will create a connection and share via the servlet container.
  *
- * Supports the following url options
- * NAME        TYPE     NOTES
- * type        integer  the type of chart to generate. eg moving average, linear fit etc
- *                      under development.
- * width       integer  The width of output in pixels.  Clipped into the range 10-2000
- * height      integer  The height of the output in pixels. Clipped into the range 10-1000
- * initColor   integer  Between 0-11, used to indicate the initial shading of the background
- * finalColor  integer  Between 0-11, used to indicate the final  shading of the background
- * title       String   The chart title
- * xaxistitle  String   The x axis title
- * yaxistitle  String   The y axis title
- * zero        String   if passed a value of 'true' then the chart will include zero
- * showLegend  String   if passed a value of 'false' then the chart will not include legend
- * output      String   Selection of the type of output requested.  jpeg, gif, svg
+ * Supports the following url options:
+ * <table>
+ * <tr>
+ * <th>NAME</th>
+ * <th>TYPE</th>
+ * <th>NOTES</th></tr>
+ *
+ * <tr>
+ * <td>type</td>
+ * <td>integer</td>
+ * <td>the type of chart to generate. eg moving average, linear fit etc
+ *      under development.</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>width</td>
+ * <td>integer</td>
+ * <td>The width of output in pixels.  Clipped into the range 10-2000</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>height</td>
+ * <td>integer</td>
+ * <td>The height of the output in pixels. Clipped into the range 10-1000</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>initColor</td>
+ * <td>integer</td>
+ * <td>Between 0-11, used to indicate the initial shading of the background
+ *      finalColor  integer  Between 0-11, used to indicate the final shading
+ *      of the background</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>title</td>
+ * <td>String</td>
+ * <td>The chart title</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>xaxistitle</td>
+ * <td>String</td>
+ * <td>The x axis title</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>yaxistitle</td>
+ * <td>String</td>
+ * <td>The y axis title</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>zero</td>
+ * <td>String</td>
+ * <td>if passed a value of 'true' then the chart will include zero</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>showLegend</td>
+ * <td>String</td>
+ * <td>if passed a value of 'false' then the chart will not include legend</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>output</td>
+ * <td>String</td>
+ * <td>Selection of the type of output requested.  jpeg, gif, svg</td>
+ * </tr>
+ *
+ * </table>
  *
  * CAUTION : THE FOLLOWING ARE UNTESTED / UNDER DEVELOPMENT
- *  1. SVG support using apache batik.
- *  2. PDF support
- *  3. Charting options such as moving average, linear fit.
+ * <ol>
+ *  <li>SVG support using apache batik.</li>
+ *  <li>PDF support</li>
+ *  <li>Charting options such as moving average, linear fit.</li>
+ * </ol>
  *
  * @see              JFreeChart
- * @see              JFreeChartServletDemo
+ * @see              com.jrefinery.chart.demo.JFreeChartServletDemo
  */
 public class BaseImageServlet extends HttpServlet implements Constants {
 
-  protected int sqlServerType = ORACLE ;
+  protected int sqlServerType = ORACLE;
 
   /**  The servlets name */
   protected String servletName = "Base Chart ";
 
   /** Whether or not to enable debug information output **/
-  protected boolean debug = false ;
+  protected boolean debug = false;
 
   /**  Title of the chart */
   protected String chartTitle = "Data";
@@ -141,7 +222,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
   /**
    *  Gets the color attribute of the passed integer
    *
-   * @param  color  The colour index
+   * @param color   The colour index
    * @return        The color value
    */
   protected Color getColor(int color) {
@@ -176,7 +257,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
   }
 
   protected JFreeChart createChart(int type, String sql) {
-    JFreeChart chart = null ;
+    JFreeChart chart = null;
 
     if (debug) System.out.println("Creating chart of type " + type);
 
@@ -185,32 +266,34 @@ public class BaseImageServlet extends HttpServlet implements Constants {
     }
 
     if (type < 10)
-        chart = createPieChart(type, sql) ;
+        chart = createPieChart(type, sql);
     else if (type < 20)
         chart = createCategoryChart(type, sql);
     else
-        chart = createXYChart(type, sql) ;
-    return chart ;
+        chart = createXYChart(type, sql);
+    return chart;
   }
 
   /**
    * Create a chart
    *
    * @param  type  Type of chart to create.  Currently not supported.
-   * @param  sql   SQL to execute.  1st column is x values, following columns are y values
+   * @param  sql   SQL to execute.  1st column is x values, following columns
+   *        are y values
    * @return       The chart of the data
    */
   protected JFreeChart createXYChart(int type, String sql) {
     JFreeChart chart;
-    JdbcXYDataset chartData ;
-    XYDataset xyData ;
+    JdbcXYDataset chartData;
+    XYDataset xyData;
 
     chartData = new JdbcXYDataset(con_, sql);
     try {
       switch (type) {
         case 21:
           // moving avg
-          MovingAveragePlotFitAlgorithm mavg = new MovingAveragePlotFitAlgorithm();
+          MovingAveragePlotFitAlgorithm mavg =
+            new MovingAveragePlotFitAlgorithm();
           mavg.setPeriod(30);
           PlotFit pf = new PlotFit(chartData, mavg);
           xyData = pf.getFit();
@@ -238,7 +321,8 @@ public class BaseImageServlet extends HttpServlet implements Constants {
 
 
       /// Customise the vertical axis
-      VerticalNumberAxis vnAxis = (VerticalNumberAxis) chart.getXYPlot().getRangeAxis();
+      VerticalNumberAxis vnAxis = (VerticalNumberAxis)
+        chart.getXYPlot().getRangeAxis();
       vnAxis.setAutoRangeIncludesZero(false);
       vnAxis.setCrosshairVisible(false);
       vnAxis.configure();
@@ -267,7 +351,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
    */
   protected JFreeChart createPieChart(int type, String sql) {
     JFreeChart chart;
-    JdbcPieDataset chartData ;
+    JdbcPieDataset chartData;
 
     try {
       chartData = new JdbcPieDataset(con_);
@@ -289,7 +373,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
    */
   protected JFreeChart createCategoryChart(int type, String sql) {
     JFreeChart chart;
-    JdbcCategoryDataset chartData ;
+    JdbcCategoryDataset chartData;
 
     //if (debug) System.out.println("Creating a category chart");
     try {
@@ -299,22 +383,22 @@ public class BaseImageServlet extends HttpServlet implements Constants {
       switch (type) {
         case 11:
           chart = ChartFactory.createVerticalBarChart3D("","","",chartData, true);
-          break ;
+          break;
         case 12:
           chart = ChartFactory.createStackedVerticalBarChart("","","",chartData, true);
-          break ;
+          break;
         case 13:
           chart = ChartFactory.createStackedVerticalBarChart3D("","","",chartData, true);
-          break ;
+          break;
         case 14:
           chart = ChartFactory.createHorizontalBarChart("","","",chartData, true);
-          break ;
+          break;
         case 15:
           chart = ChartFactory.createStackedHorizontalBarChart("","","",chartData, true);
-          break ;
+          break;
         default:
           chart = ChartFactory.createVerticalBarChart("","","",chartData, true);
-          break ;
+          break;
       }
       return chart;
     } catch (Exception e) {
@@ -335,7 +419,8 @@ public class BaseImageServlet extends HttpServlet implements Constants {
 
     super.init(config);
 
-    /// Load parameters, Try initially using context setting and then specific to this servlet.
+    /// Load parameters, Try initially using context setting and then specific
+    /// to this servlet.
     try {
       sqlServerType = Integer.parseInt(getServletContext().getInitParameter(DB_SERVER));
     } catch (Exception e) {
@@ -369,7 +454,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
       e.printStackTrace();
     }
     try {
-      test = getServletContext().getInitParameter(DEBUG) ;
+      test = getServletContext().getInitParameter(DEBUG);
       if (test != null) {
         test = test.trim().toUpperCase();
         statusMessage("Setting debug to '"+test+"'");
@@ -511,7 +596,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
     String yTitle_ = yAxisTitle;
     String sql = "";
     String test = "";
-    Axis axis ;
+    Axis axis;
 
     try {
       type = Integer.parseInt(request.getParameter("type"));
@@ -551,7 +636,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
     try {
       flag = request.getParameter("zero").trim().toLowerCase().equals("true");
     } catch (Exception e) {
-      flag = true ;
+      flag = true;
     }
 
     try {
@@ -599,8 +684,8 @@ public class BaseImageServlet extends HttpServlet implements Constants {
 
     /// Deal with the null chart (error)
     if (chart == null) {
-      writeErrorPage(response, "No Chart returned. \nSQL : " + sql) ;
-      return ;
+      writeErrorPage(response, "No Chart returned. \nSQL : " + sql);
+      return;
     }
 
     /// If we get to here, the chart is not null
@@ -629,7 +714,7 @@ public class BaseImageServlet extends HttpServlet implements Constants {
       }
 
       if (axis instanceof VerticalNumberAxis) {
-        VerticalNumberAxis vnAxis = (VerticalNumberAxis) axis ;
+        VerticalNumberAxis vnAxis = (VerticalNumberAxis) axis;
         vnAxis.setAutoRangeIncludesZero(flag);
         //vnAxis.autoAdjustRange();
         //vnAxis.configure();
@@ -647,11 +732,11 @@ public class BaseImageServlet extends HttpServlet implements Constants {
     }
 
     if (chartPlot instanceof PiePlot) {
-      PiePlot pie = (PiePlot) chartPlot ;
-      double x = -1 ;
+      PiePlot pie = (PiePlot) chartPlot;
+      double x = -1;
 
       try {
-        x = Double.parseDouble(request.getParameter("radiusPercent")) / 100 ;
+        x = Double.parseDouble(request.getParameter("radiusPercent")) / 100;
         if ((x > 0) && (x <= 1)) {
           pie.setRadiusPercent(x);
         }
@@ -659,11 +744,11 @@ public class BaseImageServlet extends HttpServlet implements Constants {
       }
 
 
-      x = -1 ;
+      x = -1;
       try {
        type = Integer.parseInt(request.getParameter("explode"));
         if ((type >= 0) && (type < pie.getCategories().size())){
-          x = Double.parseDouble(request.getParameter("explodePercent")) / 100 ;
+          x = Double.parseDouble(request.getParameter("explodePercent")) / 100;
           pie.setExplodePercent(type, x);
         } else {
           statusMessage("invalid explosion chosen : " + type + ", valid range (0-"
@@ -784,9 +869,11 @@ public class BaseImageServlet extends HttpServlet implements Constants {
   }
 
   /**
-   * Override this method if you would like to modify the generated chart parameters / options
+   * Override this method if you would like to modify the generated chart
+   * parameters / options
    *
-   * @param  chart  The generated chart
+   * @param  chart  The generated chart.
+   * @param request     The HTTP request.
    */
   public void modifyChart(JFreeChart chart, HttpServletRequest request) {
   }

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,39 +39,53 @@
 package com.jrefinery.data;
 
 /**
- * An extension of the XYDataset interface that allows a range of data to be defined for the
- * X values, the Y values, or both the X and Y values.
+ * An extension of the XYDataset interface that allows a range of data to be
+ * defined for the X values, the Y values, or both the X and Y values.
  * <P>
- * This versatile interface will be used to support (among other things) bar plots against
- * numerical axes.
+ * This versatile interface will be used to support (among other things) bar
+ * plots against numerical axes.
+ *
+ * @author MW
  */
 public interface IntervalXYDataset extends XYDataset {
 
     /**
      * Returns the starting X value for the specified series and item.
-     * @param series The series (zero-based index);
-     * @param item The item within a series (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item within a series (zero-based index).
+     *
+     * @return the starting X value for the specified series and item.
      */
     public Number getStartXValue(int series, int item);
 
     /**
      * Returns the ending X value for the specified series and item.
-     * @param series The series (zero-based index);
-     * @param item The item within a series (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item within a series (zero-based index).
+     *
+     * @return the ending X value for the specified series and item.
      */
     public Number getEndXValue(int series, int item);
 
     /**
      * Returns the starting Y value for the specified series and item.
-     * @param series The series (zero-based index);
-     * @param item The item within a series (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item within a series (zero-based index).
+     *
+     * @return starting Y value for the specified series and item.
      */
     public Number getStartYValue(int series, int item);
 
     /**
      * Returns the ending Y value for the specified series and item.
-     * @param series The series (zero-based index);
-     * @param item The item within a series (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item within a series (zero-based index).
+     *
+     * @return the ending Y value for the specified series and item.
      */
     public Number getEndYValue(int series, int item);
 

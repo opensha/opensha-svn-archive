@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -38,12 +38,19 @@
  * 22-Jan-2002 : Fixed bug correlating legend labels with pie data (DG);
  * 06-Feb-2002 : Bug fix for legends in small areas (DG);
  * 23-Apr-2002 : Legend item labels are now obtained from the plot, not the chart (DG);
+ * 20-Jun-2002 : Added outline paint and stroke attributes for the key boxes (DG);
+ * 18-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 23-Sep-2002 : Changed the name of LegendItem --> DrawableLegendItem (DG);
+ * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 16-Oct-2002 : Adjusted vertical text position in legend item (DG);
+ * 17-Oct-2002 : Fixed bug where legend items are not using the font that has been set (DG);
  *
  */
 
 package com.jrefinery.chart;
 
 import java.awt.Graphics2D;
+import java.awt.Shape;
 import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Color;
@@ -53,12 +60,13 @@ import java.awt.FontMetrics;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
 import com.jrefinery.chart.event.LegendChangeEvent;
 
 /**
- * A chart legend shows the names and visual representations of the series that are plotted in a
- * chart.
+ * A chart legend shows the names and visual representations of the series
+ * that are plotted in a chart.
+ *
+ * @author DG
  */
 public class StandardLegend extends Legend {
 
@@ -66,26 +74,33 @@ public class StandardLegend extends Legend {
     public static final Font DEFAULT_FONT = new Font("SansSerif", Font.PLAIN, 10);
 
     /** The pen/brush used to draw the outline of the legend. */
-    protected Stroke outlineStroke;
+    private Stroke outlineStroke;
 
     /** The color used to draw the outline of the legend. */
-    protected Paint outlinePaint;
+    private Paint outlinePaint;
 
     /** The color used to draw the background of the legend. */
-    protected Paint backgroundPaint;
+    private Paint backgroundPaint;
 
     /** The blank space inside the legend box. */
-    protected Spacer innerGap;
+    private Spacer innerGap;
 
     /** The font used to display the legend item names. */
-    protected Font itemFont;
+    private Font itemFont;
 
     /** The color used to display the legend item names. */
-    protected Paint itemPaint;
+    private Paint itemPaint;
+
+    /** The stroke used to outline key boxes. */
+    private Stroke keyBoxOutlineStroke = new BasicStroke(0.5f);
+
+    /** The paint used to outline key boxes. */
+    private Paint keyBoxOutlinePaint = Color.lightGray;
 
     /**
      * Constructs a new legend with default settings.
-     * @param chart The chart that the legend belongs to.
+     *
+     * @param chart  the chart that the legend belongs to.
      */
     public StandardLegend(JFreeChart chart) {
 
@@ -99,14 +114,15 @@ public class StandardLegend extends Legend {
 
     /**
      * Constructs a new legend.
-     * @param chart The chart that the legend belongs to.
-     * @param outerGap The gap around the outside of the legend.
-     * @param innerGap The gap inside the legend.
-     * @param backgroundPaint The background color.
-     * @param outlineStroke The pen/brush used to draw the outline.
-     * @param outlinePaint The color used to draw the outline.
-     * @param seriesFont The font used to draw the legend items.
-     * @param seriesPaint The color used to draw the legend items.
+     *
+     * @param chart  the chart that the legend belongs to.
+     * @param outerGap  the gap around the outside of the legend.
+     * @param innerGap  the gap inside the legend.
+     * @param backgroundPaint  the background color.
+     * @param outlineStroke  the pen/brush used to draw the outline.
+     * @param outlinePaint  the color used to draw the outline.
+     * @param itemFont  the font used to draw the legend items.
+     * @param itemPaint  the color used to draw the legend items.
      */
     public StandardLegend(JFreeChart chart,
                           int outerGap, Spacer innerGap,
@@ -122,13 +138,12 @@ public class StandardLegend extends Legend {
         this.itemFont = itemFont;
         this.itemPaint = itemPaint;
 
-        // create the legend item collection...
-
     }
 
     /**
      * Returns the background color for the legend.
-     * @return The background color for the legend.
+     *
+     * @return the background color.
      */
     public Paint getBackgroundPaint() {
         return this.backgroundPaint;
@@ -138,7 +153,8 @@ public class StandardLegend extends Legend {
      * Sets the background color of the legend.
      * <P>
      * Registered listeners are notified that the legend has changed.
-     * @param paint The new background color.
+     *
+     * @param paint  the new background color.
      */
     public void setBackgroundPaint(Paint paint) {
         this.backgroundPaint = paint;
@@ -147,7 +163,8 @@ public class StandardLegend extends Legend {
 
     /**
      * Returns the outline pen/brush.
-     * @return The outline pen/brush.
+     *
+     * @return the outline pen/brush.
      */
     public Stroke getOutlineStroke() {
         return this.outlineStroke;
@@ -157,7 +174,8 @@ public class StandardLegend extends Legend {
      * Sets the outline pen/brush.
      * <P>
      * Registered listeners are notified that the legend has changed.
-     * @param stroke The new outline pen/brush.
+     *
+     * @param stroke  the new outline pen/brush.
      */
     public void setOutlineStroke(Stroke stroke) {
         this.outlineStroke = stroke;
@@ -166,7 +184,8 @@ public class StandardLegend extends Legend {
 
     /**
      * Returns the outline color.
-     * @return The outline color.
+     *
+     * @return the outline color.
      */
     public Paint getOutlinePaint() {
         return this.outlinePaint;
@@ -176,7 +195,8 @@ public class StandardLegend extends Legend {
      * Sets the outline color.
      * <P>
      * Registered listeners are notified that the legend has changed.
-     * @param stroke The new outline color.
+     *
+     * @param paint  the new outline color.
      */
     public void setOutlinePaint(Paint paint) {
         this.outlinePaint = paint;
@@ -185,7 +205,8 @@ public class StandardLegend extends Legend {
 
     /**
      * Returns the series label font.
-     * @return The series label font.
+     *
+     * @return the series label font.
      */
     public Font getItemFont() {
         return this.itemFont;
@@ -195,7 +216,8 @@ public class StandardLegend extends Legend {
      * Sets the series label font.
      * <P>
      * Registered listeners are notified that the legend has changed.
-     * @param font The new series label font.
+     *
+     * @param font  the new series label font.
      */
     public void setItemFont(Font font) {
         this.itemFont = font;
@@ -204,7 +226,8 @@ public class StandardLegend extends Legend {
 
     /**
      * Returns the series label color.
-     * @return The series label color.
+     *
+     * @return the series label color.
      */
     public Paint getItemPaint() {
         return this.itemPaint;
@@ -214,7 +237,8 @@ public class StandardLegend extends Legend {
      * Sets the series label color.
      * <P>
      * Registered listeners are notified that the legend has changed.
-     * @param paint The new series label color.
+     *
+     * @param paint  the new series label color.
      */
     public void setItemPaint(Paint paint) {
         this.itemPaint = paint;
@@ -222,31 +246,78 @@ public class StandardLegend extends Legend {
     }
 
     /**
+     * Returns the stroke used to outline key boxes.
+     *
+     * @return the stroke.
+     */
+    public Stroke getKeyBoxOutlineStroke() {
+        return this.keyBoxOutlineStroke;
+    }
+
+    /**
+     * Sets the stroke used to outline key boxes.
+     * <P>
+     * Registered listeners are notified of the change.
+     *
+     * @param stroke  the stroke.
+     */
+    public void setKeyBoxOutlineStroke(Stroke stroke) {
+        this.keyBoxOutlineStroke = stroke;
+        notifyListeners(new LegendChangeEvent(this));
+    }
+
+    /**
+     * Returns the paint used to outline key boxes.
+     *
+     * @return the paint.
+     */
+    public Paint getKeyBoxOutlinePaint() {
+        return this.keyBoxOutlinePaint;
+    }
+
+    /**
+     * Sets the paint used to outline key boxes.
+     * <P>
+     * Registered listeners are notified of the change.
+     *
+     * @param paint  the paint.
+     */
+    public void setKeyBoxOutlinePaint(Paint paint) {
+        this.keyBoxOutlinePaint = paint;
+        notifyListeners(new LegendChangeEvent(this));
+    }
+
+    /**
      * Draws the legend on a Java 2D graphics device (such as the screen or a printer).
      *
-     * @param g2 The graphics device.
-     * @param available The area within which the legend, and afterwards the plot, should be drawn.
-     * @return The area used by the legend.
+     * @param g2  the graphics device.
+     * @param available  the area within which the legend, and afterwards the plot, should be
+     *                   drawn.
+     *
+     * @return the area used by the legend.
      */
     public Rectangle2D draw(Graphics2D g2, Rectangle2D available) {
 
-        return draw(g2, available, (_anchor & HORIZONTAL)!=0, (_anchor & INVERTED)!=0);
+        return draw(g2, available, (getAnchor() & HORIZONTAL) != 0, (getAnchor() & INVERTED) != 0);
 
     }
 
     /**
      * Draws the legend.
-     * @param graphics The graphics device.
-     * @param available The area available for drawing the chart.
-     * @param horizontal A flag indicating whether the legend items are laid out horizontally.
+     *
+     * @param g2  the graphics device.
+     * @param available  the area available for drawing the chart.
+     * @param horizontal  a flag indicating whether the legend items are laid out horizontally.
      * @param inverted ???
-     * @return ???
+     *
+     * @return the remaining available drawing area.
      */
     protected Rectangle2D draw(Graphics2D g2, Rectangle2D available,
                                boolean horizontal, boolean inverted) {
 
-        List legendItemLabels = chart.getPlot().getLegendItemLabels();
-        if ((legendItemLabels!=null) && (legendItemLabels.size()>0)) {
+        LegendItemCollection legendItems = getChart().getPlot().getLegendItems();
+
+        if ((legendItems != null) && (legendItems.getItemCount() > 0)) {
 
             Rectangle2D legendArea = new Rectangle2D.Double();
 
@@ -254,37 +325,41 @@ public class StandardLegend extends Legend {
             Point2D translation = new Point2D.Double();
 
             // Create buffer for individual rectangles within the legend
-            LegendItem[] items = new LegendItem[legendItemLabels.size()];
+            DrawableLegendItem[] items = new DrawableLegendItem[legendItems.getItemCount()];
             g2.setFont(itemFont);
 
             // Compute individual rectangles in the legend, translation point as well
             // as the bounding box for the legend.
             if (horizontal) {
-                double xstart = available.getX()+outerGap;
-                double xlimit = available.getX()+available.getWidth()-2*outerGap-1;
+                double xstart = available.getX() + getOuterGap();
+                double xlimit = available.getX() + available.getWidth() - 2 * getOuterGap() - 1;
                 double maxRowWidth = 0;
                 double xoffset = 0;
                 double rowHeight = 0;
                 double totalHeight = 0;
                 boolean startingNewRow = true;
 
-                for (int i=0; i<legendItemLabels.size(); i++) {
-                    items[i] = createLegendItem(g2, legendItemLabels.get(i).toString(), xoffset, totalHeight);
-                    if ((!startingNewRow) && (items[i].getX()+items[i].getWidth()+xstart>xlimit)) {
-                        maxRowWidth=Math.max(maxRowWidth, xoffset);
+                for (int i = 0; i < legendItems.getItemCount(); i++) {
+                    items[i] = createDrawableLegendItem(g2, legendItems.get(i),
+                                                        xoffset, totalHeight);
+                    if ((!startingNewRow)
+                        && (items[i].getX() + items[i].getWidth() + xstart > xlimit)) {
+
+                        maxRowWidth = Math.max(maxRowWidth, xoffset);
                         xoffset = 0;
                         totalHeight += rowHeight;
                         i--;
-                        startingNewRow=true;
+                        startingNewRow = true;
+
                     }
                     else {
                         rowHeight = Math.max(rowHeight, items[i].getHeight());
                         xoffset += items[i].getWidth();
-                        startingNewRow=false;
+                        startingNewRow = false;
                     }
                 }
 
-                maxRowWidth=Math.max(maxRowWidth, xoffset);
+                maxRowWidth = Math.max(maxRowWidth, xoffset);
                 totalHeight += rowHeight;
 
                 // Create the bounding box
@@ -292,33 +367,34 @@ public class StandardLegend extends Legend {
 
                 // The yloc point is the variable part of the translation point
                 // for horizontal legends. xloc is constant.
-                double yloc = (inverted) ?
-                    available.getY() + available.getHeight() - totalHeight - outerGap :
-                    available.getY() + outerGap;
-                double xloc = available.getX() + available.getWidth()/2 - maxRowWidth/2;
+                double yloc = (inverted)
+                    ? available.getY() + available.getHeight() - totalHeight - getOuterGap()
+                    : available.getY() + getOuterGap();
+                double xloc = available.getX() + available.getWidth() / 2 - maxRowWidth / 2;
 
                 // Create the translation point
-                translation = new Point2D.Double(xloc,yloc);
+                translation = new Point2D.Double(xloc, yloc);
             }
             else {  // vertical...
                 double totalHeight = 0;
                 double maxWidth = 0;
                 g2.setFont(itemFont);
                 for (int i = 0; i < items.length; i++) {
-                    items[i] = createLegendItem(g2, legendItemLabels.get(i).toString(), 0, totalHeight);
-                    totalHeight +=items[i].getHeight();
+                    items[i] = createDrawableLegendItem(g2, legendItems.get(i),
+                                                        0, totalHeight);
+                    totalHeight += items[i].getHeight();
                     maxWidth = Math.max(maxWidth, items[i].getWidth());
                 }
 
                 // Create the bounding box
-                legendArea = new Rectangle2D.Float(0, 0, (float)maxWidth, (float)totalHeight);
+                legendArea = new Rectangle2D.Float(0, 0, (float) maxWidth, (float) totalHeight);
 
                 // The xloc point is the variable part of the translation point
                 // for vertical legends. yloc is constant.
-                double xloc = (inverted) ?
-                                  available.getMaxX()-maxWidth-outerGap:
-                                  available.getX()+outerGap;
-                double yloc = available.getY()+(available.getHeight()/2)-(totalHeight/2);
+                double xloc = (inverted)
+                    ? available.getMaxX() - maxWidth - getOuterGap()
+                    : available.getX() + getOuterGap();
+                double yloc = available.getY() + (available.getHeight() / 2) - (totalHeight / 2);
 
                 // Create the translation point
                 translation = new Point2D.Double(xloc, yloc);
@@ -335,43 +411,54 @@ public class StandardLegend extends Legend {
             g2.draw(legendArea);
 
             // Draw individual series elements
-            for (int i=0; i<items.length; i++) {
-                g2.setPaint(chart.getPlot().getSeriesPaint(i));
-                g2.fill(items[i].getMarker());
-                g2.setPaint(itemPaint);
-                g2.drawString(items[i].label,
-                                    (float)items[i].labelPosition.getX(),
-                                    (float)items[i].labelPosition.getY());
+            for (int i = 0; i < items.length; i++) {
+                g2.setPaint(items[i].getItem().getPaint());
+                Shape keyBox = items[i].getMarker();
+                g2.fill(keyBox);
+                if (getOutlineKeyBoxes()) {
+                    g2.setPaint(this.keyBoxOutlinePaint);
+                    g2.setStroke(this.keyBoxOutlineStroke);
+                    g2.draw(keyBox);
+                }
+                g2.setPaint(this.itemPaint);
+                g2.setFont(this.itemFont);
+                g2.drawString(items[i].getItem().getLabel(),
+                              (float) items[i].getLabelPosition().getX(),
+                              (float) items[i].getLabelPosition().getY());
             }
 
             // translate the origin back to what it was prior to drawing the legend
-            g2.translate(-translation.getX(),-translation.getY());
+            g2.translate(-translation.getX(), -translation.getY());
 
             if (horizontal) {
-                // The remaining drawing area bounding box will have the same x origin,
-                // width and height independent of the anchor's location. The variable
-                // is the y coordinate. If the anchor is SOUTH, the y coordinate is simply
-                // the original y coordinate of the available area. If it is NORTH, we
-                // adjust original y by the total height of the legend and the initial gap.
-                double yloc = (inverted) ? available.getY() :
-                              available.getY()+legendArea.getHeight()+outerGap;
+                // The remaining drawing area bounding box will have the same
+                // x origin, width and height independent of the anchor's
+                // location. The variable is the y coordinate. If the anchor is
+                // SOUTH, the y coordinate is simply the original y coordinate
+                // of the available area. If it is NORTH, we adjust original y
+                // by the total height of the legend and the initial gap.
+                double yy = available.getY();
+                double yloc = (inverted) ? yy
+                                         : yy + legendArea.getHeight() + getOuterGap();
 
                 // return the remaining available drawing area
                 return new Rectangle2D.Double(available.getX(), yloc, available.getWidth(),
-                    available.getHeight()-legendArea.getHeight()-2*outerGap);
+                    available.getHeight() - legendArea.getHeight() - 2 * getOuterGap());
             }
             else {
-                // The remaining drawing area bounding box will have the same y origin,
-                // width and height independent of the anchor's location. The variable
-                // is the x coordinate. If the anchor is EAST, the x coordinate is simply
-                // the original x coordinate of the available area. If it is WEST, we
-                // adjust original x by the total width of the legend and the initial gap.
-                double xloc = (inverted) ? available.getX() :
-                    available.getX()+legendArea.getWidth()+2*outerGap;
+                // The remaining drawing area bounding box will have the same
+                // y  origin, width and height independent of the anchor's
+                // location. The variable is the x coordinate. If the anchor is
+                // EAST, the x coordinate is simply the original x coordinate
+                // of the available area. If it is WEST, we adjust original x
+                // by the total width of the legend and the initial gap.
+                double xloc = (inverted) ? available.getX()
+                                         : available.getX()
+                                           + legendArea.getWidth() + 2 * getOuterGap();
 
                 // return the remaining available drawing area
                 return new Rectangle2D.Double(xloc, available.getY(),
-                    available.getWidth()-legendArea.getWidth()-2 * outerGap,
+                    available.getWidth() - legendArea.getWidth() - 2 * getOuterGap(),
                     available.getHeight());
             }
         }
@@ -381,56 +468,70 @@ public class StandardLegend extends Legend {
     }
 
     /**
-     * Returns a box that will be positioned next to the name of the specified series within the
-     * legend area.  The box will be square and 65% of the height of a line.
+     * Returns a box that will be positioned next to the name of the specified
+     * series within the legend area.  The box will be square and 65% of the
+     * height of a line.
+     *
+     * @param series  the index of the series.
+     * @param seriesCount  number of series.
+     * @param textHeight  the height of one line of text.
+     * @param innerLegendArea  the upper left corner of the inner legend.
+     *
+     * @return a box.
      */
-    private Rectangle2D getLegendBox(int series, int seriesCount, float textHeight,
-                                     Rectangle2D innerLegendArea) {
+    private Rectangle2D getLegendBox(int series, int seriesCount,
+                                     float textHeight, Rectangle2D innerLegendArea) {
 
         int innerGap = 2;  // added to make this compile
-        float boxHeightAndWidth = textHeight*0.70f;
-        float xx = (float)innerLegendArea.getX()+innerGap+0.15f*textHeight;
-        float yy = (float)innerLegendArea.getY()+innerGap+(series+0.15f)*textHeight;
+        float boxHeightAndWidth = textHeight * 0.70f;
+        float xx = (float) innerLegendArea.getX() + innerGap + 0.15f * textHeight;
+        float yy = (float) innerLegendArea.getY() + innerGap + (series + 0.15f) * textHeight;
         return new Rectangle2D.Float(xx, yy, boxHeightAndWidth, boxHeightAndWidth);
 
     }
 
     /**
-     * Returns a rectangle surrounding a individual entry in the legend.
+     * Returns a rectangle surrounding a individual entry in the legend.
      * <P>
-     * The marker box for each entry will be positioned next to the name of the specified series
-     * within the legend area.  The marker box will be square and 70% of the height of current
-     * font.
-     * @param graphics The graphics context (supplies font metrics etc.).
-     * @param label The series name.
-     * @param x The upper left x coordinate for the bounding box.
-     * @param y The upper left y coordinate for the bounding box.
-     * @return A LegendItem encapsulating all necessary info for drawing.
-     */
-    private LegendItem createLegendItem(Graphics2D graphics, String label, double x, double y) {
+     * The marker box for each entry will be positioned next to the name of the
+     * specified series within the legend area.  The marker box will be square
+     * and 70% of the height of current font.
+     *
+     * @param graphics  the graphics context (supplies font metrics etc.).
+     * @param legendItem  the legend item.
+     * @param x  the upper left x coordinate for the bounding box.
+     * @param y  the upper left y coordinate for the bounding box.
+     *
+     * @return a DrawableLegendItem encapsulating all necessary info for drawing.
+     */
+    private DrawableLegendItem createDrawableLegendItem(Graphics2D graphics,
+                                                        LegendItem legendItem,
+                                                        double x, double y) {
 
         int innerGap = 2;
         FontMetrics fm = graphics.getFontMetrics();
-        LineMetrics lm = fm.getLineMetrics(label, graphics);
-        float textHeight = lm.getHeight();
+        LineMetrics lm = fm.getLineMetrics(legendItem.getLabel(), graphics);
+        float textAscent = lm.getAscent();
+        float lineHeight = textAscent + lm.getDescent() + lm.getLeading();
 
-        LegendItem item = new LegendItem(label);
+        DrawableLegendItem item = new DrawableLegendItem(legendItem);
 
-        float xloc = (float)(x+innerGap+1.15f*textHeight);
-        float yloc = (float)(y+innerGap+(textHeight-lm.getLeading()-lm.getDescent()));
+        float xloc = (float) (x + innerGap + 1.15f * lineHeight);
+        float yloc = (float) (y + innerGap + 0.15f * lineHeight + textAscent);
 
-        item.labelPosition = new Point2D.Float(xloc, yloc);
+        item.setLabelPosition(new Point2D.Float(xloc, yloc));
 
-        float boxDim = textHeight*0.70f;
-        xloc = (float)(x+innerGap+0.15f*textHeight);
-        yloc = (float)(y+innerGap+0.15f*textHeight);
+        float boxDim = lineHeight * 0.70f;
+        xloc = (float) (x + innerGap + 0.15f * lineHeight);
+        yloc = (float) (y + innerGap + 0.15f * lineHeight);
 
         item.setMarker(new Rectangle2D.Float(xloc, yloc, boxDim, boxDim));
 
-        float width = (float)(item.labelPosition.getX()-x+
-                              fm.getStringBounds(label,graphics).getWidth()+0.5*textHeight);
+        float width = (float) (item.getLabelPosition().getX() - x
+                               + fm.getStringBounds(legendItem.getLabel(), graphics).getWidth()
+                               + 0.5 * textAscent);
 
-        float height = (float)(2*innerGap+textHeight);
+        float height = (float) (2 * innerGap + lineHeight);
         item.setBounds(x, y, width, height);
         return item;
 

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,9 +39,16 @@ package com.jrefinery.data;
 
 /**
  * An exception that indicates an invalid format in a string representing a time period.
+ *
+ * @author DG
  */
 public class TimePeriodFormatException extends IllegalArgumentException {
 
+    /**
+     * Creates a new exception.
+     *
+     * @param message  a message describing the exception.
+     */
     public TimePeriodFormatException(String message) {
         super(message);
     }

@@ -1,201 +1,262 @@
-/*
- *  =======================================
- *  JFreeChart : a Java Chart Class Library
- *  =======================================
+/* =======================================
+ * JFreeChart : a Java Chart Class Library
+ * =======================================
  *
- *  Project Info:  http://www.object-refinery.com/jfreechart/index.html
- *  Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
+ * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- *  (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
  *
- *  This library is free software; you can redistribute it and/or modify it under the terms
- *  of the GNU Lesser General Public License as published by the Free Software Foundation;
- *  either version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms
+ * of the GNU Lesser General Public License as published by the Free Software Foundation;
+ * either version 2.1 of the License, or (at your option) any later version.
  *
- *  This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
- *  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *  See the GNU Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU Lesser General Public License for more details.
  *
- *  You should have received a copy of the GNU Lesser General Public License along with this
- *  library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- *  Boston, MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+ * Boston, MA 02111-1307, USA.
  *
- *  --------------------
- *  ThermometerPlot.java
- *  --------------------
- *  (C) Copyright 2000-2002,
+ * --------------------
+ * ThermometerPlot.java
+ * --------------------
  *
- *  Original Author:  Bryan Scott;
- *  Based on MeterPlot by Hari.
- *  Contributor(s):
+ * (C) Copyright 2000-2002,
  *
- *  Changes
- *  -------
- *  11-Apr-2002 : Version 1, contributed by Bryan Scott;
- *  15-Apr-2002 : Changed to implement VerticalValuePlot;
- *  29-Apr-2002 : Added getVerticalValueAxis() method (DG);
+ * Original Author:  Bryan Scott (based on MeterPlot by Hari).
+ * Contributor(s):   David Gilbert (for Simba Management Limited).
+ *
+ * Changes
+ * -------
+ * 11-Apr-2002 : Version 1, contributed by Bryan Scott;
+ * 15-Apr-2002 : Changed to implement VerticalValuePlot;
+ * 29-Apr-2002 : Added getVerticalValueAxis() method (DG);
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 17-Sep-2002 : Reviewed with Checkstyle utility (DG);
+ * 18-Sep-2002 : Extensive changes made to API, to iron out bugs and inconsistencies (DG);
+ * 13-Oct-2002 : Corrected error datasetChanged which would generate exceptions when value set 
+ *               to null (BRS).
  *
  */
 
 package com.jrefinery.chart;
 
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Paint;
-import java.awt.Polygon;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-import java.awt.geom.Arc2D;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import java.util.List;
-import com.jrefinery.data.DatasetChangeEvent;
+import com.jrefinery.chart.event.PlotChangeEvent;
+import com.jrefinery.data.MeterDataset;
 import com.jrefinery.data.DefaultMeterDataset;
 import com.jrefinery.data.Range;
-import com.jrefinery.chart.event.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.MeterDataset;
+import com.jrefinery.data.DatasetChangeEvent;
 
 /**
  * A plot that displays a single value in a thermometer type display.
- *
+ * <p>
  * NOTE:
- * The Thermometer plot utilises a meter data set, however range options within this data set are
- * not currently utilised.  This is currently under consideration / development.
+ * The Thermometer plot utilises a meter data set, however range options within this data set
+ * are not used (instead, the ranges can be set as attributes on the plot).
  *
- * The Thermometer supports a number of options
+ * This plot supports a number of options:
+ * <ol>
+ * <li>three sub-ranges which could be viewed as 'Normal', 'Warning' and 'Critical' ranges.</li>
+ * <li>the thermometer can be run in two modes:
+ *      <ul>
+ *      <li>fixed range, or</li>
+ *      <li>range adjusts to current sub-range.</li>
+ *      </ul>
+ * </li>
+ * <li>settable units to be displayed.</li>
+ * <li>settable display location for the value text.</li>
+ * </ol>
  *
- * 1. 3 ranges which could be viewed as Critical, Warning and Normal ranges.
- * 2. The thermometer can be run in two modes:
- *    a. fixed range where colour changes on value, or
- *    b. 3 seperate ranges where colour changes with range changes.
- * 3. Settable units to be displayed.
- * 4. Settable display location for the value text
- *
+ * @author BRS
  */
-
 public class ThermometerPlot extends Plot implements VerticalValuePlot {
 
-    /**  Units to be displayed */
-    public final static int UNITS_NONE = 0;
-    public final static int UNITS_FARINHEIGHT = 1;
-    public final static int UNITS_CELCIUS = 2;
-    protected final static String[] UNITS = { "", "°F", "°C" };
+    /** A constant for unit type 'None'. */
+    public static final int UNITS_NONE = 0;
 
-    protected MeterDataset data;
+    /** A constant for unit type 'Fahrenheit'. */
+    public static final int UNITS_FAHRENHEIT = 1;
 
-    /** The currently selected display units */
-    protected int units = UNITS_CELCIUS;
+    /** A constant for unit type 'Celcius'. */
+    public static final int UNITS_CELCIUS = 2;
 
-    /**
-     * Some general purpose graphics2D objects, used to stop excessive object creation / garbage
-     * collection.
-     */
-    RoundRectangle2D.Double outer1, outer2, outer3;
-    Ellipse2D.Double circle1, circle2;
+    /** A constant for unit type 'Kelvin'. */
+    public static final int UNITS_KELVIN = 3;
 
-    /**  the selection of where value is written on screen */
-    public final static int NONE = 0;
-    public final static int LEFT = 1;
-    public final static int BULB = 2;
+    /** A constant for the value label position (no label). */
+    public static final int NONE = 0;
 
-    /**  Current location of where the value is written on screean */
-    protected int valueLocation = BULB;
+    /** A constant for the value label position (right of the thermometer). */
+    public static final int RIGHT = 1;
 
-    /**  Some basic sizing options for the thermometer */
-    protected static final int bulbRadius = 40;
-    protected static final int bulbDiameter = 80;
-    protected static final int columnRadius = 20;
-    protected static final int columnDiameter = 40;
-    protected static final int gapRadius = 5;
-    protected static final int gapDiameter = 10;
-    protected static final int legendWidth = 10;
+    /** A constant for the value label position (in the thermometer bulb). */
+    public static final int BULB = 2;
 
-    /**  The three ranges */
-    public static int NORMAL   = 0;
-    public static int WARNING  = 1;
-    public static int CRITICAL = 2;
+    /** A constant for the 'normal' range. */
+    public static final int NORMAL   = 0;
 
-    /**
-     * Two range variables are utilised to track which range is the current for the
-     * display and data.
-     */
-    protected int range     = WARNING;
-    protected int rangeData = WARNING;
+    /** A constant for the 'warning' range. */
+    public static final int WARNING  = 1;
 
-    /**  Index to Range information matrix */
-    protected final static int RANGE_HI    = 0;
-    protected final static int RANGE_LOW   = 1;
-    protected final static int DISPLAY_HI  = 2;
-    protected final static int DISPLAY_LOW = 3;
-    protected final static int DISPLAY_RANGE = 4;
+    /** A constant for the 'critical' range. */
+    public static final int CRITICAL = 2;
 
-    /**  Matrix of range data */
-    protected double[][] rangeInfo = {
-      { 2.0, -10.0,  1.0, -10.0, 11},
-      {29.0,   0.0, 26.0,   0.0, 26},
-      {41.0,  20.0, 40.0,  20.0, 20}
+    /** The bulb radius. */
+    protected static final int BULB_RADIUS = 40;
+
+    /** The bulb diameter. */
+    protected static final int BULB_DIAMETER = BULB_RADIUS * 2;
+
+    /** The column radius. */
+    protected static final int COLUMN_RADIUS = 20;
+
+    /** The column diameter.*/
+    protected static final int COLUMN_DIAMETER = COLUMN_RADIUS * 2;
+
+    /** The gap radius. */
+    protected static final int GAP_RADIUS = 5;
+
+    /** The gap diameter. */
+    protected static final int GAP_DIAMETER = GAP_RADIUS * 2;
+
+    /** The axis gap. */
+    protected static final int AXIS_GAP = 10;
+
+    /** The unit strings. */
+    protected static final String[] UNITS = { "", "°F", "°C", "°K" };
+
+    /** Index for low value in subrangeInfo matrix. */
+    protected static final int RANGE_LOW = 0;
+
+    /** Index for high value in subrangeInfo matrix. */
+    protected static final int RANGE_HIGH = 1;
+
+    /** Index for display low value in subrangeInfo matrix. */
+    protected static final int DISPLAY_LOW = 2;
+
+    /** Index for display high value in subrangeInfo matrix. */
+    protected static final int DISPLAY_HIGH  = 3;
+
+    /** The default lower bound. */
+    protected static final double DEFAULT_LOWER_BOUND = 0.0;
+
+    /** The default upper bound. */
+    protected static final double DEFAULT_UPPER_BOUND = 100.0;
+
+    /** The dataset for the plot. */
+    private MeterDataset data;
+
+    /** The range axis. */
+    private ValueAxis rangeAxis;
+
+    /** The lower bound for the thermometer. */
+    private double lowerBound = DEFAULT_LOWER_BOUND;
+
+    /** The upper bound for the thermometer. */
+    private double upperBound = DEFAULT_UPPER_BOUND;
+
+    /** Blank space inside the plot area around the outside of the thermometer. */
+    private Spacer padding;
+
+    /** Stroke for drawing the thermometer */
+    private Stroke thermometerStroke = new BasicStroke(1.0f);
+
+    /** Paint for drawing the thermometer */
+    private Paint thermometerPaint = Color.black;
+
+    /** The display units */
+    private int units = UNITS_CELCIUS;
+
+    /** The value label position. */
+    private int valueLocation = BULB;
+
+    /** The font to write the value in */
+    private Font valueFont = new Font("SansSerif", Font.BOLD, 16);
+
+    /** Colour that the value is written in */
+    private Paint valuePaint = Color.white;
+
+    /** Number format for the value */
+    private NumberFormat valueFormat = new DecimalFormat();
+
+    /** The default paint for the mercury in the thermometer. */
+    private Paint mercuryPaint = Color.lightGray;
+
+    /** A flag that controls whether value lines are drawn. */
+    private boolean showValueLines = false;
+
+    /** The display sub-range. */
+    private int subrange = -1;
+
+    /** The start and end values for the subranges. */
+    private double[][] subrangeInfo = {
+        { 0.0,  50.0,  0.0,  50.0 },
+        {50.0,  75.0, 50.0,  75.0 },
+        {75.0, 100.0, 75.0, 100.0 }
     };
 
-    /**  Paint for each range */
-    protected Paint[] rangePaint = {
-        Color.blue,
-        Color.yellow,
+    /** A flag that controls whether or not the axis range adjusts to the sub-ranges. */
+    private boolean followDataInSubranges = false;
+
+    /** A flag that controls whether or not the mercury paint changes with the subranges. */
+    private boolean useSubrangePaint = true;
+
+    /** Paint for each range */
+    private Paint[] subrangePaint = {
+        Color.green,
+        Color.orange,
         Color.red
     };
 
-    /**  Colour for the outline of the thermometer */
-    protected Color outerColour = Color.black;
+    /** A flag that controls whether the sub-range indicators are visible. */
+    private boolean subrangeIndicatorsVisible = true;
 
-    /**  Colour that the value is written in */
-    protected Color valueColour = Color.white;
+    /** The stroke for the sub-range indicators. */
+    private Stroke subrangeIndicatorStroke = new BasicStroke(2.0f);
 
-    /**  The font to write the value in */
-    protected Font valueFont = new Font("Arial", 1, 24);
-
-    /**  Number format for the value */
-    protected DecimalFormat valueFormat = new DecimalFormat();
-
-    /** Stokes for drawing **/
-    protected Stroke outerStroke = new BasicStroke(1.0f);
-
-    protected Stroke rangeInidcatorStroke = new BasicStroke(3.0f);
-    protected int rangeIndcatorStrokeSize = 3 ;
-
-    protected boolean followValue = false ;
-    protected boolean drawLines = false ;
+    /** The range indicator stroke. */
+    private Stroke rangeIndicatorStroke = new BasicStroke(3.0f);
 
     /**
-     * Data Model Type : Basically used to enable / disable the code for supporting data model
-     * range changes.  Currently set to true as only experimetal and not functional.
-     **/
-    protected boolean ignoreDataModelRangeChanges = true ;
-
-    protected ValueAxis rangeAxis;
-
+     * Creates a new thermometer plot.
+     */
     public ThermometerPlot() {
-        this(new DefaultMeterDataset());
+        this(new DefaultMeterDataset(new Double(Double.MIN_VALUE),
+                                     new Double(Double.MAX_VALUE),
+                                     null, null
+                                     ));
     }
 
-    /**Constructor for the ThermometerPlot object */
+    /**
+     * Creates a new thermometer plot, using default attributes where necessary.
+     *
+     * @param data  the data set.
+     */
     public ThermometerPlot(MeterDataset data) {
 
         this(data,
              DEFAULT_INSETS,
              DEFAULT_BACKGROUND_PAINT,
-             null,
+             null,  // background image
              DEFAULT_BACKGROUND_ALPHA,
              DEFAULT_OUTLINE_STROKE,
              DEFAULT_OUTLINE_PAINT,
@@ -204,98 +265,44 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot {
     }
 
     /**
-     * Constructs a new plot.
+     * Constructs a new thermometer plot.
      *
-     * @param insets Amount of blank space around the plot area.
-     * @param backgroundPaint An optional color for the plot's background.
-     * @param backgroundImage An optional image for the plot's background.
-     * @param backgroundAlpha Alpha-transparency for the plot's background.
-     * @param outlineStroke The Stroke used to draw an outline around the plot.
-     * @param outlinePaint The color used to draw an outline around the plot.
-     * @param foregroundAlpha The alpha-transparency for the plot foreground.
+     * @param data  the data set.
+     * @param insets  the amount of blank space around the plot area.
+     * @param backgroundPaint  an optional color for the plot's background.
+     * @param backgroundImage  an optional image for the plot's background.
+     * @param backgroundAlpha  the alpha-transparency for the plot's background.
+     * @param outlineStroke  the Stroke used to draw an outline around the plot.
+     * @param outlinePaint  the color used to draw an outline around the plot.
+     * @param foregroundAlpha  the alpha-transparency for the plot foreground.
      */
-    public ThermometerPlot(MeterDataset data, Insets insets, Paint backgroundPaint,
-                           Image backgroundImage, float backgroundAlpha, Stroke outlineStroke,
-                           Paint outlinePaint, float foregroundAlpha) {
+    public ThermometerPlot(MeterDataset data,
+                           Insets insets,
+                           Paint backgroundPaint, Image backgroundImage,
+                           float backgroundAlpha,
+                           Stroke outlineStroke, Paint outlinePaint,
+                           float foregroundAlpha) {
 
         super(data, insets,
               backgroundPaint, backgroundImage, backgroundAlpha,
               outlineStroke, outlinePaint, foregroundAlpha);
 
+        this.padding = new Spacer(Spacer.RELATIVE, 0.05, 0.05, 0.05, 0.05);
         this.data = data;
-        if (data!=null) {
+        if (data != null) {
             data.addChangeListener(this);
         }
         setInsets(insets);
-        circle1 = new Ellipse2D.Double();
-        circle2 = new Ellipse2D.Double();
-        outer1 = new RoundRectangle2D.Double();
-        outer2 = new RoundRectangle2D.Double();
-        outer3 = new RoundRectangle2D.Double();
-        setRangeAxis(new VerticalNumberAxis(null));
+        VerticalNumberAxis axis = new VerticalNumberAxis(null);
+        axis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        setRangeAxis(axis);
         setAxisRange();
     }
 
     /**
-     * Sets the range axis for the plot.
-     * <P>
-     * An exception is thrown if the new axis and the plot are not mutually compatible.
+     * Returns the dataset cast to MeterDataset (provided for convenience).
      *
-     * @param axis The new axis (null permitted).
-     */
-    public void setRangeAxis(ValueAxis axis) throws AxisNotCompatibleException {
-
-        if (isCompatibleRangeAxis(axis)) {
-
-            if (axis!=null) {
-                try {
-                    axis.setPlot(this);
-                }
-                catch (PlotNotCompatibleException e) {
-                    throw new AxisNotCompatibleException("Plot.setRangeAxis(...): "
-                                                        +"plot not compatible with axis.");
-                }
-                axis.addChangeListener(this);
-            }
-
-            // plot is likely registered as a listener with the existing axis...
-            if (this.rangeAxis!=null) {
-                this.rangeAxis.removeChangeListener(this);
-            }
-
-            this.rangeAxis = axis;
-
-        }
-        else throw new AxisNotCompatibleException("Plot.setRangeAxis(...): "
-                                                 +"axis not compatible with plot.");
-
-    }
-
-    /**
-     * A zoom method that does nothing.
-     * <p>
-     * Plots are required to support the zoom operation.  In the case of a thermometer chart, it
-     * doesn't make sense to zoom in or out, so the method is empty.
-     *
-     * @param  percent  The zoom percentage.
-     */
-    public void zoom(double percent) { }
-
-    /**
-     * Returns a short string describing the type of plot.
-     *
-     * @return    The plotType value
-     */
-    public String getPlotType() {
-        return "Thermometer Plot";
-    }
-
-    /**
-     * Returns the dataset.
-     * <P>
-     * Provided for convenience.
-     *
-     * @return    The dataset for the plot, cast as a MeterDataset.
+     * @return  the dataset for the plot, cast as a MeterDataset.
      */
     public MeterDataset getData() {
         return data;
@@ -305,21 +312,23 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot {
     /**
      * Sets the data for the chart, replacing any existing data.
      * <P>
-     * Registered listeners are notified that the chart has been modified.
+     * Registered listeners are notified that the plot has been modified (this will normally
+     * trigger a chart redraw).
      *
-     * @param data The new dataset.
+     * @param data  the new dataset.
      */
     public void setData(MeterDataset data) {
 
-        // if there is an existing dataset, remove the chart from the list of change listeners...
+        // if there is an existing dataset, remove the chart from the list of
+        // change listeners...
         MeterDataset existing = this.data;
-        if (existing!=null) {
+        if (existing != null) {
             existing.removeChangeListener(this);
         }
 
         // set the new dataset, and register the plot as a change listener...
         this.data = data;
-        if (this.data!=null) {
+        if (this.data != null) {
             data.addChangeListener(this);
         }
 
@@ -330,177 +339,510 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot {
     }
 
     /**
-     * Returns true if the axis is compatible with the meter plot, and false otherwise.  Since a
-     * Thermometer plot requires no horizontal axes, only a null axis is compatible.
+     * Returns the range axis.
      *
-     * @param  axis  The axis.
-     * @return       The compatibleHorizontalAxis value
+     * @return the range axis.
      */
-    public boolean isCompatibleHorizontalAxis(Axis axis) {
-        if (axis == null) {
-            return true;
-        }
-        else {
-            return false;
-        }
+    public ValueAxis getRangeAxis() {
+        return this.rangeAxis;
     }
 
     /**
-     * Returns true if the axis is compatible with the meter plot, and false otherwise.  Since a
-     * Thermometer plot requires a VerticalNumberAxis, only a VerticalNumberAxis axis is compatible.
+     * Sets the range axis for the plot.
+     * <P>
+     * An exception is thrown if the new axis and the plot are not mutually compatible.
      *
-     * @param  axis  The axis.
-     * @return       The compatibleVerticalAxis value
+     * @param axis  the new axis.
+     *
+     * @throws AxisNotCompatibleException if the axis is not compatible with the plot.
      */
-    public boolean isCompatibleVerticalAxis(Axis axis) {
-        if (axis instanceof VerticalNumberAxis) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
+    public void setRangeAxis(ValueAxis axis) throws AxisNotCompatibleException {
 
-    /**
-     * Determine whether a number is valid and finite
-     *
-     * @param  i  The number to be tested
-     * @return    where or not the number is valid and not infinite.
-     */
-    protected static boolean isValidNumber(double i) {
-        return (!(Double.isNaN(i) || Double.isInfinite(i)));
-    }
+        if (isCompatibleRangeAxis(axis)) {
 
-    /**
-     *  Sets the format attribute for the value label
-     *
-     * @param  fo  The new value format
-     */
-    public void setValueFormat(DecimalFormat fo) {
-        if (fo != null) {
-            valueFormat = fo;
-        }
-    }
-
-    /**
-     *  Gets the display location for the value
-     *
-     * @return    The display location for the value
-     */
-    public int getValueDisplayLocation() {
-        return valueLocation;
-    }
-
-    /**
-     *  Sets the units for this thermometer
-     *
-     * @param  u  The new units value
-     */
-    public void setUnits(int u) {
-        if ((u >= 0) && (u < UNITS.length)) {
-            if (units != u) {
-                units = u;
-                notifyListeners(new PlotChangeEvent(this));
+            if (axis != null) {
+                try {
+                    axis.setPlot(this);
+                }
+                catch (PlotNotCompatibleException e) {
+                    throw new AxisNotCompatibleException(
+                        "Plot.setRangeAxis(...): plot not compatible with axis.");
+                }
+                axis.addChangeListener(this);
             }
+
+            // plot is likely registered as a listener with the existing axis...
+            if (this.rangeAxis != null) {
+                this.rangeAxis.removeChangeListener(this);
+            }
+
+            this.rangeAxis = axis;
+
+        }
+        else {
+            throw new AxisNotCompatibleException(
+                "Plot.setRangeAxis(...): axis not compatible with plot.");
         }
     }
 
     /**
-     * Sets the font for the thermometer plot.
+     * Returns the lower bound for the thermometer.
+     * <p>
+     * The data value can be set lower than this, but it will not be shown in the thermometer.
      *
-     * @param f The new font value.
+     * @return the lower bound.
+     *
      */
-    public void setFont(Font f) {
-
-        if (f!=null) {
-            rangeAxis.setTickLabelFont(f);
-            setValueFont(f);
-        }
+    public double getLowerBound() {
+        return this.lowerBound;
     }
 
     /**
-     *  Sets the font for the current value display
+     * Sets the lower bound for the thermometer.
      *
-     * @param  f  The new value font
+     * @param lower the lower bound.
      */
-    public void setValueFont(Font f) {
-        if ((f != null) && (!valueFont.equals(f))) {
-            valueFont = f;
+    public void setLowerBound(double lower) {
+        this.lowerBound = lower;
+        setAxisRange();
+    }
+
+    /**
+     * Returns the upper bound for the thermometer.
+     * <p>
+     * The data value can be set higher than this, but it will not be shown in the thermometer.
+     *
+     * @return the upper bound.
+     *
+     */
+    public double getUpperBound() {
+        return this.upperBound;
+    }
+
+    /**
+     * Sets the upper bound for the thermometer.
+     *
+     * @param upper the upper bound.
+     */
+    public void setUpperBound(double upper) {
+        this.upperBound = upper;
+        setAxisRange();
+    }
+
+    /**
+     * Sets the lower and upper bounds for the thermometer.
+     *
+     * @param lower  the lower bound.
+     * @param upper  the upper bound.
+     */
+    public void setRange(double lower, double upper) {
+        this.lowerBound = lower;
+        this.upperBound = upper;
+        setAxisRange();
+    }
+
+    /**
+     * Returns the padding for the thermometer.  This is the space inside the plot area.
+     *
+     * @return the padding.
+     */
+    public Spacer getPadding() {
+        return this.padding;
+    }
+
+    /**
+     * Sets the padding for the thermometer.
+     *
+     * @param padding  the padding.
+     */
+    public void setPadding(Spacer padding) {
+        this.padding = padding;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the stroke used to draw the thermometer outline.
+     *
+     * @return the stroke.
+     */
+    public Stroke getThermometerStroke() {
+        return this.thermometerStroke;
+    }
+
+    /**
+     * Sets the stroke used to draw the thermometer outline.
+     *
+     * @param s  the new stroke (null ignored).
+     */
+    public void setThermometerStroke(Stroke s) {
+        if (s != null) {
+            this.thermometerStroke = s;
             notifyListeners(new PlotChangeEvent(this));
         }
     }
 
+    /**
+     * Returns the paint used to draw the thermometer outline.
+     *
+     * @return the paint.
+     */
+    public Paint getThermometerPaint() {
+        return this.thermometerPaint;
+    }
 
     /**
-     *  Gets the display units
+     * Sets the paint used to draw the thermometer outline.
      *
-     * @return    The units value
+     * @param paint  the new paint (null ignored).
+     */
+    public void setThermometerPaint(Paint paint) {
+        if (paint != null) {
+            this.thermometerPaint = paint;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+    }
+
+    /**
+     * Returns the unit display type (none/Fahrenheit/Celcius/Kelvin).
+     *
+     * @return  the units type.
      */
     public int getUnits() {
         return units;
     }
 
     /**
-     *  Gets the Font used to display the current value
+     * Sets the units to be displayed in the thermometer.
+     * <p>
+     * Use one of the following constants:
      *
-     * @return    The current value font
-     */
-    public Font getValueFont() {
-        return valueFont;
-    }
-
-    /**
-     *  Sets the paint to be used for a range
+     * <ul>
+     * <li>UNITS_NONE : no units displayed.</li>
+     * <li>UNITS_FAHRENHEIT : units displayed in Fahrenheit.</li>
+     * <li>UNITS_CELCIUS : units displayed in Celcius.</li>
+     * <li>UNITS_KELVIN : units displayed in Kelvin.</li>
+     * </ul>
      *
-     * @param  range  The range
-     * @param  paint  The paint to be applied
+     * @param u  the new unit type.
      */
-    public void setRangePaint(int range, Paint paint) {
-        if ((range >= 0) && (range < rangePaint.length) && (paint != null)) {
-            rangePaint[range] = paint;
+    public void setUnits(int u) {
+        if ((u >= 0) && (u < UNITS.length)) {
+            if (this.units != u) {
+                this.units = u;
+                notifyListeners(new PlotChangeEvent(this));
+            }
         }
     }
 
     /**
-     *  Gets the paint used for a particular range
+     * Sets the unit type.
      *
-     * @param  range  The range
-     * @return        The paint used
+     * @param u  the unit type (null ignored).
      */
-    public Paint getRangePaint(int range) {
-        if ((range >= 0) && (range < rangePaint.length)) {
-            return rangePaint[range];
+    public void setUnits(String u) {
+        if (u == null) {
+            return;
+        }
+
+        u = u.toUpperCase().trim();
+        for (int i = 0; i < UNITS.length; ++i) {
+            if (u.equals(UNITS[i].toUpperCase().trim())) {
+                setUnits(i);
+                i = UNITS.length;
+            }
+        }
+    }
+
+    /**
+     * Returns the value location.
+     *
+     * @return the location.
+     */
+    public int getValueLocation() {
+        return this.valueLocation;
+    }
+
+    /**
+     * Sets the location at which the current value is displayed.
+     * <P>
+     * The location can be one of the constants:  NONE, RIGHT and BULB.
+     *
+     * @param location  the location.
+     *
+     * @throws IllegalArgumentException if the location code is not valid.
+     */
+    public void setValueLocation(int location) {
+        if ((location >= 0) && (location < 3)) {
+            valueLocation = location;
+            notifyListeners(new PlotChangeEvent(this));
         }
         else {
-            return Color.black;
+            throw new IllegalArgumentException(
+                "ThermometerPlot.setDisplayLocation: location not recognised.");
         }
     }
+
+    /**
+     * Gets the font used to display the current value.
+     *
+     * @return  the font.
+     */
+    public Font getValueFont() {
+        return this.valueFont;
+    }
+
+    /**
+     * Sets the font used to display the current value.
+     *
+     * @param f  the new font.
+     */
+    public void setValueFont(Font f) {
+        if ((f != null) && (!this.valueFont.equals(f))) {
+            this.valueFont = f;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+    }
+
+    /**
+     * Gets the paint used to display the current value.
+     *
+     * @return  the paint.
+     */
+    public Paint getValuePaint() {
+        return this.valuePaint;
+    }
+
+    /**
+     * Sets the paint used to display the current value.
+     *
+     * @param p  the new paint.
+     */
+    public void setValuePaint(Paint p) {
+        if ((p != null) && (!this.valuePaint.equals(p))) {
+            this.valuePaint = p;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+    }
+
+    /**
+     * Sets the formatter for the value label.
+     *
+     * @param formatter  the new formatter.
+     */
+    public void setValueFormat(NumberFormat formatter) {
+        if (formatter != null) {
+            this.valueFormat = formatter;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+    }
+
+    /**
+     * Returns the default mercury paint.
+     *
+     * @return the paint.
+     */
+    public Paint getMercuryPaint() {
+        return this.mercuryPaint;
+    }
+
+    /**
+     * Sets the default mercury paint.
+     *
+     * @param paint  the new paint.
+     */
+    public void setMercuryPaint(Paint paint) {
+        this.mercuryPaint = paint;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the flag that controls whether not value lines are displayed.
+     *
+     * @return the flag.
+     */
+    public boolean getShowValueLines() {
+        return this.showValueLines;
+    }
+
+    /**
+     * Sets the display as to whether to show value lines in the output.
+     *
+     * @param b Whether to show value lines in the thermometer
+     */
+    public void setShowValueLines(boolean b) {
+        this.showValueLines = b;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Sets information for a particular range.
+     *
+     * @param range  the range to specify information about.
+     * @param low  the low value for the range
+     * @param hi  the high value for the range
+     */
+    public void setSubrangeInfo(int range, double low, double hi) {
+        setSubrangeInfo(range, low, hi, low, hi);
+    }
+
+    /**
+     * Sets the subrangeInfo attribute of the ThermometerPlot object
+     *
+     * @param range  the new rangeInfo value.
+     * @param rangeLow  the new rangeInfo value
+     * @param rangeHigh  the new rangeInfo value
+     * @param displayLow  the new rangeInfo value
+     * @param displayHigh  the new rangeInfo value
+     */
+    public void setSubrangeInfo(int range,
+                                double rangeLow, double rangeHigh,
+                                double displayLow, double displayHigh) {
+
+        if ((range >= 0) && (range < 3)) {
+            setSubrange(range, rangeLow, rangeHigh);
+            setDisplayRange(range, displayLow, displayHigh);
+            setAxisRange();
+            notifyListeners(new PlotChangeEvent(this));
+        }
+
+    }
+
+    /**
+     * Sets the range.
+     *
+     * @param range  the range type.
+     * @param low  the low value.
+     * @param high  the high value.
+     */
+    public void setSubrange(int range, double low, double high) {
+        if ((range >= 0) && (range < 3)) {
+            subrangeInfo[range][RANGE_HIGH] = high;
+            subrangeInfo[range][RANGE_LOW] = low;
+        }
+    }
+
+    /**
+     * Sets the display range.
+     *
+     * @param range  the range type.
+     * @param low  the low value.
+     * @param high  the high value.
+     */
+    public void setDisplayRange(int range, double low, double high) {
+
+        if ((range >= 0) && (range < subrangeInfo.length)
+            && isValidNumber(high) && isValidNumber(low)) {
+
+            if (high > low) {
+                subrangeInfo[range][DISPLAY_HIGH] = high;
+                subrangeInfo[range][DISPLAY_LOW] = low;
+            }
+            else {
+                subrangeInfo[range][DISPLAY_HIGH] = high;
+                subrangeInfo[range][DISPLAY_LOW] = low;
+            }
+
+        }
+
+    }
+
+    /**
+     * Gets the paint used for a particular subrange.
+     *
+     * @param range  the range.
+     *
+     * @return the paint.
+     */
+    public Paint getSubrangePaint(int range) {
+
+        if ((range >= 0) && (range < subrangePaint.length)) {
+            return subrangePaint[range];
+        }
+        else {
+            return this.mercuryPaint;
+        }
+
+    }
+
+    /**
+     * Sets the paint to be used for a range.
+     *
+     * @param range  the range.
+     * @param paint  the paint to be applied.
+     */
+    public void setSubrangePaint(int range, Paint paint) {
+        if ((range >= 0) && (range < subrangePaint.length) && (paint != null)) {
+            subrangePaint[range] = paint;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+    }
+
+    /**
+     * Returns a flag that controls whether or not the thermometer axis zooms to display the
+     * subrange within which the data value falls.
+     *
+     * @return the flag.
+     */
+    public boolean getFollowDataInSubranges() {
+        return this.followDataInSubranges;
+    }
+
+    /**
+     * Sets the flag that controls whether or not the thermometer axis zooms to display the
+     * subrange within which the data value falls.
+     *
+     * @param flag  the flag.
+     */
+    public void setFollowDataInSubranges(boolean flag) {
+        this.followDataInSubranges = flag;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns a flag that controls whether or not the mercury color changes for each
+     * subrange.
+     *
+     * @return the flag.
+     */
+    public boolean getUseSubrangePaint() {
+        return this.useSubrangePaint;
+    }
+
+    /**
+     * Sets the range colour change option.
+     *
+     * @param flag The new range colour change option
+     */
+    public void setUseSubrangePaint(boolean flag) {
+        this.useSubrangePaint = flag;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
 
     /**
      * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
      *
-     * @param  g2        The graphics device.
-     * @param  plotArea  The area within which the plot should be drawn.
-     * @param  info      Collects info about the drawing.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the plot should be drawn.
+     * @param info  collects info about the drawing.
      */
     public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
-        Area a1, a2, a3, a4;
-        int i = 0;
-        int j = 0;
-        int l = 0;
-        int k = 0;
-        int tickY = 0;
-        int tickX1 = 0 ;
-        int tickX2 = 0 ;
+
+        RoundRectangle2D outerStem = new RoundRectangle2D.Double();
+
+        RoundRectangle2D innerStem = new RoundRectangle2D.Double();
+
+        RoundRectangle2D mercuryStem = new RoundRectangle2D.Double();
+
+        Ellipse2D outerBulb = new Ellipse2D.Double();
+
+        Ellipse2D innerBulb = new Ellipse2D.Double();;
 
         String temp = null;
         FontMetrics metrics = null;
 
-        /// Setup tool tips
-//        ToolTipsCollection tooltips = null;
         if (info != null) {
             info.setPlotArea(plotArea);
-//            tooltips = info.getToolTipsCollection();
         }
 
         // adjust for insets...
@@ -512,381 +854,390 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot {
         }
         drawOutlineAndBackground(g2, plotArea);
 
+        // adjust for padding...
+        //this.padding.trim(plotArea);
+
         int midX = (int) (plotArea.getX() + (plotArea.getWidth() / 2));
         int midY = (int) (plotArea.getY() + (plotArea.getHeight() / 2));
-        int ticksYStart = (int) (plotArea.getMinY() + bulbRadius);
-        int ticksYStop  = (int) (plotArea.getMaxY() - bulbDiameter);
+        int stemTop = (int) (plotArea.getMinY() + BULB_RADIUS);
+        int stemBottom  = (int) (plotArea.getMaxY() - BULB_DIAMETER);
+        Rectangle2D dataArea = new Rectangle2D.Double(midX - COLUMN_RADIUS,
+                                                      stemTop,
+                                                      COLUMN_RADIUS,
+                                                      stemBottom - stemTop);
 
-        /// Setup a1 and a2 with gauge outline
-        circle1.setFrame(midX - bulbRadius, ticksYStop, bulbDiameter, bulbDiameter);
-        k = ticksYStop + gapRadius;
-        i = bulbDiameter - gapDiameter;
-        j = bulbRadius - gapRadius;
-        circle2.setFrame(midX - j, k, i, i);
+        outerBulb.setFrame(midX - BULB_RADIUS,
+                           stemBottom,
+                           BULB_DIAMETER,
+                           BULB_DIAMETER);
 
-        outer1.setRoundRect(midX - columnRadius, plotArea.getMinY(), columnDiameter, k, columnDiameter, columnDiameter);
-        i = columnDiameter - gapDiameter;
-        j = columnRadius - gapRadius;
-        outer2.setRoundRect(midX - j, plotArea.getMinY() + gapRadius, i, k, i, i);
+        outerStem.setRoundRect(midX - COLUMN_RADIUS,
+                               plotArea.getMinY(),
+                               COLUMN_DIAMETER,
+                               stemBottom + BULB_DIAMETER - stemTop,
+                               COLUMN_DIAMETER,
+                               COLUMN_DIAMETER);
 
-        a1 = new Area(circle1);
-        a2 = new Area(outer1);
-        a1.add(a2);
+        Area outerThermometer = new Area(outerBulb);
+        Area tempArea = new Area(outerStem);
+        outerThermometer.add(tempArea);
 
-        a2 = new Area(outer2);
-        a3 = new Area(circle2);
-        a2.add(a3);
+        innerBulb.setFrame(midX - BULB_RADIUS + GAP_RADIUS,
+                           stemBottom + GAP_RADIUS,
+                           BULB_DIAMETER - GAP_DIAMETER,
+                           BULB_DIAMETER - GAP_DIAMETER);
+
+        innerStem.setRoundRect(midX - COLUMN_RADIUS + GAP_RADIUS,
+                               plotArea.getMinY()  + GAP_RADIUS,
+                               COLUMN_DIAMETER - GAP_DIAMETER,
+                               stemBottom + BULB_DIAMETER - GAP_DIAMETER - stemTop,
+                               COLUMN_DIAMETER - GAP_DIAMETER,
+                               COLUMN_DIAMETER - GAP_DIAMETER);
+
+        Area innerThermometer = new Area(innerBulb);
+        tempArea = new Area(innerStem);
+        innerThermometer.add(tempArea);
 
         if ((data != null) && (data.isValueValid())) {
             double current = data.getValue().doubleValue();
 
-            /// Determine Display Range
-            rangeData = range ;
-            switch (range) {
-                case 0:
-                    if (current > rangeInfo[1][RANGE_HI]) {range = 2; }
-                    if (current > rangeInfo[0][RANGE_HI]) {range = 1; }
-                    break;
-                case 1:
-                    if (current > rangeInfo[1][DISPLAY_HI]) {range = 2; }
-                    if (current < rangeInfo[1][DISPLAY_LOW]){range = 0; }
-                    break;
-                case 2:
-                    if (current < rangeInfo[2][RANGE_LOW]) {range = 1;}
-                    if (current < rangeInfo[1][RANGE_LOW]) {range = 0;}
-                    break;
-                default:
-                    range = 1;
+            double ds = rangeAxis.translateValueToJava2D(current, dataArea);
+
+            int i = COLUMN_DIAMETER - GAP_DIAMETER;  // already calculated
+            int j = COLUMN_RADIUS - GAP_RADIUS;      // already calculated
+            int l = (int) (i / 2);
+            //k = (int) (ticksYStop - Math.round(ds));
+            int k = (int) Math.round(ds);
+            if (k < (GAP_RADIUS + plotArea.getMinY())) {
+                k = (int) (GAP_RADIUS + plotArea.getMinY());
+                l = BULB_RADIUS;
             }
 
-      /// Detect a change in the display range, if so update the vertical axis.
-      if (rangeData != range) {
-        setAxisRange();
-      }
+            Area mercury = new Area(innerBulb);
 
-      /// Determine Data Range, always the same as display except in the middle range
-      rangeData = range ;
-      if (followValue && (range == 1)) {
-        if (current < rangeInfo[0][RANGE_HI]) {rangeData = 0; }
-        if (current > rangeInfo[2][RANGE_LOW]){rangeData = 2; }
-      }
+            if (k < (stemBottom + BULB_RADIUS)) {
+                mercuryStem.setRoundRect(midX - j, k, i, (stemBottom + BULB_RADIUS) - k, l, l);
+                tempArea = new Area(mercuryStem);
+                mercury.add(tempArea);
+            }
 
-      /// Draw gauge display
-      double ds = ((current - rangeInfo[range][DISPLAY_LOW]) / rangeInfo[range][DISPLAY_RANGE])
-                * (ticksYStop - ticksYStart);
-      i = columnDiameter - gapDiameter;  // Already calculated
-      j = columnRadius - gapRadius;      // Already calculated
-      l = (int) (i / 2);
-      k = (int) (ticksYStop - Math.round(ds));
-      if (k < (gapRadius + plotArea.getMinY())) {
-        k = (int) (gapRadius + plotArea.getMinY());
-        l = bulbRadius;
-      }
+            g2.setPaint(getCurrentPaint());
+            g2.fill(mercury);
 
-      if (k < (ticksYStop + bulbRadius)) {
-        outer3.setRoundRect(midX - j, k, i, (ticksYStop + bulbRadius) - k, l, l);
-        a4 = new Area(outer3);
-        a3.add(a4);
-      }
+            // draw the axis...
+            int drawWidth = AXIS_GAP;
+            if (showValueLines) {
+                drawWidth += COLUMN_DIAMETER;
+            }
+            Rectangle2D drawArea = new Rectangle2D.Double(midX - COLUMN_RADIUS - AXIS_GAP,
+                                                          stemTop,
+                                                          drawWidth,
+                                                          (stemBottom - stemTop + 1));
+            this.rangeAxis.draw(g2, plotArea, drawArea);
 
-      g2.setPaint(rangePaint[rangeData]);
-      g2.fill(a3);
+            // draw range indicators...
+            if (this.subrangeIndicatorsVisible) {
+                g2.setStroke(this.subrangeIndicatorStroke);
+                Range range = rangeAxis.getRange();
 
-      /// Draw Axis
-      i = 0;
-      if (drawLines)
-        i += columnDiameter ;
-      Rectangle2D drawArea = new Rectangle2D.Double(midX-columnRadius-legendWidth,
-                             ticksYStart, legendWidth+i , (ticksYStop - ticksYStart + 1));
-      this.rangeAxis.draw(g2, plotArea, drawArea);
+                // draw start of normal range
+                double value = this.subrangeInfo[NORMAL][RANGE_LOW];
+                if (range.contains(value)) {
+                    double x = midX + COLUMN_RADIUS + 2;
+                    double y = rangeAxis.translateValueToJava2D(value, dataArea);
+                    Line2D line = new Line2D.Double(x, y, x + 10, y);
+                    g2.setPaint(subrangePaint[NORMAL]);
+                    g2.draw(line);
+                }
 
-      /// Draw Range Inidcators
-      g2.setStroke(rangeInidcatorStroke);
+                // draw start of warning range
+                value = this.subrangeInfo[WARNING][RANGE_LOW];
+                if (range.contains(value)) {
+                    double x = midX + COLUMN_RADIUS + 2;
+                    double y = rangeAxis.translateValueToJava2D(value, dataArea);
+                    Line2D line = new Line2D.Double(x, y, x + 10, y);
+                    g2.setPaint(subrangePaint[WARNING]);
+                    g2.draw(line);
+                }
 
-      if (rangeIndcatorStrokeSize > 0) {
-        double incY = ((ticksYStop - ticksYStart) / rangeInfo[range][DISPLAY_RANGE]);
-        tickX1 = midX + columnRadius + rangeIndcatorStrokeSize ;
-        tickX2 = tickX1 + 10 ;
-        if (inRange(range, rangeInfo[1][RANGE_LOW])) {
-            tickY = ticksYStart ;
-            tickY += (int) (incY * (rangeInfo[range][DISPLAY_HI] - rangeInfo[1][RANGE_LOW])) ;
-            g2.setPaint(rangePaint[1]);
-            g2.drawLine(tickX1, tickY, tickX2, tickY);
+                // draw start of critical range
+                value = this.subrangeInfo[CRITICAL][RANGE_LOW];
+                if (range.contains(value)) {
+                    double x = midX + COLUMN_RADIUS + 2;
+                    double y = rangeAxis.translateValueToJava2D(value, dataArea);
+                    Line2D line = new Line2D.Double(x, y, x + 10, y);
+                    g2.setPaint(subrangePaint[CRITICAL]);
+                    g2.draw(line);
+                }
+            }
+
+            // draw text value on screen
+            g2.setFont(this.valueFont);
+            g2.setPaint(this.valuePaint);
+            metrics = g2.getFontMetrics();
+            switch (valueLocation) {
+                case RIGHT:
+                    g2.drawString(valueFormat.format(current),
+                                  midX + COLUMN_RADIUS + GAP_RADIUS, midY);
+                    break;
+                case BULB:
+                    temp = valueFormat.format(current);
+                    i = (int) (metrics.stringWidth(temp) / 2);
+                    g2.drawString(temp, midX - i, stemBottom + BULB_RADIUS + GAP_RADIUS);
+                    break;
+                default:
+            }
         }
 
-        if (inRange(range, rangeInfo[2][RANGE_LOW])) {
-            tickY = ticksYStart ;
-            tickY += (int) (incY *(rangeInfo[range][DISPLAY_HI]-rangeInfo[2][RANGE_LOW])) ;
-            g2.setPaint(rangePaint[2]);
-            g2.drawLine(tickX1, tickY, tickX2, tickY);
+        g2.setPaint(thermometerPaint);
+        g2.setFont(valueFont);
+
+        //  draw units indicator
+        metrics = g2.getFontMetrics();
+        int tickX1 = midX - COLUMN_RADIUS - GAP_DIAMETER - metrics.stringWidth(UNITS[units]);
+        if (tickX1 > plotArea.getMinX()) {
+            g2.drawString(UNITS[units], tickX1, (int) (plotArea.getMinY() + 20));
         }
-      }
 
-      /// Draw text value on screen
-      g2.setFont(valueFont);
-      g2.setColor(valueColour);
-      metrics = g2.getFontMetrics();
-      switch (valueLocation) {
-        case LEFT:
-          g2.drawString(valueFormat.format(current), midX + columnRadius + gapRadius, midY);
-          break;
-        case BULB:
-          temp = valueFormat.format(current);
-          i = (int) (metrics.stringWidth(temp) / 2);
-          g2.drawString(temp, midX - i, ticksYStop + bulbRadius + gapRadius);
-          break;
-        default:
-      }
+        // draw thermometer outline
+        g2.setStroke(thermometerStroke);
+        g2.draw(outerThermometer);
+        g2.draw(innerThermometer);
+
     }
-
-    g2.setColor(outerColour);
-    g2.setFont(valueFont);
-
-    /// Draw units incidicator
-    metrics = g2.getFontMetrics();
-    tickX1 = midX - columnRadius - gapDiameter - metrics.stringWidth(UNITS[units]);
-    if (tickX1 > plotArea.getMinX()) {
-      g2.drawString(UNITS[units], tickX1, (int) (plotArea.getMinY() + 20));
-    }
-
-        /// draw thermometer gauge outline
-        if (outerColour != null) {
-            g2.setStroke(outerStroke);
-            g2.draw(a1);
-            g2.draw(a2);
-        }
-    }
-
-  /**
-   *  Sets information for a particular range
-   *
-   * @param  range        The range to specify information about
-   * @param  hi   The High value for the range
-   * @param  low  The Low value for the range
-   */
-  public void setRangeInfo(int range, double low, double hi) {
-    setRangeInfo(range, low, hi, low, hi);
-  }
-
-  /**
-   *  Sets the rangeInfo attribute of the ThermometerPlot object
-   *
-   * @param  range        The new rangeInfo value
-   * @param  range_hi     The new rangeInfo value
-   * @param  range_low    The new rangeInfo value
-   * @param  display_hi   The new rangeInfo value
-   * @param  display_low  The new rangeInfo value
-   */
-  public void setRangeInfo(int range, double range_low, double range_hi,
-      double display_low, double display_hi) {
-    if ((range >= 0) && (range < 3)) {
-      setRange(range, range_low, range_hi);
-      setDisplayRange(range, display_low, display_hi);
-    }
-  }
-
-  public void setRange(int range, double low, double hi) {
-    if ((range >= 0) && (range < 3)) {
-      rangeInfo[range][RANGE_HI] = hi;
-      rangeInfo[range][RANGE_LOW] = low;
-    }
-  }
-
-  public void setDisplayRange(int range, double low, double hi) {
-    if ((range >= 0) && (range < rangePaint.length)
-       && isValidNumber(hi) && isValidNumber(low)) {
-
-      if (hi > low) {
-        rangeInfo[range][DISPLAY_HI] = hi;
-        rangeInfo[range][DISPLAY_LOW] = low;
-      } else {
-        rangeInfo[range][DISPLAY_HI] = hi;
-        rangeInfo[range][DISPLAY_LOW] = low;
-      }
-
-      rangeInfo[range][DISPLAY_RANGE] = rangeInfo[range][DISPLAY_HI]
-                                      - rangeInfo[range][DISPLAY_LOW] ;
-    }
-  }
-
-
-  public void setDisplayLocation(int loc) {
-    if ((loc >= 0) && (loc < 3)) {
-      valueLocation = loc ;
-    }
-  }
-
-  /**
-   * Set the outline colour of the thermometer
-   * @param c new colour to set the outline of the thermometer
-   */
-  public void setThermometerColor(Color c) {
-    outerColour = c ;
-  }
-
-  /**
-   * Whether value is in the display range of specified range.
-   *
-   * @param range  The range to compare against
-   * @param value  the value to compare
-   * @return       whether value is in the display range of specified range
-   */
-  private boolean inRange(int range, double value) {
-    return (
-      (rangeInfo[range][DISPLAY_HI]  > value) &&
-      (rangeInfo[range][DISPLAY_LOW] < value)
-    ) ;
-  }
-
-  private void checkDataModelData() {
-
-    if (data != null) {
-      Number test = data.getMaximumCriticalValue() ;
-      if (test != null)
-        rangeInfo[CRITICAL][RANGE_HI] = test.doubleValue();
-      test = data.getMinimumCriticalValue();
-      if (test != null)
-        rangeInfo[CRITICAL][RANGE_LOW] = test.doubleValue();
-
-      test = data.getMaximumWarningValue();
-      if (test != null)
-        rangeInfo[WARNING][RANGE_HI] = test.doubleValue();
-      test = data.getMinimumWarningValue();
-      if (test != null)
-        rangeInfo[WARNING][RANGE_LOW] = test.doubleValue();
-
-      test = data.getMaximumNormalValue();
-      if (test != null)
-        rangeInfo[NORMAL][RANGE_HI] = test.doubleValue();
-      test = data.getMinimumNormalValue();
-      if (test != null)
-        rangeInfo[NORMAL][RANGE_LOW] = test.doubleValue();
-    }
-  } ;
-
-  /***
-   * This is experimental, an early attempt to support data model ranges being changed
-   */
-  public void datasetChanged(DatasetChangeEvent event) {
-    if (!ignoreDataModelRangeChanges) {
-      checkDataModelData() ;
-    }
-    super.datasetChanged(event);
-  }
 
     /**
-     * Returns the minimum value in either the domain or the range, whichever is displayed against
-     * the vertical axis for the particular type of plot implementing this interface.
+     * A zoom method that does nothing.
+     * <p>
+     * Plots are required to support the zoom operation.  In the case of a
+     * thermometer chart, it doesn't make sense to zoom in or out, so the
+     * method is empty.
+     *
+     * @param percent  the zoom percentage.
+     */
+    public void zoom(double percent) { }
+
+    /**
+     * Returns a short string describing the type of plot.
+     *
+     * @return  a short string describing the type of plot.
+     */
+    public String getPlotType() {
+        return "Thermometer Plot";
+    }
+
+    /**
+     * Checks to see if a new value means the axis range needs adjusting.
+     *
+     * @param event  the dataset change event.
+     */
+    public void datasetChanged(DatasetChangeEvent event) {
+
+        Number vn = data.getValue();
+        if (vn != null) {
+            double value = vn.doubleValue();
+            if (inSubrange(NORMAL, value)) {
+                this.subrange = NORMAL;
+            }
+            else if (inSubrange(WARNING, value)) {
+                this.subrange = WARNING;
+            }
+            else if (inSubrange(CRITICAL, value)) {
+                this.subrange = CRITICAL;
+            }
+			else {
+                this.subrange = -1;
+            }
+            setAxisRange();
+        }
+        super.datasetChanged(event);
+    }
+
+    /**
+     * Returns the minimum value in either the domain or the range, whichever
+     * is displayed against the vertical axis for the particular type of plot
+     * implementing this interface.
+     *
+     * @return the minimum value in either the domain or the range.
      */
     public Number getMinimumVerticalDataValue() {
-      return new Double(rangeInfo[range][DISPLAY_LOW]);
+        return new Double(this.lowerBound);
     }
 
     /**
-     * Returns the maximum value in either the domain or the range, whichever is displayed against
-     * the vertical axis for the particular type of plot implementing this interface.
+     * Returns the maximum value in either the domain or the range, whichever
+     * is displayed against the vertical axis for the particular type of plot
+     * implementing this interface.
+     *
+     * @return the maximum value in either the domain or the range
      */
     public Number getMaximumVerticalDataValue() {
-      return new Double(rangeInfo[range][DISPLAY_HI]);
+        return new Double(this.upperBound);
     }
 
+    /**
+     * Returns the vertical data range.
+     *
+     * @return the range of data displayed.
+     */
     public Range getVerticalDataRange() {
-        return new Range(rangeInfo[range][DISPLAY_LOW], rangeInfo[range][DISPLAY_HI]);
+        return new Range(this.lowerBound, this.upperBound);
     }
 
     /**
-     * Sets the display as to whether to show value lines in the output.
+     * Returns true if the axis is compatible with the meter plot.  Since a
+     * Thermometer plot requires no horizontal axis, only a null axis is compatible.
      *
-     * @param b Whether to show value lines in the thermometer
-     */
-    public void setShowValueLines(boolean b) {
-      drawLines = b ;
-    }
-
-    public boolean getShowValueLines(boolean b) {
-      return drawLines ;
-    }
-
-    /**
-     * Sets the range colour change option.
+     * @param axis  the axis.
      *
-     * @param b The new range colour change option
+     * @return  true, if the axis is null, and false otherwise.
      */
-    public void setFollowData(boolean v) {
-        followValue = v ;
-    }
-
-    /**
-     * Get whether the thermometer paint changes with data (true) or range (false)
-     * @return the value for follow data
-     */
-    public boolean getFollowData() {
-        return followValue ;
-    }
-
-    /**
-     * Sets the width of the range inidctators.  Set to 0 to disable range inidcator
-     * display.
-     * @param size the width of the inidcator. valid range 0-15 inclusive
-     */
-    public void setRangeIndicatorWidth(int width) {
-        if ((width != rangeIndcatorStrokeSize) && (width >=0) && (width < 16)) {
-            rangeIndcatorStrokeSize = width ;
-            rangeInidcatorStroke = new BasicStroke(width);
+    public boolean isCompatibleHorizontalAxis(Axis axis) {
+        if (axis == null) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
     /**
-     * Gets the width of the range inidictators
-     * @return the width of range indicators
+     * Returns true if the axis is compatible with the meter plot.  Since a Thermometer plot
+     * requires a VerticalNumberAxis, only a VerticalNumberAxis axis is compatible.
+     *
+     * @param axis  the axis.
+     *
+     * @return  true, if the axis is compatible with the plot, and false otherwise.
      */
-    public int getRangeIndicatorWidth() {
-        return rangeIndcatorStrokeSize ;
-    }
-
-    public void setOuterStoke(Stroke s) {
-        if (s != null) {
-            outerStroke = s ;
+    public boolean isCompatibleVerticalAxis(Axis axis) {
+        if (axis instanceof VerticalNumberAxis) {
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
-    public Stroke getOuterStroke() {
-        return outerStroke ;
-    }
-
+    /**
+     * Fires a plot change event.
+     *
+     * @deprecated this method is not required and will be removed.
+     */
     public void propertyChange() {
-        this.notifyListeners(new PlotChangeEvent(this));
+        notifyListeners(new PlotChangeEvent(this));
     }
 
+    /**
+     * Sets the axis range to the current values in the rangeInfo array.
+     */
     protected void setAxisRange() {
-        rangeAxis.setRange(new Range(rangeInfo[range][DISPLAY_LOW], rangeInfo[range][DISPLAY_HI]));
+        if ((this.subrange >= 0) && (this.followDataInSubranges)) {
+            rangeAxis.setRange(new Range(subrangeInfo[subrange][DISPLAY_LOW],
+                                         subrangeInfo[subrange][DISPLAY_HIGH]));
+        }
+        else {
+            rangeAxis.setRange(this.lowerBound, this.upperBound);
+        }
     }
 
+    /**
+     * Returns null, since the thermometer plot won't require a legend.
+     *
+     * @return null.
+     *
+     * @deprecated use getLegendItems().
+     */
     public List getLegendItemLabels() {
         return null;
     }
 
     /**
-     * Checks the compatibility of a range axis, returning true if the axis is compatible with
-     * the plot, and false otherwise.
+     * Returns the legend items for the plot.
+     *
+     * @return null.
+     */
+    public LegendItemCollection getLegendItems() {
+        return null;
+    }
+
+    /**
+     * Checks the compatibility of a range axis, returning true if the axis is
+     * compatible with the plot, and false otherwise.
      *
      * @param axis The proposed axis.
      *
-     * @return True if the axis is compatible with the plot, and false otherwise.
+     * @return <code>true</code> if the axis is compatible with the plot.
      */
     public boolean isCompatibleRangeAxis(ValueAxis axis) {
 
-        if (axis==null) {
+        if (axis == null) {
             return true;
         }
         if (axis instanceof VerticalAxis) {
             return true;
         }
-        else return false;
+        else {
+            return false;
+        }
     }
 
+    /**
+     * Returns the vertical value axis.
+     * <p>
+     * This is required by the VerticalValuePlot interface, but not used in this class.
+     *
+     * @return the vertical value axis.
+     */
     public ValueAxis getVerticalValueAxis() {
         return this.rangeAxis;
     }
 
+    /**
+     * Determine whether a number is valid and finite.
+     *
+     * @param d  the number to be tested.
+     *
+     * @return true if the number is valid and finite, and false otherwise.
+     */
+    protected static boolean isValidNumber(double d) {
+        return (!(Double.isNaN(d) || Double.isInfinite(d)));
+    }
+
+    /**
+     * Returns true if the value is in the specified range, and false otherwise.
+     *
+     * @param subrange  the subrange.
+     * @param value  the value to check.
+     *
+     * @return true or false.
+     */
+    private boolean inSubrange(int subrange, double value) {
+        return (value > subrangeInfo[subrange][RANGE_LOW]
+                && value <= subrangeInfo[subrange][RANGE_HIGH]);
+    }
+
+    /**
+     * Returns the mercury paint corresponding to the current data value.
+     *
+     * @return the paint.
+     */
+    private Paint getCurrentPaint() {
+
+        Paint result = this.mercuryPaint;
+        if (this.useSubrangePaint) {
+            double value = this.data.getValue().doubleValue();
+            if (inSubrange(NORMAL, value)) {
+                result = this.subrangePaint[NORMAL];
+            }
+            else if (inSubrange(WARNING, value)) {
+                result = this.subrangePaint[WARNING];
+            }
+            else if (inSubrange(CRITICAL, value)) {
+                result = this.subrangePaint[CRITICAL];
+            }
+        }
+        return result;
+    }
+
 }
+

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -31,8 +31,9 @@
  *
  * Changes
  * -------
- * 13-Dec-2001 : Version 1 (DG);
- * 16-Jan-2002 : Completed Javadocs (DG);
+ * 23-May-2002 : Version 1 (DG);
+ * 26-Jun-2002 : Added iterator() method (DG);
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,11 +44,13 @@ import java.util.Iterator;
 
 /**
  * A default implementation of the EntityCollection interface.
+ *
+ * @author DG
  */
 public class StandardEntityCollection implements EntityCollection {
 
     /** Storage for the entities. */
-    protected Collection entities;
+    private Collection entities;
 
     /**
      * Constructs a new entity collection (initially empty).
@@ -66,7 +69,7 @@ public class StandardEntityCollection implements EntityCollection {
     /**
      * Adds an entity.
      *
-     * @param entity The entity.
+     * @param entity  the entity.
      */
     public void addEntity(ChartEntity entity) {
         entities.add(entity);
@@ -75,10 +78,10 @@ public class StandardEntityCollection implements EntityCollection {
     /**
      * Returns an entity for the specified coordinates.
      *
-     * @param x The x coordinate.
-     * @param y The y coordinate.
+     * @param x  the x coordinate.
+     * @param y  the y coordinate.
      *
-     * @return The entity.
+     * @return the entity.
      */
     public ChartEntity getEntity(double x, double y) {
 
@@ -86,13 +89,22 @@ public class StandardEntityCollection implements EntityCollection {
 
         Iterator iterator = entities.iterator();
         while (iterator.hasNext()) {
-            ChartEntity entity = (ChartEntity)(iterator.next());
+            ChartEntity entity = (ChartEntity) iterator.next();
             if (entity.getArea().contains(x, y)) {
                 result = entity;
             }
         }
 
         return result;
+    }
+
+    /**
+     * Returns an iterator for the entities in the collection.
+     *
+     * @return an iterator.
+     */
+    public Iterator iterator() {
+        return entities.iterator();
     }
 
 }

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -46,23 +46,30 @@
  *               method comes from the START, MIDDLE, or END of the time period.  This is a
  *               workaround for JFreeChart, where the current date axis always labels the start
  *               of a time period (DG);
+ * 24-Jun-2002 : Removed unnecessary import (DG);
+ * 24-Aug-2002 : Implemented DomainInfo interface, and added the DomainIsPointsInTime flag (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 16-Oct-2002 : Added remove methods (DG);
  *
  */
 
 package com.jrefinery.data;
 
 import java.util.List;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
  * A collection of time series objects.
  * <P>
- * This class implements the IntervalXYDataset interface.  One consequence of this is that this
- * class can be used quite easily to supply data to JFreeChart.
+ * This class implements the IntervalXYDataset interface.  One consequence of
+ * this is that this class can be used quite easily to supply data to JFreeChart.
+ *
+ * @author DG
  */
-public class TimeSeriesCollection extends AbstractSeriesDataset implements IntervalXYDataset {
+public class TimeSeriesCollection extends AbstractSeriesDataset
+                                  implements IntervalXYDataset, DomainInfo {
 
     /** Useful constant for controlling the x-value returned for a time period. */
     public static final int START = 0;
@@ -74,12 +81,20 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
     public static final int END = 2;
 
     /** Storage for the time series. */
-    protected List data;
+    private List data;
 
     /** A working calendar (to recycle) */
-    protected Calendar workingCalendar;
+    private Calendar workingCalendar;
 
-    protected int position;
+    /** The position within a time period to return as the x-value (START, MIDDLE or END). */
+    private int position;
+
+    /**
+     * A flag that indicates that the domain is 'points in time'.  If this flag is true, only
+     * the x-value is used to determine the range of values in the domain, the start and end
+     * x-values are ignored.
+     */
+    private boolean domainIsPointsInTime;
 
     /**
      * Constructs an empty dataset, tied to the default timezone.
@@ -91,65 +106,91 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
     /**
      * Constructs an empty dataset, tied to a specific timezone.
      *
-     * @param zone The timezone.
+     * @param zone the timezone.
      */
     public TimeSeriesCollection(TimeZone zone) {
         this(null, zone);
     }
 
     /**
-     * Constructs a dataset containing a single series (more can be added), tied to the default
-     * timezone.
+     * Constructs a dataset containing a single series (more can be added),
+     * tied to the default timezone.
      *
-     * @param series The series.
+     * @param series the series.
      */
     public TimeSeriesCollection(BasicTimeSeries series) {
         this(series, TimeZone.getDefault());
     }
 
     /**
-     * Constructs a dataset containing a single series (more can be added), tied to a specific
-     * timezone.
+     * Constructs a dataset containing a single series (more can be added),
+     * tied to a specific timezone.
      *
-     * @param series The series.
-     * @param zone The timezone.
+     * @param series the series.
+     * @param zone the timezone.
      */
     public TimeSeriesCollection(BasicTimeSeries series, TimeZone zone) {
 
         this.data = new java.util.ArrayList();
-        if (series!=null) {
+        if (series != null) {
             data.add(series);
             series.addChangeListener(this);
         }
         this.workingCalendar = Calendar.getInstance(zone);
         this.position = START;
+        this.domainIsPointsInTime = true;
 
     }
 
     /**
-     * Returns the position of the x-value returned for a time period (START, MIDDLE, or END).
+     * Returns the position of the x-value returned for a time period (START,
+     * MIDDLE, or END).
      *
-     * @return The position.
+     * @return the position.
      */
     public int getPosition() {
         return this.position;
     }
 
     /**
-     * Sets the position - this controls the x-value that is returned for a particular time period.
+     * Sets the position - this controls the x-value that is returned for a
+     * particular time period.
      * <P>
      * Use the constants START, MIDDLE and END.
      *
-     * @param position The position.
+     * @param position the position.
      */
     public void setPosition(int position) {
         this.position = position;
     }
 
     /**
+     * Returns a flag that controls whether the domain is treated as 'points in time'.
+     * <P>
+     * This flag is used when determining the max and min values for the domain.  If true, then
+     * only the x-values are considered for the max and min values.  If false, then the start and
+     * end x-values will also be taken into consideration
+     *
+     * @return the flag.
+     */
+    public boolean getDomainIsPointsInTime() {
+        return this.domainIsPointsInTime;
+    }
+
+    /**
+     * Sets a flag that controls whether the domain is treated as 'points in time', or time
+     * periods.
+     *
+     * @param flag The new value of the flag.
+     */
+    public void setDomainIsPointsInTime(boolean flag) {
+        this.domainIsPointsInTime = flag;
+    }
+
+    /**
      * Returns the number of series in the collection.
      *
-     * @return The series count.
+     * @return the series count.
      */
     public int getSeriesCount() {
         return this.data.size();
@@ -160,18 +201,18 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The index of the series (zero-based).
      *
-     * @return The series.
+     * @return the series.
      */
     public BasicTimeSeries getSeries(int series) {
 
         // check arguments...
-        if ((series<0) || (series>this.getSeriesCount())) {
-            throw new IllegalArgumentException("TimeSeriesDataset.getSeries(...): "
-                                               +"index outside valid range.");
+        if ((series < 0) || (series > getSeriesCount())) {
+            throw new IllegalArgumentException(
+                "TimeSeriesDataset.getSeries(...): index outside valid range.");
         }
 
         // fetch the series...
-        BasicTimeSeries ts = (BasicTimeSeries)data.get(series);
+        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
         return ts;
 
     }
@@ -183,7 +224,7 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The index of the series (zero-based).
      *
-     * @return The name of a series.
+     * @return the name of a series.
      */
     public String getSeriesName(int series) {
 
@@ -198,20 +239,54 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      * <P>
      * Notifies all registered listeners that the dataset has changed.
      *
-     * @param series The time series.
+     * @param series the time series.
      */
     public void addSeries(BasicTimeSeries series) {
 
-        // check arguments...
-        if (series==null) {
-            throw new IllegalArgumentException("TimeSeriesDataset.addSeries(...): "
-                                               +"cannot add null series.");
+        // check argument...
+        if (series == null) {
+            throw new IllegalArgumentException(
+                "TimeSeriesDataset.addSeries(...): cannot add null series.");
         }
 
         // add the series...
         data.add(series);
         series.addChangeListener(this);
-        this.fireDatasetChanged();
+        fireDatasetChanged();
+
+    }
+
+    /**
+     * Removes the specified series from the collection.
+     *
+     * @param series  the series to remove.
+     */
+    public void removeSeries(BasicTimeSeries series) {
+
+        // check argument...
+        if (series == null) {
+            throw new IllegalArgumentException(
+                "TimeSeriesDataset.addSeries(...): cannot add null series.");
+        }
+
+        // remove the series...
+        data.remove(series);
+        series.removeChangeListener(this);
+        fireDatasetChanged();
+
+    }
+
+    /**
+     * Removes a series from the collection.
+     *
+     * @param index  the series index (zero-based).
+     */
+    public void removeSeries(int index) {
+
+        BasicTimeSeries series = getSeries(index);
+        if (series != null) {
+            removeSeries(series);
+        }
 
     }
 
@@ -221,6 +296,8 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      * This method is provided for convenience.
      *
      * @param series The index of the series of interest (zero-based).
+     *
+     * @return the number of items in the specified series.
      */
     public int getItemCount(int series) {
 
@@ -233,12 +310,27 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The series (zero-based index).
      * @param item The item (zero-based index).
+     *
+     * @return the x-value for the specified series and item.
      */
     public Number getXValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries)data.get(series);
+        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
         TimeSeriesDataPair dp = ts.getDataPair(item);
         TimePeriod period = dp.getPeriod();
+
+        return new Long(getX(period));
+
+    }
+
+    /**
+     * Returns the x-value for a time period.
+     *
+     * @param period  the time period.
+     *
+     * @return the x-value.
+     */
+    private long getX(TimePeriod period) {
 
         long result = 0L;
         switch (position) {
@@ -246,10 +338,8 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
             case (MIDDLE) : result = period.getMiddle(workingCalendar); break;
             case (END) : result = period.getEnd(workingCalendar); break;
             default: result = period.getMiddle(workingCalendar);
-
         }
-
-        return new Long(result);
+        return result;
 
     }
 
@@ -258,10 +348,12 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The series (zero-based index).
      * @param item The item (zero-based index).
+     *
+     * @return the starting X value for the specified series and item.
      */
     public Number getStartXValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries)data.get(series);
+        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
         TimeSeriesDataPair dp = ts.getDataPair(item);
         return new Long(dp.getPeriod().getStart(workingCalendar));
 
@@ -271,11 +363,13 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      * Returns the ending X value for the specified series and item.
      *
      * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param item  The item (zero-based index).
+     *
+     * @return the ending X value for the specified series and item.
      */
     public Number getEndXValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries)data.get(series);
+        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
         TimeSeriesDataPair dp = ts.getDataPair(item);
         return new Long(dp.getPeriod().getEnd(workingCalendar));
 
@@ -286,11 +380,13 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The series (zero-based index).
      * @param item The item (zero-based index).
+     *
+     * @return the y-value for the specified series and item.
      */
     public Number getYValue(int series, int item) {
 
-        BasicTimeSeries ts = (BasicTimeSeries)data.get(series);
-        TimeSeriesDataPair dp = (TimeSeriesDataPair)ts.getDataPair(item);
+        BasicTimeSeries ts = (BasicTimeSeries) data.get(series);
+        TimeSeriesDataPair dp = (TimeSeriesDataPair) ts.getDataPair(item);
         return dp.getValue();
 
     }
@@ -300,6 +396,8 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The series (zero-based index).
      * @param item The item (zero-based index).
+     *
+     * @return the starting Y value for the specified series and item.
      */
     public Number getStartYValue(int series, int item) {
         return getYValue(series, item);
@@ -310,9 +408,68 @@ public class TimeSeriesCollection extends AbstractSeriesDataset implements Inter
      *
      * @param series The series (zero-based index).
      * @param item The item (zero-based index).
+     *
+     * @return the ending Y value for the specified series and item.
      */
     public Number getEndYValue(int series, int item) {
         return getYValue(series, item);
+    }
+
+    /**
+     * Returns the minimum value in the dataset (or null if all the values in
+     * the domain are null).
+     *
+     * @return the minimum value.
+     */
+    public Number getMinimumDomainValue() {
+
+        Range r = getDomainRange();
+        return new Double(r.getLowerBound());
+
+    }
+
+    /**
+     * Returns the maximum value in the dataset (or null if all the values in
+     * the domain are null).
+     *
+     * @return the maximum value.
+     */
+    public Number getMaximumDomainValue() {
+
+        Range r = getDomainRange();
+        return new Double(r.getUpperBound());
+
+    }
+
+    /**
+     * Returns the range of the values in the series domain.
+     *
+     * @return the range.
+     */
+    public Range getDomainRange() {
+
+        Range result = null;
+        Range temp = null;
+        Iterator iterator = data.iterator();
+        while (iterator.hasNext()) {
+            BasicTimeSeries series = (BasicTimeSeries) iterator.next();
+            int count = series.getItemCount();
+            if (count > 0) {
+                TimePeriod start = series.getTimePeriod(0);
+                TimePeriod end = series.getTimePeriod(count - 1);
+                if (this.domainIsPointsInTime) {
+                    temp = new Range(getX(start), getX(end));
+                }
+                else {
+                    temp = new Range(start.getStart(workingCalendar),
+                                     end.getEnd(workingCalendar));
+                }
+                result = Range.combine(result, temp);
+            }
+        }
+
+        return result;
+
     }
 
 }

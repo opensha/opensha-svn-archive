@@ -32,28 +32,49 @@
  * Changes
  * -------
  * 10-Dec-2001 : Version 1 (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
 
+/**
+ * A panel containing a chart description.
+ *
+ * @author DG
+ */
 public class DescriptionPanel extends JPanel {
 
+    /** The preferred size for the panel. */
     public static final Dimension PREFERRED_SIZE = new Dimension(150, 50);
 
+    /**
+     * Creates a new panel.
+     *
+     * @param text  the component containing the text.
+     */
     public DescriptionPanel(JTextArea text) {
 
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         text.setLineWrap(true);
         text.setWrapStyleWord(true);
-        this.add(new JScrollPane(text, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                                       JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
-        //this.setBorder(BorderFactory.createEtchedBorder());
+        add(new JScrollPane(text,
+                            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+
     }
 
+    /**
+     * Returns the preferred size.
+     *
+     * @return the preferred size.
+     */
     public Dimension getPreferredSize() {
         return PREFERRED_SIZE;
     }

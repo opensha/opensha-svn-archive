@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,6 +34,7 @@
  * 13-Dec-2001 : Version 1 (DG);
  * 16-Jan-2002 : Completed Javadocs (DG);
  * 13-Jun-2002 : Correction to Javadoc comments (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,15 +44,19 @@ import com.jrefinery.data.XYDataset;
 
 /**
  * Interface for a tooltip generator for plots that use data from an XYDataset.
+ *
+ * @author DG
  */
 public interface XYToolTipGenerator extends ToolTipGenerator {
 
     /**
-     * Generates a tooltip text item for a particular item within a series.
+     * Generates a tool tip text item for a particular item within a series.
      *
-     * @param data The dataset.
-     * @param series The series number (zero-based index).
-     * @param item The item number (zero-based index).
+     * @param data  the dataset.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the tooltip text.
      */
     public String generateToolTip(XYDataset data, int series, int item);
 

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -35,26 +35,31 @@
  * 15-Nov-2001 : Moved to package com.jrefinery.data.* (DG);
  *               Updated Javadoc comments (DG);
  * 22-Apr-2002 : Added getValueRange() method (DG);
+ * 12-Jul-2002 : Renamed getValueRange() --> getDomainRange() (DG);
  *
  */
 
 package com.jrefinery.data;
 
 /**
- * An interface (optional) that can be implemented by a dataset to assist in determining the
- * minimum and maximum values.
+ * An interface (optional) that can be implemented by a dataset to assist in
+ * determining the minimum and maximum values.
+ *
+ * @author DG
  */
 public interface DomainInfo {
 
     /**
-     * Returns the minimum value in the dataset (or null if all the values in the domain are null).
+     * Returns the minimum value in the dataset (or null if all the values in
+     * the domain are null).
      *
      * @return The minimum value.
      */
     public Number getMinimumDomainValue();
 
     /**
-     * Returns the maximum value in the dataset (or null if all the values in the domain are null).
+     * Returns the maximum value in the dataset (or null if all the values in
+     * the domain are null).
      *
      * @return The maximum value.
      */
@@ -65,6 +70,6 @@ public interface DomainInfo {
      *
      * @return The range.
      */
-    public Range getValueRange();
+    public Range getDomainRange();
 
 }

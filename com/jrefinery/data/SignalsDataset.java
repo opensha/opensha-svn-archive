@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -25,30 +25,55 @@
  * (C) Copyright 2002, by Sylvain Vieujot and Contributors.
  *
  * Original Author:  Sylvain Vieujot;
- * Contributor(s):   -;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
- * 8-Jan-2002 : Version 1 (SV);
- *
+ * 08-Jan-2002 : Version 1 (SV);
+ * 07-Oct-2002 : Added Javadocs (DG);
  */
 
 package com.jrefinery.data;
 
 /**
- * @author  sylvain
+ * An interface that adds signal information to an XYDataset.
+ *
+ * @author sylvain
  */
 public interface SignalsDataset extends XYDataset {
 
+    /** Useful constant indicating trade recommendation. */
     public static final int ENTER_LONG = 1;
+
+    /** Useful constant indicating trade recommendation. */
     public static final int ENTER_SHORT = -1;
+
+    /** Useful constant indicating trade recommendation. */
     public static final int EXIT_LONG = 2;
+
+    /** Useful constant indicating trade recommendation. */
     public static final int EXIT_SHORT = -2;
 
+    /**
+     * Returns the type.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the type.
+     */
     public int getType(int series, int item);
 
+    /**
+     * Returns the level.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the level.
+     */
     public double getLevel(int series, int item);
 
 }

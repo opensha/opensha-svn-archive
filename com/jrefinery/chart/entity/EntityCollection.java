@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,17 +32,22 @@
  * Changes
  * -------
  * 23-May-2002 : Version 1 (DG);
+ * 25-Jun-2002 : Removed unnecessary import (DG);
+ * 26-Jun-2002 : Added iterator() method (DG);
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.entity;
 
-import java.awt.Shape;
+import java.util.Iterator;
 
 /**
  * Defines the methods that a collection of entities is required to implement.
  * <P>
  * The StandardEntityCollection class provides one implementation of this interface.
+ *
+ * @author DG
  */
 public interface EntityCollection {
 
@@ -54,18 +59,25 @@ public interface EntityCollection {
     /**
      * Adds an entity to the collection.
      *
-     * @param entity The entity.
+     * @param entity  the entity.
      */
     public void addEntity(ChartEntity entity);
 
     /**
      * Returns an entity whose area contains the specified point.
      *
-     * @param x The x coordinate.
-     * @param y The y coordinate.
+     * @param x  the x coordinate.
+     * @param y  the y coordinate.
      *
      * @return The entity.
      */
     public ChartEntity getEntity(double x, double y);
+
+    /**
+     * Returns an iterator for the entities in the collection.
+     *
+     * @return an iterator.
+     */
+    public Iterator iterator();
 
 }

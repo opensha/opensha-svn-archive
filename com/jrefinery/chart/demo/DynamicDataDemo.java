@@ -51,18 +51,26 @@ import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.XYPlot;
 import com.jrefinery.chart.ValueAxis;
 import com.jrefinery.chart.ChartPanel;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
- * A demonstration application showing a time series chart overlaid with a vertical XY bar chart.
+ * A demonstration application showing a time series chart where you can dynamically add
+ * (random) data by clicking on a button.
+ *
+ * @author DG
  */
 public class DynamicDataDemo extends ApplicationFrame implements ActionListener {
 
-    protected BasicTimeSeries series;
+    /** The time series data. */
+    private BasicTimeSeries series;
 
-    protected double lastValue = 100.0;
+    /** The most recent value added. */
+    private double lastValue = 100.0;
 
     /**
      * Constructs a new demonstration application.
+     *
+     * @param title  the frame title.
      */
     public DynamicDataDemo(String title) {
 
@@ -87,28 +95,36 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener 
         button.addActionListener(this);
         content.add(chartPanel);
         content.add(button, BorderLayout.SOUTH);
-        this.setContentPane(content);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(content);
 
     }
 
+    /**
+     * Handles a click on the button by adding new (random) data.
+     *
+     * @param e  the action event.
+     */
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("ADD_DATA")) {
-            double factor = 0.9 + 0.2*Math.random();
-            this.lastValue = lastValue*factor;
+            double factor = 0.90 + 0.2 * Math.random();
+            this.lastValue = lastValue * factor;
             Millisecond now = new Millisecond();
-            System.out.println("Now = "+now.toString());
+            System.out.println("Now = " + now.toString());
             this.series.add(new Millisecond(), lastValue);
         }
     }
 
-
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

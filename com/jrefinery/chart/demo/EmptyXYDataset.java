@@ -32,15 +32,19 @@
  * Changes
  * -------
  * 22-Nov-2001 : Version 1 (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import com.jrefinery.data.*;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.AbstractSeriesDataset;
 
 /**
  * An empty dataset for testing purposes.
+ *
+ * @author DG
  */
 public class EmptyXYDataset extends AbstractSeriesDataset implements XYDataset {
 
@@ -51,28 +55,33 @@ public class EmptyXYDataset extends AbstractSeriesDataset implements XYDataset {
     }
 
     /**
-     * Returns the x-value for the specified series and item.  Series are numbered 0, 1, ...
-     * @param series The index (zero-based) of the series;
-     * @param item The index (zero-based) of the required item;
-     * @return The x-value for the specified series and item.
+     * Returns the x-value for the specified series and item.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return  the x-value (always null for this class).
      */
     public Number getXValue(int series, int item) {
         return null;
     }
 
     /**
-     * Returns the y-value for the specified series and item.  Series are numbered 0, 1, ...
-     * @param series The index (zero-based) of the series;
-     * @param item The index (zero-based) of the required item;
-     * @return The y-value for the specified series and item.
+     * Returns the y-value for the specified series and item.
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return  the y-value (always null for this class).
      */
     public Number getYValue(int series, int item) {
         return null;
     }
 
     /**
-     * Returns the number of series in the data source.
-     * @return The number of series in the data source.
+     * Returns the number of series in the dataset.
+     *
+     * @return the series count (always zero for this class).
      */
     public int getSeriesCount() {
         return 0;
@@ -80,8 +89,10 @@ public class EmptyXYDataset extends AbstractSeriesDataset implements XYDataset {
 
     /**
      * Returns the name of the series.
-     * @param series The index (zero-based) of the series;
-     * @return The name of the series.
+     *
+     * @param series  the series (zero-based index).
+     *
+     * @return the name of the series (always null in this class).
      */
     public String getSeriesName(int series) {
         return null;
@@ -89,8 +100,10 @@ public class EmptyXYDataset extends AbstractSeriesDataset implements XYDataset {
 
     /**
      * Returns the number of items in the specified series.
-     * @param series The index (zero-based) of the series;
-     * @return The number of items in the specified series.
+     *
+     * @param series  the series (zero-based index).
+     *
+     * @return the item count (always zero in this class).
      */
     public int getItemCount(int series) {
         return 0;

@@ -32,94 +32,106 @@
  * Changes (from 18-Sep-2001)
  * --------------------------
  * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
-import java.util.*;
+import java.util.Date;
 
 /**
- * Represents the dimensions of a tick on an axis (used during the process of drawing a chart,
- * but not retained).
+ * Represents the dimensions of a tick on an axis (used during the process of
+ * drawing a chart, but not retained).
+ *
+ * @author DG
  */
 public class Tick {
 
     /** The tick value. */
-    protected Object value;
+    private Object value;
 
     /** A text version of the tick value. */
-    protected String text;
+    private String text;
 
-    /** The x-coordinate of the tick. */
-    protected float x;
+    /** The x-coordinate of the tick label. */
+    private float x;
 
-    /** The y-coordinate of the tick. */
-    protected float y;
+    /** The y-coordinate of the tick label. */
+    private float y;
 
     /**
      * Standard constructor: creates a Tick with the specified properties.
-     * @param value The tick value;
-     * @param formattedValue The formatted version of the tick value;
-     * @param x The x-coordinate of the tick;
-     * @param y The y-coordinate of the tick;
+     *
+     * @param value  the tick value.
+     * @param text  the formatted version of the tick value.
+     * @param x  the x-coordinate of the tick label.
+     * @param y  the y-coordinate of the tick label.
      */
     public Tick(Object value, String text, float x, float y) {
-	this.value = value;
-	this.text = text;
-	this.x=x;
-	this.y=y;
+        this.value = value;
+        this.text = text;
+        this.x = x;
+        this.y = y;
     }
 
     /**
      * Standard constructor: creates a Tick with the specified properties.
-     * @param formattedValue The formatted version of the tick value;
-     * @param x The x-coordinate of the tick;
-     * @param y The y-coordinate of the tick;
+     *
+     * @param text  the formatted version of the tick value.
+     * @param x  the x-coordinate of the tick.
+     * @param y  the y-coordinate of the tick.
      */
     public Tick(String text, float x, float y) {
-	this(text, text, x, y);
+        this(text, text, x, y);
     }
 
     /**
-     * Returns the numerical value of the tick, or null if the value is not a Number.
-     * @return The tick value.
+     * Returns the numerical value of the tick, or null if the value is not a number.
+     *
+     * @return the tick value.
      */
     public double getNumericalValue() {
 
-	if (value instanceof Number) {
-            Number x = (Number)value;
-	    return x.doubleValue();
-	}
-	else if (value instanceof Date) {
-            Date x = (Date)value;
-	    return (double)x.getTime();
-	}
-	else return 0.0;
+        if (value instanceof Number) {
+            Number x = (Number) value;
+            return x.doubleValue();
+        }
+        else if (value instanceof Date) {
+            Date x = (Date) value;
+            return (double) x.getTime();
+        }
+        else {
+            return 0.0;
+        }
+
     }
 
     /**
      * Returns the text version of the tick value.
-     * @return The formatted version of the tick value;
+     *
+     * @return the formatted version of the tick value;
      */
     public String getText() {
-	return text;
+        return text;
     }
 
     /**
-     * Returns the x-coordinate of the tick.
-     * @return The x-coordinate of the tick.
+     * Returns the x-coordinate of the tick label.
+     *
+     * @return the x-coordinate of the tick label.
      */
     public float getX() {
-	return x;
+        return x;
     }
 
     /**
-     * Returns the y-coordinate of the tick.
-     * @return The y-coordinate of the tick.
+     * Returns the y-coordinate of the tick label.
+     *
+     * @return the y-coordinate of the tick label.
      */
     public float getY() {
-	return y;
+        return y;
     }
 
 }

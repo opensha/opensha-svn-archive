@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -34,43 +34,57 @@
  * 11-Oct-2001 : Version 1 (DG);
  * 26-Feb-2002 : Changed getStart(), getMiddle() and getEnd() methods to evaluate with reference
  *               to a particular time zone (DG);
- * 29-May-2002 : Implemented MonthConstants so that these constants are conveniently available (DG);
+ * 29-May-2002 : Implemented MonthConstants interface, so that these constants are conveniently
+ *               available (DG);
+ * 10-Sep-2002 : Added getSerialIndex() method (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import com.jrefinery.date.MonthConstants;
 import java.util.Calendar;
 import java.util.TimeZone;
+import com.jrefinery.date.MonthConstants;
 
 /**
- * An abstract class representing a time period.
+ * An abstract class representing a unit of time.
  * <p>
- * Convenient methods are provided for calculating the next and previous time periods.
+ * Convenient methods are provided for calculating the next and previous time
+ * periods.
  * <p>
- * Conversion methods are defined that return the first and last milliseconds of the time period.
- * The results from these methods are timezone-dependent.
+ * Conversion methods are defined that return the first and last milliseconds
+ * of the time period. The results from these methods are timezone-dependent.
  * <P>
  * Subclasses of TimePeriod are required to be immutable.
+ *
+ * @author DG
  */
 public abstract class TimePeriod implements Comparable, MonthConstants {
 
     /**
-     * Returns the time period preceding this one, or null if some lower limit has been reached.
+     * Returns the time period preceding this one, or null if some lower limit
+     * has been reached.
      *
-     * @return The previous time period.
+     * @return the previous time period.
      */
     public abstract TimePeriod previous();
 
     /**
-     * Returns the time period following this one, or null if some limit has been reached.
+     * Returns the time period following this one, or null if some limit has
+     * been reached.
      *
-     * @return The next time period.
+     * @return the next time period.
      */
     public abstract TimePeriod next();
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Returns a serial index number for the time unit.
+     *
+     * @return the serial index number.
+     */
+    public abstract long getSerialIndex();
+
+    //////////////////////////////////////////////////////////////////////////
 
     /** The default time zone. */
     public static final TimeZone DEFAULT_TIME_ZONE = TimeZone.getDefault();
@@ -79,19 +93,22 @@ public abstract class TimePeriod implements Comparable, MonthConstants {
     public static final Calendar WORKING_CALENDAR = Calendar.getInstance(DEFAULT_TIME_ZONE);
 
     /**
-     * Returns the first millisecond of the time period, evaluated in the default time zone.
+     * Returns the first millisecond of the time period, evaluated in the
+     * default time zone.
      *
-     * @return The first millisecond of the time period.
+     * @return the first millisecond of the time period.
      */
     public long getStart() {
         return this.getStart(DEFAULT_TIME_ZONE);
     }
 
     /**
-     * Returns the first millisecond of the time period, evaluated within a specific time zone.
+     * Returns the first millisecond of the time period, evaluated within a
+     * specific time zone.
      *
-     * @param zone The time zone.
-     * @return The first millisecond of the time period.
+     * @param zone  the time zone.
+     *
+     * @return the first millisecond of the time period.
      */
     public long getStart(TimeZone zone) {
         WORKING_CALENDAR.setTimeZone(zone);
@@ -99,28 +116,32 @@ public abstract class TimePeriod implements Comparable, MonthConstants {
     }
 
     /**
-     * Returns the first millisecond of the time period, evaluated using the supplied calendar
-     * (which incorporates a timezone).
+     * Returns the first millisecond of the time period, evaluated using the
+     * supplied calendar (which incorporates a timezone).
      *
-     * @param calendar The calendar.
-     * @return The first millisecond of the time period.
+     * @param calendar  the calendar.
+     *
+     * @return the first millisecond of the time period.
      */
     public abstract long getStart(Calendar calendar);
 
     /**
-     * Returns the last millisecond of the time period, evaluated in the default time zone.
+     * Returns the last millisecond of the time period, evaluated in the default
+     * time zone.
      *
-     * @return The last millisecond of the time period.
+     * @return the last millisecond of the time period.
      */
     public long getEnd() {
         return this.getEnd(DEFAULT_TIME_ZONE);
     }
 
     /**
-     * Returns the last millisecond of the time period, evaluated within a specific time zone.
+     * Returns the last millisecond of the time period, evaluated within a
+     * specific time zone.
      *
-     * @param zone The time zone.
-     * @return The last millisecond of the time period.
+     * @param zone  the time zone.
+     *
+     * @return the last millisecond of the time period.
      */
     public long getEnd(TimeZone zone) {
 
@@ -130,51 +151,54 @@ public abstract class TimePeriod implements Comparable, MonthConstants {
     }
 
     /**
-     * Returns the last millisecond of the time period, evaluated using the supplied calendar
-     * (which incorporates a timezone).
+     * Returns the last millisecond of the time period, evaluated using the
+     * supplied calendar (which incorporates a timezone).
      *
-     * @param calendar The calendar.
-     * @return The last millisecond of the time period.
+     * @param calendar  the calendar.
+     *
+     * @return the last millisecond of the time period.
      */
     public abstract long getEnd(Calendar calendar);
 
     /**
-     * Returns the millisecond closest to the middle of the time period, evaluated in the default
-     * time zone.
+     * Returns the millisecond closest to the middle of the time period,
+     * evaluated in the default time zone.
      *
-     * @return The millisecond closest to the middle of the time period.
+     * @return the millisecond closest to the middle of the time period.
      */
     public long getMiddle() {
 
-        long result = (getStart()/2) + (getEnd()/2);
+        long result = (getStart() / 2) + (getEnd() / 2);
         return result;
 
     }
 
     /**
-     * Returns the millisecond closest to the middle of the time period, evaluated within a
-     * specific time zone.
+     * Returns the millisecond closest to the middle of the time period,
+     * evaluated within a specific time zone.
      *
-     * @param zone The time zone.
-     * @return The millisecond closest to the middle of the time period.
+     * @param zone  the time zone.
+     *
+     * @return the millisecond closest to the middle of the time period.
      */
     public long getMiddle(TimeZone zone) {
 
-        long result = (getStart(zone)/2) + (getEnd(zone)/2);
+        long result = (getStart(zone) / 2) + (getEnd(zone) / 2);
         return result;
 
     }
 
     /**
-     * Returns the millisecond closest to the middle of the time period, evaluated using the
-     * supplied calendar (which incorporates a timezone).
+     * Returns the millisecond closest to the middle of the time period,
+     * evaluated using the supplied calendar (which incorporates a timezone).
      *
-     * @param calendar The calendare.
-     * @return The millisecond closest to the middle of the time period.
+     * @param calendar  the calendar.
+     *
+     * @return the millisecond closest to the middle of the time period.
      */
     public long getMiddle(Calendar calendar) {
 
-        long result = (getStart(calendar)/2) + (getEnd(calendar)/2);
+        long result = (getStart(calendar) / 2) + (getEnd(calendar) / 2);
         return result;
 
     }

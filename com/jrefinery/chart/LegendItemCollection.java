@@ -19,9 +19,9 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------
- * LegendItem.java
- * ---------------
+ * -------------------------
+ * LegendItemCollection.java
+ * -------------------------
  * (C) Copyright 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
@@ -31,7 +31,9 @@
  *
  * Changes
  * -------
- * 07-Feb-2002 : Version 1. INCOMPLETE, PLEASE IGNORE. (DG);
+ * 07-Feb-2002 : Version 1 (DG);
+ * 24-Sep-2002 : Added get(int) and getItemCount() methods (DG);
+ * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -39,61 +41,69 @@ package com.jrefinery.chart;
 
 import java.util.List;
 import java.util.Iterator;
-import java.awt.Graphics2D;
 
 /**
  * A collection of legend items.
+ *
+ * @author DG
  */
 public class LegendItemCollection {
 
     /** Storage for the legend items. */
-    protected List items;
+    private List items;
 
     /**
      * Constructs a new legend item collection, initially empty.
      */
     public LegendItemCollection() {
-        items = new java.util.ArrayList();
+        this.items = new java.util.ArrayList();
     }
 
     /**
      * Adds a legend item to the collection.
+     *
+     * @param item  the item to add.
      */
     public void add(LegendItem item) {
-        items.add(item);
+        this.items.add(item);
+    }
+
+    /**
+     * Adds the legend items from another collection to this collection.
+     *
+     * @param collection  the other collection.
+     */
+    public void addAll(LegendItemCollection collection) {
+        this.items.addAll(collection.items);
+    }
+
+    /**
+     * Returns a legend item from the collection.
+     *
+     * @param index  the legend item index (zero-based).
+     *
+     * @return the legend item.
+     */
+    public LegendItem get(int index) {
+        return (LegendItem) this.items.get(index);
+    }
+
+    /**
+     * Returns the number of legend items in the collection.
+     *
+     * @return the item count.
+     */
+    public int getItemCount() {
+        return items.size();
     }
 
     /**
      * Returns an iterator that provides access to all the legend items.
+     *
+     * @return an iterator.
      */
     public Iterator iterator() {
         return items.iterator();
-    }
-
-    /**
-     * Arranges the legend items according to a specific layout.
-     */
-    public void layoutLegendItems(LegendItemLayout layout) {
-
-        layout.layoutLegendItems(this);
-
-    }
-
-    /**
-     * Draws the legend item collection at the specified location.
-     *
-     * @param g2 The graphics device.
-     * @param x The x location.
-     * @param y The y location.
-     */
-    public void draw(Graphics2D g2, double x, double y) {
-
-        Iterator iterator = items.iterator();
-        while (iterator.hasNext()) {
-            LegendItem item = (LegendItem)iterator.next();
-
-        }
-
     }
 
 }

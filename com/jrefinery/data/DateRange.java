@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,7 @@
  * Changes (from 23-Jun-2001)
  * --------------------------
  * 22-Apr-2002 : Version 1 based on code by Bill Kelemen (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -41,14 +42,16 @@ import java.util.Date;
 
 /**
  * An axis range specified in terms of two java.util.Date objects.
+ *
+ * @author DG/BK
  */
 public class DateRange extends Range {
 
     /** The lower bound for the axis. */
-    protected Date lowerDate;
+    private Date lowerDate;
 
     /** The upper bound for the axis. */
-    protected Date upperDate;
+    private Date upperDate;
 
     /**
      * Default constructor.
@@ -62,8 +65,8 @@ public class DateRange extends Range {
     /**
      * Constructs a new DateAxisRange.
      *
-     * @param lower The lower bound.
-     * @param upper The upper bound.
+     * @param lower  the lower bound.
+     * @param upper  the upper bound.
      */
     public DateRange(Date lower, Date upper) {
 
@@ -75,12 +78,15 @@ public class DateRange extends Range {
 
     /**
      * Constructs a new DateAxisRange.
+     *
+     * @param lower  the lower (oldest) date.
+     * @param upper  the upper (youngest) date.
      */
     public DateRange(double lower, double upper) {
 
         super(lower, upper);
-        this.lowerDate = new Date((long)lower);
-        this.upperDate = new Date((long)upper);
+        this.lowerDate = new Date((long) lower);
+        this.upperDate = new Date((long) upper);
 
 
     }
@@ -88,10 +94,11 @@ public class DateRange extends Range {
     /**
      * Constructs a new DateAxisRange based on another range.
      * <P>
-     * The other range may not be a DateAxisRange.  If it is not, the upper and lower bounds are
-     * evaluated as milliseconds since midnight GMT, 1-Jan-1970.
+     * The other range may not be a DateAxisRange.  If it is not, the upper
+     * and lower bounds are evaluated as milliseconds since midnight
+     * GMT, 1-Jan-1970.
      *
-     * @param other The other range.
+     * @param other  the other range.
      */
     public DateRange(Range other) {
 
@@ -101,6 +108,8 @@ public class DateRange extends Range {
 
     /**
      * Returns the lower bound for the axis.
+     *
+     * @return the lower bound for the axis.
      */
     public Date getLowerDate() {
         return this.lowerDate;
@@ -108,17 +117,11 @@ public class DateRange extends Range {
 
     /**
      * Returns the upper bound for the axis.
+     *
+     * @return the upper bound for the axis.
      */
     public Date getUpperDate() {
         return this.upperDate;
     }
-
-//    public double getLowerBound() {
-//        return (double)lowerDate.getTime();
-//    }
-
-//    public double getUpperBound() {
-//        return (double)upperDate.getTime();
-//    }
 
 }

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -40,19 +40,37 @@
 
 package com.jrefinery.chart.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import com.jrefinery.chart.*;
-import com.jrefinery.layout.*;
-import com.jrefinery.ui.*;
+import java.awt.Color;
+import java.awt.BasicStroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.JCheckBox;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JColorChooser;
+import javax.swing.BorderFactory;
+import com.jrefinery.chart.Axis;
+import com.jrefinery.chart.NumberAxis;
+import com.jrefinery.layout.LCBLayout;
+import com.jrefinery.ui.PaintSample;
+import com.jrefinery.ui.StrokeSample;
+import com.jrefinery.ui.StrokeChooserPanel;
 
 /**
  * A panel for editing the properties of a value axis.
+ *
+ * @author DG
  */
 class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements FocusListener {
 
-    /** A flag that indicates whether or not the axis range is determined automatically. */
+    /** A flag that indicates whether or not the axis range is determined
+     *  automatically.
+     */
     private boolean autoRange;
 
     /** The lowest value in the axis range. */
@@ -61,7 +79,9 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     /** The highest value in the axis range. */
     private double maximumValue;
 
-    /** A checkbox that indicates whether or not the axis range is determined automatically. */
+    /** A checkbox that indicates whether or not the axis range is determined
+     *  automatically.
+     */
     private JCheckBox autoRangeCheckBox;
 
     /** A text field for entering the minimum value in the axis range. */
@@ -70,7 +90,9 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     /** A text field for entering the maximum value in the axis range. */
     private JTextField maximumRangeValue;
 
-    /** A checkbox that controls whether or not gridlines are showing for the axis. */
+    /** A checkbox that controls whether or not gridlines are showing for the
+     *  axis.
+     */
     private JCheckBox showGridLinesCheckBox;
 
     /** The paint selected for drawing the gridlines. */
@@ -79,12 +101,15 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     /** The stroke selected for drawing the gridlines. */
     private StrokeSample gridStrokeSample;
 
-    /** An array of stroke samples to choose from (since I haven't written a decent StrokeChooser
-        component yet). */
+    /** An array of stroke samples to choose from (since I haven't written a
+     *  decent StrokeChooser component yet).
+     */
     private StrokeSample[] availableStrokeSamples;
 
     /**
      * Standard constructor: builds a property panel for the specified axis.
+     *
+     * @param axis  the axis, which should be changed.
      */
     public NumberAxisPropertyEditPanel(NumberAxis axis) {
 
@@ -105,7 +130,7 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
         JTabbedPane other = getOtherTabs();
 
         JPanel range = new JPanel(new LCBLayout(3));
-        range.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        range.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         range.add(new JPanel());
         autoRangeCheckBox = new JCheckBox("Auto-adjust range:", autoRange);
@@ -135,10 +160,11 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
         other.add("Range", range);
 
         JPanel grid = new JPanel(new LCBLayout(3));
-        grid.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        grid.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         grid.add(new JPanel());
-        showGridLinesCheckBox = new JCheckBox("Show grid lines", axis.isGridLinesVisible());
+        showGridLinesCheckBox = new JCheckBox("Show grid lines",
+            axis.isGridLinesVisible());
         grid.add(showGridLinesCheckBox);
         grid.add(new JPanel());
 
@@ -162,6 +188,8 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
 
     /**
      * Returns the current setting of the auto-range property.
+     *
+     * @return <code>true</code> if auto range is enabled.
      */
     public boolean isAutoRange() {
         return autoRange;
@@ -169,6 +197,8 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
 
     /**
      * Returns the current setting of the minimum value in the axis range.
+     *
+     * @return the current setting of the minimum value in the axis range.
      */
     public double getMinimumValue() {
         return minimumValue;
@@ -176,6 +206,8 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
 
     /**
      * Returns the current setting of the maximum value in the axis range.
+     *
+     * @return the current setting of the maximum value in the axis range.
      */
     public double getMaximumValue() {
         return maximumValue;
@@ -183,6 +215,7 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
 
     /**
      * Handles actions from within the property panel.
+     * @param event an event.
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -201,7 +234,10 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
         else if (command.equals("MaximumRange")) {
             validateMaximum();
         }
-        else super.actionPerformed(event);  // pass to the super-class for handling
+        else {
+            // pass to the super-class for handling
+            super.actionPerformed(event);
+        }
     }
 
     /**
@@ -209,10 +245,12 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
      */
     private void attemptGridStrokeSelection() {
         StrokeChooserPanel panel = new StrokeChooserPanel(null, availableStrokeSamples);
-        int result = JOptionPane.showConfirmDialog(this, panel, "Stroke Selection",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        int result = JOptionPane.showConfirmDialog(this, panel,
+                                                   "Stroke Selection",
+                                                   JOptionPane.OK_CANCEL_OPTION,
+                                                   JOptionPane.PLAIN_MESSAGE);
 
-        if (result==JOptionPane.OK_OPTION) {
+        if (result == JOptionPane.OK_OPTION) {
             gridStrokeSample.setStroke(panel.getSelectedStroke());
         }
     }
@@ -223,32 +261,36 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     private void attemptGridPaintSelection() {
         Color c;
         c = JColorChooser.showDialog(this, "Grid Color", Color.blue);
-        if (c!=null) {
+        if (c != null) {
             gridPaintSample.setPaint(c);
         }
     }
 
     /**
+     * Does nothing.
      *
+     * @param event  the event.
      */
     public void focusGained(FocusEvent event) {
         // don't need to do anything
     }
 
     /**
+     *  Revalidates minimum/maximum range.
      *
+     *  @param event  the event.
      */
     public void focusLost(FocusEvent event) {
-        if (event.getSource()==minimumRangeValue) {
+        if (event.getSource() == minimumRangeValue) {
             validateMinimum();
         }
-        else if (event.getSource()==maximumRangeValue) {
+        else if (event.getSource() == maximumRangeValue) {
             validateMaximum();
         }
     }
 
     /**
-     *
+     *  Toggle the auto range setting.
      */
     public void toggleAutoRange() {
         autoRange = autoRangeCheckBox.isSelected();
@@ -265,7 +307,7 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     }
 
     /**
-     *
+     * Revalidate the range minimum.
      */
     public void validateMinimum() {
         double newMin;
@@ -284,7 +326,7 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     }
 
     /**
-     *
+     * Revalidate the range maximum.
      */
     public void validateMaximum() {
         double newMax;
@@ -303,12 +345,14 @@ class NumberAxisPropertyEditPanel extends AxisPropertyEditPanel implements Focus
     }
 
     /**
-     * Sets the properties of the specified axis to match the properties defined on this panel.
-     * @param axis The axis;
+     * Sets the properties of the specified axis to match the properties
+     * defined on this panel.
+     *
+     * @param axis  the axis.
      */
     public void setAxisProperties(Axis axis) {
         super.setAxisProperties(axis);
-        NumberAxis numberAxis = (NumberAxis)axis;
+        NumberAxis numberAxis = (NumberAxis) axis;
         numberAxis.setAutoRange(this.autoRange);
         if (!autoRange) {
             numberAxis.setMinimumAxisValue(this.minimumValue);

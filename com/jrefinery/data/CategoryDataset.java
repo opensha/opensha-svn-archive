@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -45,35 +45,40 @@ package com.jrefinery.data;
 import java.util.List;
 
 /**
- * The interface for a dataset with one or more series, and values associated with "categories".
+ * The interface for a dataset with one or more series, and values associated
+ * with "categories".
  * <P>
- * The categories are represented by any Java object, with the category label being provided by
- * the toString() method.
+ * The categories are represented by any Java object, with the category label
+ * being provided by the toString() method.
  * <P>
- * The JFreeChart class library uses this interface to obtain data for bar charts and line charts.
+ * The JFreeChart class library uses this interface to obtain data for bar
+ * charts and line charts.
  *
+ * @author DG
  */
 public interface CategoryDataset extends SeriesDataset {
 
     /**
      * Returns the number of categories in the dataset.
      *
-     * @return The category count.
+     * @return the category count.
      */
     public int getCategoryCount();
 
     /**
      * Returns a list of the categories in the dataset.
      *
-     * @return The category list.
+     * @return the category list.
      */
     public List getCategories();
 
     /**
      * Returns the value for a series and category.
      *
-     * @param series The series (zero-based index).
-     * @param category The category.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     *
+     * @return the value for a series and category.
      */
     public Number getValue(int series, Object category);
 

@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 13-May-2002 : Version 1 (JB);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -49,14 +50,31 @@ public interface ShapeFactory {
 
     /**
      * Returns a Shape that can be used in plotting data.  Used in XYPlots.
-     */
+     *
+     * @param series  the index of the series.
+     * @param item  the index of the item.
+     * @param x  x-coordinate of the item.
+     * @param y  y-coordinate of the item.
+     * @param scale  the size.
+     *
+     * @return a Shape that can be used in plotting data.
+    */
     public Shape getShape(int series, int item, double x, double y,
                           double scale);
 
     /**
      * Returns a Shape that can be used in plotting data.  Used in
      * CategoryPlots.
+     *
+     * @param series  the index of the series.
+     * @param category  the category.
+     * @param x  x-coordinate of the category.
+     * @param y  y-coordinate of the category.
+     * @param scale  the size.
+     *
+     * @return a Shape that can be used in plotting data.
      */
     public Shape getShape(int series, Object category, double x, double y,
                           double scale);
+
 }

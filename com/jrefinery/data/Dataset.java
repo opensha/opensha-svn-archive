@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -38,6 +38,7 @@
  *               SeriesDataset interface and transferred series related methods out (DG);
  * 22-Jan-2002 : Reconsidered (and removed) the getLegendItemCount() and getLegendItemLabels()
  *               methods...leave this to client code (DG);
+ * 27-Sep-2002 : Added get/setDatasetGroup(...) methods (DG);
  *
  */
 
@@ -45,21 +46,47 @@ package com.jrefinery.data;
 
 /**
  * The base interface for data sets.
+ * <P>
+ * All datasets are required to support the DatasetChangeEvent mechanism by allowing listeners to
+ * register and receive notification of any changes to the dataset.
+ * <P>
+ * In addition, all datasets must belong to one (and only one) DatasetGroup.  The group object
+ * maintains a reader-writer lock which provides synchronised access to the datasets in
+ * multi-threaded code.
+ *
  * @see PieDataset
  * @see SeriesDataset
+ *
+ * @author DG
  */
 public interface Dataset {
 
     /**
      * Registers an object for notification of changes to the dataset.
-     * @param listener The object to register.
+     *
+     * @param listener  the object to register.
      */
     public void addChangeListener(DatasetChangeListener listener);
 
     /**
      * Deregisters an object for notification of changes to the dataset.
-     * @param listener The object to deregister.
+     *
+     * @param listener  the object to deregister.
      */
     public void removeChangeListener(DatasetChangeListener listener);
+
+    /**
+     * Returns the dataset group.
+     *
+     * @return the dataset group.
+     */
+    public DatasetGroup getGroup();
+
+    /**
+     * Sets the dataset group.
+     *
+     * @param group  the dataset group.
+     */
+    public void setGroup(DatasetGroup group);
 
 }

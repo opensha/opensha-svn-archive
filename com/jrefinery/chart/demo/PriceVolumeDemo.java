@@ -33,22 +33,20 @@
  * -------
  * 28-Mar-2002 : Version 1 (DG);
  * 23-Apr-2002 : Modified to use new CombinedXYPlot class (DG);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
+import java.awt.Color;
 import com.jrefinery.data.BasicTimeSeries;
 import com.jrefinery.data.TimeSeriesCollection;
 import com.jrefinery.data.Day;
 import com.jrefinery.data.XYDataset;
 import com.jrefinery.data.IntervalXYDataset;
-import com.jrefinery.data.CombinedDataset;
-import com.jrefinery.data.SeriesDataset;
-import com.jrefinery.data.SubSeriesDataset;
 import com.jrefinery.date.SerialDate;
-import com.jrefinery.ui.ApplicationFrame;
-import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartPanel;
 import com.jrefinery.chart.XYPlot;
@@ -56,33 +54,39 @@ import com.jrefinery.chart.XYItemRenderer;
 import com.jrefinery.chart.StandardXYItemRenderer;
 import com.jrefinery.chart.VerticalXYBarRenderer;
 import com.jrefinery.chart.HorizontalDateAxis;
-import com.jrefinery.chart.ValueAxis;
 import com.jrefinery.chart.NumberAxis;
 import com.jrefinery.chart.VerticalNumberAxis;
 import com.jrefinery.chart.CombinedXYPlot;
 import com.jrefinery.chart.tooltips.TimeSeriesToolTipGenerator;
+import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A demonstration application showing a time series chart overlaid with a vertical XY bar chart.
+ *
+ * @author DG
  */
 public class PriceVolumeDemo extends ApplicationFrame {
 
     /**
      * Constructs a new demonstration application.
      *
-     * @param title The frame title.
+     * @param title  the frame title.
      */
     public PriceVolumeDemo(String title) {
 
         super(title);
         JFreeChart chart = createCombinedChart();
         ChartPanel panel = new ChartPanel(chart, true, true, true, false, true);
-        this.setContentPane(panel);
+        panel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(panel);
 
     }
 
     /**
      * Creates a combined chart.
+     *
+     * @return a combined chart.
      */
     private JFreeChart createCombinedChart() {
 
@@ -98,7 +102,9 @@ public class PriceVolumeDemo extends ApplicationFrame {
         IntervalXYDataset volumeData = this.createVolumeDataset();
         XYItemRenderer renderer2 = new VerticalXYBarRenderer(0.20);
         renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0.00"));
-        XYPlot subplot2 = new XYPlot(volumeData, null, new VerticalNumberAxis("Volume"), renderer2);
+        XYPlot subplot2 = new XYPlot(volumeData, null,
+                                     new VerticalNumberAxis("Volume"), renderer2);
+        subplot2.setSeriesPaint(0, Color.blue);
 
         // make a combined plot...
         CombinedXYPlot plot = new CombinedXYPlot(new HorizontalDateAxis("Date"),
@@ -185,11 +191,14 @@ public class PriceVolumeDemo extends ApplicationFrame {
 
     /**
      * Starting point for the price/volume chart demo application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         PriceVolumeDemo demo = new PriceVolumeDemo("Price Volume Chart Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

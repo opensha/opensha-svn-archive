@@ -22,23 +22,27 @@
  * ------------------------------
  * OverlaidCategoryChartDemo.java
  * ------------------------------
- * (C) Copyright 2002, by Jeremy Bowman.
+ * (C) Copyright 2002, by Jeremy Bowman and Contributors.
  *
  * Original Author:  Jeremy Bowman.
- * Contributor(s):   -;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes
  * -------
  * 13-May-2002 : Version 1 (JB);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.text.DecimalFormat;
 import com.jrefinery.chart.ChartPanel;
-import com.jrefinery.chart.ChartUtilities;
 import com.jrefinery.chart.HorizontalCategoryAxis;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.LineAndShapeRenderer;
@@ -51,22 +55,37 @@ import com.jrefinery.chart.VerticalNumberAxis;
 import com.jrefinery.data.DefaultCategoryDataset;
 import com.jrefinery.data.DefaultIntervalCategoryDataset;
 import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.io.File;
-import java.io.IOException;
-import java.text.DecimalFormat;
-
+/**
+ * An overlaid category chart.
+ *
+ * @author JB
+ */
 public class OverlaidCategoryChartDemo extends ApplicationFrame {
 
-    private static final String[] categories = { "1", "3", "5", "10", "20" };
+    /** The categories. */
+    private static final String[] CATEGORIES = { "1", "3", "5", "10", "20" };
+
+    /** The bar colors. */
     private static Color[] barColors = null;
+
+    /** The dot colors. */
     private static Color[] dotColors = null;
+
+    /** The line colors. */
     private static Color[] lineColors = null;
+
+    /** The label font. */
     private static Font labelFont = null;
+
+    /** The bold label font. */
     private static Font boldLabelFont = null;
+
+    /** The title font. */
     private static Font titleFont = null;
+
+    /** The chart. */
     private JFreeChart chart = null;
 
     static {
@@ -84,6 +103,11 @@ public class OverlaidCategoryChartDemo extends ApplicationFrame {
         titleFont = new Font("Helvetica", Font.BOLD, 14);
     }
 
+    /**
+     * Creates a new demo.
+     *
+     * @param title  the frame title.
+     */
     public OverlaidCategoryChartDemo(String title) {
 
         super(title);
@@ -97,8 +121,8 @@ public class OverlaidCategoryChartDemo extends ApplicationFrame {
         dotData = new DefaultCategoryDataset(vals);
         DefaultCategoryDataset lineData = null;
         double[][] lineVals = new double[4][5];
-        for (int i=0; i < 4; i++) {
-            for (int j=0; j < 5; j++) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
                 lineVals[i][j] = (Math.random() * 0.56) - 0.18;
             }
         }
@@ -119,7 +143,8 @@ public class OverlaidCategoryChartDemo extends ApplicationFrame {
         DecimalFormat formatter = new DecimalFormat("0.##%");
         yAxis.setTickUnit(new NumberTickUnit(0.05, formatter));
 
-        OverlaidVerticalCategoryPlot plot = new OverlaidVerticalCategoryPlot(xAxis, yAxis, categories);
+        OverlaidVerticalCategoryPlot plot
+            = new OverlaidVerticalCategoryPlot(xAxis, yAxis, CATEGORIES);
         plot.setBackgroundPaint(Color.lightGray);
         plot.setOutlinePaint(Color.black);
 
@@ -158,17 +183,22 @@ public class OverlaidCategoryChartDemo extends ApplicationFrame {
         chart.setBackgroundPaint(Color.white);
 
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
-    } // ctor
+    }
 
     /**
-     * For testing from the command line
+     * Starting point for the demo.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
-        OverlaidCategoryChartDemo demo = new OverlaidCategoryChartDemo("Overlaid Category Chart Demo");
+        OverlaidCategoryChartDemo demo
+             = new OverlaidCategoryChartDemo("Overlaid Category Chart Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,20 +33,31 @@
  * --------------------------
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Updated header (DG);
+ * 14-Oct-2002 : Now extends EventListener (DG);
  *
  */
 
 package com.jrefinery.chart.event;
 
+import java.util.EventListener;
+
 /**
  * The interface that must be supported by classes that wish to receive notification of
  * changes to an axis.
+ * <P>
+ * The Plot class implements this interface, and automatically registers with its axes (if any).
+ * Any axis changes are passed on by the plot as a plot change event.  This is part of the
+ * notification mechanism that ensures that charts are redrawn whenever changes are made to any
+ * chart component.
+ *
+ * @author DG
  */
-public interface AxisChangeListener {
+public interface AxisChangeListener extends EventListener {
 
     /**
      * Receives notification of an axis change event.
-     * @param event Information about the event.
+     *
+     * @param event  the event.
      */
     public void axisChanged(AxisChangeEvent event);
 

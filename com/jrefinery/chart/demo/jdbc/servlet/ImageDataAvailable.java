@@ -42,7 +42,7 @@ import javax.servlet.http.*;
 
 public class ImageDataAvailable extends BaseImageServlet implements Constants {
 
-   final static char alphaStart = 'b' ;
+   final static char alphaStart = 'b';
 
   /**
     * Override init() to set up data used by invocations of this servlet.
@@ -53,36 +53,36 @@ public class ImageDataAvailable extends BaseImageServlet implements Constants {
   }
 
   protected String generateSQL(HttpServletRequest request) {
-    int voyage     = 200001040 ;
-    String[] obs_codes = null ;
+    int voyage     = 200001040;
+    String[] obs_codes = null;
     try{ voyage = Integer.parseInt( request.getParameter("voyage")); } catch(Exception e) {}
     try{ obs_codes  = request.getParameterValues("codes");            } catch(Exception e) {}
 
-    int i = 0 ;
-    String query = null ;
+    int i = 0;
+    String query = null;
 
     if (obs_codes == null)  {
-        obs_codes = new String[0] ;
+        obs_codes = new String[0];
     }
 
 
     //System.out.println("obs_codes length = " + obs_codes.length);
 
     if (voyage == 0) {
-      query = "select min(a.timestamp), avg(a.record_count) as Avg_Track " ;
+      query = "select min(a.timestamp), avg(a.record_count) as Avg_Track ";
       for (i = 0; i < obs_codes.length; ++i) {
         query += ", avg(" + ((char)(alphaStart+i)) + ".record_count) as Avg_"
               + obs_codes[i].trim();
       }
 
-      query += " from "+ dbSchema_ +"summary_track a " ;
+      query += " from "+ dbSchema_ +"summary_track a ";
       for (i = 0; i < obs_codes.length; ++i) {
-        query += ", "+ dbSchema_ +"summary_data " + ((char)(alphaStart+i)) ;
+        query += ", "+ dbSchema_ +"summary_data " + ((char)(alphaStart+i));
       }
 
       for (i = 0; i < obs_codes.length; ++i) {
         if (i > 0)
-          query += " and" ;
+          query += " and";
         else
           query += " where";
 
@@ -92,25 +92,25 @@ public class ImageDataAvailable extends BaseImageServlet implements Constants {
               + ".obs_code = '"+obs_codes[i].trim()+"'";
       }
 
-      query +=  " group by a.set_code order by a.set_code" ;
+      query +=  " group by a.set_code order by a.set_code";
 
     } else {
-      query = "select a.timestamp, a.record_count as Track " ;
+      query = "select a.timestamp, a.record_count as Track ";
 
       for (i = 0; i < obs_codes.length; ++i) {
         query += "," + ((char)(alphaStart+i)) + ".record_count as " + obs_codes[i].trim();
       }
 
-      query += " from "+ dbSchema_ +"summary_track a " ;
+      query += " from "+ dbSchema_ +"summary_track a ";
       for (i = 0; i < obs_codes.length; ++i) {
-        query += ", "+ dbSchema_ +"summary_data " + ((char)(alphaStart+i)) ;
+        query += ", "+ dbSchema_ +"summary_data " + ((char)(alphaStart+i));
       }
 
       query += " where a.set_code = " + voyage
             + " and a.timestamp < (select max(timestamp) from "
             + dbSchema_ +"summary_data where set_code = " + voyage + ")"
             + " and a.timestamp > (select min(timestamp) from "
-            + dbSchema_ +"summary_data where set_code = " + voyage + ")" ;
+            + dbSchema_ +"summary_data where set_code = " + voyage + ")";
 
       for (i = 0; i < obs_codes.length; ++i) {
         query += " and a.set_code  = " + ((char)(alphaStart+i)) + ".set_code  "
@@ -118,7 +118,7 @@ public class ImageDataAvailable extends BaseImageServlet implements Constants {
               +  " and " + ((char)(alphaStart+i)) + ".obs_code = '"+obs_codes[i].trim()+"'";
       }
     }
-    return query ;
+    return query;
  }
 
 

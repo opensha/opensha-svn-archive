@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -33,30 +33,34 @@
  * -------
  * 17-Nov-2001 : Version 1 (DG);
  * 28-Mar-2002 : Implemented SeriesChangeListener interface (DG);
+ * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.data;
 
 /**
- * An abstract implementation of the Dataset interface, containing a mechanism for registering
- * change listeners.
+ * An abstract implementation of the Dataset interface, containing a mechanism
+ * for registering change listeners.
+ *
+ * @author DG
  */
 public abstract class AbstractSeriesDataset extends AbstractDataset
                                             implements SeriesDataset, SeriesChangeListener {
 
     /**
-     * Constructs a dataset.
+     * Creates a new dataset.
      */
     protected AbstractSeriesDataset() {
-	super();
+        super();
     }
 
     /**
      * Returns the number of items that should be displayed in the legend.
      * <P>
      * For series datasets, the legend will contain the name of each series.
-     * @return The number of items that should be displayed in the legend.
+     *
+     * @return the number of items that should be displayed in the legend.
      */
     public int getLegendItemCount() {
         return getSeriesCount();
@@ -64,14 +68,15 @@ public abstract class AbstractSeriesDataset extends AbstractDataset
 
     /**
      * Returns the legend item labels.
-     * @return The legend item labels.
+     *
+     * @return the legend item labels.
      */
     public String[] getLegendItemLabels() {
 
-        int seriesCount = this.getSeriesCount();
+        int seriesCount = getSeriesCount();
         String[] labels = new String[seriesCount];
-        for (int i=0; i<seriesCount; i++) {
-            labels[i] = this.getSeriesName(i);
+        for (int i = 0; i < seriesCount; i++) {
+            labels[i] = getSeriesName(i);
         }
         return labels;
 
@@ -79,23 +84,27 @@ public abstract class AbstractSeriesDataset extends AbstractDataset
 
     /**
      * Returns the number of series in the dataset.
-     * @return The number of series in the dataset.
+     *
+     * @return the number of series in the dataset.
      */
     public abstract int getSeriesCount();
 
     /**
      * Returns the name of a series.
-     * @param series The series (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     *
+     * @return the series name.
      */
     public abstract String getSeriesName(int series);
 
     /**
      * Called when a series belonging to the dataset changes.
      *
-     * @param event Information about the change.
+     * @param event  information about the change.
      */
     public void seriesChanged(SeriesChangeEvent event) {
-        this.fireDatasetChanged();
+        fireDatasetChanged();
     }
 
 }

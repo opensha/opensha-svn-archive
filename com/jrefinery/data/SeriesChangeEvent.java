@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,12 +39,15 @@ package com.jrefinery.data;
 
 /**
  * An event with details of a change to a series.
+ *
+ * @author DG
  */
 public class SeriesChangeEvent extends java.util.EventObject {
 
     /**
      * Constructs a new event.
-     * @param source The source of the change event.
+     *
+     * @param source  the source of the change event.
      */
     public SeriesChangeEvent(Object source) {
         super(source);

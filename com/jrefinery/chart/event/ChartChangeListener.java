@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,20 +33,30 @@
  * --------------------------
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Updated header (DG);
+ * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 14-Oct-2002 : Now extends java.util.EventListener (DG);
  *
  */
 
 package com.jrefinery.chart.event;
 
+import java.util.EventListener;
+
 /**
- * The interface that must be supported by classes that wish to receive notification of
- * changes to a chart.
+ * The interface that must be supported by classes that wish to receive
+ * notification of changes to a chart.
+ * <P>
+ * The ChartPanel class registers itself with the chart it displays, and whenever the chart
+ * changes, the panel redraws itself.
+ *
+ * @author DG
  */
-public interface ChartChangeListener {
+public interface ChartChangeListener extends EventListener {
 
     /**
      * Receives notification of a chart change event.
-     * @param event Information about the event.
+     *
+     * @param event  the event.
      */
     public void chartChanged(ChartChangeEvent event);
 

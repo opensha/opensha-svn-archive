@@ -25,7 +25,7 @@
  * (C) Copyright 2000-2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -40,6 +40,9 @@
  * 06-Mar-2002 : Added accessor methods for verticalLabel attribute. Updated import statements (DG);
  * 19-Apr-2002 : Added facility to set axis visibility on or off.  Also drawVerticalString(...) is
  *               now drawRotatedString(...) in RefineryUtilities (DG);
+ * 06-Aug-2002 : Modified draw method to not draw axis label if label is empty String (RA);
+ * 05-Sep-2002 : Updated constructor reflecting changes in the Axis class (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -54,15 +57,17 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
+import com.jrefinery.chart.event.AxisChangeEvent;
 import com.jrefinery.data.CategoryDataset;
 import com.jrefinery.ui.RefineryUtilities;
-import com.jrefinery.chart.event.AxisChangeEvent;
 
 /**
  * A vertical axis that displays categories, used for horizontal bar charts.
  * <P>
- * The axis needs to rely on the plot for placement of labels, since the plot controls how the
- * categories are distributed.
+ * The axis needs to rely on the plot for placement of labels, since the plot
+ * controls how the categories are distributed.
+ *
+ * @author DG
  */
 public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
 
@@ -70,12 +75,12 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
     public static final boolean DEFAULT_VERTICAL_LABEL = true;
 
     /** A flag that indicates whether or not the axis label should be drawn vertically. */
-    protected boolean verticalLabel;
+    private boolean verticalLabel;
 
     /**
      * Constructs a new axis, using default attributes where necessary.
      *
-     * @param label The axis label.
+     * @param label  the axis label (null permitted).
      */
     public VerticalCategoryAxis(String label) {
 
@@ -89,23 +94,26 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
              Axis.DEFAULT_TICK_LABEL_PAINT,
              Axis.DEFAULT_TICK_LABEL_INSETS,
              false, // tick marks visible
-             Axis.DEFAULT_TICK_STROKE);
+             Axis.DEFAULT_TICK_STROKE,
+             Axis.DEFAULT_TICK_PAINT);
 
     }
 
     /**
      * Constructs a new axis.
      *
-     * @param label The axis label.
-     * @param labelFont The font for displaying the axis label.
-     * @param labelPaint The paint used to draw the axis label.
-     * @param labelInsets Determines the amount of blank space around the label.
-     * @param verticalLabel Flag indicating whether or not the axis label is drawn vertically.
-     * @param categoryLabelsVisible Flag indicating whether or not category labels are visible.
-     * @param categoryLabelFont The font used to display category labels.
-     * @param categoryLabelPaint The paint used to draw category labels.
-     * @param tickMarksVisible Flag indicating whether or not tick marks are visible.
-     * @param tickMarkStroke The stroke used to draw tick marks (if visible).
+     * @param label  the axis label (null permitted).
+     * @param labelFont  the font for displaying the axis label.
+     * @param labelPaint  the paint used to draw the axis label.
+     * @param labelInsets  determines the amount of blank space around the label.
+     * @param verticalLabel  flag indicating whether or not the axis label is drawn vertically.
+     * @param categoryLabelsVisible  a flag indicating whether or not category labels are visible.
+     * @param categoryLabelFont  the font used to display category labels.
+     * @param categoryLabelPaint  the paint used to draw category labels.
+     * @param categoryLabelInsets  the insets for the category labels.
+     * @param tickMarksVisible  flag indicating whether or not tick marks are visible.
+     * @param tickMarkStroke  the stroke used to draw tick marks (if visible).
+     * @param tickMarkPaint  the paint used to draw tick marks (if visible).
      */
     public VerticalCategoryAxis(String label,
                                 Font labelFont, Paint labelPaint, Insets labelInsets,
@@ -113,11 +121,13 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
                                 boolean categoryLabelsVisible,
                                 Font categoryLabelFont, Paint categoryLabelPaint,
                                 Insets categoryLabelInsets,
-                                boolean tickMarksVisible, Stroke tickMarkStroke) {
+                                boolean tickMarksVisible,
+                                Stroke tickMarkStroke, Paint tickMarkPaint) {
 
         super(label, labelFont, labelPaint, labelInsets,
-              categoryLabelsVisible, categoryLabelFont, categoryLabelPaint, categoryLabelInsets,
-              tickMarksVisible, tickMarkStroke);
+              categoryLabelsVisible, categoryLabelFont, categoryLabelPaint,
+              categoryLabelInsets,
+              tickMarksVisible, tickMarkStroke, tickMarkPaint);
 
         this.verticalLabel = verticalLabel;
 
@@ -133,14 +143,15 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
     }
 
     /**
-     * Sets a flag indicating whether or not the axis label is drawn vertically.  If the setting
-     * is changed, registered listeners are notified that the axis has changed.
+     * Sets a flag indicating whether or not the axis label is drawn vertically.
+     * If the setting is changed, registered listeners are notified that the
+     * axis has changed.
      *
-     * @param The flag.
+     * @param flag  the flag.
      */
     public void setVerticalLabel(boolean flag) {
 
-        if (this.verticalLabel!=flag) {
+        if (this.verticalLabel != flag) {
             this.verticalLabel = flag;
             notifyListeners(new AxisChangeEvent(this));
         }
@@ -148,36 +159,40 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
     }
 
     /**
-     * Draws the CategoryAxis on a Java 2D graphics device (such as the screen or a printer).
+     * Draws the axis on a Java 2D graphics device (such as the screen or a printer).
      *
-     * @param g2 The graphics device.
-     * @param drawArea The area within which the axis should be drawn.
-     * @param plotArea The area within which the plot is being drawn.
+     * @param g2  the graphics device.
+     * @param drawArea  the area within which the axis should be drawn.
+     * @param dataArea  the area within which the plot is being drawn.
      */
-    public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
+    public void draw(Graphics2D g2, Rectangle2D drawArea, Rectangle2D dataArea) {
 
-        if (!visible) return;
+        if (!visible) {
+            return;
+        }
 
         // draw the axis label
-        if (label!=null) {
+        if (this.label == null ? false : !this.label.equals("")) {
             g2.setFont(labelFont);
             g2.setPaint(labelPaint);
             FontRenderContext frc = g2.getFontRenderContext();
             LineMetrics metrics = labelFont.getLineMetrics(label, frc);
             Rectangle2D labelBounds = labelFont.getStringBounds(label, frc);
             if (verticalLabel) {
-                double xx = drawArea.getX()+labelInsets.left
-                                           +metrics.getHeight()
-                                           -metrics.getDescent()
-                                           -metrics.getLeading();
-                double yy = plotArea.getY()+plotArea.getHeight()/2
-                                           +(labelBounds.getWidth()/2);
-                RefineryUtilities.drawRotatedString(label, g2, (float)xx, (float)yy, -Math.PI/2);
+                double xx = drawArea.getX() + labelInsets.left
+                                            + metrics.getHeight()
+                                            - metrics.getDescent()
+                                            - metrics.getLeading();
+                double yy = dataArea.getY() + dataArea.getHeight() / 2
+                                            + (labelBounds.getWidth() / 2);
+                RefineryUtilities.drawRotatedString(label, g2,
+                                                    (float) xx, (float) yy, -Math.PI / 2);
             }
             else {
-                double xx = drawArea.getX()+labelInsets.left;
-                double yy = drawArea.getY()+drawArea.getHeight()/2-labelBounds.getHeight()/2;
-                g2.drawString(label, (float)xx, (float)yy);
+                double xx = drawArea.getX() + labelInsets.left;
+                double yy = drawArea.getY() + drawArea.getHeight() / 2
+                                            - labelBounds.getHeight() / 2;
+                g2.drawString(label, (float) xx, (float) yy);
             }
         }
 
@@ -185,10 +200,10 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
         if (this.tickLabelsVisible) {
             g2.setFont(tickLabelFont);
             g2.setPaint(tickLabelPaint);
-            this.refreshTicks(g2, drawArea, plotArea);
+            this.refreshTicks(g2, drawArea, dataArea);
             Iterator iterator = ticks.iterator();
             while (iterator.hasNext()) {
-                Tick tick = (Tick)iterator.next();
+                Tick tick = (Tick) iterator.next();
                 g2.drawString(tick.getText(), tick.getX(), tick.getY());
             }
         }
@@ -198,17 +213,17 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
     /**
      * Creates a temporary list of ticks that can be used when drawing the axis.
      *
-     * @param g2 The graphics device (used to get font measurements).
-     * @param drawArea The area where the plot and axes will be drawn.
-     * @param plotArea The area inside the axes.
+     * @param g2  the graphics device (used to get font measurements).
+     * @param drawArea  the area where the plot and axes will be drawn.
+     * @param plotArea  the area inside the axes.
      */
     public void refreshTicks(Graphics2D g2, Rectangle2D drawArea, Rectangle2D plotArea) {
 
         this.ticks.clear();
-        CategoryPlot categoryPlot = (CategoryPlot)plot;
+        CategoryPlot categoryPlot = (CategoryPlot) plot;
         CategoryDataset data = categoryPlot.getCategoryDataset();
-        if (data!=null) {
-            Font font = this.getTickLabelFont();
+        if (data != null) {
+            Font font = getTickLabelFont();
             g2.setFont(font);
             FontRenderContext frc = g2.getFontRenderContext();
             int categoryIndex = 0;
@@ -219,35 +234,40 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
                 Rectangle2D labelBounds = font.getStringBounds(label, frc);
                 LineMetrics metrics = font.getLineMetrics(label, frc);
 
-                float xx = (float)(plotArea.getX()-tickLabelInsets.right-labelBounds.getWidth());
-                float yy = (float)(categoryPlot.getCategoryCoordinate(categoryIndex, plotArea)
-                                  -metrics.getStrikethroughOffset()+0.5f);
+                float xx = (float) (plotArea.getX() - tickLabelInsets.right
+                                                    - labelBounds.getWidth());
+                float yy = (float) (categoryPlot.getCategoryCoordinate(categoryIndex, plotArea)
+                                    - metrics.getStrikethroughOffset() + 0.5f);
                 Tick tick = new Tick(category, label, xx, yy);
                 ticks.add(tick);
-                categoryIndex = categoryIndex+1;
+                categoryIndex = categoryIndex + 1;
             }
         }
     }
 
     /**
-     * Estimates the height required for the axis, given a specific drawing area, without any
-     * information about the width of the vertical axis.
+     * Estimates the height required for the axis, given a specific drawing
+     * area, without any information about the width of the vertical axis.
      * <P>
      * Supports the VerticalAxis interface.
      *
-     * @param g2 The graphics device (used to obtain font information).
-     * @param drawArea The area within which the axis should be drawn.
-     * @param plot The plot that the axis belongs to.
+     * @param g2  the graphics device (used to obtain font information).
+     * @param drawArea  the area within which the axis should be drawn.
+     * @param plot  the plot that the axis belongs to.
+     *
+     * @return the estimated height required for the axis.
      */
     public double reserveWidth(Graphics2D g2, Plot plot, Rectangle2D drawArea) {
 
-        if (!visible) return 0.0;
+        if (!visible) {
+            return 0.0;
+        }
 
         // calculate the width of the axis label...
         double labelWidth = 0.0;
-        if (label!=null) {
+        if (label != null) {
             Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
-            labelWidth = this.labelInsets.left+labelInsets.right;
+            labelWidth = this.labelInsets.left + labelInsets.right;
             if (this.verticalLabel) {
                 // assume width == height before rotation
                 labelWidth = labelWidth + labelBounds.getHeight();
@@ -258,38 +278,39 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
         }
 
         // calculate the width required for the tick labels (if visible);
-        double tickLabelWidth = tickLabelInsets.left+tickLabelInsets.right;
+        double tickLabelWidth = tickLabelInsets.left + tickLabelInsets.right;
         if (tickLabelsVisible) {
-            this.refreshTicks(g2, drawArea, drawArea);
-            tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, drawArea);
+            refreshTicks(g2, drawArea, drawArea);
+            tickLabelWidth = tickLabelWidth + getMaxTickLabelWidth(g2, drawArea);
         }
-        return labelWidth+tickLabelWidth;
+        return labelWidth + tickLabelWidth;
 
     }
 
     /**
      * Returns the area required to draw the axis in the specified draw area.
      *
-     * @param g2 The graphics device.
-     * @param drawArea The area within which the plot should be drawn.
-     * @param reservedHeight The height reserved by the horizontal axis.
+     * @param g2  the graphics device.
+     * @param plot  the plot that the axis belongs to.
+     * @param drawArea  the area within which the plot should be drawn.
+     * @param reservedHeight  the height reserved by the horizontal axis.
      *
-     * @return The area to reserve for the axis.
+     * @return  the area to reserve for the axis.
      */
-    public Rectangle2D reserveAxisArea(Graphics2D g2, Plot plot, Rectangle2D drawArea,
-                                       double reservedHeight) {
+    public Rectangle2D reserveAxisArea(Graphics2D g2, Plot plot,
+                                       Rectangle2D drawArea, double reservedHeight) {
 
         if (!visible) {
             return new Rectangle2D.Double(drawArea.getX(), drawArea.getY(),
                                           0.0,
-                                          drawArea.getHeight()-reservedHeight);
+                                          drawArea.getHeight() - reservedHeight);
         }
 
         // calculate the width of the axis label...
         double labelWidth = 0.0;
-        if (label!=null) {
+        if (label != null) {
             Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
-            labelWidth = this.labelInsets.left+labelInsets.right;
+            labelWidth = this.labelInsets.left + labelInsets.right;
             if (this.verticalLabel) {
                 // assume width == height before rotation
                 labelWidth = labelWidth + labelBounds.getHeight();
@@ -300,28 +321,33 @@ public class VerticalCategoryAxis extends CategoryAxis implements VerticalAxis {
         }
 
         // calculate the width required for the tick labels (if visible);
-        double tickLabelWidth = tickLabelInsets.left+tickLabelInsets.right;
+        double tickLabelWidth = tickLabelInsets.left + tickLabelInsets.right;
         if (tickLabelsVisible) {
             this.refreshTicks(g2, drawArea, drawArea);
-            tickLabelWidth = tickLabelWidth+getMaxTickLabelWidth(g2, drawArea);
+            tickLabelWidth = tickLabelWidth + getMaxTickLabelWidth(g2, drawArea);
         }
 
-        return new Rectangle2D.Double(drawArea.getX(), drawArea.getY(), labelWidth+tickLabelWidth,
-                                      drawArea.getHeight()-reservedHeight);
+        return new Rectangle2D.Double(drawArea.getX(), drawArea.getY(),
+            labelWidth + tickLabelWidth, drawArea.getHeight() - reservedHeight);
 
     }
 
     /**
-     * Returns true if the specified plot is compatible with the axis, and false otherwise.
+     * Returns true if the specified plot is compatible with the axis, and
+     * false otherwise.
      *
-     * @param plot The plot.
+     * @param plot  the plot.
      *
      * @return A boolean indicating whether or not the axis considers the plot is compatible.
      */
     protected boolean isCompatiblePlot(Plot plot) {
 
-        if (plot instanceof HorizontalCategoryPlot) return true;
-        else return false;
+        if (plot instanceof HorizontalCategoryPlot) {
+            return true;
+        }
+        else {
+            return false;
+        }
 
     }
 

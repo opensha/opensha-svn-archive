@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 16-Jan-2002 : Version 1 (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,8 +43,18 @@ import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFrame;
 
+/**
+ * A very simple demo.
+ *
+ * @author DG
+ */
 public class First {
 
+    /**
+     * The starting point for the demo.
+     *
+     * @param args  ignored.
+     */
     public static void main(String[] args) {
 
         // create a dataset...

@@ -37,22 +37,30 @@
  * 25-Feb-2002 : Moved createStandardTickUnits() method from NumberAxis, and added
  *               createIntegerTickUnits() method (DG);
  * 01-May-2002 : Updated for changes to the TickUnit class (DG);
+ * 18-Sep-2002 : Added standardTickUnit methods which take a Locale instance (AS);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
-import java.util.Collections;
-import java.util.List;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.List;
 
 /**
  * A collection of tick units.
+ * <P>
+ * Used by the DateAxis and NumberAxis classes.
+ *
+ * @author DG
  */
 public class TickUnits {
 
     /** Storage for the tick units. */
-    protected List units;
+    private List units;
 
     /**
      * Constructs a new collection of tick units.
@@ -65,6 +73,8 @@ public class TickUnits {
      * Adds a tick unit to the collection.
      * <P>
      * The tick units are maintained in ascending order.
+     *
+     * @param unit  the tick unit to add.
      */
     public void add(TickUnit unit) {
 
@@ -76,50 +86,52 @@ public class TickUnits {
     /**
      * Returns a tick unit that is larger than the supplied unit.
      *
-     * @param unit The unit.
+     * @param unit   the unit.
+     *
+     * @return a tick unit that is larger than the supplied unit.
      */
     public TickUnit getLargerTickUnit(TickUnit unit) {
 
         int index = Collections.binarySearch(units, unit);
-        if (index>=0) {
-            index = index+1;
+        if (index >= 0) {
+            index = index + 1;
         }
         else {
             index = -index;
         }
 
-        return (TickUnit)units.get(Math.min(index, units.size()-1));
+        return (TickUnit) units.get(Math.min(index, units.size() - 1));
 
     }
 
     /**
-     * Returns the tick unit in the collection that is greater than or equal to (in size) the
-     * specified unit.
+     * Returns the tick unit in the collection that is greater than or equal
+     * to (in size) the specified unit.
      *
-     * @param unit The unit.
+     * @param unit  the unit.
      *
-     * @return A unit from the collection.
+     * @return a unit from the collection.
      */
     public TickUnit getCeilingTickUnit(TickUnit unit) {
 
         int index = Collections.binarySearch(units, unit);
-        if (index>=0) {
-            return (TickUnit)units.get(index);
+        if (index >= 0) {
+            return (TickUnit) units.get(index);
         }
         else {
             index = -(index + 1);
-            return (TickUnit)units.get(Math.min(index, units.size()-1));
+            return (TickUnit) units.get(Math.min(index, units.size() - 1));
         }
 
     }
 
     /**
-     * Returns the tick unit in the collection that is greater than or equal to the
-     * specified size.
+     * Returns the tick unit in the collection that is greater than or equal
+     * to the specified size.
      *
-     * @param size The size.
+     * @param size  the size.
      *
-     * @return A unit from the collection.
+     * @return a unit from the collection.
      */
     public TickUnit getCeilingTickUnit(double size) {
 
@@ -130,8 +142,13 @@ public class TickUnits {
     /**
      * Creates the standard tick units.
      * <P>
-     * If you don't like these defaults, create your own instance of TickUnits and then pass it to
-     * the setStandardTickUnits(...) method in the NumberAxis class.
+     * If you don't like these defaults, create your own instance of TickUnits
+     * and then pass it to the setStandardTickUnits(...) method in the
+     * NumberAxis class.
+     *
+     * @return the standard tick units.
+     *
+     * @deprecated this method has been moved to the NumberAxis class.
      */
     public static TickUnits createStandardTickUnits() {
 
@@ -198,6 +215,10 @@ public class TickUnits {
 
     /**
      * Returns a collection of tick units for integer values.
+     *
+     * @return a collection of tick units for integer values.
+     *
+     * @deprecated this method has been moved to the NumberAxis class.
      */
     public static TickUnits createIntegerTickUnits() {
 
@@ -234,6 +255,136 @@ public class TickUnits {
         units.add(new NumberTickUnit(2000000000,     new DecimalFormat("#,##0")));
         units.add(new NumberTickUnit(5000000000.0,   new DecimalFormat("#,##0")));
         units.add(new NumberTickUnit(10000000000.0,  new DecimalFormat("#,##0")));
+
+        return units;
+
+    }
+
+    /**
+     * Creates the standard tick units, and uses a given Locale to create the DecimalFormats
+     * <P>
+     * If you don't like these defaults, create your own instance of TickUnits
+     * and then pass it to the setStandardTickUnits(...) method in the
+     * NumberAxis class.
+     *
+     * @param locale the locale to use to represent Numbers.
+     *
+     * @return the standard tick units.
+     *
+     * @deprecated this method has been moved to the NumberAxis class.
+     */
+    public static TickUnits createStandardTickUnits(Locale locale) {
+
+        TickUnits units = new TickUnits();
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+
+        // we can add the units in any order, the TickUnits collection will sort them...
+        units.add(new NumberTickUnit(0.0000001,    numberFormat));
+        units.add(new NumberTickUnit(0.000001,     numberFormat));
+        units.add(new NumberTickUnit(0.00001,      numberFormat));
+        units.add(new NumberTickUnit(0.0001,       numberFormat));
+        units.add(new NumberTickUnit(0.001,        numberFormat));
+        units.add(new NumberTickUnit(0.01,         numberFormat));
+        units.add(new NumberTickUnit(0.1,          numberFormat));
+        units.add(new NumberTickUnit(1,            numberFormat));
+        units.add(new NumberTickUnit(10,           numberFormat));
+        units.add(new NumberTickUnit(100,          numberFormat));
+        units.add(new NumberTickUnit(1000,         numberFormat));
+        units.add(new NumberTickUnit(10000,        numberFormat));
+        units.add(new NumberTickUnit(100000,       numberFormat));
+        units.add(new NumberTickUnit(1000000,      numberFormat));
+        units.add(new NumberTickUnit(10000000,     numberFormat));
+        units.add(new NumberTickUnit(100000000,    numberFormat));
+        units.add(new NumberTickUnit(1000000000,   numberFormat));
+
+        units.add(new NumberTickUnit(0.00000025,   numberFormat));
+        units.add(new NumberTickUnit(0.0000025,    numberFormat));
+        units.add(new NumberTickUnit(0.000025,     numberFormat));
+        units.add(new NumberTickUnit(0.00025,      numberFormat));
+        units.add(new NumberTickUnit(0.0025,       numberFormat));
+        units.add(new NumberTickUnit(0.025,        numberFormat));
+        units.add(new NumberTickUnit(0.25,         numberFormat));
+        units.add(new NumberTickUnit(2.5,          numberFormat));
+        units.add(new NumberTickUnit(25,           numberFormat));
+        units.add(new NumberTickUnit(250,          numberFormat));
+        units.add(new NumberTickUnit(2500,         numberFormat));
+        units.add(new NumberTickUnit(25000,        numberFormat));
+        units.add(new NumberTickUnit(250000,       numberFormat));
+        units.add(new NumberTickUnit(2500000,      numberFormat));
+        units.add(new NumberTickUnit(25000000,     numberFormat));
+        units.add(new NumberTickUnit(250000000,    numberFormat));
+        units.add(new NumberTickUnit(2500000000.0,   numberFormat));
+
+        units.add(new NumberTickUnit(0.0000005,    numberFormat));
+        units.add(new NumberTickUnit(0.000005,     numberFormat));
+        units.add(new NumberTickUnit(0.00005,      numberFormat));
+        units.add(new NumberTickUnit(0.0005,       numberFormat));
+        units.add(new NumberTickUnit(0.005,        numberFormat));
+        units.add(new NumberTickUnit(0.05,         numberFormat));
+        units.add(new NumberTickUnit(0.5,          numberFormat));
+        units.add(new NumberTickUnit(5L,           numberFormat));
+        units.add(new NumberTickUnit(50L,          numberFormat));
+        units.add(new NumberTickUnit(500L,         numberFormat));
+        units.add(new NumberTickUnit(5000L,        numberFormat));
+        units.add(new NumberTickUnit(50000L,       numberFormat));
+        units.add(new NumberTickUnit(500000L,      numberFormat));
+        units.add(new NumberTickUnit(5000000L,     numberFormat));
+        units.add(new NumberTickUnit(50000000L,    numberFormat));
+        units.add(new NumberTickUnit(500000000L,   numberFormat));
+        units.add(new NumberTickUnit(5000000000L,  numberFormat));
+
+        return units;
+
+    }
+
+    /**
+     * Returns a collection of tick units for integer values.
+     * Uses a given Locale to create the DecimalFormats.
+     *
+     * @param locale the locale to use to represent Numbers.
+     *
+     * @return a collection of tick units for integer values.
+     *
+     * @deprecated this method has been moved to the NumberAxis class.
+     */
+    public static TickUnits createIntegerTickUnits(Locale locale) {
+
+        TickUnits units = new TickUnits();
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+
+        units.add(new NumberTickUnit(1,              numberFormat));
+        units.add(new NumberTickUnit(2,              numberFormat));
+        units.add(new NumberTickUnit(5,              numberFormat));
+        units.add(new NumberTickUnit(10,             numberFormat));
+        units.add(new NumberTickUnit(20,             numberFormat));
+        units.add(new NumberTickUnit(50,             numberFormat));
+        units.add(new NumberTickUnit(100,            numberFormat));
+        units.add(new NumberTickUnit(200,            numberFormat));
+        units.add(new NumberTickUnit(500,            numberFormat));
+        units.add(new NumberTickUnit(1000,           numberFormat));
+        units.add(new NumberTickUnit(2000,           numberFormat));
+        units.add(new NumberTickUnit(5000,           numberFormat));
+        units.add(new NumberTickUnit(10000,          numberFormat));
+        units.add(new NumberTickUnit(20000,          numberFormat));
+        units.add(new NumberTickUnit(50000,          numberFormat));
+        units.add(new NumberTickUnit(100000,         numberFormat));
+        units.add(new NumberTickUnit(200000,         numberFormat));
+        units.add(new NumberTickUnit(500000,         numberFormat));
+        units.add(new NumberTickUnit(1000000,        numberFormat));
+        units.add(new NumberTickUnit(2000000,        numberFormat));
+        units.add(new NumberTickUnit(5000000,        numberFormat));
+        units.add(new NumberTickUnit(10000000,       numberFormat));
+        units.add(new NumberTickUnit(20000000,       numberFormat));
+        units.add(new NumberTickUnit(50000000,       numberFormat));
+        units.add(new NumberTickUnit(100000000,      numberFormat));
+        units.add(new NumberTickUnit(200000000,      numberFormat));
+        units.add(new NumberTickUnit(500000000,      numberFormat));
+        units.add(new NumberTickUnit(1000000000,     numberFormat));
+        units.add(new NumberTickUnit(2000000000,     numberFormat));
+        units.add(new NumberTickUnit(5000000000.0,   numberFormat));
+        units.add(new NumberTickUnit(10000000000.0,  numberFormat));
 
         return units;
 

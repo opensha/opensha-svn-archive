@@ -33,6 +33,7 @@
  * --------------------------
  * 19-Dec-2001 : Added standard header (DG);
  * 01-May-2002 : Updated for changed to TickUnit class (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,23 +43,32 @@ import java.text.NumberFormat;
 
 /**
  * A numerical tick unit.
+ *
+ * @author DG
  */
 public class NumberTickUnit extends TickUnit {
 
     /** A formatter for the tick unit. */
-    protected NumberFormat formatter;
+    private NumberFormat formatter;
 
     /**
      * Creates a new number tick unit.
      *
-     * @param size The size of the tick unit.
-     * @param formatter A number formatter for the tick unit.
+     * @param size  the size of the tick unit.
+     * @param formatter  a number formatter for the tick unit.
      */
     public NumberTickUnit(double size, NumberFormat formatter) {
         super(size);
         this.formatter = formatter;
     }
 
+    /**
+     * Converts a value to a string.
+     *
+     * @param value  the value.
+     *
+     * @return the formatted string.
+     */
     public String valueToString(double value) {
         return formatter.format(value);
     }

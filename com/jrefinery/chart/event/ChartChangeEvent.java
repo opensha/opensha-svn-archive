@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,62 +34,61 @@
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Updated header (DG);
  *               Change event type names (DG);
+ * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.event;
 
-import com.jrefinery.chart.*;
+import com.jrefinery.chart.JFreeChart;
 
 /**
  * A change event that encapsulates information about a change to a chart.
+ *
+ * @author DG
  */
 public class ChartChangeEvent extends java.util.EventObject {
 
-    /**
-     * Event type indicating a general change to a chart (typically just requires a redraw).
-     */
+    /** Event type indicating a general change to a chart (typically just requires a redraw). */
     public static final int GENERAL = 1;
 
-    /**
-     * Event type indicating that the chart has a new dataset.
-     */
+    /** Event type indicating that the chart has a new dataset. */
     public static final int NEW_DATASET = 2;
 
-    /**
-     * Event type indicating that the chart's data source has been modified.
-     */
+    /** Event type indicating that the chart's data source has been modified. */
     public static final int UPDATED_DATASET = 3;
 
-    /**
-     * The type of event (GENERAL or DATA_SOURCE_REPLACED).
-     */
-    protected int type;
+    /** The type of event. */
+    private int type;
+
+    /** The chart that generated the event. */
+    private JFreeChart chart;
 
     /**
-     * The chart that generated the event.
-     */
-    protected JFreeChart chart;
-
-    /**
-     * Standard constructor: returns a new ChartChangeEvent object, type GENERAL.
-     * @param source The source of the event (could be the chart, a title, an axis etc.)
+     * Creates a new chart change event.
+     *
+     * @param source  the source of the event (could be the chart, a title, an axis etc.)
      */
     public ChartChangeEvent(Object source) {
         this(source, null, GENERAL);
     }
 
     /**
-     * Standard constructor: returns a new ChartChangeEvent object, type GENERAL.
-     * @param source The source of the event (could be the chart, a title, an axis etc.);
-     * @param chart The chart that generated the event;
+     * Creates a new chart change event.
+     *
+     * @param source  the source of the event (could be the chart, a title, an axis etc.)
+     * @param chart  the chart that generated the event.
      */
     public ChartChangeEvent(Object source, JFreeChart chart) {
         this(source, chart, GENERAL);
     }
 
     /**
-     * Full constructor: returns a new ChartChangeEvent object with the specified type.
+     * Creates a new chart change event.
+     *
+     * @param source  the source of the event (could be the chart, a title, an axis etc.)
+     * @param chart  the chart that generated the event.
+     * @param type  the type of event.
      */
     public ChartChangeEvent(Object source, JFreeChart chart, int type) {
         super(source);
@@ -98,7 +97,9 @@ public class ChartChangeEvent extends java.util.EventObject {
     }
 
     /**
-     * Returns a reference to the chart that generated the change event.
+     * Returns the chart that generated the change event.
+     *
+     * @return the chart that generated the change event.
      */
     public JFreeChart getChart() {
         return chart;
@@ -106,7 +107,8 @@ public class ChartChangeEvent extends java.util.EventObject {
 
     /**
      * Sets the chart that generated the change event.
-     * @param chart The chart that generated the event.
+     *
+     * @param chart  the chart that generated the event.
      */
     public void setChart(JFreeChart chart) {
         this.chart = chart;
@@ -114,6 +116,8 @@ public class ChartChangeEvent extends java.util.EventObject {
 
     /**
      * Returns the event type.
+     *
+     * @return the event type.
      */
     public int getType() {
         return this.type;
@@ -121,7 +125,8 @@ public class ChartChangeEvent extends java.util.EventObject {
 
     /**
      * Sets the event type.
-     * @param type The event type (GENERAL or DATA_SOURCE_REPLACED);
+     *
+     * @param type  the event type.
      */
     public void setType(int type) {
         this.type = type;

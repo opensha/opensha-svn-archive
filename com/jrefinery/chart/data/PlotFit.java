@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -39,24 +39,28 @@
 
 package com.jrefinery.chart.data;
 
-import com.jrefinery.data.*;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.DefaultXYDataset;
 
 /**
- * Manages the creation of a new dataset based on an existing XYDataset, according to a pluggable
- * algorithm.
+ * Manages the creation of a new dataset based on an existing XYDataset,
+ * according to a pluggable algorithm.
+ *
+ * @author MW
  */
 public class PlotFit {
 
     /** The underlying dataset. */
-    protected XYDataset dataset;
+    private XYDataset dataset;
 
     /** The algorithm. */
-    protected PlotFitAlgorithm alg;
+    private PlotFitAlgorithm alg;
 
     /**
      * Standard constructor.
-     * @param data The underlying dataset.
-     * @param alg The algorithm.
+     *
+     * @param data  the underlying dataset.
+     * @param alg  the algorithm.
      */
     public PlotFit(XYDataset data, PlotFitAlgorithm alg) {
         this.dataset = data;
@@ -65,7 +69,8 @@ public class PlotFit {
 
     /**
      * Sets the underlying dataset.
-     * @param data The underlying dataset.
+     *
+     * @param data  the underlying dataset.
      */
     public void setXYDataset(XYDataset data) {
         this.dataset = data;
@@ -73,16 +78,20 @@ public class PlotFit {
 
     /**
      * Sets the algorithm used to generate the new dataset.
-     * @param alg The algorithm.
+     *
+     * @param alg  the algorithm.
      */
     public void setPlotFitAlgorithm(PlotFitAlgorithm alg) {
         this.alg = alg;
     }
 
     /**
-     * Returns a three-dimensional array based on algorithm calculations.  Used to create a new
-     * dataset.
+     * Returns a three-dimensional array based on algorithm calculations.  Used
+     * to create a new dataset.
+     *
      * Matthew Wright:  implements what I'm doing in code now... not the best way to do this?
+     *
+     * @return a three-dimensional array.
      */
     public Object[][][] getResults() {
 
@@ -92,8 +101,8 @@ public class PlotFit {
         /* make a data container big enough to hold it all */
         int arraysize = 0;
         int seriescount = dataset.getSeriesCount();
-        for(int i = 0; i < seriescount; i++) {
-            if(dataset.getItemCount(i) > arraysize) {
+        for (int i = 0; i < seriescount; i++) {
+            if (dataset.getItemCount(i) > arraysize) {
                 arraysize = dataset.getItemCount(i);
             }
         }
@@ -102,11 +111,11 @@ public class PlotFit {
         Object[][][] newdata = new Object[seriescount * 2][arraysize][2];
 
         /* copy in the series to the first half */
-        for(int i = 0; i < seriescount; i++) {
-            for(int j = 0; j < dataset.getItemCount(i); j++) {
-                Number x = dataset.getXValue(i,j);
+        for (int i = 0; i < seriescount; i++) {
+            for (int j = 0; j < dataset.getItemCount(i); j++) {
+                Number x = dataset.getXValue(i, j);
                 newdata[i][j][0] = x;
-                newdata[i][j][1] = dataset.getYValue(i,j);
+                newdata[i][j][1] = dataset.getYValue(i, j);
                 Number y = alg.getY(i, x);
                 /*
                  * only want to set data for non-null algorithm fits.
@@ -114,27 +123,29 @@ public class PlotFit {
                  * plots to return null and not get NPEs when the chart is
                  * created
                  */
-                if(y != null) {
+                if (y != null) {
                     newdata[i + seriescount][j][0] = x;
                     newdata[i + seriescount][j][1] = y;
                 }
                 else {
                     newdata[i + seriescount][j][0] = null;
                     newdata[i + seriescount][j][1] = null;
-	        }
+                }
             }
         }
         return newdata;
     }
 
     /**
-     * Constructs and returns a new dataset based on applying an algorithm to an underlying
-     * dataset.
+     * Constructs and returns a new dataset based on applying an algorithm to
+     * an underlying dataset.
+     *
+     * @return a new dataset.
      */
     public XYDataset getFit() {
         int seriescount = dataset.getSeriesCount();
         String[] seriesnames = new String[seriescount * 2];
-        for(int i = 0; i < seriescount; i++) {
+        for (int i = 0; i < seriescount; i++) {
             seriesnames[i] = dataset.getSeriesName(i);
             seriesnames[i + seriescount] = dataset.getSeriesName(i) + " " + alg.getName();
         }

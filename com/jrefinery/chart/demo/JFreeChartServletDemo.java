@@ -33,39 +33,61 @@
  * -------
  * 03-Dec-2001 : Version 1, contributed by Wolfgang Irler (DG);
  * 10-Dec-2001 : Removed one demo dataset, replaced with call to DemoDatasetFactory class (DG);
+ * 26-Jun-2002 : Updated imports (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
-import javax.swing.*;
-
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import com.sun.image.codec.jpeg.*;
-
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.data.*;
-import com.jrefinery.chart.ui.*;
-import com.jrefinery.data.*;
-import com.jrefinery.ui.*;
-
+import java.awt.Color;
+import java.awt.GradientPaint;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.jrefinery.chart.JFreeChart;
+import com.jrefinery.chart.ChartFactory;
+import com.jrefinery.chart.ChartUtilities;
+import com.jrefinery.chart.Plot;
+import com.jrefinery.chart.CategoryPlot;
+import com.jrefinery.chart.XYPlot;
+import com.jrefinery.chart.Axis;
+import com.jrefinery.chart.HorizontalCategoryAxis;
+import com.jrefinery.chart.NumberAxis;
+import com.jrefinery.chart.VerticalNumberAxis;
+import com.jrefinery.chart.data.PlotFit;
+import com.jrefinery.chart.data.LinearPlotFitAlgorithm;
+import com.jrefinery.chart.data.MovingAveragePlotFitAlgorithm;
+import com.jrefinery.data.CategoryDataset;
+import com.jrefinery.data.DefaultCategoryDataset;
+import com.jrefinery.data.PieDataset;
+import com.jrefinery.data.HighLowDataset;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.DefaultXYDataset;
+import com.jrefinery.data.DatasetUtilities;
 
 /**
  * A servlet demonstration, contributed by Wolfgang Irler.
+ *
+ * @author WI
  */
 public class JFreeChartServletDemo extends HttpServlet {
 
     /**
      * Utility method to return a color.  Corresponds to the color selection in the
      * HTML form.
+     *
+     * @param color  the color index.
+     *
+     * @return a color.
      */
     protected Color getColor(int color) {
 
@@ -87,7 +109,9 @@ public class JFreeChartServletDemo extends HttpServlet {
     }
 
     /**
-     * Creates and returns a category dataset for the demo charts.
+     * Creates and returns a sample category dataset for the demo charts.
+     *
+     * @return a sample category dataset.
      */
     public CategoryDataset createCategoryDataset() {
 
@@ -110,6 +134,12 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     /**
      * Returns a java.util.Date for the specified year, month and day.
+     *
+     * @param year  the year.
+     * @param month  the month.
+     * @param day  the day.
+     *
+     * @return the date.
      */
     private Date createDate(int year, int month, int day) {
         GregorianCalendar calendar = new GregorianCalendar(year, month, day);
@@ -118,6 +148,14 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     /**
      * Returns a java.util.Date for the specified year, month, day, hour and minute.
+     *
+     * @param year  the year.
+     * @param month  the month.
+     * @param day  the day.
+     * @param hour  the hour.
+     * @param minute  the minute.
+     *
+     * @return the date.
      */
     private Date createDateTime(int year, int month, int day, int hour, int minute) {
         GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute);
@@ -126,6 +164,8 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     /**
      * Creates and returns a XYDataset for the demo charts.
+     *
+     * @return a sample XY dateset.
      */
     public XYDataset createTestXYDataset() {
 
@@ -146,244 +186,246 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     /**
      * Creates and returns a sample high-low dataset for the demo.  Added by Andrzej Porebski.
+     *
+     * @return a sample high low dataset.
      */
     public HighLowDataset createHighLowDataset() {
 
         Object[][][] data = new Object[][][] { {
-            { createDate(1999, Calendar.JANUARY,4), new Double(47) },
-            { createDate(1999, Calendar.JANUARY,4), new Double(33) },
-            { createDate(1999, Calendar.JANUARY,4), new Double(35) },
-            { createDate(1999, Calendar.JANUARY,4), new Double(33) },
+            { createDate(1999, Calendar.JANUARY, 4), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 4), new Double(33) },
+            { createDate(1999, Calendar.JANUARY, 4), new Double(35) },
+            { createDate(1999, Calendar.JANUARY, 4), new Double(33) },
 
-            { createDate(1999, Calendar.JANUARY,5), new Double(47) },
-            { createDate(1999, Calendar.JANUARY,5), new Double(32) },
-            { createDate(1999, Calendar.JANUARY,5), new Double(41) },
-            { createDate(1999, Calendar.JANUARY,5), new Double(37) },
+            { createDate(1999, Calendar.JANUARY, 5), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 5), new Double(32) },
+            { createDate(1999, Calendar.JANUARY, 5), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 5), new Double(37) },
 
-            { createDate(1999, Calendar.JANUARY,6), new Double(49) },
-            { createDate(1999, Calendar.JANUARY,6), new Double(43) },
-            { createDate(1999, Calendar.JANUARY,6), new Double(46) },
-            { createDate(1999, Calendar.JANUARY,6), new Double(48) },
+            { createDate(1999, Calendar.JANUARY, 6), new Double(49) },
+            { createDate(1999, Calendar.JANUARY, 6), new Double(43) },
+            { createDate(1999, Calendar.JANUARY, 6), new Double(46) },
+            { createDate(1999, Calendar.JANUARY, 6), new Double(48) },
 
-            { createDate(1999, Calendar.JANUARY,7), new Double(51) },
-            { createDate(1999, Calendar.JANUARY,7), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,7), new Double(40) },
-            { createDate(1999, Calendar.JANUARY,7), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 7), new Double(51) },
+            { createDate(1999, Calendar.JANUARY, 7), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 7), new Double(40) },
+            { createDate(1999, Calendar.JANUARY, 7), new Double(47) },
 
-            { createDate(1999, Calendar.JANUARY,8), new Double(60) },
-            { createDate(1999, Calendar.JANUARY,8), new Double(40) },
-            { createDate(1999, Calendar.JANUARY,8), new Double(46) },
-            { createDate(1999, Calendar.JANUARY,8), new Double(53) },
+            { createDate(1999, Calendar.JANUARY, 8), new Double(60) },
+            { createDate(1999, Calendar.JANUARY, 8), new Double(40) },
+            { createDate(1999, Calendar.JANUARY, 8), new Double(46) },
+            { createDate(1999, Calendar.JANUARY, 8), new Double(53) },
 
-            { createDate(1999, Calendar.JANUARY,9), new Double(62) },
-            { createDate(1999, Calendar.JANUARY,9), new Double(55) },
-            { createDate(1999, Calendar.JANUARY,9), new Double(57) },
-            { createDate(1999, Calendar.JANUARY,9), new Double(61) },
+            { createDate(1999, Calendar.JANUARY, 9), new Double(62) },
+            { createDate(1999, Calendar.JANUARY, 9), new Double(55) },
+            { createDate(1999, Calendar.JANUARY, 9), new Double(57) },
+            { createDate(1999, Calendar.JANUARY, 9), new Double(61) },
 
-            { createDate(1999, Calendar.JANUARY,10), new Double(65) },
-            { createDate(1999, Calendar.JANUARY,10), new Double(56) },
-            { createDate(1999, Calendar.JANUARY,10), new Double(62) },
-            { createDate(1999, Calendar.JANUARY,10), new Double(59) },
+            { createDate(1999, Calendar.JANUARY, 10), new Double(65) },
+            { createDate(1999, Calendar.JANUARY, 10), new Double(56) },
+            { createDate(1999, Calendar.JANUARY, 10), new Double(62) },
+            { createDate(1999, Calendar.JANUARY, 10), new Double(59) },
 
-            { createDate(1999, Calendar.JANUARY,11), new Double(55) },
-            { createDate(1999, Calendar.JANUARY,11), new Double(43) },
-            { createDate(1999, Calendar.JANUARY,11), new Double(45) },
-            { createDate(1999, Calendar.JANUARY,11), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 11), new Double(55) },
+            { createDate(1999, Calendar.JANUARY, 11), new Double(43) },
+            { createDate(1999, Calendar.JANUARY, 11), new Double(45) },
+            { createDate(1999, Calendar.JANUARY, 11), new Double(47) },
 
-            { createDate(1999, Calendar.JANUARY,12), new Double(54) },
-            { createDate(1999, Calendar.JANUARY,12), new Double(33) },
-            { createDate(1999, Calendar.JANUARY,12), new Double(40) },
-            { createDate(1999, Calendar.JANUARY,12), new Double(51) },
+            { createDate(1999, Calendar.JANUARY, 12), new Double(54) },
+            { createDate(1999, Calendar.JANUARY, 12), new Double(33) },
+            { createDate(1999, Calendar.JANUARY, 12), new Double(40) },
+            { createDate(1999, Calendar.JANUARY, 12), new Double(51) },
 
-            { createDate(1999, Calendar.JANUARY,13), new Double(58) },
-            { createDate(1999, Calendar.JANUARY,13), new Double(42) },
-            { createDate(1999, Calendar.JANUARY,13), new Double(44) },
-            { createDate(1999, Calendar.JANUARY,13), new Double(57) },
+            { createDate(1999, Calendar.JANUARY, 13), new Double(58) },
+            { createDate(1999, Calendar.JANUARY, 13), new Double(42) },
+            { createDate(1999, Calendar.JANUARY, 13), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 13), new Double(57) },
 
-            { createDate(1999, Calendar.JANUARY,14), new Double(54) },
-            { createDate(1999, Calendar.JANUARY,14), new Double(38) },
-            { createDate(1999, Calendar.JANUARY,14), new Double(43) },
-            { createDate(1999, Calendar.JANUARY,14), new Double(52) },
+            { createDate(1999, Calendar.JANUARY, 14), new Double(54) },
+            { createDate(1999, Calendar.JANUARY, 14), new Double(38) },
+            { createDate(1999, Calendar.JANUARY, 14), new Double(43) },
+            { createDate(1999, Calendar.JANUARY, 14), new Double(52) },
 
-            { createDate(1999, Calendar.JANUARY,15), new Double(48) },
-            { createDate(1999, Calendar.JANUARY,15), new Double(41) },
-            { createDate(1999, Calendar.JANUARY,15), new Double(44) },
-            { createDate(1999, Calendar.JANUARY,15), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 15), new Double(48) },
+            { createDate(1999, Calendar.JANUARY, 15), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 15), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 15), new Double(41) },
 
-            { createDate(1999, Calendar.JANUARY,17), new Double(60) },
-            { createDate(1999, Calendar.JANUARY,17), new Double(30) },
-            { createDate(1999, Calendar.JANUARY,17), new Double(34) },
-            { createDate(1999, Calendar.JANUARY,17), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 17), new Double(60) },
+            { createDate(1999, Calendar.JANUARY, 17), new Double(30) },
+            { createDate(1999, Calendar.JANUARY, 17), new Double(34) },
+            { createDate(1999, Calendar.JANUARY, 17), new Double(44) },
 
-            { createDate(1999, Calendar.JANUARY,18), new Double(58) },
-            { createDate(1999, Calendar.JANUARY,18), new Double(44) },
-            { createDate(1999, Calendar.JANUARY,18), new Double(54) },
-            { createDate(1999, Calendar.JANUARY,18), new Double(56) },
+            { createDate(1999, Calendar.JANUARY, 18), new Double(58) },
+            { createDate(1999, Calendar.JANUARY, 18), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 18), new Double(54) },
+            { createDate(1999, Calendar.JANUARY, 18), new Double(56) },
 
-            { createDate(1999, Calendar.JANUARY,19), new Double(54) },
-            { createDate(1999, Calendar.JANUARY,19), new Double(32) },
-            { createDate(1999, Calendar.JANUARY,19), new Double(42) },
-            { createDate(1999, Calendar.JANUARY,19), new Double(53) },
+            { createDate(1999, Calendar.JANUARY, 19), new Double(54) },
+            { createDate(1999, Calendar.JANUARY, 19), new Double(32) },
+            { createDate(1999, Calendar.JANUARY, 19), new Double(42) },
+            { createDate(1999, Calendar.JANUARY, 19), new Double(53) },
 
-            { createDate(1999, Calendar.JANUARY,20), new Double(53) },
-            { createDate(1999, Calendar.JANUARY,20), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,20), new Double(50) },
-            { createDate(1999, Calendar.JANUARY,20), new Double(49) },
+            { createDate(1999, Calendar.JANUARY, 20), new Double(53) },
+            { createDate(1999, Calendar.JANUARY, 20), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 20), new Double(50) },
+            { createDate(1999, Calendar.JANUARY, 20), new Double(49) },
 
-            { createDate(1999, Calendar.JANUARY,21), new Double(47) },
-            { createDate(1999, Calendar.JANUARY,21), new Double(38) },
-            { createDate(1999, Calendar.JANUARY,21), new Double(41) },
-            { createDate(1999, Calendar.JANUARY,21), new Double(40) },
+            { createDate(1999, Calendar.JANUARY, 21), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 21), new Double(38) },
+            { createDate(1999, Calendar.JANUARY, 21), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 21), new Double(40) },
 
-            { createDate(1999, Calendar.JANUARY,22), new Double(55) },
-            { createDate(1999, Calendar.JANUARY,22), new Double(37) },
-            { createDate(1999, Calendar.JANUARY,22), new Double(43) },
-            { createDate(1999, Calendar.JANUARY,22), new Double(45) },
+            { createDate(1999, Calendar.JANUARY, 22), new Double(55) },
+            { createDate(1999, Calendar.JANUARY, 22), new Double(37) },
+            { createDate(1999, Calendar.JANUARY, 22), new Double(43) },
+            { createDate(1999, Calendar.JANUARY, 22), new Double(45) },
 
-            { createDate(1999, Calendar.JANUARY,23), new Double(54) },
-            { createDate(1999, Calendar.JANUARY,23), new Double(42) },
-            { createDate(1999, Calendar.JANUARY,23), new Double(50) },
-            { createDate(1999, Calendar.JANUARY,23), new Double(42) },
+            { createDate(1999, Calendar.JANUARY, 23), new Double(54) },
+            { createDate(1999, Calendar.JANUARY, 23), new Double(42) },
+            { createDate(1999, Calendar.JANUARY, 23), new Double(50) },
+            { createDate(1999, Calendar.JANUARY, 23), new Double(42) },
 
-            { createDate(1999, Calendar.JANUARY,24), new Double(48) },
-            { createDate(1999, Calendar.JANUARY,24), new Double(37) },
-            { createDate(1999, Calendar.JANUARY,24), new Double(37) },
-            { createDate(1999, Calendar.JANUARY,24), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 24), new Double(48) },
+            { createDate(1999, Calendar.JANUARY, 24), new Double(37) },
+            { createDate(1999, Calendar.JANUARY, 24), new Double(37) },
+            { createDate(1999, Calendar.JANUARY, 24), new Double(47) },
 
-            { createDate(1999, Calendar.JANUARY,25), new Double(58) },
-            { createDate(1999, Calendar.JANUARY,25), new Double(33) },
-            { createDate(1999, Calendar.JANUARY,25), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,25), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 25), new Double(58) },
+            { createDate(1999, Calendar.JANUARY, 25), new Double(33) },
+            { createDate(1999, Calendar.JANUARY, 25), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 25), new Double(41) },
 
-            { createDate(1999, Calendar.JANUARY,26), new Double(47) },
-            { createDate(1999, Calendar.JANUARY,26), new Double(31) },
-            { createDate(1999, Calendar.JANUARY,26), new Double(36) },
-            { createDate(1999, Calendar.JANUARY,26), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 26), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 26), new Double(31) },
+            { createDate(1999, Calendar.JANUARY, 26), new Double(36) },
+            { createDate(1999, Calendar.JANUARY, 26), new Double(41) },
 
-            { createDate(1999, Calendar.JANUARY,27), new Double(58) },
-            { createDate(1999, Calendar.JANUARY,27), new Double(44) },
-            { createDate(1999, Calendar.JANUARY,27), new Double(49) },
-            { createDate(1999, Calendar.JANUARY,27), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 27), new Double(58) },
+            { createDate(1999, Calendar.JANUARY, 27), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 27), new Double(49) },
+            { createDate(1999, Calendar.JANUARY, 27), new Double(44) },
 
-            { createDate(1999, Calendar.JANUARY,28), new Double(46) },
-            { createDate(1999, Calendar.JANUARY,28), new Double(41) },
-            { createDate(1999, Calendar.JANUARY,28), new Double(43) },
-            { createDate(1999, Calendar.JANUARY,28), new Double(44) },
+            { createDate(1999, Calendar.JANUARY, 28), new Double(46) },
+            { createDate(1999, Calendar.JANUARY, 28), new Double(41) },
+            { createDate(1999, Calendar.JANUARY, 28), new Double(43) },
+            { createDate(1999, Calendar.JANUARY, 28), new Double(44) },
 
-            { createDate(1999, Calendar.JANUARY,29), new Double(56) },
-            { createDate(1999, Calendar.JANUARY,29), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,29), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,29), new Double(51) },
+            { createDate(1999, Calendar.JANUARY, 29), new Double(56) },
+            { createDate(1999, Calendar.JANUARY, 29), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 29), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 29), new Double(51) },
 
-            { createDate(1999, Calendar.JANUARY,30), new Double(56) },
-            { createDate(1999, Calendar.JANUARY,30), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,30), new Double(47) },
-            { createDate(1999, Calendar.JANUARY,30), new Double(49) },
+            { createDate(1999, Calendar.JANUARY, 30), new Double(56) },
+            { createDate(1999, Calendar.JANUARY, 30), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 30), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 30), new Double(49) },
 
-            { createDate(1999, Calendar.JANUARY,31), new Double(53) },
-            { createDate(1999, Calendar.JANUARY,31), new Double(39) },
-            { createDate(1999, Calendar.JANUARY,31), new Double(52) },
-            { createDate(1999, Calendar.JANUARY,31), new Double(47) },
+            { createDate(1999, Calendar.JANUARY, 31), new Double(53) },
+            { createDate(1999, Calendar.JANUARY, 31), new Double(39) },
+            { createDate(1999, Calendar.JANUARY, 31), new Double(52) },
+            { createDate(1999, Calendar.JANUARY, 31), new Double(47) },
 
-            { createDate(1999, Calendar.FEBRUARY,1), new Double(51) },
-            { createDate(1999, Calendar.FEBRUARY,1), new Double(30) },
-            { createDate(1999, Calendar.FEBRUARY,1), new Double(45) },
-            { createDate(1999, Calendar.FEBRUARY,1), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 1), new Double(51) },
+            { createDate(1999, Calendar.FEBRUARY, 1), new Double(30) },
+            { createDate(1999, Calendar.FEBRUARY, 1), new Double(45) },
+            { createDate(1999, Calendar.FEBRUARY, 1), new Double(47) },
 
-            { createDate(1999, Calendar.FEBRUARY,2), new Double(47) },
-            { createDate(1999, Calendar.FEBRUARY,2), new Double(30) },
-            { createDate(1999, Calendar.FEBRUARY,2), new Double(34) },
-            { createDate(1999, Calendar.FEBRUARY,2), new Double(46) },
+            { createDate(1999, Calendar.FEBRUARY, 2), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 2), new Double(30) },
+            { createDate(1999, Calendar.FEBRUARY, 2), new Double(34) },
+            { createDate(1999, Calendar.FEBRUARY, 2), new Double(46) },
 
-            { createDate(1999, Calendar.FEBRUARY,3), new Double(57) },
-            { createDate(1999, Calendar.FEBRUARY,3), new Double(37) },
-            { createDate(1999, Calendar.FEBRUARY,3), new Double(44) },
-            { createDate(1999, Calendar.FEBRUARY,3), new Double(56) },
+            { createDate(1999, Calendar.FEBRUARY, 3), new Double(57) },
+            { createDate(1999, Calendar.FEBRUARY, 3), new Double(37) },
+            { createDate(1999, Calendar.FEBRUARY, 3), new Double(44) },
+            { createDate(1999, Calendar.FEBRUARY, 3), new Double(56) },
 
-            { createDate(1999, Calendar.FEBRUARY,4), new Double(49) },
-            { createDate(1999, Calendar.FEBRUARY,4), new Double(40) },
-            { createDate(1999, Calendar.FEBRUARY,4), new Double(47) },
-            { createDate(1999, Calendar.FEBRUARY,4), new Double(44) },
+            { createDate(1999, Calendar.FEBRUARY, 4), new Double(49) },
+            { createDate(1999, Calendar.FEBRUARY, 4), new Double(40) },
+            { createDate(1999, Calendar.FEBRUARY, 4), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 4), new Double(44) },
 
-            { createDate(1999, Calendar.FEBRUARY,5), new Double(46) },
-            { createDate(1999, Calendar.FEBRUARY,5), new Double(38) },
-            { createDate(1999, Calendar.FEBRUARY,5), new Double(43) },
-            { createDate(1999, Calendar.FEBRUARY,5), new Double(40) },
+            { createDate(1999, Calendar.FEBRUARY, 5), new Double(46) },
+            { createDate(1999, Calendar.FEBRUARY, 5), new Double(38) },
+            { createDate(1999, Calendar.FEBRUARY, 5), new Double(43) },
+            { createDate(1999, Calendar.FEBRUARY, 5), new Double(40) },
 
-            { createDate(1999, Calendar.FEBRUARY,6), new Double(55) },
-            { createDate(1999, Calendar.FEBRUARY,6), new Double(38) },
-            { createDate(1999, Calendar.FEBRUARY,6), new Double(39) },
-            { createDate(1999, Calendar.FEBRUARY,6), new Double(53) },
+            { createDate(1999, Calendar.FEBRUARY, 6), new Double(55) },
+            { createDate(1999, Calendar.FEBRUARY, 6), new Double(38) },
+            { createDate(1999, Calendar.FEBRUARY, 6), new Double(39) },
+            { createDate(1999, Calendar.FEBRUARY, 6), new Double(53) },
 
-            { createDate(1999, Calendar.FEBRUARY,7), new Double(50) },
-            { createDate(1999, Calendar.FEBRUARY,7), new Double(33) },
-            { createDate(1999, Calendar.FEBRUARY,7), new Double(37) },
-            { createDate(1999, Calendar.FEBRUARY,7), new Double(37) },
+            { createDate(1999, Calendar.FEBRUARY, 7), new Double(50) },
+            { createDate(1999, Calendar.FEBRUARY, 7), new Double(33) },
+            { createDate(1999, Calendar.FEBRUARY, 7), new Double(37) },
+            { createDate(1999, Calendar.FEBRUARY, 7), new Double(37) },
 
-            { createDate(1999, Calendar.FEBRUARY,8), new Double(59) },
-            { createDate(1999, Calendar.FEBRUARY,8), new Double(34) },
-            { createDate(1999, Calendar.FEBRUARY,8), new Double(57) },
-            { createDate(1999, Calendar.FEBRUARY,8), new Double(43) },
+            { createDate(1999, Calendar.FEBRUARY, 8), new Double(59) },
+            { createDate(1999, Calendar.FEBRUARY, 8), new Double(34) },
+            { createDate(1999, Calendar.FEBRUARY, 8), new Double(57) },
+            { createDate(1999, Calendar.FEBRUARY, 8), new Double(43) },
 
-            { createDate(1999, Calendar.FEBRUARY,9), new Double(48) },
-            { createDate(1999, Calendar.FEBRUARY,9), new Double(39) },
-            { createDate(1999, Calendar.FEBRUARY,9), new Double(46) },
-            { createDate(1999, Calendar.FEBRUARY,9), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 9), new Double(48) },
+            { createDate(1999, Calendar.FEBRUARY, 9), new Double(39) },
+            { createDate(1999, Calendar.FEBRUARY, 9), new Double(46) },
+            { createDate(1999, Calendar.FEBRUARY, 9), new Double(47) },
 
-            { createDate(1999, Calendar.FEBRUARY,10), new Double(55) },
-            { createDate(1999, Calendar.FEBRUARY,10), new Double(30) },
-            { createDate(1999, Calendar.FEBRUARY,10), new Double(37) },
-            { createDate(1999, Calendar.FEBRUARY,10), new Double(30) },
+            { createDate(1999, Calendar.FEBRUARY, 10), new Double(55) },
+            { createDate(1999, Calendar.FEBRUARY, 10), new Double(30) },
+            { createDate(1999, Calendar.FEBRUARY, 10), new Double(37) },
+            { createDate(1999, Calendar.FEBRUARY, 10), new Double(30) },
 
-            { createDate(1999, Calendar.FEBRUARY,11), new Double(60) },
-            { createDate(1999, Calendar.FEBRUARY,11), new Double(32) },
-            { createDate(1999, Calendar.FEBRUARY,11), new Double(56) },
-            { createDate(1999, Calendar.FEBRUARY,11), new Double(36) },
+            { createDate(1999, Calendar.FEBRUARY, 11), new Double(60) },
+            { createDate(1999, Calendar.FEBRUARY, 11), new Double(32) },
+            { createDate(1999, Calendar.FEBRUARY, 11), new Double(56) },
+            { createDate(1999, Calendar.FEBRUARY, 11), new Double(36) },
 
-            { createDate(1999, Calendar.FEBRUARY,12), new Double(56) },
-            { createDate(1999, Calendar.FEBRUARY,12), new Double(42) },
-            { createDate(1999, Calendar.FEBRUARY,12), new Double(53) },
-            { createDate(1999, Calendar.FEBRUARY,12), new Double(54) },
+            { createDate(1999, Calendar.FEBRUARY, 12), new Double(56) },
+            { createDate(1999, Calendar.FEBRUARY, 12), new Double(42) },
+            { createDate(1999, Calendar.FEBRUARY, 12), new Double(53) },
+            { createDate(1999, Calendar.FEBRUARY, 12), new Double(54) },
 
-            { createDate(1999, Calendar.FEBRUARY,13), new Double(49) },
-            { createDate(1999, Calendar.FEBRUARY,13), new Double(42) },
-            { createDate(1999, Calendar.FEBRUARY,13), new Double(45) },
-            { createDate(1999, Calendar.FEBRUARY,13), new Double(42) },
+            { createDate(1999, Calendar.FEBRUARY, 13), new Double(49) },
+            { createDate(1999, Calendar.FEBRUARY, 13), new Double(42) },
+            { createDate(1999, Calendar.FEBRUARY, 13), new Double(45) },
+            { createDate(1999, Calendar.FEBRUARY, 13), new Double(42) },
 
-            { createDate(1999, Calendar.FEBRUARY,14), new Double(55) },
-            { createDate(1999, Calendar.FEBRUARY,14), new Double(42) },
-            { createDate(1999, Calendar.FEBRUARY,14), new Double(47) },
-            { createDate(1999, Calendar.FEBRUARY,14), new Double(54) },
+            { createDate(1999, Calendar.FEBRUARY, 14), new Double(55) },
+            { createDate(1999, Calendar.FEBRUARY, 14), new Double(42) },
+            { createDate(1999, Calendar.FEBRUARY, 14), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 14), new Double(54) },
 
-            { createDate(1999, Calendar.FEBRUARY,15), new Double(49) },
-            { createDate(1999, Calendar.FEBRUARY,15), new Double(35) },
-            { createDate(1999, Calendar.FEBRUARY,15), new Double(38) },
-            { createDate(1999, Calendar.FEBRUARY,15), new Double(35) },
+            { createDate(1999, Calendar.FEBRUARY, 15), new Double(49) },
+            { createDate(1999, Calendar.FEBRUARY, 15), new Double(35) },
+            { createDate(1999, Calendar.FEBRUARY, 15), new Double(38) },
+            { createDate(1999, Calendar.FEBRUARY, 15), new Double(35) },
 
-            { createDate(1999, Calendar.FEBRUARY,16), new Double(47) },
-            { createDate(1999, Calendar.FEBRUARY,16), new Double(38) },
-            { createDate(1999, Calendar.FEBRUARY,16), new Double(43) },
-            { createDate(1999, Calendar.FEBRUARY,16), new Double(42) },
+            { createDate(1999, Calendar.FEBRUARY, 16), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 16), new Double(38) },
+            { createDate(1999, Calendar.FEBRUARY, 16), new Double(43) },
+            { createDate(1999, Calendar.FEBRUARY, 16), new Double(42) },
 
-            { createDate(1999, Calendar.FEBRUARY,17), new Double(53) },
-            { createDate(1999, Calendar.FEBRUARY,17), new Double(42) },
-            { createDate(1999, Calendar.FEBRUARY,17), new Double(47) },
-            { createDate(1999, Calendar.FEBRUARY,17), new Double(48) },
+            { createDate(1999, Calendar.FEBRUARY, 17), new Double(53) },
+            { createDate(1999, Calendar.FEBRUARY, 17), new Double(42) },
+            { createDate(1999, Calendar.FEBRUARY, 17), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 17), new Double(48) },
 
-            { createDate(1999, Calendar.FEBRUARY,18), new Double(47) },
-            { createDate(1999, Calendar.FEBRUARY,18), new Double(44) },
-            { createDate(1999, Calendar.FEBRUARY,18), new Double(46) },
-            { createDate(1999, Calendar.FEBRUARY,18), new Double(44) },
+            { createDate(1999, Calendar.FEBRUARY, 18), new Double(47) },
+            { createDate(1999, Calendar.FEBRUARY, 18), new Double(44) },
+            { createDate(1999, Calendar.FEBRUARY, 18), new Double(46) },
+            { createDate(1999, Calendar.FEBRUARY, 18), new Double(44) },
 
-            { createDate(1999, Calendar.FEBRUARY,19), new Double(46) },
-            { createDate(1999, Calendar.FEBRUARY,19), new Double(40) },
-            { createDate(1999, Calendar.FEBRUARY,19), new Double(43) },
-            { createDate(1999, Calendar.FEBRUARY,19), new Double(44) },
+            { createDate(1999, Calendar.FEBRUARY, 19), new Double(46) },
+            { createDate(1999, Calendar.FEBRUARY, 19), new Double(40) },
+            { createDate(1999, Calendar.FEBRUARY, 19), new Double(43) },
+            { createDate(1999, Calendar.FEBRUARY, 19), new Double(44) },
 
-            { createDate(1999, Calendar.FEBRUARY,20), new Double(48) },
-            { createDate(1999, Calendar.FEBRUARY,20), new Double(41) },
-            { createDate(1999, Calendar.FEBRUARY,20), new Double(46) },
-            { createDate(1999, Calendar.FEBRUARY,20), new Double(41) } }
+            { createDate(1999, Calendar.FEBRUARY, 20), new Double(48) },
+            { createDate(1999, Calendar.FEBRUARY, 20), new Double(41) },
+            { createDate(1999, Calendar.FEBRUARY, 20), new Double(46) },
+            { createDate(1999, Calendar.FEBRUARY, 20), new Double(41) } }
         };
 
         return null;  // broken, needs fixing...
@@ -391,8 +433,15 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     }
 
-
-
+    /**
+     * Returns a chart.
+     *
+     * @param type  the chart type.
+     * @param initGradColor  the first color for the gradient.
+     * @param finalGradColor  the final color for the gradient.
+     *
+     * @return the chart.
+     */
     protected JFreeChart createChart(int type, int initGradColor, int finalGradColor) {
 
         CategoryDataset categoryData = createCategoryDataset();
@@ -406,9 +455,10 @@ public class JFreeChartServletDemo extends HttpServlet {
                                                             "Categories",
                                                             "Values",
                                                             categoryData, true);
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 CategoryPlot plot = chart.getCategoryPlot();
-                HorizontalCategoryAxis axis = (HorizontalCategoryAxis)plot.getDomainAxis();
+                HorizontalCategoryAxis axis = (HorizontalCategoryAxis) plot.getDomainAxis();
                 axis.setVerticalCategoryLabels(true);
                 return chart;
 
@@ -417,7 +467,8 @@ public class JFreeChartServletDemo extends HttpServlet {
                                                               "Categories",
                                                               "Values",
                                                               categoryData, true);
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 return chart;
 
             case 3:
@@ -425,16 +476,18 @@ public class JFreeChartServletDemo extends HttpServlet {
                                                      "Categories",
                                                      "Values",
                                                      categoryData, true);
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 return chart;
 
             case 4:
                 XYDataset xyData = new SampleXYDataset();
-                chart = ChartFactory.createXYChart("XY Plot",
-                                                   "X",
-                                                   "Y",
-                                                   xyData, true);
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart = ChartFactory.createLineXYChart("XY Plot",
+                                                       "X",
+                                                       "Y",
+                                                       xyData, true);
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 Plot xyPlot = chart.getPlot();
                 return chart;
 
@@ -444,10 +497,11 @@ public class JFreeChartServletDemo extends HttpServlet {
                                                            "Date",
                                                            "USD per GBP",
                                                            xyData1, true);
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
 
                 XYPlot plot5 = chart.getXYPlot();
-                VerticalNumberAxis axis5 = (VerticalNumberAxis)plot5.getRangeAxis();
+                VerticalNumberAxis axis5 = (VerticalNumberAxis) plot5.getRangeAxis();
                 axis5.setAutoRangeIncludesZero(false);
                 plot5.setDataset(xyData1);
                 return chart;
@@ -456,7 +510,8 @@ public class JFreeChartServletDemo extends HttpServlet {
                 categoryData = createCategoryDataset();
                 PieDataset pieData = DatasetUtilities.createPieDataset(categoryData, 0);
                 chart = ChartFactory.createPieChart("Pie Chart", pieData, true);
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 return chart;
 
             case 7:
@@ -466,7 +521,8 @@ public class JFreeChartServletDemo extends HttpServlet {
                                                         "Price",
                                                         data7, true);
 
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 XYPlot plot7 = chart.getXYPlot();
                 Axis axis7 = plot7.getRangeAxis();
                 axis7.setLabel("Price in ($) per share");
@@ -483,9 +539,10 @@ public class JFreeChartServletDemo extends HttpServlet {
                                                            xyData2, true);
                 //title = (StandardTitle)chart.getTitle();
                 //title.setTitle("30 day moving average of GBP");
-                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor( initGradColor ), 1000, 0, getColor( finalGradColor )));
+                chart.setBackgroundPaint(new GradientPaint(0, 0, getColor(initGradColor),
+                                                           1000, 0, getColor(finalGradColor)));
                 XYPlot plot8 = chart.getXYPlot();
-                NumberAxis axis8 = (NumberAxis)plot8.getRangeAxis();
+                NumberAxis axis8 = (NumberAxis) plot8.getRangeAxis();
                 axis8.setLabel("USD per GBP");
                 axis8.setAutoRangeIncludesZero(false);
                 return chart;
@@ -498,7 +555,7 @@ public class JFreeChartServletDemo extends HttpServlet {
                 chart = ChartFactory.createTimeSeriesChart("Linear Fit", "Date", "Value",
                                                            data9, true);
                 XYPlot plot9 = chart.getXYPlot();
-                NumberAxis axis9 = (NumberAxis)plot9.getRangeAxis();
+                NumberAxis axis9 = (NumberAxis) plot9.getRangeAxis();
                 axis9.setLabel("USD per GBP");
                 axis9.setAutoRangeIncludesZero(false);
 
@@ -517,11 +574,15 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     }
 
-
-    ServletContext context = null;
+    /** Servlet context. */
+    private ServletContext context = null;
 
     /**
      * Override init() to set up data used by invocations of this servlet.
+     *
+     * @param config  configuration info.
+     *
+     * @throws ServletException if there is a problem.
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -532,41 +593,47 @@ public class JFreeChartServletDemo extends HttpServlet {
 
     /**
      * Basic servlet method, answers requests fromt the browser.
+     *
      * @param request HTTPServletRequest
      * @param response HTTPServletResponse
+     *
+     * @throws ServletException if there is a servlet problem.
+     * @throws IOException if there is an I/O problem.
      */
     public void doGet(HttpServletRequest request,
-                     HttpServletResponse response) throws ServletException, IOException {
+                      HttpServletResponse response) throws ServletException, IOException {
 
         response.setContentType("image/jpeg");
         int type = 1;
         try {
-            type = Integer.parseInt( request.getParameter( "type" ) );
+            type = Integer.parseInt(request.getParameter("type"));
         }
         catch (Exception e) {
+            // suppress
         }
 
-        int  initGradColor= 0;
-        int  finalGradColor= 0;
+        int initGradColor = 0;
+        int finalGradColor = 0;
         try {
-            initGradColor = Integer.parseInt( request.getParameter( "initGradColor" ) );
-            finalGradColor = Integer.parseInt( request.getParameter( "finalGradColor" ) );
+            initGradColor = Integer.parseInt(request.getParameter("initGradColor"));
+            finalGradColor = Integer.parseInt(request.getParameter("finalGradColor"));
         }
         catch (Exception e) {
+            // suppress
         }
 
-        JFreeChart chart = createChart( type, initGradColor, finalGradColor );
+        JFreeChart chart = createChart(type, initGradColor, finalGradColor);
 
         int width = 400;
         int height = 300;
         try {
-            width = Integer.parseInt( request.getParameter( "width" ) );
-            height = Integer.parseInt( request.getParameter( "height" ) );
+            width = Integer.parseInt(request.getParameter("width"));
+            height = Integer.parseInt(request.getParameter("height"));
         }
         catch (Exception e) {
+            // suppress
         }
 
-        //BufferedImage img = draw( chart, width, height );
         OutputStream out = response.getOutputStream();
         ChartUtilities.writeChartAsJPEG(out, chart, width, height);
         out.close();

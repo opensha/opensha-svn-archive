@@ -35,25 +35,27 @@
  * 18-Sep-2001 : Updated header (DG);
  * 30-Nov-2001 : Now extends RuntimeException rather than Exception, as suggested by Joao Guilherme
  *               Del Valle (DG);
- *
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  */
 
 package com.jrefinery.chart;
 
 /**
- * An exception that is generated when assigning an axis to a plot *if* the axis is not compatible
- * with the plot type.  For example, a CategoryAxis is not compatible with an XYPlot.
- * <P>
- * Note:  there is more work to be done on these exceptions.
+ * An exception that is generated when assigning an axis to a plot *if* the
+ * axis is not compatible with the plot type.  For example, a CategoryAxis is
+ * not compatible with an XYPlot.
+ *
+ * @author DG
  */
 public class AxisNotCompatibleException extends RuntimeException {
 
     /**
      * Constructs a new exception.
-     * @param msg A message describing the exception.
+     *
+     * @param message  a message describing the exception.
      */
     public AxisNotCompatibleException(String message) {
-	super(message);
+        super(message);
     }
 
 }

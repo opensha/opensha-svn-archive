@@ -32,34 +32,61 @@
  * Changes
  * -------
  * 07-Feb-2002 : Version 1 (DG);
+ * 18-Sep-2002 : Added trim(..) method, completed Javadocs and fixed Checkstyle issues (DG);
  *
  */
 
 package com.jrefinery.chart;
 
+import java.awt.geom.Rectangle2D;
+
 /**
- * Represents an amount of blank space inside (or sometimes outside) a rectangle.  This class is
- * similar in function to the Insets class, but allows for the space to be specified in relative
- * terms as well as absolute terms.
+ * Represents an amount of blank space inside (or sometimes outside) a
+ * rectangle.  This class is similar in function to the Insets class, but
+ * allows for the space to be specified in relative terms as well as absolute
+ * terms.
  * <P>
  * Immutable.
+ *
+ * @author DG
  */
 public class Spacer implements Cloneable {
 
+    /** A constant for 'relative' spacing. */
     public static final int RELATIVE = 0;
 
+    /** A constant for 'absolute' spacing. */
     public static final int ABSOLUTE = 1;
 
-    protected int type;
+    /** The spacing type (relative or absolute). */
+    private int type;
 
-    protected double left;
+    /** The space on the left. */
+    private double left;
 
-    protected double top;
+    /** The space on the right. */
+    private double right;
 
-    protected double right;
+    /** The space at the top. */
+    private double top;
 
-    protected double bottom;
+    /** The space at the bottom. */
+    private double bottom;
 
+    /**
+     * Creates a new Spacer object.
+     * <p>
+     * The space can be specified in relative or absolute terms (using the constants
+     * <code>RELATIVE</code> and <code>ABSOLUTE</code> for the <code>type</code> argument.
+     * For relative spacing, the margins are specified as percentages (of the overall height
+     * or width).  For absolute spacing, the margins are specified in points (1/72 inch).
+     *
+     * @param type  the type of spacing (relative or absolute).
+     * @param left  the left margin.
+     * @param top  the top margin.
+     * @param right  the right margin.
+     * @param bottom  the bottom margin.
+     */
     public Spacer(int type, double left, double top, double right, double bottom) {
 
         this.type = type;
@@ -70,60 +97,96 @@ public class Spacer implements Cloneable {
 
     }
 
+    /**
+     * Returns the amount of space for the left hand side of a rectangular area.
+     * <p>
+     * The width argument is only used for calculating 'relative' spacing.
+     *
+     * @param width  the overall width of the rectangular area.
+     *
+     * @return  the space (in points).
+     */
     public double getLeftSpace(double width) {
 
         double result = 0.0;
 
-        if (type==ABSOLUTE) {
+        if (type == ABSOLUTE) {
             result = left;
         }
-        else if (type==RELATIVE) {
-            result = left*width;
+        else if (type == RELATIVE) {
+            result = left * width;
         }
 
         return result;
 
     }
 
+    /**
+     * Returns the amount of space for the right hand side of a rectangular area.
+     * <p>
+     * The width argument is only used for calculating 'relative' spacing.
+     *
+     * @param width  the overall width of the rectangular area.
+     *
+     * @return  the space (in points).
+     */
     public double getRightSpace(double width) {
 
         double result = 0.0;
 
-        if (type==ABSOLUTE) {
+        if (type == ABSOLUTE) {
             result = right;
         }
-        else if (type==RELATIVE) {
-            result = right*width;
+        else if (type == RELATIVE) {
+            result = right * width;
         }
 
         return result;
 
     }
 
+    /**
+     * Returns the amount of space for the top of a rectangular area.
+     * <p>
+     * The height argument is only used for calculating 'relative' spacing.
+     *
+     * @param height  the overall height of the rectangular area.
+     *
+     * @return  the space (in points).
+     */
     public double getTopSpace(double height) {
 
         double result = 0.0;
 
-        if (type==ABSOLUTE) {
+        if (type == ABSOLUTE) {
             result = top;
         }
-        else if (type==RELATIVE) {
-            result = top*height;
+        else if (type == RELATIVE) {
+            result = top * height;
         }
 
         return result;
 
     }
 
+    /**
+     * Returns the amount of space for the bottom of a rectangular area.
+     * <p>
+     * The height argument is only used for calculating 'relative' spacing.
+     *
+     * @param height  the overall height of the rectangular area.
+     *
+     * @return  the space (in points).
+     */
     public double getBottomSpace(double height) {
 
         double result = 0.0;
 
-        if (type==ABSOLUTE) {
+        if (type == ABSOLUTE) {
             result = bottom;
         }
-        else if (type==RELATIVE) {
-            result = bottom*height;
+        else if (type == RELATIVE) {
+            result = bottom * height;
         }
 
         return result;
@@ -132,16 +195,20 @@ public class Spacer implements Cloneable {
 
     /**
      * Returns the width after adding the left and right spacing amounts.
+     *
+     * @param width  the original width.
+     *
+     * @return the adjusted width.
      */
     public double getAdjustedWidth(double width) {
 
         double result = width;
 
-        if (type==ABSOLUTE) {
+        if (type == ABSOLUTE) {
             result = result + left + right;
         }
-        else if (type==RELATIVE) {
-            result = result + (left*width) + (right*width);
+        else if (type == RELATIVE) {
+            result = result + (left * width) + (right * width);
         }
 
         return result;
@@ -150,20 +217,41 @@ public class Spacer implements Cloneable {
 
     /**
      * Returns the height after adding the top and bottom spacing amounts.
+     *
+     * @param height  the original height.
+     *
+     * @return the adjusted height.
      */
     public double getAdjustedHeight(double height) {
 
         double result = height;
 
-        if (type==ABSOLUTE) {
+        if (type == ABSOLUTE) {
             result = result + top + bottom;
         }
-        else if (type==RELATIVE) {
-            result = result + (top*height) + (bottom*height);
+        else if (type == RELATIVE) {
+            result = result + (top * height) + (bottom * height);
         }
 
         return result;
 
+    }
+
+    /**
+     * Calculates the margins and trims them from the supplied area.
+     *
+     * @param area  the area to be trimmed.
+     */
+    public void trim(Rectangle2D area) {
+        double x = area.getX();
+        double y = area.getY();
+        double h = area.getHeight();
+        double w = area.getWidth();
+        double l = getLeftSpace(w);
+        double r = getRightSpace(w);
+        double t = getTopSpace(h);
+        double b = getBottomSpace(h);
+        area.setRect(x + l, y + t, w - l - r, h - t - b);
     }
 
 }

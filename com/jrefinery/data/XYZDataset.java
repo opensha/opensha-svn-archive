@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -37,15 +37,20 @@
 package com.jrefinery.data;
 
 /**
- * The interface through which JFreeChart obtains data in the form of (x, y, z) items - used for
- * XY and XYZ plots.
+ * The interface through which JFreeChart obtains data in the form of (x, y, z)
+ * items - used for XY and XYZ plots.
+ *
+ * @author DG
  */
 public interface XYZDataset extends XYDataset {
 
     /**
      * Returns the z-value for the specified series and item.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the z-value for the specified series and item.
      */
     public Number getZValue(int series, int item);
 

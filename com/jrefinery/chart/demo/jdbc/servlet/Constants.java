@@ -54,10 +54,10 @@ public interface Constants {
     public static final String ORGANISATION  = "Organisation";
     public static final String IMAGE_URL     = "ImageURL";
     public static final String DEBUG         = "DEBUG";
-    public static final String SHARED_VOYAGES      = "SHARED_VOYAGES" ;
-    public static final String SHARED_VOYAGES_TIME = "SHARED_VOYAGES_TIME" ;
-    public static final String SHARED_DB           = "SHARED_DB" ;
-    public static final String SHARED_DB_OPENER    = "SHARED_DB_OPENER" ;
+    public static final String SHARED_VOYAGES      = "SHARED_VOYAGES";
+    public static final String SHARED_VOYAGES_TIME = "SHARED_VOYAGES_TIME";
+    public static final String SHARED_DB           = "SHARED_DB";
+    public static final String SHARED_DB_OPENER    = "SHARED_DB_OPENER";
     public static final String REPLACE_SCHEMA      = "XXSCHEMA.";
 
     /**
@@ -70,18 +70,18 @@ public interface Constants {
       {"svg",  "image/svg" },
       {"pdf",  "application/pdf" },
       {"postscript", "application/postscript" }
-    } ;
+    };
 
     /**  Description of the Field */
-    public final static int RESPONSE_HTML = 0 ;
-    public final static int RESPONSE_JPEG = 1 ;
-    public final static int RESPONSE_PNG  = 2 ;
-    public final static int RESPONSE_SVG  = 3 ;
-    public final static int RESPONSE_PDF  = 4 ;
-    public final static int RESPONSE_PS   = 5 ;
+    public final static int RESPONSE_HTML = 0;
+    public final static int RESPONSE_JPEG = 1;
+    public final static int RESPONSE_PNG  = 2;
+    public final static int RESPONSE_SVG  = 3;
+    public final static int RESPONSE_PDF  = 4;
+    public final static int RESPONSE_PS   = 5;
 
     /// SQL Server Types
-    public final static int ORACLE = 0 ;
-    public final static int MYSQL  = 1 ;
+    public final static int ORACLE = 0;
+    public final static int MYSQL  = 1;
 
 }

@@ -168,7 +168,7 @@ public class DemoResources_pl extends ListResourceBundle {
 
         {"chart23.title",       "Kolumnowy dla jednej serii: "},
         {"chart23.description", "Wykres kolumnowy dla jednej serii danych. "
-                               +"Demonstruje przy okazji ¿ycie ramki w JFreeChartPanel."},
+                               +"Demonstruje przy okazji ¿ycie ramki w ChartPanel."},
 
         {"chart24.title",       "Wykres dynamiczy: "},
         {"chart24.description", "Dynamiczny (rysowany na bie¿±co) wykres do testowania mechanizmu zdarzeñ (event notification mechanism)."},

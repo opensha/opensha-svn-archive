@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -33,6 +33,10 @@
  * --------
  * 23-May-2002 : Version 1 (DG);
  * 12-Jun-2002 : Added accessor methods and Javadoc comments (DG);
+ * 26-Jun-2002 : Added getImageMapAreaTag() method (DG);
+ * 05-Aug-2002 : Added new constructor to populate URLText
+ *               Moved getImageMapAreaTag() to ChartEntity (superclass) (RA);
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,25 +46,42 @@ import java.awt.Shape;
 
 /**
  * A chart entity that represents one item within an XY plot.
+ *
+ * @author DG
  */
 public class XYItemEntity extends ChartEntity {
 
     /** The series. */
-    protected int series;
+    private int series;
 
     /** The item. */
-    protected int item;
+    private int item;
 
     /**
      * Creates a new entity.
      *
-     * @param area The area.
-     * @param toolTipText The tool tip text.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param area  the area.
+     * @param toolTipText  the tool tip text.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
      */
-    public XYItemEntity(Shape area, String tooltipText, int series, int item) {
-        super(area, tooltipText);
+    public XYItemEntity(Shape area, String toolTipText, int series, int item) {
+        super(area, toolTipText);
+        this.series = series;
+        this.item = item;
+    }
+
+    /**
+     * Creates a new entity.
+     *
+     * @param area  the area.
+     * @param toolTipText  the tool tip text.
+     * @param urlText  the URL text for HTML image maps.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     */
+    public XYItemEntity(Shape area, String toolTipText, String urlText, int series, int item) {
+        super(area, toolTipText, urlText);
         this.series = series;
         this.item = item;
     }
@@ -68,7 +89,7 @@ public class XYItemEntity extends ChartEntity {
     /**
      * Returns the series index.
      *
-     * @return The series index.
+     * @return the series index.
      */
     public int getSeries() {
         return this.series;
@@ -77,7 +98,7 @@ public class XYItemEntity extends ChartEntity {
     /**
      * Sets the series index.
      *
-     * @param series The series index (zero-based).
+     * @param series the series index (zero-based).
      */
     public void setSeries(int series) {
         this.series = series;
@@ -86,7 +107,7 @@ public class XYItemEntity extends ChartEntity {
     /**
      * Returns the item index.
      *
-     * @return The item index.
+     * @return the item index.
      */
     public int getItem() {
         return this.item;
@@ -95,7 +116,7 @@ public class XYItemEntity extends ChartEntity {
     /**
      * Sets the item index.
      *
-     * @param item The item index (zero-based).
+     * @param item the item index (zero-based).
      */
     public void setItem(int item) {
         this.item = item;

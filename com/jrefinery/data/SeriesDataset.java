@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -32,30 +32,37 @@
  * Changes
  * -------
  * 17-Nov-2001 : Version 1 (DG);
- *
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  */
 
 package com.jrefinery.data;
 
 /**
  * The interface for a dataset consisting of one or many series of data.
+ *
  * @see CategoryDataset
  * @see IntervalXYDataset
  * @see IntervalXYZDataset
  * @see XYDataset
  * @see XYZDataset
+ *
+ * @author DG
  */
 public interface SeriesDataset extends Dataset {
 
     /**
      * Returns the number of series in the dataset.
-     * @return The number of series in the dataset.
+     *
+     * @return the series count.
      */
     public int getSeriesCount();
 
     /**
      * Returns the name of a series.
-     * @param series The series (zero-based index).
+     *
+     * @param series  the series (zero-based index).
+     *
+     * @return the name of the series.
      */
     public String getSeriesName(int series);
 

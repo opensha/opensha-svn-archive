@@ -44,33 +44,40 @@
  *               the initialise method if it is required.  Added a new getToolTipGenerator()
  *               method.  Changed the return type for drawItem() to void (DG);
  * 24-May-2002 : Added ChartRenderingInfo the initialise method API (DG);
+ * 25-Jun-2002 : Removed redundant import (DG);
+ * 20-Aug-2002 : Added get/setURLGenerator methods to interface (DG);
+ * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeListener;
 import com.jrefinery.data.XYDataset;
 import com.jrefinery.chart.tooltips.XYToolTipGenerator;
+import com.jrefinery.chart.urls.XYURLGenerator;
 
 /**
  * Interface for rendering the visual representation of a single (x, y) item on an XYPlot.
+ *
+ * @author DG
  */
 public interface XYItemRenderer {
 
     /**
-     * Initialises the renderer.  This method will be called before the first item is rendered,
-     * giving the renderer an opportunity to initialise any state information it wants to
-     * maintain.  The renderer can do nothing if it chooses.
+     * Initialises the renderer.  This method will be called before the first
+     * item is rendered, giving the renderer an opportunity to initialise any
+     * state information it wants to maintain.  The renderer can do nothing if
+     * it chooses.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area inside the axes.
-     * @param plot The plot.
-     * @param data The data.
-     * @param info An optional info collection object to return data back to the caller.
+     * @param g2  the graphics device.
+     * @param dataArea  the area inside the axes.
+     * @param plot  the plot.
+     * @param data  the data.
+     * @param info  an optional info collection object to return data back
+     *              to the caller.
      */
     public void initialise(Graphics2D g2,
                            Rectangle2D dataArea,
@@ -81,47 +88,123 @@ public interface XYItemRenderer {
     /**
      * Returns the tool tip generator for the renderer (possibly null).
      *
-     * @return The tool tip generator.
+     * @return the tool tip generator.
      */
     public XYToolTipGenerator getToolTipGenerator();
 
     /**
      * Sets the tool tip generator for the renderer.
      *
-     * @param toolTipGenerator The tool tip generator.
+     * @param toolTipGenerator  the tool tip generator (null permitted).
      */
     public void setToolTipGenerator(XYToolTipGenerator toolTipGenerator);
 
     /**
-     * Called for each item to be plotted.
+     * Returns the URL generator for HTML image maps.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area within which the data is being rendered.
-     * @param drawInfo Collects drawing info.
-     * @param plot The plot (can be used to obtain standard color information etc).
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param data The dataset.
-     * @param series The series index.
-     * @param item The item index.
+     * @return the URL generator (possibly null).
      */
-    public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
-                         XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis,
-                         XYDataset data, int series, int item,
-                         CrosshairInfo crosshairInfo);
+    public XYURLGenerator getURLGenerator();
+
+    /**
+     * Sets the URL generator for HTML image maps.
+     *
+     * @param urlGenerator the URL generator (null permitted).
+     */
+    public void setURLGenerator(XYURLGenerator urlGenerator);
 
     /**
      * Adds a property change listener to the renderer.
      *
-     * @param listener The listener.
+     * @param listener  the listener.
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
 
     /**
      * Removes a property change listener from the renderer.
      *
-     * @param listener The listener.
+     * @param listener  the listener.
      */
     public void removePropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Called for each item to be plotted.
+     *
+     * @param g2  the graphics device.
+     * @param dataArea  the area within which the data is being rendered.
+     * @param info  collects drawing info.
+     * @param plot  the plot (can be used to obtain standard color information etc).
+     * @param domainAxis  the domain axis.
+     * @param rangeAxis  the range axis.
+     * @param data  the dataset.
+     * @param series  the series index.
+     * @param item  the item index.
+     * @param crosshairInfo  collects information about crosshairs.
+     */
+    public void drawItem(Graphics2D g2,
+                         Rectangle2D dataArea,
+                         ChartRenderingInfo info,
+                         XYPlot plot,
+                         ValueAxis domainAxis,
+                         ValueAxis rangeAxis,
+                         XYDataset data,
+                         int series,
+                         int item,
+                         CrosshairInfo crosshairInfo);
+
+    /**
+     * Returns a legend item for a series.
+     *
+     * @param series  the series (zero-based index).
+     *
+     * @return the legend item.
+     */
+    public LegendItem getLegendItem(int series);
+
+    /**
+     * Draws a vertical line on the chart to represent a 'range marker'.
+     *
+     * @param g2  the graphics device.
+     * @param plot  the plot.
+     * @param axis  the value axis.
+     * @param marker  the marker line.
+     * @param dataArea  the axis data area.
+     */
+    public void drawDomainMarker(Graphics2D g2,
+                                 XYPlot plot,
+                                 ValueAxis axis,
+                                 Marker marker,
+                                 Rectangle2D dataArea);
+
+    /**
+     * Draws a horizontal line across the chart to represent a 'range marker'.
+     *
+     * @param g2  the graphics device.
+     * @param plot  the plot.
+     * @param axis  the value axis.
+     * @param marker  the marker line.
+     * @param dataArea  the axis data area.
+     */
+    public void drawRangeMarker(Graphics2D g2,
+                                XYPlot plot,
+                                ValueAxis axis,
+                                Marker marker,
+                                Rectangle2D dataArea);
+
+    /**
+     * Returns the plot that this renderer has been assigned to.
+     *
+     * @return the plot.
+     */
+    public XYPlot getPlot();
+
+    /**
+     * Sets the plot that this renderer is assigned to.
+     * <P>
+     * This method will be called by the plot class...you do not need to call it yourself.
+     *
+     * @param plot  the plot.
+     */
+    public void setPlot(XYPlot plot);
 
 }

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -19,49 +19,57 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * --------------------
+ * ----------------
  * XisSymbolic.java
- * --------------------
+ * ----------------
  *
- * Original Author: Anthony Boulestreau;
- * Contributor(s):   -;
+ * Original Author:  Anthony Boulestreau;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes (from 21-Aug-2001)
  * --------------------------
  * 29-Mar-2002 : First version (AB);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.data;
 
 /**
- * Represent a data set where X is a symbolic values. Each symbolic value is linked with an Integer.
+ * Represent a data set where X is a symbolic values. Each symbolic value is
+ * linked with an Integer.
+ *
+ * @author AB
  */
 public interface XisSymbolic {
-	
-	/**
-	 * Returns the list of symbolic values.
-	 * 
-	 * @return array of symbolic value.
-	 */
-	public String[] getXSymbolicValues();
 
-	/**
-	 * Returns the symbolic value of the data set specified by <CODE>series</CODE> and <CODE>item</CODE> parameters.
-	 *
-	 * @param series value of the serie.
-	 * @param item value of the item.
-	 * @returns the symbolic value.
-	 */
-	public String getXSymbolicValue(int series, int item);
+    /**
+     * Returns the list of symbolic values.
+     *
+     * @return array of symbolic value.
+     */
+    public String[] getXSymbolicValues();
 
-	/**
-	 * Returns the symbolic value linked with the specified <CODE>Integer</CODE>.
-	 *
-	 * @param val value of the integer linked with the symbolic value.
-	 * @returns the symbolic value. 
-	 */
-	public String getXSymbolicValue(Integer val);
+    /**
+     * Returns the symbolic value of the data set specified by
+     * <CODE>series</CODE> and <CODE>item</CODE> parameters.
+     *
+     * @param series  value of the serie.
+     * @param item  value of the item.
+     *
+     * @return the symbolic value.
+     */
+    public String getXSymbolicValue(int series, int item);
+
+    /**
+     * Returns the symbolic value linked with the specified
+     * <CODE>Integer</CODE>.
+     *
+     * @param val  value of the integer linked with the symbolic value.
+     *
+     * @return the symbolic value.
+     */
+    public String getXSymbolicValue(Integer val);
 }

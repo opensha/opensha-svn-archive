@@ -26,6 +26,7 @@
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Andrzej Porebski;
+ *                   Jim Moore;
  *
  * $Id$
  *
@@ -35,6 +36,8 @@
  * 18-Sep-2001 : Updated header and fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Tidied up Javadoc comments (DG);
  * 06-Mar-2002 : Updated import statements (DG);
+ * 20-Jun-2002 : Added outlineKeyBoxes attribute suggested by Jim Moore (DG);
+ * 14-Oct-2002 : Changed listener storage structure (DG);
  *
  */
 
@@ -42,14 +45,17 @@ package com.jrefinery.chart;
 
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
+import javax.swing.event.EventListenerList;
 import com.jrefinery.chart.event.LegendChangeEvent;
 import com.jrefinery.chart.event.LegendChangeListener;
 
 /**
- * A chart legend shows the names and visual representations of the series that are plotted in a
- * chart.
+ * A chart legend shows the names and visual representations of the series that
+ * are plotted in a chart.
+ *
  * @see StandardLegend
+ *
+ * @author DG
  */
 public abstract class Legend {
 
@@ -72,21 +78,26 @@ public abstract class Legend {
     protected static final int HORIZONTAL = 1 << 0;
 
     /** The current location anchor of the legend. */
-    protected int _anchor = SOUTH;
+    private int anchor = SOUTH;
 
     /** A reference to the chart that the legend belongs to (used for access to the dataset). */
-    protected JFreeChart chart;
+    private JFreeChart chart;
 
     /** The amount of blank space around the legend. */
-    protected int outerGap;
+    private int outerGap;
+
+    /** A flag controlling whether or not outlines are drawn around key boxes.*/
+    private boolean outlineKeyBoxes;
 
     /** Storage for registered change listeners. */
-    protected List listeners;
+    private EventListenerList listenerList;
 
     /**
      * Static factory method that returns a concrete subclass of Legend.
      *
-     * @param chart The chart that the legend belongs to.
+     * @param chart  the chart that the legend belongs to.
+     *
+     * @return a StandardLegend.
      */
     public static Legend createInstance(JFreeChart chart) {
         return new StandardLegend(chart);
@@ -95,72 +106,118 @@ public abstract class Legend {
     /**
      * Default constructor: returns a new legend.
      *
-     * @param chart The chart that the legend belongs to.
-     * @param outerGap The blank space around the legend.
+     * @param chart  the chart that the legend belongs to.
+     * @param outerGap  the blank space around the legend.
      */
     public Legend(JFreeChart chart, int outerGap) {
         this.chart = chart;
         this.outerGap = outerGap;
-        this.listeners = new java.util.ArrayList();
+        this.listenerList = new EventListenerList();
     }
 
     /**
-     * Draws the legend on a Java 2D graphics device (such as the screen or a printer).
+     * Returns the chart that this legend belongs to.
      *
-     * @param g2 The graphics device.
-     * @param drawArea The area within which the legend should be drawn.
-     * @return The area remaining after the legend has drawn itself.
+     * @return the chart.
      */
-    public abstract Rectangle2D draw(Graphics2D g2, Rectangle2D nonTitleArea);
+    public JFreeChart getChart() {
+        return this.chart;
+    }
+
+    /**
+     * Returns the outer gap for the legend.
+     * <P>
+     * This is the amount of blank space around the outside of the legend.
+     *
+     * @return the gap.
+     */
+    public double getOuterGap() {
+        return this.outerGap;
+    }
+
+    /**
+     * Returns the flag that indicates whether or not outlines are drawn around key boxes.
+     *
+     * @return the flag.
+     */
+    public boolean getOutlineKeyBoxes() {
+        return this.outlineKeyBoxes;
+    }
+
+    /**
+     * Sets the flag that controls whether or not outlines are drawn around key boxes.
+     *
+     * @param flag The flag.
+     */
+    public void setOutlineKeyBoxes(boolean flag) {
+        this.outlineKeyBoxes = flag;
+        notifyListeners(new LegendChangeEvent(this));
+    }
+
+    /**
+     * Draws the legend on a Java 2D graphics device (such as the screen or a
+     * printer).
+     *
+     * @param g2  the graphics device.
+     * @param available  the area within which the legend (and plot) should be drawn.
+     *
+     * @return the area remaining after the legend has drawn itself.
+     */
+    public abstract Rectangle2D draw(Graphics2D g2, Rectangle2D available);
 
     /**
      * Registers an object for notification of changes to the legend.
      *
-     * @param listener The object that is being registered.
+     * @param listener  the object that is being registered.
      */
     public void addChangeListener(LegendChangeListener listener) {
-        listeners.add(listener);
+        this.listenerList.add(LegendChangeListener.class, listener);
     }
 
     /**
      * Deregisters an object for notification of changes to the legend.
      *
-     * @param listener The object that is being deregistered.
+     * @param listener  the object that is being deregistered.
      */
     public void removeChangeListener(LegendChangeListener listener) {
-        listeners.remove(listener);
+        this.listenerList.remove(LegendChangeListener.class, listener);
     }
 
     /**
      * Notifies all registered listeners that the chart legend has changed in some way.
      *
-     * @param event An object that contains information about the change to the legend.
+     * @param event  information about the change to the legend.
      */
     protected void notifyListeners(LegendChangeEvent event) {
-        java.util.Iterator iterator = listeners.iterator();
-        while (iterator.hasNext()) {
-            LegendChangeListener listener = (LegendChangeListener)iterator.next();
-            listener.legendChanged(event);
+
+        Object[] listeners = this.listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == LegendChangeListener.class) {
+                ((LegendChangeListener) listeners[i + 1]).legendChanged(event);
+            }
         }
+
     }
 
     /**
-     * Returns the current anchor of this legend.
-     * <P>
+     * Returns the current anchor of this legend.
+     * <p>
      * The default anchor for this legend is SOUTH.
      *
-     * @return current anchor value
-     */
+     * @return the current anchor.
+     */
     public int getAnchor() {
-        return _anchor;
+        return this.anchor;
     }
 
     /**
      * Sets the current anchor of this legend.
      * <P>
-     * The anchor can be one of: NORTH, SOUTH, EAST, WEST.  If a valid anchor value is provided,
-     * the current anchor is set and an update event is triggered. Otherwise, no change is made.
-     * @param anchor new anchor value
+     * The anchor can be one of: NORTH, SOUTH, EAST, WEST.  If a valid anchor
+     * value is provided, the current anchor is set and an update event is
+     * triggered. Otherwise, no change is made.
+     *
+     * @param anchor  thenew anchor value.
      */
     public void setAnchor(int anchor) {
          switch(anchor) {
@@ -168,7 +225,7 @@ public abstract class Legend {
             case SOUTH:
             case WEST:
             case EAST:
-                _anchor = anchor;
+                this.anchor = anchor;
                 notifyListeners(new LegendChangeEvent(this));
                 break;
             default:

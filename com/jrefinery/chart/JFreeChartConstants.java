@@ -40,11 +40,13 @@ package com.jrefinery.chart;
 
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.Color;
+import java.awt.SystemColor;
 import java.awt.Image;
 
 /**
  * Useful constants relating to the JFreeChart class.
+ *
+ * @author DG
  */
 public interface JFreeChartConstants {
 
@@ -52,7 +54,7 @@ public interface JFreeChartConstants {
     public static final Font DEFAULT_TITLE_FONT = new Font("SansSerif", Font.BOLD, 18);
 
     /** The default background color. */
-    public static final Paint DEFAULT_BACKGROUND_PAINT = Color.lightGray;
+    public static final Paint DEFAULT_BACKGROUND_PAINT = SystemColor.control;
 
     /** The default background image. */
     public static final Image DEFAULT_BACKGROUND_IMAGE = null;

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -40,16 +40,18 @@ package com.jrefinery.data;
 
 /**
  * A general purpose exception class for data series.
+ *
+ * @author DG
  */
 public class SeriesException extends RuntimeException {
 
     /**
      * Constructs a new series exception.
      *
-     * @param message A message describing the exception.
+     * @param message  a message describing the exception.
      */
     public SeriesException(String message) {
-	super(message);
+        super(message);
     }
 
 }

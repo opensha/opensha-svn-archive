@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 26-Mar-2002 : Version 1, translation by Hans-Jurgen Greiner (DG);
+ * 17-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -41,18 +42,22 @@ import java.util.ListResourceBundle;
 
 /**
 * A resource bundle that stores all the items that might need localisation.
+*
+* @author HJG
 */
 public class DataPackageResources_es extends ListResourceBundle {
 
     /**
      * Returns the array of strings in the resource bundle.
+     *
+     * @return the localised resources.
      */
     public Object[][] getContents() {
-        return contents;
+        return CONTENTS;
     }
 
     /** The resources to be localised. */
-    static final Object[][] contents = {
+    private static final Object[][] CONTENTS = {
 
         {"series.default-prefix",     "Series"},
         {"categories.default-prefix", "Categoría"},

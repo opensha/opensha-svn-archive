@@ -32,38 +32,36 @@
  * Changes
  * -------
  * 11-Jun-2002 : Version 1 (DG);
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 09-Oct-2002 : Added frame centering (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import com.jrefinery.data.CategoryDataset;
+import java.awt.Paint;
+import java.awt.Color;
 import com.jrefinery.data.DefaultCategoryDataset;
-import com.jrefinery.ui.ApplicationFrame;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
 import com.jrefinery.chart.CategoryPlot;
-import com.jrefinery.chart.Axis;
 import com.jrefinery.chart.HorizontalCategoryAxis;
-import com.jrefinery.chart.NumberAxis;
-import com.jrefinery.chart.TickUnits;
-
-import java.awt.Paint;
-import java.awt.Color;
-import java.awt.Stroke;
-import java.awt.BasicStroke;
+import com.jrefinery.chart.VerticalLogarithmicAxis;
+import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a vertical bar chart.
+ *
+ * @author DG
  */
 public class VerticalBarChartDemo extends ApplicationFrame {
 
-    /** The data. */
-    protected CategoryDataset data;
-
     /**
-     * Default constructor.
+     * Creates a new demo instance.
+     *
+     * @param title  the frame title.
      */
     public VerticalBarChartDemo(String title) {
 
@@ -84,8 +82,10 @@ public class VerticalBarChartDemo extends ApplicationFrame {
         dataset.setSeriesName(2, "Third");
 
         // set the category names...
-        String[] categories = new String[] { "Type 1", "Type 2", "Type 3", "Type 4",
-                                             "Type 5", "Type 6", "Type 7", "Type 8"  };
+        String[] categories = new String[] { "Category 1", "Category 2",
+                                             "Category 3", "Category 4",
+                                             "Category 5", "Category 6",
+                                             "Category 7", "Category 8"  };
         dataset.setCategories(categories);
 
         // create the chart...
@@ -109,23 +109,31 @@ public class VerticalBarChartDemo extends ApplicationFrame {
         plot.setSeriesPaint(new Paint[] { Color.green, Color.orange, Color.red });
 
         // change the category labels to vertical...
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis)plot.getDomainAxis();
-        domainAxis.setVerticalCategoryLabels(true);
+        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+
+        domainAxis.setSkipCategoryLabelsToFit(true);
+
+        VerticalLogarithmicAxis rangeAxis = new VerticalLogarithmicAxis("Log(value)");
+        plot.setRangeAxis(rangeAxis);
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         VerticalBarChartDemo demo = new VerticalBarChartDemo("Vertical Bar Chart Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

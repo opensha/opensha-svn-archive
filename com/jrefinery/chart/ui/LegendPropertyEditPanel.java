@@ -1,17 +1,11 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * This file...
- * $Id$
- *
- * Original Author:  David Gilbert;
- * Contributor(s):   -;
- *
- * (C) Copyright 2000, 2001, Simba Management Limited;
+ * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -21,31 +15,60 @@
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License along with this library;
- * if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307, USA.
+ * You should have received a copy of the GNU Lesser General Public License along with this
+ * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ * ----------------------------
+ * LegendPropertyEditPanel.java
+ * ----------------------------
+ * (C) Copyright 2000-2002, by Simba Management Limited.
+ *
+ * Original Author:  David Gilbert;
+ * Contributor(s):   -;
+ *
+ * $Id$
  *
  * Changes (from 24-Aug-2001)
  * --------------------------
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Separated the JCommon Class Library classes, JFreeChart now requires
  *               jcommon.jar (DG);
+ * 25-Jun-2002 : Revised header, removed redundant code (DG);
+ *
  */
 
 package com.jrefinery.chart.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import com.jrefinery.chart.*;
-import com.jrefinery.layout.*;
-import com.jrefinery.ui.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.Paint;
+import java.awt.Color;
+import java.awt.Stroke;
+import java.awt.BasicStroke;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JColorChooser;
+import com.jrefinery.chart.Legend;
+import com.jrefinery.chart.StandardLegend;
+import com.jrefinery.layout.LCBLayout;
+import com.jrefinery.ui.StrokeSample;
+import com.jrefinery.ui.StrokeChooserPanel;
+import com.jrefinery.ui.PaintSample;
+import com.jrefinery.ui.FontDisplayField;
+import com.jrefinery.ui.FontChooserPanel;
 
 /**
  * A panel for editing the properties of a Legend.
+ *
+ * @author DG
  */
-class LegendPropertyEditPanel extends JPanel
-                              implements ActionListener {
+class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /** The stroke (pen) used to draw the legend outline. */
     private StrokeSample outlineStroke;
@@ -67,10 +90,12 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Standard constructor: builds a panel based on the specified legend.
+     *
+     * @param legend    the legend, which should be changed.
      */
     public LegendPropertyEditPanel(Legend legend) {
 
-        StandardLegend l = (StandardLegend)legend;
+        StandardLegend l = (StandardLegend) legend;
         outlineStroke = new StrokeSample(l.getOutlineStroke());
         outlinePaint = new PaintSample(l.getOutlinePaint());
         backgroundPaint = new PaintSample(l.getBackgroundPaint());
@@ -91,7 +116,6 @@ class LegendPropertyEditPanel extends JPanel
 
         JPanel interior = new JPanel(new LCBLayout(5));
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        JLabel titleLabel = new JLabel("Text:");
 
         interior.add(new JLabel("Outline:"));
         interior.add(outlineStroke);
@@ -121,12 +145,12 @@ class LegendPropertyEditPanel extends JPanel
         interior.add(new FontDisplayField(seriesFont));
         interior.add(button);
 
-        interior.add(new JLabel("Series label paint:")) ;
+        interior.add(new JLabel("Series label paint:"));
         button = new JButton("Select...");
         button.setActionCommand("SeriesPaint");
         button.addActionListener(this);
-        interior.add(seriesPaint) ;
-        interior.add(button) ;
+        interior.add(seriesPaint);
+        interior.add(button);
 
         general.add(interior);
         add(general, BorderLayout.NORTH);
@@ -134,6 +158,7 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Returns the current outline stroke.
+     * @return the current outline stroke.
      */
     public Stroke getOutlineStroke() {
         return outlineStroke.getStroke();
@@ -141,6 +166,7 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Returns the current outline paint.
+     * @return the current outline paint.
      */
     public Paint getOutlinePaint() {
         return outlinePaint.getPaint();
@@ -148,6 +174,7 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Returns the current background paint.
+     * @return the current background paint.
      */
     public Paint getBackgroundPaint() {
         return backgroundPaint.getPaint();
@@ -155,6 +182,7 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Returns the current series label font.
+     * @return the current series label font.
      */
     public Font getSeriesFont() {
         return seriesFont;
@@ -162,6 +190,7 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Returns the current series label paint.
+     * @return the current series label paint.
      */
     public Paint getSeriesPaint() {
         return seriesPaint.getPaint();
@@ -169,6 +198,8 @@ class LegendPropertyEditPanel extends JPanel
 
     /**
      * Handles user interactions with the panel.
+     *
+     * @param event     the event.
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -193,11 +224,13 @@ class LegendPropertyEditPanel extends JPanel
      * Allows the user the opportunity to change the outline stroke.
      */
     private void attemptModifyOutlineStroke() {
-        StrokeChooserPanel panel = new StrokeChooserPanel(outlineStroke, availableStrokeSamples);
-        int result = JOptionPane.showConfirmDialog(this, panel, "Pen/Stroke Selection",
+        StrokeChooserPanel panel =
+            new StrokeChooserPanel(outlineStroke, availableStrokeSamples);
+        int result = JOptionPane.showConfirmDialog(this, panel,
+            "Pen/Stroke Selection",
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        if (result==JOptionPane.OK_OPTION) {
+        if (result == JOptionPane.OK_OPTION) {
             outlineStroke.setStroke(panel.getSelectedStroke());
         }
     }
@@ -208,7 +241,7 @@ class LegendPropertyEditPanel extends JPanel
     private void attemptModifyOutlinePaint() {
         Color c;
         c = JColorChooser.showDialog(this, "Outline Color", Color.blue);
-        if (c!=null) {
+        if (c != null) {
             outlinePaint.setPaint(c);
         }
     }
@@ -219,7 +252,7 @@ class LegendPropertyEditPanel extends JPanel
     private void attemptModifyBackgroundPaint() {
         Color c;
         c = JColorChooser.showDialog(this, "Background Color", Color.blue);
-        if (c!=null) {
+        if (c != null) {
             backgroundPaint.setPaint(c);
         }
     }
@@ -230,12 +263,14 @@ class LegendPropertyEditPanel extends JPanel
     public void attemptModifySeriesFont() {
 
         FontChooserPanel panel = new FontChooserPanel(seriesFont);
-        int result = JOptionPane.showConfirmDialog(this, panel, "Font Selection",
+        int result = JOptionPane.showConfirmDialog(this, panel,
+            "Font Selection",
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        if (result==JOptionPane.OK_OPTION) {
+        if (result == JOptionPane.OK_OPTION) {
             seriesFont = panel.getSelectedFont();
-            //fontfield.setText(titlefont.getFontName()+" "+titlefont.getSize());
+            //fontfield.setText(titlefont.getFontName()+" "
+            // + titlefont.getSize());
         }
 
     }
@@ -246,17 +281,21 @@ class LegendPropertyEditPanel extends JPanel
     private void attemptModifySeriesPaint() {
         Color c;
         c = JColorChooser.showDialog(this, "Series Label Color", Color.blue);
-        if (c!=null) {
+        if (c != null) {
             seriesPaint.setPaint(c);
         }
     }
 
     /**
-     * Sets the properties of the specified legend to match the properties defined on this panel.
+     * Sets the properties of the specified legend to match the properties
+     * defined on this panel.
+     *
+     * @param legend    an instance of <code>StandardLegend</code>.
      */
     public void setLegendProperties(Legend legend) {
-        if (legend instanceof StandardLegend) {  // only supports StandardLegend at present
-            StandardLegend standard = (StandardLegend)legend;
+        if (legend instanceof StandardLegend) {
+            // only supports StandardLegend at present
+            StandardLegend standard = (StandardLegend) legend;
             standard.setOutlineStroke(this.getOutlineStroke());
             standard.setOutlinePaint(this.getOutlinePaint());
             standard.setBackgroundPaint(this.getBackgroundPaint());

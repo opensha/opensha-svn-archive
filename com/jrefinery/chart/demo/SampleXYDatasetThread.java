@@ -51,22 +51,34 @@ package com.jrefinery.chart.demo;
  * drawing surface (Graphics2D), which brings many benefits, but also means that we cannot implement
  * any performance tricks when the screen updates because we cannot guarantee which pixels are
  * rendered by the Graphics2D pipeline...
+ *
+ * @author DG
  */
 public class SampleXYDatasetThread implements Runnable {
 
+    /** The data. */
     private SampleXYDataset data;
 
+    /**
+     * Creates a new thread.
+     *
+     * @param data  the dataset.
+     */
     public SampleXYDatasetThread(SampleXYDataset data) {
         this.data = data;
     }
 
+    /**
+     * Runs the thread.
+     */
     public void run() {
         while (true) {
             try {
                 Thread.sleep(500);
-                data.setTranslate(data.getTranslate()+0.25);
+                data.setTranslate(data.getTranslate() + 0.25);
             }
             catch (Exception e) {
+                // ignore
             }
       }
 

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,30 +33,41 @@
  * --------------------------
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Updated header (DG);
+ * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.event;
 
-import com.jrefinery.chart.*;
+import com.jrefinery.chart.Plot;
 
 /**
  * A change event that encapsulates information about a change to a plot.
+ *
+ * @author DG
  */
 public class PlotChangeEvent extends ChartChangeEvent {
 
-    /**
-     * The plot that generated the event.
-     */
-    protected Plot plot;
+    /** The plot that generated the event. */
+    private Plot plot;
 
     /**
-     * Default constructor.
-     * @param plot The plot that generated the event.
+     * Creates a new PlotChangeEvent.
+     *
+     * @param plot  the plot that generated the event.
      */
     public PlotChangeEvent(Plot plot) {
         super(plot);
         this.plot = plot;
+    }
+
+    /**
+     * Returns the plot that generated the event.
+     *
+     * @return the plot that generated the event.
+     */
+    public Plot getPlot() {
+        return this.plot;
     }
 
 }

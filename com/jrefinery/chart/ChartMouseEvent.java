@@ -33,6 +33,7 @@
  * -------
  * 27-May-2002 : Version 1, incorporating code and ideas by Alex Weber (DG);
  * 13-Jun-2002 : Added Javadoc comments (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,20 +44,22 @@ import com.jrefinery.chart.entity.ChartEntity;
 
 /**
  * A mouse event for a chart that is displayed in a ChartPanel.
+ *
+ * @author DG
  */
 public class ChartMouseEvent {
 
     /** The Java mouse event that triggered this event. */
-    protected MouseEvent trigger;
+    private MouseEvent trigger;
 
     /** The chart entity (if any). */
-    protected ChartEntity entity;
+    private ChartEntity entity;
 
     /**
      * Constructs a new event.
      *
-     * @param trigger The mouse event that triggered this event.
-     * @param entity The chart entity (if any) under the mouse point.
+     * @param trigger  the mouse event that triggered this event.
+     * @param entity  the chart entity (if any) under the mouse point.
      */
     public ChartMouseEvent(MouseEvent trigger, ChartEntity entity) {
         this.trigger = trigger;
@@ -66,7 +69,7 @@ public class ChartMouseEvent {
     /**
      * Returns the mouse event that triggered this event.
      *
-     * @return The event.
+     * @return the event.
      */
     public MouseEvent getTrigger() {
         return this.trigger;
@@ -75,7 +78,7 @@ public class ChartMouseEvent {
     /**
      * Returns the chart entity (if any) under the mouse point.
      *
-     * @return The chart entity.
+     * @return the chart entity.
      */
     public ChartEntity getEntity() {
         return this.entity;

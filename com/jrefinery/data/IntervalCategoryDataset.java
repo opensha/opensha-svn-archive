@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -19,10 +19,10 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * --------------------
- * CategoryDataset.java
- * --------------------
- * (C) Copyright 2000-2002, by Eduard Martinescu.
+ * ----------------------------
+ * IntervalCategoryDataset.java
+ * ----------------------------
+ * (C) Copyright 2000-2002, by Eduard Martinescu and Contributors.
  *
  * Original Author:  Eduard Martinescu;
  * Contributor(s):   David Gilbert (for Simba Management Limited);
@@ -41,23 +41,29 @@ package com.jrefinery.data;
 
 /**
  * A category dataset that defines a value range for each series/category combination.
+ *
+ * @author EM
  */
 public interface IntervalCategoryDataset extends CategoryDataset {
 
     /**
      * Returns the min value for the specified series (zero-based index) and category.
      *
-     * @param series The series index (zero-based).
-     * @param category The category.
+     * @param series  the series index (zero-based).
+     * @param category  the category.
+     *
+     * @return  the min value.
      */
-    public Number getStartValue (int series, Object category);
+    public Number getStartValue(int series, Object category);
 
     /**
      * Returns the max value for the specified series (zero-based index) and category.
      *
-     * @param series The series index (zero-based).
-     * @param category The category.
+     * @param series  the series index (zero-based).
+     * @param category  the category.
+     *
+     * @return the max value.
      */
-    public Number getEndValue (int series, Object category);
+    public Number getEndValue(int series, Object category);
 
 }

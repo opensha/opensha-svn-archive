@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -41,6 +41,8 @@
  * 26-Feb-2002 : Changed getStart(), getMiddle() and getEnd() methods to evaluate with reference
  *               to a particular time zone (DG);
  * 19-Mar-2002 : Changed API for TimePeriod classes (DG);
+ * 10-Sep-2002 : Added getSerialIndex() method (DG);
+ * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -55,14 +57,16 @@ import com.jrefinery.date.SerialDate;
  * Represents a single month.
  * <P>
  * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ *
+ * @author DG
  */
 public class Month extends TimePeriod {
 
     /** The month (1-12). */
-    protected int month;
+    private int month;
 
     /** The year in which the month falls. */
-    protected Year year;
+    private Year year;
 
     /**
      * Constructs a new Month, based on the current system time.
@@ -75,8 +79,9 @@ public class Month extends TimePeriod {
 
     /**
      * Constructs a new month instance.
-     * @param month The month (in the range 1 to 12).
-     * @param year The year.
+     *
+     * @param month  the month (in the range 1 to 12).
+     * @param year  the year.
      */
     public Month(int month, int year) {
 
@@ -86,12 +91,13 @@ public class Month extends TimePeriod {
 
     /**
      * Constructs a new month instance.
-     * @param month The month (in the range 1 to 12).
-     * @param year The year.
+     *
+     * @param month  the month (in the range 1 to 12).
+     * @param year  the year.
      */
     public Month(int month, Year year) {
 
-        if ((month<1) && (month>12)) {
+        if ((month < 1) && (month > 12)) {
             throw new IllegalArgumentException("Month(...): month outside valid range.");
         }
 
@@ -103,7 +109,7 @@ public class Month extends TimePeriod {
     /**
      * Constructs a Month, based on a date/time and the default time zone.
      *
-     * @param time The date/time.
+     * @param time  the date/time.
      */
     public Month(Date time) {
 
@@ -114,21 +120,22 @@ public class Month extends TimePeriod {
     /**
      * Constructs a Month, based on a date/time and a time zone.
      *
-     * @param time The date/time.
-     * @param zone The time zone.
+     * @param time  the date/time.
+     * @param zone  the time zone.
      */
     public Month(Date time, TimeZone zone) {
 
         Calendar calendar = Calendar.getInstance(zone);
         calendar.setTime(time);
-        this.month = calendar.get(Calendar.MONTH)+1;
+        this.month = calendar.get(Calendar.MONTH) + 1;
         this.year = new Year(calendar.get(Calendar.YEAR));
 
     }
 
     /**
      * Returns the year in which the month falls.
-     * @return The year in which the month falls (as a Year object).
+     *
+     * @return the year in which the month falls (as a Year object).
      */
     public Year getYear() {
         return this.year;
@@ -136,7 +143,8 @@ public class Month extends TimePeriod {
 
     /**
      * Returns the year in which the month falls.
-     * @return The year in which the monht falls (as an int).
+     *
+     * @return the year in which the monht falls (as an int).
      */
     public int getYearValue() {
         return this.year.getYear();
@@ -146,6 +154,8 @@ public class Month extends TimePeriod {
      * Returns the month.
      *
      * Note that 1=JAN, 2=FEB, ...
+     *
+     * @return the month.
      */
     public int getMonth() {
         return this.month;
@@ -153,69 +163,104 @@ public class Month extends TimePeriod {
 
     /**
      * Returns the month preceding this one.
+     *
+     * @return the month preceding this one.
      */
     public TimePeriod previous() {
 
         Month result;
-        if (this.month!=SerialDate.JANUARY) {
-            result = new Month(month-1, year);
+        if (this.month != SerialDate.JANUARY) {
+            result = new Month(month - 1, year);
         }
         else {
-            Year prevYear = (Year)year.previous();
-            if (prevYear!=null) result = new Month(SerialDate.DECEMBER, prevYear);
-            else result = null;
+            Year prevYear = (Year) year.previous();
+            if (prevYear != null) {
+                result = new Month(SerialDate.DECEMBER, prevYear);
+            }
+            else {
+                result = null;
+            }
         }
         return result;
 
     }
 
     /**
-     *  Returns the month following this one.
+     * Returns the month following this one.
+     *
+     * @return the month following this one.
      */
     public TimePeriod next() {
         Month result;
         if (month != SerialDate.DECEMBER) {
-            result = new Month(month+1, year);
+            result = new Month(month + 1, year);
         }
         else {
-            Year nextYear = (Year)year.next();
-            if (nextYear!=null) result = new Month(SerialDate.JANUARY, nextYear);
-            else result = null;
+            Year nextYear = (Year) year.next();
+            if (nextYear != null) {
+                result = new Month(SerialDate.JANUARY, nextYear);
+            }
+            else {
+                result = null;
+            }
         }
         return result;
+    }
+
+    /**
+     * Returns a serial index number for the month.
+     *
+     * @return the serial index number.
+     */
+    public long getSerialIndex() {
+        return this.year.getYear() * 12L + this.month;
     }
 
     /**
      * Returns a string representing the month (e.g. "January 2002").
      * <P>
      * To do: look at internationalisation.
-     * @return A string representing the month.
+     *
+     * @return a string representing the month.
      */
     public String toString() {
-        return SerialDate.monthCodeToString(month)+" "+year;
+        return SerialDate.monthCodeToString(month) + " " + year;
     }
 
     /**
-     * Tests the equality of this Month object to an arbitrary object.  Returns true if the
-     * target is a Month instance representing the same month as this object.  In all other
-     * cases, returns false.
-     * @param object The object.
+     * Tests the equality of this Month object to an arbitrary object.
+     * Returns true if the target is a Month instance representing the same
+     * month as this object.  In all other cases, returns false.
+     *
+     * @param obj  the object.
+     *
+     * @return <code>true</code> if month and year of this and object are the same.
      */
     public boolean equals(Object obj) {
-        if (obj!=null) {
+
+        if (obj != null) {
             if (obj instanceof Month) {
-                Month target = (Month)obj;
-                return ((month==target.getMonth()) && (year.equals(target.getYear())));
+                Month target = (Month) obj;
+                return ((month == target.getMonth()) && (year.equals(target.getYear())));
             }
-            else return false;
+            else {
+                return false;
+            }
         }
-        else return false;
+        else {
+            return false;
+        }
+
     }
 
     /**
-     * Returns an integer indicating the order of this Month object relative to the specified
+     * Returns an integer indicating the order of this Month object relative to
+     * the specified
      * object: negative == before, zero == same, positive == after.
      *
+     * @param o1  the object to compare.
+     *
+     * @return negative == before, zero == same, positive == after.
      */
     public int compareTo(Object o1) {
 
@@ -224,9 +269,11 @@ public class Month extends TimePeriod {
         // CASE 1 : Comparing to another Month object
         // --------------------------------------------
         if (o1 instanceof Month) {
-            Month m = (Month)o1;
+            Month m = (Month) o1;
             result = this.year.getYear() - m.getYear().getYear();
-            if (result == 0) result = this.month - m.getMonth();
+            if (result == 0) {
+                result = this.month - m.getMonth();
+            }
         }
 
         // CASE 2 : Comparing to another TimePeriod object
@@ -238,18 +285,22 @@ public class Month extends TimePeriod {
 
         // CASE 3 : Comparing to a non-TimePeriod object
         // ---------------------------------------------
-        else result = 1;  // consider time periods to be ordered after general objects
+        else {
+            // consider time periods to be ordered after general objects
+            result = 1;
+        }
 
         return result;
 
     }
 
     /**
-     * Returns the first millisecond of the month, evaluated using the supplied calendar (which
-     * determines the time zone).
+     * Returns the first millisecond of the month, evaluated using the supplied
+     * calendar (which determines the time zone).
      *
-     * @param calendar The calendar.
-     * @return The first millisecond of the month.
+     * @param calendar  the calendar.
+     *
+     * @return the first millisecond of the month.
      */
     public long getStart(Calendar calendar) {
 
@@ -259,11 +310,12 @@ public class Month extends TimePeriod {
     }
 
     /**
-     * Returns the last millisecond of the month, evaluated using the supplied calendar (which
-     * determines the time zone).
+     * Returns the last millisecond of the month, evaluated using the supplied
+     * calendar (which determines the time zone).
      *
-     * @param calendar The calendar.
-     * @return The last millisecond of the month.
+     * @param calendar  the calendar.
+     *
+     * @return the last millisecond of the month.
      */
     public long getEnd(Calendar calendar) {
 
@@ -276,52 +328,58 @@ public class Month extends TimePeriod {
     /**
      * Parses the string argument as a month.
      * <P>
-     * This method is required to accept the format "YYYY-MM".  It will also accept "MM-YYYY".
-     * Anything else, at the moment, is a bonus.
+     * This method is required to accept the format "YYYY-MM".  It will also
+     * accept "MM-YYYY". Anything else, at the moment, is a bonus.
+     *
+     * @param s  the string to parse.
+     *
+     * @return <code>null</code> if the string is not parseable, the month otherwise.
+     *
+     * @throws TimePeriodFormatException if there is a problem parsing the string.
      */
     public static Month parseMonth(String s) throws TimePeriodFormatException {
 
         Month result = null;
-        if (s!=null) {
+        if (s != null) {
 
             // trim whitespace from either end of the string
             s = s.trim();
 
             int i = Month.findSeparator(s);
-            if (i!=-1) {
+            if (i != -1) {
                 String s1 = s.substring(0, i).trim();
-                String s2 = s.substring(i+1, s.length()).trim();
+                String s2 = s.substring(i + 1, s.length()).trim();
 
                 Year year = Month.evaluateAsYear(s1);
                 int month;
-                if (year!=null) {
+                if (year != null) {
                     month = SerialDate.stringToMonthCode(s2);
-                    if (month==-1) {
-                        throw new TimePeriodFormatException("Month.parseMonth(String): can't "
-                                                            +"evaluate the month.");
+                    if (month == -1) {
+                        throw new TimePeriodFormatException(
+                            "Month.parseMonth(String): can't evaluate the month.");
                     }
                     result = new Month(month, year);
                 }
                 else {
                     year = Month.evaluateAsYear(s2);
-                    if (year!=null) {
+                    if (year != null) {
                         month = SerialDate.stringToMonthCode(s1);
-                        if (month==-1) {
-                            throw new TimePeriodFormatException("Month.parseMonth(String): can't "
-                                                            +"evaluate the month.");
+                        if (month == -1) {
+                            throw new TimePeriodFormatException(
+                                "Month.parseMonth(String): can't evaluate the month.");
                         }
                         result = new Month(month, year);
                     }
                     else {
-                        throw new TimePeriodFormatException("Month.parseMonth(String): can't "
-                                                        +"evaluate the year.");
+                        throw new TimePeriodFormatException(
+                            "Month.parseMonth(String): can't evaluate the year.");
                     }
                 }
 
             }
             else {
-                throw new TimePeriodFormatException("Month.parseMonth(String): could not find "
-                                                    +"separator.");
+                throw new TimePeriodFormatException(
+                    "Month.parseMonth(String): could not find separator.");
             }
 
         }
@@ -331,18 +389,22 @@ public class Month extends TimePeriod {
 
     /**
      * Finds the first occurrence of ' ', '-', ',' or '.'
+     *
+     * @param s  the string to parse.
+     * @return <code>-1</code> if none of the characters where found, the
+     *      position of the first occurence otherwise.
      */
     private static int findSeparator(String s) {
 
         int result = -1;
         result = s.indexOf('-');
-        if (result==-1) {
+        if (result == -1) {
             result = s.indexOf(',');
         }
-        if (result==-1) {
+        if (result == -1) {
             result = s.indexOf(' ');
         }
-        if (result==-1) {
+        if (result == -1) {
             result = s.indexOf('.');
         }
         return result;
@@ -350,6 +412,10 @@ public class Month extends TimePeriod {
 
     /**
      * Creates a year from a string, or returns null (format exceptions suppressed).
+     *
+     * @param s  the string to parse.
+     *
+     * @return <code>nukl</code> if the string is not parseable, the year otherwise.
      */
     private static Year evaluateAsYear(String s) {
 

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -34,6 +34,7 @@
  * 15-Nov-2001 : Version 1 (DG);
  * 03-Apr-2002 : Added change listener code (DG);
  * 29-Apr-2002 : Added removeSeries, removeAllSeries methods (ARM);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,11 +44,13 @@ import java.util.List;
 
 /**
  * Represents a collection of time series that can be used as a dataset.
+ *
+ * @author DG
  */
 public class XYSeriesCollection extends AbstractSeriesDataset implements XYDataset {
 
     /** The series that are included in the collection. */
-    protected List data;
+    private List data;
 
     /**
      * Constructs an empty dataset.
@@ -61,12 +64,12 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
     /**
      * Constructs a dataset and populates it with a single time series.
      *
-     * @param The time series.
+     * @param series  the time series.
      */
     public XYSeriesCollection(XYSeries series) {
 
         this.data = new java.util.ArrayList();
-        if (series!=null) {
+        if (series != null) {
             data.add(series);
             series.addChangeListener(this);
         }
@@ -78,27 +81,27 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
      * <P>
      * Notifies all registered listeners that the dataset has changed.
      *
-     * @param series The series.
+     * @param series  the series.
      */
     public void addSeries(XYSeries series) {
 
         // check arguments...
-        if (series==null) {
-            throw new IllegalArgumentException("XYSeriesCollection.addSeries(...): "
-                                               +"cannot add null series.");
+        if (series == null) {
+            throw new IllegalArgumentException(
+                "XYSeriesCollection.addSeries(...): cannot add null series.");
         }
 
         // add the series...
         data.add(series);
         series.addChangeListener(this);
-        this.fireDatasetChanged();
+        fireDatasetChanged();
 
     }
 
     /**
      * Returns the number of series in the collection.
      *
-     * @return The number of series in the collection.
+     * @return the number of series in the collection.
      */
     public int getSeriesCount() {
         return this.data.size();
@@ -107,19 +110,20 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
     /**
      * Returns a series.
      *
-     * @param series The series (zero-based index).
+     * @param series  the series (zero-based index).
+     *
      * @return The series.
      */
     public XYSeries getSeries(int series) {
 
         // check arguments...
-        if ((series<0) || (series>this.getSeriesCount())) {
-            throw new IllegalArgumentException("XYSeriesCollection.getSeries(...): "
-                                               +"index outside valid range.");
+        if ((series < 0) || (series > getSeriesCount())) {
+            throw new IllegalArgumentException(
+                "XYSeriesCollection.getSeries(...): index outside valid range.");
         }
 
         // fetch the series...
-        XYSeries ts = (XYSeries)data.get(series);
+        XYSeries ts = (XYSeries) data.get(series);
         return ts;
 
     }
@@ -127,39 +131,46 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
     /**
      * Returns the name of a series.
      *
-     * @param series The series (zero-based index).
-     * @return The name of a series.
+     * @param series  the series (zero-based index).
+     *
+     * @return the name of a series.
      */
     public String getSeriesName(int series) {
 
         // check arguments...delegated
+
         // fetch the result...
-        return this.getSeries(series).getName();
+        return getSeries(series).getName();
 
     }
 
     /**
      * Returns the number of items in the specified series.
      *
-     * @param series The series (zero-based index).
+     * @param series  the series (zero-based index).
+     *
+     * @return the number of items in the specified series.
      */
     public int getItemCount(int series) {
 
         // check arguments...delegated
+
         // fetch the result...
-        return this.getSeries(series).getItemCount();
+        return getSeries(series).getItemCount();
 
     }
 
     /**
      * Returns the x-value for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the x-value for the specified series and item.
      */
     public Number getXValue(int series, int item) {
 
-        XYSeries ts = (XYSeries)data.get(series);
+        XYSeries ts = (XYSeries) data.get(series);
         XYDataPair dp = ts.getDataPair(item);
         return dp.getX();
 
@@ -168,13 +179,15 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
     /**
      * Returns the y-value for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param itemIndex The index of the item of interest (zero-based).
+     * @param series  the series (zero-based index).
+     * @param index  the index of the item of interest (zero-based).
+     *
+     * @return the y-value for the specified series and item.
      */
-    public Number getYValue(int series, int item) {
+    public Number getYValue(int series, int index) {
 
-        XYSeries ts = (XYSeries)data.get(series);
-        XYDataPair dp = ts.getDataPair(item);
+        XYSeries ts = (XYSeries) data.get(series);
+        XYDataPair dp = ts.getDataPair(index);
         return dp.getY();
 
     }
@@ -183,21 +196,17 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
      * Removes all the series from the collection.
      * <P>
      * Notifies all registered listeners that the dataset has changed.
-     *
      */
     public void removeAllSeries() {
 
 
-        // Unregister the collection as a change
-        // listener to each series in the collection.
-        for (int i=0; i<data.size(); i++)
-        {
+        // Unregister the collection as a change listener to each series in the collection.
+        for (int i = 0; i < data.size(); i++) {
           XYSeries series = (XYSeries) data.get(i);
           series.removeChangeListener(this);
         }
 
-        // Remove all the series from the collection
-        // and notify listeners.
+        // Remove all the series from the collection and notify listeners.
         data.clear();
         this.fireDatasetChanged();
 
@@ -208,22 +217,21 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
      * <P>
      * Notifies all registered listeners that the dataset has changed.
      *
-     * @param series The series.
+     * @param series  the series.
      */
     public void removeSeries(XYSeries series) {
 
         // check arguments...
-        if (series==null) {
-            throw new IllegalArgumentException("XYSeriesCollection.removeSeries(...): "
-                                               +"cannot remove null series.");
+        if (series == null) {
+            throw new IllegalArgumentException(
+                "XYSeriesCollection.removeSeries(...): cannot remove null series.");
         }
 
         // remove the series...
-        if (data.contains(series))
-        {
-          series.removeChangeListener(this);
-          data.remove(series);
-          this.fireDatasetChanged();
+        if (data.contains(series)) {
+            series.removeChangeListener(this);
+            data.remove(series);
+            fireDatasetChanged();
         }
 
     }
@@ -233,22 +241,21 @@ public class XYSeriesCollection extends AbstractSeriesDataset implements XYDatas
      * <P>
      * Notifies all registered listeners that the dataset has changed.
      *
-     * @param series The series(zero based index).
+     * @param series  the series(zero based index).
      */
     public void removeSeries(int series) {
 
         // check arguments...
-        if ((series<0) || (series>this.getSeriesCount())) {
-            throw new IllegalArgumentException("XYSeriesCollection.getSeries(...): "
-                                               +"index outside valid range.");
+        if ((series < 0) || (series > getSeriesCount())) {
+            throw new IllegalArgumentException(
+                "XYSeriesCollection.getSeries(...): index outside valid range.");
         }
 
-        // fetch the series, remove the change listener,
-        // then remove the series.
-        XYSeries ts = (XYSeries)data.get(series);
+        // fetch the series, remove the change listener, then remove the series.
+        XYSeries ts = (XYSeries) data.get(series);
         ts.removeChangeListener(this);
         data.remove(series);
-        this.fireDatasetChanged();
+        fireDatasetChanged();
 
     }
 

@@ -76,7 +76,7 @@ public class ImageSelectSQL extends BaseImageServlet {
    * @return          The generated sql
    */
   protected String generateSQL(HttpServletRequest request) {
-    String query = null ;
+    String query = null;
     try {
       query = request.getParameter("sql");
     } catch (Exception e) {}

@@ -33,6 +33,7 @@
  * -------
  * 27-May-2002 : Version 1, incorporating code and ideas by Alex Weber (DG);
  * 13-Jun-2002 : Added Javadocs (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -40,20 +41,22 @@ package com.jrefinery.chart;
 
 /**
  * The interface for classes that listen for ChartMouseEvents.
+ *
+ * @author DG
  */
 public interface ChartMouseListener {
 
     /**
      * Callback method for receiving notification of a mouse click on a chart.
      *
-     * @param event Information about the event.
+     * @param event  information about the event.
      */
     public void chartMouseClicked(ChartMouseEvent event);
 
     /**
      * Callback method for receiving notification of a mouse movement on a chart.
      *
-     * @param event Information about the event.
+     * @param event  information about the event.
      */
     public void chartMouseMoved(ChartMouseEvent event);
 

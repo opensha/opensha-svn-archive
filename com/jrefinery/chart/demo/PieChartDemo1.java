@@ -32,27 +32,36 @@
  * Changes
  * -------
  * 18-Apr-2002 : Version 1 (DG);
+ * 25-Jun-2002 : Removed unnecessary import (DG);
+ * 28-Aug-2002 : Centered frame on screen (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import java.awt.Paint;
 import java.awt.Color;
 import com.jrefinery.data.DefaultPieDataset;
-import com.jrefinery.ui.ApplicationFrame;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
+import com.jrefinery.chart.PiePlot;
+import com.jrefinery.chart.tooltips.StandardPieToolTipGenerator;
+import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a pie chart using data from a
  * DefaultPieDataset.
+ *
+ * @author DG
  */
 public class PieChartDemo1 extends ApplicationFrame {
 
     /**
      * Default constructor.
+     *
+     * @param title  the frame title.
      */
     public PieChartDemo1(String title) {
 
@@ -60,9 +69,12 @@ public class PieChartDemo1 extends ApplicationFrame {
 
         // create a dataset...
         DefaultPieDataset data = new DefaultPieDataset();
-        data.setValue("Java", new Double(43.2));
-        data.setValue("Visual Basic", new Double(0.0));
-        data.setValue("C/C++", new Double(17.5));
+        data.setValue("One", new Double(43.2));
+        data.setValue("Two", new Double(10.0));
+        data.setValue("Three", new Double(27.5));
+        data.setValue("Four", new Double(17.5));
+        data.setValue("Five", new Double(11.0));
+        data.setValue("Six", new Double(19.4));
 
         // create the chart...
         JFreeChart chart = ChartFactory.createPieChart("Pie Chart Demo 1",  // chart title
@@ -72,20 +84,28 @@ public class PieChartDemo1 extends ApplicationFrame {
 
         // set the background color for the chart...
         chart.setBackgroundPaint(Color.yellow);
+        PiePlot plot = (PiePlot) chart.getPlot();
+        plot.setSectionLabelType(PiePlot.NAME_AND_PERCENT_LABELS);
+        plot.setNoDataMessage("No data available");
+        plot.setToolTipGenerator(new StandardPieToolTipGenerator());
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         this.setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         PieChartDemo1 demo = new PieChartDemo1("Pie Chart Demo 1");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,8 @@
  * -------
  * 06-Mar-2002 : Version 1 (DG);
  * 25-Apr-2002 : Removed redundant HORIZONTAL and VERTICAL constants (DG);
+ * 05-Sep-2002 : Added DEFAULT_TICK_PAINT (DG);
+ * 16-Oct-2002 : Changed default tick paint to light gray (DG);
  *
  */
 
@@ -47,6 +49,8 @@ import java.awt.Insets;
 
 /**
  * Useful constants relating to axes.
+ *
+ * @author DG
  */
 public interface AxisConstants {
 
@@ -57,7 +61,7 @@ public interface AxisConstants {
     public static final Paint DEFAULT_AXIS_LABEL_PAINT = Color.black;
 
     /** The default axis label insets. */
-    public static final Insets DEFAULT_AXIS_LABEL_INSETS = new Insets(2, 2, 2, 2);
+    public static final Insets DEFAULT_AXIS_LABEL_INSETS = new Insets(3, 3, 3, 3);
 
     /** The default tick label font. */
     public static final Font DEFAULT_TICK_LABEL_FONT = new Font("SansSerif", Font.PLAIN, 10);
@@ -65,10 +69,13 @@ public interface AxisConstants {
     /** The default tick label paint. */
     public static final Paint DEFAULT_TICK_LABEL_PAINT = Color.black;
 
+    /** The default tick label insets. */
+    public static final Insets DEFAULT_TICK_LABEL_INSETS = new Insets(2, 2, 2, 2);
+
     /** The default tick stroke. */
     public static final Stroke DEFAULT_TICK_STROKE = new BasicStroke(1);
 
-    /** The default tick label insets. */
-    public static final Insets DEFAULT_TICK_LABEL_INSETS = new Insets(2, 1, 2, 1);
+    /** The default tick paint. */
+    public static final Paint DEFAULT_TICK_PAINT = Color.lightGray;
 
 }

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -40,10 +40,13 @@
 package com.jrefinery.chart.data;
 
 import java.util.Vector;
-import com.jrefinery.data.*;
+import com.jrefinery.data.Statistics;
+import com.jrefinery.data.XYDataset;
 
 /**
  * Calculates a moving average for an XYDataset.
+ *
+ * @author MW
  */
 public class MovingAveragePlotFitAlgorithm implements PlotFitAlgorithm {
 
@@ -65,14 +68,15 @@ public class MovingAveragePlotFitAlgorithm implements PlotFitAlgorithm {
 
     /**
      * Sets the period for this moving average algorithm.
-     * @param period The number of points to include in the average.
+     *
+     * @param period  the number of points to include in the average.
      */
     public void setPeriod(int period) {
         this.period = period;
     }
 
     /**
-     * @param ds The underlying XYDataset.
+     * @param ds  the underlying XYDataset.
      */
     public void setXYDataset(XYDataset ds) {
 
@@ -84,34 +88,34 @@ public class MovingAveragePlotFitAlgorithm implements PlotFitAlgorithm {
          * for each dataset in the datasets Vector
          */
         Vector datasets = new Vector();
-        for(int i = 0; i < ds.getSeriesCount(); i++) {
+        for (int i = 0; i < ds.getSeriesCount(); i++) {
             int seriessize = ds.getItemCount(i);
-            Number[] x_data = new Number[seriessize];
-            Number[] y_data = new Number[seriessize];
-            for(int j = 0; j < seriessize; j++) {
-                x_data[j] = ds.getXValue(i,j);
-                y_data[j] = ds.getYValue(i,j);
+            Number[] xData = new Number[seriessize];
+            Number[] yData = new Number[seriessize];
+            for (int j = 0; j < seriessize; j++) {
+                xData[j] = ds.getXValue(i, j);
+                yData[j] = ds.getYValue(i, j);
             }
             Vector pair = new Vector();
-            pair.addElement(x_data);
-            pair.addElement(y_data);
+            pair.addElement(xData);
+            pair.addElement(yData);
             datasets.addElement(pair);
         }
         plots = new Vector();
-        for(int j = 0; j < datasets.size(); j++) {
-            Vector pair = (Vector)datasets.elementAt(j);
-            Number[] x_data = (Number[])pair.elementAt(0);
-            Number[] y_data = (Number[])pair.elementAt(1);
-            plots.addElement(new ArrayHolder(Statistics.getMovingAverage(x_data, y_data, period)));
+        for (int j = 0; j < datasets.size(); j++) {
+            Vector pair = (Vector) datasets.elementAt(j);
+            Number[] xData = (Number[]) pair.elementAt(0);
+            Number[] yData = (Number[]) pair.elementAt(1);
+            plots.addElement(new ArrayHolder(Statistics.getMovingAverage(xData, yData, period)));
         }
 
     }
 
     /**
      * Returns the y-value for any x-value.
-     * @param x The x-value.
-     * @param series The series.
-     * @return The y-value
+     * @param x     The x-value.
+     * @param series    The series.
+     * @return      The y-value
      */
     public Number getY(int series, Number x) {
 
@@ -119,11 +123,11 @@ public class MovingAveragePlotFitAlgorithm implements PlotFitAlgorithm {
          * for a moving average, this returns a number if there is a match
          * for that y and series, otherwise, it returns a null reference
          */
-        double[][] mavg = ((ArrayHolder)plots.elementAt(series)).getArray();
-        for(int j = 0; j < mavg.length; j++) {
+        double[][] mavg = ((ArrayHolder) plots.elementAt(series)).getArray();
+        for (int j = 0; j < mavg.length; j++) {
 
             /* if the x matches up, we have a moving average point for this x */
-            if(mavg[j][0] == x.doubleValue()) {
+            if (mavg[j][0] == x.doubleValue()) {
                 return new Double(mavg[j][1]);
             }
         }
@@ -135,15 +139,28 @@ public class MovingAveragePlotFitAlgorithm implements PlotFitAlgorithm {
 
 /**
  * A utility class to hold the moving average arrays in a Vector.
+ *
+ * @author MW
  */
 class ArrayHolder {
 
+    /** The array. */
     private double[][] array;
 
+    /**
+     * Creates a new array holder.
+     *
+     * @param array  the array.
+     */
     ArrayHolder(double[][] array) {
         this.array = array;
     }
 
+    /**
+     * Returns the array.
+     *
+     * @return the array.
+     */
     public double[][] getArray() {
         return array;
     }

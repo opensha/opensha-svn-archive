@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -57,6 +57,18 @@
  * 11-May-2002 : Added ShapeFactory interface for getShape() methods, contributed by Jeremy
  *               Bowman (DG);
  * 28-May-2002 : Fixed bug in setSeriesPaint(int, Paint) for subplots (AS);
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 30-Jul-2002 : Added 'no data' message for charts with null or empty datasets (DG);
+ * 21-Aug-2002 : Added code to extend series array if necessary (refer to SourceForge bug
+ *               id 594547 for details) (DG);
+ * 17-Sep-2002 : Fixed bug in getSeriesOutlineStroke(...) method, reported by Andreas
+ *               Schroeder (DG);
+ * 23-Sep-2002 : Added getLegendItems() abstract method (DG);
+ * 24-Sep-2002 : Removed firstSeriesIndex, subplots now use their own paint settings, there is a
+ *               new mechanism for the legend to collect the legend items (DG);
+ * 27-Sep-2002 : Added dataset group (DG);
+ * 14-Oct-2002 : Moved listener storage into EventListenerList.  Changed some abstract methods
+ *               to empty implementations (DG);
  *
  */
 
@@ -65,6 +77,7 @@ package com.jrefinery.chart;
 import java.awt.Composite;
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
@@ -72,27 +85,26 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-import java.awt.geom.Ellipse2D;
+import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.Iterator;
-import com.jrefinery.data.Dataset;
-import com.jrefinery.data.DatasetChangeEvent;
-import com.jrefinery.data.DatasetChangeListener;
+import javax.swing.event.EventListenerList;
 import com.jrefinery.chart.event.AxisChangeEvent;
 import com.jrefinery.chart.event.AxisChangeListener;
-import com.jrefinery.chart.event.ChartChangeEvent;
-import com.jrefinery.chart.event.ChartChangeListener;
 import com.jrefinery.chart.event.PlotChangeEvent;
 import com.jrefinery.chart.event.PlotChangeListener;
+import com.jrefinery.data.Dataset;
+import com.jrefinery.data.DatasetGroup;
+import com.jrefinery.data.DatasetChangeEvent;
+import com.jrefinery.data.DatasetChangeListener;
 
 /**
- * The base class for all plots in JFreeChart.  The JFreeChart class delegates the drawing of axes
- * and data to the plot.  This base class provides facilities common to most plot types.
+ * The base class for all plots in JFreeChart.  The JFreeChart class delegates the drawing of
+ * axes and data to the plot.  This base class provides facilities common to most plot types.
+ *
+ * @author DG
  */
-public abstract class Plot implements AxisChangeListener,
-                                      DatasetChangeListener,
-                                      AxisConstants {
+public abstract class Plot implements AxisChangeListener, DatasetChangeListener, AxisConstants {
 
     /** Useful constant representing zero. */
     public static final Number ZERO = new Integer(0);
@@ -115,22 +127,28 @@ public abstract class Plot implements AxisChangeListener,
     /** The default background color. */
     protected static final Paint DEFAULT_BACKGROUND_PAINT = Color.white;
 
-    /** The minimum width for the plot, any less space than this and it should not be drawn (not
-     *  fully implemented). */
+    /** The minimum width for the plot, any less space than this and it should
+     *  not be drawn (not fully implemented). */
     protected static final int MINIMUM_WIDTH_TO_DRAW = 10;
 
-    /** The minimum height for the plot, any less space than this and it should not be drawn (not
-     *  fully implemented. */
+    /** The minimum height for the plot, any less space than this and it should
+     *  not be drawn (not fully implemented. */
     protected static final int MINIMUM_HEIGHT_TO_DRAW = 10;
 
     /** The data. */
     protected Dataset dataset;
 
     /**
-     * The index of the first series.  This defaults to zero...when you combine plots you
-     * might want to set this to a higher index to ensure that series colors are different.
+     * The dataset group for the plot's dataset (or datasets in the case of combined and overlaid
+     * plots.
      */
-    protected int firstSeriesIndex = 0;
+    private DatasetGroup datasetGroup;
+
+    /** The message to display if no data is available. */
+    protected String noDataMessage;
+
+    /** The font used to display the 'no data' message. */
+    protected Font noDataMessageFont;
 
     /** Amount of blank space around the plot area. */
     protected Insets insets;
@@ -165,18 +183,16 @@ public abstract class Plot implements AxisChangeListener,
     /** Stroke objects used to draw the outline of each series in the chart. */
     protected Stroke[] seriesOutlineStroke;
 
-    /** Storage for registered change listeners. */
-    protected List listeners;
-
     /** Factory for shapes used to represent data points */
     protected ShapeFactory shapeFactory;
+
+    /** Storage for registered change listeners. */
+    protected EventListenerList listenerList;
 
     /**
      * Constructs a new plot with the specified axes.
      *
-     * @param data The dataset.
-     * @param horizontalAxis The horizontal axis.
-     * @param verticalAxis The vertical axis.
+     * @param data  the dataset.
      */
     protected Plot(Dataset data) {
 
@@ -195,14 +211,14 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Constructs a new plot.
      *
-     * @param data The dataset.
-     * @param insets Amount of blank space around the plot area.
-     * @param backgroundPaint An optional color for the plot's background.
-     * @param backgroundImage An optional image for the plot's background.
-     * @param backgroundAlpha Alpha-transparency for the plot's background.
-     * @param outlineStroke The Stroke used to draw an outline around the plot.
-     * @param outlinePaint The color used to draw an outline around the plot.
-     * @param foregroundAlpha The alpha-transparency for the plot foreground.
+     * @param data  the dataset.
+     * @param insets  the amount of blank space around the plot area.
+     * @param backgroundPaint  an optional color for the plot's background.
+     * @param backgroundImage  an optional image for the plot's background.
+     * @param backgroundAlpha  alpha-transparency for the plot's background.
+     * @param outlineStroke  the Stroke used to draw an outline around the plot.
+     * @param outlinePaint  the color used to draw an outline around the plot.
+     * @param foregroundAlpha  the alpha-transparency for the plot foreground.
      */
     protected Plot(Dataset data,
                    Insets insets,
@@ -212,9 +228,13 @@ public abstract class Plot implements AxisChangeListener,
 
         // set the data and register to receive change notifications...
         this.dataset = data;
-        if (data!=null) {
+        if (data != null) {
+            this.datasetGroup = data.getGroup();
             data.addChangeListener(this);
         }
+
+        this.noDataMessage = null;
+        this.noDataMessageFont = new Font("SansSerif", Font.PLAIN, 12);
 
         this.insets = insets;
         this.backgroundPaint = backgroundPaint;
@@ -224,56 +244,50 @@ public abstract class Plot implements AxisChangeListener,
         this.foregroundAlpha = foregroundAlpha;
 
         this.seriesStroke = new Stroke[] { new BasicStroke(1.0f) };
-        this.seriesPaint = new Paint[] {Color.red, Color.blue, Color.green, Color.yellow,
-                                        Color.orange, Color.magenta, Color.cyan, Color.pink,
-                                        Color.lightGray};
+        this.seriesPaint = new Paint[] {Color.red, Color.blue, Color.green,
+                                        Color.yellow, Color.orange, Color.magenta,
+                                        Color.cyan, Color.pink, Color.lightGray};
 
         this.seriesOutlinePaint = new Paint[] { Color.gray };
         this.seriesOutlineStroke = new Stroke[] { new BasicStroke(0.5f) };
 
-        this.listeners = new java.util.ArrayList();
         this.shapeFactory = new SeriesShapeFactory();
+        this.listenerList = new EventListenerList();
 
     }
 
     /**
-     * Returns a short string describing the plot type.
-     * <P>
-     * Note: this gets used in the chart property editing user interface, but there needs to be
-     * a better mechanism for identifying the plot type.
-     * @return A short string describing the plot type.
-     */
-    public abstract String getPlotType();
-
-    /**
      * Returns the dataset for the plot.
      *
-     * @return The dataset.
+     * @return the dataset.
      */
     public Dataset getDataset() {
         return dataset;
     }
 
     /**
-     * Sets the data for the chart, replacing any existing data.  Registered listeners are
-     * notified that the data has been modified.
+     * Sets the data for the chart, replacing any existing data.  Registered
+     * listeners are notified that the data has been modified.
      * <P>
-     * The plot is automatically registered with the new dataset, to listen for any changes.
+     * The plot is automatically registered with the new dataset, to listen for
+     * any changes.
      *
-     * @param data The new dataset.
+     * @param data  the new dataset.
      */
     public void setDataset(Dataset data) {
 
-        // if there is an existing dataset, remove the chart from the list of change listeners...
+        // if there is an existing dataset, remove the chart from the list of
+        // change listeners...
         Dataset existing = this.dataset;
-        if (existing!=null) {
+        if (existing != null) {
             existing.removeChangeListener(this);
         }
 
         // set the new dataset, and register the chart as a change listener...
         this.dataset = data;
-        if (this.dataset!=null) {
-            dataset.addChangeListener(this);
+        if (data != null) {
+            this.datasetGroup = data.getGroup();
+            data.addChangeListener(this);
         }
 
         // send a dataset change event to self...
@@ -283,48 +297,90 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Returns true if this plot is part of a combined plot structure, and false otherwise.
+     * Returns the dataset group for the plot.
+     */
+    public DatasetGroup getDatasetGroup() {
+        return this.datasetGroup;
+    }
+
+    /**
+     * Sets the dataset group.
      *
-     * @return A flag indicating if this plot is a subplot.
+     * @param group  the dataset group.
+     */
+    protected void setDatasetGroup(DatasetGroup group) {
+        this.datasetGroup = group;
+    }
+
+    /**
+     * Returns the string that is displayed when the dataset is empty or null.
+     *
+     * @return the 'no data' message (null possible).
+     */
+    public String getNoDataMessage() {
+        return this.noDataMessage;
+    }
+
+    /**
+     * Sets the message that is displayed when the dataset is empty or null.
+     *
+     * @param message  the message (null permitted).
+     */
+    public void setNoDataMessage(String message) {
+        this.noDataMessage = message;
+    }
+
+    /**
+     * Returns the font used to display the 'no data' message.
+     *
+     * @return the font.
+     */
+    public Font getNoDataMessageFont() {
+        return this.noDataMessageFont;
+    }
+
+    /**
+     * Sets the font used to display the 'no data' message.
+     *
+     * @param font  the font.
+     */
+    public void setNoDataMessageFont(Font font) {
+        this.noDataMessageFont = font;
+    }
+
+    /**
+     * Returns a short string describing the plot type.
+     * <P>
+     * Note: this gets used in the chart property editing user interface,
+     * but there needs to be a better mechanism for identifying the plot type.
+     *
+     * @return a short string describing the plot type.
+     */
+    public abstract String getPlotType();
+
+    /**
+     * Returns true if this plot is part of a combined plot structure.
+     *
+     * @return a flag indicating if this plot is a subplot.
      */
     public boolean isSubplot() {
         return false;
     }
 
     /**
-     * Returns the index of the first series.
-     *
-     * @return The index.
-     */
-    public int getFirstSeriesIndex() {
-        return this.firstSeriesIndex;
-    }
-
-    /**
-     * Sets the index of the first series.  For a single plot, this defaults to zero, but when
-     * you combine plots this will be set to a higher value to ensure that all series have a
-     * unique index (and therefore color).
-     *
-     * @param index The new index.
-     */
-    public void setFirstSeriesIndex(int index) {
-        this.firstSeriesIndex = index;
-    }
-
-    /**
      * Returns the insets for the plot area.
      *
-     * @return The insets.
+     * @return the insets.
      */
     public Insets getInsets() {
         return this.insets;
     }
 
     /**
-     * Sets the insets for the plot and notifies registered listeners that the plot has been
-     * modified.
+     * Sets the insets for the plot and notifies registered listeners that the
+     * plot has been modified.
      *
-     * @param insets The new insets.
+     * @param insets  the new insets.
      */
     public void setInsets(Insets insets) {
 
@@ -338,28 +394,28 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Returns the background color of the plot area.
      *
-     * @return The background color (null possible).
+     * @return the background color (null possible).
      */
     public Paint getBackgroundPaint() {
         return this.backgroundPaint;
     }
 
     /**
-     * Sets the background color of the plot area, and notifies registered listeners that the
-     * plot has been modified.
+     * Sets the background color of the plot area, and notifies registered
+     * listeners that the plot has been modified.
      *
-     * @param paint The new background color (null permitted).
+     * @param paint  the new background color (null permitted).
      */
     public void setBackgroundPaint(Paint paint) {
 
-        if (paint==null) {
-            if (this.backgroundPaint!=null) {
-                this.backgroundPaint=null;
+        if (paint == null) {
+            if (this.backgroundPaint != null) {
+                this.backgroundPaint = null;
                 notifyListeners(new PlotChangeEvent(this));
             }
         }
         else {
-            if (this.backgroundPaint!=null) {
+            if (this.backgroundPaint != null) {
                 if (this.backgroundPaint.equals(paint)) {
                     return;  // nothing to do
                 }
@@ -373,22 +429,22 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Returns the alpha transparency of the plot area background.
      *
-     * @return The alpha transparency.
+     * @return the alpha transparency.
      */
     public float getBackgroundAlpha() {
         return this.backgroundAlpha;
     }
 
     /**
-     * Sets the alpha transparency of the plot area background, and notifies registered listeners
-     * that the plot has been modified.
+     * Sets the alpha transparency of the plot area background, and notifies
+     * registered listeners that the plot has been modified.
      *
-     * @param alpha The new alpha value.
+     * @param alpha the new alpha value.
      */
     public void setBackgroundAlpha(float alpha) {
 
-        if (this.backgroundAlpha!=alpha) {
-            this.backgroundAlpha=alpha;
+        if (this.backgroundAlpha != alpha) {
+            this.backgroundAlpha = alpha;
             notifyListeners(new PlotChangeEvent(this));
         }
 
@@ -397,37 +453,38 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Sets the background image for the plot.
      *
-     * @param image The background image.
+     * @param image  the background image.
      */
     public void setBackgroundImage(Image image) {
         this.backgroundImage = image;
+        notifyListeners(new PlotChangeEvent(this));
     }
 
     /**
      * Returns the pen/brush used to outline the plot area.
      *
-     * @return The outline stroke (possibly null).
+     * @return the outline stroke (possibly null).
      */
     public Stroke getOutlineStroke() {
         return this.outlineStroke;
     }
 
     /**
-     * Sets the pen/brush used to outline the plot area, and notifies registered listeners that the
-     * plot has been modified.
+     * Sets the pen/brush used to outline the plot area, and notifies
+     * registered listeners that the plot has been modified.
      *
-     * @param stroke The new outline pen/brush (null permitted).
+     * @param stroke  the new outline pen/brush (null permitted).
      */
     public void setOutlineStroke(Stroke stroke) {
 
-        if (stroke==null) {
-            if (this.outlineStroke!=null) {
-                this.outlineStroke=null;
+        if (stroke == null) {
+            if (this.outlineStroke != null) {
+                this.outlineStroke = null;
                 notifyListeners(new PlotChangeEvent(this));
             }
         }
         else {
-            if (this.outlineStroke!=null) {
+            if (this.outlineStroke != null) {
                 if (this.outlineStroke.equals(stroke)) {
                     return;  // nothing to do
                 }
@@ -441,28 +498,28 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Returns the color used to draw the outline of the plot area.
      *
-     * @return The color (possibly null).
+     * @return the color (possibly null).
      */
     public Paint getOutlinePaint() {
         return this.outlinePaint;
     }
 
     /**
-     * Sets the color of the outline of the plot area, and notifies registered listeners that the
-     * Plot has been modified.
+     * Sets the color of the outline of the plot area, and notifies registered
+     * listeners that the Plot has been modified.
      *
-     * @param paint The new outline paint (null permitted).
+     * @param paint  the new outline paint (null permitted).
      */
     public void setOutlinePaint(Paint paint) {
 
-        if (paint==null) {
-            if (this.outlinePaint!=null) {
-                this.outlinePaint=null;
+        if (paint == null) {
+            if (this.outlinePaint != null) {
+                this.outlinePaint = null;
                 notifyListeners(new PlotChangeEvent(this));
             }
         }
         else {
-            if (this.outlinePaint!=null) {
+            if (this.outlinePaint != null) {
                 if (this.outlinePaint.equals(paint)) {
                     return;  // nothing to do
                 }
@@ -476,7 +533,7 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Returns the alpha-transparency for the plot foreground.
      *
-     * @return The alpha-transparency.
+     * @return the alpha-transparency.
      */
     public float getForegroundAlpha() {
         return this.foregroundAlpha;
@@ -485,7 +542,7 @@ public abstract class Plot implements AxisChangeListener,
     /**
      * Sets the alpha-transparency for the plot.
      *
-     * @param alpha The new alpha transparency.
+     * @param alpha  the new alpha transparency.
      */
     public void setForegroundAlpha(float alpha) {
 
@@ -496,26 +553,51 @@ public abstract class Plot implements AxisChangeListener,
 
     }
 
-    public abstract List getLegendItemLabels();
+    /**
+     * Returns a list of labels for the legend.
+     * <P>
+     * Most plots will return a list of series names, but there are some plots (e.g. PiePlot)
+     * that do not have series so they will return something else.
+     *
+     * @return the series labels.
+     *
+     * @deprecated use getLegendItems().
+     */
+    public List getLegendItemLabels() {
+        // by default, return an empty list (subclasses will override).
+        return new java.util.ArrayList();
+    }
+
+    /**
+     * Returns the legend items for the plot.
+     * <P>
+     * By default, this method returns null.  Subclasses should override to return a collection
+     * of legend items.
+     *
+     * @return the legend items for the plot.
+     */
+    public LegendItemCollection getLegendItems() {
+        return null;
+    }
 
     /**
      * Returns a Paint object used as the main color for a series.
      *
-     * @param index The series index (zero-based).
+     * @param index  the series index (zero-based).
+     *
+     * @return a Paint object used as the main color for a series.
      */
     public Paint getSeriesPaint(int index) {
 
-        if (isSubplot()) {
-            index = index+this.firstSeriesIndex;
-        }
         return seriesPaint[index % seriesPaint.length];
 
     }
 
     /**
-     * Sets the paint used to color any shapes representing series, and notifies registered
-     * listeners that the plot has been modified.
-     * @param paint An array of Paint objects used to color series.
+     * Sets the paint used to color any shapes representing series, and
+     * notifies registered listeners that the plot has been modified.
+     *
+     * @param paint  an array of Paint objects used to color series.
      */
     public void setSeriesPaint(Paint[] paint) {
         this.seriesPaint = paint;
@@ -523,32 +605,45 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Sets the paint used to color any shapes representing a specific series, and notifies registered
-     * listeners that the plot has been modified.
-     * @param index The series index (zero-based)
-     * @param paint An array of Paint objects used to color series.
+     * Sets the paint used to color any shapes representing a specific series,
+     * and notifies registered listeners that the plot has been modified.
+     *
+     * @param index  the series (zero-based index).
+     * @param paint  an array of Paint objects used to color series.
      */
     public void setSeriesPaint(int index, Paint paint) {
-      if (isSubplot()) {
-          index = index+this.firstSeriesIndex;
-      }
-      this.seriesPaint[index] = paint;
-      notifyListeners(new PlotChangeEvent(this));
+
+        // check to see if the array is being extended
+        int count = this.seriesPaint.length;
+        if (index >= count) {
+            Paint[] extended = new Paint[index + 1];
+            for (int i = 0; i < index; i++) {
+                extended[i] = getSeriesPaint(i);
+            }
+            this.seriesPaint = extended;
+        }
+
+        this.seriesPaint[index] = paint;
+        notifyListeners(new PlotChangeEvent(this));
+
     }
 
     /**
      * Returns the Stroke used to draw any shapes for a series.
      *
-     * @param index The series (zero-based index).
+     * @param index  the series (zero-based index).
+     *
+     * @return the Stroke used to draw any shapes for a series.
      */
     public Stroke getSeriesStroke(int index) {
         return seriesStroke[index % seriesStroke.length];
     }
 
     /**
-     * Sets the stroke used to draw any shapes representing series, and notifies registered
-     * listeners that the chart has been modified.
-     * @param stroke An array of Stroke objects used to draw series.
+     * Sets the stroke used to draw any shapes representing series, and
+     * notifies registered listeners that the chart has been modified.
+     *
+     * @param stroke  an array of Stroke objects used to draw series.
      */
     public void setSeriesStroke(Stroke[] stroke) {
         this.seriesStroke = stroke;
@@ -556,10 +651,11 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Sets the stroke used to draw any shapes representing a specific series, and notifies registered
-     * listeners that the chart has been modified.
-     * @param index The series index (zero-based)
-     * @param stroke An array of Stroke objects used to draw series.
+     * Sets the stroke used to draw any shapes representing a specific series,
+     * and notifies registered listeners that the chart has been modified.
+     *
+     * @param index  the series (zero-based index)
+     * @param stroke  an array of Stroke objects used to draw series.
      */
     public void setSeriesStroke(int index, Stroke stroke) {
         this.seriesStroke[index] = stroke;
@@ -568,16 +664,20 @@ public abstract class Plot implements AxisChangeListener,
 
     /**
      * Returns the Paint used to outline any shapes for the specified series.
-     * @param index The index of the series of interest (zero-based);
+     *
+     * @param index  the series (zero-based index).
+     *
+     * @return the Paint.
      */
     public Paint getSeriesOutlinePaint(int index) {
         return seriesOutlinePaint[index % seriesOutlinePaint.length];
     }
 
     /**
-     * Sets the paint used to outline any shapes representing series, and notifies registered
-     * listeners that the chart has been modified.
-     * @param paint An array of Paint objects for drawing the outline of series shapes;
+     * Sets the paint used to outline any shapes representing series, and
+     * notifies registered listeners that the chart has been modified.
+     *
+     * @param paint  an array of Paint objects for drawing the outline of series shapes.
      */
     public void setSeriesOutlinePaint(Paint[] paint) {
         this.seriesOutlinePaint = paint;
@@ -586,16 +686,20 @@ public abstract class Plot implements AxisChangeListener,
 
     /**
      * Returns the Stroke used to outline any shapes for the specified series.
-     * @param index The index of the series of interest (zero-based);
+     *
+     * @param index  the series (zero-based index).
+     *
+     * @return the Stroke used to outline any shapes for the specified series.
      */
     public Stroke getSeriesOutlineStroke(int index) {
-        return seriesOutlineStroke[index % seriesOutlinePaint.length];
+        return seriesOutlineStroke[index % seriesOutlineStroke.length];
     }
 
     /**
-     * Sets the stroke used to draw any shapes representing series, and notifies registered
-     * listeners that the chart has been modified.
-     * @param stroke An array of Stroke objects;
+     * Sets the stroke used to draw any shapes representing series, and
+     * notifies registered listeners that the chart has been modified.
+     *
+     * @param stroke  an array of Stroke objects.
      */
     public void setSeriesOutlineStroke(Stroke[] stroke) {
         this.seriesOutlineStroke = stroke;
@@ -603,10 +707,11 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Sets the stroke used to draw any shapes representing a specific series, and notifies registered
-     * listeners that the chart has been modified.
-     * @param index The series index (zero-based)
-     * @param stroke An array of Stroke objects;
+     * Sets the stroke used to draw any shapes representing a specific series,
+     * and notifies registered listeners that the chart has been modified.
+     *
+     * @param index  the series index (zero-based).
+     * @param stroke  an array of Stroke objects.
      */
     public void setSeriesOutlineStroke(int index, Stroke stroke) {
         this.seriesOutlineStroke[index] = stroke;
@@ -614,15 +719,18 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Returns the object used to generate shapes for marking data points
+     * Returns the object used to generate shapes for marking data points.
+     *
+     * @return the object used to generate shapes for marking data points.
      */
     public ShapeFactory getShapeFactory() {
         return shapeFactory;
     }
 
     /**
-     * Sets the object used to generate shapes for marking data points
-     * @param factory The new shape factory.
+     * Sets the object used to generate shapes for marking data points.
+     *
+     * @param factory  the new shape factory.
      */
     public void setShapeFactory(ShapeFactory factory) {
         this.shapeFactory = factory;
@@ -631,6 +739,14 @@ public abstract class Plot implements AxisChangeListener,
 
     /**
      * Returns a Shape that can be used in plotting data.  Used in XYPlots.
+     *
+     * @param series  the index of the series.
+     * @param item  the index of the item.
+     * @param x  x-coordinate of the item.
+     * @param y  y-coordinate of the item.
+     * @param scale  the size.
+     *
+     * @return a Shape that can be used in plotting data.
      */
     public Shape getShape(int series, int item, double x, double y, double scale) {
 
@@ -643,8 +759,16 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Returns a Shape that can be used in plotting data.  Should allow a plug-in object to
-     * determine the shape...
+     * Returns a Shape that can be used in plotting data.  Should allow a
+     * plug-in object to determine the shape...
+     *
+     * @param series  the index of the series.
+     * @param category  the category.
+     * @param x  x-coordinate of the category.
+     * @param y  y-coordinate of the category.
+     * @param scale  the size.
+     *
+     * @return a Shape that can be used in plotting data.
      */
     public Shape getShape(int series, Object category, double x, double y, double scale) {
 
@@ -657,58 +781,64 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
+     * Registers an object for notification of changes to the plot.
+     *
+     * @param listener  the object to be registered.
+     */
+    public void addChangeListener(PlotChangeListener listener) {
+        listenerList.add(PlotChangeListener.class, listener);
+    }
+
+    /**
+     * Unregisters an object for notification of changes to the plot.
+     *
+     * @param listener  the object to be unregistered.
+     */
+    public void removeChangeListener(PlotChangeListener listener) {
+        listenerList.remove(PlotChangeListener.class, listener);
+    }
+
+    /**
      * Notifies all registered listeners that the plot has been modified.
      *
-     * @param event Information about the change event.
+     * @param event  information about the change event.
      */
     public void notifyListeners(PlotChangeEvent event) {
 
-        Iterator iterator = listeners.iterator();
-        while (iterator.hasNext()) {
-            PlotChangeListener listener = (PlotChangeListener)iterator.next();
-            listener.plotChanged(event);
+        Object[] listeners = this.listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == PlotChangeListener.class) {
+                ((PlotChangeListener) listeners[i + 1]).plotChanged(event);
+            }
         }
 
     }
 
     /**
-     * Registers an object for notification of changes to the plot.
-     * @param listener The object to be registered.
-     */
-    public void addChangeListener(PlotChangeListener listener) {
-        listeners.add(listener);
-    }
-
-    /**
-     * Unregisters an object for notification of changes to the plot.
-     * @param listener The object to be unregistered.
-     */
-    public void removeChangeListener(PlotChangeListener listener) {
-        listeners.remove(listener);
-    }
-
-    /**
-     * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
+     * Draws the plot on a Java 2D graphics device (such as the screen or a
+     * printer).
      * <P>
-     * This class does not store any information about where the individual items that make up
-     * the plot are actually drawn.  If you want to collect this information, pass in a
-     * ChartRenderingInfo object.  After the drawing is complete, the info object will contain
-     * lots of information about the chart.  If you don't want the information, pass in null.
+     * This class does not store any information about where the individual
+     * items that make up the plot are actually drawn.  If you want to collect
+     * this information, pass in a ChartRenderingInfo object.  After the
+     * drawing is complete, the info object will contain lots of information
+     * about the chart.  If you don't want the information, pass in null.
      * *
-     * @param g2 The graphics device.
-     * @param plotArea The area within which the plot should be drawn.
-     * @param info An object for collecting information about the drawing of the chart.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the plot should be drawn.
+     * @param info  an object for collecting information about the drawing of the chart.
      */
     public abstract void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info);
 
     /**
      * Draw the plot outline and background.
-     * @param g2 The graphics device.
-     * @param area The area within which the plot should be drawn.
+     *
+     * @param g2  the graphics device.
+     * @param area  the area within which the plot should be drawn.
      */
     public void drawOutlineAndBackground(Graphics2D g2, Rectangle2D area) {
 
-        if (backgroundPaint!=null) {
+        if (backgroundPaint != null) {
             Composite originalComposite = g2.getComposite();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                                                        this.backgroundAlpha));
@@ -717,16 +847,16 @@ public abstract class Plot implements AxisChangeListener,
             g2.setComposite(originalComposite);
         }
 
-        if (backgroundImage!=null) {
+        if (backgroundImage != null) {
             Composite originalComposite = g2.getComposite();
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.15f));
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, this.backgroundAlpha));
             g2.drawImage(this.backgroundImage,
-                         (int)area.getX(), (int)area.getY(),
-                         (int)area.getWidth(), (int)area.getHeight(), null);
+                         (int) area.getX(), (int) area.getY(),
+                         (int) area.getWidth(), (int) area.getHeight(), null);
             g2.setComposite(originalComposite);
         }
 
-        if ((outlineStroke!=null) && (outlinePaint!=null)) {
+        if ((outlineStroke != null) && (outlinePaint != null)) {
             g2.setStroke(outlineStroke);
             g2.setPaint(outlinePaint);
             g2.draw(area);
@@ -735,30 +865,56 @@ public abstract class Plot implements AxisChangeListener,
     }
 
     /**
-     * Handles a 'click' on the plot.  Since the plot does not maintain any information about where
-     * it has been drawn, the plot area is supplied as an argument.
+     * Draws a message to state that there is no data to plot.
      *
-     * @param x The x coordinate.
-     * @param y The y coordinate.
-     * @param plotArea The area in which the plot is assumed to be drawn.
+     * @param g2  the graphics device.
+     * @param area  the area within which the plot should be drawn.
      */
-    public void handleClick(int x, int y, ChartRenderingInfo info) {
+    protected void drawNoDataMessage(Graphics2D g2, Rectangle2D area) {
 
+        Shape savedClip = g2.getClip();
+        g2.clip(area);
+        String message = this.noDataMessage;
+        if (message != null) {
+            g2.setFont(this.noDataMessageFont);
+            //g2.setPaint(labelPaint);
+            FontRenderContext frc = g2.getFontRenderContext();
+            Rectangle2D bounds = noDataMessageFont.getStringBounds(message, frc);
+            float x = (float) (area.getX() + area.getWidth() / 2 - bounds.getWidth() / 2);
+            float y = (float) (area.getMinY() + (area.getHeight() / 2) - (bounds.getHeight() / 2));
+            g2.drawString(message, x, y);
+        }
+        g2.clip(savedClip);
 
     }
 
     /**
-     * Performs a zoom on the plot.  Subclasses will implement a behaviour that is appropriate to
+     * Handles a 'click' on the plot.  Since the plot does not maintain any
+     * information about where it has been drawn, the plot area is supplied as
+     * an argument.
+     *
+     * @param x  the x coordinate.
+     * @param y  the y coordinate.
+     * @param info  an object for collecting information about the drawing of the chart.
+     */
+    public void handleClick(int x, int y, ChartRenderingInfo info) {
+
+    }
+
+    /**
+     * Performs a zoom on the plot.  Subclasses should override if zooming is appropriate for
      * the type of plot.
      *
-     * @param The zoom percentage.
+     * @param percent  the zoom percentage.
      */
-    public abstract void zoom(double percent);
+    public void zoom(double percent) {
+        // do nothing by default.
+    }
 
     /**
      * Receives notification of a change to one of the plot's axes.
      *
-     * @param event Information about the event (not used here).
+     * @param event  information about the event (not used here).
      */
     public void axisChanged(AxisChangeEvent event) {
         notifyListeners(new PlotChangeEvent(this));
@@ -769,7 +925,7 @@ public abstract class Plot implements AxisChangeListener,
      * <P>
      * The plot reacts by passing on a plot change event to all registered listeners.
      *
-     * @param event Information about the event (not used here).
+     * @param event  information about the event (not used here).
      */
     public void datasetChanged(DatasetChangeEvent event) {
 

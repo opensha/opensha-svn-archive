@@ -35,6 +35,7 @@
  * 18-Sep-2001 : Updated header (DG);
  * 04-Dec-2001 : Changed constructors to protected, and tidied up default values (DG);
  * 19-Apr-2002 : Updated import statements (DG);
+ * 05-Sep-2002 : Updated constructor for changes in Axis class (DG);
  *
  */
 
@@ -48,24 +49,27 @@ import java.awt.Stroke;
 /**
  * An axis that displays categories.
  * <P>
- * The axis needs to rely on the plot for placement of labels, since the plot controls how the
- * categories are distributed.
+ * The axis needs to rely on the plot for placement of labels, since the plot
+ * controls how the categories are distributed.
+ *
+ * @author DG
  */
 public abstract class CategoryAxis extends Axis {
 
     /**
      * Constructs a category axis.
      *
-     * @param label The axis label.
-     * @param labelFont The font for displaying the axis label.
-     * @param labelPaint The paint used to draw the axis label.
-     * @param labelInsets Determines the amount of blank space around the label.
-     * @param categoryLabelsVisible Flag indicating whether or not category labels are visible.
-     * @param categoryLabelFont The font used to display category (tick) labels.
-     * @param categoryLabelPaint The paint used to draw category (tick) labels.
-     * @param categoryLabelInsets The insets for the category labels.
-     * @param tickMarksVisible Flag indicating whether or not tick marks are visible.
-     * @param tickMarkStroke The stroke used to draw tick marks (if visible).
+     * @param label  the axis label.
+     * @param labelFont  the font for displaying the axis label.
+     * @param labelPaint  the paint used to draw the axis label.
+     * @param labelInsets  determines the amount of blank space around the label.
+     * @param categoryLabelsVisible  a flag indicating whether or not category labels are visible.
+     * @param categoryLabelFont  the font used to display category (tick) labels.
+     * @param categoryLabelPaint  the paint used to draw category (tick) labels.
+     * @param categoryLabelInsets  the insets for the category labels.
+     * @param tickMarksVisible  a flag indicating whether or not tick marks are visible.
+     * @param tickMarkStroke  the stroke used to draw tick marks (if visible).
+     * @param tickMarkPaint  the paint used to draw tick marks (if visible).
      */
     protected CategoryAxis(String label,
                            Font labelFont, Paint labelPaint, Insets labelInsets,
@@ -73,21 +77,21 @@ public abstract class CategoryAxis extends Axis {
                            Font categoryLabelFont, Paint categoryLabelPaint,
                            Insets categoryLabelInsets,
                            boolean tickMarksVisible,
-                           Stroke tickMarkStroke) {
+                           Stroke tickMarkStroke, Paint tickMarkPaint) {
 
         super(label,
               labelFont, labelPaint, labelInsets,
               categoryLabelsVisible,
               categoryLabelFont, categoryLabelPaint, categoryLabelInsets,
               tickMarksVisible,
-              tickMarkStroke);
+              tickMarkStroke, tickMarkPaint);
 
     }
 
     /**
      * Constructs a category axis, using default values where necessary.
      *
-     * @param label The axis label.
+     * @param label  the axis label.
      */
     protected CategoryAxis(String label) {
 
@@ -100,7 +104,8 @@ public abstract class CategoryAxis extends Axis {
              Axis.DEFAULT_TICK_LABEL_PAINT,
              Axis.DEFAULT_TICK_LABEL_INSETS,
              false, // tick marks visible (not supported anyway)
-             Axis.DEFAULT_TICK_STROKE);
+             Axis.DEFAULT_TICK_STROKE,
+             Axis.DEFAULT_TICK_PAINT);
 
     }
 

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -41,15 +41,29 @@
 
 package com.jrefinery.chart.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import com.jrefinery.chart.*;
-import com.jrefinery.layout.*;
-import com.jrefinery.ui.*;
+import java.awt.Font;
+import java.awt.Paint;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JColorChooser;
+import javax.swing.BorderFactory;
+import com.jrefinery.chart.AbstractTitle;
+import com.jrefinery.layout.LCBLayout;
+import com.jrefinery.ui.PaintSample;
+import com.jrefinery.ui.FontDisplayField;
+import com.jrefinery.ui.FontChooserPanel;
 
 /**
  * A panel for editing the properties of a chart title.
+ *
+ * @author DG
  */
 public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
@@ -66,25 +80,23 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
     private PaintSample titlePaint;
 
     /**
-     * Standard constructor: builds a panel for displaying/editing the properties of the specified
-     * title.
+     * Standard constructor: builds a panel for displaying/editing the
+     * properties of the specified title.
+     *
+     * @param title  the title, which should be changed.
      */
     public TitlePropertyEditPanel(AbstractTitle title) {
-
-        // initialise local selections
-        //titleFont = title.getTitleFont();
-        //titlePaint = new PaintSample(title.getTitlePaint());
 
         setLayout(new BorderLayout());
 
         JPanel general = new JPanel(new BorderLayout());
         general.setBorder(BorderFactory.createTitledBorder(
-                            BorderFactory.createEtchedBorder(), "General:"));
+                              BorderFactory.createEtchedBorder(), "General:"));
 
         JPanel interior = new JPanel(new LCBLayout(3));
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         JLabel titleLabel = new JLabel("Text:");
-        //titleField = new JTextField(title.getTitle());
+
         interior.add(titleLabel);
         interior.add(titleField);
         interior.add(new JPanel());
@@ -100,7 +112,6 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
         interior.add(new JLabel("Color:"));
 
-        //titlePaint = new PaintSample(title.getTitlePaint());
         b = new JButton("Select...");
         b.setActionCommand("SelectPaint");
         b.addActionListener(this);
@@ -109,10 +120,13 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
         general.add(interior);
         add(general, BorderLayout.NORTH);
+
     }
 
     /**
      * Returns the title entered in the panel.
+     *
+     * @return the title entered in the panel.
      */
     public String getTitle() {
         return titleField.getText();
@@ -120,6 +134,8 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the font selected in the panel.
+     *
+     * @return the font selected in the panel.
      */
     public Font getTitleFont() {
         return titleFont;
@@ -127,6 +143,8 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the paint selected in the panel.
+     *
+     * @return the paint selected in the panel.
      */
     public Paint getTitlePaint() {
         return titlePaint.getPaint();
@@ -134,6 +152,8 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Handles button clicks by passing control to an appropriate handler method.
+     *
+     * @param event  the event
      */
     public void actionPerformed(ActionEvent event) {
 
@@ -155,32 +175,38 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
         FontChooserPanel panel = new FontChooserPanel(titleFont);
         int result = JOptionPane.showConfirmDialog(this, panel, "Font Selection",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                                                   JOptionPane.OK_CANCEL_OPTION,
+                                                   JOptionPane.PLAIN_MESSAGE);
 
-        if (result==JOptionPane.OK_OPTION) {
+        if (result == JOptionPane.OK_OPTION) {
             titleFont = panel.getSelectedFont();
-            fontfield.setText(titleFont.getFontName()+" "+titleFont.getSize());
+            fontfield.setText(titleFont.getFontName() + " " + titleFont.getSize());
         }
 
     }
 
     /**
-     * Allow the user the opportunity to select a Paint object.  For now, we just use the
-     * standard color chooser - all colors are Paint objects, but not all Paint objects are
-     * colors (later we can implement a more general Paint chooser).
+     * Allow the user the opportunity to select a Paint object.  For now, we
+     * just use the standard color chooser - all colors are Paint objects, but
+     * not all Paint objects are colors (later we can implement a more general
+     * Paint chooser).
      */
     public void attemptPaintSelection() {
         Color c = JColorChooser.showDialog(this, "Title Color", Color.blue);
-        if (c!=null) {
+        if (c != null) {
             titlePaint.setPaint(c);
         }
     }
 
     /**
-     * Sets the properties of the specified title to match the properties defined on this panel.
+     * Sets the properties of the specified title to match the properties
+     * defined on this panel.
+     *
+     * @param title  an AbstractTitle.
      */
     public void setTitleProperties(AbstractTitle title) {
-        if (title instanceof AbstractTitle) {  // only supports StandardTitle at present
+        if (title instanceof AbstractTitle) {
+            // only supports StandardTitle at present
             //StandardTitle standard = (StandardTitle)title;
             //standard.setTitle(this.getTitle());
             //standard.setTitleFont(this.getTitleFont());

@@ -32,6 +32,7 @@
  * Changes:
  * --------
  * 27-May-2002 : Version 1 (code moved from the ChartPanel class);
+ * 25-Jun-2002 : Increased max draw width and height (DG);
  *
  */
 
@@ -39,11 +40,13 @@ package com.jrefinery.chart;
 
 /**
  * Useful constants for the ChartPanel class.
+ *
+ * @author DG
  */
 public interface ChartPanelConstants {
 
     /** Default setting for buffer usage. */
-    public static final boolean DEFAULT_BUFFER_USED = true;
+    public static final boolean DEFAULT_BUFFER_USED = false;
 
     /** The default panel width. */
     public static final int DEFAULT_WIDTH = 680;
@@ -58,10 +61,10 @@ public interface ChartPanelConstants {
     public static final int DEFAULT_MINIMUM_DRAW_HEIGHT = 200;
 
     /** The default limit below which chart scaling kicks in. */
-    public static final int DEFAULT_MAXIMUM_DRAW_WIDTH = 680;
+    public static final int DEFAULT_MAXIMUM_DRAW_WIDTH = 800;
 
     /** The default limit below which chart scaling kicks in. */
-    public static final int DEFAULT_MAXIMUM_DRAW_HEIGHT = 420;
+    public static final int DEFAULT_MAXIMUM_DRAW_HEIGHT = 600;
 
     /** The minimum size required to perform a zoom on a rectangle */
     public static final int MINIMUM_DRAG_ZOOM_SIZE = 20;

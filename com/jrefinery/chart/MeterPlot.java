@@ -26,6 +26,7 @@
  *
  * Original Author:  Hari (ourhari@hotmail.com);
  * Contributor(s):   David Gilbert (for Simba Management Limited);
+ *                   Bob Orchard;
  *
  * $Id$
  *
@@ -33,6 +34,9 @@
  * -------
  * 01-Apr-2002 : Version 1, contributed by Hari (DG);
  * 23-Apr-2002 : Moved dataset from JFreeChart to Plot (DG);
+ * 22-Aug-2002 : Added changes suggest by Bob Orchard, changed Color to Paint for consistency,
+ *               plus added Javadoc comments (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -57,73 +61,128 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.util.List;
 import com.jrefinery.data.MeterDataset;
-import com.jrefinery.chart.event.*;
-import com.jrefinery.chart.tooltips.*;
+import com.jrefinery.chart.event.PlotChangeEvent;
 
 /**
- * A plot that displays a single value in the context of a range of levels (normal, warning and
- * critical).
+ * A plot that displays a single value in the context of several ranges ('normal', 'warning'
+ * and 'critical').
+ *
+ * @author Hari
  */
 public class MeterPlot extends Plot {
 
-    /** The default text for the critical level. */
-    public static final String CRITICAL_TEXT = "Critical";
+    /** Constant for meter type 'pie'. */
+    public static final int DIALTYPE_PIE = 0;
 
-    /** The default text for the warning level. */
-    public static final String WARNING_TEXT = "Warning";
+    /** Constant for meter type 'circle'. */
+    public static final int DIALTYPE_CIRCLE = 1;
+
+    /** Constant for meter type 'chord'. */
+    public static final int DIALTYPE_CHORD = 2;
 
     /** The default text for the normal level. */
     public static final String NORMAL_TEXT = "Normal";
 
-    static final Color DEFAULT_NORMAL_COLOR = Color.green;
+    /** The default text for the warning level. */
+    public static final String WARNING_TEXT = "Warning";
 
-    static final Color DEFAULT_WARNING_COLOR = Color.yellow;
+    /** The default text for the critical level. */
+    public static final String CRITICAL_TEXT = "Critical";
 
-    static final Color DEFAULT_CRITICAL_COLOR = Color.red;
+    /** The default 'normal' level color. */
+    static final Paint DEFAULT_NORMAL_PAINT = Color.green;
 
+    /** The default 'warning' level color. */
+    static final Paint DEFAULT_WARNING_PAINT = Color.yellow;
+
+    /** The default 'critical' level color. */
+    static final Paint DEFAULT_CRITICAL_PAINT = Color.red;
+
+    /** The default background paint. */
+    static final Paint DEFAULT_DIAL_BACKGROUND_PAINT = Color.black;
+
+    /** The default needle paint. */
+    static final Paint DEFAULT_NEEDLE_PAINT = Color.green;
+
+    /** The default value font. */
+    static final Font DEFAULT_VALUE_FONT = new Font("SansSerif", Font.BOLD, 12);
+
+    /** The default value paint. */
+    static final Paint DEFAULT_VALUE_PAINT = Color.yellow;
+
+    /** The default meter angle. */
     public static final int DEFAULT_METER_ANGLE = 270;
+
+    /** The default border size. */
     public static final float DEFAULT_BORDER_SIZE = 3f;
+
+    /** The default circle size. */
     public static final float DEFAULT_CIRCLE_SIZE = 10f;
-    public static final Color DEFAULT_BACKGROUND_COLOR = Color.green;
 
+    /** The default background color. */
+    public static final Paint DEFAULT_BACKGROUND_PAINT = Color.lightGray;
 
+    /** The default label font. */
     public static final Font DEFAULT_LABEL_FONT = new Font("SansSerif", Font.BOLD, 10);
 
+    /** Constant for the label type. */
     public static final int NO_LABELS = 0;
 
+    /** Constant for the label type. */
     public static final int VALUE_LABELS = 1;
 
-    /** Label type (NO_LABELS, VALUE_LABELS). */
-    protected int labelType;
+    /** The dial type (background shape). */
+    private int dialType = DIALTYPE_CIRCLE;
 
-    protected Font labelFont;
+    /** The paint for the dial background. */
+    private Paint dialBackgroundPaint;
 
-    protected int meterCalcAngle = -1;
+    /** The paint for the needle. */
+    private Paint needlePaint;
 
-    protected double meterRange = -1;
+    /** The font for the value displayed in the center of the dial. */
+    private Font valueFont;
 
-    protected int meterAngle = DEFAULT_METER_ANGLE;
+    /** The paint for the value displayed in the center of the dial. */
+    private Paint valuePaint;
 
-    protected double minMeterValue = 0.0;
+    /** The tick label type (NO_LABELS, VALUE_LABELS). */
+    private int tickLabelType;
 
-    protected TickUnits tickUnits = null;
+    /** The tick label font. */
+    private Font tickLabelFont;
 
-    protected NumberTickUnit tickUnit = null;
+    /** The 'normal' level color. */
+    private Paint normalPaint = DEFAULT_NORMAL_PAINT;
 
-    Color colorNormal = DEFAULT_NORMAL_COLOR;
-    Color colorCritical = DEFAULT_CRITICAL_COLOR;
-    Color colorWarning = DEFAULT_WARNING_COLOR;
+    /** The 'warning' level color. */
+    private Paint warningPaint = DEFAULT_WARNING_PAINT;
 
-    public static final int DIALTYPE_PIE = 0;
-    public static final int DIALTYPE_CIRCLE = 1;
-    public static final int DIALTYPE_CHORD = 2;
-    protected int dialType = DIALTYPE_CIRCLE;
+    /** The 'critical' level color. */
+    private Paint criticalPaint = DEFAULT_CRITICAL_PAINT;
 
-    protected Color dialBorderColor;
-    protected boolean drawBorder;
+    /** The color of the border around the dial. */
+    private Color dialBorderColor;
+
+    /** A flag that controls whether or not the border is drawn. */
+    private boolean drawBorder;
+
+    /** ??? */
+    private int meterCalcAngle = -1;
+
+    /** ??? */
+    private double meterRange = -1;
+
+    /** The dial extent. */
+    private int meterAngle = DEFAULT_METER_ANGLE;
+
+    /** The minimum meter value. */
+    private double minMeterValue = 0.0;
 
     /**
      * Default constructor.
+     *
+     * @param data  The dataset.
      */
     public MeterPlot(MeterDataset data) {
 
@@ -135,23 +194,24 @@ public class MeterPlot extends Plot {
              Plot.DEFAULT_OUTLINE_STROKE,
              Plot.DEFAULT_OUTLINE_PAINT,
              Plot.DEFAULT_FOREGROUND_ALPHA,
-             VALUE_LABELS,
-             DEFAULT_LABEL_FONT);
+             MeterPlot.VALUE_LABELS,
+             MeterPlot.DEFAULT_LABEL_FONT);
 
     }
 
     /**
      * Constructs a new meter plot.
      *
-     * @param insets The plot insets.
-     * @param backgroundPaint The background color.
-     * @param backgroundImage The background image.
-     * @param backgroundAlpha The background alpha-transparency.
-     * @param outlineStroke The outline stroke.
-     * @param outlinePaint The outline paint.
-     * @param foregroundAlpha The foreground alpha-transparency.
-     * @param labelType The label type.
-     * @param labelFont The label font.
+     * @param data  the data series.
+     * @param insets  the plot insets.
+     * @param backgroundPaint  the background color.
+     * @param backgroundImage  the background image.
+     * @param backgroundAlpha  the background alpha-transparency.
+     * @param outlineStroke  the outline stroke.
+     * @param outlinePaint  the outline paint.
+     * @param foregroundAlpha  the foreground alpha-transparency.
+     * @param tickLabelType  the label type.
+     * @param tickLabelFont  the label font.
      *
      */
     public MeterPlot(MeterDataset data,
@@ -159,171 +219,369 @@ public class MeterPlot extends Plot {
                      Paint backgroundPaint, Image backgroundImage, float backgroundAlpha,
                      Stroke outlineStroke, Paint outlinePaint,
                      float foregroundAlpha,
-                     int labelType,
-                     Font labelFont) {
+                     int tickLabelType,
+                     Font tickLabelFont) {
 
         super(data,
               insets,
               backgroundPaint, backgroundImage, backgroundAlpha,
               outlineStroke, outlinePaint, foregroundAlpha);
 
-        this.labelType = labelType;
-        this.labelFont = labelFont;
-        setInsets(insets);
+        this.dialBackgroundPaint = MeterPlot.DEFAULT_DIAL_BACKGROUND_PAINT;
+        this.needlePaint = MeterPlot.DEFAULT_NEEDLE_PAINT;
+        this.valueFont = MeterPlot.DEFAULT_VALUE_FONT;
+        this.valuePaint = MeterPlot.DEFAULT_VALUE_PAINT;
+        this.tickLabelType = tickLabelType;
+        this.tickLabelFont = tickLabelFont;
 
     }
 
-    public List getLegendItemLabels() {
-        return null;
-    }
-
-    public Color getNormalColor() { return colorNormal; }
-
-    public Color getWarningColor() { return colorWarning; }
-
-    public Color getCriticalColor() { return colorCritical; }
-
-    public void setWarningColor( Color color) {
-        this.colorWarning = color == null ? DEFAULT_WARNING_COLOR : color;
-    }
-
-    public void setCriticalColor( Color color) {
-        this.colorCritical = color == null ? DEFAULT_CRITICAL_COLOR : color;
-    }
-
-    public void setNormalColor( Color color) {
-        this.colorNormal = color == null ? DEFAULT_NORMAL_COLOR : color;
-    }
-
-    public int getMeterAngle() {
-        return this.meterAngle;
-    }
-
-    public void setMeterAngle(int angle) {
-        this.meterAngle = angle;
-    }
-
+    /**
+     * Returns the type of dial (DIALTYPE_PIE, DIALTYPE_CIRCLE, DIALTYPE_CHORD).
+     *
+     * @return The dial type.
+     */
     public int getDialType() {
         return this.dialType;
     }
 
-    public void setDialType( int type) {
+    /**
+     * Sets the dial type (background shape).
+     * <P>
+     * This controls the shape of the dial background.  Use one of the constants:
+     * DIALTYPE_PIE, DIALTYPE_CIRCLE, or DIALTYPE_CHORD.
+     *
+     * @param type The dial type.
+     */
+    public void setDialType(int type) {
         this.dialType = type;
+        notifyListeners(new PlotChangeEvent(this));
     }
 
-    public Color getDialBorderColor() {
-        return this.dialBorderColor;
+    /**
+     * Returns the paint for the dial background.
+     *
+     * @return The paint.
+     */
+    public Paint getDialBackgroundPaint() {
+        return this.dialBackgroundPaint;
     }
 
-    public void setDialBorderColor( Color color) {
-        this.dialBorderColor = color;
+    /**
+     * Sets the paint used to fill the dial background.
+     * <P>
+     * If you set this to null, it will revert to the default color.
+     *
+     * @param paint The paint.
+     */
+    public void setDialBackgroundPaint(Paint paint) {
+        this.dialBackgroundPaint = paint == null ? DEFAULT_DIAL_BACKGROUND_PAINT : paint;
+        notifyListeners(new PlotChangeEvent(this));
     }
 
+    /**
+     * Returns the paint for the needle.
+     *
+     * @return The paint.
+     */
+    public Paint getNeedlePaint() {
+        return this.needlePaint;
+    }
+
+    /**
+     * Sets the paint used to display the needle.
+     * <P>
+     * If you set this to null, it will revert to the default color.
+     *
+     * @param paint The paint.
+     */
+    public void setNeedlePaint(Paint paint) {
+        this.needlePaint = paint == null ? DEFAULT_NEEDLE_PAINT : paint;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the font for the value label.
+     *
+     * @return The font.
+     */
+    public Font getValueFont() {
+        return this.valueFont;
+    }
+
+    /**
+     * Sets the font used to display the value label.
+     * <P>
+     * If you set this to null, it will revert to the default font.
+     *
+     * @param font The font.
+     */
+    public void setValueFont(Font font) {
+        this.valueFont = (font == null) ? DEFAULT_VALUE_FONT : font;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the paint for the value label.
+     *
+     * @return The paint.
+     */
+    public Paint getValuePaint() {
+        return this.valuePaint;
+    }
+
+    /**
+     * Sets the paint used to display the value label.
+     * <P>
+     * If you set this to null, it will revert to the default paint.
+     *
+     * @param paint The paint.
+     */
+    public void setValuePaint(Paint paint) {
+        this.valuePaint = paint == null ? DEFAULT_VALUE_PAINT : paint;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the paint for the 'normal' level.
+     *
+     * @return The paint.
+     */
+    public Paint getNormalPaint() {
+        return this.normalPaint;
+    }
+
+    /**
+     * Sets the paint used to display the 'normal' range.
+     * <P>
+     * If you set this to null, it will revert to the default color.
+     *
+     * @param paint The paint.
+     */
+    public void setNormalPaint(Paint paint) {
+        this.normalPaint = (paint == null) ? DEFAULT_NORMAL_PAINT : paint;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the paint used to display the 'warning' range.
+     *
+     * @return The paint.
+     */
+    public Paint getWarningPaint() {
+        return this.warningPaint;
+    }
+
+    /**
+     * Sets the paint used to display the 'warning' range.
+     * <P>
+     * If you set this to null, it will revert to the default color.
+     *
+     * @param paint The paint.
+     */
+    public void setWarningPaint(Paint paint) {
+        this.warningPaint = (paint == null) ? DEFAULT_WARNING_PAINT : paint;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the paint used to display the 'critical' range.
+     *
+     * @return The paint.
+     */
+    public Paint getCriticalPaint() {
+        return this.criticalPaint;
+    }
+
+    /**
+     * Sets the paint used to display the 'critical' range.
+     * <P>
+     * If you set this to null, it will revert to the default color.
+     *
+     * @param paint The paint.
+     */
+    public void setCriticalPaint(Paint paint) {
+        this.criticalPaint = (paint == null) ? DEFAULT_CRITICAL_PAINT : paint;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
+     * Returns the tick label type.  Defined by the constants: NO_LABELS,
+     * VALUE_LABELS.
+     *
+     * @return The tick label type.
+     */
+    public int getTickLabelType() {
+        return this.tickLabelType;
+    }
+
+    /**
+     * Sets the tick label type.
+     *
+     * @param type  the type of tick labels - either <code>NO_LABELS</code> or
+     *      <code>VALUE_LABELS</code>
+     */
+    public void setTickLabelType(int type) {
+
+        // check the argument...
+        if ((type != NO_LABELS) && (type != VALUE_LABELS)) {
+            throw new IllegalArgumentException(
+                "MeterPlot.setLabelType(int): unrecognised type.");
+        }
+
+        // make the change...
+        if (tickLabelType != type) {
+            this.tickLabelType = type;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+
+    }
+
+    /**
+     * Returns the tick label font.
+     *
+     * @return The tick label font.
+     */
+    public Font getTickLabelFont() {
+        return this.tickLabelFont;
+    }
+
+    /**
+     * Sets the tick label font and notifies registered listeners that the plot has been changed.
+     *
+     * @param font  The new tick label font.
+     */
+    public void setTickLabelFont(Font font) {
+
+        // check arguments...
+        if (font == null) {
+            throw new IllegalArgumentException(
+                "MeterPlot.setTickLabelFont(...): null font not allowed.");
+        }
+
+        // make the change...
+        if (!this.tickLabelFont.equals(font)) {
+            this.tickLabelFont = font;
+            notifyListeners(new PlotChangeEvent(this));
+        }
+
+    }
+
+    /**
+     * Returns a flag that controls whether or not a rectangular border is drawn around the plot
+     * area.
+     *
+     * @return A flag.
+     */
     public boolean getDrawBorder() {
         return this.drawBorder;
     }
 
-    public void setDrawBorder( boolean draw) {
+    /**
+     * Sets the flag that controls whether or not a rectangular border is drawn around the plot
+     * area.
+     * <P>
+     * Note:  it looks like the true setting needs some work to provide some insets.
+     *
+     * @param draw The flag.
+     */
+    public void setDrawBorder(boolean draw) {
         this.drawBorder = draw;
     }
 
     /**
-     * Returns the label type.  Defined by the constants: NO_LABELS, VALUE_LABELS.
+     * Returns the meter angle.
      *
-     * @return The label type.
+     * @return the meter angle.
      */
-    public int getLabelType() {
-        return this.labelType;
+    public int getMeterAngle() {
+        return this.meterAngle;
     }
 
     /**
-     * Sets the label type.
-     * <P>
-     * Valid types are defined by the following constants: NO_LABELS, VALUE_LABELS.
-     */
-    public void setLabelType(int type) {
-
-        // check the argument...
-        if ((type!=NO_LABELS) && (type!=VALUE_LABELS)) {
-            throw new IllegalArgumentException("MeterPlot.setLabelType(int): unrecognised type.");
-        }
-
-        // make the change...
-        if (labelType!=type) {
-            this.labelType = type;
-            notifyListeners(new PlotChangeEvent(this));
-        }
-
-    }
-
-    /**
-     * Returns the label font.
+     * Sets the range through which the dial's needle is free to rotate.
      *
-     * @return The label font.
+     * @param angle  the angle.
      */
-    public Font getLabelFont() {
-        return this.labelFont;
+    public void setMeterAngle(int angle) {
+        this.meterAngle = angle;
+        notifyListeners(new PlotChangeEvent(this));
     }
 
     /**
-     * Sets the label font.
-     * <P>
-     * Notifies registered listeners that the plot has been changed.
-     * @param font The new label font.
+     * Returns the color of the border for the dial.
+     *
+     * @return the color of the border for the dial.
      */
-    public void setLabelFont(Font font) {
+    public Color getDialBorderColor() {
+        return this.dialBorderColor;
+    }
 
-        // check arguments...
-        if (font==null) {
-            throw new IllegalArgumentException("MeterPlot.setLabelFont(...): "+
-                                               "null font not allowed.");
-        }
-
-        // make the change...
-        if (!this.labelFont.equals(font)) {
-            this.labelFont = font;
-            notifyListeners(new PlotChangeEvent(this));
-        }
-
+    /**
+     * Sets the color for the border of the dial.
+     *
+     * @param color  the color.
+     */
+    public void setDialBorderColor(Color color) {
+        this.dialBorderColor = color;
     }
 
     /**
      * Returns the dataset for the plot, cast as a MeterDataset.
      * <P>
      * Provided for convenience.
-     * @return The dataset for the plot, cast as a MeterDataset.
+     *
+     * @return the dataset for the plot, cast as a MeterDataset.
      */
     public MeterDataset getMeterDataset() {
-        return (MeterDataset)dataset;
+        return (MeterDataset) dataset;
+    }
+
+    /**
+     * Returns a list of legend item labels.
+     *
+     * @return the legend item labels.
+     *
+     * @deprecated use getLegendItems().
+     */
+    public List getLegendItemLabels() {
+        return null;
+    }
+
+    /**
+     * Returns null.
+     *
+     * @return null.
+     */
+    public LegendItemCollection getLegendItems() {
+        return null;
     }
 
     /**
      * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
      *
-     * @param g2 The graphics device.
-     * @param plotArea The area within which the plot should be drawn.
-     * @param info Collects info about the drawing.
+     * @param g2  The graphics device.
+     * @param plotArea  The area within which the plot should be drawn.
+     * @param info  Collects info about the drawing.
      */
     public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
 
-//        ToolTipsCollection tooltips = null;
-        if (info!=null) {
+        if (info != null) {
             info.setPlotArea(plotArea);
-//            tooltips = info.getToolTipsCollection();
         }
 
         // adjust for insets...
-        if (insets!=null) {
-            plotArea.setRect(plotArea.getX()+insets.left,
-                             plotArea.getY()+insets.top,
-            plotArea.getWidth()-insets.left-insets.right,
-            plotArea.getHeight()-insets.top-insets.bottom);
+        if (insets != null) {
+            plotArea.setRect(plotArea.getX() + insets.left,
+                             plotArea.getY() + insets.top,
+                             plotArea.getWidth() - insets.left - insets.right,
+                             plotArea.getHeight() - insets.top - insets.bottom);
         }
 
-        plotArea.setRect(plotArea.getX()+4,
-                         plotArea.getY()+4,
-                         plotArea.getWidth()-8,
-                         plotArea.getHeight()-8);
+        plotArea.setRect(plotArea.getX() + 4,
+                         plotArea.getY() + 4,
+                         plotArea.getWidth() - 8,
+                         plotArea.getHeight() - 8);
 
         // draw the outline and background
         if (drawBorder) {
@@ -333,18 +591,19 @@ public class MeterPlot extends Plot {
         // adjust the plot area by the interior spacing value
         double gapHorizontal = (2 * DEFAULT_BORDER_SIZE);
         double gapVertical = (2 * DEFAULT_BORDER_SIZE);
-        double meterX = plotArea.getX()+gapHorizontal/2;
-        double meterY = plotArea.getY()+gapVertical/2;
-        double meterW = plotArea.getWidth()-gapHorizontal;
-        double meterH = plotArea.getHeight()-gapVertical +
-                        (meterAngle <= 180 && dialType != DIALTYPE_CIRCLE ? plotArea.getHeight()/1.25 : 0);
+        double meterX = plotArea.getX() + gapHorizontal / 2;
+        double meterY = plotArea.getY() + gapVertical / 2;
+        double meterW = plotArea.getWidth() - gapHorizontal;
+        double meterH = plotArea.getHeight() - gapVertical
+                        + ((meterAngle <= 180) && (dialType != DIALTYPE_CIRCLE)
+                           ? plotArea.getHeight() / 1.25 : 0);
 
         {
-            double min = Math.min(meterW, meterH)/2;
-            meterX = (meterX+meterX+meterW)/2 - min;
-            meterY = (meterY+meterY+meterH)/2 - min;
-            meterW = 2*min;
-            meterH = 2*min;
+            double min = Math.min(meterW, meterH) / 2;
+            meterX = (meterX + meterX + meterW) / 2 - min;
+            meterY = (meterY + meterY + meterH) / 2 - min;
+            meterW = 2 * min;
+            meterH = 2 * min;
         }
 
         Rectangle2D meterArea = new Rectangle2D.Double(meterX,
@@ -352,9 +611,10 @@ public class MeterPlot extends Plot {
                                                        meterW,
                                                        meterH);
 
-        Rectangle2D.Double originalArea = new Rectangle2D.Double(
-                    meterArea.getX()-4, meterArea.getY()-4,
-                    meterArea.getWidth()+8, meterArea.getHeight()+8 );
+        Rectangle2D.Double originalArea = new Rectangle2D.Double(meterArea.getX() - 4,
+                                                                 meterArea.getY() - 4,
+                                                                 meterArea.getWidth() + 8,
+                                                                 meterArea.getHeight() + 8);
 
         double meterMiddleX = meterArea.getCenterX();
         double meterMiddleY = meterArea.getCenterY();
@@ -375,7 +635,7 @@ public class MeterPlot extends Plot {
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                                                        this.foregroundAlpha));
 
-            drawArc(g2, originalArea, dataMin, dataMax, Color.black, 1);
+            drawArc(g2, originalArea, dataMin, dataMax, this.dialBackgroundPaint, 1);
             drawTicks(g2, meterArea, dataMin, dataMax);
             drawArcFor(g2, meterArea, data, MeterDataset.FULL_DATA);
             drawArcFor(g2, meterArea, data, MeterDataset.NORMAL_DATA);
@@ -383,39 +643,43 @@ public class MeterPlot extends Plot {
             drawArcFor(g2, meterArea, data, MeterDataset.CRITICAL_DATA);
 
             if (data.isValueValid()) {
-                double dataVal = data.getValue().doubleValue();
-                drawTick( g2, meterArea, dataVal, true, Color.cyan, true, data.getUnits());
 
-                g2.setColor(Color.green);
+                double dataVal = data.getValue().doubleValue();
+                drawTick(g2, meterArea, dataVal, true, this.valuePaint, true, data.getUnits());
+
+                g2.setPaint(this.needlePaint);
                 g2.setStroke(new BasicStroke(2.0f));
 
                 double radius = (meterArea.getWidth() / 2) + DEFAULT_BORDER_SIZE + 15;
-                double valueAngle = calculateAngle( dataVal);
-                double valueP1 = meterMiddleX + (radius * Math.cos(Math.PI * (valueAngle/180)));
-                double valueP2 = meterMiddleY - (radius * Math.sin(Math.PI * (valueAngle/180)));
+                double valueAngle = calculateAngle(dataVal);
+                double valueP1 = meterMiddleX + (radius * Math.cos(Math.PI * (valueAngle / 180)));
+                double valueP2 = meterMiddleY - (radius * Math.sin(Math.PI * (valueAngle / 180)));
 
                 Polygon arrow = new Polygon();
-                if ((valueAngle > 135 && valueAngle < 225) ||
-                        (valueAngle < 45 && valueAngle > -45)) {
-                    double valueP3 = (meterMiddleY-DEFAULT_CIRCLE_SIZE/4);
-                    double valueP4 = (meterMiddleY+DEFAULT_CIRCLE_SIZE/4);
-                    arrow.addPoint( (int) meterMiddleX, (int) valueP3);
-                    arrow.addPoint( (int) meterMiddleX, (int) valueP4);
-                }
-                                else {
-                    arrow.addPoint((int)(meterMiddleX-DEFAULT_CIRCLE_SIZE/4), (int) meterMiddleY);
-                    arrow.addPoint((int)(meterMiddleX+DEFAULT_CIRCLE_SIZE/4), (int) meterMiddleY);
-                }
-                arrow.addPoint( (int) valueP1, (int) valueP2);
+                if ((valueAngle > 135 && valueAngle < 225)
+                    || (valueAngle < 45 && valueAngle > -45)) {
 
-                Ellipse2D circle = new Ellipse2D.Double(
-                            meterMiddleX - DEFAULT_CIRCLE_SIZE/2,
-                            meterMiddleY - DEFAULT_CIRCLE_SIZE/2,
-                            DEFAULT_CIRCLE_SIZE,
-                            DEFAULT_CIRCLE_SIZE);
+                    double valueP3 = (meterMiddleY - DEFAULT_CIRCLE_SIZE / 4);
+                    double valueP4 = (meterMiddleY + DEFAULT_CIRCLE_SIZE / 4);
+                    arrow.addPoint((int) meterMiddleX, (int) valueP3);
+                    arrow.addPoint((int) meterMiddleX, (int) valueP4);
 
+                }
+                else {
+                    arrow.addPoint((int) (meterMiddleX - DEFAULT_CIRCLE_SIZE / 4),
+                                   (int) meterMiddleY);
+                    arrow.addPoint((int) (meterMiddleX + DEFAULT_CIRCLE_SIZE / 4),
+                                   (int) meterMiddleY);
+                }
+                arrow.addPoint((int) valueP1, (int) valueP2);
+
+                Ellipse2D circle = new Ellipse2D.Double(meterMiddleX - DEFAULT_CIRCLE_SIZE / 2,
+                                                        meterMiddleY - DEFAULT_CIRCLE_SIZE / 2,
+                                                        DEFAULT_CIRCLE_SIZE,
+                                                        DEFAULT_CIRCLE_SIZE);
                 g2.fill(arrow);
                 g2.fill(circle);
+
             }
 
             g2.clip(savedClip);
@@ -425,77 +689,100 @@ public class MeterPlot extends Plot {
 
     }
 
-    void drawArcFor( Graphics2D g2, Rectangle2D meterArea, MeterDataset data, int type) {
+    /**
+     * Draws a colored range (arc) for one level.
+     *
+     * @param g2 The graphics device.
+     * @param meterArea The drawing area.
+     * @param data The dataset.
+     * @param type The level.
+     */
+    void drawArcFor(Graphics2D g2, Rectangle2D meterArea, MeterDataset data, int type) {
 
         Number minValue = null;
         Number maxValue = null;
-        Color color = null;
+        Paint paint = null;
+
         switch (type) {
 
-            case MeterDataset.CRITICAL_DATA:
-                minValue = data.getMinimumCriticalValue();
-                maxValue = data.getMaximumCriticalValue();
-                color = getCriticalColor();
+            case MeterDataset.NORMAL_DATA:
+                minValue = data.getMinimumNormalValue();
+                maxValue = data.getMaximumNormalValue();
+                paint = getNormalPaint();
                 break;
 
             case MeterDataset.WARNING_DATA:
                 minValue = data.getMinimumWarningValue();
                 maxValue = data.getMaximumWarningValue();
-                color = getWarningColor();
+                paint = getWarningPaint();
                 break;
 
-            case MeterDataset.NORMAL_DATA:
-                minValue = data.getMinimumNormalValue();
-                maxValue = data.getMaximumNormalValue();
-                color = getNormalColor();
+            case MeterDataset.CRITICAL_DATA:
+                minValue = data.getMinimumCriticalValue();
+                maxValue = data.getMaximumCriticalValue();
+                paint = getCriticalPaint();
                 break;
 
             case MeterDataset.FULL_DATA:
                 minValue = data.getMinimumValue();
                 maxValue = data.getMaximumValue();
-                color = DEFAULT_BACKGROUND_COLOR;
+                paint = DEFAULT_BACKGROUND_PAINT;
                 break;
 
             default:
                 return;
         }
 
-        if( minValue != null && maxValue != null) {
-            double dataMin = data.getMinimumValue().doubleValue();
+        if (minValue != null && maxValue != null) {
             if (data.getBorderType() == type) {
                 drawArc(g2, meterArea,
                         minValue.doubleValue(),
                         data.getMinimumValue().doubleValue(),
-                        color);
+                        paint);
                 drawArc(g2, meterArea,
                         data.getMaximumValue().doubleValue(),
                         maxValue.doubleValue(),
-                        color);
+                        paint);
             }
             else {
                 drawArc(g2, meterArea,
                         minValue.doubleValue(),
                         maxValue.doubleValue(),
-                        color);
+                        paint);
             }
-            drawTick(g2, meterArea, minValue.doubleValue(), true, color);
-            drawTick(g2, meterArea, maxValue.doubleValue(), true, color);
+
+            // draw a tick at each end of the range...
+            drawTick(g2, meterArea, minValue.doubleValue(), true, paint);
+            drawTick(g2, meterArea, maxValue.doubleValue(), true, paint);
         }
 
     }
 
     /**
      * Draws an arc.
+     *
+     * @param g2  the graphics device.
+     * @param area  the plot area.
+     * @param minValue  the minimum value.
+     * @param maxValue  the maximum value.
+     * @param paint  the paint.
      */
-    void drawArc(Graphics2D g2, Rectangle2D area, double minValue, double maxValue, Color color) {
-        drawArc(g2, area, minValue, maxValue, color, 0);
+    void drawArc(Graphics2D g2, Rectangle2D area, double minValue, double maxValue, Paint paint) {
+        drawArc(g2, area, minValue, maxValue, paint, 0);
     }
 
     /**
      * Draws an arc.
+     *
+     * @param g2  the graphics device.
+     * @param area  the plot area.
+     * @param minValue  the minimum value.
+     * @param maxValue  the maximum value.
+     * @param paint  the paint.
+     * @param outlineType  the outline type.
      */
-    void drawArc(Graphics2D g2, Rectangle2D area, double minValue, double maxValue, Color color,
-                 int outlineType) {
+    void drawArc(Graphics2D g2, Rectangle2D area, double minValue, double maxValue,
+                 Paint paint, int outlineType) {
 
         double startAngle = calculateAngle(maxValue);
         double endAngle = calculateAngle(minValue);
@@ -505,9 +792,9 @@ public class MeterPlot extends Plot {
         double y = area.getY();
         double w = area.getWidth();
         double h = area.getHeight();
-        g2.setColor(color);
+        g2.setPaint(paint);
 
-        if (outlineType>0) {
+        if (outlineType > 0) {
             g2.setStroke(new BasicStroke(10.0f));
         }
         else {
@@ -515,15 +802,16 @@ public class MeterPlot extends Plot {
         }
 
         int joinType = Arc2D.OPEN;
-        if( outlineType > 0) {
-            switch( dialType) {
+        if (outlineType > 0) {
+            switch (dialType) {
                 case DIALTYPE_PIE:
                     joinType = Arc2D.PIE;
                     break;
                 case DIALTYPE_CHORD:
-                    if( meterAngle > 180) {
+                    if (meterAngle > 180) {
                         joinType = Arc2D.CHORD;
-                    } else {
+                    }
+                    else {
                         joinType = Arc2D.PIE;
                     }
                     break;
@@ -534,7 +822,7 @@ public class MeterPlot extends Plot {
             }
         }
         Arc2D.Double arc = new Arc2D.Double(x, y, w, h, startAngle, extent, joinType);
-        if (outlineType>0) {
+        if (outlineType > 0) {
             g2.fill(arc);
         }
         else {
@@ -543,58 +831,100 @@ public class MeterPlot extends Plot {
 
     }
 
+    /**
+     * Calculate an angle ???
+     *
+     * @param value  the value.
+     *
+     * @return the result.
+     */
     double calculateAngle(double value) {
         value -= minMeterValue;
-        double ret = meterCalcAngle - ((value/meterRange) * meterAngle);
+        double ret = meterCalcAngle - ((value / meterRange) * meterAngle);
         return ret;
     }
 
-
+    /**
+     * Draws the ticks.
+     *
+     * @param g2  the graphics device.
+     * @param meterArea  the meter area.
+     * @param minValue  the minimum value.
+     * @param maxValue  the maximum value.
+     */
     void drawTicks(Graphics2D g2, Rectangle2D meterArea, double minValue, double maxValue) {
 
         int numberOfTicks = 20;
         double diff = (maxValue - minValue) / numberOfTicks;
 
-        for (double i = minValue; i <= maxValue; i+=diff) {
+        for (double i = minValue; i <= maxValue; i += diff) {
             drawTick(g2, meterArea, i);
         }
 
     }
 
+    /**
+     * Draws a tick.
+     *
+     * @param g2  the graphics device.
+     * @param meterArea  the meter area.
+     * @param value  the value.
+     */
     void drawTick(Graphics2D g2, Rectangle2D meterArea, double value) {
         drawTick(g2, meterArea, value, false, null, false, null);
     }
 
-    void drawTick(Graphics2D g2, Rectangle2D meterArea, double value, boolean label, Color color) {
+    /**
+     * Draws a tick.
+     *
+     * @param g2  the graphics device.
+     * @param meterArea  the meter area.
+     * @param value  the value.
+     * @param label  the label.
+     * @param color  the color.
+     */
+    void drawTick(Graphics2D g2, Rectangle2D meterArea, double value, boolean label, Paint color) {
         drawTick(g2, meterArea, value, label, color, false, null);
     }
 
-    void drawTick(Graphics2D g2, Rectangle2D meterArea, double value,
-                  boolean label, Color labelColor, boolean curValue, String units) {
+    /**
+     * Draws a tick on the chart (also handles a special case [curValue=true] that draws the
+     * value in the middle of the dial).
+     *
+     * @param g2  the graphics device.
+     * @param meterArea  the meter area.
+     * @param value  the tick value.
+     * @param label  a flag that controls whether or not a value label is drawn.
+     * @param labelPaint  the label color.
+     * @param curValue  a flag for the special case of the current value.
+     * @param units  the unit-of-measure for the dial.
+     */
+    void drawTick(Graphics2D g2, Rectangle2D meterArea,
+                  double value, boolean label, Paint labelPaint, boolean curValue, String units) {
 
         double valueAngle = calculateAngle(value);
 
         double meterMiddleX = meterArea.getCenterX();
         double meterMiddleY = meterArea.getCenterY();
 
-        if (labelColor==null) {
-            labelColor = Color.white;
+        if (labelPaint == null) {
+            labelPaint = Color.white;
         }
-        g2.setColor(labelColor);
+        g2.setPaint(labelPaint);
         g2.setStroke(new BasicStroke(2.0f));
 
         double valueP2X = 0;
         double valueP2Y = 0;
 
-        if(!curValue) {
+        if (!curValue) {
             double radius = (meterArea.getWidth() / 2) + DEFAULT_BORDER_SIZE;
             double radius1 = radius - 15;
 
-            double valueP1X = meterMiddleX + (radius * Math.cos( Math.PI * ( valueAngle/180)));
-            double valueP1Y = meterMiddleY - (radius * Math.sin( Math.PI * ( valueAngle/180)));
+            double valueP1X = meterMiddleX + (radius * Math.cos(Math.PI * (valueAngle / 180)));
+            double valueP1Y = meterMiddleY - (radius * Math.sin(Math.PI * (valueAngle / 180)));
 
-            valueP2X = meterMiddleX + (radius1 * Math.cos( Math.PI * ( valueAngle/180)));
-            valueP2Y = meterMiddleY - (radius1 * Math.sin( Math.PI * ( valueAngle/180)));
+            valueP2X = meterMiddleX + (radius1 * Math.cos(Math.PI * (valueAngle / 180)));
+            valueP2Y = meterMiddleY - (radius1 * Math.sin(Math.PI * (valueAngle / 180)));
 
             Line2D.Double line = new Line2D.Double(valueP1X, valueP1Y, valueP2X, valueP2Y);
             g2.draw(line);
@@ -605,42 +935,50 @@ public class MeterPlot extends Plot {
             valueAngle = 90;
         }
 
-        if (this.labelType==VALUE_LABELS && label) {
+        if (this.tickLabelType == VALUE_LABELS && label) {
 
             DecimalFormat df = new DecimalFormat("#,###,###,##0.00");
             String tickLabel =  df.format(value);
             if (curValue && units != null) {
-                tickLabel += "  " + units;
+                tickLabel += " " + units;
             }
+            if (curValue) {
+                g2.setFont(this.getValueFont());
+            }
+            else {
+                if (tickLabelFont != null) {
+                    g2.setFont(tickLabelFont);
+                }
+            }
+
             Rectangle2D tickLabelBounds = g2.getFont().getStringBounds(tickLabel,
                                                                        g2.getFontRenderContext());
 
             double x = valueP2X;
             double y = valueP2Y;
             if (curValue) {
-                y+=DEFAULT_CIRCLE_SIZE;
+                y += DEFAULT_CIRCLE_SIZE;
             }
-            if (valueAngle==90 || valueAngle==270) {
-                x = x - tickLabelBounds.getWidth()/2;
+            if (valueAngle == 90 || valueAngle == 270) {
+                x = x - tickLabelBounds.getWidth() / 2;
             }
-            else if (valueAngle<90 || valueAngle>270) {
+            else if (valueAngle < 90 || valueAngle > 270) {
                 x = x - tickLabelBounds.getWidth();
             }
-            if ((valueAngle>135 && valueAngle<225) || valueAngle>315 || valueAngle<45) {
-                y = y - tickLabelBounds.getHeight()/2;
+            if ((valueAngle > 135 && valueAngle < 225) || valueAngle > 315 || valueAngle < 45) {
+                y = y - tickLabelBounds.getHeight() / 2;
             }
             else {
-                y = y + tickLabelBounds.getHeight()/2;
+                y = y + tickLabelBounds.getHeight() / 2;
             }
-            if (labelFont!=null) {
-                g2.setFont(labelFont);
-            }
-            g2.drawString(tickLabel, (float)x, (float)y);
+            g2.drawString(tickLabel, (float) x, (float) y);
         }
     }
 
     /**
      * Returns a short string describing the type of plot.
+     *
+     * @return always <i>Meter Plot</i>.
      */
     public String getPlotType() {
         return "Meter Plot";
@@ -649,32 +987,12 @@ public class MeterPlot extends Plot {
     /**
      * A zoom method that does nothing.
      * <p>
-     * Plots are required to support the zoom operation.  In the case of a pie chart, it doesn't
-     * make sense to zoom in or out, so the method is empty.
+     * Plots are required to support the zoom operation.  In the case of a pie
+     * chart, it doesn't make sense to zoom in or out, so the method is empty.
      *
-     * @param percent The zoom percentage.
+     * @param percent   The zoom percentage.
      */
     public void zoom(double percent) {
-    }
-
-    /**
-     * Returns true if the axis is compatible with the meter plot, and false otherwise.  Since a meter
-     * plot requires no axes, only a null axis is compatible.
-     * @param axis The axis.
-     */
-    public boolean isCompatibleHorizontalAxis(Axis axis) {
-        if (axis==null) return true;
-        else return false;
-    }
-
-    /**
-     * Returns true if the axis is compatible with the meter plot, and false otherwise.  Since a meter
-     * plot requires no axes, only a null axis is compatible.
-     * @param axis The axis.
-     */
-    public boolean isCompatibleVerticalAxis(Axis axis) {
-        if (axis==null) return true;
-        else return false;
     }
 
 }

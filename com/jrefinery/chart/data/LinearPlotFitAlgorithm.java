@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,32 +33,40 @@
  * --------------------------
  * 08-Nov-2001 : Added standard header, removed redundant import statements and tidied Javadoc
  *               comments (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.data;
 
 import java.util.Vector;
-import com.jrefinery.data.*;
+import com.jrefinery.data.Statistics;
+import com.jrefinery.data.XYDataset;
 
 /**
  * A linear plot fit algorithm contributed by Matthew Wright.
+ *
+ * @author MW
  */
 public class LinearPlotFitAlgorithm implements PlotFitAlgorithm {
 
     /** Underlying dataset. */
     private XYDataset dataset;
 
-    /** ?? */
-    private double[][] linear_fit;
+    /** The data for the linear fit. */
+    private double[][] linearFit;
 
     /**
-     * @return The name that you want to see in the legend.
+     * @return  the name that you want to see in the legend.
      */
-    public String getName() { return "Linear Fit"; }
+    public String getName() {
+        return "Linear Fit";
+    }
 
     /**
-     * @param data The dataset.
+     * Sets the dataset.
+     *
+     * @param data  the dataset.
      */
     public void setXYDataset(XYDataset data) {
 
@@ -69,34 +77,36 @@ public class LinearPlotFitAlgorithm implements PlotFitAlgorithm {
         // for each dataset in the datasets Vector
 
         Vector datasets = new Vector();
-        for(int i = 0; i < data.getSeriesCount(); i++) {
+        for (int i = 0; i < data.getSeriesCount(); i++) {
             int seriessize = data.getItemCount(i);
-            Number[] x_data = new Number[seriessize];
-            Number[] y_data = new Number[seriessize];
-            for(int j = 0; j < seriessize; j++) {
-                x_data[j] = data.getXValue(i,j);
-                y_data[j] = data.getYValue(i,j);
+            Number[] xData = new Number[seriessize];
+            Number[] yData = new Number[seriessize];
+            for (int j = 0; j < seriessize; j++) {
+                xData[j] = data.getXValue(i, j);
+                yData[j] = data.getYValue(i, j);
             }
             Vector pair = new Vector();
-            pair.addElement(x_data);
-            pair.addElement(y_data);
+            pair.addElement(xData);
+            pair.addElement(yData);
             datasets.addElement(pair);
         }
 
         // put in the linear fit array
-        linear_fit = new double[datasets.size()][2];
-        for(int i = 0; i < datasets.size(); i++) {
-            Vector pair = (Vector)datasets.elementAt(i);
-            linear_fit[i] = Statistics.getLinearFit((Number[])pair.elementAt(0),
-                                                    (Number[])pair.elementAt(1));
+        linearFit = new double[datasets.size()][2];
+        for (int i = 0; i < datasets.size(); i++) {
+            Vector pair = (Vector) datasets.elementAt(i);
+            linearFit[i] = Statistics.getLinearFit((Number[]) pair.elementAt(0),
+                                                   (Number[]) pair.elementAt(1));
         }
     }
 
     /**
      * Returns a y-value for any given x-value.
-     * @param x The x value.
-     * @param series The series.
-     * @return The y value.
+     *
+     * @param x  the x value.
+     * @param series  the series.
+     *
+     * @return the y value.
      */
     public Number getY(int series, Number x) {
 
@@ -105,7 +115,7 @@ public class LinearPlotFitAlgorithm implements PlotFitAlgorithm {
          //  These are in the private variable linear_fit
          //  a = linear_fit[i][0]
          //  b = linear_fit[i][1]
-        return new Double(linear_fit[series][0] + linear_fit[series][1] * x.doubleValue());
+        return new Double(linearFit[series][0] + linearFit[series][1] * x.doubleValue());
 
     }
 

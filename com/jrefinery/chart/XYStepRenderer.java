@@ -32,23 +32,29 @@
  * Changes
  * -------
  * 13-May-2002 : Version 1, contributed by Roger Studner (DG);
+ * 25-Jun-2002 : Updated import statements (DG);
+ * 22-Jul-2002 : Added check for null data items (DG);
  *
  */
 package com.jrefinery.chart;
 
-import java.awt.*;
-import java.awt.geom.*;
-import com.jrefinery.data.*;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Stroke;
+import java.awt.geom.Line2D;
+import java.awt.geom.Rectangle2D;
+import com.jrefinery.data.XYDataset;
 
 /**
- * Line/Step item renderer for an XYPlot.  This class draws lines between data points,
- * only allowing horizontal or vertical lines (steps).
+ * Line/Step item renderer for an XYPlot.  This class draws lines between data
+ * points, only allowing horizontal or vertical lines (steps).
  *
+ * @author RS
  */
 public class XYStepRenderer extends AbstractXYItemRenderer implements XYItemRenderer {
 
     /** A working line (to save creating many instances). */
-    protected Line2D line;
+    private Line2D line;
 
     /**
      * Constructs a new renderer.
@@ -62,20 +68,21 @@ public class XYStepRenderer extends AbstractXYItemRenderer implements XYItemRend
     /**
      * Draws the visual representation of a single data item.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area within which the data is being drawn.
-     * @param info Collects information about the drawing.
-     * @param plot The plot (can be used to obtain standard color information etc).
-     * @param horizontalAxis The horizontal axis.
-     * @param verticalAxis The vertical axis.
-     * @param data The dataset.
-     * @param series The series index.
-     * @param item The item index.
+     * @param g2  the graphics device.
+     * @param dataArea  the area within which the data is being drawn.
+     * @param info  collects information about the drawing.
+     * @param plot  the plot (can be used to obtain standard color information etc).
+     * @param horizontalAxis  the horizontal axis.
+     * @param verticalAxis  the vertical axis.
+     * @param data  the dataset.
+     * @param series  the series index.
+     * @param item  the item index.
+     * @param crosshairInfo collects information about the crosshairs.
      */
     public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
-                          XYPlot plot, ValueAxis horizontalAxis, ValueAxis verticalAxis,
-                          XYDataset data, int series, int item,
-                          CrosshairInfo crosshairInfo) {
+                         XYPlot plot, ValueAxis horizontalAxis, ValueAxis verticalAxis,
+                         XYDataset data, int series, int item,
+                         CrosshairInfo crosshairInfo) {
 
         Paint seriesPaint = plot.getSeriesPaint(series);
         Stroke seriesStroke = plot.getSeriesStroke(series);
@@ -85,31 +92,37 @@ public class XYStepRenderer extends AbstractXYItemRenderer implements XYItemRend
         // get the data point...
         Number x1 = data.getXValue(series, item);
         Number y1 = data.getYValue(series, item);
+        if (y1 == null) {
+            return;
+        }
+
         double transX1 = horizontalAxis.translateValueToJava2D(x1.doubleValue(), dataArea);
         double transY1 = verticalAxis.translateValueToJava2D(y1.doubleValue(), dataArea);
 
-         if (item>0) {
-             // get the previous data point...
-             Number x0 = data.getXValue(series, item-1);
-             Number y0 = data.getYValue(series, item-1);
-             double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea);
-             double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea);
+        if (item > 0) {
+            // get the previous data point...
+            Number x0 = data.getXValue(series, item - 1);
+            Number y0 = data.getYValue(series, item - 1);
+            if (y0 != null) {
+                double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea);
+                double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea);
 
-             if (transY0 == transY1) { //this represents the situation for drawing a
-                                       //horizontal bar.
-                line.setLine(transX0, transY0, transX1, transY1);
-                g2.draw(line);
-             }
-             else {  //this handles the need to perform a 'step'.
-                line.setLine(transX0, transY0, transX1, transY0);
-                g2.draw(line);
-                line.setLine(transX1, transY0, transX1, transY1);
-                g2.draw(line);
-             }
-         }
+                if (transY0 == transY1) { //this represents the situation for drawing a
+                                          //horizontal bar.
+                    line.setLine(transX0, transY0, transX1, transY1);
+                    g2.draw(line);
+                }
+                else {  //this handles the need to perform a 'step'.
+                    line.setLine(transX0, transY0, transX1, transY0);
+                    g2.draw(line);
+                    line.setLine(transX1, transY0, transX1, transY1);
+                    g2.draw(line);
+                }
+
+            }
+        }
 
         // do we need to update the crosshair values?
-        double distance = 0.0;
         if (horizontalAxis.isCrosshairLockedOnData()) {
             if (verticalAxis.isCrosshairLockedOnData()) {
                 // both axes

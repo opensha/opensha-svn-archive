@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -38,6 +38,7 @@
  * 16-Jan-2002 : Implemented setValue(...) method (DG);
  * 05-Feb-2002 : Fix for bug mapping category to index value (DG);
  * 07-Jun-2002 : Fixed bug ID 565819, minor issue in setValue method (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -49,10 +50,13 @@ import java.util.Collections;
 import java.util.ResourceBundle;
 
 /**
- * A convenience class that provides a default implementation of the CategoryDataset interface.
+ * A convenience class that provides a default implementation of the
+ * CategoryDataset interface.
  * <p>
- * The standard constructor accepts data in a two dimensional array where the first dimension is
- * the series, and the second dimension is the category.
+ * The standard constructor accepts data in a two dimensional array where the
+ * first dimension is the series, and the second dimension is the category.
+ *
+ * @author DG
  */
 public class DefaultCategoryDataset extends AbstractSeriesDataset implements CategoryDataset {
 
@@ -65,6 +69,15 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /** Storage for the data. */
     protected Number[][] data;
 
+    /**
+     * Creates a new category dataset.
+     * <p>
+     * The array is indexed as data[series][category].  Series and category
+     * names are automatically generated, but you can change them using the
+     * setSeriesName(...) and setCategory(...) methods.
+     *
+     * @param data  the data.
+     */
     public DefaultCategoryDataset(double[][] data) {
 
         this(DatasetUtilities.createNumberArray2D(data));
@@ -74,8 +87,9 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /**
      * Constructs a dataset and populates it with data from the array.
      * <p>
-     * The array is indexed as data[series][category].  Series and category names are automatically
-     * generated - you can change them using the setSeriesName(...) and setCategory(...) methods.
+     * The array is indexed as data[series][category].  Series and category
+     * names are automatically generated, but you can change them using the
+     * setSeriesName(...) and setCategory(...) methods.
      *
      * @param data The data.
      */
@@ -86,13 +100,14 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     }
 
     /**
-     * Constructs a DefaultCategoryDataset, populates it with data from the array, and uses the
-     * supplied names for the series.
+     * Constructs a DefaultCategoryDataset, populates it with data from the
+     * array, and uses the supplied names for the series.
      * <p>
-     * Category names are generated automatically ("Category 1", "Category 2", etc).
+     * Category names are generated automatically ("Category 1", "Category 2",
+     * etc).
      *
-     * @param seriesNames The series names.
-     * @param data The data, indexed as data[series][category].
+     * @param seriesNames  the series names.
+     * @param data  the data, indexed as data[series][category].
      */
     public DefaultCategoryDataset(String[] seriesNames, Number[][] data) {
 
@@ -101,52 +116,57 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     }
 
     /**
-     * Constructs a DefaultCategoryDataset, populates it with data from the array, and uses the
-     * supplied names for the series and the supplied objects for the categories.
+     * Constructs a DefaultCategoryDataset, populates it with data from the
+     * array, and uses the supplied names for the series and the supplied
+     * objects for the categories.
      *
-     * @param seriesNames The series names.
-     * @param categories The categories.
-     * @param data The data, indexed as data[series][category].
+     * @param seriesNames  the series names.
+     * @param categories  the categories.
+     * @param data  the data, indexed as data[series][category].
      */
     public DefaultCategoryDataset(String[] seriesNames, Object[] categories, Number[][] data) {
 
         this.data = data;
 
-        if (data!=null) {
+        if (data != null) {
 
             String baseName = "com.jrefinery.data.resources.DataPackageResources";
             ResourceBundle resources = ResourceBundle.getBundle(baseName);
 
-            int series_count = data.length;
-            if (series_count>0) {
+            int seriesCount = data.length;
+            if (seriesCount > 0) {
 
                 // set up the series names...
-                if (seriesNames!=null) {
+                if (seriesNames != null) {
 
-                    if (seriesNames.length!=series_count) {
-                        throw new IllegalArgumentException("DefaultCategoryDataset: the number of "
-                        +"series names does not match the number of series in the data.");
+                    if (seriesNames.length != seriesCount) {
+                        throw new IllegalArgumentException(
+                            "DefaultCategoryDataset: the number of "
+                            + "series names does not match the number of "
+                            + "series in the data.");
                     }
 
-                    this.seriesNames=seriesNames;
+                    this.seriesNames = seriesNames;
                 }
                 else {
-                    String prefix = resources.getString("series.default-prefix")+" ";
-                    this.seriesNames = this.generateNames(series_count, prefix);
+                    String prefix = resources.getString("series.default-prefix") + " ";
+                    this.seriesNames = generateNames(seriesCount, prefix);
                 }
 
                 // set up the category names...
-                int category_count = data[0].length;
-                if (categories!=null) {
-                    if (categories.length!=category_count) {
-                        throw new IllegalArgumentException("DefaultCategoryDataset: the number of "
-                        +"categories does not match the number of categories in the data.");
+                int categoryCount = data[0].length;
+                if (categories != null) {
+                    if (categories.length != categoryCount) {
+                        throw new IllegalArgumentException(
+                            "DefaultCategoryDataset: the number of "
+                            + "categories does not match the number of "
+                            + "categories in the data.");
                     }
                     this.categories = categories;
                 }
                 else {
-                    String prefix = resources.getString("categories.default-prefix")+" ";
-                    this.categories = this.generateNames(category_count, prefix);
+                    String prefix = resources.getString("categories.default-prefix") + " ";
+                    this.categories = generateNames(categoryCount, prefix);
                 }
 
             }
@@ -161,12 +181,12 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /**
      * Returns the number of series in the dataset (possibly zero).
      *
-     * @return The number of series in the dataset.
+     * @return the number of series in the dataset.
      */
     public int getSeriesCount() {
 
         int result = 0;
-        if (data!=null) {
+        if (data != null) {
             result = data.length;
         }
         return result;
@@ -176,14 +196,16 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /**
      * Returns the name of the specified series.
      *
-     * @param series The index of the required series (zero-based).
+     * @param series  the index of the required series (zero-based).
+     *
+     * @return the name of the specified series.
      */
     public String getSeriesName(int series) {
 
         // check argument...
-        if ((series>=this.getSeriesCount()) || (series<0)) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.getSeriesName(int): no "+
-                                               "such series.");
+        if ((series >= getSeriesCount()) || (series < 0)) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.getSeriesName(int): no such series.");
         }
 
         // return the value...
@@ -194,20 +216,20 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /**
      * Sets the name of a series.
      *
-     * @param series The series (zero-based index).
-     * @param name The series name.
+     * @param series  the series (zero-based index).
+     * @param name  the series name.
      */
     public void setSeriesName(int series, String name) {
 
         // check arguments...
-        if ((series<0) || (series>=this.getSeriesCount())) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setSeriesName(...): no "+
-                                               "such series.");
+        if ((series < 0) || (series >= getSeriesCount())) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setSeriesName(...): no such series.");
         }
 
         if (name == null) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setSeriesName(...): null "+
-                                               "not permitted.");
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setSeriesName(...): null not permitted.");
         }
 
         seriesNames[series] = name;
@@ -218,19 +240,20 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /**
      * Sets the names of all the series in the dataset.
      *
-     * @param seriesNames The series names.
+     * @param seriesNames  the series names.
      */
     public void setSeriesNames(String[] seriesNames) {
 
         // check argument...
-        if (seriesNames==null) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setSeriesNames(): null not "
-                                              +"permitted.");
+        if (seriesNames == null) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setSeriesNames(): null not permitted.");
         }
 
-        if (seriesNames.length!=this.getSeriesCount()) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setSeriesNames(): the "
-                                              +"number of series names does not match the data.");
+        if (seriesNames.length != getSeriesCount()) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setSeriesNames(): the "
+                + "number of series names does not match the data.");
         }
 
         // make the change...
@@ -243,14 +266,15 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
      * Returns the number of categories in the dataset.
      * <P>
      * This method is part of the CategoryDataset interface.
-     * @return The number of categories in the dataset.
+     *
+     * @return the number of categories in the dataset.
      */
     public int getCategoryCount() {
 
         int result = 0;
 
-        if (data!=null) {
-            if (this.getSeriesCount()>0) {
+        if (data != null) {
+            if (getSeriesCount() > 0) {
                 result = data[0].length;
             }
         }
@@ -263,13 +287,14 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
      * Returns a list of the categories in the dataset.
      * <P>
      * Supports the CategoryDataset interface.
-     * @return A list of the categories in the dataset.
+     *
+     * @return a list of the categories in the dataset.
      */
     public List getCategories() {
 
-        // the CategoryDataset interface expects a list of categories, but we've stored them in
-        // an array...
-        if (categories==null) {
+        // the CategoryDataset interface expects a list of categories, but
+        // we've stored them in an array...
+        if (categories == null) {
             return new java.util.ArrayList();
         }
         else {
@@ -280,25 +305,27 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
 
     /**
      * Sets the categories for the dataset.
-     * @param categories An array of objects representing the categories in the dataset.
+     *
+     * @param categories  an array of objects representing the categories in the dataset.
      */
     public void setCategories(Object[] categories) {
 
         // check arguments...
-        if (categories==null) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setCategories(...): "
-                                              +"null not permitted.");
+        if (categories == null) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setCategories(...): null not permitted.");
         }
 
-        if (categories.length!=data[0].length) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setCategories(...): "
-                                              +"the number of categories does not match the data.");
+        if (categories.length != data[0].length) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setCategories(...): "
+                + "the number of categories does not match the data.");
         }
 
-        for (int i=0; i<categories.length; i++) {
-            if (categories[i]==null) {
-                throw new IllegalArgumentException("DefaultCategoryDataset.setCategories(...): "
-                                                  +"null category not permitted.");
+        for (int i = 0; i < categories.length; i++) {
+            if (categories[i] == null) {
+                throw new IllegalArgumentException(
+                    "DefaultCategoryDataset.setCategories(...): null category not permitted.");
             }
         }
 
@@ -312,28 +339,29 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
      * Returns the data value for one category in a series.
      * <P>
      * This method is part of the CategoryDataset interface.
-     * @param series The required series (zero based index).
-     * @param category The required category.
-     * @return The data value for one category in a series (null possible).
+     *
+     * @param series  the required series (zero based index).
+     * @param category  the required category.
+     * @return  the data value for one category in a series (null possible).
      */
     public Number getValue(int series, Object category) {
 
         // check arguments...
-        if ((series<0) || (series>=this.getSeriesCount())) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.getValue(...): "
-                                               +"series index out of range.");
+        if ((series < 0) || (series >= getSeriesCount())) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.getValue(...): series index out of range.");
         }
 
-        if (category==null) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.getValue(...): "
-                                               +"null category not allowed.");
+        if (category == null) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.getValue(...): null category not allowed.");
         }
 
         int categoryIndex = this.getCategoryIndex(category);
 
-        if (categoryIndex<0) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.getValue(...): "
-                                               +"unknown category.");
+        if (categoryIndex < 0) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.getValue(...): unknown category.");
         }
 
         // fetch the value...
@@ -344,35 +372,42 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     /**
      * Sets the data value for one category in a series.
      *
-     * @param series The series (zero-based index).
-     * @param category The category.
-     * @param value The value.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     * @param value  the value.
      */
     public void setValue(int series, Object category, Number value) {
 
         // does the series exist?
-        if ((series<0) || (series>=this.getSeriesCount())) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setValue: series outside "
-                                              +"valid range.");
+        if ((series < 0) || (series >= getSeriesCount())) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setValue: series outside valid range.");
         }
 
         // is the category valid?
         int categoryIndex = getCategoryIndex(category);
-        if (categoryIndex<0) {
-            throw new IllegalArgumentException("DefaultCategoryDataset.setValue: unrecognised "
-                                              +"category.");
+        if (categoryIndex < 0) {
+            throw new IllegalArgumentException(
+                "DefaultCategoryDataset.setValue: unrecognised category.");
         }
 
         // update the data...
         data[series][categoryIndex] = value;
-        this.fireDatasetChanged();
+        fireDatasetChanged();
 
     }
 
+    /**
+     * Returns the category index for the given category.
+     *
+     * @param category  the category.
+     *
+     * @return the index.
+     */
     private int getCategoryIndex(Object category) {
 
         int result = -1;
-        for (int i=0; i<categories.length; i++) {
+        for (int i = 0; i < categories.length; i++) {
             if (category.equals(categories[i])) {
                 result = i;
                 break;
@@ -383,17 +418,20 @@ public class DefaultCategoryDataset extends AbstractSeriesDataset implements Cat
     }
 
     /**
-     * Generates an array of names, by appending a space plus an integer (starting with 1)
-     * to the supplied prefix string.
-     * @param count The number of names required.
-     * @param prefix The name prefix.
+     * Generates an array of names, by appending a space plus an integer
+     * (starting with 1) to the supplied prefix string.
+     *
+     * @param count  the number of names required.
+     * @param prefix  the name prefix.
+     *
+     * @return an array of <i>prefixN</i> with N = { 1 .. count }.
      */
     private String[] generateNames(int count, String prefix) {
 
         String[] result = new String[count];
         String name;
-        for (int i=0; i<count; i++) {
-            name = prefix+(i+1);
+        for (int i = 0; i < count; i++) {
+            name = prefix + (i + 1);
             result[i] = name;
         }
         return result;

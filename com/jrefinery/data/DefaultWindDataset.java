@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -37,29 +37,36 @@
 
 package com.jrefinery.data;
 
-import java.util.*;
+import java.util.List;
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.Date;
 
 /**
  * A default implementation of the WindDataset interface.
+ *
+ * @author AM
  */
 public class DefaultWindDataset extends AbstractSeriesDataset implements WindDataset {
 
     /** The names of the series. */
-    protected List seriesNames;
+    private List seriesNames;
 
     /** Storage for the series data. */
-    protected List allSeriesData;
+    private List allSeriesData;
 
     /**
      * Constructs a new, empty, WindDataset.
      */
     public DefaultWindDataset() {
-        seriesNames = new ArrayList();
-        allSeriesData = new ArrayList();
+        seriesNames = new java.util.ArrayList();
+        allSeriesData = new java.util.ArrayList();
     }
 
     /**
      * Constructs a WindDataset based on the specified data.
+     *
+     * @param data  the wind dataset.
      */
     public DefaultWindDataset(Object[][][] data) {
         this(seriesNameListFromDataArray(data), data);
@@ -67,6 +74,9 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
 
     /**
      * Constructs a WindDataset based on the specified data.
+     *
+     * @param seriesNames    the names of the series.
+     * @param data  the wind dataset.
      */
     public DefaultWindDataset(String[] seriesNames, Object[][][] data) {
         this(Arrays.asList(seriesNames), data);
@@ -74,6 +84,9 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
 
     /**
      * Constructs a WindDataset based on the specified data.
+     *
+     * @param seriesNames    the names of the series.
+     * @param data  the wind dataset.
      */
     public DefaultWindDataset(List seriesNames, Object[][][] data) {
 
@@ -81,25 +94,29 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
 
         int seriesCount = data.length;
 
-        allSeriesData = new ArrayList(seriesCount);
+        allSeriesData = new java.util.ArrayList(seriesCount);
 
-        for (int seriesIndex=0; seriesIndex<seriesCount; seriesIndex++) {
-            List oneSeriesData = new ArrayList();
+        for (int seriesIndex = 0; seriesIndex < seriesCount; seriesIndex++) {
+            List oneSeriesData = new java.util.ArrayList();
             int maxItemCount = data[seriesIndex].length;
-            for (int itemIndex=0; itemIndex<maxItemCount; itemIndex++) {
+            for (int itemIndex = 0; itemIndex < maxItemCount; itemIndex++) {
                 Object xObject = data[seriesIndex][itemIndex][0];
-                if (xObject!=null) {
+                if (xObject != null) {
                     Number xNumber = null;
                     if (xObject instanceof Number) {
-                        xNumber = (Number)xObject;
+                        xNumber = (Number) xObject;
                     }
-                    else if (xObject instanceof Date) {
-                        Date xDate = (Date)xObject;
-                        xNumber = new Long(xDate.getTime());
+                    else {
+                        if (xObject instanceof Date) {
+                            Date xDate = (Date) xObject;
+                            xNumber = new Long(xDate.getTime());
+                        }
+                        else {
+                            xNumber = new Integer(0);
+                        }
                     }
-                    else xNumber = new Integer(0);
-                    Number windDir = (Number)data[seriesIndex][itemIndex][1];
-                    Number windForce = (Number)data[seriesIndex][itemIndex][2];
+                    Number windDir = (Number) data[seriesIndex][itemIndex][1];
+                    Number windForce = (Number) data[seriesIndex][itemIndex][2];
                     oneSeriesData.add(new WindDataItem(xNumber, windDir, windForce));
                 }
             }
@@ -119,17 +136,17 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
 
     /**
      * Returns the number of items in a series.
-     * @param series The series (zero-based index).
+     * @param series    The series (zero-based index).
      * @return The number of items in a series.
      */
     public int getItemCount(int series) {
-        List oneSeriesData = (List)allSeriesData.get(series);
+        List oneSeriesData = (List) allSeriesData.get(series);
         return oneSeriesData.size();
     }
 
     /**
      * Returns the name of a series.
-     * @param series The series (zero-based index).
+     * @param series    The series (zero-based index).
      * @return The name of the specified series.
      */
     public String getSeriesName(int series) {
@@ -137,23 +154,27 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
     }
 
     /**
-     * Returns the x-value for one item within a series.  This should represent a point in time,
-     * encoded as milliseconds in the same way as java.util.Date.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * Returns the x-value for one item within a series.  This should represent
+     * a point in time, encoded as milliseconds in the same way as
+     * java.util.Date.
+     *
+     * @param series    The series (zero-based index).
+     * @param item      The item (zero-based index).
      * @return The x-value for the item within the series.
      */
     public Number getXValue(int series, int item) {
-        List oneSeriesData = (List)allSeriesData.get(series);
-        WindDataItem windItem = (WindDataItem)oneSeriesData.get(item);
+        List oneSeriesData = (List) allSeriesData.get(series);
+        WindDataItem windItem = (WindDataItem) oneSeriesData.get(item);
         return windItem.x;
     }
 
     /**
-     * Returns the y-value for one item within a series.  This maps to the getWindForce(...)
-     * method and is implemented because WindDataset is an extension of XYDataset.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * Returns the y-value for one item within a series.  This maps to the
+     * getWindForce(...) method and is implemented because WindDataset is an
+     * extension of XYDataset.
+     *
+     * @param series    The series (zero-based index).
+     * @param item      The item (zero-based index).
      * @return The y-value for the item within the series.
      */
     public Number getYValue(int series, int item) {
@@ -161,86 +182,98 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
     }
 
     /**
-     * Returns the wind direction for one item within a series.  This is a number between 0 and
-     * 12, like the numbers on a clock face.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * Returns the wind direction for one item within a series.  This is a
+     * number between 0 and 12, like the numbers on a clock face.
+     * @param series    The series (zero-based index).
+     * @param item      The item (zero-based index).
      * @return The wind direction for the item within the series.
      */
     public Number getWindDirection(int series, int item) {
-        List oneSeriesData = (List)allSeriesData.get(series);
-        WindDataItem windItem = (WindDataItem)oneSeriesData.get(item);
+        List oneSeriesData = (List) allSeriesData.get(series);
+        WindDataItem windItem = (WindDataItem) oneSeriesData.get(item);
         return windItem.windDir;
     }
 
     /**
-     * Returns the wind force for one item within a series.  This is a number between 0 and
-     * 12, as defined by the Beaufort scale.
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * Returns the wind force for one item within a series.  This is a number
+     * between 0 and 12, as defined by the Beaufort scale.
+     * @param series    The series (zero-based index).
+     * @param item      The item (zero-based index).
      * @return The wind force for the item within the series.
      */
     public Number getWindForce(int series, int item) {
-        List oneSeriesData = (List)allSeriesData.get(series);
-        WindDataItem windItem = (WindDataItem)oneSeriesData.get(item);
+        List oneSeriesData = (List) allSeriesData.get(series);
+        WindDataItem windItem = (WindDataItem) oneSeriesData.get(item);
         return windItem.windForce;
     }
 
     /**
      * Utility method for automatically generating series names.
+     * @param data  the wind dataset.
+     *
+     * @return an array of <i>Series N</i> with N = { 1 .. data.length }.
      */
     public static List seriesNameListFromDataArray(Object[][] data) {
 
         int seriesCount = data.length;
-        List seriesNameList = new ArrayList(seriesCount);
-        for (int i=0; i<seriesCount; i++) {
-            seriesNameList.add("Series "+(i+1));
+        List seriesNameList = new java.util.ArrayList(seriesCount);
+        for (int i = 0; i < seriesCount; i++) {
+            seriesNameList.add("Series " + (i + 1));
         }
         return seriesNameList;
 
     }
 
-
-//    public void removeChangeListener(DatasetChangeListener listener) {
-//    }
-
-//    public String[] getLegendItemLabels() {
-//        return new String[] {"foo"};
-//    }
-
-//    public int getLegendItemCount() {
-//        return -1;
-//    }
-
-//    public void addChangeListener(DatasetChangeListener listener) {
-//    }
-
 }
 
+/**
+ * A wind data item.
+ */
 class WindDataItem implements Comparable {
 
+    /** The x-value. */
     public Number x;
+
+    /** The wind direction. */
     public Number windDir;
+
+    /** The wind force. */
     public Number windForce;
 
+    /**
+     * Creates a new wind data item.
+     *
+     * @param x  the x-value.
+     * @param windDir  the direction.
+     * @param windForce  the force.
+     */
     public WindDataItem(Number x, Number windDir, Number windForce) {
         this.x = x;
         this.windDir = windDir;
         this.windForce = windForce;
     }
 
+    /**
+     * Compares this item to another object.
+     *
+     * @param object  the other object.
+     */
     public int compareTo(Object object) {
         if (object instanceof WindDataItem) {
             WindDataItem item = (WindDataItem)object;
-            if (this.x.doubleValue()>item.x.doubleValue()) {
+            if (this.x.doubleValue() > item.x.doubleValue()) {
                 return 1;
             }
             else if (this.x.equals(item.x)) {
                 return 0;
             }
-            else return -1;
+            else {
+                return -1;
+            }
         }
-        else throw new ClassCastException("WindDataItem.compareTo(error)");
+        else {
+            throw new ClassCastException("WindDataItem.compareTo(error)");
+        }
     }
 
 }

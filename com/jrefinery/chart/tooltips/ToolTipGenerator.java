@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,7 @@
  * -------
  * 13-Dec-2001 : Version 1 (DG);
  * 16-Jan-2002 : Completed Javadocs (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -40,6 +41,8 @@ package com.jrefinery.chart.tooltips;
 
 /**
  * Base interface for a tooltip generator.
+ *
+ * @author DG
  */
 public interface ToolTipGenerator {
 
@@ -47,6 +50,7 @@ public interface ToolTipGenerator {
     // ToolTipGenerator :--> CategoryToolTipGenerator
     //                  :--> HighLowToolTipGenerator
     //                  :--> PieToolTipGenerator
+    //                  :--> TimeSeriesToolTipGenerator
     //                  :--> XYToolTipGenerator
 
 }

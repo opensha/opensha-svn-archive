@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 21-Mar-2002 : Version 1 (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -41,35 +42,45 @@ import java.util.Date;
 
 /**
  * A simple implementation of the HighLowDataset.
+ *
+ * @author DG
  */
 public class DefaultHighLowDataset extends AbstractSeriesDataset implements HighLowDataset {
 
     /** The series name. */
-    protected String seriesName;
+    private String seriesName;
 
     /** Storage for the dates. */
-    protected Date[] date;
+    private Date[] date;
 
     /** Storage for the high values. */
-    protected Number[] high;
+    private Number[] high;
 
     /** Storage for the low values. */
-    protected Number[] low;
+    private Number[] low;
 
     /** Storage for the open values. */
-    protected Number[] open;
+    private Number[] open;
 
     /** Storage for the close values. */
-    protected Number[] close;
+    private Number[] close;
 
     /** Storage for the volume values. */
-    protected Number[] volume;
+    private Number[] volume;
 
     /**
      * Constructs a new high/low/open/close dataset.
      * <p>
-     * The current implementation allows only one series in the dataset.  This may be extended in
-     * a future version.
+     * The current implementation allows only one series in the dataset.
+     * This may be extended in a future version.
+     *
+     * @param seriesName  the name of the series.
+     * @param date  the dates.
+     * @param high  the high values.
+     * @param low  the low values.
+     * @param open  the open values.
+     * @param close  the close values.
+     * @param volume  the volume values.
      */
     public DefaultHighLowDataset(String seriesName,
                                  Date[] date,
@@ -79,16 +90,19 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
 
         this.seriesName = seriesName;
         this.date = date;
-        this.high = this.createNumberArray(high);
-        this.low = this.createNumberArray(low);
-        this.open = this.createNumberArray(open);
-        this.close = this.createNumberArray(close);
-        this.volume = this.createNumberArray(volume);;
+        this.high = createNumberArray(high);
+        this.low = createNumberArray(low);
+        this.open = createNumberArray(open);
+        this.close = createNumberArray(close);
+        this.volume = createNumberArray(volume);;
 
     }
 
     /**
      * Returns the name of the series stored in this dataset.
+     *
+     * @param i  the index of the series. Currently ignored.
+     * @return the name of this series.
      */
     public String getSeriesName(int i) {
         return this.seriesName;
@@ -99,9 +113,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
      * <p>
      * The value returned is a Long object generated from the underlying Date object.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The x-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the x-value.
      */
     public Number getXValue(int series, int item) {
         return new Long(date[item].getTime());
@@ -112,9 +127,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
      * <p>
      * This method (from the XYDataset interface) is mapped to the getCloseValue(...) method.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The y-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the y-value.
      */
     public Number getYValue(int series, int item) {
         return this.getCloseValue(series, item);
@@ -123,9 +139,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
     /**
      * Returns the high-value for one item in a series.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The high-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the high-value.
      */
     public Number getHighValue(int series, int item) {
         return high[item];
@@ -134,9 +151,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
     /**
      * Returns the low-value for one item in a series.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The low-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return  the low-value.
      */
     public Number getLowValue(int series, int item) {
         return low[item];
@@ -145,9 +163,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
     /**
      * Returns the open-value for one item in a series.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The open-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the open-value.
      */
     public Number getOpenValue(int series, int item) {
         return open[item];
@@ -156,9 +175,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
     /**
      * Returns the close-value for one item in a series.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The close-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the close-value.
      */
     public Number getCloseValue(int series, int item) {
         return close[item];
@@ -167,9 +187,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
     /**
      * Returns the volume-value for one item in a series.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
-     * @return The volume-value.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the volume-value.
      */
     public Number getVolumeValue(int series, int item) {
         return volume[item];
@@ -180,7 +201,7 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
      * <p>
      * This implementation only allows one series.
      *
-     * @return The number of series.
+     * @return the number of series.
      */
     public int getSeriesCount() {
         return 1;
@@ -188,8 +209,10 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
 
     /**
      * Returns the number of items in the specified series.
-     * @param series The index (zero-based) of the series;
-     * @return The number of items in the specified series.
+     *
+     * @param series  the index (zero-based) of the series.
+     *
+     * @return  the number of items in the specified series.
      */
     public int getItemCount(int series) {
         return date.length;
@@ -197,12 +220,16 @@ public class DefaultHighLowDataset extends AbstractSeriesDataset implements High
 
     /**
      * Constructs an array of Number objects from an array of doubles.
+     *
+     * @param data  the double values to convert.
+     *
+     * @return data as array of Number.
      */
     public static Number[] createNumberArray(double[] data) {
 
         Number[] result = new Number[data.length];
 
-        for (int i=0; i<data.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             result[i] = new Double(data[i]);
         }
 

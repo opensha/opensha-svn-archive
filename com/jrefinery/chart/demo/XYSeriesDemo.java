@@ -33,6 +33,7 @@
  * -------
  * 08-Apr-2002 : Version 1 (DG);
  * 11-Jun-2002 : Inserted value out of order to see that it works (DG);
+ * 11-Oct-2002 : Fixed issues reported by Checkstyle (DG);
  *
  */
 
@@ -42,47 +43,58 @@ import java.awt.Paint;
 import java.awt.Color;
 import com.jrefinery.data.XYSeries;
 import com.jrefinery.data.XYSeriesCollection;
-import com.jrefinery.ui.ApplicationFrame;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
+import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
+/**
+ * A simple demo for XYSeries.
+ *
+ * @author DG
+ */
 public class XYSeriesDemo extends ApplicationFrame {
 
-    protected XYSeries series;
-
     /**
-     * A demonstration application showing a quarterly time series containing a null value.
+     * A demonstration application showing an XY series containing a null value.
+     *
+     * @param title  the frame title.
      */
     public XYSeriesDemo(String title) {
 
         super(title);
-        this.series = new XYSeries("Random Data");
-        this.series.add(1.0, 500.2);
-        this.series.add(5.0, 694.1);
-        this.series.add(4.0, 100.0);
-        this.series.add(12.5, 734.4);
-        this.series.add(17.3, 453.2);
-        this.series.add(21.2, 500.2);
-        this.series.add(new Double(21.9), null);  // different method required to get null in
-        this.series.add(25.6, 734.4);
-        this.series.add(30.0, 453.2);
+        XYSeries series = new XYSeries("Random Data");
+        series.add(1.0, 500.2);
+        series.add(5.0, 694.1);
+        series.add(4.0, 100.0);
+        series.add(12.5, 734.4);
+        series.add(17.3, 453.2);
+        series.add(21.2, 500.2);
+        series.add(21.9, null);
+        series.add(25.6, 734.4);
+        series.add(30.0, 453.2);
         XYSeriesCollection data = new XYSeriesCollection(series);
-        JFreeChart chart = ChartFactory.createXYChart("XY Series Demo", "X", "Y", data, true);
+        JFreeChart chart = ChartFactory.createLineXYChart("XY Series Demo",
+                                                          "X", "Y", data, true);
 
         chart.getPlot().setSeriesPaint(new Paint[] { Color.blue });
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         XYSeriesDemo demo = new XYSeriesDemo("XY Series Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,24 +32,28 @@
  * Changes (from 24-Aug-2001)
  * --------------------------
  * 24-Aug-2001 : Added standard source header. Fixed DOS encoding problem (DG);
+ * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.event;
 
-import com.jrefinery.chart.*;
+import com.jrefinery.chart.Axis;
 
 /**
  * A change event that encapsulates information about a change to an axis.
+ *
+ * @author DG
  */
 public class AxisChangeEvent extends ChartChangeEvent {
 
     /** The axis that generated the change event. */
-    protected Axis axis;
+    private Axis axis;
 
     /**
-     * Default constructor: returns a new AxisChangeEvent.
-     * @param axis The axis that generated the event.
+     * Creates a new AxisChangeEvent.
+     *
+     * @param axis  the axis that generated the event.
      */
     public AxisChangeEvent(Axis axis) {
         super(axis);
@@ -57,7 +61,9 @@ public class AxisChangeEvent extends ChartChangeEvent {
     }
 
     /**
-     * Returns a reference to the axis that generated the event.
+     * Returns the axis that generated the event.
+     *
+     * @return the axis that generated the event.
      */
     public Axis getAxis() {
         return axis;

@@ -37,11 +37,14 @@
  * 09-Jan-2002 : Updated Javadoc comments (DG);
  * 07-Feb-2002 : Changed Insets --> Spacer in AbstractTitle.java (DG);
  * 06-Mar-2002 : Updated import statements (DG);
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 18-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
+import com.jrefinery.chart.event.TitleChangeEvent;
 import java.awt.Graphics2D;
 import java.awt.Font;
 import java.awt.Paint;
@@ -49,32 +52,33 @@ import java.awt.Color;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
-import com.jrefinery.chart.event.TitleChangeEvent;
-import com.jrefinery.ui.Size2D;
 
 /**
  * A standard chart title.
+ *
+ * @author DG
  */
 public class TextTitle extends AbstractTitle {
 
     /** The default font. */
-    public static final Font DEFAULT_FONT = new Font("Dialog", Font.BOLD, 12);
+    public static final Font DEFAULT_FONT = new Font("SansSerif", Font.BOLD, 12);
 
     /** The default text color. */
     public static final Paint DEFAULT_TEXT_PAINT = Color.black;
 
     /** The title text. */
-    protected String text;
+    private String text;
 
     /** The font used to display the title. */
-    protected Font font;
+    private Font font;
 
     /** The paint used to display the title text. */
-    protected Paint paint;
+    private Paint paint;
 
     /**
      * Constructs a new TextTitle, using default attributes where necessary.
-     * @param text The title text.
+     *
+     * @param text  the title text.
      */
     public TextTitle(String text) {
 
@@ -90,8 +94,9 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Constructs a new TextTitle, using default attributes where necessary.
-     * @param text The title text.
-     * @param font The title font.
+     *
+     * @param text  the title text.
+     * @param font  the title font.
      */
     public TextTitle(String text, Font font) {
 
@@ -106,9 +111,10 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Constructs a new TextTitle, using default attributes where necessary.
-     * @param text The title text.
-     * @param font The title font.
-     * @param paint The title color.
+     *
+     * @param text  the title text.
+     * @param font  the title font.
+     * @param paint  the title color.
      */
     public TextTitle(String text, Font font, Paint paint) {
 
@@ -121,10 +127,11 @@ public class TextTitle extends AbstractTitle {
     }
     /**
      * Constructs a new TextTitle, using default attributes where necessary.
-     * @param text The title text.
-     * @param font The title font.
-     * @param horizontalAlignment The horizontal alignment (use the constants defined in
-     *                            AbstractTitle).
+     *
+     * @param text  the title text.
+     * @param font  the title font.
+     * @param horizontalAlignment  the horizontal alignment (use the constants defined in
+     *                             AbstractTitle).
      */
     public TextTitle(String text, Font font, int horizontalAlignment) {
 
@@ -139,19 +146,20 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Constructs a TextTitle with the specified properties.
-     * @param text The text for the title.
-     * @param font The title font.
-     * @param paint The title color.
-     * @param position The title position (use the constants defined in AbstractTitle).
-     * @param horizontalAlignment The horizontal alignment (use the constants defined in
-     *                            AbstractTitle).
-     * @param verticalAlignment The vertical alignment (use the constants defined in AbstractTitle).
-     * @param spacer The space to leave around the outside of the title.
+     * <p>
+     * For the titlePosition, horizontalAlignment and verticalAlignment, you can use constants
+     * defined in the AbstractTitle class.
+     *
+     * @param text  the text for the title.
+     * @param font  the title font.
+     * @param paint  the title color.
+     * @param position  the title position.
+     * @param horizontalAlignment  the horizontal alignment.
+     * @param verticalAlignment  the vertical alignment.
+     * @param spacer  the space to leave around the outside of the title.
      */
-    public TextTitle(String text,
-                     Font font, Paint paint,
-                     int position, int horizontalAlignment, int verticalAlignment,
-                     Spacer spacer) {
+    public TextTitle(String text, Font font, Paint paint, int position,
+                     int horizontalAlignment, int verticalAlignment, Spacer spacer) {
 
         super(position, horizontalAlignment, verticalAlignment, spacer);
         this.text = text;
@@ -161,17 +169,19 @@ public class TextTitle extends AbstractTitle {
     }
 
     /**
-     * Returns the current title font.
-     * @return  A Font object of the font used to render this title;
+     * Returns the title font.
+     *
+     * @return the font.
      */
     public Font getFont() {
         return this.font;
     }
 
     /**
-     * Sets the title font to the specified font and notifies registered listeners that the title
-     * has been modified.
-     * @param font  A Font object of the new font;
+     * Sets the title font to the specified font and notifies registered
+     * listeners that the title has been modified.
+     *
+     * @param font  the new font.
      */
     public void setFont(Font font) {
 
@@ -184,16 +194,18 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Returns the paint used to display the title.
-     * @return  An object that implements the Paint interface used to paint this title;
+     *
+     * @return the paint.
      */
     public Paint getPaint() {
         return this.paint;
     }
 
     /**
-     * Sets the Paint used to display the title and notifies registered listeners that the title has
-     * been modified.
-     * @param paint The new paint for displaying the chart title;
+     * Sets the Paint used to display the title and notifies registered
+     * listeners that the title has been modified.
+     *
+     * @param paint  the new paint.
      */
     public void setPaint(Paint paint) {
 
@@ -206,16 +218,18 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Returns the title text.
-     * @return A String of the title text;
+     *
+     * @return the text.
      */
     public String getText() {
         return text;
     }
 
     /**
-     * Sets the title to the specified text. This method notifies registered listeners that the
-     * title has been modified.
-     * @param text A String of the new chart title;
+     * Sets the title to the specified text. This method notifies registered
+     * listeners that the title has been modified.
+     *
+     * @param text  the new text.
      */
     public void setText(String text) {
 
@@ -227,18 +241,30 @@ public class TextTitle extends AbstractTitle {
     }
 
     /**
-     * Returns true for the positions that are valid for TextTitle (TOP and BOTTOM for now) and
-     * false for all other positions.
+     * Returns true for the positions that are valid for TextTitle (TOP and
+     * BOTTOM for now) and false for all other positions.
+     *
+     * @param position  the position.
+     *
+     * @return <code>true</code> if position is <code>TOP</code> or <code>BOTTOM</code>.
      */
     public boolean isValidPosition(int position) {
 
-        if ((position==AbstractTitle.TOP) || (position==AbstractTitle.BOTTOM)) return true;
-        else return false;
+        if ((position == AbstractTitle.TOP) || (position == AbstractTitle.BOTTOM)) {
+            return true;
+        }
+        else {
+            return false;
+        }
 
     }
 
     /**
      * Returns the preferred width of the title.
+     *
+     * @param g2  the graphics device.
+     *
+     * @return the preferred width of the title.
      */
     public double getPreferredWidth(Graphics2D g2) {
 
@@ -249,7 +275,8 @@ public class TextTitle extends AbstractTitle {
         double result = titleBounds.getWidth();
 
         // add extra space...
-        if (this.spacer!=null) {
+        Spacer spacer = getSpacer();
+        if (spacer != null) {
             result = spacer.getAdjustedWidth(result);
         }
 
@@ -259,6 +286,10 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Returns the preferred height of the title.
+     *
+     * @param g2  the graphics device.
+     *
+     * @return the preferred height of the title.
      */
     public double getPreferredHeight(Graphics2D g2) {
 
@@ -269,7 +300,8 @@ public class TextTitle extends AbstractTitle {
         double result = lineMetrics.getHeight();
 
         // add extra space...
-        if (this.spacer!=null) {
+        Spacer spacer = getSpacer();
+        if (spacer != null) {
             result = spacer.getAdjustedHeight(result);
         }
 
@@ -279,22 +311,27 @@ public class TextTitle extends AbstractTitle {
 
     /**
      * Draws the title on a Java 2D graphics device (such as the screen or a printer).
-     * @param g2 The graphics device.
-     * @param area The area within which the title (and plot) should be drawn.
+     *
+     * @param g2  the graphics device.
+     * @param area  the area within which the title (and plot) should be drawn.
      */
     public void draw(Graphics2D g2, Rectangle2D area) {
 
-        if (this.position == TOP || this.position == BOTTOM) {
+        int position = getPosition();
+        if (position == TOP || position == BOTTOM) {
             drawHorizontal(g2, area);
         }
-        else throw new RuntimeException("TextTitle.draw(...) - invalid title position.");
+        else {
+            throw new RuntimeException("TextTitle.draw(...) - invalid title position.");
+        }
 
     }
 
     /**
      * Draws the title on a Java 2D graphics device (such as the screen or a printer).
-     * @param g2 The graphics device.
-     * @param area The area within which the title should be drawn.
+     *
+     * @param g2  the graphics device.
+     * @param area  the area within which the title should be drawn.
      */
     protected void drawHorizontal(Graphics2D g2, Rectangle2D area) {
 
@@ -309,44 +346,52 @@ public class TextTitle extends AbstractTitle {
         double topSpace = 0.0;
         double bottomSpace = 0.0;
 
-        if (spacer!=null) {
+        Spacer spacer = getSpacer();
+        if (spacer != null) {
             leftSpace = spacer.getLeftSpace(titleWidth);
             rightSpace = spacer.getRightSpace(titleWidth);
             topSpace = spacer.getTopSpace(titleHeight);
             bottomSpace = spacer.getBottomSpace(titleHeight);
         }
 
-        double titleY = area.getY()+topSpace;
+        double titleY = area.getY() + topSpace;
 
         // work out the vertical alignment...
-        if (this.verticalAlignment==TOP) {
-            titleY = titleY+titleHeight-lineMetrics.getLeading()-lineMetrics.getDescent();
+        int verticalAlignment = getVerticalAlignment();
+        if (verticalAlignment == TOP) {
+            titleY = titleY + titleHeight - lineMetrics.getLeading() - lineMetrics.getDescent();
         }
-        else if (this.verticalAlignment==MIDDLE) {
-            double space = (area.getHeight()-topSpace-bottomSpace-titleHeight);
-            titleY = titleY+(space/2)+titleHeight-lineMetrics.getLeading()-lineMetrics.getDescent();
-        }
-        else if (this.verticalAlignment==BOTTOM) {
-            titleY = area.getMaxY()-bottomSpace
-                                   -lineMetrics.getLeading()
-                                   -lineMetrics.getDescent();
+        else  {
+            if (verticalAlignment == MIDDLE) {
+                double space = (area.getHeight() - topSpace - bottomSpace - titleHeight);
+                titleY = titleY + (space / 2) + titleHeight
+                                - lineMetrics.getLeading() - lineMetrics.getDescent();
+            }
+            else {
+                if (verticalAlignment == BOTTOM) {
+                    titleY = area.getMaxY() - bottomSpace
+                                            - lineMetrics.getLeading()
+                                            - lineMetrics.getDescent();
+                }
+            }
         }
 
         // work out the horizontal alignment...
-        double titleX = area.getX()+leftSpace;
-        if (this.horizontalAlignment==CENTER) {
-            titleX = titleX+((area.getWidth()-leftSpace-rightSpace)/2)-(titleWidth/2);
+        int horizontalAlignment = getHorizontalAlignment();
+        double titleX = area.getX() + leftSpace;
+        if (horizontalAlignment == CENTER) {
+            titleX = titleX + ((area.getWidth() - leftSpace - rightSpace) / 2) - (titleWidth / 2);
         }
-        else if (this.horizontalAlignment==LEFT) {
-            titleX = area.getX()+leftSpace;
+        else if (horizontalAlignment == LEFT) {
+            titleX = area.getX() + leftSpace;
         }
-        else if (this.horizontalAlignment == RIGHT) {
-            titleX = area.getMaxX()-rightSpace-titleWidth;
+        else if (horizontalAlignment == RIGHT) {
+            titleX = area.getMaxX() - rightSpace - titleWidth;
         }
 
         g2.setFont(this.font);
         g2.setPaint(this.paint);
-        g2.drawString(text, (float)(titleX), (float)(titleY));
+        g2.drawString(text, (float) (titleX), (float) (titleY));
 
     }
 

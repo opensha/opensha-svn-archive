@@ -42,23 +42,24 @@
  * 06-Mar-2002 : Added AxisConstants interface (DG);
  * 23-Apr-2002 : Added a visible property.  Moved drawVerticalString to RefineryUtilities.  Added
  *               fixedDimension property for use in combined plots (DG);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 05-Sep-2002 : Added attribute for tick mark paint (DG);
+ * 18-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Insets;
 import java.awt.Stroke;
-import java.awt.BasicStroke;
 import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Iterator;
+import javax.swing.event.EventListenerList;
 import com.jrefinery.chart.event.AxisChangeEvent;
 import com.jrefinery.chart.event.AxisChangeListener;
 
@@ -67,6 +68,8 @@ import com.jrefinery.chart.event.AxisChangeListener;
  *
  * @see CategoryAxis
  * @see ValueAxis
+ *
+ * @author DG
  */
 public abstract class Axis implements AxisConstants {
 
@@ -100,15 +103,14 @@ public abstract class Axis implements AxisConstants {
     /** A flag that indicates whether or not tick marks are visible for the axis. */
     protected boolean tickMarksVisible;
 
-    /** The line type used to draw tick marks. */
+    /** The stroke used to draw tick marks. */
     protected Stroke tickMarkStroke;
+
+    /** The paint used to draw tick marks. */
+    protected Paint tickMarkPaint;
 
     /** A working list of ticks - this list is refreshed as required. */
     protected List ticks;
-
-    /** Storage for registered listeners (objects interested in receiving change events for the
-        axis). */
-    protected List listeners;
 
     /** A reference back to the plot that the axis is assigned to (can be null). */
     protected Plot plot;
@@ -116,10 +118,13 @@ public abstract class Axis implements AxisConstants {
     /** The fixed (horizontal or vertical) dimension for the axis. */
     protected double fixedDimension;
 
+    /** Storage for registered listeners. */
+    private EventListenerList listenerList;
+
     /**
      * Constructs an axis, using default values where necessary.
      *
-     * @param label The axis label (null permitted).
+     * @param label  the axis label (null permitted).
      */
     protected Axis(String label) {
 
@@ -132,29 +137,32 @@ public abstract class Axis implements AxisConstants {
              DEFAULT_TICK_LABEL_PAINT,
              DEFAULT_TICK_LABEL_INSETS,
              true,  // tick marks visible
-             DEFAULT_TICK_STROKE);
+             DEFAULT_TICK_STROKE,
+             DEFAULT_TICK_PAINT);
 
     }
 
     /**
      * Constructs an axis.
      *
-     * @param label The axis label.
-     * @param labelFont The font for displaying the axis label.
-     * @param labelPaint The paint used to draw the axis label.
-     * @param labelInsets Determines the amount of blank space around the label.
-     * @param tickLabelsVisible Flag indicating whether or not the tick labels are visible.
-     * @param tickLabelFont The font used to display tick labels.
-     * @param tickLabelPaint The paint used to draw tick labels.
-     * @param tickLabelInsets Determines the amount of blank space around tick labels.
-     * @param tickMarksVisible Flag indicating whether or not tick marks are visible.
-     * @param tickMarkStroke The stroke used to draw tick marks (if visible).
+     * @param label  the axis label.
+     * @param labelFont  the font for displaying the axis label.
+     * @param labelPaint  the paint used to draw the axis label.
+     * @param labelInsets  determines the amount of blank space around the label.
+     * @param tickLabelsVisible  a flag indicating whether or not the tick labels are visible.
+     * @param tickLabelFont  the font used to display tick labels.
+     * @param tickLabelPaint  the paint used to draw tick labels.
+     * @param tickLabelInsets  determines the amount of blank space around tick labels.
+     * @param tickMarksVisible  flag indicating whether or not tick marks are visible.
+     * @param tickMarkStroke  the stroke used to draw tick marks (if visible).
+     * @param tickMarkPaint  the paint used to draw tick marks (if visible).
      */
     protected Axis(String label,
                    Font labelFont, Paint labelPaint, Insets labelInsets,
                    boolean tickLabelsVisible,
                    Font tickLabelFont, Paint tickLabelPaint, Insets tickLabelInsets,
-                   boolean tickMarkVisible, Stroke tickMarkStroke) {
+                   boolean tickMarksVisible,
+                   Stroke tickMarkStroke, Paint tickMarkPaint) {
 
         this.label = label;
         this.labelFont = labelFont;
@@ -166,18 +174,20 @@ public abstract class Axis implements AxisConstants {
         this.tickLabelInsets = tickLabelInsets;
         this.tickMarksVisible = tickMarksVisible;
         this.tickMarkStroke = tickMarkStroke;
+        this.tickMarkPaint = tickMarkPaint;
 
         this.ticks = new java.util.ArrayList();
-        this.listeners = new java.util.ArrayList();
 
         this.visible = true;
+
+        this.listenerList = new EventListenerList();
 
     }
 
     /**
      * Returns true if the axis is visible, and false otherwise.
      *
-     * @return A flag indicating whether or not the axis is visible.
+     * @return a flag indicating whether or not the axis is visible.
      */
     public boolean isVisible() {
         return this.visible;
@@ -186,11 +196,11 @@ public abstract class Axis implements AxisConstants {
     /**
      * Sets a flag that controls whether or not the axis is drawn on the chart.
      *
-     * @param flag The flag.
+     * @param flag  the flag.
      */
     public void setVisible(boolean flag) {
 
-        if (flag!=this.visible) {
+        if (flag != this.visible) {
             this.visible = flag;
             notifyListeners(new AxisChangeEvent(this));
         }
@@ -200,7 +210,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the label for the axis.
      *
-     * @return The label for the axis (null possible).
+     * @return the label for the axis (null possible).
      */
     public String getLabel() {
         return label;
@@ -211,19 +221,19 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param label The new label.
+     * @param label  the new label.
      */
     public void setLabel(String label) {
 
         String existing = this.label;
-        if (existing!=null) {
+        if (existing != null) {
             if (!existing.equals(label)) {
                 this.label = label;
                 notifyListeners(new AxisChangeEvent(this));
             }
         }
         else {
-            if (label!=null) {
+            if (label != null) {
                 this.label = label;
                 notifyListeners(new AxisChangeEvent(this));
             }
@@ -234,7 +244,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the font for the axis label.
      *
-     * @return The font for the axis label.
+     * @return the font.
      */
     public Font getLabelFont() {
         return labelFont;
@@ -245,12 +255,12 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param font The new label font.
+     * @param font  the new label font.
      */
     public void setLabelFont(Font font) {
 
         // check arguments...
-        if (font==null) {
+        if (font == null) {
             throw new IllegalArgumentException("Axis.setLabelFont(...): null not permitted.");
         }
 
@@ -265,7 +275,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the color/shade used to draw the axis label.
      *
-     * @return The color/shade used to draw the axis label.
+     * @return the color/shade used to draw the axis label.
      */
     public Paint getLabelPaint() {
         return this.labelPaint;
@@ -276,12 +286,12 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param paint The new color/shade for the axis label.
+     * @param paint  the new color/shade for the axis label.
      */
     public void setLabelPaint(Paint paint) {
 
         // check arguments...
-        if (paint==null) {
+        if (paint == null) {
             throw new IllegalArgumentException("Axis.setLabelPaint(...): null not permitted.");
         }
 
@@ -292,22 +302,21 @@ public abstract class Axis implements AxisConstants {
         }
     }
 
-
     /**
-     * Returns the insets for the label (that is, the amount of blank space that should be left
-     * around the label).
+     * Returns the insets for the label (that is, the amount of blank space
+     * that should be left around the label).
      *
-     * @return The label insets.
+     * @return the label insets.
      */
     public Insets getLabelInsets() {
         return this.labelInsets;
     }
 
     /**
-     * Sets the insets for the axis label, and notifies registered listeners that the axis has been
-     * modified.
+     * Sets the insets for the axis label, and notifies registered listeners
+     * that the axis has been modified.
      *
-     * @param insets The new label insets.
+     * @param insets  the new label insets.
      */
     public void setLabelInsets(Insets insets) {
         if (!insets.equals(this.labelInsets)) {
@@ -319,7 +328,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns a flag indicating whether or not the tick labels are visible.
      *
-     * @return A flag indicating whether or not the tick labels are visible.
+     * @return the flag.
      */
     public boolean isTickLabelsVisible() {
         return tickLabelsVisible;
@@ -330,11 +339,11 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param flag The flag.
+     * @param flag  the flag.
      */
     public void setTickLabelsVisible(boolean flag) {
 
-        if (flag!=tickLabelsVisible) {
+        if (flag != tickLabelsVisible) {
             tickLabelsVisible = flag;
             notifyListeners(new AxisChangeEvent(this));
         }
@@ -344,7 +353,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the font used for the tick labels (if showing).
      *
-     * @return The font used for the tick labels.
+     * @return the font used for the tick labels.
      */
     public Font getTickLabelFont() {
         return tickLabelFont;
@@ -355,12 +364,12 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param font The new tick label font.
+     * @param font  the new tick label font.
      */
     public void setTickLabelFont(Font font) {
 
         // check arguments...
-        if (font==null) {
+        if (font == null) {
             throw new IllegalArgumentException("Axis.setTickLabelFont(...): null not permitted.");
         }
 
@@ -375,7 +384,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the color/shade used for the tick labels.
      *
-     * @return The color/shade used for the tick labels.
+     * @return the color/shade used for the tick labels.
      */
     public Paint getTickLabelPaint() {
         return this.tickLabelPaint;
@@ -386,12 +395,12 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param paint The new color/shade.
+     * @param paint  the new color/shade.
      */
     public void setTickLabelPaint(Paint paint) {
 
         // check arguments...
-        if (paint==null) {
+        if (paint == null) {
             throw new IllegalArgumentException("Axis.setTickLabelPaint(...): null not permitted.");
         }
 
@@ -406,22 +415,22 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the insets for the tick labels.
      *
-     * @return The insets for the tick labels.
+     * @return the insets for the tick labels.
      */
     public Insets getTickLabelInsets() {
         return this.tickLabelInsets;
     }
 
     /**
-     * Sets the insets for the tick labels, and notifies registered listeners that the axis has
-     * been modified.
+     * Sets the insets for the tick labels, and notifies registered listeners
+     * that the axis has been modified.
      *
-     * @param insets The new tick label insets.
+     * @param insets  the new tick label insets.
      */
     public void setTickLabelInsets(Insets insets) {
 
         // check arguments...
-        if (insets==null) {
+        if (insets == null) {
             throw new IllegalArgumentException("Axis.setTickLabelInsets(...): null not permitted.");
         }
 
@@ -433,9 +442,10 @@ public abstract class Axis implements AxisConstants {
     }
 
     /**
-     * Returns the flag that indicates whether or not the tick marks are showing.
+     * Returns the flag that indicates whether or not the tick marks are
+     * showing.
      *
-     * @return The flag that indicates whether or not the tick marks are showing.
+     * @return the flag that indicates whether or not the tick marks are showing.
      */
     public boolean isTickMarksVisible() {
         return tickMarksVisible;
@@ -446,11 +456,11 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param flag The flag.
+     * @param flag  the flag.
      */
     public void setTickMarksVisible(boolean flag) {
 
-        if (flag!=tickMarksVisible) {
+        if (flag != tickMarksVisible) {
             tickMarksVisible = flag;
             notifyListeners(new AxisChangeEvent(this));
         }
@@ -460,7 +470,7 @@ public abstract class Axis implements AxisConstants {
     /**
      * Returns the pen/brush used to draw tick marks (if they are showing).
      *
-     * @return The pen/brush used to draw tick marks.
+     * @return the pen/brush used to draw tick marks.
      */
     public Stroke getTickMarkStroke() {
         return tickMarkStroke;
@@ -471,12 +481,12 @@ public abstract class Axis implements AxisConstants {
      * <P>
      * Registered listeners are notified of a general change to the axis.
      *
-     * @param stroke The new pen/brush (null not permitted).
+     * @param stroke  the new pen/brush (null not permitted).
      */
     public void setTickMarkStroke(Stroke stroke) {
 
         // check arguments...
-        if (stroke==null) {
+        if (stroke == null) {
             throw new IllegalArgumentException("Axis.setTickMarkStroke(...): null not permitted.");
         }
 
@@ -488,9 +498,40 @@ public abstract class Axis implements AxisConstants {
     }
 
     /**
+     * Returns the paint used to draw tick marks (if they are showing).
+     *
+     * @return the paint.
+     */
+    public Paint getTickMarkPaint() {
+        return tickMarkPaint;
+    }
+
+    /**
+     * Sets the paint used to draw tick marks (if they are showing).
+     * <P>
+     * Registered listeners are notified of a general change to the axis.
+     *
+     * @param paint  the new paint (null not permitted).
+     */
+    public void setTickMarkPaint(Paint paint) {
+
+        // check arguments...
+        if (paint == null) {
+            throw new IllegalArgumentException("Axis.setTickMarkPaint(...): null not permitted.");
+        }
+
+        // make the change (if necessary)...
+        if (!this.tickMarkPaint.equals(paint)) {
+            this.tickMarkPaint = paint;
+            notifyListeners(new AxisChangeEvent(this));
+        }
+    }
+
+    /**
      * Returns the plot that the axis is assigned to.
      * <P>
-     * This method will return null if the axis is not currently assigned to a plot.
+     * This method will return null if the axis is not currently assigned to a
+     * plot.
      *
      * @return The plot that the axis is assigned to.
      */
@@ -501,10 +542,13 @@ public abstract class Axis implements AxisConstants {
     /**
      * Sets a reference to the plot that the axis is assigned to.
      * <P>
-     * This method is called by Plot in the setHorizontalAxis() and setVerticalAxis() methods.
-     * You shouldn't need to call the method yourself.
+     * This method is called by Plot in the setHorizontalAxis() and
+     * setVerticalAxis() methods. You shouldn't need to call the method
+     * yourself.
      *
-     * @param plot The plot that the axis belongs to.
+     * @param plot  the plot that the axis belongs to.
+     *
+     * @throws PlotNotCompatibleException if plot is not compatible.
      */
     public void setPlot(Plot plot) throws PlotNotCompatibleException {
 
@@ -512,15 +556,16 @@ public abstract class Axis implements AxisConstants {
             this.plot = plot;
             this.configure();
         }
-        else throw new PlotNotCompatibleException("Axis.setPlot(...): "
-                                                 +"plot not compatible with axis.");
-
+        else {
+            throw new PlotNotCompatibleException(
+                "Axis.setPlot(...): plot not compatible with axis.");
+        }
     }
 
     /**
      * Returns the fixed dimension for the axis.
      *
-     * @return The fixed dimension.
+     * @return the fixed dimension.
      */
     public double getFixedDimension() {
         return this.fixedDimension;
@@ -529,12 +574,13 @@ public abstract class Axis implements AxisConstants {
     /**
      * Sets the fixed dimension for the axis.
      * <P>
-     * This is used when combining more than one plot on a chart.  In this case, there may be
-     * several axes that need to have the same height or width so that they are aligned.  This
-     * method is used to fix a dimension for the axis (the context determines whether the dimension
-     * is horizontal or vertical).
+     * This is used when combining more than one plot on a chart.  In this case,
+     * there may be several axes that need to have the same height or width so
+     * that they are aligned.  This method is used to fix a dimension for the
+     * axis (the context determines whether the dimension is horizontal or
+     * vertical).
      *
-     * @param The fixed dimension.
+     * @param dimension  the fixed dimension.
      */
     public void setFixedDimension(double dimension) {
         this.fixedDimension = dimension;
@@ -543,34 +589,36 @@ public abstract class Axis implements AxisConstants {
     /**
      * Draws the axis on a Java 2D graphics device (such as the screen or a printer).
      *
-     * @param g2 The graphics device.
-     * @param plotArea The area within which the axes and plot should be drawn.
-     * @param dataArea The area within which the data should be drawn.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the axes and plot should be drawn.
+     * @param dataArea  the area within which the data should be drawn.
      */
     public abstract void draw(Graphics2D g2, Rectangle2D plotArea, Rectangle2D dataArea);
 
     /**
-     * Calculates the positions of the ticks for the axis, storing the results in the
-     * tick list (ready for drawing).
+     * Calculates the positions of the ticks for the axis, storing the results
+     * in the tick list (ready for drawing).
      *
-     * @param g2 The graphics device.
-     * @param plotArea The area within which the axes and plot should be drawn.
-     * @param dataArea The area within which the plot should be drawn.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the axes and plot should be drawn.
+     * @param dataArea  the area within which the plot should be drawn.
      */
     public abstract void refreshTicks(Graphics2D g2, Rectangle2D plotArea, Rectangle2D dataArea);
 
     /**
-     * Configures the axis to work with the cuurent plot.  Override this method to perform any
-     * special processing (such as auto-rescaling).
+     * Configures the axis to work with the cuurent plot.  Override this method
+     * to perform any special processing (such as auto-rescaling).
      */
     public abstract void configure();
 
     /**
-     * Returns the maximum width of the ticks in the working list (that is set up by
-     * refreshTicks()).
+     * Returns the maximum width of the ticks in the working list (that is set
+     * up by refreshTicks()).
      *
-     * @param g2 The graphics device.
-     * @param plotArea The area within which the plot is to be drawn.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the plot is to be drawn.
+     *
+     * @return the maximum width of the ticks in the working list.
      */
     protected double getMaxTickLabelWidth(Graphics2D g2, Rectangle2D plotArea) {
 
@@ -580,9 +628,9 @@ public abstract class Axis implements AxisConstants {
 
         Iterator iterator = this.ticks.iterator();
         while (iterator.hasNext()) {
-            Tick tick = (Tick)iterator.next();
+            Tick tick = (Tick) iterator.next();
             Rectangle2D labelBounds = font.getStringBounds(tick.getText(), frc);
-            if (labelBounds.getWidth()>maxWidth) {
+            if (labelBounds.getWidth() > maxWidth) {
                 maxWidth = labelBounds.getWidth();
             }
         }
@@ -591,45 +639,47 @@ public abstract class Axis implements AxisConstants {
     }
 
     /**
-     * Returns true if the plot is compatible with the axis, and false otherwise.
+     * Returns true if the plot is compatible with the axis.
      *
-     * @param plot The plot.
-     * @return True if the plot is compatible with the axis, and false otherwise.
+     * @param plot  the plot.
+     *
+     * @return <code>true</code> if the plot is compatible with the axis.
      */
     protected abstract boolean isCompatiblePlot(Plot plot);
 
     /**
-     * Notifies all registered listeners that the axis has changed.  The AxisChangeEvent provides
-     * information about the change.
-     *
-     * @param event Information about the change to the axis.
-     */
-    protected void notifyListeners(AxisChangeEvent event) {
-
-        Iterator iterator = listeners.iterator();
-        while (iterator.hasNext()) {
-            AxisChangeListener listener = (AxisChangeListener)iterator.next();
-            listener.axisChanged(event);
-        }
-
-    }
-
-    /**
      * Registers an object for notification of changes to the axis.
      *
-     * @param listener The object that is being registered.
+     * @param listener  the object that is being registered.
      */
     public void addChangeListener(AxisChangeListener listener) {
-        listeners.add(listener);
+        this.listenerList.add(AxisChangeListener.class, listener);
     }
 
     /**
      * Deregisters an object for notification of changes to the axis.
      *
-     * @param listener The object to deregister.
+     * @param listener  the object to deregister.
      */
     public void removeChangeListener(AxisChangeListener listener) {
-        listeners.remove(listener);
+        this.listenerList.remove(AxisChangeListener.class, listener);
+    }
+
+    /**
+     * Notifies all registered listeners that the axis has changed.
+     * The AxisChangeEvent provides information about the change.
+     *
+     * @param event  information about the change to the axis.
+     */
+    protected void notifyListeners(AxisChangeEvent event) {
+
+        Object[] listeners = this.listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == AxisChangeListener.class) {
+                ((AxisChangeListener) listeners[i + 1]).axisChanged(event);
+            }
+        }
+
     }
 
 }

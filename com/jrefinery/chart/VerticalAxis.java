@@ -33,6 +33,7 @@
  * --------------------------
  * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
  * 25-Feb-2002 : Updated Javadoc comments (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,25 +44,33 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * An interface that must be supported by all vertical axes for layout purposes.
+ *
+ * @author DG
  */
 public interface VerticalAxis {
 
     /**
-     * Estimates the area required to draw the axis, assuming that the horizontal axis has already
-     * reserved the specified height.
-     * @param g2 The graphics device.
-     * @param plot The plot that the axis belongs to.
-     * @param drawArea The area within which the plot should be drawn.
-     * @param reservedHeight The height reserved by the horizontal axis.
+     * Estimates the area required to draw the axis, assuming that the
+     * horizontal axis has already reserved the specified height.
+     *
+     * @param g2  the graphics device.
+     * @param plot  the plot that the axis belongs to.
+     * @param drawArea  the area within which the plot should be drawn.
+     * @param reservedHeight  the height reserved by the horizontal axis.
+     *
+     * @return the estimated area required to draw the axis.
      */
-    public Rectangle2D reserveAxisArea(Graphics2D g2, Plot plot, Rectangle2D drawArea,
-				       double reservedHeight);
+    public Rectangle2D reserveAxisArea(Graphics2D g2, Plot plot,
+                                       Rectangle2D drawArea, double reservedHeight);
 
     /**
      * Estimates the width required to draw the axis.
-     * @param g2 The graphics device.
-     * @param plot The plot that the axis belongs to.
-     * @param drawArea The area within which the plot should be drawn.
+     *
+     * @param g2  the graphics device.
+     * @param plot  the plot that the axis belongs to.
+     * @param drawArea  the area within which the plot should be drawn.
+     *
+     * @return the estimated width required to draw the axis.
      */
     public double reserveWidth(Graphics2D g2, Plot plot, Rectangle2D drawArea);
 

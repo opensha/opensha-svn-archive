@@ -34,6 +34,7 @@
  * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
  * 22-Apr-2002 : Replaced existing methods with getHorizontalRange() method (DG);
  * 29-Apr-2002 : Added getHorizontalAxis() method (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,21 +43,28 @@ package com.jrefinery.chart;
 import com.jrefinery.data.Range;
 
 /**
- * An interface defining methods for interrogating a plot that displays values along the
- * horizontal axis.
+ * An interface defining methods for interrogating a plot that displays values
+ * along the horizontal axis.
  * <P>
- * Used by horizontal axes (when auto-adjusting the axis range) to determine the minimum and
- * maximum data values.
+ * Used by horizontal axes (when auto-adjusting the axis range) to determine
+ * the minimum and maximum data values.
+ *
+ * @author DG
  */
 public interface HorizontalValuePlot {
 
     /**
      * Returns the range of data values to be plotted along the horizontal axis.
      *
-     * @return The range.
+     * @return  the range.
      */
     public Range getHorizontalDataRange();
 
+    /**
+     * Get the value axis.
+     *
+     * @return  the value axis.
+     */
     public ValueAxis getHorizontalValueAxis();
 
 }

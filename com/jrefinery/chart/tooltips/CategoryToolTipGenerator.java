@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,7 @@
  * -------
  * 13-Dec-2001 : Version 1 (DG);
  * 16-Jan-2002 : Completed Javadocs (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -41,15 +42,20 @@ package com.jrefinery.chart.tooltips;
 import com.jrefinery.data.CategoryDataset;
 
 /**
- * Interface for a tooltip generator for plots that use data from a CategoryDataset.
+ * Interface for a tool tip generator for plots that use data from a CategoryDataset.
+ *
+ * @author DG
  */
 public interface CategoryToolTipGenerator extends ToolTipGenerator {
 
     /**
      * Generates a tooltip text item for a particular category within a series.
-     * @param data The dataset.
-     * @param series The series number (zero-based index).
-     * @param category The category.
+     *
+     * @param data  the dataset.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     *
+     * @return the tooltip text.
      */
     public String generateToolTip(CategoryDataset data, int series, Object category);
 

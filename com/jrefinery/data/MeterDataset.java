@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -33,63 +33,41 @@
  * -------
  * 02-Apr-2002 : Version 1, based on code contributed by Hari (DG);
  * 16-Apr-2002 : Updated version from Hari (DG);
+ * 23-Aug-2002 : Updated Javadoc comments (DG);
  *
  */
 
 package com.jrefinery.data;
 
 /**
- * A dataset containing a single value in the context of three different levels, NORMAL, WARNING
- * and CRITICAL.
+ * A dataset containing a single value within an overall range.  In addition, the dataset defines
+ * three subranges:  the 'normal' range, the 'warning' range and the 'critical' range.
+ * <P>
+ * This dataset can be used to supply data to meters and gauges.  MeterPlot and ThermometerPlot
+ * are the current implementations.
+ *
+ * @author Hari
  */
 public interface MeterDataset extends Dataset {
 
+    /** A constant representing the 'normal' level. */
     public static final int NORMAL_DATA = 0;
+
+    /** A constant representing the 'warning' level. */
     public static final int WARNING_DATA = 1;
+
+    /** A constant representing the 'critical' level. */
     public static final int CRITICAL_DATA = 2;
+
+    /** A constant representing the full data range. */
     public static final int FULL_DATA = 3;
 
     /**
-     * Returns the lower value in the critical range.
+     * Returns the value.
      *
-     * @return The lower value.
+     * @return The value.
      */
-    public Number getMinimumCriticalValue();
-
-    /**
-     * Returns the upper value in the critical range.
-     *
-     * @return The upper value.
-     */
-    public Number getMaximumCriticalValue();
-
-    /**
-     * Returns the lower value in the warning range.
-     *
-     * @return The lower value.
-     */
-    public Number getMinimumWarningValue();
-
-    /**
-     * Returns the upper value in the warning range.
-     *
-     * @return The upper value.
-     */
-    public Number getMaximumWarningValue();
-
-    /**
-     * Returns the lower value in the normal range.
-     *
-     * @return The lower value.
-     */
-    public Number getMinimumNormalValue();
-
-    /**
-     * Returns the upper value in the normal range.
-     *
-     * @return The upper value.
-     */
-    public Number getMaximumNormalValue();
+    public Number getValue();
 
     /**
      * Returns the lower value in the overall range.
@@ -106,15 +84,66 @@ public interface MeterDataset extends Dataset {
     public Number getMaximumValue();
 
     /**
-     * Returns the value.
+     * Returns the lower value in the normal range.
      *
-     * @return The value.
+     * @return The lower value.
      */
-    public Number getValue();
+    public Number getMinimumNormalValue();
 
+    /**
+     * Returns the upper value in the normal range.
+     *
+     * @return The upper value.
+     */
+    public Number getMaximumNormalValue();
+
+    /**
+     * Returns the lower value in the warning range.
+     *
+     * @return The lower value.
+     */
+    public Number getMinimumWarningValue();
+
+    /**
+     * Returns the upper value in the warning range.
+     *
+     * @return The upper value.
+     */
+    public Number getMaximumWarningValue();
+
+    /**
+     * Returns the lower value in the critical range.
+     *
+     * @return The lower value.
+     */
+    public Number getMinimumCriticalValue();
+
+    /**
+     * Returns the upper value in the critical range.
+     *
+     * @return The upper value.
+     */
+    public Number getMaximumCriticalValue();
+
+    /**
+     * Returns true if the value is valid, and false otherwise.
+     *
+     * @return boolean
+     */
     public boolean isValueValid();
 
-	public String getUnits();
+    /**
+     * Returns a string representing the units on the dial.
+     *
+     * @return the units.
+     */
+    public String getUnits();
 
+    /**
+     * Returns the border type for the data.
+     *
+     * @return The border type.
+     */
     public int getBorderType();
+
 }

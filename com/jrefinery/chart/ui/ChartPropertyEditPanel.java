@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -37,36 +37,55 @@
 
 package com.jrefinery.chart.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import com.jrefinery.chart.*;
-import com.jrefinery.layout.*;
-import com.jrefinery.ui.*;
+import java.awt.Paint;
+import java.awt.Color;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.JCheckBox;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JColorChooser;
+import javax.swing.BorderFactory;
+import com.jrefinery.chart.JFreeChart;
+import com.jrefinery.chart.Legend;
+import com.jrefinery.chart.Plot;
+import com.jrefinery.layout.LCBLayout;
+import com.jrefinery.ui.PaintSample;
 
 /**
- * A panel for editing chart properties (includes subpanels for the title, legend and plot).
+ * A panel for editing chart properties (includes subpanels for the title,
+ * legend and plot).
+ *
+ * @author DG
  */
 public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /** A panel for displaying/editing the properties of the title. */
-    TitlePropertyEditPanel titlePropertiesPanel;
+    private TitlePropertyEditPanel titlePropertiesPanel;
 
     /** A panel for displaying/editing the properties of the legend. */
-    LegendPropertyEditPanel legendPropertiesPanel;
+    private LegendPropertyEditPanel legendPropertiesPanel;
 
     /** A panel for displaying/editing the properties of the plot. */
-    PlotPropertyEditPanel plotPropertiesPanel;
+    private PlotPropertyEditPanel plotPropertiesPanel;
 
-    /** A checkbox indicating whether or not the chart is drawn with anti-aliasing. */
-    JCheckBox antialias;
+    /** A checkbox indicating whether or not the chart is drawn with
+     *  anti-aliasing.
+     */
+    private JCheckBox antialias;
 
     /** The chart background color. */
-    PaintSample background;
+    private PaintSample background;
 
     /**
-     * Standard constructor - the property panel is made up of a number of sub-panels that are
-     * displayed in the tabbed pane.
+     * Standard constructor - the property panel is made up of a number of
+     * sub-panels that are displayed in the tabbed pane.
+     *
+     * @param chart  the chart, whichs properties should be changed.
      */
     public ChartPropertyEditPanel(JFreeChart chart) {
         setLayout(new BorderLayout());
@@ -142,7 +161,7 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
         //titlePropertiesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         //tabs.addTab("Title", titlePropertiesPanel);
 
-        if (legend!=null) {
+        if (legend != null) {
             legendPropertiesPanel = new LegendPropertyEditPanel(legend);
             legendPropertiesPanel.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
             tabs.addTab("Legend", legendPropertiesPanel);
@@ -159,6 +178,8 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns a reference to the title property sub-panel.
+     *
+     * @return a reference to the title property sub-panel.
      */
     public TitlePropertyEditPanel getTitlePropertyEditPanel() {
         return titlePropertiesPanel;
@@ -166,6 +187,8 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns a reference to the legend property sub-panel.
+     *
+     * @return a reference to the legend property sub-panel.
      */
     public LegendPropertyEditPanel getLegendPropertyEditPanel() {
         return legendPropertiesPanel;
@@ -173,6 +196,8 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns a reference to the plot property sub-panel.
+     *
+     * @return a reference to the plot property sub-panel.
      */
     public PlotPropertyEditPanel getPlotPropertyEditPanel() {
         return plotPropertiesPanel;
@@ -180,6 +205,8 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current setting of the anti-alias flag.
+     *
+     * @return <code>true</code> if anti-aliasing is enabled.
      */
     public boolean getAntiAlias() {
         return antialias.isSelected();
@@ -187,6 +214,8 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current background paint.
+     *
+     * @return the current background paint.
      */
     public Paint getBackgroundPaint() {
         return background.getPaint();
@@ -194,6 +223,8 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Handles user interactions with the panel.
+     *
+     * @param event  a BackgroundPaint action.
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -203,31 +234,34 @@ public class ChartPropertyEditPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Allows the user the opportunity to select a new background paint.  Uses JColorChooser,
-     * so we are only allowing a subset of all Paint objects to be selected (fix later).
+     * Allows the user the opportunity to select a new background paint.  Uses
+     * JColorChooser, so we are only allowing a subset of all Paint objects to
+     * be selected (fix later).
      */
     private void attemptModifyBackgroundPaint() {
         Color c;
         c = JColorChooser.showDialog(this, "Background Color", Color.blue);
-        if (c!=null) {
+        if (c != null) {
             background.setPaint(c);
         }
     }
 
     /**
-     * Updates the properties of a chart to match the properties defined on the panel.
-     * @param chart The chart.
+     * Updates the properties of a chart to match the properties defined on the
+     * panel.
+     *
+     * @param chart  the chart.
      */
     public void updateChartProperties(JFreeChart chart) {
 
-        if (legendPropertiesPanel!=null) {
+        if (legendPropertiesPanel != null) {
             legendPropertiesPanel.setLegendProperties(chart.getLegend());
         }
 
         plotPropertiesPanel.updatePlotProperties(chart.getPlot());
 
-        chart.setAntiAlias(this.getAntiAlias());
-        chart.setBackgroundPaint(this.getBackgroundPaint());
+        chart.setAntiAlias(getAntiAlias());
+        chart.setBackgroundPaint(getBackgroundPaint());
     }
 
 }

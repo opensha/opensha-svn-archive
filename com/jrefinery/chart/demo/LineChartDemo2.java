@@ -41,7 +41,6 @@ import java.awt.Paint;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-import com.jrefinery.data.XYDataset;
 import com.jrefinery.data.XYSeriesCollection;
 import com.jrefinery.data.XYSeries;
 import com.jrefinery.ui.ApplicationFrame;
@@ -50,19 +49,20 @@ import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
 import com.jrefinery.chart.XYPlot;
 import com.jrefinery.chart.NumberAxis;
-import com.jrefinery.chart.TickUnits;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a line chart using data from an
  * XYDataset.
+ *
+ * @author DG
  */
 public class LineChartDemo2 extends ApplicationFrame {
 
-    /** The data. */
-    protected XYDataset data;
-
     /**
-     * Default constructor.
+     * Creates a new demo.
+     *
+     * @param title  the frame title.
      */
     public LineChartDemo2(String title) {
 
@@ -105,12 +105,14 @@ public class LineChartDemo2 extends ApplicationFrame {
         dataset.addSeries(series3);
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createXYChart("Line Chart Demo 2",  // chart title
-                                                      "X",                  // domain axis label
-                                                      "Y",                  // range axis label
-                                                      dataset,              // data
-                                                      true                  // include legend
-                                                      );
+        JFreeChart chart = ChartFactory.createLineXYChart("Line Chart Demo 2",  // chart title
+                                                          "X",                  // x axis label
+                                                          "Y",                  // y axis label
+                                                          dataset,              // data
+                                                          true,                 // include legend
+                                                          true,                 // tooltips
+                                                          false                 // urls
+                                                          );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
@@ -134,24 +136,28 @@ public class LineChartDemo2 extends ApplicationFrame {
         plot.setSeriesStroke(seriesStrokeArray);
 
         // change the auto tick unit selection to integer units only...
-        NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(TickUnits.createIntegerTickUnits());
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         LineChartDemo2 demo = new LineChartDemo2("Line Chart Demo 2");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -45,18 +45,23 @@ package com.jrefinery.data;
  */
 public interface CombinationDataset {
 
-    //////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     // New methods from CombinationDataset
-    //////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns the parent Dataset of this combination. If there is more than one
-     * parent, or a child is found that is not a combination, then returns null.
+     * Returns the parent Dataset of this combination. If there is more than
+     * one parent, or a child is found that is not a combination, then returns
+     * <code>null</code>.
+     *
+     * @return the parent Dataset of this combination.
      */
     public SeriesDataset getParent();
 
     /**
      * Returns a map or indirect indexing form our series into parent's series.
+     *
+     * @return a map or indirect indexing form our series into parent's series.
      */
     public int[] getMap();
 

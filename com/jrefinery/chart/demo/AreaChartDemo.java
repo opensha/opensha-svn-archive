@@ -31,78 +31,113 @@
  *
  * Changes
  * -------
- * 03-Apr-2002 : Version 1 (DG);
+ * 11-Jun-2002 : Version 1 (DG);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 10-Oct-2002 : Renamed AreaChartForCategoryDataDemo --> AreaChartDemo (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
+import java.awt.Paint;
+import java.awt.Color;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
-import com.jrefinery.chart.XYPlot;
-import com.jrefinery.chart.XYItemRenderer;
-import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
-import com.jrefinery.data.XYSeries;
-import com.jrefinery.data.XYSeriesCollection;
+import com.jrefinery.chart.CategoryPlot;
+import com.jrefinery.chart.HorizontalCategoryAxis;
+import com.jrefinery.chart.NumberAxis;
+import com.jrefinery.data.DefaultCategoryDataset;
 import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
- * A simple demonstration application showing how to create an area chart.
+ * A simple demonstration application showing how to create an area chart using data from a
+ * CategoryDataset.
+ *
+ * @author DG
  */
 public class AreaChartDemo extends ApplicationFrame {
 
-    protected XYSeries series1;
-    protected XYSeries series2;
-
     /**
-     * Default constructor.
+     * Creates a new demo application.
+     *
+     * @param title  the frame title.
      */
     public AreaChartDemo(String title) {
 
         super(title);
-        this.series1 = new XYSeries("Random 1");
-        this.series1.add(new Integer(1), new Double(500.2));
-        this.series1.add(new Integer(2), new Double(694.1));
-        this.series1.add(new Integer(3), new Double(-734.4));
-        this.series1.add(new Integer(4), new Double(453.2));
-        this.series1.add(new Integer(5), new Double(500.2));
-        this.series1.add(new Integer(6), new Double(300.7));
-        this.series1.add(new Integer(7), new Double(734.4));
-        this.series1.add(new Integer(8), new Double(453.2));
 
-        this.series2 = new XYSeries("Random 2");
-        this.series2.add(new Integer(1), new Double(700.2));
-        this.series2.add(new Integer(2), new Double(534.1));
-        this.series2.add(new Integer(3), new Double(323.4));
-        this.series2.add(new Integer(4), new Double(125.2));
-        this.series2.add(new Integer(5), new Double(653.2));
-        this.series2.add(new Integer(6), new Double(432.7));
-        this.series2.add(new Integer(7), new Double(564.4));
-        this.series2.add(new Integer(8), new Double(322.2));
+        // create a dataset...
+        double[][] data = new double[][] {
+            { 1.0, 4.0, 3.0, 5.0, 5.0, 7.0, 7.0, 8.0 },
+            { 5.0, 7.0, 6.0, 8.0, 4.0, 4.0, 2.0, 1.0 },
+            { 4.0, 3.0, 2.0, 3.0, 6.0, 3.0, 4.0, 3.0 }
+        };
 
-        XYSeriesCollection dataset = new XYSeriesCollection(series1);
-        dataset.addSeries(series2);
-        JFreeChart chart = ChartFactory.createAreaXYChart("Area Chart Demo",
-                                                          "Time", "Value",
-                                                          dataset, true);
-        XYPlot plot = chart.getXYPlot();
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset(data);
+
+        // set the series names...
+        String[] seriesNames = new String[] { "First", "Second", "Third" };
+        dataset.setSeriesNames(seriesNames);
+
+        // set the category names...
+        String[] categories = new String[] { "Type 1", "Type 2", "Type 3", "Type 4",
+                                             "Type 5", "Type 6", "Type 7", "Type 8"  };
+        dataset.setCategories(categories);
+
+        // create the chart...
+        JFreeChart chart = ChartFactory.createAreaChart("Area Chart",  // chart title
+                                                        "Category",    // domain axis label
+                                                        "Value",       // range axis label
+                                                        dataset,       // data
+                                                        true,          // include legend
+                                                        true,          // tooltips
+                                                        false          // urls
+                                                        );
+
+        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+
+        // set the background color for the chart...
+        chart.setBackgroundPaint(Color.yellow);
+
+        // get a reference to the plot for further customisation...
+        CategoryPlot plot = chart.getCategoryPlot();
         plot.setForegroundAlpha(0.5f);
+        plot.setIntroGapPercent(0.0);
+        plot.setTrailGapPercent(0.0);
+        // label data points with values...
+        plot.setLabelsVisible(true);
 
-        XYItemRenderer renderer = plot.getItemRenderer();
-        renderer.setToolTipGenerator(new StandardXYToolTipGenerator());
+        // set the color for each series...
+        plot.setSeriesPaint(new Paint[] { Color.green, Color.orange, Color.red });
+
+
+        // change the auto tick unit selection to integer units only...
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        domainAxis.setVerticalCategoryLabels(true);
+        // OPTIONAL CUSTOMISATION COMPLETED.
+
+        // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         AreaChartDemo demo = new AreaChartDemo("Area Chart Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

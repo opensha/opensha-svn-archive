@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,6 +39,8 @@
  * 26-Feb-2002 : Changed getStart(), getMiddle() and getEnd() methods to evaluate with reference
  *               to a particular time zone (DG);
  * 19-Mar-2002 : Changed API for TimePeriod classes (DG);
+ * 10-Sep-2002 : Added getSerialIndex() method (DG);
+ * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -54,11 +56,12 @@ import com.jrefinery.date.SerialDate;
  * <P>
  * This class is immutable, which is a requirement for all TimePeriod subclasses.
  *
+ * @author DG
  */
 public class Year extends TimePeriod {
 
     /** The year. */
-    protected int year;
+    private int year;
 
     /**
      * Constructs a new Year, based on the current system date/time.
@@ -69,14 +72,18 @@ public class Year extends TimePeriod {
 
     /**
      * Constructs a time period representing a single year.
-     * @param The year.
+     *
+     * @param year  the year.
      */
     public Year(int year) {
 
         // check arguments...
-        if ((year<SerialDate.MINIMUM_YEAR_SUPPORTED) || (year>SerialDate.MAXIMUM_YEAR_SUPPORTED)) {
-            throw new IllegalArgumentException("Year constructor: year ("
-                                               +year+") outside valid range.");
+        if ((year < SerialDate.MINIMUM_YEAR_SUPPORTED)
+            || (year > SerialDate.MAXIMUM_YEAR_SUPPORTED)) {
+
+            throw new IllegalArgumentException(
+                "Year constructor: year (" + year + ") outside valid range.");
+
         }
 
         // initialise...
@@ -85,9 +92,10 @@ public class Year extends TimePeriod {
     }
 
     /**
-     * Constructs a new Year, based on a particular instant in time, using the default time zone.
+     * Constructs a new Year, based on a particular instant in time, using the
+     * default time zone.
      *
-     * @param time The time.
+     * @param time  the time.
      */
     public Year(Date time) {
         this(time, TimePeriod.DEFAULT_TIME_ZONE);
@@ -96,8 +104,8 @@ public class Year extends TimePeriod {
     /**
      * Constructs a year, based on a particular instant in time and a time zone.
      *
-     * @param time The time.
-     * @param zone The time zone.
+     * @param time  the time.
+     * @param zone  the time zone.
      */
     public Year(Date time, TimeZone zone) {
 
@@ -109,7 +117,8 @@ public class Year extends TimePeriod {
 
     /**
      * Returns the year.
-     * @return The year.
+     *
+     * @return the year.
      */
     public int getYear() {
         return this.year;
@@ -117,52 +126,112 @@ public class Year extends TimePeriod {
 
     /**
      * Returns the year preceding this one.
-     * @return The year preceding this one (or null if the current year is 1900).
+     *
+     * @return the year preceding this one (or null if the current year is 1900).
      */
     public TimePeriod previous() {
 
-        if (year>SerialDate.MINIMUM_YEAR_SUPPORTED) {
-            return new Year(year-1);
+        if (year > SerialDate.MINIMUM_YEAR_SUPPORTED) {
+            return new Year(year - 1);
         }
-        else return null;
+        else {
+            return null;
+        }
 
     }
 
     /**
      * Returns the year following this one.
+     *
      * @return The year following this one (or null if the current year is 9999).
      */
     public TimePeriod next() {
 
-        if (year<SerialDate.MAXIMUM_YEAR_SUPPORTED) {
-            return new Year(year+1);
+        if (year < SerialDate.MAXIMUM_YEAR_SUPPORTED) {
+            return new Year(year + 1);
         }
-        else return null;
+        else {
+            return null;
+        }
 
     }
 
     /**
-     * Tests the equality of this Year object to an arbitrary object.  Returns true if the
-     * target is a Year instance representing the same year as this object.  In all other cases,
-     * returns false.
-     * @param object The object.
+     * Returns a serial index number for the year.
+     * <P>
+     * The implementation simply returns the year number (e.g. 2002).
+     *
+     * @return the serial index number.
+     */
+    public long getSerialIndex() {
+        return year;
+    }
+
+    /**
+     * Returns the first millisecond of the year, evaluated using the supplied
+     * calendar (which determines the time zone).
+     *
+     * @param calendar  the calendar.
+     *
+     * @return the first millisecond of the year.
+     */
+    public long getStart(Calendar calendar) {
+
+        Day jan1 = new Day(1, SerialDate.JANUARY, year);
+        return jan1.getStart(calendar);
+
+    }
+
+    /**
+     * Returns the last millisecond of the year, evaluated using the supplied
+     * calendar (which determines the time zone).
+     *
+     * @param calendar  the calendar.
+     *
+     * @return the last millisecond of the year.
+     */
+    public long getEnd(Calendar calendar) {
+
+        Day dec31 = new Day(31, SerialDate.DECEMBER, year);
+        return dec31.getEnd(calendar);
+
+    }
+
+    /**
+     * Tests the equality of this Year object to an arbitrary object.  Returns
+     * true if the target is a Year instance representing the same year as this
+     * object.  In all other cases, returns false.
+     *
+     * @param object  the object.
+     *
+     * @return <code>true</code> if the year of this and the object are the same.
      */
     public boolean equals(Object object) {
 
-        if (object!=null) {
+        if (object != null) {
             if (object instanceof Year) {
-                Year target = (Year)object;
-                return (year==target.getYear());
+                Year target = (Year) object;
+                return (year == target.getYear());
             }
-            else return false;
+            else {
+                return false;
+            }
         }
-        else return false;
+        else {
+            return false;
+        }
 
     }
 
     /**
-     * Returns an integer indicating the order of this Year object relative to the specified
-     * object: negative == before, zero == same, positive == after.
+     * Returns an integer indicating the order of this Year object relative to
+     * the specified object:
+     *
+     * negative == before, zero == same, positive == after.
+     *
+     * @param o1  the object to compare.
+     *
+     * @return negative == before, zero == same, positive == after.
      */
     public int compareTo(Object o1) {
 
@@ -171,7 +240,7 @@ public class Year extends TimePeriod {
         // CASE 1 : Comparing to another Year object
         // -----------------------------------------
         if (o1 instanceof Year) {
-            Year y = (Year)o1;
+            Year y = (Year) o1;
             result = this.year - y.getYear();
         }
 
@@ -184,7 +253,10 @@ public class Year extends TimePeriod {
 
         // CASE 3 : Comparing to a non-TimePeriod object
         // ---------------------------------------------
-        else result = 1;  // consider time periods to be ordered after general objects
+        else {
+            // consider time periods to be ordered after general objects
+            result = 1;
+        }
 
         return result;
 
@@ -192,7 +264,8 @@ public class Year extends TimePeriod {
 
     /**
      * Returns a string representing the year (e.g. "2002").
-     * @return A string representing the year.
+     *
+     * @return a string representing the year.
      */
     public String toString() {
         return Integer.toString(year);
@@ -202,7 +275,12 @@ public class Year extends TimePeriod {
      * Parses the string argument as a year.
      * <P>
      * The string format is YYYY.
-     * @param s A string representing the year.
+     *
+     * @param s  a string representing the year.
+     *
+     * @return <code>null</code> if the string is not parseable, the year otherwise.
+     *
+     * @throws TimePeriodFormatException if there is a parsing error.
      */
     public static Year parseYear(String s) throws TimePeriodFormatException {
 
@@ -221,38 +299,10 @@ public class Year extends TimePeriod {
             result = new Year(y);
         }
         catch (IllegalArgumentException e) {
-            throw new TimePeriodFormatException("Year.parseYear(string): year outside valid "
-                                               +"range.");
+            throw new TimePeriodFormatException(
+                "Year.parseYear(string): year outside valid range.");
         }
         return result;
-
-    }
-
-    /**
-     * Returns the first millisecond of the year, evaluated using the supplied calendar (which
-     * determines the time zone).
-     *
-     * @param calendar The calendar.
-     * @return The first millisecond of the year.
-     */
-    public long getStart(Calendar calendar) {
-
-        Day jan1 = new Day(1, SerialDate.JANUARY, year);
-        return jan1.getStart(calendar);
-
-    }
-
-    /**
-     * Returns the last millisecond of the year, evaluated using the supplied calendar (which
-     * determines the time zone).
-     *
-     * @param calendar The calendar.
-     * @return The last millisecond of the year.
-     */
-    public long getEnd(Calendar calendar) {
-
-        Day dec31 = new Day(31, SerialDate.DECEMBER, year);
-        return dec31.getEnd(calendar);
 
     }
 

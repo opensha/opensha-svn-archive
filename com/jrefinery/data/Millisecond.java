@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -35,6 +35,8 @@
  * 19-Dec-2001 : Added new constructors as suggested by Paul English (DG);
  * 26-Feb-2002 : Added new getStart(...) and getEnd(...) methods (DG);
  * 29-Mar-2002 : Fixed bug in getStart(...), getEnd(...) and compareTo(...) methods (DG);
+ * 10-Sep-2002 : Added getSerialIndex() method (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,24 +44,28 @@ package com.jrefinery.data;
 
 import java.util.Date;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
  * Represents a millisecond.
  * <P>
  * This class is immutable, which is a requirement for all TimePeriod subclasses.
+ *
+ * @author DG
  */
 public class Millisecond extends TimePeriod {
 
+    /** A constant for the first millisecond in a second. */
     public static final int FIRST_MILLISECOND_IN_SECOND = 0;
 
+    /** A constant for the last millisecond in a second. */
     public static final int LAST_MILLISECOND_IN_SECOND = 999;
 
     /** The millisecond. */
-    protected int millisecond;
+    private int millisecond;
 
-    protected Second second;
+    /** The second. */
+    private Second second;
 
     /**
      * Constructs a millisecond based on the current system time.
@@ -70,7 +76,9 @@ public class Millisecond extends TimePeriod {
 
     /**
      * Constructs a millisecond.
-     * @param millisecond The millisecond (same encoding as java.util.Date).
+     *
+     * @param millisecond  the millisecond (0-999).
+     * @param second  the second.
      */
     public Millisecond(int millisecond, Second second) {
 
@@ -81,12 +89,19 @@ public class Millisecond extends TimePeriod {
 
     /**
      * Constructs a millisecond.
-     * @param time The time.
+     *
+     * @param time  the time.
      */
     public Millisecond(Date time) {
         this(time, TimePeriod.DEFAULT_TIME_ZONE);
     }
 
+    /**
+     * Creates a millisecond.
+     *
+     * @param time  the instant in time.
+     * @param zone  the time zone.
+     */
     public Millisecond(Date time, TimeZone zone) {
 
         this.second = new Second(time, zone);
@@ -97,12 +112,19 @@ public class Millisecond extends TimePeriod {
 
     }
 
+    /**
+     * Returns the second.
+     *
+     * @return The second.
+     */
     public Second getSecond() {
         return this.second;
     }
 
     /**
      * Returns the millisecond.
+     *
+     * @return the millisecond.
      */
     public long getMillisecond() {
         return this.millisecond;
@@ -110,17 +132,19 @@ public class Millisecond extends TimePeriod {
 
     /**
      * Returns the millisecond preceding this one.
+     *
+     * @return the millisecond preceding this one.
      */
     public TimePeriod previous() {
 
         TimePeriod result = null;
 
-        if (this.millisecond!=FIRST_MILLISECOND_IN_SECOND) {
-            result = new Millisecond(this.millisecond-1, this.second);
+        if (this.millisecond != FIRST_MILLISECOND_IN_SECOND) {
+            result = new Millisecond(this.millisecond - 1, this.second);
         }
         else {
-            Second previous = (Second)this.second.previous();
-            if (previous!=null) {
+            Second previous = (Second) this.second.previous();
+            if (previous != null) {
                 result = new Millisecond(LAST_MILLISECOND_IN_SECOND, previous);
             }
         }
@@ -130,17 +154,19 @@ public class Millisecond extends TimePeriod {
 
     /**
      * Returns the millisecond following this one.
+     *
+     * @return the millisecond following this one.
      */
     public TimePeriod next() {
 
         TimePeriod result = null;
 
-        if (this.millisecond!=LAST_MILLISECOND_IN_SECOND) {
-            result = new Millisecond(this.millisecond+1, this.second);
+        if (this.millisecond != LAST_MILLISECOND_IN_SECOND) {
+            result = new Millisecond(this.millisecond + 1, this.second);
         }
         else {
-            Second next = (Second)this.second.next();
-            if (next!=null) {
+            Second next = (Second) this.second.next();
+            if (next != null) {
                 result = new Millisecond(FIRST_MILLISECOND_IN_SECOND, next);
             }
         }
@@ -149,23 +175,47 @@ public class Millisecond extends TimePeriod {
     }
 
     /**
-     * Tests the equality of this object against an arbitrary Object.
-     * <P>
-     * This method will return true ONLY if the object is a Millisecond object representing the same
-     * millisecond as this instance.
+     * Returns a serial index number for the millisecond.
+     *
+     * @return The serial index number.
      */
-    public boolean equals(Object object) {
-        if (object instanceof Millisecond) {
-            Millisecond m = (Millisecond)object;
-            return ((this.millisecond==m.getMillisecond()) && (this.second.equals(m.getSecond())));
-        }
-        else return false;
+    public long getSerialIndex() {
+        return this.second.getSerialIndex() * 1000L + this.millisecond;
     }
 
     /**
-     * Returns an integer indicating the order of this Millisecond object relative to the specified
-     * object: negative == before, zero == same, positive == after.
+     * Tests the equality of this object against an arbitrary Object.
+     * <P>
+     * This method will return true ONLY if the object is a Millisecond object
+     * representing the same millisecond as this instance.
      *
+     * @param object  the object to compare
+     *
+     * @return <code>true</code> if milliseconds and seconds of this and object
+     *      are the same.
+     */
+    public boolean equals(Object object) {
+
+        if (object instanceof Millisecond) {
+            Millisecond m = (Millisecond) object;
+            return ((this.millisecond == m.getMillisecond())
+                    && (this.second.equals(m.getSecond())));
+        }
+        else {
+            return false;
+        }
+
+    }
+
+    /**
+     * Returns an integer indicating the order of this Millisecond object
+     * relative to the specified object:
+     *
+     * negative == before, zero == same, positive == after.
+     *
+     * @param o1  the object to compare
+     *
+     * @return negative == before, zero == same, positive == after.
      */
     public int compareTo(Object o1) {
 
@@ -175,11 +225,19 @@ public class Millisecond extends TimePeriod {
         // CASE 1 : Comparing to another Second object
         // -------------------------------------------
         if (o1 instanceof Millisecond) {
-            Millisecond ms = (Millisecond)o1;
-            difference = this.getStart()-ms.getStart();
-            if (difference>0) result = 1;
-            else if (difference<0) result = -1;
-            else result = 0;
+            Millisecond ms = (Millisecond) o1;
+            difference = getStart() - ms.getStart();
+            if (difference > 0) {
+                result = 1;
+            }
+            else {
+                if (difference < 0) {
+                    result = -1;
+                }
+                else {
+                    result = 0;
+                }
+            }
         }
 
         // CASE 2 : Comparing to another TimePeriod object
@@ -191,7 +249,10 @@ public class Millisecond extends TimePeriod {
 
         // CASE 3 : Comparing to a non-TimePeriod object
         // ---------------------------------------------
-        else result = 1;  // consider time periods to be ordered after general objects
+        else {
+            // consider time periods to be ordered after general objects
+            result = 1;
+        }
 
         return result;
 
@@ -199,60 +260,55 @@ public class Millisecond extends TimePeriod {
 
     /**
      * Returns the first millisecond of the time period.
+     *
+     * @return the first millisecond of the time period.
      */
     public long getStart() {
-        return this.second.getStart()+this.millisecond;
+        return this.second.getStart() + this.millisecond;
     }
 
+    /**
+     * Returns the first millisecond of the time period.
+     *
+     * @param calendar  the calendar.
+     *
+     * @return The first millisecond of the time period.
+     */
     public long getStart(Calendar calendar) {
 
-        return this.second.getStart(calendar)+this.millisecond;
+        return this.second.getStart(calendar) + this.millisecond;
 
     }
 
     /**
      * Returns the last millisecond of the time period.
+     *
+     * @return the last millisecond of the time period.
      */
     public long getEnd() {
-        return this.second.getStart()+millisecond;
-    }
-
-    public long getEnd(Calendar calendar) {
-
-        return this.second.getStart(calendar)+this.millisecond;
-
-    }
-
-    public String toString() {
-        return String.valueOf(this.getStart());
+        return this.second.getStart() + millisecond;
     }
 
     /**
-     * Test code - please ignore.
+     * Returns the last millisecond of the time period.
+     *
+     * @param calendar  the calendar.
+     *
+     * @return The last millisecond of the time period.
      */
-    public static void main(String[] args) {
+    public long getEnd(Calendar calendar) {
 
-        String[] ids = TimeZone.getAvailableIDs();
+        return this.second.getStart(calendar) + this.millisecond;
 
-        for (int i=0; i<ids.length; i++) {
-            System.out.println(ids[i]);
-        }
+    }
 
-        TimeZone zone = TimeZone.getTimeZone("Europe/Tallinn");
-        Calendar calendar = new GregorianCalendar(zone);
-        calendar.clear();
-        calendar.set(2002, 2, 21, 16, 55, 59);
-        calendar.set(Calendar.MILLISECOND, 123);
-        System.out.println("4.55:59.123pm on 21-Mar-2002 in GMT: "+calendar.getTime().getTime());
-
-        Date time = new Date(1014307200000L);
-        calendar.setTime(time);
-        Hour hour = new Hour(time);
-        System.out.println("Hour = "+hour.toString());
-        System.out.println("Start = "+hour.getStart(zone));
-        System.out.println("End = "+hour.getEnd(zone));
-        System.out.println("Offset = "+zone.getRawOffset());
-
+    /**
+     * Returns a string representation of the millisecond.
+     *
+     * @return the string.
+     */
+    public String toString() {
+        return String.valueOf(getStart());
     }
 
 }

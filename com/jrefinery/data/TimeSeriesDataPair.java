@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -34,38 +34,41 @@
  * 11-Oct-2001 : Version 1 (DG);
  * 15-Nov-2001 : Updated Javadoc comments (DG);
  * 29-Nov-2001 : Added cloning (DG);
+ * 24-Jun-2002 : Removed unnecessary import (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import java.util.*;
-
 /**
  * Represents one data item in a time series.
  * <P>
- * The time period can be any of the following: Year, Quarter, Month, Week, Day, Hour, Minute,
- * Second or Millisecond.
+ * The time period can be any of the following: Year, Quarter, Month, Week,
+ * Day, Hour, Minute, Second or Millisecond.
  * <P>
- * The time period is an immutable property of the data pair.  Data pairs will often be sorted
- * within a list, and allowing the time period to be changed could destroy the sort order.
+ * The time period is an immutable property of the data pair.  Data pairs will
+ * often be sorted within a list, and allowing the time period to be changed
+ * could destroy the sort order.
  * <P>
- * Implements the Comparable interface so that standard Java sorting can be used to keep the data
- * pairs in order.
+ * Implements the Comparable interface so that standard Java sorting can be
+ * used to keep the data pairs in order.
  *
+ * @author DG
  */
 public class TimeSeriesDataPair implements Cloneable, Comparable {
 
     /** The time period. */
-    protected TimePeriod period;
+    private TimePeriod period;
 
     /** The value associated with the time period. */
-    protected Number value;
+    private Number value;
 
     /**
      * Constructs a new data pair.
-     * @param period The time period.
-     * @param value The value associated with the time period.
+     *
+     * @param period  the time period.
+     * @param value  the value associated with the time period.
      */
     public TimeSeriesDataPair(TimePeriod period, Number value) {
 
@@ -76,8 +79,9 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
 
     /**
      * Constructs a new data pair.
-     * @param period The time period.
-     * @param value The value associated with the time period.
+     *
+     * @param period  the time period.
+     * @param value  the value associated with the time period.
      */
     public TimeSeriesDataPair(TimePeriod period, double value) {
 
@@ -89,7 +93,9 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
      * Clones the data pair.
      * <P>
      * Notes:
-     * --> no need to clone the period or value since they are immutable classes;
+     * --> no need to clone the period or value since they are immutable classes.
+     *
+     * @return a clone of this data pair.
      */
     public Object clone() {
 
@@ -99,7 +105,7 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
             clone = super.clone();
         }
         catch (CloneNotSupportedException e) { // won't get here...
-            System.err.println("Series.clone(): operation not supported.");
+            System.err.println("TimeSeriesDataPair.clone(): operation not supported.");
         }
 
         return clone;
@@ -108,7 +114,8 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
 
     /**
      * Returns the time period.
-     * @return The time period.
+     *
+     * @return the time period.
      */
     public TimePeriod getPeriod() {
         return this.period;
@@ -116,7 +123,8 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
 
     /**
      * Returns the value.
-     * @return The value.
+     *
+     * @return the value.
      */
     public Number getValue() {
         return this.value;
@@ -124,19 +132,23 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
 
     /**
      * Sets the value for this data pair.
-     * @param value The new value.
+     *
+     * @param value  the new value.
      */
     public void setValue(Number value) {
         this.value = value;
     }
 
     /**
-     * Returns an integer indicating the order of this data pair object relative to another object.
+     * Returns an integer indicating the order of this data pair object
+     * relative to another object.
      * <P>
-     * For the order we consider only the timing:  negative == before, zero == same,
-     *                                             positive == after.
-     * @param o1 The object being compared to.
-     * @return An integer indicating the order of this data pair object relative to another object.
+     * For the order we consider only the timing:
+     * negative == before, zero == same, positive == after.
+     *
+     * @param o1  The object being compared to.
+     *
+     * @return  An integer indicating the order of the data pair object relative to another object.
      */
     public int compareTo(Object o1) {
 
@@ -145,13 +157,16 @@ public class TimeSeriesDataPair implements Cloneable, Comparable {
         // CASE 1 : Comparing to another TimeSeriesDataPair object
         // -------------------------------------------------------
         if (o1 instanceof TimeSeriesDataPair) {
-            TimeSeriesDataPair datapair = (TimeSeriesDataPair)o1;
+            TimeSeriesDataPair datapair = (TimeSeriesDataPair) o1;
             result = this.getPeriod().compareTo(datapair.getPeriod());
         }
 
         // CASE 2 : Comparing to a general object
         // ---------------------------------------------
-        else result = 1;  // consider time periods to be ordered after general objects
+        else {
+            // consider time periods to be ordered after general objects
+            result = 1;
+        }
 
         return result;
 

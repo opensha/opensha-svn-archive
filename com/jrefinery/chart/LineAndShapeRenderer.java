@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -27,6 +27,7 @@
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   Mark Watson (www.markwatson.com);
  *                   Jeremy Bowman;
+ *                   Richard Atkinson;
  *
  * $Id$
  *
@@ -39,17 +40,15 @@
  *               of the tooltips implementation (DG);
  * 11-May-2002 : Support for value label drawing (JB);
  * 29-May-2002 : Now extends AbstractCategoryItemRenderer (DG);
+ * 25-Jun-2002 : Removed redundant import (DG);
+ * 05-Aug-2002 : Small modification to drawCategoryItem method to support URLs for
+ *               HTML image maps (RA);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 11-Oct-2002 : Added new constructor to incorporate tool tip and URL generators (DG);
  *
  */
 
 package com.jrefinery.chart;
-
-import com.jrefinery.chart.ChartRenderingInfo;
-import com.jrefinery.chart.entity.EntityCollection;
-import com.jrefinery.chart.entity.CategoryItemEntity;
-import com.jrefinery.data.CategoryDataset;
-import com.jrefinery.data.Range;
-import com.jrefinery.ui.RefineryUtilities;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -60,11 +59,22 @@ import java.awt.font.LineMetrics;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
+import com.jrefinery.chart.entity.EntityCollection;
+import com.jrefinery.chart.entity.CategoryItemEntity;
+import com.jrefinery.chart.tooltips.CategoryToolTipGenerator;
+import com.jrefinery.chart.urls.CategoryURLGenerator;
+import com.jrefinery.data.CategoryDataset;
+import com.jrefinery.data.Range;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
- * A renderer for a CategoryPlot that draws shapes for each data item, and lines between data items.
- * The renderer is immutable so that the only way to change the renderer for a plot is to call the
- * setRenderer() method.
+ * A renderer for a CategoryPlot that draws shapes for each data item, and
+ * lines between data items.
+ * <P>
+ * The renderer is immutable so that the only way to change the renderer for
+ * a plot is to call the setRenderer() method.
+ *
+ * @author DG
  */
 public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
 
@@ -90,16 +100,16 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
     public static final int RIGHT = 4;
 
     /** A flag indicating whether or not shapes are drawn at each XY point. */
-    protected boolean plotShapes;
+    private boolean plotShapes;
 
     /** A flag indicating whether or not lines are drawn between XY points. */
-    protected boolean plotLines;
+    private boolean plotLines;
 
     /** Scale factor for standard shapes. */
-    protected double shapeScale = 6;
+    private double shapeScale = 6;
 
     /** Location of labels (if shown) relative to the data points. */
-    protected int labelPosition;
+    private int labelPosition;
 
     /**
      * Constructs a default renderer (draws shapes and lines).
@@ -113,7 +123,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
      * <P>
      * Use one of the constants SHAPES, LINES or SHAPES_AND_LINES.
      *
-     * @param type The type of renderer.
+     * @param type  the type of renderer.
      */
     public LineAndShapeRenderer(int type) {
         this(type, TOP);
@@ -124,24 +134,54 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
      * <P>
      * Use one of the constants SHAPES, LINES or SHAPES_AND_LINES.
      *
-     * @param type The type of renderer.
-     * @param labelPosition Location of labels (if shown) relative to the data points
-     *                      (TOP, BOTTOM, LEFT, or RIGHT).
+     * @param type  the type of renderer.
+     * @param labelPosition  location of labels (if shown) relative to the data  points
+     *                       (TOP, BOTTOM, LEFT, or RIGHT).
      */
     public LineAndShapeRenderer(int type, int labelPosition) {
-        if (type==SHAPES) this.plotShapes=true;
-        if (type==LINES) this.plotLines=true;
-        if (type==SHAPES_AND_LINES) {
+        this(type, labelPosition, null, null);
+    }
+
+    /**
+     * Constructs a renderer of the specified type.
+     * <P>
+     * Use one of the constants SHAPES, LINES or SHAPES_AND_LINES.
+     *
+     * @param type  the type of renderer.
+     * @param labelPosition  location of labels (if shown) relative to the data  points
+     *                       (TOP, BOTTOM, LEFT, or RIGHT).
+     * @param toolTipGenerator  the tool tip generator (null permitted).
+     * @param urlGenerator the URL generator (null permitted).
+     */
+    public LineAndShapeRenderer(int type, int labelPosition,
+                                CategoryToolTipGenerator toolTipGenerator,
+                                CategoryURLGenerator urlGenerator) {
+
+        super(toolTipGenerator, urlGenerator);
+
+        if (type == SHAPES) {
+            this.plotShapes = true;
+        }
+        if (type == LINES) {
+            this.plotLines = true;
+        }
+        if (type == SHAPES_AND_LINES) {
             this.plotShapes = true;
             this.plotLines = true;
         }
         this.labelPosition = labelPosition;
+
     }
 
     /**
-     * Returns the area that the axes must fit into.  Often this is the same as the plotArea, but
-     * sometimes a smaller region should be used (for example, the 3D charts require the axes to
-     * use less space in order to leave room for the 'depth' part of the chart).
+     * Returns the area that the axes must fit into.  Often this is the same as
+     * the plotArea, but sometimes a smaller region should be used (for example,
+     * the 3D charts require the axes to use less space in order to leave room
+     * for the 'depth' part of the chart).
+     *
+     * @param plotArea  the plotArea.
+     *
+     * @return the area that the axes must fit into.
      */
     public Rectangle2D getAxisArea(Rectangle2D plotArea) {
         return plotArea;
@@ -150,12 +190,12 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
     /**
      * Draws a horizontal line across the chart to represent the marker.
      *
-     * @param g2 The graphics device.
-     * @param plot The plot.
-     * @param axis The value axis.
-     * @param marker The marker line.
-     * @param axisDataArea The axis data area.
-     * @param dataClipRegion The data clip region.
+     * @param g2  the graphics device.
+     * @param plot  the plot.
+     * @param axis  the value axis.
+     * @param marker  the marker line.
+     * @param axisDataArea  the axis data area.
+     * @param dataClipRegion  the data clip region.
      */
     public void drawRangeMarker(Graphics2D g2,
                                 CategoryPlot plot, ValueAxis axis, Marker marker,
@@ -163,7 +203,9 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
 
         double value = marker.getValue();
         Range range = axis.getRange();
-        if (!range.contains(value)) return;
+        if (!range.contains(value)) {
+            return;
+        }
 
         double y = axis.translateValueToJava2D(marker.getValue(), axisDataArea);
         Line2D line = new Line2D.Double(axisDataArea.getMinX(), y,
@@ -176,18 +218,18 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
     /**
      * Draw a single data item.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area in which the data is drawn.
-     * @param plot The plot.
-     * @param axis The range axis.
-     * @param data The data.
-     * @param series The series number (zero-based index).
-     * @param category The category.
-     * @param categoryIndex The category number (zero-based index).
-     * @param previousCategory The previous category (will be null when the first category is
-     *                         drawn).
+     * @param g2  the graphics device.
+     * @param dataArea  the area in which the data is drawn.
+     * @param plot  the plot.
+     * @param axis  the range axis.
+     * @param data  the data.
+     * @param series  the series number (zero-based index).
+     * @param category  the category.
+     * @param categoryIndex  the category number (zero-based index).
+     * @param previousCategory  the previous category (null when the first category is drawn).
      */
-    public void drawCategoryItem(Graphics2D g2, Rectangle2D dataArea,
+    public void drawCategoryItem(Graphics2D g2,
+                                 Rectangle2D dataArea,
                                  CategoryPlot plot,
                                  ValueAxis axis,
                                  CategoryDataset data,
@@ -196,7 +238,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
 
         // first check the number we are plotting...
         Number value = data.getValue(series, category);
-        if (value!=null) {
+        if (value != null) {
 
             // current data point...
             double x1 = plot.getCategoryCoordinate(categoryIndex, dataArea);
@@ -211,18 +253,18 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
                 g2.fill(shape);
             }
             else {
-                shape = new Rectangle2D.Double(x1-2, y1-2, 4.0, 4.0);
+                shape = new Rectangle2D.Double(x1 - 2, y1 - 2, 4.0, 4.0);
             }
 
             if (this.plotLines) {
-                if (previousCategory!=null) {
+                if (previousCategory != null) {
 
                     Number previousValue = data.getValue(series, previousCategory);
-                    if (previousValue!=null) {
+                    if (previousValue != null) {
 
                         // previous data point...
                         double previous = previousValue.doubleValue();
-                        double x0 = plot.getCategoryCoordinate(categoryIndex-1, dataArea);
+                        double x0 = plot.getCategoryCoordinate(categoryIndex - 1, dataArea);
                         double y0 = axis.translateValueToJava2D(previous, dataArea);
 
                         g2.setPaint(plot.getSeriesPaint(series));
@@ -246,14 +288,19 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
             }
 
             // collect entity and tool tip information...
-            if (this.info!=null) {
-                EntityCollection entities = this.info.getEntityCollection();
-                if (entities!=null && shape!=null) {
-                    String tip="";
-                    if (this.toolTipGenerator!=null) {
-                        tip = this.toolTipGenerator.generateToolTip(data, series, category);
+            if (getInfo() != null) {
+                EntityCollection entities = getInfo().getEntityCollection();
+                if (entities != null && shape != null) {
+                    String tip = null;
+                    if (getToolTipGenerator() != null) {
+                        tip = getToolTipGenerator().generateToolTip(data, series, category);
                     }
-                    CategoryItemEntity entity = new CategoryItemEntity(shape, tip, series, category);
+                    String url = null;
+                    if (getURLGenerator() != null) {
+                        url = getURLGenerator().generateURL(data, series, category);
+                    }
+                    CategoryItemEntity entity
+                        = new CategoryItemEntity(shape, tip, url, series, category, categoryIndex);
                     entities.addEntity(entity);
                 }
             }
@@ -265,12 +312,12 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
     /**
      * Draws a value label on the plot.
      *
-     * @param g2 The graphics device.
-     * @param label The label text.
-     * @param x The x position of the data point.
-     * @param x The y position of the data point.
-     * @param font The font to draw the label with.
-     * @param rotate True if the label is to be rotated 90 degrees, false otherwise
+     * @param g2  the graphics device.
+     * @param label  the label text.
+     * @param x  the x position of the data point.
+     * @param y  the y position of the data point.
+     * @param labelFont  the font to draw the label with.
+     * @param rotate  if <code>true</code> the label is will be rotated 90 degrees.
      */
     private void drawLabel(Graphics2D g2, String label, double x, double y,
                            Font labelFont, boolean rotate) {
@@ -285,41 +332,41 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer {
          float labely;
          int position = labelPosition;
          if (rotate) {
-             if (position==TOP) {
-                 labelx = (float)(x+height/2-lm.getDescent());
-                 labely = (float)(y-shapeScale);
+             if (position == TOP) {
+                 labelx = (float) (x + height / 2 - lm.getDescent());
+                 labely = (float) (y - shapeScale);
              }
-             else if (position==BOTTOM) {
-                 labelx = (float)(x+height/2-lm.getDescent());
-                 labely = (float)(y+shapeScale+width);
+             else if (position == BOTTOM) {
+                 labelx = (float) (x + height / 2 - lm.getDescent());
+                 labely = (float) (y + shapeScale + width);
              }
-             else if (position==LEFT) {
-                 labelx = (float)(x-shapeScale/2-lead-lm.getDescent());
-                 labely = (float)(y+width/2);
+             else if (position == LEFT) {
+                 labelx = (float) (x - shapeScale / 2 - lead - lm.getDescent());
+                 labely = (float) (y + width / 2);
              }
              else {
-                 labelx = (float)(x+shapeScale/2+lead+lm.getAscent());
-                 labely = (float)(y+width/2);
+                 labelx = (float) (x + shapeScale / 2 + lead + lm.getAscent());
+                 labely = (float) (y + width / 2);
              }
              RefineryUtilities.drawRotatedString(label, g2, labelx, labely,
-                                                 -Math.PI/2);
+                                                 -Math.PI / 2);
          }
          else {
-             if (position==TOP) {
-                 labelx = (float)(x-width/2);
-                 labely = (float)(y-shapeScale/2-lm.getDescent()-lead);
+             if (position == TOP) {
+                 labelx = (float) (x - width / 2);
+                 labely = (float) (y - shapeScale / 2 - lm.getDescent() - lead);
              }
-             else if (position==BOTTOM) {
-                 labelx = (float)(x-width/2);
-                 labely = (float)(y+shapeScale/2+lm.getAscent()+lead);
+             else if (position == BOTTOM) {
+                 labelx = (float) (x - width / 2);
+                 labely = (float) (y + shapeScale / 2 + lm.getAscent() + lead);
              }
-             else if (position==LEFT) {
-                 labelx = (float)(x-shapeScale-width);
-                 labely = (float)(y+height/2-lm.getDescent());
+             else if (position == LEFT) {
+                 labelx = (float) (x - shapeScale - width);
+                 labely = (float) (y + height / 2 - lm.getDescent());
              }
              else {
-                 labelx = (float)(x+shapeScale);
-                 labely = (float)(y+height/2-lm.getDescent());
+                 labelx = (float) (x + shapeScale);
+                 labely = (float) (y + height / 2 - lm.getDescent());
              }
              g2.drawString(label, labelx, labely);
          }

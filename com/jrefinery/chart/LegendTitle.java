@@ -25,7 +25,7 @@
  * (C) Copyright 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   ;
+ * Contributor(s):   -;
  *
  * $Id$
  *
@@ -42,19 +42,22 @@ import java.awt.geom.Rectangle2D;
 /**
  * A chart title that displays a legend for the data in the chart.
  * <P>
- * The title can be populated with legend items manually, or you can assign a reference to the
- * chart, in which case the legend items will be automatically created to match the dataset.
+ * The title can be populated with legend items manually, or you can assign a
+ * reference to the chart, in which case the legend items will be automatically
+ * created to match the dataset.
+ *
+ * @author DG
  */
 public abstract class LegendTitle extends AbstractTitle {
 
     /** A container for the legend items. */
-    protected LegendItemCollection items;
+    private LegendItemCollection items;
 
     /**
-     * The object responsible for arranging the legend items to fit in whatever space is
-     * available.
+     * The object responsible for arranging the legend items to fit in whatever
+     * space is available.
      */
-    protected LegendItemLayout layout;
+    private LegendItemLayout layout;
 
     /**
      * Constructs a new, empty LegendTitle.
@@ -63,29 +66,38 @@ public abstract class LegendTitle extends AbstractTitle {
         this(new StandardLegendItemLayout(0, 0.0));
     }
 
+    /**
+     * Creates a new legend title.
+     *
+     * @param layout  the layout.
+     */
     public LegendTitle(LegendItemLayout layout) {
         this.layout = layout;
     }
 
     /**
      * Adds a legend item to the LegendTitle.
+     *
+     * @param item  the item to add.
      */
     public void addLegendItem(LegendItem item) {
         items.add(item);
     }
 
     /**
-     * Draws the title on a Java 2D graphics device (such as the screen or a printer).
-     * @param g2 The graphics device.
-     * @param area The area for the chart and all its titles.
+     * Draws the title on a Java 2D graphics device (such as the screen or a
+     * printer). Currently it does nothing.
+     *
+     * @param g2  the graphics device.
+     * @param area  the area for the chart and all its titles.
      */
     public void draw(Graphics2D g2, Rectangle2D area) {
 
         // if the position is TOP or BOTTOM then the constraint is on the width
-            // so layout the items accordingly
+        // so layout the items accordingly
 
         // if the position is LEFT or RIGHT then the constraint is on the height
-            // so layout the items accordingly
+        // so layout the items accordingly
 
         // get the height and width of the items, then add the space around the outside
         // work out where to start drawing...

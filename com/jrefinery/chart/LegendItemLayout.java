@@ -39,13 +39,16 @@ package com.jrefinery.chart;
 
 /**
  * The interface for a legend item layout manager.
+ *
+ * @author DG
  */
 public interface LegendItemLayout {
 
     /**
-     * Updates the locations of all the legend items in the collection, according to some
-     * particular layout algorithm.
-     * @param collection The collection of legend items.
+     * Updates the locations of all the legend items in the collection,
+     * according to some particular layout algorithm.
+     *
+     * @param collection  the collection of legend items.
      */
     public void layoutLegendItems(LegendItemCollection collection);
 

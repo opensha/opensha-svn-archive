@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 29-May-2002 : Version 1 (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,18 +43,20 @@ import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
 import com.jrefinery.data.CategoryDataset;
 import com.jrefinery.ui.ApplicationFrame;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a horizontal 3D bar chart using data
  * from a CategoryDataset.
+ *
+ * @author DG
  */
 public class HorizontalBar3DDemo extends ApplicationFrame {
 
-    /** The data. */
-    protected CategoryDataset data;
-
     /**
-     * Default constructor.
+     * Creates a new demo.
+     *
+     * @param title  the frame title.
      */
     public HorizontalBar3DDemo(String title) {
 
@@ -66,22 +69,28 @@ public class HorizontalBar3DDemo extends ApplicationFrame {
                                                   "Category",                // domain axis label
                                                   "Value",                   // range axis label
                                                   dataset,                   // data
-                                                  true                       // include legend
+                                                  true,                      // include legend
+                                                  true,                      // tooltips
+                                                  false                      // urls
                                               );
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         HorizontalBar3DDemo demo = new HorizontalBar3DDemo("Horizontal 3D Bar Chart Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

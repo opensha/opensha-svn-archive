@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -20,104 +20,101 @@
  * Boston, MA 02111-1307, USA.
  *
  * ---------------
- * LegendItem.java
+ * JFreeChart.java
  * ---------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Andrzej Porebski;
+ *                   David Li;
+ *                   Wolfgang Irler;
  *
  * $Id$
  *
- * Changes
- * -------
- * 07-Feb-2002 : Version 1 (DG);
- *
+ * Changes (from 2-Oct-2002)
+ * -------------------------
+ * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  */
 
 package com.jrefinery.chart;
 
-import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
+import java.awt.Paint;
+import java.awt.Stroke;
 
 /**
- * Represents a single item within a legend.  INCOMPLETE.
+ * A legend item.
+ * <P>
+ * Records all the properties of a legend item, but is not concerned about the display location.
+ *
+ * @author DG
  */
 public class LegendItem {
 
-    /** The label (usually a series name). */
-    protected String label;
+    /** The label. */
+    private String label;
 
-    /** The x-coordinate for the item's location. */
-    protected double x;
+    /** The description. */
+    private String description;
 
-    /** The y-coordinate for the item's location. */
-    protected double y;
+    /** The shape. */
+    private Shape shape;
 
-    /** The width of the item. */
-    protected double width;
+    /** The paint. */
+    private Paint paint;
 
-    /** The height of the item. */
-    protected double height;
+    /** The outline paint. */
+    private Paint outlinePaint;
 
-    /** A shape used to indicate color on the legend. */
-    protected Shape marker;
+    /** The stroke. */
+    private Stroke stroke;
 
-    /** The label position within the item. */
-    protected Point2D labelPosition;
+    /** The outline stroke. */
+    private Stroke outlineStroke;
 
     /**
-     * Create a legend item.
+     * Creates a new legend item.
+     *
+     * @param label  the label.
+     * @param description  the description.
+     * @param shape  the shape.
+     * @param paint  the paint.
+     * @param outlinePaint  the outline paint.
+     * @param stroke  the stroke.
+     * @param outlineStroke  the outline stroke.
      */
-    public LegendItem(String label) {
-        super();
+    public LegendItem(String label,
+                      String description,
+                      Shape shape,
+                      Paint paint, Paint outlinePaint,
+                      Stroke stroke, Stroke outlineStroke) {
+
         this.label = label;
+        this.description = description;
+        this.shape = shape;
+        this.paint = paint;
+        this.outlinePaint = outlinePaint;
+        this.stroke = stroke;
+        this.outlineStroke = outlineStroke;
+
     }
 
-    public double getX() {
-        return this.x;
+    /**
+     * Returns the label.
+     *
+     * @return the label.
+     */
+    public String getLabel() {
+        return this.label;
     }
 
-    public void setX(double x) {
-        this.x = x;
-    }
-
-    public double getY() {
-        return this.y;
-    }
-
-    public void setY(double y) {
-        this.y = y;
-    }
-
-    public double getWidth() {
-        return this.width;
-    }
-
-    public double getHeight() {
-        return this.height;
-    }
-
-    public Shape getMarker() {
-        return this.marker;
-    }
-
-    public void setMarker(Shape marker) {
-        this.marker = marker;
-    }
-
-    public void setBounds(double x, double y, double width, double height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-
-    public void draw(Graphics2D g2, double xOffset, double yOffset) {
-        // set up a translation on g2
-
-        // restore original g2
+    /**
+     * Returns the paint.
+     *
+     * @return the paint.
+     */
+    public Paint getPaint() {
+        return this.paint;
     }
 
 }

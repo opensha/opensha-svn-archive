@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -38,7 +38,7 @@
 
 package com.jrefinery.chart.data;
 
-import com.jrefinery.data.*;
+import com.jrefinery.data.XYDataset;
 
 /**
  * an interface that any PlotFit needs to use to get the curve
@@ -47,28 +47,36 @@ import com.jrefinery.data.*;
  * it must return a y for any x supplied.  The PlotFit class is
  * responsible for querying the PlotFitAlgorithm for the data points
  * in order to get the curve to display.
+ *
+ * @author MW
  */
 public interface PlotFitAlgorithm {
 
     /**
-     * @return the name that you want to see in the legend.
+     * Returns the name that you want to see in the legend.
+     * <P>
      * This is prepended to the series name that generated
      * this plot i.e. for "Chicago Moving Average" , the name
      * would be, "Moving Average" and "Chicago" would be the
      * name of the series that generated the moving average.
+     *
+     * @return the name that you want to see in the legend.
      */
     public String getName();
 
     /**
-     * this Algorithm might or might not need an XYDataset to be relevant
-     * @param ds the XYDataset for this PlotFit
+     * This Algorithm might or might not need an XYDataset to be relevant.
+     *
+     * @param ds  the XYDataset for this PlotFit.
      */
     public void setXYDataset(XYDataset ds);
 
     /**
-     * for a given x, must return a y
-     * @param x the x value
-     * @param i the series
+     * For a given x, must return a y.
+     *
+     * @param x  the x value.
+     * @param i  the series.
+     *
      * @return the y value
      */
     public Number getY(int i, Number x);

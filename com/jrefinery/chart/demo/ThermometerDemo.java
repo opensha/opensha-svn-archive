@@ -22,99 +22,192 @@
  * --------------------
  * ThermometerDemo.java
  * --------------------
- * (C) Copyright 2002, by Australian Antarctic Division.
+ * (C) Copyright 2002, by Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott (for Australian Antarctic Division).
- * Contributor(s):   -;
+ * Contributor(s):   David Gilbert (for Simba Management Limited);
  *
  * $Id$
  *
  * Changes (since 24-Apr-2002)
  * ---------------------------
  * 24-Apr-2002 : added standard source header (DG);
+ * 17-Sep-2002 : fixed errors reported by Checkstyle 2.3 (DG);
  *
  */
 package com.jrefinery.chart.demo;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.text.*;
-import com.jrefinery.chart.*;
-import com.jrefinery.data.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.text.DecimalFormat;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import com.jrefinery.chart.JFreeChart;
+import com.jrefinery.chart.ChartPanel;
+import com.jrefinery.chart.MeterPlot;
+import com.jrefinery.chart.JThermometer;
+import com.jrefinery.data.DefaultMeterDataset;
 
 /**
  * A demonstration application for the thermometer plot.
+ *
+ * @author BRS
  */
 public class ThermometerDemo extends JPanel {
 
-    protected final static String[] OPTIONS = {"None", "Right", "Bulb"} ;
+    /** Options for the value label position combo box. */
+    protected static final String[] OPTIONS = {"None", "Right", "Bulb"};
 
-    DefaultMeterDataset data = new DefaultMeterDataset();
+    /** The dataset. */
+    private DefaultMeterDataset data = new DefaultMeterDataset();
 
-    MeterPlot meterplot = new MeterPlot(data);
-    JFreeChart meterchart = new JFreeChart("Meter Chart", JFreeChart.DEFAULT_TITLE_FONT,
-                                           meterplot, false);
-    ChartPanel panelMeter = new ChartPanel(meterchart);
+    /** The meter plot (dial). */
+    private MeterPlot meterplot = new MeterPlot(data);
 
-    JPanel jPanel1 = new JPanel();
-    JButton butUp3 = new JButton();
-    JButton butDown3 = new JButton();
+    /** The meter chart (dial). */
+    private JFreeChart meterchart = new JFreeChart("Meter Chart", JFreeChart.DEFAULT_TITLE_FONT,
+                                                   meterplot, false);
 
-    JPanel jPanel2 = new JPanel();
-    BorderLayout borderLayout2 = new BorderLayout();
+    /** The meter panel. */
+    private ChartPanel panelMeter = new ChartPanel(meterchart);
 
-    JPanel jPanel3 = new JPanel();
-    BorderLayout borderLayout3 = new BorderLayout();
+    /** Panel 1. */
+    private JPanel jPanel1 = new JPanel();
 
-    JPanel jPanel4 = new JPanel();
-    JButton butDown2 = new JButton();
-    JButton butUp2 = new JButton();
+    /** Increment button for thermometer ?. */
+    private JButton butUp3 = new JButton();
 
-    JPanel jPanel5 = new JPanel();
-    GridLayout gridLayout1 = new GridLayout();
+    /** Decrement button for thermometer ?. */
+    private JButton butDown3 = new JButton();
 
-    JPanel jPanel6 = new JPanel();
-    JButton butUp1 = new JButton();
-    JButton butDown1 = new JButton();
+    /** Panel 2. */
+    private JPanel jPanel2 = new JPanel();
 
-    JThermometer thermo1 = new JThermometer();
-    JThermometer thermo2 = new JThermometer();
-    JThermometer thermo3 = new JThermometer();
-    JThermometer[] thermo = new JThermometer[3];
+    /** Borderlayout 2. */
+    private BorderLayout borderLayout2 = new BorderLayout();
 
-    BorderLayout borderLayout1 = new BorderLayout();
-    JPanel jPanel7 = new JPanel();
-    JPanel jPanel8 = new JPanel();
-    JPanel jPanel9 = new JPanel();
-    GridLayout gridLayout2 = new GridLayout();
-    GridLayout gridLayout3 = new GridLayout();
-    GridLayout gridLayout4 = new GridLayout();
-    JComboBox pickShow1 = new JComboBox(OPTIONS);
-    JComboBox pickShow2 = new JComboBox(OPTIONS);
-    JComboBox pickShow3 = new JComboBox(OPTIONS);
-    JComboBox[] pickShow = new JComboBox[3];
-    JPanel jPanel10 = new JPanel();
-    BorderLayout borderLayout4 = new BorderLayout();
-    JPanel jPanel11 = new JPanel();
-    JButton butDown4 = new JButton();
-    JButton butUp4 = new JButton();
+    /** Panel 3. */
+    private JPanel jPanel3 = new JPanel();
 
+    /** Borderlayout 3. */
+    private BorderLayout borderLayout3 = new BorderLayout();
+
+    /** Panel 4. */
+    private JPanel jPanel4 = new JPanel();
+
+    /** Decrement button for thermometer ?. */
+    private JButton butDown2 = new JButton();
+
+    /** Increment button for thermometer ?. */
+    private JButton butUp2 = new JButton();
+
+    /** Panel 5. */
+    private JPanel jPanel5 = new JPanel();
+
+    /** Grid layout 1. */
+    private GridLayout gridLayout1 = new GridLayout();
+
+    /** Panel 6. */
+    private JPanel jPanel6 = new JPanel();
+
+    /** Increment button for thermometer ?. */
+    private JButton butUp1 = new JButton();
+
+    /** Decrement button for thermometer ?. */
+    private JButton butDown1 = new JButton();
+
+    /** Thermometer 1. */
+    private JThermometer thermo1 = new JThermometer();
+
+    /** Thermometer 2. */
+    private JThermometer thermo2 = new JThermometer();
+
+    /** Thermometer 2. */
+    private JThermometer thermo3 = new JThermometer();
+
+    /** Array of thermometers. */
+    private JThermometer[] thermo = new JThermometer[3];
+
+    /** Borderlayout 1. */
+    private BorderLayout borderLayout1 = new BorderLayout();
+
+    /** Panel 7. */
+    private JPanel jPanel7 = new JPanel();
+
+    /** Panel 8. */
+    private JPanel jPanel8 = new JPanel();
+
+    /** Panel 9. */
+    private JPanel jPanel9 = new JPanel();
+
+    /** Grid layout 2. */
+    private GridLayout gridLayout2 = new GridLayout();
+
+    /** Grid layout 3. */
+    private GridLayout gridLayout3 = new GridLayout();
+
+    /** Grid layout 4. */
+    private GridLayout gridLayout4 = new GridLayout();
+
+    /** Combo box 1 for value label position. */
+    private JComboBox pickShow1 = new JComboBox(OPTIONS);
+
+    /** Combo box 2 for value label position. */
+    private JComboBox pickShow2 = new JComboBox(OPTIONS);
+
+    /** Combo box 3 for value label position. */
+    private JComboBox pickShow3 = new JComboBox(OPTIONS);
+
+    /** An array of combo boxes. */
+    private JComboBox[] pickShow = new JComboBox[3];
+
+    /** Panel 10. */
+    private JPanel jPanel10 = new JPanel();
+
+    /** Borderlayout 4. */
+    private BorderLayout borderLayout4 = new BorderLayout();
+
+    /** Panel 11. */
+    private JPanel jPanel11 = new JPanel();
+
+    /** Decrement button for thermometer ?. */
+    private JButton butDown4 = new JButton();
+
+    /** Increment button for thermometer ?. */
+    private JButton butUp4 = new JButton();
+
+    /**
+     * Default constructor.
+     */
     public ThermometerDemo() {
         try {
             jbInit();
         }
-        catch(Exception ex) {
+        catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
+    /**
+     * Initialises the class.
+     *
+     * @throws Exception for any exception.
+     */
     void jbInit() throws Exception {
 
-        data.setRange(new Double(-20),new Double(20));
+        data.setRange(new Double(-20), new Double(20));
         thermo[0] = thermo1;
         thermo[1] = thermo2;
         thermo[2] = thermo3;
+
         thermo[0].setValue(0.0);
         thermo[1].setValue(0.2);
         thermo[2].setValue(0.3);
@@ -130,21 +223,22 @@ public class ThermometerDemo extends JPanel {
         thermo[1].setUnits(1);
         thermo[2].setUnits(2);
 
-        thermo[0].setFont(new Font("Arial",Font.BOLD,20));
+        //thermo[0].setFont(new Font("SansSerif", Font.BOLD, 20));
         thermo[0].setShowValueLines(true);
-        thermo[0].setFollowData(true);
-        thermo[1].setDisplayLocation(1);
+        thermo[0].setFollowDataInSubranges(true);
+        thermo[1].setValueLocation(1);
 
         thermo[1].setForeground(Color.blue);
         thermo[2].setForeground(Color.pink);
 
-        thermo[0].setRangeInfo(0,  0, 20, 0, 26);
-        thermo[0].setRangeInfo(1, 20, 24, 0, 26);
-        thermo[0].setRangeInfo(2, 24, 26, 0, 26);
+        thermo[0].setRange(-10.0, 40.0);
+        thermo[0].setSubrangeInfo(0, -50.0,  20.0, -10.0, 22.0);
+        thermo[0].setSubrangeInfo(1,  20.0,  24.0,  18.0, 26.0);
+        thermo[0].setSubrangeInfo(2,  24.0, 100.0,  22.0, 40.0);
 
         thermo[0].addTitle("Sea Water Temp");
-        thermo[1].addTitle("Air Temp", new Font("Arial",1,24));
-        thermo[2].addTitle("Ship Temp", new Font("Arial",Font.ITALIC + Font.BOLD,20));
+        thermo[1].addTitle("Air Temp", new Font("SansSerif", Font.PLAIN, 16));
+        thermo[2].addTitle("Ship Temp", new Font("SansSerif", Font.ITALIC + Font.BOLD, 20));
 
         thermo[1].setValueFormat(new DecimalFormat("#0.0"));
         thermo[2].setValueFormat(new DecimalFormat("#0.00"));
@@ -260,25 +354,34 @@ public class ThermometerDemo extends JPanel {
         jPanel10.add(panelMeter, BorderLayout.CENTER);
     }
 
+    /**
+     * Starting point for the demo application.
+     *
+     * @param args  ignored.
+     */
     public static void main(String[] args) {
+
         final ThermometerDemo panel = new ThermometerDemo();
 
         JFrame frame = new JFrame();
-        frame.getContentPane().setLayout(new BorderLayout(5,5));
+        frame.getContentPane().setLayout(new BorderLayout(5, 5));
         frame.setDefaultCloseOperation(3);
         frame.setTitle("Thermometer Test");
         frame.getContentPane().add(panel, BorderLayout.CENTER);
         frame.setSize(700, 400);
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
+        frame.setLocation((d.width - frame.getSize().width) / 2,
+                          (d.height - frame.getSize().height) / 2);
         frame.setVisible(true);
 
-        /// Live Data Recpetion
-        //MultiCastConnection livedata = new MultiCastConnection(7002);
-        //livedata.subscribe(panel);
-        //livedata.start();
     }
 
+    /**
+     * Sets the value of one of the thermometers.
+     *
+     * @param thermometer  the thermometer index.
+     * @param value  the value.
+     */
     private void setValue(int thermometer, double value) {
         if ((thermometer >= 0) && (thermometer < 3)) {
             try {
@@ -290,9 +393,14 @@ public class ThermometerDemo extends JPanel {
         }
     }
 
+    /**
+     * Sets the meter value.
+     *
+     * @param value  the value.
+     */
     private void setMeterValue(double value) {
         try {
-            double newValue = value ;
+            double newValue = value;
             if (data.isValueValid()) {
                 newValue += data.getValue().doubleValue();
             }
@@ -300,14 +408,17 @@ public class ThermometerDemo extends JPanel {
         }
         catch (Exception ex) {
             System.err.println(ex.getMessage());
-            //ex.printStackTrace();
         }
     }
 
-
+    /**
+     * Sets the value label position for one of the thermometers.
+     *
+     * @param thermometer  the thermometer index.
+     */
     private void setShowValue(int thermometer) {
         if ((thermometer >= 0) && (thermometer < 3)) {
-            thermo[thermometer].setDisplayLocation(pickShow[thermometer].getSelectedIndex());
+            thermo[thermometer].setValueLocation(pickShow[thermometer].getSelectedIndex());
         }
     }
 

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -25,35 +25,38 @@
  * (C) Copyright 2001, 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
  * Changes (since 30-May-2002):
  * ----------------------------
  * 30-May-2002 : Added series name to tool tip (DG);
+ * 29-Aug-2002 : Modified so that series name is not shown if null (RA);
  *
  */
 
 package com.jrefinery.chart.tooltips;
 
-import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.NumberFormat;
 import java.text.DecimalFormat;
+import java.util.Date;
 import com.jrefinery.data.XYDataset;
 
 /**
- * A standard tooltip generator for plots that use data from an XYDataset.
+ * A standard tool tip generator for time series plots.
+ *
+ * @author DG
  */
 public class TimeSeriesToolTipGenerator implements XYToolTipGenerator {
 
     /** A formatter for the time. */
-    protected DateFormat domainFormat;
+    private DateFormat dateFormat;
 
     /** A formatter for the value. */
-    protected NumberFormat rangeFormat;
+    private NumberFormat numberFormat;
 
     /**
      * Default constructor.
@@ -64,6 +67,12 @@ public class TimeSeriesToolTipGenerator implements XYToolTipGenerator {
 
     }
 
+    /**
+     * Creates a tool tip generator with the specified date and number format strings.
+     *
+     * @param dateFormat  the date format.
+     * @param valueFormat  the value format.
+     */
     public TimeSeriesToolTipGenerator(String dateFormat, String valueFormat) {
         this(new SimpleDateFormat(dateFormat), new DecimalFormat(valueFormat));
     }
@@ -71,35 +80,57 @@ public class TimeSeriesToolTipGenerator implements XYToolTipGenerator {
     /**
      * Constructs a new tooltip generator using the specified number formats.
      *
-     * @param domainFormat The format object for the dates.
-     * @param rangeFormat The format object for the values.
+     * @param dateFormat  the date formatter.
+     * @param numberFormat  the number formatter.
      */
-    public TimeSeriesToolTipGenerator(DateFormat domainFormat, NumberFormat rangeFormat) {
-
-        this.domainFormat = domainFormat;
-        this.rangeFormat = rangeFormat;
-
+    public TimeSeriesToolTipGenerator(DateFormat dateFormat, NumberFormat numberFormat) {
+        this.dateFormat = dateFormat;
+        this.numberFormat = numberFormat;
     }
 
     /**
-     * Generates a tooltip text item for a particular item within a series.
+     * Returns the date formatter.
      *
-     * @param data The dataset.
-     * @param series The series number (zero-based index).
-     * @param item The item number (zero-based index).
+     * @return the date formatter.
+     */
+    public DateFormat getDateFormat() {
+        return this.dateFormat;
+    }
+
+    /**
+     * Returns the number formatter.
+     *
+     * @return the number formatter.
+     */
+    public NumberFormat getNumberFormat() {
+        return this.numberFormat;
+    }
+
+    /**
+     * Generates a tool tip text item for a particular item within a series.
+     *
+     * @param data  the dataset.
+     * @param series  the series number (zero-based index).
+     * @param item  the item number (zero-based index).
+     *
+     * @return the tool tip text.
      */
     public String generateToolTip(XYDataset data, int series, int item) {
 
-        String result = data.getSeriesName(series)+": ";
+        String result = "";
+        String seriesName = data.getSeriesName(series);
+        if (seriesName != null) {
+            result += seriesName + ": ";
+        }
         long x = data.getXValue(series, item).longValue();
-        result = result+ "date = "+domainFormat.format(new Date(x));
+        result = result + "date = " + this.dateFormat.format(new Date(x));
 
         Number y = data.getYValue(series, item);
-        if (y!=null) {
-            result = result+", value = "+rangeFormat.format(y);
+        if (y != null) {
+            result = result + ", value = " + this.numberFormat.format(y);
         }
         else {
-            result = result+", value = null";
+            result = result + ", value = null";
         }
 
         return result;

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,6 +34,7 @@
  * 13-Dec-2001 : Version 1 (DG);
  * 16-Jan-2002 : Completed Javadocs (DG);
  * 23-Apr-2002 : Added date to the tooltip string (DG);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -46,28 +47,45 @@ import com.jrefinery.data.XYDataset;
 
 /**
  * A standard tooltip generator for plots that use data from a HighLowDataset.
+ *
+ * @author DG
  */
 public class HighLowToolTipGenerator implements XYToolTipGenerator {
 
-    protected DateFormat dateFormatter;
+    /** The date formatter. */
+    private DateFormat dateFormatter;
 
+    /**
+     * Creates a tool tip generator using the default date format.
+     */
     public HighLowToolTipGenerator() {
-        this.dateFormatter = DateFormat.getInstance();
+        this(DateFormat.getInstance());
+    }
+
+    /**
+     * Creates a tool tip generator using the supplied date formatter.
+     *
+     * @param formatter  the date formatter.
+     */
+    public HighLowToolTipGenerator(DateFormat formatter) {
+        this.dateFormatter = formatter;
     }
 
     /**
      * Generates a tooltip text item for a particular item within a series.
      *
-     * @param data The dataset.
-     * @param series The series number (zero-based index).
-     * @param item The item number (zero-based index).
+     * @param data  the dataset.
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the tooltip text.
      */
     public String generateToolTip(XYDataset data, int series, int item) {
 
         String result = null;
 
         if (data instanceof HighLowDataset) {
-            HighLowDataset d = (HighLowDataset)data;
+            HighLowDataset d = (HighLowDataset) data;
             Number high = d.getHighValue(series, item);
             Number low = d.getLowValue(series, item);
             Number open = d.getOpenValue(series, item);
@@ -75,20 +93,28 @@ public class HighLowToolTipGenerator implements XYToolTipGenerator {
             Number x = d.getXValue(series, item);
 
             result = d.getSeriesName(series);
-            if (x!=null) {
+
+            if (x != null) {
                 Date date = new Date(x.longValue());
-                result = result+"--> Date="+dateFormatter.format(date);
+                result = result + "--> Date=" + dateFormatter.format(date);
+                if (high != null) {
+                    result = result + " High=" + high.toString();
+                }
+                if (low != null) {
+                    result = result + " Low=" + low.toString();
+                }
+                if (open != null) {
+                    result = result + " Open=" + open.toString();
+                }
+                if (close != null) {
+                    result = result + " Close=" + close.toString();
+                }
             }
-            if (high!=null) result = result + " High="+high.toString();
-            if (low!=null) result = result +" Low="+low.toString();
-            if (open!=null) result = result +" Open="+open.toString();
-            if (close!=null) result = result +" Close="+close.toString();
 
         }
 
         return result;
 
     }
-
 
 }

@@ -19,9 +19,9 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
+ * -----------------------
  * OverlaidXYPlotDemo.java
- * ---------------------
+ * -----------------------
  * (C) Copyright 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited).
@@ -35,44 +35,45 @@
  * 23-Apr-2002 : Modified to use new OverlaidXYPlot class (DG);
  * 31-May-2002 : Changed plot background color to yellow, to check that it works (DG);
  * 13-Jun-2002 : Renamed OverlaidPlotDemo-->OverlaidXYPlotDemo (DG);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.demo;
 
-import com.jrefinery.chart.ChartFactory;
+import java.awt.Color;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartPanel;
 import com.jrefinery.chart.XYPlot;
+import com.jrefinery.chart.OverlaidXYPlot;
 import com.jrefinery.chart.XYItemRenderer;
 import com.jrefinery.chart.StandardXYItemRenderer;
 import com.jrefinery.chart.VerticalXYBarRenderer;
-import com.jrefinery.chart.HorizontalDateAxis;
 import com.jrefinery.chart.ValueAxis;
-import com.jrefinery.chart.NumberAxis;
+import com.jrefinery.chart.HorizontalDateAxis;
 import com.jrefinery.chart.VerticalNumberAxis;
-import com.jrefinery.chart.OverlaidXYPlot;
 import com.jrefinery.chart.tooltips.TimeSeriesToolTipGenerator;
 import com.jrefinery.data.BasicTimeSeries;
 import com.jrefinery.data.TimeSeriesCollection;
 import com.jrefinery.data.Day;
 import com.jrefinery.data.XYDataset;
 import com.jrefinery.data.IntervalXYDataset;
-import com.jrefinery.data.CombinedDataset;
-import com.jrefinery.data.SeriesDataset;
-import com.jrefinery.data.SubSeriesDataset;
 import com.jrefinery.date.SerialDate;
 import com.jrefinery.ui.ApplicationFrame;
-
-import java.awt.Color;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A demonstration application showing a time series chart overlaid with a vertical XY bar chart.
+ *
+ * @author DG
  */
 public class OverlaidXYPlotDemo extends ApplicationFrame {
 
     /**
      * Constructs a new demonstration application.
+     *
+     * @param title  the frame title.
      */
     public OverlaidXYPlotDemo(String title) {
 
@@ -80,26 +81,30 @@ public class OverlaidXYPlotDemo extends ApplicationFrame {
         JFreeChart chart = createOverlaidChart();
         chart.getPlot().setBackgroundPaint(Color.yellow);
         ChartPanel panel = new ChartPanel(chart, true, true, true, true, true);
-        this.setContentPane(panel);
+        panel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(panel);
 
     }
 
     /**
      * Creates an overlaid chart.
+     *
+     * @return the chart.
      */
     private JFreeChart createOverlaidChart() {
 
         // create subplot 1...
-        IntervalXYDataset data1 = this.createDataset1();
+        IntervalXYDataset data1 = createDataset1();
         XYItemRenderer renderer1 = new VerticalXYBarRenderer(0.20);
         renderer1.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0.00"));
         XYPlot subplot1 = new XYPlot(data1, null, null, renderer1);
 
         // create subplot 2...
-        XYDataset data2 = this.createDataset2();
+        XYDataset data2 = createDataset2();
         XYItemRenderer renderer2 = new StandardXYItemRenderer();
         renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0.00"));
         XYPlot subplot2 = new XYPlot(data2, null, null, renderer2);
+        subplot2.setSeriesPaint(0, Color.green);
 
         // make an overlaid plot and add the subplots...
         ValueAxis domainAxis = new HorizontalDateAxis("Date");
@@ -115,6 +120,8 @@ public class OverlaidXYPlotDemo extends ApplicationFrame {
 
     /**
      * Creates a sample dataset.
+     *
+     * @return the dataset.
      */
     private IntervalXYDataset createDataset1() {
 
@@ -142,6 +149,8 @@ public class OverlaidXYPlotDemo extends ApplicationFrame {
 
     /**
      * Creates a sample dataset.
+     *
+     * @return the dataset.
      */
     private XYDataset createDataset2() {
 
@@ -169,11 +178,14 @@ public class OverlaidXYPlotDemo extends ApplicationFrame {
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
-        OverlaidXYPlotDemo demo = new OverlaidXYPlotDemo("OverlaidXYPlot Demo");
+        OverlaidXYPlotDemo demo = new OverlaidXYPlotDemo("Overlaid XYPlot Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

@@ -167,7 +167,7 @@ public class DemoResources_fr extends ListResourceBundle {
 
         {"chart23.title", "Diagramme en Barre avec Série Unique: "},
         {"chart23.description", "Un diagramme en barre avec série unique. Ce diagramme montre de plus l'utilisation "
-        +"d'une bordure autour d'un JFreeChartPanel."},
+        +"d'une bordure autour d'un ChartPanel."},
 
         {"chart24.title", "Diagramme dynamique: "},
         {"chart24.description", "Un diagramme dynamique, pour tester le mécanisme de notification des événements."},

@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -45,46 +45,58 @@ package com.jrefinery.data;
  * <P>
  * Example: JFreeChart used this interface to obtain data for high-low-open-close plots.
  *
+ * @author DG
+ *
  */
 public interface HighLowDataset extends XYDataset {
 
     /**
      * Returns the high-value for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the high-value for the specified series and item.
      */
     public Number getHighValue(int series, int item);
 
     /**
      * Returns the low-value for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the low-value for the specified series and item.
      */
     public Number getLowValue(int series, int item);
 
     /**
      * Returns the open-value for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the open-value for the specified series and item.
      */
     public Number getOpenValue(int series, int item);
 
     /**
      * Returns the y-value for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the y-value for the specified series and item.
      */
     public Number getCloseValue(int series, int item);
 
     /**
      * Returns the volume for the specified series and item.
      *
-     * @param series The series (zero-based index).
-     * @param item The item (zero-based index).
+     * @param series  the series (zero-based index).
+     * @param item  the item (zero-based index).
+     *
+     * @return the volume for the specified series and item.
      */
     public Number getVolumeValue(int series, int item);
 

@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -25,7 +25,7 @@
  * (C) Copyright 2001, 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -33,31 +33,65 @@
  * -------
  * 13-Dec-2001 : Version 1 (DG);
  * 16-Jan-2002 : Completed Javadocs (DG);
+ * 29-Aug-2002 : Changed to format numbers using default locale (RA);
+ * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.tooltips;
 
+import java.text.NumberFormat;
 import com.jrefinery.data.PieDataset;
 
 /**
- * A standard tooltip generator for plots that use data from a PieDataset.
+ * A standard tool tip generator for plots that use data from a PieDataset.
+ *
+ * @author DG
  */
 public class StandardPieToolTipGenerator implements PieToolTipGenerator {
 
+    /** The number formatter. */
+    private NumberFormat numberFormat;
+
     /**
-     * Generates a tooltip text item for a particular category.
+     * Creates a tool tip generator with a default number formatter.
+     */
+    public StandardPieToolTipGenerator() {
+        this(NumberFormat.getInstance());
+    }
+
+    /**
+     * Creates a tool tip generator with the specified number formatter.
      *
-     * @param data The dataset.
-     * @param category The category.
+     * @param formatter  the number formatter.
+     */
+    public StandardPieToolTipGenerator(NumberFormat formatter) {
+        this.numberFormat = formatter;
+    }
+
+    /**
+     * Returns the number formatter.
+     *
+     * @return the number formatter.
+     */
+    public NumberFormat getNumberFormat() {
+        return this.numberFormat;
+    }
+
+    /**
+     * Generates a tool tip text item for a particular category.
+     *
+     * @param data  the dataset.
+     * @param category  the category.
+     * @return the tool tip text or <code>null</code> if value is <code>null</code>.
      */
     public String generateToolTip(PieDataset data, Object category) {
 
         String result = null;
         Number value = data.getValue(category);
-        if (value!=null) {
+        if (value != null) {
             String categoryName = category.toString();
-            result = categoryName+" = "+value.toString();
+            result = categoryName + " = " + this.numberFormat.format(value);
         }
 
         return result;

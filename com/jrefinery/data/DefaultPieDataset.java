@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -46,6 +46,8 @@ import java.util.Arrays;
 
 /**
  * A default implementation of the PieDataset interface.
+ *
+ * @author DG
  */
 public class DefaultPieDataset extends AbstractDataset implements PieDataset {
 
@@ -72,7 +74,7 @@ public class DefaultPieDataset extends AbstractDataset implements PieDataset {
     /**
      * Constructs a pie dataset and populates it with data from the array.
      *
-     * @param data The data.
+     * @param data  the data.
      */
     public DefaultPieDataset(Number[] data) {
 
@@ -83,7 +85,7 @@ public class DefaultPieDataset extends AbstractDataset implements PieDataset {
     /**
      * Constructs a pie dataset, and populates it with the given values.
      *
-     * @param value A collection of values.
+     * @param values  a collection of values.
      */
     public DefaultPieDataset(Collection values) {
 
@@ -99,7 +101,7 @@ public class DefaultPieDataset extends AbstractDataset implements PieDataset {
     /**
      * Returns the categories in the dataset.
      *
-     * @return The categories in the dataset.
+     * @return the categories in the dataset.
      */
     public List getCategories() {
         return keys;
@@ -108,27 +110,27 @@ public class DefaultPieDataset extends AbstractDataset implements PieDataset {
     /**
      * Returns the data value for a category.
      *
-     * @param category The required category.
-     * @return The data value for a category (null possible).
+     * @param category  the required category.
+     *
+     * @return the data value for a category (null possible).
      */
     public Number getValue(Object category) {
 
         // check arguments...
-        if (category==null) {
-            throw new IllegalArgumentException("DefaultPieDataset: "
-                                               +"null category not allowed.");
+        if (category == null) {
+            throw new IllegalArgumentException("DefaultPieDataset: null category not allowed.");
         }
 
         // fetch the value...
-        return (Number)vals.get(keys.indexOf(category));
+        return (Number) vals.get(keys.indexOf(category));
 
     }
 
     /**
      * Sets the data value for one category in a series.
      *
-     * @param category The category.
-     * @param value The value.
+     * @param category  the category.
+     * @param value  the value.
      */
     public void setValue(Object category, Number value) {
 
@@ -142,7 +144,7 @@ public class DefaultPieDataset extends AbstractDataset implements PieDataset {
             vals.set(idx, value);
         }
 
-        this.fireDatasetChanged();
+        fireDatasetChanged();
 
     }
 

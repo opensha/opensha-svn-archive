@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ======================================
+ * JFreeChart : a free Java chart library
+ * ======================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,28 +34,41 @@
  * 22-Jun-2001 : Changed Title to AbstractTitle while incorporating David Berry's changes (DG);
  * 24-Aug-2001 : Fixed DOS encoding problem (DG);
  * 07-Nov-2001 : Updated header (DG);
+ * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart.event;
 
-import com.jrefinery.chart.*;
+import com.jrefinery.chart.AbstractTitle;
 
 /**
  * A change event that encapsulates information about a change to a chart title.
+ *
+ * @author DG
  */
 public class TitleChangeEvent extends ChartChangeEvent {
 
     /** The chart title that generated the event. */
-    protected AbstractTitle title;
+    private AbstractTitle title;
 
     /**
      * Default constructor.
-     * @param title The chart title that generated the event.
+     *
+     * @param title  the chart title that generated the event.
      */
     public TitleChangeEvent(AbstractTitle title) {
         super(title);
         this.title = title;
+    }
+
+    /**
+     * Returns the title that generated the event.
+     *
+     * @return the title that generated the event.
+     */
+    public AbstractTitle getTitle() {
+        return this.title;
     }
 
 }

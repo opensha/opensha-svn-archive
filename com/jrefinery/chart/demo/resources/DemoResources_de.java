@@ -167,7 +167,7 @@ public class DemoResources_de extends ListResourceBundle {
 
         {"chart23.title",       "Einzelserien Balkendiagramm: "},
         {"chart23.description", "A single series bar chart.  This chart also illustrates the use "
-                               +"of a border around a JFreeChartPanel."},
+                               +"of a border around a ChartPanel."},
 
         {"chart24.title",       "Dynamisches Diagramm: "},
         {"chart24.description", "A dynamic chart, to test the event notification mechanism."},

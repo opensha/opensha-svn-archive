@@ -32,6 +32,7 @@
  * Changes (since 24-Apr-2002)
  * ---------------------------
  * 24-Apr-2002 : Added standard header (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -47,8 +48,18 @@ import com.jrefinery.chart.ValueAxis;
 import com.jrefinery.chart.XYItemRenderer;
 import com.jrefinery.chart.StandardXYItemRenderer;
 
+/**
+ * A simple demo.
+ *
+ * @author DG
+ */
 public class Second {
 
+    /**
+     * Starting point for the demo.
+     *
+     * @param args  ignored.
+     */
     public static void main(String[] args) {
 
         // create some data...
@@ -73,11 +84,12 @@ public class Second {
         data.addSeries(series4);
 
         // create a chart...
-        JFreeChart chart = ChartFactory.createXYChart("My Chart", "Calories", "Y", data, true);
+        JFreeChart chart = ChartFactory.createLineXYChart("My Chart", "Calories", "Y", data, true);
 
-        XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES_AND_LINES, null);
-        XYPlot plot = (XYPlot)chart.getPlot();
-        plot.setXYItemRenderer(renderer);
+        XYItemRenderer renderer
+            = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES_AND_LINES, null);
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setRenderer(renderer);
         ValueAxis axis = plot.getRangeAxis();
         axis.setTickLabelsVisible(false);
         axis.setRange(0.0, 5.0);

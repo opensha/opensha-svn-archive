@@ -25,7 +25,7 @@
  * (C) Copyright 2001, 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -36,13 +36,14 @@
  * 09-Apr-2002 : Removed the translated zero from the drawItem method.  Override the initialise()
  *               method to calculate it (DG);
  * 24-May-2002 : Incorporated tooltips into chart entities (DG);
+ * 25-Jun-2002 : Removed redundant import (DG);
+ * 05-Aug-2002 : Small modification to drawItem method to support URLs for HTML image maps (RA);
  *
  */
 
 package com.jrefinery.chart;
 
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 import com.jrefinery.data.XYDataset;
@@ -54,14 +55,16 @@ import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
 
 /**
  * A renderer that draws bars on an XY plot (requires an IntervalXYDataset).
+ *
+ * @author DG
  */
 public class VerticalXYBarRenderer extends AbstractXYItemRenderer implements XYItemRenderer {
 
     /** Percentage margin (to reduce the width of bars). */
-    protected double margin;
+    private double margin;
 
     /** A data value of zero translated to a Java2D value. */
-    protected double translatedRangeZero;
+    private double translatedRangeZero;
 
     /**
      * The default constructor.
@@ -73,7 +76,7 @@ public class VerticalXYBarRenderer extends AbstractXYItemRenderer implements XYI
     /**
      * Constructs a new renderer.
      *
-     * @param margin The percentage amount to trim from the width of each bar.
+     * @param margin  the percentage amount to trim from the width of each bar.
      */
     public VerticalXYBarRenderer(double margin) {
         this(margin, new StandardXYToolTipGenerator());
@@ -82,8 +85,8 @@ public class VerticalXYBarRenderer extends AbstractXYItemRenderer implements XYI
     /**
      * Constructs a new renderer.
      *
-     * @param margin The percentage amount to trim from the width of each bar.
-     * @param toolTipGenerator The tool tip generator (null permitted).
+     * @param margin  the percentage amount to trim from the width of each bar.
+     * @param toolTipGenerator  the tool tip generator (null permitted).
      */
     public VerticalXYBarRenderer(double margin, XYToolTipGenerator toolTipGenerator) {
 
@@ -97,7 +100,7 @@ public class VerticalXYBarRenderer extends AbstractXYItemRenderer implements XYI
      * <P>
      * Fires a property change event.
      *
-     * @param margin The new margin.
+     * @param margin  the new margin.
      */
     public void setMargin(double margin) {
 
@@ -111,16 +114,13 @@ public class VerticalXYBarRenderer extends AbstractXYItemRenderer implements XYI
      * Initialises the renderer.  Here we calculate the Java2D y-coordinate for zero, since all
      * the bars have their bases fixed at zero.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area inside the axes.
-     * @param plot The plot.
-     * @param data The data.
-     * @param info An optional info collection object to return data back to the caller.
+     * @param g2  the graphics device.
+     * @param dataArea  the area inside the axes.
+     * @param plot  the plot.
+     * @param data  the data.
+     * @param info  an optional info collection object to return data back to the caller.
      */
-    public void initialise(Graphics2D g2,
-                           Rectangle2D dataArea,
-                           XYPlot plot,
-                           XYDataset data,
+    public void initialise(Graphics2D g2, Rectangle2D dataArea, XYPlot plot, XYDataset data,
                            ChartRenderingInfo info) {
 
         super.initialise(g2, dataArea, plot, data, info);
@@ -132,65 +132,76 @@ public class VerticalXYBarRenderer extends AbstractXYItemRenderer implements XYI
     /**
      * Draws the visual representation of a single data item.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area within which the plot is being drawn.
-     * @param info Collects information about the drawing.
-     * @param plot The plot (can be used to obtain standard color information etc).
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param data The dataset.
-     * @param series The series index.
-     * @param item The item index.
+     * @param g2  the graphics device.
+     * @param dataArea  the area within which the plot is being drawn.
+     * @param info  collects information about the drawing.
+     * @param plot  the plot (can be used to obtain standard color information etc).
+     * @param domainAxis  the domain axis.
+     * @param rangeAxis  the range axis.
+     * @param data  the dataset.
+     * @param series  the series index.
+     * @param item  the item index.
+     * @param crosshairInfo  collects information about crosshairs.
      */
-    public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
+    public void drawItem(Graphics2D g2,
+                         Rectangle2D dataArea,
+                         ChartRenderingInfo info,
                          XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis,
                          XYDataset data, int series, int item,
                          CrosshairInfo crosshairInfo) {
 
-        IntervalXYDataset intervalData = (IntervalXYDataset)data;
+        IntervalXYDataset intervalData = (IntervalXYDataset) data;
 
         Paint seriesPaint = plot.getSeriesPaint(series);
         Paint seriesOutlinePaint = plot.getSeriesOutlinePaint(series);
 
         Number valueNumber = intervalData.getYValue(series, item);
-        double translatedValue = rangeAxis.translateValueToJava2D(valueNumber.doubleValue(), dataArea);
+        double translatedValue = rangeAxis.translateValueToJava2D(valueNumber.doubleValue(),
+                                                                  dataArea);
 
         Number startXNumber = intervalData.getStartXValue(series, item);
-        double translatedStartX = domainAxis.translateValueToJava2D(startXNumber.doubleValue(), dataArea);
+        double translatedStartX = domainAxis.translateValueToJava2D(startXNumber.doubleValue(),
+                                                                    dataArea);
 
         Number endXNumber = intervalData.getEndXValue(series, item);
-        double translatedEndX = domainAxis.translateValueToJava2D(endXNumber.doubleValue(), dataArea);
+        double translatedEndX = domainAxis.translateValueToJava2D(endXNumber.doubleValue(),
+                                                                  dataArea);
 
-        double translatedWidth = Math.max(1, translatedEndX-translatedStartX);
-        double translatedHeight = Math.abs(translatedValue-translatedRangeZero);
+        double translatedWidth = Math.max(1, translatedEndX - translatedStartX);
+        double translatedHeight = Math.abs(translatedValue - translatedRangeZero);
 
-        if (margin>0.0) {
+        if (margin > 0.0) {
             double cut = translatedWidth * margin;
             translatedWidth = translatedWidth - cut;
-            translatedStartX = translatedStartX + cut/2;
+            translatedStartX = translatedStartX + cut / 2;
         }
 
-        Rectangle2D bar = new Rectangle2D.Double(translatedStartX,
-                                                 Math.min(this.translatedRangeZero, translatedValue),
-                                                 translatedWidth, translatedHeight);
+        Rectangle2D bar
+            = new Rectangle2D.Double(translatedStartX,
+                                     Math.min(this.translatedRangeZero, translatedValue),
+                                     translatedWidth, translatedHeight);
 
         g2.setPaint(seriesPaint);
         g2.fill(bar);
-        if ((translatedEndX-translatedStartX)>3) {
+        if ((translatedEndX - translatedStartX) > 3) {
             g2.setStroke(plot.getSeriesOutlineStroke(series));
             g2.setPaint(seriesOutlinePaint);
             g2.draw(bar);
         }
 
         // add an entity for the item...
-        if (info!=null) {
+        if (info != null) {
             EntityCollection entities = info.getEntityCollection();
-            if (entities!=null) {
+            if (entities != null) {
                 String tip = "";
-                if (this.toolTipGenerator!=null) {
-                    tip = this.toolTipGenerator.generateToolTip(data, series, item);
+                if (getToolTipGenerator() != null) {
+                    tip = getToolTipGenerator().generateToolTip(data, series, item);
                 }
-                XYItemEntity entity = new XYItemEntity(bar, tip, series, item);
+                String url = null;
+                if (getURLGenerator() != null) {
+                    url = getURLGenerator().generateURL(data, series, item);
+                }
+                XYItemEntity entity = new XYItemEntity(bar, tip, url, series, item);
                 entities.addEntity(entity);
             }
         }

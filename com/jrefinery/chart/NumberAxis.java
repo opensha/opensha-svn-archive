@@ -36,7 +36,7 @@
  *               clear the autoRange flag (DG);
  * 27-Nov-2001 : Removed old, redundant code (DG);
  * 30-Nov-2001 : Added accessor methods for the standard tick units (DG);
- * 08-Jan-2002 : Added setAxisRange(...) method (DG);
+ * 08-Jan-2002 : Added setAxisRange(...) method (since renamed setRange(...)) (DG);
  * 16-Jan-2002 : Added setTickUnit(...) method.  Extended ValueAxis to support an optional
  *               cross-hair (DG);
  * 08-Feb-2002 : Fixes bug to ensure the autorange is recalculated if the
@@ -46,6 +46,11 @@
  *               Moved the createStandardTickUnits() method to the TickUnits class (DG);
  * 19-Apr-2002 : Updated Javadoc comments (DG);
  * 01-May-2002 : Updated for changes to TickUnit class, removed valueToString(...) method (DG);
+ * 25-Jul-2002 : Moved the lower and upper margin attributes, and the auto-range minimum size, up
+ *               one level to the ValueAxis class (DG);
+ * 05-Sep-2002 : Updated constructor to match changes in Axis class (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 04-Oct-2002 : Moved standardTickUnits from NumberAxis --> ValueAxis (DG);
  *
  */
 
@@ -55,24 +60,27 @@ import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Insets;
 import java.awt.Stroke;
+import java.text.NumberFormat;
 import java.text.DecimalFormat;
-import com.jrefinery.data.Range;
+import java.util.Locale;
 import com.jrefinery.chart.event.AxisChangeEvent;
+import com.jrefinery.data.Range;
 
 /**
  * The base class for axes that display numerical data.
  * <P>
- * If the axis is set up to automatically determine its range to fit the data, you can ensure that
- * the range includes zero (statisticians usually prefer this) by setting the autoRangeIncludesZero
- * flag to true.
+ * If the axis is set up to automatically determine its range to fit the data,
+ * you can ensure that the range includes zero (statisticians usually prefer
+ * this) by setting the autoRangeIncludesZero flag to true.
  * <P>
- * The NumberAxis class has a mechanism for automatically selecting a tick unit that is appropriate
- * for the current axis range.  This mechanism is an adaptation of code suggested by Laurence
- * Vanhelsuwe.
+ * The NumberAxis class has a mechanism for automatically selecting a tick unit
+ * that is appropriate for the current axis range.  This mechanism is an
+ * adaptation of code suggested by Laurence Vanhelsuwe.
  *
  * @see HorizontalNumberAxis
  * @see VerticalNumberAxis
  *
+ * @author DG
  */
 public abstract class NumberAxis extends ValueAxis {
 
@@ -82,61 +90,34 @@ public abstract class NumberAxis extends ValueAxis {
     /** The default value for the autoRangeStickyZero flag. */
     public static final boolean DEFAULT_AUTO_RANGE_STICKY_ZERO = true;
 
-    /** The default value for the upper margin (0.05 = 5%). */
-    public static final double DEFAULT_UPPER_MARGIN = 0.05;
-
-    /** The default value for the lower margin (0.05 = 5%). */
-    public static final double DEFAULT_LOWER_MARGIN = 0.05;
-
-    /** The default minimum auto range. */
-    public static final Number DEFAULT_MINIMUM_AUTO_RANGE = new Double(0.0000001);
-
     /** The default tick unit. */
-    public static final NumberTickUnit DEFAULT_TICK_UNIT
-                                                  = new NumberTickUnit(1.0, new DecimalFormat("0"));
+    public static final NumberTickUnit
+        DEFAULT_TICK_UNIT = new NumberTickUnit(1.0, new DecimalFormat("0"));
 
     /** A flag that affects the orientation of the values on the axis. */
-    protected boolean inverted;
+    private boolean inverted;
 
     /**
-     * A flag that affects the axis range when the range is determined automatically.  If the auto
-     * range does NOT include zero and this flag is TRUE, then the range is changed to include zero.
+     * A flag that affects the axis range when the range is determined
+     * automatically.  If the auto range does NOT include zero and this flag
+     * is TRUE, then the range is changed to include zero.
      */
-    protected boolean autoRangeIncludesZero;
+    private boolean autoRangeIncludesZero;
 
     /**
-     * A flag that affects the size of the margins added to the axis range when the range is
-     * determined automatically.  If the value 0 falls within the margin and this flag is TRUE,
-     * then the margin is truncated at zero.
+     * A flag that affects the size of the margins added to the axis range when
+     * the range is determined automatically.  If the value 0 falls within the
+     * margin and this flag is TRUE, then the margin is truncated at zero.
      */
-    protected boolean autoRangeStickyZero;
-
-    /** The minimum size of a range that is determined automatically. */
-    protected Number autoRangeMinimumSize;
-
-    /**
-     * The upper margin.  This is a percentage that indicates the amount by which the maximum
-     * axis value exceeds the maximum data value when the axis range is determined automatically.
-     */
-    protected double upperMargin;
-
-    /**
-     * The lower margin.  This is a percentage that indicates the amount by which the minimum
-     * axis value is "less than" the minimum data value when the axis range is determined
-     * automatically.
-     */
-    protected double lowerMargin;
+    private boolean autoRangeStickyZero;
 
     /** The tick unit for the axis. */
-    protected NumberTickUnit tickUnit;
-
-    /** The standard tick units for the axis. */
-    protected TickUnits standardTickUnits;
+    private NumberTickUnit tickUnit;
 
     /**
      * Constructs a number axis, using default values where necessary.
      *
-     * @param label The axis label.
+     * @param label  the axis label.
      */
     protected NumberAxis(String label) {
 
@@ -150,18 +131,20 @@ public abstract class NumberAxis extends ValueAxis {
              Axis.DEFAULT_TICK_LABEL_INSETS,
              true, // tick marks visible
              Axis.DEFAULT_TICK_STROKE,
+             Axis.DEFAULT_TICK_PAINT,
              ValueAxis.DEFAULT_AUTO_RANGE,
+             ValueAxis.DEFAULT_AUTO_RANGE_MINIMUM_SIZE,
              NumberAxis.DEFAULT_AUTO_RANGE_INCLUDES_ZERO,
              NumberAxis.DEFAULT_AUTO_RANGE_STICKY_ZERO,
-             NumberAxis.DEFAULT_MINIMUM_AUTO_RANGE,
-             ValueAxis.DEFAULT_MINIMUM_AXIS_VALUE,
-             ValueAxis.DEFAULT_MAXIMUM_AXIS_VALUE,
+             ValueAxis.DEFAULT_LOWER_BOUND,
+             ValueAxis.DEFAULT_UPPER_BOUND,
              false, // inverted
              true, // auto tick unit
              NumberAxis.DEFAULT_TICK_UNIT,
              true, // grid lines visible
              ValueAxis.DEFAULT_GRID_LINE_STROKE,
              ValueAxis.DEFAULT_GRID_LINE_PAINT,
+             0.0,
              ValueAxis.DEFAULT_CROSSHAIR_VISIBLE,
              0.0,  // crosshair value
              ValueAxis.DEFAULT_CROSSHAIR_STROKE,
@@ -172,109 +155,110 @@ public abstract class NumberAxis extends ValueAxis {
     /**
      * Constructs a number axis.
      *
-     * @param label The axis label.
-     * @param labelFont The font for displaying the axis label.
-     * @param labelPaint The paint used to display the axis label.
-     * @param labelInsets The amount of blank space around the axis label.
-     * @param tickLabelsVisible Flag indicating whether or not the tick labels are visible.
-     * @param tickLabelFont The font used to display the tick labels.
-     * @param tickLabelPaint The paint used to draw the tick labels.
-     * @param tickLabelInsets The amount of blank space around the tick labels.
-     * @param tickMarksVisible Flag indicating whether or not tick marks are visible;
-     * @param tickMarkStroke The stroke used to draw the tick marks (if visible);
-     * @param autoRange Flag indicating whether or not the axis range is automatically determined.
-     * @param autoRangeIncludesZero A flag indicating whether the auto range must include zero.
-     * @param autoRangeStickyZero A flag controlling the axis margins around zero.
-     * @param autoRangeMinimumSize The minimum size for the auto range.
-     * @param minimumAxisValue The lowest value shown on the axis.
-     * @param maximumAxisValue The highest value shown on the axis.
-     * @param inverted A flag indicating whether the axis is normal or inverted (inverted means
-     *                 running from positive to negative).
-     * @param autoTickUnitSelection A flag indicating whether or not the tick value is automatically
-     *                              selected.
-     * @param tickUnit The tick unit for the axis.
-     * @param gridLinesVisible Flag indicating whether or not grid lines are visible.
-     * @param gridStroke The pen/brush used to display grid lines (if visible).
-     * @param gridPaint The color used to display grid lines (if visible).
-     * @param crosshairValue The value at which to draw the crosshair line (null permitted).
-     * @param crosshairStroke The pen/brush used to draw the data line.
-     * @param crosshairPaint The color used to draw the data line.
+     * @param label  the axis label.
+     * @param labelFont  the font for displaying the axis label.
+     * @param labelPaint  the paint used to display the axis label.
+     * @param labelInsets  the amount of blank space around the axis label.
+     * @param tickLabelsVisible  flag indicating whether or not the tick labels are visible.
+     * @param tickLabelFont  the font used to display the tick labels.
+     * @param tickLabelPaint  the paint used to draw the tick labels.
+     * @param tickLabelInsets  the amount of blank space around the tick labels.
+     * @param tickMarksVisible  flag indicating whether or not tick marks are visible.
+     * @param tickMarkStroke  the stroke used to draw the tick marks (if visible).
+     * @param tickMarkPaint  the paint used to draw the tick marks (if visible).
+     * @param autoRange  flag indicating whether or not the axis range is automatically determined.
+     * @param autoRangeMinimumSize  the smallest range allowed when the axis range is calculated to
+     *                              fit the data.
+     * @param autoRangeIncludesZero  a flag indicating whether the auto range must include zero.
+     * @param autoRangeStickyZero  a flag controlling the axis margins around zero.
+     * @param lowerBound  the lowest value shown on the axis.
+     * @param upperBound  the highest value shown on the axis.
+     * @param inverted  a flag indicating whether the axis is normal or inverted (inverted means
+     *                  running from positive to negative).
+     * @param autoTickUnitSelection  a flag indicating whether or not the tick value is
+     *                               automatically selected.
+     * @param tickUnit  the tick unit for the axis.
+     * @param gridLinesVisible  flag indicating whether or not grid lines are visible.
+     * @param gridStroke  the pen/brush used to display grid lines (if visible).
+     * @param gridPaint  the color used to display grid lines (if visible).
+     * @param anchorValue  the anchor value.
+     * @param crosshairVisible  whether to show a crosshair.
+     * @param crosshairValue  the value at which to draw the crosshair line (null permitted).
+     * @param crosshairStroke  the pen/brush used to draw the data line.
+     * @param crosshairPaint  the color used to draw the data line.
      */
-    protected NumberAxis(String label, Font labelFont, Paint labelPaint, Insets labelInsets,
-                         boolean tickLabelsVisible, Font tickLabelFont, Paint tickLabelPaint,
-                         Insets tickLabelInsets,
-                         boolean tickMarksVisible, Stroke tickMarkStroke,
+    protected NumberAxis(String label,
+                         Font labelFont, Paint labelPaint, Insets labelInsets,
+                         boolean tickLabelsVisible,
+                         Font tickLabelFont, Paint tickLabelPaint, Insets tickLabelInsets,
+                         boolean tickMarksVisible,
+                         Stroke tickMarkStroke, Paint tickMarkPaint,
                          boolean autoRange,
-                         boolean autoRangeIncludesZero, boolean autoRangeStickyZero,
                          Number autoRangeMinimumSize,
-                         double minimumAxisValue, double maximumAxisValue,
+                         boolean autoRangeIncludesZero, boolean autoRangeStickyZero,
+                         double lowerBound, double upperBound,
                          boolean inverted,
-                         boolean autoTickUnitSelection, NumberTickUnit tickUnit,
-                         boolean gridLinesVisible, Stroke gridStroke, Paint gridPaint,
-                         boolean crosshairVisible, double crosshairValue,
-                         Stroke crosshairStroke, Paint crosshairPaint) {
+                         boolean autoTickUnitSelection,
+                         NumberTickUnit tickUnit,
+                         boolean gridLinesVisible,
+                         Stroke gridStroke, Paint gridPaint,
+                         double anchorValue,
+                         boolean crosshairVisible,
+                         double crosshairValue, Stroke crosshairStroke, Paint crosshairPaint) {
 
         super(label,
               labelFont, labelPaint, labelInsets,
               tickLabelsVisible,
               tickLabelFont, tickLabelPaint, tickLabelInsets,
-              tickMarksVisible, tickMarkStroke,
-              autoRange, autoTickUnitSelection,
+              tickMarksVisible, tickMarkStroke, tickMarkPaint,
+              new Range(lowerBound, upperBound),
+              autoRange,
+              autoRangeMinimumSize,
+              autoTickUnitSelection,
+              createStandardTickUnits(),
               gridLinesVisible, gridStroke, gridPaint,
+              anchorValue,
               crosshairVisible, crosshairValue,
               crosshairStroke, crosshairPaint);
 
         // check arguments...
-        if (minimumAxisValue>=maximumAxisValue) {
-            throw new IllegalArgumentException("NumberAxis(...): minimum axis value must be less "
-                                               +"than maximum axis value.");
-        }
-
-        if (autoRangeMinimumSize==null) {
-            throw new IllegalArgumentException("NumberAxis(...): autoRangeMinimum cannot be null.");
+        if (autoRangeMinimumSize == null) {
+            throw new IllegalArgumentException(
+                "NumberAxis(...): autoRangeMinimumSize cannot be null.");
         }
 
         // do the initialisation...
         this.autoRangeIncludesZero = autoRangeIncludesZero;
         this.autoRangeStickyZero = autoRangeStickyZero;
-        this.autoRangeMinimumSize = autoRangeMinimumSize;
-
-        this.range = new Range(minimumAxisValue, maximumAxisValue);
-        this.anchorValue = 0.0;
 
         this.inverted = inverted;
 
         this.tickUnit = tickUnit;
-
-        this.upperMargin = DEFAULT_UPPER_MARGIN;
-        this.lowerMargin = DEFAULT_LOWER_MARGIN;
-
-        this.standardTickUnits = TickUnits.createStandardTickUnits();
 
     }
 
     /**
      * Returns a flag that controls the direction of values on the axis.
      * <P>
-     * For a regular axis, values increase from left to right (for a horizontal axis) and bottom
-     * to top (for a vertical axis).  When the axis is 'inverted', the values increase in the
-     * opposite direction.
+     * For a regular axis, values increase from left to right (for a horizontal
+     * axis) and bottom to top (for a vertical axis).  When the axis is
+     * 'inverted', the values increase in the opposite direction.
      *
-     * @return The flag.
+     * @return the flag.
      */
     public boolean isInverted() {
         return this.inverted;
     }
 
     /**
-     * Sets a flag that controls the direction of values on the axis, and notifies registered
-     * listeners that the axis has changed.
+     * Sets a flag that controls the direction of values on the axis, and
+     * notifies registered listeners that the axis has changed.
      *
-     * @param flag The flag.
+     * @param flag  the flag.
      */
     public void setInverted(boolean flag) {
 
-        if (this.inverted!=flag) {
+        if (this.inverted != flag) {
             this.inverted = flag;
             notifyListeners(new AxisChangeEvent(this));
         }
@@ -282,27 +266,29 @@ public abstract class NumberAxis extends ValueAxis {
     }
 
     /**
-     * Returns the flag that indicates whether or not the automatic axis range (if indeed it is
-     * determined automatically) is forced to include zero.
+     * Returns the flag that indicates whether or not the automatic axis range
+     * (if indeed it is determined automatically) is forced to include zero.
      *
-     * @return The flag.
+     * @return the flag.
      */
     public boolean autoRangeIncludesZero() {
         return this.autoRangeIncludesZero;
     }
 
     /**
-     * Sets the flag that indicates whether or not the automatic axis range is forced to include
-     * zero.
+     * Sets the flag that indicates whether or not the automatic axis range is
+     * forced to include zero.
      *
-     * @param flag The new value of the flag.
+     * @param flag  the new value of the flag.
      */
     public void setAutoRangeIncludesZero(boolean flag) {
 
-        if (autoRangeIncludesZero!=flag) {
+        if (autoRangeIncludesZero != flag) {
 
             this.autoRangeIncludesZero = flag;
-            if (this.autoRange) autoAdjustRange();
+            if (isAutoRange()) {
+                autoAdjustRange();
+            }
             notifyListeners(new AxisChangeEvent(this));
 
         }
@@ -310,8 +296,8 @@ public abstract class NumberAxis extends ValueAxis {
     }
 
     /**
-     * Returns a flag that affects the auto-range when zero falls outside the data range but
-     * inside the margins defined for the axis.
+     * Returns a flag that affects the auto-range when zero falls outside the
+     * data range but inside the margins defined for the axis.
      *
      * @return The flag.
      */
@@ -320,119 +306,22 @@ public abstract class NumberAxis extends ValueAxis {
     }
 
     /**
-     * Sets a flag that affects the auto-range when zero falls outside the data range but
-     * inside the margins defined for the axis.
+     * Sets a flag that affects the auto-range when zero falls outside the data
+     * range but inside the margins defined for the axis.
      *
-     * @param flag The new flag.
+     * @param flag      The new flag.
      */
     public void setAutoRangeStickyZero(boolean flag) {
 
-        if (autoRangeStickyZero!=flag) {
+        if (autoRangeStickyZero != flag) {
 
             this.autoRangeStickyZero = flag;
-            if (this.autoRange) autoAdjustRange();
+            if (isAutoRange()) {
+                autoAdjustRange();
+            }
             notifyListeners(new AxisChangeEvent(this));
 
         }
-
-    }
-
-    /**
-     * Returns the minimum size of the automatic axis range (if indeed it is determined
-     * automatically).
-     *
-     * @return The minimum range.
-     */
-    public Number getAutoRangeMinimumSize() {
-        return this.autoRangeMinimumSize;
-    }
-
-    /**
-     * Sets the minimum size of the automatic axis range.
-     *
-     * @param minimum The new minimum.
-     */
-    public void setAutoRangeMinimumSize(Number size) {
-
-        // check argument...
-        if (size==null) {
-            throw new IllegalArgumentException("NumberAxis.setAutoRangeMinimumSize(Number): "
-                                               +"null not permitted.");
-        }
-
-        // make the change...
-        if (autoRangeMinimumSize.doubleValue()!=size.doubleValue()) {
-            this.autoRangeMinimumSize = size;
-            notifyListeners(new AxisChangeEvent(this));
-        }
-
-    }
-
-    /**
-     * Returns the margin (as a percentage of the range) by which the maximum axis value exceeds
-     * the maximum data value.
-     *
-     * @return The upper margin.
-     */
-    public double getUpperMargin() {
-        return this.upperMargin;
-    }
-
-    /**
-     * Sets the upper margin.
-     *
-     * @param margin The new margin.
-     */
-    public void setUpperMargin(double margin) {
-        this.upperMargin = margin;
-        notifyListeners(new AxisChangeEvent(this));
-    }
-
-    /**
-     * Returns the margin (as a percentage of the range) by which the minimum axis value is less
-     * than the minimum data value.
-     *
-     * @return The lower margin.
-     */
-    public double getLowerMargin() {
-        return this.lowerMargin;
-    }
-
-    /**
-     * Sets the lower margin.
-     *
-     * @param margin The new margin.
-     */
-    public void setLowerMargin(double margin) {
-        this.lowerMargin = margin;
-        notifyListeners(new AxisChangeEvent(this));
-    }
-
-    /**
-     * Returns the standard tick units for the axis.
-     * <P>
-     * If autoTickUnitSelection is on, the tick unit for the axis will be automatically selected
-     * from this collection.
-     *
-     * @return The standard tick units.
-     */
-    public TickUnits getStandardTickUnits() {
-        return this.standardTickUnits;
-    }
-
-    /**
-     * Sets the collection of tick units for the axis, and notifies registered listeners that the
-     * axis has changed.
-     * <P>
-     * If the autoTickUnitSelection flag is true, a tick unit will be selected from this collection
-     * automatically (to ensure that labels do not overlap).
-     *
-     * @param collection The tick unit collection.
-     */
-    public void setStandardTickUnits(TickUnits collection) {
-
-        this.standardTickUnits = collection;
-        notifyListeners(new AxisChangeEvent(this));
 
     }
 
@@ -446,19 +335,28 @@ public abstract class NumberAxis extends ValueAxis {
     }
 
     /**
-     * Sets a fixed tick unit for the axis, and notifies registered listeners that the axis has
-     * been changed.
+     * Sets a fixed tick unit for the axis, and notifies registered listeners
+     * that the axis has been changed.
      * <P>
      * This method also sets the autoTickUnitSelection flag to false.
      *
-     * @param unit The new tick unit.
+     * @param unit  The new tick unit.
      */
     public void setTickUnit(NumberTickUnit unit) {
 
-        this.autoTickUnitSelection = false;
-        this.tickUnit = unit;
+        setTickUnitAttribute(unit);
+        setAutoTickUnitSelectionAttribute(false);
         notifyListeners(new AxisChangeEvent(this));
 
+    }
+
+    /**
+     * Sets the tick unit attribute without any other side effects.
+     *
+     * @param unit  the new tick unit.
+     */
+    protected void setTickUnitAttribute(NumberTickUnit unit) {
+        this.tickUnit = unit;
     }
 
     /**
@@ -469,8 +367,8 @@ public abstract class NumberAxis extends ValueAxis {
     public double calculateLowestVisibleTickValue() {
 
         double unit = getTickUnit().getSize();
-        double index = Math.ceil(range.getLowerBound()/unit);
-        return index*unit;
+        double index = Math.ceil(getRange().getLowerBound() / unit);
+        return index * unit;
 
     }
 
@@ -482,8 +380,8 @@ public abstract class NumberAxis extends ValueAxis {
     public double calculateHighestVisibleTickValue() {
 
         double unit = getTickUnit().getSize();
-        double index = Math.floor(range.getUpperBound()/unit);
-        return index*unit;
+        double index = Math.floor(getRange().getUpperBound() / unit);
+        return index * unit;
 
     }
 
@@ -495,7 +393,252 @@ public abstract class NumberAxis extends ValueAxis {
     public int calculateVisibleTickCount() {
 
         double unit = getTickUnit().getSize();
-        return (int)(Math.floor(range.getUpperBound()/unit)-Math.ceil(range.getLowerBound()/unit)+1);
+        Range range = getRange();
+        return (int) (Math.floor(range.getUpperBound() / unit)
+                      - Math.ceil(range.getLowerBound() / unit) + 1);
+
+
+    }
+    /**
+     * Creates the standard tick units.
+     * <P>
+     * If you don't like these defaults, create your own instance of TickUnits
+     * and then pass it to the setStandardTickUnits(...) method in the
+     * NumberAxis class.
+     *
+     * @return the standard tick units.
+     */
+    public static TickUnits createStandardTickUnits() {
+
+        TickUnits units = new TickUnits();
+
+        // we can add the units in any order, the TickUnits collection will sort them...
+        units.add(new NumberTickUnit(0.0000001,    new DecimalFormat("0.0000000")));
+        units.add(new NumberTickUnit(0.000001,     new DecimalFormat("0.000000")));
+        units.add(new NumberTickUnit(0.00001,      new DecimalFormat("0.00000")));
+        units.add(new NumberTickUnit(0.0001,       new DecimalFormat("0.0000")));
+        units.add(new NumberTickUnit(0.001,        new DecimalFormat("0.000")));
+        units.add(new NumberTickUnit(0.01,         new DecimalFormat("0.00")));
+        units.add(new NumberTickUnit(0.1,          new DecimalFormat("0.0")));
+        units.add(new NumberTickUnit(1,            new DecimalFormat("0")));
+        units.add(new NumberTickUnit(10,           new DecimalFormat("0")));
+        units.add(new NumberTickUnit(100,          new DecimalFormat("0")));
+        units.add(new NumberTickUnit(1000,         new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(10000,        new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(100000,       new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(1000000,      new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(10000000,     new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(100000000,    new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(1000000000,   new DecimalFormat("#,###,###,##0")));
+
+        units.add(new NumberTickUnit(0.00000025,   new DecimalFormat("0.00000000")));
+        units.add(new NumberTickUnit(0.0000025,    new DecimalFormat("0.0000000")));
+        units.add(new NumberTickUnit(0.000025,     new DecimalFormat("0.000000")));
+        units.add(new NumberTickUnit(0.00025,      new DecimalFormat("0.00000")));
+        units.add(new NumberTickUnit(0.0025,       new DecimalFormat("0.0000")));
+        units.add(new NumberTickUnit(0.025,        new DecimalFormat("0.000")));
+        units.add(new NumberTickUnit(0.25,         new DecimalFormat("0.00")));
+        units.add(new NumberTickUnit(2.5,          new DecimalFormat("0.0")));
+        units.add(new NumberTickUnit(25,           new DecimalFormat("0")));
+        units.add(new NumberTickUnit(250,          new DecimalFormat("0")));
+        units.add(new NumberTickUnit(2500,         new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(25000,        new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(250000,       new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(2500000,      new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(25000000,     new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(250000000,    new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(2500000000.0,   new DecimalFormat("#,###,###,##0")));
+
+        units.add(new NumberTickUnit(0.0000005,    new DecimalFormat("0.0000000")));
+        units.add(new NumberTickUnit(0.000005,     new DecimalFormat("0.000000")));
+        units.add(new NumberTickUnit(0.00005,      new DecimalFormat("0.00000")));
+        units.add(new NumberTickUnit(0.0005,       new DecimalFormat("0.0000")));
+        units.add(new NumberTickUnit(0.005,        new DecimalFormat("0.000")));
+        units.add(new NumberTickUnit(0.05,         new DecimalFormat("0.00")));
+        units.add(new NumberTickUnit(0.5,          new DecimalFormat("0.0")));
+        units.add(new NumberTickUnit(5L,           new DecimalFormat("0")));
+        units.add(new NumberTickUnit(50L,          new DecimalFormat("0")));
+        units.add(new NumberTickUnit(500L,         new DecimalFormat("0")));
+        units.add(new NumberTickUnit(5000L,        new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(50000L,       new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(500000L,      new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(5000000L,     new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(50000000L,    new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(500000000L,   new DecimalFormat("#,###,##0")));
+        units.add(new NumberTickUnit(5000000000L,  new DecimalFormat("#,###,###,##0")));
+
+        return units;
+
+    }
+
+    /**
+     * Returns a collection of tick units for integer values.
+     *
+     * @return a collection of tick units for integer values.
+     */
+    public static TickUnits createIntegerTickUnits() {
+
+        TickUnits units = new TickUnits();
+
+        units.add(new NumberTickUnit(1,              new DecimalFormat("0")));
+        units.add(new NumberTickUnit(2,              new DecimalFormat("0")));
+        units.add(new NumberTickUnit(5,              new DecimalFormat("0")));
+        units.add(new NumberTickUnit(10,             new DecimalFormat("0")));
+        units.add(new NumberTickUnit(20,             new DecimalFormat("0")));
+        units.add(new NumberTickUnit(50,             new DecimalFormat("0")));
+        units.add(new NumberTickUnit(100,            new DecimalFormat("0")));
+        units.add(new NumberTickUnit(200,            new DecimalFormat("0")));
+        units.add(new NumberTickUnit(500,            new DecimalFormat("0")));
+        units.add(new NumberTickUnit(1000,           new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(2000,           new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(5000,           new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(10000,          new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(20000,          new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(50000,          new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(100000,         new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(200000,         new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(500000,         new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(1000000,        new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(2000000,        new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(5000000,        new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(10000000,       new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(20000000,       new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(50000000,       new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(100000000,      new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(200000000,      new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(500000000,      new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(1000000000,     new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(2000000000,     new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(5000000000.0,   new DecimalFormat("#,##0")));
+        units.add(new NumberTickUnit(10000000000.0,  new DecimalFormat("#,##0")));
+
+        return units;
+
+    }
+
+    /**
+     * Creates the standard tick units, and uses a given Locale to create the DecimalFormats
+     * <P>
+     * If you don't like these defaults, create your own instance of TickUnits
+     * and then pass it to the setStandardTickUnits(...) method in the
+     * NumberAxis class.
+     *
+     * @param locale the locale to use to represent Numbers.
+     *
+     * @return the standard tick units.
+     */
+    public static TickUnits createStandardTickUnits(Locale locale) {
+
+        TickUnits units = new TickUnits();
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+
+        // we can add the units in any order, the TickUnits collection will sort them...
+        units.add(new NumberTickUnit(0.0000001,    numberFormat));
+        units.add(new NumberTickUnit(0.000001,     numberFormat));
+        units.add(new NumberTickUnit(0.00001,      numberFormat));
+        units.add(new NumberTickUnit(0.0001,       numberFormat));
+        units.add(new NumberTickUnit(0.001,        numberFormat));
+        units.add(new NumberTickUnit(0.01,         numberFormat));
+        units.add(new NumberTickUnit(0.1,          numberFormat));
+        units.add(new NumberTickUnit(1,            numberFormat));
+        units.add(new NumberTickUnit(10,           numberFormat));
+        units.add(new NumberTickUnit(100,          numberFormat));
+        units.add(new NumberTickUnit(1000,         numberFormat));
+        units.add(new NumberTickUnit(10000,        numberFormat));
+        units.add(new NumberTickUnit(100000,       numberFormat));
+        units.add(new NumberTickUnit(1000000,      numberFormat));
+        units.add(new NumberTickUnit(10000000,     numberFormat));
+        units.add(new NumberTickUnit(100000000,    numberFormat));
+        units.add(new NumberTickUnit(1000000000,   numberFormat));
+
+        units.add(new NumberTickUnit(0.00000025,   numberFormat));
+        units.add(new NumberTickUnit(0.0000025,    numberFormat));
+        units.add(new NumberTickUnit(0.000025,     numberFormat));
+        units.add(new NumberTickUnit(0.00025,      numberFormat));
+        units.add(new NumberTickUnit(0.0025,       numberFormat));
+        units.add(new NumberTickUnit(0.025,        numberFormat));
+        units.add(new NumberTickUnit(0.25,         numberFormat));
+        units.add(new NumberTickUnit(2.5,          numberFormat));
+        units.add(new NumberTickUnit(25,           numberFormat));
+        units.add(new NumberTickUnit(250,          numberFormat));
+        units.add(new NumberTickUnit(2500,         numberFormat));
+        units.add(new NumberTickUnit(25000,        numberFormat));
+        units.add(new NumberTickUnit(250000,       numberFormat));
+        units.add(new NumberTickUnit(2500000,      numberFormat));
+        units.add(new NumberTickUnit(25000000,     numberFormat));
+        units.add(new NumberTickUnit(250000000,    numberFormat));
+        units.add(new NumberTickUnit(2500000000.0,   numberFormat));
+
+        units.add(new NumberTickUnit(0.0000005,    numberFormat));
+        units.add(new NumberTickUnit(0.000005,     numberFormat));
+        units.add(new NumberTickUnit(0.00005,      numberFormat));
+        units.add(new NumberTickUnit(0.0005,       numberFormat));
+        units.add(new NumberTickUnit(0.005,        numberFormat));
+        units.add(new NumberTickUnit(0.05,         numberFormat));
+        units.add(new NumberTickUnit(0.5,          numberFormat));
+        units.add(new NumberTickUnit(5L,           numberFormat));
+        units.add(new NumberTickUnit(50L,          numberFormat));
+        units.add(new NumberTickUnit(500L,         numberFormat));
+        units.add(new NumberTickUnit(5000L,        numberFormat));
+        units.add(new NumberTickUnit(50000L,       numberFormat));
+        units.add(new NumberTickUnit(500000L,      numberFormat));
+        units.add(new NumberTickUnit(5000000L,     numberFormat));
+        units.add(new NumberTickUnit(50000000L,    numberFormat));
+        units.add(new NumberTickUnit(500000000L,   numberFormat));
+        units.add(new NumberTickUnit(5000000000L,  numberFormat));
+
+        return units;
+
+    }
+
+    /**
+     * Returns a collection of tick units for integer values.
+     * Uses a given Locale to create the DecimalFormats.
+     *
+     * @param locale the locale to use to represent Numbers.
+     *
+     * @return a collection of tick units for integer values.
+     */
+    public static TickUnits createIntegerTickUnits(Locale locale) {
+
+        TickUnits units = new TickUnits();
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+
+        units.add(new NumberTickUnit(1,              numberFormat));
+        units.add(new NumberTickUnit(2,              numberFormat));
+        units.add(new NumberTickUnit(5,              numberFormat));
+        units.add(new NumberTickUnit(10,             numberFormat));
+        units.add(new NumberTickUnit(20,             numberFormat));
+        units.add(new NumberTickUnit(50,             numberFormat));
+        units.add(new NumberTickUnit(100,            numberFormat));
+        units.add(new NumberTickUnit(200,            numberFormat));
+        units.add(new NumberTickUnit(500,            numberFormat));
+        units.add(new NumberTickUnit(1000,           numberFormat));
+        units.add(new NumberTickUnit(2000,           numberFormat));
+        units.add(new NumberTickUnit(5000,           numberFormat));
+        units.add(new NumberTickUnit(10000,          numberFormat));
+        units.add(new NumberTickUnit(20000,          numberFormat));
+        units.add(new NumberTickUnit(50000,          numberFormat));
+        units.add(new NumberTickUnit(100000,         numberFormat));
+        units.add(new NumberTickUnit(200000,         numberFormat));
+        units.add(new NumberTickUnit(500000,         numberFormat));
+        units.add(new NumberTickUnit(1000000,        numberFormat));
+        units.add(new NumberTickUnit(2000000,        numberFormat));
+        units.add(new NumberTickUnit(5000000,        numberFormat));
+        units.add(new NumberTickUnit(10000000,       numberFormat));
+        units.add(new NumberTickUnit(20000000,       numberFormat));
+        units.add(new NumberTickUnit(50000000,       numberFormat));
+        units.add(new NumberTickUnit(100000000,      numberFormat));
+        units.add(new NumberTickUnit(200000000,      numberFormat));
+        units.add(new NumberTickUnit(500000000,      numberFormat));
+        units.add(new NumberTickUnit(1000000000,     numberFormat));
+        units.add(new NumberTickUnit(2000000000,     numberFormat));
+        units.add(new NumberTickUnit(5000000000.0,   numberFormat));
+        units.add(new NumberTickUnit(10000000000.0,  numberFormat));
+
+        return units;
 
     }
 

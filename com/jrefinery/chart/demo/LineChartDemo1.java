@@ -33,6 +33,8 @@
  * -------
  * 08-Apr-2002 : Version 1 (DG);
  * 30-May-2002 : Modified to display values on the chart (DG);
+ * 25-Jun-2002 : Removed redundant import (DG);
+ * 11-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,29 +44,28 @@ import java.awt.Paint;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.BasicStroke;
-import com.jrefinery.data.CategoryDataset;
 import com.jrefinery.data.DefaultCategoryDataset;
 import com.jrefinery.ui.ApplicationFrame;
 import com.jrefinery.chart.JFreeChart;
 import com.jrefinery.chart.ChartFactory;
 import com.jrefinery.chart.ChartPanel;
 import com.jrefinery.chart.CategoryPlot;
-import com.jrefinery.chart.Axis;
 import com.jrefinery.chart.HorizontalCategoryAxis;
 import com.jrefinery.chart.NumberAxis;
-import com.jrefinery.chart.TickUnits;
+import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a line chart using data from a
  * CategoryDataset.
+ *
+ * @author DG
  */
 public class LineChartDemo1 extends ApplicationFrame {
 
-    /** The data. */
-    protected CategoryDataset data;
-
     /**
-     * Default constructor.
+     * Creates a new demo.
+     *
+     * @param title  the frame title.
      */
     public LineChartDemo1(String title) {
 
@@ -93,7 +94,9 @@ public class LineChartDemo1 extends ApplicationFrame {
                                                         "Category",           // domain axis label
                                                         "Value",              // range axis label
                                                         dataset,              // data
-                                                        true                  // include legend
+                                                        true,                 // include legend
+                                                        true,                 // tooltips
+                                                        false                 // urls
                                                         );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
@@ -105,43 +108,50 @@ public class LineChartDemo1 extends ApplicationFrame {
         CategoryPlot plot = chart.getCategoryPlot();
 
         // label data points with values...
-        plot.setLabelsVisible(true);
+        plot.setValueLabelsVisible(true);
 
         // set the color for each series...
         plot.setSeriesPaint(new Paint[] { Color.green, Color.orange, Color.red });
 
         // set the stroke for each series...
         Stroke[] seriesStrokeArray = new Stroke[3];
-        seriesStrokeArray[0] = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
-                                               1.0f, new float[] { 10.0f, 6.0f }, 0.0f);
-        seriesStrokeArray[1] = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
-                                               1.0f, new float[] { 6.0f, 6.0f }, 0.0f);
-        seriesStrokeArray[2] = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
-                                               1.0f, new float[] { 2.0f, 6.0f }, 0.0f);
+        seriesStrokeArray[0]
+            = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                              1.0f, new float[] { 10.0f, 6.0f }, 0.0f);
+        seriesStrokeArray[1]
+            = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                              1.0f, new float[] { 6.0f, 6.0f }, 0.0f);
+        seriesStrokeArray[2]
+            = new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+                              1.0f, new float[] { 2.0f, 6.0f }, 0.0f);
         plot.setSeriesStroke(seriesStrokeArray);
 
         // change the auto tick unit selection to integer units only...
-        NumberAxis rangeAxis = (NumberAxis)plot.getRangeAxis();
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setAutoRangeIncludesZero(false);
-        rangeAxis.setStandardTickUnits(TickUnits.createIntegerTickUnits());
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis)plot.getDomainAxis();
+        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
         domainAxis.setVerticalCategoryLabels(true);
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
-        this.setContentPane(chartPanel);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
 
     }
 
     /**
      * Starting point for the demonstration application.
+     *
+     * @param args  ignored.
      */
     public static void main(String[] args) {
 
         LineChartDemo1 demo = new LineChartDemo1("Line Chart Demo");
         demo.pack();
+        RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
 
     }

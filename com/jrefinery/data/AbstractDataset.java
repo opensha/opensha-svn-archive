@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -39,46 +39,73 @@
  *               class and transferred series-related methods, updated Javadoc comments (DG);
  * 04-Mar-2002 : Updated import statements (DG);
  * 11-Jun-2002 : Updated for change in the event constructor (DG);
+ * 07-Aug-2002 : Changed listener list to use javax.swing.event.EventListenerList (DG);
+ * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.data;
 
-import java.util.List;
-import java.util.Iterator;
+import javax.swing.event.EventListenerList;
 
 /**
- * An abstract implementation of the Dataset interface, containing a mechanism for registering
- * change listeners.
+ * An abstract implementation of the Dataset interface, containing a mechanism
+ * for registering change listeners.
+ *
+ * @author DG
  */
 public abstract class AbstractDataset implements Dataset {
 
+    /** The group that the dataset belongs to. */
+    private DatasetGroup group;
+
     /** Storage for registered change listeners. */
-    protected List listeners;
+    private EventListenerList listenerList;
 
     /**
      * Constructs a dataset.
+     * <P>
+     * By default, the dataset is assigned to its own group.
      */
     protected AbstractDataset() {
-        this.listeners = new java.util.ArrayList();
+        this.group = new DatasetGroup();
+        this.listenerList = new EventListenerList();
     }
 
     /**
-     * Registers an object for notification of changes to the dataset.
+     * Returns the dataset group for the dataset.
      *
-     * @param listener The object to register.
+     * @return the dataset group.
+     */
+    public DatasetGroup getGroup() {
+        return this.group;
+    }
+
+    /**
+     * Sets the dataset group for the dataset.
+     *
+     * @param group  the dataset group.
+     */
+    public void setGroup(DatasetGroup group) {
+        this.group = group;
+    }
+
+    /**
+     * Registers an object to receive notification of changes to the dataset.
+     *
+     * @param listener the object to register.
      */
     public void addChangeListener(DatasetChangeListener listener) {
-        listeners.add(listener);
+        listenerList.add(DatasetChangeListener.class, listener);
     }
 
     /**
-     * Deregisters an object for notification of changes to the dataset.
+     * Deregisters an object so that it no longer receives notification of changes to the dataset.
      *
-     * @param listener The object to deregister.
+     * @param listener the object to deregister.
      */
     public void removeChangeListener(DatasetChangeListener listener) {
-        listeners.remove(listener);
+        listenerList.remove(DatasetChangeListener.class, listener);
     }
 
     /**
@@ -93,14 +120,17 @@ public abstract class AbstractDataset implements Dataset {
     /**
      * Notifies all registered listeners that the dataset has changed.
      *
-     * @param event Contains information about the event that triggered the notification.
+     * @param event  contains information about the event that triggered the notification.
      */
     protected void notifyListeners(DatasetChangeEvent event) {
-        Iterator iterator = listeners.iterator();
-        while (iterator.hasNext()) {
-            DatasetChangeListener listener = (DatasetChangeListener)iterator.next();
-            listener.datasetChanged(event);
+
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == DatasetChangeListener.class) {
+                ((DatasetChangeListener) listeners[i + 1]).datasetChanged(event);
+            }
         }
+
     }
 
 }

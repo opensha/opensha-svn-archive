@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -43,13 +43,15 @@ import java.util.List;
 
 /**
  * The interface for a general-purpose dataset where values are associated with categories.
+ *
+ * @author DG
  */
 public interface PieDataset extends Dataset {
 
     /**
      * Returns the categories in the dataset.
      *
-     * @return The categories.
+     * @return the categories.
      */
     public List getCategories();
 
@@ -58,8 +60,9 @@ public interface PieDataset extends Dataset {
      * <P>
      * This method should return null if the category is not found.
      *
-     * @param category The category.
-     * @return The value.
+     * @param category  the category.
+     *
+     * @return the value.
      */
     public Number getValue(Object category);
 

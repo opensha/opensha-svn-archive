@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 06-Jun-2002 : Version 1 (DG);
+ * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,16 +44,20 @@ import java.util.Iterator;
 /**
  * A collection of GanttSeries objects.
  * <P>
- * This class provides one implementation of the IntervalCategoryDataset interface.  It is
- * sufficient to provide a demonstration of a simple Gantt chart.
+ * This class provides one implementation of the IntervalCategoryDataset
+ * interface.  It is sufficient to provide a demonstration of a simple
+ * Gantt chart.
+ *
+ * @author DG
  */
-public class GanttSeriesCollection extends AbstractSeriesDataset implements IntervalCategoryDataset {
+public class GanttSeriesCollection extends AbstractSeriesDataset
+                                   implements IntervalCategoryDataset {
 
     /** Storage for the aggregate task list. */
-    protected List tasks;
+    private List tasks;
 
     /** Storage for the series. */
-    protected List data;
+    private List data;
 
     /**
      * Default constructor.
@@ -65,17 +70,19 @@ public class GanttSeriesCollection extends AbstractSeriesDataset implements Inte
     /**
      * Returns the name of a series.
      *
-     * @param series The series (zero-based index).
+     * @param series  the series (zero-based index).
+     *
+     * @return the name of a series.
      */
     public String getSeriesName(int series) {
-        GanttSeries gs = (GanttSeries)data.get(series);
+        GanttSeries gs = (GanttSeries) data.get(series);
         return gs.getName();
     }
 
     /**
      * Returns the number of series in the collection.
      *
-     * @return The series count.
+     * @return the series count.
      */
     public int getSeriesCount() {
         return data.size();
@@ -93,7 +100,7 @@ public class GanttSeriesCollection extends AbstractSeriesDataset implements Inte
     /**
      * Returns a list of the categories in the dataset.
      *
-     * @return The category list.
+     * @return the category list.
      */
     public List getCategories() {
         return this.tasks;
@@ -102,15 +109,15 @@ public class GanttSeriesCollection extends AbstractSeriesDataset implements Inte
     /**
      * Adds a series to the dataset.
      *
-     * @param series The series.
+     * @param series  the series.
      */
     public void add(GanttSeries series) {
         data.add(series);
-        Iterator iterator = series.tasks.iterator();
+        Iterator iterator = series.getTasks().iterator();
         while (iterator.hasNext()) {
             Object category = iterator.next();
             int index = this.tasks.indexOf(category);
-            if (index<0) {
+            if (index < 0) {
                 this.tasks.add(category);
             }
         }
@@ -119,23 +126,28 @@ public class GanttSeriesCollection extends AbstractSeriesDataset implements Inte
     /**
      * Returns the value for a series and category.
      *
-     * @param series The series (zero-based index).
-     * @param category The category.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     *
+     * @return the value for a series and category.
      */
     public Number getValue(int series, Object category) {
-        GanttSeries gs = (GanttSeries)this.data.get(series);
+        GanttSeries gs = (GanttSeries) this.data.get(series);
         TimeAllocation ta = gs.getTimeAllocation(category);
         return new Long(ta.getStart().getTime());
     }
 
     /**
-     * Returns the min value for the specified series (zero-based index) and category.
+     * Returns the min value for the specified series (zero-based index) and
+     * category.
      *
-     * @param series The series index (zero-based).
-     * @param category The category.
+     * @param series  the series index (zero-based).
+     * @param category  the category.
+     *
+     * @return the min value for the specified series and category.
      */
     public Number getStartValue (int series, Object category) {
-        GanttSeries gs = (GanttSeries)this.data.get(series);
+        GanttSeries gs = (GanttSeries) this.data.get(series);
         TimeAllocation ta = gs.getTimeAllocation(category);
         return new Long(ta.getStart().getTime());
     }
@@ -143,11 +155,13 @@ public class GanttSeriesCollection extends AbstractSeriesDataset implements Inte
     /**
      * Returns the max value for the specified series (zero-based index) and category.
      *
-     * @param series The series index (zero-based).
-     * @param category The category.
+     * @param series  the series index (zero-based).
+     * @param category  the category.
+     *
+     * @return the max value for the specified series and category.
      */
     public Number getEndValue (int series, Object category) {
-        GanttSeries gs = (GanttSeries)this.data.get(series);
+        GanttSeries gs = (GanttSeries) this.data.get(series);
         TimeAllocation ta = gs.getTimeAllocation(category);
         return new Long(ta.getEnd().getTime());
     }

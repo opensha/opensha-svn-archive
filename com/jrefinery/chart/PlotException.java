@@ -33,6 +33,7 @@
  * --------------------------
  * 18-Sep-2001 : Added standard header and fixed DOS encoding problem (DG);
  * 15-Nov-2001 : Changed name from DataSourceNotCompatibleException to PlotException (DG);
+ * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -40,15 +41,18 @@ package com.jrefinery.chart;
 
 /**
  * A general purpose exception class for plots.
+ *
+ * @author DG
  */
 public class PlotException extends Exception {
 
     /**
      * Constructs a new plot exception.
-     * @param message A message describing the exception.
+     *
+     * @param message  a message describing the exception.
      */
     public PlotException(String message) {
-	super(message);
+        super(message);
     }
 
 }

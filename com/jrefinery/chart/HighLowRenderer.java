@@ -25,7 +25,7 @@
  * (C) Copyright 2001, 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -38,6 +38,7 @@
  * 09-Apr-2002 : Removed translatedRangeZero from the drawItem(...) method, and changed the return
  *               type of the drawItem method to void, reflecting a change in the XYItemRenderer
  *               interface.  Added tooltip code to drawItem(...) method (DG);
+ * 05-Aug-2002 : Small modification to drawItem method to support URLs for HTML image maps (RA);
  *
  */
 
@@ -49,16 +50,20 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import com.jrefinery.data.XYDataset;
-import com.jrefinery.data.HighLowDataset;
 import com.jrefinery.chart.entity.EntityCollection;
 import com.jrefinery.chart.entity.XYItemEntity;
 import com.jrefinery.chart.tooltips.XYToolTipGenerator;
+import com.jrefinery.data.XYDataset;
+import com.jrefinery.data.HighLowDataset;
 
 /**
- * A renderer that draws high/low/open/close markers on an XY plot (requires an IntervalXYDataset).
+ * A renderer that draws high/low/open/close markers on an XY plot (requires
+ * a HighLowDataset).
+ *
+ * @author DG
  */
-public class HighLowRenderer extends AbstractXYItemRenderer implements XYItemRenderer {
+public class HighLowRenderer extends AbstractXYItemRenderer
+                             implements XYItemRenderer {
 
     /**
      * The default constructor.
@@ -67,24 +72,31 @@ public class HighLowRenderer extends AbstractXYItemRenderer implements XYItemRen
         this(null);
     }
 
-    public HighLowRenderer(XYToolTipGenerator tooltipGenerator) {
-        super(tooltipGenerator);
+    /**
+     * Creates a new renderer with the specified tool tip generator.
+     *
+     * @param toolTipGenerator  the tool tip generator.
+     */
+    public HighLowRenderer(XYToolTipGenerator toolTipGenerator) {
+        super(toolTipGenerator);
     }
 
     /**
      * Draws the visual representation of a single data item.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area within which the plot is being drawn.
-     * @param info Collects information about the drawing.
-     * @param plot The plot (can be used to obtain standard color information etc).
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param data The dataset.
-     * @param series The series index.
-     * @param item The item index.
+     * @param g2  the graphics device.
+     * @param dataArea  the area within which the plot is being drawn.
+     * @param info  collects information about the drawing.
+     * @param plot  the plot (can be used to obtain standard color information etc).
+     * @param domainAxis  the domain axis.
+     * @param rangeAxis  the range axis.
+     * @param data  the dataset.
+     * @param series  the series index.
+     * @param item  the item index.
+     * @param crosshairInfo  information about crosshairs on a plot.
      */
-    public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
+    public void drawItem(Graphics2D g2, Rectangle2D dataArea,
+                         ChartRenderingInfo info,
                          XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis,
                          XYDataset data, int series, int item,
                          CrosshairInfo crosshairInfo) {
@@ -92,11 +104,11 @@ public class HighLowRenderer extends AbstractXYItemRenderer implements XYItemRen
         // setup for collecting optional entity info...
         Shape entityArea = null;
         EntityCollection entities = null;
-        if (info!=null) {
+        if (info != null) {
             entities = info.getEntityCollection();
         }
 
-        HighLowDataset highLowData = (HighLowDataset)data;
+        HighLowDataset highLowData = (HighLowDataset) data;
 
         Number x = highLowData.getXValue(series, item);
         Number yHigh  = highLowData.getHighValue(series, item);
@@ -125,15 +137,19 @@ public class HighLowRenderer extends AbstractXYItemRenderer implements XYItemRen
         g2.draw(l3);
 
         // add an entity for the item...
-        if (entities!=null) {
-            if (entityArea==null) {
+        if (entities != null) {
+            if (entityArea == null) {
                 entityArea = hl.getBounds();
             }
             String tip = "";
-            if (this.toolTipGenerator!=null) {
-                tip = this.toolTipGenerator.generateToolTip(data, series, item);
+            if (getToolTipGenerator() != null) {
+                tip = getToolTipGenerator().generateToolTip(data, series, item);
             }
-            XYItemEntity entity = new XYItemEntity(entityArea, tip, series, item);
+            String url = null;
+            if (getURLGenerator() != null) {
+                url = getURLGenerator().generateURL(data, series, item);
+            }
+            XYItemEntity entity = new XYItemEntity(entityArea, tip, url, series, item);
             entities.addEntity(entity);
         }
 

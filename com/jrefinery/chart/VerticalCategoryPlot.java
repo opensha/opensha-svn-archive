@@ -1,6 +1,6 @@
-/* =======================================
- * JFreeChart : a Java Chart Class Library
- * =======================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -59,50 +59,50 @@
  *               OverlaidVerticalCategoryPlot implementation (JB);
  * 30-May-2002 : Reorganised renderers to improve display of 3D bar charts (DG);
  * 06-Jun-2002 : Removed the tool tip generator which is now stored by the renderer (DG);
+ * 25-Jun-2002 : Removed redundant imports (DG);
+ * 26-Jun-2002 : Added axis to initialise(...) method call (DG);
+ * 19-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.chart;
 
-import com.jrefinery.data.CategoryDataset;
-import com.jrefinery.data.Dataset;
-import com.jrefinery.data.DatasetUtilities;
-import com.jrefinery.data.Range;
-
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Color;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Stroke;
-import java.awt.BasicStroke;
 import java.awt.Shape;
 import java.awt.Composite;
 import java.awt.AlphaComposite;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Iterator;
+import com.jrefinery.data.CategoryDataset;
+import com.jrefinery.data.DatasetUtilities;
+import com.jrefinery.data.Range;
 
 /**
- * A general class for plotting vertical category charts (bars/lines/shapes), using data from any
- * class that implements the CategoryDataset interface.
+ * A general class for plotting vertical category charts (bars/lines/shapes),
+ * using data from any class that implements the CategoryDataset interface.
  * <P>
- * The plot relies on a renderer to draw the individual data items, giving some flexibility
- * to change the visual representation of the data.
+ * The plot relies on a renderer to draw the individual data items, giving some
+ * flexibility to change the visual representation of the data.
  *
  * @see Plot
  * @see CategoryItemRenderer
  *
+ * @author DG
  */
 public class VerticalCategoryPlot extends CategoryPlot implements VerticalValuePlot {
 
     /**
      * Constructs a new vertical category plot.
      *
-     * @param data The dataset.
-     * @param domainAxis The domain axis.
-     * @param rangeAxis The range axis.
-     * @param renderer The renderer for the data.
+     * @param data  the dataset.
+     * @param domainAxis  the domain axis.
+     * @param rangeAxis  the range axis.
+     * @param renderer  the renderer for the data.
      *
      */
     public VerticalCategoryPlot(CategoryDataset data,
@@ -131,34 +131,42 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     /**
      * Constructs a new vertical category plot.
      *
-     * @param domainAxis The horizontal axis.
-     * @param rangelAxis The vertical axis.
-     * @param insets The amount of space to leave blank around the edges of the plot.
-     * @param backgroundPaint An optional color for the plot's background.
-     * @param backgroundImage An optional image for the plot's background.
-     * @param backgroundAlpha Alpha-transparency for the plot's background.
-     * @param outlineStroke The Stroke used to draw an outline around the plot.
-     * @param outlinePaint The color used to draw an outline around the plot.
-     * @param foregroundAlpha The alpha-transparency for the plot.
-     * @param introGapPercent The gap before the first bar in the plot, as a percentage of the
-     *                        available drawing space.
-     * @param trailGapPercent The gap after the last bar in the plot, as a percentage of the
-     *                        available drawing space.
-     * @param categoryGapPercent The percentage of drawing space allocated to the gap between the
-     *                           last bar in one category and the first bar in the next category.
-     * @param itemGapPercent The gap between bars within the same category.
+     * @param data  the dataset.
+     * @param domainAxis  the horizontal axis.
+     * @param rangeAxis  the vertical axis.
+     * @param renderer  the renderer for the data.
+     * @param insets  the amount of space to leave blank around the edges of the plot.
+     * @param backgroundPaint  an optional color for the plot's background.
+     * @param backgroundImage  an optional image for the plot's background.
+     * @param backgroundAlpha  alpha-transparency for the plot's background.
+     * @param outlineStroke  the Stroke used to draw an outline around the plot.
+     * @param outlinePaint  the color used to draw an outline around the plot.
+     * @param foregroundAlpha  the alpha-transparency for the plot.
+     * @param introGapPercent  the gap before the first bar in the plot, as a percentage of the
+     *                         available drawing space.
+     * @param trailGapPercent  the gap after the last bar in the plot, as a percentage of the
+     *                         available drawing space.
+     * @param categoryGapPercent  the percentage of drawing space allocated to the gap between
+     *                            the last bar in one category and the first bar in the next
+     *                            category.
+     * @param itemGapPercent  the gap between bars within the same category.
      *
      */
     public VerticalCategoryPlot(CategoryDataset data,
-                                CategoryAxis domainAxis, ValueAxis rangeAxis,
+                                CategoryAxis domainAxis,
+                                ValueAxis rangeAxis,
                                 CategoryItemRenderer renderer,
                                 Insets insets,
                                 Paint backgroundPaint,
-                                Image backgroundImage, float backgroundAlpha,
-                                Stroke outlineStroke, Paint outlinePaint,
+                                Image backgroundImage,
+                                float backgroundAlpha,
+                                Stroke outlineStroke,
+                                Paint outlinePaint,
                                 float foregroundAlpha,
-                                double introGapPercent, double trailGapPercent,
-                                double categoryGapPercent, double itemGapPercent) {
+                                double introGapPercent,
+                                double trailGapPercent,
+                                double categoryGapPercent,
+                                double itemGapPercent) {
 
         super(data,
               domainAxis, rangeAxis, renderer,
@@ -166,19 +174,21 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
               backgroundPaint, backgroundImage, backgroundAlpha,
               outlineStroke, outlinePaint,
               foregroundAlpha,
-              introGapPercent, trailGapPercent, categoryGapPercent, itemGapPercent);
+              introGapPercent, trailGapPercent, categoryGapPercent,
+              itemGapPercent);
 
     }
 
     /**
-     * A convenience method that returns the dataset for the plot, cast as a CategoryDataset.
+     * A convenience method that returns the dataset for the plot, cast as a
+     * CategoryDataset.
      *
-     * @return The category dataset.
+     * @return the category dataset.
      *
      */
     public CategoryDataset getCategoryDataset() {
 
-        return (CategoryDataset)dataset;
+        return (CategoryDataset) dataset;
 
     }
 
@@ -187,7 +197,7 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
      * <P>
      * This method supports the VerticalValuePlot interface.
      *
-     * @return The vertical axis.
+     * @return the vertical axis.
      *
      */
     public ValueAxis getVerticalValueAxis() {
@@ -195,31 +205,32 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     }
 
     /**
-     * Returns the x-coordinate (in Java 2D User Space) of the center of the specified category.
+     * Returns the x-coordinate (in Java 2D User Space) of the center of the
+     * specified category.
      *
-     * @param category The index of the category of interest (first category index = 0).
-     * @param area The region within which the plot will be drawn.
+     * @param category  the category (zero based index).
+     * @param area  the region within which the plot will be drawn.
      *
+     * @return the x-coordinate of the center of the specified category.
      */
     public double getCategoryCoordinate(int category, Rectangle2D area) {
 
         // calculate first part of result...
-        double result = area.getX() + (area.getWidth()*introGapPercent);
+        double result = area.getX() + (area.getWidth() * introGapPercent);
 
         // then add some depending on how many categories...
         int categoryCount = getCategoryDataset().getCategoryCount();
-        if (categoryCount>1) {
+        if (categoryCount > 1) {
 
             double categorySpan = area.getWidth()
-                                  * (1-introGapPercent-trailGapPercent-categoryGapsPercent);
-            double categoryGapSpan = area.getWidth()*categoryGapsPercent;
-            result = result
-                     + (category+0.5)*(categorySpan/categoryCount)
-                     + (category)*(categoryGapSpan/(categoryCount-1));
+                                  * (1 - introGapPercent - trailGapPercent - categoryGapsPercent);
+            double categoryGapSpan = area.getWidth() * categoryGapsPercent;
+            result = result + (category + 0.5) * (categorySpan / categoryCount)
+                            + (category) * (categoryGapSpan / (categoryCount - 1));
         }
         else {
-            result = result
-                     + (category+0.5)*area.getWidth()*(1-introGapPercent-trailGapPercent);
+            result = result + (category + 0.5) * area.getWidth()
+                            * (1 - introGapPercent - trailGapPercent);
         }
 
         return result;
@@ -227,144 +238,159 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     }
 
     /**
-     * Checks the compatibility of a horizontal axis, returning true if the axis is compatible with
-     * the plot, and false otherwise.
+     * Checks the compatibility of a horizontal axis, returning true if the
+     * axis is compatible with the plot, and false otherwise.
      *
-     * @param axis The horizontal axis.
+     * @param axis  the horizontal axis.
      *
+     * @return <code>true</code> if the axis is compatible with the plot.
      */
     public boolean isCompatibleHorizontalAxis(Axis axis) {
         if (axis instanceof CategoryAxis) {
             return true;
         }
-        else return false;
+        else {
+            return false;
+        }
     }
 
     /**
-     * Checks the compatibility of a vertical axis, returning true if the axis is compatible with
-     * the plot, and false otherwise.
+     * Checks the compatibility of a vertical axis, returning true if the axis
+     * is compatible with the plot, and false otherwise.
      *
-     * @param axis The vertical axis.
+     * @param axis  the vertical axis.
      *
+     * @return <code>true</code> if the axis is compatible with the plot.
      */
     public boolean isCompatibleVerticalAxis(Axis axis) {
         if (axis instanceof VerticalNumberAxis) {
             return true;
         }
-        else return false;
+        else {
+            return false;
+        }
     }
 
     /**
      * Checks the compatibility of a domain axis, returning true if the axis
      * is compatible with the plot, and false otherwise.
      *
-     * @param axis The proposed axis.
+     * @param axis the proposed axis.
      *
-     * @return True if the axis is compatible with the plot, and false otherwise.
+     * @return <code>true</code> if the axis is compatible with the plot.
      */
     public boolean isCompatibleDomainAxis(CategoryAxis axis) {
-        if (axis == null)
+        if (axis == null) {
             return true;
-        else
+        }
+        else {
             return isCompatibleHorizontalAxis(axis);
+        }
     }
 
     /**
      * Checks the compatibility of a range axis, returning true if the axis is
      * compatible with the plot, and false otherwise.
      *
-     * @param axis The proposed axis.
+     * @param axis  the proposed axis.
      *
-     * @return True if the axis is compatible with the plot, and false otherwise.
+     * @return true if the axis is compatible with the plot.
      */
     public boolean isCompatibleRangeAxis(ValueAxis axis) {
-        if (axis == null)
+        if (axis == null) {
             return true;
-        else
+        }
+        else {
             return isCompatibleVerticalAxis(axis);
+        }
     }
 
     /**
-     * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
+     * Draws the plot on a Java 2D graphics device (such as the screen or a
+     * printer).
      * <P>
-     * At your option, you may supply an instance of ChartRenderingInfo.  If you do, it will be
-     * populated with information about the drawing, including various plot dimensions and
-     * tooltip info.
+     * At your option, you may supply an instance of ChartRenderingInfo.
+     * If you do, it will be populated with information about the drawing,
+     * including various plot dimensions and tooltip info.
      *
      *
-     * @param g2 The graphics device.
-     * @param plotArea The area within which the plot should be drawn.
-     * @param info Collects info as the chart is drawn.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the plot should be drawn.
+     * @param info  collects info as the chart is drawn.
      */
     public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
 
         // set up the drawing info...
-        if (info!=null) {
+        if (info != null) {
             info.setPlotArea(plotArea);
         }
 
         // adjust the drawing area for the plot insets (if any)...
-        if (insets!=null) {
-            plotArea.setRect(plotArea.getX()+insets.left,
-                             plotArea.getY()+insets.top,
-                             plotArea.getWidth()-insets.left-insets.right,
-                             plotArea.getHeight()-insets.top-insets.bottom);
+        if (insets != null) {
+            plotArea.setRect(plotArea.getX() + insets.left,
+                             plotArea.getY() + insets.top,
+                             plotArea.getWidth() - insets.left - insets.right,
+                             plotArea.getHeight() - insets.top - insets.bottom);
         }
 
-        if ((plotArea.getWidth()>=MINIMUM_WIDTH_TO_DRAW) &&
-            (plotArea.getHeight()>=MINIMUM_HEIGHT_TO_DRAW)) {
+        if ((plotArea.getWidth() >= MINIMUM_WIDTH_TO_DRAW)
+            && (plotArea.getHeight() >= MINIMUM_HEIGHT_TO_DRAW)) {
 
             Rectangle2D axisArea = plotArea;
-            if (renderer!=null) {
+            if (renderer != null) {
                 axisArea = this.renderer.getAxisArea(plotArea);
             }
 
             // estimate the area required for drawing the axes...
             double hAxisAreaHeight = 0;
-            if (this.domainAxis!=null) {
-                HorizontalAxis hAxis = (HorizontalAxis)this.domainAxis;
+            if (this.domainAxis != null) {
+                HorizontalAxis hAxis = (HorizontalAxis) this.domainAxis;
                 hAxisAreaHeight = hAxis.reserveHeight(g2, this, axisArea);
             }
 
             double vAxisWidth = 0;
-            if (this.rangeAxis!=null) {
-                VerticalAxis vAxis = (VerticalAxis)this.rangeAxis;
+            if (this.rangeAxis != null) {
+                VerticalAxis vAxis = (VerticalAxis) this.rangeAxis;
                 vAxisWidth = vAxis.reserveAxisArea(g2, this, axisArea, hAxisAreaHeight).getWidth();
             }
 
             // and thus the area available for plotting...
-            Rectangle2D dataArea = new Rectangle2D.Double(plotArea.getX()+vAxisWidth,
-                                                          plotArea.getY(),
-                                                          plotArea.getWidth()-vAxisWidth,
-                                                          plotArea.getHeight()-hAxisAreaHeight);
+            Rectangle2D dataArea =
+                new Rectangle2D.Double(plotArea.getX() + vAxisWidth,
+                    plotArea.getY(),
+                    plotArea.getWidth() - vAxisWidth,
+                    plotArea.getHeight() - hAxisAreaHeight);
 
-            Rectangle2D axisDataArea = new Rectangle2D.Double(axisArea.getX()+vAxisWidth,
-                                                              axisArea.getY(),
-                                                              axisArea.getWidth()-vAxisWidth,
-                                                              axisArea.getHeight()-hAxisAreaHeight);
+            Rectangle2D axisDataArea =
+                new Rectangle2D.Double(axisArea.getX() + vAxisWidth,
+                    axisArea.getY(),
+                    axisArea.getWidth() - vAxisWidth,
+                    axisArea.getHeight() - hAxisAreaHeight);
 
-            if (info!=null) {
+            if (info != null) {
                 info.setDataArea(dataArea);
             }
 
             Shape dataClipRegion = dataArea;
-            if (this.renderer!=null) {
+            if (this.renderer != null) {
                 dataClipRegion = this.renderer.getDataClipRegion(dataArea);
-            }
 
-            // draw the background and axes...
-            if (renderer!=null) {
+                // draw the background...
                 renderer.drawPlotBackground(g2, this, axisDataArea, dataClipRegion);
-                Iterator iterator = this.markers.iterator();
-                while (iterator.hasNext()) {
-                    Marker marker = (Marker)iterator.next();
-                    renderer.drawRangeMarker(g2, this, getRangeAxis(), marker,
-                                             axisDataArea, dataClipRegion);
-                }
             }
 
             getDomainAxis().draw(g2, axisArea, axisDataArea);
             getRangeAxis().draw(g2, axisArea, axisDataArea);
+
+            // draw the range markers, if there are any...
+            if ((this.rangeMarkers != null) && (this.renderer != null)) {
+                Iterator iterator = this.rangeMarkers.iterator();
+                while (iterator.hasNext()) {
+                    Marker marker = (Marker) iterator.next();
+                    renderer.drawRangeMarker(g2, this, getRangeAxis(), marker,
+                                             axisDataArea, dataClipRegion);
+                }
+            }
             render(g2, axisDataArea, info, dataClipRegion);
 
         }
@@ -375,17 +401,17 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
      * Draws a representation of the data within the dataArea region, using
      * the current renderer.
      *
-     * @param g2 The graphics device.
-     * @param dataArea The region in which the data is to be drawn.
-     * @param info An optional object for collection dimension information.
-     * @param backgroundPlotArea The chart's background area.
+     * @param g2  the graphics device.
+     * @param dataArea  the region in which the data is to be drawn.
+     * @param info  an optional object for collection dimension information.
+     * @param backgroundPlotArea  the chart's background area.
      *
      */
-    public void render(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
-                       Shape backgroundPlotArea) {
+    public void render(Graphics2D g2, Rectangle2D dataArea,
+                       ChartRenderingInfo info, Shape backgroundPlotArea) {
 
         CategoryDataset data = getCategoryDataset();
-        if (data!=null) {
+        if (data != null) {
             Shape savedClip = g2.getClip();
             g2.clip(backgroundPlotArea);
 
@@ -394,14 +420,14 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
                                                        this.foregroundAlpha));
 
             int seriesCount = data.getSeriesCount();
-            this.renderer.initialise(g2, dataArea, this, data, info);
+            this.renderer.initialise(g2, dataArea, this, getRangeAxis(), data, info);
             int categoryIndex = 0;
             Object previousCategory = null;
             Iterator iterator = data.getCategories().iterator();
             while (iterator.hasNext()) {
 
                 Object category = iterator.next();
-                for (int series=0; series<seriesCount; series++) {
+                for (int series = 0; series < seriesCount; series++) {
                     renderer.drawCategoryItem(g2,
                                               dataArea, this,
                                               getRangeAxis(),
@@ -433,26 +459,27 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     /**
      * Returns a short string describing the type of plot.
      *
-     * @return A description.
+     * @return a description.
      */
     public String getPlotType() {
         return "Vertical Category Plot";
     }
 
     /**
-     * Returns the range of data values that will be plotted against the range axis.
+     * Returns the range of data values that will be plotted against the range
+     * axis.
      * <P>
      * If the dataset is null, this method returns null.
      *
-     * @return The data range.
+     * @return the data range.
      */
     public Range getVerticalDataRange() {
 
         Range result = null;
 
         CategoryDataset data = getCategoryDataset();
-        if (data!=null) {
-            if ((this.renderer!=null) && (this.renderer.isStacked())) {
+        if (data != null) {
+            if ((this.renderer != null) && (this.renderer.isStacked())) {
                 result = DatasetUtilities.getStackedRangeExtent(data);
             }
             else {
@@ -465,19 +492,19 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     }
 
     /**
-     * Returns the minimum value in the range (since this is plotted against the vertical axis by
-     * VerticalBarPlot).
+     * Returns the minimum value in the range (since this is plotted against
+     * the vertical axis by VerticalBarPlot).
      * <P>
      * This method will return null if the dataset is null.
      *
-     * @return The minimum value.
+     * @return the minimum value.
      */
     public Number getMinimumVerticalDataValue() {
 
         Number result = null;
 
         CategoryDataset data = getCategoryDataset();
-        if (data!=null) {
+        if (data != null) {
             if (this.renderer.isStacked()) {
                 result = DatasetUtilities.getMinimumStackedRangeValue(data);
             }
@@ -491,19 +518,19 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     }
 
     /**
-     * Returns the maximum value in the range (since the range values are plotted against the
-     * vertical axis by this plot).
+     * Returns the maximum value in the range (since the range values are
+     * plotted against the vertical axis by this plot).
      * <P>
      * This method will return null if the dataset is null.
      *
-     * @return The maximum value.
+     * @return the maximum value.
      */
     public Number getMaximumVerticalDataValue() {
 
         Number result = null;
 
         CategoryDataset data = getCategoryDataset();
-        if (data!=null) {
+        if (data != null) {
             if (this.renderer.isStacked()) {
                 result = DatasetUtilities.getMaximumStackedRangeValue(data);
             }
@@ -519,15 +546,15 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     /**
      * Handles a 'click' on the plot by updating the anchor values.
      *
-     * @param x The x coordinate.
-     * @param y The y coordinate.
-     * @param info The dimensions of the plot.
+     * @param x  the x coordinate.
+     * @param y  the y coordinate.
+     * @param info  the dimensions of the plot.
      */
     public void handleClick(int x, int y, ChartRenderingInfo info) {
 
         // set the anchor value for the horizontal axis...
         ValueAxis vva = this.getRangeAxis();
-        double vvalue = vva.translateJava2DtoValue((float)y, info.getDataArea());
+        double vvalue = vva.translateJava2DtoValue((float) y, info.getDataArea());
         vva.setAnchorValue(vvalue);
         vva.setCrosshairValue(vvalue);
 
@@ -536,14 +563,15 @@ public class VerticalCategoryPlot extends CategoryPlot implements VerticalValueP
     /**
      * Utility method for drawing a crosshair on the chart (if required).
      *
-     * @param g2 The graphics device.
-     * @param dataArea The area defined by the axes.
-     * @param value The vertical data value.
-     * @param stroke The line stroke.
-     * @param paint The line paint.
+     * @param g2  the graphics device.
+     * @param dataArea  the area defined by the axes.
+     * @param value  the vertical data value.
+     * @param stroke  the line stroke.
+     * @param paint  the line paint.
      */
-    private void drawHorizontalLine(Graphics2D g2, Rectangle2D dataArea, double value,
-                                    Stroke stroke, Paint paint) {
+    private void drawHorizontalLine(Graphics2D g2,
+                                    Rectangle2D dataArea,
+                                    double value, Stroke stroke, Paint paint) {
 
         double yy = this.getRangeAxis().translateValueToJava2D(value, dataArea);
         Line2D line = new Line2D.Double(dataArea.getMinX(), yy, dataArea.getMaxX(), yy);

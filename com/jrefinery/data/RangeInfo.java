@@ -1,8 +1,8 @@
-/* ==================================================
- * JCommon : a general purpose class library for Java
- * ==================================================
+/* ============================================
+ * JFreeChart : a free Java chart class library
+ * ============================================
  *
- * Project Info:  http://www.object-refinery.com/jcommon/index.html
+ * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
  * (C) Copyright 2000-2002, Simba Management Limited and Contributors.
@@ -43,29 +43,31 @@ package com.jrefinery.data;
 /**
  * An interface (optional) that can be implemented by a dataset to assist in determining the
  * minimum and maximum values.
+ *
+ * @author DG
  */
 public interface RangeInfo {
 
     /**
-     * Returns the minimum value in the dataset's range (or null if all the values in the range are
-     * null).
+     * Returns the minimum value in the dataset's range (or null if all the
+     * values in the range are null).
      *
-     * @return The minimum value.
+     * @return the minimum value.
      */
     public Number getMinimumRangeValue();
 
     /**
-     * Returns the maximum value in the dataset's range (or null if all the values in the range are
-     * null).
+     * Returns the maximum value in the dataset's range (or null if all the
+     * values in the range are null).
      *
-     * @return The maximum value.
+     * @return the maximum value.
      */
     public Number getMaximumRangeValue();
 
     /**
      * Returns the range of the values in this dataset's range.
      *
-     * @return The range.
+     * @return the range.
      */
     public Range getValueRange();
 
