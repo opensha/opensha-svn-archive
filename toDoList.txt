@@ -5,15 +5,6 @@ Make sure last x-axis label is not cut off in all our applications (can't be don
 
 JFreeChart - 
 
-	For manual axes in loglog plots, make it so only the major grid line 
-	below (rather than below and above) is included if user sets a range 
-	that is within neighboring major grid lines (e.g, 2,8 --> 1,8).  
-
-	On auto scaling, always make the min and max a major grid line.
-
-	Ignore what Eric wants in terms of adding space beyond the max label in 
-	the auto-scale mode (it might cause other problems).
-
 	Clean up the class and document changes in the code (the way they do).  
 
 	Submit class with app to JFreeChart (with Eric Cced).
