@@ -394,13 +394,11 @@ public class ParameterList {
 
 
        Iterator it = map.keySet().iterator();
-       int counter = 0;
        while(it.hasNext()){
 
 
            String key = (String)it.next();
            if(D) System.out.println(S + "Next Parameter Key = " + key);
-           counter++;
 
            int index = getIndexOf(key);
            ParameterAPI param = (ParameterAPI)params.get(index);
@@ -427,10 +425,6 @@ public class ParameterList {
                 }
                 else {
                     b.append( ", " + key + " = " + val );
-                    if(counter > 5){
-                        b.append('\n');
-                        counter = 0;
-                    }
                 }
            }
        }

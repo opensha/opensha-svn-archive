@@ -494,20 +494,6 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         /**
          * removed temporarily
          */
-        /*if(counter==2)
-          this.getTickUnit().getformatter.setMaximumFractionDigits(3);
-*/
-
-        int upperBound =powerOf10(getRange().getUpperBound());
-        int lowerBound=powerOf10(getRange().getLowerBound());
-        boolean superscript=false;
-
-        // whether you want to show in superscript form or not
-        if((upperBound-lowerBound) >= 4)
-           superscript=true;
-
-        if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
-          superscript=true;
 
         // see whther there exists any major axis in data
         double lower = getRange().getLowerBound();
@@ -518,7 +504,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
           double val1=Double.parseDouble("1e"+i);
           double val2=Double.parseDouble("1e"+(i+1));
 
-          if(lower==val1 || upper==(val1))
+          if(lower==val1 || upper==val1)
             break;
 
           if(lower > val1 && lower< val2 && upper > val1 && upper<val2) {
@@ -530,6 +516,17 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
             break;
         }
 
+         // check whether we want to show in superscript form
+        int upperBound =powerOf10(getRange().getUpperBound());
+        int lowerBound=powerOf10(getRange().getLowerBound());
+        boolean superscript=false;
+
+        // whether you want to show in superscript form or not
+        if((upperBound-lowerBound) >= 4)
+          superscript=true;
+
+        if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
+          superscript=true;
 
 
          /**

@@ -944,7 +944,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
         }
 
         // build the plot
-
         org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
 
 
@@ -957,7 +956,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         plot.setRenderer( renderer );
 
 
-        JFreeChart chart = new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
+        JFreeChart chart = new JFreeChart(plot);
         chart.setBackgroundPaint( lightBlue );
 
         // set the font of legend

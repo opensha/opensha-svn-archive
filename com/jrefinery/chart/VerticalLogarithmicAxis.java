@@ -391,7 +391,7 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
               val = Math.pow(10,i);
               for(int j=1;j<10;++j)
                  if((j*val)>upper){
-                   upper = Math.pow(10,i+1);
+                   upper = j*val;
                    found = true;
                    break;
                  }
@@ -611,19 +611,6 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
 	double y0=plotArea.getMaxY();
         double sum=0.0;
 
-        /*if(counter==2)
-           getTickUnit().formatter.setMaximumFractionDigits(3);*/
-
-        boolean superscript=false;
-
-        int upperBound=powerOf10(getRange().getUpperBound());
-        int lowerBound=powerOf10(getRange().getLowerBound());
-
-        // whether you want to show in superscript form or not
-        if((upperBound-lowerBound)>= 4)
-           superscript=true;
-        if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
-          superscript=true;
 
         // see whther there exists any major axis in data
         double lower = getRange().getLowerBound();
@@ -643,6 +630,17 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
           if(lower < val2 && upper > val2) // we have found 1 major axis
             break;
         }
+
+        // check whether we want to show in superscript form
+        boolean superscript=false;
+        int upperBound=powerOf10(getRange().getUpperBound());
+        int lowerBound=powerOf10(getRange().getLowerBound());
+        // whether you want to show in superscript form or not
+        if((upperBound-lowerBound)>= 4)
+          superscript=true;
+        if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
+          superscript=true;
+
 
         /**
          * For Loop - Drawing the ticks which corresponds to the  power of 10
@@ -704,7 +702,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
               float y = (float)(yy+(tickLabelBounds.getHeight()/2));
 
               if(sum==getRange().getLowerBound())
-               y=(float)plotArea.getMaxY();
+                y=(float)plotArea.getMaxY();
+              if(sum==getRange().getUpperBound())
+                y=y+3;
 
 
             /**
