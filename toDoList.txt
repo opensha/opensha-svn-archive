@@ -43,28 +43,29 @@ SHA ProjectTestSuite : 24 Tests
 For OpenSHA:
 ------------
 
-(ONLY THE FIRST FOUR NEED TO BE DONE BY END OF MAY, UNLESS THE CME GOALS DEPENDENT)
-
-Go through existing apps and list issues we'd like to improve.
-
-Get wg99/02 Fortran code compiling on our computers.
 
 AttenRelApp:
 
-	Problem: when you've violated an absolute constrain by hitting return 
-	(rather than hitting "Add Trace"), subsequent warning constraint violations 
-	are not handled properly.  Example:  Choose BJF, set Mag=8 and add trace 
-	(after accepting violation), now set Vs30=-10 and hit return (not add trace),
-	now set Mag=8.1 and try to add (it defaults back to previous value).
+	Problem:  choose BJF97, set Mag=8, and hit add trace, at prompt asking whether to accept
+		  the non-recommended mag, hit yes.  Note that the plot is not added until one
+		  pushes add trace again.
 
-Submit our log-log implementation formally to JFreeChart.
+	Old problem: when you've violated an absolute constrain by hitting return 
+			(rather than hitting "Add Trace"), subsequent warning constraint violations 
+			are not handled properly.  Example:  Choose BJF, set Mag=8 and add trace 
+			(after accepting violation), now set Vs30=-10 and hit return (not add trace),
+			now set Mag=8.1 and try to add (it defaults back to previous value).
 
+Get wg99/02 Fortran code compiling on our computers.
 
-
+GMT_MapGenerator - implement this as a Servlet so we one doesn't need GMT installed (also implement as a web service and compare performance).
 
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
+
+Go through existing apps and list issues we'd like to improve.
+
 
 IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weights 
 		applied to each.  This will require using an epistemic list control 
