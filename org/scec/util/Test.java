@@ -1,0 +1,46 @@
+package org.scec.util;
+
+import java.io.*;
+import java.util.*;
+/**
+ * <p>Title: </p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author unascribed
+ * @version 1.0
+ */
+
+public class Test {
+
+  public Test() {
+  }
+  public static void main(String[] args) {
+    Test test1 = new Test();
+    try{
+    FileReader fr = new FileReader("/Users/nitingupta/Desktop/CAagrid927_temp.asc");
+    BufferedReader br = new BufferedReader(fr);
+    FileReader fr1 = new FileReader("/Users/nitingupta/projects/frankel02/CAagrid927.asc");
+    BufferedReader br1 = new BufferedReader(fr1);
+
+    String line = br.readLine();
+    String line1 = br1.readLine();
+
+    while(line !=null || line1 !=null){
+      float one  = Float.parseFloat(line);
+      float two = Float.parseFloat(line1);
+      if(Math.abs(one - two) > .001)
+        System.out.println(one + ": "+two);
+      line = br.readLine();
+      line1 = br1.readLine();
+    }
+    br.close();
+    fr.close();
+    fr1.close();
+    br1.close();
+    }catch(Exception e){
+      e.printStackTrace();
+      System.out.println("File Not Found");
+    }
+  }
+}
