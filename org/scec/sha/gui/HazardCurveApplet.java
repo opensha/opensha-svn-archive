@@ -80,7 +80,7 @@ public class HazardCurveApplet extends JApplet
   public final static String PEER_LOGIC_TREE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_LogicTreeERF_List";
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-
+  public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
 
   // instances of the GUI Beans which will be shown in this applet
   private ERF_GuiBean erfGuiBean;
@@ -1162,6 +1162,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,

@@ -30,9 +30,9 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   /**
    * Name of this class
    */
-  private String name = "WG02_CharEqkSource";
+  private String name = "WG02 Char Eqk Source";
 
-  boolean D = true;
+  boolean D = false;
   private String C = name;
 
 
@@ -43,6 +43,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
    * @param meanMag: Mean magnitude for the Gaussian Mag. Freq. Dist.
    * @param magSigma: Standared deviation for the Gaussian Mag. Freq. Dist.
    * @param nSigmaTrunc: Number of sigmas where trunction occurs on the Gaussian Dist.
+   * @param deltaMag: The discretization interval for the Mag. Freq. Dist.
    * @param rupSurface: The rupture surface
    * @param rupArea: The rupture area (may be smaller than surface due to aseismic slip)
    * @param rupOffset: The offset length for sub-ruptures ("floating" ruptures)
@@ -50,14 +51,12 @@ public class WG02_CharEqkSource extends ProbEqkSource {
    * @param rake: The rake for the event
    */
   public WG02_CharEqkSource(double prob, double meanMag, double magSigma,
-                            double nSigmaTrunc, EvenlyGriddedSurface rupSurface,
+                            double nSigmaTrunc, double deltaMag, EvenlyGriddedSurface rupSurface,
                             double rupArea, double rupOffset, String sourceName,
                             double rake) {
 
-    // set as a non-poissonian source
-    isPoissonian = false;
-
-
+      // set as a non-poissonian source
+      isPoissonian = false;
 
       this.prob = prob;
       this.rupSurface = rupSurface;
@@ -70,24 +69,24 @@ public class WG02_CharEqkSource extends ProbEqkSource {
                                "; rupOffset="+rupOffset+"; sourceName="+sourceName+
                                "; rake="+rake);
 
-      // compute upper and lower mag, rounding to the nearest 0.1 mag
-      double tempMag = 10.0*(meanMag+nSigmaTrunc*magSigma);
-      double maxMag = (double) Math.round((float)tempMag)/10;
-      tempMag=10*(meanMag-nSigmaTrunc*magSigma);
-      double minMag = (double) Math.round((float)tempMag) / 10;
-      numMag = Math.round((float)(10*(maxMag-minMag))) + 1;
+      // find the first mag increment below the cutoff
+      double tempMag = ((meanMag+nSigmaTrunc*magSigma)-meanMag)/deltaMag;
+      int tempNum = (int) Math.floor(tempMag);
+      double maxMag = meanMag+tempNum*deltaMag;
+      double minMag = meanMag-tempNum*deltaMag;
+      numMag = 2*tempNum + 1;
 
       // make the gaussian mag freq dist & normalize to unit area
       gaussMagDist = new GaussianMagFreqDist(minMag,maxMag,numMag,meanMag,magSigma,1.0,nSigmaTrunc,2);
       gaussMagDist.scaleToCumRate(0,1.0);
 
       if(D) System.out.println(gaussMagDist.toString());
-      if(D) {
+/*      if(D) {
         System.out.println(C+": mag  relative-prob:");
         for (int i=0;i<gaussMagDist.getNum();i++)
           System.out.println((float)gaussMagDist.getX(i)+"  "+(float)gaussMagDist.getY(i));
       }
-
+*/
       // compute rupture width and length given the rupArea (rupArea is less than the
       // area of the fault surface (rupSurface) if the aseismic scaling factor (r) was
       // applied as a reduction of rupture area rather than slip rate)
@@ -104,7 +103,8 @@ public class WG02_CharEqkSource extends ProbEqkSource {
       // get the number of rupture surfaces
       numRupSurfaces = rupSurface.getNumSubsetSurfaces(rupLength,rupWidth,rupOffset);
 
-      if (D) System.out.println(C+ "numMag, numRupSurfaces:"+numMag+"  "+numRupSurfaces);
+      if (D) System.out.println(C+ "  Name: "+sourceName);
+      if (D) System.out.println(C+ " numMag, numRupSurfaces:"+numMag+"  "+numRupSurfaces);
 
       if(D) {
         ProbEqkRupture rup;

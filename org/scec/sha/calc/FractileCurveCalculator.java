@@ -98,7 +98,7 @@ public class FractileCurveCalculator {
         empirical.set(funcList.get(j).getY(i),
                       ((Double)relativeWeights.get(j)).doubleValue());
       empiricalDists.add(empirical);
-      System.out.println("111  i="+i+"; dist="+empirical.toString());
+//      System.out.println("111  i="+i+"; dist="+empirical.toString());
     }
 
   }

@@ -7,6 +7,8 @@ import java.util.StringTokenizer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
+
 
 import org.scec.param.*;
 import org.scec.calc.MomentMagCalc;
@@ -27,8 +29,8 @@ import org.scec.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: WG02_ERF_Epistemic_List</p>
- * <p>Description: Working Group 2002 Earthquake Rupture Forecast. This class
- * reads a single file and constructs the forecast.
+ * <p>Description: Working Group 2002 Epistemic List of ERFs. This class
+ * reads a single file and constructs the forecasts.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -37,33 +39,28 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public class WG02_ERF_Epistemic_List extends EqkRupForecast
+public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     implements ParameterChangeListener{
 
   //for Debug purposes
-  private static String  C = new String("WG02_EqkRupForecast");
-  private boolean D = true;
-
-  /**
-   * used for error checking
-   */
-  protected final static FaultException ERR = new FaultException(
-           C + ": loadFaultTraces(): Missing metadata from trace, file bad format.");
+  private static String  C = new String("WG02 ERF List");
+  private boolean D = false;
 
   /**
    * Static variable for input file name
    */
   private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
 
-  /**
-   * Vectors for holding the various sources, separated by type
-   */
-  private Vector charEqkSources;
-  private Vector tail_GR_EqkSources;
+  // vector to hold the line numbers where each iteration starts
+  private Vector iterationLineNumbers;
 
-  // number of interations in the input file
+  // adjustable parameter primitives
   private int numIterations;
-
+  private double rupOffset;
+  private double deltaMag;
+  private double gridSpacing;
+  private String backSeis;
+  private String grTail;
 
   // This is an array holding each line of the input file
   private ArrayList inputFileLines = null;
@@ -78,7 +75,7 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
   StringParameter backSeisParam;
   StringParameter grTailParam;
 
-  // For rupture offset lenth along fault parameter
+  // For rupture offset along fault parameter
   private final static String RUP_OFFSET_PARAM_NAME ="Rupture Offset";
   private Double DEFAULT_RUP_OFFSET_VAL= new Double(5);
   private final static String RUP_OFFSET_PARAM_UNITS = "km";
@@ -87,11 +84,35 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
   private final static double RUP_OFFSET_PARAM_MAX = 50;
   DoubleParameter rupOffset_Param;
 
+  // Grid spacing for fault discretization
+  private final static String GRID_SPACING_PARAM_NAME ="Fault Discretization";
+  private Double DEFAULT_GRID_SPACING_VAL= new Double(1.0);
+  private final static String GRID_SPACING_PARAM_UNITS = "km";
+  private final static String GRID_SPACING_PARAM_INFO = "Grid spacing of fault surface";
+  private final static double GRID_SPACING_PARAM_MIN = 0.1;
+  private final static double GRID_SPACING_PARAM_MAX = 5;
+  DoubleParameter gridSpacing_Param;
+
+  // For delta mag parameter (magnitude discretization)
+  private final static String DELTA_MAG_PARAM_NAME ="Delta Mag";
+  private Double DEFAULT_DELTA_MAG_VAL= new Double(0.1);
+  private final static String DELTA_MAG_PARAM_INFO = "Discretization of magnitude frequency distributions";
+  private final static double DELTA_MAG_PARAM_MIN = 0.005;
+  private final static double DELTA_MAG_PARAM_MAX = 0.5;
+  DoubleParameter deltaMag_Param;
+
+  // For num realizations parameter
+  private final static String NUM_REALIZATIONS_PARAM_NAME ="Num Realizations";
+  private Integer DEFAULT_NUM_REALIZATIONS_VAL= new Integer(10);
+  private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
+  IntegerParameter numRealizationsParam;
+
   /**
    *
    * No argument constructor
    */
   public WG02_ERF_Epistemic_List() {
+
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
@@ -100,12 +121,14 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
     // create and add adj params to list
     intiAdjParams();
 
-
     // add the change listener to parameters so that forecast can be updated
     // whenever any paramater changes
     rupOffset_Param.addParameterChangeListener(this);
+    deltaMag_Param.addParameterChangeListener(this);
+    gridSpacing_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
     grTailParam.addParameterChangeListener(this);
+    numRealizationsParam.addParameterChangeListener(this);
 
     // read the lines of the input files into a list
     try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
@@ -116,20 +139,37 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
     if( inputFileLines == null) throw new
            FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
 
-    // set the timespan from the 2nd line of the file
-    ListIterator it = inputFileLines.listIterator();
+    // find the line numbers for the beginning of each iteration
+    iterationLineNumbers = new Vector();
     StringTokenizer st;
-    st = new StringTokenizer(it.next().toString()); // skip first line
-    st = new StringTokenizer(it.next().toString());
+    String test=null;
+    for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
+      st = new StringTokenizer((String) inputFileLines.get(lineNum));
+      st.nextToken(); // skip the first token
+      if(st.hasMoreTokens()) {
+        test = st.nextToken();
+        if(test.equals("ITERATIONS"))
+          iterationLineNumbers.add(new Integer(lineNum));
+      }
+    }
 
-    st.nextToken();
+    if(D) System.out.println(C+": number of iterations read = "+iterationLineNumbers.size());
+    if(D)
+      for(int i=0;i<iterationLineNumbers.size();i++)
+        System.out.print("   "+ (Integer)iterationLineNumbers.get(i));
+
+    // set the constraint on the number of realizations now that we know the total number
+    numRealizationsParam.setConstraint(new IntegerConstraint(1,iterationLineNumbers.size()));
+
+    // set the timespan from the 2nd line of the file
+    st = new StringTokenizer((String) inputFileLines.get(1));
+    st.nextToken(); // skip first four tokens
     st.nextToken();
     st.nextToken();
     st.nextToken();
     int year = new Double(st.nextToken()).intValue();
     double duration = new Double(st.nextToken()).doubleValue();
-    numIterations = new Double(st.nextToken()).intValue();
-    if (D) System.out.println("year="+year+"; duration="+duration+"; numIterations="+numIterations);
+    if (D) System.out.println("\nyear="+year+"; duration="+duration);
     timeSpan.setDuractionConstraint(duration,duration);
     timeSpan.setDuration(duration);
     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
@@ -153,210 +193,33 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
         RUP_OFFSET_PARAM_MAX,RUP_OFFSET_PARAM_UNITS,DEFAULT_RUP_OFFSET_VAL);
     rupOffset_Param.setInfo(RUP_OFFSET_PARAM_INFO);
 
+    gridSpacing_Param = new DoubleParameter(GRID_SPACING_PARAM_NAME,GRID_SPACING_PARAM_MIN,
+        GRID_SPACING_PARAM_MAX,GRID_SPACING_PARAM_UNITS,DEFAULT_GRID_SPACING_VAL);
+    gridSpacing_Param.setInfo(GRID_SPACING_PARAM_INFO);
+
+    deltaMag_Param = new DoubleParameter(DELTA_MAG_PARAM_NAME,DELTA_MAG_PARAM_MIN,
+        DELTA_MAG_PARAM_MAX,null,DEFAULT_DELTA_MAG_VAL);
+    deltaMag_Param.setInfo(DELTA_MAG_PARAM_INFO);
+
+    numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,DEFAULT_NUM_REALIZATIONS_VAL);
+    numRealizationsParam.setInfo(NUM_REALIZATIONS_PARAM_INFO);
+
     // add adjustable parameters to the list
     adjustableParams.addParameter(rupOffset_Param);
+    adjustableParams.addParameter(gridSpacing_Param);
+    adjustableParams.addParameter(deltaMag_Param);
     adjustableParams.addParameter(backSeisParam);
     adjustableParams.addParameter(grTailParam);
+    adjustableParams.addParameter(numRealizationsParam);
 
   }
 
 
-  /**
-   * Make the sources
+   /**
+   * Return the name for this class
    *
-   * @throws FaultException
+   * @return : return the name for this class
    */
-  private  void makeSources() throws FaultException{
-
-    charEqkSources = new Vector();
-    tail_GR_EqkSources = new Vector();
-
-    // Debug
-    String S = C + ": makeSoureces(): ";
-
-    FaultTrace faultTrace;
-    GriddedFaultFactory faultFactory;
-    EvenlyGriddedSurface faultSurface;
-
-    WG02_CharEqkSource wg02_source;
-
-    double   lowerSeismoDepth, upperSeismoDepth;
-    double lat, lon;
-    double dip=0, downDipWidth=0, rupArea;
-    double prob, meanMag, magSigma, nSigmaTrunc, rake=0;
-    String ruptureName;
-    int iFault, iRup, numPts, i;
-
-    // get adjustable parameters values
-    double rupOffset = ((Double) rupOffset_Param.getValue()).doubleValue();
-
-    // Loop over lines of input file and create each source in the process
-    ListIterator it = inputFileLines.listIterator();
-    StringTokenizer st;
-
-    // skip first two lines of the file
-    st = new StringTokenizer(it.next().toString());
-    st = new StringTokenizer(it.next().toString());
-
-
-    // here's the start of an iteration ************8
-
-    // first line is header
-    st = new StringTokenizer(it.next().toString());
-
-    // 2nd line is background seismicity stuff
-    st = new StringTokenizer(it.next().toString());
-
-    // Now loop over ruptures within this iteration
-    faultTrace = new FaultTrace("noName");
-    // line with fault/rupture index
-    st = new StringTokenizer(it.next().toString());
-    iFault = new Integer(st.nextToken()).intValue();
-    iRup = new Integer(st.nextToken()).intValue();
-
-    // line with number of fault-trace points
-    st = new StringTokenizer(it.next().toString());
-    numPts = new Integer(st.nextToken()).intValue();
-
-    // make the fault trace from the next numPts lines
-    for(i=0;i<numPts;i++) {
-      st = new StringTokenizer(it.next().toString());
-      lon = new Double(st.nextToken()).doubleValue();
-      lat = new Double(st.nextToken()).doubleValue();
-      faultTrace.addLocation(new Location(lat,lon));
-    }
-
-    // line with dip, seisUpper, ddw, and rupArea
-    st = new StringTokenizer(it.next().toString());
-    dip = new Double(st.nextToken()).doubleValue();
-    upperSeismoDepth = new Double(st.nextToken()).doubleValue();
-    downDipWidth = new Double(st.nextToken()).doubleValue();
-    lowerSeismoDepth = downDipWidth*Math.sin(dip*Math.PI/180);
-    rupArea = new Double(st.nextToken()).doubleValue();
-
-    // line with the GR tail stuff
-    st = new StringTokenizer(it.next().toString());
-    // skipping for now
-
-    // line with prob, meanMag, magSigma, nSigmaTrunc
-    st = new StringTokenizer(it.next().toString());
-    prob = new Double(st.nextToken()).doubleValue();
-    meanMag = new Double(st.nextToken()).doubleValue();
-    magSigma = new Double(st.nextToken()).doubleValue();
-    nSigmaTrunc = new Double(st.nextToken()).doubleValue();
-
-    // this should be an adjustable parameter
-    double gridSpacing = 1.0;
-
-    faultFactory = new StirlingGriddedFaultFactory(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
-    faultSurface = (EvenlyGriddedSurface) faultFactory.getGriddedSurface();
-
-    wg02_source = new WG02_CharEqkSource(prob,meanMag,magSigma,nSigmaTrunc,faultSurface,rupArea,rupOffset,"noName",rake);
-  }
-
-
-
-  /**
-   * Gets the number of ruptures for the source at index iSource
-   * @param iSource
-   */
-    public int getNumRuptures(int iSource){
-      return getSource(iSource).getNumRuptures();
-    }
-
-    /**
-     * Returns a clone of (rather than a reference to) the nth rupture of the
-     * ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
-      return getSource(iSource).getRuptureClone(nRupture);
-    }
-
-    /**
-     * Get the nth rupture of the ith source.
-     *
-     * @param source
-     * @param i
-     * @return
-     */
-    public ProbEqkRupture getRupture(int iSource, int nRupture) {
-       return getSource(iSource).getRupture(nRupture);
-    }
-
-    /**
-     * Returns the  ith earthquake source
-     *
-     * @param iSource : index of the source needed
-    */
-    public ProbEqkSource getSource(int iSource) {
-
-      return null;
-    }
-
-    /**
-     * Get the number of earthquake sources
-     *
-     * @return integer
-     */
-    public int getNumSources(){
-      return 0;
-    }
-
-    /**
-     * Return a clone of (rather than a reference to) the ith earthquake source
-     *
-     * @param iSource : index of the source needed
-     *
-     * @return Returns the ProbEqkSource at index i
-     *
-     * FIX:FIX :: This function has not been implemented yet. Have to give it thought
-     *
-     */
-    public ProbEqkSource getSourceClone(int iSource) {
-      return null;
-      /*ProbEqkSource probEqkSource =getSource(iSource);
-      if(probEqkSource instanceof Frankel96_CharEqkSource){
-          Frankel96_CharEqkSource probEqkSource1 = (Frankel96_CharEqkSource)probEqkSource;
-          ProbEqkRupture r = probEqkSource1.getRupture(0);
-          r.
-          Frankel96_CharEqkSource frankel96_Char = new Frankel96_CharEqkSource(;
-
-      }*/
-
-    }
-
-
-
-    /**
-     * Return  iterator over all the earthquake sources
-     *
-     * @return Iterator over all earhtquake sources
-     */
-    public Iterator getSourcesIterator() {
-      Iterator i = getSourceList().iterator();
-      return i;
-    }
-
-     /**
-      * Get the list of all earthquake sources.
-      *
-      * @return Vector of Prob Earthquake sources
-      */
-     public Vector  getSourceList(){
-
-       return null;
-     }
-
-
-    /**
-     * Return the name for this class
-     *
-     * @return : return the name for this class
-     */
    public String getName(){
      return C;
    }
@@ -370,15 +233,13 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
 
      // make sure something has changed
      if(parameterChangeFlag) {
-
-       // get value of background seismicity paramter
-       String backSeis = (String) backSeisParam.getValue();
-
-       makeSources();
-
-
+       numIterations = ((Integer) numRealizationsParam.getValue()).intValue();
+       rupOffset = ((Double)rupOffset_Param.getValue()).doubleValue();
+       deltaMag = ((Double)deltaMag_Param.getValue()).doubleValue();
+       gridSpacing = ((Double)gridSpacing_Param.getValue()).doubleValue();
+       backSeis = (String)backSeisParam.getValue();
+       grTail = (String)grTailParam.getValue();
        parameterChangeFlag = false;
-
      }
 
    }
@@ -397,10 +258,58 @@ public class WG02_ERF_Epistemic_List extends EqkRupForecast
    }
 
 
+   /**
+    * get the number of Eqk Rup Forecasts in this list
+    * @return : number of eqk rup forecasts in this list
+    */
+   public int getNumERFs() {
+     return numIterations;
+   }
+
+
+  /**
+   * get the ERF in the list with the specified index
+   * @param index : index of Eqk rup forecast to return
+   * @return
+   */
+  public EqkRupForecast getERF(int index) {
+
+    // get the sublist from the inputFileLines
+    int firstLine = ((Integer) iterationLineNumbers.get(index)).intValue();
+    int lastLine = ((Integer) iterationLineNumbers.get(index+1)).intValue();
+    List inputFileStrings = inputFileLines.subList(firstLine,lastLine);
+
+    return new WG02_EqkRupForecast(inputFileStrings, rupOffset, gridSpacing,
+                             deltaMag, backSeis, grTail, "no name", timeSpan);
+
+  }
+
+  /**
+   * get the weight of the ERF at the specified index
+   * @param index : index of ERF
+   * @return : relative weight of ERF
+   */
+  public double getERF_RelativeWeight(int index) {
+    return 1.0;
+  }
+
+  /**
+   * Return the vector containing the Double values with
+   * relative weights for each ERF
+   * @return : Vector of Double values
+   */
+  public Vector getRelativeWeightsList() {
+    Vector relativeWeight  = new Vector();
+    for(int i=0; i<numIterations; i++)
+      relativeWeight.add(new Double(1.0));
+    return relativeWeight;
+  }
+
    // this is temporary for testing purposes
    public static void main(String[] args) {
-     WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
-     qkCast.updateForecast();
+     WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
+     list.updateForecast();
+     EqkRupForecast fcast = list.getERF(1);
 
 
   }

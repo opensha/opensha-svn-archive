@@ -42,25 +42,24 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     implements ParameterChangeListener{
 
   //for Debug purposes
-  private static String  C = new String("WG02_EqkRupForecast");
-  private boolean D = true;
+  private static String  C = new String("WG02 Eqk Rup Forecast");
+  private boolean D = false;
 
   /**
    * Vectors for holding the various sources, separated by type
    */
-  private Vector charEqkSources;
-  private Vector tail_GR_EqkSources;
+  private Vector allSources;
 
  // This is an array holding the relevant lines of the input file
   private List inputFileStrings = null;
 
-  double rupOffset, gridSpacing;
+  double rupOffset, gridSpacing, deltaMag;
   String backSeisValue;
   String grTailValue;
   String name;
 
   /**
-   * This constructs a single forecast using the first iteration
+   * This constructs a single forecast using the first realization
    */
   public WG02_EqkRupForecast() {
 
@@ -117,9 +116,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
     timeSpan.setStartTime(year);
 
-    // set the startLine to get the first iteration ERF (only)
+    // hard code the adjustable parameter values
     rupOffset = 2;
     gridSpacing = 1;
+    deltaMag = 0.1;
     backSeisValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
     grTailValue = WG02_ERF_Epistemic_List.SEIS_EXCLUDE;
     name = "noName";
@@ -130,13 +130,14 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
 
 
-  public WG02_EqkRupForecast(ArrayList inputFileStrings, double rupOffset, double gridSpacing,
-                             String backSeisValue, String grTailValue, String name,
+  public WG02_EqkRupForecast(List inputFileStrings, double rupOffset, double gridSpacing,
+                             double deltaMag, String backSeisValue, String grTailValue, String name,
                              TimeSpan timespan) {
 
     this.inputFileStrings = inputFileStrings;
     this.rupOffset=rupOffset;
-    this.rupOffset=gridSpacing;
+    this.gridSpacing=gridSpacing;
+    this.deltaMag = deltaMag;
     this.backSeisValue=backSeisValue;
     this.grTailValue=grTailValue;
     this.name = name;
@@ -154,8 +155,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
    */
   private  void makeSources() throws FaultException{
 
-    charEqkSources = new Vector();
-//    tail_GR_EqkSources = new Vector();
+    if(D) System.out.println(C+": last line of inputFileStrings = "+inputFileStrings.get(inputFileStrings.size()-1));
+    allSources = new Vector();
 
     FaultTrace faultTrace;
     GriddedFaultFactory faultFactory;
@@ -166,7 +167,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     double   lowerSeismoDepth, upperSeismoDepth;
     double lat, lon;
     double dip=0, downDipWidth=0, rupArea;
-    double prob, meanMag, magSigma, nSigmaTrunc, rake=0;
+    double prob, meanMag, magSigma, nSigmaTrunc, rake;
     String ruptureName, fault, rup, sourceName;
     int numPts, i, lineIndex;
 
@@ -182,56 +183,77 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     st = new StringTokenizer(it.next().toString());
 
     // Now loop over ruptures within this iteration
-    // **************** add the loop *******************
 
-    faultTrace = new FaultTrace("noName");
+    while(it.hasNext()) {
 
-    // line with fault/rupture index
-    st = new StringTokenizer(it.next().toString());
-    fault = st.nextToken().toString();
-    rup = st.nextToken().toString();
-    sourceName = "fault "+fault+"; rupture "+rup;
+      faultTrace = new FaultTrace("noName");
 
-    // line with number of fault-trace points
-    st = new StringTokenizer(it.next().toString());
-    numPts = new Integer(st.nextToken()).intValue();
-
-    // make the fault trace from the next numPts lines
-    for(i=0;i<numPts;i++) {
+      // line with fault/rupture index
       st = new StringTokenizer(it.next().toString());
-      lon = new Double(st.nextToken()).doubleValue();
-      lat = new Double(st.nextToken()).doubleValue();
-      faultTrace.addLocation(new Location(lat,lon));
+      fault = st.nextToken().toString();
+      rup = st.nextToken().toString();
+      sourceName = "fault "+fault+"; rupture "+rup;
+
+      // line with number of fault-trace points
+      st = new StringTokenizer(it.next().toString());
+      numPts = new Integer(st.nextToken()).intValue();
+
+      // make the fault trace from the next numPts lines
+      for(i=0;i<numPts;i++) {
+        st = new StringTokenizer(it.next().toString());
+        lon = new Double(st.nextToken()).doubleValue();
+        lat = new Double(st.nextToken()).doubleValue();
+        faultTrace.addLocation(new Location(lat,lon));
+      }
+
+      // reverse the order of point if it's the Mt Diable fault
+      // so it will be dipping to the right
+      if( fault.equals("7") )
+        faultTrace.reverse();;
+
+
+
+      // line with dip, seisUpper, ddw, and rupArea
+      st = new StringTokenizer(it.next().toString());
+      dip = new Double(st.nextToken()).doubleValue();
+      upperSeismoDepth = new Double(st.nextToken()).doubleValue();
+      downDipWidth = new Double(st.nextToken()).doubleValue();
+      lowerSeismoDepth = upperSeismoDepth+downDipWidth*Math.sin(dip*Math.PI/180);
+      rupArea = new Double(st.nextToken()).doubleValue();
+
+      // line with the GR tail stuff
+      st = new StringTokenizer(it.next().toString());
+      // skipping for now
+
+      // line with prob, meanMag, magSigma, nSigmaTrunc
+      st = new StringTokenizer(it.next().toString());
+      prob = new Double(st.nextToken()).doubleValue();
+      meanMag = new Double(st.nextToken()).doubleValue();
+      magSigma = new Double(st.nextToken()).doubleValue();
+      nSigmaTrunc = new Double(st.nextToken()).doubleValue();
+
+      faultFactory = new StirlingGriddedFaultFactory(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
+      faultSurface = (EvenlyGriddedSurface) faultFactory.getGriddedSurface();
+
+
+      // change the rupArea if it's one of the floating ruptures
+      if( rup.equals("11")  || rup.equals("12") )
+        rupArea = Math.pow(10.0, meanMag-4.2);
+
+      // set the rake (only diff for Mt Diable thrust)
+      if( fault.equals("7") )
+        rake=90.0;
+      else
+        rake = 0.0;
+
+
+      // create the source
+      wg02_source = new WG02_CharEqkSource(prob,meanMag,magSigma,nSigmaTrunc, deltaMag,
+          faultSurface,rupArea,rupOffset,sourceName,rake);
+
+      // add the source
+      allSources.add(wg02_source);
     }
-
-    // line with dip, seisUpper, ddw, and rupArea
-    st = new StringTokenizer(it.next().toString());
-    dip = new Double(st.nextToken()).doubleValue();
-    upperSeismoDepth = new Double(st.nextToken()).doubleValue();
-    downDipWidth = new Double(st.nextToken()).doubleValue();
-    lowerSeismoDepth = downDipWidth*Math.sin(dip*Math.PI/180);
-    rupArea = new Double(st.nextToken()).doubleValue();
-
-    // line with the GR tail stuff
-    st = new StringTokenizer(it.next().toString());
-    // skipping for now
-
-    // line with prob, meanMag, magSigma, nSigmaTrunc
-    st = new StringTokenizer(it.next().toString());
-    prob = new Double(st.nextToken()).doubleValue();
-    meanMag = new Double(st.nextToken()).doubleValue();
-    magSigma = new Double(st.nextToken()).doubleValue();
-    nSigmaTrunc = new Double(st.nextToken()).doubleValue();
-
-    faultFactory = new StirlingGriddedFaultFactory(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
-    faultSurface = (EvenlyGriddedSurface) faultFactory.getGriddedSurface();
-
-    // create the source
-    wg02_source = new WG02_CharEqkSource(prob,meanMag,magSigma,nSigmaTrunc,faultSurface,rupArea,rupOffset,sourceName,rake);
-
-    // add the source
-    charEqkSources.add(wg02_source);
-
   }
 
 
@@ -274,7 +296,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     */
     public ProbEqkSource getSource(int iSource) {
 
-      return null;
+      return (ProbEqkSource) allSources.get(iSource);
     }
 
     /**
@@ -283,7 +305,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
      * @return integer
      */
     public int getNumSources(){
-      return 0;
+      return allSources.size();
     }
 
     /**
@@ -298,18 +320,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
      */
     public ProbEqkSource getSourceClone(int iSource) {
       return null;
-      /*ProbEqkSource probEqkSource =getSource(iSource);
-      if(probEqkSource instanceof Frankel96_CharEqkSource){
-          Frankel96_CharEqkSource probEqkSource1 = (Frankel96_CharEqkSource)probEqkSource;
-          ProbEqkRupture r = probEqkSource1.getRupture(0);
-          r.
-          Frankel96_CharEqkSource frankel96_Char = new Frankel96_CharEqkSource(;
-
-      }*/
 
     }
-
-
 
     /**
      * Return  iterator over all the earthquake sources
@@ -350,11 +362,8 @@ public class WG02_EqkRupForecast extends EqkRupForecast
 
      // does nothing for now
      if(parameterChangeFlag) {
-
        parameterChangeFlag = false;
-
      }
-
    }
 
    /**
@@ -374,9 +383,6 @@ public class WG02_EqkRupForecast extends EqkRupForecast
    // this is temporary for testing purposes
    public static void main(String[] args) {
      WG02_EqkRupForecast qkCast = new WG02_EqkRupForecast();
-     qkCast.updateForecast();
-
-
   }
 
 }
