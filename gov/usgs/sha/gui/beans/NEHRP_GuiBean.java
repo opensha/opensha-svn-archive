@@ -62,6 +62,10 @@ public class NEHRP_GuiBean
   BorderLayout borderLayout1 = new BorderLayout();
 
 
+  private final static String filePath_2 ="/Users/nitingupta/projects/USGS_DataFiles/2004CD-MasterDataFiles_2/";
+  private final static String filePath_1 ="/Users/nitingupta/projects/USGS_DataFiles/2004CD-MasterDataFiles_1/";
+  private String fileName;
+
   //creating the Ground Motion selection parameter
   StringParameter groundMotionParam;
   ConstrainedStringParameterEditor groundMotionParamEditor;

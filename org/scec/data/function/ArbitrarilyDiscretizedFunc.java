@@ -553,7 +553,6 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @param s
      */
     private void writeObject(ObjectOutputStream s){
-      System.out.println("Inside the write object method");
       Iterator it =getPointsIterator();
       try{
         s.writeObject(new Integer(getNum()));
@@ -562,7 +561,6 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
           //System.out.println("Data: "+data.toString());
           s.writeObject(data);
         }
-        s.writeObject(new Integer(getNum()));
       }catch(IOException e){
         e.printStackTrace();
       }
@@ -573,7 +571,6 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * @param s
      */
     private void readObject(ObjectInputStream s){
-      System.out.println("inside the read Object");
       try{
         if(points == null)
           points = new DataPoint2DTreeMap();
