@@ -28,7 +28,7 @@ import org.scec.sha.gui.servlets.*;
  * Hazard curves dataset.
  * When user has selected the dataset using which he wants to compute Hazard Map,
  * it is sent back to this servlet which then uses GMT script to create the map image.</p>
- * @author unascribed
+ * @author :Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
@@ -188,10 +188,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
   * prob@iml. The data is appended to the end of the until all the list of the
   * files have been searched for thr input iml or prob value. The final output
   * file is given as the input to generate the grd file.
-  * @param minLat
-  * @param maxLat
-  * @param minLon
-  * @param maxLon
+  * @param selectedSet : Selected Hazard dataset
+  * @param isProbAt_IML : what to plot IML@Prob or Prob@IML
+  * @param val : Depending on the above parameter it is either prob val if IML@Prob
+  * or iml val if Prob@IML
+  * @param map : GMT object
+  * @return
   */
   private XYZ_DataSetAPI getXYZ_DataSet(String selectedSet,
                                   boolean isProbAt_IML,
@@ -215,15 +217,17 @@ public class HazardMapViewerServlet  extends HttpServlet {
     File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
     File[] fileList=dir.listFiles();
 
+    //number of files in selected dataset
     int numFiles = fileList.length;
-    //creating the arraylist to get the lat and lons in this dataset
+    //creating the arraylist to get the all lats and lons in this dataset
     ArrayList latList = new ArrayList();
     ArrayList lonList = new ArrayList();
 
     /*
     *Reading all the Hazard files in the dataset to get their Lat and Lons
+    *Iterating over all hazard curve files to in the selected dataset to get
+    *the exact file names , which are combination of "Lat Value"+"_"+"Lon Value"
     */
-
     for(int i=0;i<numFiles;++i){
       //only taking the files into consideration
       if(fileList[i].isFile()){
@@ -234,66 +238,101 @@ public class HazardMapViewerServlet  extends HttpServlet {
           int firstIndex = fileName.indexOf(".");
           int lastIndex = fileName.lastIndexOf(".");
           // Hazard data files have 3 "." in their names
+          //And leaving the rest of the files which contains only 1"." in their names
           if(firstIndex != lastIndex){
 
             //getting the lat and Lon values from file names
             String latVal = fileName.substring(0,index).trim();
             String lonVal = fileName.substring(index+1,lastIndex).trim();
+            //Adding the Latitude from the file name to the list if not already there
             if(!latList.contains(latVal))
-              latList.add(latVal);
+              latList.add(new Double(latVal));
+            //Adding the longitude from the file name to the list if not already there
             if(!lonList.contains(lonVal))
-              lonList.add(lonVal);
+              lonList.add(new Double(lonVal));
           }
         }
       }
     }
 
+    //Sorting Latitude and Longitude list which are both collection of Doubles
+    //As it sorting the contents of the list as String, so goes from minLat to MaxLat
+    //and same for longitudes
     Collections.sort(latList);
     Collections.sort(lonList);
 
-    double interpolatedVal=0;
-    ArrayList fileLines;
+
     //getting the indexes of the lat and lon( filled by the user)
    // from the list of Lat and Lons( for which we computed the dataset).
     int latListSize = latList.size();
     int lonListSize = lonList.size();
+
     int minLatIndex =0;
     int maxLatIndex =0;
+    //min Lat and max Lat as selected by user
     double minLatVal = Double.parseDouble(minLat);
     double maxLatVal = Double.parseDouble(maxLat);
 
+    //using it to find the nearest Latitude to the min and max Latitude,
+    //if they don't match perfectly from the list,
     double gridSpacingForCloseValue = gridSpacing/2;
 
-    for(int i=0;i<latListSize;++i){
-      if(Math.abs(minLatVal - Double.parseDouble((String)latList.get(i))) < gridSpacingForCloseValue)
+    //finding the nearest min and max lat. from the list of all lats in this dataset
+    int i=0;
+    //finding nearest Latitude to minLat
+    for(;i<latListSize;++i){
+      if(Math.abs(minLatVal - ((Double)latList.get(i)).doubleValue()) < gridSpacingForCloseValue){
          minLatIndex = i;
-      if(Math.abs(maxLatVal - Double.parseDouble((String)latList.get(i))) < gridSpacingForCloseValue)
+         break;
+      }
+    }
+
+    //finding nearest latitude to maxLat
+    for(;i<latListSize;++i){
+      if(Math.abs(maxLatVal - ((Double)latList.get(i)).doubleValue()) < gridSpacingForCloseValue){
          maxLatIndex = i;
+         break;
+      }
     }
 
 
     int minLonIndex =0;
     int maxLonIndex =0;
+    //min Lon and max Lon as selected by user
     double minLonVal = Double.parseDouble(minLon);
     double maxLonVal = Double.parseDouble(maxLon);
-    for(int i=0;i<lonListSize;++i){
-      if(Math.abs(minLonVal - Double.parseDouble((String)lonList.get(i))) < gridSpacingForCloseValue)
-         minLonIndex = i;
-      if(Math.abs(maxLonVal - Double.parseDouble((String)lonList.get(i))) < gridSpacingForCloseValue)
-         maxLonIndex = i;
+    //finding the nearest min and max Lon. from the list of all lats in this dataset
+    i=0;
+    //finding nearest longitude to minLon
+    for(;i<lonListSize;++i){
+      if(Math.abs(minLonVal - ((Double)lonList.get(i)).doubleValue()) < gridSpacingForCloseValue){
+        minLonIndex = i;
+        break;
+      }
     }
 
-    System.out.println("Indexes: "+minLatIndex+" "+maxLatIndex+" "+minLonIndex+" "+maxLonIndex);
+    //finding nearest longitude to maxLon
+    for(;i<lonListSize;++i){
+      if(Math.abs(maxLonVal - ((Double)lonList.get(i)).doubleValue()) < gridSpacingForCloseValue){
+         maxLonIndex = i;
+         break;
+      }
+    }
 
+
+    //iterating over all the Lat and Lon Value to read the files for the IML or Prob
+    //values depending on user choice (IML@Prob or Prob@IML).
     for(int k=minLatIndex;k<=maxLatIndex;++k){
-      for(int j=minLonIndex;j>=maxLonIndex;--j) {
+      double interpolatedVal=0;
+      ArrayList fileLines;
+      for(int j=minLonIndex;j<=maxLonIndex;++j) {
         //getting Lat and Lons
-        String lat = (String)latList.get(k);
-        String lon = (String)lonList.get(j);
+        String lat = ((Double)latList.get(k)).toString();
+        String lon = ((Double)lonList.get(j)).toString();
 
         try {
+          //reading the hazard Curve to find interpolate the iml or Prob value
           String fileToRead = lat+"_"+ lon+".txt";
-          System.out.println("File to read: "+fileToRead);
           fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileToRead);
           String dataLine;
           StringTokenizer st;
@@ -302,7 +341,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
           if(fileLines.size() ==0)
             System.out.println("File to read but could not found:"+fileToRead);
 
-          for(int i=0;i<fileLines.size();++i) {
+          for(i=0;i<fileLines.size();++i) {
             dataLine=(String)fileLines.get(i);
             st=new StringTokenizer(dataLine);
             //using the currentIML and currentProb we interpolate the iml or prob
@@ -321,12 +360,11 @@ public class HazardMapViewerServlet  extends HttpServlet {
             interpolatedVal = func.getFirstInterpolatedX_inLogXLogYDomain(val);
 
         }catch(Exception e) {
-          e.printStackTrace();
+          //e.printStackTrace();
         } // catch invalid range exception etc.
         xVals.add(new Double(lat));
         yVals.add(new Double(lon));
         zVals.add(new Double(interpolatedVal));
-        System.out.println("Interpolated Z Val: "+interpolatedVal);
       }
     }
 
