@@ -2,28 +2,39 @@ package org.scec.param;
 
 import java.util.*;
 import org.scec.exceptions.*;
-
+import org.scec.data.Location;
+import org.scec.data.LocationList;
 
 /**
- * <p>Title: ParameterListParameter</p>
- * <p>Description: Make a parameter which is basically a parameterList</p>
+ * <p>Title: LocationListParameter</p>
+ * <p>Description: Make a parameter which is basically a parameterList for location
+ * parameters.</p>
  * @author : Nitin Gupta and Vipin Gupta
- * @created : Aug 18, 2003
+ * @created : April 01,2004
  * @version 1.0
  */
 
-public class ParameterListParameter extends DependentParameter
+public class LocationListParameter extends DependentParameter
     implements java.io.Serializable{
 
 
   /** Class name for debugging. */
-  protected final static String C = "ParameterListParameter";
+  protected final static String C = "LocationListParameter";
   /** If true print out debug statements. */
   protected final static boolean D = false;
 
-  protected final static String PARAM_TYPE ="ParameterListParameter";
+  protected final static String PARAM_TYPE ="LocationListParameter";
 
 
+
+  private final static String LOCATION_PARAM_NAME = "Location - ";
+  private final static String LAT_PARAM_NAME = "Latitude";
+  private final static String LON_PARAM_NAME = "Longitude";
+  private final static String DEPTH_PARAM_NAME = "Depth";
+
+  private final static String LAT_PARAM_UNITS = "degrees";
+  private final static String LON_PARAM_UNITS = "degrees";
+  private final static String DEPTH_PARAM_UNITS = "Kms";
 
 
   /**
@@ -32,20 +43,20 @@ public class ParameterListParameter extends DependentParameter
    *
    * @param  name  Name of the parameter
    */
-  public ParameterListParameter(String name) {
+  public LocationListParameter(String name) {
     super(name,null,null,null);
   }
+
 
   /**
    * No constraints specified, all values allowed. Sets the name and value.
    *
    * @param  name   Name of the parameter
-   * @param  paramList  ParameterList  object
+   * @param  locList  LocationList  object
    */
-  public ParameterListParameter(String name, ParameterList paramList){
-    super(name,null,null,paramList);
-    //setting the independent Param List for this parameter
-    setIndependentParameters(paramList);
+  public LocationListParameter(String name, LocationList locList){
+    super(name,null,null,locList);
+
   }
 
 
@@ -63,17 +74,17 @@ public class ParameterListParameter extends DependentParameter
   public int compareTo( Object obj ) {
     String S = C + ":compareTo(): ";
 
-    if ( !( obj instanceof ParameterListParameter ) ) {
-      throw new ClassCastException( S + "Object not a ParameterListParameter, unable to compare" );
+    if ( !( obj instanceof LocationListParameter ) ) {
+      throw new ClassCastException( S + "Object not a LocationListParameter, unable to compare" );
     }
 
-    ParameterListParameter param = ( ParameterListParameter ) obj;
+    LocationListParameter param = ( LocationListParameter ) obj;
 
     if( ( this.value == null ) && ( param.value == null ) ) return 0;
     int result = 0;
 
-    ParameterList n1 = ( ParameterList) this.getValue();
-    ParameterList n2 = ( ParameterList) param.getValue();
+    LocationList n1 = ( LocationList) this.getValue();
+    LocationList n2 = ( LocationList ) param.getValue();
 
     return n1.compareTo( n2 );
   }
@@ -86,12 +97,23 @@ public class ParameterListParameter extends DependentParameter
    * @throws  ParameterException   Thrown if the object is currenlty not
    *      editable
    */
-  public void setValue( ParameterList value ) throws ParameterException {
+  public void setValue( LocationList value ) throws ParameterException {
 
-    ListIterator it  = value.getParametersIterator();
     setValue( (Object) value );
+    ParameterList paramList = new ParameterList();
+    int numLocs = value.size();
+    for(int i=0;i<numLocs;++i){
+      Location loc = value.getLocationAt(i);
+      LocationParameter locParam = new LocationParameter(LOCATION_PARAM_NAME +
+          (i + 1), LAT_PARAM_NAME,
+          LON_PARAM_NAME, DEPTH_PARAM_NAME, LAT_PARAM_UNITS, LON_PARAM_UNITS,
+          DEPTH_PARAM_UNITS, new Double(loc.getLatitude()),
+          new Double(loc.getLongitude()), new Double(loc.getDepth()));
+      paramList.addParameter(locParam);
+    }
+
     //setting the independent Param List for this parameter
-    this.setIndependentParameters(value);
+    setIndependentParameters(paramList);
   }
 
   /**
@@ -100,17 +122,17 @@ public class ParameterListParameter extends DependentParameter
    * @param  obj                     The object to compare this to
    * @return                         True if the values are identical
    * @exception  ClassCastException  Is thrown if the comparing object is not
-   *      a ParameterListParameter.
+   *      a LocationListParameter.
    */
   public boolean equals(Object obj) {
     String S = C + ":equals(): ";
 
-    if (! (obj instanceof ParameterListParameter)) {
+    if (! (obj instanceof LocationListParameter)) {
       throw new ClassCastException(S +
-          "Object not a ParameterListParameter, unable to compare");
+          "Object not a LocationListParameter, unable to compare");
     }
 
-    String otherName = ( (ParameterListParameter) obj).getName();
+    String otherName = ( (LocationListParameter) obj).getName();
     if ( (compareTo(obj) == 0) && getName().equals(otherName)) {
       return true;
     }
@@ -126,28 +148,21 @@ public class ParameterListParameter extends DependentParameter
    */
   public Object clone(){
 
-      ParameterListParameter param = null;
-      if( value == null ) param = new ParameterListParameter( name);
-      else param = new ParameterListParameter(name,(ParameterList)value);
+      LocationListParameter param = null;
+      if( value == null ) param = new LocationListParameter( name);
+      else param = new LocationListParameter(name,(LocationList)value);
       if( param == null ) return null;
       param.editable = true;
       return param;
   }
 
-  /**
-   * Returns the ListIterator of the parameters included within this parameter
-   * @return
-   */
-  public ListIterator getParametersIterator(){
-    return ((ParameterList)this.getValue()).getParametersIterator();
-  }
 
   /**
    *
-   * @returns the parameterList contained in this parameter
+   * @returns the locationList contained in this parameter
    */
-  public ParameterList getParameter(){
-    return (ParameterList)getValue();
+  public LocationList getParameter(){
+    return (LocationList)getValue();
   }
 
   /**

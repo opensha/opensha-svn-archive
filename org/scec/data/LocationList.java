@@ -157,6 +157,44 @@ public class LocationList implements java.io.Serializable{
       return min;
     }
 
+
+    /**
+     * Compares if the 2 LocationList.
+     * It checks if both locationlist object contains the same Locations objects.
+     * @param obj LocationList Obj
+     * @return 0 if both object are same else return -1
+     */
+    public int compareTo(Object obj){
+
+      boolean compareFlag = true;
+      if (! (obj instanceof LocationList)) {
+        throw new ClassCastException(C +
+                                     "Object not a LocationList, unable to compare");
+      }
+
+      LocationList locList = (LocationList) obj;
+
+      ListIterator it = locList.listIterator();
+      ListIterator it1 = listIterator();
+
+      if (size() != locList.size())
+        return -1;
+
+      while (it.hasNext()) {
+        Location loc = (Location) it.next();
+        Location loc1 = (Location) it1.next();
+        compareFlag =loc1.equals(loc);
+        if(compareFlag == false)
+          break;
+      }
+
+      if(!compareFlag)
+        return -1;
+
+      return 0;
+    }
+
+
     /**
      * This computes the shortest horizontal distance (in km) from the given loc
      * to any point on the line defined by connecting the points in this location list.

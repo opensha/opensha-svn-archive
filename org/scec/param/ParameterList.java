@@ -263,6 +263,48 @@ public class ParameterList implements Serializable {
         return v.listIterator();
     }
 
+
+
+
+
+    /**
+     * compares 2 ParameterList to see if they are equal.
+     * It compares them by checking each parameter with the passed argument
+     * obj is present in the parameterList, it is compared with.
+     * It also checks if both the parameterLists have same parameters and have the
+     * same values.
+     * @param obj instance of ParameterList
+     * @return int 0 if both object are same else return -1
+     */
+    public int compareTo(Object obj){
+
+      int result =0;
+
+      if (! (obj instanceof ParameterList)) {
+        throw new ClassCastException(C +
+            "Object not a ParameterList, unable to compare");
+      }
+
+      ParameterList paramList = (ParameterList) obj;
+
+      ListIterator it = paramList.getParametersIterator();
+
+      if(size() != paramList.size())
+        return -1;
+
+      while(it.hasNext()){
+        ParameterAPI param1 = (ParameterAPI)it.next();
+        ParameterAPI param2 = (ParameterAPI)getParameter(param1.getName());
+        result = param2.compareTo(param1);
+        if(result !=0)
+          break;
+
+      }
+
+      return result;
+
+    }
+
     /**
      * Returns an iterator of all parameter names of the paramters in the list.
      * Returns the list in the order the elements were added.
