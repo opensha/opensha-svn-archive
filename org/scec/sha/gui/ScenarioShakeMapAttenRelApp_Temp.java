@@ -33,7 +33,7 @@ import org.scec.exceptions.ParameterException;
 
 /**
  * <p>Title: ScenarioShakeMapAttenRelApp_Temp</p>
- * <p>Description: This application provides  the flexibility to plot shakemaps
+ * <p>Description: This application provides the flexibility to plot shakemaps
  *  using the single Attenuation as well as the multiple attenuation relationships.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
