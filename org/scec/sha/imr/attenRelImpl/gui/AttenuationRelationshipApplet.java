@@ -1284,9 +1284,9 @@ public class AttenuationRelationshipApplet extends JApplet
           double yVal = imr.getChosenValue();
           String info = "";
           info = "AttenuationRelationship Name: " + imr.getImr().getName()+"\n\n";
-          info += "Intensity Measure: "+(String)imr.getSelectedIMParam().getValue()+"\n\n";
+          info += "Intensity Measure Type: "+(String)imr.getSelectedIMParam().getValue()+"\n\n";
           info += "Info: "+imr.getIndependentsEditor().getVisibleParametersCloned().toString()+"\n\n";
-          info += YLabel+":  "+yVal;
+          info += YLabel+" = "+yVal;
           pointsTextArea.setText(info);
           //making the panel for the JFreechart null, so that it only shows the indivdual value
           panel =null;
