@@ -858,6 +858,7 @@ public abstract class AttenuationRelationship
 
         otherParams.addParameter( sigmaTruncTypeParam );
         otherParams.addParameter( sigmaTruncLevelParam );
+        otherParams.addParameter( exceedProbParam );
 
     }
 
