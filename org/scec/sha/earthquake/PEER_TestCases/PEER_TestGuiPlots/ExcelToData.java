@@ -75,7 +75,7 @@ public class ExcelToData {
       BufferedReader bufReader = new BufferedReader(reader);
       // read the file
       String str = bufReader.readLine();
-      while(str!=null) {
+      while(str!=null && !str.trim().equalsIgnoreCase("")) {
         int k=0;
         StringTokenizer tokenizer = new StringTokenizer(str,"\t \n");
         // write to the files
