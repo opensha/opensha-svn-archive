@@ -433,7 +433,10 @@ public abstract class Parameter
      * from scratch.
      */
     public String getMetadataString() {
-      return name+" = "+value.toString();
+      if(value !=null)
+        return name+" = "+value.toString();
+      else
+        return name+" = "+"null";
     }
 
     /** Returns a copy so you can't edit or damage the origial. */
