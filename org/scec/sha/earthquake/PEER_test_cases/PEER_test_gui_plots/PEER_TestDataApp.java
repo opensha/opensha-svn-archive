@@ -214,35 +214,44 @@ public class PEER_TestDataApp extends JApplet {
     }
   }
 
+
+
   /**
    * This function looks for all the test cases files within the directory
    * and stores their name in Vector
    */
   private  void searchTestFiles(){
 
-    File thedir = new File(DIR);
-    int i;
-    boolean flag;
-    String[] files = thedir.list();
-    int numFiles=0;
-    for(int f=0;f<files.length;f++) {
-      int index=0;
-      if(files[f].endsWith(FILE_EXTENSION)){
-        testFiles.add(files[f]);
-      // find whether this test already exists in the test combo box options
-      index=files[f].indexOf("_");
-      String testCases = files[f].substring(0,index);
-      int count = testComboBox.getItemCount();
-      flag = false;
-      for(i=0; i<count; ++i)
-        if(testComboBox.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
+    try{
+      // files.log contains all the files uploaded so far
+      InputStream input = PEER_TestGuiPlotter.class.getResourceAsStream("/"+DIR+"files.log");
+      DataInputStream dataStream = new DataInputStream(input);
+      String line;
+      while((line=dataStream.readLine())!=null) {
+        if(line.endsWith(FILE_EXTENSION)) testFiles.add(line);
+        else continue;
+        int index=line.indexOf("_");
+        String testCases = line.substring(0,index);
+        int count = testComboBox.getItemCount();
+        boolean flag = false;
+        // check whether this set has already been added to combo box
+        for(int i=0; i<count; ++i) {
+          if(testComboBox.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
             flag = true;
             break;
+          }
         }
         if(!flag) testComboBox.addItem(testCases);
       }
+    }catch(Exception e) {
+      e.printStackTrace();
     }
+
   }
+
+
+
+
 
 
   /**
