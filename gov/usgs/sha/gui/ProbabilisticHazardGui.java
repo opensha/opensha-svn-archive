@@ -33,6 +33,9 @@ public class ProbabilisticHazardGui
   BorderLayout borderLayout1 = new BorderLayout();
   GridBagLayout gridBagLayout2 = new GridBagLayout();
 
+  private final static String HTML_START = "<html><body>";
+  private final static String HTML_END = "</body></html>";
+
   public ProbabilisticHazardGui() {
     try {
       jbInit();

@@ -5,17 +5,21 @@ import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import gov.usgs.util.GlobalConstants;
+
+import java.util.ArrayList;
+import org.scec.param.*;
+import org.scec.param.editor.*;
 
 /**
- * <p>Title: </p>
+ * <p>Title: SiteCoefficientInfoWindow</p>
  *
- * <p>Description: </p>
- *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
- * @author not attributable
+ * <p>Description: This class displays the Site Coefficient window. This also
+ * user to choose which Site Class to aply to the Hazard computations. </p>
+ * @author Ned Field,Nitin Gupta and E.V.Leyendecker
  * @version 1.0
  */
 public class SiteCoefficientInfoWindow
@@ -52,8 +56,25 @@ public class SiteCoefficientInfoWindow
   Border border11 = new TitledBorder(border3, "Site Coefficients");
   JButton discussionButton = new JButton();
   JButton okButton = new JButton();
-  public SiteCoefficientInfoWindow(Frame frame, String string, boolean _boolean) {
-    super(frame, string, _boolean);
+  JTextPane coeffValText = new JTextPane();
+
+
+  private final static String SiteClassParamName = "Set Site Class";
+
+
+  private ConstrainedStringParameterEditor siteClassEditor;
+
+  JLabel ssLabel = new JLabel();
+  JTextField ssText = new JTextField();
+  JLabel s1Label = new JLabel();
+  JTextField s1Text = new JTextField();
+  JTextField faText = new JTextField();
+  JLabel faLabel = new JLabel();
+  JLabel fvLabel = new JLabel();
+  JTextField fvText = new JTextField();
+
+  private SiteCoefficientInfoWindow(Frame frame, boolean _boolean) {
+    super(frame, _boolean);
     try {
       setDefaultCloseOperation(DISPOSE_ON_CLOSE);
       jbInit();
@@ -64,8 +85,12 @@ public class SiteCoefficientInfoWindow
     }
   }
 
+
+  /**
+   * Class default constructor
+   */
   public SiteCoefficientInfoWindow() {
-    this(new Frame(), "SiteCoefficientInfoWindow", false);
+    this(new Frame(), true);
   }
 
   private void jbInit() throws Exception {
@@ -85,10 +110,9 @@ public class SiteCoefficientInfoWindow
     infoText.setBackground(UIManager.getColor("ProgressBar.background"));
     infoText.setEnabled(false);
 
-    infoText.setContentType("html/text");
     infoText.setText(
         "Use straight-line interpolation for intermediate value of Sa and " +
-        "S1. Note a: Site-specific geotechnical investigation and dynamic " +
+        "S1.\n\nNote a: Site-specific geotechnical investigation and dynamic " +
         "site response analyses shall be performed.");
 
     infoText.setBounds(new Rectangle(7, 19, 516, 94));
@@ -96,25 +120,85 @@ public class SiteCoefficientInfoWindow
     siteCoefficientPanel.setBounds(new Rectangle(587, 9, 300, 770));
     siteCoefficientPanel.setLayout(null);
     saPanel.setBorder(saBorder);
-    saPanel.setBounds(new Rectangle(12, 41, 277, 209));
+    saPanel.setBounds(new Rectangle(12, 41, 277, 142));
     saPanel.setLayout(null);
     siteClassPanel.setBorder(siteClassBorder);
-    siteClassPanel.setBounds(new Rectangle(16, 277, 270, 201));
+    siteClassPanel.setBounds(new Rectangle(16, 214, 270, 209));
     siteClassPanel.setLayout(null);
     coeffValPanel.setBorder(border11);
-    coeffValPanel.setBounds(new Rectangle(17, 501, 271, 257));
+    coeffValPanel.setBounds(new Rectangle(17, 434, 271, 324));
     coeffValPanel.setLayout(null);
-    discussionButton.setBounds(new Rectangle(57, 153, 148, 29));
+    discussionButton.setBounds(new Rectangle(56, 165, 148, 29));
     discussionButton.setText("Discussion");
-    okButton.setBounds(new Rectangle(64, 214, 138, 28));
+
+
+    discussionButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        discussionButton_actionPerformed(actionEvent);
+      }
+    });
+    okButton.setBounds(new Rectangle(67, 267, 138, 28));
     okButton.setText("OK");
+    okButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        okButton_actionPerformed(actionEvent);
+      }
+    });
+    coeffValText.setBackground(UIManager.getColor("ProgressBar.background"));
+    coeffValText.setForeground(UIManager.getColor(
+        "FormattedTextField.selectionBackground"));
+    coeffValText.setEditable(false);
+    coeffValText.setText(
+        "Interpolated soil factors for the conditions shown. Values may also " +
+        "be entered manually.");
+    coeffValText.setBounds(new Rectangle(9, 24, 253, 69));
+    ssLabel.setFont(new java.awt.Font("Lucida Grande", Font.BOLD, 14));
+    ssLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    ssLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    ssLabel.setText("Ss, g");
+    ssLabel.setBounds(new Rectangle(12, 37, 85, 28));
+    ssLabel.setLabelFor(ssText);
+    ssText.setEditable(false);
+    ssText.setBounds(new Rectangle(21, 63, 86, 37));
+    s1Label.setFont(new java.awt.Font("Lucida Grande", Font.BOLD, 14));
+    s1Label.setText("S1, g");
+    s1Label.setBounds(new Rectangle(176, 37, 73, 25));
+    s1Label.setLabelFor(s1Text);
+    s1Text.setEditable(false);
+    s1Text.setBounds(new Rectangle(159, 63, 86, 37));
+    faText.setText("");
+    faText.setBounds(new Rectangle(101, 113, 98, 40));
+    faLabel.setFont(new java.awt.Font("Lucida Grande", Font.BOLD, 14));
+    faLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    faLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    faLabel.setText("Fa :");
+    faLabel.setLabelFor(faText);
+    faLabel.setBounds(new Rectangle(18, 117, 63, 29));
+    fvLabel.setFont(new java.awt.Font("Lucida Grande", Font.BOLD, 14));
+    fvLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    fvLabel.setHorizontalTextPosition(SwingConstants.CENTER);
+    fvLabel.setText("Fv :");
+    fvLabel.setLabelFor(fvText);
+    fvLabel.setBounds(new Rectangle(18, 184, 64, 32));
+    fvText.setText("");
+
+    fvText.setBounds(new Rectangle(101, 186, 98, 40));
     this.getContentPane().add(mainPanel, null);
     mainPanel.add(fafvPanel);
     mainPanel.add(siteCoefficientPanel);
     siteCoefficientPanel.add(saPanel);
+    saPanel.add(ssLabel);
+    saPanel.add(ssText);
+    saPanel.add(s1Label);
+    saPanel.add(s1Text);
     siteCoefficientPanel.add(siteClassPanel);
     siteClassPanel.add(discussionButton);
     siteCoefficientPanel.add(coeffValPanel);
+    coeffValPanel.add(coeffValText);
+    coeffValPanel.add(faText);
+    coeffValPanel.add(faLabel);
+    coeffValPanel.add(fvLabel);
+    coeffValPanel.add(fvText);
     coeffValPanel.add(okButton);
     fafvPanel.add(faPanel);
     fafvPanel.add(fvPanel);
@@ -122,5 +206,26 @@ public class SiteCoefficientInfoWindow
     notesPanel.add(infoText);
     fafvPanel.setBounds(new Rectangle(9, 10, 567, 769));
     mainPanel.setBounds(new Rectangle(10, 10, 890, 784));
+
+    createParameters();
+
+  }
+
+  private void createParameters(){
+
+    ArrayList  supportedSiteClasses = GlobalConstants.getSupportedSiteClasses();
+    StringParameter siteClassParam = new StringParameter(this.SiteClassParamName,
+        supportedSiteClasses,(String)supportedSiteClasses.get(0));
+    siteClassEditor = new ConstrainedStringParameterEditor(siteClassParam);
+  }
+
+
+
+  public void discussionButton_actionPerformed(ActionEvent actionEvent) {
+
+  }
+
+  public void okButton_actionPerformed(ActionEvent actionEvent) {
+
   }
 }

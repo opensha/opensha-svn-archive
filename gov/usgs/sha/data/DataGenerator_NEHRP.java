@@ -63,9 +63,9 @@ public class DataGenerator_NEHRP
 
 
   private void addDataInfo(String data){
-    dataInfo += geographicRegion + "\n\n";
-    dataInfo += dataEdition + "\n\n";
-    dataInfo +=data;
+    dataInfo += geographicRegion + "\n";
+    dataInfo += dataEdition + "\n";
+    dataInfo +=data+"\n\n";
   }
 
   /**

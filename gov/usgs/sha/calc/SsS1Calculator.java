@@ -43,7 +43,7 @@ public class SsS1Calculator {
       "Spectral Response Accelerations Ss and S1\n\n";
   private static final String SsS1_SubTitle =
       "Ss and S1 = Mapped Spectral Acceleration Values";
-  private static final String SiteClass_SsS1 = "Site Class B";
+
   private static final String Ss_Text = "Ss";
   private static final String S1_Text = "S1";
   private static final String SA = "Sa";
@@ -135,7 +135,7 @@ public class SsS1Calculator {
 
     //set the info for the function being added
     String info = "";
-    info += SsS1_TITLE + "\n\n";
+    info += SsS1_TITLE + "\n";
 
     info += "Latitude = " + latLonFormat.format(latitude) + "\n";
     info += "Longitude = " + latLonFormat.format(longitude) + "\n";
@@ -308,7 +308,7 @@ public class SsS1Calculator {
            funcList.add(func3);
 
            String info = "";
-           info += SsS1_TITLE + "\n\n";
+           info += SsS1_TITLE + "\n";
            info += "Zip Code - " + zipCode + "\n";
            info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
            info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
@@ -342,8 +342,8 @@ public class SsS1Calculator {
 
    private String createSubTitleString() {
      String dataInfo = "";
-     dataInfo += SsS1_SubTitle + "\n\n";
-     dataInfo += SiteClass_SsS1 + " - " + " Fa = " + Fa + " ,Fv = " + Fv + "\n";
+     dataInfo += SsS1_SubTitle + "\n";
+     dataInfo += GlobalConstants.SITE_CLASS_B + " - " + " Fa = " + Fa + " ,Fv = " + Fv + "\n";
      return dataInfo;
    }
 
@@ -352,8 +352,10 @@ public class SsS1Calculator {
      dataInfo += "\nPeriod\t"+saString+"\n";
      dataInfo += "(sec)\t (g)\n";
 
-     dataInfo +=periodFormat.format(function.getX(0))+"\t"+saValFormat.format(function.getY(0))+"  "+Ss_Text+","+SiteClass_SsS1+"\n";
-     dataInfo +=periodFormat.format(function.getX(1))+"\t"+saValFormat.format(function.getY(1))+"  "+S1_Text+","+SiteClass_SsS1+"\n";
+     dataInfo +=periodFormat.format(function.getX(0))+"\t"+
+         saValFormat.format(function.getY(0))+"  "+Ss_Text+","+GlobalConstants.SITE_CLASS_B+"\n";
+     dataInfo +=periodFormat.format(function.getX(1))+"\t"+
+         saValFormat.format(function.getY(1))+"  "+S1_Text+","+GlobalConstants.SITE_CLASS_B+"\n";
 
      return dataInfo;
     }

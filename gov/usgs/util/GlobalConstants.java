@@ -82,6 +82,31 @@ public final class GlobalConstants {
 
     public static final int DIVIDING_FACTOR_HUNDRED = 100;
 
+
+    //SITE CLASS VARIABLES
+    public static final String SITE_CLASS_A = "Site Class B";
+    public static final String SITE_CLASS_B = "Site Class B";
+    public static final String SITE_CLASS_C = "Site Class B";
+    public static final String SITE_CLASS_D = "Site Class B";
+    public static final String SITE_CLASS_E = "Site Class B";
+    public static final String SITE_CLASS_F = "Site Class B";
+
+
+    /**
+     * Returns the supported Site Classes
+     * @return ArrayList
+     */
+    public static ArrayList getSupportedSiteClasses(){
+      ArrayList supportedSiteClasses = new ArrayList();
+      supportedSiteClasses.add(SITE_CLASS_A);
+      supportedSiteClasses.add(SITE_CLASS_B);
+      supportedSiteClasses.add(SITE_CLASS_C);
+      supportedSiteClasses.add(SITE_CLASS_D);
+      supportedSiteClasses.add(SITE_CLASS_E);
+      supportedSiteClasses.add(SITE_CLASS_F);
+      return supportedSiteClasses;
+    }
+
     /**
      * Returns the number of supported Analysis types
      * @return ArrayList
