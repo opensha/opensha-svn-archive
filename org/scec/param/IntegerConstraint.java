@@ -10,19 +10,21 @@ import org.scec.exceptions.EditableException;
  *  allowed. Need a check that min is less that max. If min == max that means
  *  only one discrete value is allowed <p>
  *
- *  When is min verified to be less than max? When set each value individually,
- *  or after both values are set and call a verify() function that the class
- *  instance is in the correct state. Should throw an exception if not in the
- *  proper state <p>
+ *  <b>Description:</b> A Integer Constraint represents a range of allowed
+ * values between a min and max integer value, inclusive. The main purpose of
+ * this class is to call isAllowed() which will return true if the value
+ * is withing the range. Null values may or may not be allowed. See the
+ * ParameterConstraint javadocs for further documentation. <p>
  *
- *  When do you set the constarints? In the constructor or after the object is
- *  made? <p>
+ * Note: It is up to the programmer using this class to ensure that the
+ * min value is less than the max value. As an enhancement to this class
+ * setting min and max could be validated that min is not greater than max. <p>
  *
+ * @see ParameterConstraint
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */
-
 public class IntegerConstraint extends ParameterConstraint  {
 
     /** Class name for debugging. */
@@ -30,32 +32,23 @@ public class IntegerConstraint extends ParameterConstraint  {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
-    /**
-     *  Minimum allowed integer
-     */
+     /** The minimum value allowed in this constraint, inclusive */
     protected Integer min = null;
-
-    /**
-     *  Maximum allowed integer
-     */
+    /** The maximum value allowed in this constraint, inclusive */
     protected Integer max = null;
 
-    protected String name;
 
-
-    /**
-     *  No-Arg Constructor for the IntegerConstraint object
-     */
+    /** No-Arg Constructor, constraints are null so all values allowed */
     public IntegerConstraint() { super(); }
 
 
     /**
-     *  COnstructor that sets the constraints during instantiation<P>
+     * Constructor that sets the constraints during instantiation.
+     * Sets the min and max values allowed in this constraint. No checks
+     * are performed that min and max are consistant with each other.<P>
      *
-     *  Note: This should throws an exception if min is greater than max
-     *
-     * @param  min  Description of the Parameter
-     * @param  max  Description of the Parameter
+     * @param  min  The min value allowed
+     * @param  max  The max value allowed
      */
     public IntegerConstraint( int min, int max ) {
         this.min = new Integer( min );
@@ -63,12 +56,12 @@ public class IntegerConstraint extends ParameterConstraint  {
     }
 
     /**
-     *  COnstructor that sets the constraints during instantiation<P>
+     * Constructor that sets the constraints during instantiation.
+     * Sets the min and max values allowed in this constraint. No checks
+     * are performed that min and max are consistant with each other.<P>
      *
-     *  Note: This should throws an exception if min is greater than max
-     *
-     * @param  min  Description of the Parameter
-     * @param  max  Description of the Parameter
+     * @param  min  The min value allowed
+     * @param  max  The max value allowed
      */
     public IntegerConstraint( Integer min, Integer max ) {
         this.min = min;
@@ -76,14 +69,14 @@ public class IntegerConstraint extends ParameterConstraint  {
     }
 
 
-    /**
-     *  Sets the min and xax attribute of the IntegerConstraint object.<P>
-     *
-     *  Note: This should throws an exception if min is greater than max
-     *
-     * @param  min  The new min value
-     * @param  max  The new max value
-     */
+    /** Sets the min and max values allowed in this constraint. No checks
+      * are performed that min and max are consistant with each other.
+      *
+      * @param  min  The new min value
+      * @param  max  The new max value
+      * @throws EditableException Thrown when the constraint or parameter
+      * containing this constraint has been made non-editable.
+      */
     public void setMinMax( Integer min, Integer max ) throws EditableException {
 
         String S = C + ": setMinMax(): ";
@@ -94,12 +87,13 @@ public class IntegerConstraint extends ParameterConstraint  {
     }
 
     /**
-     *  Sets the min and xax attribute of the IntegerConstraint object.<P>
-     *
-     *  Note: This should throws an exception if min is greater than max
+     * Sets the min and max values allowed in this constraint. No checks
+     * are performed that min and max are consistant with each other.
      *
      * @param  min  The new min value
      * @param  max  The new max value
+     * @throws EditableException Thrown when the constraint or parameter
+     * containing this constraint has been made non-editable.
      */
     public void setMinMax( int min, int max ) throws EditableException {
         setMinMax( new Integer( min ), new Integer( max ) );
@@ -107,38 +101,36 @@ public class IntegerConstraint extends ParameterConstraint  {
 
 
 
-    /**
-     *  Gets the min attribute of the IntegerConstraint object
-     *
-     * @return    The min value
-     */
+    /** Returns the min allowed value of this constraint. */
     public Integer getMin() { return min; }
 
-
-    /**
-     *  Gets the max attribute of the IntegerConstraint object
-     *
-     * @return    The max value
-     */
+    /** Gets the max allowed value of this constraint */
     public Integer getMax() { return max; }
 
 
-    public String getName(){ return name; }
-    public void setName(String name){
-        String S = C + ": setName(): ";
-        checkEditable(S);
-        this.name = name;
+
+
+    /** Returns the min allowed value of this constraint. */
+    public Integer getMin() { return min; }
+
+    /** Gets the max allowed value of this constraint */
+    public Integer getMax() { return max; }
+    public boolean isAllowed( Object obj ) {
+        if( nullAllowed && ( obj == null ) ) return true;
+        else if ( !( obj instanceof Integer ) ) return false;
+        else  return isAllowed( ( Integer ) obj );
     }
 
-
-
-
     /**
-     *  Tests if the Object is an Integer and within the min and max constraints
+     * Checks if the passed in value is within the min and max, inclusive of
+     * the end points. First the value is chekced if it's null and null values
+     * are allowed. Then it checks the passed in object is an Integer. If the
+     * constraint min and max values are null, true is returned, else the value
+     * is compared against the min and max values. If any of these checks fails
+     * false is returned. Otherwise true is returned.
      *
-     * @param  obj  The Integer to test if within constraints
-     * @return      False if the obj is not an Integer, or if the value is not
-     *      within the min and max values
+     * @param  obj  The object to check if allowed.
+     * @return      True if this is an Integer and one of the allowed values.
      */
     public boolean isAllowed( Object obj ) {
         if( nullAllowed && ( obj == null ) ) return true;
@@ -146,12 +138,16 @@ public class IntegerConstraint extends ParameterConstraint  {
         else  return isAllowed( ( Integer ) obj );
     }
 
-
     /**
-     *  Tests if the Integer is within the min and max constraints
+     * Checks if the passed in value is within the min and max, inclusive of
+     * the end points. First the value is chekced if it's null and null values
+     * are allowed. Then it checks the passed in object is a Integer. If the
+     * constraint min and max values are null, true is returned, else the value
+     * is compared against the min and max values. If any of these checks fails
+     * false is returned. Otherwise true is returned.
      *
-     * @param  i  The Integer to test if within constraints
-     * @return    False if the value is not within the min and max values
+     * @param  obj  The object to check if allowed.
+     * @return      True if this is a Double and one of the allowed values.
      */
     public boolean isAllowed( Integer i ) {
         if( nullAllowed && ( i == null ) ) return true;
@@ -163,22 +159,21 @@ public class IntegerConstraint extends ParameterConstraint  {
 
 
     /**
-     *  Tests if the int is within the min and max constraints
+     * Checks if the passed in value is within the min and max, inclusive of
+     * the end points. First the value is checked if it's null and null values
+     * are allowed. If the constraint min and max values are null, true is
+     * returned, else the value is compared against the min and max values. If
+     * any of these checks fails false is returned. Otherwise true is returned.
      *
-     * @param  i  The int to test if within constraints
-     * @return    False if the value is not within the min and max values
+     * @param  obj  The object to check if allowed.
+     * @return      True if this is one of the allowed values.
      */
     public boolean isAllowed( int i ) {
         return isAllowed( new Integer( i ) );
     }
 
 
-    /**
-     *  returns the classname of the constraint, and the min & max as a
-     *  formatted debuggin g string
-     *
-     * @return    Formatted string of object's state
-     */
+    /** Returns the classname of the constraint, and the min & max as a debug string */
     public String toString() {
         String TAB = "    ";
         StringBuffer b = new StringBuffer();
@@ -192,12 +187,7 @@ public class IntegerConstraint extends ParameterConstraint  {
     }
 
 
-    /**
-     *  Returns an exact clone of this object's state. You can edit the clone
-     *  without affecting this objects
-     *
-     * @return    Clone of this
-     */
+    /** Creates a copy of this object instance so the original cannot be altered. */
     public Object clone() {
         IntegerConstraint c1 = new IntegerConstraint( min, max );
         c1.setName( name );

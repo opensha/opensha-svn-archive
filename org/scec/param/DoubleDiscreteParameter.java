@@ -4,18 +4,21 @@ import java.util.Vector;
 import org.scec.exceptions.*;
 
 /**
- *  <b>Title:</b> DoubleDiscreteParameter<p>
+ * <b>Title:</b> DoubleDiscreteParameter<p>
  *
- *  <b>Description:</b> Same as a DoubleParameter except the Constraints are a
- *  list of valid Double choices instead of a Min/Max DoubleConstraint with all
- *  possible values allowed in between.<p>
+ * <b>Description:</b> Identical to the DoubleParameter except the
+ * constraints are a finite set of valid Double choices instead
+ * of a Min/Max DoubleConstraint with all possible values allowed
+ * in between.<p>
  *
- *
+ * @see DoubleParameter
+ * @see DependentParameter
+ * @see DependentParameterAPI
+ * @see ParameterAPI
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
  */
-
 public class DoubleDiscreteParameter
     extends DependentParameter
     implements DependentParameterAPI, ParameterAPI

@@ -14,7 +14,7 @@ import org.scec.param.event.ParameterChangeWarningListener;
  * whereas a warning constraint will provide notification, but can
  * be ignored when setting values. So implementing parameters
  * will have two constraints, the WarningConstraint and the
- * regular abolute Constraint. <p>
+ * regular absolute Constraint. <p>
  *
  * WARNING: One flaw with this design is that this interface is hardwired
  * to deal with Doubles as the value of the constraint. This is
@@ -45,7 +45,7 @@ public interface WarningParameterAPI extends ParameterAPI{
     public void addParameterChangeWarningListener( ParameterChangeWarningListener listener );
 
     /**
-     * Remvoes a parameter change warning listener who was receiving notification
+     * Removes a parameter change warning listener who was receiving notification
      * events when the warning constraints were exceeded.
      */
     public void removeParameterChangeWarningListener( ParameterChangeWarningListener listener );

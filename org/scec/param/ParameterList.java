@@ -18,21 +18,25 @@ import org.scec.exceptions.ParameterException;
  * all functions below that take a String name as an argument would fail if
  * two or more parameters have the same name.<p>
  *
- * An additional complication is that Parameters can have a constraint with a different name.
- * To handle this a mapping has to be generated such that constraint name can be mapped back
- * to the original parameter name. This is accomplished via a hashtable. This is only performed
- * in the occasional case when the constraint name differs. In most cases the parameter name and
- * constraint name will be identical. Due to uniqueness of parameter names this implies that all
- * constraint names must be unique also, when differing from the constraint name.<P>
+ * An additional complication is that Parameters can have a constraint with a
+ * different name. To handle this a mapping has to be generated such that
+ * constraint name can be mapped back to the original parameter name. This is
+ * accomplished via a hashtable. This is only performed in the occasional case
+ * when the constraint name differs. In most cases the parameter name and
+ * constraint name will be identical. Due to uniqueness of parameter names
+ * this implies that all constraint names must be unique also, when differing
+ * from the constraint name.<P>
  *
- * Note: Many of these functions are duplicated, where one form taks a Parameter as input,
- * and the second takes the Parameter name as a String as input. THe first case can extract
- * the parameter name, and proxy the method call to the String name form.<p>
+ * Note: Many of these functions are duplicated, where one form takes a
+ * Parameter as input, and the second takes the Parameter name as a String as
+ * input. THe first case can extract the parameter name, and proxy the
+ * method call to the String name form.<p>
  *
  * 4/3/2002 SWR<BR>
- * WARNING - This class needs a little more work and a JUnit test case. I added constraint names
- * but didn't fully implement updating and removing parameters with differing constraint names,
- * only implemented addParameter fully. <p>
+ * WARNING - This class needs a little more work and a JUnit test case.
+ * I added constraint names but didn't fully implement updating and removing
+ * parameters with differing constraint names, only implemented addParameter
+ * fully. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
@@ -41,9 +45,9 @@ import org.scec.exceptions.ParameterException;
 public class ParameterList {
 
 
-    /* *******************/
-    /** @todo  Variables */
-    /* *******************/
+    // *******************/
+    // Variables
+    // *******************/
 
     /** Class name for debugging. */
     protected final static String C = "ParameterList";

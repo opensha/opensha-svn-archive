@@ -3,53 +3,44 @@ import org.scec.exceptions.InvalidRangeException;
 
 import org.scec.param.*;
 
-// FIX - Needs more comments
-
 /**
- *  <b>Title:</b> Location <br>
- *  <b>Description:</b> This class represents a physical geographic location.
- *  <br>
- *  <b>Note:</b> Commented out elevation. May be put back in the future if
- *  needed. <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ * <b>Title:</b> Location <p>
  *
+ * <b>Description:</b> This class represents a physical geographic location
+ * on or in the earth, as represented by 3 double fields, latitude,
+ * longitude, and depth below the surface. <p>
  *
- * @author     Sid Hellman
+ * In java programming this class is simply a JavaBean, i.e. a class with
+ * fields and getXXX() and setXXX() functions that match these field names.
+ * This class is really a container of data. Not much business functionality
+ * here. <p>
+ *
+ * <b>Note:</b> Commented out elevation. May be put back in the future if needed. <br>
+ *
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */
 
 public class Location {
 
-    /**
-     *  Class name used for debugging strings
-     */
+    /** Class name used for debugging strings  */
     protected final static String C = "Location";
 
-    /**
-     *  Boolean for debugging, if true debugging statements printed out
-     */
+    /**  Boolean for debugging, if true debugging statements printed out */
     protected final static boolean D = false;
 
-    /**
-     *  Location depth
-     */
+    /** depth below the surface */
     protected double depth=Double.NaN;
-    /**
-     *  Location Latitude
-     */
+
+    /** Location Latitude */
     protected double latitude=Double.NaN;
 
-    /**
-     *  Location longitude
-     */
+    /** Location longitude */
     protected double longitude=Double.NaN;
 
 
-    /**
-     *  No-Arg Constructor for the Location object. Currently does nothing.
-     */
+    /** No-Arg Constructor for the Location object. Currently does nothing. */
     public Location() { }
 
 
@@ -88,135 +79,73 @@ public class Location {
     }
 
 
+    /** Sets the depth */
+    public void setDepth( double depth ) { this.depth = depth; }
 
-
-
-    /**
-     *  Sets the depth of the Location
-     *
-     * @param  depth  The new depth value
-     */
-    public void setDepth( double depth ) {
-        String S = C + ": setDepth(): ";
-        //validateDepth( depth.doubleValue(), S );
-        this.depth = depth;
-    }
-
-
-
-
-
-    /**
-     *  Sets the latitude attribute of the Location object
-     *
-     * @param  latitude                   The new latitude value
-     * @exception  InvalidRangeException  Description of the Exception
-     */
+    /** Sets the latitude. Exception thrown if invalid value. */
     public void setLatitude( double latitude ) throws InvalidRangeException {
-        String S = C + ": setLatitude(): ";
-        validateLatitude( latitude, S );
+        validateLatitude( latitude, C + ": setLatitude(): " );
         this.latitude = latitude;
     }
 
-
-    /**
-     *  Sets the longitude attribute of the Location object
-     *
-     * @param  longitude                  The new longitude value
-     * @exception  InvalidRangeException  Description of the Exception
-     */
+    /** Sets the longitude. Exception thrown if invalid value. */
     public void setLongitude( double longitude ) throws InvalidRangeException {
-        String S = C + ": setLongitude(): ";
-        validateLongitude( longitude, S );
+        validateLongitude( longitude, C + ": setLongitude(): " );
         this.longitude = longitude;
     }
 
 
-    /**
-     *  Gets the depth attribute of the Location object
-     *
-     * @return    The depth value
-     */
-    public double getDepth() {
-        return depth;
-    }
+    /** Returns the depth of this location. */
+    public double getDepth() { return depth; }
+
+    /** Returns the latitude of this location. */
+    public double getLatitude() { return latitude; }
+
+    /** Returns the longitude of this location. */
+    public double getLongitude() { return longitude; }
 
 
     /**
-     *  Gets the latitude attribute of the Location object
+     * Checks that latitude is -90 <= lat <= 90.
      *
-     * @return    The latitude value
-     */
-    public double getLatitude() {
-        return latitude;
-    }
-
-
-    /**
-     *  Gets the longitude attribute of the Location object
-     *
-     * @return    The longitude value
-     */
-    public double getLongitude() {
-        return longitude;
-    }
-
-
-    /**
-     * Checks that latitude is -90 <= lat <= 90
-     *
-     * @param  lat                        Description of the Parameter
-     * @param  S                          Description of the Parameter
-     * @exception  InvalidRangeException  Description of the Exception
+     * @param  lat                        The latitude to check.
+     * @param  S                          Debug String prefix of the calling function.
+     * @exception  InvalidRangeException  Thrown if latitude not in the appropiate range.
      */
     protected void validateLatitude( double lat, String S ) throws InvalidRangeException {
-
-        if ( lat < -90 ) {
-            throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
-        }
-        if ( lat > 90 ) {
-            throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
-        }
+        if ( lat < -90 ) throw new InvalidRangeException( S + "Latitude cannot be less than -90" );
+        else if ( lat > 90 ) throw new InvalidRangeException( S + "Latitude cannot be greater than 90" );
     }
 
 
     /**
-     *  Checks that latitude is -180 <= lon <= 180
+     *  Checks that longitude is -180 <= lon <= 180.
      *
-     * @param  lon                        Description of the Parameter
-     * @param  S                          Description of the Parameter
-     * @exception  InvalidRangeException  Description of the Exception
+     * @param  lon                        The longitude to check.
+     * @param  S                          Debug String prefix of the calling function.
+     * @exception  InvalidRangeException  Thrown if longitude not in the appropiate range.
      */
     protected void validateLongitude( double lon, String S ) throws InvalidRangeException {
-
-        if ( lon < -180 ) {
-            throw new InvalidRangeException( S + "Longitude cannot be less than -180" );
-        }
-        if ( lon > 180 ) {
-            throw new InvalidRangeException( S + "Longitude cannot be greater than 180" );
-        }
+        if ( lon < -180 )  throw new InvalidRangeException( S + "Longitude cannot be less than -180" );
+        if ( lon > 180 ) throw new InvalidRangeException( S + "Longitude cannot be greater than 180" );
     }
 
 
     /**
-     *  Checks that depth is >= 0;
+     *  Checks that depth is >= 0.
      *
-     * @param  lon                        Description of the Parameter
-     * @param  S                          Description of the Parameter
-     * @exception  InvalidRangeException  Description of the Exception
+     * @param  depth                      The depth to check.
+     * @param  S                          Debug String prefix of the calling function.
+     * @exception  InvalidRangeException  Thrown if depth is negative.
      */
     protected void validateDepth( double depth, String S ) throws InvalidRangeException {
-
-        if ( depth < 0 ) {
-            throw new InvalidRangeException( S + "Depth is a negative number" );
-        }
+        if ( depth < 0 ) throw new InvalidRangeException( S + "Depth is a negative number" );
     }
 
 
     /**
      * Creates a new copy Location with all its values set to this locations values.
-     * Since it is a clone, we can modify the copy without affecting the original
-     * @return
+     * Since it is a clone, we can modify the copy without affecting the original.
      */
     public Object clone(){
 
@@ -229,6 +158,7 @@ public class Location {
     }
 
     private final static char TAB = '\t';
+    /** Prints out all field names and values. useful for debugging. */
     public String toString(){
 
         StringBuffer b = new StringBuffer();

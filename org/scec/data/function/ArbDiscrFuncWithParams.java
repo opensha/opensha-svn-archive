@@ -23,7 +23,6 @@ import org.scec.param.*;
  * @see XYDiscretizedFunction2DAPI
  * @see DiscretizedFunction2DAPI
  * @see ParameterList
- *
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -31,12 +30,6 @@ public class ArbDiscrFuncWithParams
     extends ArbitrarilyDiscretizedFunc
     implements FuncWithParamsAPI
 {
-
-
-    // *******************
-    /** @todo  Variables */
-    // *******************
-
 
 
     /**
@@ -48,11 +41,6 @@ public class ArbDiscrFuncWithParams
      */
     protected ParameterList list = new ParameterList();
 
-
-
-    // **********************
-    /** @todo  Constructors */
-    // **********************
 
     /**
      * The passed in comparator must be an implementor of DataPoint2DComparatorAPI.

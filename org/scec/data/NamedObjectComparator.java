@@ -28,25 +28,13 @@ public class NamedObjectComparator implements Comparator {
     /** If true print out debug statements. */
     final static boolean D = false;
 
-    /**
-     *  If true comparision sort ascending, else comparision sort descending.
-     */
+    /** If true comparision sort ascending, else comparision sort descending. */
     private boolean ascending = true;
 
-
-    /**
-     *  Set's the comparation to ascending if true, else descending.
-     *
-     * @param  a  The new ascending value
-     */
+    /** Set's the comparation to ascending if true, else descending.  */
     public void setAscending( boolean a ) { ascending = a; }
 
-
-    /**
-     *  Returns true if comparision is ascending, false for descending.
-     *
-     * @return    The ascending value
-     */
+    /** Returns true if comparision is ascending, false for descending. */
     public boolean isAscending() { return ascending; }
 
 

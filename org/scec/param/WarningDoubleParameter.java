@@ -4,44 +4,50 @@ import java.util.*;
 import org.scec.param.event.*;
 import org.scec.exceptions.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> WarningDoubleParameter<p>
  *
  * <b>Description:</b> Concrete implementation of the
- * WarningParameterAPI interface. Maintains a list
- * of listeners and passes them WarningEvents when
+ * WarningParameterAPI interface that stores a Double
+ * for it's value object. Maintains a list of listeners
+ * and passes them ParameterChangeWarningEvents when
  * the value is attemted to be set beyong the warning
- * constraints. Typical use case is that there
- * is one listener, ( such as the GUI component
+ * constraints.<p>
+ *
+ * Typical use case is that there is one listener that also
+ * acts as the editor of the value, ( such as the GUI component
  * attempting to update the value ). This listener attempts
  * to change the value outside the warning range. The
  * listener is notified of the attemp, i.e. "warned".
  * This listener then notifies the user via a DialogBox.
- * The user is then given the option to cancle or
- * ignore warning. The listener will then set the value
- * ignoring the warning. <p>
+ * The user is then given the option to cancel or
+ * ignore the warning and set the value. The listener will
+ * then set the value ignoring the warning. <p>
  *
  * The whole reason for using a listener is that any
  * type of situation can be handled. This class doesn't
  * need to know anything about the listener other than it
  * adheres to the ParameterChangeWarningListener interface.
  * The listener can be any class, and can be updated to
- * any new class in the future. This class never has to be changed. <p>
+ * any new class in the future. This class never has to be changed.
+ * This means that this parameter component is not tied to
+ * any specific class of editors, a guiding principle in
+ * object-oriented programming. <p>
+ *
+ * Note: All listeners must implement the ParameterChangeFailListener
+ * interface. <p>
  *
  * Note: Since this class extends from DoubleParameter it also
  * has a second absolute DoubleConstraint that can never be exceeded.
- * It's important that the implementing programmer realizes this and
- * ensures the warning constraints are smaller than the absolute constraints.
- * <p>
+ * It's important that the programmer realizes this and ensures the
+ * warning constraints are smaller than the absolute constraints when
+ * using this parameter in their program. <p>
  *
  * @see ParameterChangeWarningListener
  * @see ParameterChangeWarningEvent
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public class WarningDoubleParameter
     extends DoubleParameter
     implements WarningParameterAPI
@@ -299,8 +305,10 @@ public class WarningDoubleParameter
 
 
     /**
-     *  Adds a feature to the ParameterChangeFailListener attribute of the
-     *  ParameterEditor object
+     *  Adds a ParameterChangeFailListener to the list of listeners. This is
+     *  the interface all listeners must implement in order to fit into
+     *  this framework. This is where the listener list is created if null,
+     *  i.e. "lazy instantiation".
      *
      * @param  listener  The feature to be added to the
      *      ParameterChangeFailListener attribute
@@ -322,9 +330,8 @@ public class WarningDoubleParameter
     }
 
     /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
+     * Removes a ParameterChangeFailListener to the list of listeners. This listener
+     * will no longer receive warning events.
      */
     public synchronized void removeParameterChangeWarningListener( ParameterChangeWarningListener listener )
         throws EditableException
@@ -337,8 +344,8 @@ public class WarningDoubleParameter
     }
 
     /**
-     *  Sets the constraint if it is a StringConstraint and the parameter
-     *  is currently editable.
+     * Replaces the warning constraints with a new constraint object. If this
+     * class is set to non-editable an EditableException is thrown.
      */
     public void setWarningConstraint(DoubleConstraint warningConstraint)
         throws ParameterException, EditableException
@@ -353,15 +360,16 @@ public class WarningDoubleParameter
     }
 
     /**
-     *  Sets the constraint if it is a StringConstraint and the parameter
-     *  is currently editable.
+     * Replaces the warning constraints with a new constraint object. If this
+     * class is set to non-editable an EditableException is thrown.
      */
     public DoubleConstraint getWarningConstraint() throws ParameterException{
         return warningConstraint;
     }
 
     /**
-     *  Gets the min value of the constraint object.
+     * Proxy passthrough method to the DoubleConstraint to get the
+     * minimumn value below which warnings will be issued.
      *
      * @return                The min value
      * @exception  Exception  Description of the Exception
@@ -373,9 +381,11 @@ public class WarningDoubleParameter
 
 
     /**
-     *  Returns the maximum allowed values.
+     * Proxy passthrough method to the DoubleConstraint to get the
+     * minimumn value below which warnings will be issued.
      *
-     * @return    The max value
+     * @return                The min value
+     * @exception  Exception  Description of the Exception
      */
     public Double getWarningMax() {
         if ( warningConstraint != null ) return warningConstraint.getMax();
@@ -385,12 +395,16 @@ public class WarningDoubleParameter
 
 
     /**
-     *  Set's the parameter's value.
+     * Attempts to update the value of this parameter with a new Double. All
+     * constraints are checked. If the value exceeds the warning levels all
+     * listeners are notified via fireParameterChangeWarning(). If the
+     * ignoreWarning flag is present the warning constraints are bypassed. Another
+     * condition checked is if the value is null and null values are allowed.
      *
-     * @param  value                 The new value for this Parameter
-     * @throws  ParameterException   Thrown if the object is currenlty not
-     *      editable
-     * @throws  ConstraintException  Thrown if the object value is not allowed
+     * @param value         The new value - must be a Double
+     * @throws ConstraintException      Thrown if the new value is beyond the constraint
+     *  levels or null values not allowed.
+     * @throws WarningException     Thrown if the new value is beyond the warning levels.
      */
     public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
         String S = C + ": setValue(): ";
@@ -424,12 +438,16 @@ public class WarningDoubleParameter
     }
 
     /**
-     *  Set's the parameter's value.
+     * Attempts to update the value of this parameter with a new Double. All
+     * constraints are checked. If the value exceeds the warning levels all
+     * listeners are notified via fireParameterChangeWarning(). If the
+     * ignoreWarning flag is present the warning constraints are bypassed. Another
+     * condition checked is if the value is null and null values are allowed.
      *
-     * @param  value                 The new value for this Parameter
-     * @throws  ParameterException   Thrown if the object is currenlty not
-     *      editable
-     * @throws  ConstraintException  Thrown if the object value is not allowed
+     * @param value         The new value - must be a Double
+     * @throws ConstraintException      Thrown if the new value is beyond the constraint
+     *  levels or null values not allowed.
+     * @throws WarningException     Thrown if the new value is beyond the warning levels.
      */
     public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException {
         String S = C + ": setValueIgnoreWarning(): ";
@@ -438,8 +456,11 @@ public class WarningDoubleParameter
     }
 
     /**
-     *  Uses the constraint object to determine if the new value being set is
-     *  within recommended range. If no Constraints are present all values are recommended.
+     *  Uses the warning constraint object to determine if the new value being set is
+     *  within recommended range. If no Constraints are present all values
+     *  are recommended. The implied intention is that the warning constraint is
+     *  more restrictive than the absolute constraints so that if a value
+     *  passes the warning test, it will also pass the absolute constraint test.
      *
      * @param  obj  Object to check if allowed via constraints
      * @return      True if the value is allowed
@@ -452,9 +473,10 @@ public class WarningDoubleParameter
 
 
     /**
-     *  Description of the Method
+     * This is the function that notifies all listeners assigned to this parameter
+     * that the warning constraints have been exceeded.
      *
-     * @param  event  Description of the Parameter
+     * @param  event  The event encapsulating the attempted values passed to each listener.
      */
     public void fireParameterChangeWarning( ParameterChangeWarningEvent event ) {
 
@@ -481,7 +503,8 @@ public class WarningDoubleParameter
 
     /**
      *  Compares the values to if this is less than, equal to, or greater than
-     *  the comparing objects.
+     *  the comparing objects. This implies that the value object of
+     *  both parameters must be a double.
      *
      * @param  obj                     The object to compare this to
      * @return                         -1 if this value < obj value, 0 if equal,
@@ -525,10 +548,13 @@ public class WarningDoubleParameter
 
 
     /**
-     *  Compares value to see if equal.
+     *  Compares the values to if this is less than, equal to, or greater than
+     *  the comparing objects. This implies that the value object of
+     *  both parameters must be a double.
      *
      * @param  obj                     The object to compare this to
-     * @return                         True if the values are identical
+     * @return                         -1 if this value < obj value, 0 if equal,
+     *      +1 if this value > obj value
      * @exception  ClassCastException  Is thrown if the comparing object is not
      *      a DoubleParameter, or DoubleDiscreteParameter.
      */
@@ -551,7 +577,8 @@ public class WarningDoubleParameter
 
 
     /**
-     *  Returns a copy so you can't edit or damage the origial.
+     *  Returns a copy so you can't edit or damage the origial. All fields,
+     *  constraints and the value object are cloned.
      *
      * @return    Exact copy of this object's state
      */

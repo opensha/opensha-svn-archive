@@ -2,17 +2,24 @@ package org.scec.param;
 
 import org.scec.exceptions.EditableException;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> ParameterConstraint<p>
  *
- * <b>Description:</b> <p>
+ * <b>Description:</b> (artial (abstract) implementation of the
+ * ParameterConstraintAPI. This class implements some of the
+ * simple common code base for all subclasses. There are
+ * three fields and corresponding getters and setters that
+ * are implemented. These fields are:
+ *
+ * <ul>
+ * <li>name, getName(), setName()
+ * <li>editable, isEditable(), setNonEditable(), checkEditable()
+ * <li>nullAllowed, isNullAllowed(), setNullAllowed()
+ * <ul>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public abstract class ParameterConstraint implements ParameterConstraintAPI {
 
     /** Class name for debugging. */
@@ -23,9 +30,10 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
     /** No arg constructor does nothing */
     public ParameterConstraint() {}
 
-    /**
-     *  This value indicates if the value is editable after it is first set.
-     */
+    /** No arg constructor does nothing */
+    public ParameterConstraint() {}
+
+    /** This value indicates if the value is editable after it is first set. */
     protected boolean editable = true;
 
     /** Every constraint has a assigned name - useful for displays and lookups */
@@ -36,16 +44,11 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
 
     /**
      *  Every parameter constraint has a name, this function returns that name.
-     *  Useful for displays and lookups
-     * @return    The name value
+     *  Useful for displays and lookups.
      */
     public String getName(){ return name; }
 
-    /**
-     *  Every parameter constraint has a name, this function sets that name.
-     *
-     * @return    The name value
-     */
+    /** Every parameter constraint has a name, this function sets that name. */
     public void setName(String name) throws EditableException{
         checkEditable(C + ": setName(): ");
         this.name = name;
@@ -57,13 +60,13 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
      */
     public void setNonEditable() { editable = false; }
 
-    /**
-     *  Determines if the value can be edited, i.e. changed once set.
-     *
-     * @return    The editable value
-     */
+    /** Determines if the value can be edited, i.e. changed once set. */
     public boolean isEditable() { return editable; }
 
+    /**
+     * Helper function that throws an EditableException if
+     * this constraint is currently not editable.
+     */
     protected void checkEditable(String S) throws EditableException{
         if( !editable ) throw new EditableException( S +
             "This parameter is currently not editable"
@@ -71,17 +74,17 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
     }
 
     /**
-     *  Returns a copy so you can't edit or damage the origial
-     *
-     * @return    Exact copy of this object's state
+     * Returns a copy so you can't edit or damage the origial.
+     * All concrete subclasses must implement this.
      */
     public abstract Object clone();
 
-
+    /** Sets if null values are allowed. If true nulls are allowed. */
     public void setNullAllowed(boolean nullAllowed) throws EditableException {
         checkEditable(C + ": setNullAllowed(): ");
         this.nullAllowed = nullAllowed;
     }
+    /** Returns if null values are allowed. If true nulls are allowed. */
     public boolean isNullAllowed() {
         return nullAllowed;
     }

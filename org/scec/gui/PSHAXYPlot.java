@@ -13,8 +13,9 @@ import java.math.BigDecimal;
 import javax.swing.*;
 
 /**
- *  <b>Title:</b> PSHAXYPlot<p>
- *  <b>Description:</b>  Subclass of the JFreeChart XYPlot. The sole
+ * <b>Title:</b> PSHAXYPlot<p>
+ *
+ * <b>Description:</b>  Subclass of the JFreeChart XYPlot. The sole
  * purpose this class was required was so that mouse clicks could be tracked
  * showing the x and y values at the click point. <p>
  *

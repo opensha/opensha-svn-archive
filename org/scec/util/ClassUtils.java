@@ -19,7 +19,7 @@ import java.lang.reflect.*;
 
 public class ClassUtils {
 
-
+    /** Class name used for debugging */
     private static final String C = "ClassUtils";
 
     /**

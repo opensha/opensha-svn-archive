@@ -17,6 +17,7 @@ import com.jrefinery.chart.ui.*;
 
 /**
  * <b>Title:</b> MyJFreeChartPanel<p>
+ *
  * <b>Description:</b> Subclass of JFreeChart's ChartPanel class.
  * That class was subclasses here to track mouse movements and
  * display a popup menu. These are not available by default in ChartPanel.

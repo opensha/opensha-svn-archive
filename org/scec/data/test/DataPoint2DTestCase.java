@@ -5,18 +5,21 @@ import junit.framework.TestCase;
 import org.scec.data.*;
 
 /**
- *  <b>Title:</b> DataPoint2DTestCase<p>
+ * <b>Title:</b> DataPoint2DTestCase<p>
  *
- *  <b>Description:</b> Class used by the JUnit testing harness to test the
- *  DataPoint2D. This class was used to test using JUnit. For some reason
- *  testEquals() fails in JUnit, but the main() test (hand coded testing) shows
- *  that the DataPoint2D passes the tests. Need more exploring of JUnit. <P>
+ * <b>Description:</b> Class used by the JUnit testing harness to test the
+ * DataPoint2D. This class was used to test using JUnit. For some reason
+ * testEquals() fails in JUnit, but the main() test (hand coded testing) shows
+ * that the DataPoint2D passes the tests. Need more exploring of JUnit. <P>
  *
- *  JUnit has gained many supporters, specifically used in ANT which is a java
- *  based tool that performs the same function as the make command in unix. ANT
- *  is developed under Apache.<p>
+ * Note: Requires the JUnit classes to run<p>
+ * Note: This class is not needed in production, only for testing.<p>
  *
- *  Any function that begins with test will be executed by JUnit<p>
+ * JUnit has gained many supporters, specifically used in ANT which is a java
+ * based tool that performs the same function as the make command in unix. ANT
+ * is developed under Apache.<p>
+ *
+ * Any function that begins with test will be executed by JUnit<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
@@ -25,28 +28,21 @@ import org.scec.data.*;
 
 public class DataPoint2DTestCase extends TestCase {
 
-    /**
-     *  First test DataPoint2D
-     */
+    /** First test DataPoint2D */
     public DataPoint2D d1;
-    /**
-     *  Second test DataPoint2D
-     */
+
+    /** Second test DataPoint2D */
     public DataPoint2D d2;
-    /**
-     *  Third test DataPoint2D
-     */
+
+    /** Third test DataPoint2D */
     public DataPoint2D d3;
-    /**
-     *  Fourth test DataPoint2D
-     */
+
+    /** Fourth test DataPoint2D */
     public DataPoint2D d4 = null;
 
 
     /**
-     *  Constructor for the DataPoint2DTestCase object
-     *
-     * @param  name  Description of the Parameter
+     *  Constructor for the DataPoint2DTestCase object.
      */
     public DataPoint2DTestCase( String name ) {
         super( name );

@@ -13,14 +13,14 @@ import com.jrefinery.chart.tooltips.*;
 
 public class AdjustableScaleXYItemRenderer extends StandardXYItemRenderer implements XYItemRenderer{
 
-    /**
-     * Constructs a new renderer.
-     */
+    double scale = 4.0;
+
+    /** Constructs a new renderer. Calls super(). */
     public AdjustableScaleXYItemRenderer() { super(); }
 
     /**
-     * Constructs a new renderer.
-     * <p>
+     * Constructs a new renderer. <p>
+     *
      * To specify the type of renderer, use one of the constants: SHAPES, LINES or SHAPES_AND_LINES.
      *
      * @param type The type of renderer.
@@ -30,8 +30,6 @@ public class AdjustableScaleXYItemRenderer extends StandardXYItemRenderer implem
         super(type, toolTipGenerator);
     }
 
-
-    double scale = 4.0;
 
     /**
      * Returns the shape scale of a single data item.

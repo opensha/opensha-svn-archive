@@ -5,8 +5,8 @@ import org.scec.exceptions.*;
 /**
  *  <b>Title:</b> IntegerParameter<p>
  *
- *  <b>Description:</b> Integer Parameter that accepts Integers as it's values.
- * If constraints are present, setting the vlaue must pass the constraint
+ *  <b>Description:</b> A Parameter that accepts Integers as it's values.
+ * If constraints are present, setting the value must pass the constraint
  * check. Since the parameter class in an ancestor, all the parameter's fields are
  * inherited. <p>
  *
@@ -14,11 +14,18 @@ import org.scec.exceptions.*;
  * stored in the constraint that setting the parameter's value cannnt exceed.
  * If no constraint object is present then all values are permitted. <p>
  *
+ * This class also extends DependentParameter so it may have a list of
+ * independent parameters that it depends upon. <p>
+ *
+ * @see DependentParameter
+ * @see DependentParameterAPI
+ * @see ParameterAPI
+ * @see Parameter
+ * @see IntegerConstraint
  * @author     Sid Hellman, Steven W. Rock
  * @created    February 21, 2002
  * @version    1.0
  */
-
 public class IntegerParameter
     extends DependentParameter
     implements DependentParameterAPI, ParameterAPI
@@ -31,10 +38,8 @@ public class IntegerParameter
 
 
     /**
-     *  No constraints specified, all values allowed. Sets the name of this
-     *  parameter.
-     *
-     * @param  name  Name of the parametet
+     * Constructor with no constraints specified, all values are allowed.
+     * Also Sets the name of this parameter.
      */
     public IntegerParameter( String name ) {
         super( name, null, null, null );
@@ -42,13 +47,8 @@ public class IntegerParameter
 
 
     /**
-     *  No constraints specified, all values allowed. Sets the name and untis of
-     *  this parameter.
-     *
-     * @param  name                     Name of the parametet
-     * @param  units                    Units of this parameter
-     * @exception  ConstraintException  Description of the Exception
-     * @throws  ConstraintException     Is thrown if the value is not allowed
+     * Constructor with no No constraints specified, all values are allowed.
+     * Sets the name and untis of this parameter.
      */
     public IntegerParameter( String name, String units ) throws ConstraintException {
         this( name, null, units, null );
@@ -59,7 +59,7 @@ public class IntegerParameter
      *  Sets the name, defines the constraints min and max values. Creates the
      *  constraint object from these values.
      *
-     * @param  name                     Name of the parametet
+     * @param  name                     Name of the parameter
      * @param  min                      defines min of allowed values
      * @param  max                      defines max of allowed values
      * @exception  ConstraintException  thrown if the value is not allowed
@@ -105,13 +105,12 @@ public class IntegerParameter
 
 
     /**
-     *  Sets the name, defines the constraints min and max values, and sets the
-     *  units. Creates the constraint object from these values.
+     *  Sets the name, defines the constraints min and max values. Creates the
+     *  constraint object from these values.
      *
-     * @param  name                     Name of the parameter
+     * @param  name                     Name of the parametet
      * @param  min                      defines min of allowed values
      * @param  max                      defines max of allowed values
-     * @param  units                    Units of this parameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
@@ -122,11 +121,12 @@ public class IntegerParameter
 
 
     /**
-     *  Sets the name and Constraints object.
+     *  Sets the name, defines the constraints min and max values. Creates the
+     *  constraint object from these values.
      *
-     * @param  name                     Name of the parameter
-     * @param  constraint               defines min and max range of allowed
-     *      values
+     * @param  name                     Name of the parametet
+     * @param  min                      defines min of allowed values
+     * @param  max                      defines max of allowed values
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
@@ -145,7 +145,7 @@ public class IntegerParameter
      * @param  units                    Units of this parameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not
-     *      allowedallowed one. Null values are always allowed in the
+     *      allowed one. Null values are always allowed in the
      *      constructors
      */
     public IntegerParameter( String name, IntegerConstraint constraint, String units ) throws ConstraintException {
@@ -286,8 +286,9 @@ public class IntegerParameter
     }
 
     /**
-     *  Sets the constraint if it is a StringConstraint and the parameter
-     *  is currently editable.
+     * Sets the constraint if it is a StringConstraint and the parameter
+     * is currently editable. If this parameter is set non-editable
+     * an EditableConstraint is thrown.
      */
     public void setConstraint(ParameterConstraintAPI constraint) throws ParameterException{
 
@@ -304,7 +305,8 @@ public class IntegerParameter
     }
 
     /**
-     *  Determine if the new value being set is allowed.
+     * Determine if the new value being set is allowed by validating
+     * against the constraints.
      *
      * @param  obj  Object to check if allowed via constraints
      * @return      True if the value is allowed
@@ -327,10 +329,8 @@ public class IntegerParameter
 
 
     /**
-     *  Gets the min value of the constraint object.
-     *
-     * @return                The min value
-     * @exception  Exception  Description of the Exception
+     * Returns the min value of the constraint object. Null is
+     * returned if there are no constraints set.
      */
     public Integer getMin() throws Exception {
         if ( constraint != null )
@@ -340,9 +340,8 @@ public class IntegerParameter
 
 
     /**
-     *  Returns the maximum allowed values.
-     *
-     * @return    The max value
+     * Returns the min value of the constraint object. Null is
+     * returned if there are no constraints set.
      */
     public Integer getMax() {
         if ( constraint != null )
@@ -352,9 +351,10 @@ public class IntegerParameter
 
 
     /**
-     *  Gets the type attribute of the IntegerParameter object.
-     *
-     * @return    The type value
+     * Returns the type of this parameter. The type is just the classname
+     * if no constraints are present, else "Constrained" is prepended to the
+     * classname. The type is used to determine which parameter GUI editor
+     * to use.
      */
     public String getType() {
         String type = C;
@@ -366,14 +366,10 @@ public class IntegerParameter
 
 
     /**
-     *  Compares the values to if this is less than, equal to, or greater than
-     *  the comparing objects.
-     *
-     * @param  obj                     The object to compare this to
-     * @return                         -1 if this value < obj value, 0 if equal,
-     *      +1 if this value > obj value
-     * @exception  ClassCastException  Is thrown if the comparing object is not
-     *      a IntegerParameter.
+     * Returns the type of this parameter. The type is just the classname
+     * if no constraints are present, else "Constrained" is prepended to the
+     * classname. The type is used to determine which parameter GUI editor
+     * to use.
      */
     public int compareTo( Object obj ) throws ClassCastException {
 
@@ -417,11 +413,7 @@ public class IntegerParameter
     }
 
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Exact copy of this object's state
-     */
+    /** Returns a copy so you can't edit or damage the original. */
     public Object clone() {
         IntegerConstraint c1 = ( IntegerConstraint ) constraint.clone();
         IntegerParameter param = null;

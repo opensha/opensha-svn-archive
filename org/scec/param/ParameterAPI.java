@@ -48,80 +48,43 @@ import org.scec.data.*;
 
 public interface ParameterAPI extends NamedObjectAPI, Comparable {
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
+    /** Every parameter has a name, this function gets that name. */
     public String getName();
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
+    /** Every parameter has a name, this function sets that name. */
     public void setName(String name);
 
     /**
-     *  Every parameter constraint has a name, this function sets that name.
-     *  Defaults to the name of the parameter
-     *
-     * @return    The name value
+     * Every parameter constraint has a name, this
+     * function gets that name. Defaults to the name
+     * of the parameter but in some cases may be different.
      */
     public String getConstraintName(  );
 
     /**
-     *  Gets the constraints of this parameter. Each subclass may implement any
-     *  type of constraint it likes.
-     *
-     * @return    The constraint value
+     * Returns the constraints of this parameter. Each
+     * subclass may store any type of constraint it likes.
      */
     public ParameterConstraintAPI getConstraint();
 
     /**
-     *  Gets the constraints of this parameter. Each subclass may implement any
-     *  type of constraint it likes.
-     *
-     * @return    The constraint value
+     * Sets the constraints of this parameter. Each
+     * subclass may store any type of constraint it likes.
      */
     public void setConstraint(ParameterConstraintAPI constraint);
 
 
-    /**
-     *  Returns the units of this parameter, represented as a String.
-     *
-     * @return    The units value
-     */
+    /** Returns the units of this parameter, represented as a String. */
     public String getUnits();
-
-    /**
-     * Sets the units of this parameter
-     * @param units
-     */
+    /** Sets the string name of units of this parameter */
     public void setUnits(String units);
 
-    /**
-     *  Returns a description of this Parameter, typically used for tooltips.
-     *
-     * @return    The info value
-     */
+    /** Returns a description of this Parameter, typically used for tooltips. */
     public String getInfo();
-
-
-    /**
-     *  Sets the info attribute of the ParameterAPI object.
-     *
-     * @param  info  The new info value
-     */
+    /** Sets the info attribute of the ParameterAPI object. */
     public void setInfo( String info );
 
-
-
-    /**
-     *  Returns the value onject stored in this parameter.
-     *
-     * @return    The value value
-     */
+    /** Returns the value onject stored in this parameter. */
     public Object getValue();
 
 
@@ -130,7 +93,7 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
      *
      * @param  value                 The new value for this Parameter
      * @throws  ParameterException   Thrown if the object type of value to set
-     *      is not the correct type
+     *      is not the correct type.
      * @throws  ConstraintException  Thrown if the object value is not allowed
      */
     public void setValue( Object value ) throws ConstraintException, ParameterException;
@@ -171,36 +134,31 @@ public interface ParameterAPI extends NamedObjectAPI, Comparable {
 
 
     /**
-     *  Proxy to constraint check when setting a value.
-     *
-     * @param  value  Description of the Parameter
-     * @return        The allowed value
+     * Proxy to constraint check when setting a value. If no
+     * constraint then this always returns true.
      */
     public boolean isAllowed( Object value );
 
 
-    /**
-     *  Determines if the value can be edited, i.e. changed once set.
-     *
-     * @return    The editable value
-     */
+    /** Determines if the value can be edited, i.e. changed after initialization .*/
     public boolean isEditable();
 
 
     /**
-     *  Disables editing the value once it is set.
+     * Disables editing the value once it is set. This permits
+     * a one time setup during initialization. Then the object ca
+     * be changed to read only.
      */
     public void setNonEditable();
 
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Description of the Return Value
-     */
+    /** Returns a copy so you can't edit or damage the origial. */
     public Object clone();
 
-
+    /**
+     * Checks if null values are permitted via the constraint. If true then
+     * nulls are allowed.
+     */
     public boolean isNullAllowed();
 
 }

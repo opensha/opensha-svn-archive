@@ -8,6 +8,7 @@ import org.scec.param.editor.*;
 
 /**
  * <b>Title:</b> NameValueLabel<p>
+ *
  * <b>Description:</b> A JPanel that contains two
  * labels, one plain and one bold. This is used to display
  * a key, value pair. For example:<br>

@@ -8,7 +8,9 @@ import org.scec.exceptions.ParameterException;
  *
  * <b>Description:</b> Implementation classes of this interface are
  * known as dependent parameters, i.e. it's values and/or constraints
- * depend on other independent parametes. An implementation class will
+ * depend on other independent parametes. The basic functionality is to
+ * just maintain the list of parameters this depends on. There is no
+ * other logic between these parameters. An implementation class will
  * maintain a list of parameters that it depends on. <p>
  *
  * This interface simply states the functions for list accessors
@@ -19,10 +21,7 @@ import org.scec.exceptions.ParameterException;
  * @author Steven W. Rock
  * @version 1.0
  */
-
 public interface DependentParameterAPI extends ParameterAPI {
-
-    // ListIterator guarantees the order that you add parameters
 
     /**
      * Returns an iterator of all indepenedent parameters this parameter

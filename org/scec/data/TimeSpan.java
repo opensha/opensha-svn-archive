@@ -52,7 +52,7 @@ public class TimeSpan extends GregorianCalendar {
 
 
     /**
-     *  Create a TimeSpan with a start date and a  duration (seconds).
+     * Create a TimeSpan with a start date and a  duration (seconds).
      *
      * @param  cal       Start time
      * @param  interval  Interval of the event
@@ -75,19 +75,13 @@ public class TimeSpan extends GregorianCalendar {
     }
 
 
-    /**
-     *  Sets the elapsed time of this event in seconds.
-     * @param  timeInterval  The elapsed time of this event
-     */
+    /** Sets the elapsed time of this event in seconds. */
     public void setTimeInterval( double timeInterval ) {
         this.timeInterval = timeInterval;
         endTime =  this.getTimeInMillis() + (long)(timeInterval * 1000)  ;
     }
 
-    /**
-     *  Sets the elapsed time of this event in seconds.
-     * @param  timeInterval  The elapsed time of this event
-     */
+    /** Sets the elapsed time of this event in seconds. */
     public void setStartTime( GregorianCalendar cal ) {
 
         this.set(YEAR, cal.get(Calendar.YEAR));
@@ -101,10 +95,7 @@ public class TimeSpan extends GregorianCalendar {
         endTime =  this.getTimeInMillis() + (long)(timeInterval * 1000)  ;
     }
 
-    /**
-     *  Sets the elapsed time of this event in seconds.
-     * @param  timeInterval  The elapsed time of this event
-     */
+    /** Sets the elapsed time of this event in seconds. */
     public void setEndTime( GregorianCalendar cal ) throws InvalidRangeException{
 
         String S = C + ": setEndTime():";
@@ -118,11 +109,7 @@ public class TimeSpan extends GregorianCalendar {
         this.timeInterval =  Math.round( (double) ( ( end - start ) / 1000 ) );
     }
 
-    /**
-     *  Returns the elapsed time of this event in seconds.
-     *
-     * @return    timeInterval
-     */
+    /** Returns the elapsed time of this event in seconds. */
     public double getTimeInterval() { return timeInterval; }
 
 

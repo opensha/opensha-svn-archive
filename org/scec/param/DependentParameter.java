@@ -3,32 +3,33 @@ package org.scec.param;
 import java.util.*;
 import org.scec.exceptions.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> DependentParameter<p>
  *
- * <b>Description:</b> Partial implementation of the
- * DependentParameterAPI. Provides all the basic functionality
+ * <b>Description:</b> Partial (abstract) implementation of the
+ * DependentParameterAPI. A dependent parameter is simply a Parameter
+ * where it's values and/or constraints depend on other independent
+ * parametes. The basic functionality is to just maintain the list
+ * of parameters this depends on. There is no special logic between
+ * these parameters.  <p>
+ *
+ * This abstract class provides all the basic functionality
  * of adding, checking and removing independent parameters from
  * the internal storage structure. Internally the parameter list
  * is store in a TreeMap so the parameters are automatically
  * sorted alphabetically. <p>
  *
- * It is only specified as abstract so that it can never be instantiated
- * by itself, only in a subclass. Actually all the DependentParameterAPI
- * functions are implemented. Subclasses only need to extend this class
- * to be fully operational as a dependent parameter. No other code changes
- * are required. This makes the changes transparent to subclasses. <p>
+ * All the DependentParameterAPI functions are implemented. This class
+ * is specified as abstract so that it can never be instantiated
+ * by itself, only in a subclass. <p>
  *
  * @author Steven W. Rock
  * @version 1.0
  */
-
-public abstract class DependentParameter extends Parameter implements
-    DependentParameterAPI
+public abstract class DependentParameter
+    extends Parameter
+    implements DependentParameterAPI
 {
-
 
     /**
      * Internal TreeMap list of parameters - indexed by name .
@@ -36,11 +37,9 @@ public abstract class DependentParameter extends Parameter implements
      */
     protected TreeMap independentParameters = new TreeMap();
 
-
-    /**
-     *  Empty no-arg constructor. Only calls super constructor.
-     */
+    /** Empty no-arg constructor. Only calls super constructor. */
     public DependentParameter() { super(); }
+
 
     /**
      *  This is the main constructor. All subclass constructors call this one.
@@ -71,16 +70,16 @@ public abstract class DependentParameter extends Parameter implements
 
 
 
-     /**
-      * Returns an iterator of all parameters in the list.<p>
-      *
-      * Note: SWR - I choose to implement the iterator an easy way
-      * but not the best way. I create a vector, add all parameters from
-      * the Hashtable. Quick and dirty. May want to improve in the future.
-      * The treemap provides no easy access to an iterator. Since in our
-      * case the list will always be small this is not a performance hit.
-      *
-      */
+    /**
+    * Returns an iterator of all parameters in the list.<p>
+    *
+    * Note: SWR - I choose to implement the iterator an easy way
+    * but not the best way. I create a vector, add all parameters from
+    * the Hashtable. Quick and dirty. May want to improve in the future.
+    * The treemap provides no easy access to an iterator. Since in our
+    * case the list will always be small this is not a performance
+    * problem.
+    */
     public ListIterator getIndependentParametersIterator(){
 
         Set set = independentParameters.keySet();
@@ -98,8 +97,8 @@ public abstract class DependentParameter extends Parameter implements
 
 
 
-    /** returns parameter if exist else throws exception */
-    public ParameterAPI getIndependentParameter(String name) throws ParameterException {
+    /** Returns parameter from list if exist else throws exception */
+   public ParameterAPI getIndependentParameter(String name) throws ParameterException {
 
         if( independentParameters.containsKey(name) ) {
             ParameterAPI param = (ParameterAPI)independentParameters.get(name);

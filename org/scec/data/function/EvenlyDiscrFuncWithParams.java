@@ -22,7 +22,6 @@ import org.scec.param.*;
  * @see DiscretizedFunc
  * @see DiscretizedFuncAPIFunc
  * @see ParameterList
- *
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -103,7 +102,7 @@ public class EvenlyDiscrFuncWithParams
 
     /**
      * Returns a copy of this and all points in this DiscretizedFunction.
-     * Also clones each paramete in the parameter list.
+     * Also clones each parameter in the parameter list.
      */
     public DiscretizedFuncAPI deepClone(){
 

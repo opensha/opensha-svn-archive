@@ -47,15 +47,10 @@ public class Site extends ParameterList implements NamedObjectAPI {
     /** Location of this site */
     protected Location location;
 
-
     /** No-Arg Constructor for the Site object. Currenlty does nothing. */
     public Site() { }
 
-
-    /**
-     *  Constructor for the Site object that sets the location.
-     * @param  location  The site location
-     */
+    /** Constructor for the Site object that sets the location. */
     public Site( Location location ) { this.location = location; }
 
 
@@ -72,30 +67,17 @@ public class Site extends ParameterList implements NamedObjectAPI {
     }
 
 
-    /**
-     *  Sets the name of the Site.
-     * @param  name  The new name
-     */
+    /** Sets the name of the Site. */
     public void setName( String name ) { this.name = name; }
 
-    /**
-     *  Returns the name of the Site.
-     * @return    The name
-     */
+    /** Returns the name of the Site. */
     public String getName() { return name; }
 
 
-
-    /**
-     *  Sets the location of this Site.
-     * @param  location  The new location value
-     */
+    /** Sets the location of this Site. */
     public void setLocation( Location location ) { this.location = location; }
 
-    /**
-     *  Returns the location of this Site.
-     * @return    The site location
-     */
+    /** Returns the location of this Site. */
     public Location getLocation() { return location; }
 
 

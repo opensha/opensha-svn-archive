@@ -5,13 +5,14 @@ import org.scec.exceptions.ParameterException;
 import org.scec.exceptions.EditableException;
 
 /**
- *  <b>Title: </b> Parameter<p>
+ * <b>Title: </b> Parameter<p>
  *
- *  <b>Description: </b> Partial (abstract)  base implementation for ParameterAPI of common
- *  functionality accross all parameter subclasses. The common fields with get
- *  and setters are here, as well as a default constructor that sets all these
- *  fields, and the setValue field that always checks if the value is allowed
- *  before setting. The fields with gettesr and setters are:
+ * <b>Description: </b> Partial (abstract)  base implementation for
+ * ParameterAPI of common functionality accross all parameter subclasses.
+ * The common fields with get and setters are here, as well as a default
+ * constructor that sets all these fields, and the setValue field that
+ * always checks if the value is allowed before setting. The fields
+ * with gettesr and setters are:
  *
  * <ul>
  * <li>name
@@ -23,17 +24,10 @@ import org.scec.exceptions.EditableException;
  *
  * These fields are common to all parameters. <p>
  *
- *  <b>Change History:</b> 11/29/2001 - SWR - Added String units field with get
- *  and set methods<p>
- *
  * @author     Steve W. Rock
  * @created    February 21, 2002
  * @see        ParameterAPI
  * @version    1.0
- */
-
-/*
- *  public class Parameter implements ParameterAPI, NamedObjectAPI
  */
 public abstract class Parameter
     implements
@@ -55,37 +49,29 @@ public abstract class Parameter
      */
     protected String info = "";
 
-    /**
-     *  The units of this parameter.
-     */
+    /** The units of this parameter represented as a String */
     protected String units = "";
 
-    /**
-     *  THe constraint for this Parameter.
-     */
+    /** The constraint for this Parameter. This is consulted when setting values */
     protected ParameterConstraintAPI constraint = null;
 
     /**
-     *  This value indicates if the value is editable after it is first set.
+     * This value indicates if fields and constraint in this
+     * parameter are editable  after it is first initialized.
      */
     protected boolean editable = true;
 
-    /**
-     *  The value object of this Parameter, subclasses will define the object
-     *  type.
-     */
+    /** The value object of this Parameter, subclasses will define the object type. */
     protected Object value = null;
-
 
 
     /** Empty no-arg constructor. Does nothing but initialize object.  */
     public Parameter() { }
 
     /**
-     *  Every parameter constraint has a name, this function sets that name.
-     *  Defaults to the name of the parameter
-     *
-     * @return    The name value
+     *  Every parameter constraint has a name, this function gets that name.
+     *  Defaults to the name of the parameter but in a few cases may
+     * be different.
      */
     public String getConstraintName(  ){
         if( constraint != null ) {
@@ -172,11 +158,130 @@ public abstract class Parameter
     }
 
 
+        /** Name of the parameter. */
+    protected String name = "";
+
     /**
-     *  Sets the info attribute of the Parameter object. This is usually used to
-     *  describe what this object represents. May be used in gui tooltips.
-     *
-     * @param  info  The new info value
+     *  Information about this parameter. This is usually used to describe what
+     *  this object represents. May be used in gui tooltips.
+     */
+    protected String info = "";
+
+    /** The units of this parameter represented as a String */
+    protected String units = "";
+
+    /** The constraint for this Parameter. This is consulted when setting values */
+    protected ParameterConstraintAPI constraint = null;
+
+    /**
+     * This value indicates if fields and constraint in this
+     * parameter are editable  after it is first initialized.
+     */
+    protected boolean editable = true;
+
+    /** The value object of this Parameter, subclasses will define the object type. */
+    protected Object value = null;
+
+
+    /** Empty no-arg constructor. Does nothing but initialize object.  */
+    public Parameter() { }
+
+    /**
+     *  Every parameter constraint has a name, this function gets that name.
+     *  Defaults to the name of the parameter but in a few cases may
+     * be different.
+     */
+    public String getConstraintName(  ){
+        if( constraint != null ) {
+            String name = constraint.getName( );
+            if( name == null ) return "";
+            return name;
+        }
+        return "";
+    }
+
+    /** Proxy function call to the constraint to see if null values are permitted */
+    public boolean isNullAllowed(){
+        if( constraint != null ) {
+            return constraint.isNullAllowed();
+        }
+        else return true;
+    }
+
+    /**
+     * If the editable boolean is set to true, the parameter value can
+     * be edited, else an EditableException is thrown.
+     */
+    protected void checkEditable(String S) throws EditableException{
+        if( !this.editable ) throw new EditableException( S +
+            "This parameter is currently not editable"
+        );
+    }
+
+        /** Name of the parameter. */
+    protected String name = "";
+
+    /**
+     *  Information about this parameter. This is usually used to describe what
+     *  this object represents. May be used in gui tooltips.
+     */
+    protected String info = "";
+
+    /** The units of this parameter represented as a String */
+    protected String units = "";
+
+    /** The constraint for this Parameter. This is consulted when setting values */
+    protected ParameterConstraintAPI constraint = null;
+
+    /**
+     * This value indicates if fields and constraint in this
+     * parameter are editable  after it is first initialized.
+     */
+    protected boolean editable = true;
+
+    /** The value object of this Parameter, subclasses will define the object type. */
+    protected Object value = null;
+
+
+    /** Empty no-arg constructor. Does nothing but initialize object.  */
+    public Parameter() { }
+
+    /**
+     *  Every parameter constraint has a name, this function gets that name.
+     *  Defaults to the name of the parameter but in a few cases may
+     * be different.
+     */
+    public String getConstraintName(  ){
+        if( constraint != null ) {
+            String name = constraint.getName( );
+            if( name == null ) return "";
+            return name;
+        }
+        return "";
+    }
+
+    /** Proxy function call to the constraint to see if null values are permitted */
+    public boolean isNullAllowed(){
+        if( constraint != null ) {
+            return constraint.isNullAllowed();
+        }
+        else return true;
+    }
+
+    /**
+     * If the editable boolean is set to true, the parameter value can
+     * be edited, else an EditableException is thrown.
+     */
+    protected void checkEditable(String S) throws EditableException{
+        if( !this.editable ) throw new EditableException( S +
+            "This parameter is currently not editable"
+        );
+    }
+
+    /**
+     * Sets the info attribute of the Parameter object if editable. This is
+     * usually used to describe what this object represents. May be used
+     * in gui tooltips.
      */
     public void setInfo( String info ) throws EditableException{
 
@@ -184,10 +289,7 @@ public abstract class Parameter
         this.info = info;
     }
 
-    /**
-     * Sets the units of this parameter
-     * @param units
-     */
+    /** Sets the units of this parameter */
     public void setUnits(String units) throws EditableException {
         checkEditable(C + ": setUnits(): ");
         this.units = units;
@@ -203,7 +305,58 @@ public abstract class Parameter
         editable = false;
     }
 
+    /**
+     *  Returns the parameter's value. Each subclass defines what type of
+     *  object. it returns
+     *
+     * @return    The value value
+     */
+    public Object getValue() { return value; }
 
+
+    /** Every parameter has a name, this function returns that name. */
+    public String getName() { return name; }
+    /** Every parameter has a name, this function sets that name, if editable. */
+    public void setName(String name){
+        checkEditable(C + ": setName(): ");
+        this.name = name;
+    }
+
+
+    /** Returns the units of this parameter, represented as a String. */
+    public String getUnits() { return units; }
+
+    /** Gets the constraints of this parameter. */
+    public ParameterConstraintAPI getConstraint() { return constraint; }
+
+    /**
+     * Gets the constraints of this parameter if editable. Each
+     * subclass may implement any type of constraint it likes.
+     */
+    public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
+        checkEditable(C + ": setConstraint(): ");
+        this.constraint = constraint;
+    }
+
+    /** Returns a description of this Parameter, typically used for tooltips. */
+    public String getInfo() { return info; }
+
+    /** Returns the short class name of this object. */
+    public String getType() { return C; }
+
+
+    /** Determines if the value can be edited, i.e. changed once initialized. */
+    public boolean isEditable() { return editable; }
+
+
+
+    /**
+     *  Disables editing units, info, constraints, et. Basically all set()s disabled
+     *  except for setValue(). Once set non-editable, it cannot be set back.
+     */
+    public void setNonEditable() {
+        editable = false;
+    }
 
     /**
      *  Returns the parameter's value. Each subclass defines what type of
@@ -211,131 +364,42 @@ public abstract class Parameter
      *
      * @return    The value value
      */
-    public Object getValue() {
-        return value;
-    }
+    public Object getValue() { return value; }
 
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
-    public String getName() {
-        return name;
-    }
-
-
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
+    /** Every parameter has a name, this function returns that name. */
+    public String getName() { return name; }
+    /** Every parameter has a name, this function sets that name, if editable. */
     public void setName(String name){
         checkEditable(C + ": setName(): ");
         this.name = name;
     }
 
 
-    /**
-     *  Returns the units of this parameter, represented as a String.
-     *
-     * @return    The units value
-     */
-    public String getUnits() {
-        return units;
-    }
+    /** Returns the units of this parameter, represented as a String. */
+    public String getUnits() { return units; }
+
+    /** Gets the constraints of this parameter. */
+    public ParameterConstraintAPI getConstraint() { return constraint; }
 
     /**
-     *  Gets the constraints of this parameter.
-     *
-     * @return    The constraint value
-     */
-    public ParameterConstraintAPI getConstraint() {
-        return constraint;
-    }
-
-    /**
-     *  Gets the constraints of this parameter. Each subclass may implement any
-     *  type of constraint it likes.
-     *
-     * @return    The constraint value
+     * Gets the constraints of this parameter if editable. Each
+     * subclass may implement any type of constraint it likes.
      */
     public void setConstraint(ParameterConstraintAPI constraint) throws EditableException{
         checkEditable(C + ": setConstraint(): ");
         this.constraint = constraint;
     }
 
+    /** Returns a description of this Parameter, typically used for tooltips. */
+    public String getInfo() { return info; }
+
+    /** Returns the short class name of this object. */
+    public String getType() { return C; }
 
 
-    /**
-     *  Returns a description of this Parameter, typically used for tooltips.
-     *
-     * @return    The info value
-     */
-    public String getInfo() {
-        return info;
-    }
+    /** Determines if the value can be edited, i.e. changed once initialized. */
+    public boolean isEditable() { return editable; }
 
-
-    /**
-     *  Returns the short class name of this object.
-     *
-     * @return    The type value
-     */
-    public String getType() {
-        return C;
-    }
-
-
-    /**
-     *  Determines if the value can be edited, i.e. changed once set.
-     *
-     * @return    The editable value
-     */
-    public boolean isEditable() {
-        return editable;
-    }
-
-
-    /**
-     *  Uses the constraint object to determine if the new value being set is
-     *  allowed. If no Constraints are present all values are allowed. This
-     *  function is now available to all subclasses, since any type of
-     *  constraint object follows the same api.
-     *
-     * @param  obj  Object to check if allowed via constraints
-     * @return      True if the value is allowed
-     */
-    public boolean isAllowed( Object obj ) {
-        if ( constraint != null ) return constraint.isAllowed( obj );
-         else return true;
-
-    }
-
-
-
-    /**
-     *  Prints out the current state of this parameter, useful for debugging.
-     *
-     * @return    Formatted String of object's current state.
-     */
-    public String toString() {
-        String TAB = "    ";
-        StringBuffer b = new StringBuffer();
-        b.append( C );
-        if ( name != null ) b.append( TAB + "Name = " + name + '\n' );
-        if ( value != null ) b.append( TAB + "Value = " + value.toString() + '\n' );
-        if ( constraint != null ) b.append( TAB + "Constraint = " + constraint.toString() + '\n' );
-        return b.toString();
-    }
-
-
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Description of the Return Value
-     */
-    public abstract Object clone();
 
 }

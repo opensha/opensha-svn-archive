@@ -90,17 +90,11 @@ public class LocationList {
      *
      * @return    Description of the Return Value
      */
-    public ListIterator listIterator() {
-        return locations.listIterator();
-    }
+    public ListIterator listIterator() { return locations.listIterator(); }
 
 
-    /**
-     *  Removes all Locations from this list
-     */
-    public void clear() {
-        locations.clear();
-    }
+    /**  Removes all Locations from this list */
+    public void clear() { locations.clear(); }
 
 
     /**

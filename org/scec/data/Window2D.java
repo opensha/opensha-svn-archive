@@ -29,50 +29,33 @@ public class Window2D {
     /** If true debugging statements are printed.  */
     protected final static boolean D = false;
 
-
     /** The first row of the window.  */
     protected int startRow = 0;
-
-    /** Returns the first row of the window.  */
-    public int getStartRow(){ return startRow; }
-
 
     /** The last row of the window. */
     protected int endRow = 0;
 
+    /** The number of rows in this window. */
+    protected int numRows = 0;
+
+    /** The number of rows in the full matrix. */
+    protected int maxNumRows = 0;
 
     /** The first column of the window. */
     protected int startCol = 0;
 
-    /**
-     *  The last column of the window.
-     */
+    /** The last column of the window. */
     protected int endCol = 0;
 
-    /**
-     *  The number of rows in this window.
-     */
-    protected int numRows = 0;
-    /**
-     *  The number of columns in this window.
-     */
+    /** The number of columns in this window. */
     protected int numCols = 0;
 
-    /**
-     *  The number of rows in the full matrix.
-     */
-    protected int maxNumRows = 0;
-    /**
-     *  The full number of columns in the full matrix.
-     */
+    /** The full number of columns in the full matrix. */
     protected int maxNumCols = 0;
 
 
-    /**
-     *  No-arg Constructor - does nothing.
-     */
+    /** No-arg Constructor - does nothing. */
     public Window2D() { }
-
 
     /**
      *  This function determines if the specified row fits within the window. It
@@ -90,6 +73,10 @@ public class Window2D {
             return false;
         }
     }
+
+
+    /** Returns the first row of the window.  */
+    public int getStartRow(){ return startRow; }
 
 
     /**
@@ -404,45 +391,43 @@ public class Window2D {
     }
 
 
+    /** Sets the startRow - javabean method */
+    public void setStartRow(int startRow) { this.startRow = startRow; }
 
-    public void setStartRow(int startRow) {
-        this.startRow = startRow;
-    }
-    public void setStartCol(int startCol) {
-        this.startCol = startCol;
-    }
-    public int getStartCol() {
-        return startCol;
-    }
-    public int getNumRows() {
-        return numRows;
-    }
-    public int getNumCols() {
-        return numCols;
-    }
-    public int getMaxNumRows() {
-        return maxNumRows;
-    }
-    public int getMaxNumCols() {
-        return maxNumCols;
-    }
-    public int getEndRow() {
-        return endRow;
-    }
-    public int getEndCol() {
-        return endCol;
-    }
-    public void setNumRows(int numRows) {
-        this.numRows = numRows;
-    }
-    public void setNumCols(int numCols) {
-        this.numCols = numCols;
-    }
-    public void setEndRow(int endRow) {
-        this.endRow = endRow;
-    }
-    public void setEndCol(int endCol) {
-        this.endCol = endCol;
-    }
+    /** Sets the startCol - javabean method */
+    public void setStartCol(int startCol) { this.startCol = startCol; }
+
+    /** Gets the startCol - javabean method */
+    public int getStartCol() { return startCol; }
+
+    /** Gets the numRows - javabean method */
+    public int getNumRows() { return numRows; }
+
+    /** Gets the numCols - javabean method */
+    public int getNumCols() { return numCols; }
+
+    /** Gets the maxNumRows - javabean method */
+    public int getMaxNumRows() { return maxNumRows; }
+
+    /** Gets the maxNumCols - javabean method */
+    public int getMaxNumCols() { return maxNumCols; }
+
+    /** Gets the endRow - javabean method */
+    public int getEndRow() { return endRow; }
+
+    /** Gets the endCol - javabean method */
+    public int getEndCol() { return endCol; }
+
+    /** Sets the numRows - javabean method */
+    public void setNumRows(int numRows) { this.numRows = numRows; }
+
+    /** Sets the numCols - javabean method */
+    public void setNumCols(int numCols) { this.numCols = numCols; }
+
+    /** Sets the endRow - javabean method */
+    public void setEndRow(int endRow) { this.endRow = endRow; }
+
+    /** Sets the endCol - javabean method */
+    public void setEndCol(int endCol) { this.endCol = endCol; }
 
 }

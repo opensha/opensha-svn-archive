@@ -6,6 +6,7 @@ import javax.swing.*;
 
 /**
  * <b>Title:</b> LabeledBoxPanel<p>
+ *
  * <b>Description:</b> GUI Widget that contains a Header panel with
  * a title lable and an editor panel withing a scroll pane. Is the
  * base class for the ParameterListEditor. This is a generic

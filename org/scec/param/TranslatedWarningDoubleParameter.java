@@ -8,22 +8,47 @@ import org.scec.exceptions.*;
 /**
  * <b>Title:</b> TranslatedWarningDoubleParameter<p>
  *
- * <b>Description:</b> Will translate the values when setting and getting,
- * unless the translation is disabled. It that case it will act just like a
- * normal WarningDoubleParameter. The translator can be any function command
- * that you pass in. Default is LogTranslator(). Initially set translate to
- * true. <p>
+ * <b>Description:</b> A subclass of a warning double parameter so
+ * it inherits all behavior of the parent class. See the parent class
+ * javadocs for a full description of it's behavior. Only the added
+ * features of this subclass will be outlined here. <p>
  *
- * This class allows a user to input normal values that get translated internally.
- * Then these values can be inputted to a process that needs the translated values.
- * This is real helpful for user input of log values. Since the translation
- * can be disabled, it is really easy to get to the underlying real data.<p>
+ * The whole purpose of a TranslatedWarningDoubleParameter is to be a
+ * "wrapper" for a WarningDoubleParameter and translate all setting,
+ * getting values to the warning parameter. This Translated parameter
+ * becomes a proxy to the "wrapped" WarningParameter. In object-oriented
+ * design patterns this is called the "Decorator Pattern". Instead of
+ * subclassing you "wrap" (maintain a variable reference ) to the clss of
+ * interest. This class then slightly modifies the behavior of the "wrapped"
+ * class transparently. This helps eliminate proliferation of subclasses. <p>
  *
- * Note: The logical purpose of this class is to input values in one form,
+ * The TranslatedWarningDoubleParameter makes use of a second class, a
+ * TranslatorAPI that actually performs the translation back and fourth
+ * internally. An API was defined so that any type of implementation
+ * translation class could be passed in. This translation class is simply
+ * some function. The class acts as a pointer to a function, so you can swap
+ * out different functions without changing this class. Currently the only
+ * concrete translator class implemented is the LogTranslator.  <p>
+ *
+ * The logical purpose of this class is to input values in one form,
  * then translate them to the desired form, and use the translated values
  * in a calculation. So with this in mind it is really the input values that
  * are translated, and the translator puts them back in the correct form.<p>
  *
+ * An example is that in our IMRTesterApplet we let users edit the IMR level
+ * in normal space using this Parameter class. The values are internally
+ * translated to log space in the contained WarningDoubleParameter. So the user
+ * only sees normal values for the current IMR level, and it's constraints, but
+ * internally the values are really in log space. The IMR needs the parameter
+ * in log space to perform it's calculations.  It is much easier for a user
+ * to input normal values say 1-200, than the log of this range. <p>
+ *
+ * If the translate flag is set to false, this class then acts as a transparent
+ * proxy to the underlying WarningDoubleParameter. No translations are made. <p>
+ *
+ * @see WarningDoubleParameter
+ * @see TranslatorAPI
+ * @see LogTranslator
  * @author Steven W. Rock
  * @version 1.0
  */
@@ -313,74 +338,46 @@ public class TranslatedWarningDoubleParameter
     // *******************************************
     // *******************************************
 
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setIgnoreWarning(boolean ignoreWarning) {
         param.setIgnoreWarning(ignoreWarning);
     }
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public boolean isIgnoreWarning() { return param.isIgnoreWarning(); }
+
+
 
     // *******************************************
     // WarningDoubleParameterAPI Proxy methods
     // *******************************************
 
-    /**
-     *  Sets the constraint if it is a StringConstraint and the parameter
-     *  is currently editable.
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setWarningConstraint(DoubleConstraint warningConstraint){
         param.setWarningConstraint(warningConstraint); }
 
-    /**
-     *  Sets the constraint if it is a StringConstraint and the parameter
-     *  is currently editable.
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public DoubleConstraint getWarningConstraint() throws ParameterException{
         return param.getWarningConstraint();}
 
-
-    /**
-     *  Adds a feature to the ParameterChangeFailListener attribute of the
-     *  ParameterEditor object
-     *
-     * @param  listener  The feature to be added to the
-     *      ParameterChangeFailListener attribute
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void addParameterChangeWarningListener( ParameterChangeWarningListener listener ){
         param.addParameterChangeWarningListener( listener ) ;}
 
-    /**
-     *  Description of the Method
-     *
-     * @param  listener  Description of the Parameter
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void removeParameterChangeWarningListener( ParameterChangeWarningListener listener ){
         param.removeParameterChangeWarningListener( listener ) ;}
 
 
 
-    /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void fireParameterChangeWarning( ParameterChangeWarningEvent event ){
         param.fireParameterChangeWarning( event ) ;}
 
 
-    /**
-     *  Compares value to see if equal.
-     *
-     * @param  obj                     The object to compare this to
-     * @return                         True if the values are identical
-     * @exception  ClassCastException  Is thrown if the comparing object is not
-     *      a DoubleParameter, or DoubleDiscreteParameter.
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public boolean equals( Object obj ) throws ClassCastException { return param.equals( obj ) ;}
 
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Exact copy of this object's state
-     */
+    /** Returns a copy so you can't edit or damage the origial. */
     public Object clone(){
 
         TranslatedWarningDoubleParameter param1 = new TranslatedWarningDoubleParameter( (WarningDoubleParameter)param.clone() );
@@ -396,29 +393,34 @@ public class TranslatedWarningDoubleParameter
     // DependentParameterAP Proxy methods
     // *******************************************
 
-    // ListIterator guarantees the order that you add parameters
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public ListIterator getIndependentParametersIterator(){
         return param.getIndependentParametersIterator();}
 
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public ParameterAPI getIndependentParameter(String name)throws ParameterException{
         return param.getIndependentParameter(name);}
 
-    // This will clone the parameters of the list that you pass in
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setIndependentParameters(ParameterList list){
         param.setIndependentParameters(list);}
 
-    /** Adds the parameter if it doesn't exist, else throws exception */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void addIndependentParameter(ParameterAPI parameter) throws ParameterException{
         param.addIndependentParameter(parameter) ;}
 
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public boolean containsIndependentParameter(String name){
         return param.containsIndependentParameter(name) ;}
 
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void removeIndependentParameter(String name) throws ParameterException{
         param.removeIndependentParameter(name) ;}
 
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public String getIndependentParametersKey(){
         return param.getIndependentParametersKey() ;}
+
 
 
 
@@ -429,26 +431,13 @@ public class TranslatedWarningDoubleParameter
 
 
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public String getName(){ return param.getName();}
 
-    /**
-     *  Every parameter has a name, this function returns that name.
-     *
-     * @return    The name value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setName(String name){ param.setName(name);}
 
-    /**
-     *  Every parameter constraint has a name, this function sets that name.
-     *  Defaults to the name of the parameter
-     *
-     * @return    The name value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public String getConstraintName(  ){ return param.getConstraintName();}
 
     /**
@@ -470,41 +459,20 @@ public class TranslatedWarningDoubleParameter
 
     }
 
-    /**
-     *  Gets the constraints of this parameter. Each subclass may implement any
-     *  type of constraint it likes.
-     *
-     * @return    The constraint value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setConstraint(ParameterConstraintAPI constraint){ param.setConstraint(constraint); }
 
 
-    /**
-     *  Returns the units of this parameter, represented as a String.
-     *
-     * @return    The units value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public String getUnits(){ return param.getUnits();}
 
-    /**
-     * Sets the units of this parameter
-     * @param units
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setUnits(String units){ param.setUnits(units);}
 
-    /**
-     *  Returns a description of this Parameter, typically used for tooltips.
-     *
-     * @return    The info value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public String getInfo(){ return param.getInfo();}
 
-
-    /**
-     *  Sets the info attribute of the ParameterAPI object.
-     *
-     * @param  info  The new info value
-     */
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
     public void setInfo( String info ){ param.setInfo( info );}
 
 
@@ -512,65 +480,29 @@ public class TranslatedWarningDoubleParameter
      *  Returns the data type of the value object. Used to determine which type
      *  of Editor to use in a GUI.
      *
-     * @return    The type value
+     * @return    The type value - i.e. the class name.
      */
     public String getType(){ return "TranslatedWarningDoubleParameter";}
 
 
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
+     public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
+
+
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
+    public void setInfo( String info ){ param.setInfo( info );}
+
+
     /**
-     *  Compares the values to see if they are the same. Returns -1 if obj is
-     *  less than this object, 0 if they are equal in value, or +1 if the object
-     *  is greater than this.
+     *  Returns the data type of the value object. Used to determine which type
+     *  of Editor to use in a GUI.
      *
-     * @param  parameter            the parameter to compare this object to.
-     * @return                      -1 if this value < obj value, 0 if equal, +1
-     *      if this value > obj value
-     * @throws  ClassCastException  Thrown if the object type of the parameter
-     *      argument are not the same.
+     * @return    The type value - i.e. the class name.
      */
-    public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
+    public String getType(){ return "TranslatedWarningDoubleParameter";}
 
 
-    /**
-     *  Compares value to see if equal.
-     *
-     * @param  parameter            the parameter to compare this object to.
-     * @return                      True if the values are identical
-     * @throws  ClassCastException  Thrown if the object type of the parameter
-     *      argument are not the same.
-     */
-    //public boolean equals( Object parameter ) throws ClassCastException{ return param.equals( parameter );}
-
-
-
-
-
-    /**
-     *  Determines if the value can be edited, i.e. changed once set.
-     *
-     * @return    The editable value
-     */
-    public boolean isEditable(){ return param.isEditable();}
-
-
-    /**
-     *  Disables editing the value once it is set.
-     */
-    public void setNonEditable(){ param.setNonEditable();}
-
-
-    /**
-     *  Returns a copy so you can't edit or damage the origial.
-     *
-     * @return    Description of the Return Value
-     * /
-    public Object clone(){
-        return param.clone();}
-    */
-
-    public boolean isNullAllowed(){ return param.isNullAllowed();}
-    public TranslatorAPI getTrans() {
-        return trans;
-    }
+    /** Direct proxy to wrapped parameter. See that class for documentation. */
+     public int compareTo( Object parameter ) throws ClassCastException{ return param.compareTo( parameter );}
 
 }

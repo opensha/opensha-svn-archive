@@ -13,11 +13,6 @@ package org.scec.data;
  */
 
 public interface NamedObjectAPI {
-
-    /**
-     *  Returns the name of this object
-     *
-     * @return    The name value
-     */
+    /** Returns the name of this object */
     public String getName();
 }
