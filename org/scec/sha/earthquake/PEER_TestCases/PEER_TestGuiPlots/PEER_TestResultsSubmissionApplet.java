@@ -98,10 +98,11 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
   private JLabel jLabel8 = new JLabel();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private JLabel imgLabel = new JLabel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
-  GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private JLabel directionsLabel = new JLabel();
+  private JLabel imgLabel = new JLabel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -138,7 +139,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     border7 = BorderFactory.createEtchedBorder(new Color(248, 254, 255),new Color(121, 124, 136));
     border8 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     border9 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
-    this.setSize(new Dimension(704, 550));
+    this.setSize(new Dimension(704, 597));
     this.getContentPane().setLayout(borderLayout1);
 
     String messageText ="1) Select the test case you would like to submit data for.\n\n"+
@@ -151,6 +152,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
                         "4) Hit the submit button.";
 
     mainPanel.setLayout(gridBagLayout4);
+    mainPanel.setBackground(Color.white);
     mainPanel.setBorder(border7);
     titlePanel.setBackground(Color.white);
     titlePanel.setLayout(gridBagLayout3);
@@ -245,6 +247,9 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     jLabel8.setText("Select Test Case:");
 
     //loading the OpenSHA Logo
+    directionsLabel.setForeground(new Color(80, 80, 133));
+    directionsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+    directionsLabel.setText("Click button and follow directions ");
     imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
@@ -277,23 +282,25 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     dataPanel.add(jScrollPane1,  new GridBagConstraints(2, 2, 1, 3, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 32, 20, 0), 86, 316));
     mainPanel.add(deletePanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 1, 0), 110, -2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), -7, -6));
     jScrollPane1.getViewport().add(xTextArea, null);
     jScrollPane2.getViewport().add(yTextArea, null);
     mainPanel.add(dataPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), -72, -2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), -72, 5));
+    deletePanel.add(directionsLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(9, 39, 7, 0), 67, 13));
+    deletePanel.add(deleteFileButton,   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 7, 0), 7, 0));
     deletePanel.add(jLabel6,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 233, 0, 0), 158, 16));
-    deletePanel.add(jLabel7,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 0, 8, 32), 33, 6));
-    deletePanel.add(deleteFileButton,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 220, 1, 0), 10, 0));
-    deletePanel.add(imgLabel,   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 8, 1, 1), 210, 17));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 229, 0, 10), 36, 16));
+    deletePanel.add(jLabel7,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 0, 9, 167), 21, 6));
     mainPanel.add(titlePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, -4, 0, 0), 0, -1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-2, -4, 0, 0), 0, 2));
     titlePanel.add(jLabel5,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(3, 41, 1, 132), 83, 16));
+    mainPanel.add(imgLabel,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 224, 2, 322), 154, 29));
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
   }
   //Start the applet
@@ -351,7 +358,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     ArrayList testCaseList2 = new ArrayList(); // this list saves test case 10 and 11
     try{
       // files.log contains all the files uploaded so far
-      InputStream input = PEER_TestResultsPlotterApplet.class.getResourceAsStream("/"+DIR+"files.log");
+      InputStream input = PEER_TestResultsSubmissionApplet.class.getResourceAsStream("/"+DIR+"files.log");
       DataInputStream dataStream = new DataInputStream(input);
       String line;
       while((line=dataStream.readLine())!=null) {
