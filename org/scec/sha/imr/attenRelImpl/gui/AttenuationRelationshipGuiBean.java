@@ -1320,8 +1320,8 @@ public class AttenuationRelationshipGuiBean
 
                 try{
                     TranslatedWarningDoubleParameter param1 = (TranslatedWarningDoubleParameter)param;
-                    min = param1.getWarningMin().doubleValue();
-                    max = param1.getWarningMax().doubleValue();
+                    min = ((Double)param1.getWarningMin()).doubleValue();
+                    max = ((Double)param1.getWarningMax()).doubleValue();
                 }
                 catch( Exception e){
                     throw new ConstraintException(e.toString());
@@ -1383,8 +1383,8 @@ public class AttenuationRelationshipGuiBean
 
                 try{
                     TranslatedWarningDoubleParameter param1 = (TranslatedWarningDoubleParameter)param;
-                    min = param1.getWarningMin().doubleValue();
-                    max = param1.getWarningMax().doubleValue();
+                    min = ((Double)param1.getWarningMin()).doubleValue();
+                    max = ((Double)param1.getWarningMax()).doubleValue();
                 }
                 catch( Exception e){
                     throw new ConstraintException(e.toString());

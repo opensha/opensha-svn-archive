@@ -699,8 +699,8 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     }
 
     try{
-        Double min = param.getWarningMin();
-        Double max = param.getWarningMax();
+        Double min = (Double)param.getWarningMin();
+        Double max = (Double)param.getWarningMax();
 
         String name = param.getName();
 

@@ -5,10 +5,10 @@ import org.scec.param.event.*;
 import org.scec.exceptions.*;
 
 /**
- * <b>Title:</b> WarningDoubleParameter<p>
+ * <b>Title:</b> WarningIntegerParameter<p>
  *
  * <b>Description:</b> Concrete implementation of the
- * WarningParameterAPI interface that stores a Double
+ * WarningParameterAPI interface that stores a Integer
  * for it's value object. Maintains a list of listeners
  * and passes them ParameterChangeWarningEvents when
  * the value is attemted to be set beyong the warning
@@ -37,8 +37,8 @@ import org.scec.exceptions.*;
  * Note: All listeners must implement the ParameterChangeFailListener
  * interface. <p>
  *
- * Note: Since this class extends from DoubleParameter it also
- * has a second absolute DoubleConstraint that can never be exceeded.
+ * Note: Since this class extends from IntegerParameter it also
+ * has a second absolute IntegerConstraint that can never be exceeded.
  * It's important that the programmer realizes this and ensures the
  * warning constraints are smaller than the absolute constraints when
  * using this parameter in their program. <p>
@@ -49,19 +49,18 @@ import org.scec.exceptions.*;
  * @version 1.0
  */
 
-public class WarningDoubleParameter
-    extends DoubleParameter
-    implements WarningParameterAPI
-{
+public class WarningIntegerParameter
+    extends IntegerParameter
+    implements WarningParameterAPI {
 
     /** Class name for debugging. */
-    protected final static String C = "WarningDoubleParameter";
+    protected final static String C = "WarningIntegerParameter";
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
 
     /** The constraint for this Parameter. */
-    protected DoubleConstraint warningConstraint = null;
+    protected IntegerConstraint warningConstraint = null;
 
     /**
      * A list of listeners to receive warning events.
@@ -83,7 +82,7 @@ public class WarningDoubleParameter
      *  No warning constraints or absolute constraints specified.
      *  All values allowed. Also sets the name of this parameter.
      */
-    public WarningDoubleParameter( String name ) {
+    public WarningIntegerParameter( String name ) {
         super(name);
     }
 
@@ -92,7 +91,7 @@ public class WarningDoubleParameter
      *  No warning constraints or absolute constraints specified.
      *  All values allowed. Also sets the name and units of this parameter.
      */
-    public WarningDoubleParameter( String name, String units ) {
+    public WarningIntegerParameter( String name, String units ) {
         super( name, units );
     }
 
@@ -107,7 +106,7 @@ public class WarningDoubleParameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, double min, double max ) throws ConstraintException {
+    public WarningIntegerParameter( String name, int min, int max ) throws ConstraintException {
         super( name, min, max );
     }
 
@@ -123,7 +122,7 @@ public class WarningDoubleParameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, double min, double max, String units ) throws ConstraintException {
+    public WarningIntegerParameter( String name, int min, int max, String units ) throws ConstraintException {
         super( name, min, max , units );
     }
 
@@ -138,7 +137,7 @@ public class WarningDoubleParameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, Double min, Double max ) throws ConstraintException {
+    public WarningIntegerParameter( String name, Integer min, Integer max ) throws ConstraintException {
         super( name, min, max );
     }
 
@@ -154,7 +153,7 @@ public class WarningDoubleParameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, Double min, Double max, String units ) throws ConstraintException {
+    public WarningIntegerParameter( String name, Integer min, Integer max, String units ) throws ConstraintException {
         super( name, min, max , units );
     }
 
@@ -168,7 +167,7 @@ public class WarningDoubleParameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, DoubleConstraint constraint ) throws ConstraintException {
+    public WarningIntegerParameter( String name, IntegerConstraint constraint ) throws ConstraintException {
         super( name, constraint);
     }
 
@@ -185,7 +184,7 @@ public class WarningDoubleParameter
      *      allowedallowed one. Null values are always allowed in the
      *      constructors
      */
-    public WarningDoubleParameter( String name, DoubleConstraint constraint, String units ) throws ConstraintException {
+    public WarningIntegerParameter( String name, IntegerConstraint constraint, String units ) throws ConstraintException {
         super( name, constraint, units );
     }
 
@@ -194,9 +193,9 @@ public class WarningDoubleParameter
      *  No constraints specified, all values allowed. Sets the name and value.
      *
      * @param  name   Name of the parameter
-     * @param  value  Double value of this parameter
+     * @param  value  Integer value of this parameter
      */
-    public WarningDoubleParameter( String name, Double value ) {
+    public WarningIntegerParameter( String name, Integer value ) {
         super( name, value );
     }
 
@@ -206,12 +205,12 @@ public class WarningDoubleParameter
      *  not set.
      *
      * @param  name                     Name of the parameter
-     * @param  value                    Double value of this parameter
+     * @param  value                    Integer value of this parameter
      * @param  units                    Units of this parameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, String units, Double value ) throws ConstraintException {
+    public WarningIntegerParameter( String name, String units, Integer value ) throws ConstraintException {
         super( name, units, value );
     }
 
@@ -221,13 +220,13 @@ public class WarningDoubleParameter
      *  constraint is constructed.
      *
      * @param  name                     Name of the parameter
-     * @param  value                    Double value of this parameter
+     * @param  value                    Integer value of this parameter
      * @param  min                      defines max of allowed values
      * @param  max                      defines min of allowed values
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, double min, double max, Double value ) throws ConstraintException {
+    public WarningIntegerParameter( String name, int min, int max, Integer value ) throws ConstraintException {
         super( name, min, max, value );
     }
 
@@ -239,11 +238,11 @@ public class WarningDoubleParameter
      * @param  name                     Name of the parameter
      * @param  constraint               defines min and max range of allowed
      *      values
-     * @param  value                    Double value of this parameter
+     * @param  value                    Integer value of this parameter
      * @exception  ConstraintException  thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, DoubleConstraint constraint, Double value ) throws ConstraintException {
+    public WarningIntegerParameter( String name, IntegerConstraint constraint, Integer value ) throws ConstraintException {
         super( name, constraint, value );
     }
 
@@ -253,14 +252,14 @@ public class WarningDoubleParameter
      *  values. The value is checked if it is within constraints.
      *
      * @param  name                     Name of the parameter
-     * @param  value                    Double value of this parameter
+     * @param  value                    Integer value of this parameter
      * @param  min                      defines min of allowed values
      * @param  max                      defines max of allowed values
      * @param  units                    Units of this parameter
      * @exception  ConstraintException  Is thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, double min, double max, String units, Double value ) throws ConstraintException {
+    public WarningIntegerParameter( String name, int min, int max, String units, Integer value ) throws ConstraintException {
         super( name, min, max, units, value );
     }
 
@@ -269,14 +268,14 @@ public class WarningDoubleParameter
      *  values. The value is checked if it is within constraints.
      *
      * @param  name                     Name of the parameter
-     * @param  value                    Double value of this parameter
+     * @param  value                    Integer value of this parameter
      * @param  min                      defines min of allowed values
      * @param  max                      defines max of allowed values
      * @param  units                    Units of this parameter
      * @exception  ConstraintException  Is thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
-    public WarningDoubleParameter( String name, Double min, Double max, String units, Double value ) throws ConstraintException {
+    public WarningIntegerParameter( String name, Integer min, Integer max, String units, Integer value ) throws ConstraintException {
         super( name, min, max, units, value );
     }
 
@@ -290,13 +289,13 @@ public class WarningDoubleParameter
      * @param  name                     Name of the parameter
      * @param  constraint               defines min and max range of allowed
      *      values
-     * @param  value                    Double value of this parameter
+     * @param  value                    Integer value of this parameter
      * @param  units                    Units of this parameter
      * @exception  ConstraintException  Is thrown if the value is not allowed
      * @throws  ConstraintException     Is thrown if the value is not allowed
      */
 
-    public WarningDoubleParameter( String name, DoubleConstraint constraint, String units, Double value )
+    public WarningIntegerParameter( String name, IntegerConstraint constraint, String units, Integer value )
              throws ConstraintException {
         super( name, constraint, units, value );
         //if( (constraint != null) && (constraint.getName() == null) )
@@ -354,7 +353,7 @@ public class WarningDoubleParameter
         String S = C + ": setWarningConstraint(): ";
         checkEditable(S);
 
-        this.warningConstraint = (DoubleConstraint)warningConstraint;
+        this.warningConstraint = (IntegerConstraint)warningConstraint;
 
         //if( (this.warningConstraint != null) && (this.warningConstraint.getName() == null) )
             //this.warningConstraint.setName( this.getName() );
@@ -369,7 +368,7 @@ public class WarningDoubleParameter
     }
 
     /**
-     * Proxy passthrough method to the DoubleConstraint to get the
+     * Proxy passthrough method to the IntegerConstraint to get the
      * minimumn value below which warnings will be issued.
      *
      * @return                The min value
@@ -382,7 +381,7 @@ public class WarningDoubleParameter
 
 
     /**
-     * Proxy passthrough method to the DoubleConstraint to get the
+     * Proxy passthrough method to the IntegerConstraint to get the
      * minimumn value below which warnings will be issued.
      *
      * @return                The min value
@@ -396,13 +395,13 @@ public class WarningDoubleParameter
 
 
     /**
-     * Attempts to update the value of this parameter with a new Double. All
+     * Attempts to update the value of this parameter with a new Integer. All
      * constraints are checked. If the value exceeds the warning levels all
      * listeners are notified via fireParameterChangeWarning(). If the
      * ignoreWarning flag is present the warning constraints are bypassed. Another
      * condition checked is if the value is null and null values are allowed.
      *
-     * @param value         The new value - must be a Double
+     * @param value         The new value - must be a Integer
      * @throws ConstraintException      Thrown if the new value is beyond the constraint
      *  levels or null values not allowed.
      * @throws WarningException     Thrown if the new value is beyond the warning levels.
@@ -445,13 +444,13 @@ public class WarningDoubleParameter
     }
 
     /**
-     * Attempts to update the value of this parameter with a new Double. All
+     * Attempts to update the value of this parameter with a new Integer. All
      * constraints are checked. If the value exceeds the warning levels all
      * listeners are notified via fireParameterChangeWarning(). If the
      * ignoreWarning flag is present the warning constraints are bypassed. Another
      * condition checked is if the value is null and null values are allowed.
      *
-     * @param value         The new value - must be a Double
+     * @param value         The new value - must be a Integer
      * @throws ConstraintException      Thrown if the new value is beyond the constraint
      *  levels or null values not allowed.
      * @throws WarningException     Thrown if the new value is beyond the warning levels.
@@ -511,43 +510,39 @@ public class WarningDoubleParameter
     /**
      *  Compares the values to if this is less than, equal to, or greater than
      *  the comparing objects. This implies that the value object of
-     *  both parameters must be a double.
+     *  both parameters must be a int.
      *
      * @param  obj                     The object to compare this to
      * @return                         -1 if this value < obj value, 0 if equal,
      *      +1 if this value > obj value
      * @exception  ClassCastException  Is thrown if the comparing object is not
-     *      a DoubleParameter, or DoubleDiscreteParameter.
+     *      a IntegerParameter, or IntegerDiscreteParameter.
      */
     public int compareTo( Object obj ) throws ClassCastException {
 
         String S = C + ":compareTo(): ";
 
-        if ( !( obj instanceof DoubleParameter )
-            && !( obj instanceof DoubleDiscreteParameter )
-            && !( obj instanceof WarningDoubleParameter )
+        if ( !( obj instanceof IntegerParameter )
+            && !( obj instanceof WarningIntegerParameter )
         ) {
             throw new ClassCastException( S +
-                "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare"
+                "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare"
             );
         }
 
         int result = 0;
 
-        Double n1 = ( Double ) this.getValue();
-        Double n2 = null;
+        Integer n1 = ( Integer ) this.getValue();
+        Integer n2 = null;
 
-        if ( obj instanceof DoubleParameter ) {
-            DoubleParameter param = ( DoubleParameter ) obj;
-            n2 = ( Double ) param.getValue();
+        if ( obj instanceof IntegerParameter ) {
+            IntegerParameter param = ( IntegerParameter ) obj;
+            n2 = ( Integer ) param.getValue();
         }
-        else if ( obj instanceof DoubleDiscreteParameter ) {
-            DoubleDiscreteParameter param = ( DoubleDiscreteParameter ) obj;
-            n2 = ( Double ) param.getValue();
-        }
-        else if ( obj instanceof WarningDoubleParameter ) {
-            WarningDoubleParameter param = ( WarningDoubleParameter ) obj;
-            n2 = ( Double ) param.getValue();
+
+        else if ( obj instanceof WarningIntegerParameter ) {
+            WarningIntegerParameter param = ( WarningIntegerParameter ) obj;
+            n2 = ( Integer ) param.getValue();
         }
 
         return n1.compareTo( n2 );
@@ -557,25 +552,24 @@ public class WarningDoubleParameter
     /**
      *  Compares the values to if this is less than, equal to, or greater than
      *  the comparing objects. This implies that the value object of
-     *  both parameters must be a double.
+     *  both parameters must be a int.
      *
      * @param  obj                     The object to compare this to
      * @return                         -1 if this value < obj value, 0 if equal,
      *      +1 if this value > obj value
      * @exception  ClassCastException  Is thrown if the comparing object is not
-     *      a DoubleParameter, or DoubleDiscreteParameter.
+     *      a IntegerParameter, or IntegerDiscreteParameter.
      */
     public boolean equals( Object obj ) throws ClassCastException {
         String S = C + ":equals(): ";
 
-        if ( !( obj instanceof DoubleParameter )
-            && !( obj instanceof DoubleDiscreteParameter )
-            && !( obj instanceof WarningDoubleParameter )
+        if ( !( obj instanceof IntegerParameter )
+            && !( obj instanceof WarningIntegerParameter )
         ) {
-            throw new ClassCastException( S + "Object not a DoubleParameter, WarningDoubleParameter, or DoubleDiscreteParameter, unable to compare" );
+            throw new ClassCastException( S + "Object not a IntegerParameter, WarningIntegerParameter, or IntegerDiscreteParameter, unable to compare" );
         }
 
-        String otherName = ( ( DoubleParameter ) obj ).getName();
+        String otherName = ( ( IntegerParameter ) obj ).getName();
         if ( ( compareTo( obj ) == 0 ) && getName().equals( otherName ) ) {
             return true;
         }
@@ -594,16 +588,16 @@ public class WarningDoubleParameter
         String S = C + ":clone(): ";
         if(D) System.out.println(S + "Starting");
 
-        DoubleConstraint c1 = null;
-        DoubleConstraint c2 = null;
+        IntegerConstraint c1 = null;
+        IntegerConstraint c2 = null;
 
-        if( constraint != null ) c1 = ( DoubleConstraint ) constraint.clone();
-        if( warningConstraint != null ) c2 = ( DoubleConstraint ) warningConstraint.clone();
+        if( constraint != null ) c1 = ( IntegerConstraint ) constraint.clone();
+        if( warningConstraint != null ) c2 = ( IntegerConstraint ) warningConstraint.clone();
 
 
-        WarningDoubleParameter param = null;
-        if( value == null ) param = new WarningDoubleParameter( name, c1, units);
-        else param = new WarningDoubleParameter( name, c1, units, new Double( this.value.toString() )  );
+        WarningIntegerParameter param = null;
+        if( value == null ) param = new WarningIntegerParameter( name, c1, units);
+        else param = new WarningIntegerParameter( name, c1, units, new Integer( this.value.toString() )  );
         if( param == null ) return null;
 
         param.setWarningConstraint(c2);

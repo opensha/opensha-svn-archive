@@ -95,7 +95,7 @@ public class ConstrainedDoubleParameterEditor extends DoubleParameterEditor{
       //Double constraint declaration
       DoubleConstraint constraint;
       if( ParamUtils.isWarningParameterAPI( model ) ){
-        constraint = ((WarningParameterAPI)model).getWarningConstraint();
+        constraint = (DoubleConstraint)((WarningParameterAPI)model).getWarningConstraint();
         if( constraint == null ) constraint = (DoubleConstraint) model.getConstraint();
       }
       else constraint = (DoubleConstraint) model.getConstraint();

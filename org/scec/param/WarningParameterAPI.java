@@ -31,11 +31,11 @@ public interface WarningParameterAPI extends ParameterAPI{
     /** Returns true if constraint warning will be ignored */
     public boolean isIgnoreWarning();
 
-    /** Sets the warning constraint in this parameter as a DoubleConstraint. */
-    public void setWarningConstraint(DoubleConstraint warningConstraint);
+    /** Sets the warning constraint in this parameter as a ParameterConstraint. */
+    public void setWarningConstraint(ParameterConstraint warningConstraint);
 
-    /** Gets the warning constraint in this parameter as a DoubleConstraint. */
-    public DoubleConstraint getWarningConstraint() throws ParameterException;
+    /** Gets the warning constraint in this parameter as a ParameterConstraint. */
+    public ParameterConstraint getWarningConstraint() throws ParameterException;
 
 
     /**
@@ -115,13 +115,13 @@ public interface WarningParameterAPI extends ParameterAPI{
      * @return                The min value
      * @exception  Exception  Description of the Exception
      */
-    public Double getWarningMin() throws Exception ;
+    public Object getWarningMin() throws Exception ;
 
 
     /**
      * Gets the max Double value of the warning constraint.
      * @return    The max value
      */
-    public Double getWarningMax() ;
+    public Object getWarningMax() ;
 
 }

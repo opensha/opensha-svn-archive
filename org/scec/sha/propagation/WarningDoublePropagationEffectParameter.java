@@ -104,17 +104,17 @@ public abstract class WarningDoublePropagationEffectParameter
      * @throws ParameterException   Thrown if the constraint is not a DoubleConstraint
      * @throws EditableException    Thrown if the isEditable flag set to false.
      */
-    public void setWarningConstraint(DoubleConstraint warningConstraint)
+    public void setWarningConstraint(ParameterConstraint warningConstraint)
         throws ParameterException, EditableException
     {
         if( !this.editable ) throw new EditableException(C + ": setStrings(): " +
             "This constraint is currently not editable." );
 
-        this.warningConstraint = warningConstraint;
+        this.warningConstraint = (DoubleConstraint)warningConstraint;
     }
 
     /** Returns the warning constraint. May return null. */
-    public DoubleConstraint getWarningConstraint() throws ParameterException{
+    public ParameterConstraint getWarningConstraint() throws ParameterException{
         return warningConstraint;
     }
 
@@ -122,7 +122,7 @@ public abstract class WarningDoublePropagationEffectParameter
      *  Gets the min value of the constraint object. If the constraint
      *  is not set returns null.
      */
-    public Double getWarningMin() throws Exception {
+    public Object getWarningMin() throws Exception {
         if ( warningConstraint != null ) return warningConstraint.getMin();
         else return null;
     }
@@ -132,7 +132,7 @@ public abstract class WarningDoublePropagationEffectParameter
      *  Returns the maximum allowed value of the constraint
      *  object. If the constraint is not set returns null.
      */
-    public Double getWarningMax() {
+    public Object getWarningMax() {
         if ( warningConstraint != null ) return warningConstraint.getMax();
         else return null;
 

@@ -151,8 +151,8 @@ public class TranslatedWarningDoubleParameter
      * @return                The reverse translated min value.
      * @exception  Exception  Thrown if any mathmatical exceptions occur.
      */
-    public Double getWarningMin() throws TranslateException, Exception {
-        Double min = param.getWarningMin();
+    public Object getWarningMin() throws TranslateException, Exception {
+        Double min = (Double)param.getWarningMin();
         if( min  == null || !translate ) return min;
         else return new Double( trans.reverse( min.doubleValue() ) );
     }
@@ -183,8 +183,8 @@ public class TranslatedWarningDoubleParameter
      * @return                The reverse translated max value.
      * @exception  Exception  Thrown if any mathmatical exceptions occur.
      */
-    public Double getWarningMax() throws TranslateException {
-        Double max = param.getWarningMax();
+    public Object getWarningMax() throws TranslateException {
+        Double max = (Double)param.getWarningMax();
         if( max  == null || !translate ) return max;
         else return new Double( trans.reverse( max.doubleValue() ) );
     }
@@ -372,11 +372,11 @@ public class TranslatedWarningDoubleParameter
     // *******************************************
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public void setWarningConstraint(DoubleConstraint warningConstraint){
+    public void setWarningConstraint(ParameterConstraint warningConstraint){
         param.setWarningConstraint(warningConstraint); }
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */
-    public DoubleConstraint getWarningConstraint() throws ParameterException{
+    public ParameterConstraint getWarningConstraint() throws ParameterException{
         return param.getWarningConstraint();}
 
     /** Direct proxy to wrapped parameter. See that class for documentation. */

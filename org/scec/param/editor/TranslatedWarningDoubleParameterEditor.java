@@ -103,7 +103,7 @@ public class TranslatedWarningDoubleParameterEditor extends ConstrainedDoublePar
 
         }
         else if( ParamUtils.isWarningParameterAPI( model ) ){
-            constraint = ((WarningParameterAPI)model).getWarningConstraint();
+            constraint = (DoubleConstraint)((WarningParameterAPI)model).getWarningConstraint();
             if( constraint == null ) constraint = (DoubleConstraint) model.getConstraint();
 
             valueEditor.setToolTipText( "Min = " + constraint.getMin().toString() + "; Max = " + constraint.getMax().toString() );
