@@ -7,11 +7,11 @@ import com.jrefinery.chart.tooltips.*;
  * <p>Title: AdjustableScaleXYItemRenderer</p>
  * <p>Description: JFreeChart subclass. Used by FaultDemo Applet. </p>
  *
- * @author unascribed
+ * @author
  * @version 1.0
  */
 
-public class AdjustableScaleXYItemRenderer extends StandardXYItemRenderer implements XYItemRenderer{
+public class AdjustableScaleXYItemRenderer extends StandardXYItemRenderer{
 
     double scale = 4.0;
 

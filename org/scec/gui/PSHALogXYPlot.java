@@ -232,10 +232,14 @@ public class PSHALogXYPlot
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                                                        this.foregroundAlpha));
 
-            drawVerticalLines(g2, dataArea);
-            drawHorizontalLines(g2, dataArea);
+            drawVerticalLine(g2, dataArea ,getDomainAxis().getCrosshairValue(),
+                                 getDomainAxis().getCrosshairStroke(),
+                                 getDomainAxis().getCrosshairPaint());
+            drawHorizontalLine(g2, dataArea,getRangeAxis().getCrosshairValue(),
+                                 getRangeAxis().getCrosshairStroke(),
+                                 getRangeAxis().getCrosshairPaint());
 
-            renderer.initialise(g2, dataArea, this, data, info);
+            this.getRenderer().initialise(g2, dataArea, this, data, info);
 
             /* boolean log plots added to renderer */
             ValueAxis domainAxis = this.getDomainAxis();
@@ -245,7 +249,7 @@ public class PSHALogXYPlot
             for (int series=0; series<seriesCount; series++) {
                 int itemCount = data.getItemCount(series);
                 for (int item=0; item<itemCount; item++) {
-                     ((LogXYItemRenderer)renderer).drawItem(g2, dataArea, info, this,
+                     ((LogXYItemRenderer)getRenderer()).drawItem(g2, dataArea, info, this,
                                       domainAxis,rangeAxis,
                                       data, series, item,
                                       crosshairInfo,xlogplot,ylogplot);
@@ -307,14 +311,14 @@ public class PSHALogXYPlot
         // estimate the area required for drawing the axes...
         double hAxisAreaHeight = 0;
 
-        if (this.domainAxis!=null) {
-            HorizontalAxis hAxis = (HorizontalAxis)this.domainAxis;
+        if (getDomainAxis()!=null) {
+            HorizontalAxis hAxis = (HorizontalAxis)getDomainAxis();
             hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea);
         }
 
         double vAxisWidth = 0;
-        if (this.rangeAxis!=null) {
-            VerticalAxis vAxis = (VerticalAxis)this.rangeAxis;
+        if (getRangeAxis()!=null) {
+            VerticalAxis vAxis = (VerticalAxis)getRangeAxis();
             vAxisWidth = vAxis.reserveAxisArea(g2, this, plotArea, hAxisAreaHeight).getWidth();
         }
 
@@ -337,11 +341,11 @@ public class PSHALogXYPlot
         // draw the plot background and axes...
 
         drawOutlineAndBackground(g2, dataArea);
-        if (this.domainAxis!=null) {
-            this.domainAxis.draw(g2, plotArea, dataArea);
+        if (getDomainAxis()!=null) {
+            getDomainAxis().draw(g2, plotArea, dataArea);
         }
-        if (this.rangeAxis!=null) {
-            this.rangeAxis.draw(g2, plotArea, dataArea);
+        if (this.getRangeAxis()!=null) {
+            this.getRangeAxis().draw(g2, plotArea, dataArea);
         }
 
         render(g2, dataArea, info, crosshairInfo);

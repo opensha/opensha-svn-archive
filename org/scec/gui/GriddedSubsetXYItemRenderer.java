@@ -24,19 +24,28 @@ import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
  * <p>Title: GriddedSubsetXYItemRenderer</p>
  * <p>Description: JFreeChart subclass - used in FaultDemo Applet.</p>
  *
- * @author unascribed
+ * @author
  * @version 1.0
  */
 
 public class GriddedSubsetXYItemRenderer
     extends AdjustableScaleXYItemRenderer
-    implements XYItemRenderer
 {
+
+
+
+    /** A working line (to save creating thousands of instances). */
+    private Line2D line;
+
 
     /**
      * Constructs a new renderer.
      */
-    public GriddedSubsetXYItemRenderer() { super(); scale = 6; }
+    public GriddedSubsetXYItemRenderer() {
+        super();
+        this.line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
+        scale = 6;
+    }
 
     /**
      * Constructs a new renderer.
@@ -110,7 +119,7 @@ public class GriddedSubsetXYItemRenderer
               g2.setPaint(paint);
             }
 
-            if (this.plotLines) {
+            if (getPlotLines()) {
 
                 if (item>0) {
                     // get the previous data point...
@@ -128,9 +137,9 @@ public class GriddedSubsetXYItemRenderer
                 }
             }
 
-            if (this.plotShapes) {
+            if (getPlotShapes()) {
 
-                shapeScale = getShapeScale(plot, series, item, transX1, transY1);
+                double shapeScale = getShapeScale(plot, series, item, transX1, transY1);
                 Shape shape = getShape(plot, series, item, transX1, transY1, shapeScale);
                 if (isShapeFilled(plot, series, item, transX1, transY1)) {
                     if (shape.intersects(dataArea)) g2.fill(shape);
@@ -141,9 +150,9 @@ public class GriddedSubsetXYItemRenderer
 
             }
 
-            if (this.plotImages) {
+            if (getPlotImages()) {
                 // use shape scale with transform??
-                shapeScale = getShapeScale(plot, series, item, transX1, transY1);
+                double shapeScale = getShapeScale(plot, series, item, transX1, transY1);
                 Image image = getImage(plot, series, item, transX1, transY1);
                 if (image != null) {
                     Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
@@ -158,8 +167,8 @@ public class GriddedSubsetXYItemRenderer
                     entityArea = new Rectangle2D.Double(transX1-2, transY1-2, 4, 4);
                 }
                 String tip = "";
-                if (this.toolTipGenerator!=null) {
-                    tip = this.toolTipGenerator.generateToolTip(data, series, item);
+                if (getToolTipGenerator()!=null) {
+                    tip = getToolTipGenerator().generateToolTip(data, series, item);
                 }
                 XYItemEntity entity = new XYItemEntity(entityArea, tip, series, item);
                 entities.addEntity(entity);

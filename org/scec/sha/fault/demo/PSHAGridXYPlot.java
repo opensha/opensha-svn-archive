@@ -103,96 +103,106 @@ public class PSHAGridXYPlot
       */
      public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
 
+       // set up info collection...
+       if (info != null) {
+           info.setPlotArea(plotArea);
 
-          // set up info collection...
-         if (info!=null) {
-             info.setPlotArea(plotArea);
+       }
 
-         }
+       // adjust the drawing area for plot insets (if any)...
+       if (insets != null) {
+           plotArea.setRect(plotArea.getX() + insets.left,
+                            plotArea.getY() + insets.top,
+                            plotArea.getWidth() - insets.left - insets.right,
+                            plotArea.getHeight() - insets.top - insets.bottom);
+       }
 
-         // adjust the drawing area for plot insets (if any)...
-         if (insets!=null) {
-             plotArea.setRect(plotArea.getX()+insets.left,
-                              plotArea.getY()+insets.top,
-                              plotArea.getWidth()-insets.left-insets.right,
-                              plotArea.getHeight()-insets.top-insets.bottom);
-         }
+       // estimate the area required for drawing the axes...
+       double hAxisAreaHeight = 0;
 
-         // estimate the area required for drawing the axes...
-         double hAxisAreaHeight = 0;
+       if (this.getDomainAxis() != null) {
+           HorizontalAxis hAxis = (HorizontalAxis) this.getDomainAxis();
+           hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea);
+       }
 
-         if (this.domainAxis!=null) {
-             HorizontalAxis hAxis = (HorizontalAxis)this.domainAxis;
-             hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea);
-         }
+       double vAxisWidth = 0;
+       if (this.getRangeAxis() != null) {
+           VerticalAxis vAxis = (VerticalAxis) this.getRangeAxis();
+           vAxisWidth = vAxis.reserveAxisArea(g2, this, plotArea, hAxisAreaHeight).getWidth();
+       }
 
-         double vAxisWidth = 0;
-         if (this.rangeAxis!=null) {
-             VerticalAxis vAxis = (VerticalAxis)this.rangeAxis;
-             vAxisWidth = vAxis.reserveAxisArea(g2, this, plotArea, hAxisAreaHeight).getWidth();
-         }
+       // ...and therefore what is left for the plot itself...
+       Rectangle2D dataArea = new Rectangle2D.Double(plotArea.getX() + vAxisWidth,
+                                                     plotArea.getY(),
+                                                     plotArea.getWidth() - vAxisWidth,
+                                                     plotArea.getHeight() - hAxisAreaHeight);
 
-         // ...and therefore what is left for the plot itself...
-         Rectangle2D dataArea = new Rectangle2D.Double(plotArea.getX()+vAxisWidth,
-                                                       plotArea.getY(),
-                                                       plotArea.getWidth()-vAxisWidth,
-                                                       plotArea.getHeight()-hAxisAreaHeight);
+       if (info != null) {
+           info.setDataArea(dataArea);
+       }
 
-         if (info!=null) {
-             info.setDataArea(dataArea);
-         }
+       CrosshairInfo crosshairInfo = new CrosshairInfo();
 
-         CrosshairInfo crosshairInfo = new CrosshairInfo();
-
-         crosshairInfo.setCrosshairDistance(Double.POSITIVE_INFINITY);
-         crosshairInfo.setAnchorX(this.getDomainAxis().getAnchorValue());
-         crosshairInfo.setAnchorY(this.getRangeAxis().getAnchorValue());
+       crosshairInfo.setCrosshairDistance(Double.POSITIVE_INFINITY);
+       crosshairInfo.setAnchorX(getDomainAxis().getAnchorValue());
+       crosshairInfo.setAnchorY(getRangeAxis().getAnchorValue());
 
 
-        Range rh = this.domainAxis.getRange();
-        Range rv=  this.rangeAxis.getRange();
-        HorizontalNumberAxis horz = (HorizontalNumberAxis)domainAxis;
-        VerticalNumberAxis vert = (VerticalNumberAxis)rangeAxis;
-        ++counter;
-        if(counter == 1)
-          cosineY= Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2);
-        /*
-        Following code has been added to make the Longitude the cos function of the latitude
-        Converting to radians because java finds the cos of the radians.
-        What we are doing is scaling the horizontal longitude line based on the cos function of the latitude
-        */
-        System.out.println("cosineY:"+cosineY+",cos val:"+Math.abs(Math.cos(cosineY)));
-        //double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(cosineY));
-        double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound()));
-        double horizontaldiff = (dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
-        double upperh = (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
-        if(upperh >= rh.getUpperBound())  {// adjust the horizontal scale
-          domainAxis.setRange(rh.getLowerBound(), upperh);
-          //horz.setTickUnit(new NumberTickUnit(0.71*vert.getTickUnit().getSize(), new DecimalFormat("0.000")));
-        }
-        else {
-          // adjust the vertical scale according to horizontal scale
-         // double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY))/horizontaldiff + rv.getLowerBound();
-          double upperv=(dataArea.getMaxY()-dataArea.getMinY())/horizontaldiff + rv.getLowerBound();
-          rangeAxis.setRange(rv.getLowerBound(),upperv);
-          //vert.setTickUnit(new NumberTickUnit(1/0.72*horz.getTickUnit().getSize(), new DecimalFormat("0.000")));
-        }
-
-        drawOutlineAndBackground(g2, dataArea);
-        if (this.domainAxis!=null) {
-           this.domainAxis.draw(g2, plotArea, dataArea);
-        }
-        if (this.rangeAxis!=null) {
-           this.rangeAxis.draw(g2, plotArea, dataArea);
+       Range rh = getDomainAxis().getRange();
+               Range rv=  getRangeAxis().getRange();
+               HorizontalNumberAxis horz = (HorizontalNumberAxis)getDomainAxis();
+               VerticalNumberAxis vert = (VerticalNumberAxis)getRangeAxis();
+               ++counter;
+               if(counter == 1)
+                 cosineY= Math.toRadians((rv.getLowerBound()+rv.getUpperBound())/2);
+               /*
+               Following code has been added to make the Longitude the cos function of the latitude
+               Converting to radians because java finds the cos of the radians.
+               What we are doing is scaling the horizontal longitude line based on the cos function of the latitude
+               */
+                //double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound())) * Math.abs(Math.cos(cosineY));
+               double verticaldiff = ((dataArea.getMaxY()-dataArea.getMinY())/(rv.getUpperBound()-rv.getLowerBound()));
+               double horizontaldiff = (dataArea.getMaxX()-dataArea.getMinX())/(rh.getUpperBound()-rh.getLowerBound());
+               double upperh = (dataArea.getMaxX()-dataArea.getMinX())/verticaldiff +rh.getLowerBound();
+               if(upperh >= rh.getUpperBound())  {// adjust the horizontal scale
+                 getDomainAxis().setRange(rh.getLowerBound(), upperh);
+                 //horz.setTickUnit(new NumberTickUnit(0.71*vert.getTickUnit().getSize(), new DecimalFormat("0.000")));
+               }
+               else {
+                 // adjust the vertical scale according to horizontal scale
+                // double upperv=(dataArea.getMaxY()-dataArea.getMinY())*Math.abs(Math.cos(cosineY))/horizontaldiff + rv.getLowerBound();
+                 double upperv=(dataArea.getMaxY()-dataArea.getMinY())/horizontaldiff + rv.getLowerBound();
+                 getRangeAxis().setRange(rv.getLowerBound(),upperv);
+                 //vert.setTickUnit(new NumberTickUnit(1/0.72*horz.getTickUnit().getSize(), new DecimalFormat("0.000")));
         }
 
 
-         render(g2, dataArea, info, crosshairInfo);
+
+       // draw the plot background and axes...
+       drawOutlineAndBackground(g2, dataArea);
 
 
+       if (this.getDomainAxis() != null) {
+           this.getDomainAxis().draw(g2, plotArea, dataArea);
+       }
 
-     }
+       if (this.getRangeAxis() != null) {
+           this.getRangeAxis().draw(g2, plotArea, dataArea);
+       }
 
+       if (this.getRenderer() != null) {
+           Shape originalClip = g2.getClip();
+           Composite originalComposite = g2.getComposite();
+
+           g2.clip(dataArea);
+           g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+                                                      this.foregroundAlpha));
+           render(g2, dataArea, info, crosshairInfo);
+           g2.setClip(originalClip);
+           g2.setComposite(originalComposite);
+       }
+
+   }
 
 
 }

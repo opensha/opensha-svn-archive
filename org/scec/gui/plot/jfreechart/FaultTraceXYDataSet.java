@@ -51,6 +51,9 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
      */
     protected String name;
 
+    /** The group that the dataset belongs to. */
+    private DatasetGroup group;
+
     DecimalFormat format = new DecimalFormat("#,###.##");
 
     /** Returns true if FaultTrace pointer is not null, false otherwise. */
@@ -60,7 +63,10 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
     /** Constructor that set's the FaultTrace.  */
-    public FaultTraceXYDataSet(FaultTrace trace) { this.trace = trace; }
+    public FaultTraceXYDataSet(FaultTrace trace) {
+        this.group = new DatasetGroup();
+        this.trace = trace;
+    }
 
 
     /** Sets the name of this FaultTraceXYDataset. */
@@ -158,6 +164,25 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
         if ( listeners.contains( listener ) ) {
             listeners.remove( listener );
         }
+    }
+
+
+    /**
+     * Returns the dataset group for the dataset.
+     *
+     * @return the dataset group.
+     */
+    public DatasetGroup getGroup() {
+      return this.group;
+    }
+
+    /**
+     * Sets the dataset group for the dataset.
+     *
+     * @param group  the dataset group.
+     */
+    public void setGroup(DatasetGroup group) {
+      this.group = group;
     }
 
 

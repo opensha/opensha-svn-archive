@@ -92,28 +92,30 @@ public class GriddedFaultPlotter extends ArrayList{
 
     protected void setRenderer(PSHAGridXYPlot plot){
         switch (plotType) {
-            case SHAPES: plot.setXYItemRenderer( SHAPE_RENDERER ); break;
-            case LINES: plot.setXYItemRenderer( LINE_RENDERER ); break;
-            case SHAPES_AND_LINES: plot.setXYItemRenderer( SHAPES_AND_LINES_RENDERER ); break;
-            case SUB_SHAPES: plot.setXYItemRenderer( SUB_SHAPE_RENDERER ); break;
-            default: plot.setXYItemRenderer( SHAPE_RENDERER ); break;
+            case SHAPES: plot.setRenderer( SHAPE_RENDERER ); break;
+            case LINES: plot.setRenderer( LINE_RENDERER ); break;
+            case SHAPES_AND_LINES: plot.setRenderer( SHAPES_AND_LINES_RENDERER ); break;
+            case SUB_SHAPES: plot.setRenderer( SUB_SHAPE_RENDERER ); break;
+            default: plot.setRenderer( SHAPE_RENDERER ); break;
         }
     }
 
     protected void lazyInitSinglePanel(JFreeChart chart){
-        singleChartPanel = new MyJFreeChartPanel(chart, true, true, true, true, false);
+        //singleChartPanel = new MyJFreeChartPanel(chart, true, true, true, true, false);
+        singleChartPanel = new ChartPanel(chart, true, true, true, true, false);
         singleChartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         singleChartPanel.setMouseZoomable(true);
-        singleChartPanel.setGenerateToolTips(true);
+        singleChartPanel.setDisplayToolTips(true);
         singleChartPanel.setHorizontalAxisTrace(false);
         singleChartPanel.setVerticalAxisTrace(false);
     }
 
     protected void lazyInitMultiPanel(JFreeChart chart){
-        multiChartPanel = new MyJFreeChartPanel(chart, true, true, true, true, true);
+        //multiChartPanel = new MyJFreeChartPanel(chart, true, true, true, true, true);
+        multiChartPanel = new ChartPanel(chart, true, true, true, true, true);
         multiChartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         multiChartPanel.setMouseZoomable(true);
-        multiChartPanel.setGenerateToolTips(true);
+        multiChartPanel.setDisplayToolTips(true);
         multiChartPanel.setHorizontalAxisTrace(false);
         multiChartPanel.setVerticalAxisTrace(false);
     }
@@ -174,8 +176,8 @@ public class GriddedFaultPlotter extends ArrayList{
         if( functions == null ) return null;
 
         // build the plot
-        org.scec.sha.fault.demo.PSHAGridXYPlot plot = new org.scec.sha.fault.demo.PSHAGridXYPlot(functions, xAxis, yAxis);
-        //org.scec.gui.PSHAXYPlot plot = new org.scec.gui.PSHAXYPlot(functions, xAxis, yAxis,false,false);
+         PSHAGridXYPlot plot = new PSHAGridXYPlot(functions, xAxis, yAxis);
+
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
@@ -224,8 +226,6 @@ public class GriddedFaultPlotter extends ArrayList{
         yAxis.setAutoRange(true);
         // multi plot
         OverlaidGridXYPlot plot = new OverlaidGridXYPlot(xAxis, yAxis);
-        //OverlaidXYPlot plot = new OverlaidXYPlot(xAxis, yAxis);
-
         // Get the data
         XYDataset functions ;
         if(this.plotType == this.SHAPES_LINES_AND_SHAPES)
@@ -259,22 +259,21 @@ public class GriddedFaultPlotter extends ArrayList{
 
 
 
-            org.scec.sha.fault.demo.PSHAGridXYPlot plot1 = new org.scec.sha.fault.demo.PSHAGridXYPlot(dataSet, null, null);
+            PSHAGridXYPlot plot1 = new PSHAGridXYPlot(dataSet, null, null);
             plot1.setSeriesPaint(seriesPaint);
             plot1.setBackgroundPaint( plotColor );
 
 
             if( plotType == SUB_SHAPES){
               if( counter == last ) {
-                plot1.setXYItemRenderer( SUB_SHAPE_RENDERER );
-                plot1.setReturnNoLabels(true);
+                plot1.setRenderer( SUB_SHAPE_RENDERER );
               }
-              else plot1.setXYItemRenderer( SHAPE_RENDERER );
+              else plot1.setRenderer( SHAPE_RENDERER );
             }else if(plotType==SHAPES_LINES_AND_SHAPES) {
               if( counter == last )
-                plot1.setXYItemRenderer(SHAPE_RENDERER);
+                plot1.setRenderer(SHAPE_RENDERER);
               else
-                plot1.setXYItemRenderer(SHAPES_AND_LINES_RENDERER);
+                plot1.setRenderer(SHAPES_AND_LINES_RENDERER);
             }
             else setRenderer(plot1);
 

@@ -64,6 +64,9 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
      */
     protected String name;
 
+    /** The group that the dataset belongs to. */
+    private DatasetGroup group;
+
     /** Returns true is the GriddedSurfaceAPI reference is not null. */
     public boolean checkSurface(){
         if( surface != null ) return true;
@@ -71,7 +74,10 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
     }
 
     /** Constructor that sets the GriddedSurfaceAPI dataset. */
-    public GriddedSurfaceXYDataSet(GriddedSurfaceAPI surface) { this.surface = surface; }
+    public GriddedSurfaceXYDataSet(GriddedSurfaceAPI surface) {
+        this.group = new DatasetGroup();
+        this.surface = surface;
+    }
 
 
     /** Sets the name of this XYDataset. */
@@ -183,5 +189,24 @@ public class GriddedSurfaceXYDataSet implements XYDataset, NamedObjectAPI {
             listeners.remove( listener );
         }
     }
+
+    /**
+     * Returns the dataset group for the dataset.
+     *
+     * @return the dataset group.
+     */
+    public DatasetGroup getGroup() {
+      return this.group;
+    }
+
+    /**
+     * Sets the dataset group for the dataset.
+     *
+     * @param group  the dataset group.
+     */
+    public void setGroup(DatasetGroup group) {
+      this.group = group;
+    }
+
 
 }

@@ -81,9 +81,13 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
      */
     private boolean convertZeroToMin = false;
 
+    /** The group that the dataset belongs to. */
+    private DatasetGroup group;
 
-    /** no arg constructor - does nothing */
-    public DiscretizedFunctionXYDataSet() { }
+    /** no arg constructor -  */
+    public DiscretizedFunctionXYDataSet() {
+      this.group = new DatasetGroup();
+    }
 
 
     /** Sets the name of the functions list */
@@ -290,6 +294,24 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     public void setConvertZeroToMin(boolean zeroMin,double minVal){
        convertZeroToMin = zeroMin;
        this.minVal = minVal;
+    }
+
+    /**
+     * Returns the dataset group for the dataset.
+     *
+     * @return the dataset group.
+     */
+    public DatasetGroup getGroup() {
+      return this.group;
+    }
+
+    /**
+     * Sets the dataset group for the dataset.
+     *
+     * @param group  the dataset group.
+     */
+    public void setGroup(DatasetGroup group) {
+      this.group = group;
     }
 
 }
