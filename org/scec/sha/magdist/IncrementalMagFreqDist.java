@@ -11,24 +11,63 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
  * @version 1.0
  */
 
-public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
-             implements IncrementalMagFreqDistAPI {
+public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc {
 
 
     EvenlyDiscretizedFunc  cumRateDist;
     EvenlyDiscretizedFunc momentRateDist;
 
-    public IncrementalMagFreqDist(double min,int num,double delta){
-        super(min,num,delta);
+    protected double min=Double.NaN;
+    protected double max=Double.NaN;
+    protected int num;
+    protected double delta=Double.NaN;
 
+
+    public IncrementalMagFreqDist(double min,int num,double delta){
+      this.min=min;
+      this.num=num;
+      this.delta=delta;
     }
 
     public IncrementalMagFreqDist(double min,double max,int num) {
-      super.minY=min;
-      super.num=num;
-      super.maxY=max;
-
+      this.min=min;
+      this.num=num;
+      this.max=max;
     }
+
+    private void setMomentRateDist() {
+      momentRateDist=new EvenlyDiscretizedFunc(this.min,this.num,this.delta);
+      for(int i=0;i<num;++i) {
+        double x=momentRateDist.getX(i);
+      /*  Object obj=points.get(i);
+        if(obj==null) {
+          double y=Double.NaN;
+        }
+        else {
+          double y=((Double)obj).doubleValue();
+        }*/
+         double y=getIncrRate(x) *(Math.pow(10,1.5*x+9.05));
+         points.set(i,new Double(y));
+      }
+    }
+
+    private void setCumRateDist() {
+      cumRateDist =new EvenlyDiscretizedFunc(this.min,this.num,this.delta);
+      for(int i=0;i<num;++i){
+         double x= cumRateDist.getX(i);
+       /*  Object obj=points.get(i);
+         if(obj==null) {
+           double y=Double.NaN;
+         }
+         else {
+           double y=((Double)obj).doubleValue();
+         } */
+
+         double y=getIncrRate(x);
+         points.set(i,new Double(y));
+      }
+    }
+
 
     public double getIncrRate(double mag) {
         return getIncrRate(getXIndex(mag));
@@ -81,11 +120,14 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
       return;
     }
 
-    public double CumulativeDist() {
-
+    public EvenlyDiscretizedFunc getCumRateDist() {
+      setCumRateDist();
+      return cumRateDist;
     }
 
-    public double getMomentRateDist() {
+    public EvenlyDiscretizedFunc getMomentRateDist() {
+       setMomentRateDist();
+       return momentRateDist;
     }
 
     public void scaleToTotalMomentRate(double newTotMoRate) {
