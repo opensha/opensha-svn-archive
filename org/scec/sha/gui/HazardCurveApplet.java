@@ -1037,8 +1037,8 @@ public class HazardCurveApplet extends JApplet
        return;
      }
      totalProbFuncs.add(hazFunction);
-     this.addGraphPanel();
-     this.chartPanel.paintImmediately(chartPanel.getBounds());
+     addGraphPanel();
+     chartPanel.paintImmediately(chartPanel.getBounds());
    }
 
 
