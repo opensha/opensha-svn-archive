@@ -490,6 +490,7 @@ System.out.println( a13 );
     protected void initExceedProbIndependentParamsList(){
         exceedProbIndependentParams.clear();
         exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
+        exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
     }
 
     /**

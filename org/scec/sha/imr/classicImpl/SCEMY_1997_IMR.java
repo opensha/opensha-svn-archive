@@ -401,6 +401,7 @@ public class SCEMY_1997_IMR
     protected void initExceedProbIndependentParamsList(){
         exceedProbIndependentParams.clear();
         exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
+        exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
     }
 
     /**

@@ -648,7 +648,31 @@ public class IMRGuiBean
                 System.out.println( S + "Control Parameter changed, need to update gui parameter editors" );
             synchRequiredVisibleParameters();
         }
+        else if( name1.equals(ClassicIMR.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
+
+            System.out.println(S + ClassicIMR.SIGMA_TRUNC_TYPE_NAME + " has changed");
+            String value = event.getNewValue().toString();
+            toggleSigmaLevelBasedOnTypeValue(value);
+
+        }
     }
+
+    protected void toggleSigmaLevelBasedOnTypeValue(String value){
+
+        if( value.equalsIgnoreCase("none") ) {
+            if(D) System.out.println("Value = " + value + ", need to set value param off.");
+            independentsEditor.setParameterInvisible( name, false );
+        }
+        else{
+            if(D) System.out.println("Value = " + value + ", need to set value param on.");
+            independentsEditor.setParameterInvisible( name, true );
+        }
+
+        independentsEditor.validate();
+        independentsEditor.repaint();
+
+    }
+
 
     /**
      *  <b> FIX *** FIX *** FIX </b> This needs to be fixed along with the whole
@@ -917,6 +941,14 @@ public class IMRGuiBean
             setParamsInIteratorVisible( imr.getStdDevIndependentParamsIterator() );
             setParamsInIteratorVisible( imr.getExceedProbIndependentParamsIterator() );
 
+            // Hardcoded for special values
+            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+            if( paramEditor != null ){
+                String value = paramEditor.getParameter().getValue().toString();
+                toggleSigmaLevelBasedOnTypeValue(value);
+            }
+
+
             // to enable the log log plotting option; calling the function IMRTesterApplet class
              applet.loglogEnable();
         }
@@ -987,6 +1019,9 @@ public class IMRGuiBean
         // refresh the GUI
         controlsEditor.validate();
         controlsEditor.repaint();
+
+        independentsEditor.validate();
+        independentsEditor.repaint();
 
         // All done
         if ( D )
