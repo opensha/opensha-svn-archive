@@ -356,8 +356,7 @@ public class PSHALogXYPlot
 
      }catch(java.lang.ArithmeticException ae){
        String message=new String(ae.getMessage());
-       if(logPlot!=null)
-         logPlot.invalidLogPlot(message);
+       if(logPlot!=null) logPlot.invalidLogPlot(message);
     }
    }
 

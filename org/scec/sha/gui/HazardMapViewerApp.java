@@ -262,11 +262,12 @@ public class HazardMapViewerApp extends JApplet {
               dataSetDescription += str+"\n";
               str=in.readLine();
             }
+            metaDataHash.put(dirList[i].getName(),dataSetDescription);
             in.close();
           }catch(Exception ee) {
             ee.printStackTrace();
           }
-          metaDataHash.put(dirList[i].getName(),dataSetDescription);
+
           try {
             // read the sites file
             FileReader dataReader =

@@ -545,7 +545,6 @@ public class HazardCurveApplet extends JApplet
       TickUnits units = MyTickUnits.createStandardTickUnits();
 
 
-
       /// check if x log is selected or not
       if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
       else xAxis = new HorizontalNumberAxis( xAxisLabel );
@@ -751,17 +750,26 @@ public class HazardCurveApplet extends JApplet
 
 
      if(message.equals("Log Value of the negative values and 0 does not exist for X-Log Plot")) {
-       this.jCheckxlog.setSelected(false);
        ShowMessage showMessage=new ShowMessage(this, "      X-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
+       panel.removeAll();
+       this.jCheckxlog.setSelected(false);
+       xLog  = false;
+       data.setXLog(xLog);
+
      }
+
      if(message.equals("Log Value of the negative values and 0 does not exist for Y-Log Plot")) {
-       this.jCheckylog.setSelected(false);
        ShowMessage showMessage=new ShowMessage(this, "      Y-Log Plot Error as it contains Zero Values");
        showMessage.pack();
        showMessage.show();
+       panel.removeAll();
+       this.jCheckylog.setSelected(false);
+       yLog  = false;
+       data.setYLog(yLog);
      }
+     this.addGraphPanel();
   }
 
 
