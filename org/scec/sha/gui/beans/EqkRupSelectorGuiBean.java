@@ -52,8 +52,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   // Source Param Name
   public final static String RUPTURE_PARAM_NAME = "Rupture Index";
 
-  // boolean needed to handle to handle the first case whenever each ERF is selected
-  private boolean first = true;
 
   //ERFGuiBean Instance
   ERF_GuiBean erfGuiBean;
@@ -74,15 +72,16 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   */
  public EqkRupSelectorGuiBean(Vector erfClassNames) {
 
+   // create the instance of ERFs
+   erfGuiBean= new ERF_GuiBean(erfClassNames);
    try {
       jbInit();
     }
     catch(Exception e) {
       e.printStackTrace();
     }
-   // create the instance of ERFs
-   erfGuiBean= new ERF_GuiBean(erfClassNames);
-   setParamsInForecast(erfGuiBean.erfNamesVector.get(0).toString(),0);
+
+   setParamsInForecast(0);
 
  }
 
@@ -92,30 +91,29 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   *  selected by the user
   * @param forecast
   */
- protected void setParamsInForecast(String selectedForecast, int sourceIndex) {
+ protected void setParamsInForecast(int sourceIndex) {
 
 
-   // get the selected forecast
-   EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
+
 
    // also show the progress bar while the forecast is being updated
    CalcProgressBar progress = new CalcProgressBar("Forecast","Updating Forecast");
    progress.displayProgressBar();
 
-   // update the Forecast to get the sources and ruptures
-   erfGuiBean.updateMagDistParam();
-   erf.updateForecast();
 
+   // get the selected forecast
+   EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF();
 
    // add the select forecast parameter
    ParameterAPI chooseERF_Param = erfGuiBean.getParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
+   chooseERF_Param.addParameterChangeListener(this);
    ParameterList parameterList = new ParameterList();
    parameterList.addParameter(chooseERF_Param);
 
 
    int numSources = erf.getNumSources();
    IntegerParameter sourceParam = new IntegerParameter(SOURCE_PARAM_NAME,
-       0,numSources-1,new Integer(0));
+       0,numSources-1,new Integer(sourceIndex));
 
 
    sourceParam.addParameterChangeListener(this);
@@ -127,11 +125,8 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
        0,numRuptures-1,new Integer(0));
    parameterList.addParameter(ruptureParam);
 
-
-
-   // make the parameters visible based on selected forecast
-   //   while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
-
+   if(listEditor!=null)
+     this.remove(listEditor);
    listEditor= new ParameterListEditor(parameterList);
   // this.addParameters();
    // now make the editor based on the parameter list
@@ -148,7 +143,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    titledBorder1.setTitle(erfGuiBean.ERF_PARAM_NAME);
    Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
    panel.setBorder(border1);
-
    this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
    progress.dispose();
@@ -174,11 +168,9 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
    // if ERF selected by the user  changes
    if( name1.equals(erfGuiBean.ERF_PARAM_NAME) ){
-     String value = event.getNewValue().toString();
      // set the new forecast parameters.
      //Also selected source index is 0 for newly selected forecast
-     first = true;
-     setParamsInForecast(value,0);
+     setParamsInForecast(0);
      this.validate();
      this.repaint();
    }
@@ -187,7 +179,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    if( name1.equals(this.SOURCE_PARAM_NAME) ){
      String value = event.getNewValue().toString();
      // set the new forecast parameters. Also change the number of ruptures in this source
-     setParamsInForecast(erfGuiBean.getSelectedERF_Name(),Integer.parseInt(value));
+     setParamsInForecast(Integer.parseInt(value));
      this.validate();
      this.repaint();
    }
@@ -207,7 +199,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     this.add(sourceRupInfoScroll,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     this.add(erfAdjParamButton,  new GridBagConstraints(0, 2, 1, 1, 0, 0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
     sourceRupInfoScroll.getViewport().add(sourceRupInfoText, null);
   }
 
@@ -256,15 +248,13 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      }
     });
     frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
     frame.show();
     frame.pack();
   }
 
   void button_actionPerformed(ActionEvent e) {
-    // get the selected forecast
-   EqkRupForecast erf = (EqkRupForecast)erfGuiBean.getSelectedERF_Instance();
-   erf.updateForecast();
+   setParamsInForecast(0);
    frame.dispose();
   }
 
