@@ -119,6 +119,10 @@ public class HazardSpectrumApplet extends JApplet
   private static String SA_PERIOD = "SA Period";
 
 
+  //Y-Axis Labels
+  private static final String IML = "IML";
+  private static final String PROB_AT_EXCEED = "Probability of Exceedance";
+
   //Vector that stores the SA Period values for the IMR
   private Vector saPeriodVector ;
   //Total number of the SA Period Values
@@ -1001,6 +1005,11 @@ public class HazardSpectrumApplet extends JApplet
     //flag to check whether Hazard Curve Calc are done
     hazCalcDone = false;
 
+    //gets the Label for the Y-axis for the earlier grph
+    String oldY_AxisLabel="";
+    if(totalProbFuncs.getYAxisName() !=null)
+      oldY_AxisLabel = totalProbFuncs.getYAxisName();
+
     // get the selected IMR
     AttenuationRelationship imr = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
 
@@ -1017,11 +1026,17 @@ public class HazardSpectrumApplet extends JApplet
     double imlProbValue=imlProbGuiBean.getIML_Prob();
     boolean imlAtProb = false, probAtIML = false;
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB)){
-      totalProbFuncs.setYAxisName("IML");
+      //if the old Y axis Label not equal to the IML then clear plot and draw the chart again
+      if(!this.IML.equalsIgnoreCase(oldY_AxisLabel))
+        this.clearPlot(true);
+      totalProbFuncs.setYAxisName(this.IML);
       imlAtProb=true;
     }
     else{
-      totalProbFuncs.setYAxisName("Probability of Exceedance");
+      //if the old Y axis Label not equal to the Prob then clear plot and draw the chart again
+      if(!this.PROB_AT_EXCEED.equalsIgnoreCase(oldY_AxisLabel))
+        this.clearPlot(true);
+      totalProbFuncs.setYAxisName(this.PROB_AT_EXCEED);
       probAtIML=true;
     }
 
@@ -1231,9 +1246,9 @@ public class HazardSpectrumApplet extends JApplet
 
     //fixing the value for the Y Axis
     if(probAtIML)
-      totalProbFuncs.setYAxisName("Probability of Exceedance");
+      totalProbFuncs.setYAxisName(this.PROB_AT_EXCEED);
     else
-      totalProbFuncs.setYAxisName("IML");
+      totalProbFuncs.setYAxisName(this.IML);
 
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -1332,23 +1347,24 @@ public class HazardSpectrumApplet extends JApplet
   private double getHazFuncIML_ProbValues(ArbitrarilyDiscretizedFunc hazFunc,
                                      double imlProbVal,boolean imlAtProb, boolean probAtIML) {
 
+    //gets the number of points in the function
     int numPoints = hazFunc.getNum();
-    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
-
     //prob at iml is selected just return the Y Value back
     if(probAtIML)
-      return tempFunc.getY(numPoints-1);
+      return hazFunc.getY(numPoints-1);
     else{ //if iml at prob is selected just return the interpolated IML value.
-      int i;
-      for(i=0; i<numPoints-1; ++i){
-        if(imlProbVal>=xValuesSA[i] && imlProbVal<=xValuesSA[i+1])
-          break;
-      }
-      //interpolating the IML value over the range of the X Values
-      double imlVal = (((imlProbVal - xValuesSA[i]) *( xValuesSA[i+1] - xValuesSA[i])) /
-                       (tempFunc.getY(i+1)-tempFunc.getY(i))) + tempFunc.getY(i);
+      ArbitrarilyDiscretizedFunc tempFunc = new ArbitrarilyDiscretizedFunc();
+      for(int i=0; i<numPoints; ++i)
+        tempFunc.set(this.xValuesSA[i],hazFunc.getY(i));
 
-      return imlVal;
+      /*we are calling the function (getFirst InterpolatedX ) becuase x values for the PEER
+      * are the X values and the function we get from the Hazard Curve Calc are the
+      * Y Values for the Prob., now we have to find the interpolated IML which corresponds
+      * X value and imlProbVal is the Y value parameter which this function accepts
+      */
+      //returns the interpolated IML value for the given prob.
+      return tempFunc.getFirstInterpolatedX(imlProbVal);
+
     }
   }
 
