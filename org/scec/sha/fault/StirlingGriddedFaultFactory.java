@@ -134,7 +134,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
         int segmentNumber, ith_row, ith_col = 0;
         double distanceAlong, distance, hDistance, vDistance;
         Location location1;
-        GriddedSurface surface = new GriddedSurface(rows, cols);
+        EvenlyGriddedSurface surface = new EvenlyGriddedSurface(rows, cols, this.getGridSpacing());
 
 
         // Loop over each column - ith_col is ith grid step along the fault trace

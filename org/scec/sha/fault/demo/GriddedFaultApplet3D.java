@@ -41,7 +41,7 @@ import org.scec.data.*;
 
 public class GriddedFaultApplet3D
     extends JApplet
-    implements ItemListener, ChangeListener
+    implements ItemListener, ChangeListener, Runnable
 {
 
 
@@ -76,6 +76,7 @@ public class GriddedFaultApplet3D
     protected final static String ALL_FAULTS = "All Fault Traces";
     protected final static String BOTH_SUB_AND_SURFACE_PLOTS = "Grid & Sub Plot";
     protected final static String THREE_D = "3D Gridded Surface";
+    protected final static String GRIDDED_RUPTURES = "Gridded Ruptures";
 
     protected final static String FRANKEL = "Frankel";
     protected final static String STIRLING = "Stirling";
@@ -87,6 +88,10 @@ public class GriddedFaultApplet3D
     protected final static int ALL_FAULTS_PLOT_TYPE = 5;
     protected final static int BOTH_SUB_SURFACE_PLOT_TYPE = 6;
     protected final static int THREE_D_PLOT_TYPE = 7;
+    protected final static int GRIDDED_RUPTURE_PLOT_TYPE = 8;
+
+    // to save the rupture length, width and offset in case of rupture plot
+    private double ruptureLength, ruptureWidth, ruptureOffset;
 
     ArrayList files;
     static {
@@ -140,6 +145,7 @@ public class GriddedFaultApplet3D
     JPanel inputPanel = new JPanel();
     JPanel sheetPanel = new JPanel();
     JPanel controlPanel = new JPanel();
+    JPanel rupturePanel = new JPanel();
 
     LabeledBoxPanel gridControlsPanel = new LabeledBoxPanel();
     LabeledBoxPanel gridInfoPanel = new LabeledBoxPanel();
@@ -185,7 +191,13 @@ public class GriddedFaultApplet3D
     JRadioButton bothPlotsRadioButton = new JRadioButton();
     JRadioButton subAndSurfaceRadioButton = new JRadioButton();
     JRadioButton threeDRadioButton = new JRadioButton();
+    JRadioButton rupturesRadioButton= new JRadioButton();
 
+
+    final static Dimension NUMERIC_DIM = new Dimension(40, 18);
+    NumericTextField lengthTextField = new NumericTextField();
+    NumericTextField widthTextField = new NumericTextField();
+    NumericTextField offsetTextField = new NumericTextField();
 
     GriddedFaultPlotter plotter = new GriddedFaultPlotter();
     GriddedSurfaceAPI surface = null;
@@ -271,8 +283,8 @@ public class GriddedFaultApplet3D
     public void init() {
 
         ArrayList files = new ArrayList();
-        files.add("CALA.char");
-        files.add("CALB.char");
+        files.add("Frankel96_CALA.char");
+        files.add("Frankel96_CALB.char");
         simpleFaultDataList = Frankel96_SimpleFaultDataFileReader.getSimpleFaultDataList(files);
 
         oval.setBottomColor( darkBlue );
@@ -282,7 +294,7 @@ public class GriddedFaultApplet3D
 
         // initialize the current fault
         initFaults();
-
+        initRupturePanel();
         try { jbInit(); }
         catch ( Exception e ) { e.printStackTrace(); }
 
@@ -313,8 +325,8 @@ public class GriddedFaultApplet3D
         while( it.hasNext() ){
 
             Object obj = it.next();
-            if(obj != null && obj instanceof FaultTrace){
-                String name = ((FaultTrace)obj).getName();
+            if(obj != null && obj instanceof SimpleFaultData){
+                String name = ((SimpleFaultData)obj).getFaultTrace().getName();
                 list.add(name);
             }
         }
@@ -425,9 +437,12 @@ public class GriddedFaultApplet3D
             ItemSelectable selectable = e.getItemSelectable();
             if( selectable instanceof AbstractButton){
 
+                rect.setVisible(true);
+                rupturePanel.setVisible(false);
                 rect.disable();
                 rect.invalidate();
                 rect.repaint();
+
                 boolean selected = ( e.getStateChange() == ItemEvent.SELECTED );
 
                 if( selected ){
@@ -453,6 +468,11 @@ public class GriddedFaultApplet3D
                     else if ( selectable.equals( this.threeDRadioButton) ) {
                         faultTracePlot = THREE_D_PLOT_TYPE;
                         if (surface != null ) rect.enable();
+                    }
+                    else if(selectable.equals(this.rupturesRadioButton)) {
+                        faultTracePlot = GRIDDED_RUPTURE_PLOT_TYPE;
+                        rect.setVisible(false);
+                        rupturePanel.setVisible(true);
                     }
                 }
             }
@@ -899,6 +919,38 @@ public class GriddedFaultApplet3D
                 addGraphPanel();
                 break;
 
+            case GRIDDED_RUPTURE_PLOT_TYPE :
+              try{
+                ruptureLength = Double.parseDouble(lengthTextField.getText());
+                ruptureWidth = Double.parseDouble(widthTextField.getText());
+                ruptureOffset = Double.parseDouble(offsetTextField.getText());
+                }catch(Exception e) {
+                   JOptionPane.showMessageDialog(this,"Check the input in Gridded subset Panel");
+                   break;
+                }
+
+                comp3D = null;
+                threeD = false;
+                SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                surface = getFaultGriddedSurface(currentGriddedSurfaceName);
+                gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
+                rowsLabel.setValue("" + surface.getNumRows() );
+                colsLabel.setValue("" + surface.getNumCols() );
+                dipLabel.setValue( "" + faultData.getAveDip() );
+                upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
+                lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
+                faultNameLabel.setValue( faultData.getFaultTrace().getName() );
+
+                rect.enable();
+
+
+                /**
+                 * start the animationm of ruptures in the different thread
+                 */
+                Thread t= new Thread(this);
+                t.start();
+
+                break;
 
             default:
                 break;
@@ -1522,7 +1574,7 @@ public class GriddedFaultApplet3D
         bothPlotsRadioButton = initRadioButton(bothPlotsRadioButton, BOTH_PLOTS, index++);
         subAndSurfaceRadioButton = initRadioButton(subAndSurfaceRadioButton, BOTH_SUB_AND_SURFACE_PLOTS, index++);
         threeDRadioButton = initRadioButton(threeDRadioButton, THREE_D, index++);
-
+        rupturesRadioButton = initRadioButton(rupturesRadioButton, GRIDDED_RUPTURES, index++);
 
         plotButtonGroup.setSelected(faultRadioButton.getModel(), true);
 
@@ -1532,6 +1584,11 @@ public class GriddedFaultApplet3D
 
         griddedSubsetPanel.add(rect,    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 1, 1) );
+
+        griddedSubsetPanel.add(rupturePanel,    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 1, 1) );
+
+        rupturePanel.setVisible(false);
 
         gridControlsPanel.add(plotTypePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0) );
@@ -1583,4 +1640,119 @@ public class GriddedFaultApplet3D
                     , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
     }
 
+
+
+  /**
+   *  constructs the  panel when rupture plot is selected
+   */
+  private void initRupturePanel() {
+
+
+     JPanel lengthPanel = new JPanel();
+     JPanel widthPanel = new JPanel();
+     JPanel offsetPanel = new JPanel();
+     JLabel lengthLabel = new JLabel("Length:");
+     JLabel widthLabel = new JLabel("Width:");
+     JLabel offsetLabel = new JLabel("Offset:");
+
+
+     lengthLabel.setBackground( Color.white);
+     lengthLabel.setForeground( darkBlue );
+     lengthLabel.setFont( new java.awt.Font( "Dialog", 1, 11 ) );
+
+     widthLabel.setBackground( Color.white);
+     widthLabel.setForeground( darkBlue );
+     widthLabel.setFont( new java.awt.Font( "Dialog", 1, 11 ) );
+
+     offsetLabel.setBackground( Color.white);
+     offsetLabel.setForeground( darkBlue );
+     offsetLabel.setFont( new java.awt.Font( "Dialog", 1, 11 ) );
+
+     lengthTextField.setSize(this.NUMERIC_DIM);
+     lengthTextField.setMinimumSize(NUMERIC_DIM);
+     lengthTextField.setPreferredSize(NUMERIC_DIM);
+
+     widthTextField.setSize(this.NUMERIC_DIM);
+     widthTextField.setMinimumSize(NUMERIC_DIM);
+     widthTextField.setPreferredSize(NUMERIC_DIM);
+
+     offsetTextField.setSize(this.NUMERIC_DIM);
+     offsetTextField.setMinimumSize(NUMERIC_DIM);
+     offsetTextField.setPreferredSize(NUMERIC_DIM);
+
+     lengthTextField.setBorder(BorderFactory.createLoweredBevelBorder());
+     widthTextField.setBorder(BorderFactory.createLoweredBevelBorder());
+     offsetTextField.setBorder(BorderFactory.createLoweredBevelBorder());
+
+     GridBagLayout layout = new GridBagLayout();
+
+     lengthPanel.setLayout(layout);
+     widthPanel.setLayout(layout);
+     offsetPanel.setLayout(layout);
+
+     lengthPanel.add(lengthLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 3), 0, 0));
+     lengthPanel.add(lengthTextField,    new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.EAST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 0, 0));
+
+     widthPanel.add(widthLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(0, 0, 0, 3), 0, 0));
+     widthPanel.add(widthTextField,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 0, 0));
+
+     offsetPanel.add(offsetLabel,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 3), 0, 0));
+     offsetPanel.add(offsetTextField,   new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 0, 0));
+
+     lengthPanel.setBackground(Color.white);
+     widthPanel.setBackground(Color.white);
+     offsetPanel.setBackground(Color.white);
+     rupturePanel.setLayout(layout);
+     rupturePanel.add(lengthPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+     rupturePanel.add(widthPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+     rupturePanel.add(offsetPanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+
+
+     rupturePanel.setBackground(this.background);
+
+  }
+
+
+    /**
+     * This method is for animation of ruptures
+     */
+
+   public void run() {
+     if(surface instanceof EvenlyGriddedSurface){
+         EvenlyGriddedSurface  evenlyGriddedSurface =(EvenlyGriddedSurface)surface;
+
+         // get the iterator over all the subset surfaces
+         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureLength,ruptureWidth,(int)ruptureOffset);
+         //Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(3,2,3);
+         while(it.hasNext()) {
+            // get next subset surface
+             GriddedSubsetSurface griddedSubsetSurface = (GriddedSubsetSurface)it.next();
+             //add it to plotter
+             GriddedSurfaceXYDataSet functions10 = new GriddedSurfaceXYDataSet(griddedSubsetSurface);
+             plotter.clear();
+             plotter.add(new GriddedSurfaceXYDataSet(surface));
+             plotter.setPlotType( GriddedFaultPlotter.SUB_SHAPES);
+             plotter.add(functions10);
+             //update the graph
+             addGraphPanel();
+             try {
+               Thread.sleep(1000);
+             }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+  }
+
 }
+
+
