@@ -1,32 +1,36 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Make default values for FaultParameter
 
-Deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.
+Fix progress bars in ScenarioShakeMapApps
 
-Change HazardCurveServerModeApp to do the calculations on the server (done?).
+Change HazardCurveServerModeApp to do the calculations on the server.
 
-Make HazardCurveApps:
+After the above, deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.
+
+make sure x-axis values in hazFunction at line 1023 in the HazardCurveApplet are really in linear domain.
+
+use long-log interpolation in the HazardMapVierwer(s) - test this by hand
+
+Notes on HazardCurveApps:
 
 	1) calcs occur on user's computer
 	2) calcs occur on server
 
-	(ERFs can e both local or distributed in both)
+	(ERFs can be both local or distributed in both)
 
-Implement Spudich et al. (1999) relationship  **********
-
-Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). We are presently using these with the hazard map data plotter - check that this is being done correctly.
-
-Make default values for FaultParameter
+Implement Spudich et al. (1999) relationship  (Ned)
 
 Implement point source correction option in PropagationEffect.  ************
 
 GMT_MapGenerator:
 
-	If MMI chosen (and not log-plot) use unaltered shakemap pallet  **************
+	If MMI chosen (and not log-plot) use unaltered shakemap pallet  (Ned)
 
-	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
+	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service (Nitin)
 	
+
 
 
 Make email lists for the following (with on-line archives):
