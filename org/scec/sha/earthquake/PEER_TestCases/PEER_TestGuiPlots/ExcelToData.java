@@ -14,7 +14,7 @@ import java.util.StringTokenizer;
 
 public class ExcelToData {
 
-  private static boolean D = false;
+  private static boolean D = true;
   private static String TEST_CASE10 = "Set1-Case10";
   private static String TEST_CASE11 = "Set1-Case11";
 
@@ -34,6 +34,8 @@ public class ExcelToData {
     File fileDir  = new File(inputFilesDir);
     String fileList[] = fileDir.list();
     int numFilesinDir = fileList.length;
+
+    FileWriter logFileWriter = new FileWriter("GroupTestDataFiles/files.log");
     for(int i=0;i < numFilesinDir; ++i) {
 
       String inputFileName = inputFilesDir+fileList[i];
@@ -44,7 +46,6 @@ public class ExcelToData {
       int index=inputFileName.indexOf("_");
       String testCase = inputFileName.substring(inputFileName.lastIndexOf('/')+1,index);
       String identifier = inputFileName.substring(index+1,inputFileName.lastIndexOf('.'));
-      if(D) System.out.println("Test Case:"+testCase);
       // set the nuumber of sites
       // sites are 7 except for test case 10 and 11
       int numSites = 7;
@@ -58,31 +59,33 @@ public class ExcelToData {
       char site = 'a'; // site identifier
 
       // create files
-    for(int k=0;k<numFiles;)  {
-      files[k]=new FileWriter(outputPath+testCase+site+"-PGA"+"_"+identifier+".dat");
-      ++k;
-      files[k]=new FileWriter(outputPath+testCase+site+"-1secSA"+"_"+identifier+".dat");
-      ++k;
-      site = (char)(site+1);
-    }
-
-    // open the input file
-    FileReader reader = new FileReader(inputFileName);
-    BufferedReader bufReader = new BufferedReader(reader);
-    // read the file
-    String str = bufReader.readLine();
-    while(str!=null) {
-      int k=0;
-      StringTokenizer tokenizer = new StringTokenizer(str,"\t \n");
-      // write to the files
-      //if(D) System.out.println("string:"+str);
-      while(tokenizer.hasMoreTokens()) {
-        files[k].write(tokenizer.nextToken()+ "  ");
-        files[k].write(tokenizer.nextToken());
-        files[k].write("\n");
+      for(int k=0;k<numFiles;)  {
+        files[k]=new FileWriter(outputPath+testCase+site+"-PGA"+"_"+identifier+".dat");
+        logFileWriter.write(testCase+site+"-PGA"+"_"+identifier+".dat"+"\n");
         ++k;
+        files[k]=new FileWriter(outputPath+testCase+site+"-1secSA"+"_"+identifier+".dat");
+        logFileWriter.write(testCase+site+"-1secSA"+"_"+identifier+".dat"+"\n");
+        ++k;
+        site = (char)(site+1);
       }
-      str = bufReader.readLine();
+
+      // open the input file
+      FileReader reader = new FileReader(inputFileName);
+      BufferedReader bufReader = new BufferedReader(reader);
+      // read the file
+      String str = bufReader.readLine();
+      while(str!=null) {
+        int k=0;
+        StringTokenizer tokenizer = new StringTokenizer(str,"\t \n");
+        // write to the files
+        //if(D) System.out.println("string:"+str);
+        while(tokenizer.hasMoreTokens()) {
+          files[k].write(tokenizer.nextToken()+ "  ");
+          files[k].write(tokenizer.nextToken());
+          files[k].write("\n");
+          ++k;
+        }
+        str = bufReader.readLine();
     }
 
     // close the input and output files
@@ -91,6 +94,7 @@ public class ExcelToData {
     bufReader.close();
     reader.close();
     }
+   logFileWriter.close();
   }catch(Exception e) {
     e.printStackTrace();
   }
