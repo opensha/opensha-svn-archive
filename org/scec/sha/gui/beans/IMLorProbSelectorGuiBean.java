@@ -7,6 +7,7 @@ import org.scec.param.editor.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.gui.infoTools.IMT_Info;
+import org.scec.sha.imr.IntensityMeasureRelationship;
 
 /**
  * <p>Title: IMLorProbSelectorGuiBean</p>
@@ -28,8 +29,8 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
   public final static String MAP_TYPE = "Map Type";
   private final static String IML="IML";
   private final static String MAP_INFO="Set What To Plot";
-  private final static Double MIN_PROB=new Double(0);
-  private final static Double MAX_PROB=new Double(1);
+  private final static Double MIN_PROB = IntensityMeasureRelationship.EXCEED_PROB_MIN;
+  private final static Double MAX_PROB = IntensityMeasureRelationship.EXCEED_PROB_MAX;
   private final static Double DEFAULT_PROB= new Double(.5);
   private final static Double DEFAULT_IML = new Double(.1);
 
@@ -40,7 +41,7 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
 
   //we have to create a double parameter with constraints if we want to reflect the constarints
   //as the tooltip text in the GUI.
-  private DoubleParameter imlParam = new DoubleParameter(IML,0,Double.MAX_VALUE,DEFAULT_IML);
+  private DoubleParameter imlParam = new DoubleParameter(IML,Double.MIN_VALUE,Double.MAX_VALUE,DEFAULT_IML);
 
   /**
    * class constructor

@@ -779,6 +779,8 @@ public class GMT_MapGenerator implements Serializable{
     else {
       colorScaleMin = xyzDataSet.getMinZ();
       colorScaleMax = xyzDataSet.getMaxZ();
+      if (colorScaleMin == colorScaleMax)
+        throw new RuntimeException("Can't make the image plot because all Z values in the XYZ dataset have the same value ");
     }
 
     // make the cpt file
