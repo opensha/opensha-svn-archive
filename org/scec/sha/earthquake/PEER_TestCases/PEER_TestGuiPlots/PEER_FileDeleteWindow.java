@@ -108,6 +108,7 @@ public class PEER_FileDeleteWindow extends JFrame {
 
       if(flag == JOptionPane.OK_OPTION)
         peer.openDeleteConnection(fileComboBox.getSelectedItem().toString());
+      this.dispose();
     }
 
   }
