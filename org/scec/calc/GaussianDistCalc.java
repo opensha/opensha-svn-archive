@@ -41,13 +41,13 @@ public final class GaussianDistCalc {
   /*
     * This function calculates the Gaussian exceedance probability for the standardized
     * random variable assuming no truncation of the distribution.
-
+    */
     public static double getExceedProb(double standRandVariable) {
 
         return 1.0 - getCDF(standRandVariable);
     }
 
-*/
+
 
   /**
     * This function calculates the exceedance probability for a truncated Gaussian
