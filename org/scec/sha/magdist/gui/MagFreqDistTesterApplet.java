@@ -803,7 +803,7 @@ public class MagFreqDistTesterApplet extends JApplet
              }catch(Exception ex) {
                JOptionPane.showMessageDialog(this,
                                      "min, max, and num must be the same to sum the distributions."+
-                                     "\n To add this distribution first deselct the summed distribution"
+                                     "\n To add this distribution first deselect the Summed Dist option"
                                      );
                return;
              }
