@@ -135,6 +135,25 @@ public class SubmitJobForGridComputation {
     String dataFiles = outputDir+DATA_DIR;
     new File(dataFiles).mkdir();
 
+    /**
+     * moving the obj files( that contains the serialized object)
+     * to the Object files directory.Creating the script to do this.
+     * This script will be deleted when the work is completed.
+     */
+    String moveObjFilesScriptName = "moveFiles.sh";
+    try{
+      FileWriter fw = new FileWriter(outputDir+moveObjFilesScriptName);
+      fw.write("#!/bin/csh\n");
+      fw.write("cd "+outputDir+"\n");
+      fw.write("mv  "+"*.obj "+" "+objectFiles+"\n");
+      fw.write("cp "+"sites.txt "+dataFiles);
+      fw.close();
+      RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+moveObjFilesScriptName});
+      RunScript.runScript(new String[]{"sh", "-c", "rm "+outputDir+moveObjFilesScriptName});
+    }catch(IOException e){
+      e.printStackTrace();
+    }
+
     // some standard lines that will be written to all the condor submit files
     String remoteDir = REMOTE_DIR + remoteMachineSubdirName + "/";
 
