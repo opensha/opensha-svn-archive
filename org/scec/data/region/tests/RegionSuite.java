@@ -14,6 +14,7 @@ public class RegionSuite extends TestCase
   {
     TestSuite suite = new TestSuite();
     suite.addTest(new TestSuite(GeographicRegionTests.class));
+    suite.addTest(new TestSuite(RectangularGeoRegionTests.class));
     return suite;
   }
   
