@@ -497,6 +497,8 @@ public class GriddedFaultApplet
                     else if ( selectable.equals( subSurfaceRadioButton ) ) {
                         faultTracePlot = SUB_SURFACE_PLOT_TYPE;
                         if (surface != null ) rect.enable();
+
+
                     }
                     else if ( selectable.equals( subAndSurfaceRadioButton ) ) {
                         faultTracePlot = BOTH_SUB_SURFACE_PLOT_TYPE;
@@ -1241,22 +1243,22 @@ public class GriddedFaultApplet
 
         UIManager.put( "ScrollBar.border", BorderFactory.createEtchedBorder( 1 ) );
 
-        UIManager.put( "PopupMenu.background", c );
+        //UIManager.put( "PopupMenu.background", c );
 
         //UIManager.put("PopupMenu.selectionBackground", c );
         //UIManager.put("PopupMenu.border", BorderFactory.createLineBorder(Color.red, 1 ) );
 
-        UIManager.put( "Menu.background", c );
+        //UIManager.put( "Menu.background", c );
         //UIManager.put("Menu.selectionBackground", c );
 
-        UIManager.put( "MenuItem.background", c );
-        UIManager.put( "MenuItem.disabledBackground", c );
+       // UIManager.put( "MenuItem.background", c );
+        //UIManager.put( "MenuItem.disabledBackground", c );
         //UIManager.put("MenuItem.selectionBackground", c );
 
         // UIManager.put("MenuItem.borderPainted", new Boolean(false) );
         UIManager.put( "MenuItem.margin", new Insets( 0, 0, 0, 0 ) );
 
-        UIManager.put( "ComboBox.background", c );
+        //UIManager.put( "ComboBox.background", c );
         //UIManager.put("ComboBox.selectionBackground", new Color(220, 230, 170));
 
 
@@ -1285,7 +1287,7 @@ public class GriddedFaultApplet
 
         button.setBackground(Color.white);
         button.setFont(FONT_1_11);
-        button.setForeground(SystemColor.activeCaption);
+        button.setForeground(this.darkBlue);
         button.setFocusPainted(false);
         button.setMargin(emptyInsets);
         button.setText(label);
@@ -1311,7 +1313,7 @@ public class GriddedFaultApplet
 
         this.setFont( new java.awt.Font( "Dialog", 0, 10 ) );
         this.getContentPane().setBackground( background );
-        this.setSize( new Dimension( 559, 483 ) );
+        this.setSize( new Dimension( 600, 500 ) );
         this.getContentPane().setLayout( GBL );
 
         gridControlsPanel.setTitle("Gridded Surface Controls");
@@ -1603,11 +1605,11 @@ public class GriddedFaultApplet
 
         plotTypePanel.setLayout(GBL);
         plotTypePanel.setTitle("Plot Type");
-
+        plotTypePanel.setBorderColor(darkBlue);
 
         griddedSubsetPanel.setLayout(GBL);
         griddedSubsetPanel.setTitle("Gridded Subset");
-
+        griddedSubsetPanel.setBorderColor(darkBlue);
         rect.disable();
 
         int index = 0;
@@ -1631,19 +1633,14 @@ public class GriddedFaultApplet
 
         griddedSubsetPanel.add(rupturePanel,    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 1, 1) );
-
         rupturePanel.setVisible(false);
-
         gridControlsPanel.add(plotTypePanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0) );
-
 
         gridControlsPanel.add(gridSpacingEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0) );
         gridControlsPanel.add(griddedSubsetPanel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0) );
-
-
     }
 
 
@@ -1657,14 +1654,14 @@ public class GriddedFaultApplet
         lowerSeismoLabel.setKeyName("Lower Seismo.");
           faultNameLabel.setKeyName("Fault Name   ");
 
-        gridSpacingLabel.setLableForground(SystemColor.activeCaption);
-               rowsLabel.setLableForground(SystemColor.activeCaption);
-               colsLabel.setLableForground(SystemColor.activeCaption);
-                dipLabel.setLableForground(SystemColor.activeCaption);
-        upperSeismoLabel.setForeground(SystemColor.activeCaption);
-        upperSeismoLabel.setLableForground(SystemColor.activeCaption);
-        lowerSeismoLabel.setLableForground(SystemColor.activeCaption);
-          faultNameLabel.setLableForground(SystemColor.activeCaption);
+        gridSpacingLabel.setLableForground(darkBlue);
+               rowsLabel.setLableForground(darkBlue);
+               colsLabel.setLableForground(darkBlue);
+                dipLabel.setLableForground(darkBlue);
+        upperSeismoLabel.setForeground(darkBlue);
+        upperSeismoLabel.setLableForground(darkBlue);
+        lowerSeismoLabel.setLableForground(darkBlue);
+          faultNameLabel.setLableForground(darkBlue);
 
         int counter = 0;
 

@@ -42,6 +42,8 @@ public class SubRectanglePanel extends JPanel{
 
     final static GridBagLayout GBL = new GridBagLayout();
     final static Insets zero = new Insets(0,0,0,0);
+    final static Color darkBlue = new Color(80,80,133);
+    final static Color lightBlue = new Color(200,200,230);
     final static Dimension DIM = new Dimension(60, 18);
     final static Font FONT = new java.awt.Font("Dialog", 1, 11);
 
@@ -88,7 +90,6 @@ public class SubRectanglePanel extends JPanel{
         this.xMin = xMin;
         xStart = xMin;
         xMinTextField.setText("" + xMin);
-
         this.xMax = xMax;
         xEnd = xMax;
         xMaxTextField.setText("" + xMax);
@@ -136,7 +137,7 @@ public class SubRectanglePanel extends JPanel{
         yMaxPanel.setLayout(GBL);
 
         xMinLabel.setFont(FONT);
-        xMinLabel.setForeground(SystemColor.activeCaption);
+        xMinLabel.setForeground(this.darkBlue);
         xMinLabel.setToolTipText("");
         xMinLabel.setText("X Start:  ");
 
@@ -148,7 +149,7 @@ public class SubRectanglePanel extends JPanel{
 
 
         xMaxLabel.setFont(FONT);
-        xMaxLabel.setForeground(SystemColor.activeCaption);
+        xMaxLabel.setForeground(this.darkBlue);
         xMaxLabel.setToolTipText("");
         xMaxLabel.setText("X End:    ");
 
@@ -160,7 +161,7 @@ public class SubRectanglePanel extends JPanel{
 
 
         yMinLabel.setFont(FONT);
-        yMinLabel.setForeground(SystemColor.activeCaption);
+        yMinLabel.setForeground(this.darkBlue);
         yMinLabel.setToolTipText("");
         yMinLabel.setText("Y Start:  ");
 
@@ -172,7 +173,7 @@ public class SubRectanglePanel extends JPanel{
 
 
         yMaxLabel.setFont(FONT);
-        yMaxLabel.setForeground(SystemColor.activeCaption);
+        yMaxLabel.setForeground(this.darkBlue);
         yMaxLabel.setToolTipText("");
         yMaxLabel.setText("Y End:    ");
 
@@ -200,11 +201,11 @@ public class SubRectanglePanel extends JPanel{
 
 
         xLabel.setFont(FONT);
-        xLabel.setForeground(SystemColor.activeCaption);
+        xLabel.setForeground(this.darkBlue);
         xLabel.setText("X Range (0-100)");
 
         yLabel.setFont(FONT);
-        yLabel.setForeground(SystemColor.activeCaption);
+        yLabel.setForeground(this.darkBlue);
         yLabel.setText("Y Range ( 0 - 100 )");
 
 
