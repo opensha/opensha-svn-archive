@@ -554,7 +554,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      * (0 and Double.MAX_VALUE, respectively).
      * @param doubles - a vector of doubles
      */
-    public void setDuractionConstraint(Vector doubles) {
+    public void setDurationConstraint(Vector doubles) {
 
       // make sure new values are all positive (within the originals)
       Iterator it = doubles.iterator();

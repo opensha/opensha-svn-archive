@@ -52,9 +52,16 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
    * Static variable for input file name
    */
   private final static String WG02_CODE_PATH ="/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/wg99/wg99_src_v27/";
-  private final static String WG02_INPUT_FILE ="base_mod_23_wgt_1K.inp";
-  private final static String WG02_OPENSHA_INPUT_FILE = "OpenSHA.inp";
-  public final static String INPUT_FILE_NAME = WG02_CODE_PATH+"WG02_WRAPPER_INPUT.DAT";
+  private final static String WG02_INPUT_FILE ="base_mod_23_wgt_1K.inp";   // the original WG02-code input file
+  private final static String WG02_OPENSHA_INPUT_FILE = "OpenSHA.inp";     // the WG02-code input file that we create on the fly
+  public final static String INPUT_FILE_NAME = WG02_CODE_PATH+"WG02_WRAPPER_INPUT.DAT"; // the WG02-code output file that we read
+
+  private final static String TIME_PRED_FILE_01YRS = "time_pred_2002_1yr_n1000_rand.txt";
+  private final static String TIME_PRED_FILE_05YRS = "time_pred_2002_5yr_n1000_rand.txt";
+  private final static String TIME_PRED_FILE_10YRS = "time_pred_2002_10yr_n1000_rand.txt";
+  private final static String TIME_PRED_FILE_20YRS = "time_pred_2002_20yr_n1000_rand.txt";
+  private final static String TIME_PRED_FILE_30YRS = "time_pred_2002_30yr_rand.txt";
+
 
   // vector to hold the line numbers where each iteration starts
   private Vector iterationLineNumbers;
@@ -109,6 +116,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   // For num realizations parameter
   private final static String NUM_REALIZATIONS_PARAM_NAME ="Num Realizations";
   private Integer DEFAULT_NUM_REALIZATIONS_VAL= new Integer(10);
+  private Integer NUM_REALIZATIONS_MIN= new Integer(1);
+  private Integer NUM_REALIZATIONS_MAX= new Integer(1000);
   private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
   IntegerParameter numRealizationsParam;
 
@@ -119,6 +128,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
   private final static String FAULT_READ ="*** Fault ";
   private final static String PROB_NUM_STRING ="*** Probability Model";
   private final static String PROB_WTS_STRING ="            weights for probability models";
+  private final static String N_YEAR_STRING = "nYr (length of probability interval in years)";
 
 
   //static Param Names
@@ -138,79 +148,48 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.YEARS,TimeSpan.YEARS);
+    // set the duration constraint as a list of Doubles
+    Vector durationOptions = new Vector();
+    durationOptions.add(new Double(1));
+    durationOptions.add(new Double(5));
+    durationOptions.add(new Double(10));
+    durationOptions.add(new Double(20));
+    durationOptions.add(new Double(30));
+    timeSpan.setDurationConstraint(durationOptions);
+    // set the start year - hard coded for now
+    timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,2002,2002);
+    timeSpan.setStartTime(2002);
     timeSpan.addParameterChangeListener(this);
+    // the default value is set in the initAdjParams() method
 
     // create and add adj params to list
     initAdjParams();
 
-    //runs te fortran code and updates the parameters and timespan
-    runFortranCode();
-    if(D)
-      System.out.println("After running the fortran code and generating the adjustable Params");
+    parameterChangeFlag = false;
+
   }
 
 
-  /**
-   * runs the fortran code and creates the input file for OpenSHA
-   * and updates the timeSpan accordingly
-   */
-  private void runFortranCode(){
-    //runs the fortran code
-     this.initWG02_Code();
-
-     // read the lines of the input files into a list
-     try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
-     catch( FileNotFoundException e){ System.out.println(e.toString()); }
-     catch( IOException e){ System.out.println(e.toString());}
-
-     // Exit if no data found in list
-     if( inputFileLines == null) throw new
-            FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
-
-     // find the line numbers for the beginning of each iteration
-     iterationLineNumbers = new Vector();
-     StringTokenizer st;
-     String test=null;
-     for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
-       st = new StringTokenizer((String) inputFileLines.get(lineNum));
-       st.nextToken(); // skip the first token
-       if(st.hasMoreTokens()) {
-         test = st.nextToken();
-         if(test.equals("ITERATIONS"))
-           iterationLineNumbers.add(new Integer(lineNum));
-       }
-     }
-
-     if(D) System.out.println(C+": number of iterations read = "+iterationLineNumbers.size());
-     if(D)
-       for(int i=0;i<iterationLineNumbers.size();i++)
-         System.out.print("   "+ (Integer)iterationLineNumbers.get(i));
-
-     // set the constraint on the number of realizations now that we know the total number
-     numRealizationsParam.setConstraint(new IntegerConstraint(1,Integer.MAX_VALUE));
-
-     // set the timespan from the 2nd line of the file
-     st = new StringTokenizer((String) inputFileLines.get(1));
-     st.nextToken(); // skip first four tokens
-     st.nextToken();
-     st.nextToken();
-     st.nextToken();
-     int year = new Double(st.nextToken()).intValue();
-     double duration = new Double(st.nextToken()).doubleValue();
-     if (D) System.out.println("\nyear="+year+"; duration="+duration);
-     timeSpan.setDuractionConstraint(duration,duration);
-     timeSpan.setDuration(duration);
-     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,year,year);
-     timeSpan.setStartTime(year);
-  }
-
-
-  //runs the Fortran code for the WG-02 and generates the Output file that is read by OpenSHA
-   private void initWG02_Code(){
-
-     String realizationString = NUMBER_OF_ITERATIONS;
+  // configures the WG02 Fortran code input file and runs the code
+   private void runFortranCode(){
 
      int numRealization = ((Integer)adjustableParams.getParameter(NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
+
+     double duration = timeSpan.getDuration();
+
+     // set the filename for the time-dependent SAF model according to duration
+     String timeDepFile;
+     if(duration == 1)
+       timeDepFile = TIME_PRED_FILE_01YRS;
+     else if (duration == 5)
+       timeDepFile = TIME_PRED_FILE_05YRS;
+     else if (duration == 10)
+       timeDepFile = TIME_PRED_FILE_10YRS;
+     else if (duration == 20)
+       timeDepFile = TIME_PRED_FILE_20YRS;
+     else
+       timeDepFile = TIME_PRED_FILE_30YRS;
+
 
      try {
        FileReader fr = new FileReader(WG02_CODE_PATH+WG02_INPUT_FILE);
@@ -219,38 +198,22 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
        ArrayList fileLines = new ArrayList();
 
        //number of Faults
-       int numFaults=0;
+       int numFaults=7;   // hard coded with known value
        int faultsRead = 0;
+
        //reading each line of file until the end of file
        while(lineFromInputFile != null){
-         //System.out.println("Inside the while loop");
-         //reading each line from input wg02 file and checking if it is equals to
-        // number of realization value setup
-         if(lineFromInputFile.endsWith(realizationString)){
-           //if the line is for the number of realization setup, check if the
-           //parameter value is equal to the value in the file,
-           //if so then don't run the WG-02 fortran code again, else replace this
-           //value in the file with the value in the parameter
-           StringTokenizer st = new StringTokenizer(lineFromInputFile);
-           int realizationValue = (new Integer(st.nextToken())).intValue();
-           //setting the numRealization value to what is given in the input file
-           adjustableParams.getParameter(NUM_REALIZATIONS_PARAM_NAME).setValue(new Integer(realizationValue));
-           if(D)System.out.println("RealizationValue: "+realizationValue+";;numRealization: "+numRealization);
-           lineFromInputFile = (numRealization+1) +"  "+realizationString;
-           //fileLines.add(lineFromInputFile);
-           //lineFromInputFile =br.readLine();
-         }
-         if(lineFromInputFile.startsWith(this.NUM_FAULTS)){
-           if(D) System.out.println("Number of Faults Line: "+lineFromInputFile);
-           fileLines.add(lineFromInputFile);
-           lineFromInputFile = br.readLine();
-           if(D)System.out.println("Number of Faults line: "+lineFromInputFile);
-           StringTokenizer st= new StringTokenizer(lineFromInputFile);
-           numFaults = Integer.parseInt(st.nextToken());
-           //fileLines.add(lineFromInputFile);
-           //lineFromInputFile =br.readLine();
-         }
-         if(lineFromInputFile.startsWith(this.FAULT_READ+(faultsRead+1))){
+
+         // looking for number-of-years duration line
+         if(lineFromInputFile.endsWith(N_YEAR_STRING))
+           lineFromInputFile = ((int) duration) +"  "+N_YEAR_STRING;
+
+         // looking for number of realizations value line
+         if(lineFromInputFile.endsWith(NUMBER_OF_ITERATIONS))
+           lineFromInputFile = numRealization +"  "+NUMBER_OF_ITERATIONS;
+
+         // If it's a fault, set the probability model weights
+         if(lineFromInputFile.startsWith(FAULT_READ+(faultsRead+1))){
            if(D) System.out.println("Reading Fault: "+lineFromInputFile);
            fileLines.add(lineFromInputFile);
            ++faultsRead;
@@ -260,7 +223,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            //reading the file further below till num of prob models for that fault
            lineFromInputFile =br.readLine();
            fileLines.add(lineFromInputFile);
-           while(!lineFromInputFile.startsWith(this.PROB_NUM_STRING)){
+           while(!lineFromInputFile.startsWith(PROB_NUM_STRING)){
              lineFromInputFile=br.readLine();
              fileLines.add(lineFromInputFile);
            }
@@ -272,7 +235,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
            int numberOfProbModels =Integer.parseInt(st.nextToken());
            fileLines.add(br.readLine());
 
-           //reading the line from the file that tells wts for different prob. model foo that fault
+           //reading the line from the file that tells wts for different prob. model for that fault
            String probModels = br.readLine();
            ParameterList paramList =(ParameterList)this.adjustableParams.getParameter(faultName+this.PROB_MODEL_WTS).getValue();
            double pois = ((Double)paramList.getParameter(this.POISSON).getValue()).doubleValue();
@@ -285,11 +248,18 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
              double time_pred = ((Double)paramList.getParameter(this.TIME_PRED).getValue()).doubleValue();
              probModelWts += " "+time_pred;
            }
-           probModelWts +=this.PROB_WTS_STRING;
+           probModelWts += PROB_WTS_STRING;
            if(D) System.out.println("Putting the wts line in the fortran code:  "+probModelWts);
            lineFromInputFile = probModelWts;
-           //fileLines.add(probModelWts);
-           //lineFromInputFile =br.readLine();
+
+           // add the time predictable file-name if necessary
+           if(numberOfProbModels ==5){
+             // add the previous weights line
+             fileLines.add(lineFromInputFile);
+             // get & set the time-predictable model filename line
+             lineFromInputFile = br.readLine();
+             lineFromInputFile = timeDepFile;
+           }
          }
          fileLines.add(lineFromInputFile);
          lineFromInputFile = br.readLine();
@@ -352,7 +322,8 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
         DELTA_MAG_PARAM_MAX,null,DEFAULT_DELTA_MAG_VAL);
     deltaMag_Param.setInfo(DELTA_MAG_PARAM_INFO);
 
-    numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,DEFAULT_NUM_REALIZATIONS_VAL);
+    numRealizationsParam = new IntegerParameter(NUM_REALIZATIONS_PARAM_NAME,NUM_REALIZATIONS_MIN,
+                                                NUM_REALIZATIONS_MAX,DEFAULT_NUM_REALIZATIONS_VAL);
     numRealizationsParam.setInfo(NUM_REALIZATIONS_PARAM_INFO);
 
     // add the change listener to parameters so that forecast can be updated
@@ -371,7 +342,10 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
     adjustableParams.addParameter(backSeisParam);
     adjustableParams.addParameter(grTailParam);
     adjustableParams.addParameter(numRealizationsParam);
-    createParamsFromFortranCode();
+
+    // make & set initial parameter values based on what's in the default WG02-input file
+    createParamsFromDefaultWG02_InputFIle();
+
     if(D)
       System.out.print("After putting all the params in the Param List");
   }
@@ -381,26 +355,28 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
    * input file for the fortran.
    *
    */
-  private void createParamsFromFortranCode(){
-    if(D)System.out.print("Inside the create fiunction to get the params for the fortran code");
+  private void createParamsFromDefaultWG02_InputFIle(){
+
+    if(D)System.out.print("Inside the create function to get the params for the fortran code");
+
     try{
       FileReader fr = new FileReader(WG02_CODE_PATH+WG02_INPUT_FILE);
       BufferedReader  br = new BufferedReader(fr);
       String lineFromInputFile = br.readLine();
 
       //number of Faults
-      int numFaults=0;
+      int numFaults=7;   // hard coded for now
       int faultsRead = 0;
       //reading each line of file until the end of file
       while(lineFromInputFile != null){
 
-        //reading the String from the file that tells number of faults info.
-        if(lineFromInputFile.startsWith(this.NUM_FAULTS)){
-
-          String NumOfFaults = br.readLine();
-          StringTokenizer st= new StringTokenizer(NumOfFaults);
-          numFaults = Integer.parseInt(st.nextToken());
+        // set the number of years in the timeSpan if it's the appropriate line
+        if(lineFromInputFile.endsWith(N_YEAR_STRING)) {
+          StringTokenizer st = new StringTokenizer(lineFromInputFile);
+          double nYrs = (new Double(st.nextToken())).doubleValue();
+          timeSpan.setDuration(nYrs);
         }
+
         //reading the probablity model wts for each faults
         if(lineFromInputFile.startsWith(this.FAULT_READ+(faultsRead+1))){
           ++faultsRead;
@@ -472,13 +448,45 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList
 
      // make sure something has changed
      if(parameterChangeFlag) {
+       // set parameter vaues
        numIterations = ((Integer) numRealizationsParam.getValue()).intValue();
        rupOffset = ((Double)rupOffset_Param.getValue()).doubleValue();
        deltaMag = ((Double)deltaMag_Param.getValue()).doubleValue();
        gridSpacing = ((Double)gridSpacing_Param.getValue()).doubleValue();
        backSeis = (String)backSeisParam.getValue();
        grTail = (String)grTailParam.getValue();
-       this.runFortranCode();
+
+       // run the fortran code
+       runFortranCode();
+
+       // read our file generated by the fortran code & put the lines into a list
+       try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
+       catch( FileNotFoundException e){ System.out.println(e.toString()); }
+       catch( IOException e){ System.out.println(e.toString());}
+
+       // Exit if no data found in list
+       if( inputFileLines == null) throw new
+         FaultException(C + "No data loaded from "+INPUT_FILE_NAME+". File may be empty or doesn't exist.");
+
+       // find the line numbers for the beginning of each iteration
+       iterationLineNumbers = new Vector();
+       StringTokenizer st;
+       String test=null;
+       for(int lineNum=0; lineNum < inputFileLines.size(); lineNum++) {
+         st = new StringTokenizer((String) inputFileLines.get(lineNum));
+         st.nextToken(); // skip the first token
+         if(st.hasMoreTokens()) {
+           test = st.nextToken();
+           if(test.equals("ITERATIONS"))
+             iterationLineNumbers.add(new Integer(lineNum));
+         }
+       }
+       if(D) System.out.println(C+": number of iterations read = "+iterationLineNumbers.size());
+       if(D)
+         for(int i=0;i<iterationLineNumbers.size();i++)
+           System.out.print("   "+ (Integer)iterationLineNumbers.get(i));
+
+       // desinate that everything is up to date
        parameterChangeFlag = false;
      }
 
