@@ -872,7 +872,7 @@ public class IMRTesterApplet
 
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setCrosshairLockedOnData( false );
-        xAxis.setCrosshairVisible( true );
+        xAxis.setCrosshairVisible(false);
 
         //xAxis.setGridPaint(Color.blue);
 
@@ -883,7 +883,7 @@ public class IMRTesterApplet
 
         yAxis.setAutoRangeIncludesZero( false );
         yAxis.setCrosshairLockedOnData( false );
-        yAxis.setCrosshairVisible( true );
+        yAxis.setCrosshairVisible( false);
         //yAxis.setGridPaint(Color.red);
 
 

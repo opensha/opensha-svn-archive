@@ -654,6 +654,8 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
               sum =j*(float)Math.pow(10,i);
               if(sum<range.getLowerBound())
                  continue;
+              if(sum>range.getUpperBound())
+                return;
              double currentTickValue = sum;
               double val=currentTickValue;
               double logval;
