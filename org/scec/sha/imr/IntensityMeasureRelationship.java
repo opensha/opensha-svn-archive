@@ -224,12 +224,10 @@ public abstract class IntensityMeasureRelationship
      *
      * @param  intensityMeasure  The new intensityMeasureParameter name
      */
-    public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException, ConstraintException {
+    public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException {
 
-        if( supportedIMParams.containsParameter( intensityMeasureName ) ) {
-            im = supportedIMParams.getParameter( intensityMeasureName );
-        }
-        else throw new ParameterException("This im is not supported, name = " + intensityMeasureName );
+      im = supportedIMParams.getParameter( intensityMeasureName );
+
     }
 
 

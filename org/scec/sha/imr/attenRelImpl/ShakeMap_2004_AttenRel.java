@@ -282,16 +282,16 @@ public class ShakeMap_2004_AttenRel
      double per = ((Double) periodParam.getValue()).doubleValue();
      double mean = 0;
      if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
-       mean += getMean(as_1997_attenRel);
-       mean += getMean(cb_2003_attenRel);
-       mean += getMean(scemy_1997_attenRel);
+       mean += getMean(as_1997_attenRel, imt);
+       mean += getMean(cb_2003_attenRel, imt);
+       mean += getMean(scemy_1997_attenRel, imt);
        return mean/3.0;
      }
      else {
-       mean += getMean(as_1997_attenRel);
-       mean += getMean(cb_2003_attenRel);
-       mean += getMean(bjf_1997_attenRel);
-       mean += getMean(scemy_1997_attenRel);
+       mean += getMean(as_1997_attenRel, imt);
+       mean += getMean(cb_2003_attenRel, imt);
+       mean += getMean(bjf_1997_attenRel, imt);
+       mean += getMean(scemy_1997_attenRel, imt);
        return mean/4.0;
      }
    }
@@ -302,10 +302,10 @@ public class ShakeMap_2004_AttenRel
     * @param attenRel
     * @return
     */
-   private double getExceedProbability(AttenuationRelationship attenRel, double iml) {
+   private double getExceedProbability(AttenuationRelationship attenRel, String imt, double iml) {
 
 //     double mean = getMean(attenRel);
-     double stdDev = getStdDev(attenRel);
+     double stdDev = getStdDev(attenRel,imt);
      double mean = 0;
 //     double stdDev = 0.5;
      return getExceedProbability(mean, stdDev, iml);
@@ -321,29 +321,25 @@ public class ShakeMap_2004_AttenRel
     * @param attenRel
     * @return
     */
-   private double getStdDev(AttenuationRelationship attenRel) {
+   private double getStdDev(AttenuationRelationship attenRel, String imt) {
 
-     String imt = im.getName();
-     attenRel.setIntensityMeasure(imt);
-     if(imt.equals(this.SA_NAME))
+     if(imt.equals(PGA_NAME)) {
+       attenRel.setIntensityMeasure(imt);
+     }
+     else if(imt.equals(SA_NAME)) {
+       attenRel.setIntensityMeasure(imt);
        attenRel.getParameter(PERIOD_NAME).setValue(periodParam.getValue());
-     return attenRel.getStdDev();
-
-/*
-     String imt = im.getName();
-     if(imt.equals(MMI_NAME)) {
-       throw new RuntimeException(MMI_ERROR_STRING);
      }
      else if (imt.equals(PGV_NAME)) {
-       periodParam.setValue(new Double(1.0));
-       attenRel.setIntensityMeasure(saParam);
+       attenRel.setIntensityMeasure(SA_NAME);
+       attenRel.getParameter(PERIOD_NAME).setValue(new Double(1.0));
      }
-     else {
-       attenRel.setIntensityMeasure(im);
+     else { // IMT = MMI
+       throw new RuntimeException(MMI_ERROR_STRING);
      }
 
      return attenRel.getStdDev();
-*/
+
    }
 
 
@@ -353,11 +349,11 @@ public class ShakeMap_2004_AttenRel
     * @param attenRel
     * @return
     */
-   private double getMean(AttenuationRelationship attenRel) {
+   private double getMean(AttenuationRelationship attenRel, String imt) {
 
      double ave_bc, pga_bc, amp, mean;
 
-     String imt = im.getName();
+//     String imt = im.getName();
 
      if(imt.equals(PGA_NAME)) {
        attenRel.setIntensityMeasure(im);
@@ -471,16 +467,16 @@ public class ShakeMap_2004_AttenRel
          String imt = (String) im.getName();
          double per = ((Double) periodParam.getValue()).doubleValue();
          if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
-           ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);
-           ave_iml += getMean(scemy_1997_attenRel)+stRndVar*getStdDev(scemy_1997_attenRel);
-           ave_iml += getMean(cb_2003_attenRel)+stRndVar*getStdDev(cb_2003_attenRel);
+           ave_iml += getMean(as_1997_attenRel, imt)+stRndVar*getStdDev(as_1997_attenRel, imt);
+           ave_iml += getMean(scemy_1997_attenRel, imt)+stRndVar*getStdDev(scemy_1997_attenRel, imt);
+           ave_iml += getMean(cb_2003_attenRel, imt)+stRndVar*getStdDev(cb_2003_attenRel, imt);
            return ave_iml/3.0;
          }
          else {
-           ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);
-           ave_iml += getMean(scemy_1997_attenRel)+stRndVar*getStdDev(scemy_1997_attenRel);
-           ave_iml += getMean(bjf_1997_attenRel)+stRndVar*getStdDev(bjf_1997_attenRel);
-           ave_iml += getMean(cb_2003_attenRel)+stRndVar*getStdDev(cb_2003_attenRel);
+           ave_iml += getMean(as_1997_attenRel, imt)+stRndVar*getStdDev(as_1997_attenRel, imt);
+           ave_iml += getMean(scemy_1997_attenRel, imt)+stRndVar*getStdDev(scemy_1997_attenRel, imt);
+           ave_iml += getMean(bjf_1997_attenRel, imt)+stRndVar*getStdDev(bjf_1997_attenRel, imt);
+           ave_iml += getMean(cb_2003_attenRel, imt)+stRndVar*getStdDev(cb_2003_attenRel, imt);
            return ave_iml/4.0;
          }
        }
@@ -512,16 +508,16 @@ public class ShakeMap_2004_AttenRel
      double per = ((Double) periodParam.getValue()).doubleValue();
      double prob = 0;
      if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
-       prob += Math.log(getExceedProbability(as_1997_attenRel, iml));
-       prob += Math.log(getExceedProbability(cb_2003_attenRel, iml));
-       prob += Math.log(getExceedProbability(scemy_1997_attenRel, iml));
+       prob += Math.log(getExceedProbability(as_1997_attenRel, imt, iml));
+       prob += Math.log(getExceedProbability(cb_2003_attenRel, imt, iml));
+       prob += Math.log(getExceedProbability(scemy_1997_attenRel, imt, iml));
        return Math.exp(prob/3.0);
      }
      else {
-       prob += Math.log(getExceedProbability(as_1997_attenRel, iml));
-       prob += Math.log(getExceedProbability(cb_2003_attenRel, iml));
-       prob += Math.log(getExceedProbability(bjf_1997_attenRel, iml));
-       prob += Math.log(getExceedProbability(scemy_1997_attenRel, iml));
+       prob += Math.log(getExceedProbability(as_1997_attenRel, imt, iml));
+       prob += Math.log(getExceedProbability(cb_2003_attenRel, imt, iml));
+       prob += Math.log(getExceedProbability(bjf_1997_attenRel, imt, iml));
+       prob += Math.log(getExceedProbability(scemy_1997_attenRel, imt, iml));
        return Math.exp(prob/4.0);
      }
    }
@@ -583,6 +579,7 @@ public class ShakeMap_2004_AttenRel
        point.setY(getExceedProbability(vs30,imt,point.getX()));
      }
      return intensityMeasureLevels;
+
    }
 
 
