@@ -120,7 +120,7 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
   public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
   public final static String RMI_STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
-  public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERFClient";
+  public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
   public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
@@ -913,7 +913,9 @@ public class Temp_HazardCurveApplication extends JApplet
       }
       if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
 
-        String plottingOption = this.plotOptionControl.getSelectedOption();
+        String plottingOption = null;
+        if(plotOptionControl !=null)
+          plottingOption=this.plotOptionControl.getSelectedOption();
         /* get the selected ERF
         NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
         erfGuiBean.getSelectedERF.
@@ -1119,22 +1121,12 @@ public class Temp_HazardCurveApplication extends JApplet
    else //adding consecutinve ERF List
      prevNumERFinList +=numERFs;
 
-   //if this is the first ERF_List being added the remove thne clear the function list
-   //if(prevNumERFinList ==0){
-     //this.peelOffCurves();
-     // clear the function list
-     //totalProbFuncs.clear();
-     //prevNumERFinList = numERFs;
-   //}
 
      if(addData) //add new data on top of the existing data
        curveColorsArray.add(new Integer(numERFs));
 
      else if(!addData && prevNumERFinList !=0){ // add new data to the existing data
-       //functionList = new DiscretizedFuncList();
-       //functionList.addAll(totalProbFuncs);
-       //clearPlot(true);
-       int numCurves = totalProbFuncs.size();
+        int numCurves = totalProbFuncs.size();
        //number to saves inside the functionlist without recomputation
        int numCurvesToAdd = numCurves - numFractileCurvesinList;
        for(int i=numCurvesToAdd-1;i<numCurves;++i)
