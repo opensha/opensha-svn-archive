@@ -1,6 +1,7 @@
 package org.scec.data.region;
 
 import java.util.*;
+import java.io.Serializable;
 
 import org.scec.data.*;
 import org.scec.param.*;
@@ -19,7 +20,8 @@ import org.scec.param.*;
  * @version 1.0
  */
 
-public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegion {
+public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegion
+                                          implements Serializable{
 
   Site site = new Site();
 

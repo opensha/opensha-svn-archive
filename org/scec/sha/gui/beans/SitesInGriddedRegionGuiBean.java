@@ -3,6 +3,7 @@ package org.scec.sha.gui.beans;
 import java.util.*;
 import java.lang.reflect.*;
 import javax.swing.JOptionPane;
+import java.io.Serializable;
 
 
 import org.scec.param.*;
@@ -25,7 +26,7 @@ import org.scec.data.region.*;
 
 
 public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
-    ParameterChangeListener, ParameterChangeFailListener {
+    ParameterChangeListener, ParameterChangeFailListener, Serializable {
 
   // for debug purposes
   protected final static String C = "SiteParamList";

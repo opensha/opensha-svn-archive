@@ -10,24 +10,15 @@ import java.util.Iterator;
 import java.net.*;
 import java.io.*;
 
-
-
-import com.jrefinery.chart.*;
-import com.jrefinery.chart.axis.*;
-import com.jrefinery.chart.tooltips.*;
-import com.jrefinery.data.*;
-
-
 import org.scec.data.function.*;
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.gui.*;
 import org.scec.gui.plot.LogPlotAPI;
-import org.scec.gui.plot.jfreechart.*;
+
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.util.*;
-import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.imr.AttenuationRelationship;
