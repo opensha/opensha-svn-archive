@@ -7,15 +7,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-
 import org.scec.gui.SidesBorder;
-import org.scec.param.DoubleDiscreteConstraint;
-import org.scec.param.DoubleDiscreteParameter;
-import org.scec.param.ParameterAPI;
-import org.scec.param.ParameterConstraintAPI;
-import org.scec.exceptions.ConstraintException;
+import org.scec.param.*;
+import org.scec.util.ParamUtils;
+import org.scec.exceptions.*;
 
 /**
  * <p>Title: TranslatedConstrainedDoubleParameterEditor</p>
@@ -37,21 +32,38 @@ public class TranslatedConstrainedDoubleParameterEditor extends ConstrainedDoubl
 	    throws Exception
     { super(model); }
 
-    public void setParameter(ParameterAPI model) {
+    public void setParameter(ParameterAPI model) throws ParameterException {
 
         String S = C + ": setParameter(): ";
         if(D)System.out.println(S + "Starting");
 
-        super.setParameter(model);
+        if ( model == null ) throw new NullPointerException( S + "Input Parameter data cannot be null" );
+        else this.model = model;
+
+        String name = "";
+        name = model.getName();
+        Object value = model.getValue();
+
+        removeWidget();
+        addWidget();
+
+        setWidgetObject( name, value );
+
 
         DoubleConstraint constraint;
 
         if( model instanceof TranslatedWarningDoubleParameter){
 
             TranslatedWarningDoubleParameter param1 = (TranslatedWarningDoubleParameter)model;
+            try{
+                valueEditor.setToolTipText( "Min = " + param1.getWarningMin().toString() + "; Max = " + param1.getWarningMax().toString() );
+                this.setNameLabelToolTip(model.getInfo());
+            }
+            catch( Exception e ){
+                throw new ParameterException(e.toString());
+            }
 
-            valueEditor.setToolTipText( "Min = " + param1.getWarningMin().toString() + "; Max = " + constraint.getWarningMax().toString() );
-            this.setNameLabelToolTip(model.getInfo());
+
 
         }
         else if( ParamUtils.isWarningParameterAPI( model ) ){
