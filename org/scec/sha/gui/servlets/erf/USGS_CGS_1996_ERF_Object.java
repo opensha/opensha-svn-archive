@@ -62,14 +62,11 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
 
   //gets the Adjustable Param List
   ParameterList parameterList;
-  ArrayList inputBackSeisFileLines, inputFaultFileLines;
 
   //default class constructor
   public USGS_CGS_1996_ERF_Object(ParameterList param,ArrayList backSeisFileLines,ArrayList faultFileLines, TimeSpan time) {
 
     parameterList =param;
-    this.inputBackSeisFileLines = backSeisFileLines;
-    this.inputFaultFileLines = faultFileLines;
 
     // get value of background seismicity paramter
     String backSeis = (String) parameterList.getParameter(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_NAME).getValue();
@@ -77,8 +74,8 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
     allSources = new Vector();
     System.out.println("BackSies is:"+backSeis);
     if (backSeis.equalsIgnoreCase(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_INCLUDE)) {
-      makeFaultSources();
-      makeBackSeisSources();
+      makeFaultSources(faultFileLines);
+      makeBackSeisSources(backSeisFileLines);
       System.out.println("Back Sies included");
       // now create the allSources list:
       allSources.addAll(FrankelA_CharEqkSources);
@@ -88,7 +85,7 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
     }
     else if (backSeis.equalsIgnoreCase(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_EXCLUDE)) {
       System.out.println("Back Sies excluded");
-      makeFaultSources();
+      makeFaultSources(faultFileLines);
       // now create the allSources list:
       allSources.addAll(FrankelA_CharEqkSources);
       allSources.addAll(FrankelB_CharEqkSources);
@@ -96,7 +93,7 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
     }
     else {// only background sources
       System.out.println("Only BackSies");
-      makeBackSeisSources();
+      makeBackSeisSources(backSeisFileLines);
       // now create the allSources list:
       allSources.addAll(FrankelBackgrSeisSources);
     }
@@ -181,7 +178,7 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
    * Read the Background Seismicity file and make the sources
    *
    */
-  private  void makeBackSeisSources() {
+  private  void makeBackSeisSources(ArrayList inputBackSeisFileLines) {
 
     // Debug
     String S = ": makeBackSeisSources(): ";
@@ -263,7 +260,7 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
    *
    * @throws FaultException
    */
-  private  void makeFaultSources() throws FaultException{
+  private  void makeFaultSources(ArrayList inputFaultFileLines) throws FaultException{
 
     FrankelA_CharEqkSources = new Vector();
     FrankelB_CharEqkSources = new Vector();

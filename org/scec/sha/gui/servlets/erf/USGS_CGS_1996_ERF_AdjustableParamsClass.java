@@ -71,7 +71,7 @@ public class USGS_CGS_1996_ERF_AdjustableParamsClass {
     backSeisOptionsStrings.add(BACK_SEIS_EXCLUDE);
     backSeisOptionsStrings.add(BACK_SEIS_INCLUDE);
     backSeisOptionsStrings.add(BACK_SEIS_ONLY);
-    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_INCLUDE);
+    backSeisParam = new StringParameter(BACK_SEIS_NAME, backSeisOptionsStrings,BACK_SEIS_EXCLUDE);
 
     fracGR_Param = new DoubleParameter(FRAC_GR_PARAM_NAME,FRAC_GR_PARAM_MIN,
                                        FRAC_GR_PARAM_MAX,FRAC_GR_PARAM_UNITS,DEFAULT_FRAC_GR_VAL);

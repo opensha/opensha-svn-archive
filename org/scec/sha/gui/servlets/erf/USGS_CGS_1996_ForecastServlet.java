@@ -124,17 +124,11 @@ public class USGS_CGS_1996_ForecastServlet extends HttpServlet implements ERF_We
     catch( FileNotFoundException e){ System.out.println(e.toString()); }
     catch( IOException e){ System.out.println(e.toString());}
 
-    try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
-    catch( FileNotFoundException e){ System.out.println(e.toString()); }
-    catch( IOException e){ System.out.println(e.toString());}
 
     // Exit if no data found in list
     if( inputFaultFileLines == null) throw new
            FaultException("No data loaded from "+INPUT_FAULT_FILE_NAME+". File may be empty or doesn't exist.");
 
-    // Exit if no data found in list
-    if( inputBackSeisFileLines == null) throw new
-           FaultException("No data loaded from "+INPUT_BACK_SEIS_FILE_NAME+". File may be empty or doesn't exist.");
 
   }
 
@@ -190,6 +184,19 @@ public class USGS_CGS_1996_ForecastServlet extends HttpServlet implements ERF_We
   * @returns the object for the EqkRupForecast with updated sources
   */
  public ERF_API getERF_API(TimeSpan time, ParameterList param){
+   String backSiesOption = (String)param.getParameter(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_NAME).getValue();
+   if(backSiesOption.equals(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_INCLUDE)){
+     try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
+     catch( FileNotFoundException e){ System.out.println(e.toString()); }
+     catch( IOException e){ System.out.println(e.toString());}
+     // Exit if no data found in list
+     if( inputBackSeisFileLines == null) throw new
+       FaultException("No data loaded from "+INPUT_BACK_SEIS_FILE_NAME+". File may be empty or doesn't exist.");
+   }
+   else{
+     inputBackSeisFileLines= null;
+   }
+
 
    USGS_CGS_1996_ERF_Object erf = new USGS_CGS_1996_ERF_Object(param,
        this.inputBackSeisFileLines, this.inputFaultFileLines,time);
