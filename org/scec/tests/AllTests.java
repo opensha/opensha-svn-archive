@@ -16,7 +16,10 @@ public class AllTests extends TestCase {
 
   public static Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTestSuite(org.scec.util.tests.TestFaultUtils.class);
+    // Example of how to add an individual test class into this method
+    // suite.addTest(new TestSuite(org.scec.util.tests.FaultUtilsTests.class));
+    suite.addTest(org.scec.util.tests.UtilSuite.suite());
+    suite.addTest(org.scec.data.tests.DataSuite.suite());
     return suite;
   }
 }
