@@ -136,6 +136,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     // set the start year - hard coded for now
     timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR,2002,2002);
     timeSpan.setStartTime(2002);
+    timeSpan.setDuration(30);
     timeSpan.addParameterChangeListener(this);
 
     // create and add adj params to list
@@ -149,7 +150,6 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     backSeisParam.addParameterChangeListener(this);
     grTailParam.addParameterChangeListener(this);
     numRealizationsParam.addParameterChangeListener(this);
-
 
   }
 
@@ -209,6 +209,9 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
 
    public void updateForecast() {
 
+     if(D) System.out.println(NAME+", updateForecast, parameterChangeFlag = " + parameterChangeFlag);
+     if(D) System.out.println(NAME+", updateForecast, Duration = " + timeSpan.getDuration());
+
      // make sure something has changed
      if(parameterChangeFlag) {
 
@@ -223,9 +226,11 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
          INPUT_FILE_NAME = INPUT_FILE_NAME_10yr;
        } else if (duration == 20) {
          INPUT_FILE_NAME = INPUT_FILE_NAME_20yr;
-       } else {
+       } else if (duration == 30) {
          INPUT_FILE_NAME = INPUT_FILE_NAME_30yr;
        }
+       else
+         throw new RuntimeException("that duration is not supported by "+NAME);
 
 
        // read the lines of the input files into a list

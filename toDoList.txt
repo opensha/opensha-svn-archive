@@ -1,14 +1,34 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
+Put the PEER Set 2 tests into their supplied Excel file.  Notes:
 
-Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
+	1) Nitin, below there is mention that Set2-Case5 needs 
+	some finishing; I'm not sure what was needed, but I fixed 
+	some things in the selector control panel.  If the problem
+	was in the run-all control panel then it probably still needs
+	fixing.
+
+	2) Note that three new cases have been added to Set2-Case1; these
+	are the "d", "e", and "f" cases.  Please make sure that the run-
+	all control panel includes these.
+
+	3) For Set2-Case2 we also need to use the disaggregation control
+	panel for sites 1 & 3 at probs 0.01 and 0.0001; this may be most
+	easily done by hand.
+
+	4) Please don't forget the the 5% and 95% fractiles, in addition 
+	to the mean, in Set2-Case5.
+
+	5) we are not doing Set2-Case7.
+
+Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
 
 EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient (don't create the entire vector or subset surfaces each time).  See if this speeds up the PEER Set2-Case1-a test.
 
+Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
 
-Update HavardCurveApp jar file at web site (the non-servlet mode one) - Ned added support for adjustable durations in the WG02 ERF.
+Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
 
 Ned needs to think about the following:
 
@@ -60,8 +80,6 @@ Change "Set X Values for Hazard Curve Calc" as follows:
 See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?
-
-Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
 
 Check lat/lon values of cities in sites of interest.  Lets try to find some official list of city lats and lons for at least california.
 
