@@ -293,7 +293,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
           * Add parameters for Gaussian distribution
           */
          DoubleParameter mean = new DoubleParameter(MEAN);
-         DoubleParameter stdDev = new DoubleParameter(STD_DEV, 0, 100);
+         DoubleParameter stdDev = new DoubleParameter(STD_DEV);
          DoubleParameter toMoRate = new DoubleParameter(GAUSSIAN_TO_MORATE);
          vStrings=new Vector();
          vStrings.add(NONE);

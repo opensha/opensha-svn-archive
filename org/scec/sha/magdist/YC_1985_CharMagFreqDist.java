@@ -169,7 +169,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
     if(magLower > magUpper)
         throw new InvalidRangeException("magLower cannot be less than magUpper");
     if(magPrime > magUpper || magPrime < magLower)
-        throw new InvalidRangeException(C"magPrime must be between magLower and magUpper");
+        throw new InvalidRangeException("magPrime must be between magLower and magUpper");
     if( (magPrime-deltaMagPrime) < magLower)
         throw new InvalidRangeException("magPrime-deltaMagPrime must be greater than magLower");
     if( deltaMagChar > (magUpper-magPrime+deltaMagPrime) )
