@@ -1074,7 +1074,6 @@ public class HazardSpectrumApplet extends JApplet
       }catch (RuntimeException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(),
                                       "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-        e.printStackTrace();
         return;
       }
 
