@@ -612,7 +612,7 @@ public class HazardMapServerModeApplet extends JApplet implements
 
 
      //sending the X values vector in the condProbVector to the servlet
-     outputToServlet.writeObject(condProbVector);
+     outputToServlet.writeObject(new Boolean(this.isIMTLogEnabled()));
 
      //sending the X values vector in the hazFunc Vector to the servlet
      outputToServlet.writeObject(hazFuncVector);
@@ -633,9 +633,8 @@ public class HazardMapServerModeApplet extends JApplet implements
      ObjectInputStream inputToServlet = new
      ObjectInputStream(servletConnection.getInputStream());
 
-    String temp=inputToServlet.readObject().toString();
-
-    if(D) System.out.println("Receiving the Input from the Servlet:"+temp);
+    String dataSetNumber=inputToServlet.readObject().toString();
+    if(D) System.out.println("Receiving the Input from the Servlet:"+dataSetNumber);
     inputToServlet.close();
 
    }catch (Exception e) {
@@ -644,5 +643,16 @@ public class HazardMapServerModeApplet extends JApplet implements
    }
  }
 
-
+ /**
+  * @return true if the selected IMT is PGA, PGV or SA
+  * else returns false
+  */
+ private boolean isIMTLogEnabled(){
+   String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
+   if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
+      selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
+      selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
+     return true;
+   else return false;
+ }
 }

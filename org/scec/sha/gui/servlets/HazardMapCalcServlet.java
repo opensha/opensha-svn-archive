@@ -35,12 +35,10 @@ public class HazardMapCalcServlet extends HttpServlet {
      ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
 
      /**
-      * get the vector of x values for cond prob. function
+      * get the flag of whther there is need to take log of x values when
+      * passing x values to the IMR
       */
-     // get the vector of x-values for cond prob func
-     Vector condProbVector  = (Vector) inputFromApplet.readObject();
-     // now convert this vector to arbitrary discretized function
-     ArbitrarilyDiscretizedFunc condProbFunc = convertToFunc(condProbVector);
+     boolean logFlag = ((Boolean) inputFromApplet.readObject()).booleanValue();
 
      /**
       * get the vector of x-values for hazfunction
@@ -85,8 +83,7 @@ public class HazardMapCalcServlet extends HttpServlet {
 
      // now run the calculation
      HazardMapCalculator calc = new HazardMapCalculator();
-     boolean flag = true;
-     calc.getHazardMapCurves(flag, xValues, sites, imr,
+     calc.getHazardMapCurves(logFlag, xValues, sites, imr,
                              eqkRupForecast, mapParametersInfo );
 
    } catch (Exception e) {
@@ -100,22 +97,6 @@ public class HazardMapCalcServlet extends HttpServlet {
  public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
    // call the doPost method
    doGet(request,response);
- }
-
-
-  /**
-   * This function accepts the vector of Doubles.
-   * These double values are the x-values and we  make
-   * Arbitrarily Discretized func with that
-   * @param input
-   * @return
-   */
- private ArbitrarilyDiscretizedFunc convertToFunc(Vector input) {
-   int num = input.size();
-   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-   for(int i=0; i<num; ++i)
-     func.set(((Double)input.get(i)).doubleValue(), 1);
-   return func;
  }
 
 }
