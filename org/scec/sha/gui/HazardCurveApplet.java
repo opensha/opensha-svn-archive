@@ -920,8 +920,7 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
       String xAxisTitle =  totalProbFuncs.getXAxisName();
       String yAxisTitle =  totalProbFuncs.getYAxisName();
 
-      this.pointsTextArea.setText(hazardCurveGuiBean.getCurveParametersInfo()+"\n"+
-                                  totalProbFuncs.toString());
+      this.pointsTextArea.setText(totalProbFuncs.toString());
       addGraphPanel();
 
       //displays the disaggregation string in the pop-up window

@@ -813,7 +813,7 @@ public class HazardCurveGuiBean implements
       if(((String)imrNamesVector.get(i)).equalsIgnoreCase(selectedIMR)) {
         // if this IMR is selected
         initDiscretizeValues(hazFunction);
-        hazFunction.setInfo(selectedIMR);
+        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
 
         // set the IMT in the IMR
         try {
