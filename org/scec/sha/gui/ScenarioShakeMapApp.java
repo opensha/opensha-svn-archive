@@ -79,19 +79,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
   private ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
 
-  /**
-   *  The object class names for all the supported attenuation ralations (IMRs)
-   *  Temp until figure out way to dynamically load classes during runtime
-   */
-  public final static String BJF_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.BJF_1997_AttenRel";
-  public final static String AS_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.AS_1997_AttenRel";
-  public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
-  public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
-  public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
-  public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
-  public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
-  public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
-  public final static String SM04_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2004_AttenRel";
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -341,20 +328,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Initialize the IMR Gui Bean
    */
   private void initIMRGuiBean() {
-    // create the IMR Gui Bean object
-     // It accepts the vector of IMR class names
-     ArrayList imrClasses = new ArrayList();
-//     imrClasses.add(this.SM_CLASS_NAME);
-     imrClasses.add(this.AS_CLASS_NAME);
-     imrClasses.add(this.BJF_CLASS_NAME);
-     imrClasses.add(this.C_CLASS_NAME);
-     imrClasses.add(this.SCEMY_CLASS_NAME);
-     imrClasses.add(this.CB_CLASS_NAME);
-     imrClasses.add(this.F_CLASS_NAME);
-     imrClasses.add(this.A_CLASS_NAME);
-     imrClasses.add(this.SM_CLASS_NAME);
-     imrClasses.add(this.SM04_CLASS_NAME);
-     imrGuiBean = new IMR_GuiBean(imrClasses);
+
+     imrGuiBean = new IMR_GuiBean();
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
 
      // show this IMRgui bean the Panel
@@ -615,6 +590,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
           else
             mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
       }catch(RuntimeException e){
+        e.printStackTrace();
         calcProgress.showProgress(false);
         calcProgress.dispose();
         return;

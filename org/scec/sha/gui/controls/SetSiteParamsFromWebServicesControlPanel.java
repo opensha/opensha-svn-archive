@@ -138,7 +138,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
        setSiteParamsInIMR(imr, lonMin.doubleValue(), latMin.doubleValue(),
                           vs30, basinDepth);
     } else { // do for all IMRS
-       ArrayList imrObjects = this.imrGuiBean.getIMR_Objects();
+       ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
        int num = imrObjects.size();
        for(int i=0; i<num; ++i)
          setSiteParamsInIMR((AttenuationRelationshipAPI)imrObjects.get(i),

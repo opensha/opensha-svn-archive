@@ -13,6 +13,7 @@ import javax.swing.border.*;
 
 import org.scec.param.*;
 import org.scec.param.event.*;
+import org.scec.sha.gui.infoTools.AttenuationRelationshipsInstance;
 
 /**
  * <p>Title: IMR Gui Bean</p>
@@ -36,25 +37,26 @@ public class IMR_GuiBean extends ParameterListEditor
   // IMR GUI Editor & Parameter names
   public final static String IMR_PARAM_NAME = "IMR";
   public final static String IMR_EDITOR_TITLE =  "Set IMR";
-  //this vector saves the names of all the supported IMRs
-  private ArrayList imrNamesVector=new ArrayList();
-  //this vector holds the full class names of all the supported IMRs
-  private ArrayList imrClasses = new ArrayList();
+
   //saves the IMR objects, to the parameters related to an IMR.
-  private ArrayList imrObject = new ArrayList();
+  private ArrayList supportedAttenRels ;
   // this flag is needed else messages are shown twice on focus lost
   private boolean inParameterChangeWarning = false;
 
-  /**
-   * constructor which accepts the class names of the imrs to be shown in pick list
-   * @param classNames
-   */
- public IMR_GuiBean(ArrayList classNames) {
-   this.imrClasses = classNames;
-   parameterList = new ParameterList();
+  //instance of the class to create the objects of the AttenuationRelationships dynamically.
+  AttenuationRelationshipsInstance attenRelInstances = new AttenuationRelationshipsInstance();
 
+
+ /**
+  * class default constructor
+  * @param classNames
+  */
+ public IMR_GuiBean() {
+   supportedAttenRels = attenRelInstances.createIMRClassInstance(this);
+   parameterList = new ParameterList();
    init_imrParamListAndEditor();
  }
+
 
  /**
    *  Create a list of all the IMRs
@@ -65,13 +67,14 @@ public class IMR_GuiBean extends ParameterListEditor
     // if we are entering this function for the first time, then make imr objects
     if(!parameterList.containsParameter(IMR_PARAM_NAME)) {
       parameterList = new ParameterList();
-      Iterator it= imrClasses.iterator();
+      Iterator it= supportedAttenRels.iterator();
+
+      ArrayList supportedIMRNames = new ArrayList();
       while(it.hasNext()){
         // make the IMR objects as needed to get the site params later
-        AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI ) createIMRClassInstance((String)it.next(),this);
+        AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI )it.next();
         imr.setParamDefaults();
-        imrObject.add(imr);
-        imrNamesVector.add(imr.getName());
+        supportedIMRNames.add(imr.getName());
         Iterator it1 = imr.getSiteParamsIterator();
         // add change fail listener to the site parameters for this IMR
         while(it1.hasNext()) {
@@ -82,7 +85,7 @@ public class IMR_GuiBean extends ParameterListEditor
 
       // make the IMR selection paramter
       StringParameter selectIMR = new StringParameter(IMR_PARAM_NAME,
-          imrNamesVector,(String)imrNamesVector.get(0));
+          supportedIMRNames,(String)supportedIMRNames.get(0));
       // listen to IMR paramter to change site params when it changes
       selectIMR.addParameterChangeListener(this);
       parameterList.addParameter(selectIMR);
@@ -100,7 +103,7 @@ public class IMR_GuiBean extends ParameterListEditor
     // now find the selceted IMR and add the parameters related to it
 
     // initalize imr
-    AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)imrObject.get(0);
+    AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)supportedAttenRels.get(0);
 
     // find & set the selectedIMR
     imr = this.getSelectedIMR_Instance();
@@ -146,54 +149,6 @@ public class IMR_GuiBean extends ParameterListEditor
   }
 
 
-  /**
-    * Creates a class instance from a string of the full class name including packages.
-    * This is how you dynamically make objects at runtime if you don't know which\
-    * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
-    * it the normal way:<P>
-    *
-    * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
-    *
-    * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
-    * instead to create the same class by:<P>
-    *
-    * <code>BJF_1997_AttenRel imr =
-    * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
-    * </code><p>
-    *
-    */
-  public Object createIMRClassInstance( String className, org.scec.param.event.ParameterChangeWarningListener listener){
-    String S = C + ": createIMRClassInstance(): ";
-    try {
-
-      Class listenerClass = Class.forName( "org.scec.param.event.ParameterChangeWarningListener" );
-      Object[] paramObjects = new Object[]{ listener };
-      Class[] params = new Class[]{ listenerClass };
-      Class imrClass = Class.forName( className );
-      Constructor con = imrClass.getConstructor( params );
-      Object obj = con.newInstance( paramObjects );
-      return obj;
-    } catch ( ClassCastException e ) {
-      System.out.println(S + e.toString());
-      throw new RuntimeException( S + e.toString() );
-    } catch ( ClassNotFoundException e ) {
-      System.out.println(S + e.toString());
-      throw new RuntimeException( S + e.toString() );
-    } catch ( NoSuchMethodException e ) {
-      System.out.println(S + e.toString());
-      throw new RuntimeException( S + e.toString() );
-    } catch ( InvocationTargetException e ) {
-      System.out.println(S + e.toString());
-      throw new RuntimeException( S + e.toString() );
-    } catch ( IllegalAccessException e ) {
-      System.out.println(S + e.toString());
-      throw new RuntimeException( S + e.toString() );
-    } catch ( InstantiationException e ) {
-      System.out.println(S + e.toString());
-      throw new RuntimeException( S + e.toString() );
-    }
-
-  }
 
 
 
@@ -413,9 +368,9 @@ public class IMR_GuiBean extends ParameterListEditor
    public AttenuationRelationshipAPI getSelectedIMR_Instance() {
      AttenuationRelationshipAPI imr = null;
      String selectedIMR = getSelectedIMR_Name();
-     int size = imrObject.size();
+     int size = supportedAttenRels.size();
      for(int i=0; i<size ; ++i) {
-       imr = (AttenuationRelationshipAPI)imrObject.get(i);
+       imr = (AttenuationRelationshipAPI)supportedAttenRels.get(i);
        if(imr.getName().equalsIgnoreCase(selectedIMR))
          break;
      }
@@ -427,8 +382,8 @@ public class IMR_GuiBean extends ParameterListEditor
     *
     * @return
     */
-   public ArrayList getIMR_Objects() {
-     return this.imrObject;
+   public ArrayList getSupportedIMRs() {
+     return supportedAttenRels;
    }
 
 }

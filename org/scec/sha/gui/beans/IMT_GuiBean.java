@@ -222,7 +222,7 @@ public String getParameterListMetadataString(){
         metadata +="[ ";
     }
     else{ //rest all are the independent params
-      metadata += tempParam.getName()+" = "+(String)tempParam.getValue()+" ; ";
+      metadata += tempParam.getName()+" = "+((Double)tempParam.getValue()).doubleValue()+" ; ";
     }
   }
   if(paramSize>1)

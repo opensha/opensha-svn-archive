@@ -66,10 +66,10 @@ public class ParameterEditor
     protected static Color STRING_BACK_COLOR = Color.lightGray;
 
     // dimensions for layout of components
-    protected final static Dimension LABEL_DIM = new Dimension( 100, 14 );
-    protected final static Dimension LABEL_PANEL_DIM = new Dimension( 100, 15 );
-    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 100, 23 );
-    protected final static Dimension JCOMBO_DIM = new Dimension( 100, 22 );
+    protected final static Dimension LABEL_DIM = new Dimension( 140, 20 );
+    protected final static Dimension LABEL_PANEL_DIM = new Dimension( 140, 20 );
+    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 23 );
+    protected final static Dimension JCOMBO_DIM = new Dimension( 140, 22 );
 
     // Panel layout manager
     protected final static GridBagLayout GBL = new GridBagLayout();
@@ -80,9 +80,9 @@ public class ParameterEditor
     protected final static Insets FIVE_FIVE_INSETS = new Insets( 0, 5, 0, 5 );
 
     // Default fonts
-    protected static Font JCOMBO_FONT = new Font( "SansSerif", 0, 10 );
-    public static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 11 );
-    public static Font DEFAULT_FONT = new Font( "SansSerif", Font.PLAIN, 10 );
+    protected static Font JCOMBO_FONT = new Font( "SansSerif", 0, 11 );
+    public static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 12 );
+    public static Font DEFAULT_FONT = new Font( "SansSerif", Font.PLAIN, 11 );
 
     // Default borders
     //protected final static Border BORDER = new SidesBorder( BACK_COLOR, BACK_COLOR, BACK_COLOR, BACK_COLOR );
