@@ -11,6 +11,8 @@ import org.scec.sha.imr.*;
 import org.scec.sha.imr.attenRelImpl.*;
 import org.scec.sha.imr.attenRelImpl.calc.*;
 import org.scec.sha.param.*;
+import org.scec.data.function.DiscretizedFuncAPI;
+import org.scec.calc.GaussianDistCalc;
 import org.scec.util.*;
 
 /**
@@ -28,11 +30,8 @@ import org.scec.util.*;
  * </UL><p>
  * Other Independent Parameters:
  * <UL>
- * <LI>magParam - moment Magnitude
- * <LI>distanceJBParam - closest distance to surface projection of fault
- * <LI>willsSiteParam - The site classes used in the Wills et al. (2000) map
- * <LI>fltTypeParam - Style of faulting
- * <LI>componentParam - Component of shaking (only one)
+ * <LI>vs30Param - The site classes used in the Wills et al. (2000) map
+ * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
  * Important Notes:
@@ -74,16 +73,14 @@ public class CGS_USGS_2003_AttenRel
     private final SCEMY_1997_AttenRel scemy_1997_attenRel;
     private final BJF_1997_AttenRel bjf_1997_attenRel;
 
-    // this is a separate im for use in the calculations
-    ParameterAPI im_forCalc;
+    private double vs30;
+    private static final double VS30_REF = 760;
 
     // The Borcherdt (2004) site amplification calculator
     Borcherdt2004_SiteAmpCalc borcherdtAmpCalc = new Borcherdt2004_SiteAmpCalc();
 
     // the site object for the BC boundary
     private Site site_BC;
-
-    private double vs30_ref = 760;
 
     protected final static Double VS30_WARN_MIN = new Double(180.0);
     protected final static Double VS30_WARN_MAX = new Double(3500.0);
@@ -112,6 +109,7 @@ public class CGS_USGS_2003_AttenRel
         "PGA or PGV).  For now you can compute the median or the\n"+
         "IML that has exactly a 0.5 chance of being exceeded (assuming\n"+
         "this application supports such computations).\n";
+    public final static String UNSUPPORTED_METHOD_ERROR = "This method is not supprted";
 
 
     // for issuing warnings:
@@ -129,12 +127,10 @@ public class CGS_USGS_2003_AttenRel
         this.warningListener = warningListener;
 
         initSupportedIntensityMeasureParams( );
-
         initProbEqkRuptureParams(  );
         initPropagationEffectParams( );
         initSiteParams();
         initOtherParams( );
-
         initIndependentParamLists(); // Do this after the above
 
         // init the attenuation relationships
@@ -143,7 +139,7 @@ public class CGS_USGS_2003_AttenRel
         scemy_1997_attenRel = new SCEMY_1997_AttenRel(warningListener);
         bjf_1997_attenRel = new BJF_1997_AttenRel(warningListener);
 
-        // init the BC boundary site object:
+        // init the BC boundary site object, and set it in the attenuation relationships:
         site_BC = new Site();
 
         as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(as_1997_attenRel.SITE_TYPE_ROCK);
@@ -169,12 +165,7 @@ public class CGS_USGS_2003_AttenRel
 
 
     /**
-     *  This sets the potential-earthquake related parameters (magParam
-     *  and fltTypeParam) based on the probEqkRupture passed in.
-     *  The internally held probEqkRupture object is also set as that
-     *  passed in. Since this object updates more than one parameter, an
-     *  attempt is made to rollback to the original parameter values in case
-     *  there are any errors thrown in the process.
+     *  This sets the probEqkRupture.
      *
      * @param  pe  The new probEqkRupture value
      */
@@ -239,84 +230,147 @@ public class CGS_USGS_2003_AttenRel
      */
     public double getMean() throws IMRException{
 
-      String imt = im.getName();
-      double ave_bc, pga_bc, amp, vs30=0.0;
-
       vs30 = ((Double) vs30Param.getValue()).doubleValue();
 
+      String imt = (String) im.getValue();
+      double per = ((Double) periodParam.getValue()).doubleValue();
+      double mean = 0;
+      if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
+        mean += getMean(as_1997_attenRel);
+        mean += getMean(cb_2003_attenRel);
+        mean += getMean(scemy_1997_attenRel);
+        return mean/3.0;
+      }
+      else {
+        mean += getMean(as_1997_attenRel);
+        mean += getMean(cb_2003_attenRel);
+        mean += getMean(bjf_1997_attenRel);
+        mean += getMean(scemy_1997_attenRel);
+        return mean/4.0;
+      }
+
+    }
+
+    /**
+     * This assumes that vs30 has been set, and that the setAttenRelsStdDevTypes()
+     * method has already been called.
+     * @param attenRel
+     * @return
+     */
+    private double getExceedProbability(AttenuationRelationship attenRel) {
+
+      double ave_bc, pga_bc, amp, stdDev, mean;
+      double as_prob, sa_prob, bjf_prob, cb_prob;
+
+      String imt = im.getName();
+      double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
+
       if(imt.equals(PGA_NAME)) {
-        im_forCalc = im;
-        pga_bc = getBC_Mean();
-        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,vs30_ref,pga_bc);
+        attenRel.setIntensityMeasure(im);
+        pga_bc = attenRel.getMean();
+        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
+        mean = pga_bc + Math.log(amp);
+        stdDev = attenRel.getStdDev();
+      }
+      else if (imt.equals(SA_NAME)) {
+        attenRel.setIntensityMeasure(im);
+        ave_bc = attenRel.getMean();
+        attenRel.setIntensityMeasure(pgaParam);
+        pga_bc = attenRel.getMean();
+        double per = ((Double) periodParam.getValue()).doubleValue();
+        if(per <= 0.5)
+          amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
+        else
+          amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
+        mean = ave_bc + Math.log(amp);
+        stdDev = attenRel.getStdDev();
+      }
+      else if (imt.equals(PGV_NAME)) {
+        periodParam.setValue(new Double(1.0));
+        attenRel.setIntensityMeasure(saParam);
+        ave_bc = attenRel.getMean();
+        attenRel.setIntensityMeasure(pgaParam);
+        pga_bc = attenRel.getMean();
+        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
+        mean = ave_bc + Math.log(amp) + Math.log(37.27*2.54);  // last term is the PGV conversion
+        stdDev = attenRel.getStdDev();
+      }
+      else { // it must be MMI
+        throw new RuntimeException(MMI_ERROR_STRING);
+      }
+
+      return getExceedProbability(mean, stdDev, iml);
+    }
+
+    /**
+     * This returns the stdDev for the given attenuation relationship.  This
+     * assumes that the setAttenRelsStdDevTypes() method has already been called.
+     * Note that the rock-site sigma is returned for Sadigh et al. (the only one
+     * that has a site-dependent sigma; the max diff is 6% for PGA at mag=4.0,
+     * which can be safely ignored).
+     * @param attenRel
+     * @return
+     */
+    private double getStdDev(AttenuationRelationship attenRel) {
+      attenRel.setIntensityMeasure(im);
+      return attenRel.getStdDev();
+    }
+
+
+    /**
+     * This returns the mean for the given attenuation relationship after assigning
+     * the Borcherdt amplification factor.  This assumes that vs30 has been set.
+       * @param attenRel
+     * @return
+     */
+    private double getMean(AttenuationRelationship attenRel) {
+
+      double ave_bc, pga_bc, amp, mean;
+
+      String imt = im.getName();
+      double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
+
+      if(imt.equals(PGA_NAME)) {
+        attenRel.setIntensityMeasure(im);
+        pga_bc = attenRel.getMean();
+        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
         return pga_bc + Math.log(amp);
       }
       else if (imt.equals(SA_NAME)) {
-        im_forCalc = im;
-        ave_bc = getBC_Mean();
-        im_forCalc = pgaParam;
-        pga_bc = getBC_Mean();
+        attenRel.setIntensityMeasure(im);
+        ave_bc = attenRel.getMean();
+        attenRel.setIntensityMeasure(pgaParam);
+        pga_bc = attenRel.getMean();
         double per = ((Double) periodParam.getValue()).doubleValue();
         if(per <= 0.5)
-          amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,vs30_ref,pga_bc);
+          amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
         else
-          amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,vs30_ref,pga_bc);
+          amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
         return ave_bc + Math.log(amp);
       }
       else if (imt.equals(PGV_NAME)) {
-        im_forCalc = saParam;
         periodParam.setValue(new Double(1.0));
-        ave_bc = getBC_Mean();
-        im_forCalc = pgaParam;
-        pga_bc = getBC_Mean();
-        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,vs30_ref,pga_bc);
-        return ave_bc + Math.log(amp) + Math.log(37.27*2.54);
+        attenRel.setIntensityMeasure(saParam);
+        ave_bc = attenRel.getMean();
+        attenRel.setIntensityMeasure(pgaParam);
+        pga_bc = attenRel.getMean();
+        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
+        return ave_bc + Math.log(amp) + Math.log(37.27*2.54);  // last term is the PGV conversion
       }
       else { // it must be MMI
-        im_forCalc = saParam;
         periodParam.setValue(new Double(1.0));
-        ave_bc = getBC_Mean();
-        im_forCalc = pgaParam;
-        pga_bc = getBC_Mean();
-        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,vs30_ref,pga_bc);
+        attenRel.setIntensityMeasure(saParam);
+        ave_bc = attenRel.getMean();
+        attenRel.setIntensityMeasure(pgaParam);
+        pga_bc = attenRel.getMean();
+        amp = borcherdtAmpCalc.getMidPeriodAmp(vs30,VS30_REF,pga_bc);
         double pgv = ave_bc + Math.log(amp) + Math.log(37.27*2.54);
-        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,vs30_ref,pga_bc);
+        amp = borcherdtAmpCalc.getShortPeriodAmp(vs30,VS30_REF,pga_bc);
         double pga = pga_bc + Math.log(amp);
         double mmi = Wald_MMI_Calc.getMMI(Math.exp(pga),Math.exp(pgv));
         return Math.log(mmi);
       }
     }
-
-
-    /**
-     * @return    The mean value
-     */
-    private double getBC_Mean(){
-
-      // set the IMT in the attenuation relations
-      as_1997_attenRel.setIntensityMeasure(im_forCalc);
-      bjf_1997_attenRel.setIntensityMeasure(im_forCalc);
-      scemy_1997_attenRel.setIntensityMeasure(im_forCalc);
-      cb_2003_attenRel.setIntensityMeasure(im_forCalc);
-
-      String imt = (String) im_forCalc.getValue();
-      double per = ((Double) periodParam.getValue()).doubleValue();
-      double mean = 0;
-      if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
-        mean += as_1997_attenRel.getMean();
-        mean += cb_2003_attenRel.getMean();
-        mean += scemy_1997_attenRel.getMean();
-        return mean/3.0;
-      }
-      else {
-        mean += as_1997_attenRel.getMean();
-        mean += cb_2003_attenRel.getMean();
-        mean += bjf_1997_attenRel.getMean();
-        mean += scemy_1997_attenRel.getMean();
-        return mean/4.0;
-      }
-    }
-
-
 
 
     /**
@@ -339,66 +393,142 @@ public class CGS_USGS_2003_AttenRel
 
 
     /**
-     *  This overides the parent to take care if MMI is the chosen IMT.
+     *  This overrides the parent class method.
      *
      * @return                         The intensity-measure level
      * @exception  ParameterException  Description of the Exception
      */
     public double getIML_AtExceedProb() throws ParameterException {
 
-        if(im.getName().equals(MMI_NAME)) {
-          double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
-          if(exceedProb == 0.5) {
-            if ( sigmaTruncTypeParam.getValue().equals( SIGMA_TRUNC_TYPE_1SIDED ) )
-              throw new RuntimeException(MMI_ERROR_STRING);
-            else
-              return getMean();
-          }
-          else
-            throw new RuntimeException(MMI_ERROR_STRING);
+        if ( ( exceedProbParam == null ) || ( exceedProbParam.getValue() == null ) )
+            throw new ParameterException( C +
+                    ": getExceedProbability(): " + "exceedProbParam or its value is null, unable to run this calculation."
+                     );
+
+        double exceedProb = ( ( Double ) ( ( ParameterAPI ) exceedProbParam ).getValue() ).doubleValue();
+        double stRndVar;
+        String sigTrType = (String) sigmaTruncTypeParam.getValue();
+
+
+        // compute the iml from exceed probability based on truncation type:
+
+        // check for the simplest, most common case (median from symmectric truncation)
+        if( !sigTrType.equals( SIGMA_TRUNC_TYPE_1SIDED ) && exceedProb == 0.5 ) {
+          return getMean();
         }
-        else
-          return super.getIML_AtExceedProb();
+        else {
+          if ( sigTrType.equals( SIGMA_TRUNC_TYPE_NONE ) )
+            stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 0, 0, 1e-6);
+          else {
+            double numSig = ( ( Double ) ( ( ParameterAPI ) sigmaTruncLevelParam ).getValue() ).doubleValue();
+            if ( sigTrType.equals( SIGMA_TRUNC_TYPE_1SIDED ) )
+              stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 1, numSig, 1e-6);
+            else
+              stRndVar = GaussianDistCalc.getStandRandVar(exceedProb, 2, numSig, 1e-6);
+          }
+          // now comput the average IML over all the attenuation relationships
+          double ave_iml=0;
+          vs30 = ((Double) vs30Param.getValue()).doubleValue();
+          setAttenRelsStdDevTypes();
+          String imt = (String) im.getValue();
+          double per = ((Double) periodParam.getValue()).doubleValue();
+          if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
+            ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);
+            ave_iml += getMean(scemy_1997_attenRel)+stRndVar*getStdDev(scemy_1997_attenRel);
+            ave_iml += getMean(cb_2003_attenRel)+stRndVar*getStdDev(cb_2003_attenRel);
+            return Math.exp(ave_iml/3.0);
+          }
+          else {
+            ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);
+            ave_iml += getMean(scemy_1997_attenRel)+stRndVar*getStdDev(scemy_1997_attenRel);
+            ave_iml += getMean(bjf_1997_attenRel)+stRndVar*getStdDev(bjf_1997_attenRel);
+            ave_iml += getMean(cb_2003_attenRel)+stRndVar*getStdDev(cb_2003_attenRel);
+            return Math.exp(ave_iml/4.0);
+          }
+        }
     }
 
     /**
-     * @return    The stdDev value
+     * This throws and exception because the method is not supported
      *
-     * The only one that's site-type dependent is Sadigh et al. (1997), and the max diff
-     * is 6% (for PGA at mag=4.0); this one can be safely ignored.
      */
     public double getStdDev() throws IMRException {
-
-       // throw a runtime exception if trying for MMI
-       if(im.getName().equals(MMI_NAME))
-         throw new RuntimeException(MMI_ERROR_STRING);
-
-       //setupAttenRels();
-
-       String imt = (String) im.getValue();
-       double per = ((Double) periodParam.getValue()).doubleValue();
-       double std = 0;
-       if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
-         std += as_1997_attenRel.getStdDev();
-         std += cb_2003_attenRel.getStdDev();
-         std += scemy_1997_attenRel.getStdDev();
-         return std/3.0;
-       }
-       else {
-         std += as_1997_attenRel.getStdDev();
-         std += cb_2003_attenRel.getStdDev();
-         std += bjf_1997_attenRel.getStdDev();
-         std += scemy_1997_attenRel.getStdDev();
-         return std/4.0;
-       }
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
     }
+
+
+
+    /**
+     *  This calculates the probability that the intensity-measure level
+     *  (the value in the Intensity-Measure Parameter) will be exceeded
+     *  given the mean and stdDev computed from current independent parameter
+     *  values.  Note that the answer is not stored in the internally held
+     *  exceedProbParam (this latter param is used only for the
+     *  getIML_AtExceedProb() method).
+     *
+     * @return                         The exceedProbability value
+     * @exception  ParameterException  Description of the Exception
+     * @exception  IMRException        Description of the Exception
+     */
+    public double getExceedProbability() throws ParameterException, IMRException {
+
+      // set vs30
+      vs30 = ((Double) vs30Param.getValue()).doubleValue();
+
+      // set the standard deviation types
+      setAttenRelsStdDevTypes();
+
+      String imt = (String) im.getValue();
+      double per = ((Double) periodParam.getValue()).doubleValue();
+      double prob = 0;
+      if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
+        prob += Math.log(getExceedProbability(as_1997_attenRel));
+        prob += Math.log(getExceedProbability(cb_2003_attenRel));
+        prob += Math.log(getExceedProbability(scemy_1997_attenRel));
+        return Math.exp(prob/3.0);
+      }
+      else {
+        prob += Math.log(getExceedProbability(as_1997_attenRel));
+        prob += Math.log(getExceedProbability(cb_2003_attenRel));
+        prob += Math.log(getExceedProbability(bjf_1997_attenRel));
+        prob += Math.log(getExceedProbability(scemy_1997_attenRel));
+        return Math.exp(prob/4.0);
+      }
+    }
+
+
+    /**
+     *  This fills in the exceedance probability for multiple intensityMeasure
+     *  levels (often called a "hazard curve"); the levels are obtained from
+     *  the X values of the input function, and Y values are filled in with the
+     *  asociated exceedance probabilities. NOTE: THE PRESENT IMPLEMENTATION IS
+     *  STRANGE IN THAT WE DON'T NEED TO RETURN ANYTHING SINCE THE FUNCTION PASSED
+     *  IN IS WHAT CHANGES (SHOULD RETURN NULL?).
+     *
+     * @param  intensityMeasureLevels  The function to be filled in
+     * @return                         The function filled in
+     * @exception  ParameterException  Description of the Exception
+     */
+    public DiscretizedFuncAPI getExceedProbabilities(
+        DiscretizedFuncAPI intensityMeasureLevels
+        ) throws ParameterException {
+
+      Iterator it = intensityMeasureLevels.getPointsIterator();
+      while ( it.hasNext() ) {
+        DataPoint2D point = ( DataPoint2D ) it.next();
+        im.setValue(new Double(point.getX()));
+        point.setY(getExceedProbability());
+      }
+
+      return intensityMeasureLevels;
+    }
+
 
 
     public void setParamDefaults(){
 
         //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
         vs30Param.setValue( VS30_DEFAULT );
-        magParam.setValue( MAG_DEFAULT );
         saParam.setValue( SA_DEFAULT );
         periodParam.setValue( PERIOD_DEFAULT );
         dampingParam.setValue(DAMPING_DEFAULT);
@@ -423,19 +553,16 @@ public class CGS_USGS_2003_AttenRel
         // params that the mean depends upon
         meanIndependentParams.clear();
         meanIndependentParams.addParameter( vs30Param );
-        meanIndependentParams.addParameter( magParam );
         meanIndependentParams.addParameter( componentParam );
 
         // params that the stdDev depends upon
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
         stdDevIndependentParams.addParameter( componentParam );
-        stdDevIndependentParams.addParameter( magParam );
 
         // params that the exceed. prob. depends upon
         exceedProbIndependentParams.clear();
         exceedProbIndependentParams.addParameter( vs30Param );
-        exceedProbIndependentParams.addParameter( magParam );
         exceedProbIndependentParams.addParameter( componentParam );
         exceedProbIndependentParams.addParameter(stdDevTypeParam);
         exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
@@ -488,15 +615,9 @@ public class CGS_USGS_2003_AttenRel
 
 
     /**
-     *  Creates the two Potential Earthquake parameters (magParam and
-     *  fltTypeParam) and adds them to the probEqkRuptureParams
-     *  list. Makes the parameters noneditable.
+     *  This does nothing
      */
     protected void initProbEqkRuptureParams(  ) {
-
-        // Create magParam - is this even used?
-        super.initProbEqkRuptureParams();
-
     }
 
     /**
@@ -504,7 +625,6 @@ public class CGS_USGS_2003_AttenRel
      *  propagationEffectParams list. Makes the parameters noneditable.
      */
     protected void initPropagationEffectParams( ) {
-
     }
 
 
@@ -650,6 +770,48 @@ public class CGS_USGS_2003_AttenRel
     // this method, required by the API, does nothing here (it's not needed).
     protected void setPropagationEffectParams(  ) {
 
+    }
+
+    /**
+     *  This is overridden to throw a runtine exception (the method is not supported).
+     */
+    public ListIterator getProbEqkRuptureParamsIterator() {
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+    }
+
+    /**
+     *  This is overridden to throw a runtine exception (the method is not supported).
+     */
+    public ListIterator getPropagationEffectParamsIterator() {
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+    }
+
+    /**
+     *  This is overridden to throw a runtine exception (the method is not supported).
+     */
+    public ListIterator getExceedProbIndependentParamsIterator() {
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+    }
+
+    /**
+     *  This is overridden to throw a runtine exception (the method is not supported).
+     */
+    public ListIterator getMeanIndependentParamsIterator() {
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+    }
+
+    /**
+     *  This is overridden to throw a runtine exception (the method is not supported).
+     */
+    public ListIterator getStdDevIndependentParamsIterator() {
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+    }
+
+    /**
+     *  This is overridden to throw a runtine exception (the method is not supported).
+     */
+    public ListIterator getIML_AtExceedProbIndependentParamsIterator() {
+      throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
     }
 
 

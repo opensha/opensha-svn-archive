@@ -385,10 +385,6 @@ public class Field_2000_AttenRel
               throw new ParameterException( C + ": getStdDev(): Invalid StdDevType" );
         }
 
-        // convert the 1.0-period SA value if IMT="PGV"
-        if(im.getName().equals(PGV_NAME))
-          temp_std += Math.log(37.27*2.54);
-
         return temp_std;
 
     }

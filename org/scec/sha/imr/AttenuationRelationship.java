@@ -529,11 +529,7 @@ public abstract class AttenuationRelationship
         // set the im parameter in order to verify that it's a permitted value
         im.setValue(new Double(iml));
 
-        // Calculate the standardized random variable
-        double stdDev = getStdDev();
-        double mean = getMean();
-
-        return getExceedProbability(mean, stdDev, iml);
+        return getExceedProbability();
     }
 
 
