@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--JBuilder XML Project-->
+<project>
+  <property category="idl" name="ProcessIDL" value="false"/>
+  <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+  <property category="runtime.0" name="appserver.ejbJarsSaved" value="1"/>
+  <property category="runtime.0" name="appserver.parameters" value="-jts -jns -jss -jdb"/>
+  <property category="runtime.0" name="appserver.servername" value="standard"/>
+  <property category="runtime.0" name="appserver.vmparameters" value="-Dvbroker.agent.port=14000 -Djava.library.path=/BorlandEnterpriseServer/lib:/BorlandEnterpriseServer/bin -Dborland.enterprise.licenseDir=/BorlandEnterpriseServer/var/servers/field.gps.caltech.edu/adm -Dejb.module_preload=true"/>
+  <property category="runtime.0" name="jsprunner.launchuri" value="/"/>
+  <property category="runtime.0" name="test.harness" value="junit.textui.TestRunner"/>
+  <property category="serverservices" name="ejb.service.server" value="Borland Enterprise Server AppServer Edition 5.0.2+"/>
+  <property category="serverservices" name="is.single.server" value="0"/>
+  <property category="serverservices" name="jsp.service.server" value="Tomcat 3.3"/>
+  <property category="serverservices" name="single.server.name" value=""/>
+  <property category="sys" name="AuthorLabel" value="@author"/>
+  <property category="sys" name="BackupPath" value="bak"/>
+  <property category="sys" name="BeansInstantiate" value="false"/>
+  <property category="sys" name="BraceStyle" value="0"/>
+  <property category="sys" name="Company" value=""/>
+  <property category="sys" name="CompanyLabel" value="Company:"/>
+  <property category="sys" name="CompileOnDebug" value="0"/>
+  <property category="sys" name="CompileOnRun" value="0"/>
+  <property category="sys" name="Copyright" value="Copyright (c) 2002"/>
+  <property category="sys" name="CopyrightLabel" value="Copyright:"/>
+  <property category="sys" name="DefaultPath" value="."/>
+  <property category="sys" name="Description" value=""/>
+  <property category="sys" name="DescriptionLabel" value="Description:"/>
+  <property category="sys" name="DocPath" value="doc"/>
+  <property category="sys" name="EventMatch" value="false"/>
+  <property category="sys" name="EventStyle" value="1"/>
+  <property category="sys" name="ExcludeClass" value="com.jrefinery.chart.demo.jdbc.servlet.BaseImageServlet"/>
+  <property category="sys" name="ExcludeClassEnabled" value="0"/>
+  <property category="sys" name="IncludeTestPath" value="1"/>
+  <property category="sys" name="InstanceVisibility" value="0"/>
+  <property category="sys" name="JDK" value="java 1.4.0_01-b03"/>
+  <property category="sys" name="Libraries" value="Borland Enterprise Server 5.0.2+ Client;JUnit;visad;JBCL;Servlet;Tomcat 3.3 Servlet"/>
+  <property category="sys" name="MakeStable" value="0"/>
+  <property category="sys" name="OutPath" value="classes"/>
+  <property category="sys" name="SourcePath" value=".;../../Documents and Settings/srock.ROCKTECH/.jbuilder6/test;test"/>
+  <property category="sys" name="TestPath" value="test"/>
+  <property category="sys" name="Title" value=""/>
+  <property category="sys" name="TitleLabel" value="Title:"/>
+  <property category="sys" name="Version" value="1.0"/>
+  <property category="sys" name="VersionLabel" value="@version"/>
+  <property category="sys" name="WorkingDirectory" value="."/>
+  <property category="sys" name="max.package.levels" value="2"/>
+  <property category="team" name="ignorePath.0" value="com"/>
+  <property category="team" name="ignorePath.1" value="classes"/>
+  <property category="team" name="ignorePath.10" value=".DS_Store"/>
+  <property category="team" name="ignorePath.11" value="Psha.jpx"/>
+  <property category="team" name="ignorePath.12" value="sid.html"/>
+  <property category="team" name="ignorePath.2" value="psha.tar.gz"/>
+  <property category="team" name="ignorePath.3" value="bak"/>
+  <property category="team" name="ignorePath.4" value="images"/>
+  <property category="team" name="ignorePath.5" value="org/relm/psha/imr/gui/IMRGuiBean.jbx"/>
+  <property category="team" name="ignorePath.6" value="org/relm/psha/imr/bjf97/BJF_1997_IMR.jbx"/>
+  <property category="team" name="ignorePath.7" value="doc"/>
+  <property category="team" name="ignorePath.8" value="edu"/>
+  <property category="team" name="ignorePath.9" value="org/.DS_Store"/>
+  <node name="Standard Doclet" type="Javadoc">
+    <property category="javadoc" name="packages.1" value="com.jrefinery"/>
+    <property category="javadoc" name="packages.10" value="com.jrefinery.chart.tooltips"/>
+    <property category="javadoc" name="packages.11" value="com.jrefinery.chart.ui"/>
+    <property category="javadoc" name="packages.12" value="com.jrefinery.data"/>
+    <property category="javadoc" name="packages.13" value="com.jrefinery.data.junit"/>
+    <property category="javadoc" name="packages.14" value="com.jrefinery.data.resources"/>
+    <property category="javadoc" name="packages.15" value="com.jrefinery.date"/>
+    <property category="javadoc" name="packages.16" value="com.jrefinery.date.junit"/>
+    <property category="javadoc" name="packages.17" value="com.jrefinery.io"/>
+    <property category="javadoc" name="packages.18" value="com.jrefinery.junit"/>
+    <property category="javadoc" name="packages.19" value="com.jrefinery.layout"/>
+    <property category="javadoc" name="packages.2" value="com.jrefinery.chart"/>
+    <property category="javadoc" name="packages.20" value="com.jrefinery.resources"/>
+    <property category="javadoc" name="packages.21" value="com.jrefinery.ui"/>
+    <property category="javadoc" name="packages.22" value="com.jrefinery.ui.about"/>
+    <property category="javadoc" name="packages.23" value="com.jrefinery.ui.about.resources"/>
+    <property category="javadoc" name="packages.24" value="com.keypoint"/>
+    <property category="javadoc" name="packages.25" value="edu.uah.math.psol.distributions"/>
+    <property category="javadoc" name="packages.26" value="org.scec.exceptions"/>
+    <property category="javadoc" name="packages.27" value="org.scec.gui"/>
+    <property category="javadoc" name="packages.28" value="org.scec.gui.ned"/>
+    <property category="javadoc" name="packages.29" value="org.scec.param"/>
+    <property category="javadoc" name="packages.3" value="com.jrefinery.chart.combination"/>
+    <property category="javadoc" name="packages.30" value="org.scec.param.editor"/>
+    <property category="javadoc" name="packages.31" value="org.scec.param.editor.demo"/>
+    <property category="javadoc" name="packages.32" value="org.scec.param.editor.document"/>
+    <property category="javadoc" name="packages.33" value="org.scec.param.event"/>
+    <property category="javadoc" name="packages.34" value="org.scec.psha.calc"/>
+    <property category="javadoc" name="packages.35" value="org.scec.psha.calc.demo"/>
+    <property category="javadoc" name="packages.36" value="org.scec.psha.data"/>
+    <property category="javadoc" name="packages.37" value="org.scec.psha.data.test"/>
+    <property category="javadoc" name="packages.38" value="org.scec.psha.earthquake"/>
+    <property category="javadoc" name="packages.39" value="org.scec.psha.imr"/>
+    <property category="javadoc" name="packages.4" value="com.jrefinery.chart.data"/>
+    <property category="javadoc" name="packages.40" value="org.scec.psha.imr.classicImpl"/>
+    <property category="javadoc" name="packages.41" value="org.scec.psha.imr.gui"/>
+    <property category="javadoc" name="packages.42" value="org.scec.psha.magdist"/>
+    <property category="javadoc" name="packages.43" value="org.scec.psha.propagation"/>
+    <property category="javadoc" name="packages.44" value="org.scec.psha.twoD"/>
+    <property category="javadoc" name="packages.45" value="org.scec.psha.twoD.fault"/>
+    <property category="javadoc" name="packages.46" value="org.scec.psha.twoD.function"/>
+    <property category="javadoc" name="packages.47" value="org.scec.util"/>
+    <property category="javadoc" name="packages.5" value="com.jrefinery.chart.demo"/>
+    <property category="javadoc" name="packages.6" value="com.jrefinery.chart.demo.jdbc.swing"/>
+    <property category="javadoc" name="packages.7" value="com.jrefinery.chart.demo.resources"/>
+    <property category="javadoc" name="packages.8" value="com.jrefinery.chart.event"/>
+    <property category="javadoc" name="packages.9" value="com.jrefinery.chart.jdbc"/>
+    <property category="javadoc" name="scope" value="private"/>
+    <property category="nodeJavadoc" name="directory" value="doc"/>
+    <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
+  </node>
+</project>

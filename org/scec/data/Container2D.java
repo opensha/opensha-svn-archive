@@ -1,0 +1,914 @@
+package org.scec.data;
+import java.io.Serializable;
+
+import java.util.*;
+
+import org.scec.exceptions.InvalidArrayShapeException;
+import org.scec.exceptions.NotResizableException;
+import org.scec.sha.surface.*;
+
+/**
+ *  <b>Title:</b> Container2D<br>
+ *  <b>Description:</b> Implementation class for a 2D grid. This class actually
+ *  determines the storage mechanism and access to the data. This implementation
+ *  doesn't allow the internal data structure to resize. Can make subclass to do
+ *  this if needed in the future. The internal storage is a one dimensional
+ *  array which is actually accessed by two coordinates x and y or row and
+ *  column. The two dimensional indices are translated to a one dimensional by
+ *  the index = the number of columns per row times row plus column. <br>
+ *  <b>Copyright:</b> Copyright (c) 2001<br>
+ *  <b>Company:</b> <br>
+ *
+ *
+ * @author     Steven W. Rock
+ * @created    February 25, 2002
+ * @version    1.0
+ */
+
+public class Container2D implements Container2DAPI, Serializable {
+
+    /**
+     *  Class name used for debbuging
+     */
+    protected final static String C = "Container2D";
+    /**
+     *  if true print out debugging statements
+     */
+    protected final static boolean D = false;
+
+    /**
+     *  Array of data elements - 2D flattened into 1D Array
+     */
+    protected Object[] data;
+
+    /**
+     * The number of rows in this two dimensional matrix.
+     */
+    protected int numRows = 0;
+    /**
+     * The number of columns in this two dimensional matrix.
+     */
+    protected int numCols = 0;
+
+    /**
+     *  The number of rows times the number of columns.
+     */
+    protected long size = 0L;
+
+
+
+    /**
+     *  Constructor for the Container2D object
+     */
+    public Container2D() {
+
+        String S = C + ": Constructor(): ";
+        int numRows = 100;
+        int numCols = 100;
+        size = ( long ) numRows * ( long ) numCols;
+        data = new Object[numRows * numCols];
+
+    }
+
+
+    /**
+     *  Constructor for the Container2D object
+     *
+     * @param  numRows                         Description of the Parameter
+     * @param  numCols                         Description of the Parameter
+     * @exception  InvalidArrayShapeException  Description of the Exception
+     * @exception  OutOfMemoryError            Description of the Exception
+     */
+    public Container2D( int numRows, int numCols ) throws InvalidArrayShapeException, OutOfMemoryError {
+
+        String S = C + ": Constructor(rows, cols): ";
+        if ( numRows < 0 ) {
+            throw new InvalidArrayShapeException( S + "Number of rows cannot be negative" );
+        }
+        if ( numCols < 0 ) {
+            throw new InvalidArrayShapeException( S + "Number of columns cannot be negative" );
+        }
+
+        size = ( long ) numRows * ( long ) numCols;
+        if ( size > 2147483647L ) {
+            throw new OutOfMemoryError( S + "Number of rows * columns cannot be greater than " + 2147483647L );
+        }
+
+        this.numRows = numRows;
+        this.numCols = numCols;
+        data = new Object[numRows * numCols];
+
+    }
+
+
+    /**
+     *  Places a Java object into one cell in this two dimensional matrix
+     *  specified by the row and column indices.
+     *
+     * @param  row                                 The x coordinate of the cell.
+     * @param  column                              The y coordinate of the cell.
+     * @param  obj                                 The Java object to place in
+     *      the cell.
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row and column
+     *      are beyond the two dimensional matrix range.
+     */
+    public void set( int row, int column, Object obj ) throws ArrayIndexOutOfBoundsException {
+
+        String S = C + ": set(): ";
+        checkBounds( row, column, S );
+        data[row * numCols + column] = obj;
+
+    }
+
+
+    /**
+     *  Returns the number of rows int this two dimensional container.
+     *
+     * @return    Number of rows.
+     */
+    public int getNumRows() {
+        return numRows;
+    }
+
+
+    /**
+     *  Returns the number of columns in this two dimensional container.
+     *
+     * @return    Get number of columns.
+     */
+    public int getNumCols() {
+        return numCols;
+    }
+
+
+    /**
+     *  Returns the object stored in this two dimensional cell.
+     *
+     * @param  row     The x coordinate of the cell.
+     * @param  column  The y coordinate of the cell.
+     * @return
+     */
+    public Object get( int row, int column ) {
+        String S = C + ": get(): ";
+        checkBounds( row, column, S );
+        return data[row * numCols + column];
+    }
+
+
+    /**
+     *  Returns an ordered list iterator over all columns associated with one
+     *  row. This returns all the objects in that row.
+     *
+     * @param  row                                 The x coordinate of the cell.
+     * @return                                     The columnIterator value
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the row is beyond
+     *      the two dimensional matrix range.
+     */
+    public ListIterator getColumnIterator( int row ) throws ArrayIndexOutOfBoundsException {
+
+        String S = C + ": getColumnIterator(): ";
+        if ( row >= numRows ) {
+            throw new ArrayIndexOutOfBoundsException( S + "Row cannot be greater than max index" );
+        }
+
+        ColumnIterator it = new ColumnIterator( row );
+        return ( ListIterator ) it;
+    }
+
+
+    /**
+     *  Returns an ordered list iterator over all rows associated with one
+     *  column. This returns all the objects in that column.
+     *
+     * @param  column                              The y coordinate of the cell.
+     * @return                                     The rowIterator value
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if the column is
+     *      beyond the two dimensional matrix range.
+     */
+    public ListIterator getRowIterator( int column ) throws ArrayIndexOutOfBoundsException {
+
+        String S = C + ": getRowIterator(): ";
+        if ( column >= numCols ) {
+            throw new ArrayIndexOutOfBoundsException( S + "Column cannot be greater than max index" );
+        }
+
+        RowIterator it = new RowIterator( column );
+        return ( ListIterator ) it;
+    }
+
+
+    /**
+     *  This returns an iterator of all the Java objects stored in this two
+     *  dimensional matrix iterating over all rows within a column and then
+     *  moving to the next column until iteration has been done over all rows
+     *  and all columns.
+     *
+     * @return    The allByColumnsIterator value
+     */
+    public ListIterator getAllByColumnsIterator() {
+        AllByColumnsIterator it = new AllByColumnsIterator();
+        return ( ListIterator ) it;
+    }
+
+
+    /**
+     *  This returns an iterator of all the Java objects stored in this two
+     *  dimensional matrix iterating over all columns within a rows and then
+     *  moving to the next column until iteration has been done over all columns
+     *  and all rows.
+     *
+     * @return    The allByRowsIterator value
+     */
+    public ListIterator getAllByRowsIterator() {
+        AllByRowsIterator it = new AllByRowsIterator();
+        return ( ListIterator ) it;
+    }
+
+
+    /**
+     *  Checks that the specified row and column are valid indices into the 2D
+     *  array.
+     *
+     * @param  preffix                             Debugging string
+     * @param  row                                 Description of the Parameter
+     * @param  column                              Description of the Parameter
+     * @exception  ArrayIndexOutOfBoundsException  Thrown if invalid indices
+     */
+    protected void checkBounds( int row, int column, String preffix )
+             throws ArrayIndexOutOfBoundsException {
+
+        if ( row < 0 ) {
+            throw new ArrayIndexOutOfBoundsException( preffix + "Row cannot be less than zero" );
+        }
+        if ( column < 0 ) {
+            throw new ArrayIndexOutOfBoundsException( preffix + "Column cannot be less than zero" );
+        }
+        if ( row >= numRows ) {
+            throw new ArrayIndexOutOfBoundsException( preffix + "Row cannot be greater to max index: " + numRows );
+        }
+        if ( column >= numCols ) {
+            throw new ArrayIndexOutOfBoundsException( preffix + "Column cannot be greater to max index: " + numCols );
+        }
+    }
+
+
+
+    /**
+     *  deletes all data
+     */
+    public void clear() {
+
+        data = null;
+        numRows = 0;
+        numCols = 0;
+        size = 0L;
+
+    }
+
+
+    /**
+     *  set's an object in the 2D grid
+     *
+     * @param  row     The x coordinate of the cell.
+     * @param  column  The y coordinate of the cell.
+     */
+    public void delete( int row, int column ) {
+
+        String S = C + ": delete(): ";
+        checkBounds( row, column, S );
+        data[row * numCols + column] = null;
+
+    }
+
+
+    /**
+     *  check if this grid cell has a java object stored in it. Returns false if
+     *  this data point is null.
+     *
+     * @param  row     The x coordinate of the cell.
+     * @param  column  The y coordinate of the cell.
+     * @return         True if an object has been set in this cell.
+     */
+    public boolean exist( int row, int column ) {
+
+        String S = C + ": exist(): ";
+
+        checkBounds( row, column, S );
+
+        if ( data[row * numCols + column] == null ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
+    /**
+     *  returns the number of cells in this two dimensional matrix.
+     *
+     * @return    The number of cells.
+     */
+    public long size() {
+        return size;
+    }
+
+
+    /**
+     *  The most generic iterator that returns all Java stored in this two
+     *  dimensional matrix with no guarantee of ordering either by rows or by
+     *  columns. Internally this function will probably just call get
+     *  allByRowsIterator
+     *
+     * @return    Description of the Return Value
+     */
+    public ListIterator listIterator() {
+        AllByRowsIterator it = new AllByRowsIterator();
+        return ( ListIterator ) it;
+    }
+
+
+    /**
+     *  Converts our internal data structure to the Java 2 dimensional array
+     *
+     * @return    Description of the Return Value
+     */
+    public Object[][] toJava2D() {
+
+        Object[][] d = new Object[numRows][numCols];
+        for ( int j = 0; j < numRows; j++ ) {
+            for ( int i = 0; i < numCols; i++ ) {
+                d[i][j] = data[i * numCols + j];
+            }
+        }
+        return d;
+    }
+
+
+
+    /*
+     *  used to initialize the number of rows
+     *  public void setNumRows(int numRows) throws NotResizableException, InvalidArrayShapeException{
+     *  String S = C + ": setNumRows(): ";
+     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
+     *  if (numRows <= 0) throw new InvalidArrayShapeException(S + "Number of rows cannot be negative or zero");
+     *  if (numRows <= this.numRows) throw new InvalidArrayShapeException(S + "New number of rows must be greater than currently");
+     *  / Copy the data here
+     *  Object[] d = new Object[numRows * this.numCols];
+     *  for (int i = 0; i < this.numRows; i++) {
+     *  for (int j = 0; j < this.numCols; j++)
+     *  d[i * this.numCols + j] = data[i * this.numCols + j];
+     *  }
+     *  this.numRows = numRows;
+     *  size = (long) this.numRows * (long) this.numCols;
+     *  data = d;
+     *  }
+     */
+    /*
+     *  used to initialize the number of columns
+     *  public void setNumCols(int numCols) throws NotResizableException, InvalidArrayShapeException{
+     *  String S = C + ": setNumCols(): ";
+     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
+     *  if (numCols <= 0) throw new InvalidArrayShapeException(S + "Number of columns cannot be negative or zero");
+     *  if (numCols <= this.numCols) throw new InvalidArrayShapeException(S + "New number of columns must be greater than currently");
+     *  / Copy the data here
+     *  Object[] d = new Object[this.numRows * numCols];
+     *  for (int i = 0; i < this.numRows; i++) {
+     *  for (int j = 0; j < this.numCols; j++)
+     *  d[i * this.numCols + j] = data[i * this.numCols + j];
+     *  }
+     *  this.numCols = numCols;
+     *  size = (long) this.numRows * (long) this.numCols;
+     *  data = d;
+     *  }
+     */
+    /*
+     *  used to grow the grid as needed, may be an expensive operation
+     *  if arrays are used. Use 0 for either row or column to indicate
+     *  not to resize that dimension
+     *  / public boolean isResizable(){ return resizable; }
+     *  public void resize(int numRows, int numCols) throws NotResizableException, InvalidArrayShapeException{
+     *  String S = C + ": resize(): ";
+     *  if(!resizable) throw new NotResizableException("This Container2D has been flagged not resizable. Unable to complete resize operation.");
+     *  if (numRows <= 0) throw new InvalidArrayShapeException(S + "Number of rows cannot be negative or zero");
+     *  if (numRows <= this.numRows) throw new InvalidArrayShapeException(S + "New number of rows must be greater than currently");
+     *  if (numCols <= 0) throw new InvalidArrayShapeException(S + "Number of columns cannot be negative or zero");
+     *  if (numCols <= this.numCols) throw new InvalidArrayShapeException(S + "New number of columns must be greater than currently");
+     *  / Copy the data here
+     *  Object[] d = new Object[numRows * numCols];
+     *  for (int i = 0; i < this.numRows; i++) {
+     *  for (int j = 0; j < this.numCols; j++)
+     *  d[i * this.numCols + j] = data[i * this.numCols + j];
+     *  }
+     *  this.numRows = numRows;
+     *  this.numCols = numCols;
+     *  size = (long) this.numRows * (long) this.numCols;
+     *  data = d;
+     *  }
+     */
+    /**
+     *  The main program for the Container2D class
+     *
+     * @param  args  The command line arguments
+     */
+    public static void main( String[] args ) {
+
+        String S = C + ": Main(): ";
+        System.out.println( S + "Starting" );
+
+        int xsize = 5;
+        int ysize = 10;
+
+        Container2D con = new Container2D( xsize, ysize );
+        for ( int x = 0; x < xsize; x++ ) {
+            for ( int y = 0; y < ysize; y++ ) {
+                con.set( x, y, "" + x + ", " + y );
+            }
+        }
+
+        System.out.println( S + "(1,1) = " + con.get( 1, 1 ) );
+
+        System.out.println( S );
+        System.out.println( S );
+        System.out.println( S + "getRowIterator" );
+
+        ListIterator it = con.getRowIterator( 2 );
+        while ( it.hasNext() ) {
+
+            Object obj = it.next();
+            if ( obj != null ) {
+                System.out.println( S + obj.toString() );
+            } else {
+                System.out.println( S + obj.toString() );
+            }
+
+        }
+
+        System.out.println( S );
+        System.out.println( S );
+        System.out.println( S + "getColumnIterator" );
+
+        it = con.getColumnIterator( 2 );
+        while ( it.hasNext() ) {
+
+            Object obj = it.next();
+            if ( obj != null ) {
+                System.out.println( S + obj.toString() );
+            } else {
+                System.out.println( S + obj.toString() );
+            }
+
+        }
+
+        System.out.println( S );
+        System.out.println( S );
+        System.out.println( S + "getAllByColumnsIterator" );
+
+        it = con.getAllByColumnsIterator();
+        while ( it.hasNext() ) {
+
+            Object obj = it.next();
+            if ( obj != null ) {
+                System.out.println( S + obj.toString() );
+            } else {
+                System.out.println( S + obj.toString() );
+            }
+
+        }
+
+        System.out.println( S );
+        System.out.println( S );
+        System.out.println( S + "getAllByRowsIterator" );
+
+        it = con.getAllByRowsIterator();
+        while ( it.hasNext() ) {
+
+            Object obj = it.next();
+            if ( obj != null ) {
+                System.out.println( S + obj.toString() );
+            } else {
+                System.out.println( S + obj.toString() );
+            }
+
+        }
+
+        System.out.println( S );
+        System.out.println( S );
+        System.out.println( S + "List Iterator" );
+
+        it = con.listIterator();
+        while ( it.hasNext() ) {
+
+            Object obj = it.next();
+            if ( obj != null ) {
+                System.out.println( S + obj.toString() );
+            } else {
+                System.out.println( S + obj.toString() );
+            }
+
+        }
+
+        System.out.println( S + "Ending" );
+
+    }
+
+
+
+    /**
+     *  <b>Title:</b> Container2DListIterator<br>
+     *  <b>Description:</b> Base abstract class for all iterators. Stores the
+     *  indexes, etc, and implements nextIndex() and hasNext(). All unsupported
+     *  methods throws Exceptions. <br>
+     *  This is how iterators should be handled, i.e. the class should be an
+     *  inner class so that the outside world only ever sees a ListIterator.
+     *  <br>
+     *  The iterator shouldn't be in a seperate class file because it needs
+     *  intimate knowledge to the data structure (in this case a java array)
+     *  which is usually hidden to the outside world. By making it an inner
+     *  class, the iterator has full access to the private variables of the data
+     *  class.<br>
+     *  <b>Copyright:</b> Copyright (c) 2001<br>
+     *  <b>Company:</b> <br>
+     *
+     *
+     * @author     Steven W. Rock
+     * @created    February 25, 2002
+     * @version    1.0
+     */
+
+    abstract class Container2DListIterator implements ListIterator {
+
+        /**
+         *  Description of the Field
+         */
+        int cursor = 0;
+        /**
+         *  Description of the Field
+         */
+        int lastRet = -1;
+        /**
+         *  Description of the Field
+         */
+        int lastIndex = 0;
+
+
+        /**
+         *  returns full column to iterate over, pinned to one row
+         */
+        public Container2DListIterator() { }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @param  obj                                Description of the
+         *      Parameter
+         * @exception  UnsupportedOperationException  Description of the
+         *      Exception
+         */
+        public void set( Object obj ) throws UnsupportedOperationException {
+            throw new UnsupportedOperationException( "set(Object obj) Not implemented." );
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return    Description of the Return Value
+         */
+        public boolean hasNext() {
+            return cursor != lastIndex;
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return    Description of the Return Value
+         */
+        public int nextIndex() {
+            return cursor;
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                             Description of the Return Value
+         * @exception  NoSuchElementException  Description of the Exception
+         */
+        public abstract Object next() throws NoSuchElementException;
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                                    Description of the Return
+         *      Value
+         * @exception  UnsupportedOperationException  Description of the
+         *      Exception
+         */
+        public Object previous() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException( "hasPrevious() Not implemented." );
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                                    Description of the Return
+         *      Value
+         * @exception  UnsupportedOperationException  Description of the
+         *      Exception
+         */
+        public int previousIndex() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException( "hasPrevious() Not implemented." );
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                                    Description of the Return
+         *      Value
+         * @exception  UnsupportedOperationException  Description of the
+         *      Exception
+         */
+        public boolean hasPrevious() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException( "hasPrevious() Not implemented." );
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @param  obj                                Description of the
+         *      Parameter
+         * @exception  UnsupportedOperationException  Description of the
+         *      Exception
+         */
+        public void add( Object obj ) throws UnsupportedOperationException {
+            throw new UnsupportedOperationException( "add(Object obj) Not implemented." );
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @exception  UnsupportedOperationException  Description of the
+         *      Exception
+         */
+        public void remove() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException( "remove() Not implemented." );
+        }
+
+    }
+
+
+    /**
+     *  <b>Title:</b> ColumnIterator<br>
+     *  <b>Description:</b> Returns all column points for one row<br>
+     *  <b>Copyright:</b> Copyright (c) 2001<br>
+     *  <b>Company:</b> <br>
+     *
+     *
+     * @author     Steven W. Rock
+     * @created    February 25, 2002
+     * @version    1.0
+     */
+    class ColumnIterator extends Container2DListIterator implements ListIterator {
+
+        /**
+         *  Description of the Field
+         */
+        int pinnedRow;
+
+
+        /**
+         *  returns full column to iterate over, pinned to one row
+         *
+         * @param  row  Description of the Parameter
+         */
+        public ColumnIterator( int row ) {
+            super();
+            this.pinnedRow = row;
+            lastIndex = numCols;
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                             Description of the Return Value
+         * @exception  NoSuchElementException  Description of the Exception
+         */
+        public Object next() throws NoSuchElementException {
+            try {
+                Object object = data[pinnedRow * numCols + cursor];
+                lastRet = cursor++;
+                return object;
+            } catch ( IndexOutOfBoundsException e ) {
+                throw new NoSuchElementException( "You have iterated past the last element." + e.toString() );
+            }
+        }
+
+    }
+
+
+    /**
+     *  <b>Title:</b> RowIterator<br>
+     *  <b>Description:</b> Returns all column points for one row<br>
+     *  <b>Copyright:</b> Copyright (c) 2001<br>
+     *  <b>Company:</b> <br>
+     *
+     *
+     * @author     Steven W. Rock
+     * @created    February 25, 2002
+     * @version    1.0
+     */
+    class RowIterator extends Container2DListIterator implements ListIterator {
+
+        /**
+         *  Description of the Field
+         */
+        int pinnedColumn;
+
+
+        /**
+         *  returns full column to iterate over, pinned to one row
+         *
+         * @param  column  Description of the Parameter
+         */
+        public RowIterator( int column ) {
+            super();
+            this.pinnedColumn = column;
+            lastIndex = numRows;
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                             Description of the Return Value
+         * @exception  NoSuchElementException  Description of the Exception
+         */
+        public Object next() throws NoSuchElementException {
+            try {
+                Object object = data[cursor * numCols + pinnedColumn];
+                lastRet = cursor++;
+                return object;
+            } catch ( IndexOutOfBoundsException e ) {
+                throw new NoSuchElementException( "You have iterated past the last element." + e.toString() );
+            }
+        }
+
+    }
+
+
+    /**
+     *  <b>Title:</b> AllByColumnsIterator<br>
+     *  <b>Description:</b> Returns all rows for a column, then moves to the
+     *  next column<br>
+     *  <b>Copyright:</b> Copyright (c) 2001<br>
+     *  <b>Company:</b> <br>
+     *
+     *
+     * @author     Steven W. Rock
+     * @created    February 25, 2002
+     * @version    1.0
+     */
+    class AllByColumnsIterator extends Container2DListIterator implements ListIterator {
+
+        /**
+         *  Description of the Field
+         */
+        int currentColumn = 0;
+        /**
+         *  Description of the Field
+         */
+        int currentRow = 0;
+
+
+        /**
+         *  Constructor for the AllByColumnsIterator object
+         */
+        public AllByColumnsIterator() {
+            super();
+            lastIndex = numCols * numRows;
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                             Description of the Return Value
+         * @exception  NoSuchElementException  Description of the Exception
+         */
+        public Object next() throws NoSuchElementException {
+
+            try {
+
+                Object object = data[currentRow * numCols + currentColumn];
+
+                currentRow++;
+                if ( currentRow == numRows ) {
+                    currentRow = 0;
+                    currentColumn++;
+                }
+
+                lastRet = cursor++;
+                return object;
+            } catch ( IndexOutOfBoundsException e ) {
+                throw new NoSuchElementException( "You have iterated past the last element. " + e.toString() );
+            }
+
+        }
+    }
+
+
+
+    /**
+     *  <b>Title:</b> AllByRowsIterator<br>
+     *  <b>Description:</b> Returns all columns for a row, then moves to the
+     *  next row<br>
+     *  <b>Copyright:</b> Copyright (c) 2001<br>
+     *  <b>Company:</b> <br>
+     *
+     *
+     * @author     Steven W. Rock
+     * @created    February 25, 2002
+     * @version    1.0
+     */
+    class AllByRowsIterator extends Container2DListIterator implements ListIterator {
+
+        /**
+         *  Constructor for the AllByRowsIterator object
+         */
+        public AllByRowsIterator() {
+            super();
+            lastIndex = numCols * numRows;
+        }
+
+
+        /**
+         *  Description of the Method
+         *
+         * @return                             Description of the Return Value
+         * @exception  NoSuchElementException  Description of the Exception
+         */
+        public Object next() throws NoSuchElementException {
+
+            try {
+                Object object = data[cursor];
+                lastRet = cursor++;
+                return object;
+            } catch ( IndexOutOfBoundsException e ) {
+                throw new NoSuchElementException( "You have iterated past the last element." + e.toString() );
+            }
+
+        }
+
+    }
+
+
+    final protected static char TAB = '\t';
+    protected String name;
+    /** Prints out each location and fault information for debugging */
+    public String toString(){
+
+        StringBuffer b = new StringBuffer();
+        b.append('\n');
+
+        int i = 0, j, counter = 0;
+        while( i < numRows){
+
+            j = 0;
+            while( j < numCols){
+
+                b.append( "" + i + TAB + j + TAB);
+                Object obj = this.get(i, j);
+                if( obj != null ) {
+                    b.append( obj.toString() );
+                    counter++;
+                }
+                else b.append( "NULL" );
+                b.append('\n');
+
+                j++;
+            }
+            i++;
+
+        }
+        b.append( "\nNumber of Rows = " + numRows + '\n' );
+        b.append( "Number of Columns = " + numCols + '\n' );
+        b.append( "Size = " + size + '\n' );
+        b.append( "Number of non-null objects = " + counter + '\n' );
+        return b.toString();
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return name;
+    }
+
+}
