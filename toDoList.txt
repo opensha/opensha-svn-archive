@@ -3,48 +3,21 @@
 
 See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
-Remove setEditable method in Parameter class and make returned clones editable (document accordingly)
+Finish PEER Set 2 problems.
 
-Parameter Class: current value should be forced to null if the constraint is ever changed (currently a value can remain even if it's incompatible with a new constraint).  Figure out how to deal with strings (which can't have null values) - perhaps just set as first listed.  Go through package an make sure this new behavior won't screw anything up - do this by searching for all occurrences of the setConstraint method (that occurs outside a constructor?) and make sure nothing is screwed up.
+Finish PEER results plotter & data submission tool.
 
-EvenlyGriddedSurface: 1) make the getNthSubsetSurface() method more efficient (don't create the entire vector or subset surfaces each time).  See if this speeds up the PEER Set2-Case1-a test.
+Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
 
-Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label). Hazard curve calculator seems to have this problem.
+HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  Implement the "X-values control panel" - the IMT is always "SA".  Nitin thinks this is a bad idea.  Ned will discuss this with him later.
 
-Put the PEER Set 2 tests into their supplied Excel file.  Notes:
+Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
 
-	1) Nitin, below there is mention that Set2-Case5 needs 
-	some finishing; I'm not sure what was needed, but I fixed 
-	some things in the selector control panel.  If the problem
-	was in the run-all control panel then it probably still needs
-	fixing.
-
-	2) Note that three new cases have been added to Set2-Case1; these
-	are the "d", "e", and "f" cases.  Please make sure that the run-
-	all control panel includes these.
-
-	3) For Set2-Case2 we also need to use the disaggregation control
-	panel for sites 1 & 3 at probs 0.01 and 0.0001; this may be most
-	easily done by hand.
-
-	4) Please don't forget the the 5% and 95% fractiles, in addition 
-	to the mean, in Set2-Case5.
-
-	5) we are not doing Set2-Case7.
-
-Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x).
-
-HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  Implement the "X-values control panel" - the IMT is always "SA".
-
-Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel
-
-Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
-
-Make the WG02 ERF servlet so that more than one user can use it at any given time. 
+Make the WG02 ERF servlet so that more than one user can use it at any given time. This needs to be tested.
 
 Get Bruce's code running on gravity and Mac OS X.
 
-Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
+Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.  Ned & Nitin need to discuss this.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 

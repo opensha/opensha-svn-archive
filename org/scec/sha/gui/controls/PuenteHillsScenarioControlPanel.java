@@ -7,13 +7,14 @@ import org.scec.sha.gui.beans.ERF_GuiBean;
 import org.scec.sha.gui.beans.IMR_GuiBean;
 import org.scec.sha.gui.beans.SitesInGriddedRegionGuiBean;
 import org.scec.sha.earthquake.rupForecastImpl.SimplePoissonFaultERF;
+import org.scec.calc.magScalingRelations.magScalingRelImpl.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
 import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.SingleMagFreqDist;
-import org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel;
+import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
 
 /**
  * <p>Title: PuenteHillsScenarioControlPanel</p>
@@ -62,33 +63,35 @@ public class PuenteHillsScenarioControlPanel {
     ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
     //As the Selecetd ERF is simple FaultERF so updating the rake value to 90.
     erfParamGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90));
+    erfParamGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(WC1994_MagLengthRelationship.NAME);
+
     //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
     //creating the Lat vector for the SimpleFaultParameter
     Vector lats = new Vector();
-    lats.add(new Double(33.8995));
-    lats.add(new Double(33.9122));
-    lats.add(new Double(33.9381));
-    lats.add(new Double(34.0200));
+    lats.add(new Double(33.92690));
+    lats.add(new Double(33.93150));
+    lats.add(new Double(33.95410));
+    lats.add(new Double(34.05860));
 
     //creating the Lon vector for the SimpleFaultParameter
     Vector lons = new Vector();
-    lons.add(new Double(-117.868));
-    lons.add(new Double(-118.029));
-    lons.add(new Double(-118.133));
-    lons.add(new Double(-118.308));
+    lons.add(new Double(-117.86730));
+    lons.add(new Double(-118.04320));
+    lons.add(new Double(-118.14350));
+    lons.add(new Double(-118.29760));
 
     //creating the dip vector for the SimpleFaultParameter
     Vector dips = new Vector();
-    dips.add(new Double(27));
+    dips.add(new Double(25));
 
     //creating the depth vector for the SimpleFaultParameter
     Vector depths = new Vector();
-    depths.add(new Double(3));
-    depths.add(new Double(15));
+    depths.add(new Double(5));
+    depths.add(new Double(19));
 
     //setting the FaultParameterEditor with the default values for Puente Hills Scenario
-    faultPanel.setAll(faultPanel.DEFAULT_GRID_SPACING,lats,lons,dips,depths,faultPanel.STIRLING);
+    faultPanel.setAll(faultPanel.DEFAULT_GRID_SPACING,lats,lons,dips,depths,faultPanel.FRANKEL);
     faultPanel.refreshParamEditor();
     //updaing the faultParameter to update the faultSurface
     faultPanel.setEvenlyGriddedSurfaceFromParams();
@@ -97,7 +100,7 @@ public class PuenteHillsScenarioControlPanel {
     MagFreqDistParameterEditor magEditor = erfParamGuiBean.getMagDistEditor();
     magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
     magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
-    magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(7.5));
+    magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(7.0));
     erfParamGuiBean.refreshParamEditor();
     // now have the editor create the magFreqDist
     magEditor.setMagDistFromParams();
@@ -106,7 +109,7 @@ public class PuenteHillsScenarioControlPanel {
     erfGuiBean.setParamsInForecast(0,0);
 
     //Updating the IMR Gui Bean with the Field-2000 attenuation relationship.
-    imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(Field_2000_AttenRel.NAME);
+    imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.NAME);
     imrGuiBean.refreshParamEditor();
 
     //Updating the SitesInGriddedRegionGuiBean with the Puente Hills resion setting
