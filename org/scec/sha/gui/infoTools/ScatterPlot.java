@@ -165,7 +165,7 @@ public class ScatterPlot {
          */
         public void fillValues() {
 
-                functions.removeAll(functions); // removes all the series in the functions
+                functions.clear(); // removes all the series in the functions
                 ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
                 for ( int i = 0; i < xAxisValues.size() && i < yAxisValues.size(); i++ ){
                         function.set(((Double)xAxisValues.get(i)).doubleValue(), ((Double)yAxisValues.get(i)).doubleValue());
