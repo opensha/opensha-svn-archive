@@ -50,6 +50,16 @@ public class SitesOfInterestControlPanel extends JFrame {
       latVector.add(new Double(37.775));
       lonVector.add(new Double(-122.4183));
 
+      // san francisco
+      sitesComboBox.addItem("San Francisco Class B");
+      latVector.add(new Double(37.8));
+      lonVector.add(new Double(-122.417));
+
+      // san francisco
+      sitesComboBox.addItem("San Francisco Class D");
+      latVector.add(new Double(37.783));
+      lonVector.add(new Double(-122.417));
+
       // Sierra Madre Fault Gap
       this.sitesComboBox.addItem("Sierra Madre Fault Gap");
       latVector.add(new Double(34.225));
