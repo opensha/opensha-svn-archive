@@ -63,7 +63,7 @@ Set-2
 Y-Axis = Median
 DistanceJB = 10
 Magnitude = 7.0
-Fault Type = Strike Slip
+Fault Type = Strike-Slip
 Vs30 = 620
 
 #start of result values for this test set

@@ -16,7 +16,7 @@ import junit.framework.*;
 public class AttenRelTestsSuite extends TestCase {
 
 
-  /*private static final String BOORE_1997_RESULTS = RESULT_SET_PATH +"Boore1997TestData.txt";
+  /*
   private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"Sadigh1997TestData.txt";*/
 
   public AttenRelTestsSuite(){
