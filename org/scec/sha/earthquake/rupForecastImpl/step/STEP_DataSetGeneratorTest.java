@@ -180,7 +180,7 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
       forecast.getParameter(forecast.SEIS_TYPE_NAME).setValue(forecast.SEIS_TYPE_ADD_ON);
       forecast.updateForecast();
       //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
-      String stepDirName = this.getStepDirName();
+      //String stepDirName = this.getStepDirName();
       //creating the dataFile for the STEP Addon Probabilities
       ArrayList stepAddonProbVals = new ArrayList();
 
