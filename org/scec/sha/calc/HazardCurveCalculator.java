@@ -34,16 +34,7 @@ public class HazardCurveCalculator {
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected final double MAX_DISTANCE = 200;
 
-  // frame height and width
-  private int FRAME_WIDTH = 250;
-  private int FRAME_HEIGHT = 50;
-
-  // start x and y for frame
-  private int FRAME_STARTX = 400;
-  private int FRAME_STARTY = 200;
-
-  // the progress bar:
-  private JProgressBar progress;
+  private ProgressClass progressClass = new ProgressClass();
 
   /**
    * this function determines the hazard curve based on the parameters
@@ -57,31 +48,14 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
 
-    // make the progress bar
-    JFrame frame = new JFrame("Calculation Status");
-    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
-    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
-
-    progress = new JProgressBar(0,100);
-    progress.setStringPainted(true); // display the percentage completed also
-    JLabel label = new JLabel(" Updating Forecast ...");
-    frame.getContentPane().setLayout(new GridBagLayout());
-    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
-        ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 110, 4));
-    frame.show();
-    label.paintImmediately(label.getBounds());
+    // initiliaze the progress bar frame in which to show progress bar
+    progressClass.initProgressFrame();
 
     // update the forecast. any constraint exception is caught by the GuiBean
     eqkRupForecast.updateForecast();
 
-    // now add the  progress bar
-    label.setVisible(false);
-    frame.getContentPane().remove(label);
-    frame.getContentPane().add(progress, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 110, 4));
-    frame.getContentPane().remove(label);
-    frame.getContentPane().validate();
-    frame.getContentPane().repaint();
+    // now show the progress bar
+    progressClass.displayProgressBar();
 
 
     try {
@@ -161,8 +135,8 @@ public class HazardCurveCalculator {
       for(int i=0;i<numPoints;++i)
         hazFunction.set(i,0.0);
 
-    //remove the frame
-    frame.dispose();
+    //remove the progress frame
+    progressClass.dispose();
 
   }
 
@@ -183,39 +157,35 @@ public class HazardCurveCalculator {
     if(num == (int) (totNum*0.9)) { // 90% complete
       val = 90;
       update = true;
-    }
-    else if(num == (int) (totNum*0.8)) { // 80% complete
+    } else if(num == (int) (totNum*0.8)) { // 80% complete
       val = 80;
-    update = true;        }
-    else if(num == (int) (totNum*0.7)) { // 70% complete
+      update = true;
+    } else if(num == (int) (totNum*0.7)) { // 70% complete
       val = 70;
-    update = true;        }
-    else if(num == (int) (totNum*0.6)) { // 60% complete
+     update = true;
+    } else if(num == (int) (totNum*0.6)) { // 60% complete
       val = 60;
-    update = true;        }
-    else if(num == (int) (totNum*0.5)) { // 50% complete
+      update = true;
+    } else if(num == (int) (totNum*0.5)) { // 50% complete
       val = 50;
-    update = true;        }
-    else if(num == (int) (totNum*0.4)) { // 40% complete
+      update = true;
+    } else if(num == (int) (totNum*0.4)) { // 40% complete
       val = 40;
-    update = true;        }
-    else if(num == (int) (totNum*0.3)) { // 30% complete
+      update = true;
+    } else if(num == (int) (totNum*0.3)) { // 30% complete
       val = 30;
-    update = true;        }
-    else if(num == (int) (totNum*0.2)) { // 20% complete
+      update = true;
+    } else if(num == (int) (totNum*0.2)) { // 20% complete
       val = 20;
-    update = true;        }
-    else if(num == (int) (totNum*0.1)) { // 10% complete
+      update = true;
+    } else if(num == (int) (totNum*0.1)) { // 10% complete
       val = 10;
-    update = true;        }
+      update = true;
+    }
 
     // update the progress bar
-    if(update == true) {
-      progress.setString(Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
-      progress.setValue(val);
-      Rectangle rect = progress.getBounds();
-      progress.paintImmediately(rect);
-    }
+    if(update == true)
+      progressClass.updateProgressBar(val,Integer.toString((int) (totNum*val/100)) + "  of  " + Integer.toString(totNum) + "  Eqk Ruptures");
   }
 
 
@@ -236,3 +206,85 @@ public class HazardCurveCalculator {
   }
 
 }
+
+/**
+ * This inner class has been created to create the progress bar
+ * and update it
+ * <p>Title: </p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author unascribed
+ * @version 1.0
+ */
+class ProgressClass {
+  private JFrame frame;
+  private JLabel label;
+  // frame height and width
+  private int FRAME_WIDTH = 250;
+  private int FRAME_HEIGHT = 60;
+
+  // start x and y for frame
+  private int FRAME_STARTX = 400;
+  private int FRAME_STARTY = 200;
+
+  // the progress bar:
+  private JProgressBar progress;
+
+
+  /**
+   * initialize the progress bar
+   * Dispaly "Updating forecast" initially
+   */
+  public void initProgressFrame() {
+    // make the progress bar
+    frame = new JFrame("Calculation Status");
+    frame.setLocation(this.FRAME_STARTX, this.FRAME_STARTY);
+    frame.setSize(this.FRAME_WIDTH, this.FRAME_HEIGHT);
+
+    progress = new JProgressBar(0,100);
+    progress.setStringPainted(true); // display the percentage completed also
+    progress.setSize(FRAME_WIDTH-10, FRAME_HEIGHT-10);
+    label = new JLabel(" Updating Forecast ...");
+    frame.getContentPane().setLayout(new GridBagLayout());
+    frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 110, 10));
+    frame.show();
+    label.paintImmediately(label.getBounds());
+  }
+
+  /**
+   * remove the "Updating forecast Label" and display the progress bar
+   */
+  public void displayProgressBar() {
+    // now add the  progress bar
+    label.setVisible(false);
+    frame.getContentPane().remove(label);
+    frame.getContentPane().add(progress, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 110, 10));
+    frame.getContentPane().remove(label);
+    frame.getContentPane().validate();
+    frame.getContentPane().repaint();
+  }
+
+  /**
+   * update the progress bar with this new value and string
+   *
+   * @param val : Value of progress bar
+   * @param str  : string to be displayed in progress bar
+   */
+  public void updateProgressBar(int val, String str) {
+    progress.setString(str);
+    progress.setValue(val);
+    Rectangle rect = progress.getBounds();
+    progress.paintImmediately(rect);
+  }
+
+  /**
+   * dispose the frame
+   */
+  public void dispose() {
+    frame.dispose();
+  }
+}
+
