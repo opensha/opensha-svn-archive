@@ -40,8 +40,6 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
   //declare the weights
   private double REL_WEIGHT_1 = 0.1;
   private double REL_WEIGHT_2 = 0.3;
-  private double REL_WEIGHT_3 = 0.02;
-  private double REL_WEIGHT_4 = 0.06;
 
   // grid spacing parameter stuff
  public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
@@ -117,34 +115,14 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     // create the ERFs for each branch
 
     // add Unsegmented
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_1, MAG_1), REL_WEIGHT_1);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_2, MAG_1), REL_WEIGHT_2);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE, SLIP_RATE_3, MAG_1), REL_WEIGHT_1);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NO, SLIP_RATE_1, MAG_1), REL_WEIGHT_1);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NO, SLIP_RATE_2, MAG_1), REL_WEIGHT_2);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_NO, SLIP_RATE_3, MAG_1), REL_WEIGHT_1);
 
-    //add segment A
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_A, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
-
-    // add segment B
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_B, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
-
-    //add segment C
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_C, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
-
-    //add segment D
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_D, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
-
-    //add segment E
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
-    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+    //add Segmented
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_YES, SLIP_RATE_1, MAG_2), REL_WEIGHT_1);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_YES, SLIP_RATE_2, MAG_2), REL_WEIGHT_2);
+    addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_YES, SLIP_RATE_3, MAG_2), REL_WEIGHT_1);
 
   }
 

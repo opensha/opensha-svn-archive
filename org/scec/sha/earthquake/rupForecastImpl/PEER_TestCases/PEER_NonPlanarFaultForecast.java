@@ -45,6 +45,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
   // the prob eqk source (only one)
   private SimplePoissonFaultSource source;
+  private Vector sourceList;
 
   PEER_testsMagAreaRelationship magScalingRel = new PEER_testsMagAreaRelationship();
   private double rupAspectRatio = 2;
@@ -89,12 +90,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
   // segmentation parameter stuff
   public final static String SEGMENTATION_NAME = new String ("Segmentation Model");
-  public final static String SEGMENTATION_NONE = new String ("Unsegmented");
-  public final static String SEGMENTATION_A = new String ("Segment A only");
-  public final static String SEGMENTATION_B = new String ("Segment B only");
-  public final static String SEGMENTATION_C = new String ("Segment C only");
-  public final static String SEGMENTATION_D = new String ("Segment D only");
-  public final static String SEGMENTATION_E = new String ("Segment E only");
+  public final static String SEGMENTATION_NO = new String ("Unsegmented");
+  public final static String SEGMENTATION_YES = new String ("Segmented");
 
   // fault-model parameter stuff
   public final static String FAULT_MODEL_NAME = new String ("Fault Model");
@@ -134,11 +131,12 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
   private StringParameter faultModelParam;
 
   // fault stuff
-  private FaultTrace faultTrace;
+  private FaultTrace faultTraceAll, faultTraceA, faultTraceB, faultTraceC, faultTraceD, faultTraceE;
   public final static double LOWER_SEISMO_DEPTH = 12.0;
   public final static  double UPPER_SEISMO_DEPTH = 1.0;
   public final static  double DIP=60.0;
   public final static  double RAKE=-90.0;
+
   // Fault trace locations
   private final static Location traceLoc1 = new Location(37.609531,-121.7168636,1.0);     // southern most point
   private final static Location traceLoc2 = new Location(37.804854,-121.8580591,1.0);
@@ -173,12 +171,8 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     dipDirectionParam = new StringParameter(DIP_DIRECTION_NAME,dipDirectionStrings,DIP_DIRECTION_EAST);
 
     // make the segModelParam
-    segModelNamesStrings.add(SEGMENTATION_NONE);
-    segModelNamesStrings.add(SEGMENTATION_A);
-    segModelNamesStrings.add(SEGMENTATION_B);
-    segModelNamesStrings.add(SEGMENTATION_C);
-    segModelNamesStrings.add(SEGMENTATION_D);
-    segModelNamesStrings.add(SEGMENTATION_E);
+    segModelNamesStrings.add(SEGMENTATION_NO);
+    segModelNamesStrings.add(SEGMENTATION_YES);
     segModelParam = new StringParameter(SEGMENTATION_NAME,segModelNamesStrings,
                                       (String)segModelNamesStrings.get(0));
 
@@ -207,7 +201,38 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     faultModelParam.addParameterChangeListener(this);
     dipDirectionParam.addParameterChangeListener(this);
 
+    // make the mag-freq dits
     grMagFreqDist = new GutenbergRichterMagFreqDist(GR_MIN, GR_MAX, GR_NUM);
+
+    // make the fault traces
+    faultTraceAll = new FaultTrace("Non Planar Fault");
+    faultTraceAll.addLocation(traceLoc1);
+    faultTraceAll.addLocation(traceLoc2);
+    faultTraceAll.addLocation(traceLoc3);
+    faultTraceAll.addLocation(traceLoc4);
+    faultTraceAll.addLocation(traceLoc5);
+    faultTraceAll.addLocation(traceLoc6);
+
+    faultTraceE = new FaultTrace("Non Planar Fault");
+    faultTraceE.addLocation(traceLoc1);
+    faultTraceE.addLocation(traceLoc2);
+
+    faultTraceD = new FaultTrace("Non Planar Fault");
+    faultTraceD.addLocation(traceLoc2);
+    faultTraceD.addLocation(traceLoc3);
+
+    faultTraceC = new FaultTrace("Non Planar Fault");
+    faultTraceC.addLocation(traceLoc3);
+    faultTraceC.addLocation(traceLoc4);
+
+    faultTraceB = new FaultTrace("Non Planar Fault");
+    faultTraceB.addLocation(traceLoc4);
+    faultTraceB.addLocation(traceLoc5);
+
+    faultTraceA = new FaultTrace("Non Planar Fault");
+    faultTraceA.addLocation(traceLoc5);
+    faultTraceA.addLocation(traceLoc6);
+
 
   }
 
@@ -237,81 +262,123 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
      if(parameterChangeFlag) {
 
-       // make the fault trace based on the segmentation model
-       String segModel = (String) segModelParam.getValue();
-       faultTrace = new FaultTrace("Non Planar Fault");
-       if(segModel.equals(SEGMENTATION_NONE)){
-         faultTrace.addLocation(traceLoc1);
-         faultTrace.addLocation(traceLoc2);
-         faultTrace.addLocation(traceLoc3);
-         faultTrace.addLocation(traceLoc4);
-         faultTrace.addLocation(traceLoc5);
-         faultTrace.addLocation(traceLoc6);
-       }
-       else if (segModel.equals(SEGMENTATION_E)){
-         faultTrace.addLocation(traceLoc1);
-         faultTrace.addLocation(traceLoc2);
-       }
-       else if (segModel.equals(SEGMENTATION_D)){
-         faultTrace.addLocation(traceLoc2);
-         faultTrace.addLocation(traceLoc3);
-       }
-       else if (segModel.equals(SEGMENTATION_C)){
-         faultTrace.addLocation(traceLoc3);
-         faultTrace.addLocation(traceLoc4);
-       }
-       else if (segModel.equals(SEGMENTATION_B)){
-         faultTrace.addLocation(traceLoc4);
-         faultTrace.addLocation(traceLoc5);
-       }
-       else if (segModel.equals(SEGMENTATION_A)){
-         faultTrace.addLocation(traceLoc5);
-         faultTrace.addLocation(traceLoc6);
-       }
+       sourceList = new Vector();
+
+       String dipDir = (String) dipDirectionParam.getValue();
 
        // reverse the order of the points if it's dipping west
-       String dipDir = (String) dipDirectionParam.getValue();
-       if(dipDir.equals(DIP_DIRECTION_WEST))
-          faultTrace.reverse();
+       boolean reversed = false;
+       if(dipDir.equals(DIP_DIRECTION_WEST)) {
+         faultTraceAll.reverse();
+         faultTraceA.reverse();
+         faultTraceB.reverse();
+         faultTraceC.reverse();
+         faultTraceD.reverse();
+         faultTraceE.reverse();
+         reversed = true;
+       }
 
-       if(D)  System.out.println(S+" - done with fault trace");
-
-       // Now make the gridded surface
+       // get the segmentation type
+       String segType = (String) segModelParam.getValue();
        double gridSpacing = ((Double)gridParam.getValue()).doubleValue();
+
+       // get a fault factory based on the chosen fault model
        String faultModel = (String) faultModelParam.getValue();
-
-       GriddedFaultFactory factory;
-
+       SimpleGriddedFaultFactory factory;
        if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
-         factory = new FrankelGriddedFaultFactory( faultTrace, DIP, UPPER_SEISMO_DEPTH,
-                                                   LOWER_SEISMO_DEPTH, gridSpacing );
+         factory = new FrankelGriddedFaultFactory();
        }
        else {
-         factory = new StirlingGriddedFaultFactory( faultTrace, DIP, UPPER_SEISMO_DEPTH,
-                                                   LOWER_SEISMO_DEPTH, gridSpacing );
+         factory = new StirlingGriddedFaultFactory();
        }
-
-       GriddedSurfaceAPI surface = factory.getGriddedSurface();
-
-       if(D)  System.out.println(S+" - done with gridded surface");
-
-       // Now make the mag freq dist
-       double magUpper = ((Double) magUpperParam.getValue()).doubleValue();
-       double slipRate = ((Double) slipRateParam.getValue()).doubleValue() / 1000.0;  // last is to convert to meters/yr
-       double ddw = (LOWER_SEISMO_DEPTH-UPPER_SEISMO_DEPTH)/Math.sin(DIP*Math.PI/180);
-       double faultArea = faultTrace.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
-       double totMoRate = 3e10*faultArea*slipRate;
-       grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
-
-       if(D)  System.out.println(S+" - done with mag freq dist");
 
        double offset = ((Double)offsetParam.getValue()).doubleValue();
        double lengthSigma = ((Double)lengthSigmaParam.getValue()).doubleValue();
+       double magUpper = ((Double) magUpperParam.getValue()).doubleValue();
+       double slipRate = ((Double) slipRateParam.getValue()).doubleValue() / 1000.0;  // last is to convert to meters/yr
+       double ddw = (LOWER_SEISMO_DEPTH-UPPER_SEISMO_DEPTH)/Math.sin(DIP*Math.PI/180);
+
+       if(segType.equals(SEGMENTATION_NO)){
+
+         // Make the mag freq dist
+         double faultArea = faultTraceAll.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
+         double totMoRate = 3e10*faultArea*slipRate;
+         grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
+
+         // make the fault surface
+         factory.setAll(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         GriddedSurfaceAPI surface = factory.getGriddedSurface();
+
+         // make the source
+         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                             magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                             RAKE,timeSpan.getDuration(),minMag);
+         // add it to the source list
+         sourceList.add(source);
+
+       }
+       // Segmented Case:
+       else {
+
+         // Make the mag freq dist
+         double faultArea = faultTraceA.getTraceLength() * ddw * 1e6;  // the last is to convert to meters
+         double totMoRate = 3e10*faultArea*slipRate;
+         grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
+
+         if (D) System.out.println("Segment lengths:\n\n"+
+                                   "\tA - "+faultTraceA.getTraceLength()+"\n"+
+                                   "\tB - "+faultTraceB.getTraceLength()+"\n"+
+                                   "\tC - "+faultTraceC.getTraceLength()+"\n"+
+                                   "\tD - "+faultTraceD.getTraceLength()+"\n"+
+                                   "\tE - "+faultTraceE.getTraceLength()+"\n");
+
+         //make source A:
+         factory.setAll(faultTraceA, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         GriddedSurfaceAPI surface = factory.getGriddedSurface();
+         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                    RAKE,timeSpan.getDuration(),minMag);
+        sourceList.add(source);
+
+         //make source B:
+         factory.setAll(faultTraceB, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface = factory.getGriddedSurface();
+         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                    RAKE,timeSpan.getDuration(),minMag);
+        sourceList.add(source);
+
+         //make source C:
+         factory.setAll(faultTraceC, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface = factory.getGriddedSurface();
+         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                    RAKE,timeSpan.getDuration(),minMag);
+        sourceList.add(source);
+
+         //make source D:
+         factory.setAll(faultTraceD, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface = factory.getGriddedSurface();
+         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                    RAKE,timeSpan.getDuration(),minMag);
+        sourceList.add(source);
+
+         //make source E:
+         factory.setAll(faultTraceE, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
+         surface = factory.getGriddedSurface();
+         source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                    magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                    RAKE,timeSpan.getDuration(),minMag);
+        sourceList.add(source);
+
+       }
+
 
        if(D) {
          System.out.println(S);
          System.out.println("   rate³5="+(float)grMagFreqDist.getCumRate(5.05));
-         System.out.println("   segModel = "+segModel);
+         System.out.println("   segType = "+segType);
          System.out.println("   faultModel = "+faultModel);
          System.out.println("   magUpper = "+magUpper);
          System.out.println("   slipRate = "+slipRate);
@@ -320,12 +387,17 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
          System.out.println("   lengthSigma = "+lengthSigma);
        }
 
-       // Now make the source
-       source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
-                                             magScalingRel,lengthSigma,rupAspectRatio,offset,
-                                             RAKE,timeSpan.getDuration(),minMag);
+       // un-reverse the order of the fault trace points if reversed earlier
+       if(reversed) {
+         faultTraceAll.reverse();
+         faultTraceA.reverse();
+         faultTraceB.reverse();
+         faultTraceC.reverse();
+         faultTraceD.reverse();
+         faultTraceE.reverse();
+       }
 
-       if(D)  System.out.println(S+" - done making the source");
+
      }
      parameterChangeFlag = false;
    }
@@ -346,11 +418,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     */
    public ProbEqkSource getSource(int iSource) {
 
-     // we have only one source
-   if(iSource!=0)
-     throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
-    return source;
+    return (ProbEqkSource) sourceList.get(iSource);
    }
 
 
@@ -360,7 +428,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
     * @return integer value specifying the number of earthquake sources
     */
    public int getNumSources(){
-     return 1;
+     return sourceList.size();
    }
 
     /**
@@ -371,9 +439,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
      * @return Vector of Prob Earthquake sources
      */
     public Vector  getSourceList(){
-      Vector v =new Vector();
-      v.add(source);
-      return v;
+      return sourceList;
     }
 
 

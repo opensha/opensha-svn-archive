@@ -81,12 +81,14 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
 
 
     /**
-     * This returns the x-axis value where the normalized cumulative distribution
-     * equals the specified fraction.
+     * This returns the x-axis value where the interpolated normalized cumulative
+     * distribution equals the specified fraction.  If the fraction is below the Y-
+     * value of the first point, then the X value of the first point is returned
+     * (since there is nothing below to interpolate with)
      * @param fraction - a value between 0 and 1.
      * @return
      */
-    public double getFractile(double fraction) {
+    public double getInterpolatedFractile(double fraction) {
 
       if(fraction < 0 || fraction > 1)
         throw new InvalidRangeException("fraction value must be between 0 and 1");
@@ -99,6 +101,33 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
       else
         return tempCumDist.getFirstInterpolatedX(fraction);
     }
+
+
+    /**
+     * This returns the uninterpolated x-axis value using the normalized cumulative
+     * distribution.
+     * @param fraction - a value between 0 and 1.
+     * @return
+     */
+    public double getDiscreteFractile(double fraction) {
+
+      if(fraction < 0 || fraction > 1)
+        throw new InvalidRangeException("fraction value must be between 0 and 1");
+
+      ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
+
+      for(int i = 0; i<tempCumDist.getNum();i++) {
+        if(fraction <= tempCumDist.getY(i))
+          return tempCumDist.getX(i);
+      }
+
+      // if desired fraction is below minimum x value, give minimum x value
+      if(fraction < tempCumDist.getMinY())
+        return tempCumDist.getMinX();
+      else
+        return tempCumDist.getFirstInterpolatedX(fraction);
+    }
+
 
 
     /**
@@ -187,12 +216,12 @@ public static void main( String[] args ) {
   System.out.println("0.75: " + cumFunc.getFirstInterpolatedX(0.75));
 
   System.out.println("\nFractiles from method:");
-  System.out.println("0.0: " + func.getFractile(0.0));
-  System.out.println("0.05: " + func.getFractile(0.05));
-  System.out.println("0.25: " + func.getFractile(0.25));
-  System.out.println("0.5: " + func.getFractile(0.5));
-  System.out.println("0.75: " + func.getFractile(0.75));
-  System.out.println("1.0: " + func.getFractile(1.0));
+  System.out.println("0.0: " + func.getInterpolatedFractile(0.0));
+  System.out.println("0.05: " + func.getInterpolatedFractile(0.05));
+  System.out.println("0.25: " + func.getInterpolatedFractile(0.25));
+  System.out.println("0.5: " + func.getInterpolatedFractile(0.5));
+  System.out.println("0.75: " + func.getInterpolatedFractile(0.75));
+  System.out.println("1.0: " + func.getInterpolatedFractile(1.0));
 
 }
 

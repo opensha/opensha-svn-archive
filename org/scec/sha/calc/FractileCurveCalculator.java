@@ -79,9 +79,8 @@ public class FractileCurveCalculator {
       if(functionList.get(i).getNum()!=numPoints) throw new RuntimeException(ERROR_POINTS);
 
      /* Save the functionlist
-    It is deep cloned here. The reason being that the original function list
-    can be changed in program without affecting this function list else whenever
-    calling program changes its functionlist in any way, this program will be affected
+    It is deep cloned here. The reason is in case the original function list
+    is changed elsewhere this won't get messed up
     */
     this.funcList = functionList.deepClone();
     relativeWeights = (Vector)relativeWts.clone();
@@ -148,7 +147,7 @@ public class FractileCurveCalculator {
     ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
     for(int i=0; i<num; ++i) {
       result.set(funcList.get(0).getX(i),
-                 ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getFractile(fraction));
+                 ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getDiscreteFractile(fraction));
     }
     return result;
   }

@@ -567,7 +567,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(6.95));
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(2.0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(PEER_NonPlanarFaultForecast.SEGMENTATION_NONE);
+     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(PEER_NonPlanarFaultForecast.SEGMENTATION_NO);
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.FAULT_MODEL_NAME).setValue(PEER_NonPlanarFaultForecast.FAULT_MODEL_STIRLING);
      // set the dip direction depending on the chosen
      if(selectedSite.equals(SITE_ONE) || selectedSite.equals(SITE_TWO) || selectedSite.equals(SITE_THREE))
