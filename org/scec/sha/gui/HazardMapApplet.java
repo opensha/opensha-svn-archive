@@ -30,6 +30,7 @@ import org.scec.util.*;
 import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
+import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.calc.HazardMapCalculator;
@@ -74,6 +75,8 @@ public class HazardMapApplet extends JApplet implements
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_ListricFaultForecast";
   public final static String PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.PEER_TestCases.PEER_MultiSourceForecast";
+  public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
+
 
   // instances of the GUI Beans which will be shown in this applet
   ERF_GuiBean erfGuiBean;
@@ -196,10 +199,12 @@ public class HazardMapApplet extends JApplet implements
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
   private GridBagLayout gridBagLayout9 = new GridBagLayout();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
+  private FlowLayout flowLayout1 = new FlowLayout();
+  private JSplitPane jSplitPane1 = new JSplitPane();
+  private JPanel timeSpanPanel = new JPanel();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
   private GridBagLayout gridBagLayout13 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private FlowLayout flowLayout1 = new FlowLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -269,6 +274,7 @@ public class HazardMapApplet extends JApplet implements
       erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
       erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
       erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+      erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
       erfGuiBean = new ERF_GuiBean(erf_Classes);
       erfPanel.setLayout(gridBagLayout5);
       erfPanel.add(erfGuiBean,
@@ -359,10 +365,12 @@ public class HazardMapApplet extends JApplet implements
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-1, 9, 10, 4), -340, 272));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(-1, 9, 10, 4), -324, 288));
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(addButton,        new GridBagConstraints(0, 0, 1, 4, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 14, 3, 246), 49, 28));
+    buttonPanel.add(jSplitPane1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 0, 0, 0), 241, 33));
+    jSplitPane1.add(addButton, JSplitPane.LEFT);
+    jSplitPane1.add(timeSpanPanel, JSplitPane.RIGHT);
     topSplitPane.add(parameterSplitPane, JSplitPane.TOP);
     controlsSplit.add(imrPanel, JSplitPane.TOP);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
@@ -376,6 +384,7 @@ public class HazardMapApplet extends JApplet implements
     parameterSplitPane.setDividerLocation(220);
     controlsSplit.setDividerLocation(185);
     siteSplitPane.setDividerLocation(140);
+    jSplitPane1.setDividerLocation(150);
 
   }
   //Start the applet
@@ -637,9 +646,16 @@ public class HazardMapApplet extends JApplet implements
                                 DiscretizedFuncAPI logFunc){
 
     int numPoints = originalFunc.getNum();
-    for(int i=0; i<numPoints; ++i)
-      logFunc.set(Math.log(originalFunc.getX(i)), 1);
-  }
+    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
 
+    // take log only if it is PGA, PGV or SA
+    if (selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
+        selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
+        selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)) {
+      for(int i=0; i<numPoints; ++i)
+        logFunc.set(Math.log(originalFunc.getX(i)), 1);
+    } else
+      throw new RuntimeException("Unsupported IMT");
+  }
 
 }

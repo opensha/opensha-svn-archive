@@ -15,6 +15,7 @@ import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.magdist.parameter.MagFreqDistParameter;
 import org.scec.sha.earthquake.ERF_EpistemicList;
+import org.scec.sha.gui.infoTools.CalcProgressBar;
 
 
 /**
@@ -244,8 +245,15 @@ public class ERF_GuiBean extends ParameterListEditor implements
     */
    public EqkRupForecastAPI getSelectedERF() {
      EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
+
+     // also show the progress bar while the forecast is being updated
+     CalcProgressBar progress = new CalcProgressBar("Forecast","Updating Forecast");
+     progress.displayProgressBar();
+     // update the forecast
      eqkRupForecast.updateForecast();
+     progress.dispose();
      return eqkRupForecast;
+
    }
 
    /**

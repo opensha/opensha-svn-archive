@@ -65,4 +65,19 @@ public class ProbEqkRupture extends EqkRupture{
        return 0;
    }
 
+   /**
+    * Clones the eqk rupture and returns the new cloned object
+    * @return
+    */
+  public Object clone() {
+    ProbEqkRupture eqkRuptureClone=new ProbEqkRupture();
+    eqkRuptureClone.setAveRake(this.aveRake);
+    eqkRuptureClone.setMag(this.mag);
+    eqkRuptureClone.setRuptureSurface(this.ruptureSurface);
+    eqkRuptureClone.setHypocenterLocation(this.hypocenterLocation);
+    eqkRuptureClone.setProbability(this.probability);
+    eqkRuptureClone.setTimeSpan(this.timespan);
+    return eqkRuptureClone;
+  }
+
 }

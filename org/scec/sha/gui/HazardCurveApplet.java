@@ -29,6 +29,7 @@ import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
+import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ERF_List;
@@ -1289,8 +1290,16 @@ public class HazardCurveApplet extends JApplet
                                 DiscretizedFuncAPI logFunc){
 
     int numPoints = originalFunc.getNum();
-    for(int i=0; i<numPoints; ++i)
-      logFunc.set(Math.log(originalFunc.getX(i)), 1);
+    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
+
+    // take log only if it is PGA, PGV or SA
+    if (selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
+        selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
+        selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)) {
+      for(int i=0; i<numPoints; ++i)
+        logFunc.set(Math.log(originalFunc.getX(i)), 1);
+    } else
+      throw new RuntimeException("Unsupported IMT");
   }
 
   /**

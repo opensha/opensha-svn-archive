@@ -83,15 +83,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    */
   public ProbEqkRupture getRuptureClone(int nRupture){
     ProbEqkRupture eqkRupture =getRupture(nRupture);
-
-    ProbEqkRupture eqkRuptureClone=new ProbEqkRupture();
-    eqkRuptureClone.setAveRake(eqkRupture.getAveRake());
-    eqkRuptureClone.setMag(eqkRupture.getMag());
-    eqkRuptureClone.setRuptureSurface(eqkRupture.getRuptureSurface());
-    eqkRuptureClone.setHypocenterLocation(eqkRupture.getHypocenterLocation());
-    eqkRuptureClone.setProbability(eqkRupture.getProbability());
-    eqkRuptureClone.setTimeSpan(eqkRupture.getTimeSpan());
-
+    ProbEqkRupture eqkRuptureClone= (ProbEqkRupture)eqkRupture.clone();
     return eqkRuptureClone;
   }
 

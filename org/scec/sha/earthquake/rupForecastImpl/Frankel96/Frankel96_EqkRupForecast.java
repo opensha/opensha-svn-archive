@@ -392,7 +392,7 @@ private void intiAdjParams() {
     // GR dist between mag 5 and 7, delta=0.2
     GutenbergRichterMagFreqDist grDist2;
 
-    PointGR_EqkSource grSource;
+    PointPoissonEqkSource pointPoissonSource;
 
     // set timespan
     double timeDuration = timeSpan.getDuration();
@@ -429,13 +429,11 @@ private void intiAdjParams() {
         grDist2.scaleToIncrRate((int) (0),rateAtMag5);
 
         // now make the source
-        grSource = new PointGR_EqkSource(new Location(lat,lon),grDist2,aveRake,aveDip);
-
-        // set the timespan
-        grSource.setTimeSpan(timeDuration);
+        pointPoissonSource = new PointPoissonEqkSource(new Location(lat,lon),
+            grDist2, timeDuration, aveRake,aveDip);
 
         // add the source
-        FrankelBackgrSeisSources.add(grSource);
+        FrankelBackgrSeisSources.add(pointPoissonSource);
       }
     }
   }
