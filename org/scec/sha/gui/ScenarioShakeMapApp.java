@@ -477,15 +477,23 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
      ex.printStackTrace();
     }
     ++step;
+    calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
 
     //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
     ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
     int sourceVal = erfGuiBean.getSourceIndex();
     int ruptureVal = erfGuiBean.getRuptureIndex();
     xyzDataSet = new ArbDiscretizedXYZ_DataSet();
+    try{
     shakeMapCalc.getScenarioShakeMapData(xyzDataSet,sourceVal,ruptureVal,griddedRegionSites,imr,
                                         (ERF_API)erfGuiBean.getSelectedERF_Instance(),
                                         probAtIML,imlProbValue);
+    }catch(RuntimeException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
+      timer.stop();
+      calcProgress.showProgress(false);
+      return;
+    }
 
     ++step;
     calcProgress.setProgressMessage("  Generating the Map ...");
@@ -512,8 +520,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     step = 0;
     timer = new javax.swing.Timer(100, new ActionListener() {
       public void actionPerformed(ActionEvent evt) {
-        if(step==1)
-          calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
         if(step==2) {
           mapGuiBean.makeMap(xyzDataSet,getMapParametersInfo());
           calcProgress.dispose();
