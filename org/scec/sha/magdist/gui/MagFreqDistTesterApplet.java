@@ -40,7 +40,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
   protected final static String C = "MagFreqDistTesterApplet";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   /**
@@ -213,7 +213,7 @@ public class MagFreqDistTesterApplet extends JApplet
       toMoFunctions.setYAxisName(MO_RATE);
       incrData.setConvertZeroToMin(true,.0000001);
       toCumData.setConvertZeroToMin(true,.0000001);
-      toMoData.setConvertZeroToMin(true,.0000000001);
+      toMoData.setConvertZeroToMin(true,1);
   }
 
   /**
@@ -880,14 +880,11 @@ public class MagFreqDistTesterApplet extends JApplet
 
         // Add points data to text area, people can see
 
-        pointsTextArea.setText( currentMagDistName + ": " + MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
-        pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
-        pointsTextArea.append(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
+        pointsTextArea.setText( currentMagDistName + ": " + INCR_RATE +" vs. "+ MAG + '\n' + incrFunctions.toString());
+        pointsTextArea.append(currentMagDistName + ": " + CUM_RATE +" vs. "+ MAG + '\n' + toCumFunctions.toString());
+        pointsTextArea.append(currentMagDistName + ": " + MO_RATE +" vs. "+ MAG + '\n' + toMoFunctions.toString());
         //if ( D ) System.out.println( S + "Graphing function:" + function.toString() );
 
-        System.out.println( currentMagDistName + ": " + MAG +" vs. "+ INCR_RATE + '\n' + incrFunctions.toString());
-        System.out.println(currentMagDistName + ": " + MAG +" vs. "+ CUM_RATE + '\n' + toCumFunctions.toString());
-        System.out.println(currentMagDistName + ": " + MAG +" vs. "+ MO_RATE + '\n' + toMoFunctions.toString());
 
         addGraphPanel();
 

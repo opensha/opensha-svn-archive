@@ -84,7 +84,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements Inc
 
     public double getCumRate(int index) {
         double sum=0.0;
-        for(int i=index;i<num;--i)
+        for(int i=index;i<num;++i)
             sum+=getIncrRate(i);
         return sum;
     }
