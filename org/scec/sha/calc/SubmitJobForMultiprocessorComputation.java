@@ -194,7 +194,7 @@ public class SubmitJobForMultiprocessorComputation extends SubmitJobForGridCompu
                             "globusscheduler=almaak.usc.edu/jobmanager-pbs\n" +
                             "initialdir=" + outputDir + "\n"+
                             "globusrsl = (count="+NUM_OF_PROCESSORS_AVAILABLE+") (hostcount=1) "+
-                            " (jobtype=mpi) (max_wall_time="+MAX_WALL_TIME+")"+"\n";
+                            " (jobtype=) (max_wall_time="+MAX_WALL_TIME+")"+"\n";
 
     String fileDataSuffix ="WhenToTransferOutput = ON_EXIT" + "\n" +
                            "notification=error\n"+
