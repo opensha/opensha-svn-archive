@@ -5,6 +5,7 @@ import javax.servlet.http.*;
 import java.io.*;
 import java.util.*;
 
+
 /**
  * <p>Title: PEER_InputFilesServlet </p>
  * <p>Description: This servlet is needed whenever the files are input from the
@@ -44,6 +45,9 @@ public class PEER_InputFilesServlet extends HttpServlet {
       // if password checking functinality is desired
       else if(functionDesired.equalsIgnoreCase("Password"))
         success = checkPassword(fileName);
+      // if file overwrite is ddesired
+      else if(functionDesired.equalsIgnoreCase("Overwrite"))
+        overwriteFile(inputFromApplet, fileName);
 
       // report to the user whether the operation was successful or not
       // get an ouput stream from the applet
@@ -87,32 +91,22 @@ public class PEER_InputFilesServlet extends HttpServlet {
       Vector data  = (Vector) inputFromApplet.readObject();
       inputFromApplet.close();
 
-      System.out.println("filename to upload:"+fileName);
-      FileWriter file = new FileWriter("GroupTestDataFiles/"+fileName);
-      BufferedWriter oBuf= new BufferedWriter(file);
-      // now read all the points from function and put into file
-      int num = data.size();
-      System.out.println("num of points:"+num);
-      for(int i=0;i<num;++i)
-        oBuf.write(data.get(i)+"\n");
-      oBuf.close();
+
+      // create the file
+      createFile(fileName, data);
 
       // now update the files.log file to reflect the newly added file
-      FileWriter logFile = new FileWriter("GroupTestDataFiles/files.log",true);
-      logFile.write(fileName+"\n");
-      logFile.close();
+      addToLogFile(fileName);
 
       // now update the data.version file to reflect the new data version
       updateDataVersion();
 
       // add this file to the JAR also
-      Process p=Runtime.getRuntime().exec("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles");
-      p.waitFor();
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles");
       System.out.println("::PEER_TestResultsPlotterApp.jar updated");
 
       // add this file to the JAR also
-      p=Runtime.getRuntime().exec("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles");
-      p.waitFor();
+      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles");
       System.out.println("::PEER_TestResultsSubmApp.jar updated");
 
       Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
@@ -122,6 +116,76 @@ public class PEER_InputFilesServlet extends HttpServlet {
     }
   }
 
+  /**
+   * This function overwrites a file.
+   * This is same as Add function except that it does not add to the log file
+   * @param inputFromApplet
+   * @param fileName
+   */
+  private void overwriteFile(ObjectInputStream inputFromApplet, String fileName) {
+    try {
+    // read the data
+    Vector data  = (Vector) inputFromApplet.readObject();
+    inputFromApplet.close();
+
+
+    // create the file
+    createFile(fileName, data);
+
+    // now update the data.version file to reflect the new data version
+    updateDataVersion();
+
+    // add this file to the JAR also
+    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar GroupTestDataFiles");
+    System.out.println("::PEER_TestResultsPlotterApp.jar updated");
+
+    // add this file to the JAR also
+    RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsSubmApp.jar GroupTestDataFiles");
+    System.out.println("::PEER_TestResultsSubmApp.jar updated");
+
+    Runtime.getRuntime().exec("rm GroupTestDataFiles/"+fileName);
+  } catch(Exception e) {
+    e.printStackTrace();
+    return;
+    }
+  }
+
+
+
+  /**
+   * create the file with name filename and values specified in Vector values
+   * @param fileName : filename to create
+   * @param data  : vector of values
+   */
+  private void createFile(String fileName, Vector data) {
+    try {
+      System.out.println("filename to upload:"+fileName);
+      FileWriter file = new FileWriter("GroupTestDataFiles/"+fileName);
+      BufferedWriter oBuf= new BufferedWriter(file);
+      // now read all the points from function and put into file
+      int num = data.size();
+      System.out.println("num of points:"+num);
+      for(int i=0;i<num;++i)
+        oBuf.write(data.get(i)+"\n");
+      oBuf.close();
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Add the specified filename to log file
+   * @param fileName : file to add to log file
+   */
+  private void addToLogFile(String fileName) {
+   try {
+     FileWriter logFile = new FileWriter("GroupTestDataFiles/files.log",true);
+     logFile.write(fileName+"\n");
+     logFile.close();
+   }catch(Exception e) {
+     e.printStackTrace();
+   }
+  }
   /**
    * This function updates the data version
    * this is called whenever any file is added or removed
