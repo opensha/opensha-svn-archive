@@ -44,7 +44,8 @@ import org.scec.sha.gui.infoTools.*;
 public class AttenuationRelationshipApplet extends JApplet
     implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
-        ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI {
+        ItemListener, AxisLimitsControlPanelAPI,GraphPanelAPI,ButtonControlPanelAPI,
+        XY_ValuesControlPanelAPI {
 
     protected final static String C = "AttenuationRelationshipApplet";
     private final static String version = "0.7.14";
@@ -254,9 +255,8 @@ public class AttenuationRelationshipApplet extends JApplet
 
     boolean isWhite = true;
 
-    AxisLimitsControlPanel axisLimits;
+    private AxisLimitsControlPanel axisLimits;
 
-    private ArrayList attenRelsSelected=new ArrayList();
 
     /**
      * for Y-log, 0 values will be converted to this small value
@@ -266,6 +266,11 @@ public class AttenuationRelationshipApplet extends JApplet
     private JLabel jLabel1 = new JLabel();
     private Border border1;
     private FlowLayout flowLayout1 = new FlowLayout();
+    private JButton xyDatasetButton = new JButton();
+
+    //XY new Dataset control
+    private XY_ValuesControlPanel xyNewDatasetControl;
+
 
     /**
      *  Construct the applet
@@ -514,7 +519,13 @@ public class AttenuationRelationshipApplet extends JApplet
         jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
         jLabel1.setForeground(new Color(80, 80, 133));
         jLabel1.setText("Attenuation Relationship Plotter");
-        this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+    xyDatasetButton.setText("Add new data");
+    xyDatasetButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        xyDatasetButton_actionPerformed(e);
+      }
+    });
+    this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
         outerPanel.add( mainPanel,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
@@ -558,8 +569,10 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonControlPanel = new ButtonControlPanel(this);
         buttonPanel.add(addButton, 0);
         buttonPanel.add(clearButton, 1);
-        buttonPanel.add(buttonControlPanel,2);
-        buttonPanel.add(plotColorCheckBox, 3);
+        buttonPanel.add(xyDatasetButton, 2);
+        buttonPanel.add(buttonControlPanel,3);
+        buttonPanel.add(plotColorCheckBox, 4);
+
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -1008,7 +1021,6 @@ public class AttenuationRelationshipApplet extends JApplet
 
           if( newGraph ){
             functionList.clear();
-            attenRelsSelected.clear();
             xAxisName = attenRel.getGraphXAxisLabel();
             yAxisName =attenRel.getGraphIMYAxisLabel() ;
           }
@@ -1020,8 +1032,6 @@ public class AttenuationRelationshipApplet extends JApplet
           if( !functionList.contains( function ) ){
             if ( D ) System.out.println( S + "AddjAttenuationRelationshipListing new function" );
             functionList.add(function);
-            attenRelsSelected.add(this.currentAttenuationRelationshipName);
-            //data.prepForXLog();
           }
           else {
 
@@ -1045,6 +1055,23 @@ public class AttenuationRelationshipApplet extends JApplet
 
         }
 
+    }
+
+    /**
+     * Sets ArbitraryDiscretizedFunc inside list containing all the functions.
+     * @param function ArbitrarilyDiscretizedFunc
+     */
+    public void setArbitraryDiscretizedFuncInList(ArbitrarilyDiscretizedFunc function){
+      if( !functionList.contains( function )){
+        functionList.add(function);
+        ArrayList plotFeaturesList = getPlottingFeatures();
+        plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+            new Color(200,100,133),4.0,1));
+        addGraphPanel();
+      }
+      else
+        JOptionPane.showMessageDialog(null, "This graph already exists, will not add again.",
+                                      "Cannot Add", JOptionPane.INFORMATION_MESSAGE);
     }
 
 
@@ -1265,4 +1292,14 @@ public class AttenuationRelationshipApplet extends JApplet
      String TITLE = plotTitle;
    }
 
+   /**
+    *
+    * @param e ActionEvent
+    */
+   void xyDatasetButton_actionPerformed(ActionEvent e) {
+    if(xyNewDatasetControl == null)
+      xyNewDatasetControl = new XY_ValuesControlPanel(this,this);
+    xyNewDatasetControl.show();
+    xyNewDatasetControl.pack();
+  }
 }
