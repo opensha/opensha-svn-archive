@@ -663,7 +663,7 @@ public class GraphPanel extends JPanel {
       //weighted function list.
       int totalNumofFunctions = funcList.size();
       //getting the metadata associated with each function in the list
-      for(int i=0,j=0,plotPrefIndex=0;i<totalNumofFunctions;++i){
+      for(int i=0,j=0,plotPrefIndex=0;i<totalNumofFunctions;++i,++plotPrefIndex){
         String legend=null;
         //setting the font style for the legend
         setLegend =new SimpleAttributeSet();
@@ -693,7 +693,6 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
             j=j+weightedList.getNumWeightedFunctions();
-            ++plotPrefIndex;
 
           }
           //checking if fractiles need to be plotted
@@ -709,7 +708,6 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
             j = j+weightedList.getNumFractileFunctions();
-            ++plotPrefIndex;
           }
           //checking if mean fractile need to be plotted
           if(weightedList.isMeanToPlot()){
@@ -723,7 +721,6 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
             ++j;
-            ++plotPrefIndex;
            }
         }
         else{ //if element in the list are individual function then get their info and show as legend
@@ -740,7 +737,6 @@ public class GraphPanel extends JPanel {
           StyleConstants.setForeground(setLegend,color);
           doc.insertString(doc.getLength(),legend,setLegend);
           ++j;
-          ++plotPrefIndex;
         }
       }
     } catch (BadLocationException e) {
@@ -926,6 +922,15 @@ public class GraphPanel extends JPanel {
    */
   public void setCurvePlottingCharacterstic(ArrayList plotPrefsList){
     curvePlottingCharacterstics = plotPrefsList;
+  }
+
+
+  /**
+   * Returns the chartPanel for the graph
+   * @return ChartPanel
+   */
+  public ChartPanel getChartPanel(){
+    return chartPanel;
   }
 
 
