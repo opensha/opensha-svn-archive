@@ -1,25 +1,15 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-2) Finish STEP map making capability (including map-viewer GUI) (high
-priority).  Includes map viewing GUI.
-
-3) We might want to add other adjustable parameters to the wrapped WG02
-ERF before the meeting; let's discuss that when we have some time.
+Solve problem with cutting and pasting on Mac OS X with Java 1.4.4.
 
 Move all parameters and parameter editors anywhere in org.scec.sha.* into org.scec.sha.param.* so that there is only one additional search directory for parameter list editor (update all GUI beans accordingly).
 
 Change SimpleFaultParameterEditor from what it is now to a button that pops up what's shown now in a separate window (but still can be edited from outside like in the PEER test-case selector control panel).  Focus should not leave the popup window until a user is done (& closing the window is the same as punching the button at the bottom).  Make it so the ERF_GuiBean (or any other similar bean) does not need to know anything about this parameter (it's automatically created by the ParameterListEditor).
 
-Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
+Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); waiting for Ken to finish before finalizing these.
 
-GRID Benchmarks:
-
-	1) gravity (2 cpu server)
-	2) almaak (6 cpu server)
-	2) condor (? cpu server (dynamic))
-
-Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
+Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).
 
 move the Fortran-Wrapped version of the WG02 ERF to
 the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can
@@ -30,22 +20,18 @@ call it:
     WG02_FortranWrappedERF_EpistemicList.java
 
 
-Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
-
-Generalize ERF servlets so that one object can be used for any arbitrary ERF.
-
 Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
 	(we want this for applet based map making where local files can't be created)
+	(and also so all the web-service jar file contents don't have to be included)
 
 	change name to makeMapUsingServlet()
 
 	make functionality consistent with web service
 
-Incorporate the new JFreechart version in OpenSHA.
+Finish STEP map making capability (including map-viewer GUI) (high priority).  Includes map viewing GUI.
 
-Make the setting values from CVM to be webservice rather than being the servlet. 
-	Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
+Incorporate the new JFreechart version in OpenSHA.
 
 SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
 
@@ -74,8 +60,13 @@ Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calcul
 
 	Remove the "Dissagregation" control panel (this will need special treatment here).
 
+Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
 
-Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); waiting for Ken to finish before finalizing these.
+Fix horizontal streaking due to setting site effects in gridded region from CVM for small grid spacings.
+
+Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
+
+Make the setting values from CVM to be webservice rather than a servlet. Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
 
 Make apps that use internet connection graceful if it's not available (if not connected locally or if remote server is down).
 
@@ -87,11 +78,7 @@ Investigate what proper longitude limits are with respect to RelativeLocation, 0
 
 Go through existing apps and list issues we'd like to improve.
 
-wg99/02 Fortran code:
-
-	(PRESENTLY ON HOLD UNTIL WG02 GETS THEIR CODE RUNNING ON ALL UNIX PLATFORMS)
-
-	Add the following adjustable parameters (& than run code):
+Add the following adjustable parameters to the wg99/02 Fortran code:
 
 		(Mike's order of priority)
 		Start time, Time interval
@@ -106,17 +93,7 @@ wg99/02 Fortran code:
 
 	Have WG02 group make the following changes to code(?):
 
-   		the ability to choose which of the output files to actually write.
-
     		addition of intermediate segment lats and lons for our output file
-
-    		to add to our output file the name of each rupture (e.g., "SAP+SAN+SAO"); 
-		just add this on an additional line
-
-   		 the remove of all runtime prompts (presently the user is only 
-    		prompted for the input filename, which apparently we can handle
-    		even if we're running from the command line).
-
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
