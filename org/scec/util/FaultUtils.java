@@ -4,7 +4,7 @@ import java.util.*;
 import java.text.*;
 import org.scec.sha.surface.*;
 
-import org.scec.sha.calc.RelativeLocation;
+import org.scec.calc.RelativeLocation;
 import org.scec.sha.fault.*;
 import org.scec.exceptions.*;
 
