@@ -40,8 +40,8 @@ public class SiteGuiBean {
   /**
    * Longitude and Latitude paramerts to be added to the site params list
    */
-  private DoubleParameter longitude = new DoubleParameter(LONGITUDE, new Double(-118), new Double(-114), new Double(-118));
-  private DoubleParameter latitude = new DoubleParameter(LATITUDE, new Double(32.0), new Double(36.0), new Double(34.0));
+  private DoubleParameter longitude = new DoubleParameter(LONGITUDE);
+  private DoubleParameter latitude = new DoubleParameter(LATITUDE);
 
 
   /**
