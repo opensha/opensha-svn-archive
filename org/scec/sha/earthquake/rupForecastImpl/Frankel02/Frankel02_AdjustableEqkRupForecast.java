@@ -180,14 +180,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     rupOffset_Param.addParameterChangeListener(this);
     backSeisParam.addParameterChangeListener(this);
 
-//    allSourceNames = new Vector();
-
-    charFaultSources = new Vector();
-    grFaultSources = new Vector();
-
-    makeFaultSources("test1",1.0,null,0);
-
-//    this.makeAllFaultSources();
+    this.makeAllFaultSources();
 
 /*
     try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
@@ -237,7 +230,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
    */
   private void makeAllFaultSources() {
 
-/**/
+    charFaultSources = new Vector();
+    grFaultSources = new Vector();
+
+    makeFaultSources("test1",1.0,null,0);
+
+/*
     makeFaultSources("ca-a-other-fixed-char", 1.0,null,0);
     makeFaultSources("ca-a-other-norm-char", 1.0,null,0);
     makeFaultSources("ca-amod1-char", 0.5,null,0);
@@ -262,7 +260,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
     makeFaultSources("ca-wg99-dist-char", 1.0,null,0);
     makeFaultSources("ca-wg99-dist-float", 1.0,null,0);
     makeFaultSources("creepflt", 1.0,null,0);
-
+*/
 // not sure if the rest are needed
 /*
     makeFaultSources("ext-norm-65", 1.0,null,0);
@@ -768,7 +766,6 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
   }
 
 
-
   /**
   * Read the Background Seismicity file and make the sources
   *
@@ -916,6 +913,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast
        }
        else if (backSeis.equalsIgnoreCase(BACK_SEIS_EXCLUDE)) {
          // now create the allSources list:
+         makeAllFaultSources();
          allSources.addAll(charFaultSources);
          allSources.addAll(grFaultSources);
        }

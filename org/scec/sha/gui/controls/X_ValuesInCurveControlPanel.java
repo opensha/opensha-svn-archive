@@ -22,6 +22,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
 
   //static Strings for the Different X Vlaues that the user can choose from.
   private final static String PEER_X_VALUES = "PEER Test-Case Values";
+  private final static String USGS_PGA_X_VALUES = "USGS-2002 PGA Values";
   private final static String CUSTOM_VALUES = "Custom Values";
   private final static String DEFAULT = "DEFAULT";
   private final static String MIN_MAX_NUM = "Enter Min, Max and Num";
@@ -152,6 +153,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     xValuesSelectionCombo.addItem(CUSTOM_VALUES);
     xValuesSelectionCombo.addItem(MIN_MAX_NUM);
     xValuesSelectionCombo.addItem(PEER_X_VALUES);
+    xValuesSelectionCombo.addItem(USGS_PGA_X_VALUES);
     xValuesSelectionCombo.setSelectedItem(DEFAULT);
   }
 
@@ -182,6 +184,35 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     function.set(1.4,1);
     function.set(1.5,1);
   }
+
+
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  private void createUSGS_PGA_Function(){
+    function= new ArbitrarilyDiscretizedFunc();
+    function.set(.005,1);
+    function.set(.007,1);
+    function.set(.0098,1);
+    function.set(.0137,1);
+    function.set(.0192,1);
+    function.set(.0269,1);
+    function.set(.0376,1);
+    function.set(.0527,1);
+    function.set(.0738,1);
+    function.set(.103,1);
+    function.set(.145,1);
+    function.set(.203,1);
+    function.set(.284,1);
+    function.set(.397,1);
+    function.set(.556,1);
+    function.set(.778,1);
+    function.set(1.09,1);
+    function.set(1.52,1);
+    function.set(2.13,1);
+  }
+
 
   /**
    * initialises the function with the x and y values if the user has chosen the Min Max Num Vals.
@@ -329,7 +360,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   //making the GUI visible or invisible based on the selection of "Type of X-Values"
   void xValuesSelectionCombo_actionPerformed(ActionEvent e) {
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
-    if(selectedItem.equals(this.PEER_X_VALUES) || selectedItem.equals(this.CUSTOM_VALUES)){
+    if(selectedItem.equals(PEER_X_VALUES) || selectedItem.equals(USGS_PGA_X_VALUES) ||
+       selectedItem.equals(this.CUSTOM_VALUES)){
       maxLabel.setVisible(false);
       minLabel.setVisible(false);
       numLabel.setVisible(false);
@@ -371,8 +403,12 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    */
   private void generateXValues(){
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
-    if(selectedItem.equals(this.PEER_X_VALUES)){
+    if(selectedItem.equals(PEER_X_VALUES)){
       createPEER_Function();
+      setX_Values();
+    }
+    else if(selectedItem.equals(USGS_PGA_X_VALUES)){
+      createUSGS_PGA_Function();
       setX_Values();
     }
     else if(selectedItem.equals(this.DEFAULT)){
