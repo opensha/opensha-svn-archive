@@ -40,12 +40,8 @@ public class HazardMapCalculator {
   hazard analysis for that site; this default value is to allow all PEER test
   cases to pass through
   */
-  protected double MAX_DISTANCE = 2500;
+  protected double MAX_DISTANCE = 200;
 
-  // boolean for telling whether to show a progress bar
-  boolean showProgressBar = true;
-
-  private CalcProgressBar progressClass ;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
   public static final String DATASETS_PATH = "HazardMapDataSets/";
@@ -155,16 +151,10 @@ public class HazardMapCalculator {
     HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
     //hazCurveCalc.showProgressBar(false);
 
-    if(this.showProgressBar) { // show the progress bar
-      progressClass = new CalcProgressBar("Hazard-Map Calc Status", "Beginning Calculation ");
-      progressClass.displayProgressBar();
-    }
     int numSites = griddedSites.getNumGridLocs();
 
-    if (this.showProgressBar)  progressClass.updateProgress(0, numSites);
     int numPoints = xValues.length;
     for(int j=0;j<numSites;++j){
-      if(this.showProgressBar) progressClass.updateProgress(j, numSites);
       site = griddedSites.getSite(j);
       // make and initialize the haz function
       ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -197,8 +187,6 @@ public class HazardMapCalculator {
     }catch(IOException ee){
       ee.printStackTrace();
     }
-
-    if(this.showProgressBar) progressClass.dispose();
   }
 
   /**
@@ -238,14 +226,5 @@ public class HazardMapCalculator {
     } else
       throw new RuntimeException("Unsupported IMT");
   }
-
-  /**
-  * This allows tuning on or off the showing of a progress bar
-  * @param show - set as true to show it, or false to not show it
-  */
-  public void showProgressBar(boolean show) {
-    this.showProgressBar=show;
-  }
-
 }
 
