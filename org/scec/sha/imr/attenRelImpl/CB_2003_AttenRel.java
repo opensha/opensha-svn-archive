@@ -60,6 +60,7 @@ public class CB_2003_AttenRel
     // style of faulting options
     public final static String FLT_TYPE_THRUST = "Thrust (dip<45)";
     public final static String FLT_TYPE_REVERSE = "Reverse (dip>45)";
+    public final static String FLT_TYPE_REVERSE_THRUST = "Reverse or Thrust";
     public final static String FLT_TYPE_OTHER = "Strike Slip or Normal";
     public final static String FLT_TYPE_UNKNOWN = "Unknown";
     public final static String FLT_TYPE_DEFAULT = FLT_TYPE_OTHER;
@@ -87,11 +88,8 @@ public class CB_2003_AttenRel
     protected final static Double DISTANCE_SEIS_WARN_MAX = new Double(60.0);
     // the minimum warning will get overridden by seisDepth is less than seisDepth
 
-    // types of standard deviation
-    public final static String STD_DEV_TYPE_MAG_DEP = "Total (Mag Dependent)";
-    public final static String STD_DEV_TYPE_PGA_DEP = "Total (PGA Dependent)";
-    public final static String STD_DEV_TYPE_DEFAULT = "Total (Mag Dependent)";
-
+    // set the default stdDev type
+    public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_TOTAL_MAG_DEP;
 
     /**
      * The DistanceSeisParameter, which is the closest distance to the seimogenic
@@ -394,6 +392,10 @@ public class CB_2003_AttenRel
            F_rv = 0;
            F_th = 1;
         }
+        else if ( fltType.equals( FLT_TYPE_REVERSE_THRUST ) ) {
+           F_rv = 0.5;
+           F_th = 0.5;
+        }
         else if ( fltType.equals( FLT_TYPE_OTHER ) ) {
            F_rv = 0;
            F_th = 0;
@@ -439,7 +441,7 @@ public class CB_2003_AttenRel
         f5 = hw*(S_vfs+S_sr+S_fr)*f_HW_m*f_HW_r;
 
         // Make BC Boundary correction if needed
-        if ( siteType.equals( SITE_TYPE_NEHRP_BC )) f1 += coeff.bv*Math.log(620.0/760.0);
+        if ( siteType.equals( SITE_TYPE_NEHRP_BC )) f1 += coeff.bv*Math.log(760.0/620.0);
 
         return coeff.c1 + f1 + coeff.c4*0.5*Math.log(f2) + f3 + f4 + f5;
 
@@ -457,12 +459,12 @@ public class CB_2003_AttenRel
 
         if ( stdevType.equals( STD_DEV_TYPE_NONE ) )
             return 0;
-        else if ( stdevType.equals( STD_DEV_TYPE_MAG_DEP ) ) {
+        else if ( stdevType.equals( STD_DEV_TYPE_TOTAL_MAG_DEP ) ) {
             try{
                 mag = ((Double)magParam.getValue()).doubleValue();
             }
             catch(NullPointerException e){
-               throw new IMRException(C + ": getMean(): " + ERR);
+               throw new IMRException(C + ": getStdDev(): " + ERR);
             }
 
             updateCoefficients();
@@ -472,7 +474,8 @@ public class CB_2003_AttenRel
         else {  // PGA dependent
 
             // Set PGA coefficients depending on component:
-            if ( componentParam.equals( COMPONENT_AVE_HORZ ) )
+            String component = (String) componentParam.getValue();
+            if ( component.equals( COMPONENT_AVE_HORZ ) )
                 coeff = ( CB_2003_AttenRelCoefficients ) horzCoefficients.get( PGA_NAME );
             else  // vertical component
                 coeff = ( CB_2003_AttenRelCoefficients ) vertCoefficients.get( PGA_NAME );
@@ -595,6 +598,7 @@ public class CB_2003_AttenRel
         constraint.addString( FLT_TYPE_OTHER );
         constraint.addString( FLT_TYPE_THRUST );
         constraint.addString( FLT_TYPE_REVERSE );
+        constraint.addString( FLT_TYPE_REVERSE_THRUST );
         constraint.addString( FLT_TYPE_UNKNOWN );
         constraint.setNonEditable();
         fltTypeParam = new StringParameter( FLT_TYPE_NAME, constraint, null);
@@ -700,8 +704,8 @@ public class CB_2003_AttenRel
 
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
-        stdDevTypeConstraint.addString( STD_DEV_TYPE_MAG_DEP );
-        stdDevTypeConstraint.addString( STD_DEV_TYPE_PGA_DEP );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL_MAG_DEP );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL_PGA_DEP );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );

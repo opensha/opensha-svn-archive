@@ -48,7 +48,7 @@ public class Field_2000_AttenRel
 
     // debugging stuff:
     private final static String C = "Field_2000_AttenRel";
-    private final static boolean D = false;
+    private final static boolean D = true;
     public final static String NAME = "Field (2000)";
 
     // style of faulting options
@@ -81,6 +81,9 @@ public class Field_2000_AttenRel
     private final static Double DISTANCE_JB_DEFAULT = new Double( 0 );
     protected final static Double DISTANCE_JB_WARN_MIN = new Double(0.0);
     protected final static Double DISTANCE_JB_WARN_MAX = new Double(150.0);
+
+    // set the default stdDev type
+    public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_TOTAL_MAG_DEP;
 
     /**
      * The current set of coefficients based on the selected intensityMeasure
@@ -347,21 +350,36 @@ public class Field_2000_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+        // make max mag equal to 7.0
+        if(mag > 7.0) mag = 7.0;
 
         // this is inefficient if the im has not been changed in any way
         updateCoefficients();
 
+/*
+        if (D) System.out.println(C+ " intra_slope="+coeff.intra_slope+"; intra_intercept="+
+                                  coeff.intra_intercept+"; tau="+ coeff.tau);
+        double test1 = coeff.intra_intercept+coeff.tau*coeff.tau;
+        double test2 = test1+coeff.intra_slope*mag;
+        if (D) System.out.println(C+ " total intercept="+test1+"; total var="+test2);
+*/
+
         // set the correct standard deviation depending on component and type
 
-        if ( stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
-            double stdev =  Math.pow( ( coeff.intra_slope*mag + coeff.intra_intercept + coeff.tau*coeff.tau ) , 0.5) ;
-            return  stdev;
+        if ( stdDevType.equals( STD_DEV_TYPE_TOTAL_MAG_DEP ) ) {           // "Total - Mag Dep."
+            return  Math.sqrt( coeff.intra_slope*mag + coeff.intra_intercept + coeff.tau*coeff.tau ) ;
+        }
+        else if (stdDevType.equals( STD_DEV_TYPE_TOTAL ) ) {           // "Total"
+            return  Math.sqrt( ( coeff.intra_mag_ind*coeff.intra_mag_ind + coeff.tau*coeff.tau ) ) ;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTER ) ) {    // "Inter-Event"
             return  coeff.tau;
         }
+        else if ( stdDevType.equals( STD_DEV_TYPE_INTRA_MAG_DEP ) ) {    // "Intra-Event - Mag. Dep."
+            return Math.sqrt(coeff.intra_slope*mag + coeff.intra_intercept ) ;
+        }
         else if ( stdDevType.equals( STD_DEV_TYPE_INTRA ) ) {    // "Intra-Event"
-            return Math.pow(coeff.intra_slope*mag + coeff.intra_intercept , 0.5 ) ;
+            return coeff.intra_mag_ind;
         }
         else if ( stdDevType.equals( STD_DEV_TYPE_NONE) ) {    // "None (zero)"
             return 0 ;
@@ -576,8 +594,10 @@ public class Field_2000_AttenRel
 
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL_MAG_DEP );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_INTER );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_INTRA_MAG_DEP );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_INTRA );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
@@ -607,20 +627,20 @@ public class Field_2000_AttenRel
 
         // PGA
         Field_2000_AttenRelCoefficients coeff = new Field_2000_AttenRelCoefficients(PGA_NAME,
-              0.0, 0.853, 0.872, 0.442, -0.067, -0.960, -0.154, 8.90, 0.067, -0.14, -0.1, 0.87, 0.23 );
+              0.0, 0.853, 0.872, 0.442, -0.067, -0.960, -0.154, 8.90, 0.067, -0.14, -0.1, 0.8771, 0.23, 0.47 );
 
         // SA/0.00
         Field_2000_AttenRelCoefficients coeff0 = new Field_2000_AttenRelCoefficients( SA_NAME + '/' +( new Double( "0.0" ) ).doubleValue() ,
-              0.0, 0.853, 0.872, 0.442, -0.067, -0.960, -0.154, 8.90, 0.067, -0.14, -0.1, 0.87, 0.23 );
+              0.0, 0.853, 0.872, 0.442, -0.067, -0.960, -0.154, 8.90, 0.067, -0.14, -0.1, 0.8771, 0.23, 0.47 );
         // SA/0.3
         Field_2000_AttenRelCoefficients coeff1 = new Field_2000_AttenRelCoefficients( "SA/" +( new Double( "0.3" ) ).doubleValue() ,
-              0.3, 0.995, 1.096, 0.501, -0.112, -0.841, -0.350, 7.20, 0.057, -0.12, -0.11, 0.99, 0.26 );
+              0.3, 0.995, 1.096, 0.501, -0.112, -0.841, -0.350, 7.20, 0.057, -0.12, -0.11, 0.9924, 0.26, 0.53 );
         // SA/1.0
         Field_2000_AttenRelCoefficients coeff2 = new Field_2000_AttenRelCoefficients( "SA/" +( new Double( "1.0" ) ).doubleValue() ,
-              1.0, -0.164, -0.267, 0.903, 0.0, -0.914, -0.704, 6.20, 0.12, -0.25, -0.1, 0.95, 0.22 );
+              1.0, -0.164, -0.267, 0.903, 0.0, -0.914, -0.704, 6.20, 0.12, -0.25, -0.1, 0.9516, 0.22, 0.53 );
         // SA/3.0
         Field_2000_AttenRelCoefficients coeff3 = new Field_2000_AttenRelCoefficients( "SA/" +( new Double( "3.0" ) ).doubleValue() ,
-              3.0, -2.267, -2.681, 1.083, 0.0, -0.720, -0.674, 3.00, 0.11, -0.18, 0.14, -0.66, 0.3 );
+              3.0, -2.267, -2.681, 1.083, 0.0, -0.720, -0.674, 3.00, 0.11, -0.18, 0.14, -0.66, 0.3, 0.52 );
 
         coefficients.put( coeff.getName(), coeff );
         coefficients.put( coeff0.getName(), coeff0 );
@@ -667,6 +687,7 @@ public class Field_2000_AttenRel
         protected double intra_slope;
         protected double intra_intercept;
         protected double tau;
+        protected double intra_mag_ind;
 
         /**
          *  Constructor for the Field_2000_AttenRelCoefficients object
@@ -683,7 +704,7 @@ public class Field_2000_AttenRel
         public Field_2000_AttenRelCoefficients( String name,  double period,
             double b1ss,  double b1rv,  double b2,       double b3,  double b5,
             double bv,    double h,     double bdSlope,  double bdIntercept,
-            double intra_slope, double intra_intercept,  double tau )
+            double intra_slope, double intra_intercept,  double tau, double intra_mag_ind )
         {
             this.name = name;       this.period = period;   this.b1ss = b1ss;
             this.b1rv = b1rv;       this.b2 = b2;           this.b3 = b3;
@@ -691,6 +712,7 @@ public class Field_2000_AttenRel
             this.bdSlope = bdSlope; this.bdIntercept = bdIntercept;
             this.intra_slope = intra_slope;
             this.intra_intercept = intra_intercept;         this.tau = tau;
+            this.intra_mag_ind = intra_mag_ind;
         }
 
         /**
@@ -721,6 +743,7 @@ public class Field_2000_AttenRel
             b.append( "\n  intra_slope = " + intra_slope );
             b.append( "\n  intra_intercept = " + intra_intercept );
             b.append( "\n  tau = " + tau );
+            b.append( "\n  intra_mag_ind = " + intra_mag_ind);
             return b.toString();
         }
     }

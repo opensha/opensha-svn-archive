@@ -9,12 +9,11 @@ import org.scec.data.function.*;
 
 
 /**
- *  <b>Title:</b> AttenuationRelationshipAPI<br>
- *  <b>Description:</b> AttenuationRelationship is a subclass of IntensityMeasureParameter that
- *  uses a Gaussian distribution to compute probabilities.  Thus in addition to the
- *  method for getting the exceedance probability, this has methods to get the mean
- *  and standard deviation of the gaussian distribution. This API defines these
- *  additional methods.<br>
+ * <b>Title:</b> AttenuationRelationshipAPI<br>
+ * <b>Description:</b> AttenuationRelationship is a subclass of IntensityMeasureParameter
+ * that uses a Gaussian distribution to compute probabilities.  It also assumes the
+ * intensity-measure type is a scalar value (DoubleParameter).   See the abstract class
+ * of AttenuationRelationship for more info. <br>
  *
  * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002
@@ -101,15 +100,6 @@ public interface AttenuationRelationshipAPI
      * @exception  IMRException        Description of the Exception
      */
     public double getExceedProbability(double iml);
-
-
-
-    /**
-     *  Returns a handle to the component parameter.
-     *
-     * @return    The componentParameter value
-     */
-    public ParameterAPI getComponentParam();
 
 
     /**

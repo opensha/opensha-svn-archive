@@ -14,14 +14,17 @@ import org.scec.sha.earthquake.*;
  *  <b>Description:</b> Abstract base class for Intensity Measure Relationship (IMR).
  *  All IMRs compute the probability of exceeding a particular shaking level (specified
  *  by an intenisty-measure Parameter) given a Site and ProbEqkRupture object.
- *  Subclasses will implement specific types of IMRs.  For example, AttenuationRelationship
- *  implements what is traditionally called an "Attenuation Relationship".
+ *  Subclasses will implement specific types of IMRs (e.g., AttenuationRelationship).
  *  This abstract IMR class also contains seperate parameterList objects for the
  *  site, potential-earthquake, and propagation-effect related parameters, as well
  *  as a list of "other" parameters that don't fit into those three categories.
  *  This class also contains a list of supported intensity-measure parameters (which
- *  may have internal independent parameters). These five lists combined should
- *  constitute a complete list of parameters for the IMR. <p>
+ *  may have internal independent parameters). These five lists combined (siteParams,
+ *  probEqkRuptureParams, propagationEffectParams, supportedIMParams, and otherParams)
+ *  constitutes the complete list of parameters that the exceedance probability depends
+ *  upon.  The only other paramter is exceedProbParam, which is used to compute the
+ *  IML at a particular probability in subclasses that support the getIML_AtExceedProb()
+ *  method. <p>
  *
  * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002
@@ -41,6 +44,19 @@ public abstract class IntensityMeasureRelationship
     /** Prints out debugging statements if true */
     protected final static boolean D = false;
 
+    /**
+     * Exceed Prob parameter, used only to store the exceedance probability to be
+     * used by the getIML_AtExceedProb() method of subclasses (if a subclass supports
+     * this method).  Note that calling the getExceedProbability() does not store the
+     * value in this parameter.
+     */
+    protected  DoubleParameter exceedProbParam = null;
+    public final static String EXCEED_PROB_NAME = "Exceed. Prob.";
+    protected final static Double EXCEED_PROB_DEFAULT = new Double( 0.5 );
+    public final static String EXCEED_PROB_INFO = "Exceedance Probability";
+    protected final static Double EXCEED_PROB_MIN = new Double( 1.0e-4 );
+    protected final static Double EXCEED_PROB_MAX = new Double( 1.0 - 1e-4 );
+
     /** ParameterList of all Site parameters */
     protected ParameterList siteParams = new ParameterList();
 
@@ -57,10 +73,11 @@ public abstract class IntensityMeasureRelationship
     protected ParameterList supportedIMParams = new ParameterList();
 
     /**
-     * ParameterList of other parameters that don't fit into above categories
-     * (that is, any parameter that the IMR depends upon that is not an IMT,
-     * and will not be contained in either a site object or an EqkRupture object
-     * (probEqkRuptureParams are set from Site and EqkRupture objects))
+     * ParameterList of other parameters that don't fit into above categories.
+     * These are any parameters that the exceedance probability depends upon that is
+     * not a supported IMT (or one of their independent parameters) and is not contained
+     * in, or computed from, the site or eqkRutpure objects.  Note that this does not
+     * include the exceedProbParam (which exceedance probability does not depend on).
      */
     protected ParameterList otherParams = new ParameterList();
 
@@ -83,9 +100,16 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  No-Arg Constructor for the IntensityMeasureRelationship object. Currently does nothing
+     *  No-Arg Constructor for the IntensityMeasureRelationship object. This only
+     *  creates one parameter (exceedProbParam) used by some subclasses.
      */
-    public IntensityMeasureRelationship() { }
+    public IntensityMeasureRelationship() {
+
+        exceedProbParam = new DoubleParameter( EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
+        exceedProbParam.setInfo( EXCEED_PROB_INFO );
+        exceedProbParam.setNonEditable();
+
+    }
 
 
 
@@ -174,7 +198,8 @@ public abstract class IntensityMeasureRelationship
      *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
      *  but by finding the internally held one with the same name and then setting
      *  its value (and the value of any of its independent parameters) to be equal
-     * to that passed in.
+     *  to that passed in.  PROBLEM: THE PRESENT IMPLEMENTATION ASSUMES THAT ALL THE
+     *  DEPENDENT PARAMETERS ARE OF TYPE DOUBLE - WE NEED TO RELAX THIS.
      *
      * @param  intensityMeasure  The new intensityMeasure Parameter
      */
@@ -195,9 +220,9 @@ public abstract class IntensityMeasureRelationship
     /**
      *  This sets the intensityMeasure parameter as that which has the name
      *  passed in; no value (level) is set, nor are any of the IM's independent
-     *  parameters set.
+     *  parameters set (since it's only given the name).
      *
-     * @param  intensityMeasure  The new intensityMeasure Parameter
+     * @param  intensityMeasure  The new intensityMeasureParameter name
      */
     public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException, ConstraintException {
 
@@ -210,8 +235,11 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Checks if the Parameter is a supported intensity-Measure; checking
-     *  both the name and that the value is allowed.
+     *  Checks if the Parameter is a supported intensity-Measure (checking
+     *  both the name and value, as well as any dependent parameters
+     *  (names and values) of the IM).  PROBLEM: THE VALUE OF THE IM IS NOT CHECKED,
+     *  AND THIS IMPLEMENTATION ASSUMES THAT ALL THE DEPENDENT PARAMETERS ARE DOUBLE
+     *  PARAMETERS - WE NEED TO FIX THE FORMER AND RELAX THAT LATTER.
      *
      * @param  intensityMeasure  Description of the Parameter
      * @return                   True if this is a supported IMT
@@ -238,18 +266,32 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Sets the probEqkRupture, site and intensityMeasure objects
-     *  simultaneously.
+     *  Sets the probEqkRupture, site, and intensityMeasure objects
+     *  simultaneously.<p>
      *
-     * @param  probEqkRupture    The new PE value
-     * @param  site                   The new Site value
-     * @param  intensityMeasure       The new IM value
+     *  SWR: Warning - this function doesn't provide full rollback in case of
+     *  failure. There are 4 method calls that sets parameters with new values.
+     *  If one function fails, the previous functions effects are not undone,
+     *  i.e. the transaction is not handled gracefully.<p>
+     *
+     *  This will take alot of design and work so it is held off for now until
+     *  it is decided that it is needed.<p>
+     *
+     *
+     *
+     * @param  probEqkRupture           The new probEqkRupture
+     * @param  site                     The new Site
+     * @param  intensityMeasure         The new intensityMeasure
+     * @exception  ParameterException   Description of the Exception
+     * @exception  IMRException         Description of the Exception
+     * @exception  ConstraintException  Description of the Exception
      */
     public void setAll(
             ProbEqkRupture probEqkRupture,
             Site site,
             ParameterAPI intensityMeasure
-             ) {
+             ) throws ParameterException, IMRException, ConstraintException
+    {
         setSite(site);
         setProbEqkRupture( probEqkRupture );
         setIntensityMeasure( intensityMeasure );
@@ -257,17 +299,18 @@ public abstract class IntensityMeasureRelationship
 
 
 
-    /* *
-     * Helper function that allows any class to look up one of this IMRs
-     * parameters.
-     * @param name      Name of the parameter to fetch
-     * @return          The named parameter
-     * @throws ParameterException   Thrown if the named parameter doesn't exist
+    /**
+     * Returns a pointer to a parameter if it exists in one of the parameter lists
+     *
+     * @param name                  Parameter key for lookup
+     * @return                      The found parameter
+     * @throws ParameterException   If parameter with that name doesn't exist
      */
     public ParameterAPI getParameter(String name) throws ParameterException{
 
-        // try{ return independentParams.getParameter(name); }
-        // catch(ParameterException e){}
+        // check whether it's the exceedProbParam
+        if(name.equals(EXCEED_PROB_NAME))
+          return exceedProbParam;
 
         try{ return siteParams.getParameter(name); }
         catch(ParameterException e){}
@@ -313,8 +356,10 @@ public abstract class IntensityMeasureRelationship
 
     /**
      *  Returns an iterator over all other parameters.  Other parameters are those
-     * that the IMR depends upon but which are not the supported IMTs, nor are they
-     * contained in or computed from a Site or EqkRupture object.
+     *  that the exceedance probability depends upon, but that are not a
+     *  supported IMT (or one of their independent parameters) and are not contained
+     *  in, or computed from, the site or eqkRutpure objects.  Note that this does not
+     *  include the exceedProbParam (which exceedance probability does not depend on).
      *
      * @return    Iterator for otherParameters
      */
@@ -325,11 +370,9 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Returns an iterator over all Potential-Earthquake related parameters
-     * (perhaps this method should exist only in subclasses that have these types
-     * of parameters).
+     *  Returns an iterator over all ProbEqkRupture related parameters.
      *
-     * @return    The Potential Earthquake Parameters Iterator
+     * @return    The ProbEqkRupture Parameters Iterator
      */
     public ListIterator getProbEqkRuptureParamsIterator() {
         return probEqkRuptureParams.getParametersIterator();
@@ -337,7 +380,9 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Returns the iterator over all Propagation-Effect related parameters.
+     *  Returns the iterator over all Propagation-Effect related parameters
+     * (perhaps this method should exist only in subclasses that have these types
+     * of parameters).
      *
      * @return    The Propagation Effect Parameters Iterator
      */

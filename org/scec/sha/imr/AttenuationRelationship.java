@@ -54,7 +54,7 @@ import org.scec.util.*;
  *  <b>Response Spectral Acceleration</b> Intensity-Measure Parameter
  *  This parameter is instantiated in its entirety in the
  *  initSupportedIntenistyMeasureParams() method here. However its periodParam independent-
- *  parameter must be created and added in subclasses.<br>
+ *  parameter must be created and added in subclasses (since supported periods will vary).<br>
  *  SA_NAME = "SA"<br>
  *  SA_UNITS = "g"<br>
  *  SA_INFO = "Response Spectral Acceleration"<br>
@@ -123,8 +123,8 @@ import org.scec.util.*;
  * STD_DEV_TYPE_DEFAULT = "Total"<br>
  * STD_DEV_TYPE_TOTAL = "Total"<br>
  * STD_DEV_TYPE_INTER = "Inter-Event"<br>
- * STD_DEV_TYPE_NONE = "None (zero)"<br>
  * STD_DEV_TYPE_INTRA = "Intra-Event"<p>
+ * STD_DEV_TYPE_NONE = "None (zero)"<br>
  *
  * <b>fltTypeParam</b> - A StringParameter representing <b>different styles of faulting</b>;
  * options are specified in subclasses because nomenclature varies.<br>
@@ -162,30 +162,15 @@ import org.scec.util.*;
  * @version    1.0
  */
 
- /* Note: SWR - For the sake of simplicity when calling getMean(), getStdDev() and
+ /* Note: For the sake of simplicity when calling getMean(), getStdDev() and
  * getExceedenceProbability all parameters are looked up and/or calculated
  * within the function call. This may not provide the best performance when calling
  * these functions many times from within a loop where only one parameter is
  * updated. This was done intentionally so that scientists who implement other
  * IMRs can use this one as a template without having to learn the complexities
- * of advanced programming techniques. <p>
+ * of advanced programming techniques.  A more efficient technique would be to
+ * listen for parameter changes and act accordingly. <p>
  *
- * An alternative approach that is elegant and the most optimised is to use java's
- * event based notification. To do this you need three classes. First you need a
- * ParameterChangeEvent which records the old value, new value, and a reference
- * to the source object which generated the change event. Secondly you need a
- * ParameterChangeListener Interface that has one function: valueChanged(
- * ParameterChangeEvent). Thirdly you need to update the ParameterAPI to allow
- * registration and removal of ParameterChangeListeners, and add a fireParameterChange(
- * ParameterChangeEvent ) function that is called whenever the value is updated.
- * In fact, this is exactly how the ParameterEditors all work. Look at the
- * org.scec.param.editor for a reference implementation. <p>
- *
- * This helps us in that this IMR would then implement the ParameterChangeListener
- * interface and be notified whenever Parameters are changed in the GUI.
- * The corresponding dependent variables can then be updated with the new Parameter
- * value. This calculation would not have to be done in the getMean() and other functions.
- * This is the best optimized solution and recorded here just for reference. <p>
  */
 
 public abstract class AttenuationRelationship
@@ -218,9 +203,6 @@ public abstract class AttenuationRelationship
     protected final static Double PGA_MAX = new Double( Double.MAX_VALUE );
     protected final static Double PGA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double PGA_WARN_MAX = new Double( Math.log( 2.0 ) );
-
-
-
 
 
     /**
@@ -258,6 +240,7 @@ public abstract class AttenuationRelationship
     protected final static Double SA_MAX = new Double( Math.log(4) );
     protected final static Double SA_WARN_MIN = new Double( Math.log(Double.MIN_VALUE) );
     protected final static Double SA_WARN_MAX = new Double( Math.log(2) );
+
 
     /**
      * Period parameter, reserved for the oscillator period that Spectral
@@ -356,6 +339,11 @@ public abstract class AttenuationRelationship
     public final static String STD_DEV_TYPE_INTER = "Inter-Event";
     public final static String STD_DEV_TYPE_INTRA = "Intra-Event";
     public final static String STD_DEV_TYPE_NONE = "None (zero)";
+    public final static String STD_DEV_TYPE_TOTAL_MAG_DEP = "Total (Mag Dependent)";
+    public final static String STD_DEV_TYPE_TOTAL_PGA_DEP = "Total (PGA Dependent)";
+    public final static String STD_DEV_TYPE_INTRA_MAG_DEP = "Intra-Event (Mag Dependent)";
+
+
 
 
     /**
@@ -367,6 +355,7 @@ public abstract class AttenuationRelationship
     public final static String FLT_TYPE_NAME = "Fault Type";
     // No units for this one
     public final static String FLT_TYPE_INFO = "Style of faulting";
+
 
     /**
      * SigmaTruncTypeParam, a StringParameter that represents the type of
@@ -380,6 +369,7 @@ public abstract class AttenuationRelationship
     public final static String SIGMA_TRUNC_TYPE_2SIDED = "2 Sided";
     public final static String SIGMA_TRUNC_TYPE_DEFAULT = "None";
 
+
     /**
      * SigmaTruncLevelParam, a DoubleParameter that represents where truncation occurs
      * on the Gaussian distribution (in units of standard deviation, relative to the mean).
@@ -391,20 +381,6 @@ public abstract class AttenuationRelationship
     public final static Double SIGMA_TRUNC_LEVEL_DEFAULT = new Double(2.0);
     public final static Double SIGMA_TRUNC_LEVEL_MIN = new Double(Double.MIN_VALUE);
     public final static Double SIGMA_TRUNC_LEVEL_MAX = new Double(Double.MAX_VALUE);
-
-
-    /**
-     * Exceed Prob parameter, used only to store the exceedance probability to be
-     * used by the getIML_AtExceedProb() method.  Note that calling the
-     * getExceedProbability() DOES NOT store the value in this parameter.
-     */
-    protected  DoubleParameter exceedProbParam = null;
-    public final static String EXCEED_PROB_NAME = "Exceed. Prob.";
-    protected final static Double EXCEED_PROB_DEFAULT = new Double( 0.5 );
-    public final static String EXCEED_PROB_INFO = "Exceedance Probability";
-    protected final static Double EXCEED_PROB_MIN = new Double( 1.0e-4 );
-    protected final static Double EXCEED_PROB_MAX = new Double( 1.0 - 1e-4 );
-
 
 
     /**
@@ -453,36 +429,6 @@ public abstract class AttenuationRelationship
         super();
     }
 
-    /**
-     *  Sets the probEqkRupture, site, and intensityMeasure objects
-     *  simultaneously.<p>
-     *
-     *  SWR: Warning - this function doesn't provide full rollback in case of
-     *  failure. There are 4 method calls that sets parameters with new values.
-     *  If one function fails, the previous functions effects are not undone,
-     *  i.e. the transaction is not handled gracefully.<p>
-     *
-     *  This will take alot of design and work so it is held off for now until
-     *  it is decided that it is needed.<p>
-     *
-     *
-     *
-     * @param  probEqkRupture      The new all value
-     * @param  site                     The new all value
-     * @param  intensityMeasure         The new all value
-     * @exception  ParameterException   Description of the Exception
-     * @exception  IMRException         Description of the Exception
-     * @exception  ConstraintException  Description of the Exception
-     */
-    public void setAll(
-            ProbEqkRupture probEqkRupture,
-            Site site,
-            ParameterAPI intensityMeasure
-             )
-             throws ParameterException, IMRException, ConstraintException {
-        super.setAll( probEqkRupture, site, intensityMeasure );
-    }
-
 
     /**
      *  Sets the value of the currently selected intensityMeasure (if the
@@ -526,17 +472,6 @@ public abstract class AttenuationRelationship
 
 
     /**
-     *  Returns a handle to the component parameter.
-     *
-     * @return    The componentParameter value
-     */
-    public ParameterAPI getComponentParam() {
-        return componentParam;
-    }
-
-
-
-    /**
      *  This calculates the probability that the intensity-measure level
      *  (the value in the Intensity-Measure Parameter) will be exceeded
      *  given the mean and stdDev computed from current independent parameter
@@ -550,7 +485,7 @@ public abstract class AttenuationRelationship
      */
     public double getExceedProbability() throws ParameterException, IMRException {
 
-        // is this really needed; is it slowing us down?
+        // IS THIS REALLY NEEDED; IS IT SLOWING US DOWN?
         if ( ( im == null ) || ( im.getValue() == null ) )
             throw new ParameterException( C +
                     ": getExceedProbability(): " + "Intensity measure or value is null, unable to run this calculation."
@@ -588,7 +523,16 @@ public abstract class AttenuationRelationship
     }
 
 
-
+    /**
+     * This method computed the probability of exceeding the IM-level given the
+     * mean and stdDev.
+     * @param mean
+     * @param stdDev
+     * @param iml
+     * @return
+     * @throws ParameterException
+     * @throws IMRException
+     */
     protected double getExceedProbability(double mean, double stdDev, double iml)
                                 throws ParameterException, IMRException {
 
@@ -616,11 +560,12 @@ public abstract class AttenuationRelationship
      *  This fills in the exceedance probability for multiple intensityMeasure
      *  levels (often called a "hazard curve"); the levels are obtained from
      *  the X values of the input function, and Y values are filled in with the
-     *  asociated exceedance probabilities.
+     *  asociated exceedance probabilities. NOTE: THE PRESENT IMPLEMENTATION IS
+     *  STRANGE IN THAT WE DON'T NEED TO RETURN ANYTHING SINCE THE FUNCTION PASSED
+     *  IN IS WHAT CHANGES (SHOULD RETURN NULL?).
      *
-     * @param  intensityMeasureLevels  Description of the Parameter
-     * @return                         The exceed Probability values put in a
-     *      DiscretizedFunction
+     * @param  intensityMeasureLevels  The function to be filled in
+     * @return                         The function filled in
      * @exception  ParameterException  Description of the Exception
      */
     public DiscretizedFuncAPI getExceedProbabilities(
@@ -736,9 +681,7 @@ public abstract class AttenuationRelationship
      *  and pgaParam; the periodParam (one of saParam's independent parameters) is
      *  created and added in subclasses.  All these parameters are added to the
      *  supportedIMParams list in subclasses.  Note: this must generally be executed
-     *  after
-     *  the initCoefficients() method.
-     *  lists:<br>
+     *  after the initCoefficients() method.<br>
      *
      */
     protected void initSupportedIntensityMeasureParams() {
@@ -817,10 +760,13 @@ public abstract class AttenuationRelationship
      */
     protected abstract void initPropagationEffectParams();
 
+
     /**
-     *  Creates other Parameters that the mean or stdDev depends upon,
-     *  such as the Component or StdDevType parameters.
-     *
+     * This creates the otherParams list.
+     * These are any parameters that the exceedance probability depends upon that is
+     * not a supported IMT (or one of their independent parameters) and is not contained
+     * in, or computed from, the site or eqkRutpure objects.  Note that this does not
+     * include the exceedProbParam (which exceedance probability does not depend on).
      */
     protected void initOtherParams() {
 
@@ -841,24 +787,10 @@ public abstract class AttenuationRelationship
         sigmaTruncLevelParam.setInfo( SIGMA_TRUNC_LEVEL_INFO );
         sigmaTruncLevelParam.setNonEditable();
 
-        /* Exceed Propability Parameter used only by the getIML_AtExceedProb() method.
-           The attributes are hard-coded here because they won't change and do not
-           generally need to be known by others.  Note that this is not added to the
-           otherParams list below because it should not be returned by the getOtherParams
-           methods (it's merely created here for lack of a better location).  Perhaps this
-           should have it's own init method here that's called by the constructor of sub-
-           classes.
-        */
-        exceedProbParam = new DoubleParameter( EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
-        exceedProbParam.setInfo( EXCEED_PROB_INFO );
-        exceedProbParam.setNonEditable();
-
         // Put parameters in the otherParams list:
         otherParams.clear();
-
         otherParams.addParameter( sigmaTruncTypeParam );
         otherParams.addParameter( sigmaTruncLevelParam );
-        otherParams.addParameter( exceedProbParam );
 
     }
 

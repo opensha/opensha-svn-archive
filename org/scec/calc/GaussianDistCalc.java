@@ -146,7 +146,7 @@ public final class GaussianDistCalc {
 //  System.out.println(testNum);
 	        return testNum;
         }
-	else if ( exceedProb <= 1.0 ) {
+	else if ( exceedProb >= 0.5 && exceedProb <= 1.0 ) {
                 oldNum=0;
 		do {
 			testNum = oldNum;

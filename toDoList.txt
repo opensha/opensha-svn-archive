@@ -51,25 +51,45 @@ GMT Web service:
 For OpenSHA:
 ------------
 
-Make apps that use internet connection graceful if it's not available.
+Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible).
+
+IMR_GuiBean -	rather than getting the stdDevType, truncType, and truncLevel by hand, 
+		use the getOtherParamsIterator() method of IMR.  This will allow more flexibly 
+		for handling new IMRs that either don't have those particular params or
+		have different ones (this will also include the component parameters for
+		our existing attenuation relationships).
+
+		Note that you will still have to hard-code the hiding of the truncLevel param
+		if the valued of truncType is "None".
+
+Make apps that use internet connection graceful if it's not available (if not connected locally or if remote server is down).
 
 Fix GriddedFaultApplet - horz/vert scaling.
 
-Create the following control panel for the hazard curve calculator:
+Create the following control panel for the hazard curve calculator (include a button to revert back to defaults):
 
 	X_ValuesInCurveControlPanel
 
-Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
-
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
+Go through existing apps and list issues we'd like to improve.
+
+Develop HazardSpectrumApplet for Caltrans (Ned will provide specs).
+
+getIML_AtExceedProb()
+
+	we currently have a max and min on the exceedProbParam of 1.0-1.0e-4 and 1.0e-4, respectively, 
+	which are appropriate limits of given the specified tolerance of 1e-5 in the 
+	GaussianDistCalc.getStandRandVar() method.  Alternatively, we could make the max and min 1 and 0,
+	respectively, and compute an appropriate tolerance dynamically (e.g., ~1% of chosen prob).
+	Ned will think about this
 
 
 wg99/02 Fortran code:
 
-	Debug on all platforms using the test input files sent by Mike.
+	(PRESENTLY ON HOLD UNTIL WG02 GETS THEIR CODE RUNNING ON ALL UNIX PLATFORMS)
 
-	Add the following adjustable parameters:
+	Add the following adjustable parameters (& than run code):
 
 		(Mike's order of priority)
 		Start time, Time interval
@@ -96,16 +116,10 @@ wg99/02 Fortran code:
     		even if we're running from the command line).
 
 
-
-
-Develop HazardSpectrumApplet for Caltrans.
-
-
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
 
-Go through existing apps and list issues we'd like to improve.
-
+Create SimpleFaultParameter and editor (so we can replace two PEER ERFs with one general ERF)
 
 IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weights 
 		applied to each.  This will require using an epistemic list control 
@@ -114,14 +128,6 @@ IMR_GuiBean 	-extend to allow multiple IMRs to be selected, with relative weight
 
 		-Create capability to associate IMRs to specific source types in the calculations
 		(this will take some thought).
-
-		- For IMR_API, create a getOtherParameters() method and use this
-		 here rather then getting the stdDevType, TruncType, ... by hand
-		(this will make it more flexibly with new IMRs that don't have
-		those parameters).  This will require implementing that method
-		in the existing attenuation relationships (will require a little
-		work since the otherParamsList contains one param that won't
-		be needed).
 
 ProbEqkSource	Define field to declare what type of source it is 
 		(e.g., subduction zone vs normal vs reverse ...) and add to API. 

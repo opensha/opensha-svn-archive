@@ -11,7 +11,8 @@ import org.scec.util.*;
 /**
  *  <b>Title:</b> IntensityMeasureRelationshipAPI<br>
  *  <b>Description:</b> This is the interface defined for all
- *  IntensityMeasureRelationship classes.<br>
+ *  IntensityMeasureRelationship classes.  See the abstract class for more
+ *  description.<br>
  *
  * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002
@@ -77,18 +78,23 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
      /**
-     * Sets the intensity measure Parameter if it is supported.
-     *
-     * @param  intensityMeasure  The desired intensityMeasure
-     */
+      *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
+      *  but by finding the internally held one with the same name and then setting
+      *  its value (and the value of any of its independent parameters) to be equal
+      *  to that passed in.
+      *
+      * @param  intensityMeasure  The new intensityMeasure Parameter
+      */
      public void setIntensityMeasure(ParameterAPI intensityMeasure) throws ParameterException;
 
 
      /**
-     * Sets the intensity measure Parameter by name if supported (value not set).
-     *
-     * @param  imt  The new intensityMeasureType value
-     */
+      *  This sets the intensityMeasure parameter as that which has the name
+      *  passed in; no value (level) is set, nor are any of the IM's independent
+      *  parameters set (since it's only given the name).
+      *
+      * @param  intensityMeasure  The new intensityMeasureParameter name
+      */
      public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException;
 
 
@@ -101,22 +107,24 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
     public ParameterAPI getIntensityMeasure();
 
     /**
-     *  Checks whether the Parameter parameter passed in is a supported
-     *  Intensity Measure.
-     * @param  type  The Parameter to check
-     * @return       True if this is a supported IMT
+     *  Checks if the Parameter is a supported intensity-Measure (checking
+     *  both the name and value, as well as any dependent parameters
+     *  (names and values) of the IM).
+     *
+     * @param  intensityMeasure  Description of the Parameter
+     * @return                   True if this is a supported IMT
      */
     public boolean isIntensityMeasureSupported( ParameterAPI type );
 
 
 
     /**
-     *  Sets the probEqkRupture, site and intensityMeasure objects
+     *  Sets the probEqkRupture, site, and intensityMeasure objects
      *  simultaneously.
      *
-     * @param  probEqkRupture    The new PE value
-     * @param  site                   The new Site value
-     * @param  intensityMeasure       The new IM value
+     * @param  probEqkRupture         The new probEqkRupture
+     * @param  site                   The new Site
+     * @param  intensityMeasure       The new IM
      */
     public void setAll(
             ProbEqkRupture probEqkRupture,
@@ -134,6 +142,10 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      */
     public ParameterAPI getParameter(String name) throws ParameterException;
 
+
+    /**
+     * This sets the defaults for all the parameters.
+     */
     public void setParamDefaults();
 
 
@@ -155,6 +167,18 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
     /**
+     *  Returns an iterator over all other parameters.  Other parameters are those
+     *  that the exceedance probability depends upon, but that are not a
+     *  supported IMT (or one of their independent parameters) and are not contained
+     *  in, or computed from, the site or eqkRutpure objects.  Note that this does not
+     *  include the exceedProbParam (which exceedance probability does not depend on).
+     *
+     * @return    Iterator for otherParameters
+     */
+    public ListIterator getOtherParamsIterator();
+
+
+    /**
      *  Returns an iterator over all earthquake-rupture related parameters.
      *
      * @return    The Earthquake-Rupture Parameters Iterator
@@ -163,7 +187,9 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
 
 
     /**
-     *  Returns the iterator over all Propagation-Effect related parameters.
+     *  Returns the iterator over all Propagation-Effect related parameters
+     * (perhaps this method should exist only in subclasses that have these types
+     * of parameters).
      *
      * @return    The Propagation Effect Parameters Iterator
      */

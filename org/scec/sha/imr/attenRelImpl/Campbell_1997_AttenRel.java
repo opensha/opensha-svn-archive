@@ -69,6 +69,8 @@ public class Campbell_1997_AttenRel
      public final static String SITE_TYPE_FIRM_SOIL =  "Firm-Soil";
      public final static String SITE_TYPE_SOFT_ROCK =  "Soft-Rock";
      public final static String SITE_TYPE_HARD_ROCK =  "Hard-Rock";
+     public final static String SITE_TYPE_GEN_ROCK =  "Generic-Rock";
+     public final static String SITE_TYPE_GEN_SOIL =  "Generic-Soil";
      public final static String SITE_TYPE_DEFAULT =  "Firm-Soil";
 
     // warning constraints:
@@ -97,10 +99,8 @@ public class Campbell_1997_AttenRel
     protected final static Double BASIN_DEPTH_WARN_MIN = new Double(0);
     protected final static Double BASIN_DEPTH_WARN_MAX = new Double(10);
 
-
-    public final static String STD_DEV_TYPE_DEFAULT = "Total (Mag Dependent)";
-    public final static String STD_DEV_TYPE_MAG_DEP = "Total (Mag Dependent)";
-    public final static String STD_DEV_TYPE_PGA_DEP = "Total (PGA Dependent)";
+    // set the default stdDev type
+    public final static String STD_DEV_TYPE_DEFAULT = STD_DEV_TYPE_TOTAL_MAG_DEP;
 
 
     /**
@@ -338,6 +338,8 @@ public class Campbell_1997_AttenRel
 
         if ( siteType.equals( SITE_TYPE_SOFT_ROCK ) )         S_sr = 1.0;
         else if ( siteType.equals( SITE_TYPE_HARD_ROCK ) )    S_hr = 1.0;
+        else if ( siteType.equals( SITE_TYPE_GEN_ROCK ) )     S_sr = 1.0; // S_hr = stays zero
+        // both stay zero if SITE_TYPE_FIRM_SOIL or SITE_TYPE_GEN_SOIL
 
         // set basin depth
         if(tempDepth != null)
@@ -378,6 +380,21 @@ public class Campbell_1997_AttenRel
 
         // Now do SA:
         else if (im_name.equals( SA_NAME)) {
+
+          //check whether it's the zero period case (for which there are not coeffs)
+          double period = ((Double)periodParam.getValue()).doubleValue();
+
+          if(period == 0.0) {  // do same as for PGA
+            if ( component.equals( COMPONENT_AVE_HORZ ) )
+                mean = lnPGA;
+            else { // vertical component
+                mean =  lnPGA - 1.58 - 0.1*mag -
+                        1.5*Math.log(dist + 0.079*Math.exp(0.661*mag)) +
+                        1.89*Math.log(dist + 0.361*Math.exp(0.576*mag)) -
+                        0.11*F;
+            }
+          }
+          else {
             // compute Horizontal case:
             updateCoefficients();
             mean =  lnPGA + coeff.c1_h + coeff.c2_h*tanh(coeff.c3_h*(mag-4.7)) +
@@ -394,6 +411,7 @@ public class Campbell_1997_AttenRel
                     1.89*Math.log(dist + 0.361*Math.exp(0.576*mag)) - 0.11*F +
                     (coeff.c4_v * tanh(0.51*depth) + coeff.c5_v*tanh(0.57*depth))*(1-S_hr);
             }
+          }
         }
 
         // Now do PGV:
@@ -414,12 +432,6 @@ public class Campbell_1997_AttenRel
                             (0.46*tanh(2.68*depth) - 0.53*tanh(0.47*depth))*(1-S_hr);
             }
         }
-
-        // No longer part of out framework. Always deal with log space
-        // Convert back to normal value
-        // mean = Math.exp(mean);
-
-// System.out.println("Campbell dist, mean "+dist+", "+ Math.exp(mean));
 
         // return the result
         return(mean);
@@ -457,7 +469,7 @@ public class Campbell_1997_AttenRel
             // First find Horz PGA sigma:
 
            // mag dependent case:
-           if ( stdevType.equals( STD_DEV_TYPE_MAG_DEP ) )
+           if ( stdevType.equals( STD_DEV_TYPE_TOTAL_MAG_DEP ) )
            {
                if(mag < 7.4)     sigma = 0.889 - 0.0691*mag;
                else              sigma = 0.38;
@@ -513,12 +525,22 @@ public class Campbell_1997_AttenRel
 
            // Now do SA:
            else if (im_name.equals( SA_NAME)) {
+             // make same as PGA if period = zero
+             double period = ((Double) periodParam.getValue()).doubleValue();
+             if( period == 0) {
+               if ( component.equals( COMPONENT_AVE_HORZ ) )
+                   return (sigma);
+               else // vertical component
+                   return (Math.pow(sigma*sigma + 0.1296, 0.5));
+             }
+             else {
                // compute horz comp SA sigma:
                sigma = Math.pow(sigma*sigma + 0.0729, 0.5);
                if ( component.equals( COMPONENT_AVE_HORZ ) )
                    return (sigma);
                 else // vertical component
                     return (Math.pow(sigma*sigma + 0.152, 0.5));
+             }
            }
 
            // Now do PGV:
@@ -613,6 +635,8 @@ public class Campbell_1997_AttenRel
         siteConstraint.addString( SITE_TYPE_FIRM_SOIL );
         siteConstraint.addString( SITE_TYPE_SOFT_ROCK );
         siteConstraint.addString( SITE_TYPE_HARD_ROCK );
+        siteConstraint.addString( SITE_TYPE_GEN_ROCK );
+        siteConstraint.addString( SITE_TYPE_GEN_SOIL );
         siteConstraint.setNonEditable();
         siteTypeParam = new StringParameter( SITE_TYPE_NAME, siteConstraint, null);
         siteTypeParam.setInfo( SITE_TYPE_INFO );
@@ -697,6 +721,9 @@ public class Campbell_1997_AttenRel
             Campbell_1997_AttenRelCoefficients coeff = ( Campbell_1997_AttenRelCoefficients ) coefficients.get( keys.nextElement() );
             if ( coeff.period >= 0 )  set.add( new Double( coeff.period ) );
         }
+        // add the zero period by hand since there are no corresponding coefficients
+        periodConstraint.addDouble( new Double (0.0));
+        // now add the list of periods from the coefficients
         Iterator it = set.iterator();
         while ( it.hasNext() ) periodConstraint.addDouble( ( Double ) it.next() );
         periodParam = new DoubleDiscreteParameter( PERIOD_NAME, periodConstraint, PERIOD_UNITS, null );
@@ -757,8 +784,8 @@ public class Campbell_1997_AttenRel
 
         // the stdDevType Parameter
         StringConstraint stdDevTypeConstraint = new StringConstraint();
-        stdDevTypeConstraint.addString( STD_DEV_TYPE_MAG_DEP );
-        stdDevTypeConstraint.addString( STD_DEV_TYPE_PGA_DEP );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL_MAG_DEP );
+        stdDevTypeConstraint.addString( STD_DEV_TYPE_TOTAL_PGA_DEP );
         stdDevTypeConstraint.addString( STD_DEV_TYPE_NONE );
         stdDevTypeConstraint.setNonEditable();
         stdDevTypeParam = new StringParameter( STD_DEV_TYPE_NAME, stdDevTypeConstraint, STD_DEV_TYPE_DEFAULT );
