@@ -34,11 +34,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private final Double VS_30= new Double(760);
 
 
-  private final double MIN_LAT= 32.5;
-  private final double MAX_LAT= 36.6;
-  private final double MIN_LON = -121.45 ;
-  private final double MAX_LON= -114.5;
-  private final double GRID_SPACING= .05;
+  private final double MIN_LAT= 34.5;
+  private final double MAX_LAT= 36.5;
+  private final double MIN_LON = -121.5 ;
+  private final double MAX_LON= -118.5;
+  private final double GRID_SPACING= .1;
   private static final String BACKGROUND_STEP_DIR ="backGround";
 
 
