@@ -2,6 +2,8 @@ package org.scec.sha.calc;
 
 
 import java.util.ArrayList;
+import java.lang.reflect.*;
+import java.util.ListIterator;
 
 import java.io.*;
 import org.scec.data.region.SitesInGriddedRegion;
@@ -13,6 +15,10 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import java.text.DecimalFormat;
 import org.scec.data.function.DiscretizedFuncAPI;
 import org.scec.util.FileUtils;
+import org.scec.param.event.ParameterChangeWarningListener;
+import org.scec.param.event.ParameterChangeWarningEvent;
+import org.scec.param.*;
+
 
 /**
  *
@@ -32,7 +38,7 @@ import org.scec.util.FileUtils;
  * @version 1.0
  */
 
-public class GridHazardMapCalculator
+public class GridHazardMapCalculator implements ParameterChangeWarningListener
 {
   private static boolean D = false;
   // make a array for saving the X values
@@ -64,6 +70,12 @@ public class GridHazardMapCalculator
 }
 
 
+public void parameterChangeWarning(ParameterChangeWarningEvent e) {
+
+   e.getWarningParameter().setValueIgnoreWarning(e.getNewValue());
+ }
+
+
 /**
  * this function generates a set of curves for a region
  *
@@ -74,9 +86,29 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
                                 int endSiteIndex) {
    try{
      // load the objects from the file
-     SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)loadObject(args[2]);
-     EqkRupForecast eqkRupForecast = (EqkRupForecast)loadObject(args[3]);
-     AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)loadObject(args[4]);
+     SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)FileUtils.loadObject(args[2]);
+     EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObject(args[3]);
+     AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)FileUtils.loadObject(args[4]);
+
+     /**
+      * LOAD THE IMR FROM THE FILE
+      */
+     AttenuationRelationshipAPI imr_temp =
+         (AttenuationRelationshipAPI)createIMRClassInstance(imr.getClass().getName(), this);
+
+     // set other params
+     ListIterator lt = imr.getOtherParamsIterator();
+     while(lt.hasNext()){
+       ParameterAPI tempParam=(ParameterAPI)lt.next();
+       imr_temp.getParameter(tempParam.getName()).setValue(tempParam.getValue());
+     }
+   // set IM
+   //imr_temp.setIntensityMeasure(imr.getIntensityMeasure().getName());
+   //imr_temp.setIntensityMeasureLevel(imr.getIntensityMeasureLevel());
+     imr_temp.setIntensityMeasure(imr.getIntensityMeasure());
+     imr  = imr_temp;
+
+
      ArrayList xValuesList = FileUtils.loadFile(args[5]);
      MAX_DISTANCE = Double.parseDouble(args[6]);
 
@@ -112,22 +144,7 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
  }
 
 
- /**
-  * @param fileName File from where object needs to be read
-  * @return Object object read from the file
-  */
- public Object loadObject(String fileName)
- {
-   if(D) System.out.println("fileName="+fileName);
-   try {
-     FileInputStream fin = new FileInputStream(fileName);
-     ObjectInputStream tis = new ObjectInputStream( fin);
-     Object obj =  tis.readObject();
-     tis.close();
-     return obj;
-   }catch(Exception e) { e.printStackTrace(); }
-   return null;
- }
+
 
  /**
   * set x values in log space for Hazard Function to be passed to IMR
@@ -168,6 +185,39 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
    else
      throw new RuntimeException("Unsupported IMT");
  }
+
+ /**
+   * Creates a class instance from a string of the full class name including packages.
+   * This is how you dynamically make objects at runtime if you don't know which\
+   * class beforehand. For example, if you wanted to create a BJF_1997_AttenRel you can do
+   * it the normal way:<P>
+   *
+   * <code>BJF_1997_AttenRel imr = new BJF_1997_AttenRel()</code><p>
+   *
+   * If your not sure the user wants this one or AS_1997_AttenRel you can use this function
+   * instead to create the same class by:<P>
+   *
+   * <code>BJF_1997_AttenRel imr =
+   * (BJF_1997_AttenRel)ClassUtils.createNoArgConstructorClassInstance("org.scec.sha.imt.attenRelImpl.BJF_1997_AttenRel");
+   * </code><p>
+   *
+   */
+ public Object createIMRClassInstance( String className, org.scec.param.event.ParameterChangeWarningListener listener){
+   try {
+
+     Class listenerClass = Class.forName( "org.scec.param.event.ParameterChangeWarningListener" );
+     Object[] paramObjects = new Object[]{ listener };
+     Class[] params = new Class[]{ listenerClass };
+     Class imrClass = Class.forName( className );
+     Constructor con = imrClass.getConstructor( params );
+     Object obj = con.newInstance( paramObjects );
+     return obj;
+   } catch ( Exception e ) {
+     e.printStackTrace();
+   }
+   return null;
+ }
+
 
 
 }

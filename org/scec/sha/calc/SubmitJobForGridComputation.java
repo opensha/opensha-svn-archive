@@ -35,8 +35,7 @@ public class SubmitJobForGridComputation {
   private final DecimalFormat decimalFormat = new DecimalFormat("0.00##");
   private final static int SUGGESTED_NUM_SITES_IN_WORK_UNIT = 100;
 
-  //private static String REMOTE_EXECUTABLE_NAME = "HazardMapCalculator.pl";
-  private final static String REMOTE_EXECUTABLE_NAME = "GridHazardMapCalculator.class";
+  private final static String REMOTE_EXECUTABLE_NAME = "org.scec.sha.calc.GridHazardMapCalculator";
   // name of the perl executable which will accept a submit file to submit to condor
   private final static String PERL_EXECUTABLE = "OpenSHA_HazardMapCalculator.pl";
 
@@ -300,25 +299,24 @@ public class SubmitJobForGridComputation {
         "should_transfer_files=YES" + "\n" +
         "WhenToTransferOutput = ON_EXIT" + "\n" +
         "transfer_input_files=" + HAZARD_MAP_JAR_FILE_NAME+","+
-        REMOTE_EXECUTABLE_NAME+","+ regionFileName + "," + erfFileName + "," +
+        regionFileName + "," + erfFileName + "," +
         imrFileName + "," + xValuesFileName+"\n" +
         "notification=error\n"+
         "queue" + "\n";
     LinkedList list = new LinkedList();
 
     // snd start index and end index to each computer
-    String arg1 = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.'));
     String arg2 = regionFileName+ " " + erfFileName + " " + imrFileName
         +" "+xValuesFileName+" "+maxDistance+" -Xmx400M";
     for (int site = 0; site < numSites; site += this.SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
       startSite = site;
       endSite = site + SUGGESTED_NUM_SITES_IN_WORK_UNIT;
 
-      String arguments = arg1 + " " + startSite+" "+endSite + " " + arg2;
+      String arguments = REMOTE_EXECUTABLE_NAME + " " + startSite+" "+endSite + " " + arg2;
       String fileNamePrefix = HAZARD_CURVES_SUBMIT + site;
       String condorSubmitScript = createCondorScript(fileDataPrefix, fileDataSuffix, arguments,
                              remoteDir,outputDir, fileNamePrefix + "_" + startSite,
-                             remoteDir, REMOTE_EXECUTABLE_NAME);
+                             remoteDir, "/bin/date");
       list.add(condorSubmitScript);
     }
 
