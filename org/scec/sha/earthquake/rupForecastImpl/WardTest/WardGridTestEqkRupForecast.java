@@ -126,7 +126,7 @@ public class WardGridTestEqkRupForecast extends EqkRupForecast {
 
           if(cumRate >= Double.MIN_VALUE) {
               PointGR_EqkSource pointGR_EqkSource = new PointGR_EqkSource(lat, lon,
-                                                  depth, rake, cumRate, bValue,
+                                                  depth, rake, 90, cumRate, bValue,
                                                   magLower, magUpper, delta);
 
               this.wardGR_EqkSources.add(pointGR_EqkSource);

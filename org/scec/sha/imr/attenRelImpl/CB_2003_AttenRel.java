@@ -161,23 +161,6 @@ public class CB_2003_AttenRel
         else                return FLT_TYPE_OTHER;
     }
 
-    /**
-     * Determines the style of faulting from the rake & dip angles (which
-     * come from the probEqkRupture object).
-     *
-     * @param rake                      ave. rake of rupture (degrees)
-     * @param dip                       ave. dip (degrees)
-     * @return                          Fault-Type String, Thrust if
-     * 22.5<rake<=67.5  & dip<45 degrees, Reverse if 22.5<rake<=67.5  & dip>=45
-     * degrees, and "Other" if the rake is any other value.
-     * @throws InvalidRangeException    If not valid rake angle
-     */
-     protected static String determineFaultType( Double rake, Double dip )
-        throws InvalidRangeException
-    {
-        return determineFaultType( rake.doubleValue(), dip.doubleValue() );
-    }
-
 
     /**
      *  This sets the potential-earthquake related parameters (magParam
@@ -274,8 +257,11 @@ public class CB_2003_AttenRel
              recommended by Ken Cambell via email to Ned Field on 9-26-02.  He confirmed
              this with Norm Abrahamson (it applies to his relationships as well).
           */
+          double dip = probEqkRupture.getRuptureSurface().getAveDip();
+          String fltType = (String) fltTypeParam.getValue();
 
-            if(probEqkRupture.getRuptureSurface().getAveDip() < 70.0) {
+          // Is the dip constraint really needed (I sent an email to him)????
+          if(dip < 70.0 && (fltType != FLT_TYPE_OTHER)) {
                 double jbDist = ( (Double) distanceJBParam.getValue( probEqkRupture, site ) ).doubleValue();
                 if ( jbDist < 1.0 )
                     hangingWallParam.setValue(1.0);
@@ -283,8 +269,8 @@ public class CB_2003_AttenRel
                     hangingWallParam.setValue((5.0-jbDist)/5.0);
                 else
                     hangingWallParam.setValue(0.0);
-            }
-            else // turn it off for vertically dipping faults
+          }
+          else // turn it off for normal, strike-slip, or vertically dipping faults
                 hangingWallParam.setValue(0.0);
         }
 

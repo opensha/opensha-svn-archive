@@ -48,7 +48,7 @@ public class Set1_Area_Forecast extends EqkRupForecast
   private double rake;
 
   // this is the GR distribution used for all sources
-  private GutenbergRichterMagFreqDist source_GR;
+  private GutenbergRichterMagFreqDist dist_GR;
 
   // this is the source
   private PointGR_EqkSource pointGR_EqkSource;
@@ -223,17 +223,22 @@ public class Set1_Area_Forecast extends EqkRupForecast
       /* getting the Gutenberg magnitude distribution and scaling its cumRate to the original cumRate
        * divided by the number of the locations (note that this is a clone of what's in the magDistParam)
        */
-      source_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
+      dist_GR = (GutenbergRichterMagFreqDist) ((GutenbergRichterMagFreqDist)magDistParam.getValue()).deepClone();
 
-      double cumRate = source_GR.getCumRate((int) 0);
+      double cumRate = dist_GR.getCumRate((int) 0);
       cumRate /= numLocs;
-      source_GR.scaleToCumRate(0,cumRate);
+      dist_GR.scaleToCumRate(0,cumRate);
 
       rake = ((Double) rakeParam.getValue()).doubleValue();
 
       setTimeSpan(((Double) timespanParam.getValue()).doubleValue());
 
-      pointGR_EqkSource = new PointGR_EqkSource(new Location(),source_GR, rake);
+      // Dip is hard wired at 90 degrees
+      pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, rake, 90);
+
+      if (D) System.out.println(C+" updateForecast(): rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
+                          "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
+
     }
     parameterChangeFlag = false;
   }
@@ -311,6 +316,12 @@ public class Set1_Area_Forecast extends EqkRupForecast
 
     pointGR_EqkSource.setLocation(locationList.getLocationAt(iSource));
     pointGR_EqkSource.setTimeSpan(timeSpan);
+
+    if (D) System.out.println(iSource + "th source location: "+ locationList.getLocationAt(iSource).toString() +
+                              "; numRups="+pointGR_EqkSource.getNumRuptures());
+    if (D) System.out.println("                     rake="+pointGR_EqkSource.getRupture(0).getAveRake() +
+                              "; dip="+ pointGR_EqkSource.getRupture(0).getRuptureSurface().getAveDip());
+
     return pointGR_EqkSource;
   }
 

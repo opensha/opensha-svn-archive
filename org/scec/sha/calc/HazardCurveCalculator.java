@@ -25,7 +25,7 @@ import org.scec.sha.earthquake.*;
 public class HazardCurveCalculator {
 
   protected final static String C = "HazardCurveCalculator";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
@@ -92,6 +92,7 @@ public class HazardCurveCalculator {
 
     // totRuptures holds the total ruptures for all sources
     int totRuptures = 0;
+    if (D) System.out.println(C+":  starting totNumRup compuation");
     for(int i=0;i<numSources;++i)
         totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
@@ -103,9 +104,10 @@ public class HazardCurveCalculator {
     // this makes sure a source is actually used
     boolean sourceUsed = false;
 
+    if (D) System.out.println(C+": starting hazard curve calculation");
     for(int i=0;i < numSources ;i++) {
 
-
+      if (D) System.out.println(C+": getting source #"+i);
       // get source and get its distance from the site
       ProbEqkSource source = eqkRupForecast.getSource(i);
       double distance = source.getMinDistance(site);
@@ -113,11 +115,11 @@ public class HazardCurveCalculator {
       // if source is greater than the MAX_DISTANCE, ignore the source
       if(distance > MAX_DISTANCE)  continue;
 
-      // asource has been used
+      // to indicate that a source has been used
       sourceUsed = true;
 
       // for each source, get the number of ruptures
-      int numRuptures = eqkRupForecast.getNumRuptures(i);
+      int numRuptures = source.getNumRuptures();
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
         //check the progress
@@ -129,7 +131,7 @@ public class HazardCurveCalculator {
         // initialize the values in condProbfunc with log values as passed in hazFunction
         initLogDiscretizeValues(hazFunction, condProbFunc);
         try {
-          imr.setProbEqkRupture((ProbEqkRupture)eqkRupForecast.getRupture(i,n));
+          imr.setProbEqkRupture((ProbEqkRupture)source.getRupture(n));
         } catch (Exception ex) {
           System.out.println("Parameter change warning caught");
         }

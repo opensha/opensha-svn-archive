@@ -295,7 +295,9 @@ public class AS_1997_AttenRel
             else
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
 
-            if (D) System.out.println("HW result: " + isOnHangingWallParam.getValue());
+            if (D) System.out.println("HW result: " + isOnHangingWall() + ";  rake & dip: "+
+                                      probEqkRupture.getAveRake() + "; " +
+                                      probEqkRupture.getRuptureSurface().getAveDip());
 
 /* OLD IMPLEMENTATION:
 
@@ -1195,6 +1197,7 @@ System.out.println( a13 );
             return b.toString();
         }
     }
+
 }
 
 

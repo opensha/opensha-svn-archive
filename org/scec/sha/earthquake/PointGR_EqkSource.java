@@ -29,11 +29,30 @@ public class PointGR_EqkSource extends ProbEqkSource {
   private int totNumRups;
 
   private Location location;
+  private double aveDip=Double.NaN;
 
 
-  public PointGR_EqkSource(Location loc, GutenbergRichterMagFreqDist gr,double rake){
+
+  /**
+   * Constructor specifying the location object, the Gutenberg Richter distribution
+   * object, and the average rake and dip.
+   *
+   * @param lat  : The Latitude of the point source
+   * @param lon  : The Longitude of the point source
+   * @param depth  : The depth of the point source
+   * @param aveRake  : Average rake of the rupture
+   * @param aveDip  : Average dip of the surface
+   * @param aValue : cumRate of GR distribution (events/yr at mag=magLower)
+   * @param bValue : b Value in the GR distribution
+   * @param magLower : magLower as in GR distribution
+   * @param magUpper : magUpper as in GR distribution
+   * @param delta  : delta as in GR distribution
+   */
+
+  public PointGR_EqkSource(Location loc, GutenbergRichterMagFreqDist gr,double aveRake, double aveDip){
     this.location =loc;
     this.gR=gr;
+    this.aveDip=aveDip;
 
     // Determine number of ruptures (don't count mags with zero rate)
     totNumRups = 0;
@@ -43,27 +62,33 @@ public class PointGR_EqkSource extends ProbEqkSource {
 
     // make the prob qk rupture
     probEqkRupture = new ProbEqkRupture();
-    probEqkRupture.setPointSurface(location);
-    probEqkRupture.setAveRake(rake);
-   // if( D ) System.out.println("PointGR_EqkSource:momentRate::"+gR.getTotalMomentRate());
+    probEqkRupture.setPointSurface(location, aveDip);
+    probEqkRupture.setAveRake(aveRake);
+    if( D ) System.out.println("PointGR_EqkSource Constructor: totNumRups="+totNumRups+
+                               "; aveDip="+probEqkRupture.getRuptureSurface().getAveDip()+
+                               "; aveRake="+ probEqkRupture.getAveRake());
   }
 
   /**
-   * constructor specifying the values needed for Gutenberg Richter
-   * and also for constructing the rupture
+   * Constructor specifying the location, the average rake and dip, and the values
+   * needed to construce a Gutenberg Richter distribution.
    *
-   * @param rake  : Average rake of the surface
+   * @param lat  : The Latitude of the point source
+   * @param lon  : The Longitude of the point source
+   * @param depth  : The depth of the point source
+   * @param aveRake  : Average rake of the rupture
+   * @param aveDip  : Average dip of the surface
    * @param aValue : cumRate of GR distribution (events/yr at mag=magLower)
    * @param bValue : b Value in the GR distribution
    * @param magLower : magLower as in GR distribution
    * @param magUpper : magUpper as in GR distribution
    * @param delta  : delta as in GR distribution
-   * @param surface : Fault Surface
    */
   public PointGR_EqkSource(     double lat,
                                 double lon,
                                 double depth,
-                                double rake,
+                                double aveRake,
+                                double aveDip,
                                 double cumRate,
                                 double bValue,
                                 double magLower,
@@ -87,8 +112,8 @@ public class PointGR_EqkSource extends ProbEqkSource {
     // make the prob qk rupture
     probEqkRupture = new ProbEqkRupture();
     location = new Location(lat,lon,depth);
-    probEqkRupture.setPointSurface(location);
-    probEqkRupture.setAveRake(rake);
+    probEqkRupture.setPointSurface(location, aveDip);
+    probEqkRupture.setAveRake(aveRake);
 
 
 
@@ -125,7 +150,7 @@ public class PointGR_EqkSource extends ProbEqkSource {
    */
   public void setLocation(Location loc) {
     location = loc;
-    probEqkRupture.setPointSurface(location);
+    probEqkRupture.setPointSurface(location, aveDip);
   }
 
 
