@@ -278,7 +278,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   public boolean isEpistemicList() {
     //This needed to fix , to remove the hard codeing
     //it is being used to pop up the control panel for the Epistemic List
-    if(this.getSelectedERF_Name().equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))
+    if(this.getSelectedERF_Name().equalsIgnoreCase(WG02_FortranWrappedERF_EpistemicList.NAME))
       return true;
     else return false;
   }
