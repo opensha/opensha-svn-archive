@@ -2,6 +2,7 @@ package org.scec.sha.fault.gui;
 
 import java.awt.*;
 import java.util.*;
+import java.awt.geom.Ellipse2D;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -11,6 +12,7 @@ import org.scec.gui.plot.jfreechart.*;
 import com.jrefinery.chart.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.data.*;
+import com.jrefinery.chart.renderer.*;
 
 
 /**
@@ -67,6 +69,10 @@ public class GriddedFaultPlotter extends ArrayList{
 
     private int plotType = 1;
 
+    // these are coordinates and size of the circles visible in the plot
+    private final static double SIZE = 6.0;
+    private final static double DELTA = SIZE / 2.0;
+
     public GriddedFaultPlotter(){
         // X - Axis
        // xAxis.setAutoRangeIncludesZero( false );
@@ -82,20 +88,31 @@ public class GriddedFaultPlotter extends ArrayList{
         int blue = 255 - plotColor.getBlue();
         int red = 255 - plotColor.getRed();
         int green = 255 - plotColor.getGreen();
-
         SUB_SHAPE_RENDERER.setFillColor( new Color(red, green, blue)  );
-
-
-
-
     }
 
     protected void setRenderer(GeoXYPlot plot){
         switch (plotType) {
-            case SHAPES: plot.setRenderer( SHAPE_RENDERER ); break;
-            case LINES: plot.setRenderer( LINE_RENDERER ); break;
-            case SHAPES_AND_LINES: plot.setRenderer( SHAPES_AND_LINES_RENDERER ); break;
-            case SUB_SHAPES: plot.setRenderer( SUB_SHAPE_RENDERER ); break;
+            case SHAPES:
+              // set the shape so that only circles are drawn
+              int numSeries = ((XYDataset)plot.getDataset()).getSeriesCount();
+              for(int i=0; i<numSeries; ++i)
+                SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+              plot.setRenderer( SHAPE_RENDERER );
+              break;
+            case LINES:
+              plot.setRenderer( LINE_RENDERER );
+              break;
+            case SHAPES_AND_LINES:
+              plot.setRenderer( SHAPES_AND_LINES_RENDERER );
+              break;
+            case SUB_SHAPES:
+              // set the shape so that only circles are drawn
+              int numSeries1 = ((XYDataset)plot.getDataset()).getSeriesCount();
+              for(int i=0; i<numSeries1; ++i)
+                SUB_SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+              plot.setRenderer( SUB_SHAPE_RENDERER );
+              break;
             default: plot.setRenderer( SHAPE_RENDERER ); break;
         }
     }
@@ -243,38 +260,42 @@ public class GriddedFaultPlotter extends ArrayList{
             seriesPaint[j]=new Color(i,0,255-i);
          }
          int numSeries = j;
-         for(int i=0; i < numSeries; ++i) plot.getRenderer().setSeriesPaint(i,seriesPaint[i]);
+         for(int i=0; i < numSeries; ++i)  plot.getRenderer().setSeriesPaint(i,seriesPaint[i]);
          plot.setBackgroundPaint( plotColor );
 
 
-        // Add all subplots
-        int last = this.size();
-        int counter = 0;
-        ListIterator it = this.listIterator();
-        while(it.hasNext()){
+         // Add all subplots
+         int last = this.size();
+         int counter = 0;
+         ListIterator it = this.listIterator();
+         while(it.hasNext()){
 
-            counter++;
-            XYDataset dataSet = (XYDataset)it.next();
-            GeoXYPlot plot1 = new GeoXYPlot(dataSet, null, null);
-            for(int i=0; i < numSeries; ++i) plot1.getRenderer().setSeriesPaint(i,seriesPaint[i]);
-            plot1.setBackgroundPaint( plotColor );
+           counter++;
+           XYDataset dataSet = (XYDataset)it.next();
+           GeoXYPlot plot1 = new GeoXYPlot(dataSet, null, null);
+           for(int i=0; i < numSeries; ++i) {
+             plot1.getRenderer().setSeriesPaint(i,seriesPaint[i]);
+             // set the shapes so that only circles are drawn
+             SUB_SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+             SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+           }
+           plot1.setBackgroundPaint( plotColor );
 
-            if( plotType == SUB_SHAPES){
-              if( counter == last ) {
-                plot1.setRenderer( SUB_SHAPE_RENDERER );
-              }
-              else plot1.setRenderer( SHAPE_RENDERER );
-            }else if(plotType==SHAPES_LINES_AND_SHAPES) {
-              if( counter == last )
-                plot1.setRenderer(SHAPE_RENDERER);
-              else
-                plot1.setRenderer(SHAPES_AND_LINES_RENDERER);
-            }
-            else setRenderer(plot1);
 
-            plot.add(plot1);
-
-     }
+           if( plotType == SUB_SHAPES){
+             if( counter == last ) {
+               plot1.setRenderer( SUB_SHAPE_RENDERER );
+             }
+             else plot1.setRenderer( SHAPE_RENDERER );
+           }else if(plotType==SHAPES_LINES_AND_SHAPES) {
+             if( counter == last )
+               plot1.setRenderer(SHAPE_RENDERER);
+             else
+               plot1.setRenderer(SHAPES_AND_LINES_RENDERER);
+           }
+           else setRenderer(plot1);
+           plot.add(plot1);
+         }
 
         // return a new chart containing the overlaid plot...
         JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, !lightweight);
@@ -284,9 +305,6 @@ public class GriddedFaultPlotter extends ArrayList{
         if( multiChartPanel == null ) lazyInitMultiPanel(chart);
         multiChartPanel.setChart(chart);
         return multiChartPanel;
-
  }
-
-
 
 }
