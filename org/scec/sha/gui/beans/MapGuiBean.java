@@ -152,8 +152,13 @@ public class MapGuiBean extends ParameterListEditor implements
     gmtMap.createMapInfoFile(metadata);
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      imgName =gmtMap.makeMapUsingServlet(xyzVals,eqkRupture,imt);
-      metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+      try{
+        imgName =gmtMap.makeMapUsingServlet(xyzVals,eqkRupture,imt);
+        metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+      }catch(Exception e){
+       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+       return;
+      }
     }
     else{
       try{
