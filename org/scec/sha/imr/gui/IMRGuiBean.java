@@ -875,7 +875,7 @@ public class IMRGuiBean
         else if ( yAxisName.equals( Y_AXIS_V2 ) ){
             setParamsInIteratorVisible( imr.getStdDevIndependentParamsIterator() );
             //to disable the log log plotting option ;calling the function IMRTesterApplet class
-            applet.loglogDisable();
+            applet.loglogEnable();
         }
         else if ( yAxisName.equals( Y_AXIS_V3 ) ) {
             setParamsInIteratorVisible( imr.getMeanIndependentParamsIterator() );

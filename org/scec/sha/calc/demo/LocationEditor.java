@@ -126,9 +126,9 @@ public class LocationEditor
         String depthStr = this.depthTextField.getText();
 
 
-        location.setLatitude( new Double( latStr ) );
-        location.setLongitude( new Double( lonStr ) );
-        location.setDepth( new Double( depthStr ) );
+        location.setLatitude( Double.parseDouble(latStr ) );
+        location.setLongitude( Double.parseDouble(lonStr));
+        location.setDepth(Double.parseDouble(depthStr ) );
 
         return location;
     }

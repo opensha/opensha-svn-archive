@@ -80,7 +80,7 @@ public class TestLocation extends TestCase {
   }
 
   public void testSetDepth() {
-    Double depth1 =  new Double( 15.0 )  /** @todo fill in non-null value */;
+    double depth1 =   15.0   /** @todo fill in non-null value */;
     location.setDepth(depth1);
     double doubleRet = location.getDepth();
     assertTrue( doubleRet == 15.0 );
@@ -94,7 +94,7 @@ public class TestLocation extends TestCase {
 
 
   public void testSetLatitude() {
-    Double latitude1 =  new Double( 15.0 )  /** @todo fill in non-null value */;
+    double latitude1 =   15.0   /** @todo fill in non-null value */;
     double doubleRet;
     try {
       location.setLatitude(latitude1);
@@ -112,7 +112,7 @@ public class TestLocation extends TestCase {
     }
 
 
-    latitude1 = new Double( -95.1 )  /** @todo fill in non-null value */;
+    latitude1 = -95.1  /** @todo fill in non-null value */;
     try {
       location.setLatitude(latitude1);
     }
@@ -124,7 +124,7 @@ public class TestLocation extends TestCase {
 
 
 
-    latitude1= new Double( 95.1 )   /** @todo fill in non-null value */;
+    latitude1= 95.1   /** @todo fill in non-null value */;
     try {
       location.setLatitude(latitude1);
 
@@ -142,7 +142,7 @@ public class TestLocation extends TestCase {
 
 
   public void testSetLongitude() {
-    Double longitude1=  new Double( 15.0 );  /** @todo fill in non-null value */
+    double longitude1= 15.0 ;  /** @todo fill in non-null value */
     double doubleRet;
     try {
       location.setLongitude(longitude1);
@@ -160,7 +160,7 @@ public class TestLocation extends TestCase {
     }
 
 
-    longitude1 = new Double( -181.1 )  /** @todo fill in non-null value */;
+    longitude1 = -181.1  /** @todo fill in non-null value */;
     try {
       location.setLongitude(longitude1);
     }
@@ -172,7 +172,7 @@ public class TestLocation extends TestCase {
 
 
 
-    longitude1 = new Double( 181.1 )   /** @todo fill in non-null value */;
+    longitude1 = 181.1   /** @todo fill in non-null value */;
     try {
       location.setLongitude(longitude1);
 

@@ -7,7 +7,7 @@ import org.scec.data.*;
 public class TestDataPoint2DTreeMap extends TestCase {
 
     DataPoint2DTreeMap map = new DataPoint2DTreeMap();
-    Double tolerance = new Double(.001);
+    double tolerance = 0.001;
 
 
     public TestDataPoint2DTreeMap(String s) { super(s); }
@@ -22,7 +22,7 @@ public class TestDataPoint2DTreeMap extends TestCase {
     public void testClear() {
 
         map.clear();
-        map.put( new DataPoint2D( new Double(1.0), new Double(2.0) ) );
+        map.put( new DataPoint2D( 1.0, 2.0));
         this.assertTrue( map.size() > 0 );
 
         map.clear();
@@ -31,7 +31,7 @@ public class TestDataPoint2DTreeMap extends TestCase {
     }
 
     public void testPut() {
-        DataPoint2D key1 =  new DataPoint2D( new Double(1.0), new Double(2.0) );
+        DataPoint2D key1 =  new DataPoint2D( 1.0, 2.0 );
         map.put(key1);
         /** @todo:  Insert test code here.  Use assertEquals(), for example. */
         //this.assertTrue( objectRet instanceof DataPoint2D );
@@ -39,9 +39,9 @@ public class TestDataPoint2DTreeMap extends TestCase {
     }
 
     public void testGetTolerance() {
-        Double doubleRet = map.getTolerance();
+        double doubleRet = map.getTolerance();
         /** @todo:  Insert test code here.  Use assertEquals(), for example. */
-        assertTrue( tolerance.equals( doubleRet ) );
+        assertTrue( tolerance == doubleRet);
     }
 
 
@@ -51,7 +51,7 @@ public class TestDataPoint2DTreeMap extends TestCase {
         int i = 0, j = 0;
         for(  ;i< 20;  ){
 
-            DataPoint2D point = new DataPoint2D( new Double(i), new Double(j) );
+            DataPoint2D point = new DataPoint2D( i, j );
             map.put( point );
 
             i++;
@@ -64,20 +64,20 @@ public class TestDataPoint2DTreeMap extends TestCase {
 
             DataPoint2D point = map.get(i);
             System.out.println("Point: " + point.toString());
-            assertTrue( point.getX().doubleValue() == i );
-            assertTrue( point.getY().doubleValue() == i );
+            assertTrue( point.getX() == i );
+            assertTrue( point.getY() == i );
 
         }
 
     }
 
     public void testGetMaxY() {
-        Double doubleRet = map.getMaxY();
+        double doubleRet = map.getMaxY();
         /** @todo:  Insert test code here.  Use assertEquals(), for example. */
     }
 
     public void testGetMinY() {
-        Double doubleRet = map.getMinY();
+        double doubleRet = map.getMinY();
         /** @todo:  Insert test code here.  Use assertEquals(), for example. */
     }
 
@@ -89,7 +89,7 @@ public class TestDataPoint2DTreeMap extends TestCase {
     // }
 
     public void testSetTolerance() {
-        Double newTolerance1 =  tolerance  /** @todo fill in non-null value */;
+        double newTolerance1 =  tolerance  /** @todo fill in non-null value */;
         try {
             map.setTolerance(newTolerance1);
             /** @todo:  Insert test code here.  Use assertEquals(), for example. */
