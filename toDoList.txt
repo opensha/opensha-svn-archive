@@ -4,7 +4,7 @@
 For OpenSHA:
 ------------
 
-Xlog and Ylog axis labeling is screwed up.
+Add the Se2-Case5 Mean, 5%Fractile, and 95%Fractile cases to PEER results plotter and data-submission tool.
 
 Finish moving the PEER_tests hard coding to an external class called sha/gui/controls/PEER_TestsParamSetter.
 
