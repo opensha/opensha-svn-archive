@@ -252,6 +252,20 @@ public class IMR_GuiBean extends ParameterListEditor
 
      String S = C + " : parameterChangeWarning(): ";
      if(D) System.out.println(S + "Starting");
+     WarningParameterAPI param = e.getWarningParameter();
+
+     //check if this parameter exists in the site param list of this IMR
+     // if it does not then set its value using ignore warning
+     Iterator it = this.getSelectedIMR_Instance().getSiteParamsIterator();
+     boolean found = false;
+     while(it.hasNext() && !found)
+       if(param.getName().equalsIgnoreCase(((ParameterAPI)it.next()).getName()))
+          found = true;
+     if(!found) {
+       param.setValueIgnoreWarning(e.getNewValue());
+       return;
+     }
+
 
      // if it is already processing a warning, then return
      if(inParameterChangeWarning) return;
@@ -259,7 +273,7 @@ public class IMR_GuiBean extends ParameterListEditor
 
      StringBuffer b = new StringBuffer();
 
-     WarningParameterAPI param = e.getWarningParameter();
+
 
      try{
        Double min = param.getWarningMin();

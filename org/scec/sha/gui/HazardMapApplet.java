@@ -61,7 +61,7 @@ public class HazardMapApplet extends JApplet implements
   public final static String C_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   public final static String SCEMY_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
   public final static String F_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Field_2000_AttenRel";
-  public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  //public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
 
   /**
@@ -223,7 +223,7 @@ public class HazardMapApplet extends JApplet implements
       // create the IMR Gui Bean object
       // It accepts the vector of IMR class names
       Vector imrClasses = new Vector();
-      imrClasses.add(this.A_CLASS_NAME);
+      //imrClasses.add(this.A_CLASS_NAME);
       imrClasses.add(this.AS_CLASS_NAME);
       imrClasses.add(this.BJF_CLASS_NAME);
       imrClasses.add(this.C_CLASS_NAME);
