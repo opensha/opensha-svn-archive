@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * PieChartDemo2.java
  * ------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,12 +38,13 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
-import org.jfree.data.DefaultPieDataset;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieItemLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.tooltips.StandardPieToolTipGenerator;
+import org.jfree.data.DefaultPieDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -86,7 +87,7 @@ public class PieChartDemo2 extends ApplicationFrame {
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionLabelType(PiePlot.NAME_AND_PERCENT_LABELS);
         plot.setNoDataMessage("No data available");
-        plot.setToolTipGenerator(new StandardPieToolTipGenerator());
+        plot.setItemLabelGenerator(new StandardPieItemLabelGenerator());
         plot.setRadius(0.70);
         plot.setExplodePercent(1, 1.00);
 

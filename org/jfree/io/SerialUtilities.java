@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * SerialUtilities.java
  * --------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 25-Mar-2003 : Version 1 (DG);
+ * 18-Sep-2003 : Added capability to serialize GradientPaint (DG);
  *
  */
 
@@ -39,6 +40,7 @@ package org.jfree.io;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.GradientPaint;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
@@ -48,84 +50,117 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * A class containing useful utility methods relating to serialization.
  *
  * @author David Gilbert
  */
-public class SerialUtilities {
+public abstract class SerialUtilities {
 
     /**
-     * Reads a <code>Paint</code> object that has been serialised by the 
+     * Returns <code>true</code> if a class implements <code>Serializable</code> and 
+     * <code>false</code> otherwise.
+     * 
+     * @param c  the class.
+     * 
+     * @return A boolean.
+     */
+    public static boolean isSerializable(Class c) {
+        boolean result = false;
+        Class[] interfaces = c.getInterfaces();
+        for (int i = 0; i < interfaces.length; i++) {
+            if (interfaces[i].equals(Serializable.class)) {
+                result = true;                
+            }
+        }
+        return result;
+    }
+    
+    /**
+     * Reads a <code>Paint</code> object that has been serialised by the
      * {@link SerialUtilities#writePaint} method.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @return The paint object.
-     * 
+     *
      * @throws IOException  if there is an I/O problem.
      * @throws ClassNotFoundException  if there is a problem loading a class.
      */
-    public static Paint readPaint(ObjectInputStream stream) 
+    public static Paint readPaint(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
-    
+
         Paint result = null;
         boolean isNull = stream.readBoolean();
         if (!isNull) {
             Class c = (Class) stream.readObject();
-            if (c.equals(Color.class)) {
+            if (isSerializable(c)) {
                 result = (Paint) stream.readObject();
             }
-            else {
-                result = (Paint) stream.readObject();
+            else if (c.equals(GradientPaint.class)) {
+                float x1 = stream.readFloat();
+                float y1 = stream.readFloat();
+                Color c1 = (Color) stream.readObject();
+                float x2 = stream.readFloat();
+                float y2 = stream.readFloat();
+                Color c2 = (Color) stream.readObject();
+                boolean isCyclic = stream.readBoolean();
+                result = new GradientPaint(x1, y1, c1, x2, y2, c2, isCyclic);
             }
         }
         return result;
-        
+
     }
-    
+
     /**
      * Serialises a <code>Paint</code> object.
      *
      * @param paint  the paint object.
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException if there is an I/O error.
      */
     public static void writePaint(Paint paint, ObjectOutputStream stream) throws IOException {
-    
+
         if (paint != null) {
             stream.writeBoolean(false);
-            if (paint instanceof Color) {
-                stream.writeObject(Color.class);
+            stream.writeObject(paint.getClass());
+            if (paint instanceof Serializable) {
                 stream.writeObject(paint);
             }
-            else {
-                stream.writeObject(paint.getClass());
-                stream.writeObject(paint);
+            else if (paint instanceof GradientPaint) {
+                GradientPaint gp = (GradientPaint) paint;
+                stream.writeFloat((float) gp.getPoint1().getX());
+                stream.writeFloat((float) gp.getPoint1().getY());
+                stream.writeObject(gp.getColor1());
+                stream.writeFloat((float) gp.getPoint2().getX());
+                stream.writeFloat((float) gp.getPoint2().getY());
+                stream.writeObject(gp.getColor2());
+                stream.writeBoolean(gp.isCyclic());
             }
         }
         else {
             stream.writeBoolean(true);
         }
-        
+
     }
-    
+
     /**
-     * Reads a <code>Stroke</code> object that has been serialised by the 
+     * Reads a <code>Stroke</code> object that has been serialised by the
      * {@link SerialUtilities#writeStroke} method.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @return The stroke object.
-     * 
+     *
      * @throws IOException  if there is an I/O problem.
      * @throws ClassNotFoundException  if there is a problem loading a class.
      */
-    public static Stroke readStroke(ObjectInputStream stream) 
+    public static Stroke readStroke(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
-    
+
         Stroke result = null;
         boolean isNull = stream.readBoolean();
         if (!isNull) {
@@ -144,19 +179,19 @@ public class SerialUtilities {
             }
         }
         return result;
-        
+
     }
-    
+
     /**
      * Serialises a <code>Stroke</code> object.
      *
      * @param stroke  the stroke object.
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException if there is an I/O error.
      */
     public static void writeStroke(Stroke stroke, ObjectOutputStream stream) throws IOException {
-    
+
         if (stroke != null) {
             stream.writeBoolean(false);
             if (stroke instanceof BasicStroke) {
@@ -178,20 +213,20 @@ public class SerialUtilities {
             stream.writeBoolean(true);
         }
     }
-    
+
     /**
      * Reads a <code>Shape</code> object that has been serialised by the {@link #writeShape} method.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @return The shape object.
-     * 
+     *
      * @throws IOException  if there is an I/O problem.
      * @throws ClassNotFoundException  if there is a problem loading a class.
      */
-    public static Shape readShape(ObjectInputStream stream) 
+    public static Shape readShape(ObjectInputStream stream)
         throws IOException, ClassNotFoundException {
-    
+
         Shape result = null;
         boolean isNull = stream.readBoolean();
         if (!isNull) {
@@ -222,19 +257,19 @@ public class SerialUtilities {
             }
         }
         return result;
-        
+
     }
-    
+
     /**
      * Serialises a <code>Shape</code> object.
      *
      * @param shape  the shape object.
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException if there is an I/O error.
      */
     public static void writeShape(Shape shape, ObjectOutputStream stream) throws IOException {
-    
+
         if (shape != null) {
             stream.writeBoolean(false);
             if (shape instanceof Line2D) {

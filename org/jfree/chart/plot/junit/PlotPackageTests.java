@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------------
  * ChartPlotPackageTests.java
  * --------------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -57,18 +57,18 @@ public class PlotPackageTests extends TestCase {
      */
     public static Test suite() {
         TestSuite suite = new TestSuite("org.jfree.chart.plot");
-        suite.addTestSuite(CombinedXYPlotTests.class);
+        suite.addTestSuite(CategoryPlotTests.class);
+        suite.addTestSuite(CombinedDomainCategoryPlotTests.class);
+        suite.addTestSuite(CombinedRangeCategoryPlotTests.class);
+        suite.addTestSuite(CombinedDomainXYPlotTests.class);
+        suite.addTestSuite(CombinedRangeXYPlotTests.class);
         suite.addTestSuite(CompassPlotTests.class);
         suite.addTestSuite(ContourPlotTests.class);
         suite.addTestSuite(FastScatterPlotTests.class);
-        suite.addTestSuite(HorizontalCategoryPlotTests.class);
         suite.addTestSuite(MeterPlotTests.class);
-        suite.addTestSuite(OverlaidVerticalCategoryPlotTests.class);
-        suite.addTestSuite(OverlaidXYPlotTests.class);
         suite.addTestSuite(PiePlotTests.class);
         suite.addTestSuite(Pie3DPlotTests.class);
         suite.addTestSuite(ThermometerPlotTests.class);
-        suite.addTestSuite(VerticalCategoryPlotTests.class);
         suite.addTestSuite(XYPlotTests.class);
         return suite;
     }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * DemoResources.java
  * ------------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  * Polish translation:  Krzysztof Paz (kpaz@samorzad.pw.edu.pl);
  * Fixed char encoding: Piotr Bzdyl (piotr@geek.krakow.pl);
@@ -61,29 +61,29 @@ public class DemoResources_pl extends ListResourceBundle {
     private static final Object[][] CONTENTS = {
 
         // about frame...
-        { "about.title", "Informacja o..."},
-        { "about.version.label", "Wersja"},
+        {"about.title", "Informacja o..."},
+        {"about.version.label", "Wersja"},
 
         // menu labels...
-        { "menu.file", "Plik"},
-        { "menu.file.mnemonic", new Character('P') },
+        {"menu.file", "Plik"},
+        {"menu.file.mnemonic", new Character('P') },
 
-        { "menu.file.exit", "Zako\u0144cz"},
-        { "menu.file.exit.mnemonic", new Character('K') },
+        {"menu.file.exit", "Zako\u0144cz"},
+        {"menu.file.exit.mnemonic", new Character('K') },
 
-        { "menu.help", "Pomoc"},
-        { "menu.help.mnemonic", new Character('C')},
+        {"menu.help", "Pomoc"},
+        {"menu.help.mnemonic", new Character('C')},
 
-        { "menu.help.about", "O programie..."},
-        { "menu.help.about.mnemonic", new Character('A')},
+        {"menu.help.about", "O programie..."},
+        {"menu.help.about.mnemonic", new Character('A')},
 
         // dialog messages...
-        { "dialog.exit.title", "Potwierd\u017a zamkni\u0119cie..."},
-        { "dialog.exit.message", "Czy jeste\u015b pewien, \u017ce chcesz zako\u0144czy\u0107 program?"},
+        {"dialog.exit.title", "Potwierd\u017a zamkni\u0119cie..."},
+        {"dialog.exit.message", "Czy jeste\u015b pewien, \u017ce chcesz zako\u0144czy\u0107 program?"},
 
         // labels for the tabs in the main window...
-        { "tab.bar",      "Wykresy Kolumnowe i S\u0142upkowe"},
-        { "tab.pie",      "Wykresy Ko\u0142owe"},
+        {"tab.bar",      "Wykresy Kolumnowe i S\u0142upkowe"},
+        {"tab.pie",      "Wykresy Ko\u0142owe"},
         {"tab.xy",       "Wykresy XY"},
         {"tab.time",     "Wykresy Liniowe"},
         {"tab.other",    "Wykresy Inne"},
@@ -327,25 +327,25 @@ public class DemoResources_pl extends ListResourceBundle {
 
         {"combined.horizontal.title",     "Wykres poziomo kombinowany"},
         {"combined.horizontal.subtitle",  "Linowy / Time Series s\u0142upkowy XY "},
-        {"combined.horizontal.domains",   new String[] {"Dane 1", "Dane 2", "Dane 3"} },
+        {"combined.horizontal.domains",   new String[] {"Dane 1", "Dane 2", "Dane 3"}},
         {"combined.horizontal.range",     "CCY na PLN"},
 
         {"combined.vertical.title",     "Wykres pionowo kombinowany"},
         {"combined.vertical.subtitle",  "Cztery wykresy na jednym"},
         {"combined.vertical.domain",    "Data"},
-        {"combined.vertical.ranges",    new String[] {"CCY na PLN", "Z\u0142ot\u00f3wki", "KGHM", "S\u0142upki"} },
+        {"combined.vertical.ranges",    new String[] {"CCY na PLN", "Z\u0142ot\u00f3wki", "KGHM", "S\u0142upki"}},
 
         {"combined.combined-overlaid.title",     "Wykres kombinowany i nak\u0142adany"},
         {"combined.combined-overlaid.subtitle",  "XY, mnak\u0142adany (dwie TimeSeries) i nak\u0142adany "
                                                 + "(Max/Min i TimeSeries)"},
         {"combined.combined-overlaid.domain",    "Data"},
-        {"combined.combined-overlaid.ranges",    new String[] {"CCY na PLN", "Z\u0142ot\u00f3wki", "TPSA"} },
+        {"combined.combined-overlaid.ranges",    new String[] {"CCY na PLN", "Z\u0142ot\u00f3wki", "TPSA"}},
 
         {"combined.dynamic.title",     "Wykres poziomo kombinowany - dynamiczny"},
         {"combined.dynamic.subtitle",  "XY (seria 0), XY (seria 1), nak\u0142adany (obie serie) "
                                       + "oraz XY (obie serie)"},
         {"combined.dynamic.domain",    "X" },
-        {"combined.dynamic.ranges",    new String[] {"Y1", "Y2", "Y3", "Y4"} },
+        {"combined.dynamic.ranges",    new String[] {"Y1", "Y2", "Y3", "Y4"}},
 
     };
 

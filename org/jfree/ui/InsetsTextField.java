@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,19 +25,22 @@
  * (C) Copyright 2000-2003, by Andrzej Porebski.
  *
  * Original Author:  Andrzej Porebski;
- * Contributor(s):   -;
+ * Contributor(s):   Arnaud Lelievre;
  *
  * $Id$
  *
  * Changes (from 7-Nov-2001)
  * -------------------------
  * 07-Nov-2001 : Added to com.jrefinery.ui package (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);
  *
  */
 
 package org.jfree.ui;
 
 import java.awt.Insets;
+import java.util.ResourceBundle;
+
 import javax.swing.JTextField;
 
 /**
@@ -46,6 +49,10 @@ import javax.swing.JTextField;
  * @author Andrzej Porebski
  */
 public class InsetsTextField extends JTextField {
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                                    ResourceBundle.getBundle("org.jfree.ui.LocalizationBundle");
 
     /**
      * Default constructor. Initializes this text field with formatted string describing
@@ -66,13 +73,15 @@ public class InsetsTextField extends JTextField {
      *
      * @return the string.
      */
-    public static String formatInsetsString(Insets insets) {
+    //public static String formatInsetsString(Insets insets) {
+    public String formatInsetsString(Insets insets) {
         insets = (insets == null) ? new Insets(0, 0, 0, 0) : insets;
+        String result = localizationResources.getString("T");
         return
-            "T: " + insets.top + ", "
-             + "L: " + insets.left + ", "
-             + "B: " + insets.bottom + ", "
-             + "R: " + insets.right;
+            localizationResources.getString("T") + insets.top + ", "
+             + localizationResources.getString("L") + insets.left + ", "
+             + localizationResources.getString("B") + insets.bottom + ", "
+             + localizationResources.getString("R") + insets.right;
     }
 
     /**

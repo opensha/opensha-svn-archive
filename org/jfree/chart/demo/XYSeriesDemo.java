@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------
  * XYSeriesDemo.java
  * -----------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,6 +42,7 @@ package org.jfree.chart.demo;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
@@ -73,12 +74,17 @@ public class XYSeriesDemo extends ApplicationFrame {
         series.add(25.6, 734.4);
         series.add(30.0, 453.2);
         XYSeriesCollection data = new XYSeriesCollection(series);
-        JFreeChart chart = ChartFactory.createLineXYChart("XY Series Demo",
-                                                          "X", "Y", data, 
-                                                          true,
-                                                          true,
-                                                          false);
-                                                                  
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "XY Series Demo",
+            "X", 
+            "Y", 
+            data,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
+
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * DualAxisDemo2.java
  * ------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,17 +37,18 @@
 
 package org.jfree.chart.demo;
 
+import java.awt.Color;
 import java.text.SimpleDateFormat;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardLegend;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.DateAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.XYDataset;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.TimeSeries;
@@ -76,24 +77,40 @@ public class DualAxisDemo2 extends ApplicationFrame {
         String chartTitle = "Dual Axis Demo 2";
         XYDataset dataset = createDataset1();
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(chartTitle, "Date", "Price Per Unit",
-                                                              dataset, true, true, false);
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+            chartTitle, 
+            "Date", 
+            "Price Per Unit",
+            dataset, 
+            true, 
+            true, 
+            false
+        );
 
         StandardLegend legend = (StandardLegend) chart.getLegend();
         legend.setDisplaySeriesShapes(true);
+        
         XYPlot plot = chart.getXYPlot();
-        NumberAxis axis2 = new VerticalNumberAxis("Secondary");
+        NumberAxis axis2 = new NumberAxis("Secondary");
         axis2.setAutoRangeIncludesZero(false);
-        plot.setSecondaryRangeAxis(axis2);
-        plot.setSecondaryDataset(createDataset2());
+        plot.setSecondaryRangeAxis(0, axis2);
+        plot.setSecondaryDataset(0, createDataset2());
+        plot.mapSecondaryDatasetToRangeAxis(0, new Integer(0));
         XYItemRenderer renderer = plot.getRenderer();
         if (renderer instanceof StandardXYItemRenderer) {
             StandardXYItemRenderer rr = (StandardXYItemRenderer) renderer;
             rr.setPlotShapes(true);
-            rr.setDefaultShapeFilled(true);
+            rr.setShapesFilled(true);
         }
+        
+        StandardXYItemRenderer renderer2 = new StandardXYItemRenderer();
+        renderer2.setSeriesPaint(0, Color.black);
+        renderer2.setPlotShapes(true);
+        plot.setSecondaryRenderer(0, renderer2);
+        
         DateAxis axis = (DateAxis) plot.getDomainAxis();
         axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+        
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);

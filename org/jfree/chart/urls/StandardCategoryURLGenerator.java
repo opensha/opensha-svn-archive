@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
- * Contributors:     David Gilbert (for Simba Management Limited);
+ * Contributors:     David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -37,6 +37,7 @@
  * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 05-Nov-2002 : Base dataset is now TableDataset not CategoryDataset (DG);
  * 23-Mar-2003 : Implemented Serializable (DG);
+ * 13-Aug-2003 : Implemented Cloneable (DG);
  *
  */
 
@@ -45,13 +46,15 @@ package org.jfree.chart.urls;
 import java.io.Serializable;
 
 import org.jfree.data.CategoryDataset;
+import org.jfree.util.ObjectUtils;
 
 /**
  * A URL generator.
  *
  * @author Richard Atkinson
  */
-public class StandardCategoryURLGenerator implements CategoryURLGenerator, Serializable {
+public class StandardCategoryURLGenerator implements CategoryURLGenerator, 
+                                                     Cloneable, Serializable {
 
     /** Prefix to the URL */
     private String prefix = "index.html";
@@ -113,4 +116,53 @@ public class StandardCategoryURLGenerator implements CategoryURLGenerator, Seria
         return url;
     }
 
+    /**
+     * Returns an independent copy of the URL generator.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException not thrown by this class, but subclasses (if any) might.
+     */
+    public Object clone() throws CloneNotSupportedException {
+    
+        // all attributes are immutable, so we can just return the super.clone()
+        return super.clone();
+        
+    }
+    
+    /**
+     * Tests if this object is equal to another.
+     *
+     * @param o  the other object.
+     *
+     * @return A boolean.
+     */
+    public boolean equals(Object o) {
+
+        if (o == null) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+
+        if (o instanceof StandardCategoryURLGenerator) {
+            StandardCategoryURLGenerator generator = (StandardCategoryURLGenerator) o;
+            
+            boolean b0 = ObjectUtils.equal(this.prefix, generator.prefix);
+            boolean b1 = ObjectUtils.equal(
+                this.seriesParameterName, generator.seriesParameterName
+            );
+            boolean b2 = ObjectUtils.equal(
+                this.categoryParameterName, generator.categoryParameterName
+            );
+            
+            return b0 && b1 && b2;
+        }
+
+        return false;
+
+    }
+
+    
 }

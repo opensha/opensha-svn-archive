@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * SimpleTimePeriod.java
  * ---------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -47,7 +47,7 @@ import java.util.Date;
  * <p>
  * This class is intentionally immutable (that is, once constructed, you cannot alter
  * the start and end attributes).
- * 
+ *
  * @author David Gilbert
  */
 public class SimpleTimePeriod implements TimePeriod, Serializable {
@@ -65,15 +65,15 @@ public class SimpleTimePeriod implements TimePeriod, Serializable {
      * @param end  the end date/time.
      */
     public SimpleTimePeriod(Date start, Date end) {
-        
+
         // check arguments...
         if (start.getTime() > end.getTime()) {
             throw new IllegalArgumentException("SimpleTimePeriod: requires end >= start.");
         }
-        
+
         this.start = start;
         this.end = end;
-        
+
     }
 
     /**
@@ -95,26 +95,26 @@ public class SimpleTimePeriod implements TimePeriod, Serializable {
     }
 
     /**
-     * Returns <code>true</code> if this time period is equal to another object, and 
+     * Returns <code>true</code> if this time period is equal to another object, and
      * <code>false</code> otherwise.
      * <P>
      * The test for equality looks only at the start and end values for the time period.
-     * 
+     *
      * @param obj  the other object.
-     * 
+     *
      * @return  A boolean.
      */
     public boolean equals(Object obj) {
-        
+
         boolean result = false;
 
         if (obj instanceof TimePeriod) {
             TimePeriod p = (TimePeriod) obj;
             result = this.start.equals(p.getStart())  && this.end.equals(p.getEnd());
         }
-                
-        return result;    
+
+        return result;
 
     }
-    
+
 }

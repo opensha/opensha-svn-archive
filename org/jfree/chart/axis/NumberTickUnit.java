@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------
  * TickUnit.java
  * -------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,7 +37,7 @@
  * 08-Nov-2002 : Moved to new package com.jrefinery.chart.axis (DG);
  * 09-Jan-2002 : Added a new constructor (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
- * 
+ *
  */
 
 package org.jfree.chart.axis;
@@ -57,7 +57,7 @@ public class NumberTickUnit extends TickUnit implements Serializable {
 
     /**
      * Creates a new number tick unit.
-     * 
+     *
      * @param size  the size of the tick unit.
      */
     public NumberTickUnit(double size) {

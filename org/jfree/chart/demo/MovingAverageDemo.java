@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------
  * MovingAverageDemo.java
  * ----------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,14 +38,15 @@
 package org.jfree.chart.demo;
 
 import java.text.SimpleDateFormat;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardLegend;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.MovingAverage;
 import org.jfree.data.XYDataset;
 import org.jfree.data.time.Month;
@@ -74,11 +75,15 @@ public class MovingAverageDemo extends ApplicationFrame {
         String chartTitle = "Legal & General Unit Trust Prices";
         XYDataset dataset = createDataset();
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(chartTitle, "Date", "Price Per Unit",
-                                                              dataset, 
-                                                              true,
-                                                              true,
-                                                              false);
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+            chartTitle, 
+            "Date", 
+            "Price Per Unit",
+            dataset,
+            true,
+            true,
+            false
+        );
 
         StandardLegend legend = (StandardLegend) chart.getLegend();
         legend.setDisplaySeriesShapes(true);
@@ -87,7 +92,7 @@ public class MovingAverageDemo extends ApplicationFrame {
         if (renderer instanceof StandardXYItemRenderer) {
             StandardXYItemRenderer rr = (StandardXYItemRenderer) renderer;
             rr.setPlotShapes(true);
-            rr.setDefaultShapeFilled(true);
+            rr.setShapesFilled(true);
         }
         DateAxis axis = (DateAxis) plot.getDomainAxis();
         axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
@@ -124,7 +129,7 @@ public class MovingAverageDemo extends ApplicationFrame {
         s1.add(new Month(6, 2002), 137.0);
         s1.add(new Month(7, 2002), 132.8);
 
-        TimeSeries s2 = MovingAverage.createMovingAverage(s1, "Six Month Moving Average", 6, 6);
+        TimeSeries s2 = MovingAverage.createMovingAverage(s1, "Six Month Moving Average", 6, 0);
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(s1);

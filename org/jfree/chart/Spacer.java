@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------
  * Spacer.java
  * -----------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,11 +48,11 @@ import java.io.Serializable;
  * allows for the space to be specified in relative terms as well as absolute
  * terms.
  * <P>
- * Immutable.
+ * Instances of this class are immutable.
  *
  * @author David Gilbert
  */
-public class Spacer implements Cloneable, Serializable {
+public class Spacer implements Serializable {
 
     /** A constant for 'relative' spacing. */
     public static final int RELATIVE = 0;
@@ -258,21 +258,21 @@ public class Spacer implements Cloneable, Serializable {
 
     /**
      * Tests this object for equality with another object.
-     * 
+     *
      * @param obj  the other object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
+
         if (obj instanceof Spacer) {
             Spacer s = (Spacer) obj;
             boolean b0 = (this.type == s.type);
@@ -282,8 +282,8 @@ public class Spacer implements Cloneable, Serializable {
             boolean b4 = (this.bottom == s.bottom);
             return b0 && b1 && b2 && b3 && b4;
         }
-        
+
         return false;
     }
-    
+
 }

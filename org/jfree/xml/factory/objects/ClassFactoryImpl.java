@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,13 +19,13 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * --------------------------
- * ClassFactoryCollector.java
- * --------------------------
+ * ---------------------
+ * ClassFactoryImpl.java
+ * ---------------------
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -42,9 +42,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.jfree.util.Configuration;
-import org.jfree.util.Log;
-
-
 
 /**
  * An abstract class that implements the {@link ClassFactory} interface.
@@ -121,12 +118,12 @@ public abstract class ClassFactoryImpl implements ClassFactory {
                     }
                 }
             }
-            else {
-                Log.debug(keyClass + " is not assignable from " + d);
-            }
-
         }
-        return null;
+        if (knownSuperClass == null)
+        {
+            return null;
+        }
+        return knownSuperClass.getInstance();
     }
 
     /**
@@ -185,5 +182,32 @@ public abstract class ClassFactoryImpl implements ClassFactory {
      */
     public Configuration getConfig() {
         return config;
+    }
+
+    /**
+     * Tests for equality.
+     * 
+     * @param o  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClassFactoryImpl)) return false;
+
+        final ClassFactoryImpl classFactory = (ClassFactoryImpl) o;
+
+        if (!classes.equals(classFactory.classes)) return false;
+
+        return true;
+    }
+
+    /**
+     * Returns a hash code.
+     * 
+     * @return A hash code.
+     */
+    public int hashCode() {
+        return classes.hashCode();
     }
 }

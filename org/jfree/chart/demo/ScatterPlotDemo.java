@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * ScatterPlotDemo.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,11 +37,14 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.data.XYDataset;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.Legend;
+import org.jfree.chart.StandardLegend;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.XYDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -61,8 +64,20 @@ public class ScatterPlotDemo extends ApplicationFrame {
 
         super(title);
         XYDataset data = new SampleXYDataset2();
-        JFreeChart chart = ChartFactory.createScatterPlot("Scatter Plot Demo",
-                                                          "X", "Y", data, true, true, false);
+        JFreeChart chart = ChartFactory.createScatterPlot(
+            "Scatter Plot Demo",
+            "X", "Y", 
+            data, 
+            PlotOrientation.VERTICAL,
+            true, 
+            true, 
+            false
+        );
+        Legend legend = chart.getLegend();
+        if (legend instanceof StandardLegend) {
+            StandardLegend sl= (StandardLegend) legend;
+            sl.setDisplaySeriesShapes(true);
+        }
         NumberAxis domainAxis = (NumberAxis) chart.getXYPlot().getDomainAxis();
         domainAxis.setAutoRangeIncludesZero(false);
         ChartPanel chartPanel = new ChartPanel(chart);

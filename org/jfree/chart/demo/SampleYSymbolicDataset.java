@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -36,15 +36,17 @@
 
 package org.jfree.chart.demo;
 
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Vector;
-import java.lang.reflect.Array;
-import org.jfree.data.XYDataset;
+
 import org.jfree.data.AbstractSeriesDataset;
+import org.jfree.data.XYDataset;
 import org.jfree.data.YisSymbolic;
 
 /**
- * Random data for a symbolic plot demo.
+ * A dataset implementation that provides random data for a symbolic plot demo.  This sample
+ * dataset has numerical x-values, and symbolic y-values.
  *
  * @author Anthony Boulestreau
  */
@@ -82,8 +84,8 @@ public class SampleYSymbolicDataset extends AbstractSeriesDataset
      * Creates a new sample dataset.
      *
      * @param datasetName  the dataset name.
-     * @param xRange  the x range.
-     * @param tabString  ??
+     * @param xRange  the upper limit of the (random) x-values.
+     * @param tabString  the symbols for the y-values.
      */
     public SampleYSymbolicDataset(String datasetName, int xRange, String[] tabString) {
         this(datasetName, xRange, tabString, DEFAULT_SERIES_COUNT, DEFAULT_ITEM_COUNT, null);
@@ -93,25 +95,29 @@ public class SampleYSymbolicDataset extends AbstractSeriesDataset
      * Creates a new sample dataset.
      *
      * @param datasetName  the dataset name.
-     * @param xRange  the x range.
-     * @param tabString  ??
-     * @param serie  the series index.
-     * @param item  the item index.
+     * @param xRange  the upper limit of the (random) x-values.
+     * @param tabString  the symbolic y-values.
+     * @param seriesCount  the number of series to create.
+     * @param itemCount  the number of items to create for each series.
      * @param serieNames  the series names.
      */
-    public SampleYSymbolicDataset(String datasetName, int xRange,
-                                  String[] tabString, int serie, int item, String[] serieNames) {
+    public SampleYSymbolicDataset(String datasetName, 
+                                  int xRange,
+                                  String[] tabString, 
+                                  int seriesCount, 
+                                  int itemCount, 
+                                  String[] serieNames) {
 
         this.datasetName = datasetName;
         this.ySymbolicValues = tabString;
-        this.serie = serie;
-        this.item = item;
+        this.serie = seriesCount;
+        this.item = itemCount;
         this.serieNames = serieNames;
-        this.xValues = new Double[serie][item];
-        this.yValues = new Integer[serie][item];
+        this.xValues = new Double[seriesCount][itemCount];
+        this.yValues = new Integer[seriesCount][itemCount];
 
-        for (int s = 0; s < serie; s++) {
-            for (int i = 0; i < item; i++) {
+        for (int s = 0; s < seriesCount; s++) {
+            for (int i = 0; i < itemCount; i++) {
                 double x = Math.random() * xRange;
                 double y = Math.random() * tabString.length;
                 xValues[s][i] = new Double(x);
@@ -127,20 +133,24 @@ public class SampleYSymbolicDataset extends AbstractSeriesDataset
      * @param xValues  the x values.
      * @param yValues  the y values.
      * @param ySymbolicValues  the y symbols
-     * @param serie  the series index.
-     * @param item  the item index.
+     * @param seriesCount  the series count.
+     * @param itemCount  the item count.
      * @param serieNames  the series names.
      */
-    public SampleYSymbolicDataset(String datasetName, Double[][] xValues,
-                                  Integer[][] yValues, String[] ySymbolicValues,
-                                  int serie, int item, String[] serieNames) {
+    public SampleYSymbolicDataset(String datasetName, 
+                                  Double[][] xValues,
+                                  Integer[][] yValues, 
+                                  String[] ySymbolicValues,
+                                  int seriesCount, 
+                                  int itemCount, 
+                                  String[] serieNames) {
 
         this.datasetName = datasetName;
         this.xValues = xValues;
         this.yValues = yValues;
         this.ySymbolicValues = ySymbolicValues;
-        this.serie = serie;
-        this.item = item;
+        this.serie = seriesCount;
+        this.item = itemCount;
         this.serieNames = serieNames;
 
     }
@@ -279,9 +289,6 @@ public class SampleYSymbolicDataset extends AbstractSeriesDataset
      *
      * @param  dataset1 the first data set to combine.
      * @param  dataset2 the second data set to combine.
-     *
-     * @throws  ClassCastException if <CODE>dataset1</CODE> and
-     *      <CODE>dataset2</CODE> is not an instance of SampleYSymbolicDataset.
      *
      * @return  the shared symbolic array.
      */

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,11 @@
  * --------------------
  * HighLowRenderer.java
  * --------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson;
+ *                   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -40,7 +41,12 @@
  *               interface.  Added tooltip code to drawItem(...) method (DG);
  * 05-Aug-2002 : Small modification to drawItem method to support URLs for HTML image maps (RA);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 31-Jul-2003 : Deprecated constructor (DG);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -53,15 +59,17 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.tooltips.XYToolTipGenerator;
 import org.jfree.data.HighLowDataset;
 import org.jfree.data.XYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.PublicCloneable;
 
 /**
  * A renderer that draws high/low/open/close markers on an {@link XYPlot} (requires
@@ -69,23 +77,28 @@ import org.jfree.data.XYDataset;
  *
  * @author David Gilbert
  */
-public class HighLowRenderer extends AbstractXYItemRenderer 
-                             implements XYItemRenderer, Serializable {
+public class HighLowRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                       Cloneable,
+                                                                       PublicCloneable,
+                                                                       Serializable {
 
     /**
      * The default constructor.
      */
     public HighLowRenderer() {
-        this(null);
+        super();
     }
 
     /**
      * Creates a new renderer with the specified tool tip generator.
      *
      * @param toolTipGenerator  the tool tip generator.
+     * 
+     * @deprecated Use default constructor then set tooltip generator.
      */
     public HighLowRenderer(XYToolTipGenerator toolTipGenerator) {
-        super(toolTipGenerator);
+        super();
+        setToolTipGenerator(toolTipGenerator);
     }
 
     /**
@@ -98,22 +111,23 @@ public class HighLowRenderer extends AbstractXYItemRenderer
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo  information about crosshairs on a plot.
+     * @param pass  the pass index.
      */
     public void drawItem(Graphics2D g2, Rectangle2D dataArea,
-                         ChartRenderingInfo info,
+                         PlotRenderingInfo info,
                          XYPlot plot, ValueAxis domainAxis, ValueAxis rangeAxis,
-                         XYDataset dataset, int datasetIndex, int series, int item,
-                         CrosshairInfo crosshairInfo) {
+                         XYDataset dataset, int series, int item,
+                         CrosshairInfo crosshairInfo,
+                         int pass) {
 
         // setup for collecting optional entity info...
         Shape entityArea = null;
         EntityCollection entities = null;
         if (info != null) {
-            entities = info.getEntityCollection();
+            entities = info.getOwner().getEntityCollection();
         }
 
         HighLowDataset highLowData = (HighLowDataset) dataset;
@@ -124,14 +138,17 @@ public class HighLowRenderer extends AbstractXYItemRenderer
         Number yOpen  = highLowData.getOpenValue(series, item);
         Number yClose = highLowData.getCloseValue(series, item);
 
-        double xx = domainAxis.translateValueToJava2D(x.doubleValue(), dataArea);
-        double yyHigh = rangeAxis.translateValueToJava2D(yHigh.doubleValue(), dataArea);
-        double yyLow = rangeAxis.translateValueToJava2D(yLow.doubleValue(), dataArea);
-        double yyOpen = rangeAxis.translateValueToJava2D(yOpen.doubleValue(), dataArea);
-        double yyClose = rangeAxis.translateValueToJava2D(yClose.doubleValue(), dataArea);
+        double xx = domainAxis.translateValueToJava2D(x.doubleValue(), dataArea, 
+                                                      plot.getDomainAxisEdge());
 
-        Paint p = getItemPaint(datasetIndex, series, item);
-        Stroke s = getSeriesStroke(datasetIndex, series);
+        RectangleEdge location = plot.getRangeAxisEdge();
+        double yyHigh = rangeAxis.translateValueToJava2D(yHigh.doubleValue(), dataArea, location);
+        double yyLow = rangeAxis.translateValueToJava2D(yLow.doubleValue(), dataArea, location);
+        double yyOpen = rangeAxis.translateValueToJava2D(yOpen.doubleValue(), dataArea, location);
+        double yyClose = rangeAxis.translateValueToJava2D(yClose.doubleValue(), dataArea, location);
+
+        Paint p = getItemPaint(series, item);
+        Stroke s = getItemStroke(series, item);
 
         HighLow hl = new HighLow(xx, yyHigh, yyLow, yyOpen, yyClose, s, p);
         Line2D l1 = hl.getOpenTickLine();
@@ -149,7 +166,7 @@ public class HighLowRenderer extends AbstractXYItemRenderer
             if (entityArea == null) {
                 entityArea = hl.getBounds();
             }
-            String tip = "";
+            String tip = null;
             if (getToolTipGenerator() != null) {
                 tip = getToolTipGenerator().generateToolTip(dataset, series, item);
             }
@@ -157,10 +174,21 @@ public class HighLowRenderer extends AbstractXYItemRenderer
             if (getURLGenerator() != null) {
                 url = getURLGenerator().generateURL(dataset, series, item);
             }
-            XYItemEntity entity = new XYItemEntity(entityArea, tip, url, series, item);
+            XYItemEntity entity = new XYItemEntity(entityArea, dataset, series, item, tip, url);
             entities.addEntity(entity);
         }
 
+    }
+    
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

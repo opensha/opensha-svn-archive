@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * -------------------
  * FloatDimension.java
  * -------------------
- * (C)opyright 2000-2002, by Thomas Morgner and Contributors.
+ * (C)opyright 2002, 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -122,10 +122,8 @@ public class FloatDimension extends Dimension2D implements Cloneable, Serializab
      * This method is included for completeness, to parallel the
      * {@link java.awt.Component#getSize getSize} method of
      * {@link java.awt.Component}.
-     * @param width  the new width for the <code>Dimension</code>
-     * object
-     * @param height  the new height for the <code>Dimension</code>
-     * object
+     * @param width  the new width for the <code>Dimension</code> object
+     * @param height  the new height for the <code>Dimension</code> object
      */
     public void setSize(double width, double height) {
         setHeight((float) height);
@@ -136,7 +134,6 @@ public class FloatDimension extends Dimension2D implements Cloneable, Serializab
      * Creates and returns a copy of this object.
      *
      * @return     a clone of this instance.
-     * @exception  java.lang.OutOfMemoryError            if there is not enough memory.
      * @see        java.lang.Cloneable
      */
     public Object clone() {

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * ScatterPlotDemo4.java
  * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,10 +37,11 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.XYDotRenderer;
 import org.jfree.data.XYDataset;
@@ -63,13 +64,21 @@ public class ScatterPlotDemo4 extends ApplicationFrame {
 
         super(title);
         XYDataset data = new SampleXYDataset2();
-        JFreeChart chart = ChartFactory.createScatterPlot("Scatter Plot Demo",
-                                                          "X", "Y", data, true, true, false);
+        JFreeChart chart = ChartFactory.createScatterPlot(
+            "Scatter Plot Demo",
+            "X", 
+            "Y", 
+            data, 
+            PlotOrientation.VERTICAL,
+            true, 
+            true, 
+            false
+        );
         XYPlot plot = chart.getXYPlot();
         plot.setRenderer(new XYDotRenderer());
         plot.setDomainCrosshairVisible(true);
         plot.setRangeCrosshairVisible(true);
-        
+
         NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
         domainAxis.setAutoRangeIncludesZero(false);
 

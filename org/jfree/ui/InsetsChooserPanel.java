@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,8 @@
  * (C) Copyright 2000-2003, by Andrzej Porebski and Contributors.
  *
  * Original Author:  Andrzej Porebski;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *                   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -34,17 +35,20 @@
  * 07-Nov-2001 : Added to com.jrefinery.ui package (DG);
  * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 03-Feb-2003 : Added Math.abs(...) to ensure no negative insets can be set (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);
  *
  */
 
 package org.jfree.ui;
 
-import java.awt.Insets;
 import java.awt.BorderLayout;
-import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-import javax.swing.JPanel;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.util.ResourceBundle;
+
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 
@@ -66,6 +70,10 @@ public class InsetsChooserPanel extends JPanel {
 
     /** A text field for the 'right' setting. */
     private JTextField rightValueEditor;
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                                    ResourceBundle.getBundle("org.jfree.ui.LocalizationBundle");
 
     /**
      * Creates a chooser panel that allows manipulation of Insets values.
@@ -90,10 +98,10 @@ public class InsetsChooserPanel extends JPanel {
         rightValueEditor = new JTextField(new IntegerDocument(), "" + current.right, 0);
 
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(new TitledBorder("Insets"));
+        panel.setBorder(new TitledBorder(localizationResources.getString("Insets")));
 
         // First row
-        panel.add(new JLabel("Top"),
+        panel.add(new JLabel(localizationResources.getString("Top")),
                   new GridBagConstraints(1, 0, 3, 1, 0.0, 0.0,
                                          GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                          new Insets(0, 0, 0, 0), 0, 0));
@@ -112,7 +120,7 @@ public class InsetsChooserPanel extends JPanel {
                                          GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                          new Insets(0, 12, 0, 11), 8, 0));
         // Third row
-        panel.add(new JLabel("Left"),
+        panel.add(new JLabel(localizationResources.getString("Left")),
                   new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                                          GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                          new Insets(0, 4, 0, 4), 0, 0));
@@ -128,7 +136,7 @@ public class InsetsChooserPanel extends JPanel {
                   new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                                          GridBagConstraints.HORIZONTAL,
                                          new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(new JLabel("Right"),
+        panel.add(new JLabel(localizationResources.getString("Right")),
                   new GridBagConstraints(4, 2, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER,
                                          GridBagConstraints.NONE,
                                          new Insets(0, 4, 0, 4), 0, 0));
@@ -138,7 +146,7 @@ public class InsetsChooserPanel extends JPanel {
                                          GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
                                          new Insets(0, 0, 0, 0), 0, 0));
         // Fifth row
-        panel.add(new JLabel("Bottom"),
+        panel.add(new JLabel(localizationResources.getString("Bottom")),
                   new GridBagConstraints(1, 4, 3, 1, 0.0, 0.0,
                                          GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                          new Insets(0, 0, 0, 0), 0, 0));

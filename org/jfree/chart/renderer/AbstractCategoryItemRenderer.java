@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------------------
  * AbstractCategoryItemRenderer.java
  * ---------------------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson;
  *
  * $Id$
@@ -46,29 +46,41 @@
  * 09-Jan-2003 : Renamed grid-line methods (DG);
  * 17-Jan-2003 : Moved plot classes into separate package (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- * 
+ * 12-May-2003 : Modified to take into account the plot orientation (DG);
+ * 12-Aug-2003 : Very minor javadoc corrections (DB)
+ * 13-Aug-2003 : Implemented Cloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ *
  */
 
 package org.jfree.chart.renderer;
 
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.Marker;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DrawingSupplier;
 import org.jfree.chart.plot.Plot;
-import org.jfree.chart.tooltips.CategoryToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.urls.CategoryURLGenerator;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.Range;
+import org.jfree.ui.RefineryUtilities;
+import org.jfree.ui.TextAnchor;
+import org.jfree.util.ObjectList;
 
 /**
  * An abstract base class that you can use to implement a new {@link CategoryItemRenderer}.
@@ -79,7 +91,30 @@ import org.jfree.data.Range;
  * @author David Gilbert
  */
 public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
-                                                   implements CategoryItemRenderer, Serializable {
+                                                   implements CategoryItemRenderer, 
+                                                              Cloneable,
+                                                              Serializable {
+
+    /** The plot that the renderer is assigned to. */
+    private CategoryPlot plot;
+
+    /** The item label generator for ALL series. */
+    private CategoryItemLabelGenerator itemLabelGenerator;
+
+    /** A list of item label generators (one per series). */
+    private ObjectList itemLabelGeneratorList;
+
+    /** The base item label generator. */
+    private CategoryItemLabelGenerator baseItemLabelGenerator;
+
+    /** The URL generator. */
+    private CategoryURLGenerator itemURLGenerator;
+
+    /** A list of item label generators (one per series). */
+    private ObjectList itemURLGeneratorList;
+
+    /** The base item label generator. */
+    private CategoryURLGenerator baseItemURLGenerator;
 
     /** The number of rows in the dataset (temporary record). */
     private transient int rowCount;
@@ -87,17 +122,8 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
     /** The number of columns in the dataset (temporary record). */
     private transient int columnCount;
 
-    /** The tooltip generator. */
-    private CategoryToolTipGenerator toolTipGenerator;
-
-    /** The URL generator. */
-    private CategoryURLGenerator urlGenerator;
-
-    /** Paint objects for categories (null permitted). */
-//    private transient Paint[] categoriesPaint;  // to do: serialize this
-
-    /** An internal flag whether to use the categoriesPaint array. */
-//    private boolean useCategoriesPaint;
+    /** The item label anchor offset. */
+    private double itemLabelAnchorOffset = 2.0;
 
     /**
      * Creates a new renderer with no tool tip generator and no URL generator.
@@ -107,44 +133,180 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      * easily add the required generators.
      */
     protected AbstractCategoryItemRenderer() {
-        this(null, null);
+        this.itemLabelGenerator = null;
+        this.itemLabelGeneratorList = new ObjectList();
+        this.itemURLGenerator = null;
+        this.itemURLGeneratorList = new ObjectList();
     }
 
     /**
-     * Creates a new renderer with the specified tooltip generator but no URL generator.
+     * Returns the plot that the renderer is currently assigned to.
      *
-     * @param toolTipGenerator  the tool tip generator.
+     * @return The plot.
      */
-    protected AbstractCategoryItemRenderer(CategoryToolTipGenerator toolTipGenerator) {
-        this(toolTipGenerator, null);
+    public CategoryPlot getPlot() {
+        return this.plot;
     }
 
     /**
-     * Creates a new renderer with the specified URL generator but no tooltip generator.
+     * Sets the plot that the renderer is currently assigned to.
      *
-     * @param urlGenerator  the URL generator.
+     * @param plot  the plot.
      */
-    protected AbstractCategoryItemRenderer(CategoryURLGenerator urlGenerator) {
-        this(null, urlGenerator);
+    public void setPlot(CategoryPlot plot) {
+        this.plot = plot;
     }
 
     /**
-     * Creates a new renderer with the specified tooltip generator and URL generator.
+     * Returns the label generator for a data item.  This method just calls the
+     * getSeriesItemLabelGenerator method, but you can override this behaviour if you want to.
      *
-     * @param toolTipGenerator  the tool tip generator.
-     * @param urlGenerator  the URL generator.
+     * @param row  the row index (zero based).
+     * @param column  the column index (zero based).
+     *
+     * @return The label generator.
      */
-    protected AbstractCategoryItemRenderer(CategoryToolTipGenerator toolTipGenerator,
-                                           CategoryURLGenerator urlGenerator) {
+    public CategoryItemLabelGenerator getItemLabelGenerator(int row, int column) {
+        return getSeriesItemLabelGenerator(row);
+    }
 
-//        this.categoriesPaint = null;
-        this.toolTipGenerator = toolTipGenerator;
-        this.urlGenerator = urlGenerator;
+    /**
+     * Returns the label generator for a series.
+     *
+     * @param series  the series index (zero based).
+     *
+     * @return The label generator for the series.
+     */
+    public CategoryItemLabelGenerator getSeriesItemLabelGenerator(int series) {
+
+        // return the generator for ALL series, if there is one...
+        if (this.itemLabelGenerator != null) {
+            return this.itemLabelGenerator;
+        }
+
+        // otherwise look up the generator table
+        CategoryItemLabelGenerator generator
+            = (CategoryItemLabelGenerator) this.itemLabelGeneratorList.get(series);
+        if (generator == null) {
+            generator = this.baseItemLabelGenerator;
+        }
+        return generator;
 
     }
 
     /**
-     * Returns the number of rows in the dataset.  This value is updated in the 
+     * Sets the item label generator for ALL series.
+     *
+     * @param generator  the generator.
+     */
+    public void setItemLabelGenerator(CategoryItemLabelGenerator generator) {
+        this.itemLabelGenerator = generator;
+    }
+
+    /**
+     * Sets the label generator for a series.
+     *
+     * @param series  the series index (zero based).
+     * @param generator  the generator.
+     */
+    public void setSeriesItemLabelGenerator(int series, CategoryItemLabelGenerator generator) {
+        this.itemLabelGeneratorList.set(series, generator);
+    }
+
+    /**
+     * Returns the base item label generator.
+     *
+     * @return The base item label generator.
+     */
+    public CategoryItemLabelGenerator getBaseItemLabelGenerator() {
+        return this.baseItemLabelGenerator;
+    }
+
+    /**
+     * Sets the base item label generator.
+     *
+     * @param generator  the base item label generator.
+     */
+    public void setBaseItemLabelGenerator(CategoryItemLabelGenerator generator) {
+        this.baseItemLabelGenerator = generator;
+    }
+
+    /**
+     * Returns the URL generator for a data item.  This method just calls the
+     * getSeriesItemURLGenerator method, but you can override this behaviour if you want to.
+     *
+     * @param row  the row index (zero based).
+     * @param column  the column index (zero based).
+     *
+     * @return The URL generator.
+     */
+    public CategoryURLGenerator getItemURLGenerator(int row, int column) {
+        return getSeriesItemURLGenerator(row);
+    }
+
+    /**
+     * Returns the URL generator for a series.
+     *
+     * @param series  the series index (zero based).
+     *
+     * @return The URL generator for the series.
+     */
+    public CategoryURLGenerator getSeriesItemURLGenerator(int series) {
+
+        // return the generator for ALL series, if there is one...
+        if (this.itemURLGenerator != null) {
+            return this.itemURLGenerator;
+        }
+
+        // otherwise look up the generator table
+        CategoryURLGenerator generator
+            = (CategoryURLGenerator) this.itemURLGeneratorList.get(series);
+        if (generator == null) {
+            generator = this.baseItemURLGenerator;
+        }
+        return generator;
+
+    }
+
+    /**
+     * Sets the item URL generator for ALL series.
+     *
+     * @param generator  the generator.
+     */
+    public void setItemURLGenerator(CategoryURLGenerator generator) {
+        this.itemURLGenerator = generator;
+    }
+
+    /**
+     * Sets the URL generator for a series.
+     *
+     * @param series  the series index (zero based).
+     * @param generator  the generator.
+     */
+    public void setSeriesItemURLGenerator(int series, CategoryURLGenerator generator) {
+        this.itemURLGeneratorList.set(series, generator);
+    }
+
+    /**
+     * Returns the base item URL generator.
+     *
+     * @return The item URL generator.
+     */
+    public CategoryURLGenerator getBaseItemURLGenerator() {
+        return this.baseItemURLGenerator;
+    }
+
+    /**
+     * Sets the base item URL generator.
+     *
+     * @param generator  the item URL generator.
+     */
+    public void setBaseItemURLGenerator(CategoryURLGenerator generator) {
+        this.baseItemURLGenerator = generator;
+    }
+
+    /**
+     * Returns the number of rows in the dataset.  This value is updated in the
      * {@link AbstractCategoryItemRenderer#initialise} method.
      *
      * @return the row count.
@@ -164,131 +326,29 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
     }
 
     /**
-     * Returns the flag that controls whether or not the renderer uses the category paint settings.
-     *
-     * @return the flag.
-     */
-//    public boolean getUseCategoriesPaint() {
-//        return this.useCategoriesPaint;
-//    }
-
-    /**
-     * Returns the paint to use for the categories when there is just one series.
-     * <P>
-     * If this is null, the categories will all have the same color (that of the series).
-     *
-     * @return the paint for the categories.
-     */
-//    public Paint[] getCategoriesPaint() {
-//        return this.categoriesPaint;
-//    }
-
-    /**
-     * Sets the paint to be used for categories under special circumstances.
-     * <P>
-     * This attribute is provided for the situation where there is just one series, and you want
-     * each category item to be plotted using a different color (ordinarily, the series color is
-     * used for all the items in the series).
-     * <P>
-     * May not be observed by all subclasses yet.
-     *
-     * @param paint  the colors.
-     */
-//    public void setCategoriesPaint(Paint[] paint) {
-//
-//        Object oldValue = this.categoriesPaint;
-//        this.categoriesPaint = paint;
-//        firePropertyChanged("renderer.CategoriesPaint", oldValue, paint);
-//
-//    }
-
-    /**
-     * Returns the paint for a specific category (possibly null).
-     *
-     * @param index  the category index.
-     *
-     * @return the paint for the category.
-     */
-//    public Paint getCategoryPaint(int index) {
-//
-//        Paint result = null;
-//        if (this.categoriesPaint != null) {
-//            result = this.categoriesPaint[index % categoriesPaint.length];
-//        }
-//        return result;
-//    }
-
-    /**
-     * Returns the tool tip generator.
-     *
-     * @return the tool tip generator.
-     */
-    public CategoryToolTipGenerator getToolTipGenerator() {
-        return this.toolTipGenerator;
-    }
-
-    /**
-     * Sets the tool tip generator.
-     *
-     * @param generator  the tool tip generator.
-     */
-    public void setToolTipGenerator(CategoryToolTipGenerator generator) {
-
-        Object oldValue = this.toolTipGenerator;
-        this.toolTipGenerator = generator;
-        firePropertyChanged("renderer.ToolTipGenerator", oldValue, generator);
-
-    }
-
-    /**
-     * Returns the URL generator for HTML image maps.
-     *
-     * @return the URL generator.
-     */
-    public CategoryURLGenerator getURLGenerator() {
-        return this.urlGenerator;
-    }
-
-    /**
-     * Sets the URL generator for HTML image maps.
-     *
-     * @param urlGenerator  the URL generator.
-     */
-    public void setURLGenerator(CategoryURLGenerator urlGenerator) {
-
-        Object oldValue = this.urlGenerator;
-        this.urlGenerator = urlGenerator;
-        firePropertyChanged("renderer.URLGenerator", oldValue, urlGenerator);
-
-    }
-
-    /**
      * Initialises the renderer.
      * <P>
-     * Stores a reference to the {@link ChartRenderingInfo} object (which might be 
-     * <code>null</code>), and then sets the useCategoriesPaint flag according to the special case 
+     * Stores a reference to the {@link PlotRenderingInfo} object (which might be
+     * <code>null</code>), and then sets the useCategoriesPaint flag according to the special case
      * conditions a) there is only one series and b) the categoriesPaint array is not null.
      *
      * @param g2  the graphics device.
      * @param dataArea  the data area.
      * @param plot  the plot.
-     * @param info  an object for returning information about the structure of the chart 
+     * @param index  the secondary index (<code>null</code> for primary renderer).
+     * @param info  an object for returning information about the structure of the plot
      *              (<code>null</code> permitted).
      *
      */
     public void initialise(Graphics2D g2, Rectangle2D dataArea,
-                           CategoryPlot plot, ChartRenderingInfo info) {
+                           CategoryPlot plot, Integer index,
+                           PlotRenderingInfo info) {
 
         setPlot(plot);
-		CategoryDataset data = plot.getCategoryDataset();
+        CategoryDataset data = getDataset(plot, index);
         if (data != null) {
             this.rowCount = data.getRowCount();
             this.columnCount = data.getColumnCount();
-            // the renderer can use different colors for the categories if there is one series and
-            // the categoriesPaint array has been populated...
-//            if ((data.getRowCount() == 1) && (this.categoriesPaint != null)) {
-//                this.useCategoriesPaint = this.categoriesPaint.length > 0;
-//            }
         }
         else {
             this.rowCount = 0;
@@ -308,40 +368,40 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      *
      * @return the range type.
      */
-    public int getRangeType() {
-        return CategoryItemRenderer.STANDARD;
+    public RangeType getRangeType() {
+        return RangeType.STANDARD;
     }
 
     /**
-     * Draws a background for the data area.  The default implementation just gets the plot to 
+     * Draws a background for the data area.  The default implementation just gets the plot to
      * draw the outline, but some renderers will override this behaviour.
      *
      * @param g2  the graphics device.
      * @param plot  the plot.
      * @param dataArea  the data area.
      */
-    public void drawBackground(Graphics2D g2, 
+    public void drawBackground(Graphics2D g2,
                                CategoryPlot plot,
                                Rectangle2D dataArea) {
 
         plot.drawBackground(g2, dataArea);
-        
+
     }
-    
+
     /**
-     * Draws an outline for the data area.  The default implementation just gets the plot to 
+     * Draws an outline for the data area.  The default implementation just gets the plot to
      * draw the outline, but some renderers will override this behaviour.
      *
      * @param g2  the graphics device.
      * @param plot  the plot.
      * @param dataArea  the data area.
      */
-    public void drawOutline(Graphics2D g2, 
+    public void drawOutline(Graphics2D g2,
                             CategoryPlot plot,
                             Rectangle2D dataArea) {
 
         plot.drawOutline(g2, dataArea);
-        
+
     }
 
     /**
@@ -360,12 +420,28 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
                                    Rectangle2D dataArea,
                                    double value) {
 
-        Line2D line = new Line2D.Double(value, dataArea.getMinY(),
-                                        value, dataArea.getMaxY());
+        Line2D line = null;
+        PlotOrientation orientation = plot.getOrientation();
+
+        if (orientation == PlotOrientation.HORIZONTAL) {
+            line = new Line2D.Double(dataArea.getMinX(), value, dataArea.getMaxX(), value);
+        }
+        else if (orientation == PlotOrientation.VERTICAL) {
+            line = new Line2D.Double(value, dataArea.getMinY(), value, dataArea.getMaxY());
+        }
+
         Paint paint = plot.getDomainGridlinePaint();
+        if (paint == null) {
+            paint = CategoryPlot.DEFAULT_GRIDLINE_PAINT;
+        }
+        g2.setPaint(paint);
+
         Stroke stroke = plot.getDomainGridlineStroke();
-        g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
-        g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+        if (stroke == null) {
+            stroke = CategoryPlot.DEFAULT_GRIDLINE_STROKE;
+        }
+        g2.setStroke(stroke);
+
         g2.draw(line);
 
     }
@@ -387,18 +463,32 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
                                   double value) {
 
         Range range = axis.getRange();
-
         if (!range.contains(value)) {
             return;
         }
 
-        double y = axis.translateValueToJava2D(value, dataArea);
-        Line2D line = new Line2D.Double(dataArea.getMinX(), y,
-                                        dataArea.getMaxX(), y);
+        PlotOrientation orientation = plot.getOrientation();
+        double v = axis.translateValueToJava2D(value, dataArea, plot.getRangeAxisEdge());
+        Line2D line = null;
+        if (orientation == PlotOrientation.HORIZONTAL) {
+            line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
+        }
+        else if (orientation == PlotOrientation.VERTICAL) {
+            line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
+        }
+
         Paint paint = plot.getRangeGridlinePaint();
+        if (paint == null) {
+            paint = CategoryPlot.DEFAULT_GRIDLINE_PAINT;
+        }
+        g2.setPaint(paint);
+
         Stroke stroke = plot.getRangeGridlineStroke();
-        g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
-        g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+        if (stroke == null) {
+            stroke = CategoryPlot.DEFAULT_GRIDLINE_STROKE;
+        }
+        g2.setStroke(stroke);
+
         g2.draw(line);
 
     }
@@ -427,13 +517,28 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
             return;
         }
 
-        double y = axis.translateValueToJava2D(marker.getValue(), dataArea);
-        Line2D line = new Line2D.Double(dataArea.getMinX(), y,
-                                        dataArea.getMaxX(), y);
+        PlotOrientation orientation = plot.getOrientation();
+        double v = axis.translateValueToJava2D(value, dataArea, plot.getRangeAxisEdge());
+        Line2D line = null;
+        if (orientation == PlotOrientation.HORIZONTAL) {
+            line = new Line2D.Double(v, dataArea.getMinY(), v, dataArea.getMaxY());
+        }
+        else if (orientation == PlotOrientation.VERTICAL) {
+            line = new Line2D.Double(dataArea.getMinX(), v, dataArea.getMaxX(), v);
+        }
+
         Paint paint = marker.getOutlinePaint();
+        if (paint == null) {
+            paint = Plot.DEFAULT_OUTLINE_PAINT;
+        }
+        g2.setPaint(paint);
+
         Stroke stroke = marker.getOutlineStroke();
-        g2.setPaint(paint != null ? paint : Plot.DEFAULT_OUTLINE_PAINT);
-        g2.setStroke(stroke != null ? stroke : Plot.DEFAULT_OUTLINE_STROKE);
+        if (stroke == null) {
+            stroke = Plot.DEFAULT_OUTLINE_STROKE;
+        }
+        g2.setStroke(stroke);
+
         g2.draw(line);
 
     }
@@ -448,59 +553,436 @@ public abstract class AbstractCategoryItemRenderer extends AbstractRenderer
      */
     public LegendItem getLegendItem(int datasetIndex, int series) {
 
-        CategoryPlot plot = (CategoryPlot) getPlot();
+        CategoryPlot plot = getPlot();
         if (plot == null) {
             return null;
         }
 
-		CategoryDataset dataset;
+        CategoryDataset dataset;
         if (datasetIndex == 0) {
-            dataset = plot.getCategoryDataset();
+            dataset = plot.getDataset();
         }
         else {
-            dataset = plot.getSecondaryCategoryDataset();
+            dataset = plot.getSecondaryDataset(datasetIndex - 1);
         }
         String label = dataset.getRowKey(series).toString();
         String description = label;
-        Shape shape = getSeriesShape(datasetIndex, series);
-        Paint paint = getSeriesPaint(datasetIndex, series);
-        Paint outlinePaint = getSeriesOutlinePaint(datasetIndex, series);
-        Stroke stroke = getSeriesStroke(datasetIndex, series);
+        Shape shape = getSeriesShape(series);
+        Paint paint = getSeriesPaint(series);
+        Paint outlinePaint = getSeriesOutlinePaint(series);
+        Stroke stroke = getSeriesStroke(series);
 
         return new LegendItem(label, description,
                               shape, paint, outlinePaint, stroke);
 
     }
-    
+
     /**
      * Tests this renderer for equality with another object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-        
-        boolean result = false;
+
+        boolean result = super.equals(obj);
 
         if (obj instanceof AbstractCategoryItemRenderer) {
             AbstractCategoryItemRenderer r = (AbstractCategoryItemRenderer) obj;
-            if (this.toolTipGenerator != null) {
-                result = this.toolTipGenerator.equals(r.getToolTipGenerator());
+            if (this.baseItemLabelGenerator != null) {
+                result = result && this.baseItemLabelGenerator.equals(
+                                       r.getBaseItemLabelGenerator());
             }
             else {
-                result = (r.getToolTipGenerator() == null);
+                result = result && (r.getBaseItemLabelGenerator() == null);
             }
-            if (this.urlGenerator != null) {
-                result = result && this.urlGenerator.equals(r.getURLGenerator());
+            if (this.itemURLGenerator != null) {
+                result = result && this.itemURLGenerator.equals(r.itemURLGenerator);
             }
             else {
-                result = result && (r.getURLGenerator() == null);
+                result = result && (r.itemURLGenerator == null);
             }
         }
-        
+
         return result;
-        
+
     }
 
+    /**
+     * Returns the drawing supplier from the plot.
+     *
+     * @return The drawing supplier (possibly <code>null</code>).
+     */
+    public DrawingSupplier getDrawingSupplier() {
+        DrawingSupplier result = null;
+        CategoryPlot cp = getPlot();
+        if (cp != null) {
+            result = cp.getDrawingSupplier();
+        }
+        return result;
+    }
+
+    /**
+     * Draws an item label.
+     *
+     * @param g2  the graphics device.
+     * @param orientation  the orientation.
+     * @param dataset  the dataset.
+     * @param row  the row.
+     * @param column  the column.
+     * @param x  the x value.
+     * @param y  the y value.
+     * @param flipAnchors  flip anchors for negative values?
+     */
+    protected void drawItemLabel(Graphics2D g2, PlotOrientation orientation,
+                                 CategoryDataset dataset, int row, int column,
+                                 double x, double y, boolean flipAnchors) {
+        CategoryItemLabelGenerator generator = getItemLabelGenerator(row, column);
+        if (generator != null) {
+            Font labelFont = getItemLabelFont(row, column);
+            g2.setFont(labelFont);
+            Paint paint = getItemLabelPaint(row, column);
+            g2.setPaint(paint);
+            String label = generator.generateItemLabel(dataset, row, column);
+
+            // get the label anchor..
+            ItemLabelAnchor labelAnchor = getItemLabelAnchor(row, column);
+            TextAnchor textAnchor = getItemLabelTextAnchor(row, column);
+            TextAnchor rotationAnchor = getItemLabelRotationAnchor(row, column);
+
+            if (flipAnchors) {
+                labelAnchor = ItemLabelAnchor.getVerticalOpposite(labelAnchor);
+                textAnchor = TextAnchor.getVerticalOpposite(textAnchor);
+                rotationAnchor = TextAnchor.getVerticalOpposite(rotationAnchor);
+            }
+            double angle = getItemLabelAngle(row, column).doubleValue();
+
+            // work out the label anchor point...
+            Point2D anchorPoint = calculateLabelAnchorPoint(labelAnchor, x, y, orientation);
+            RefineryUtilities.drawRotatedString(label, g2,
+                                               (float) anchorPoint.getX(),
+                                               (float) anchorPoint.getY(),
+                                               textAnchor, rotationAnchor, angle);
+        }
+
+    }
+
+    /**
+     * Calculates the item label anchor point.
+     *
+     * @param anchor  the anchor.
+     * @param x  the x coordinate.
+     * @param y  the y coordinate.
+     * @param orientation  the plot orientation.
+     *
+     * @return The anchor point.
+     */
+    private Point2D calculateLabelAnchorPoint(ItemLabelAnchor anchor,
+                                              double x, double y, PlotOrientation orientation) {
+
+        Point2D result = null;
+
+        if (orientation == PlotOrientation.HORIZONTAL) {
+            result = getHorizontalLabelAnchorPoint(anchor, y, x);
+        }
+        else if (orientation == PlotOrientation.VERTICAL) {
+            result = getVerticalLabelAnchorPoint(anchor, x, y);
+        }
+
+        return result;
+
+    }
+
+    /**
+     * Returns the horizontal label anchor point.
+     *
+     * @param anchor  the anchor.
+     * @param x  the x value.
+     * @param y  the y value.
+     *
+     * @return The anchor point.
+     */
+    private Point2D getHorizontalLabelAnchorPoint(ItemLabelAnchor anchor, double x, double y) {
+
+        Point2D result = null;
+
+        if (anchor == ItemLabelAnchor.CENTER) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE1) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE2) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE3) {
+            result = new Point2D.Double(x, y + this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE4) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE5) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE6) {
+            result = new Point2D.Double(x - this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE7) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE8) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE9) {
+            result = new Point2D.Double(x, y - this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE10) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE11) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE12) {
+            result = new Point2D.Double(x + this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE1) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE2) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE3) {
+            result = new Point2D.Double(x, y + 2.0 * this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE4) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE5) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE6) {
+            result = new Point2D.Double(x - 2.0 * this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE7) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE8) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE9) {
+            result = new Point2D.Double(x, y - 2.0 * this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE10) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE11) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE12) {
+            result = new Point2D.Double(x + 2.0 * this.itemLabelAnchorOffset, y);
+        }
+
+        return result;
+
+    }
+
+    /**
+     * Gets the label anchor point.
+     *
+     * @param anchor  the label anchor.
+     * @param x  the data x coordinate.
+     * @param y  the data y coordinate.
+     *
+     * @return The anchor point.
+     */
+    private Point2D getVerticalLabelAnchorPoint(ItemLabelAnchor anchor, double x, double y) {
+
+        Point2D result = null;
+
+        if (anchor == ItemLabelAnchor.CENTER) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE1) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE2) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE3) {
+            result = new Point2D.Double(x + this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE4) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE5) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE6) {
+            result = new Point2D.Double(x, y + this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE7) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE8) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE9) {
+            result = new Point2D.Double(x - this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE10) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE11) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.INSIDE12) {
+            result = new Point2D.Double(x, y - this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE1) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE2) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE3) {
+            result = new Point2D.Double(x + 2.0 * this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE4) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE5) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE6) {
+            result = new Point2D.Double(x, y + 2.0 * this.itemLabelAnchorOffset);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE7) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE8) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE9) {
+            result = new Point2D.Double(x - 2.0 * this.itemLabelAnchorOffset, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE10) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE11) {
+            result = new Point2D.Double(x, y);
+        }
+        else if (anchor == ItemLabelAnchor.OUTSIDE12) {
+            result = new Point2D.Double(x, y - 2.0 * this.itemLabelAnchorOffset);
+       }
+
+        return result;
+
+    }
+    
+    /**
+     * Returns an independent copy of the renderer.
+     * <p>
+     * The <code>plot</code> reference is shallow copied.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  should not happen.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        AbstractCategoryItemRenderer clone = (AbstractCategoryItemRenderer) super.clone();
+
+        if (this.itemLabelGenerator != null) {
+            clone.itemLabelGenerator = (CategoryItemLabelGenerator) this.itemLabelGenerator.clone();
+        }
+
+        if (this.itemLabelGeneratorList != null) {
+            clone.itemLabelGeneratorList = (ObjectList) this.itemLabelGeneratorList.clone();
+        }
+        
+        if (this.baseItemLabelGenerator != null) {
+            clone.baseItemLabelGenerator 
+                = (CategoryItemLabelGenerator) this.baseItemLabelGenerator.clone();
+        }
+        
+        if (this.itemURLGenerator != null) {
+            clone.itemURLGenerator = (CategoryURLGenerator) this.itemURLGenerator.clone();
+        }
+
+        if (this.itemURLGeneratorList != null) {
+            clone.itemURLGeneratorList = (ObjectList) this.itemURLGeneratorList.clone();
+        }
+
+        if (this.baseItemURLGenerator != null) {
+            clone.baseItemURLGenerator 
+                = (CategoryURLGenerator) this.baseItemURLGenerator.clone();
+        }
+        
+
+        return clone;
+    }
+
+    /**
+     * Returns a domain axis for a plot.
+     * 
+     * @param plot  the plot.
+     * @param index  the axis index (<code>null</code> for the primary axis).
+     * 
+     * @return A domain axis.
+     */
+    protected CategoryAxis getDomainAxis(CategoryPlot plot, Integer index) {
+        CategoryAxis result = null;
+        if (index == null) {
+            result = plot.getDomainAxis();
+        }
+        else {
+            result = plot.getSecondaryDomainAxis(index.intValue());
+            if (result == null) {
+                result = plot.getDomainAxis();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns a range axis for a plot.
+     * 
+     * @param plot  the plot.
+     * @param index  the axis index (<code>null</code> for the primary axis).
+     * 
+     * @return A range axis.
+     */
+    protected ValueAxis getRangeAxis(CategoryPlot plot, Integer index) {
+        ValueAxis result = null;
+        if (index == null) {
+            result = plot.getRangeAxis();
+        }
+        else {
+            result = plot.getSecondaryRangeAxis(index.intValue());
+            if (result == null) {
+                result = plot.getRangeAxis();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns a dataset for a plot.
+     * 
+     * @param plot  the plot.
+     * @param index  the dataset index (<code>null</code> for the primary dataset).
+     * 
+     * @return A dataset.
+     */
+    protected CategoryDataset getDataset(CategoryPlot plot, Integer index) {
+        CategoryDataset result = null;
+        if (index == null) {
+            result = plot.getDataset();
+        }
+        else {
+            result = plot.getSecondaryDataset(index.intValue());
+        }
+        return result;    
+    }
+    
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * LegendItem.java
  * ---------------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Andrzej Porebski;
  *                   David Li;
  *                   Wolfgang Irler;
@@ -35,13 +35,13 @@
  * -------------------------
  * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 17-Jan-2003 : Dropped outlineStroke attribute (DG);
- * 
+ *
  */
 
 package org.jfree.chart;
 
-import java.awt.Shape;
 import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.Stroke;
 
 /**
@@ -113,10 +113,10 @@ public class LegendItem {
     public Paint getPaint() {
         return this.paint;
     }
-    
-    /** 
+
+    /**
      * Returns the shape used to label the series represented by this legend item.
-     * 
+     *
      * @return The shape.
      */
     public Shape getShape() {

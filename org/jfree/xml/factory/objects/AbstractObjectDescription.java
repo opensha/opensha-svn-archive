@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -38,11 +38,14 @@
 
 package org.jfree.xml.factory.objects;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.jfree.util.Log;
 import org.jfree.util.Configuration;
+import org.jfree.util.Log;
+import org.jfree.util.ReadOnlyIterator;
 
 /**
  * An abstract base class for object descriptions.
@@ -163,8 +166,10 @@ public abstract class AbstractObjectDescription implements ObjectDescription, Cl
      *
      * @return The iterator.
      */
-    public Iterator getParameterNames() {
-        return parameterDefs.keySet().iterator();
+    public synchronized Iterator getParameterNames() {
+        ArrayList parameterNames = new ArrayList(parameterDefs.keySet());
+        Collections.sort(parameterNames);
+        return new ReadOnlyIterator (parameterNames.iterator());
     }
 
     /**
@@ -173,7 +178,7 @@ public abstract class AbstractObjectDescription implements ObjectDescription, Cl
      * @return The iterator.
      */
     protected Iterator getDefinedParameterNames() {
-        return parameters.keySet().iterator();
+        return new ReadOnlyIterator (parameters.keySet().iterator());
     }
 
     /**
@@ -197,7 +202,14 @@ public abstract class AbstractObjectDescription implements ObjectDescription, Cl
     }
 
     /**
-     * Returns a cloned instance of the object description.
+     * Returns a cloned instance of the object description. The contents
+     * of the parameter objects collection are cloned too, so that any
+     * already defined parameter value is copied to the new instance.
+     * <p>
+     * Parameter definitions are not cloned, as they are considered read-only.
+     * <p>
+     * The newly instantiated object description is not configured. If it
+     * need to be configured, then you have to call configure on it.
      *
      * @return A cloned instance.
      */
@@ -213,6 +225,31 @@ public abstract class AbstractObjectDescription implements ObjectDescription, Cl
         }
     }
 
+
+    /**
+     * Returns a cloned instance of the object description. The contents
+     * of the parameter objects collection are cloned too, so that any
+     * already defined parameter value is copied to the new instance.
+     * <p>
+     * Parameter definitions are not cloned, as they are considered read-only.
+     * <p>
+     * The newly instantiated object description is not configured. If it
+     * need to be configured, then you have to call configure on it.
+     *
+     * @return A cloned instance.
+     */
+    public ObjectDescription getUnconfiguredInstance() {
+        try {
+            AbstractObjectDescription c = (AbstractObjectDescription) super.clone();
+            c.parameters = (HashMap) parameters.clone();
+            c.config = null;
+            return c;
+        }
+        catch (Exception e) {
+            Log.error("Should not happen: Clone Error: ", e);
+            return null;
+        }
+    }
 
     /**
      * Configures this factory. The configuration contains several keys and
@@ -237,5 +274,32 @@ public abstract class AbstractObjectDescription implements ObjectDescription, Cl
      */
     public Configuration getConfig() {
         return config;
+    }
+
+    /**
+     * Tests for equality.
+     * 
+     * @param o  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AbstractObjectDescription)) return false;
+
+        final AbstractObjectDescription abstractObjectDescription = (AbstractObjectDescription) o;
+
+        if (!className.equals(abstractObjectDescription.className)) return false;
+
+        return true;
+    }
+
+    /**
+     * Returns a hash code for the object.
+     * 
+     * @return The hash code.
+     */
+    public int hashCode() {
+        return className.hashCode();
     }
 }

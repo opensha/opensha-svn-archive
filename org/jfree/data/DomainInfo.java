@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * DomainInfo.java
  * ---------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -50,16 +50,16 @@ package org.jfree.data;
 public interface DomainInfo {
 
     /**
-     * Returns the minimum value in the dataset (or null if all the values in
-     * the domain are null).
+     * Returns the minimum value in the dataset (or <code>null</code> if all the values in
+     * the domain are <code>null</code>).
      *
      * @return The minimum value.
      */
     public Number getMinimumDomainValue();
 
     /**
-     * Returns the maximum value in the dataset (or null if all the values in
-     * the domain are null).
+     * Returns the maximum value in the dataset (or <code>null</code> if all the values in
+     * the domain are <code>null</code>).
      *
      * @return The maximum value.
      */

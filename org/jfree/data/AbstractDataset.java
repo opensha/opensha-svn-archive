@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * --------------------
  * AbstractDataset.java
  * --------------------
- * (C)opyright 2000-2003, by Simba Management Limited.
+ * (C)opyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Nicolas Brodu (for Astrium and EADS Corporate Research Center);
  *
  * $Id$
  *
@@ -42,13 +42,17 @@
  * 07-Aug-2002 : Changed listener list to use javax.swing.event.EventListenerList (DG);
  * 04-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 27-Mar-2003 : Implemented Serializable (DG);
- *
+ * 18-Aug-2003 : Implemented Cloneable (DG);
+ * 08-Sep-2003 : Serialization fixes (NB);
+ * 11-Sep-2003 : Cloning Fixes (NB);
  */
 
 package org.jfree.data;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
+import java.io.ObjectInputValidation;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
@@ -60,7 +64,10 @@ import javax.swing.event.EventListenerList;
  *
  * @author David Gilbert
  */
-public abstract class AbstractDataset implements Dataset, Serializable {
+public abstract class AbstractDataset implements Dataset, 
+                                                 Cloneable, 
+                                                 Serializable,
+                                                 ObjectInputValidation {
 
     /** The group that the dataset belongs to. */
     private DatasetGroup group;
@@ -140,29 +147,64 @@ public abstract class AbstractDataset implements Dataset, Serializable {
     }
 
     /**
+     * Returns a clone of the dataset. 
+     * <p>
+     * The cloned dataset will NOT include the {@link DatasetChangeListener} references that have
+     * been registered with this dataset.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the dataset does not support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        AbstractDataset clone = (AbstractDataset) super.clone();
+        clone.listenerList = new EventListenerList();
+        return clone;    
+    }
+    
+    /**
      * Handles serialization.
-     * 
+     *
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException if there is an I/O problem.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
     }
-    
+
     /**
      * Restores a serialized object.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @throws IOException if there is an I/O problem.
      * @throws ClassNotFoundException if there is a problem loading a class.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         this.listenerList = new EventListenerList();
+        stream.registerValidation(this, 10);  // see comments about priority of 10 in validateObject() 
     }
-    
+ 
+    /**
+     * Validates the object. We use this opportunity to call listeners who have registered during the
+     * deserialization process, as listeners are not serialized. This method is called by the 
+     * serialization system after the entire graph is read.
+     *  
+     * This object has registered itself to the system with a priority of 10. Other callbacks may 
+     * register with a higher priority number to be called before this object, or with a lower priority
+     * number to be called after the listeners were notified.
+     * 
+     * All listeners are supposed to have register by now, either in their readObject or validateObject 
+     * methods. Notify them that this dataset has changed.  
+     *
+     * @exception InvalidObjectException If the object cannot validate itself.
+     */
+    public void validateObject() throws InvalidObjectException {
+       fireDatasetChanged();
+    }
+   
 }
 
 

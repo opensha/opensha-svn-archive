@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2000-2003, by David Berry and Contributors.
  *
  * Original Author:  David Berry;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -41,18 +41,18 @@
 
 package org.jfree.chart;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.Color;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 /**
- * A chart title that displays the date. 
+ * A chart title that displays the date.
  * <p>
  * Keep in mind that a chart can have several titles, and that they can appear at the top, left,
- * right or bottom of the chart - a <code>DateTitle</code> will commonly appear at the bottom of 
+ * right or bottom of the chart - a <code>DateTitle</code> will commonly appear at the bottom of
  * a chart, although you can place it anywhere.
  * <P>
  * By specifying the locale, dates are formatted to the correct standard for
@@ -77,10 +77,10 @@ public class DateTitle extends TextTitle {
     }
 
     /**
-     * Creates a new chart title that displays the current date with the specified style 
+     * Creates a new chart title that displays the current date with the specified style
      * (for the default locale).
      * <P>
-     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>, 
+     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>,
      * <code>LONG</code> or <code>FULL</code> (defined in <code>java.util.DateFormat<code>).
      *
      * @param style  the date style.
@@ -93,7 +93,7 @@ public class DateTitle extends TextTitle {
     /**
      * Creates a new chart title that displays the current date.
      * <p>
-     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>, 
+     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>,
      * <code>LONG</code> or <code>FULL</code> (defined in <code>java.util.DateFormat<code>).
      * <P>
      * For the locale, you can use <code>Locale.getDefault()</code> for the default locale.
@@ -115,21 +115,21 @@ public class DateTitle extends TextTitle {
     /**
      * Creates a new chart title that displays the current date.
      * <p>
-     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>, 
+     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>,
      * <code>LONG</code> or <code>FULL</code> (defined in <code>java.util.DateFormat<code>).
      * <P>
      * For the locale, you can use <code>Locale.getDefault()</code> for the default locale.
      *
      * @param style  the date style.
      * @param locale  the locale.
-     * @param font  the font.
-     * @param paint  the text color.
+     * @param font  the font (not null).
+     * @param paint  the text color (not null).
      * @param position  the relative location of this title (use constants in AbstractTitle).
      * @param horizontalAlignment  the horizontal text alignment of this title (use constants
      *                             in AbstractTitle).
      * @param verticalAlignment  the vertical text alignment of this title (use constants in
      *                           AbstractTitle).
-     * @param spacer  determines the blank space around the outside of the title.
+     * @param spacer  determines the blank space around the outside of the title (not null).
      */
     public DateTitle(int style, Locale locale, Font font, Paint paint,
                      int position, int horizontalAlignment, int verticalAlignment,
@@ -145,7 +145,7 @@ public class DateTitle extends TextTitle {
     /**
      * Set the format of the date.
      * <P>
-     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>, 
+     * The date style should be one of:  <code>SHORT</code>, <code>MEDIUM</code>,
      * <code>LONG</code> or <code>FULL</code> (defined in <code>java.util.DateFormat<code>).
      * <P>
      * For the locale, you can use <code>Locale.getDefault()</code> for the default locale.

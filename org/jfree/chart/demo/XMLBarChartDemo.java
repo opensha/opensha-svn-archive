@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * XMLBarChartDemo.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,10 +42,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.xml.DatasetReader;
 import org.jfree.ui.ApplicationFrame;
@@ -81,17 +81,16 @@ public class XMLBarChartDemo extends ApplicationFrame {
         }
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createVerticalBarChart("Bar Chart",  // chart title
-                                                               "Domain", "Range",
-                                                               dataset,      // data
-                                                               true,         // include legend
-                                                               true,
-                                                               false
-                                                               );
+        JFreeChart chart = ChartFactory.createBarChart("Bar Chart",  // chart title
+                                                       "Domain", "Range",
+                                                       dataset,      // data
+                                                       PlotOrientation.VERTICAL,
+                                                       true,         // include legend
+                                                       true,
+                                                       false);
 
         // set the background color for the chart...
         chart.setBackgroundPaint(Color.yellow);
-        CategoryPlot plot = chart.getCategoryPlot();
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);

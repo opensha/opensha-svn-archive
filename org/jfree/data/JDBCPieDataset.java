@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Bryan Scott and Contributors.
  *
  * Original Author:  Bryan Scott; Andy
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * Changes
  * -------
@@ -35,27 +35,28 @@
  * 18-Sep-2002 : Updated to support BIGINT (BS);
  * 21-Jan-2003 : Renamed JdbcPieDataset --> JDBCPieDataset (DG);
  * 03-Feb-2003 : Added Types.DECIMAL (see bug report 677814) (DG);
- *
+ * 05-Jun-2003 : Updated to support TIME, optimised executeQuery method (BS);
+ * 30-Jul-2003 : Added empty contructor and executeQuery(connection,string) method (BS);
  */
 
 package org.jfree.data;
 
 import java.sql.Connection;
-import java.sql.Date;
-import java.sql.Statement;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 /**
- * A pie dataset that reads data from a database via JDBC.
+ * A {@link PieDataset} that reads data from a database via JDBC.
  * <P>
  * A query should be supplied that returns data in two columns, the first containing
  * VARCHAR data, and the second containing numerical data.  The data is cached in-memory
  * and can be refreshed at any time.
- * 
+ *
  * @author Bryan Scott.
  */
 public class JDBCPieDataset extends DefaultPieDataset {
@@ -71,6 +72,12 @@ public class JDBCPieDataset extends DefaultPieDataset {
 
     /** Meta data about the result set. */
     private ResultSetMetaData metaData;
+
+    /**
+     * Creates a new JDBCPieDataset with no database connection.
+     */
+    public JDBCPieDataset() {
+    }
 
     /**
      * Creates a new JDBCPieDataset and establishes a new database connection.
@@ -108,10 +115,9 @@ public class JDBCPieDataset extends DefaultPieDataset {
      * @param con  the database connection.
      */
     public JDBCPieDataset(Connection con) {
-
         this.connection = con;
-        
     }
+
 
     /**
      * Creates a new JDBCPieDataset using a pre-existing database connection.
@@ -136,26 +142,40 @@ public class JDBCPieDataset extends DefaultPieDataset {
      * @param  query  The query to be executed
      */
     public void executeQuery(String query) {
+      executeQuery(connection, query);
+    }
 
-        if (connection == null) {
+    /**
+     *  ExecuteQuery will attempt execute the query passed to it against the
+     *  existing database connection.  If no connection exists then no action
+     *  is taken.
+     *  The results from the query are extracted and cached locally, thus
+     *  applying an upper limit on how many rows can be retrieved successfully.
+     *
+     * @param  query  The query to be executed
+     * @param  con    The connection the query is to be executed against
+     */
+    public void executeQuery(Connection con, String query) {
+
+        if (con == null) {
             System.err.println("There is no database to execute the query.");
             return;
         }
 
         try {
-            statement = connection.createStatement();
+            statement = con.createStatement();
             resultSet = statement.executeQuery(query);
             metaData = resultSet.getMetaData();
 
             int columnCount = metaData.getColumnCount();
             if (columnCount != 2) {
-                System.err.println("Invalid sql generated.  PieDataSet requires 2 columns only");
+                throw new Exception("Invalid sql generated.  PieDataSet requires 2 columns only");
             }
 
+            int columnType = metaData.getColumnType(2);
+            double value = Double.NaN;
             while (resultSet.next()) {
                 Comparable key = resultSet.getString(1);
-                Number value = null;
-                int columnType = metaData.getColumnType(2);
                 switch (columnType) {
                     case Types.NUMERIC:
                     case Types.REAL:
@@ -164,15 +184,18 @@ public class JDBCPieDataset extends DefaultPieDataset {
                     case Types.FLOAT:
                     case Types.DECIMAL:
                     case Types.BIGINT:
-                        value = (Number) resultSet.getObject(2);
+                        value = resultSet.getDouble(2);
                         setValue(key, value);
                         break;
 
                     case Types.DATE:
+                    case Types.TIME:
                     case Types.TIMESTAMP:
-                        Date date = (Date) resultSet.getObject(2);
-                        value = new Long(date.getTime());
+                        Timestamp date = resultSet.getTimestamp(2);
+                        value = date.getTime();
+                        setValue(key, value);
                         break;
+
                     default:
                         System.err.println("JDBCPieDataset - unknown data type");
                         break;
@@ -182,8 +205,11 @@ public class JDBCPieDataset extends DefaultPieDataset {
             fireDatasetChanged();
 
         }
-        catch (SQLException ex) {
-            System.err.println(ex);
+        catch (SQLException sqle) {
+            System.err.println(sqle);
+        }
+        catch (Exception e) {
+            System.err.println(e);
         }
 
         finally {

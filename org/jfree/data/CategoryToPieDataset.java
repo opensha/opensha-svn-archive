@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,16 +22,17 @@
  * -------------------------
  * CategoryToPieDataset.java
  * -------------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
  * Changes
  * -------
  * 23-Jan-2003 : Version 1 (DG);
+ * 30-Jul-2003 : Pass through DatasetChangeEvent (CZ);
  *
  */
 
@@ -40,52 +41,54 @@ package org.jfree.data;
 import java.util.List;
 
 /**
- * A {@link PieDataset} implementation that obtains its data from one row or column of a 
+ * A {@link PieDataset} implementation that obtains its data from one row or column of a
  * {@link CategoryDataset}.
- * 
+ *
  * @author David Gilbert
  */
-public class CategoryToPieDataset extends AbstractDataset implements PieDataset {
+public class CategoryToPieDataset extends AbstractDataset 
+                                  implements PieDataset, DatasetChangeListener {
 
     /** A constant indicating that data should be extracted from a row. */
     public static final int ROW = 0;
-    
+
     /** A constant indicating that data should be extracted from a column. */
     public static final int COLUMN = 1;
-    
+
     /** The source. */
     private CategoryDataset source;
-    
+
     /** The extract type. */
     private int extract;
-    
+
     /** The row or column index. */
     private int index;
-    
+
     /**
-     * An adaptor class that converts any {@link CategoryDataset} into a {@link PieDataset}, by 
+     * An adaptor class that converts any {@link CategoryDataset} into a {@link PieDataset}, by
      * taking the values from a single row or column.
-     * 
+     *
      * @param source  the source dataset.
      * @param extract  ROW or COLUMN.
      * @param index  the row or column index.
      */
     public CategoryToPieDataset(CategoryDataset source, int extract, int index) {
         this.source = source;
+        this.source.addChangeListener(this);
         this.extract = extract;
         this.index = index;
     }
-    
+
     /**
      * Returns the number of items (values) in the collection.
      *
      * @return the item count.
      */
     public int getItemCount() {
-        
+
         int result = 0;
         switch (this.extract) {
-            case (ROW) : 
+            case (ROW) :
                 result = source.getColumnCount();
                 break;
             case (COLUMN) :
@@ -104,10 +107,10 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
      * @return the value.
      */
     public Number getValue(int item) {
-        
+
         Number result = null;
         switch (this.extract) {
-            case (ROW) : 
+            case (ROW) :
                 result = source.getValue(this.index, item);
                 break;
             case (COLUMN) :
@@ -116,7 +119,7 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
             default : // error
         }
         return result;
-        
+
     }
 
     /**
@@ -127,10 +130,10 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
      * @return the key.
      */
     public Comparable getKey(int index) {
-        
+
         Comparable result = null;
         switch (this.extract) {
-            case (ROW) : 
+            case (ROW) :
                 result = source.getColumnKey(index);
                 break;
             case (COLUMN) :
@@ -139,7 +142,7 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
             default : // error
         }
         return result;
-        
+
     }
 
     /**
@@ -150,10 +153,10 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
      * @return the index.
      */
     public int getIndex(Comparable key) {
-        
+
         int result = -1;
         switch (this.extract) {
-            case (ROW) : 
+            case (ROW) :
                 result = source.getColumnIndex(key);
                 break;
             case (COLUMN) :
@@ -162,7 +165,7 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
             default : // error
         }
         return result;
-        
+
     }
 
     /**
@@ -171,10 +174,10 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
      * @return the keys.
      */
     public List getKeys() {
-        
+
         List result = null;
         switch (this.extract) {
-            case (ROW) : 
+            case (ROW) :
                 result = source.getColumnKeys();
                 break;
             case (COLUMN) :
@@ -183,7 +186,7 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
             default : // error
         }
         return result;
-        
+
     }
 
     /**
@@ -196,11 +199,11 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
      * @return the value.
      */
     public Number getValue(Comparable key) {
-        
+
         Number result = null;
         int keyIndex = getIndex(key);
         switch (this.extract) {
-            case (ROW) : 
+            case (ROW) :
                 result = source.getValue(this.index, keyIndex);
                 break;
             case (COLUMN) :
@@ -209,7 +212,16 @@ public class CategoryToPieDataset extends AbstractDataset implements PieDataset 
             default : // error
         }
         return result;
-        
+
+    }
+    
+    /**
+     * Passes the {@link DatasetChangeEvent} through.
+     * 
+     * @param event  the event.
+     */
+    public void datasetChanged (DatasetChangeEvent event) {
+        fireDatasetChanged ();
     }
     
 }

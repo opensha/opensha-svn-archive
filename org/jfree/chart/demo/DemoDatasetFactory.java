@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,12 @@
  * -----------------------
  * DemoDatasetFactory.java
  * -----------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Bryan Scott;
+ *                   Bill Kelemen;
+ *                   David Browning;
  *
  * $Id$
  *
@@ -36,6 +38,9 @@
  * 20-Jun-2002 : Added createMeterDataset() method (BRS);
  * 24-Jun-2002 : Moved createGanttDataset() method from GanttDemo (BRS);
  * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 24-May-2003 : Added createSegmentedHighLowDataset(..) (BK);
+ * 05-Aug-2003 : Added createBoxAndWhiskerDataset() method (DB);
+ * 08-Aug-2003 : Refined createBoxAndWhiskerDataset() method (DB);
  *
  */
 
@@ -43,23 +48,22 @@ package org.jfree.chart.demo;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
+import org.jfree.chart.axis.SegmentedTimeline;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DatasetUtilities;
 import org.jfree.data.DefaultHighLowDataset;
-import org.jfree.data.DefaultMeterDataset;
 import org.jfree.data.DefaultWindDataset;
 import org.jfree.data.HighLowDataset;
 import org.jfree.data.IntervalCategoryDataset;
 import org.jfree.data.SignalsDataset;
-import org.jfree.data.Task;
-import org.jfree.data.TaskSeries;
-import org.jfree.data.TaskSeriesCollection;
 import org.jfree.data.WindDataset;
 import org.jfree.data.XYDataset;
 import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
+import org.jfree.data.gantt.Task;
+import org.jfree.data.gantt.TaskSeries;
+import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.FixedMillisecond;
 import org.jfree.data.time.SimpleTimePeriod;
@@ -72,7 +76,7 @@ import org.jfree.date.SerialDate;
 /**
  * A utility class for generating sample datasets for the demos.
  * <p>
- * These datasets are hard-coded so that they are easily accessible for the demonstration 
+ * These datasets are hard-coded so that they are easily accessible for the demonstration
  * applications.  In a real application, you would create datasets dynamically by reading data from
  * a file, a database, or some other source.
  *
@@ -81,22 +85,28 @@ import org.jfree.date.SerialDate;
 public class DemoDatasetFactory {
 
     /**
+     * To prevent (unnecessary) instantiation.
+     */
+    private DemoDatasetFactory() {
+    }
+    
+    /**
      * Creates and returns a {@link CategoryDataset} for the demo charts.
      *
-     * @return a sample dataset. 
+     * @return a sample dataset.
      */
     public static CategoryDataset createCategoryDataset() {
 
         double[][] data = new double[][]
-            { { 10.0,   4.0,  15.0,  14.0 },
-              { -5.0,  -7.0,  14.0,  -3.0 },
-              {  6.0,  17.0, -12.0,   7.0 },
-              {  7.0,  15.0,  11.0,   0.0 },
-              { -8.0,  -6.0,  10.0,  -9.0 },
-              {  9.0,   8.0,   0.0,   6.0 },
-              {-10.0,   9.0,   7.0,   7.0 },
-              { 11.0,  13.0,   9.0,   9.0 },
-              { -3.0,   7.0,  11.0, -10.0 } };
+            {{10.0, 4.0, 15.0, 14.0},
+             {-5.0, -7.0, 14.0, -3.0},
+             {6.0, 17.0, -12.0, 7.0},
+             {7.0, 15.0, 11.0, 0.0},
+             {-8.0, -6.0, 10.0, -9.0},
+             {9.0, 8.0, 0.0, 6.0},
+             {-10.0, 9.0, 7.0, 7.0},
+             {11.0, 13.0, 9.0, 9.0},
+             {-3.0, 7.0, 11.0, -10.0}};
 
         return DatasetUtilities.createCategoryDataset("Series ", "Category ", data);
 
@@ -110,15 +120,15 @@ public class DemoDatasetFactory {
     public static CategoryDataset createSingleCategoryDataset() {
 
         Number[][] data = new Integer[][]
-            { { new Integer(10) },
-              { new Integer(-5) },
-              { new Integer(6) },
-              { new Integer(7) },
-              { new Integer(-8) },
-              { new Integer(9) },
-              { new Integer(-10) },
-              { new Integer(11) },
-              { new Integer(-3) } };
+            {{new Integer(10)},
+             {new Integer(-5)},
+             {new Integer(6)},
+             {new Integer(7)},
+             {new Integer(-8)},
+             {new Integer(9)},
+             {new Integer(-10)},
+             {new Integer(11)},
+             {new Integer(-3)}};
 
         return DatasetUtilities.createCategoryDataset("Series ", "Category ", data);
 
@@ -131,8 +141,7 @@ public class DemoDatasetFactory {
      */
     public static CategoryDataset createSingleSeriesCategoryDataset() {
 
-        double[][] data = new double[][]
-            { { 10.0, -4.0, 15.0, 14.0 } };
+        double[][] data = new double[][] {{10.0, -4.0, 15.0, 14.0}};
 
         return DatasetUtilities.createCategoryDataset("Series ", "Category ", data);
 
@@ -1074,7 +1083,7 @@ public class DemoDatasetFactory {
 
         int jan = 1;
         int feb = 2;
-    
+
         date[0]  = DateUtilities.createDate(2001, jan, 4, 12, 0);
         high[0]  = 47.0;
         low[0]   = 33.0;
@@ -1409,6 +1418,147 @@ public class DemoDatasetFactory {
     }
 
     /**
+     * Creates a sample high low dataset for a SegmentedTimeline
+     *
+     * @param timeline SegmenteTimeline that will use this dataset.
+     * @param start Date from where the dataset will be generated. Actual dates will
+     *        be generated dynamically based on the timeline.
+     *
+     * @return a sample high low dataset.
+     */
+    public static HighLowDataset createSegmentedHighLowDataset(
+        SegmentedTimeline timeline, Date start) {
+
+        // some open-high-low-close data
+        double[][] data =
+               {{248.1999, 249.3999, 247.0499, 247.6999},
+                {247.4999, 250.6499, 246.7999, 249.3999},
+                {249.5999, 249.7499, 247.4999, 248.5999},
+                {248.5999, 251.5499, 248.4999, 248.6499},
+                {248.8499, 249.4499, 247.8499, 248.7999},
+                {249.1999, 250.5499, 248.4999, 248.7999},
+                {249.2999, 251.1499, 248.9499, 249.1499},
+                {248.1499, 249.8999, 247.2999, 249.0499},
+                {248.5999, 248.8999, 246.2999, 246.9499},
+                {247.1999, 248.3999, 246.6499, 248.3499},
+                {246.0999, 246.5999, 244.4999, 244.5999},
+                {243.1999, 243.3999, 240.9499, 242.3499},
+                {243.5999, 243.5999, 242.2499, 242.8999},
+                {242.4999, 243.1499, 241.5999, 242.8499},
+                {244.1999, 247.0499, 243.7499, 246.9999},
+                {246.9499, 247.6499, 245.2999, 246.0499},
+                {245.5999, 248.0999, 245.1999, 247.8999},
+                {247.9499, 247.9499, 243.8499, 243.9499},
+                {242.1999, 245.9499, 242.1999, 244.7499},
+                {244.6499, 246.5999, 244.4999, 245.5999},
+                {245.4499, 249.1999, 245.0999, 249.0999},
+                {249.0999, 250.2999, 248.4499, 249.2499},
+                {249.4999, 249.8499, 246.7499, 246.8499},
+                {246.8499, 247.6499, 245.8999, 246.8499},
+                {247.6999, 250.7999, 247.6999, 250.6999},
+                {250.8999, 251.4499, 249.0999, 249.4999},
+                {249.6499, 252.4999, 249.5999, 251.6499},
+                {251.9499, 252.2999, 249.4999, 250.0499},
+                {251.2499, 251.6999, 248.7999, 248.9499},
+                {249.0999, 250.2499, 247.9499, 249.7499},
+                {250.0499, 251.1499, 249.4499, 249.9499},
+                {250.0499, 251.1499, 249.4499, 249.9499},
+                {249.9999, 250.3499, 246.5999, 246.9499},
+                {247.0999, 249.6999, 246.8999, 249.2999},
+                {249.8999, 252.9499, 249.8499, 252.3999},
+                {252.7999, 253.3499, 251.1999, 251.6999},
+                {250.4999, 251.2999, 248.9499, 249.8999},
+                {250.6999, 253.4499, 250.6999, 253.1999},
+                {252.9999, 253.8999, 252.2999, 253.2499},
+                {253.6999, 255.1999, 253.4999, 253.9499},
+                {253.4499, 254.7999, 252.7999, 254.3499},
+                {253.4499, 254.5999, 252.4999, 254.2999},
+                {253.5999, 253.8999, 251.6999, 251.7999},
+                {252.3499, 253.6999, 251.7999, 253.5499},
+                {253.5499, 254.2499, 251.1999, 251.3499},
+                {251.2499, 251.9499, 249.9999, 251.5999},
+                {251.9499, 252.5999, 250.2499, 251.9999},
+                {251.2499, 252.7499, 251.0999, 252.1999},
+                {251.6499, 252.5499, 248.8499, 248.9499},
+                {249.6499, 249.8999, 248.5499, 249.0999},
+                {249.3499, 250.4499, 248.9499, 250.0999},
+                {249.5499, 252.1499, 249.2999, 252.0499},
+                {252.1499, 252.1499, 250.2499, 250.8499},
+                {251.2499, 254.9499, 250.9999, 254.4499},
+                {254.0999, 255.1999, 253.4499, 254.5999},
+                {254.4999, 254.9499, 252.3999, 252.8999},
+                {253.2999, 253.6499, 252.1499, 252.8999},
+                {253.4999, 254.1499, 251.8999, 252.0499},
+                {252.3499, 254.4499, 252.3499, 254.2999},
+                {254.6499, 255.7499, 251.4499, 251.6499},
+                {254.6499, 255.7499, 251.4499, 251.6499},
+                {252.2499, 253.1499, 251.5999, 252.9499},
+                {253.4499, 253.9499, 251.0999, 251.4999},
+                {251.7499, 251.8499, 249.4499, 251.0999},
+                {250.8499, 251.7999, 249.9499, 251.5499},
+                {251.5499, 252.1499, 250.3499, 251.5999},
+                {252.9999, 254.9499, 252.7999, 254.8499},
+                {254.6999, 255.4499, 253.8999, 255.3499},
+                {254.9999, 256.9500, 254.9999, 256.0999},
+                {256.4500, 258.2499, 255.3499, 258.1499},
+                {257.4500, 258.6499, 257.2499, 257.9500},
+                {257.7499, 259.1499, 257.2000, 258.7999},
+                {257.8999, 258.2000, 256.7499, 257.7000},
+                {257.9500, 260.2999, 257.5999, 259.9500},
+                {259.2499, 260.4500, 258.8499, 259.4999},
+                {259.4500, 260.2499, 259.1499, 259.5499},
+                {260.0499, 260.3499, 257.4999, 257.8999},
+                {257.8999, 261.9999, 257.3999, 261.8999},
+                {261.8999, 262.5499, 259.8499, 261.6499},
+                {261.5499, 263.3499, 261.0999, 263.0499},
+                {263.1499, 264.4500, 262.3499, 263.9999},
+                {264.1499, 264.2999, 261.8499, 262.7999},
+                {262.6499, 263.2499, 261.5499, 262.9500},
+                {263.2999, 264.9500, 262.6499, 263.9500},
+                {263.5999, 264.8499, 263.4500, 264.5999},
+                {264.7499, 268.0999, 264.7499, 267.2499},
+                {266.3499, 267.7499, 265.7000, 266.8499},
+                {267.0999, 267.6499, 266.6499, 266.8499},
+                {266.6499, 267.0499, 264.7499, 265.7499},
+                {265.4500, 265.7499, 264.2499, 264.8999},
+                {265.3499, 266.4500, 265.2999, 265.5999},
+                {263.8499, 264.0499, 262.8499, 263.9999},
+                {263.9500, 264.5499, 262.9500, 264.2999},
+                {264.5999, 265.5499, 262.7499, 262.7999},
+                {263.3999, 263.5499, 261.3999, 261.8999},
+                {262.2000, 262.2000, 260.8499, 261.7000},
+                {260.2499, 263.8499, 260.0999, 263.7000},
+                {263.2999, 266.0999, 263.2999, 265.8999},
+                {266.2000, 266.9999, 264.8499, 266.6499}};
+
+            int m = data.length;
+
+            Date[] date = new Date[m];
+            double[] high = new double[m];
+            double[] low = new double[m];
+            double[] open = new double[m];
+            double[] close = new double[m];
+            double[] volume = new double[m];
+
+            SegmentedTimeline.Segment segment = timeline.getSegment(start);
+            for (int i = 0; i < m; i++) {
+                while (!segment.inIncludeSegments()) {
+                    segment.inc();
+                }
+                date[i] = segment.getDate();
+                open[i] = data[i][0];
+                high[i] = data[i][1];
+                low[i] = data[i][2];
+                close[i] = data[i][3];
+
+                segment.inc();
+            }
+
+            return new DefaultHighLowDataset("Series 1", date, high, low, open, close, volume);
+
+    }
+
+    /**
      * Creates a sample wind dataset.
      *
      * @return a sample wind dataset.
@@ -1416,41 +1566,23 @@ public class DemoDatasetFactory {
     public static WindDataset createWindDataset1() {
 
         int jan = 1;
-        Object[][][] data = new Object[][][] { {
-            { DateUtilities.createDate(1999, jan, 3), new Double(0.0), new Double(10.0)},
-            { DateUtilities.createDate(1999, jan, 4), new Double(1.0), new Double(8.5)},
-            { DateUtilities.createDate(1999, jan, 5), new Double(2.0), new Double(10.0)},
-            { DateUtilities.createDate(1999, jan, 6), new Double(3.0), new Double(10.0)},
-            { DateUtilities.createDate(1999, jan, 7), new Double(4.0), new Double(7.0)},
-            { DateUtilities.createDate(1999, jan, 8), new Double(5.0), new Double(10.0)},
-            { DateUtilities.createDate(1999, jan, 9), new Double(6.0), new Double(8.0)},
-            { DateUtilities.createDate(1999, jan, 10), new Double(7.0), new Double(11.0)},
-            { DateUtilities.createDate(1999, jan, 11), new Double(8.0), new Double(10.0)},
-            { DateUtilities.createDate(1999, jan, 12), new Double(9.0), new Double(11.0)},
-            { DateUtilities.createDate(1999, jan, 13), new Double(10.0), new Double(3.0)},
-            { DateUtilities.createDate(1999, jan, 14), new Double(11.0), new Double(9.0)},
-            { DateUtilities.createDate(1999, jan, 15), new Double(12.0), new Double(11.0)},
-            { DateUtilities.createDate(1999, jan, 16), new Double(0.0), new Double(0.0)} } };
+        Object[][][] data = new Object[][][] {{
+            {DateUtilities.createDate(1999, jan, 3), new Double(0.0), new Double(10.0)},
+            {DateUtilities.createDate(1999, jan, 4), new Double(1.0), new Double(8.5)},
+            {DateUtilities.createDate(1999, jan, 5), new Double(2.0), new Double(10.0)},
+            {DateUtilities.createDate(1999, jan, 6), new Double(3.0), new Double(10.0)},
+            {DateUtilities.createDate(1999, jan, 7), new Double(4.0), new Double(7.0)},
+            {DateUtilities.createDate(1999, jan, 8), new Double(5.0), new Double(10.0)},
+            {DateUtilities.createDate(1999, jan, 9), new Double(6.0), new Double(8.0)},
+            {DateUtilities.createDate(1999, jan, 10), new Double(7.0), new Double(11.0)},
+            {DateUtilities.createDate(1999, jan, 11), new Double(8.0), new Double(10.0)},
+            {DateUtilities.createDate(1999, jan, 12), new Double(9.0), new Double(11.0)},
+            {DateUtilities.createDate(1999, jan, 13), new Double(10.0), new Double(3.0)},
+            {DateUtilities.createDate(1999, jan, 14), new Double(11.0), new Double(9.0)},
+            {DateUtilities.createDate(1999, jan, 15), new Double(12.0), new Double(11.0)},
+            {DateUtilities.createDate(1999, jan, 16), new Double(0.0), new Double(0.0)} } };
 
         return new DefaultWindDataset(new String[] {"Wind!!"}, data);
-    }
-
-    /**
-     * Creates a sample meter dataset.
-     *
-     * @return a sample meter dataset.
-     */
-    public static DefaultMeterDataset createMeterDataset() {
-        DefaultMeterDataset x = new DefaultMeterDataset(
-            new Double(0), new Double(100),
-            new Double(50),
-            "Units",
-            new Double(80), new Double(100),
-            new Double(50), new Double(80),
-            new Double(30), new Double(50),
-            0
-        );
-        return x;
     }
 
     /**
@@ -1472,78 +1604,78 @@ public class DemoDatasetFactory {
     public static IntervalCategoryDataset createGanttDataset1() {
 
         TaskSeries s1 = new TaskSeries("Scheduled");
-        s1.add(new Task("Write Proposal", 
+        s1.add(new Task("Write Proposal",
                new SimpleTimePeriod(date(1, Calendar.APRIL, 2001),
                                     date(5, Calendar.APRIL, 2001))));
-        s1.add(new Task("Obtain Approval", 
+        s1.add(new Task("Obtain Approval",
                new SimpleTimePeriod(date(9, Calendar.APRIL, 2001),
                                     date(9, Calendar.APRIL, 2001))));
-        s1.add(new Task("Requirements Analysis", 
+        s1.add(new Task("Requirements Analysis",
                new SimpleTimePeriod(date(10, Calendar.APRIL, 2001),
                                     date(5, Calendar.MAY, 2001))));
-        s1.add(new Task("Design Phase", 
+        s1.add(new Task("Design Phase",
                new SimpleTimePeriod(date(6, Calendar.MAY, 2001),
                                     date(30, Calendar.MAY, 2001))));
-        s1.add(new Task("Design Signoff", 
+        s1.add(new Task("Design Signoff",
                new SimpleTimePeriod(date(2, Calendar.JUNE, 2001),
                                     date(2, Calendar.JUNE, 2001))));
-        s1.add(new Task("Alpha Implementation", 
+        s1.add(new Task("Alpha Implementation",
                new SimpleTimePeriod(date(3, Calendar.JUNE, 2001),
                                     date(31, Calendar.JULY, 2001))));
-        s1.add(new Task("Design Review", 
+        s1.add(new Task("Design Review",
                new SimpleTimePeriod(date(1, Calendar.AUGUST, 2001),
                                     date(8, Calendar.AUGUST, 2001))));
-        s1.add(new Task("Revised Design Signoff", 
+        s1.add(new Task("Revised Design Signoff",
                new SimpleTimePeriod(date(10, Calendar.AUGUST, 2001),
                                     date(10, Calendar.AUGUST, 2001))));
-        s1.add(new Task("Beta Implementation", 
+        s1.add(new Task("Beta Implementation",
                new SimpleTimePeriod(date(12, Calendar.AUGUST, 2001),
                                     date(12, Calendar.SEPTEMBER, 2001))));
-        s1.add(new Task("Testing", 
+        s1.add(new Task("Testing",
                new SimpleTimePeriod(date(13, Calendar.SEPTEMBER, 2001),
                                     date(31, Calendar.OCTOBER, 2001))));
-        s1.add(new Task("Final Implementation", 
+        s1.add(new Task("Final Implementation",
                new SimpleTimePeriod(date(1, Calendar.NOVEMBER, 2001),
                                     date(15, Calendar.NOVEMBER, 2001))));
-        s1.add(new Task("Signoff", 
+        s1.add(new Task("Signoff",
                new SimpleTimePeriod(date(28, Calendar.NOVEMBER, 2001),
                                     date(30, Calendar.NOVEMBER, 2001))));
 
         TaskSeries s2 = new TaskSeries("Actual");
-        s2.add(new Task("Write Proposal", 
+        s2.add(new Task("Write Proposal",
                new SimpleTimePeriod(date(1, Calendar.APRIL, 2001),
                                     date(5, Calendar.APRIL, 2001))));
-        s2.add(new Task("Obtain Approval", 
+        s2.add(new Task("Obtain Approval",
                new SimpleTimePeriod(date(9, Calendar.APRIL, 2001),
                                     date(9, Calendar.APRIL, 2001))));
-        s2.add(new Task("Requirements Analysis", 
+        s2.add(new Task("Requirements Analysis",
                new SimpleTimePeriod(date(10, Calendar.APRIL, 2001),
                                     date(15, Calendar.MAY, 2001))));
-        s2.add(new Task("Design Phase", 
+        s2.add(new Task("Design Phase",
                new SimpleTimePeriod(date(15, Calendar.MAY, 2001),
                                     date(17, Calendar.JUNE, 2001))));
-        s2.add(new Task("Design Signoff", 
+        s2.add(new Task("Design Signoff",
                new SimpleTimePeriod(date(30, Calendar.JUNE, 2001),
                                     date(30, Calendar.JUNE, 2001))));
-        s2.add(new Task("Alpha Implementation", 
+        s2.add(new Task("Alpha Implementation",
                new SimpleTimePeriod(date(1, Calendar.JULY, 2001),
                                     date(12, Calendar.SEPTEMBER, 2001))));
-        s2.add(new Task("Design Review", 
+        s2.add(new Task("Design Review",
                new SimpleTimePeriod(date(12, Calendar.SEPTEMBER, 2001),
                                     date(22, Calendar.SEPTEMBER, 2001))));
-        s2.add(new Task("Revised Design Signoff", 
+        s2.add(new Task("Revised Design Signoff",
                new SimpleTimePeriod(date(25, Calendar.SEPTEMBER, 2001),
                                     date(27, Calendar.SEPTEMBER, 2001))));
-        s2.add(new Task("Beta Implementation", 
+        s2.add(new Task("Beta Implementation",
                new SimpleTimePeriod(date(27, Calendar.SEPTEMBER, 2001),
                                     date(30, Calendar.OCTOBER, 2001))));
-        s2.add(new Task("Testing", 
+        s2.add(new Task("Testing",
                new SimpleTimePeriod(date(31, Calendar.OCTOBER, 2001),
                                     date(17, Calendar.NOVEMBER, 2001))));
-        s2.add(new Task("Final Implementation", 
+        s2.add(new Task("Final Implementation",
                new SimpleTimePeriod(date(18, Calendar.NOVEMBER, 2001),
                                     date(5, Calendar.DECEMBER, 2001))));
-        s2.add(new Task("Signoff", 
+        s2.add(new Task("Signoff",
                new SimpleTimePeriod(date(10, Calendar.DECEMBER, 2001),
                                     date(11, Calendar.DECEMBER, 2001))));
 
@@ -1551,86 +1683,6 @@ public class DemoDatasetFactory {
         collection.add(s1);
         collection.add(s2);
 
-        return collection;
-    }
-
-    /**
-     * Creates a sample dataset for a Gantt chart.  This dataset uses sub-tasks.
-     *
-     * @return The dataset.
-     */
-    public static IntervalCategoryDataset createGanttDataset2() {
-
-        TaskSeries s1 = new TaskSeries("Scheduled");
-        s1.add(new Task("Write Proposal", 
-               new SimpleTimePeriod(date(1, Calendar.APRIL, 2001),
-                                    date(5, Calendar.APRIL, 2001))));
-        s1.add(new Task("Obtain Approval", 
-               new SimpleTimePeriod(date(9, Calendar.APRIL, 2001),
-                                    date(9, Calendar.APRIL, 2001))));
-                  
-        // here is a task split into two subtasks...                  
-        Task requirements = new Task("Requirements Analysis", 
-                                     new SimpleTimePeriod(date(10, Calendar.APRIL, 2001),
-                                                          date(5, Calendar.MAY, 2001)));
-        Task r1 = new Task("Requirements 1",
-                           new SimpleTimePeriod(date(10, Calendar.APRIL, 2001),
-                                                date(25, Calendar.APRIL, 2001)));
-        Task r2 = new Task("Requirements 2",
-                           new SimpleTimePeriod(date(1, Calendar.MAY, 2001),
-                                                date(5, Calendar.MAY, 2001)));                     
-        requirements.addSubtask(r1);
-        requirements.addSubtask(r2);
-        s1.add(requirements);
-        
-        // and another...                  
-        Task design = new Task("Design Phase", 
-                               new SimpleTimePeriod(date(6, Calendar.MAY, 2001),
-                                                    date(30, Calendar.MAY, 2001)));
-        Task d1 = new Task("Design 1",
-                           new SimpleTimePeriod(date(6, Calendar.MAY, 2001),
-                                                date(10, Calendar.MAY, 2001)));
-        Task d2 = new Task("Design 2",
-                           new SimpleTimePeriod(date(15, Calendar.MAY, 2001),
-                                                date(20, Calendar.MAY, 2001)));                     
-        Task d3 = new Task("Design 3",
-                           new SimpleTimePeriod(date(23, Calendar.MAY, 2001),
-                                                date(30, Calendar.MAY, 2001)));                     
-        design.addSubtask(d1);
-        design.addSubtask(d2);
-        design.addSubtask(d3);
-        s1.add(design);
-        
-        s1.add(new Task("Design Signoff", 
-               new SimpleTimePeriod(date(2, Calendar.JUNE, 2001),
-                                    date(2, Calendar.JUNE, 2001))));
-        s1.add(new Task("Alpha Implementation", 
-               new SimpleTimePeriod(date(3, Calendar.JUNE, 2001),
-                                    date(31, Calendar.JULY, 2001))));
-        s1.add(new Task("Design Review", 
-               new SimpleTimePeriod(date(1, Calendar.AUGUST, 2001),
-                                    date(8, Calendar.AUGUST, 2001))));
-        s1.add(new Task("Revised Design Signoff", 
-               new SimpleTimePeriod(date(10, Calendar.AUGUST, 2001),
-                                    date(10, Calendar.AUGUST, 2001))));
-        s1.add(new Task("Beta Implementation", 
-               new SimpleTimePeriod(date(12, Calendar.AUGUST, 2001),
-                                    date(12, Calendar.SEPTEMBER, 2001))));
-        s1.add(new Task("Testing", 
-               new SimpleTimePeriod(date(13, Calendar.SEPTEMBER, 2001),
-                                    date(31, Calendar.OCTOBER, 2001))));
-        s1.add(new Task("Final Implementation", 
-               new SimpleTimePeriod(date(1, Calendar.NOVEMBER, 2001),
-                                    date(15, Calendar.NOVEMBER, 2001))));
-        s1.add(new Task("Signoff", 
-               new SimpleTimePeriod(date(28, Calendar.NOVEMBER, 2001),
-                                    date(30, Calendar.NOVEMBER, 2001))));
-
-        TaskSeriesCollection collection = new TaskSeriesCollection();
-        collection.add(s1);
-        //s1.getTasks().clear();
-        //s1.fireSeriesChanged();
-        
         return collection;
     }
 
@@ -1650,22 +1702,6 @@ public class DemoDatasetFactory {
         Date result = calendar.getTime();
         return result;
 
-    }
-
-    /**
-     * Returns a java.util.Date for the specified year, month, day, hour and minute.
-     *
-     * @param year  the year.
-     * @param month  the month.
-     * @param day  the day.
-     * @param hour  the hour.
-     * @param minute  the minute.
-     *
-     * @return a date.
-     */
-    private static Date createDateTime(int year, int month, int day, int hour, int minute) {
-        GregorianCalendar calendar = new GregorianCalendar(year, month, day, hour, minute);
-        return calendar.getTime();
     }
 
 }

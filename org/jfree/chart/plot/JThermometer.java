@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -27,12 +27,13 @@
  * (C) Copyright 2000-2003, Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott.
- * Contributor(s):   David Gilbert (for Simba Management Limited).
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *                   Irv Thomae;
  *
  * Changes (from 17-Sep-2002)
  * --------------------------
  * 17-Sep-2002 : Reviewed with Checkstyle utility (DG);
- *
+ * 18-Sep-2003 : Integrated new methods contributed by Irv Thomae (DG);
  */
 
 package org.jfree.chart.plot;
@@ -51,6 +52,7 @@ import org.jfree.chart.AbstractTitle;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.TextTitle;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.DefaultValueDataset;
 
 /**
@@ -59,8 +61,8 @@ import org.jfree.data.DefaultValueDataset;
  *
  * Copyright (c) 2002
  * Australian Antarctic Division
- * 
- * @author Bryan Scott 
+ *
+ * @author Bryan Scott
  *
  */
 public class JThermometer extends JPanel implements Serializable {
@@ -85,7 +87,7 @@ public class JThermometer extends JPanel implements Serializable {
         plot.setInsets(new Insets(5, 5, 5, 5));
         data = new DefaultValueDataset();
         //data.setRange(new Double(-60000), new Double(60000));
-        plot.setData(data);
+        plot.setDataset(data);
         chart = new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
         panel = new ChartPanel(chart);
         add(panel, "Panel");
@@ -175,6 +177,15 @@ public class JThermometer extends JPanel implements Serializable {
     public void setValueLocation(int loc) {
         plot.setValueLocation(loc);
         panel.repaint();
+    }
+    
+    /**
+     * Sets the value paint.
+     *
+     * @param paint  the paint.
+     */
+    public void setValuePaint(Paint paint) {
+        plot.setValuePaint(paint);
     }
 
     /**
@@ -272,6 +283,50 @@ public class JThermometer extends JPanel implements Serializable {
         if (plot != null) {
             plot.setValueFont(f);
         }
+    }
+
+    /**
+     * Returns the tick label font.
+     * 
+     * @return The tick label font.
+     */    
+    public Font getTickLabelFont() {
+        ValueAxis axis = plot.getVerticalValueAxis();
+        return axis.getTickLabelFont();
+    }
+    
+    /**
+     * Sets the tick label font.
+     * 
+     * @param font  the font.
+     */
+    public void setTickLabelFont(Font font) {
+        ValueAxis axis = plot.getVerticalValueAxis();
+        axis.setTickLabelFont(font);
+    }
+    
+    /**
+     * Increases or decreases the tick font size.
+     * 
+     * @param delta  the change in size.
+     */
+    public void changeTickFontSize(int delta) {
+        Font f = getTickLabelFont();
+        String fName = f.getFontName();
+        Font newFont = new Font(fName, f.getStyle(), (f.getSize() + delta));
+        setTickLabelFont(newFont);
+    }
+    
+    /**
+     * Sets the tick font style.
+     * 
+     * @param style  the style.
+     */
+    public void setTickFontStyle(int style) {
+        Font f = getTickLabelFont();
+        String fName = f.getFontName();
+        Font newFont = new Font(fName, style, f.getSize());
+        setTickLabelFont(newFont);
     }
 
     /**

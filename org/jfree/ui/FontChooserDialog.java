@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------
  * FontChooserDialog.java
  * ----------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,11 +39,12 @@
 package org.jfree.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.Dialog;
+import java.awt.Font;
 import java.awt.Frame;
-import javax.swing.JPanel;
+
 import javax.swing.BorderFactory;
+import javax.swing.JPanel;
 
 /**
  * A dialog for choosing a font from the available system fonts.

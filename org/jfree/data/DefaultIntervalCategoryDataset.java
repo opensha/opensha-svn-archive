@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Jeremy Bowman and Contributors.
  *
  * Original Author:  Jeremy Bowman;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -38,10 +38,10 @@
 
 package org.jfree.data;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -213,7 +213,7 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns the item count.
-     * 
+     *
      * @return The item count.
      */
     public int getItemCount() {
@@ -222,9 +222,9 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns a category key.
-     * 
+     *
      * @param item  the category index.
-     * 
+     *
      * @return The category key.
      */
     public Comparable getCategory(int item) {
@@ -233,9 +233,9 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns an item.
-     * 
+     *
      * @param category  the category key.
-     * 
+     *
      * @return  The item index.
      */
     public int getItem(Object category) {
@@ -245,9 +245,9 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns a series index.
-     * 
+     *
      * @param series  the series.
-     * 
+     *
      * @return The series index.
      */
     public int getSeriesIndex(Object series) {
@@ -395,7 +395,7 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Sets the categories for the dataset.
-     * 
+     *
      * @param categoryKeys    An array of objects representing the categories in the dataset.
      */
     public void setCategoryKeys(Comparable[] categoryKeys) {
@@ -653,9 +653,9 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns a column key.
-     * 
+     *
      * @param item  the column index.
-     * 
+     *
      * @return The column key.
      */
     public Comparable getColumnKey(int item) {
@@ -664,9 +664,9 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns a column index.
-     * 
+     *
      * @param columnKey  the column key.
-     * 
+     *
      * @return The column index.
      */
     public int getColumnIndex(Comparable columnKey) {
@@ -676,9 +676,9 @@ public class DefaultIntervalCategoryDataset extends AbstractSeriesDataset
 
     /**
      * Returns a row index.
-     * 
+     *
      * @param rowKey  the row key.
-     * 
+     *
      * @return The row index.
      */
     public int getRowIndex(Comparable rowKey) {

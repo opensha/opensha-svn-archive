@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * EventFrequencyDemo.java
  * -----------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -45,11 +45,12 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardLegend;
-import org.jfree.chart.axis.HorizontalDateAxis;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.renderer.HorizontalShapeRenderer;
-import org.jfree.chart.tooltips.CategoryToolTipGenerator;
-import org.jfree.chart.tooltips.StandardCategoryToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.LineAndShapeRenderer;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.data.time.Day;
 import org.jfree.date.SerialDate;
@@ -74,7 +75,7 @@ public class EventFrequencyDemo extends ApplicationFrame {
 
         // create a dataset...
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        
+
         // initialise the data...
         Day d1 = new Day(12, SerialDate.JUNE, 2002);
         Day d2 = new Day(14, SerialDate.JUNE, 2002);
@@ -92,33 +93,32 @@ public class EventFrequencyDemo extends ApplicationFrame {
         dataset.setValue(new Long(d6.getMiddleMillisecond()), "Series 1", "Requirement 4");
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createHorizontalBarChart(
-                                            "Event Frequency Demo",  // title
-                                            "Category",              // domain axis label
-                                            "Value",                 // range axis label
-                                            dataset,                 // data
-                                            true,                    // include legend
-                                            true,                    // tooltips
-                                            false                    // URLs
-                                        );
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Event Frequency Demo",  // title
+            "Category",              // domain axis label
+            "Value",                 // range axis label
+            dataset,                 // data
+            PlotOrientation.HORIZONTAL,
+            true,                    // include legend
+            true,                    // tooltips
+            false                    // URLs
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
         // set the background color for the chart...
         chart.setBackgroundPaint(new Color(0xFF, 0xFF, 0xCC));
-        
+
         StandardLegend legend = (StandardLegend) chart.getLegend();
         legend.setDisplaySeriesShapes(true);
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot = chart.getCategoryPlot();
-        plot.setRangeAxis(new HorizontalDateAxis("Date"));
-        CategoryToolTipGenerator tooltips
-            = new StandardCategoryToolTipGenerator(DateFormat.getDateInstance());
-        plot.setRenderer(new HorizontalShapeRenderer(HorizontalShapeRenderer.SHAPES,
-                                                     HorizontalShapeRenderer.TOP,
-                                                     tooltips,
-                                                     null));
+        plot.setRangeAxis(new DateAxis("Date"));
+        CategoryItemLabelGenerator tooltips
+            = new StandardCategoryItemLabelGenerator(DateFormat.getDateInstance());
+        plot.setRenderer(new LineAndShapeRenderer(LineAndShapeRenderer.SHAPES));
+                                                  
 
         // OPTIONAL CUSTOMISATION COMPLETED.
 
@@ -140,7 +140,7 @@ public class EventFrequencyDemo extends ApplicationFrame {
         demo.pack();
         RefineryUtilities.centerFrameOnScreen(demo);
         demo.setVisible(true);
-        
+
     }
 
 }

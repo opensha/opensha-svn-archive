@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,16 +22,17 @@
  * ---------------------
  * AxisPackageTests.java
  * ---------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Bill Kelemen;
  *
  * $Id$
  *
  * Changes:
  * --------
  * 26-Mar-2003 : Version 1 (DG);
+ * 25-May-2003 : Added SegmentedTimelineTests (BK);
  *
  */
 
@@ -55,28 +56,19 @@ public class AxisPackageTests extends TestCase {
      *
      * @return the test suite.
      */
-    public static Test suite() { 
+    public static Test suite() {
         TestSuite suite = new TestSuite("org.jfree.chart.axis");
-		suite.addTestSuite(DateAxisTests.class);
-		suite.addTestSuite(DateTickUnitTests.class);
-        suite.addTestSuite(HorizontalCategoryAxisTests.class);
-        suite.addTestSuite(HorizontalCategoryAxis3DTests.class);
-        suite.addTestSuite(HorizontalColorBarAxisTests.class);
-        suite.addTestSuite(HorizontalDateAxisTests.class);
-        suite.addTestSuite(HorizontalLogarithmicAxisTests.class);
-        suite.addTestSuite(HorizontalLogarithmicColorBarAxisTests.class);
-        suite.addTestSuite(HorizontalMarkerAxisBandTests.class);
-        suite.addTestSuite(HorizontalNumberAxisTests.class);
-        suite.addTestSuite(HorizontalNumberAxis3DTests.class);
-        suite.addTestSuite(HorizontalSymbolicAxisTests.class);
-        suite.addTestSuite(VerticalCategoryAxisTests.class);
-        suite.addTestSuite(VerticalColorBarAxisTests.class);
-        suite.addTestSuite(VerticalDateAxisTests.class);
-        suite.addTestSuite(VerticalLogarithmicAxisTests.class);
-        suite.addTestSuite(VerticalLogarithmicColorBarAxisTests.class);
-        suite.addTestSuite(VerticalNumberAxisTests.class);
-        suite.addTestSuite(VerticalNumberAxis3DTests.class);
-        suite.addTestSuite(VerticalSymbolicAxisTests.class);
+        suite.addTestSuite(DateAxisTests.class);
+        suite.addTestSuite(DateTickUnitTests.class);
+        suite.addTestSuite(CategoryAxisTests.class);
+        suite.addTestSuite(CategoryAxis3DTests.class);
+        suite.addTestSuite(ColorBarTests.class);
+        suite.addTestSuite(SegmentedTimelineTests.class);
+        suite.addTestSuite(LogarithmicAxisTests.class);
+        suite.addTestSuite(MarkerAxisBandTests.class);
+        suite.addTestSuite(NumberAxisTests.class);
+        suite.addTestSuite(NumberAxis3DTests.class);
+        suite.addTestSuite(SymbolicAxisTests.class);
         return suite;
     }
 

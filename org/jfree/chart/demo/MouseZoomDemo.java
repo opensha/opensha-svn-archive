@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, by Viktor Rajewski and Contributors.
  *
  * Original Author:  Viktor Rajewski;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  *
  * Changes
@@ -41,12 +41,15 @@ package org.jfree.chart.demo;
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import javax.swing.JPanel;
+
 import javax.swing.JCheckBox;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.chart.JFreeChart;
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -74,8 +77,16 @@ public class MouseZoomDemo extends ApplicationFrame {
 
         super(title);
         SampleXYDataset data = new SampleXYDataset();
-        JFreeChart chart = ChartFactory.createLineXYChart("Mouse Zoom Demo",
-                                                          "X", "Y", data, true, true, false);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Mouse Zoom Demo",
+            "X", 
+            "Y", 
+            data, 
+            PlotOrientation.VERTICAL,
+            true, 
+            true, 
+            false
+        );
 
         chartPanel = new ChartPanel(chart);
         chartPanel.setHorizontalZoom(false);

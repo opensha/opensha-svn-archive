@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,45 +19,49 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ------------------------
- * CombinedXYPlotDemo2.java
- * ------------------------
- * (C) Copyright 2003 by Simba Management Limited.
+ * -----------------------
+ * CombinedXYPlotDemo.java
+ * -----------------------
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited).
+ * Original Author:  David Gilbert (for Object Refinery Limited).
  * Contributor(s):   -;
  *
  * $Id $
  *
  * Changes
  * -------
- * 13-Jan-2003 : Version 1 (DG);
+ * 23-Apr-2002 : Version 1 (DG);
+ * 23-May-2002 : Renamed MultiPlotDemo --> CombinedXYPlotDemo (DG);
+ * 25-Jun-2002 : Removed unnecessary imports (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package org.jfree.chart.demo;
 
-import java.awt.Font;
-
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.CombinedXYPlot;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.TimeSeriesToolTipGenerator;
+import org.jfree.chart.plot.CombinedRangeXYPlot;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYBarRenderer;
 import org.jfree.chart.renderer.XYItemRenderer;
+import org.jfree.data.IntervalXYDataset;
 import org.jfree.data.XYDataset;
-import org.jfree.data.XYSeries;
-import org.jfree.data.XYSeriesCollection;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.date.SerialDate;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * A demonstration application showing a time series chart overlaid with a vertical XY bar chart.
+ * A demonstration application showing how to create a horizontal combined chart.  A
+ * bar chart is displayed on the left, and a line chart on the right.
  *
  * @author David Gilbert
  */
@@ -85,34 +89,27 @@ public class CombinedXYPlotDemo2 extends ApplicationFrame {
      */
     private JFreeChart createCombinedChart() {
 
-        // create a parent plot...
-        CombinedXYPlot plot = new CombinedXYPlot(new HorizontalNumberAxis("Domain"),
-                                                 CombinedXYPlot.VERTICAL);
-
-        // create a fill paint supplier to ensure all series use a unique color...
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
         // create subplot 1...
-        XYDataset data1 = createDataset1();
-        XYItemRenderer renderer1 = new StandardXYItemRenderer();
-        renderer1.setDrawingSupplier(supplier);
-        
-        XYPlot subplot1 = new XYPlot(data1, null, new VerticalNumberAxis("Range 1"), renderer1);
-        subplot1.addAnnotation(new XYTextAnnotation("Hello!",
-                                                    new Font("SansSerif", Font.PLAIN, 9),
-                                                    50.0, 10000.0));
+        IntervalXYDataset data1 = createDataset1();
+        XYItemRenderer renderer1 = new XYBarRenderer(0.20);
+        renderer1.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0,000.0"));
+        XYPlot subplot1 = new XYPlot(data1, new DateAxis("Date"), null, renderer1);
+
         // create subplot 2...
         XYDataset data2 = createDataset2();
-        XYPlot subplot2 = new XYPlot(data2, null, new VerticalNumberAxis("Range 2"));
-        XYItemRenderer renderer2 = subplot2.getRenderer();
-        renderer2.setDrawingSupplier(supplier);
+        XYItemRenderer renderer2 = new StandardXYItemRenderer();
+        renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0,000.0"));
+        XYPlot subplot2 = new XYPlot(data2, new DateAxis("Date"), null, renderer2);
+
+        // create a parent plot...
+        CombinedRangeXYPlot plot = new CombinedRangeXYPlot(new NumberAxis("Value"));
 
         // add the subplots...
         plot.add(subplot1, 1);
         plot.add(subplot2, 1);
 
         // return a new chart containing the overlaid plot...
-        return new JFreeChart("Combined XY Plot (Vertical Layout)",
+        return new JFreeChart("Combined (Range) XY Plot",
                               JFreeChart.DEFAULT_TITLE_FONT, plot, true);
 
     }
@@ -122,46 +119,32 @@ public class CombinedXYPlotDemo2 extends ApplicationFrame {
      *
      * @return Series 1.
      */
-    private XYDataset createDataset1() {
+    private IntervalXYDataset createDataset1() {
 
         // create dataset 1...
-        XYSeries series1 = new XYSeries("Series 1");
-        series1.add(10.0, 12353.3);
-        series1.add(20.0, 13734.4);
-        series1.add(30.0, 14525.3);
-        series1.add(40.0, 13984.3);
-        series1.add(50.0, 12999.4);
-        series1.add(60.0, 14274.3);
-        series1.add(70.0, 15943.5);
-        series1.add(80.0, 14845.3);
-        series1.add(90.0, 14645.4);
-        series1.add(100.0, 16234.6);
-        series1.add(110.0, 17232.3);
-        series1.add(120.0, 14232.2);
-        series1.add(130.0, 13102.2);
-        series1.add(140.0, 14230.2);
-        series1.add(150.0, 11235.2);
+        TimeSeries series1 = new TimeSeries("Series 1", Day.class);
+        series1.add(new Day(1, SerialDate.MARCH, 2002), 12353.3);
+        series1.add(new Day(2, SerialDate.MARCH, 2002), 13734.4);
+        series1.add(new Day(3, SerialDate.MARCH, 2002), 14525.3);
+        series1.add(new Day(4, SerialDate.MARCH, 2002), 13984.3);
+        series1.add(new Day(5, SerialDate.MARCH, 2002), 12999.4);
+        series1.add(new Day(6, SerialDate.MARCH, 2002), 14274.3);
+        series1.add(new Day(7, SerialDate.MARCH, 2002), 15943.5);
+        series1.add(new Day(8, SerialDate.MARCH, 2002), 14845.3);
+        series1.add(new Day(9, SerialDate.MARCH, 2002), 14645.4);
+        series1.add(new Day(10, SerialDate.MARCH, 2002), 16234.6);
+        series1.add(new Day(11, SerialDate.MARCH, 2002), 17232.3);
+        series1.add(new Day(12, SerialDate.MARCH, 2002), 14232.2);
+        series1.add(new Day(13, SerialDate.MARCH, 2002), 13102.2);
+        series1.add(new Day(14, SerialDate.MARCH, 2002), 14230.2);
+        series1.add(new Day(15, SerialDate.MARCH, 2002), 11235.2);
 
-        XYSeries series2 = new XYSeries("Series 2");
-        series2.add(10.0, 15000.3);
-        series2.add(20.0, 11000.4);
-        series2.add(30.0, 17000.3);
-        series2.add(40.0, 15000.3);
-        series2.add(50.0, 14000.4);
-        series2.add(60.0, 12000.3);
-        series2.add(70.0, 11000.5);
-        series2.add(80.0, 12000.3);
-        series2.add(90.0, 13000.4);
-        series2.add(100.0, 12000.6);
-        series2.add(110.0, 13000.3);
-        series2.add(120.0, 17000.2);
-        series2.add(130.0, 18000.2);
-        series2.add(140.0, 16000.2);
-        series2.add(150.0, 17000.2);
-
-        XYSeriesCollection collection = new XYSeriesCollection();
-        collection.addSeries(series1);
-        collection.addSeries(series2);
+        TimeSeriesCollection collection = new TimeSeriesCollection(series1);
+        collection.setDomainIsPointsInTime(false);  // this tells the time series collection that
+                                                    // we intend the data to represent time periods
+                                                    // NOT points in time.  This is required when
+                                                    // determining the min/max values in the
+                                                    // dataset's domain.
         return collection;
 
     }
@@ -174,24 +157,24 @@ public class CombinedXYPlotDemo2 extends ApplicationFrame {
     private XYDataset createDataset2() {
 
         // create dataset 2...
-        XYSeries series2 = new XYSeries("Series 3");
+        TimeSeries series2 = new TimeSeries("Series 2", Day.class);
 
-        series2.add(10.0, 16853.2);
-        series2.add(20.0, 19642.3);
-        series2.add(30.0, 18253.5);
-        series2.add(40.0, 15352.3);
-        series2.add(50.0, 13532.0);
-        series2.add(100.0, 12635.3);
-        series2.add(110.0, 13998.2);
-        series2.add(120.0, 11943.2);
-        series2.add(130.0, 16943.9);
-        series2.add(140.0, 17843.2);
-        series2.add(150.0, 16495.3);
-        series2.add(160.0, 17943.6);
-        series2.add(170.0, 18500.7);
-        series2.add(180.0, 19595.9);
+        series2.add(new Day(3, SerialDate.MARCH, 2002), 16853.2);
+        series2.add(new Day(4, SerialDate.MARCH, 2002), 19642.3);
+        series2.add(new Day(5, SerialDate.MARCH, 2002), 18253.5);
+        series2.add(new Day(6, SerialDate.MARCH, 2002), 15352.3);
+        series2.add(new Day(7, SerialDate.MARCH, 2002), 13532.0);
+        series2.add(new Day(8, SerialDate.MARCH, 2002), 12635.3);
+        series2.add(new Day(9, SerialDate.MARCH, 2002), 13998.2);
+        series2.add(new Day(10, SerialDate.MARCH, 2002), 11943.2);
+        series2.add(new Day(11, SerialDate.MARCH, 2002), 16943.9);
+        series2.add(new Day(12, SerialDate.MARCH, 2002), 17843.2);
+        series2.add(new Day(13, SerialDate.MARCH, 2002), 16495.3);
+        series2.add(new Day(14, SerialDate.MARCH, 2002), 17943.6);
+        series2.add(new Day(15, SerialDate.MARCH, 2002), 18500.7);
+        series2.add(new Day(16, SerialDate.MARCH, 2002), 19595.9);
 
-        return new XYSeriesCollection(series2);
+        return new TimeSeriesCollection(series2);
 
     }
 

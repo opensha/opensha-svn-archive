@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------------------
  * StandardXYItemRendererTests.java
  * --------------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -76,19 +76,45 @@ public class StandardXYItemRendererTests extends TestCase {
     }
 
     /**
+     * Test that the equals(...) method distinguishes all fields.
+     */
+    public void testEquals() {
+        StandardXYItemRenderer r1 = new StandardXYItemRenderer();
+        StandardXYItemRenderer r2 = new StandardXYItemRenderer();
+        assertEquals(r1, r2);
+    }
+
+    /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        StandardXYItemRenderer r1 = new StandardXYItemRenderer();
+        StandardXYItemRenderer r2 = null;
+        try {
+            r2 = (StandardXYItemRenderer) r1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            System.err.println("StandardXYItemRendererTests.testCloning: failed to clone.");
+        }
+        assertTrue(r1 != r2);
+        assertTrue(r1.getClass() == r2.getClass());
+        assertTrue(r1.equals(r2));
+    }
+
+    /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         StandardXYItemRenderer r1 = new StandardXYItemRenderer();
         StandardXYItemRenderer r2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(r1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             r2 = (StandardXYItemRenderer) in.readObject();
             in.close();
@@ -96,8 +122,8 @@ public class StandardXYItemRendererTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(r1, r2); 
-        
+        assertEquals(r1, r2);
+
     }
 
 }

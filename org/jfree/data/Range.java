@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,12 @@
  * ----------
  * Range.java
  * ----------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Chuanhao Chiu;
+ *                   Bill Kelemen; 
+ *                   Nicolas Brodu;
  *
  * $Id$
  *
@@ -39,6 +41,11 @@
  *               for reporting and fixing this (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 14-Aug-2003 : Added equals(...) method (DG);
+ * 27-Aug-2003 : Added toString(...) method (BK);
+ * 11-Sep-2003 : Added Clone Support (NB);
+ * 23-Sep-2003 : Fixed Checkstyle issues (DG);
+ * 25-Sep-2003 : Oops, Range immutable, clone not necessary (NB)
  *
  */
 
@@ -48,19 +55,21 @@ import java.io.Serializable;
 
 /**
  * Represents the visible range for an axis.
+ * <p>
+ * Instances of this class are immutable.
  *
  * @author David Gilbert
  */
 public class Range implements Serializable {
 
-    /** The lower bound for the visible range. */
+    /** The lower bound of the range. */
     private double lower;
 
-    /** The upper bound for the visible range. */
+    /** The upper bound of the range. */
     private double upper;
 
     /**
-     * Constructs a new axis range.
+     * Created a new range.
      *
      * @param lower  the lower bound.
      * @param upper  the upper bound.
@@ -152,6 +161,43 @@ public class Range implements Serializable {
                 return new Range(l, u);
             }
         }
+    }
+
+    /**
+     * Tests this object for equality with another object.
+     *
+     * @param object  the object to test against.
+     *
+     * @return <code>true</code> or <code>false</code>.
+     */
+    public boolean equals(Object object) {
+
+        if (object == null) {
+            return false;
+        }
+
+        if (object == this) {
+            return true;
+        }
+
+        if (object instanceof Range) {
+            Range range = (Range) object;
+            boolean b0 = (this.lower == range.lower);
+            boolean b1 = (this.upper == range.upper);
+            return b0 && b1;
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Returns a string representation of this Range.
+     *
+     * @return a String "Range[lower,upper]" where lower=lower range and upper=upper range.
+     */
+    public String toString() {
+        return ("Range[" + lower + "," + upper + "]");
     }
 
 }

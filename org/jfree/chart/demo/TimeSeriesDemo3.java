@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * TimeSeriesDemo3.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,12 +39,15 @@
 package org.jfree.chart.demo;
 
 import java.text.SimpleDateFormat;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.HorizontalDateAxis;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.data.XYDataset;
 import org.jfree.data.time.Month;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -101,24 +104,45 @@ public class TimeSeriesDemo3 extends ApplicationFrame {
         dataset.addSeries(series1);
         dataset.addSeries(series2);
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart("Time Series Demo 3",
-                                                              "Time",
-                                                              "Value",
-                                                              dataset, 
-                                                              true,
-                                                              true,
-                                                              false);
-        XYPlot plot = chart.getXYPlot();
-        HorizontalDateAxis axis = (HorizontalDateAxis) plot.getDomainAxis();
-        axis.setTickUnit(new DateTickUnit(DateTickUnit.MONTH, 1,
-                                          new SimpleDateFormat("MMM-yyyy")));
-        axis.setVerticalTickLabels(true);
+        JFreeChart chart = createChart(dataset);
+        
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);
 
     }
 
+    /**
+     * Creates a new chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return The dataset.
+     */
+    private JFreeChart createChart(XYDataset dataset) {
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+            "Time Series Demo 3",
+            "Time",
+            "Value",
+            dataset,
+            true,
+            true,
+            false
+        );
+        XYPlot plot = chart.getXYPlot();
+        DateAxis axis = (DateAxis) plot.getDomainAxis();
+        axis.setTickUnit(new DateTickUnit(DateTickUnit.MONTH, 1,
+                                          new SimpleDateFormat("MMM-yyyy")));
+        axis.setVerticalTickLabels(true);
+        
+        StandardXYItemRenderer renderer = (StandardXYItemRenderer) plot.getRenderer();
+        renderer.setPlotShapes(true);
+        renderer.setSeriesShapesFilled(0, Boolean.TRUE);
+        renderer.setSeriesShapesFilled(1, Boolean.FALSE);
+
+        return chart;
+    }
+    
     /**
      * Starting point for the demonstration application.
      *

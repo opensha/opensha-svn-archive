@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * SerialDate.java
  * ---------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,7 +41,9 @@
  * 27-Aug-2002 : Fixed bug in addMonths(...) method, thanks to Nálevka Petr (DG);
  * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 13-Mar-2003 : Implemented Serializable (DG);
- *
+ * 29-May-2003 : Fixed bug in addMonths method (DG);
+ * 04-Sep-2003 : Implemented Comparable.  Updated the isInRange javadocs (DG);
+ * 
  */
 
 package org.jfree.date;
@@ -71,7 +73,9 @@ import java.util.GregorianCalendar;
  *
  *  @author David Gilbert
  */
-public abstract class SerialDate implements Serializable, MonthConstants {
+public abstract class SerialDate implements Comparable, 
+                                            Serializable, 
+                                            MonthConstants {
 
     /** Date format symbols. */
     public static final DateFormatSymbols
@@ -112,23 +116,23 @@ public abstract class SerialDate implements Serializable, MonthConstants {
 
     /** The number of days in each month in non leap years. */
     public static final int[] LAST_DAY_OF_MONTH =
-        { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+        {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     /** The number of days in a (non-leap) year up to the end of each month. */
     public static final int[] AGGREGATE_DAYS_TO_END_OF_MONTH =
-        { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+        {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
 
     /** The number of days in a year up to the end of the preceding month. */
     public static final int[] AGGREGATE_DAYS_TO_END_OF_PRECEDING_MONTH =
-        { 0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+        {0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
 
     /** The number of days in a leap year up to the end of each month. */
     public static final int[] LEAP_YEAR_AGGREGATE_DAYS_TO_END_OF_MONTH =
-        { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+        {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
     /** The number of days in a leap year up to the end of the preceding month. */
     public static final int[] LEAP_YEAR_AGGREGATE_DAYS_TO_END_OF_PRECEDING_MONTH =
-        { 0, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366 };
+        {0, 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
 
     /** A useful constant for referring to the first week in a month. */
     public static final int FIRST_WEEK_IN_MONTH = 1;
@@ -525,8 +529,8 @@ public abstract class SerialDate implements Serializable, MonthConstants {
      */
     public static SerialDate addMonths(int months, SerialDate base) {
 
-        int yy = (12 * base.getYYYY() + base.getMonth() + months) / 12;
-        int mm = (12 * base.getYYYY() + base.getMonth() + months) % 12;
+        int yy = (12 * base.getYYYY() + base.getMonth() + months - 1) / 12;
+        int mm = (12 * base.getYYYY() + base.getMonth() + months - 1) % 12 + 1;
         int dd = Math.min(base.getDayOfMonth(), SerialDate.lastDayOfMonth(mm, yy));
         return SerialDate.createInstance(dd, mm, yy);
 
@@ -703,7 +707,7 @@ public abstract class SerialDate implements Serializable, MonthConstants {
     }
 
     /**
-     * Factory method that returns an instance of some concrete subclass of SerialDate.
+     * Factory method that returns an instance of some concrete subclass of {@link SerialDate}.
      *
      * @param day  the day (1-31).
      * @param month  the month (1-12).
@@ -716,7 +720,7 @@ public abstract class SerialDate implements Serializable, MonthConstants {
     }
 
     /**
-     * Factory method that returns an instance of some concrete subclass of SerialDate.
+     * Factory method that returns an instance of some concrete subclass of {@link SerialDate}.
      *
      * @param serial  the serial number for the day (1 January 1900 = 2).
      *
@@ -880,26 +884,27 @@ public abstract class SerialDate implements Serializable, MonthConstants {
     public abstract boolean isOnOrAfter(SerialDate other);
 
     /**
-     * Returns true if this SerialDate is within the specified range (INCLUSIVE).  The order of
-     * d1 d2 is not important.
+     * Returns <code>true</code> if this {@link SerialDate} is within the specified range 
+     * (INCLUSIVE).  The date order of d1 and d2 is not important.
      *
-     * @param d1  one boundary date for the range.
-     * @param d2  a second boundary date for the range.
+     * @param d1  a boundary date for the range.
+     * @param d2  the other boundary date for the range.
      *
-     * @return <code>true</code> if this SerialDate is within the specified range.
+     * @return A boolean.
      */
     public abstract boolean isInRange(SerialDate d1, SerialDate d2);
 
     /**
-     * Returns true if this SerialDate is within the specified range (caller
-     * specifies whether or not the end-points are included).  The order of d1
+     * Returns <code>true</code> if this {@link SerialDate} is within the specified range (caller
+     * specifies whether or not the end-points are included).  The date order of d1
      * and d2 is not important.
      *
-     * @param d1  one boundary date for the range.
-     * @param d2  a second boundary date for the range.
-     * @param include  if <code>true</code> include d2 in the search.
+     * @param d1  a boundary date for the range.
+     * @param d2  the other boundary date for the range.
+     * @param include  a code that controls whether or not the start and end dates are
+     *                 included in the range.
      *
-     * @return <code>true</code> if this SerialDate is within the specified range.
+     * @return A boolean.
      */
     public abstract boolean isInRange(SerialDate d1, SerialDate d2, int include);
 

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * PieChartTests.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -46,6 +46,7 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartChangeListener;
+import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.DefaultPieDataset;
 
 /**
@@ -93,9 +94,10 @@ public class PieChartTests extends TestCase {
 
         LocalListener l = new LocalListener();
         pieChart.addChangeListener(l);
-        pieChart.getPlot().setDataset(null);
+        PiePlot plot = (PiePlot) this.pieChart.getPlot();
+        plot.setDataset(null);
         assertEquals(true, l.flag);
-        assertNull(pieChart.getPlot().getDataset());
+        assertNull(plot.getDataset());
 
     }
 

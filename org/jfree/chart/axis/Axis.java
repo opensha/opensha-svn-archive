@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------
  * Axis.java
  * ---------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert;
- * Contributor(s):   Bill Kelemen;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Bill Kelemen; Nicolas Brodu
  *
  * $Id$
  *
@@ -51,6 +51,9 @@
  * 15-Jan-2003 : Removed monolithic constructor (DG);
  * 17-Jan-2003 : Moved plot classes to separate package (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 03-Jul-2003 : Modified reserveSpace method (DG);
+ * 13-Aug-2003 : Implemented Cloneable (DG);
+ * 11-Sep-2003 : Took care of listeners while cloning (NB);
  *
  */
 
@@ -60,9 +63,11 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -71,7 +76,6 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.swing.SwingConstants;
 import javax.swing.event.EventListenerList;
 
 import org.jfree.chart.event.AxisChangeEvent;
@@ -79,7 +83,9 @@ import org.jfree.chart.event.AxisChangeListener;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotNotCompatibleException;
 import org.jfree.io.SerialUtilities;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RefineryUtilities;
+import org.jfree.ui.TextAnchor;
 import org.jfree.util.ObjectUtils;
 
 /**
@@ -88,7 +94,7 @@ import org.jfree.util.ObjectUtils;
  *
  * @author David Gilbert
  */
-public abstract class Axis implements AxisConstants, Serializable {
+public abstract class Axis implements AxisConstants, Cloneable, Serializable {
 
     /** A flag indicating whether or not the axis is visible. */
     private boolean visible;
@@ -104,6 +110,9 @@ public abstract class Axis implements AxisConstants, Serializable {
 
     /** The insets for the axis label. */
     private Insets labelInsets;
+
+    /** The label angle. */
+    private double labelAngle;
 
     /** A flag that indicates whether or not tick labels are visible for the axis. */
     private boolean tickLabelsVisible;
@@ -132,14 +141,14 @@ public abstract class Axis implements AxisConstants, Serializable {
     /** The paint used to draw tick marks. */
     private transient Paint tickMarkPaint;
 
+    /** The fixed (horizontal or vertical) dimension for the axis. */
+    private double fixedDimension;
+
     /** A working list of ticks - this list is refreshed as required. */
     private transient List ticks;
 
     /** A reference back to the plot that the axis is assigned to (can be <code>null</code>). */
     private transient Plot plot;
-
-    /** The fixed (horizontal or vertical) dimension for the axis. */
-    private double fixedDimension;
 
     /** Storage for registered listeners. */
     private transient EventListenerList listenerList;
@@ -151,11 +160,12 @@ public abstract class Axis implements AxisConstants, Serializable {
      */
     protected Axis(String label) {
 
-        this.label = label;   
+        this.label = label;
         this.visible = DEFAULT_AXIS_VISIBLE;
         this.labelFont = DEFAULT_AXIS_LABEL_FONT;
         this.labelPaint = DEFAULT_AXIS_LABEL_PAINT;
         this.labelInsets = DEFAULT_AXIS_LABEL_INSETS;
+        this.labelAngle = 0.0;
         this.tickLabelsVisible = DEFAULT_TICK_LABELS_VISIBLE;
         this.tickLabelFont = DEFAULT_TICK_LABEL_FONT;
         this.tickLabelPaint = DEFAULT_TICK_LABEL_PAINT;
@@ -167,7 +177,7 @@ public abstract class Axis implements AxisConstants, Serializable {
         this.tickMarkOutsideLength = DEFAULT_TICK_MARK_OUTSIDE_LENGTH;
 
         this.plot = null;
-        
+
         this.ticks = new java.util.ArrayList();
         this.listenerList = new EventListenerList();
 
@@ -183,7 +193,8 @@ public abstract class Axis implements AxisConstants, Serializable {
     }
 
     /**
-     * Sets a flag that controls whether or not the axis is drawn on the chart.
+     * Sets a flag that controls whether or not the axis is drawn on the chart.  An
+     * {@link AxisChangeEvent} is sent to all registered listeners.
      *
      * @param flag  the flag.
      */
@@ -199,16 +210,15 @@ public abstract class Axis implements AxisConstants, Serializable {
     /**
      * Returns the label for the axis.
      *
-     * @return the label for the axis (null possible).
+     * @return the label for the axis (<code>null</code> possible).
      */
     public String getLabel() {
         return label;
     }
 
     /**
-     * Sets the label for the axis (null permitted).
-     * <P>
-     * Registered listeners are notified of a general change to the axis.
+     * Sets the label for the axis (<code>null</code> permitted).  An {@link AxisChangeEvent} is
+     * sent to all registered listeners.
      *
      * @param label  the new label.
      */
@@ -315,6 +325,26 @@ public abstract class Axis implements AxisConstants, Serializable {
     }
 
     /**
+     * Returns the angle of the axis label.
+     *
+     * @return The angle.
+     */
+    public double getLabelAngle() {
+        return this.labelAngle;
+    }
+
+    /**
+     * Sets the angle for the label.  After the change is made, an {@link AxisChangeEvent} is sent
+     * to all registered listeners.
+     *
+     * @param angle  the angle (in radians).
+     */
+    public void setLabelAngle(double angle) {
+        this.labelAngle = angle;
+        notifyListeners(new AxisChangeEvent(this));
+    }
+
+    /**
      * Returns a flag indicating whether or not the tick labels are visible.
      *
      * @return the flag.
@@ -342,18 +372,17 @@ public abstract class Axis implements AxisConstants, Serializable {
     /**
      * Returns the font used for the tick labels (if showing).
      *
-     * @return the font used for the tick labels.
+     * @return The font (should never be <code>null</code>).
      */
     public Font getTickLabelFont() {
         return tickLabelFont;
     }
 
     /**
-     * Sets the font for the tick labels.
-     * <P>
-     * Registered listeners are notified of a general change to the axis.
+     * Sets the font for the tick labels.  An {@link AxisChangeEvent} is sent to all registered
+     * listeners.
      *
-     * @param font  the new tick label font.
+     * @param font  the font (<code>null</code> not allowed).
      */
     public void setTickLabelFont(Font font) {
 
@@ -595,7 +624,7 @@ public abstract class Axis implements AxisConstants, Serializable {
                 "Axis.setPlot(...): plot not compatible with axis.");
         }
     }
-    
+
     /**
      * Returns the fixed dimension for the axis.
      *
@@ -621,35 +650,55 @@ public abstract class Axis implements AxisConstants, Serializable {
     }
 
     /**
+     * Configures the axis to work with the current plot.  Override this method
+     * to perform any special processing (such as auto-rescaling).
+     */
+    public abstract void configure();
+
+    /**
+     * Estimates the space (height or width) required to draw the axis.
+     *
+     * @param g2  the graphics device.
+     * @param plot  the plot that the axis belongs to.
+     * @param plotArea  the area within which the plot (including axes) should be drawn.
+     * @param edge  the axis location.
+     * @param space  space already reserved.
+     *
+     * @return the height required to draw the axis.
+     */
+    public abstract AxisSpace reserveSpace(Graphics2D g2, Plot plot, 
+                                           Rectangle2D plotArea, RectangleEdge edge, 
+                                           AxisSpace space);
+
+    /**
      * Draws the axis on a Java 2D graphics device (such as the screen or a printer).
      *
      * @param g2  the graphics device.
+     * @param cursor  the cursor location (determines where to draw the axis).
      * @param plotArea  the area within which the axes and plot should be drawn.
      * @param dataArea  the area within which the data should be drawn.
-     * @param location  the axis location (TOP, BOTTOM, RIGHT or LEFT).
+     * @param edge  the axis location (TOP, BOTTOM, RIGHT or LEFT).
+     * 
+     * @return The new cursor position.
      */
-    public abstract void draw(Graphics2D g2, Rectangle2D plotArea, Rectangle2D dataArea,
-                              int location);
+    public abstract double draw(Graphics2D g2, double cursor,
+                                Rectangle2D plotArea, Rectangle2D dataArea,
+                                RectangleEdge edge);
 
     /**
      * Calculates the positions of the ticks for the axis, storing the results
      * in the tick list (ready for drawing).
      *
      * @param g2  the graphics device.
+     * @param cursor  the cursor location.
      * @param plotArea  the area within which the axes and plot should be drawn.
      * @param dataArea  the area inside the axes.
-     * @param location  the axis location.
+     * @param edge  the edge on which the axis is located.
      */
-    public abstract void refreshTicks(Graphics2D g2,
-                                      Rectangle2D plotArea, 
+    public abstract void refreshTicks(Graphics2D g2, double cursor,
+                                      Rectangle2D plotArea,
                                       Rectangle2D dataArea,
-                                      int location);
-
-    /**
-     * Configures the axis to work with the current plot.  Override this method
-     * to perform any special processing (such as auto-rescaling).
-     */
-    public abstract void configure();
+                                      RectangleEdge edge);
 
     /**
      * Returns the maximum width of the ticks in the working list (that is set
@@ -723,131 +772,189 @@ public abstract class Axis implements AxisConstants, Serializable {
     }
 
     /**
-     * A utility method intended for use by subclasses that are 'horizontal' axes (for example,
-     * {@link HorizontalCategoryAxis}, {@link HorizontalCategoryAxis3D}, 
-     * {@link HorizontalNumberAxis}, {@link HorizontalNumberAxis3D} and {@link HorizontalDateAxis}).
+     * Returns a rectangle that encloses the axis label.  This is typically used for layout
+     * purposes (it gives the maximum dimensions of the label).
      *
-     * @param label  the label.
      * @param g2  the graphics device.
-     * @param plotArea  the plot area.
-     * @param dataArea  the data area.
-     * @param location  the axis location (TOP or BOTTOM).
-     * @param cursorY  the Y cursor.
+     * @param edge  the edge of the plot area along which the axis is measuring.
      *
-     * @return the updated value of the Y cursor.
+     * @return The enclosing rectangle.
      */
-    protected double drawHorizontalLabel(String label,
-                                         Graphics2D g2, Rectangle2D plotArea, Rectangle2D dataArea,
-                                         int location, double cursorY) {
+    protected Rectangle2D getLabelEnclosure(Graphics2D g2, RectangleEdge edge) {
 
-        if ((label == null) || (label.equals(""))) {
-        	return cursorY;
-        } 
-
-        Font labelFont = getLabelFont();
-        Insets labelInsets = getLabelInsets();
-        g2.setFont(labelFont);
-        g2.setPaint(getLabelPaint());
-        FontRenderContext frc = g2.getFontRenderContext();
-        Rectangle2D labelBounds = labelFont.getStringBounds(label, frc);
-        LineMetrics lm = labelFont.getLineMetrics(label, frc);
-        if (location == TOP) {
-            cursorY = cursorY + labelInsets.top + lm.getAscent();
-        }
-        else {
-            cursorY = cursorY - labelInsets.bottom - lm.getDescent() - lm.getLeading();
-        }
-        float labelx = 0;
-        int alignment = SwingConstants.CENTER; //test
-        switch (alignment) {
-            case SwingConstants.LEFT :
-                labelx = (float) (dataArea.getX() + dataArea.getWidth() / 2);
-                break;
-            case SwingConstants.RIGHT :
-                labelx = (float) (dataArea.getX() + dataArea.getWidth() / 2 
-                                                  - labelBounds.getWidth());
-                break;
-            case SwingConstants.CENTER :
-            default :
-                labelx = (float) (dataArea.getX() + dataArea.getWidth() / 2 
-                                                  - labelBounds.getWidth() / 2);
-                break;
-        }
-        float labely = (float) cursorY;
-        g2.drawString(label, labelx, labely);
-        if (location == TOP) {
-            cursorY = cursorY + lm.getDescent() + lm.getLeading() + labelInsets.bottom;
-        }
-        else {
-            cursorY = cursorY - labelInsets.top - lm.getAscent();
+        // calculate the width of the axis label...
+        Rectangle2D result = new Rectangle2D.Double();
+        String axisLabel = getLabel();
+        if (axisLabel != null) {
+            Font font = getLabelFont();
+            Rectangle2D bounds = font.getStringBounds(axisLabel, g2.getFontRenderContext());
+            Insets insets = getLabelInsets();
+            bounds.setRect(bounds.getX(), bounds.getY(),
+                           bounds.getWidth() + insets.left + insets.right,
+                           bounds.getHeight() + insets.top + insets.bottom);
+            double angle = getLabelAngle();
+            if (edge == RectangleEdge.LEFT || edge == RectangleEdge.RIGHT) {
+                angle = angle - Math.PI / 2.0;
+            }
+            double x = bounds.getCenterX();
+            double y = bounds.getCenterY();
+            AffineTransform transformer = AffineTransform.getRotateInstance(angle, x, y);
+            Shape labelBounds = transformer.createTransformedShape(bounds);
+            result = labelBounds.getBounds2D();
         }
 
-        return cursorY;
-        
+        return result;
+
     }
 
     /**
-     * A utility method intended for use by subclasses that are 'vertical' axes (for example,
-     * VerticalCategoryAxis, VerticalNumberAxis and VerticalDateAxis.
+     * Draws the axis label.
      *
-     * @param label  the label.
-     * @param vertical  rotate the label to vertical?
+     * @param label  the label text.
      * @param g2  the graphics device.
+     * @param cursor  the cursor value.
      * @param plotArea  the plot area.
-     * @param dataArea  the data area.
-     * @param location  the axis location (TOP or BOTTOM).
+     * @param dataArea  the area inside the axes.
+     * @param edge  the location of the axis.
      *
+     * @return The width or height used for the label.
      */
-    protected void drawVerticalLabel(String label, boolean vertical,
-                                     Graphics2D g2, Rectangle2D plotArea, Rectangle2D dataArea,
-                                     int location) {
+    protected double drawLabel(String label,
+                               Graphics2D g2, double cursor, 
+                               Rectangle2D plotArea, Rectangle2D dataArea,
+                               RectangleEdge edge) {
 
-        if (label == null ? false : !label.equals("")) {
-            Font labelFont = getLabelFont();
-            Insets labelInsets = getLabelInsets();
-            g2.setFont(labelFont);
-            g2.setPaint(getLabelPaint());
-
-            Rectangle2D labelBounds = labelFont.getStringBounds(label, g2.getFontRenderContext());
-            if (location == LEFT) {
-                if (vertical) {
-                    double xx = plotArea.getX() + labelInsets.left + labelBounds.getHeight();
-                    double yy = plotArea.getY() + dataArea.getHeight() / 2
-                                                + (labelBounds.getWidth() / 2);
-                    RefineryUtilities.drawRotatedString(label, g2,
-                                                        (float) xx, (float) yy, -Math.PI / 2);
-                }
-                else {
-                    double xx = plotArea.getX() + labelInsets.left;
-                    double yy = plotArea.getY() + plotArea.getHeight() / 2
-                                                - labelBounds.getHeight() / 2;
-                    g2.drawString(label, (float) xx, (float) yy);
-                }
-            }
-            else {
-                if (vertical) {
-                    double xx = plotArea.getMaxX() - labelInsets.right - labelBounds.getHeight();
-                    double yy = plotArea.getMinY() + dataArea.getHeight() / 2
-                                                   - (labelBounds.getWidth() / 2);
-                    RefineryUtilities.drawRotatedString(label, g2,
-                                                        (float) xx, (float) yy, Math.PI / 2);
-                }
-                else {
-                    double xx = plotArea.getMaxX() - labelInsets.right - labelBounds.getWidth();
-                    double yy = plotArea.getMinY() + plotArea.getHeight() / 2
-                                                   + labelBounds.getHeight() / 2;
-                    g2.drawString(label, (float) xx, (float) yy);
-                }
-            }
+        if ((label == null) || (label.equals(""))) {
+            return 0.0;
         }
 
+        Font font = getLabelFont();
+        Insets insets = getLabelInsets();
+        g2.setFont(font);
+        g2.setPaint(getLabelPaint());
+        FontRenderContext frc = g2.getFontRenderContext();
+        Rectangle2D labelBounds = font.getStringBounds(label, frc);
+        LineMetrics lm = font.getLineMetrics(label, frc);
+
+        double used = 0.0;
+        if (edge == RectangleEdge.TOP) {
+
+            AffineTransform t = AffineTransform.getRotateInstance(getLabelAngle(),
+                labelBounds.getCenterX(), labelBounds.getCenterY());
+            Shape rotatedLabelBounds = t.createTransformedShape(labelBounds);
+            labelBounds = rotatedLabelBounds.getBounds2D();
+            double labelx = dataArea.getCenterX();
+            double labely = cursor - insets.bottom - labelBounds.getHeight() / 2.0;
+            RefineryUtilities.drawRotatedString(label, g2,
+                                                (float) labelx, (float) labely,
+                                                TextAnchor.CENTER, TextAnchor.CENTER,
+                                                getLabelAngle());
+            used = insets.top + labelBounds.getHeight() + insets.bottom;
+
+        }
+        else if (edge == RectangleEdge.BOTTOM) {
+
+            AffineTransform t = AffineTransform.getRotateInstance(getLabelAngle(),
+                labelBounds.getCenterX(), labelBounds.getCenterY());
+            Shape rotatedLabelBounds = t.createTransformedShape(labelBounds);
+            labelBounds = rotatedLabelBounds.getBounds2D();
+            double labelx = dataArea.getCenterX();
+            double labely = cursor + insets.top + labelBounds.getHeight() / 2.0;
+            RefineryUtilities.drawRotatedString(label, g2,
+                                                (float) labelx, (float) labely,
+                                                TextAnchor.CENTER, TextAnchor.CENTER,
+                                                getLabelAngle());
+            used = insets.top + labelBounds.getHeight() + insets.bottom;
+
+        }
+        else if (edge == RectangleEdge.LEFT) {
+
+            AffineTransform t = AffineTransform.getRotateInstance(getLabelAngle() - Math.PI / 2.0,
+                labelBounds.getCenterX(), labelBounds.getCenterY());
+            Shape rotatedLabelBounds = t.createTransformedShape(labelBounds);
+            labelBounds = rotatedLabelBounds.getBounds2D();
+            double labelx = cursor - insets.right - labelBounds.getWidth() / 2.0;
+            double labely = dataArea.getY() + dataArea.getHeight() / 2.0;
+            RefineryUtilities.drawRotatedString(label, g2,
+                                                (float) labelx, (float) labely,
+                                                TextAnchor.CENTER, TextAnchor.CENTER,
+                                                getLabelAngle() - Math.PI / 2.0);
+
+            used = insets.left + labelBounds.getWidth() + insets.right;
+        }
+        else if (edge == RectangleEdge.RIGHT) {
+
+            AffineTransform t = AffineTransform.getRotateInstance(getLabelAngle() + Math.PI / 2.0,
+                labelBounds.getCenterX(), labelBounds.getCenterY());
+            Shape rotatedLabelBounds = t.createTransformedShape(labelBounds);
+            labelBounds = rotatedLabelBounds.getBounds2D();
+            double labelx = cursor + insets.left + labelBounds.getWidth() / 2.0;
+            double labely = dataArea.getY() + dataArea.getHeight() / 2.0;
+            RefineryUtilities.drawRotatedString(label, g2,
+                                                (float) labelx, (float) labely,
+                                                TextAnchor.CENTER, TextAnchor.CENTER,
+                                                getLabelAngle() + Math.PI / 2.0);
+            used = insets.left + labelBounds.getWidth() + insets.right;
+
+        }
+
+        return used;
+
+    }
+
+    /**
+     * Returns a clone of the axis.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException if some component of the axis does not support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        
+        Axis clone = (Axis) super.clone();
+        
+        // boolean visible;
+        // String label;
+        // Font labelFont
+        // Paint labelPaint;
+        if (this.labelInsets != null) {
+            clone.labelInsets = (Insets) this.labelInsets.clone();
+        }
+        // double labelAngle;
+        // boolean tickLabelsVisible;
+        // Font tickLabelFont;
+        // Paint tickLabelPaint;
+        if (this.tickLabelInsets != null) {
+            clone.tickLabelInsets = (Insets) this.tickLabelInsets.clone();
+        }
+        // boolean tickMarksVisible;
+        // float tickMarkInsideLength;
+        // float tickMarkOutsideLength;
+        // Stroke tickMarkStroke;
+        // Paint tickMarkPaint;
+        // List ticks;
+        
+        if (ticks != null) {
+            clone.ticks = new java.util.ArrayList();
+        }
+
+        // double fixedDimension;
+        
+        // It's up to the plot which clones up to restore the correct references
+        clone.plot = null;        
+        clone.listenerList = new EventListenerList();
+
+         
+
+        return clone;
+            
     }
     
     /**
      * Tests this axis for equality with another object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
@@ -855,79 +962,82 @@ public abstract class Axis implements AxisConstants, Serializable {
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
- 
+
         if (obj instanceof Axis) {
             Axis axis = (Axis) obj;
 
             boolean b0 = (this.visible == axis.visible);
-                
-            boolean b1 = ObjectUtils.equalOrBothNull(this.label, axis.label);
-            boolean b2 = ObjectUtils.equalOrBothNull(this.labelFont, axis.labelFont);
-            boolean b3 = ObjectUtils.equalOrBothNull(this.labelPaint, axis.labelPaint);
-            boolean b4 = ObjectUtils.equalOrBothNull(this.labelInsets, axis.labelInsets);
 
+            boolean b1 = ObjectUtils.equal(this.label, axis.label);
+            boolean b2 = ObjectUtils.equal(this.labelFont, axis.labelFont);
+            boolean b3 = ObjectUtils.equal(this.labelPaint, axis.labelPaint);
+            boolean b4 = ObjectUtils.equal(this.labelInsets, axis.labelInsets);
+            boolean b15 = (Math.abs(this.labelAngle - axis.labelAngle) < 0.0000001);
+    
             boolean b5 = (this.tickLabelsVisible == axis.tickLabelsVisible);
-            boolean b6 = ObjectUtils.equalOrBothNull(this.tickLabelFont, axis.tickLabelFont);
-            boolean b7 = ObjectUtils.equalOrBothNull(this.tickLabelPaint, axis.tickLabelPaint);
-            boolean b8 = ObjectUtils.equalOrBothNull(this.tickLabelInsets, axis.tickLabelInsets);
+            boolean b6 = ObjectUtils.equal(this.tickLabelFont, axis.tickLabelFont);
+            boolean b7 = ObjectUtils.equal(this.tickLabelPaint, axis.tickLabelPaint);
+            boolean b8 = ObjectUtils.equal(this.tickLabelInsets, axis.tickLabelInsets);
 
             boolean b9 = (this.tickMarksVisible == axis.tickMarksVisible);
-            boolean b10 = (this.tickMarkInsideLength == axis.tickMarkInsideLength);
-            boolean b11 = (this.tickMarkOutsideLength == axis.tickMarkOutsideLength);
+            boolean b10 = (Math.abs(this.tickMarkInsideLength - axis.tickMarkInsideLength)
+                           < 0.000001);
+            boolean b11 = (Math.abs(this.tickMarkOutsideLength - axis.tickMarkOutsideLength) 
+                           < 0.000001);
 
-            boolean b12 = ObjectUtils.equalOrBothNull(this.tickMarkPaint, axis.tickMarkPaint);
-            boolean b13 = ObjectUtils.equalOrBothNull(this.tickMarkStroke, axis.tickMarkStroke);
-                
-            boolean b14 = (this.fixedDimension == axis.fixedDimension);
+            boolean b12 = ObjectUtils.equal(this.tickMarkPaint, axis.tickMarkPaint);
+            boolean b13 = ObjectUtils.equal(this.tickMarkStroke, axis.tickMarkStroke);
+
+            boolean b14 = (Math.abs(this.fixedDimension - axis.fixedDimension) < 0.000001);
 
             return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8
-                   && b9 && b10 && b11 && b12 && b13 && b14;
+                   && b9 && b10 && b11 && b12 && b13 && b14 && b15;
 
         }
-        
+
         return false;
-               
+
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
-        
+
         stream.defaultWriteObject();
         SerialUtilities.writePaint(this.labelPaint, stream);
         SerialUtilities.writePaint(this.tickLabelPaint, stream);
         SerialUtilities.writeStroke(this.tickMarkStroke, stream);
         SerialUtilities.writePaint(this.tickMarkPaint, stream);
-    
+
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem. 
+     * @throws ClassNotFoundException  if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
-        
+
         stream.defaultReadObject();
         this.labelPaint = SerialUtilities.readPaint(stream);
         this.tickLabelPaint = SerialUtilities.readPaint(stream);
         this.tickMarkStroke = SerialUtilities.readStroke(stream);
         this.tickMarkPaint = SerialUtilities.readPaint(stream);
         this.listenerList = new EventListenerList();
-        
+        this.ticks = new java.util.ArrayList();
+
     }
-    
 
 }

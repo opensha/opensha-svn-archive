@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * KeyedValueComparator.java
  * -------------------------
- * (C) Copyright 2003 by Simba Management Limited.
+ * (C) Copyright 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes:
  * --------
  * 05-Mar-2003 : Version 1 (DG);
+ * 27-Aug-2003 : Moved SortOrder from org.jfree.data --> org.jfree.util (DG);
  *
  */
 
@@ -39,23 +40,25 @@ package org.jfree.data;
 
 import java.util.Comparator;
 
+import org.jfree.util.SortOrder;
+
 /**
  * A utility class that can compare and order two {@link KeyedValue} instances and sort them
  * into ascending or descending order by key or by value.
- * 
+ *
  * @author David Gilbert
  */
 public class KeyedValueComparator implements Comparator {
-   
-    /** The comparator type. */ 
+
+    /** The comparator type. */
     private KeyedValueComparatorType type;
-    
+
     /** The sort order. */
     private SortOrder order;
-    
+
     /**
      * Creates a new comparator.
-     * 
+     *
      * @param type  the type (<code>BY_KEY</code> or <code>BY_VALUE</code>).
      * @param order  the order (ascending or descending).
      */
@@ -67,26 +70,26 @@ public class KeyedValueComparator implements Comparator {
     /**
      * Compares two {@link KeyedValue} instances and returns an <code>int</code> that indicates the
      * relative order of the two objects.
-     * 
+     *
      * @param o1  object 1.
      * @param o2  object 2.
-     * 
+     *
      * @return An int indicating the relative order of the objects.
-     */    
+     */
     public int compare(Object o1, Object o2) {
-    
+
         if (o2 == null) {
             return -1;
         }
         if (o1 == null) {
             return 1;
         }
-        
+
         int result = 0;
-         
+
         KeyedValue kv1 = (KeyedValue) o1;
         KeyedValue kv2 = (KeyedValue) o2;
-     
+
         if (this.type == KeyedValueComparatorType.BY_KEY) {
             if (order.equals(SortOrder.ASCENDING)) {
                 result = kv1.getKey().compareTo(kv2.getKey());
@@ -140,9 +143,9 @@ public class KeyedValueComparator implements Comparator {
         else {
             throw new IllegalArgumentException("KeyedValueComparator.compare(...) : "
                                                + "unrecognised type.");
-        }   
-     
-        return result;   
+        }
+
+        return result;
     }
 
 }

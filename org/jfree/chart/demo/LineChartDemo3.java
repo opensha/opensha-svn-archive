@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * LineChartDemo3.java
  * -------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,15 +37,17 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.data.XYSeriesCollection;
-import org.jfree.data.XYSeries;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.data.XYDataset;
+import org.jfree.data.XYSeries;
+import org.jfree.data.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -74,29 +76,7 @@ public class LineChartDemo3 extends ApplicationFrame {
             dataset.addSeries(series);
         }
 
-        // create the chart...
-        JFreeChart chart = ChartFactory.createLineXYChart("Line Chart Demo 3",  // chart title
-                                                          "X",                  // x axis label
-                                                          "Y",                  // y axis label
-                                                          dataset,              // data
-                                                          true,                 // include legend
-                                                          true,                 // tooltips
-                                                          false                 // urls
-                                                          );
-
-        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
-
-        // get a reference to the plot for further customisation...
-        XYPlot plot = chart.getXYPlot();
-        StandardXYItemRenderer renderer = (StandardXYItemRenderer) plot.getRenderer();
-        renderer.setPlotShapes(true);
-        renderer.setDefaultShapeFilled(true);
-
-        // change the auto tick unit selection to integer units only...
-        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-
-        // OPTIONAL CUSTOMISATION COMPLETED.
+        JFreeChart chart = createChart(dataset);
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
@@ -105,6 +85,40 @@ public class LineChartDemo3 extends ApplicationFrame {
 
     }
 
+    /**
+     * Creates a chart.
+     * 
+     * @param dataset  a dataset.
+     * 
+     * @return A chart based on the supplied dataset.
+     */
+    private JFreeChart createChart(XYDataset dataset) {
+    
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Line Chart Demo 3",      // chart title
+            "X",                      // x axis label
+            "Y",                      // y axis label
+            dataset,                  // data
+            PlotOrientation.VERTICAL, 
+            true,                     // include legend
+            true,                     // tooltips
+            false                     // urls
+        );
+
+        // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
+
+        // get a reference to the plot for further customisation...
+        XYPlot plot = chart.getXYPlot();
+        StandardXYItemRenderer renderer = (StandardXYItemRenderer) plot.getRenderer();
+        renderer.setPlotShapes(true);
+
+        // change the auto tick unit selection to integer units only...
+        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+    
+        return chart;
+    }
+    
     /**
      * Starting point for the demonstration application.
      *

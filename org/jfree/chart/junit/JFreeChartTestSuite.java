@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------
  * JFreeChartTestSuite.java
  * ------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -44,10 +44,11 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.jfree.chart.annotations.junit.AnnotationsPackageTests;
 import org.jfree.chart.axis.junit.AxisPackageTests;
+import org.jfree.chart.labels.junit.LabelsPackageTests;
 import org.jfree.chart.plot.junit.PlotPackageTests;
 import org.jfree.chart.renderer.junit.RendererPackageTests;
-import org.jfree.chart.tooltips.junit.TooltipsPackageTests;
 import org.jfree.chart.urls.junit.UrlsPackageTests;
 import org.jfree.data.junit.DataPackageTests;
 import org.jfree.data.time.junit.DataTimePackageTests;
@@ -68,10 +69,11 @@ public class JFreeChartTestSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("JFreeChart");
         suite.addTest(ChartPackageTests.suite());
+        suite.addTest(AnnotationsPackageTests.suite());
         suite.addTest(AxisPackageTests.suite());
         suite.addTest(PlotPackageTests.suite());
         suite.addTest(RendererPackageTests.suite());
-        suite.addTest(TooltipsPackageTests.suite());
+        suite.addTest(LabelsPackageTests.suite());
         suite.addTest(UrlsPackageTests.suite());
         suite.addTest(DataPackageTests.suite());
         suite.addTest(DataTimePackageTests.suite());
@@ -83,7 +85,7 @@ public class JFreeChartTestSuite extends TestCase {
      *
      * @param name  the test suite name.
      */
-    public JFreeChartTestSuite(String name) {
+    private JFreeChartTestSuite(String name) {
         super(name);
     }
 

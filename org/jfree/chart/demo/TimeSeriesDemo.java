@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * TimeSeriesDemo.java
  * -------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,11 +38,13 @@
 
 package org.jfree.chart.demo;
 
+import java.awt.Color;
 import java.text.SimpleDateFormat;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.Spacer;
 import org.jfree.chart.StandardLegend;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -73,32 +75,10 @@ public class TimeSeriesDemo extends ApplicationFrame {
 
         super(title);
 
-        // create a title...
-        String chartTitle = "Legal & General Unit Trust Prices";
         XYDataset dataset = createDataset();
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(
-            chartTitle, 
-            "Date", "Price Per Unit",
-            dataset, 
-            true,
-            true,
-            false
-        );
-                                                              
-        StandardLegend sl = (StandardLegend) chart.getLegend();
-        sl.setDisplaySeriesShapes(true);
-                                                              
-        XYPlot plot = chart.getXYPlot();
-        XYItemRenderer renderer = plot.getRenderer();
-        if (renderer instanceof StandardXYItemRenderer) {
-            StandardXYItemRenderer rr = (StandardXYItemRenderer) renderer;
-            rr.setPlotShapes(true);
-            rr.setDefaultShapeFilled(true);
-        }
-        DateAxis axis = (DateAxis) plot.getDomainAxis();
-        axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
-                
+        JFreeChart chart = createChart(dataset);
+
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         chartPanel.setMouseZoomable(true, false);
@@ -107,11 +87,56 @@ public class TimeSeriesDemo extends ApplicationFrame {
     }
 
     /**
+     * Creates a chart.
+     * 
+     * @param dataset  a dataset.
+     * 
+     * @return A chart.
+     */
+    private JFreeChart createChart(XYDataset dataset) {
+
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+            "Legal & General Unit Trust Prices",
+            "Date", "Price Per Unit",
+            dataset,
+            true,
+            true,
+            false
+        );
+
+        chart.setBackgroundPaint(Color.white);
+
+        StandardLegend sl = (StandardLegend) chart.getLegend();
+        sl.setDisplaySeriesShapes(true);
+
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.lightGray);
+        plot.setDomainGridlinePaint(Color.white);
+        plot.setRangeGridlinePaint(Color.white);
+        plot.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 5.0, 5.0, 5.0, 5.0));
+        plot.setDomainCrosshairVisible(true);
+        plot.setRangeCrosshairVisible(true);
+        
+        XYItemRenderer renderer = plot.getRenderer();
+        if (renderer instanceof StandardXYItemRenderer) {
+            StandardXYItemRenderer rr = (StandardXYItemRenderer) renderer;
+            rr.setPlotShapes(true);
+            rr.setShapesFilled(true);
+        }
+        
+        DateAxis axis = (DateAxis) plot.getDomainAxis();
+        axis.setDateFormatOverride(new SimpleDateFormat("MMM-yyyy"));
+        
+        return chart;
+
+    }
+    
+    /**
      * Creates a dataset, consisting of two series of monthly data.
      *
      * @return the dataset.
      */
-    public XYDataset createDataset() {
+    private XYDataset createDataset() {
 
         TimeSeries s1 = new TimeSeries("L&G European Index Trust", Month.class);
         s1.add(new Month(2, 2001), 181.8);
@@ -156,6 +181,8 @@ public class TimeSeriesDemo extends ApplicationFrame {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(s1);
         dataset.addSeries(s2);
+
+        dataset.setDomainIsPointsInTime(true);
 
         return dataset;
 

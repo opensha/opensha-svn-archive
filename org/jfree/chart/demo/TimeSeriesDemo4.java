@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * TimeSeriesDemo4.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,16 +39,17 @@
 
 package org.jfree.chart.demo;
 
-import java.awt.Insets;
-import java.awt.Color;
 import java.awt.BasicStroke;
-import org.jfree.chart.JFreeChart;
+import java.awt.Color;
+import java.awt.Insets;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.Marker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.Hour;
 import org.jfree.data.time.TimeSeries;
@@ -88,7 +89,7 @@ public class TimeSeriesDemo4 extends ApplicationFrame {
         String chartTitle = "\u20A2\u20A2\u20A2\u20A3\u20A4\u20A5\u20A6\u20A7\u20A8\u20A9\u20AA";
         JFreeChart chart = ChartFactory.createTimeSeriesChart(chartTitle,
                                                               "Time", "Value",
-                                                              dataset, 
+                                                              dataset,
                                                               true,
                                                               true,
                                                               false);
@@ -102,11 +103,11 @@ public class TimeSeriesDemo4 extends ApplicationFrame {
         if (renderer instanceof StandardXYItemRenderer) {
             StandardXYItemRenderer r = (StandardXYItemRenderer) renderer;
             r.setPlotShapes(true);
-            r.setDefaultShapeFilled(true);
+            r.setShapesFilled(true);
         }
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        chartPanel.setMouseZoomable(true, false); 
+        chartPanel.setMouseZoomable(true, false);
         setContentPane(chartPanel);
 
     }

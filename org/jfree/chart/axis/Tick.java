@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------
  * Tick.java
  * ---------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Nicolas Brodu;
  *
  * $Id$
  *
@@ -35,6 +35,7 @@
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  * 08-Nov-2002 : Moved to new package com.jrefinery.chart.axis (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 12-Sep-2003 : Implemented Cloneable (NB);
  *
  */
 
@@ -43,13 +44,15 @@ package org.jfree.chart.axis;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.jfree.util.ObjectUtils;
+
 /**
  * Represents the dimensions of a tick on an axis (used during the process of
  * drawing a chart, but not retained).
  *
  * @author David Gilbert
  */
-public class Tick implements Serializable {
+public class Tick implements Serializable, Cloneable {
 
     /** The tick value. */
     private Object value;
@@ -97,12 +100,12 @@ public class Tick implements Serializable {
     public double getNumericalValue() {
 
         if (value instanceof Number) {
-            Number x = (Number) value;
-            return x.doubleValue();
+            Number v = (Number) value;
+            return v.doubleValue();
         }
         else if (value instanceof Date) {
-            Date x = (Date) value;
-            return (double) x.getTime();
+            Date d = (Date) value;
+            return (double) d.getTime();
         }
         else {
             return 0.0;
@@ -135,6 +138,18 @@ public class Tick implements Serializable {
      */
     public float getY() {
         return y;
+    }
+
+
+    /** Clone the object values too if possible
+     * @see java.lang.Object#clone()
+     */
+    public Object clone() throws CloneNotSupportedException {
+        Tick clone = (Tick) super.clone();
+        if (value != null) {
+            clone.value = ObjectUtils.clone(value);
+        }
+        return clone;
     }
 
 }

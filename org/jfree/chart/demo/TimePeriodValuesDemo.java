@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * TimePeriodValuesDemo.java
  * -------------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,16 +42,13 @@ import java.text.SimpleDateFormat;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.DateTickUnit;
-import org.jfree.chart.axis.HorizontalDateAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.OverlaidXYPlot;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.renderer.VerticalXYBarRenderer;
+import org.jfree.chart.renderer.XYBarRenderer;
 import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.XYDataset;
 import org.jfree.data.time.Day;
@@ -79,31 +76,28 @@ public class TimePeriodValuesDemo extends ApplicationFrame {
 
         super(title);
 
-		DrawingSupplier supplier = new DefaultDrawingSupplier();
+        XYDataset data1 = createDataset1();
+        XYItemRenderer renderer1 = new XYBarRenderer();
+        
+        DateAxis domainAxis = new DateAxis("Date");
+        domainAxis.setVerticalTickLabels(true);
+        domainAxis.setTickUnit(new DateTickUnit(DateTickUnit.HOUR, 1));
+        domainAxis.setDateFormatOverride(new SimpleDateFormat("hh:mm"));
+        domainAxis.setLowerMargin(0.01);
+        domainAxis.setUpperMargin(0.01);
+        ValueAxis rangeAxis = new NumberAxis("Value");
+        
+        XYPlot plot = new XYPlot(data1, domainAxis, rangeAxis, renderer1);
 
-		XYDataset data1 = createDataset1();
-		XYItemRenderer renderer1 = new VerticalXYBarRenderer();
-		renderer1.setDrawingSupplier(supplier);
-		XYPlot subplot1 = new XYPlot(data1, null, null, renderer1);
-              
-		XYDataset data2 = createDataset2();
-		StandardXYItemRenderer renderer2 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES_AND_LINES);
-		renderer2.setDefaultShapeFilled(true);
-		renderer2.setDrawingSupplier(supplier);
-		XYPlot subplot2 = new XYPlot(data2, null, null, renderer2);
-              
-		// make an overlaid plot and add the subplots...
-		HorizontalDateAxis domainAxis = new HorizontalDateAxis("Date");
-		domainAxis.setVerticalTickLabels(true);
-		domainAxis.setTickUnit(new DateTickUnit(DateTickUnit.HOUR, 1));
-		domainAxis.setDateFormatOverride(new SimpleDateFormat("hh:mm"));
-		domainAxis.setLowerMargin(0.01);
-		domainAxis.setUpperMargin(0.01);
-		ValueAxis rangeAxis = new VerticalNumberAxis("Value");
-		OverlaidXYPlot plot = new OverlaidXYPlot(domainAxis, rangeAxis);
-		plot.add(subplot1);
-		plot.add(subplot2);
-         
+        XYDataset data2 = createDataset2();
+        StandardXYItemRenderer renderer2
+            = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES_AND_LINES);
+        renderer2.setShapesFilled(true);
+        
+        plot.setSecondaryDataset(0, data2);
+        plot.setSecondaryRenderer(0, renderer2);
+        //plot.mapSecondaryDatasetToRangeAxis(0, null);
+
         JFreeChart chart = new JFreeChart("Supply and Demand", plot);
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
@@ -119,22 +113,22 @@ public class TimePeriodValuesDemo extends ApplicationFrame {
      */
     public XYDataset createDataset1() {
 
-		TimePeriodValues s1 = new TimePeriodValues("Supply");
-		TimePeriodValues s2 = new TimePeriodValues("Demand");
-		Day today = new Day();
+        TimePeriodValues s1 = new TimePeriodValues("Supply");
+        TimePeriodValues s2 = new TimePeriodValues("Demand");
+        Day today = new Day();
         for (int i = 0; i < 24; i++) {
-			Minute m0 = new Minute(0, new Hour(i, today));
-			Minute m1 = new Minute(15, new Hour(i, today));			
-			Minute m2 = new Minute(30, new Hour(i, today));			
-			Minute m3 = new Minute(45, new Hour(i, today));			
-			Minute m4 = new Minute(0, new Hour(i + 1, today));			
-			s1.add(new SimpleTimePeriod(m0.getStart(), m1.getStart()), Math.random());
-			s2.add(new SimpleTimePeriod(m1.getStart(), m2.getStart()), Math.random());
-			s1.add(new SimpleTimePeriod(m2.getStart(), m3.getStart()), Math.random());
-			s2.add(new SimpleTimePeriod(m3.getStart(), m4.getStart()), Math.random());
+            Minute m0 = new Minute(0, new Hour(i, today));
+            Minute m1 = new Minute(15, new Hour(i, today));
+            Minute m2 = new Minute(30, new Hour(i, today));
+            Minute m3 = new Minute(45, new Hour(i, today));
+            Minute m4 = new Minute(0, new Hour(i + 1, today));
+            s1.add(new SimpleTimePeriod(m0.getStart(), m1.getStart()), Math.random());
+            s2.add(new SimpleTimePeriod(m1.getStart(), m2.getStart()), Math.random());
+            s1.add(new SimpleTimePeriod(m2.getStart(), m3.getStart()), Math.random());
+            s2.add(new SimpleTimePeriod(m3.getStart(), m4.getStart()), Math.random());
         }
-			
-        TimePeriodValuesCollection dataset = new TimePeriodValuesCollection(); 
+
+        TimePeriodValuesCollection dataset = new TimePeriodValuesCollection();
         dataset.addSeries(s1);
         dataset.addSeries(s2);
 
@@ -142,29 +136,29 @@ public class TimePeriodValuesDemo extends ApplicationFrame {
 
     }
 
-	/**
-	 * Creates a dataset, consisting of two series of monthly data.
-	 *
-	 * @return the dataset.
-	 */
-	public XYDataset createDataset2() {
+    /**
+     * Creates a dataset, consisting of two series of monthly data.
+     *
+     * @return the dataset.
+     */
+    public XYDataset createDataset2() {
 
-		TimePeriodValues s1 = new TimePeriodValues("WebCOINS");
-		Day today = new Day();
-		for (int i = 0; i < 24; i++) {
-			Minute m0 = new Minute(0, new Hour(i, today));
-			Minute m1 = new Minute(30, new Hour(i, today));			
-			Minute m2 = new Minute(0, new Hour(i + 1, today));			
-			s1.add(new SimpleTimePeriod(m0.getStart(), m1.getStart()), Math.random() * 2.0);
-			s1.add(new SimpleTimePeriod(m1.getStart(), m2.getStart()), Math.random() * 2.0);
-		}
-			
-		TimePeriodValuesCollection dataset = new TimePeriodValuesCollection(); 
-		dataset.addSeries(s1);
+        TimePeriodValues s1 = new TimePeriodValues("WebCOINS");
+        Day today = new Day();
+        for (int i = 0; i < 24; i++) {
+            Minute m0 = new Minute(0, new Hour(i, today));
+            Minute m1 = new Minute(30, new Hour(i, today));
+            Minute m2 = new Minute(0, new Hour(i + 1, today));
+            s1.add(new SimpleTimePeriod(m0.getStart(), m1.getStart()), Math.random() * 2.0);
+            s1.add(new SimpleTimePeriod(m1.getStart(), m2.getStart()), Math.random() * 2.0);
+        }
 
-		return dataset;
+        TimePeriodValuesCollection dataset = new TimePeriodValuesCollection();
+        dataset.addSeries(s1);
 
-	}
+        return dataset;
+
+    }
 
     /**
      * Starting point for the demonstration application.

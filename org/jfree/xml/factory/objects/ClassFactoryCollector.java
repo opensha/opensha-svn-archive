@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -33,7 +33,7 @@
  * -------------------------
  * 19-Feb-2003 : Added standard header and Javadocs (DG);
  * 29-Apr-2003 : Destilled from the JFreeReport project and moved into JCommon
- *
+ * 03-Jun-2003 : Adding factories configures the new factory.
  */
 
 package org.jfree.xml.factory.objects;
@@ -67,6 +67,9 @@ public class ClassFactoryCollector extends ClassFactoryImpl {
      */
     public void addFactory(ClassFactory factory) {
         factories.add(factory);
+        if (getConfig() != null) {
+            factory.configure(getConfig());
+        }
     }
 
     /**
@@ -164,6 +167,35 @@ public class ClassFactoryCollector extends ClassFactoryImpl {
             ClassFactory od = (ClassFactory) it.next();
             od.configure(config);
         }
+    }
 
+    /**
+     * Tests for equality.
+     * 
+     * @param o  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClassFactoryCollector)) return false;
+        if (!super.equals(o)) return false;
+
+        final ClassFactoryCollector classFactoryCollector = (ClassFactoryCollector) o;
+
+        if (!factories.equals(classFactoryCollector.factories)) return false;
+
+        return true;
+    }
+
+    /**
+     * Returns a hash code for the object.
+     * 
+     * @return The hash code.
+     */
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 29 * result + factories.hashCode();
+        return result;
     }
 }

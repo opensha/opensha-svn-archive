@@ -2,6 +2,7 @@ package org.scec.gui;
 
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.tooltips.*;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.Plot;
 
 /**

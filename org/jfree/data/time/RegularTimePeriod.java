@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------
  * RegularTimePeriod.java
  * ----------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -55,13 +55,13 @@ import org.jfree.date.MonthConstants;
  * <p>
  * Convenient methods are provided for calculating the next and previous time periods.
  * <p>
- * Conversion methods are defined that return the first and last milliseconds of the time period. 
+ * Conversion methods are defined that return the first and last milliseconds of the time period.
  * The results from these methods are timezone dependent.
  * <P>
  * This class is immutable, and all subclasses should be immutable also.
  *
  * @author David Gilbert
- * 
+ *
  */
 public abstract class RegularTimePeriod implements TimePeriod, Comparable, MonthConstants {
 
@@ -98,22 +98,22 @@ public abstract class RegularTimePeriod implements TimePeriod, Comparable, Month
 
     /**
      * Returns the date/time that marks the start of the time period.
-     * 
+     *
      * @return the start date/time.
      */
     public Date getStart() {
         return new Date(getFirstMillisecond());
     }
-    
+
     /**
      * Returns the date/time that marks the end of the time period.
-     * 
+     *
      * @return the end date/time.
      */
     public Date getEnd() {
         return new Date(getLastMillisecond());
     }
-    
+
     /**
      * Returns the first millisecond of the time period, evaluated in the default time zone.
      *
@@ -136,7 +136,7 @@ public abstract class RegularTimePeriod implements TimePeriod, Comparable, Month
     }
 
     /**
-     * Returns the first millisecond of the time period, evaluated using the supplied calendar 
+     * Returns the first millisecond of the time period, evaluated using the supplied calendar
      * (which incorporates a timezone).
      *
      * @param calendar  the calendar.
@@ -169,7 +169,7 @@ public abstract class RegularTimePeriod implements TimePeriod, Comparable, Month
     }
 
     /**
-     * Returns the last millisecond of the time period, evaluated using the supplied calendar 
+     * Returns the last millisecond of the time period, evaluated using the supplied calendar
      * (which incorporates a timezone).
      *
      * @param calendar  the calendar.
@@ -219,6 +219,15 @@ public abstract class RegularTimePeriod implements TimePeriod, Comparable, Month
         long result = (getFirstMillisecond(calendar) / 2) + (getLastMillisecond(calendar) / 2);
         return result;
 
+    }
+
+    /**
+     * Returns a string representation of the time period.
+     *
+     * @return the string.
+     */
+    public String toString() {
+        return String.valueOf(getStart());
     }
 
 }

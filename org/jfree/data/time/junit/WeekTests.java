@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * MonthTests.java
  * ---------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -140,21 +140,21 @@ public class WeekTests extends TestCase {
         Week next = (Week) w52Y9999.next();
         assertNull(next);
     }
-    
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         Week w1 = new Week(24, 1999);
         Week w2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(w1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             w2 = (Week) in.readObject();
             in.close();
@@ -162,8 +162,8 @@ public class WeekTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(w1, w2); 
-        
+        assertEquals(w1, w2);
+
     }
 
 }

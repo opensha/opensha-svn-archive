@@ -13,6 +13,7 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
+import org.jfree.chart.labels.*;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
@@ -354,22 +355,24 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        //create the standard ticks so that smaller values too can plotted on the chart
        TickUnits units = MyTickUnits.createStandardTickUnits();
 
-       xAxis = new org.jfree.chart.axis.HorizontalLogarithmicAxis("X-Axis");
+       xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
        xAxis.setAutoRangeIncludesZero( false );
        xAxis.setStandardTickUnits(units);
        xAxis.setTickMarksVisible(false);
 
 
-       yAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis("Y-Axis");
+       yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
 
        yAxis.setAutoRangeIncludesZero( false );
        yAxis.setStandardTickUnits(units);
        yAxis.setTickMarksVisible(false);
+       //yAxis.setS
+
 
        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-       LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+       StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
 
        //If the first test case is not chosen then plot the graph acording to the default x and y axis values
@@ -380,7 +383,7 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
 
 
        // build the plot
-       org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this,data, xAxis, yAxis, true, true);
+       org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data, xAxis, yAxis,renderer);
 
        plot.setBackgroundAlpha( .8f );
        plot.setRenderer( renderer );

@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------------
  * ParserUtil.java
  * ---------------
- * (C)opyright 2002, by Thomas Morgner and Contributors.
+ * (C)opyright 2002, 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner (taquera@sherito.org);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -33,19 +33,20 @@
  * -------
  * 21-May-2002 : Contains utility functions to make parsing easier.
  * 10-Dec-2002 : Fixed issues reported by Checkstyle (DG);
- * 29-Apr-2003 : Destilled from the JFreeReport project and moved into JCommon
+ * 29-Apr-2003 : Distilled from the JFreeReport project and moved into JCommon;
+ * 23-Sep-2003 : Minor Javadoc updates (DG);
  *
  */
 package org.jfree.xml;
-
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
+
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 
 /**
  * Basic helper functions to ease up the process of parsing.
@@ -211,8 +212,24 @@ public class ParserUtil {
      * @return the paint.
      */
     public static Color parseColor(String color) {
+        return parseColor(color, Color.black);
+    }
+
+    /**
+     * Parses a color entry. If the entry is in hexadecimal or octal notation, the color is
+     * created using Color.decode(). If the string denotes a constant name of one of the color
+     * constants defined in java.awt.Color, this constant is used.
+     * <p>
+     * As fallback the supplied default value is returned if no color can be parsed.
+     *
+     * @param color  the color (as a string).
+     * @param defaultValue  the default value (returned if no color can be parsed).
+     *
+     * @return the paint.
+     */
+    public static Color parseColor(String color, Color defaultValue) {
         if (color == null) {
-            return Color.black;
+            return defaultValue;
         }
         try {
             // get color by hex or octal value
@@ -230,7 +247,7 @@ public class ParserUtil {
             catch (Exception ce) {
                 //Log.warn("No such Color : " + color);
                 // if we can't get any color return black
-                return Color.black;
+                return defaultValue;
             }
         }
     }

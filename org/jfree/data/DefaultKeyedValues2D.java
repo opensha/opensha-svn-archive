@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * DefaultKeyedValues2D.java
  * -------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -33,7 +33,8 @@
  * -------
  * 28-Oct-2002 : Version 1 (DG);
  * 21-Jan-2003 : Updated Javadocs (DG);
- * 13-Mar-2003 : Implemented Serializable (DG)
+ * 13-Mar-2003 : Implemented Serializable (DG);
+ * 18-Aug-2003 : Implemented Cloneable (DG);
  *
  */
 
@@ -50,7 +51,7 @@ import java.util.List;
  *
  * @author David Gilbert
  */
-public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
+public class DefaultKeyedValues2D implements KeyedValues2D, Cloneable, Serializable {
 
     /** The row keys. */
     private List rowKeys;
@@ -194,7 +195,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Adds a value to the table.  Performs the same function as setValue(...).
-     * 
+     *
      * @param value  the value.
      * @param rowKey  the row key.
      * @param columnKey  the column key.
@@ -205,7 +206,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Adds or updates a value.
-     * 
+     *
      * @param value  the value.
      * @param rowKey  the row key.
      * @param columnKey  the column key.
@@ -232,7 +233,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Removes a value.
-     * 
+     *
      * @param rowKey  the row key.
      * @param columnKey  the column key.
      */
@@ -244,7 +245,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Removes a row.
-     * 
+     *
      * @param rowIndex  the row index.
      */
     public void removeRow(int rowIndex) {
@@ -254,7 +255,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Removes a row.
-     * 
+     *
      * @param rowKey  the row key.
      */
     public void removeRow(Comparable rowKey) {
@@ -263,7 +264,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Removes a column.
-     * 
+     *
      * @param columnIndex  the column index.
      */
     public void removeColumn(int columnIndex) {
@@ -273,7 +274,7 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Removes a column.
-     * 
+     *
      * @param columnKey  the column key.
      */
     public void removeColumn(Comparable columnKey) {
@@ -287,20 +288,20 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
 
     /**
      * Tests if this object is equal to another.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
-    
+
         if (o == null) {
             return false;
         }
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof KeyedValues2D) {
             KeyedValues2D kv2D = (KeyedValues2D) o;
             boolean b1 = getRowKeys().equals(kv2D.getRowKeys());
@@ -314,13 +315,13 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
                             if (v2 != null) {
                                 return false;
                             }
-                        } 
+                        }
                         else {
                             if (!v1.equals(v2)) {
                                 return false;
                             }
                         }
-                        
+
                     }
                 }
                 return true;
@@ -329,9 +330,21 @@ public class DefaultKeyedValues2D implements KeyedValues2D, Serializable {
                 return false;
             }
         }
-       
+
         return false;
-            
+
+    }
+    
+    /**
+     * Returns a clone.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  this class will not throw this exception, but subclasses
+     *         (if any) might.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

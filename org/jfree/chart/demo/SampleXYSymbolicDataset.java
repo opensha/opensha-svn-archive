@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2000-2003, by Anthony Boulestreau and Contributors;
  *
  * Original Author:  Anthony Boulestreau.
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * Changes
  * -------
@@ -36,13 +36,14 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.data.XYDataset;
-import org.jfree.data.AbstractSeriesDataset;
-import org.jfree.data.XisSymbolic;
-import org.jfree.data.YisSymbolic;
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Vector;
-import java.lang.reflect.Array;
+
+import org.jfree.data.AbstractSeriesDataset;
+import org.jfree.data.XYDataset;
+import org.jfree.data.XisSymbolic;
+import org.jfree.data.YisSymbolic;
 
 /**
  * Random data for a symbolic plot demo.
@@ -297,9 +298,6 @@ public class SampleXYSymbolicDataset extends AbstractSeriesDataset
      * @param dataset1  the first data set to combine.
      * @param dataset2  the second data set to combine.
      *
-     * @throws ClassCastException if <CODE>dataset1</CODE> and
-     *         <CODE>dataset2</CODE> is not an instance of SampleYSymbolicDataset.
-     *
      * @return  the shared Y symbolic array.
      */
     public static String[] combineYSymbolicDataset(YisSymbolic dataset1, YisSymbolic dataset2) {
@@ -353,8 +351,6 @@ public class SampleXYSymbolicDataset extends AbstractSeriesDataset
      *
      * @param dataset1 the first data set to combine.
      * @param dataset2 the second data set to combine.
-     * @throws ClassCastException if <CODE>dataset1</CODE> and
-     *      <CODE>dataset2</CODE> is not an instance of SampleYSymbolicDataset.
      *
      * @return  the shared X symbolic array.
      */

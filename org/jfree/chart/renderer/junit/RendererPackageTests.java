@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------------
  * ChartRendererPackageTests.java
  * ------------------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -59,28 +59,22 @@ public class RendererPackageTests extends TestCase {
         TestSuite suite = new TestSuite("org.jfree.chart.renderer");
         suite.addTestSuite(AreaRendererTests.class);
         suite.addTestSuite(AreaXYRendererTests.class);
+        suite.addTestSuite(BarRendererTests.class);
+        suite.addTestSuite(BarRenderer3DTests.class);
         suite.addTestSuite(CandlestickRendererTests.class);
         suite.addTestSuite(ClusteredXYBarRendererTests.class);
+        suite.addTestSuite(DefaultCategoryItemRendererTests.class);
         suite.addTestSuite(DefaultDrawingSupplierTests.class);
         suite.addTestSuite(HighLowRendererTests.class);
-        suite.addTestSuite(HorizontalBarRendererTests.class);
-        suite.addTestSuite(HorizontalBarRenderer3DTests.class);
-        suite.addTestSuite(HorizontalIntervalBarRendererTests.class);
-        suite.addTestSuite(PaintTableTests.class);
-        suite.addTestSuite(ReverseXYItemRendererTests.class);
-        suite.addTestSuite(ShapeTableTests.class);
+        suite.addTestSuite(IntervalBarRendererTests.class);
+        suite.addTestSuite(LineAndShapeRendererTests.class);
         suite.addTestSuite(SignalRendererTests.class);
         suite.addTestSuite(StackedAreaRendererTests.class);
-        suite.addTestSuite(StackedHorizontalBarRendererTests.class);
-        suite.addTestSuite(StackedVerticalBarRendererTests.class);
-        suite.addTestSuite(StackedVerticalBarRenderer3DTests.class);        
+        suite.addTestSuite(StackedBarRendererTests.class);
+        suite.addTestSuite(StackedBarRenderer3DTests.class);
         suite.addTestSuite(StandardXYItemRendererTests.class);
-        suite.addTestSuite(StrokeTableTests.class);
-        suite.addTestSuite(VerticalBarRendererTests.class);
-        suite.addTestSuite(VerticalBarRenderer3DTests.class);
-        suite.addTestSuite(VerticalIntervalBarRendererTests.class);
-        suite.addTestSuite(VerticalStatisticalBarRendererTests.class);
-        suite.addTestSuite(VerticalXYBarRendererTests.class);
+        suite.addTestSuite(StatisticalBarRendererTests.class);
+        suite.addTestSuite(XYBarRendererTests.class);
         suite.addTestSuite(WindItemRendererTests.class);
         suite.addTestSuite(XYBubbleRendererTests.class);
         suite.addTestSuite(XYDotRendererTests.class);

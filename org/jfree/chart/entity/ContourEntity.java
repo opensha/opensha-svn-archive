@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by David M. O'Donnell and Contributors.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -41,12 +41,12 @@ import java.awt.Shape;
 
 /**
  * Represents an item on a contour chart.
- * 
+ *
  * @author David M. O'Donnell
  */
 public class ContourEntity extends ChartEntity {
 
-    /** Holds the index into the dataset for this entity. */	
+    /** Holds the index into the dataset for this entity. */
     private int index = -1;
 
     /**
@@ -69,13 +69,23 @@ public class ContourEntity extends ChartEntity {
     public ContourEntity(Shape area, String toolTipText, String urlText) {
         super(area, toolTipText, urlText);
     }
-    
+
+    /**
+     * Returns the index.
+     *
+     * @return The index.
+     */
     public int getIndex() {
-    	return index;
+        return index;
     }
-    
+
+    /**
+     * Sets the index.
+     *
+     * @param index  the index.
+     */
     public void setIndex(int index) {
-    	this.index=index;
+        this.index = index;
     }
 
 }

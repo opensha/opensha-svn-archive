@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -51,9 +51,10 @@ public class CollectionObjectDescription extends AbstractObjectDescription {
 
     /**
      * Creates a list object description for the given collection class.
-     *
+     * <P>
+     * Throws <code>ClassCastException</code> if the given class is no collection instance.
+     * 
      * @param c the class of the collection implementation.
-     * @throws ClassCastException if the given class is no collection instance
      */
     public CollectionObjectDescription(Class c) {
         super(c);

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2000-2003, by Hari and Contributors.
  *
  * Original Author:  Hari (ourhari@hotmail.com);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -55,6 +55,7 @@ import org.jfree.chart.event.LegendChangeEvent;
 import org.jfree.chart.plot.MeterPlot;
 import org.jfree.chart.plot.Plot;
 import org.jfree.data.MeterDataset;
+import org.jfree.data.ValueDataset;
 
 /**
  * A legend for meter plots.
@@ -135,37 +136,37 @@ public class MeterLegend extends StandardLegend {
      *
      * @return boolean.
      */
-    private boolean updateInformation(MeterPlot plot, MeterDataset data, int type, int index,
+    private boolean updateInformation(MeterPlot plot, ValueDataset data, int type, int index,
                                       LegendItem[] legendItems, Paint[] legendItemColors) {
 
         boolean ret = false;
         String label = null;
-        Number minValue = null;
-        Number maxValue = null;
+        double minValue = 0.0;
+        double maxValue = 0.0;
         Paint paint = null;
 
         switch(type) {
             case MeterDataset.NORMAL_DATA:
-                minValue = data.getMinimumNormalValue();
-                maxValue = data.getMaximumNormalValue();
+                minValue = plot.getNormalRange().getLowerBound();
+                maxValue = plot.getNormalRange().getUpperBound();
                 paint = plot.getNormalPaint();
                 label = MeterPlot.NORMAL_TEXT;
                 break;
             case MeterDataset.WARNING_DATA:
-                minValue = data.getMinimumWarningValue();
-                maxValue = data.getMaximumWarningValue();
+                minValue = plot.getWarningRange().getLowerBound();
+                maxValue = plot.getWarningRange().getUpperBound();
                 paint = plot.getWarningPaint();
                 label = MeterPlot.WARNING_TEXT;
                 break;
             case MeterDataset.CRITICAL_DATA:
-                minValue = data.getMinimumCriticalValue();
-                maxValue = data.getMaximumCriticalValue();
+                minValue = plot.getCriticalRange().getLowerBound();
+                maxValue = plot.getCriticalRange().getUpperBound();
                 paint = plot.getCriticalPaint();
                 label = MeterPlot.CRITICAL_TEXT;
                 break;
             case MeterDataset.FULL_DATA:
-                minValue = data.getMinimumValue();
-                maxValue = data.getMaximumValue();
+                minValue = plot.getRange().getLowerBound();
+                maxValue = plot.getRange().getUpperBound();
                 paint = MeterPlot.DEFAULT_BACKGROUND_PAINT;
                 label = "Meter Graph";
                 break;
@@ -173,22 +174,22 @@ public class MeterLegend extends StandardLegend {
                 return false;
         }
 
-        if (minValue != null && maxValue != null) {
-            if (data.getBorderType() == type) {
-                label += "  Range: "
-                      + data.getMinimumValue().toString() + " to "
-                      + minValue.toString()
-                      + "  and  "
-                      + maxValue.toString() + " to "
-                      + data.getMaximumValue().toString();
-            }
-            else {
-                label += "  Range: " + minValue.toString() + " to " + maxValue.toString();
-            }
+//        if (minValue != null && maxValue != null) {
+//            if (data.getBorderType() == type) {
+                label += "  Range: ";
+//                      + data.getMinimumValue().toString() + " to "
+//                      + minValue.toString()
+//                      + "  and  "
+//                      + maxValue.toString() + " to "
+//                      + data.getMaximumValue().toString();
+//            }
+//            else {
+//                label += "  Range: " + minValue.toString() + " to " + maxValue.toString();
+//            }
             legendItems[index] = new LegendItem(label, label, null, null, null, null);
             legendItemColors[index] = paint;
             ret = true;
-        }
+        //}
         return ret;
     }
 
@@ -212,17 +213,17 @@ public class MeterLegend extends StandardLegend {
             throw new IllegalArgumentException("Plot must be MeterPlot");
         }
         MeterPlot meterPlot = (MeterPlot) plot;
-        MeterDataset data = meterPlot.getMeterDataset();
+        ValueDataset data = meterPlot.getDataset();
 
         legendCount = 1;  // Name of the Chart.
         legendCount++;    // Display Full Range
-        if (showCritical && data.getMinimumCriticalValue() != null) {
+        if (showCritical) {
             legendCount++;
         }
-        if (showWarning && data.getMinimumWarningValue() != null) {
+        if (showWarning) {
             legendCount++;
         }
-        if (showNormal && data.getMinimumNormalValue() != null) {
+        if (showNormal) {
             legendCount++;
         }
 
@@ -231,7 +232,7 @@ public class MeterLegend extends StandardLegend {
 
         int currentItem = 0;
         String label = this.legendText
-            + (data.isValueValid() ? ("   Current Value: " + data.getValue().toString()) : "");
+            + (data.getValue() != null ? ("   Current Value: " + data.getValue().toString()) : "");
         legendItems[currentItem] = new LegendItem(label, label, null, null, null, null);
         legendItemColors[currentItem] = null;  // no color
         currentItem++;
@@ -269,7 +270,7 @@ public class MeterLegend extends StandardLegend {
             // as well as the bounding box for the legend.
             if (horizontal) {
                 double xstart = available.getX() + getOuterGap().getLeftSpace(availableWidth);
-                double xlimit = available.getMaxX() 
+                double xlimit = available.getMaxX()
                                 + getOuterGap().getRightSpace(availableWidth) - 1;
                 double maxRowWidth = 0;
                 double xoffset = 0;
@@ -303,7 +304,7 @@ public class MeterLegend extends StandardLegend {
                 // The yloc point is the variable part of the translation point
                 // for horizontal legends. xloc is constant.
                  double yloc = (inverted)
-                    ? available.getMaxY() - totalHeight 
+                    ? available.getMaxY() - totalHeight
                                           - getOuterGap().getBottomSpace(availableHeight)
                     : available.getY() + getOuterGap().getTopSpace(availableHeight);
                 double xloc = available.getX() + available.getWidth() / 2 - maxRowWidth / 2;
@@ -371,12 +372,12 @@ public class MeterLegend extends StandardLegend {
                 // by the total height of the legend and the initial gap.
                 double yy = available.getY();
                 double yloc = (inverted) ? yy
-                                         : yy + legendArea.getHeight() 
+                                         : yy + legendArea.getHeight()
                                               + getOuterGap().getBottomSpace(availableHeight);
 
                 // return the remaining available drawing area
                 return new Rectangle2D.Double(available.getX(), yloc, availableWidth,
-                    availableHeight - legendArea.getHeight() 
+                    availableHeight - legendArea.getHeight()
                                     - getOuterGap().getTopSpace(availableHeight)
                                     - getOuterGap().getBottomSpace(availableHeight));
             }
@@ -389,14 +390,14 @@ public class MeterLegend extends StandardLegend {
                 // by the total width of the legend and the initial gap.
                 double xloc = (inverted) ? available.getX()
                                          : available.getX()
-                                           + legendArea.getWidth()  
+                                           + legendArea.getWidth()
                                            + getOuterGap().getLeftSpace(availableWidth)
                                            + getOuterGap().getRightSpace(availableWidth);
 
 
                 // return the remaining available drawing area
                 return new Rectangle2D.Double(xloc, available.getY(),
-                    availableWidth - legendArea.getWidth() 
+                    availableWidth - legendArea.getWidth()
                                    - getOuterGap().getLeftSpace(availableWidth)
                                    - getOuterGap().getRightSpace(availableWidth),
                     availableHeight);

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * -----------
  * Marker.java
  * -----------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Nicolas Brodu;
  *
  * $Id$
  *
@@ -36,12 +36,15 @@
  * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 16-Oct-2002 : Added new constructor (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 21-May-2003 : Added labels (DG);
+ * 11-Sep-2003 : Implemented Cloneable (NB)
  *
  */
 
 package org.jfree.chart;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Paint;
 import java.awt.Stroke;
 import java.io.IOException;
@@ -50,19 +53,18 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.jfree.io.SerialUtilities;
+import org.jfree.util.ObjectUtils;
 
 /**
  * A constant value that is drawn on a chart as a marker, usually as a horizontal or a vertical
  * line.
  * <P>
  * In addition to a value, this class defines paint attributes to give some control over the
- * appearance of the marker.  The render can, however, override these settings if it chooses.
- * <P>
- * This class is immutable.
+ * appearance of the marker.  The renderer can, however, override these settings if it chooses.
  *
  * @author David Gilbert
  */
-public class Marker implements Serializable {
+public class Marker implements Serializable, Cloneable {
 
     /** The constant value. */
     private double value;
@@ -78,6 +80,18 @@ public class Marker implements Serializable {
 
     /** The alpha transparency. */
     private float alpha;
+
+    /** The label. */
+    private String label = null;
+
+    /** The label font. */
+    private Font labelFont = new Font("SansSerif", Font.PLAIN, 9);
+
+    /** The label paint. */
+    private transient Paint labelPaint = Color.black;
+
+    /** The label position. */
+    private MarkerLabelPosition labelPosition = MarkerLabelPosition.TOP_LEFT;
 
     /**
      * Constructs a new marker.
@@ -164,28 +178,136 @@ public class Marker implements Serializable {
     }
 
     /**
-     * Provides serialization support.
-     * 
-     * @param stream  the output stream.
-     * 
-     * @throws IOException  if there is an I/O error.
+     * Returns the label.
+     *
+     * @return The label.
      */
-    private void writeObject(ObjectOutputStream stream) throws IOException {
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Sets the label.
+     *
+     * @param label  the label (<code>null</code> permitted).
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    /**
+     * Returns the label font.
+     *
+     * @return The label font.
+     */
+    public Font getLabelFont() {
+        return this.labelFont;
+    }
+
+    /**
+     * Sets the label font.
+     *
+     * @param font  the font.
+     */
+    public void setLabelFont(Font font) {
+        this.labelFont = font;
+    }
+
+    /**
+     * Returns the label paint.
+     *
+     * @return The label paint.
+     */
+    public Paint getLabelPaint() {
+        return this.labelPaint;
+    }
+
+    /**
+     * Sets the label paint.
+     *
+     * @param paint  the paint.
+     */
+    public void setLabelPaint(Paint paint) {
+        this.labelPaint = paint;
+    }
+
+    /**
+     * Returns the label position.
+     *
+     * @return The label position.
+     */
+    public MarkerLabelPosition getLabelPosition() {
+        return this.labelPosition;
+    }
+
+    /**
+     * Sets the label position.
+     *
+     * @param position  the position.
+     */
+    public void setLabelPosition(MarkerLabelPosition position) {
+        this.labelPosition = position;
+    }
+
+    /**
+     * Tests an object for equality with this instance.
+     * 
+     * @param object  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
         
-        stream.defaultWriteObject();
-        SerialUtilities.writePaint(this.outlinePaint, stream);
-        SerialUtilities.writeStroke(this.outlineStroke, stream);
-        SerialUtilities.writePaint(this.paint, stream);
+        if (object == null) {
+            return false;
+        }
         
+        if (object == this) {
+            return true;
+        }
+        
+        if (object instanceof Marker) {
+            Marker marker = (Marker) object;
+            boolean b0 = (this.value == marker.value);
+            boolean b1 = ObjectUtils.equal(this.outlinePaint, marker.outlinePaint);
+            boolean b2 = ObjectUtils.equal(this.outlineStroke, marker.outlineStroke);
+            boolean b3 = ObjectUtils.equal(this.paint, marker.paint);
+            boolean b4 = (this.alpha == marker.alpha);
+            boolean b5 = ObjectUtils.equal(this.label, marker.label);
+            boolean b6 = ObjectUtils.equal(this.labelFont, marker.labelFont);
+            boolean b7 = ObjectUtils.equal(this.labelPaint, marker.labelPaint);
+            boolean b8 = (this.labelPosition == marker.labelPosition);
+
+            return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8;
+        }
+        
+        return false;
+            
     }
     
     /**
      * Provides serialization support.
-     * 
-     * @param stream  the input stream.
-     * 
+     *
+     * @param stream  the output stream.
+     *
      * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem. 
+     */
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+
+        stream.defaultWriteObject();
+        SerialUtilities.writePaint(this.outlinePaint, stream);
+        SerialUtilities.writeStroke(this.outlineStroke, stream);
+        SerialUtilities.writePaint(this.paint, stream);
+
+    }
+
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the input stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     * @throws ClassNotFoundException  if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
 
@@ -193,7 +315,7 @@ public class Marker implements Serializable {
         this.outlinePaint = SerialUtilities.readPaint(stream);
         this.outlineStroke = SerialUtilities.readStroke(stream);
         this.paint = SerialUtilities.readPaint(stream);
-        
+
     }
-    
+
 }

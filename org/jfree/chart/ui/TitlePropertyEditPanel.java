@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------------------------
  * TitlePropertyEditPanel.java
  * ---------------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -36,29 +36,35 @@
  *               jcommon.jar (DG);
  * 31-Jan-2002 : Removed Title.java and StandardTitle.java.  Disabled some methods in this class
  *               until support for AbstractTitle is added (DG);
+ * 20-May-2003 : Restored initialisation of titleField and titlePaint to prevent
+ *               NullPointer when using this class. (TM)
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
  *
  */
 
 package org.jfree.chart.ui;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.Color;
-import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JPanel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JColorChooser;
+import java.util.ResourceBundle;
+
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
 import org.jfree.chart.AbstractTitle;
 import org.jfree.layout.LCBLayout;
-import org.jfree.ui.PaintSample;
-import org.jfree.ui.FontDisplayField;
 import org.jfree.ui.FontChooserPanel;
+import org.jfree.ui.FontDisplayField;
+import org.jfree.ui.PaintSample;
 
 /**
  * A panel for editing the properties of a chart title.
@@ -79,40 +85,48 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
     /** The paint (color) used to draw the title. */
     private PaintSample titlePaint;
 
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.ui.LocalizationBundle");
+
     /**
      * Standard constructor: builds a panel for displaying/editing the
      * properties of the specified title.
      *
-     * @param title  the title, which should be changed.
+     * @param title  the title, which should be changed. This parameter
+     * is not used yet.
      */
     public TitlePropertyEditPanel(AbstractTitle title) {
 
         setLayout(new BorderLayout());
 
+        titlePaint = new PaintSample (Color.black);
+
         JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(BorderFactory.createTitledBorder(
-                              BorderFactory.createEtchedBorder(), "General:"));
+        general.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), 
+                                                      localizationResources.getString("General")));
 
         JPanel interior = new JPanel(new LCBLayout(3));
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        JLabel titleLabel = new JLabel("Text:");
+        JLabel titleLabel = new JLabel(localizationResources.getString("Text"));
+        titleField = new JTextField ();
 
         interior.add(titleLabel);
         interior.add(titleField);
         interior.add(new JPanel());
-        interior.add(new JLabel("Font:"));
+        interior.add(new JLabel(localizationResources.getString("Font")));
 
         fontfield = new FontDisplayField(titleFont);
-        JButton b = new JButton("Select...");
+        JButton b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectFont");
         b.addActionListener(this);
 
         interior.add(fontfield);
         interior.add(b);
 
-        interior.add(new JLabel("Color:"));
+        interior.add(new JLabel(localizationResources.getString("Color")));
 
-        b = new JButton("Select...");
+        b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectPaint");
         b.addActionListener(this);
         interior.add(titlePaint);
@@ -174,9 +188,10 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
     public void attemptFontSelection() {
 
         FontChooserPanel panel = new FontChooserPanel(titleFont);
-        int result = JOptionPane.showConfirmDialog(this, panel, "Font Selection",
-                                                   JOptionPane.OK_CANCEL_OPTION,
-                                                   JOptionPane.PLAIN_MESSAGE);
+        int result = 
+            JOptionPane.showConfirmDialog(this, panel, 
+                                          localizationResources.getString("Font_Selection"),
+                                          JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             titleFont = panel.getSelectedFont();
@@ -192,7 +207,8 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
      * Paint chooser).
      */
     public void attemptPaintSelection() {
-        Color c = JColorChooser.showDialog(this, "Title Color", Color.blue);
+        Color c = JColorChooser.showDialog(this, localizationResources.getString("Title_Color"),
+                                           Color.blue);
         if (c != null) {
             titlePaint.setPaint(c);
         }
@@ -200,7 +216,7 @@ public class TitlePropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Sets the properties of the specified title to match the properties
-     * defined on this panel.
+     * defined on this panel. This method does nothing.
      *
      * @param title  an AbstractTitle.
      */

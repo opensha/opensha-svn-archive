@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by David M. O'Donnell and Contributors.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -37,12 +37,11 @@
 
 package org.jfree.chart.plot;
 
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 
 /**
  * An interface defining methods related to contour plots.
- * 
+ *
  * @author David M. O'Donnell
  */
 public interface ContourValuePlot {
@@ -53,12 +52,5 @@ public interface ContourValuePlot {
      * @return  the range.
      */
     public Range getContourDataRange();
-
-    /**
-     * Returns the color bar axis.
-     *
-     * @return  the value axis.
-     */
-    public ValueAxis getColorBarValueAxis();
 
 }

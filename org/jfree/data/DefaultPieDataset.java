@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------
  * DefaultPieDataset.java
  * ----------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Sam (oldman);
  *
  * $Id$
@@ -40,9 +40,11 @@
  * 04-Feb-2003 : Changed underlying data storage to DefaultKeyedValues (DG);
  * 04-Mar-2003 : Inserted DefaultKeyedValuesDataset class into hierarchy (DG);
  * 24-Apr-2003 : Switched places with DefaultKeyedValuesDataset (DG);
+ * 18-Aug-2003 : Implemented Cloneable (DG);
+ * 
  */
 
-package org.jfree.data; 
+package org.jfree.data;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -53,12 +55,12 @@ import java.util.List;
  *
  * @author David Gilbert
  */
-public class DefaultPieDataset extends AbstractDataset 
-                               implements PieDataset, Serializable {
+public class DefaultPieDataset extends AbstractDataset
+                               implements PieDataset, Cloneable, Serializable {
 
     /** Storage for the data. */
     private DefaultKeyedValues data;
-    
+
     /**
      * Constructs a new dataset, initially empty.
      */
@@ -67,14 +69,14 @@ public class DefaultPieDataset extends AbstractDataset
         this.data = new DefaultKeyedValues();
 
     }
-    
+
     /**
      * Creates a new dataset that uses the data from a {@link KeyedValues} instance.
-     * 
+     *
      * @param data  the data.
      */
     public DefaultPieDataset(KeyedValues data) {
-        
+
         this.data = new DefaultKeyedValues();
         for (int i = 0; i < data.getItemCount(); i++) {
             this.data.addValue(data.getKey(i), data.getValue(i));
@@ -177,7 +179,7 @@ public class DefaultPieDataset extends AbstractDataset
         fireDatasetChanged();
 
     }
-    
+
     /**
      * Sets the data value for a key.
      *
@@ -185,27 +187,27 @@ public class DefaultPieDataset extends AbstractDataset
      * @param value  the value.
      */
     public void setValue(Comparable key, double value) {
-    
+
         setValue(key, new Double(value));
-    
+
     }
-    
+
     /**
      * Tests if this object is equal to another.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
-    
+
         if (o == null) {
             return false;
         }
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof PieDataset) {
             PieDataset pd = (PieDataset) o;
             int count = getItemCount();
@@ -219,7 +221,7 @@ public class DefaultPieDataset extends AbstractDataset
                         if (v2 != null) {
                             return false;
                         }
-                    } 
+                    }
                     else {
                         if (!v1.equals(v2)) {
                             return false;
@@ -232,8 +234,23 @@ public class DefaultPieDataset extends AbstractDataset
             }
             return true;
         }
-       
+
         return false;
-            
+
     }
+    
+    /**
+     * Returns a clone.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException This class will not throw this exception, but subclasses
+     *         (if any) might.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        DefaultPieDataset clone = (DefaultPieDataset) super.clone();
+        clone.data = (DefaultKeyedValues) this.data.clone();
+        return clone;    
+    }
+    
 }

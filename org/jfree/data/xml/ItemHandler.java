@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------
  * ItemHandler.java
  * ----------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -43,7 +43,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A handler for reading key-value items.
- * 
+ *
  * @author David Gilbert
  */
 public class ItemHandler extends DefaultHandler implements DatasetTags {
@@ -53,16 +53,16 @@ public class ItemHandler extends DefaultHandler implements DatasetTags {
 
     /** The parent handler (can be the same as root, but not always). */
     private DefaultHandler parent;
-    
+
     /** The key. */
     private Comparable key;
-    
+
     /** The value. */
     private Number value;
 
     /**
      * Creates a new item handler.
-     * 
+     *
      * @param root  the root handler.
      * @param parent  the parent handler.
      */
@@ -74,8 +74,17 @@ public class ItemHandler extends DefaultHandler implements DatasetTags {
     }
 
     /**
+     * Returns the key that has been read by the handler, or <code>null</code>.
+     *
+     * @return The key.
+     */
+    public Comparable getKey() {
+        return this.getKey();
+    }
+
+    /**
      * Sets the key.
-     * 
+     *
      * @param key  the key.
      */
     public void setKey(Comparable key) {
@@ -83,8 +92,17 @@ public class ItemHandler extends DefaultHandler implements DatasetTags {
     }
 
     /**
+     * Returns the key that has been read by the handler, or <code>null</code>.
+     *
+     * @return The value.
+     */
+    public Number getValue() {
+        return this.value;
+    }
+
+    /**
      * Sets the value.
-     * 
+     *
      * @param value  the value.
      */
     public void setValue(Number value) {
@@ -93,12 +111,12 @@ public class ItemHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * The start of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
      * @param atts  the attributes.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void startElement(String namespaceURI,
@@ -122,7 +140,7 @@ public class ItemHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * The end of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2001-2003, by Achilleus Mantzios and Contributors.
  *
  * Original Author:  Achilleus Mantzios;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -37,13 +37,13 @@
 
 package org.jfree.data;
 
-import java.util.List;
-import java.util.Collections;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
- * A default implementation of the WindDataset interface.
+ * A default implementation of the {@link WindDataset} interface.
  *
  * @author Achilleus Mantzios
  */
@@ -228,7 +228,7 @@ public class DefaultWindDataset extends AbstractSeriesDataset implements WindDat
 
 /**
  * A wind data item.
- * 
+ *
  * @author Achilleus Mantzios
  */
 class WindDataItem implements Comparable {
@@ -257,36 +257,36 @@ class WindDataItem implements Comparable {
 
     /**
      * Returns the x-value.
-     * 
+     *
      * @return The x-value.
      */
     public Number getX() {
         return this.x;
     }
-    
+
     /**
      * Returns the wind direction.
-     * 
+     *
      * @return The wind direction.
      */
     public Number getWindDirection() {
         return this.windDir;
     }
-    
+
     /**
      * Returns the wind force.
-     * 
+     *
      * @return The wind force.
      */
     public Number getWindForce() {
         return this.windForce;
     }
-    
+
     /**
      * Compares this item to another object.
      *
      * @param object  the other object.
-     * 
+     *
      * @return An int that indicates the relative comparison.
      */
     public int compareTo(Object object) {

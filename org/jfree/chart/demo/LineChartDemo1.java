@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * LineChartDemo1.java
  * -------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,17 +42,22 @@ package org.jfree.chart.demo;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardLegend;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.ItemLabelAnchor;
 import org.jfree.chart.renderer.LineAndShapeRenderer;
+import org.jfree.data.CategoryDataset;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+import org.jfree.ui.TextAnchor;
 
 /**
  * A simple demonstration application showing how to create a line chart using data from a
@@ -71,6 +76,23 @@ public class LineChartDemo1 extends ApplicationFrame {
 
         super(title);
 
+        CategoryDataset dataset = createDataset();
+        JFreeChart chart = createChart(dataset);
+        
+        // add the chart to a panel...
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
+
+    }
+
+    /**
+     * Creates a sample dataset.
+     * 
+     * @return The dataset.
+     */
+    private CategoryDataset createDataset() {
+        
         // row keys...
         String series1 = "First";
         String series2 = "Second";
@@ -116,73 +138,87 @@ public class LineChartDemo1 extends ApplicationFrame {
         dataset.addValue(4.0, series3, type7);
         dataset.addValue(3.0, series3, type8);
 
+        return dataset;
+                
+    }
+    
+    /**
+     * Creates a sample chart.
+     * 
+     * @param dataset  a dataset.
+     * 
+     * @return The chart.
+     */
+    private JFreeChart createChart(CategoryDataset dataset) {
+        
         // create the chart...
-        JFreeChart chart = ChartFactory.createLineChart("Line Chart Demo 1",  // chart title
-                                                        "Type",               // domain axis label
-                                                        "Value",              // range axis label
-                                                        dataset,              // data
-                                                        true,                 // include legend
-                                                        true,                 // tooltips
-                                                        false                 // urls
-                                                        );
+        JFreeChart chart = ChartFactory.createLineChart(
+            "Line Chart Demo 1",       // chart title
+            "Type",                    // domain axis label
+            "Value",                   // range axis label
+            dataset,                   // data
+            PlotOrientation.VERTICAL,  // orientation
+            true,                      // include legend
+            true,                      // tooltips
+            false                      // urls
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         StandardLegend legend = (StandardLegend) chart.getLegend();
         legend.setDisplaySeriesShapes(true);
-        
-        chart.setBackgroundPaint(Color.yellow);
+
+        chart.setBackgroundPaint(new Color(0xCC, 0xCC, 0xFF));
 
         CategoryPlot plot = chart.getCategoryPlot();
 
-        // set the stroke for each series...
-        plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f,
-                                                              BasicStroke.CAP_ROUND,
-                                                              BasicStroke.JOIN_ROUND,
-                                                              1.0f,
-                                                              new float[] { 10.0f, 6.0f },
-                                                              0.0f));
-        plot.getRenderer().setSeriesStroke(1, new BasicStroke(2.0f,
-                                                              BasicStroke.CAP_ROUND,
-                                                              BasicStroke.JOIN_ROUND,
-                                                              1.0f,
-                                                              new float[] { 6.0f, 6.0f },
-                                                              0.0f));
-        plot.getRenderer().setSeriesStroke(2, new BasicStroke(2.0f,
-                                                              BasicStroke.CAP_ROUND,
-                                                              BasicStroke.JOIN_ROUND,
-                                                              1.0f,
-                                                              new float[] { 2.0f, 6.0f },
-                                                              0.0f));
-
-        // label data points with values...
-        plot.setValueLabelsVisible(true);
-
-        // add a range marker...
-        //plot.addRangeMarker(new Marker(8.0));
-        
-        // customise the renderer...
-        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-        renderer.setDrawShapes(true);
-
         // customise the domain axis...
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setVerticalCategoryLabels(true);
 
         // customise the range axis...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        rangeAxis.setAutoRangeIncludesZero(false);
-        rangeAxis.setUpperMargin(0.12);
+        rangeAxis.setAutoRangeIncludesZero(true);
+        rangeAxis.setUpperMargin(0.20);
+        rangeAxis.setLabelAngle(Math.PI / 2.0);
 
+        // customise the renderer...
+        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+        renderer.setDrawShapes(true);
+
+        renderer.setSeriesStroke(
+            0, new BasicStroke(2.0f,
+                               BasicStroke.CAP_ROUND,
+                               BasicStroke.JOIN_ROUND,
+                               1.0f,
+                               new float[] {10.0f, 6.0f},
+                               0.0f)
+        );
+        renderer.setSeriesStroke(
+            1, new BasicStroke(2.0f,
+                               BasicStroke.CAP_ROUND,
+                               BasicStroke.JOIN_ROUND,
+                               1.0f,
+                               new float[] {6.0f, 6.0f},
+                               0.0f)
+        );
+        renderer.setSeriesStroke(
+            2, new BasicStroke(2.0f,
+                               BasicStroke.CAP_ROUND,
+                               BasicStroke.JOIN_ROUND,
+                               1.0f,
+                               new float[] {2.0f, 6.0f},
+                               0.0f)
+        );
+
+        renderer.setItemLabelsVisible(true);
+        renderer.setItemLabelTextAnchor(TextAnchor.BOTTOM_CENTER);
+        renderer.setItemLabelAnchor(ItemLabelAnchor.OUTSIDE12);
         // OPTIONAL CUSTOMISATION COMPLETED.
-
-        // add the chart to a panel...
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(chartPanel);
-
+        
+        return chart;
     }
-
+    
     /**
      * Starting point for the demonstration application.
      *

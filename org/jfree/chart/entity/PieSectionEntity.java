@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,12 @@
  * ---------------------
  * PieSectionEntity.java
  * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson;
- *
+ *                   Christian W. Zuckschwerdt;
+ *                   
  * $Id$
  *
  * Changes:
@@ -38,14 +39,17 @@
  *               Moved getImageMapAreaTag() to ChartEntity (superclass) (RA);
  * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 07-Mar-2003 : Added pie index attribute, since the PiePlot class can create multiple
- *               pie plots within one chart.  Also renamed 'category' --> 'sectionKey' and changed 
+ *               pie plots within one chart.  Also renamed 'category' --> 'sectionKey' and changed
  *               the class from Object --> Comparable (DG);
+ * 30-Jul-2003 : Added PieDataset reference (CZ);
  *
  */
 
 package org.jfree.chart.entity;
 
 import java.awt.Shape;
+
+import org.jfree.data.PieDataset;
 
 /**
  * A chart entity that represents one section within a pie plot.
@@ -54,9 +58,12 @@ import java.awt.Shape;
  */
 public class PieSectionEntity extends ChartEntity {
 
+    /** The dataset. */
+    private PieDataset dataset;
+    
     /** The pie index. */
     private int pieIndex;
-    
+
     /** The section index. */
     private int sectionIndex;
 
@@ -71,10 +78,12 @@ public class PieSectionEntity extends ChartEntity {
      * @param sectionKey  the section key.
      * @param area  the area.
      * @param toolTipText  the tool tip text.
+     * 
+     * @deprecated Use alternative constructor.
      */
-    public PieSectionEntity(int pieIndex, int sectionIndex, Comparable sectionKey, 
+    public PieSectionEntity(int pieIndex, int sectionIndex, Comparable sectionKey,
                             Shape area, String toolTipText) {
-                                
+
         super(area, toolTipText);
         this.pieIndex = pieIndex;
         this.sectionIndex = sectionIndex;
@@ -91,10 +100,12 @@ public class PieSectionEntity extends ChartEntity {
      * @param area  the area.
      * @param toolTipText  the tool tip text.
      * @param urlText  the URL text for HTML image maps.
+     * 
+     * @deprecated Use alternative constructor.
      */
-    public PieSectionEntity(int pieIndex, int sectionIndex, Comparable sectionKey, 
+    public PieSectionEntity(int pieIndex, int sectionIndex, Comparable sectionKey,
                             Shape area, String toolTipText, String urlText) {
-                                
+
         super(area, toolTipText, urlText);
         this.pieIndex = pieIndex;
         this.sectionIndex = sectionIndex;
@@ -103,27 +114,69 @@ public class PieSectionEntity extends ChartEntity {
     }
 
     /**
+     * Creates a new pie section entity.
+     *
+     * @param area  the area.
+     * @param dataset  the pie dataset.
+     * @param pieIndex  the pie index (zero-based).
+     * @param sectionIndex  the section index (zero-based).
+     * @param sectionKey  the section key.
+     * @param toolTipText  the tool tip text.
+     * @param urlText  the URL text for HTML image maps.
+     */
+    public PieSectionEntity(Shape area, 
+                            PieDataset dataset,
+                            int pieIndex, int sectionIndex, Comparable sectionKey,
+                            String toolTipText, String urlText) {
+
+        super(area, toolTipText, urlText);
+        this.dataset = dataset;
+        this.pieIndex = pieIndex;
+        this.sectionIndex = sectionIndex;
+        this.sectionKey = sectionKey;
+
+    }
+
+    /**
+     * Returns the datset this entity refers to.
+     *
+     * @return the dataset.
+     */
+    public PieDataset getDataset() {
+        return this.dataset;
+    }
+
+    /**
+     * Sets the datset this entity refers to.
+     *
+     * @param dataset  the dataset.
+     */
+    public void setDataset(PieDataset dataset) {
+        this.dataset = dataset;
+    }
+
+    /**
      * Returns the pie index.
      * <p>
      * For a regular pie chart, the section index is 0.  For a pie chart containing
-     * multiple pie plots, the pie index is the row or column index from which the pie data is 
+     * multiple pie plots, the pie index is the row or column index from which the pie data is
      * extracted.
-     * 
+     *
      * @return The pie index.
      */
     public int getPieIndex() {
         return this.pieIndex;
     }
-    
+
     /**
      * Sets the pie index.
-     * 
+     *
      * @param index  the new index value.
      */
     public void setPieIndex(int index) {
         this.pieIndex = index;
     }
-    
+
     /**
      * Returns the section index.
      *

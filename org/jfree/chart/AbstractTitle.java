@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,8 @@
  * (C) Copyright 2000-2003, by David Berry and Contributors.
  *
  * Original Author:  David Berry;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *              Nicolas Brodu;
  *
  * $Id$
  *
@@ -39,7 +40,8 @@
  * 25-Jun-2002 : Removed unnecessary imports (DG);
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 14-Oct-2002 : Changed the event listener storage structure (DG);
- *
+ * 11-Sep-2003 : Took care of listeners while cloning (NB);
+ * 22-Sep-2003 : Spacer cannot be null. Added nullpointer checks for this (TM).
  */
 
 package org.jfree.chart;
@@ -142,9 +144,9 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
     protected AbstractTitle() {
 
         this(AbstractTitle.DEFAULT_POSITION,
-             AbstractTitle.DEFAULT_HORIZONTAL_ALIGNMENT,
-             AbstractTitle.DEFAULT_VERTICAL_ALIGNMENT,
-             AbstractTitle.DEFAULT_SPACER);
+            AbstractTitle.DEFAULT_HORIZONTAL_ALIGNMENT,
+            AbstractTitle.DEFAULT_VERTICAL_ALIGNMENT,
+            AbstractTitle.DEFAULT_SPACER);
 
     }
 
@@ -154,14 +156,12 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      * @param position  the relative position of the title (TOP, BOTTOM, RIGHT and LEFT).
      * @param horizontalAlignment  the horizontal alignment of the title (LEFT, CENTER or RIGHT).
      * @param verticalAlignment  the vertical alignment of the title (TOP, MIDDLE or BOTTOM).
-     *
-     * @throws IllegalArgumentException if an invalid location or alignment value is passed.
      */
     protected AbstractTitle(int position, int horizontalAlignment, int verticalAlignment) {
 
         this(position,
-             horizontalAlignment, verticalAlignment,
-             AbstractTitle.DEFAULT_SPACER);
+            horizontalAlignment, verticalAlignment,
+            AbstractTitle.DEFAULT_SPACER);
 
     }
 
@@ -176,8 +176,6 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      * @param horizontalAlignment  the horizontal alignment of the title (LEFT, CENTER or RIGHT).
      * @param verticalAlignment  the vertical alignment of the title (TOP, MIDDLE or BOTTOM).
      * @param spacer  the amount of space to leave around the outside of the title.
-     *
-     * @throws IllegalArgumentException if an invalid location or alignment value is passed.
      */
     protected AbstractTitle(int position,
                             int horizontalAlignment, int verticalAlignment,
@@ -194,6 +192,9 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
 
         if (!AbstractTitle.isValidVerticalAlignment(verticalAlignment)) {
             throw new IllegalArgumentException("AbstractTitle(): invalid vertical alignment.");
+        }
+        if (spacer == null) {
+            throw new NullPointerException("AbstractTitle(..): Spacer is null.");
         }
 
         // initialise...
@@ -227,6 +228,9 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
 
         if (this.position != position) {
             // check that the position is valid
+            if (!isValidPosition(position)) {
+                throw new IllegalArgumentException("AbstractTitle(): invalid position.");
+            }
             this.position = position;
             notifyListeners(new TitleChangeEvent(this));
         }
@@ -251,6 +255,9 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      */
     public void setHorizontalAlignment(int alignment) {
         if (this.horizontalAlignment != alignment) {
+            if (!AbstractTitle.isValidHorizontalAlignment(horizontalAlignment)) {
+                throw new IllegalArgumentException("AbstractTitle.setHorizontalAlignment(): invalid horizontal alignment.");
+            }
             this.horizontalAlignment = alignment;
             notifyListeners(new TitleChangeEvent(this));
         }
@@ -276,6 +283,9 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      */
     public void setVerticalAlignment(int alignment) {
         if (this.verticalAlignment != alignment) {
+            if (!AbstractTitle.isValidVerticalAlignment(verticalAlignment)) {
+                throw new IllegalArgumentException("AbstractTitle.setVerticalAlignment(): invalid vertical alignment.");
+            }
             this.verticalAlignment = alignment;
             notifyListeners(new TitleChangeEvent(this));
         }
@@ -299,6 +309,9 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      */
     public void setSpacer(Spacer spacer) {
 
+        if (spacer == null) {
+            throw new NullPointerException("AbstractTitle.setSpacer(..): Null argument.");
+        }
         if (!this.spacer.equals(spacer)) {
             this.spacer = spacer;
             notifyListeners(new TitleChangeEvent(this));
@@ -387,8 +400,10 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
             throw new RuntimeException("AbstractTitle.clone()");
         }
 
-        return duplicate;
+        duplicate.listenerList = new EventListenerList();
 
+        // Spacer is immutable => same reference in clone OK
+        return duplicate;
     }
 
     /**
@@ -437,11 +452,15 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      */
     protected static boolean isValidHorizontalAlignment(int code) {
 
-        switch(code) {
-            case AbstractTitle.LEFT:   return true;
-            case AbstractTitle.MIDDLE: return true;
-            case AbstractTitle.RIGHT:  return true;
-            default: return false;
+        switch (code) {
+            case AbstractTitle.LEFT:
+                return true;
+            case AbstractTitle.MIDDLE:
+                return true;
+            case AbstractTitle.RIGHT:
+                return true;
+            default:
+                return false;
         }
 
     }
@@ -455,68 +474,82 @@ public abstract class AbstractTitle extends Object implements Cloneable, Seriali
      */
     protected static boolean isValidVerticalAlignment(int code) {
 
-        switch(code) {
-            case AbstractTitle.TOP:    return true;
-            case AbstractTitle.MIDDLE: return true;
-            case AbstractTitle.BOTTOM: return true;
-            default: return false;
+        switch (code) {
+            case AbstractTitle.TOP:
+                return true;
+            case AbstractTitle.MIDDLE:
+                return true;
+            case AbstractTitle.BOTTOM:
+                return true;
+            default:
+                return false;
         }
 
     }
 
     /**
      * Tests an object for equality with this title.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
-        if (obj instanceof AbstractTitle) {
-            
-            AbstractTitle t = (AbstractTitle) obj;
- //           if (super.equals(obj)) {
-                boolean b0 = (this.position == t.position);
-                boolean b1 = (this.horizontalAlignment == t.horizontalAlignment);
-                boolean b2 = (this.verticalAlignment == t.verticalAlignment);
-                boolean b3 = ObjectUtils.equalOrBothNull(this.spacer, t.spacer);
-                boolean b4 = (this.notify == t.notify);
 
-                return b0 && b1 && b2 && b3 && b4;    
-//            }        
+        if (obj instanceof AbstractTitle) {
+
+            AbstractTitle t = (AbstractTitle) obj;
+            //           if (super.equals(obj)) {
+            if (this.position != t.position) {
+                return false;
+            }
+            if (this.horizontalAlignment != t.horizontalAlignment) {
+                return false;
+            }
+            if (this.verticalAlignment != t.verticalAlignment) {
+                return false;
+            }
+            if (ObjectUtils.equal(this.spacer, t.spacer) == false) {
+                return false;
+            }
+            if (this.notify != t.notify) {
+                return false;
+            }
+
+            return true;
+//            }
         }
-        
+
         return false;
 
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem. 
+     * @throws ClassNotFoundException  if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();

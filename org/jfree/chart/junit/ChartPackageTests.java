@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------
  * ChartPackageTests.java
  * ----------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -60,13 +60,13 @@ public class ChartPackageTests extends TestCase {
         TestSuite suite = new TestSuite("org.jfree.chart");
         suite.addTestSuite(JFreeChartTests.class);
         suite.addTestSuite(PieChartTests.class);
-        suite.addTestSuite(HorizontalBarChartTests.class);
-        suite.addTestSuite(HorizontalBarChart3DTests.class);
+        suite.addTestSuite(BarChartTests.class);
+        suite.addTestSuite(BarChart3DTests.class);
+        suite.addTestSuite(MarkerTests.class);
         suite.addTestSuite(ScatterPlotTests.class);
+        suite.addTestSuite(SpacerTests.class);
         suite.addTestSuite(StackedHorizontalBarChartTests.class);
         suite.addTestSuite(StackedVerticalBarChartTests.class);
-        suite.addTestSuite(VerticalBarChartTests.class);
-        suite.addTestSuite(VerticalBarChart3DTests.class);
         return suite;
     }
 
@@ -75,7 +75,7 @@ public class ChartPackageTests extends TestCase {
      *
      * @param name  the suite name.
      */
-    public ChartPackageTests(String name) {
+    private ChartPackageTests(String name) {
         super(name);
     }
 

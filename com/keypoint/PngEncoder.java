@@ -3,11 +3,11 @@ package com.keypoint;
 import java.awt.Image;
 import java.awt.image.ImageObserver;
 import java.awt.image.PixelGrabber;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 /**
  * PngEncoder takes a Java Image object and creates a byte string which can be saved as a PNG file.
@@ -41,9 +41,13 @@ import java.io.IOException;
  * @author J. David Eisenberg
  * @version 1.4, 31 March 2000
  *
- * MODIFIED BY DAVID GILBERT ON 19-NOV-2002 (CODING STYLE CHANGES ONLY).
+ * CHANGES:
+ * --------
+ * 19-Nov-2002 : CODING STYLE CHANGES ONLY (by David Gilbert for Object Refinery Limited);
+ * 19-Sep-2003 : Fix for platforms using EBCDIC (contributed by Paulo Soares);
  *
  */
+
 public class PngEncoder extends Object {
 
     /** Constant specifying that alpha channel should be encoded. */
@@ -63,6 +67,15 @@ public class PngEncoder extends Object {
 
     /** Constants for filter (LAST) */
     public static final int FILTER_LAST = 2;
+    
+    /** IHDR tag. */
+    private static final byte IHDR[] = {73, 72, 68, 82};
+    
+    /** IDAT tag. */
+    private static final byte IDAT[] = {73, 68, 65, 84};
+    
+    /** IEND tag. */
+    private static final byte IEND[] = {73, 69, 78, 68};
 
     /** The png bytes. */
     private byte[] pngBytes;
@@ -81,9 +94,6 @@ public class PngEncoder extends Object {
 
     /** The byte position. */
     private int bytePos, maxPos;
-
-    /** The header position. */
-    private int hdrPos, dataPos; //, endPos;
 
     /** CRC. */
     private CRC32 crc = new CRC32();
@@ -183,7 +193,7 @@ public class PngEncoder extends Object {
      * @return an array of bytes, or null if there was a problem
      */
     public byte[] pngEncode(boolean encodeAlpha) {
-        byte[]  pngIdBytes = { -119, 80, 78, 71, 13, 10, 26, 10 };
+        byte[]  pngIdBytes = {-119, 80, 78, 71, 13, 10, 26, 10};
 
         if (image == null) {
             return null;
@@ -203,9 +213,9 @@ public class PngEncoder extends Object {
         maxPos = 0;
 
         bytePos = writeBytes(pngIdBytes, 0);
-        hdrPos = bytePos;
+        //hdrPos = bytePos;
         writeHeader();
-        dataPos = bytePos;
+        //dataPos = bytePos;
         if (writeImageData()) {
             writeEnd();
             pngBytes = resizeByteArray(pngBytes, maxPos);
@@ -350,8 +360,7 @@ public class PngEncoder extends Object {
      * @return The next place to be written to in the pngBytes array.
      */
     protected int writeInt2(int n, int offset) {
-        byte[] temp = { (byte) ((n >> 8) & 0xff),
-            (byte) (n & 0xff) };
+        byte[] temp = {(byte) ((n >> 8) & 0xff), (byte) (n & 0xff)};
         return writeBytes(temp, offset);
     }
 
@@ -363,10 +372,10 @@ public class PngEncoder extends Object {
      * @return The next place to be written to in the pngBytes array.
      */
     protected int writeInt4(int n, int offset) {
-        byte[] temp = { (byte) ((n >> 24) & 0xff),
-            (byte) ((n >> 16) & 0xff),
-            (byte) ((n >> 8) & 0xff),
-            (byte) (n & 0xff) };
+        byte[] temp = {(byte) ((n >> 24) & 0xff),
+                       (byte) ((n >> 16) & 0xff),
+                       (byte) ((n >> 8) & 0xff),
+                       (byte) (n & 0xff)};
         return writeBytes(temp, offset);
     }
 
@@ -378,24 +387,8 @@ public class PngEncoder extends Object {
      * @return The next place to be written to in the pngBytes array.
      */
     protected int writeByte(int b, int offset) {
-        byte[] temp = { (byte) b };
+        byte[] temp = {(byte) b};
         return writeBytes(temp, offset);
-    }
-
-    /**
-     * Write a string into the pngBytes array at a given position.
-     * This uses the getBytes method, so the encoding used will
-     * be its default.
-     *
-     * @param s The string to be written into pngBytes.
-     * @param offset The starting point to write to.
-     *
-     * @return The next place to be written to in the pngBytes array.
-     *
-     * @see java.lang.String#getBytes()
-     */
-    protected int writeString(String s, int offset) {
-        return writeBytes(s.getBytes(), offset);
     }
 
     /**
@@ -405,7 +398,7 @@ public class PngEncoder extends Object {
         int startPos;
 
         startPos = bytePos = writeInt4(13, bytePos);
-        bytePos = writeString("IHDR", bytePos);
+        bytePos = writeBytes(IHDR, bytePos);
         width = image.getWidth(null);
         height = image.getHeight(null);
         bytePos = writeInt4(width, bytePos);
@@ -574,8 +567,8 @@ public class PngEncoder extends Object {
 
             crc.reset();
             bytePos = writeInt4(nCompressed, bytePos);
-            bytePos = writeString("IDAT", bytePos);
-            crc.update("IDAT".getBytes());
+            bytePos = writeBytes(IDAT, bytePos);
+            crc.update(IDAT);
             bytePos = writeBytes(compressedLines, nCompressed, bytePos);
             crc.update(compressedLines, 0, nCompressed);
 
@@ -595,9 +588,9 @@ public class PngEncoder extends Object {
      */
     protected void writeEnd() {
         bytePos = writeInt4(0, bytePos);
-        bytePos = writeString("IEND", bytePos);
+        bytePos = writeBytes(IEND, bytePos);
         crc.reset();
-        crc.update("IEND".getBytes());
+        crc.update(IEND);
         crcValue = crc.getValue();
         bytePos = writeInt4((int) crcValue, bytePos);
     }

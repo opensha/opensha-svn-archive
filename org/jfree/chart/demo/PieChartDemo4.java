@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * PieChartDemo4.java
  * ------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,8 +42,8 @@ import java.awt.Color;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieItemLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.tooltips.StandardPieToolTipGenerator;
 import org.jfree.data.DefaultPieDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
@@ -73,30 +73,40 @@ public class PieChartDemo4 extends ApplicationFrame {
         data.setValue("Four", new Double(17.5));
         data.setValue("Five", new Double(11.0));
         data.setValue("Six", new Double(19.4));
+        data.setValue("Seven", new Double(19.4));
+        data.setValue("Eight", new Double(19.4));
+        data.setValue("Nine", new Double(9.4));
+        data.setValue("Ten", new Double(19.4));
+        data.setValue("Eleven", new Double(9.4));
+        data.setValue("Twelve", new Double(9.4));
+        data.setValue("Thirteen", new Double(9.4));
+        data.setValue("Fourteen", new Double(9.4));
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createPieChart("Pie Chart Demo 1",  // chart title
-                                                       data,                // data
-                                                       true,                // include legend
-                                                       true,
-                                                       false
-                                                       );
+        JFreeChart chart = ChartFactory.createPieChart(
+            "Pie Chart Demo 4",  // chart title
+            data,                // data
+            true,                // include legend
+            true,
+            false
+        );
 
         // set the background color for the chart...
         chart.setBackgroundPaint(Color.yellow);
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionLabelType(PiePlot.NAME_AND_PERCENT_LABELS);
         plot.setNoDataMessage("No data available");
-        plot.setToolTipGenerator(new StandardPieToolTipGenerator());
-        plot.setPaint(0, new Color(0xCC, 0xCC, 0xFF));
-        plot.setPaint(1, new Color(0xFF, 0xCC, 0xCC));
-        plot.setPaint(2, new Color(0xCC, 0xFF, 0xCC));
-        plot.setPaint(3, new Color(0xFF, 0x99, 0x99));
-        plot.setPaint(4, new Color(0x99, 0xFF, 0x99));
-        plot.setPaint(5, new Color(0x99, 0x99, 0xFF));
-        
-        plot.setDefaultOutlinePaint(null);
-        
+        plot.setItemLabelGenerator(new StandardPieItemLabelGenerator());
+        plot.setSectionPaint(0, new Color(0xCC, 0xCC, 0xFF));
+        plot.setSectionPaint(1, new Color(0xFF, 0xCC, 0xCC));
+        plot.setSectionPaint(2, new Color(0xCC, 0xFF, 0xCC));
+        plot.setSectionPaint(3, new Color(0xFF, 0x99, 0x99));
+        plot.setSectionPaint(4, new Color(0x99, 0xFF, 0x99));
+        plot.setSectionPaint(5, new Color(0x99, 0x99, 0xFF));
+
+        plot.setSectionOutlinePaint(null);
+        plot.setSectionOutlinePaintListAutoFill(false);
+
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));

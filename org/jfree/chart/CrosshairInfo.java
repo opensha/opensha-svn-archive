@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * CrosshairInfo.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -34,6 +34,7 @@
  * 24-Jan-2002 : Version 1 (DG);
  * 05-Mar-2002 : Added Javadoc comments (DG);
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 19-Sep-2003 : Modified crosshair distance calculation (DG);
  *
  */
 
@@ -46,11 +47,20 @@ package org.jfree.chart;
  */
 public class CrosshairInfo {
 
+    /** A flag that controls whether the distance is calculated in data space or Java2D space. */
+    private boolean calculateDistanceInDataSpace = false;
+
     /** The x-value for the anchor point. */
     private double anchorX;
 
     /** The y-value for the anchor point. */
     private double anchorY;
+    
+    /** The X anchor value in Java2D space. */
+    private double anchorXView;
+    
+    /** The Y anchor value in Java2D space. */
+    private double anchorYView;
 
     /** The x-value for the crosshair point. */
     private double crosshairX;
@@ -65,6 +75,16 @@ public class CrosshairInfo {
      * Default constructor.
      */
     public CrosshairInfo() {
+    }
+
+    /**
+     * Creates a new info object.
+     * 
+     * @param calculateDistanceInDataSpace  a flag that controls whether the distance is calculated
+     *                                      in data space or Java2D space.
+     */
+    public CrosshairInfo(boolean calculateDistanceInDataSpace) {
+        this.calculateDistanceInDataSpace = calculateDistanceInDataSpace;
     }
 
     /**
@@ -85,17 +105,26 @@ public class CrosshairInfo {
      * each data point is plotted.  As the point is plotted, it is passed to
      * this method to see if it should be the new crosshair point.
      *
-     * @param candidateX  x position of candidate for the new crosshair point.
-     * @param candidateY  y position of candidate for the new crosshair point.
+     * @param dataX  x position of candidate for the new crosshair point.
+     * @param dataY  y position of candidate for the new crosshair point.
+     * @param viewX  x in Java2D space.
+     * @param viewY  y in Java2D space.
      */
-    public void updateCrosshairPoint(double candidateX, double candidateY) {
+    public void updateCrosshairPoint(double dataX, double dataY, double viewX, double viewY) {
 
-        double d = (candidateX - anchorX) * (candidateX - anchorX)
-                 + (candidateY - anchorY) * (candidateY - anchorY);
+        double d = 0.0;
+        if (this.calculateDistanceInDataSpace) {
+            d = (dataX - this.anchorX) * (dataX - this.anchorX)
+                    + (dataY - this.anchorY) * (dataY - this.anchorY);
+        }
+        else {
+            d = (viewX - this.anchorXView) * (viewX - this.anchorXView)
+                     + (viewY - this.anchorYView) * (viewY - this.anchorYView);            
+        }
 
         if (d < distance) {
-            crosshairX = candidateX;
-            crosshairY = candidateY;
+            crosshairX = dataX;
+            crosshairY = dataY;
             distance = d;
         }
 
@@ -144,6 +173,7 @@ public class CrosshairInfo {
      */
     public void setAnchorX(double x) {
         this.anchorX = x;
+        this.crosshairX = x;
     }
 
     /**
@@ -153,6 +183,25 @@ public class CrosshairInfo {
      */
     public void setAnchorY(double y) {
         this.anchorY = y;
+        this.crosshairY = y;
+    }
+
+    /**
+     * Set the x-value for the anchor point.
+     *
+     * @param x  the x position.
+     */
+    public void setAnchorXView(double x) {
+        this.anchorXView = x;
+    }
+
+    /**
+     * Set the y-value for the anchor point.
+     *
+     * @param y  the y position.
+     */
+    public void setAnchorYView(double y) {
+        this.anchorYView = y;
     }
 
     /**

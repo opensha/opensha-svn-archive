@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * PriceVolumeDemo.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited).
+ * Original Author:  David Gilbert (for Object Refinery Limited).
  * Contributor(s):   -;
  *
  * $Id$
@@ -43,23 +43,21 @@
 package org.jfree.chart.demo;
 
 import java.text.DecimalFormat;
-import org.jfree.data.XYDataset;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.TimeSeriesToolTipGenerator;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.XYBarRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.IntervalXYDataset;
+import org.jfree.data.XYDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.date.SerialDate;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
-import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.renderer.VerticalXYBarRenderer;
-import org.jfree.chart.tooltips.TimeSeriesToolTipGenerator;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -92,14 +90,17 @@ public class PriceVolumeDemo extends ApplicationFrame {
      */
     private JFreeChart createChart() {
 
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
         XYDataset priceData = createPriceDataset();
         String title = "Eurodollar Futures Contract (MAR03)";
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, "Date", "Price",
-                                                              priceData, true,
-                                                              true,
-                                                              false);
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(
+            title, 
+            "Date", 
+            "Price",
+            priceData, 
+            true,
+            true,
+            false
+        );
         XYPlot plot = chart.getXYPlot();
         NumberAxis rangeAxis1 = (NumberAxis) plot.getRangeAxis();
         rangeAxis1.setLowerMargin(0.40);  // to leave room for volume bars
@@ -108,17 +109,16 @@ public class PriceVolumeDemo extends ApplicationFrame {
 
         XYItemRenderer renderer1 = plot.getRenderer();
         renderer1.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "00.00"));
-        renderer1.setDrawingSupplier(supplier);
-        
-        VerticalNumberAxis rangeAxis2 = new VerticalNumberAxis("Volume");
+
+        NumberAxis rangeAxis2 = new NumberAxis("Volume");
         rangeAxis2.setUpperMargin(1.00);  // to leave room for price line
-        plot.setSecondaryRangeAxis(rangeAxis2);
-        plot.setSecondaryDataset(createVolumeDataset());
-        plot.setSecondaryRangeAxis(rangeAxis2);
-        VerticalXYBarRenderer renderer2 = new VerticalXYBarRenderer(0.20);
+        plot.setSecondaryRangeAxis(0, rangeAxis2);
+        plot.setSecondaryDataset(0, createVolumeDataset());
+        plot.setSecondaryRangeAxis(0, rangeAxis2);
+        plot.mapSecondaryDatasetToRangeAxis(0, new Integer(0));
+        XYBarRenderer renderer2 = new XYBarRenderer(0.20);
         renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0,000.00"));
-        renderer2.setDrawingSupplier(supplier);
-        plot.setSecondaryRenderer(renderer2);
+        plot.setSecondaryRenderer(0, renderer2);
         return chart;
 
     }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,8 @@
  * (C) Copyright 2000-2003, by David Berry and Contributors.
  *
  * Original Author:  David Berry;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *               Nicolas Brodu;
  *
  * $Id$
  *
@@ -42,7 +43,10 @@
  * 28-Oct-2002 : Small modifications while changing JFreeChart class (DG);
  * 13-Mar-2003 : Changed width used for relative spacing to fix bug 703050 (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
- *
+ * 15-Jul-2003 : Fixed null pointer exception (DG);
+ * 11-Sep-2003 : Implemented Cloneable (NB)
+ * 22-Sep-2003 : Added checks for null values and thow nullpointer exceptions (TM);
+                 Background paint was not serialized.
  */
 
 package org.jfree.chart;
@@ -68,7 +72,7 @@ import org.jfree.util.ObjectUtils;
  *
  * @author David Gilbert
  */
-public class TextTitle extends AbstractTitle implements Serializable {
+public class TextTitle extends AbstractTitle implements Serializable, Cloneable {
 
     /** The default font. */
     public static final Font DEFAULT_FONT = new Font("SansSerif", Font.BOLD, 12);
@@ -85,6 +89,9 @@ public class TextTitle extends AbstractTitle implements Serializable {
     /** The paint used to display the title text. */
     private transient Paint paint;
 
+    /** The background paint. */
+    private transient Paint backgroundPaint;
+    
     /**
      * Creates a new title, using default attributes where necessary.
      *
@@ -162,9 +169,9 @@ public class TextTitle extends AbstractTitle implements Serializable {
      * For the titlePosition, horizontalAlignment and verticalAlignment, use the constants
      * defined in the AbstractTitle class.
      *
-     * @param text  the text for the title.
-     * @param font  the title font.
-     * @param paint  the title color.
+     * @param text  the text for the title (not null).
+     * @param font  the title font (not null).
+     * @param paint  the title color (not null).
      * @param position  the title position.
      * @param horizontalAlignment  the horizontal alignment.
      * @param verticalAlignment  the vertical alignment.
@@ -175,10 +182,23 @@ public class TextTitle extends AbstractTitle implements Serializable {
                      Spacer spacer) {
 
         super(position, horizontalAlignment, verticalAlignment, spacer);
+        if (text == null)
+        {
+            throw new NullPointerException("TextTitle(..): Text is null");
+        }
+        if (font == null)
+        {
+            throw new NullPointerException("TextTitle(..): Font is null");
+        }
+        if (paint == null)
+        {
+            throw new NullPointerException("TextTitle(..): Paint is null");
+        }
         this.text = text;
         this.font = font;
         this.paint = paint;
-
+        this.backgroundPaint = null;
+        
     }
 
     /**
@@ -198,6 +218,10 @@ public class TextTitle extends AbstractTitle implements Serializable {
      */
     public void setText(String text) {
 
+        if (text == null)
+        {
+            throw new NullPointerException("TextTitle.setText(..): Text is null");
+        }
         if (!this.text.equals(text)) {
             this.text = text;
             notifyListeners(new TitleChangeEvent(this));
@@ -253,7 +277,7 @@ public class TextTitle extends AbstractTitle implements Serializable {
     public void setPaint(Paint paint) {
 
         // check argument...
-        if (font == null) {
+        if (paint == null) {
             throw new IllegalArgumentException("TextTitle.setPaint(...): "
                                                + "null paint not permitted.");
         }
@@ -267,6 +291,30 @@ public class TextTitle extends AbstractTitle implements Serializable {
     }
 
     /**
+     * Returns the background paint.
+     *
+     * @return the paint.
+     */
+    public Paint getBackgroundPaint() {
+        return this.backgroundPaint;
+    }
+
+    /**
+     * Sets the background paint.  Registered listeners are notified that
+     * the title has been modified.
+     *
+     * @param paint  the new background paint.
+     */
+    public void setBackgroundPaint(Paint paint) {
+
+        // make the change...
+        this.backgroundPaint = paint;
+        notifyListeners(new TitleChangeEvent(this));
+
+    }
+
+
+    /**
      * Returns true for the positions that are valid for TextTitle (TOP and
      * BOTTOM for now) and false for all other positions.
      *
@@ -276,12 +324,7 @@ public class TextTitle extends AbstractTitle implements Serializable {
      */
     public boolean isValidPosition(int position) {
 
-        if ((position == AbstractTitle.TOP) || (position == AbstractTitle.BOTTOM)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return ((position == AbstractTitle.TOP) || (position == AbstractTitle.BOTTOM));
 
     }
 
@@ -319,18 +362,22 @@ public class TextTitle extends AbstractTitle implements Serializable {
      */
     public double getPreferredHeight(Graphics2D g2) {
 
-        // get the title height...
-        g2.setFont(font);
-        FontRenderContext frc = g2.getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics(text, frc);
-        double result = lineMetrics.getHeight();
+        double result = 0.0;
 
-        // add extra space...
-        Spacer spacer = getSpacer();
-        if (spacer != null) {
-            result = spacer.getAdjustedHeight(result);
-        }
+        // text cannot be null...
+        //if (this.text != null) {
+            // get the title height...
+            g2.setFont(font);
+            FontRenderContext frc = g2.getFontRenderContext();
+            LineMetrics lineMetrics = font.getLineMetrics(text, frc);
+            result = lineMetrics.getHeight();
 
+            // add extra space...
+            Spacer spacer = getSpacer();
+            if (spacer != null) {
+                result = spacer.getAdjustedHeight(result);
+            }
+        //}
         return result;
 
     }
@@ -343,15 +390,11 @@ public class TextTitle extends AbstractTitle implements Serializable {
      */
     public void draw(Graphics2D g2, Rectangle2D area) {
 
-        int position = getPosition();
-        if (position == TOP || position == BOTTOM) {
-            drawHorizontal(g2, area);
-        }
-        else {
-            throw new RuntimeException("TextTitle.draw(...) - invalid title position.");
-        }
-
+        // TM: text cannot be null
+        // TM: the position is always valid...
+        drawHorizontal(g2, area);
     }
+
 
     /**
      * Draws the title on a Java 2D graphics device (such as the screen or a printer).
@@ -372,13 +415,14 @@ public class TextTitle extends AbstractTitle implements Serializable {
         double topSpace = 0.0;
         double bottomSpace = 0.0;
 
+        // spacer cannot be null.
         Spacer spacer = getSpacer();
-        if (spacer != null) {
+        //if (spacer != null) {
             leftSpace = spacer.getLeftSpace(area.getWidth());
             rightSpace = spacer.getRightSpace(area.getWidth());
             topSpace = spacer.getTopSpace(titleHeight);
             bottomSpace = spacer.getBottomSpace(titleHeight);
-        }
+        //}
 
         double titleY = area.getY() + topSpace;
 
@@ -415,68 +459,86 @@ public class TextTitle extends AbstractTitle implements Serializable {
             titleX = area.getMaxX() - rightSpace - titleWidth;
         }
 
+        if (this.backgroundPaint != null) {
+            g2.setPaint(this.backgroundPaint);
+            g2.fill(area);
+        }
         g2.setFont(this.font);
         g2.setPaint(this.paint);
         g2.drawString(text, (float) (titleX), (float) (titleY));
 
     }
-    
+
     /**
      * Tests this title for equality with another object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
+
         if (obj instanceof TextTitle) {
-            
+
             TextTitle t = (TextTitle) obj;
             if (super.equals(obj)) {
-                boolean b0 = ObjectUtils.equalOrBothNull(this.text, t.text);
-                boolean b1 = ObjectUtils.equalOrBothNull(this.font, t.font);
-                boolean b2 = ObjectUtils.equalOrBothNull(this.paint, t.paint);
-
-                return b0 && b1 && b2;    
-            }        
+                if (ObjectUtils.equal(this.text, t.text) == false)
+                {
+                    return false;
+                }
+                if (ObjectUtils.equal(this.font, t.font) == false)
+                {
+                    return false;
+                }
+                if (ObjectUtils.equal(this.paint, t.paint) == false)
+                {
+                    return false;
+                }
+                return true;
+            }
         }
-        
+
         return false;
 
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
         SerialUtilities.writePaint(this.paint, stream);
+        SerialUtilities.writePaint(this.backgroundPaint, stream);
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem. 
+     * @throws ClassNotFoundException  if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         this.paint = SerialUtilities.readPaint(stream);
+        this.backgroundPaint = SerialUtilities.readPaint(stream);
     }
 
+
+    // Default clone method OK
+
 }
+

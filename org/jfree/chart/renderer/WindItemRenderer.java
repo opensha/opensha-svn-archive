@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2001-2003, by Achilleus Mantzios and Contributors.
  *
  * Original Author:  Achilleus Mantzios;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -39,6 +39,9 @@
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 21-Jan-2003 : Added new constructor (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
  *
  */
 
@@ -53,42 +56,50 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.tooltips.XYToolTipGenerator;
 import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.data.WindDataset;
 import org.jfree.data.XYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.PublicCloneable;
 
 /**
  * A specialised renderer for displaying wind intensity/direction data.
  *
  * @author Achilleus Mantzios
  */
-public class WindItemRenderer extends AbstractXYItemRenderer 
-                              implements XYItemRenderer, Serializable {
+public class WindItemRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                        Cloneable,
+                                                                        PublicCloneable,
+                                                                        Serializable {
 
     /**
      * Creates a new renderer.
      */
     public WindItemRenderer() {
-        this(null, null);
+        super();
     }
-    
+
     /**
      * Creates a new renderer.
-     * 
+     *
      * @param toolTipGenerator  the tool-tip generator.
      * @param urlGenerator  the URL generator.
+     * 
+     * @deprecated Use default constructor and then set generators.
      */
     public WindItemRenderer(XYToolTipGenerator toolTipGenerator, XYURLGenerator urlGenerator) {
-    
-        super(toolTipGenerator, urlGenerator);
-        
+
+        super();
+        setToolTipGenerator(toolTipGenerator);
+        setURLGenerator(urlGenerator);
+
     }
-    
+
     /**
      * Draws the visual representation of a single data item.
      *
@@ -96,27 +107,30 @@ public class WindItemRenderer extends AbstractXYItemRenderer
      * @param plotArea  the area within which the plot is being drawn.
      * @param info  optional information collection.
      * @param plot  the plot (can be used to obtain standard color information etc).
-     * @param horizontalAxis  the horizontal axis.
-     * @param verticalAxis  the vertical axis.
+     * @param domainAxis  the horizontal axis.
+     * @param rangeAxis  the vertical axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairs  collects information about crosshairs.
+     * @param pass  the pass index.
      */
-    public void drawItem(Graphics2D g2, Rectangle2D plotArea,
-                         ChartRenderingInfo info, XYPlot plot, ValueAxis horizontalAxis,
-                         ValueAxis verticalAxis,
+    public void drawItem(Graphics2D g2,
+                         Rectangle2D plotArea,
+                         PlotRenderingInfo info,
+                         XYPlot plot,
+                         ValueAxis domainAxis,
+                         ValueAxis rangeAxis,
                          XYDataset dataset,
-                         int datasetIndex,
                          int series,
                          int item,
-                         CrosshairInfo crosshairs) {
+                         CrosshairInfo crosshairs,
+                         int pass) {
 
         WindDataset windData = (WindDataset) dataset;
 
-        Paint seriesPaint = getItemPaint(datasetIndex, series, item);
-        Stroke seriesStroke = getItemStroke(datasetIndex, series, item);
+        Paint seriesPaint = getItemPaint(series, item);
+        Stroke seriesStroke = getItemStroke(series, item);
         g2.setPaint(seriesPaint);
         g2.setStroke(seriesStroke);
 
@@ -131,17 +145,16 @@ public class WindItemRenderer extends AbstractXYItemRenderer
 
         double ax1, ax2, ay1, ay2, rax2, ray2;
 
-        //rax1 = x.doubleValue();
-        //ray1 = 0.0;
-
-        ax1 = horizontalAxis.translateValueToJava2D(x.doubleValue(), plotArea);
-        ay1 = verticalAxis.translateValueToJava2D(0.0, plotArea);
+        RectangleEdge domainAxisLocation = plot.getDomainAxisEdge();
+        RectangleEdge rangeAxisLocation = plot.getRangeAxisEdge();
+        ax1 = domainAxis.translateValueToJava2D(x.doubleValue(), plotArea, domainAxisLocation);
+        ay1 = rangeAxis.translateValueToJava2D(0.0, plotArea, rangeAxisLocation);
 
         rax2 = x.doubleValue() + (windForce * Math.cos(wdirt) * 8000000.0);
         ray2 = windForce * Math.sin(wdirt);
 
-        ax2 = horizontalAxis.translateValueToJava2D(rax2, plotArea);
-        ay2 = verticalAxis.translateValueToJava2D(ray2, plotArea);
+        ax2 = domainAxis.translateValueToJava2D(rax2, plotArea, domainAxisLocation);
+        ay2 = rangeAxis.translateValueToJava2D(ray2, plotArea, rangeAxisLocation);
 
         int diri = windDir.intValue();
         int forcei = wforce.intValue();
@@ -164,10 +177,8 @@ public class WindItemRenderer extends AbstractXYItemRenderer
         ralx2 = wforce.doubleValue() * Math.cos(aldir) * (double) 8000000 * 0.8 + x.doubleValue();
         raly2 = wforce.doubleValue() * Math.sin(aldir) * 0.8;
 
-        //double fac= (wforce.doubleValue()>1.0)?wforce.doubleValue()-2.0:0;
-
-        alx2 = horizontalAxis.translateValueToJava2D(ralx2, plotArea);
-        aly2 = verticalAxis.translateValueToJava2D(raly2, plotArea);
+        alx2 = domainAxis.translateValueToJava2D(ralx2, plotArea, domainAxisLocation);
+        aly2 = rangeAxis.translateValueToJava2D(raly2, plotArea, rangeAxisLocation);
 
         line = new Line2D.Double(alx2, aly2, ax2, ay2);
         g2.draw(line);
@@ -176,12 +187,23 @@ public class WindItemRenderer extends AbstractXYItemRenderer
         rarx2 = wforce.doubleValue() * Math.cos(ardir) * (double) 8000000 * 0.8 + x.doubleValue();
         rary2 = wforce.doubleValue() * Math.sin(ardir) * 0.8;
 
-        arx2 = horizontalAxis.translateValueToJava2D(rarx2, plotArea);
-        ary2 = verticalAxis.translateValueToJava2D(rary2, plotArea);
+        arx2 = domainAxis.translateValueToJava2D(rarx2, plotArea, domainAxisLocation);
+        ary2 = rangeAxis.translateValueToJava2D(rary2, plotArea, rangeAxisLocation);
 
         line = new Line2D.Double(arx2, ary2, ax2, ay2);
         g2.draw(line);
 
+    }
+
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

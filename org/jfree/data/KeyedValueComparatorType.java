@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------------
  * KeyedValueComparatorType.java
  * -----------------------------
- * (C) Copyright 2003 by Simba Management Limited.
+ * (C) Copyright 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,46 +39,46 @@ package org.jfree.data;
 
 /**
  * Uses to indicate the type of a {@link KeyedValueComparator} : 'by key' or 'by value'.
- * 
+ *
  * @author David Gilbert
  */
 public class KeyedValueComparatorType {
 
     /** An object representing 'by key' sorting. */
-    public static final KeyedValueComparatorType BY_KEY 
+    public static final KeyedValueComparatorType BY_KEY
         = new KeyedValueComparatorType("KeyedValueComparatorType.BY_KEY");
-    
+
     /** An object representing 'by value' sorting. */
-    public static final KeyedValueComparatorType BY_VALUE 
+    public static final KeyedValueComparatorType BY_VALUE
         = new KeyedValueComparatorType("KeyedValueComparatorType.BY_VALUE");
 
     /** The name. */
     private String name;
-    
+
     /**
      * Private constructor.
-     * 
+     *
      * @param name  the name.
      */
     private KeyedValueComparatorType(String name) {
         this.name = name;
     }
-    
+
     /**
      * Returns a string representing the object.
-     * 
+     *
      * @return The string.
      */
     public String toString() {
         return this.name;
     }
-    
+
     /**
-     * Returns <code>true</code> if this object is equal to the specified object, and 
+     * Returns <code>true</code> if this object is equal to the specified object, and
      * <code>false</code> otherwise.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
@@ -96,6 +96,6 @@ public class KeyedValueComparatorType {
 
         return true;
     }
-    
+
 }
 

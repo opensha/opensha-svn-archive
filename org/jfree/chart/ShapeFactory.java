@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -33,6 +33,7 @@
  * -------
  * 13-May-2002 : Version 1 (JB);
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 06-Aug-2003 : No longer required, so deprecated (DG);
  *
  */
 
@@ -43,6 +44,8 @@ import java.awt.Shape;
 /**
  * Interface to be implemented by classes which provide shapes for indicating
  * data points on a Plot.
+ * 
+ * @deprecated This interface is no longer used, shapes are obtained from the DrawingSupplier.
  *
  * @author Jeremy Bowman
  */

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,17 +25,18 @@
  * (C)opyright 2002, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner (taquera@sherito.org);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
  * Changes
  * -------
  * 29-Apr-2003 : Destilled from the JFreeReport project and moved into JCommon
+ * 11-Jun-2003 : Removing LogTarget did not work. 
  */
 package org.jfree.util;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -69,7 +70,7 @@ public class Log {
         }
 
         /**
-         * Creates a new message.
+         * Creates a new message. 
          *
          * @param message  the message text.
          * @param param1  parameter 1.
@@ -102,7 +103,8 @@ public class Log {
          * @param param3  parameter 3.
          * @param param4  parameter 4.
          */
-        public SimpleMessage(String message, Object param1, Object param2, Object param3, Object param4) {
+        public SimpleMessage(String message, 
+                             Object param1, Object param2, Object param3, Object param4) {
             this.message = message;
             this.param = new Object[]{param1, param2, param3, param4};
         }
@@ -219,7 +221,7 @@ public class Log {
         if (target == null) {
             throw new NullPointerException();
         }
-        List l = Arrays.asList(logTargets);
+        ArrayList l = new ArrayList(Arrays.asList(logTargets));
         l.remove(target);
 
         LogTarget[] targets = new LogTarget[l.size()];

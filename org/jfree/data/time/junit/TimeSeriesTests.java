@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,12 +19,12 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * -------------------------
- * BasicTimeSeriesTests.java
- * -------------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * --------------------
+ * TimeSeriesTests.java
+ * --------------------
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -52,6 +52,7 @@ import junit.framework.TestSuite;
 
 import org.jfree.data.SeriesException;
 import org.jfree.data.time.Day;
+import org.jfree.data.time.Month;
 import org.jfree.data.time.RegularTimePeriod;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.Year;
@@ -132,7 +133,7 @@ public class TimeSeriesTests extends TestCase {
     }
 
     /**
-     * Set up a quarter equal to Q1 1900.  Request the previous quarter, it should be null.
+     * Test that cloning works.
      */
     public void testClone() {
 
@@ -205,12 +206,12 @@ public class TimeSeriesTests extends TestCase {
         assertNull(value);
 
     }
-    
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         TimeSeries s1 = new TimeSeries("A test", Year.class);
         s1.add(new Year(2000), 13.75);
         s1.add(new Year(2001), 11.90);
@@ -218,13 +219,13 @@ public class TimeSeriesTests extends TestCase {
         s1.add(new Year(2005), 19.32);
         s1.add(new Year(2007), 16.89);
         TimeSeries s2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(s1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             s2 = (TimeSeries) in.readObject();
             in.close();
@@ -232,8 +233,128 @@ public class TimeSeriesTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(s1, s2); 
-        
+        assertTrue(s1.equals(s2));
+
+    }
+
+    /**
+     * Tests the equals method.
+     */
+    public void testEquals() {
+        TimeSeries s1 = new TimeSeries("Time Series 1");
+        TimeSeries s2 = new TimeSeries("Time Series 2");
+        boolean b1 = s1.equals(s2);
+        assertFalse("b1", b1);
+
+        s2.setName("Time Series 1");
+        boolean b2 = s1.equals(s2);
+        assertTrue("b2", b2);
+
+        RegularTimePeriod p1 = new Day();
+        RegularTimePeriod p2 = p1.next();
+        s1.add(p1, 100.0);
+        s1.add(p2, 200.0);
+        boolean b3 = s1.equals(s2);
+        assertFalse("b3", b3);
+
+        s2.add(p1, 100.0);
+        s2.add(p2, 200.0);
+        boolean b4 = s1.equals(s2);
+        assertTrue("b4", b4);
+
+        s1.setMaximumItemCount(100);
+        boolean b5 = s1.equals(s2);
+        assertFalse("b5", b5);
+
+        s2.setMaximumItemCount(100);
+        boolean b6 = s1.equals(s2);
+        assertTrue("b6", b6);
+
+        s1.setHistoryCount(100);
+        boolean b7 = s1.equals(s2);
+        assertFalse("b7", b7);
+
+        s2.setHistoryCount(100);
+        boolean b8 = s1.equals(s2);
+        assertTrue("b8", b8);
+
     }
     
+    /**
+     * Some tests to ensure that the createCopy(RegularTimePeriod, RegularTimePeriod) method
+     * is functioning correctly.
+     */
+    public void testCreateCopy1() {
+        
+        TimeSeries series = new TimeSeries("Series", Month.class);
+        series.add(new Month(SerialDate.JANUARY, 2003), 45.0);
+        series.add(new Month(SerialDate.FEBRUARY, 2003), 55.0);
+        series.add(new Month(SerialDate.JUNE, 2003), 35.0);
+        series.add(new Month(SerialDate.NOVEMBER, 2003), 85.0);
+        series.add(new Month(SerialDate.DECEMBER, 2003), 75.0);
+        
+        // copy a range before the start of the series data...
+        TimeSeries result1 = series.createCopy(new Month(SerialDate.NOVEMBER, 2002), 
+                                               new Month(SerialDate.DECEMBER, 2002));
+        assertEquals(0, result1.getItemCount());
+        
+        // copy a range that includes only the first item in the series...
+        TimeSeries result2 = series.createCopy(new Month(SerialDate.NOVEMBER, 2002), 
+                                               new Month(SerialDate.JANUARY, 2003));
+        assertEquals(1, result2.getItemCount());
+        
+        // copy a range that begins before and ends in the middle of the series...
+        TimeSeries result3 = series.createCopy(new Month(SerialDate.NOVEMBER, 2002), 
+                                               new Month(SerialDate.APRIL, 2003));
+        assertEquals(2, result3.getItemCount());
+        
+        TimeSeries result4 = series.createCopy(new Month(SerialDate.NOVEMBER, 2002), 
+                                               new Month(SerialDate.DECEMBER, 2003));
+        assertEquals(5, result4.getItemCount());
+                                               
+                                               
+        TimeSeries result5 = series.createCopy(new Month(SerialDate.NOVEMBER, 2002), 
+                                               new Month(SerialDate.MARCH, 2004));
+        assertEquals(5, result5.getItemCount());
+        
+        TimeSeries result6 = series.createCopy(new Month(SerialDate.JANUARY, 2003), 
+                                               new Month(SerialDate.JANUARY, 2003));
+        assertEquals(1, result6.getItemCount());
+
+        TimeSeries result7 = series.createCopy(new Month(SerialDate.JANUARY, 2003), 
+                                               new Month(SerialDate.APRIL, 2003));
+        assertEquals(2, result7.getItemCount());
+
+        TimeSeries result8 = series.createCopy(new Month(SerialDate.JANUARY, 2003), 
+                                               new Month(SerialDate.DECEMBER, 2003));
+        assertEquals(5, result8.getItemCount());
+
+        TimeSeries result9 = series.createCopy(new Month(SerialDate.JANUARY, 2003), 
+                                               new Month(SerialDate.MARCH, 2004));
+        assertEquals(5, result9.getItemCount());
+
+        
+        TimeSeries result10 = series.createCopy(new Month(SerialDate.MAY, 2003), 
+                                                new Month(SerialDate.DECEMBER, 2003));
+        assertEquals(3, result10.getItemCount());
+
+        TimeSeries result11 = series.createCopy(new Month(SerialDate.MAY, 2003), 
+                                                new Month(SerialDate.MARCH, 2004));
+        assertEquals(3, result11.getItemCount());
+
+        TimeSeries result12 = series.createCopy(new Month(SerialDate.DECEMBER, 2003), 
+                                                new Month(SerialDate.DECEMBER, 2003));
+        assertEquals(1, result12.getItemCount());
+
+        TimeSeries result13 = series.createCopy(new Month(SerialDate.DECEMBER, 2003), 
+                                                new Month(SerialDate.MARCH, 2004));
+        assertEquals(1, result13.getItemCount());
+
+        TimeSeries result14 = series.createCopy(new Month(SerialDate.JANUARY, 2004), 
+                                                new Month(SerialDate.MARCH, 2004));
+        assertEquals(0, result14.getItemCount());
+
+
+    }
+
 }

@@ -14,6 +14,7 @@ import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.data.function.*;
 import org.scec.gui.*;
@@ -857,8 +858,8 @@ public class AttenuationRelationshipApplet extends JApplet
         //create the standard ticks so that smaller values too can plotted on the chart
         TickUnits units = MyTickUnits.createStandardTickUnits();
 
-        if (xLog) xAxis = new org.jfree.chart.axis.HorizontalLogarithmicAxis( xAxisLabel );
-        else xAxis = new HorizontalNumberAxis( xAxisLabel );
+        if (xLog) xAxis = new org.jfree.chart.axis.LogarithmicAxis( xAxisLabel );
+        else xAxis = new NumberAxis( xAxisLabel );
 
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setStandardTickUnits(units);
@@ -866,8 +867,8 @@ public class AttenuationRelationshipApplet extends JApplet
 
 
 
-        if (yLog) yAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(yAxisLabel);
-        else yAxis = new VerticalNumberAxis( yAxisLabel );
+        if (yLog) yAxis = new org.jfree.chart.axis.LogarithmicAxis(yAxisLabel);
+        else yAxis = new NumberAxis( yAxisLabel );
 
 
         yAxis.setAutoRangeIncludesZero( false );
@@ -877,8 +878,8 @@ public class AttenuationRelationshipApplet extends JApplet
         int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-        org.jfree.chart.renderer.LogXYItemRenderer renderer
-            = new org.jfree.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        org.jfree.chart.renderer.StandardXYItemRenderer renderer
+            = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.customAxis) {
@@ -887,7 +888,7 @@ public class AttenuationRelationshipApplet extends JApplet
         }
 
         // build the plot
-        org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this,data, xAxis, yAxis, xLog, yLog);
+        org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data, xAxis, yAxis, renderer);
         int numSeries = legendPaint.length;
         for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
         plot.setBackgroundAlpha( .8f );

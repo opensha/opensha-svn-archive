@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------
  * JFreeChartResources.java
  * ------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,6 +36,10 @@
  * 14-Feb-2003 : Changed version number to 0.9.6 (DG);
  * 03-Apr-2003 : Changed version number to 0.9.7 (DG);
  * 24-Apr-2003 : Changed version number to 0.9.8 (DG);
+ * 17-Jul-2003 : Changed version number to 0.9.10 (DG);
+ * 05-Aug-2003 : Changed version number to 0.9.11 (DG);
+ * 02-Sep-2003 : Changed version number to 0.9.12 (DG);
+ * 24-Sep-2003 : Changed version number to 0.9.13 (DG);
  *
  */
 package org.jfree.chart.resources;
@@ -62,9 +66,9 @@ public class JFreeChartResources extends ListResourceBundle {
     private static final Object[][] CONTENTS = {
 
         {"project.name",      "JFreeChart"},
-        {"project.version",   "0.9.8"},
+        {"project.version",   "0.9.13"},
         {"project.info",      "http://www.jfree.org/jfreechart/index.html"},
-        {"project.copyright", "(C)opyright 2000-2003, by Simba Management Limited and"
+        {"project.copyright", "(C)opyright 2000-2003, by Object Refinery Limited and"
                             + " Contributors"}
 
     };

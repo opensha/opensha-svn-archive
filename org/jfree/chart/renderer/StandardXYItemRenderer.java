@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,13 +22,16 @@
  * ---------------------------
  * StandardXYItemRenderer.java
  * ---------------------------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Mark Watson (www.markwatson.com);
  *                   Jonathan Nash;
  *                   Andreas Schneider;
  *                   Norbert Kiesel (for TBD Networks);
+ *                   Christian W. Zuckschwerdt;
+ *                   Bill Kelemen;
+ *                   Nicolas Brodu (for Astrium and EADS Corporate Research Center);
  *
  * $Id$
  *
@@ -54,7 +57,15 @@
  * 23-Sep-2002 : Updated for changes in the XYItemRenderer interface (DG);
  * 02-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 15-May-2003 : Modified to take into account the plot orientation (DG);
+ * 29-Jul-2003 : Amended code that doesn't compile with JDK 1.2.2 (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 24-Aug-2003 : Added null/NaN checks in drawItem (BK);
+ * 08-Sep-2003 : Fixed serialization (NB);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -68,19 +79,25 @@ import java.awt.Stroke;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ImageObserver;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.tooltips.StandardXYToolTipGenerator;
-import org.jfree.chart.tooltips.XYToolTipGenerator;
 import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.data.XYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.BooleanList;
+import org.jfree.util.PublicCloneable;
 
 /**
  * Standard item renderer for an {@link XYPlot}.  This class can draw (a) shapes at
@@ -88,8 +105,10 @@ import org.jfree.data.XYDataset;
  *
  * @author David Gilbert
  */
-public class StandardXYItemRenderer extends AbstractXYItemRenderer
-                                    implements XYItemRenderer, Serializable {
+public class StandardXYItemRenderer extends AbstractXYItemRenderer implements XYItemRenderer,
+                                                                              Cloneable,
+                                                                              PublicCloneable,
+                                                                              Serializable {
 
     /** Constant for the type of rendering (shapes only). */
     public static final int SHAPES = 1;
@@ -124,8 +143,14 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
     /** Threshold for deciding when to discontinue a line. */
     private double gapThreshold = 1.0;
 
+    /** A flag that controls whether or not shapes are filled for ALL series. */
+    private Boolean shapesFilled;
+
+    /** A table of flags that control (per series) whether or not shapes are filled. */
+    private BooleanList seriesShapesFilled;
+
     /** The default value returned by the getShapeFilled(...) method. */
-    private boolean defaultShapeFilled;
+    private Boolean defaultShapesFilled;
 
     /** A working line (to save creating thousands of instances). */
     private transient Line2D line;
@@ -179,7 +204,9 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
                                   XYToolTipGenerator toolTipGenerator,
                                   XYURLGenerator urlGenerator) {
 
-        super(toolTipGenerator, urlGenerator);
+        super();
+        setToolTipGenerator(toolTipGenerator);
+        setURLGenerator(urlGenerator);
         if ((type & SHAPES) != 0) {
             this.plotShapes = true;
         }
@@ -193,7 +220,10 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
             this.plotDiscontinuous = true;
         }
         this.line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
-//        this.defaultShapeScale = 6.0;
+
+        this.shapesFilled = null;
+        this.seriesShapesFilled = new BooleanList();
+        this.defaultShapesFilled = Boolean.TRUE;
 
     }
 
@@ -212,36 +242,105 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
      * @param flag  the flag.
      */
     public void setPlotShapes(boolean flag) {
-        Object oldValue = new Boolean(flag);
         if (this.plotShapes != flag) {
+            Object oldValue = new Boolean (this.plotShapes);
             this.plotShapes = flag;
             firePropertyChanged("renderer.PlotShapes", oldValue, new Boolean(flag));
         }
     }
 
+    // SHAPES FILLED
+
     /**
-     * Returns the default value returned by the isShapeFilled(...) method.
-     * <P>
-     * The renderer will call isShapeFilled(...) to determine whether or not to fill a shape.
-     * Unless overridden, the isShapeFilled(...) method just returns the default shape filled flag.
+     * Returns the flag used to control whether or not the shape for an item is filled.
+     * <p>
+     * The default implementation passes control to the <code>getSeriesShapesFilled</code> method.
+     * You can override this method if you require different behaviour.
      *
-     * @return the flag.
+     * @param series  the series index (zero-based).
+     * @param item  the item index (zero-based).
+     *
+     * @return  A boolean.
      */
-    public boolean getDefaultShapeFilled() {
-        return this.defaultShapeFilled;
+    public boolean getItemShapeFilled(int series, int item) {
+        return getSeriesShapesFilled(series);
     }
 
     /**
-     * Sets the default shape filled flag.
+     * Returns the flag used to control whether or not the shapes for a series are filled.
+     *
+     * @param series  the series index (zero-based).
+     *
+     * @return  A boolean.
+     */
+    public boolean getSeriesShapesFilled(int series) {
+
+        // return the overall setting, if there is one...
+        if (this.shapesFilled != null) {
+            return this.shapesFilled.booleanValue();
+        }
+
+        // otherwise look up the paint table
+        Boolean flag = this.seriesShapesFilled.getBoolean(series);
+        if (flag != null) {
+            return flag.booleanValue();
+        }
+        else {
+            return this.defaultShapesFilled.booleanValue();
+        }
+
+    }
+
+    /**
+     * Sets the 'shapes filled' for ALL series.
+     *
+     * @param filled  the flag.
+     */
+    public void setShapesFilled(boolean filled) {
+        if (filled) {
+            setShapesFilled(Boolean.TRUE);
+        }
+        else {
+            setShapesFilled(Boolean.FALSE);
+        }
+        //setShapesFilled(Boolean.valueOf(filled));
+    }
+
+    /**
+     * Sets the 'shapes filled' for ALL series.
+     *
+     * @param filled  the flag (<code>null</code> permitted).
+     */
+    public void setShapesFilled(Boolean filled) {
+        this.shapesFilled = filled;
+    }
+
+    /**
+     * Sets the 'shapes filled' flag for a series.
+     *
+     * @param series  the series index (zero-based).
+     * @param flag  the flag.
+     */
+    public void setSeriesShapesFilled(int series, Boolean flag) {
+        this.seriesShapesFilled.setBoolean(series, flag);
+    }
+
+    /**
+     * Returns the default 'shape filled' attribute.
+     *
+     * @return The default flag.
+     */
+    public Boolean getDefaultShapesFilled() {
+        return this.defaultShapesFilled;
+    }
+
+    /**
+     * Sets the default 'shapes filled' flag.
      *
      * @param flag  the flag.
      */
-    public void setDefaultShapeFilled(boolean flag) {
-
-        Object oldValue = new Boolean(this.defaultShapeFilled);
-        this.defaultShapeFilled = flag;
-        firePropertyChanged("renderer.DefaultShapeFilled", oldValue, new Boolean(flag));
-
+    public void setDefaultShapesFilled(Boolean flag) {
+        this.defaultShapesFilled = flag;
     }
 
     /**
@@ -259,8 +358,8 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
      * @param flag  the flag.
      */
     public void setPlotLines(boolean flag) {
-        Object oldValue = new Boolean(flag);
         if (this.plotLines != flag) {
+            Object oldValue = new Boolean(this.plotLines);
             this.plotLines = flag;
             firePropertyChanged("renderer.PlotLines", oldValue, new Boolean(flag));
         }
@@ -301,8 +400,8 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
      * @param flag  the flag.
      */
     public void setPlotImages(boolean flag) {
-        Object oldValue = new Boolean(flag);
         if (this.plotImages != flag) {
+            Object oldValue = new Boolean(this.plotImages);
             this.plotImages = flag;
             firePropertyChanged("renderer.PlotImages", oldValue, new Boolean(flag));
         }
@@ -316,7 +415,7 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
     public boolean getPlotDiscontinuous() {
         return this.plotDiscontinuous;
     }
-    
+
     /**
      * Draws the visual representation of a single data item.
      *
@@ -324,151 +423,205 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
      * @param dataArea  the area within which the data is being drawn.
      * @param info  collects information about the drawing.
      * @param plot  the plot (can be used to obtain standard color information etc).
-     * @param domainAxis  the domain (horizontal) axis.
-     * @param rangeAxis  the range (vertical) axis.
+     * @param domainAxis  the domain axis.
+     * @param rangeAxis  the range axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo  information about crosshairs on a plot.
+     * @param pass  the pass index.
      */
     public void drawItem(Graphics2D g2,
                          Rectangle2D dataArea,
-                         ChartRenderingInfo info,
+                         PlotRenderingInfo info,
                          XYPlot plot,
                          ValueAxis domainAxis,
                          ValueAxis rangeAxis,
                          XYDataset dataset,
-                         int datasetIndex,
                          int series,
                          int item,
-                         CrosshairInfo crosshairInfo) {
+                         CrosshairInfo crosshairInfo,
+                         int pass) {
 
         // setup for collecting optional entity info...
         Shape entityArea = null;
         EntityCollection entities = null;
         if (info != null) {
-            entities = info.getEntityCollection();
+            entities = info.getOwner().getEntityCollection();
         }
 
-        Paint seriesPaint = getItemPaint(datasetIndex, series, item);
-        Stroke seriesStroke = getItemStroke(datasetIndex, series, item);
-        g2.setPaint(seriesPaint);
+        Paint paint = getItemPaint(series, item);
+        Stroke seriesStroke = getItemStroke(series, item);
+        g2.setPaint(paint);
         g2.setStroke(seriesStroke);
 
         // get the data point...
         Number x1n = dataset.getXValue(series, item);
         Number y1n = dataset.getYValue(series, item);
-        if (y1n != null) {
-            double x1 = x1n.doubleValue();
-            double y1 = y1n.doubleValue();
-            double transX1 = domainAxis.translateValueToJava2D(x1, dataArea);
-            double transY1 = rangeAxis.translateValueToJava2D(y1, dataArea);
+        if (y1n == null || x1n == null) {
+            return;
+        }
 
-            Paint paint = getPaint(plot, series, item, transX1, transY1);
-            if (paint != null) {
-                g2.setPaint(paint);
-            }
+        double x1 = x1n.doubleValue();
+        double y1 = y1n.doubleValue();
+        final RectangleEdge xAxisLocation = plot.getDomainAxisEdge();
+        final RectangleEdge yAxisLocation = plot.getRangeAxisEdge();
+        double transX1 = domainAxis.translateValueToJava2D(x1, dataArea, xAxisLocation);
+        double transY1 = rangeAxis.translateValueToJava2D(y1, dataArea, yAxisLocation);
 
-            if (this.plotLines) {
+        if (this.plotLines) {
 
-                if (item > 0) {
-                    // get the previous data point...
-                    Number x0n = dataset.getXValue(series, item - 1);
-                    Number y0n = dataset.getYValue(series, item - 1);
-                    if (y0n != null) {
-                        double x0 = x0n.doubleValue();
-                        double y0 = y0n.doubleValue();
-                        boolean drawLine = true;
-                        if (this.plotDiscontinuous) {
-                            // only draw a line if the gap between the current and previous data
-                            // point is within the threshold
-                            int numX = dataset.getItemCount(series);
-                            double minX = dataset.getXValue(series, 0).doubleValue();
-                            double maxX = dataset.getXValue(series, numX - 1).doubleValue();
-                            drawLine = (x1 - x0) <= ((maxX - minX) / numX * this.gapThreshold);
+            if (item > 0) {
+                // get the previous data point...
+                Number x0n = dataset.getXValue(series, item - 1);
+                Number y0n = dataset.getYValue(series, item - 1);
+                if (y0n != null && x0n != null) {
+                    double x0 = x0n.doubleValue();
+                    double y0 = y0n.doubleValue();
+                    boolean drawLine = true;
+                    if (this.plotDiscontinuous) {
+                        // only draw a line if the gap between the current and previous data
+                        // point is within the threshold
+                        int numX = dataset.getItemCount(series);
+                        double minX = dataset.getXValue(series, 0).doubleValue();
+                        double maxX = dataset.getXValue(series, numX - 1).doubleValue();
+                        drawLine = (x1 - x0) <= ((maxX - minX) / numX * this.gapThreshold);
+                    }
+                    if (drawLine) {
+                        double transX0
+                            = domainAxis.translateValueToJava2D(x0, dataArea, xAxisLocation);
+                        double transY0
+                            = rangeAxis.translateValueToJava2D(y0, dataArea, yAxisLocation);
+
+                        // only draw if we have good values
+                        if (Double.isNaN(transX0) || Double.isNaN(transY0) 
+                            || Double.isNaN(transX1) || Double.isNaN(transY1)) {
+                            return;
                         }
-                        if (drawLine) {
-                            double transX0 = domainAxis.translateValueToJava2D(x0, dataArea);
-                            double transY0 = rangeAxis.translateValueToJava2D(y0, dataArea);
 
+                        PlotOrientation orientation = plot.getOrientation();
+                        if (orientation == PlotOrientation.HORIZONTAL) {
+                            line.setLine(transY0, transX0, transY1, transX1);
+                        }
+                        else if (orientation == PlotOrientation.VERTICAL) {
                             line.setLine(transX0, transY0, transX1, transY1);
-                            if (line.intersects(dataArea)) {
-                                g2.draw(line);
-                            }
+                        }
+
+                        if (line.intersects(dataArea)) {
+                            g2.draw(line);
                         }
                     }
-                }
-            }
-
-            if (this.plotShapes) {
-
-                Shape shape = getItemShape(datasetIndex, series, item);
-                shape = createTransformedShape(shape, transX1, transY1);
-                if (shape.intersects(dataArea)) {
-                    if (isShapeFilled(plot, series, item, transX1, transY1)) {
-                        g2.fill(shape);
-                    }
-                    else {
-                        g2.draw(shape);
-                    }
-                }
-                entityArea = shape;
-
-            }
-
-            if (this.plotImages) {
-                // use shape scale with transform??
-                //double scale = getShapeScale(plot, series, item, transX1, transY1);
-                Image image = getImage(plot, series, item, transX1, transY1);
-                if (image != null) {
-                    Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
-                    g2.drawImage(image,
-                                 (int) (transX1 - hotspot.getX()),
-                                 (int) (transY1 - hotspot.getY()), (ImageObserver) null);
-                    entityArea = new Rectangle2D.Double(transX1 - hotspot.getX(), 
-                                                        transY1 - hotspot.getY(),
-                                                        image.getWidth(null), 
-                                                        image.getHeight(null));
-                }
-                
-            }
-
-            // add an entity for the item...
-            if (entities != null) {
-                if (entityArea == null) {
-                    entityArea = new Rectangle2D.Double(transX1 - 2, transY1 - 2, 4, 4);
-                }
-                String tip = null;
-                if (getToolTipGenerator() != null) {
-                    tip = getToolTipGenerator().generateToolTip(dataset, series, item);
-                }
-                String url = null;
-                if (getURLGenerator() != null) {
-                    url = getURLGenerator().generateURL(dataset, series, item);
-                }
-                XYItemEntity entity = new XYItemEntity(entityArea, tip, url, series, item);
-                entities.addEntity(entity);
-            }
-
-            // do we need to update the crosshair values?
-            if (plot.isDomainCrosshairLockedOnData()) {
-                if (plot.isRangeCrosshairLockedOnData()) {
-                    // both axes
-                    crosshairInfo.updateCrosshairPoint(x1, y1);
-                }
-                else {
-                    // just the horizontal axis...
-                    crosshairInfo.updateCrosshairX(x1);
-                }
-            }
-            else {
-                if (plot.isRangeCrosshairLockedOnData()) {
-                    // just the vertical axis...
-                    crosshairInfo.updateCrosshairY(y1);
                 }
             }
         }
+
+        if (this.plotShapes) {
+
+            Shape shape = getItemShape(series, item);
+            PlotOrientation orientation = plot.getOrientation();
+            if (orientation == PlotOrientation.HORIZONTAL) {
+                shape = createTransformedShape(shape, transY1, transX1);
+            }
+            else if (orientation == PlotOrientation.VERTICAL) {
+                shape = createTransformedShape(shape, transX1, transY1);
+            }
+            if (shape.intersects(dataArea)) {
+                if (getItemShapeFilled(series, item)) {
+                    g2.fill(shape);
+                }
+                else {
+                    g2.draw(shape);
+                }
+            }
+            entityArea = shape;
+
+        }
+
+        if (this.plotImages) {
+            // use shape scale with transform??
+            //double scale = getShapeScale(plot, series, item, transX1, transY1);
+            Image image = getImage(plot, series, item, transX1, transY1);
+            if (image != null) {
+                Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
+                g2.drawImage(image,
+                             (int) (transX1 - hotspot.getX()),
+                             (int) (transY1 - hotspot.getY()), (ImageObserver) null);
+                entityArea = new Rectangle2D.Double(transX1 - hotspot.getX(),
+                                                    transY1 - hotspot.getY(),
+                                                    image.getWidth(null),
+                                                    image.getHeight(null));
+            }
+
+        }
+
+        // add an entity for the item...
+        if (entities != null) {
+            if (entityArea == null) {
+                entityArea = new Rectangle2D.Double(transX1 - 2, transY1 - 2, 4, 4);
+            }
+            String tip = null;
+            if (getToolTipGenerator() != null) {
+                tip = getToolTipGenerator().generateToolTip(dataset, series, item);
+            }
+            String url = null;
+            if (getURLGenerator() != null) {
+                url = getURLGenerator().generateURL(dataset, series, item);
+            }
+            XYItemEntity entity = new XYItemEntity(entityArea, dataset, series, item, tip, url);
+            entities.addEntity(entity);
+        }
+
+        // do we need to update the crosshair values?
+        if (plot.isDomainCrosshairLockedOnData()) {
+            if (plot.isRangeCrosshairLockedOnData()) {
+                // both axes
+                crosshairInfo.updateCrosshairPoint(x1, y1, transX1, transY1);
+            }
+            else {
+                // just the horizontal axis...
+                crosshairInfo.updateCrosshairX(x1);
+            }
+        }
+        else {
+            if (plot.isRangeCrosshairLockedOnData()) {
+                // just the vertical axis...
+                crosshairInfo.updateCrosshairY(y1);
+            }
+        }
+
+    }
+
+    /**
+     * Tests this renderer for equality with another object.
+     *
+     * @param obj  the object.
+     *
+     * @return <code>true</code> or <code>false</code>.
+     */
+    public boolean equals(Object obj) {
+
+        if (obj == null) {
+            return false;
+        }
+
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof StandardXYItemRenderer) {
+            StandardXYItemRenderer r = (StandardXYItemRenderer) obj;
+            if (super.equals(obj)) {
+                boolean b0 = (this.plotShapes == r.plotShapes);
+                boolean b1 = (this.plotLines == r.plotLines);
+                boolean b2 = (this.plotImages == r.plotImages);
+                boolean b3 = (this.plotDiscontinuous == r.plotDiscontinuous);
+                boolean b4 = (this.gapThreshold == r.gapThreshold);
+                //boolean b5 = (this.defaultShapeFilled == r.defaultShapeFilled);
+                return b0 && b1 && b2 && b3 && b4;
+            }
+        }
+
+        return false;
 
     }
 
@@ -476,71 +629,6 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
     // PROTECTED METHODS
     // These provide the opportunity to subclass the standard renderer and create custom effects.
     ////////////////////////////////////////////////////////////////////////////////////////////////
-
-//    /**
-//     * Returns the shape used to draw a single data item.
-//     *
-//     * @param plot  the plot (can be used to obtain standard color information etc).
-//     * @param series  the series index
-//     * @param item  the item index
-//     * @param x  the x value of the item
-//     * @param y  the y value of the item
-//     * @param scale  the scale used to draw the shape
-//     *
-//     * @return The shape used to draw the data item
-//     */
-//    protected Shape getShape(Plot plot, int series, int item, double x, double y, double scale) {
-//        return plot.getShape(series, item, x, y, scale);
-//    }
-//
-//    /**
-//     * Returns the shape scale of a single data item.
-//     * <P>
-//     * Unless overridden, this method just returns the default shape scale.
-//     *
-//     * @param plot  the plot (can be used to obtain standard color information etc).
-//     * @param series  the series index
-//     * @param item  the item index
-//     * @param x  the x value of the item
-//     * @param y  the y value of the item
-//     *
-//     * @return The scale used to draw the shape used for the data item
-//     */
-//    protected double getShapeScale(Plot plot, int series, int item, double x, double y) {
-//        return this.defaultShapeScale;
-//    }
-//
-    /**
-     * Is used to determine if a shape is filled when drawn or not
-     *
-     * @param plot  the plot (can be used to obtain standard color information etc).
-     * @param series  the series index.
-     * @param item  the item index.
-     * @param x  the x value of the item.
-     * @param y  the y value of the item.
-     *
-     * @return <code>true</code> if the shape used to draw the data item should be filled.
-     */
-    protected boolean isShapeFilled(Plot plot, int series, int item, double x, double y) {
-        return this.defaultShapeFilled;
-    }
-
-    /**
-     * Returns the paint used to draw a single data item.
-     * <P>
-     * If null is returned, the renderer defaults to the paint for the current series.
-     *
-     * @param plot  the plot (can be used to obtain standard color information etc).
-     * @param series  the series index.
-     * @param item  the item index.
-     * @param x  the x value of the item.
-     * @param y  the y value of the item.
-     *
-     * @return The paint.
-     */
-    protected Paint getPaint(Plot plot, int series, int item, double x, double y) {
-        return null;
-    }
 
     /**
      * Returns the image used to draw a single data item.
@@ -585,37 +673,27 @@ public class StandardXYItemRenderer extends AbstractXYItemRenderer
     }
 
     /**
-     * Tests this renderer for equality with another object.
-     * 
-     * @param obj  the object.
-     * 
-     * @return <code>true</code> or <code>false</code>.
+     * Returns a clone of the renderer.
+     *
+     * @return A clone.
+     *
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
      */
-    public boolean equals(Object obj) {
-    
-        if (obj == null) {
-            return false;
-        }
-        
-        if (obj == this) {
-            return true;
-        }
- 
-        if (obj instanceof StandardXYItemRenderer) {
-            StandardXYItemRenderer r = (StandardXYItemRenderer) obj;
-            if (super.equals(obj)) {
-                boolean b0 = (this.plotShapes == r.plotShapes);
-                boolean b1 = (this.plotLines == r.plotLines);
-                boolean b2 = (this.plotImages == r.plotImages);
-                boolean b3 = (this.plotDiscontinuous == r.plotDiscontinuous);
-                boolean b4 = (this.gapThreshold == r.gapThreshold);
-                boolean b5 = (this.defaultShapeFilled == r.defaultShapeFilled);
-                return b0 && b1 && b2 && b3 && b4 && b5;
-            }
-        }
-               
-        return false;
-    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
-    
+
+    /**
+     * Restores a serialized object.
+     *
+     * @param stream  the input stream.
+     *
+     * @throws IOException if there is an I/O problem.
+     * @throws ClassNotFoundException if there is a problem loading a class.
+     */
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        this.line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
+    }
+
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------
  * DatasetTags.java
  * ----------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,20 +39,20 @@ package org.jfree.data.xml;
 
 /**
  * Constants for the tags that identify the elements in the XML files.
- * 
+ *
  * @author David Gilbert
  */
 public interface DatasetTags {
 
     /** The 'PieDataset' element name. */
     public static final String PIEDATASET_TAG = "PieDataset";
-    
+
     /** The 'CategoryDataset' element name. */
     public static final String CATEGORYDATASET_TAG = "CategoryDataset";
 
     /** The 'Series' element name. */
     public static final String SERIES_TAG = "Series";
-    
+
     /** The 'Item' element name. */
     public static final String ITEM_TAG = "Item";
 

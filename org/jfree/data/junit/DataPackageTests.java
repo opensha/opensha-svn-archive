@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------------------
  * DataPackageTests.java
  * ---------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Richard Atkinson;
  *
  * $Id$
  *
@@ -36,6 +36,7 @@
  * 17-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 05-Mar-2003 : Added tests for the DefaultKeyedValues class (DG);
  * 13-Mar-2003 : Added tests for the DefaultKeyedValue class (DG);
+ * 12-Aug-2003 : Added tests for TableXYDataset class (RA);
  *
  */
 
@@ -60,13 +61,18 @@ public class DataPackageTests extends TestCase {
      */
     public static Test suite() {
         TestSuite suite = new TestSuite("org.jfree.data");
-        suite.addTestSuite(RegressionTests.class);
+        suite.addTestSuite(DatasetUtilitiesTests.class);
         suite.addTestSuite(DefaultKeyedValueTests.class);
+        suite.addTestSuite(DefaultKeyedValueDatasetTests.class);
         suite.addTestSuite(DefaultKeyedValuesTests.class);
         suite.addTestSuite(DefaultKeyedValuesDatasetTests.class);
         suite.addTestSuite(DefaultKeyedValues2DTests.class);
         suite.addTestSuite(DefaultKeyedValues2DDatasetTests.class);
+        suite.addTestSuite(PieDatasetTests.class);
+        suite.addTestSuite(RangeTests.class);
+        suite.addTestSuite(RegressionTests.class);
         suite.addTestSuite(TaskSeriesCollectionTests.class);
+        suite.addTestSuite(TableXYDatasetTests.class);
         return suite;
     }
 

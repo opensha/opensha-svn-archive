@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------------------
  * FontDisplayField.java
  * ---------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -33,12 +33,15 @@
  * ----------------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
  * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);
  *
  */
 
 package org.jfree.ui;
 
 import java.awt.Font;
+import java.util.ResourceBundle;
+
 import javax.swing.JTextField;
 
 /**
@@ -51,6 +54,10 @@ public class FontDisplayField extends JTextField {
 
     /** The current font. */
     private Font displayFont;
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                                    ResourceBundle.getBundle("org.jfree.ui.LocalizationBundle");
 
     /**
      * Standard constructor - builds a FontDescriptionField initialised with the specified font.
@@ -94,7 +101,7 @@ public class FontDisplayField extends JTextField {
             return font.getFontName() + ", " + font.getSize();
         }
         else {
-            return "No font selected.";
+            return localizationResources.getString("No_Font_Selected");
         }
     }
 

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * Pie3DChartDemo2.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -40,14 +40,17 @@ package org.jfree.chart.demo;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.Timer;
-import org.jfree.data.DefaultPieDataset;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.Pie3DPlot;
+import org.jfree.data.DefaultPieDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+import org.jfree.util.Rotation;
 
 /**
  * A rotating 3D pie chart.
@@ -84,7 +87,7 @@ public class Pie3DChartDemo2 extends ApplicationFrame {
         chart.setBackgroundPaint(Color.yellow);
         Pie3DPlot plot = (Pie3DPlot) chart.getPlot();
         plot.setStartAngle(270);
-        plot.setDirection(Pie3DPlot.ANTICLOCKWISE);
+        plot.setDirection(Rotation.ANTICLOCKWISE);
         plot.setForegroundAlpha(0.60f);
         plot.setInteriorGap(0.33);
         // add the chart to a panel...

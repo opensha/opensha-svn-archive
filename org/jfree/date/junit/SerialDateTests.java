@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * SerialDateTests.java
  * --------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
 import org.jfree.date.SerialDate;
 
 /**
- * Some JUnit tests for the SerialDate class.
+ * Some JUnit tests for the {@link SerialDate} class.
  *
  * @author David Gilbert
  */
@@ -95,6 +95,25 @@ public class SerialDateTests extends TestCase {
         SerialDate jan9Y2002 = SerialDate.addMonths(2, this.nov9Y2001);
         SerialDate answer = SerialDate.createInstance(9, 1, 2002);
         assertEquals(answer, jan9Y2002);
+    }
+
+    /**
+     * A test case for a reported bug, now fixed.
+     */
+    public void testAddMonthsTo5Oct2003() {
+        SerialDate d1 = SerialDate.createInstance(5, SerialDate.OCTOBER, 2003);
+        SerialDate d2 = SerialDate.addMonths(2, d1);
+        assertEquals(d2, SerialDate.createInstance(5, SerialDate.DECEMBER, 2003));
+    }
+
+    /**
+     * A test case for a reported bug, now fixed.
+     */
+    public void testAddMonthsTo1Jan2003() {
+        SerialDate d1 = SerialDate.createInstance(1, SerialDate.JANUARY, 2003);
+        SerialDate d2 = SerialDate.addMonths(0, d1);
+        assertEquals(d2, d1);
+
     }
 
     /**
@@ -233,21 +252,21 @@ public class SerialDateTests extends TestCase {
     public void testLeapYearCount2000() {
         assertEquals(SerialDate.leapYearCount(2000), 25);
     }
-    
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         SerialDate d1 = SerialDate.createInstance(15, 4, 2000);
         SerialDate d2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(d1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             d2 = (SerialDate) in.readObject();
             in.close();
@@ -255,8 +274,8 @@ public class SerialDateTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(d1, d2); 
-        
+        assertEquals(d1, d2);
+
     }
 
 }

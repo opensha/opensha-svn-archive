@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead: David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation;
@@ -255,7 +255,7 @@ public class DemoResources_fr extends ListResourceBundle {
         {"timeseries.sample1.subtitle", "Valeur du GBP pour le JPY"},
         {"timeseries.sample1.domain", "Date"},
         {"timeseries.sample1.range", "CCY par GBP"},
-        {"timeseries.sample1.copyright", "(C)opyright 2002, by Simba Management Limited"},
+        {"timeseries.sample1.copyright", "(C)opyright 2002, by Object Refinery Limited"},
 
         {"timeseries.sample2.title", "Diagramme de Séries Temporelles 2"},
         {"timeseries.sample2.domain", "Milliseconde"},

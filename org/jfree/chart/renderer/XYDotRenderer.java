@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,11 @@
  * ------------------
  * XYDotRenderer.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Christian W. Zuckschwerdt;
+;
  *
  * $Id$
  *
@@ -33,7 +34,11 @@
  * --------------------------
  * 29-Oct-2002 : Added standard header (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -42,19 +47,24 @@ import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.XYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.PublicCloneable;
 
 /**
- * A renderer that draws a small dot at each data point.
+ * A renderer that draws a small dot at each data point for an {@link XYPlot}.
  *
  * @author David Gilbert
  */
-public class XYDotRenderer extends AbstractXYItemRenderer
-                           implements XYItemRenderer, Serializable {
+public class XYDotRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                     Cloneable,
+                                                                     PublicCloneable,
+                                                                     Serializable {
 
     /**
      * Constructs a new renderer.
@@ -73,22 +83,22 @@ public class XYDotRenderer extends AbstractXYItemRenderer
      * @param domainAxis  the domain (horizontal) axis.
      * @param rangeAxis  the range (vertical) axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo  information about crosshairs on a plot.
+     * @param pass  the pass index.
      */
     public void drawItem(Graphics2D g2,
                          Rectangle2D dataArea,
-                         ChartRenderingInfo info,
+                         PlotRenderingInfo info,
                          XYPlot plot,
                          ValueAxis domainAxis,
                          ValueAxis rangeAxis,
                          XYDataset dataset,
-                         int datasetIndex,
                          int series,
                          int item,
-                         CrosshairInfo crosshairInfo) {
+                         CrosshairInfo crosshairInfo,
+                         int pass) {
 
         // get the data point...
         Number xn = dataset.getXValue(series, item);
@@ -96,16 +106,25 @@ public class XYDotRenderer extends AbstractXYItemRenderer
         if (yn != null) {
             double x = xn.doubleValue();
             double y = yn.doubleValue();
-            double transX = domainAxis.translateValueToJava2D(x, dataArea);
-            double transY = rangeAxis.translateValueToJava2D(y, dataArea);
+            RectangleEdge xAxisLocation = plot.getDomainAxisEdge();
+            RectangleEdge yAxisLocation = plot.getRangeAxisEdge();
+            double transX = domainAxis.translateValueToJava2D(x, dataArea, xAxisLocation);
+            double transY = rangeAxis.translateValueToJava2D(y, dataArea, yAxisLocation);
 
-            g2.drawRect((int) transX, (int) transY, 1, 1);
+            g2.setPaint(this.getItemPaint(series, item));
+            PlotOrientation orientation = plot.getOrientation();
+            if (orientation == PlotOrientation.HORIZONTAL) {
+                g2.drawRect((int) transY, (int) transX, 1, 1);
+            }
+            else if (orientation == PlotOrientation.VERTICAL) {
+                g2.drawRect((int) transX, (int) transY, 1, 1);
+            }
 
             // do we need to update the crosshair values?
             if (plot.isDomainCrosshairLockedOnData()) {
                 if (plot.isRangeCrosshairLockedOnData()) {
                     // both axes
-                    crosshairInfo.updateCrosshairPoint(x, y);
+                    crosshairInfo.updateCrosshairPoint(x, y, transX, transY);
                 }
                 else {
                     // just the horizontal axis...
@@ -120,6 +139,17 @@ public class XYDotRenderer extends AbstractXYItemRenderer
             }
         }
 
+    }
+
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

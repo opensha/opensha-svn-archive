@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * ScatterPlotTests.java
  * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,18 +41,21 @@ package org.jfree.chart.junit;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartChangeListener;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.Range;
 import org.jfree.data.XYDataset;
 import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
-import org.jfree.data.Range;
 
 /**
  * Tests for a scatter plot.
@@ -129,7 +132,7 @@ public class ScatterPlotTests extends TestCase {
 
         LocalListener l = new LocalListener();
         chart.addChangeListener(l);
-        chart.getPlot().setDataset(dataset);
+        chart.getXYPlot().setDataset(dataset);
         assertEquals(true, l.flag);
         ValueAxis axis = chart.getXYPlot().getRangeAxis();
         Range range = axis.getRange();
@@ -155,14 +158,16 @@ public class ScatterPlotTests extends TestCase {
         XYDataset dataset = new XYSeriesCollection(series1);
 
         // create the chart...
-        return ChartFactory.createScatterPlot("Scatter Plot",  // chart title
-                                              "Domain", 
-                                              "Range",
-                                              dataset,         // data
-                                              true,            // include legend
-                                              true,            // tooltips
-                                              false            // urls
-                                            );
+        return ChartFactory.createScatterPlot(
+            "Scatter Plot",  // chart title
+            "Domain",
+            "Range",
+            dataset,         // data
+            PlotOrientation.VERTICAL,
+            true,            // include legend
+            true,            // tooltips
+            false            // urls
+        );
 
     }
 
@@ -186,5 +191,5 @@ public class ScatterPlotTests extends TestCase {
         }
 
     }
-    
+
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -38,19 +38,19 @@
 
 package org.jfree.chart.demo;
 
-import java.awt.Paint;
 import java.awt.Color;
-import java.awt.Shape;
-import java.awt.Point;
 import java.awt.Image;
 import java.awt.MediaTracker;
-import java.awt.geom.Rectangle2D;
+import java.awt.Paint;
+import java.awt.Point;
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.net.URL;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
@@ -109,8 +109,8 @@ public class MultiShapesXYDemo extends ApplicationFrame {
         super(title);
 
         System.out.println("About to get images...");
-        URL url1 = getClass().getClassLoader().getResource("com/jrefinery/chart/demo/redball.png");
-        URL url2 = getClass().getClassLoader().getResource("com/jrefinery/chart/demo/arrow.png");
+        URL url1 = getClass().getClassLoader().getResource("org/jfree/chart/demo/redball.png");
+        URL url2 = getClass().getClassLoader().getResource("org/jfree/chart/demo/arrow.png");
         if (url1 != null && url2 != null) {
             ballImage = new javax.swing.ImageIcon(url1).getImage();
             arrowImage = new javax.swing.ImageIcon(url2).getImage();
@@ -137,8 +137,8 @@ public class MultiShapesXYDemo extends ApplicationFrame {
             this.series.add(x, y);
         }
         XYSeriesCollection data = new XYSeriesCollection(series);
-        HorizontalNumberAxis domainAxis = new HorizontalNumberAxis("x");
-        VerticalNumberAxis rangeAxis = new VerticalNumberAxis("sin(x)");
+        NumberAxis domainAxis = new NumberAxis("x");
+        NumberAxis rangeAxis = new NumberAxis("sin(x)");
         DemoRenderer renderer = new DemoRenderer();
         Plot plot = new XYPlot(data, domainAxis, rangeAxis, renderer);
         JFreeChart chart = new JFreeChart(plot);

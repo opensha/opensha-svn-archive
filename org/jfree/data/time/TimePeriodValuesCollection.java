@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------------
  * TimePeriodValuesCollection.java
  * -------------------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,7 +38,6 @@
 package org.jfree.data.time;
 
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
@@ -51,35 +50,41 @@ import org.jfree.data.Range;
 /**
  * A collection of {@link TimePeriodValues} objects.
  * <P>
- * This class implements the {@link org.jfree.data.XYDataset} interface, as well as the 
- * extended {@link IntervalXYDataset} interface.  This makes it a convenient dataset for use with 
+ * This class implements the {@link org.jfree.data.XYDataset} interface, as well as the
+ * extended {@link IntervalXYDataset} interface.  This makes it a convenient dataset for use with
  * the {@link org.jfree.chart.plot.XYPlot} class.
  *
  * @author David Gilbert
  */
 public class TimePeriodValuesCollection extends AbstractSeriesDataset
-                                        implements IntervalXYDataset, 
+                                        implements IntervalXYDataset,
                                                    DomainInfo,
                                                    Serializable {
 
-    /** Useful constant for controlling the x-value returned for a time period. */
+    /** 
+     * Useful constant for controlling the x-value returned for a time period. 
+     * @deprecated Replaced by TimePeriodAnchor.START.
+     */
     public static final int START = 0;
 
-    /** Useful constant for controlling the x-value returned for a time period. */
+    /** 
+     * Useful constant for controlling the x-value returned for a time period. 
+     * @deprecated Replaced by TimePeriodAnchor.MIDDLE.
+     */
     public static final int MIDDLE = 1;
 
-    /** Useful constant for controlling the x-value returned for a time period. */
+    /** 
+     * Useful constant for controlling the x-value returned for a time period. 
+     * @deprecated Replaced by TimePeriodAnchor.END.
+     */
     public static final int END = 2;
 
     /** Storage for the time series. */
     private List data;
 
-    /** A working calendar (to recycle) */
-    private Calendar workingCalendar;
-
     /** The position within a time period to return as the x-value (START, MIDDLE or END). */
-    private int position;
-
+    private TimePeriodAnchor xPosition;
+    
     /**
      * A flag that indicates that the domain is 'points in time'.  If this flag is true, only
      * the x-value is used to determine the range of values in the domain, the start and end
@@ -91,26 +96,32 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      * Constructs an empty dataset, tied to the default timezone.
      */
     public TimePeriodValuesCollection() {
-        this(null, TimeZone.getDefault());
+        this((TimePeriodValues) null);
     }
 
     /**
      * Constructs an empty dataset, tied to a specific timezone.
      *
      * @param zone the timezone.
+     * @deprecated The TimeZone is ignored, use an alternative constructor.
      */
     public TimePeriodValuesCollection(TimeZone zone) {
         this(null, zone);
     }
 
     /**
-     * Constructs a dataset containing a single series (more can be added),
-     * tied to the default timezone.
+     * Constructs a dataset containing a single series.  Additional series can be added.
      *
-     * @param series the series.
+     * @param series  the series.
      */
     public TimePeriodValuesCollection(TimePeriodValues series) {
-        this(series, TimeZone.getDefault());
+        this.data = new java.util.ArrayList();
+        this.xPosition = TimePeriodAnchor.MIDDLE;
+        this.domainIsPointsInTime = true;
+        if (series != null) {
+            data.add(series);
+            series.addChangeListener(this);
+        }
     }
 
     /**
@@ -119,18 +130,10 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      *
      * @param series the series.
      * @param zone the timezone.
+     * @deprecated TimeZone parameter is not used.
      */
     public TimePeriodValuesCollection(TimePeriodValues series, TimeZone zone) {
-
-        this.data = new java.util.ArrayList();
-        if (series != null) {
-            data.add(series);
-            series.addChangeListener(this);
-        }
-        this.workingCalendar = Calendar.getInstance(zone);
-        this.position = MIDDLE;
-        this.domainIsPointsInTime = true;
-
+      this(series);
     }
 
     /**
@@ -138,11 +141,23 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      * MIDDLE, or END).
      *
      * @return the position.
+     * 
+     * @deprecated Use getXPosition().
      */
     public int getPosition() {
-        return this.position;
+        TimePeriodAnchor anchor = getXPosition();
+        if (anchor == TimePeriodAnchor.START) {
+            return START;
+        }
+        else if (anchor == TimePeriodAnchor.MIDDLE) {
+            return MIDDLE;
+        }
+        else if (anchor == TimePeriodAnchor.END) {
+            return END;
+        }
+        return MIDDLE;
     }
-
+    
     /**
      * Sets the position - this controls the x-value that is returned for a
      * particular time period.
@@ -150,11 +165,39 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      * Use the constants START, MIDDLE and END.
      *
      * @param position the position.
+     * 
+     * @deprecated Use setXPosition(...).
      */
     public void setPosition(int position) {
-        this.position = position;
+        if (position == START) {
+            setXPosition(TimePeriodAnchor.START);
+        }
+        else if (position == MIDDLE) {
+            setXPosition(TimePeriodAnchor.MIDDLE);
+        }
+        else if (position == END) {
+            setXPosition(TimePeriodAnchor.END);
+        }
     }
 
+    /**
+     * Returns the position of the X value within each time period.
+     * 
+     * @return The position.
+     */
+    public TimePeriodAnchor getXPosition() {
+        return this.xPosition;
+    }
+
+    /**
+     * Sets the position of the x axis within each time period.
+     * 
+     * @param position  the position.
+     */
+    public void setXPosition(TimePeriodAnchor position) {
+        this.xPosition = position;
+    }
+    
     /**
      * Returns a flag that controls whether the domain is treated as 'points in time'.
      * <P>
@@ -162,7 +205,7 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      * only the x-values are considered for the max and min values.  If false, then the start and
      * end x-values will also be taken into consideration
      *
-     * @return the flag.
+     * @return The flag.
      */
     public boolean getDomainIsPointsInTime() {
         return this.domainIsPointsInTime;
@@ -172,7 +215,7 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      * Sets a flag that controls whether the domain is treated as 'points in time', or time
      * periods.
      *
-     * @param flag The new value of the flag.
+     * @param flag  the new value of the flag.
      */
     public void setDomainIsPointsInTime(boolean flag) {
         this.domainIsPointsInTime = flag;
@@ -181,7 +224,7 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
     /**
      * Returns the number of series in the collection.
      *
-     * @return the series count.
+     * @return The series count.
      */
     public int getSeriesCount() {
         return this.data.size();
@@ -203,7 +246,7 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
         }
 
         // fetch the series...
-		TimePeriodValues ts = (TimePeriodValues) data.get(series);
+        TimePeriodValues ts = (TimePeriodValues) data.get(series);
         return ts;
 
     }
@@ -226,18 +269,17 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
     }
 
     /**
-     * Adds a series to the collection.
-     * <P>
-     * Notifies all registered listeners that the dataset has changed.
+     * Adds a series to the collection.  A {@link org.jfree.data.DatasetChangeEvent} is 
+     * sent to all registered listeners.
      *
-     * @param series the time series.
+     * @param series  the time series.
      */
     public void addSeries(TimePeriodValues series) {
 
         // check argument...
         if (series == null) {
             throw new IllegalArgumentException(
-                "TimeSeriesDataset.addSeries(...): cannot add null series.");
+                "TimePeriodValuesCollection.addSeries(...): cannot add null series.");
         }
 
         // add the series...
@@ -257,7 +299,7 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
         // check argument...
         if (series == null) {
             throw new IllegalArgumentException(
-                "TimeSeriesDataset.addSeries(...): cannot add null series.");
+                "TimePeriodValuesCollection.addSeries(...): cannot add null series.");
         }
 
         // remove the series...
@@ -324,18 +366,17 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
     private long getX(TimePeriod period) {
 
         long result = 0L;
-        switch (position) {
-            case (START) : 
-                result = period.getStart().getTime(); 
-                break;
-            case (MIDDLE) : 
-                result = period.getStart().getTime() / 2 + period.getEnd().getTime() / 2; 
-                break;
-            case (END) : 
-                result = period.getEnd().getTime(); 
-                break;
-            default: 
-                result = period.getStart().getTime() / 2 + period.getEnd().getTime() / 2;
+        if (this.xPosition == TimePeriodAnchor.START) {
+            result = period.getStart().getTime();
+        }
+        else if (this.xPosition == TimePeriodAnchor.MIDDLE) {
+            result = period.getStart().getTime() / 2 + period.getEnd().getTime() / 2;
+        }
+        else if (this.xPosition == TimePeriodAnchor.END) {
+            result = period.getEnd().getTime();
+        }
+        else {
+            throw new IllegalStateException("TimePeriodValuesCollection.getX(...).");
         }
         return result;
 
@@ -352,7 +393,7 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
     public Number getStartXValue(int series, int item) {
 
         TimePeriodValues ts = (TimePeriodValues) data.get(series);
-		TimePeriodValue dp = ts.getDataItem(item);
+        TimePeriodValue dp = ts.getDataItem(item);
         return new Long(dp.getPeriod().getStart().getTime());
 
     }
@@ -367,8 +408,8 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      */
     public Number getEndXValue(int series, int item) {
 
-		TimePeriodValues ts = (TimePeriodValues) data.get(series);
-		TimePeriodValue dp = ts.getDataItem(item);
+        TimePeriodValues ts = (TimePeriodValues) data.get(series);
+        TimePeriodValue dp = ts.getDataItem(item);
         return new Long(dp.getPeriod().getEnd().getTime());
 
     }
@@ -383,8 +424,8 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
      */
     public Number getYValue(int series, int item) {
 
-		TimePeriodValues ts = (TimePeriodValues) data.get(series);
-		TimePeriodValue dp = (TimePeriodValue) ts.getDataItem(item);
+        TimePeriodValues ts = (TimePeriodValues) data.get(series);
+        TimePeriodValue dp = ts.getDataItem(item);
         return dp.getValue();
 
     }
@@ -453,10 +494,26 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
             TimePeriodValues series = (TimePeriodValues) iterator.next();
             int count = series.getItemCount();
             if (count > 0) {
-                TimePeriod start = series.getTimePeriod(0);
-                TimePeriod end = series.getTimePeriod(count - 1);
+                TimePeriod start = series.getTimePeriod(series.getMinStartIndex());
+                TimePeriod end = series.getTimePeriod(series.getMaxEndIndex());
                 if (this.domainIsPointsInTime) {
-                    temp = new Range(getX(start), getX(end));
+                    if (this.xPosition == TimePeriodAnchor.START) {
+                        TimePeriod maxStart = series.getTimePeriod(series.getMaxStartIndex());
+                        temp = new Range(start.getStart().getTime(), maxStart.getStart().getTime());
+                    }
+                    else if (this.xPosition == TimePeriodAnchor.MIDDLE) {
+                        TimePeriod minMiddle = series.getTimePeriod(series.getMinMiddleIndex());
+                        long s1 = minMiddle.getStart().getTime();
+                        long e1 = minMiddle.getEnd().getTime();
+                        TimePeriod maxMiddle = series.getTimePeriod(series.getMaxMiddleIndex());
+                        long s2 = maxMiddle.getStart().getTime();
+                        long e2 = maxMiddle.getEnd().getTime();
+                        temp = new Range(s1 + (e1 - s1) / 2, s2 + (e2 - s2) / 2);
+                    }
+                    else if (this.xPosition == TimePeriodAnchor.END) {
+                        TimePeriod minEnd = series.getTimePeriod(series.getMinEndIndex());
+                        temp = new Range(minEnd.getEnd().getTime(), end.getEnd().getTime());
+                    }
                 }
                 else {
                     temp = new Range(start.getStart().getTime(), end.getEnd().getTime());
@@ -468,5 +525,5 @@ public class TimePeriodValuesCollection extends AbstractSeriesDataset
         return result;
 
     }
-    
+
 }

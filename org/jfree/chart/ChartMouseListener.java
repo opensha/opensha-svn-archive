@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * ChartMouseEvent.java
  * --------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Alex Weber;
  *
  * $Id$
@@ -52,13 +52,13 @@ public interface ChartMouseListener {
      *
      * @param event  information about the event.
      */
-    public void chartMouseClicked(ChartMouseEvent event);
+    void chartMouseClicked(ChartMouseEvent event);
 
     /**
      * Callback method for receiving notification of a mouse movement on a chart.
      *
      * @param event  information about the event.
      */
-    public void chartMouseMoved(ChartMouseEvent event);
+    void chartMouseMoved(ChartMouseEvent event);
 
 }

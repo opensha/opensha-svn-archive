@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * XYTextAnnotation.java
  * ---------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -35,33 +35,38 @@
  * 07-Nov-2002 : Fixed errors reported by Checkstyle (DG);
  * 13-Jan-2003 : Reviewed Javadocs (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 02-Jul-2003 : Added new text alignment and rotation options (DG);
+ * 19-Aug-2003 : Implemented Cloneable (DG);
  *
  */
 
 package org.jfree.chart.annotations;
 
-import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RefineryUtilities;
 
 /**
- * A text annotation that can be placed on an {@link org.jfree.chart.plot.XYPlot}.
+ * A text annotation that can be placed at a particular (x, y) location on an {@link XYPlot}.
  *
  * @author David Gilbert
  */
-public class XYTextAnnotation extends TextAnnotation 
-                              implements XYAnnotation, Serializable {
+public class XYTextAnnotation extends TextAnnotation
+                              implements XYAnnotation, Cloneable, Serializable {
 
     /** The x-coordinate. */
     private double x;
 
     /** The y-coordinate. */
     private double y;
-
+    
     /**
      * Creates a new annotation to be displayed at the given coordinates.
      *
@@ -70,63 +75,92 @@ public class XYTextAnnotation extends TextAnnotation
      * @param y  the y-coordinate.
      */
     public XYTextAnnotation(String text, double x, double y) {
-        this(text, TextAnnotation.DEFAULT_FONT, x, y);
-    }
-
-    /**
-     * Creates a new annotation to be displayed at the given coordinates.
-     *
-     * @param text  the text.
-     * @param font  the font.
-     * @param x  the x-coordinate.
-     * @param y  the y-coordinate.
-     */
-    public XYTextAnnotation(String text, Font font, double x, double y) {
-        this(text, font, TextAnnotation.DEFAULT_PAINT, x, y);
-    }
-
-    /**
-     * Creates a new annotation to be displayed at the given coordinates.
-     *
-     * @param text  the text.
-     * @param font  the font.
-     * @param paint  the paint.
-     * @param x  the x-coordinate.
-     * @param y  the y-coordinate.
-     */
-    public XYTextAnnotation(String text, Font font, Paint paint, double x, double y) {
-        super(text, font, paint);
+        super(text);
         this.x = x;
         this.y = y;
     }
+    
+    /**
+     * Returns the x coordinate for the text anchor point (measured against the domain axis).
+     * 
+     * @return The x coordinate.
+     */
+    public double getX() {
+        return this.x;
+    }
+    
+    /**
+     * Sets the x coordinate for the text anchor point (measured against the domain axis).
+     * 
+     * @param x  the x coordinate.
+     */
+    public void setX(double x) {
+        this.x = x;
+    }
+    
+    /**
+     * Returns the y coordinate for the text anchor point (measured against the range axis).
+     * 
+     * @return The y coordinate.
+     */
+    public double getY() {
+        return this.y;
+    }
+    
+    /**
+     * Sets the y coordinate for the text anchor point (measured against the range axis).
+     * 
+     * @param y  the y coordinate.
+     */
+    public void setY(double y) {
+        this.y = y;
+    }    
 
     /**
      * Draws the annotation.
      *
      * @param g2  the graphics device.
+     * @param plot  the plot.
      * @param dataArea  the data area.
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
      */
-    public void draw(Graphics2D g2, Rectangle2D dataArea,
+    public void draw(Graphics2D g2, XYPlot plot, Rectangle2D dataArea,
                      ValueAxis domainAxis, ValueAxis rangeAxis) {
 
-        float baseX = (float) domainAxis.translateValueToJava2D(this.x, dataArea);
-        float baseY = (float) rangeAxis.translateValueToJava2D(this.y, dataArea);
+        PlotOrientation orientation = plot.getOrientation();
+        RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), 
+                                                                  orientation);
+        RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), 
+                                                                orientation);
 
-        //    FontRenderContext frc = g2.getFontRenderContext();
-        //    Rectangle2D labelBounds = this.font.getStringBounds(this.text, frc);
-        //    LineMetrics lm = this.font.getLineMetrics(this.text, frc);
-        //    float labelx = baseX - labelBounds.getWidth()/2;
-        //    float labely = baseY;
-            //(float)(drawArea.getMaxY()-labelInsets.bottom
-            //    - lm.getDescent() -lm.getLeading());
-            //g2.drawString(label, labelx, labely);
+        float anchorX = (float) domainAxis.translateValueToJava2D(this.x, dataArea, domainEdge);
+        float anchorY = (float) rangeAxis.translateValueToJava2D(this.y, dataArea, rangeEdge);
 
         g2.setFont(getFont());
         g2.setPaint(getPaint());
-        g2.drawString(getText(), baseX, baseY);
+        RefineryUtilities.drawRotatedString(
+            getText(), 
+            g2,
+            anchorX, 
+            anchorY,
+            getTextAnchor(),
+            getRotationAnchor(),
+            getRotationAngle()
+        );
 
     }
+    
+    /**
+     * Returns a clone of the annotation.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the annotation can't be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
 
 }

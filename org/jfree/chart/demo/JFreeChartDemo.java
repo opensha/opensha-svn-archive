@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * JFreeChartDemo.java
  * -------------------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Andrzej Porebski;
  *                   Matthew Wright;
  *                   Serge V. Grachov;
@@ -77,30 +77,32 @@
 
 package org.jfree.chart.demo;
 
-import java.awt.Dimension;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.event.WindowAdapter;
 import java.util.ResourceBundle;
 import java.util.Vector;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.JScrollPane;
-import javax.swing.JOptionPane;
+
 import javax.swing.BorderFactory;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JTextArea;
 import javax.swing.JButton;
-import org.jfree.chart.JFreeChart;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+
 import org.jfree.chart.ChartFrame;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.layout.LCBLayout;
 import org.jfree.ui.RefineryUtilities;
 import org.jfree.ui.about.AboutFrame;
@@ -138,9 +140,6 @@ public class JFreeChartDemo extends JFrame implements ActionListener, WindowList
 
     /** A frame for displaying information about the application. */
     private AboutFrame aboutFrame;
-
-    /** A tabbed pane for displaying sample charts; */
-    private JTabbedPane tabbedPane;
 
     /**
      * Constructs a demonstration application for the JFreeChart Class Library.
@@ -265,7 +264,7 @@ public class JFreeChartDemo extends JFrame implements ActionListener, WindowList
     private void about() {
 
         String title = this.resources.getString("about.title");
-        String versionLabel = this.resources.getString("about.version.label");
+        //String versionLabel = this.resources.getString("about.version.label");
         if (aboutFrame == null) {
             aboutFrame = new AboutFrame(title, JFreeChart.INFO);
             aboutFrame.pack();

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -23,10 +23,11 @@
  * ThermometerPlot.java
  * --------------------
  *
- * (C) Copyright 2000-2003,
+ * (C) Copyright 2000-2003, by Bryan Scott and Contributors.
  *
  * Original Author:  Bryan Scott (based on MeterPlot by Hari).
- * Contributor(s):   David Gilbert (for Simba Management Limited).
+ * Contributor(s):   David Gilbert (for Object Refinery Limited).
+ *                   Arnaud Lelievre;
  *
  * Changes
  * -------
@@ -40,6 +41,10 @@
  *               to null (BRS).
  * 23-Jan-2003 : Removed one constructor (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 02-Jun-2003 : Removed test for compatible range axis (DG);
+ * 01-Jul-2003 : Added additional check in draw method to ensure value not null (BRS);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);#
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG); 
  *
  */
 
@@ -65,31 +70,24 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.ResourceBundle;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.Spacer;
-import org.jfree.chart.axis.Axis;
-import org.jfree.chart.axis.AxisNotCompatibleException;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.data.DatasetChangeEvent;
 import org.jfree.data.DefaultValueDataset;
 import org.jfree.data.Range;
 import org.jfree.data.ValueDataset;
 import org.jfree.io.SerialUtilities;
+import org.jfree.ui.RectangleEdge;
 import org.jfree.util.ObjectUtils;
 
 /**
- * A plot that displays a single value in a thermometer type display.
+ * A plot that displays a single value (from a {@link ValueDataset}) in a thermometer type display.
  * <p>
- * NOTE:
- * The Thermometer plot utilises a meter data set, however range options within this data set
- * are not used (instead, the ranges can be set as attributes on the plot).
- *
  * This plot supports a number of options:
  * <ol>
  * <li>three sub-ranges which could be viewed as 'Normal', 'Warning' and 'Critical' ranges.</li>
@@ -105,7 +103,9 @@ import org.jfree.util.ObjectUtils;
  *
  * @author Bryan Scott
  */
-public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializable {
+public class ThermometerPlot extends Plot implements ValueAxisPlot, 
+                                                     Cloneable,
+                                                     Serializable {
 
     /** A constant for unit type 'None'. */
     public static final int UNITS_NONE = 0;
@@ -159,7 +159,7 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     protected static final int AXIS_GAP = 10;
 
     /** The unit strings. */
-    protected static final String[] UNITS = { "", "°F", "°C", "°K" };
+    protected static final String[] UNITS = {"", "\u00B0F", "\u00B0C", "\u00B0K"};
 
     /** Index for low value in subrangeInfo matrix. */
     protected static final int RANGE_LOW = 0;
@@ -180,7 +180,7 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     protected static final double DEFAULT_UPPER_BOUND = 100.0;
 
     /** The dataset for the plot. */
-    private ValueDataset data;
+    private ValueDataset dataset;
 
     /** The range axis. */
     private ValueAxis rangeAxis;
@@ -226,9 +226,9 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
 
     /** The start and end values for the subranges. */
     private double[][] subrangeInfo = {
-        { 0.0,  50.0,  0.0,  50.0 },
-        {50.0,  75.0, 50.0,  75.0 },
-        {75.0, 100.0, 75.0, 100.0 }
+        {0.0,  50.0,  0.0,  50.0},
+        {50.0,  75.0, 50.0,  75.0},
+        {75.0, 100.0, 75.0, 100.0}
     };
 
     /** A flag that controls whether or not the axis range adjusts to the sub-ranges. */
@@ -253,6 +253,10 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     /** The range indicator stroke. */
     private transient Stroke rangeIndicatorStroke = new BasicStroke(3.0f);
 
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.plot.LocalizationBundle");
+
     /**
      * Creates a new thermometer plot.
      */
@@ -263,32 +267,68 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     /**
      * Creates a new thermometer plot, using default attributes where necessary.
      *
-     * @param data  the data set.
+     * @param dataset  the data set.
      */
-    public ThermometerPlot(ValueDataset data) {
+    public ThermometerPlot(ValueDataset dataset) {
 
-        super(data);
+        super();
 
         this.padding = new Spacer(Spacer.RELATIVE, 0.05, 0.05, 0.05, 0.05);
-        this.data = data;
-        if (data != null) {
-            data.addChangeListener(this);
+        this.dataset = dataset;
+        if (dataset != null) {
+            dataset.addChangeListener(this);
         }
-        VerticalNumberAxis axis = new VerticalNumberAxis(null);
+        NumberAxis axis = new NumberAxis(null);
         axis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         setRangeAxis(axis);
         setAxisRange();
     }
 
     /**
-     * Returns the dataset cast to ValueDataset (provided for convenience).
+     * Returns the primary dataset for the plot.
      *
-     * @return  the dataset for the plot, cast as a ValueDataset.
+     * @return The primary dataset (possibly <code>null</code>).
      */
-    public ValueDataset getData() {
-        return data;
+    public ValueDataset getDataset() {
+        return this.dataset;
     }
 
+    /**
+     * Sets the dataset for the plot, replacing the existing dataset if there is one.
+     *
+     * @param dataset  the dataset (<code>null</code> permitted).
+     */
+    public void setDataset(ValueDataset dataset) {
+
+        // if there is an existing dataset, remove the plot from the list of change listeners...
+        ValueDataset existing = this.dataset;
+        if (existing != null) {
+            existing.removeChangeListener(this);
+        }
+
+        // set the new dataset, and register the chart as a change listener...
+        this.dataset = dataset;
+        if (dataset != null) {
+            setDatasetGroup(dataset.getGroup());
+            dataset.addChangeListener(this);
+        }
+
+        // send a dataset change event to self...
+        DatasetChangeEvent event = new DatasetChangeEvent(this, dataset);
+        datasetChanged(event);
+
+    }
+
+    /**
+     * Returns the dataset cast to {@link ValueDataset} (provided for convenience).
+     *
+     * @return  the dataset for the plot, cast as a {@link ValueDataset}.
+     *
+     * @deprecated Use getDataset() instead.
+     */
+    public ValueDataset getData() {
+        return dataset;
+    }
 
     /**
      * Sets the data for the chart, replacing any existing data.
@@ -296,21 +336,23 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
      * Registered listeners are notified that the plot has been modified (this will normally
      * trigger a chart redraw).
      *
-     * @param data  the new dataset.
+     * @param dataset  the new dataset.
+     *
+     * @deprecated Use setDataset(...) instead.
      */
-    public void setData(ValueDataset data) {
+    public void setData(ValueDataset dataset) {
 
         // if there is an existing dataset, remove the chart from the list of
         // change listeners...
-        ValueDataset existing = this.data;
+        ValueDataset existing = this.dataset;
         if (existing != null) {
             existing.removeChangeListener(this);
         }
 
         // set the new dataset, and register the plot as a change listener...
-        this.data = data;
-        if (this.data != null) {
-            data.addChangeListener(this);
+        this.dataset = dataset;
+        if (this.dataset != null) {
+            dataset.addChangeListener(this);
         }
 
         // notify plot change listeners...
@@ -334,36 +376,26 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
      * An exception is thrown if the new axis and the plot are not mutually compatible.
      *
      * @param axis  the new axis.
-     *
-     * @throws AxisNotCompatibleException if the axis is not compatible with the plot.
      */
-    public void setRangeAxis(ValueAxis axis) throws AxisNotCompatibleException {
+    public void setRangeAxis(ValueAxis axis) {
 
-        if (isCompatibleRangeAxis(axis)) {
-
-            if (axis != null) {
-                try {
-                    axis.setPlot(this);
-                }
-                catch (PlotNotCompatibleException e) {
-                    throw new AxisNotCompatibleException(
-                        "Plot.setRangeAxis(...): plot not compatible with axis.");
-                }
-                axis.addChangeListener(this);
+        if (axis != null) {
+            try {
+                axis.setPlot(this);
             }
-
-            // plot is likely registered as a listener with the existing axis...
-            if (this.rangeAxis != null) {
-                this.rangeAxis.removeChangeListener(this);
+            catch (PlotNotCompatibleException e) {
+                // ignored
             }
-
-            this.rangeAxis = axis;
-
+            axis.addChangeListener(this);
         }
-        else {
-            throw new AxisNotCompatibleException(
-                "Plot.setRangeAxis(...): axis not compatible with plot.");
+
+        // plot is likely registered as a listener with the existing axis...
+        if (this.rangeAxis != null) {
+            this.rangeAxis.removeChangeListener(this);
         }
+
+        this.rangeAxis = axis;
+
     }
 
     /**
@@ -546,11 +578,10 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     /**
      * Sets the location at which the current value is displayed.
      * <P>
-     * The location can be one of the constants:  NONE, RIGHT and BULB.
+     * The location can be one of the constants:  <code>NONE</code>, <code>RIGHT</code> and 
+     * <code>BULB</code>.
      *
      * @param location  the location.
-     *
-     * @throws IllegalArgumentException if the location code is not valid.
      */
     public void setValueLocation(int location) {
         if ((location >= 0) && (location < 3)) {
@@ -566,7 +597,7 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     /**
      * Gets the font used to display the current value.
      *
-     * @return  the font.
+     * @return The font.
      */
     public Font getValueFont() {
         return this.valueFont;
@@ -807,21 +838,15 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
      * @param plotArea  the area within which the plot should be drawn.
      * @param info  collects info about the drawing.
      */
-    public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
-
+    public void draw(Graphics2D g2, Rectangle2D plotArea, PlotRenderingInfo info) {
+        
         RoundRectangle2D outerStem = new RoundRectangle2D.Double();
-
         RoundRectangle2D innerStem = new RoundRectangle2D.Double();
-
         RoundRectangle2D mercuryStem = new RoundRectangle2D.Double();
-
         Ellipse2D outerBulb = new Ellipse2D.Double();
-
-        Ellipse2D innerBulb = new Ellipse2D.Double();;
-
+        Ellipse2D innerBulb = new Ellipse2D.Double();
         String temp = null;
         FontMetrics metrics = null;
-
         if (info != null) {
             info.setPlotArea(plotArea);
         }
@@ -880,15 +905,13 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
         tempArea = new Area(innerStem);
         innerThermometer.add(tempArea);
 
-        if (data != null) {
-            double current = data.getValue().doubleValue();
-
-            double ds = rangeAxis.translateValueToJava2D(current, dataArea);
+        if ((this.dataset != null) && (this.dataset.getValue() != null)) {
+            double current = this.dataset.getValue().doubleValue();
+            double ds = rangeAxis.translateValueToJava2D(current, dataArea, RectangleEdge.LEFT);
 
             int i = COLUMN_DIAMETER - GAP_DIAMETER;  // already calculated
             int j = COLUMN_RADIUS - GAP_RADIUS;      // already calculated
             int l = (int) (i / 2);
-            //k = (int) (ticksYStop - Math.round(ds));
             int k = (int) Math.round(ds);
             if (k < (GAP_RADIUS + plotArea.getMinY())) {
                 k = (int) (GAP_RADIUS + plotArea.getMinY());
@@ -915,7 +938,8 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
                                                           stemTop,
                                                           drawWidth,
                                                           (stemBottom - stemTop + 1));
-            this.rangeAxis.draw(g2, plotArea, drawArea, LEFT);
+            double cursor = 0.0;
+            cursor = this.rangeAxis.draw(g2, cursor, plotArea, drawArea, RectangleEdge.LEFT);
 
             // draw range indicators...
             if (this.subrangeIndicatorsVisible) {
@@ -926,7 +950,8 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
                 double value = this.subrangeInfo[NORMAL][RANGE_LOW];
                 if (range.contains(value)) {
                     double x = midX + COLUMN_RADIUS + 2;
-                    double y = rangeAxis.translateValueToJava2D(value, dataArea);
+                    double y = rangeAxis.translateValueToJava2D(value, dataArea, 
+                                                                RectangleEdge.LEFT);
                     Line2D line = new Line2D.Double(x, y, x + 10, y);
                     g2.setPaint(subrangePaint[NORMAL]);
                     g2.draw(line);
@@ -936,7 +961,8 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
                 value = this.subrangeInfo[WARNING][RANGE_LOW];
                 if (range.contains(value)) {
                     double x = midX + COLUMN_RADIUS + 2;
-                    double y = rangeAxis.translateValueToJava2D(value, dataArea);
+                    double y = rangeAxis.translateValueToJava2D(value, dataArea, 
+                                                                RectangleEdge.LEFT);
                     Line2D line = new Line2D.Double(x, y, x + 10, y);
                     g2.setPaint(subrangePaint[WARNING]);
                     g2.draw(line);
@@ -946,7 +972,8 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
                 value = this.subrangeInfo[CRITICAL][RANGE_LOW];
                 if (range.contains(value)) {
                     double x = midX + COLUMN_RADIUS + 2;
-                    double y = rangeAxis.translateValueToJava2D(value, dataArea);
+                    double y = rangeAxis.translateValueToJava2D(value, dataArea, 
+                                                                RectangleEdge.LEFT);
                     Line2D line = new Line2D.Double(x, y, x + 10, y);
                     g2.setPaint(subrangePaint[CRITICAL]);
                     g2.draw(line);
@@ -985,9 +1012,9 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
         g2.setStroke(thermometerStroke);
         g2.draw(outerThermometer);
         g2.draw(innerThermometer);
-        
+
         drawOutline(g2, plotArea);
-        
+
     }
 
     /**
@@ -1007,7 +1034,7 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
      * @return  a short string describing the type of plot.
      */
     public String getPlotType() {
-        return "Thermometer Plot";
+        return localizationResources.getString("Thermometer_Plot");
     }
 
     /**
@@ -1017,7 +1044,7 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
      */
     public void datasetChanged(DatasetChangeEvent event) {
 
-        Number vn = data.getValue();
+        Number vn = this.dataset.getValue();
         if (vn != null) {
             double value = vn.doubleValue();
             if (inSubrange(NORMAL, value)) {
@@ -1060,57 +1087,14 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
     }
 
     /**
-     * Returns the vertical data range.
+     * Returns the data range.
      *
      * @param axis  the axis.
-     * 
+     *
      * @return The range of data displayed.
      */
-    public Range getVerticalDataRange(ValueAxis axis) {
+    public Range getDataRange(ValueAxis axis) {
         return new Range(this.lowerBound, this.upperBound);
-    }
-
-    /**
-     * Returns true if the axis is compatible with the meter plot.  Since a
-     * Thermometer plot requires no horizontal axis, only a null axis is compatible.
-     *
-     * @param axis  the axis.
-     *
-     * @return  true, if the axis is null, and false otherwise.
-     */
-    public boolean isCompatibleHorizontalAxis(Axis axis) {
-        if (axis == null) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    /**
-     * Returns true if the axis is compatible with the meter plot.  Since a Thermometer plot
-     * requires a VerticalNumberAxis, only a VerticalNumberAxis axis is compatible.
-     *
-     * @param axis  the axis.
-     *
-     * @return  true, if the axis is compatible with the plot, and false otherwise.
-     */
-    public boolean isCompatibleVerticalAxis(Axis axis) {
-        if (axis instanceof VerticalNumberAxis) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    /**
-     * Fires a plot change event.
-     *
-     * @deprecated this method is not required and will be removed.
-     */
-    public void propertyChange() {
-        notifyListeners(new PlotChangeEvent(this));
     }
 
     /**
@@ -1144,27 +1128,6 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
      */
     public LegendItemCollection getLegendItems() {
         return null;
-    }
-
-    /**
-     * Checks the compatibility of a range axis, returning true if the axis is
-     * compatible with the plot, and false otherwise.
-     *
-     * @param axis The proposed axis.
-     *
-     * @return <code>true</code> if the axis is compatible with the plot.
-     */
-    public boolean isCompatibleRangeAxis(ValueAxis axis) {
-
-        if (axis == null) {
-            return true;
-        }
-        if (axis instanceof VerticalAxis) {
-            return true;
-        }
-        else {
-            return false;
-        }
     }
 
     /**
@@ -1211,7 +1174,7 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
 
         Paint result = this.mercuryPaint;
         if (this.useSubrangePaint) {
-            double value = this.data.getValue().doubleValue();
+            double value = this.dataset.getValue().doubleValue();
             if (inSubrange(NORMAL, value)) {
                 result = this.subrangePaint[NORMAL];
             }
@@ -1224,63 +1187,105 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
         }
         return result;
     }
-    
+
     /**
      * Tests this plot for equality with another object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-    
+
         if (obj instanceof ThermometerPlot) {
             ThermometerPlot p = (ThermometerPlot) obj;
             if (super.equals(obj)) {
-                boolean b0 = ObjectUtils.equalOrBothNull(this.data, p.data);
-                boolean b1 = ObjectUtils.equalOrBothNull(this.rangeAxis, p.rangeAxis);
+                boolean b0 = ObjectUtils.equal(this.dataset, p.dataset);
+                boolean b1 = ObjectUtils.equal(this.rangeAxis, p.rangeAxis);
                 boolean b2 = (this.lowerBound == p.lowerBound);
                 boolean b3 = (this.upperBound == p.upperBound);
-                boolean b4 = ObjectUtils.equalOrBothNull(this.padding, p.padding);
-                boolean b5 = ObjectUtils.equalOrBothNull(this.thermometerStroke, 
-                                                         p.thermometerStroke);
-                boolean b6 = ObjectUtils.equalOrBothNull(this.thermometerPaint, 
-                                                         p.thermometerPaint);
+                boolean b4 = ObjectUtils.equal(this.padding, p.padding);
+                boolean b5 = ObjectUtils.equal(this.thermometerStroke, p.thermometerStroke);
+                boolean b6 = ObjectUtils.equal(this.thermometerPaint, p.thermometerPaint);
                 boolean b7 = (this.units == p.units);
                 boolean b8 = (this.valueLocation == p.valueLocation);
-                boolean b9 = ObjectUtils.equalOrBothNull(this.valueFont, p.valueFont);
-                boolean b10 = ObjectUtils.equalOrBothNull(this.valuePaint, p.valuePaint);
-                boolean b11 = ObjectUtils.equalOrBothNull(this.valueFormat, p.valueFormat);
-                boolean b12 = ObjectUtils.equalOrBothNull(this.mercuryPaint, p.mercuryPaint);
+                boolean b9 = ObjectUtils.equal(this.valueFont, p.valueFont);
+                boolean b10 = ObjectUtils.equal(this.valuePaint, p.valuePaint);
+                boolean b11 = ObjectUtils.equal(this.valueFormat, p.valueFormat);
+                boolean b12 = ObjectUtils.equal(this.mercuryPaint, p.mercuryPaint);
                 boolean b13 = (this.showValueLines == p.showValueLines);
                 boolean b14 = (this.subrange == p.subrange);
                 boolean b15 = true; //Arrays.equals(this.subRangeInfo, p.subRangeInfo);
                 boolean b16 = (this.followDataInSubranges == p.followDataInSubranges);
                 boolean b17 = (this.useSubrangePaint == p.useSubrangePaint);
-                return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 
-                       && b10 && b11 && b12 && b13 && b14 && b15 && b16 && b17; 
-                       
+                return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9
+                       && b10 && b11 && b12 && b13 && b14 && b15 && b16 && b17;
+
             }
         }
-            
+
         return false;
-    
+
     }
-    
-    
+
+    /**
+     * Returns a clone of the plot.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the plot cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        
+        ThermometerPlot clone = (ThermometerPlot) super.clone();
+        
+        //private ValueDataset dataset <-- don't clone the dataset
+        if (clone.dataset != null) {
+            clone.dataset.addChangeListener(clone); 
+        }
+        clone.rangeAxis = (ValueAxis) ObjectUtils.clone(this.rangeAxis);
+        if (clone.rangeAxis != null) {
+            clone.rangeAxis.setPlot(clone);
+            clone.rangeAxis.addChangeListener(clone); 
+        }
+        //private double lowerBound <-- primitive
+        //private double upperBound <-- primitive
+        //private Spacer padding <-- immutable
+        //private transient Stroke thermometerStroke <-- immutable
+        //private transient Paint thermometerPaint <-- immutable
+        //private int units <-- primitive
+        //private int valueLocation <-- primitive
+        //private Font valueFont <-- immutable
+        //private transient Paint valuePaint<-- immutable
+        clone.valueFormat = (NumberFormat) this.valueFormat.clone();
+        //private transient Paint mercuryPaint <-- immutable
+        //private boolean showValueLines <-- primitive
+        //private int subrange <-- primitive
+        //private double[][] subrangeInfo ????????????????
+        //private boolean followDataInSubranges <-- primitive
+        //private boolean useSubrangePaint <-- primitive
+        clone.subrangePaint = (Paint[]) this.subrangePaint.clone();
+        //private boolean subrangeIndicatorsVisible <-- primitive
+        //private transient Stroke subrangeIndicatorStroke <-- immutable
+        //private transient Stroke rangeIndicatorStroke <-- immutable
+        
+        return clone;
+        
+    }
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
@@ -1292,14 +1297,14 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
         SerialUtilities.writeStroke(this.subrangeIndicatorStroke, stream);
         SerialUtilities.writeStroke(this.rangeIndicatorStroke, stream);
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem. 
+     * @throws ClassNotFoundException  if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
@@ -1309,12 +1314,51 @@ public class ThermometerPlot extends Plot implements VerticalValuePlot, Serializ
         this.mercuryPaint = SerialUtilities.readPaint(stream);
         this.subrangeIndicatorStroke = SerialUtilities.readStroke(stream);
         this.rangeIndicatorStroke = SerialUtilities.readStroke(stream);
-                
+
         if (this.rangeAxis != null) {
             this.rangeAxis.addChangeListener(this);
         }
 
     }
+
+    /**
+     * Multiplies the range on the horizontal axis/axes by the specified factor.
+     *
+     * @param factor  the zoom factor.
+     */
+    public void zoomHorizontalAxes(double factor) {
+        // do nothing
+    }
+
+    /**
+     * Multiplies the range on the vertical axis/axes by the specified factor.
+     *
+     * @param factor  the zoom factor.
+     */
+    public void zoomVerticalAxes(double factor) {
+        // zoom the range axis
+    }
+    
+    /**
+     * Zooms the horizontal axes.
+     * 
+     * @param lowerPercent  the lower percent.
+     * @param upperPercent  the upper percent.
+     */
+    public void zoomHorizontalAxes(double lowerPercent, double upperPercent) {
+        // zoom the domain axis
+    }
+
+    /**
+     * Zooms the vertical axes.
+     * 
+     * @param lowerPercent  the lower percent.
+     * @param upperPercent  the upper percent.
+     */
+    public void zoomVerticalAxes(double lowerPercent, double upperPercent) {
+        // zoom the domain axis
+    }
+
 
 }
 

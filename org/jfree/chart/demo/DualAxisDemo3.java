@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * DualAxisDemo3.java
  * ------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,18 +38,18 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.Legend;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.Axis;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.Legend;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.CategoryItemRenderer;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.HorizontalShapeRenderer;
-import org.jfree.chart.renderer.DrawingSupplier;
+import org.jfree.chart.renderer.LineAndShapeRenderer;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
@@ -57,7 +57,7 @@ import org.jfree.ui.RefineryUtilities;
 
 /**
  * A simple demonstration application showing how to create a dual axis chart based on data
- * from two {@link TableDataset} instances.
+ * from two {@link CategoryDataset} instances.
  *
  * @author David Gilbert
  */
@@ -75,35 +75,33 @@ public class DualAxisDemo3 extends ApplicationFrame {
         CategoryDataset dataset1 = createDataset1();
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createHorizontalBarChart(
-                                                     "Dual Axis Chart",  // chart title
-                                                     "Category",         // domain axis label
-                                                     "Value",            // range axis label
-                                                     dataset1,           // data
-                                                     true,               // include legend
-                                                     true,
-                                                     false
-                                                 );
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Dual Axis Chart",  // chart title
+            "Category",         // domain axis label
+            "Value",            // range axis label
+            dataset1,           // data
+            PlotOrientation.HORIZONTAL,
+            true,               // include legend
+            true,
+            false
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-
         // set the background color for the chart...
-        chart.setBackgroundPaint(Color.yellow);
+        chart.setBackgroundPaint(new Color(0xCC, 0xFF, 0xCC));
         chart.getLegend().setAnchor(Legend.WEST);
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot = chart.getCategoryPlot();
-        plot.setDomainAxisLocation(Axis.RIGHT);
-        plot.getRenderer().setDrawingSupplier(supplier);
+        plot.setDomainAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         CategoryDataset dataset2 = createDataset2();
-        ValueAxis axis2 = new HorizontalNumberAxis("Secondary");
-        plot.setSecondaryRangeAxis(axis2);
-        plot.setSecondaryDataset(dataset2);
-        CategoryItemRenderer renderer2 = new HorizontalShapeRenderer();
-        renderer2.setDrawingSupplier(supplier);
-        plot.setSecondaryRenderer(renderer2);
+        ValueAxis axis2 = new NumberAxis("Secondary");
+        plot.setSecondaryRangeAxis(0, axis2);
+        plot.setSecondaryDataset(0, dataset2);
+        plot.mapSecondaryDatasetToRangeAxis(0, new Integer(0));
+        CategoryItemRenderer renderer2 = new LineAndShapeRenderer();
+        plot.setSecondaryRenderer(0, renderer2);
 
         // OPTIONAL CUSTOMISATION COMPLETED.
 
@@ -116,7 +114,7 @@ public class DualAxisDemo3 extends ApplicationFrame {
 
     /**
      * Creates a sample dataset.
-     * 
+     *
      * @return  The dataset.
      */
     private CategoryDataset createDataset1() {
@@ -172,7 +170,7 @@ public class DualAxisDemo3 extends ApplicationFrame {
 
     /**
      * Creates a sample dataset.
-     * 
+     *
      * @return  The dataset.
      */
     private CategoryDataset createDataset2() {

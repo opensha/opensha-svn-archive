@@ -17,11 +17,12 @@ import java.awt.geom.AffineTransform;
 import org.jfree.data.XYDataset;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
-import org.jfree.chart.tooltips.XYToolTipGenerator;
-import org.jfree.chart.tooltips.StandardXYToolTipGenerator;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.ui.RectangleEdge;
 
 /**
  * <p>Title: GriddedSubsetXYItemRenderer</p>
@@ -106,7 +107,7 @@ public class GriddedSubsetXYItemRenderer
         }
 
         Paint seriesPaint = fillColor;
-        Stroke seriesStroke = this.getSeriesStroke(datasetIndex, series);
+        Stroke seriesStroke = this.getItemStroke(datasetIndex, series);
         g2.setPaint(seriesPaint);
         g2.setStroke(seriesStroke);
 
@@ -114,10 +115,10 @@ public class GriddedSubsetXYItemRenderer
         Number x1 = data.getXValue(series, item);
         Number y1 = data.getYValue(series, item);
         if (y1!=null) {
-            double transX1 = horizontalAxis.translateValueToJava2D(x1.doubleValue(), dataArea);
-            double transY1 = verticalAxis.translateValueToJava2D(y1.doubleValue(), dataArea);
+            double transX1 = horizontalAxis.translateValueToJava2D(x1.doubleValue(), dataArea,RectangleEdge.TOP);
+            double transY1 = verticalAxis.translateValueToJava2D(y1.doubleValue(), dataArea, RectangleEdge.LEFT);
 
-            Paint paint = getPaint(plot, series, item, transX1, transY1);
+            Paint paint = getItemPaint(series, item);
             if (paint != null) {
               g2.setPaint(paint);
             }
@@ -129,8 +130,8 @@ public class GriddedSubsetXYItemRenderer
                     Number x0 = data.getXValue(series, item-1);
                     Number y0 = data.getYValue(series, item-1);
                     if (y0!=null) {
-                        double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea);
-                        double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea);
+                        double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea,RectangleEdge.TOP);
+                        double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea,RectangleEdge.LEFT);
 
                         line.setLine(transX0, transY0, transX1, transY1);
                         if (line.intersects(dataArea)) {
@@ -142,7 +143,7 @@ public class GriddedSubsetXYItemRenderer
 
             if (getPlotShapes()) {
 
-              Shape shape = getItemShape(datasetIndex, series, item);
+              Shape shape = getItemShape(series, item);
               shape = createTransformedShape(shape, transX1, transY1);
               if (isShapeFilled(plot, series, item, transX1, transY1)) {
                 if (shape.intersects(dataArea)) g2.fill(shape);
@@ -182,7 +183,7 @@ public class GriddedSubsetXYItemRenderer
             if (plot.isDomainCrosshairLockedOnData()) {
               if (plot.isRangeCrosshairLockedOnData()) {
                 // both axes
-                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue());
+                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue(),transX1,transY1);
                 }
                 else {
                   // just the horizontal axis...

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * DatasetReader.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,15 +38,17 @@
 package org.jfree.data.xml;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
-import org.jfree.data.PieDataset;
+
 import org.jfree.data.CategoryDataset;
+import org.jfree.data.PieDataset;
+import org.xml.sax.SAXException;
 
 /**
  * A utility class for reading datasets from XML.
@@ -59,7 +61,7 @@ public class DatasetReader {
      * Reads a {@link PieDataset} from an XML file.
      *
      * @param file  the file.
-     * 
+     *
      * @return A dataset.
      *
      * @throws IOException if there is a problem reading the file.
@@ -77,7 +79,7 @@ public class DatasetReader {
      * @param in  the input stream.
      *
      * @return A dataset.
-     * 
+     *
      * @throws IOException if there is an I/O error.
      */
     public static PieDataset readPieDatasetFromXML(InputStream in) throws IOException {
@@ -106,7 +108,7 @@ public class DatasetReader {
      * Reads a {@link CategoryDataset} from a file.
      *
      * @param file  the file.
-     * 
+     *
      * @return A dataset.
      *
      * @throws IOException if there is a problem reading the file.
@@ -122,7 +124,7 @@ public class DatasetReader {
      * Reads a {@link CategoryDataset} from a stream.
      *
      * @param in  the stream.
-     * 
+     *
      * @return A dataset.
      *
      * @throws IOException if there is a problem reading the file.

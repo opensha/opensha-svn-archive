@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * ImageMapDemo1.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson (richard_c_atkinson@ntlworld.com);
  *
  * $Id$
@@ -51,14 +51,13 @@ import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.entity.StandardEntityCollection;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.VerticalCategoryPlot;
-import org.jfree.chart.renderer.VerticalBarRenderer;
-import org.jfree.chart.tooltips.StandardCategoryToolTipGenerator;
+import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.BarRenderer;
 import org.jfree.chart.urls.StandardCategoryURLGenerator;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DatasetUtilities;
@@ -85,33 +84,36 @@ public class ImageMapDemo1 {
 
         // create a chart
         double[][] data = new double[][] {
-            { 56.0, -12.0, 34.0, 76.0, 56.0, 100.0, 67.0, 45.0 },
-            { 37.0, 45.0, 67.0, 25.0, 34.0, 34.0, 100.0, 53.0 },
-            { 43.0, 54.0, 34.0, 34.0, 87.0, 64.0, 73.0, 12.0 }
+            {56.0, -12.0, 34.0, 76.0, 56.0, 100.0, 67.0, 45.0},
+            {37.0, 45.0, 67.0, 25.0, 34.0, 34.0, 100.0, 53.0},
+            {43.0, 54.0, 34.0, 34.0, 87.0, 64.0, 73.0, 12.0}
         };
-		CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Series ", "Type ", data);
+        CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Series ", "Type ", data);
 
         JFreeChart chart = null;
         boolean drilldown = true;
 
         if (drilldown) {
-            CategoryAxis categoryAxis = new HorizontalCategoryAxis("Category");
-            ValueAxis valueAxis = new VerticalNumberAxis("Value");
-            VerticalBarRenderer renderer = new VerticalBarRenderer();
-            renderer.setToolTipGenerator(new StandardCategoryToolTipGenerator());
-            renderer.setURLGenerator(new StandardCategoryURLGenerator("bar_chart_detail.jsp"));
-            Plot plot = new VerticalCategoryPlot(dataset, categoryAxis, valueAxis, renderer);
+            CategoryAxis categoryAxis = new CategoryAxis("Category");
+            ValueAxis valueAxis = new NumberAxis("Value");
+            BarRenderer renderer = new BarRenderer();
+            renderer.setItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+            renderer.setItemURLGenerator(new StandardCategoryURLGenerator("bar_chart_detail.jsp"));
+            CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, valueAxis, renderer);
+            plot.setOrientation(PlotOrientation.VERTICAL);
             chart = new JFreeChart("Vertical Bar Chart", JFreeChart.DEFAULT_TITLE_FONT, plot, true);
         }
         else {
-            chart = ChartFactory.createVerticalBarChart("Vertical Bar Chart",  // chart title
-                                                        "Category",            // domain axis label
-                                                        "Value",               // range axis label
-                                                        dataset,               // data
-                                                        true,                  // include legend
-                                                        true,
-                                                        false
-                                                        );
+            chart = ChartFactory.createBarChart(
+                "Vertical Bar Chart",  // chart title
+                "Category",            // domain axis label
+                "Value",               // range axis label
+                dataset,               // data
+                PlotOrientation.VERTICAL,
+                true,                  // include legend
+                true,
+                false
+            );
         }
         chart.setBackgroundPaint(java.awt.Color.white);
 

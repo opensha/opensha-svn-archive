@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,12 @@
  * -----------
  * Legend.java
  * -----------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Andrzej Porebski;
  *                   Jim Moore;
+ *                   Nicolas Brodu;
  *
  * $Id$
  *
@@ -40,6 +41,8 @@
  * 14-Oct-2002 : Changed listener storage structure (DG);
  * 14-Jan-2003 : Changed constructor to protected, moved outer-gap to subclass (DG);
  * 27-Mar-2003 : Implemented Serializable (DG);
+ * 05-Jun-2003 : Added ChartRenderingInfo parameter to draw(...) method (DG);
+ * 11-Sep-2003 : Cloning support
  *
  */
 
@@ -65,7 +68,7 @@ import org.jfree.chart.event.LegendChangeListener;
  *
  * @author David Gilbert
  */
-public abstract class Legend implements Serializable {
+public abstract class Legend implements Serializable, Cloneable {
 
     /** Constant anchor value for legend position WEST. */
     public static final int WEST = 0x00;
@@ -89,7 +92,7 @@ public abstract class Legend implements Serializable {
     private int anchor = SOUTH;
 
     /** A reference to the chart that the legend belongs to (used for access to the dataset). */
-    private transient JFreeChart chart;
+    protected JFreeChart chart;
 
     /** Storage for registered change listeners. */
     private transient EventListenerList listenerList;
@@ -111,7 +114,7 @@ public abstract class Legend implements Serializable {
     public Legend() {
         this(null);
     }
-    
+
     /**
      * Creates a new legend.
      *
@@ -132,15 +135,15 @@ public abstract class Legend implements Serializable {
     }
 
     /**
-     * Draws the legend on a Java 2D graphics device (such as the screen or a
-     * printer).
+     * Draws the legend on a Java 2D graphics device (such as the screen or a printer).
      *
      * @param g2  the graphics device.
      * @param available  the area within which the legend (and plot) should be drawn.
+     * @param info  a carrier for returning information about the entities in the legend.
      *
      * @return the area remaining after the legend has drawn itself.
      */
-    public abstract Rectangle2D draw(Graphics2D g2, Rectangle2D available);
+    public abstract Rectangle2D draw(Graphics2D g2, Rectangle2D available, ChartRenderingInfo info);
 
     /**
      * Registers an object for notification of changes to the legend.
@@ -190,8 +193,8 @@ public abstract class Legend implements Serializable {
     /**
      * Sets the current anchor of this legend.
      * <P>
-     * The anchor can be one of: <code>NORTH</code>, <code>SOUTH</code>, <code>EAST</code>, 
-     * <code>WEST</code>.  If a valid anchor value is provided, the current anchor is set and an 
+     * The anchor can be one of: <code>NORTH</code>, <code>SOUTH</code>, <code>EAST</code>,
+     * <code>WEST</code>.  If a valid anchor value is provided, the current anchor is set and an
      * update event is triggered. Otherwise, no change is made.
      *
      * @param anchor  the new anchor value.
@@ -211,52 +214,67 @@ public abstract class Legend implements Serializable {
 
     /**
      * Tests this legend for equality with another object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-    
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-    
+
         if (obj instanceof Legend) {
             Legend l = (Legend) obj;
-            return (this.anchor == l.anchor);        
+            return (this.anchor == l.anchor);
         }
-            
+
         return false;
-    
+
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the output stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
      */
     private void writeObject(ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
     }
-    
+
     /**
      * Provides serialization support.
-     * 
+     *
      * @param stream  the input stream.
-     * 
+     *
      * @throws IOException  if there is an I/O error.
-     * @throws ClassNotFoundException  if there is a classpath problem. 
+     * @throws ClassNotFoundException  if there is a classpath problem.
      */
     private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
         stream.defaultReadObject();
         this.listenerList = new EventListenerList();  // todo: make sure this is populated.
     }
-    
+
+    /**
+     * Clones the legend, and takes care of listeners.
+     * Note: the cloned legend refer to the same chart as the original one.
+     * JFreeChart clone() takes care of setting the references correctly.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException if the object cannot be cloned.
+     */
+    protected Object clone() throws CloneNotSupportedException {
+        Legend ret = (Legend) super.clone();
+        this.listenerList = new EventListenerList(); 
+        return ret;
+    }
+
 }

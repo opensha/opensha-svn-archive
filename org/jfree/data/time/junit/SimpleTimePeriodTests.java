@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------------
  * SimpleTimePeriodTests.java
  * --------------------------
- * (C) Copyright 2003 by Simba Management Limited.
+ * (C) Copyright 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -34,7 +34,7 @@
  * 13-Mar-2003 : Version 1 (DG);
  *
  */
- 
+
 package org.jfree.data.time.junit;
 
 import java.io.ByteArrayInputStream;
@@ -102,21 +102,21 @@ public class SimpleTimePeriodTests extends TestCase {
         assertTrue(p1.equals(p2));
         assertTrue(p2.equals(p1));
     }
-    
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         SimpleTimePeriod p1 = new SimpleTimePeriod(new Date(1000L), new Date(1001L));
         SimpleTimePeriod p2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(p1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             p2 = (SimpleTimePeriod) in.readObject();
             in.close();
@@ -124,8 +124,8 @@ public class SimpleTimePeriodTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(p1, p2); 
-        
+        assertEquals(p1, p2);
+
     }
 
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003 by David M. O'Donnell and Contributors.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -42,7 +42,7 @@ import java.io.Serializable;
 
 /**
  * A grey color palette.
- * 
+ *
  * @author David M. O'Donnell.
  */
 public class GreyPalette extends ColorPalette implements Serializable {
@@ -55,7 +55,7 @@ public class GreyPalette extends ColorPalette implements Serializable {
         initialize();
     }
 
-    /** 
+    /**
      * Intializes the palette's indices.
      */
     public void initialize() {
@@ -66,8 +66,13 @@ public class GreyPalette extends ColorPalette implements Serializable {
         g = new int[256];
         b = new int[256];
 
-        r[0] = g[0] = b[0] = 255;
-        r[1] = g[1] = b[1] = 0;
+        r[0] = 255;
+        g[0] = 255;
+        b[0] = 255;
+        r[1] = 0;
+        g[1] = 0;
+        b[1] = 0;
+
         for (int i = 2; i < 256; i++) {
             r[i] = i;
             g[i] = i;

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * KeyedObject2D.java
  * ------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,9 +37,9 @@
 
 package org.jfree.data;
 
-import java.util.List;
-import java.util.Iterator;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A data structure that stores zero, one or many objects, where each object is associated with
@@ -191,7 +191,7 @@ public class KeyedObjects2D {
 
     /**
      * Adds an object to the table.  Performs the same function as setObject(...).
-     * 
+     *
      * @param object  the object.
      * @param rowKey  the row key.
      * @param columnKey  the column key.
@@ -202,7 +202,7 @@ public class KeyedObjects2D {
 
     /**
      * Adds or updates an object.
-     * 
+     *
      * @param object  the object.
      * @param rowKey  the row key.
      * @param columnKey  the column key.
@@ -229,7 +229,7 @@ public class KeyedObjects2D {
 
     /**
      * Removes an object.
-     * 
+     *
      * @param rowKey  the row key.
      * @param columnKey  the column key.
      */
@@ -241,7 +241,7 @@ public class KeyedObjects2D {
 
     /**
      * Removes a row.
-     * 
+     *
      * @param rowIndex  the row index.
      */
     public void removeRow(int rowIndex) {
@@ -251,7 +251,7 @@ public class KeyedObjects2D {
 
     /**
      * Removes a row.
-     * 
+     *
      * @param rowKey  the row key.
      */
     public void removeRow(Comparable rowKey) {
@@ -260,7 +260,7 @@ public class KeyedObjects2D {
 
     /**
      * Removes a column.
-     * 
+     *
      * @param columnIndex  the column index.
      */
     public void removeColumn(int columnIndex) {
@@ -270,7 +270,7 @@ public class KeyedObjects2D {
 
     /**
      * Removes a column.
-     * 
+     *
      * @param columnKey  the column key.
      */
     public void removeColumn(Comparable columnKey) {

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------------
  * TaskSeriesCollectionTests.java
  * ------------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 10-Apr-2003 : Version 1 (DG);
+ * 04-Sep-2003 : Added test for bug report 800324 (DG);
  *
  */
 
@@ -43,9 +44,9 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jfree.data.Task;
-import org.jfree.data.TaskSeries;
-import org.jfree.data.TaskSeriesCollection;
+import org.jfree.data.gantt.Task;
+import org.jfree.data.gantt.TaskSeries;
+import org.jfree.data.gantt.TaskSeriesCollection;
 import org.jfree.data.time.SimpleTimePeriod;
 
 /**
@@ -77,27 +78,49 @@ public class TaskSeriesCollectionTests extends TestCase {
      * A test for bug report 697153.
      */
     public void test697153() {
-        
+
         TaskSeries s1 = new TaskSeries("S1");
         s1.add(new Task("Task 1", new SimpleTimePeriod(new Date(), new Date())));
         s1.add(new Task("Task 2", new SimpleTimePeriod(new Date(), new Date())));
         s1.add(new Task("Task 3", new SimpleTimePeriod(new Date(), new Date())));
-        
+
         TaskSeries s2 = new TaskSeries("S2");
         s2.add(new Task("Task 2", new SimpleTimePeriod(new Date(), new Date())));
         s2.add(new Task("Task 3", new SimpleTimePeriod(new Date(), new Date())));
         s2.add(new Task("Task 4", new SimpleTimePeriod(new Date(), new Date())));
-        
+
         TaskSeriesCollection tsc = new TaskSeriesCollection();
         tsc.add(s1);
         tsc.add(s2);
 
-        s1.removeAll(); 
+        s1.removeAll();
 
         int taskCount = tsc.getColumnCount();
-        
-        assertEquals(3, taskCount); 
-        
+
+        assertEquals(3, taskCount);
+
     }
 
+    /**
+     * A test for bug report 800324.
+     */
+    public void test800324() {
+        TaskSeries s1 = new TaskSeries("S1");
+        s1.add(new Task("Task 1", new SimpleTimePeriod(new Date(), new Date())));
+        s1.add(new Task("Task 2", new SimpleTimePeriod(new Date(), new Date())));
+        s1.add(new Task("Task 3", new SimpleTimePeriod(new Date(), new Date())));
+                
+        TaskSeriesCollection tsc = new TaskSeriesCollection();
+        tsc.add(s1);
+
+        // these methods should return null since the column number is too high...
+        Number start = tsc.getStartValue(0, 3);
+        assertEquals(start, null);
+        Number end = tsc.getEndValue(0, 3);
+        assertEquals(end, null);
+
+        int count = tsc.getSubIntervalCount(0, 3);
+        assertEquals(0, count);
+        
+    }
 }

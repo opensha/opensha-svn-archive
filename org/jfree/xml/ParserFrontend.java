@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2002, 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner (taquera@sherito.org);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -42,6 +42,7 @@ package org.jfree.xml;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -50,6 +51,7 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.jfree.util.Log;
 
 /**
  * The reportgenerator initializes the parser and provides an interface
@@ -138,6 +140,16 @@ public class ParserFrontend {
     protected SAXParser getParser() throws ParserConfigurationException, SAXException {
         if (factory == null) {
             factory = SAXParserFactory.newInstance();
+            if (isValidateDTD()) {
+                try {
+                    // dont touch the validating feature, if not needed ..
+                    factory.setValidating(true);
+                }
+                catch (Exception ex) {
+                    // the parser does not like the idea of validating ...
+                    Log.debug("The parser will not validate the xml document.", ex);
+                }
+            }
         }
         return factory.newSAXParser();
     }
@@ -174,7 +186,9 @@ public class ParserFrontend {
      */
     protected Parser createDefaultHandler(URL contentBase) {
         Parser handler = getDefaultHandler().getInstance();
-        handler.setConfigurationValue(Parser.CONTENTBASE_KEY, contentBase);
+        if (contentBase != null) {
+            handler.setConfigProperty(Parser.CONTENTBASE_KEY, contentBase.toExternalForm());
+        }
         return handler;
     }
 
@@ -194,10 +208,14 @@ public class ParserFrontend {
             SAXParser parser = getParser();
             XMLReader reader = parser.getXMLReader();
 
-            reader.setFeature("http://xml.org/sax/features/validation", isValidateDTD());
-            reader.setEntityResolver(getEntityResolver());
-
+            try {
+                reader.setFeature("http://xml.org/sax/features/validation", isValidateDTD());
+            }
+            catch (SAXException se) {
+                Log.debug("The XMLReader will not validate the xml document.", se);
+            }
             Parser handler = createDefaultHandler(contentBase);
+            configureReader(reader, handler);
             try {
                 reader.setContentHandler(handler);
                 reader.setDTDHandler(handler);
@@ -216,6 +234,17 @@ public class ParserFrontend {
         catch (SAXException e) {
             throw new ElementDefinitionException(e);
         }
+    }
+
+    /**
+     * Configures the xml reader. Use this to set features or properties
+     * before the documents get parsed.
+     *
+     * @param handler the parser implementation that will handle the SAX-Callbacks.
+     * @param reader the xml reader that should be configured.
+     */
+    protected void configureReader(XMLReader reader, Parser handler) {
+        // do nothing by default ...
     }
 
     /**

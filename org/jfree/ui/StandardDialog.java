@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,29 +22,32 @@
  * -------------------
  * StandardDialog.java
  * -------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Arnaud Lelievre;
  *
  * $Id$
  *
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);
  *
  */
 
 package org.jfree.ui;
 
-import java.awt.Frame;
 import java.awt.Dialog;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JButton;
-import javax.swing.BorderFactory;
 
 /**
  * The base class for standard dialogs.
@@ -55,6 +58,10 @@ public class StandardDialog extends JDialog implements ActionListener {
 
     /** Flag that indicates whether or not the dialog was cancelled. */
     private boolean cancelled;
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                                    ResourceBundle.getBundle("org.jfree.ui.LocalizationBundle");
 
     /**
      * Standard constructor - builds a dialog...
@@ -117,7 +124,9 @@ public class StandardDialog extends JDialog implements ActionListener {
      */
     protected JPanel createButtonPanel() {
 
-        L1R2ButtonPanel buttons = new L1R2ButtonPanel("Help", "OK", "Cancel");
+        L1R2ButtonPanel buttons = new L1R2ButtonPanel(localizationResources.getString("Help"), 
+                                                      localizationResources.getString("OK"),
+                                                      localizationResources.getString("Cancel"));
 
         JButton helpButton = buttons.getLeftButton();
         helpButton.setActionCommand("helpButton");

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,14 +25,14 @@
  * (C) Copyright 2002, 2003, by David M. O'Donnell and Contributors.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
  * Changes (from 23-Jan-2003)
  * --------------------------
  * 23-Jan-2003 : Added standard header (DG);
- *
+ * 20-May-2003 : removed member vars numX and numY, which were never used (TM)
  */
 
 package org.jfree.data;
@@ -42,31 +42,27 @@ import java.util.Date;
 import java.util.Vector;
 
 /**
- * A convenience class that provides a default implementation of the {@link ContourDataset} 
+ * A convenience class that provides a default implementation of the {@link ContourDataset}
  * interface.
- * 
+ *
  * @author David M. O'Donnell
  */
 public class DefaultContourDataset extends AbstractDataset implements ContourDataset {
-   
-    /** The series name (this dataset supports only one series). */ 
+
+    /** The series name (this dataset supports only one series). */
     protected String seriesName = null;
-    
+
     /** Storage for the x values. */
     protected Number[] xValues = null;
-    
+
     /** Storage for the y values. */
     protected Number[] yValues = null;
-    
+
     /** Storage for the z values. */
     protected Number[] zValues = null;
 
     /** The index for the start of each column in the data. */
     protected int xIndex[] = null;
-
-    protected int numX = 0;
-    
-    protected int numY = 0;
 
     /** Flags that track whether x, y and z are dates. */
     boolean[] dateAxis = new boolean[3];
@@ -79,34 +75,41 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Constructs a new dataset with the given data.
-     * 
+     *
      * @param seriesName  the series name.
      * @param xData  the x values.
      * @param yData  the y values.
      * @param zData  the z values.
      */
-    public DefaultContourDataset(String seriesName, 
-                                 Object[] xData, 
-                                 Object[] yData, 
+    public DefaultContourDataset(String seriesName,
+                                 Object[] xData,
+                                 Object[] yData,
                                  Object[] zData) {
 
         this.seriesName = seriesName;
         initialize(xData, yData, zData);
     }
 
-    public void initialize(Object[] xData, 
-                            Object[] yData, 
+    /**
+     * Initialises the dataset.
+     * 
+     * @param xData  the x values.
+     * @param yData  the y values.
+     * @param zData  the z values.
+     */
+    public void initialize(Object[] xData,
+                            Object[] yData,
                             Object[] zData) {
-                            	
+
         xValues = new Double[xData.length];
         yValues = new Double[yData.length];
         zValues = new Double[zData.length];
 
        // We organise the data with the following assumption:
        // 1) the data are sorted by x then y
-       // 2) that the data will be represented by a rectangle formed by 
+       // 2) that the data will be represented by a rectangle formed by
        //    using x[i+1], x, y[j+1], and y.
-       // 3) we march along the y-axis at the same value of x until a new value x is 
+       // 3) we march along the y-axis at the same value of x until a new value x is
        //    found at which point we will flag the index where x[i+1]<>x[i]
 
         Vector tmpVector = new Vector(); //create a temporary vector
@@ -116,12 +119,12 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
                 Number xNumber = null;
                 if (xData[k] instanceof Number) {
                     xNumber = (Number) xData[k];
-                } 
+                }
                 else if (xData[k] instanceof Date) {
                     dateAxis[0] = true;
                     Date xDate = (Date) xData[k];
                     xNumber = new Long(xDate.getTime()); //store data as Long
-                } 
+                }
                 else {
                     xNumber = new Integer(0);
                 }
@@ -135,7 +138,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
             }
         }
 
-        Object[] inttmp = (Object[]) tmpVector.toArray();
+        Object[] inttmp = tmpVector.toArray();
         xIndex = new int[inttmp.length];  // create array xIndex to hold new column indices
 
         for (int i = 0; i < inttmp.length; i++) {
@@ -151,9 +154,9 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Creates an object array from an array of doubles.
-     * 
+     *
      * @param data  the data.
-     * 
+     *
      * @return An array of <code>Double</code> objects.
      */
     public static Object[][] formObjectArray(double[][] data) {
@@ -169,13 +172,13 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Creates an object array from an array of doubles.
-     * 
+     *
      * @param data  the data.
-     * 
+     *
      * @return An array of <code>Double</code> objects.
      */
     public static Object[] formObjectArray(double[] data) {
-        
+
         Object[] object = new Double[data.length];
         for (int i = 0; i < object.length; i++) {
             object[i] = new Double(data[i]);
@@ -187,9 +190,9 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
      * Returns the number of items in the specified series.
      * <P>
      * Method provided to satisfy the {@link XYDataset} interface implementation.
-     * 
+     *
      * @param series  must be zero, as this dataset only supports one series.
-     * 
+     *
      * @return the item count.
      */
     public int getItemCount(int series) {
@@ -201,7 +204,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the maximum z-value.
-     * 
+     *
      * @return The maximum z-value.
      */
     public double getMaxZValue() {
@@ -216,11 +219,11 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the minimum z-value.
-     * 
+     *
      * @return The minimum z-value.
      */
     public double getMinZValue() {
-        
+
         double zMin = 1.e20;
         for (int k = 0; k < zValues.length; k++) {
             if (zValues[k] != null) {
@@ -232,14 +235,14 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the maximum z-value within visible region of plot.
-     * 
+     *
      * @param x  the x range.
      * @param y  the y range.
-     * 
+     *
      * @return The z range.
      */
     public Range getZValueRange(Range x, Range y) {
-        
+
         double minX = x.getLowerBound();
         double minY = y.getLowerBound();
         double maxX = x.getUpperBound();
@@ -264,30 +267,30 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the minimum z-value.
-     * 
+     *
      * @param minX  the minimum x value.
      * @param minY  the minimum y value.
      * @param maxX  the maximum x value.
      * @param maxY  the maximum y value.
-     * 
+     *
      * @return the minimum z-value.
      */
     public double getMinZValue(double minX, double minY, double maxX, double maxY) {
-        
+
         double zMin = 1.e20;
         for (int k = 0; k < zValues.length; k++) {
             if (zValues[k] != null)
             zMin = Math.min(zMin, zValues[k].doubleValue());
         }
         return zMin;
-        
+
     }
 
     /**
-     * Returns the number of series.  
+     * Returns the number of series.
      * <P>
      * Required by XYDataset interface (this will always return 1)
-     * 
+     *
      * @return 1.
      */
     public int getSeriesCount() {
@@ -296,11 +299,11 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the name of the specified series.
-     * 
+     *
      * Method provided to satisfy the XYDataset interface implementation
-     * 
+     *
      * @param series must be zero.
-     * 
+     *
      * @return the series name.
      */
     public String getSeriesName(int series) {
@@ -312,7 +315,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the index of the xvalues.
-     * 
+     *
      * @return The x values.
      */
     public int[] getXIndices() {
@@ -321,7 +324,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns the x values.
-     * 
+     *
      * @return The x values.
      */
     public Number[] getXValues() {
@@ -331,10 +334,10 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
     /**
      * Returns the x value for the specified series and index (zero-based indices).
      * Required by the XYDataset
-     * 
+     *
      * @param series  must be zero;
      * @param item  the item index (zero-based).
-     * 
+     *
      * @return The x value.
      */
     public Number getXValue(int series, int item) {
@@ -346,9 +349,9 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns an x value.
-     * 
+     *
      * @param item  the item index (zero-based).
-     * 
+     *
      * @return The X value.
      */
     public Number getXValue(int item) {
@@ -357,7 +360,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns a Number array containing all y values.
-     * 
+     *
      * @return The Y values.
      */
     public Number[] getYValues() {
@@ -367,10 +370,10 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
     /**
      * Returns the y value for the specified series and index (zero-based indices).
      * Required by the XYDataset
-     * 
+     *
      * @param series  the series index (must be zero for this dataset).
      * @param item  the item index (zero-based).
-     * 
+     *
      * @return The Y value.
      */
     public Number getYValue(int series, int item) {
@@ -382,7 +385,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns a Number array containing all z values.
-     * 
+     *
      * @return The Z values.
      */
     public Number[] getZValues() {
@@ -392,10 +395,10 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
     /**
      * Returns the z value for the specified series and index (zero-based indices).
      * Required by the XYDataset
-     * 
+     *
      * @param series  the series index (must be zero for this dataset).
      * @param item  the item index (zero-based).
-     * 
+     *
      * @return The Z value.
      */
     public Number getZValue(int series, int item) {
@@ -407,7 +410,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Returns an int array contain the index into the x values.
-     * 
+     *
      * @return The X values.
      */
     public int[] indexX() {
@@ -420,9 +423,9 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Given index k, returns the column index containing k.
-     * 
+     *
      * @param k index of interest.
-     * 
+     *
      * @return The column index.
      */
     public int indexX(int k) {
@@ -437,21 +440,21 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Given index k, return the row index containing k.
-     * 
+     *
      * @param k index of interest.
-     * 
+     *
      * @return The row index.
      */
     public int indexY(int k) { // this may be obsolete (not used anywhere)
-        return (int) (k / xValues.length);
+        return (k / xValues.length);
     }
 
     /**
      * Given column and row indices, returns the k index.
-     * 
+     *
      * @param i index of along x-axis.
      * @param j index of along y-axis.
-     * 
+     *
      * @return The Z index.
      */
     public int indexZ(int i, int j) {
@@ -459,8 +462,11 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
     }
 
     /**
-     * Returns true if axis are dates
+     * Returns true if axis are dates.
+     * 
      * @param axisNumber The axis where 0-x, 1-y, and 2-z.
+     * 
+     * @return A boolean.
      */
     public boolean isDateAxis(int axisNumber) {
         if (axisNumber < 0 || axisNumber > 2) {
@@ -471,7 +477,7 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
 
     /**
      * Sets the names of the series in the data source.
-     * 
+     *
      * @param seriesNames The names of the series in the data source.
      */
     public void setSeriesNames(String[] seriesNames) {
@@ -481,5 +487,5 @@ public class DefaultContourDataset extends AbstractDataset implements ContourDat
         seriesName = seriesNames[0];
         fireDatasetChanged();
     }
-    
+
 }

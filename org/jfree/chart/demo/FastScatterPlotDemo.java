@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------
  * FastScatterPlotDemo.java
  * ------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,11 +37,10 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.plot.FastScatterPlot;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
@@ -69,9 +68,9 @@ public class FastScatterPlotDemo extends ApplicationFrame {
         super(title);
         populateData();
 
-        ValueAxis domainAxis = new HorizontalNumberAxis("X");
+        ValueAxis domainAxis = new NumberAxis("X");
        // domainAxis.setRange(0, (double) COUNT);
-        ValueAxis rangeAxis = new VerticalNumberAxis("Y");
+        ValueAxis rangeAxis = new NumberAxis("Y");
        // rangeAxis.setRange(0, 100 + 3 * (double) COUNT);
         FastScatterPlot plot = new FastScatterPlot(data, domainAxis, rangeAxis);
         JFreeChart chart = new JFreeChart("Fast Scatter Plot",

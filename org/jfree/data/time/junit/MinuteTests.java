@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------
  * MinuteTests.java
  * ----------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,7 +36,7 @@
  * 13-Mar-2003 : Added serialization test (DG);
  *
  */
- 
+
 package org.jfree.data.time.junit;
 
 import java.io.ByteArrayInputStream;
@@ -147,21 +147,21 @@ public class MinuteTests extends TestCase {
         assertEquals(1016700900000L, m2.getFirstMillisecond(zone));
 
     }
-    
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         Minute m1 = new Minute();
         Minute m2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(m1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             m2 = (Minute) in.readObject();
             in.close();
@@ -169,8 +169,8 @@ public class MinuteTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(m1, m2); 
-        
+        assertEquals(m1, m2);
+
     }
 
 }

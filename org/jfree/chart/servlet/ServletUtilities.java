@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -34,6 +34,10 @@
  * 19-Aug-2002 : Version 1;
  * 20-Apr-2003 : Added additional sendTempFile method to allow MIME type specification and
  * modified original sendTempFile method to automatically set MIME type for JPEG and PNG files
+ * 23-Jun-2003 : Added additional sendTempFile method at the request of Jürgen Hoffman;
+ * 07-Jul-2003 : Added more header information to streamed images;
+ * 19-Aug-2003 : Forced images to be stored in the temporary directory defined by System
+ * property java.io.tmpdir, rather than default (RA);
  *
  */
 package org.jfree.chart.servlet;
@@ -44,6 +48,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -98,7 +104,8 @@ public class ServletUtilities {
 
         ServletUtilities.createTempDir();
 
-        File tempFile = File.createTempFile("jfreechart-", ".png");
+        File tempFile = File.createTempFile("jfreechart-", ".png", 
+                                            new File(System.getProperty("java.io.tmpdir")));
         ChartUtilities.saveChartAsPNG(tempFile, chart, width, height, info);
 
         ServletUtilities.registerChartForDeletion(tempFile, session);
@@ -146,7 +153,8 @@ public class ServletUtilities {
 
         ServletUtilities.createTempDir();
 
-        File tempFile = File.createTempFile("jfreechart-", ".jpeg");
+        File tempFile = File.createTempFile("jfreechart-", ".jpeg",
+                                            new File(System.getProperty("java.io.tmpdir")));
         ChartUtilities.saveChartAsJPEG(tempFile, chart, width, height, info);
 
         ServletUtilities.registerChartForDeletion(tempFile, session);
@@ -202,6 +210,21 @@ public class ServletUtilities {
     }
 
     /**
+     * Binary streams the specified file in the temporary directory to the
+     * HTTP response in 1KB chunks
+     * @param filename The name of the file in the temporary directory.
+     * @param response The HTTP response object.
+     * @throws IOException  if there is an I/O problem.
+     * @throws FileNotFoundException  if the file is not found.
+     */
+    public static void sendTempFile(String filename, HttpServletResponse response)
+        throws IOException, FileNotFoundException {
+
+        File file = new File(System.getProperty("java.io.tmpdir"), filename);
+        ServletUtilities.sendTempFile(file, response);
+    }
+
+    /**
      * Binary streams the specified file to the HTTP response in 1KB chunks
      *
      * @param file The file to be streamed.
@@ -216,9 +239,10 @@ public class ServletUtilities {
         String mimeType = null;
         String filename = file.getName();
         if (filename.length() > 5) {
-            if (filename.substring(filename.length()-5,filename.length()).equals(".jpeg")) {
+            if (filename.substring(filename.length() - 5, filename.length()).equals(".jpeg")) {
                 mimeType = "image/jpeg";
-            } else if (filename.substring(filename.length()-4,filename.length()).equals(".png")) {
+            } 
+            else if (filename.substring(filename.length() - 4, filename.length()).equals(".png")) {
                 mimeType = "image/png";
             }
         }
@@ -242,10 +266,13 @@ public class ServletUtilities {
         if (file.exists()) {
             BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
 
-            //  Set Mime Type, if applicable
+            //  Set HTTP headers
             if (mimeType != null) {
-                response.setHeader("content/type", mimeType);
+                response.setHeader("Content-Type", mimeType);
             }
+            response.setHeader("Content-Length", String.valueOf(file.length()));
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+            response.setHeader("Last-Modified", sdf.format(new Date(file.lastModified())));
 
             BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
             byte[] input = new byte[1024];
@@ -254,8 +281,7 @@ public class ServletUtilities {
                 int length = bis.read(input);
                 if (length == -1) {
                     eof = true;
-                }
-                else {
+                } else {
                     bos.write(input, 0, length);
                 }
             }
@@ -284,11 +310,11 @@ public class ServletUtilities {
                                        String replaceString) {
 
         int i = inputString.indexOf(searchString);
-        String r = "";
         if (i == -1) {
             return inputString;
         }
 
+        String r = "";
         r += inputString.substring(0, i) + replaceString;
         if (i + searchString.length() < inputString.length()) {
             r += searchReplace(inputString.substring(i + searchString.length()),

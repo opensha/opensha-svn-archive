@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -33,6 +33,7 @@
  * -------
  * 13-May-2002 : Version 1 (JB);
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 06-Aug-2003 : No longer required, so deprecated (DG);
  *
  */
 
@@ -47,6 +48,8 @@ import java.awt.geom.Rectangle2D;
  * Provider of shapes for indicating data points on a Plot.  This one
  * uses a distinct shape for each series, looping if it exhausts the
  * possibilities.
+ * 
+ * @deprecated No longer used.  Shapes are supplied by the DrawingSupplier class.
  *
  * @author Jeremy Bowman
  */
@@ -148,7 +151,7 @@ public class SeriesShapeFactory implements ShapeFactory {
      * @return int[3] with converted params.
      */
     private static int[] intArray(double a, double b, double c) {
-        return new int[] { (int) a, (int) b, (int) c };
+        return new int[] {(int) a, (int) b, (int) c};
     }
 
     /**
@@ -163,7 +166,7 @@ public class SeriesShapeFactory implements ShapeFactory {
      * @return int[3] with converted params.
      */
     private static int[] intArray(double a, double b, double c, double d) {
-        return new int[] { (int) a, (int) b, (int) c, (int) d };
+        return new int[] {(int) a, (int) b, (int) c, (int) d};
     }
 
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------
  * XYStepRendererTests.java
  * ------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
 import org.jfree.chart.renderer.XYStepRenderer;
 
 /**
- * Tests for the {@link YIntervalRenderer} class.
+ * Tests for the {@link XYStepRenderer} class.
  *
  * @author David Gilbert
  */
@@ -76,19 +76,45 @@ public class XYStepRendererTests extends TestCase {
     }
 
     /**
+     * Test that the equals(...) method distinguishes all fields.
+     */
+    public void testEquals() {
+        XYStepRenderer r1 = new XYStepRenderer();
+        XYStepRenderer r2 = new XYStepRenderer();
+        assertEquals(r1, r2);
+    }
+
+    /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        XYStepRenderer r1 = new XYStepRenderer();
+        XYStepRenderer r2 = null;
+        try {
+            r2 = (XYStepRenderer) r1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            System.err.println("XYStepRendererTests.testCloning: failed to clone.");
+        }
+        assertTrue(r1 != r2);
+        assertTrue(r1.getClass() == r2.getClass());
+        assertTrue(r1.equals(r2));
+    }
+
+    /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         XYStepRenderer r1 = new XYStepRenderer();
         XYStepRenderer r2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(r1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             r2 = (XYStepRenderer) in.readObject();
             in.close();
@@ -96,8 +122,8 @@ public class XYStepRendererTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(r1, r2); 
-        
+        assertEquals(r1, r2);
+
     }
 
 }

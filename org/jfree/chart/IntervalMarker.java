@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2002, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * IntervalMarker.java
  * -------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -49,7 +49,7 @@ import java.io.Serializable;
  *
  * @author David Gilbert
  */
-public class IntervalMarker extends Marker implements Serializable {
+public class IntervalMarker extends Marker implements Cloneable, Serializable {
 
     /** The start value. */
     private double startValue;
@@ -94,7 +94,7 @@ public class IntervalMarker extends Marker implements Serializable {
     /**
      * Returns the start value for the interval.
      *
-     * @return the start value.
+     * @return The start value.
      */
     public double getStartValue() {
         return this.startValue;
@@ -103,7 +103,7 @@ public class IntervalMarker extends Marker implements Serializable {
     /**
      * Returns the end value for the interval.
      *
-     * @return the end value.
+     * @return The end value.
      */
     public double getEndValue() {
         return this.endValue;
@@ -112,10 +112,23 @@ public class IntervalMarker extends Marker implements Serializable {
     /**
      * Returns the label for the interval (possibly null).
      *
-     * @return the label.
+     * @return The label.
      */
     public String getLabel() {
         return this.label;
     }
+    
+    /**
+     * Returns a clone of the marker.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException Not thrown by this class, but the exception is declared 
+     *         for the use of subclasses.
+     */
+    public Object clone() throws CloneNotSupportedException {   
+        return super.clone();   
+    }
+        
 
 }

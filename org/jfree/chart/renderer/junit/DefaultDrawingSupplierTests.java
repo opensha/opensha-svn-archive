@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------------------
  * DefaultDrawingSupplierTests.java
  * --------------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,7 +48,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
+import org.jfree.chart.plot.DefaultDrawingSupplier;
 
 /**
  * Tests for the {@link DefaultDrawingSupplier} class.
@@ -79,16 +79,16 @@ public class DefaultDrawingSupplierTests extends TestCase {
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         DefaultDrawingSupplier r1 = new DefaultDrawingSupplier();
         DefaultDrawingSupplier r2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(r1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             r2 = (DefaultDrawingSupplier) in.readObject();
             in.close();
@@ -96,8 +96,8 @@ public class DefaultDrawingSupplierTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(r1, r2); 
-        
+        assertEquals(r1, r2);
+
     }
 
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * --------------------
  * FastScatterPlot.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -34,6 +34,9 @@
  * 29-Oct-2002 : Added standard header (DG);
  * 07-Nov-2002 : Fixed errors reported by Checkstyle (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 19-Aug-2003 : Implemented Cloneable (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
  *
  */
 
@@ -44,38 +47,40 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
+import java.util.ResourceBundle;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
-import org.jfree.chart.Marker;
-import org.jfree.chart.annotations.Annotation;
-import org.jfree.chart.annotations.XYAnnotation;
-import org.jfree.chart.axis.HorizontalAxis;
+import org.jfree.chart.axis.AxisSpace;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalAxis;
+import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.data.Range;
+import org.jfree.io.SerialUtilities;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.ArrayUtils;
+import org.jfree.util.ObjectUtils;
 
 /**
  * A fast scatter plot.
  *
  * @author David Gilbert
  */
-public class FastScatterPlot extends Plot 
-                             implements HorizontalValuePlot, VerticalValuePlot, Serializable {
+public class FastScatterPlot extends Plot implements ValueAxisPlot, Cloneable, Serializable {
 
     /** The data. */
     private float[][] data;
 
-    /** The horizontal data range. */
-    private Range horizontalDataRange;
+    /** The x data range. */
+    private Range xDataRange;
 
-    /** The vertical data range. */
-    private Range verticalDataRange;
+    /** The y data range. */
+    private Range yDataRange;
 
     /** The domain axis (used for the x-values). */
     private ValueAxis domainAxis;
@@ -83,15 +88,20 @@ public class FastScatterPlot extends Plot
     /** The range axis (used for the y-values). */
     private ValueAxis rangeAxis;
 
-    /** A list of markers (optional) for the domain axis. */
-    private List domainMarkers;
+    /** The paint used to plot data points. */
+    private transient Paint paint;
 
-    /** A list of markers (optional) for the range axis. */
-    private List rangeMarkers;
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.plot.LocalizationBundle");
 
-    /** A list of annotations (optional) for the plot. */
-    private List annotations;
-
+    /**
+     * Creates an empty plot.
+     */
+    public FastScatterPlot() {
+        this(null, null, null);    
+    }
+    
     /**
      * Creates a new fast scatter plot.
      * <P>
@@ -103,11 +113,11 @@ public class FastScatterPlot extends Plot
      */
     public FastScatterPlot(float[][] data, ValueAxis domainAxis, ValueAxis rangeAxis) {
 
-        super(null);
+        super();
 
         this.data = data;
-        this.horizontalDataRange = calculateHorizontalDataRange(data);
-        this.verticalDataRange = calculateVerticalDataRange(data);
+        this.xDataRange = calculateXDataRange(data);
+        this.yDataRange = calculateYDataRange(data);
         this.domainAxis = domainAxis;
         if (domainAxis != null) {
             domainAxis.setPlot(this);
@@ -120,6 +130,17 @@ public class FastScatterPlot extends Plot
             rangeAxis.addChangeListener(this);
         }
 
+        this.paint = Color.red;
+
+    }
+
+    /**
+     * Returns a short string describing the plot type.
+     *
+     * @return a short string describing the plot type.
+     */
+    public String getPlotType() {
+        return localizationResources.getString("Fast_Scatter_Plot");
     }
 
     /**
@@ -149,15 +170,33 @@ public class FastScatterPlot extends Plot
     }
 
     /**
+     * Returns the paint used to plot data points.
+     *
+     * @return The paint.
+     */
+    public Paint getPaint() {
+        return this.paint;
+    }
+
+    /**
+     * Sets the color for the data points.
+     *
+     * @param paint  the paint.
+     */
+    public void setPaint(Paint paint) {
+        this.paint = paint;
+        this.notifyListeners(new PlotChangeEvent(this));
+    }
+
+    /**
      * Draws the fast scatter plot on a Java 2D graphics device (such as the screen or
      * a printer).
      *
      * @param g2  the graphics device.
-     * @param plotArea   the area within which the plot (including axis labels)
-     *                   should be drawn.
-     * @param info  collects chart drawing information (null permitted).
+     * @param plotArea   the area within which the plot (including axis labels) should be drawn.
+     * @param info  collects chart drawing information (<code>null</code> permitted).
      */
-    public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
+    public void draw(Graphics2D g2, Rectangle2D plotArea, PlotRenderingInfo info) {
 
         // set up info collection...
         if (info != null) {
@@ -174,25 +213,10 @@ public class FastScatterPlot extends Plot
                              plotArea.getHeight() - insets.top - insets.bottom);
         }
 
-        // estimate the area required for drawing the axes...
-        double hAxisAreaHeight = 0;
-
-        if (this.domainAxis != null) {
-            HorizontalAxis hAxis = (HorizontalAxis) this.domainAxis;
-            hAxisAreaHeight = hAxis.reserveHeight(g2, this, plotArea, BOTTOM);
-        }
-
-        double vAxisWidth = 0;
-        if (this.rangeAxis != null) {
-            VerticalAxis vAxis = (VerticalAxis) this.rangeAxis;
-            vAxisWidth = vAxis.reserveWidth(g2, this, plotArea, LEFT, hAxisAreaHeight, BOTTOM);
-        }
-
-        // ...and therefore what is left for the plot itself...
-        Rectangle2D dataArea = new Rectangle2D.Double(plotArea.getX() + vAxisWidth,
-                                                      plotArea.getY(),
-                                                      plotArea.getWidth() - vAxisWidth,
-                                                      plotArea.getHeight() - hAxisAreaHeight);
+        AxisSpace space = new AxisSpace();
+        space = this.domainAxis.reserveSpace(g2, this, plotArea, RectangleEdge.BOTTOM, space);
+        space = this.rangeAxis.reserveSpace(g2, this, plotArea, RectangleEdge.LEFT, space);
+        Rectangle2D dataArea = space.shrink(plotArea, null);
 
         if (info != null) {
             info.setDataArea(dataArea);
@@ -201,11 +225,14 @@ public class FastScatterPlot extends Plot
         // draw the plot background and axes...
         drawBackground(g2, dataArea);
 
+        double cursor;
         if (this.domainAxis != null) {
-            this.domainAxis.draw(g2, plotArea, dataArea, BOTTOM);
+            cursor = dataArea.getMaxY();
+            cursor = this.domainAxis.draw(g2, cursor, plotArea, dataArea, RectangleEdge.BOTTOM);
         }
         if (this.rangeAxis != null) {
-            this.rangeAxis.draw(g2, plotArea, dataArea, LEFT);
+            cursor = dataArea.getMinX();
+            cursor = this.rangeAxis.draw(g2, cursor, plotArea, dataArea, RectangleEdge.LEFT);
         }
 
         Shape originalClip = g2.getClip();
@@ -215,36 +242,7 @@ public class FastScatterPlot extends Plot
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                                                    getForegroundAlpha()));
 
-        if (this.domainMarkers != null) {
-            Iterator iterator = this.domainMarkers.iterator();
-            while (iterator.hasNext()) {
-                Marker marker = (Marker) iterator.next();
-                //renderer.drawDomainMarker(g2, this, getDomainAxis(), marker, dataArea);
-            }
-        }
-
-        if (this.rangeMarkers != null) {
-            Iterator iterator = this.rangeMarkers.iterator();
-            while (iterator.hasNext()) {
-                Marker marker = (Marker) iterator.next();
-                //renderer.drawRangeMarker(g2, this, getRangeAxis(), marker, dataArea);
-            }
-        }
-
         render(g2, dataArea, info, null);
-
-        // draw the annotations...
-        if (this.annotations != null) {
-            Iterator iterator = this.annotations.iterator();
-            while (iterator.hasNext()) {
-                Annotation annotation = (Annotation) iterator.next();
-                if (annotation instanceof XYAnnotation) {
-                    XYAnnotation xya = (XYAnnotation) annotation;
-                    // get the annotation to draw itself...
-                    xya.draw(g2, dataArea, getDomainAxis(), getRangeAxis());
-                }
-            }
-        }
 
         g2.setClip(originalClip);
         g2.setComposite(originalComposite);
@@ -263,117 +261,239 @@ public class FastScatterPlot extends Plot
      * @param crosshairInfo  an optional object for collecting crosshair info.
      */
     public void render(Graphics2D g2, Rectangle2D dataArea,
-                       ChartRenderingInfo info, CrosshairInfo crosshairInfo) {
+                       PlotRenderingInfo info, CrosshairInfo crosshairInfo) {
 
         g2.setPaint(Color.red);
         if (this.data != null) {
-
-            ValueAxis domainAxis = getDomainAxis();
-            ValueAxis rangeAxis = getRangeAxis();
             for (int i = 0; i < data[0].length; i++) {
                 float x = data[0][i];
                 float y = data[1][i];
-                int transX = (int) domainAxis.translateValueToJava2D(x, dataArea);
-                int transY = (int) rangeAxis.translateValueToJava2D(y, dataArea);
+                int transX = (int) this.domainAxis.translateValueToJava2D(x, dataArea,
+                                                                          RectangleEdge.BOTTOM);
+                int transY = (int) this.rangeAxis.translateValueToJava2D(y, dataArea,
+                                                                         RectangleEdge.LEFT);
                 g2.fillRect(transX, transY, 1, 1);
             }
-
-
         }
 
     }
 
     /**
-     * Returns a short string describing the plot type.
-     *
-     * @return a short string describing the plot type.
-     */
-    public String getPlotType() {
-        return "Fast Scatter Plot";
-    }
-
-    /**
-     * Returns the range of data values to be plotted along the horizontal axis.
+     * Returns the range of data values to be plotted along the axis.
      *
      * @param axis  the axis.
-     * 
+     *
      * @return  the range.
      */
-    public Range getHorizontalDataRange(ValueAxis axis) {
-        return this.horizontalDataRange;
+    public Range getDataRange(ValueAxis axis) {
+
+        Range result = null;
+        if (axis == this.domainAxis) {
+            result = this.xDataRange;
+        }
+        else if (axis == this.rangeAxis) {
+            result = this.yDataRange;
+        }
+        return result;
     }
 
     /**
-     * Get the value axis.
+     * Calculates the X data range.
      *
-     * @return  the value axis.
+     * @param data  the data.
+     *
+     * @return the range.
      */
-    public ValueAxis getHorizontalValueAxis() {
-        return getDomainAxis();
+    private Range calculateXDataRange(float[][] data) {
+        
+        Range result = null;
+        
+        if (data != null) {
+            float lowest = Float.POSITIVE_INFINITY;
+            float highest = Float.NEGATIVE_INFINITY;
+            for (int i = 0; i < data[0].length; i++) {
+                float v = data[0][i];
+                if (v < lowest) {
+                    lowest = v;
+                }
+                if (v > highest) {
+                    highest = v;
+                }
+            }
+            if (lowest <= highest) {
+                result = new Range(lowest, highest);
+            }
+        }
+        
+        return result;
+        
     }
 
     /**
-     * Returns the range for the data to be plotted against the vertical axis.
+     * Calculates the Y data range.
      *
-     * @param axis  the axis.
+     * @param data  the data.
+     *
+     * @return the range.
+     */
+    private Range calculateYDataRange(float[][] data) {
+        
+        Range result = null;
+        
+        if (data != null) {
+            float lowest = Float.POSITIVE_INFINITY;
+            float highest = Float.NEGATIVE_INFINITY;
+            for (int i = 0; i < data[0].length; i++) {
+                float v = data[1][i];
+                if (v < lowest) {
+                    lowest = v;
+                }
+                if (v > highest) {
+                    highest = v;
+                }
+            }
+            if (lowest <= highest) {
+                result = new Range(lowest, highest);
+            }
+        }
+        return result;
+        
+    }
+
+    /**
+     * Multiplies the range on the horizontal axis/axes by the specified factor (not yet 
+     * implemented).
+     *
+     * @param factor  the zoom factor.
+     */
+    public void zoomHorizontalAxes(double factor) {
+        // zoom the domain axis
+    }
+
+    /**
+     * Zooms in on the horizontal axes (not yet implemented).
      * 
-     * @return the range.
+     * @param lowerPercent  the new lower bound as a percentage of the current range.
+     * @param upperPercent  the new upper bound as a percentage of the current range.
      */
-    public Range getVerticalDataRange(ValueAxis axis) {
-        return this.verticalDataRange;
+    public void zoomHorizontalAxes(double lowerPercent, double upperPercent) {
+        // zoom the domain axis
     }
 
     /**
-     * Returns the vertical axis.
+     * Multiplies the range on the vertical axis/axes by the specified factor (not yet implemented).
      *
-     * @return the axis.
+     * @param factor  the zoom factor.
      */
-    public ValueAxis getVerticalValueAxis() {
-        return getRangeAxis();
+    public void zoomVerticalAxes(double factor) {
+            // zoom the range axis
+            // zoom all the secondary axes
     }
 
     /**
-     * Calculates the horizontal data range.
-     *
-     * @param data  the data.
-     *
-     * @return the range.
+     * Zooms in on the vertical axes (not yet implemented).
+     * 
+     * @param lowerPercent  the new lower bound as a percentage of the current range.
+     * @param upperPercent  the new upper bound as a percentage of the current range.
      */
-    private Range calculateHorizontalDataRange(float data[][]) {
-        float lowest = Float.POSITIVE_INFINITY;
-        float highest = Float.NEGATIVE_INFINITY;
-        for (int i = 0; i < data[0].length; i++) {
-            float v = data[0][i];
-            if (v < lowest) {
-                lowest = v;
-            }
-            if (v > highest) {
-                highest = v;
-            }
+    public void zoomVerticalAxes(double lowerPercent, double upperPercent) {
+        // zoom the domain axis
+    }
+
+    /**
+     * Tests an object for equality with this instance.
+     * 
+     * @param object  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
+    
+        if (object ==  null) {
+            return false;    
         }
-        return new Range(lowest, highest);
+        
+        if (object == this) {
+            return true;
+        }
+        
+        if (super.equals(object) && object instanceof FastScatterPlot) {
+            FastScatterPlot fsp = (FastScatterPlot) object;
+            boolean b0 = ArrayUtils.equal(this.data, fsp.data);
+            boolean b1 = ObjectUtils.equal(this.domainAxis, fsp.domainAxis);
+            boolean b2 = ObjectUtils.equal(this.rangeAxis, fsp.rangeAxis);
+            boolean b3 = ObjectUtils.equal(this.paint, fsp.paint);
+            
+            return b0 && b1 && b2 && b3;
+
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Returns a clone of the plot.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException if some component of the plot does not support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+    
+        FastScatterPlot clone = (FastScatterPlot) super.clone();    
+        
+        if (this.data != null) {
+            clone.data = ArrayUtils.clone(this.data);    
+        }
+        
+        if (this.domainAxis != null) {
+            clone.domainAxis = (ValueAxis) this.domainAxis.clone();
+            clone.domainAxis.setPlot(clone);
+            clone.domainAxis.addChangeListener(clone);
+        }
+        
+        if (this.rangeAxis != null) {
+            clone.rangeAxis = (ValueAxis) this.rangeAxis.clone();
+            clone.rangeAxis.setPlot(clone);
+            clone.rangeAxis.addChangeListener(clone);
+        }
+            
+        return clone;
+        
     }
 
     /**
-     * Calculates the vertical data range.
+     * Provides serialization support.
      *
-     * @param data  the data.
+     * @param stream  the output stream.
      *
-     * @return the range.
+     * @throws IOException  if there is an I/O error.
      */
-    private Range calculateVerticalDataRange(float data[][]) {
-        float lowest = Float.POSITIVE_INFINITY;
-        float highest = Float.NEGATIVE_INFINITY;
-        for (int i = 0; i < data[0].length; i++) {
-            float v = data[1][i];
-            if (v < lowest) {
-                lowest = v;
-            }
-            if (v > highest) {
-                highest = v;
-            }
-        }
-        return new Range(lowest, highest);
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.defaultWriteObject();
+        SerialUtilities.writePaint(this.paint, stream);
     }
 
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the input stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     * @throws ClassNotFoundException  if there is a classpath problem.
+     */
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+
+        this.paint = SerialUtilities.readPaint(stream);
+
+        if (this.domainAxis != null) {
+            this.domainAxis.addChangeListener(this);
+        }
+
+        if (this.rangeAxis != null) {
+            this.rangeAxis.addChangeListener(this);
+        }
+    }
+    
 }

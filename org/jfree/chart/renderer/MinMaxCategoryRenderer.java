@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,12 @@
  * ---------------------------
  * MinMaxCategoryRenderer.java
  * ---------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
  * Original Author:  Tomer Peretz;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *                   Christian W. Zuckschwerdt;
+ *                   Nicolas Brodu (for Astrium and EADS Corporate Research Center);
  *
  * $Id$
  *
@@ -38,7 +40,9 @@
  * 05-Nov-2002 : Base dataset is now TableDataset not CategoryDataset (DG);
  * 17-Jan-2003 : Moved plot classes to a separate package (DG);
  * 10-Apr-2003 : Changed CategoryDataset to KeyedValues2DDataset in drawItem(...) method (DG);
- *
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 08-Sep-2003 : Implemented Serializable (NB);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -59,7 +63,9 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.text.NumberFormat;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import javax.swing.Icon;
 
@@ -68,17 +74,19 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.CategoryItemEntity;
 import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.Range;
+import org.jfree.io.SerialUtilities;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * Renderer for drawing min max plot. This renderer draws all the series under the same category 
- * in the same x position using <code>objectIcon</code> and a line from the maximum value to the 
+ * Renderer for drawing min max plot. This renderer draws all the series under the same category
+ * in the same x position using <code>objectIcon</code> and a line from the maximum value to the
  * minimum value.
  * <p>
- * For use with the {@link org.jfree.chart.plot.VerticalCategoryPlot} class.
+ * For use with the {@link org.jfree.chart.plot.CategoryPlot} class.
  *
  * @author Tomer Peretz
  */
@@ -91,21 +99,21 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
     private boolean plotLines = false;
 
     /** The paint of the line between the minimum value and the maximum value.*/
-    private Paint groupPaint = Color.black;
+    private transient Paint groupPaint = Color.black;
 
     /** The stroke of the line between the minimum value and the maximum value.*/
-    private Stroke groupStroke = new BasicStroke(1.0f);
+    private transient Stroke groupStroke = new BasicStroke(1.0f);
 
     /** The icon used to indicate the minimum value.*/
-    private Icon minIcon = getIcon(new Arc2D.Double(-4, -4, 8, 8, 0, 360, Arc2D.OPEN),
-                                   null, Color.black);
+    private transient Icon minIcon = getIcon(new Arc2D.Double(-4, -4, 8, 8, 0, 360, Arc2D.OPEN),
+                                             null, Color.black);
 
     /** The icon used to indicate the maximum value.*/
-    private Icon maxIcon = getIcon(new Arc2D.Double(-4, -4, 8, 8, 0, 360, Arc2D.OPEN),
-                                   null, Color.black);
+    private transient Icon maxIcon = getIcon(new Arc2D.Double(-4, -4, 8, 8, 0, 360, Arc2D.OPEN),
+                                             null, Color.black);
 
     /** The icon used to indicate the values.*/
-    private Icon objectIcon = getIcon(new Line2D.Double(-4, 0, 4, 0), false, true);
+    private transient Icon objectIcon = getIcon(new Line2D.Double(-4, 0, 4, 0), false, true);
 
     /** The last category. */
     private int lastCategory = -1;
@@ -136,8 +144,7 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
      * @param plot  the plot.
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
-     * @param data  the data.
-     * @param dataset  the dataset index (zero-based).
+     * @param dataset  the dataset.
      * @param row  the row index (zero-based).
      * @param column  the column index (zero-based).
      */
@@ -146,19 +153,20 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
                           CategoryPlot plot,
                           CategoryAxis domainAxis,
                           ValueAxis rangeAxis,
-                          CategoryDataset data,
-                          int dataset,
+                          CategoryDataset dataset,
                           int row,
                           int column) {
 
         // first check the number we are plotting...
-        Number value = data.getValue(row, column);
+        Number value = dataset.getValue(row, column);
         if (value != null) {
             // current data point...
-            double x1 = domainAxis.getCategoryMiddle(column, getColumnCount(), dataArea);
-            double y1 = rangeAxis.translateValueToJava2D(value.doubleValue(), dataArea);
-            g2.setPaint(getItemPaint(dataset, row, column));
-            g2.setStroke(getItemStroke(dataset, row, column));
+            double x1 = domainAxis.getCategoryMiddle(column, getColumnCount(), dataArea,
+                                                     plot.getDomainAxisEdge());
+            double y1 = rangeAxis.translateValueToJava2D(value.doubleValue(), dataArea, 
+                                                         plot.getRangeAxisEdge());
+            g2.setPaint(getItemPaint(row, column));
+            g2.setStroke(getItemStroke(row, column));
             Shape shape = null;
             shape = new Rectangle2D.Double(x1 - 4, y1 - 4, 8.0, 8.0);
             objectIcon.paintIcon(null, g2, (int) x1, (int) y1);
@@ -171,24 +179,24 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
                     max = y1;
                     maxValue = value;
                 }
-                if (data.getRowCount() - 1 == row) {
+                if (dataset.getRowCount() - 1 == row) {
                     g2.setPaint(groupPaint);
                     g2.setStroke(groupStroke);
                     g2.draw(new Line2D.Double(x1, min, x1, max));
                     minIcon.paintIcon(null, g2, (int) x1, (int) min);
                     maxIcon.paintIcon(null, g2, (int) x1, (int) max);
-                    if (plot.getValueLabelsVisible()) {
-                        NumberFormat formatter = plot.getValueLabelFormatter();
-                        Font labelFont = plot.getValueLabelFont();
-                        g2.setFont(labelFont);
-                        Paint paint = plot.getValueLabelPaint();
-                        g2.setPaint(paint);
-                        boolean rotate = plot.getVerticalValueLabels();
-                        drawLabel(g2, formatter.format(minValue), x1, min,
-                                labelFont, rotate, LineAndShapeRenderer.BOTTOM);
-                        drawLabel(g2, formatter.format(maxValue), x1, max,
-                                labelFont, rotate, LineAndShapeRenderer.TOP);
-                    }
+//                    if (isItemLabelVisible(row, column)) {
+//                        NumberFormat formatter = getValueLabelFormatter();
+//                        Font labelFont = getValueLabelFont();
+//                        g2.setFont(labelFont);
+//                        Paint paint = getValueLabelPaint();
+//                        g2.setPaint(paint);
+//                        boolean rotate = getVerticalValueLabels();
+//                        drawLabel(g2, formatter.format(minValue), x1, min,
+//                                labelFont, rotate, LineAndShapeRenderer.BOTTOM);
+//                        drawLabel(g2, formatter.format(maxValue), x1, max,
+//                                labelFont, rotate, LineAndShapeRenderer.TOP);
+//                    }
                 }
             }
             else {
@@ -201,15 +209,17 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
             // connect to the previous point
             if (this.plotLines) {
                 if (column != 0) {
-                    Number previousValue = data.getValue(row, column - 1);
+                    Number previousValue = dataset.getValue(row, column - 1);
                     if (previousValue != null) {
                         // previous data point...
                         double previous = previousValue.doubleValue();
-                        double x0 = domainAxis.getCategoryStart(column - 1, getColumnCount(), 
-                                                                dataArea);
-                        double y0 = rangeAxis.translateValueToJava2D(previous, dataArea);
-                        g2.setPaint(getItemPaint(dataset, row, column));
-                        g2.setStroke(getItemStroke(dataset, row, column));
+                        double x0 = domainAxis.getCategoryStart(column - 1, getColumnCount(),
+                                                                dataArea,
+                                                                plot.getDomainAxisEdge());
+                        double y0 = rangeAxis.translateValueToJava2D(previous, dataArea, 
+                                                                     plot.getRangeAxisEdge());
+                        g2.setPaint(getItemPaint(row, column));
+                        g2.setStroke(getItemStroke(row, column));
                         Line2D line = new Line2D.Double(x0, y0, x1, y1);
                         g2.draw(line);
                     }
@@ -218,14 +228,15 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
 
             // collect entity and tool tip information...
             if (getInfo() != null) {
-                EntityCollection entities = getInfo().getEntityCollection();
+                EntityCollection entities = getInfo().getOwner().getEntityCollection();
                 if (entities != null && shape != null) {
                     String tip = null;
-                    if (getToolTipGenerator() != null) {
-                        tip = getToolTipGenerator().generateToolTip(data, row, column);
+                    CategoryItemLabelGenerator generator = getItemLabelGenerator(row, column);
+                    if (generator != null) {
+                        tip = generator.generateToolTip(dataset, row, column);
                     }
-                    CategoryItemEntity entity = new CategoryItemEntity(shape, tip, row, 
-                                                        data.getColumnKey(column), column);
+                    CategoryItemEntity entity = new CategoryItemEntity(
+                        shape, tip, null, dataset, row, dataset.getColumnKey(column), column);
                     entities.addEntity(entity);
                 }
             }
@@ -312,7 +323,8 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
         if (!range.contains(value)) {
             return;
         }
-        double y = axis.translateValueToJava2D(marker.getValue(), axisDataArea);
+        double y = axis.translateValueToJava2D(marker.getValue(), axisDataArea, 
+                                               plot.getRangeAxisEdge());
         Line2D line = new Line2D.Double(axisDataArea.getMinX(), y, axisDataArea.getMaxX(), y);
         g2.setPaint(marker.getOutlinePaint());
         g2.draw(line);
@@ -501,5 +513,36 @@ public class MinMaxCategoryRenderer extends AbstractCategoryItemRenderer {
             }
         };
     }
-
+    
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the output stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     */
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.defaultWriteObject();
+        SerialUtilities.writeStroke(this.groupStroke, stream);
+        SerialUtilities.writePaint(this.groupPaint, stream);
+    }
+    
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the input stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     * @throws ClassNotFoundException  if there is a classpath problem.
+     */
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        this.groupStroke = SerialUtilities.readStroke(stream);
+        this.groupPaint = SerialUtilities.readPaint(stream);
+          
+        minIcon = getIcon(new Arc2D.Double(-4, -4, 8, 8, 0, 360, Arc2D.OPEN), null, Color.black);
+        maxIcon = getIcon(new Arc2D.Double(-4, -4, 8, 8, 0, 360, Arc2D.OPEN), null, Color.black);
+        objectIcon = getIcon(new Line2D.Double(-4, 0, 4, 0), false, true);
+    }
+    
 }

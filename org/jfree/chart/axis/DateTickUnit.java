@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------
  * DateTickUnit.java
  * -----------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -45,8 +45,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * A tick unit for use by subclasses of {@link DateAxis}.  This class is immutable, a requirement
- * for all tick units.
+ * A tick unit for use by subclasses of {@link DateAxis}.  
+ * <p>
+ * Instances of this class are immutable.
  *
  * @author David Gilbert
  */
@@ -113,7 +114,7 @@ public class DateTickUnit extends TickUnit implements Serializable {
     }
 
     /**
-     * Returns the date unit.  This will be one of the constants <code>YEAR</code>, 
+     * Returns the date unit.  This will be one of the constants <code>YEAR</code>,
      * <code>MONTH</code>, <code>DAY</code>, <code>HOUR</code>, <code>MINUTE</code>,
      * <code>SECOND</code> or <code>MILLISECOND</code>, defined by this class.  Note that these
      * constants do NOT correspond to those defined in Java's <code>Calendar</code> class.
@@ -234,25 +235,25 @@ public class DateTickUnit extends TickUnit implements Serializable {
 
     /**
      * Tests this unit for equality with another object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return <code>true</code> or <code>false</code>.
      */
     public boolean equals(Object obj) {
-    
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
+
         if (obj instanceof DateTickUnit) {
-        
+
             DateTickUnit dtu = (DateTickUnit) obj;
-            
+
             if (super.equals(obj)) {
                 boolean b0 = (this.unit == dtu.unit) && (this.count == dtu.count);
                 boolean b1 = this.formatter.equals(dtu.formatter);
@@ -261,10 +262,10 @@ public class DateTickUnit extends TickUnit implements Serializable {
             else {
                 return false;
             }
-        
+
         }
-        
+
         return false;
     }
-    
+
 }

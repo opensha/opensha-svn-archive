@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Jeremy Bowman and Contributors.
  *
  * Original Author:  Jeremy Bowman.
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -45,13 +45,13 @@ import java.text.DecimalFormat;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.OverlaidVerticalCategoryPlot;
-import org.jfree.chart.plot.VerticalCategoryPlot;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.chart.renderer.IntervalBarRenderer;
 import org.jfree.chart.renderer.LineAndShapeRenderer;
-import org.jfree.chart.renderer.VerticalIntervalBarRenderer;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DatasetUtilities;
 import org.jfree.data.DefaultIntervalCategoryDataset;
@@ -66,7 +66,7 @@ import org.jfree.ui.RefineryUtilities;
 public class OverlaidCategoryChartDemo extends ApplicationFrame {
 
     /** The categories. */
-    private static final String[] CATEGORIES = { "1", "3", "5", "10", "20" };
+    //private static final String[] CATEGORIES = { "1", "3", "5", "10", "20" };
 
     /** The bar colors. */
     private static Color[] barColors = null;
@@ -113,66 +113,59 @@ public class OverlaidCategoryChartDemo extends ApplicationFrame {
 
         super(title);
         DefaultIntervalCategoryDataset barData = null;
-        double[][] lows = { { -.0315, .0159, .0306, .0453, .0557 } };
-        double[][] highs = { { .1931, .1457, .1310, .1163, .1059 } };
+        double[][] lows = {{-.0315, .0159, .0306, .0453, .0557}};
+        double[][] highs = {{.1931, .1457, .1310, .1163, .1059}};
         barData = new DefaultIntervalCategoryDataset(lows, highs);
 
-        double[][] vals = { { 0.0808, 0.0808, 0.0808, 0.0808, 0.0808 } };
-		CategoryDataset dotData = DatasetUtilities.createCategoryDataset("Series ", "Category ",
-                                                                         vals);
-        
+        double[][] vals = {{0.0808, 0.0808, 0.0808, 0.0808, 0.0808}};
+        CategoryDataset dotData = DatasetUtilities.createCategoryDataset(
+            "Series ", 
+            "Category ",
+            vals
+        );
+
         double[][] lineVals = new double[4][5];
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 5; j++) {
                 lineVals[i][j] = (Math.random() * 0.56) - 0.18;
             }
         }
-		CategoryDataset lineData = DatasetUtilities.createCategoryDataset("Series ", "Category ", 
+        CategoryDataset lineData = DatasetUtilities.createCategoryDataset("Series ", "Category ",
                                                                           lineVals);
 
         String ctitle = "Strategie Sicherheit";
         String xTitle = "Zeitraum (in Jahren)";
         String yTitle = "Performance";
-        HorizontalCategoryAxis xAxis = new HorizontalCategoryAxis(xTitle);
+        CategoryAxis xAxis = new CategoryAxis(xTitle);
         xAxis.setLabelFont(titleFont);
         xAxis.setTickLabelFont(labelFont);
         xAxis.setTickMarksVisible(false);
-        VerticalNumberAxis yAxis = new VerticalNumberAxis(yTitle);
+        NumberAxis yAxis = new NumberAxis(yTitle);
         yAxis.setLabelFont(titleFont);
         yAxis.setTickLabelFont(labelFont);
-        yAxis.setMinimumAxisValue(-0.2);
-        yAxis.setMaximumAxisValue(0.4);
+        yAxis.setRange(-0.2, 0.4);
         DecimalFormat formatter = new DecimalFormat("0.##%");
         yAxis.setTickUnit(new NumberTickUnit(0.05, formatter));
 
-        OverlaidVerticalCategoryPlot plot = new OverlaidVerticalCategoryPlot(xAxis, yAxis);
+        IntervalBarRenderer barRenderer = new IntervalBarRenderer();
+        barRenderer.setItemLabelsVisible(Boolean.TRUE);
+
+        CategoryPlot plot = new CategoryPlot(barData, xAxis, yAxis, barRenderer);
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.REVERSE);
+        
         plot.setBackgroundPaint(Color.lightGray);
         plot.setOutlinePaint(Color.black);
 
-        VerticalIntervalBarRenderer barRenderer = null;
-        barRenderer = new VerticalIntervalBarRenderer();
-        VerticalCategoryPlot bars = new VerticalCategoryPlot(barData, null, null, barRenderer);
-        bars.setValueLabelsVisible(true);
-        bars.setValueLabelFont(labelFont);
-        bars.setValueLabelFormatString("0.##%");
-        plot.add(bars);
+        LineAndShapeRenderer dotRenderer = new LineAndShapeRenderer(LineAndShapeRenderer.SHAPES);
+        dotRenderer.setItemLabelsVisible(Boolean.TRUE);
+        
+        plot.setSecondaryDataset(0, dotData);
+        plot.setSecondaryRenderer(0, dotRenderer);
 
-        LineAndShapeRenderer dotRenderer = null;
-        dotRenderer = new LineAndShapeRenderer(LineAndShapeRenderer.SHAPES,
-                                               LineAndShapeRenderer.RIGHT);
-        VerticalCategoryPlot dots = null;
-        dots = new VerticalCategoryPlot(dotData, null, null, dotRenderer);
-        dots.setValueLabelsVisible(true);
-        dots.setValueLabelFont(boldLabelFont);
-        dots.setValueLabelPaint(Color.white);
-        dots.setValueLabelFormatString("0.##%");
-        plot.add(dots);
-
-        LineAndShapeRenderer lineRenderer = null;
-        lineRenderer = new LineAndShapeRenderer(LineAndShapeRenderer.SHAPES_AND_LINES);
-        VerticalCategoryPlot lines = null;
-        lines = new VerticalCategoryPlot(lineData, null, null, lineRenderer);
-        plot.add(lines);
+        LineAndShapeRenderer lineRenderer 
+            = new LineAndShapeRenderer(LineAndShapeRenderer.SHAPES_AND_LINES);
+        plot.setSecondaryDataset(1, lineData);
+        plot.setSecondaryRenderer(1, lineRenderer);
 
         chart = new JFreeChart(ctitle, titleFont, plot, false);
         chart.setBackgroundPaint(Color.white);

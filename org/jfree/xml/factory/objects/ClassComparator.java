@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,13 +19,13 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ----------------
+ * --------------------
  * ClassComparator.java
- * ----------------
+ * --------------------
  * (C)opyright 2002, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner (taquera@sherito.org);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -35,6 +35,7 @@
  */
 package org.jfree.xml.factory.objects;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -44,7 +45,7 @@ import java.util.Comparator;
  *
  * @author Thomas Morgner
  */
-public class ClassComparator implements Comparator {
+public class ClassComparator implements Comparator, Serializable {
 
     /**
      * Defaultconstructor.
@@ -56,6 +57,10 @@ public class ClassComparator implements Comparator {
      * Compares its two arguments for order.  Returns a negative integer,
      * zero, or a positive integer as the first argument is less than, equal
      * to, or greater than the second.<p>
+     * <P>
+     * Note: throws ClassCastException if the arguments' types prevent them from
+     * being compared by this Comparator.
+     * And IllegalArgumentException if the classes share no relation.
      *
      * The implementor must ensure that <tt>sgn(compare(x, y)) ==
      * -sgn(compare(y, x))</tt> for all <tt>x</tt> and <tt>y</tt>.  (This
@@ -81,9 +86,6 @@ public class ClassComparator implements Comparator {
      * @return a negative integer, zero, or a positive integer as the
      *         first argument is less than, equal to, or greater than the
      *         second.
-     * @throws ClassCastException if the arguments' types prevent them from
-     *         being compared by this Comparator.
-     * @throws IllegalArgumentException if the classes share no relation
      */
     public int compare(Object o1, Object o2) {
         Class c1 = (Class) o1;

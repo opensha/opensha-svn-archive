@@ -17,6 +17,7 @@ import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 
 import org.scec.data.function.*;
@@ -557,16 +558,16 @@ public class HazardCurveApplet extends JApplet
 
 
       /// check if x log is selected or not
-      if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
-      else xAxis = new HorizontalNumberAxis( xAxisLabel );
+      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
+      else xAxis = new NumberAxis( xAxisLabel );
 
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
 
       /// check if y log is selected or not
-      if(yLog) yAxis = new VerticalLogarithmicAxis(yAxisLabel);
-      else yAxis = new VerticalNumberAxis( yAxisLabel );
+      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
+      else yAxis = new NumberAxis( yAxisLabel );
 
       yAxis.setAutoRangeIncludesZero( false );
       yAxis.setStandardTickUnits(units);
@@ -575,8 +576,8 @@ public class HazardCurveApplet extends JApplet
       int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-      org.jfree.chart.renderer.LogXYItemRenderer renderer
-          = new org.jfree.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+      org.jfree.chart.renderer.StandardXYItemRenderer renderer
+          = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
       // draw all plots in black color for Eqk List
       if(this.isEqkList) {
@@ -611,8 +612,8 @@ public class HazardCurveApplet extends JApplet
         }
 
       // build the plot
-      org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this,data,
-                                       xAxis, yAxis, xLog, yLog);
+      org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
+                                       xAxis, yAxis, renderer);
 
       plot.setDomainCrosshairLockedOnData(false);
       plot.setDomainCrosshairVisible(false);

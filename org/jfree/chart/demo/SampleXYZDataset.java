@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * SampleXYZDataset.java
  * ---------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,25 +41,25 @@ import org.jfree.data.AbstractSeriesDataset;
 import org.jfree.data.XYZDataset;
 
 /**
- * A quick-and-dirty implementation of the {@link XYZDataset interface}.  Hard-coded and not useful 
+ * A quick-and-dirty implementation of the {@link XYZDataset interface}.  Hard-coded and not useful
  * beyond the demo.
- * 
+ *
  * @author David Gilbert
  */
 public class SampleXYZDataset extends AbstractSeriesDataset implements XYZDataset {
-   
-    /** The x values. */ 
-    private double[] xVal = { 2.1, 2.375625, 2.375625, 2.232928726, 2.232928726, 1.860415253,
-                              1.840842668, 1.905415253, 2.336029412, 3.8 };
-    
+
+    /** The x values. */
+    private double[] xVal = {2.1, 2.375625, 2.375625, 2.232928726, 2.232928726, 1.860415253,
+                             1.840842668, 1.905415253, 2.336029412, 3.8};
+
     /** The y values. */
-    private double[] yVal = { 14.168, 11.156, 10.089, 8.884, 8.719, 8.466, 5.489, 
-                               4.107, 4.101, 25 };
+    private double[] yVal = {14.168, 11.156, 10.089, 8.884, 8.719, 8.466, 5.489,
+                             4.107, 4.101, 25};
 
     /** The z values. */
-    private double[] zVal = { 2.45, 2.791285714, 2.791285714, 2.2125, 2.2125, 2.22, 2.1, 2.22,
-                              1.64875, 4};
-    
+    private double[] zVal = {2.45, 2.791285714, 2.791285714, 2.2125, 2.2125, 2.22, 2.1, 2.22,
+                             1.64875, 4};
+
     /**
      * Returns the number of series in the dataset.
      *
@@ -79,7 +79,7 @@ public class SampleXYZDataset extends AbstractSeriesDataset implements XYZDatase
     public String getSeriesName(int series) {
         return "Series 1";
     }
-    
+
     /**
      * Returns the number of items in a series.
      *

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------
  * First.java
  * ----------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited).
+ * Original Author:  David Gilbert (for Object Refinery Limited).
  * Contributor(s):   -;
  *
  * $Id$
@@ -44,7 +44,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.data.DefaultPieDataset;
 
 /**
- * A simple introduction to using JFreeChart.  This demo is described in the 
+ * A simple introduction to using JFreeChart.  This demo is described in the
  * JFreeChart Developer Guide, available to purchase via the JFreeChart home page.
  *
  * @author David Gilbert
@@ -65,8 +65,8 @@ public class First {
         data.setValue("Category 3", 79.5);
 
         // create a chart...
-        JFreeChart chart = ChartFactory.createPieChart("Sample Pie Chart", 
-                                                       data, 
+        JFreeChart chart = ChartFactory.createPieChart("Sample Pie Chart",
+                                                       data,
                                                        true,    // legend?
                                                        true,    // tooltips?
                                                        false);  // URLs?

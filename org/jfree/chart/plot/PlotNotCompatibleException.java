@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
 
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------------
  * PlotNotCompatibleException.java
  * -------------------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,9 +41,8 @@
 package org.jfree.chart.plot;
 
 /**
- * An exception that is generated when assigning a plot to a chart *if* the
- * plot is not compatible with the chart's current data source.  For example,
- * a HorizontalBarPlot is not compatible with an XYDataset.
+ * An exception that indicates that a plot is not compatible with some other chart component (for 
+ * example, an axis).
  *
  * @author David Gilbert
  */

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * DemoResources_es.java
  * ---------------------
- * (C) Copyright 2002, by Simba Management Limited and Contributors;
+ * (C) Copyright 2002, by Object Refinery Limited and Contributors;
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Hans-Jurgen Greiner;
  *
  * $Id$
@@ -248,7 +248,7 @@ public class DemoResources_es extends ListResourceBundle {
         {"timeseries.sample1.subtitle",  "Valor de GBP en JPY"},
         {"timeseries.sample1.domain",    "Fecha"},
         {"timeseries.sample1.range",     "CCY por GBP"},
-        {"timeseries.sample1.copyright", "(C)opyright 2002, por Simba Management Limited"},
+        {"timeseries.sample1.copyright", "(C)opyright 2002, por Object Refinery Limited"},
 
         {"timeseries.sample2.title",    "Gráfico con series de tiempo 2"},
         {"timeseries.sample2.domain",   "Milisegundo"},

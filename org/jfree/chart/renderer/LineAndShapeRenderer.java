@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,12 +22,13 @@
  * -------------------------
  * LineAndShapeRenderer.java
  * -------------------------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Mark Watson (www.markwatson.com);
  *                   Jeremy Bowman;
  *                   Richard Atkinson;
+ *                   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -52,40 +53,42 @@
  *               category spacing (DG);
  * 17-Jan-2003 : Moved plot classes to a separate package (DG);
  * 10-Apr-2003 : Changed CategoryDataset to KeyedValues2DDataset in drawItem(...) method (DG);
- *
+ * 12-May-2003 : Modified to take into account the plot orientation (DG);
+ * 29-Jul-2003 : Amended code that doesn't compile with JDK 1.2.2 (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 22-Sep-2003 : Fixed cloning (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
 
-import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.awt.Shape;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
-import java.text.NumberFormat;
 
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.CategoryItemEntity;
 import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.tooltips.CategoryToolTipGenerator;
-import org.jfree.chart.urls.CategoryURLGenerator;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.CategoryDataset;
-import org.jfree.ui.RefineryUtilities;
+import org.jfree.util.BooleanList;
+import org.jfree.util.ObjectUtils;
+import org.jfree.util.PublicCloneable;
 
 /**
  * A renderer that draws shapes for each data item, and lines between data items.
  * <p>
- * For use with the {@link org.jfree.chart.plot.VerticalCategoryPlot} class.
+ * For use with the {@link CategoryPlot} class.
  *
  * @author David Gilbert
  */
-public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implements Serializable {
+public class LineAndShapeRenderer extends AbstractCategoryItemRenderer 
+                                  implements Cloneable, PublicCloneable, Serializable {
 
     /** Useful constant for specifying the type of rendering (shapes only). */
     public static final int SHAPES = 1;
@@ -114,17 +117,20 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
     /** A flag indicating whether or not lines are drawn between XY points. */
     private boolean drawLines;
 
-    /** Scale factor for standard shapes. */
-    private double shapeScale = 6;
-
-    /** Location of labels (if shown) relative to the data points. */
-    private int labelPosition;
+    /** A flag that controls whether or not shapes are filled for ALL series. */
+    private Boolean shapesFilled;
+    
+    /** A table of flags that control (per series) whether or not shapes are filled. */
+    private BooleanList seriesShapesFilled;
+    
+    /** The default value returned by the getShapeFilled(...) method. */
+    private Boolean defaultShapesFilled;
 
     /**
      * Constructs a default renderer (draws shapes and lines).
      */
     public LineAndShapeRenderer() {
-        this(SHAPES_AND_LINES, TOP);
+        this(SHAPES_AND_LINES);
     }
 
     /**
@@ -133,41 +139,10 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
      * Use one of the constants SHAPES, LINES or SHAPES_AND_LINES.
      *
      * @param type  the type of renderer.
+     * 
      */
     public LineAndShapeRenderer(int type) {
-        this(type, TOP);
-    }
-
-    /**
-     * Constructs a renderer of the specified type.
-     * <P>
-     * Use one of the constants SHAPES, LINES or SHAPES_AND_LINES.
-     *
-     * @param type  the type of renderer.
-     * @param labelPosition  location of labels (if shown) relative to the data  points
-     *                       (TOP, BOTTOM, LEFT, or RIGHT).
-     */
-    public LineAndShapeRenderer(int type, int labelPosition) {
-        this(type, labelPosition, null, null);
-    }
-
-    /**
-     * Constructs a renderer of the specified type.
-     * <P>
-     * Use one of the constants SHAPES, LINES or SHAPES_AND_LINES.
-     *
-     * @param type  the type of renderer.
-     * @param labelPosition  location of labels (if shown) relative to the data  points
-     *                       (TOP, BOTTOM, LEFT, or RIGHT).
-     * @param toolTipGenerator  the tool tip generator (null permitted).
-     * @param urlGenerator the URL generator (null permitted).
-     */
-    public LineAndShapeRenderer(int type, int labelPosition,
-                                CategoryToolTipGenerator toolTipGenerator,
-                                CategoryURLGenerator urlGenerator) {
-
-        super(toolTipGenerator, urlGenerator);
-
+        super();
         if (type == SHAPES) {
             this.drawShapes = true;
         }
@@ -178,14 +153,16 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
             this.drawShapes = true;
             this.drawLines = true;
         }
-        this.labelPosition = labelPosition;
 
+        this.shapesFilled = null;
+        this.seriesShapesFilled = new BooleanList();
+        this.defaultShapesFilled = Boolean.TRUE;
     }
 
     /**
      * Returns <code>true</code> if a shape should be drawn to represent each data point, and
      * <code>false</code> otherwise.
-     * 
+     *
      * @return A boolean flag.
      */
     public boolean isDrawShapes() {
@@ -195,20 +172,20 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
     /**
      * Sets the flag that controls whether or not a shape should be drawn to represent each data
      * point.
-     * 
+     *
      * @param draw  the new value of the flag.
      */
     public void setDrawShapes(boolean draw) {
         if (draw != this.drawShapes) {
             this.drawShapes = draw;
-            this.firePropertyChanged("Shapes", new Boolean(!draw), new Boolean(draw));
+            this.firePropertyChanged("Shapes", new Boolean (!draw), new Boolean (draw));
         }
     }
 
     /**
      * Returns <code>true</code> if a line should be drawn from the previous to the current data
      * point, and <code>false</code> otherwise.
-     * 
+     *
      * @return A boolean flag.
      */
     public boolean isDrawLines() {
@@ -217,14 +194,135 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
 
     /**
      * Sets the flag that controls whether or not lines are drawn between consecutive data points.
-     * 
+     *
      * @param draw  the new value of the flag.
      */
     public void setDrawLines(boolean draw) {
         if (draw != this.drawLines) {
             this.drawLines = draw;
-            this.firePropertyChanged("Lines", new Boolean(!draw), new Boolean(draw));
+            this.firePropertyChanged("Lines", new Boolean (!draw), new Boolean (draw));
         }
+    }
+
+    // SHAPES FILLED
+    
+    /**
+     * Returns the flag used to control whether or not the shape for an item is filled. 
+     * <p>
+     * The default implementation passes control to the <code>getSeriesShapesFilled</code> method.
+     * You can override this method if you require different behaviour.
+     *
+     * @param series  the series index (zero-based).
+     * @param item  the item index (zero-based).
+     *
+     * @return  A boolean.
+     */
+    public boolean getItemShapeFilled(int series, int item) {
+        return getSeriesShapesFilled(series);
+    }
+
+    /**
+     * Returns the flag used to control whether or not the shapes for a series are filled. 
+     *
+     * @param series  the series index (zero-based).
+     *
+     * @return  A boolean.
+     */
+    public boolean getSeriesShapesFilled(int series) {
+
+        // return the overall setting, if there is one...
+        if (this.shapesFilled != null) {
+            return this.shapesFilled.booleanValue();
+        }
+
+        // otherwise look up the paint table
+        Boolean flag = this.seriesShapesFilled.getBoolean(series);
+        if (flag != null) {
+            return flag.booleanValue();
+        }
+        else {
+            return this.defaultShapesFilled.booleanValue();
+        } 
+
+    }
+    
+    /**
+     * Returns the flag that controls whether or not shapes are filled for ALL series.
+     * 
+     * @return A Boolean.
+     */
+    public Boolean getShapesFilled() {
+        return this.shapesFilled;
+    }
+
+    /**
+     * Sets the 'shapes filled' for ALL series.
+     * 
+     * @param filled  the flag.
+     */
+    public void setShapesFilled(boolean filled) {
+        if (filled) {
+            setShapesFilled(Boolean.TRUE);
+        }
+        else {
+            setShapesFilled(Boolean.FALSE);
+        }
+    }
+    
+    /**
+     * Sets the 'shapes filled' for ALL series.
+     * 
+     * @param filled  the flag (<code>null</code> permitted).
+     */
+    public void setShapesFilled(Boolean filled) {
+        this.shapesFilled = filled;
+    }
+    
+    /**
+     * Sets the 'shapes filled' flag for a series.
+     *
+     * @param series  the series index (zero-based).
+     * @param filled  the flag.
+     */
+    public void setSeriesShapesFilled(int series, Boolean filled) {
+        this.seriesShapesFilled.setBoolean(series, filled);
+    }
+
+    /**
+     * Sets the 'shapes filled' flag for a series.
+     *
+     * @param series  the series index (zero-based).
+     * @param filled  the flag.
+     */
+    public void setSeriesShapesFilled(int series, boolean filled) {
+        this.seriesShapesFilled.setBoolean(series, new Boolean(filled));
+    }
+
+    /**
+     * Returns the default 'shape filled' attribute.
+     *
+     * @return The default flag.
+     */
+    public Boolean getDefaultShapesFilled() {
+        return this.defaultShapesFilled;
+    }
+
+    /**
+     * Sets the default 'shapes filled' flag.
+     *
+     * @param flag  the flag.
+     */
+    public void setDefaultShapesFilled(Boolean flag) {
+        this.defaultShapesFilled = flag;
+    }
+    
+    /**
+     * Sets the default 'shapes filled' flag.
+     *
+     * @param flag  the flag.
+     */
+    public void setDefaultShapesFilled(boolean flag) {
+        setDefaultShapesFilled(new Boolean(flag));
     }
 
     /**
@@ -235,8 +333,7 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
      * @param plot  the plot.
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
-     * @param data  the data.
-     * @param dataset  the dataset index (zero-based).
+     * @param dataset  the dataset.
      * @param row  the row index (zero-based).
      * @param column  the column index (zero-based).
      */
@@ -245,145 +342,138 @@ public class LineAndShapeRenderer extends AbstractCategoryItemRenderer implement
                          CategoryPlot plot,
                          CategoryAxis domainAxis,
                          ValueAxis rangeAxis,
-                         CategoryDataset data,
-                         int dataset,
+                         CategoryDataset dataset,
                          int row,
                          int column) {
 
-        // first check the number we are plotting...
-        Number value = data.getValue(row, column);
-        if (value != null) {
+        // nothing is drawn for null...
+        Number value = dataset.getValue(row, column);
+        if (value == null) {
+            return;
+        }
 
-            // current data point...
-            double x1 = domainAxis.getCategoryMiddle(column, getColumnCount(), dataArea);
-            double y1 = rangeAxis.translateValueToJava2D(value.doubleValue(), dataArea);
+        PlotOrientation orientation = plot.getOrientation();
 
-            g2.setPaint(getItemPaint(dataset, row, column));
-            g2.setStroke(getItemStroke(dataset, row, column));
+        // current data point...
+        double x1 = domainAxis.getCategoryMiddle(column, getColumnCount(), dataArea,
+                                                 plot.getDomainAxisEdge());
+        double y1 = rangeAxis.translateValueToJava2D(value.doubleValue(), dataArea,
+                                                     plot.getRangeAxisEdge());
 
-            Shape shape = getItemShape(dataset, row, column);
+        g2.setPaint(getItemPaint(row, column));
+        g2.setStroke(getItemStroke(row, column));
+
+        Shape shape = getItemShape(row, column);
+        if (orientation == PlotOrientation.HORIZONTAL) {
+            shape = createTransformedShape(shape, y1, x1);
+        }
+        else if (orientation == PlotOrientation.VERTICAL) {
             shape = createTransformedShape(shape, x1, y1);
-            if (this.drawShapes) {
+        }
+        if (this.drawShapes) {
+            
+            if (getItemShapeFilled(row, column)) {
                 g2.fill(shape);
             }
+            else {
+                g2.draw(shape);
+            }
+        }
 
-            if (this.drawLines) {
-                if (column != 0) {
+        if (this.drawLines) {
+            if (column != 0) {
 
-                    Number previousValue = data.getValue(row, column - 1);
-                    if (previousValue != null) {
+                Number previousValue = dataset.getValue(row, column - 1);
+                if (previousValue != null) {
 
-                        // previous data point...
-                        double previous = previousValue.doubleValue();
-                        double x0 = domainAxis.getCategoryMiddle(column - 1,
-                                                                 getColumnCount(), dataArea);
-                        double y0 = rangeAxis.translateValueToJava2D(previous, dataArea);
+                    // previous data point...
+                    double previous = previousValue.doubleValue();
+                    double x0 = domainAxis.getCategoryMiddle(column - 1,
+                                                             getColumnCount(), dataArea,
+                                                             plot.getDomainAxisEdge());
+                    double y0 = rangeAxis.translateValueToJava2D(previous, dataArea,
+                                                                 plot.getRangeAxisEdge());
 
-                        g2.setPaint(getItemPaint(dataset, row, column));
-                        g2.setStroke(getItemStroke(dataset, row, column));
-                        Line2D line = new Line2D.Double(x0, y0, x1, y1);
-                        g2.draw(line);
+                    g2.setPaint(getItemPaint(row, column));
+                    g2.setStroke(getItemStroke(row, column));
+                    Line2D line = null;
+                    if (orientation == PlotOrientation.HORIZONTAL) {
+                        line = new Line2D.Double(y0, x0, y1, x1);
                     }
-
+                    else if (orientation == PlotOrientation.VERTICAL) {
+                        line = new Line2D.Double(x0, y0, x1, y1);
+                    }
+                    g2.draw(line);
                 }
             }
+        }
 
-            if (plot.getValueLabelsVisible()) {
-                NumberFormat formatter = plot.getValueLabelFormatter();
-                Font labelFont = plot.getValueLabelFont();
-                g2.setFont(labelFont);
-                Paint paint = plot.getValueLabelPaint();
-                g2.setPaint(paint);
-                boolean rotate = plot.getVerticalValueLabels();
-                String label = formatter.format(value);
-                drawLabel(g2, label, x1, y1, labelFont, rotate);
-            }
+        // draw the item labels if there are any...
+        if (isItemLabelVisible(row, column)) {
+            drawItemLabel(g2, orientation, 
+                          dataset, row, column, x1, y1, (value.doubleValue() < 0.0));
+        }
 
-            // collect entity and tool tip information...
-            if (getInfo() != null) {
-                EntityCollection entities = getInfo().getEntityCollection();
-                if (entities != null && shape != null) {
-                    String tip = null;
-                    if (getToolTipGenerator() != null) {
-                        tip = getToolTipGenerator().generateToolTip(data, row, column);
-                    }
-                    String url = null;
-                    if (getURLGenerator() != null) {
-                        url = getURLGenerator().generateURL(data, row, column);
-                    }
-                    CategoryItemEntity entity
-                        = new CategoryItemEntity(shape, tip, url, row,
-                                                 data.getColumnKey(column), column);
-                    entities.addEntity(entity);
+        // collect entity and tool tip information...
+        if (getInfo() != null) {
+            EntityCollection entities = getInfo().getOwner().getEntityCollection();
+            if (entities != null && shape != null) {
+                String tip = null;
+                CategoryItemLabelGenerator generator = getItemLabelGenerator(row, column);
+                if (generator != null) {
+                    tip = generator.generateToolTip(dataset, row, column);
                 }
+                String url = null;
+                if (getItemURLGenerator(row, column) != null) {
+                    url = getItemURLGenerator(row, column).generateURL(dataset, row, column);
+                }
+                CategoryItemEntity entity = new CategoryItemEntity(
+                    shape, tip, url, dataset, row, dataset.getColumnKey(column), column
+                );
+                entities.addEntity(entity);
+
             }
 
         }
 
     }
-
+    
     /**
-     * Draws a value label on the plot.
+     * Tests this renderer for equality with another object.
      *
-     * @param g2  the graphics device.
-     * @param label  the label text.
-     * @param x  the x position of the data point.
-     * @param y  the y position of the data point.
-     * @param labelFont  the font to draw the label with.
-     * @param rotate  if <code>true</code> the label is will be rotated 90 degrees.
+     * @param obj  the object.
+     *
+     * @return <code>true</code> or <code>false</code>.
      */
-    private void drawLabel(Graphics2D g2, String label, double x, double y,
-                           Font labelFont, boolean rotate) {
+    public boolean equals(Object obj) {
 
-         FontRenderContext frc = g2.getFontRenderContext();
-         Rectangle2D labelBounds = labelFont.getStringBounds(label, frc);
-         LineMetrics lm = labelFont.getLineMetrics(label, frc);
-         float lead = lm.getLeading();
-         double width = labelBounds.getWidth();
-         double height = labelBounds.getHeight();
-         float labelx;
-         float labely;
-         int position = labelPosition;
-         if (rotate) {
-             if (position == TOP) {
-                 labelx = (float) (x + height / 2 - lm.getDescent());
-                 labely = (float) (y - shapeScale);
-             }
-             else if (position == BOTTOM) {
-                 labelx = (float) (x + height / 2 - lm.getDescent());
-                 labely = (float) (y + shapeScale + width);
-             }
-             else if (position == LEFT) {
-                 labelx = (float) (x - shapeScale / 2 - lead - lm.getDescent());
-                 labely = (float) (y + width / 2);
-             }
-             else {
-                 labelx = (float) (x + shapeScale / 2 + lead + lm.getAscent());
-                 labely = (float) (y + width / 2);
-             }
-             RefineryUtilities.drawRotatedString(label, g2, labelx, labely,
-                                                 -Math.PI / 2);
-         }
-         else {
-             if (position == TOP) {
-                 labelx = (float) (x - width / 2);
-                 labely = (float) (y - shapeScale / 2 - lm.getDescent() - lead);
-             }
-             else if (position == BOTTOM) {
-                 labelx = (float) (x - width / 2);
-                 labely = (float) (y + shapeScale / 2 + lm.getAscent() + lead);
-             }
-             else if (position == LEFT) {
-                 labelx = (float) (x - shapeScale - width);
-                 labely = (float) (y + height / 2 - lm.getDescent());
-             }
-             else {
-                 labelx = (float) (x + shapeScale);
-                 labely = (float) (y + height / 2 - lm.getDescent());
-             }
-             g2.drawString(label, labelx, labely);
-         }
+        boolean result = super.equals(obj);
+
+        if (obj instanceof LineAndShapeRenderer) {
+            LineAndShapeRenderer r = (LineAndShapeRenderer) obj;
+            boolean b0 = (r.drawLines == this.drawLines);
+            boolean b1 = (r.drawShapes == this.drawShapes);
+            boolean b2 = ObjectUtils.equal(r.shapesFilled, this.shapesFilled);
+            boolean b3 = ObjectUtils.equal(r.seriesShapesFilled, this.seriesShapesFilled);
+            boolean b4 = ObjectUtils.equal(r.defaultShapesFilled, this.defaultShapesFilled);
+    
+            result = result && b0 && b1 && b2 && b3 && b4;
+        }
+
+        return result;
 
     }
-    
+
+    /**
+     * Returns an independent copy of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  should not happen.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        LineAndShapeRenderer clone = (LineAndShapeRenderer) super.clone();
+        clone.seriesShapesFilled = (BooleanList) this.seriesShapesFilled.clone();
+        return clone;
+    }
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------
  * Minute.java
  * -----------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -68,9 +68,6 @@ public class Minute extends RegularTimePeriod implements Serializable {
 
     /** Useful constant for the last minute in a day. */
     public static final int LAST_MINUTE_IN_HOUR = 59;
-
-    /** Useful constant for the number of milliseconds in one minute. */
-    private static final long MILLISECONDS_PER_MINUTE = 60 * 1000L;
 
     /** The hour in which the minute falls. */
     private Hour hour;

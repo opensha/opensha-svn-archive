@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,11 @@
  * -------------------
  * ChartUtilities.java
  * -------------------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Wolfgang Irler;
- *                   Richard Atkinson (richard_c_atkinson@ntlworld.com);
+ *                   Richard Atkinson;
  *                   Xavier Poinsard;
  *
  * $Id$
@@ -45,8 +45,11 @@
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  * 17-Oct-2002 : Exposed JPEG quality setting and PNG compression level as parameters (DG);
  * 25-Oct-2002 : Fixed writeChartAsJPEG(...) empty method bug (DG);
- * 13-Mar-2003 : Updated writeImageMap method as suggested by Xavier Poinsard (see 
+ * 13-Mar-2003 : Updated writeImageMap method as suggested by Xavier Poinsard (see
  *               Feature Request 688079) (DG);
+ * 12-Aug-2003 : Added support for custom image maps using ToolTipTagFragmentGenerator and
+ *               URLTagFragmentGenerator (RA);
+ * 02-Sep-2003 : Separated PNG encoding from writing chart to an OutputStream (RA);
  */
 
 package org.jfree.chart;
@@ -65,9 +68,13 @@ import java.util.Iterator;
 
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.EntityCollection;
-import com.keypoint.PngEncoder;
+import org.jfree.chart.imagemap.OverLIBToolTipTagFragmentGenerator;
+import org.jfree.chart.imagemap.StandardToolTipTagFragmentGenerator;
+import org.jfree.chart.imagemap.StandardURLTagFragmentGenerator;
+import org.jfree.chart.imagemap.ToolTipTagFragmentGenerator;
+import org.jfree.chart.imagemap.URLTagFragmentGenerator;
 
-// should not be using these classes...TO DO: look for JPEG encoder under LGPL.
+import com.keypoint.PngEncoder;
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -86,6 +93,12 @@ public class ChartUtilities {
     /** The default PNG compression level. */
     private static final int DEFAULT_PNG_COMPRESSION = 9;
 
+    /**
+     * To prevent unnecessary instantiation.
+     */
+    private ChartUtilities() {    
+    }
+    
     /**
      * Writes the chart to the output stream in PNG format.
      *
@@ -179,7 +192,19 @@ public class ChartUtilities {
 
     }
 
-    public static void writeScaledChartAsPNG(OutputStream out, 
+    /**
+     * Writes a scaled version of a chart to an output stream in PNG format.
+     *
+     * @param out  the output stream.
+     * @param chart  the chart.
+     * @param width  the unscaled chart width.
+     * @param height  the unscaled chart height.
+     * @param widthScaleFactor  the horizontal scale factor.
+     * @param heightScaleFactor  the vertical scale factor.
+     *
+     * @throws IOException if there are any I/O problems.
+     */
+    public static void writeScaledChartAsPNG(OutputStream out,
                                              JFreeChart chart,
                                              int width,
                                              int height,
@@ -192,7 +217,7 @@ public class ChartUtilities {
         double defaultHeight = height;
         boolean scale = false;
 
-        // get desired width and height from somewhere then... 
+        // get desired width and height from somewhere then...
         if ((widthScaleFactor != 1) || (heightScaleFactor != 1)) {
             scale = true;
         }
@@ -200,8 +225,8 @@ public class ChartUtilities {
         double scaleX = desiredWidth / defaultWidth;
         double scaleY = desiredHeight / defaultHeight;
 
-        //new BufferedImage() 
-        BufferedImage image = new BufferedImage((int) desiredWidth, (int) desiredHeight, 
+        //new BufferedImage()
+        BufferedImage image = new BufferedImage((int) desiredWidth, (int) desiredHeight,
                                                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = image.createGraphics();
 
@@ -211,15 +236,13 @@ public class ChartUtilities {
             chart.draw(g2, new Rectangle2D.Double(0, 0, defaultWidth, defaultHeight), null);
             g2.setTransform(saved);
             g2.dispose();
-        } 
+        }
         else {
             chart.draw(g2, new Rectangle2D.Double(0, 0, defaultWidth, defaultHeight), null);
         }
 
-        //return image; 
-        PngEncoder encoder = new PngEncoder(image, false, 0, 9);
-        byte[] pngData = encoder.pngEncode();
-        out.write(pngData);
+        //return image;
+        out.write(encodeAsPNG(image));
     }
 
     /**
@@ -515,7 +538,7 @@ public class ChartUtilities {
     public static void writeBufferedImageAsPNG(OutputStream out, BufferedImage image)
         throws IOException {
 
-        writeBufferedImageAsPNG(out, image, false, DEFAULT_PNG_COMPRESSION);
+        out.write(encodeAsPNG(image));
 
     }
 
@@ -533,10 +556,31 @@ public class ChartUtilities {
                                                boolean encodeAlpha,
                                                int compression) throws IOException {
 
-        PngEncoder encoder = new PngEncoder(image, encodeAlpha, 0, compression);
-        byte[] pngData = encoder.pngEncode();
-        out.write(pngData);
+        out.write(encodeAsPNG(image, encodeAlpha, compression));
 
+    }
+
+    /**
+     * Encodes the BufferedImage to PNG format.
+     *
+     * @param image  The BufferedImage.
+     * @return  The byte array in PNG format.
+     */
+    public static byte[] encodeAsPNG(BufferedImage image) {
+        return encodeAsPNG(image, false, DEFAULT_PNG_COMPRESSION);
+    }
+
+    /**
+     * Encodes the BufferedImage to PNG format.
+     *
+     * @param image    The BufferedImage.
+     * @param encodeAlpha  encode alpha?
+     * @param compression  the PNG compression level.
+     * @return  The byte array in PNG format.
+     */
+    public static byte[] encodeAsPNG(BufferedImage image, boolean encodeAlpha, int compression) {
+        PngEncoder encoder = new PngEncoder(image, encodeAlpha, 0, compression);
+        return encoder.pngEncode();
     }
 
     /**
@@ -551,7 +595,9 @@ public class ChartUtilities {
     public static void writeImageMap(PrintWriter writer, String name, ChartRenderingInfo info)
         throws IOException {
 
-        ChartUtilities.writeImageMap(writer, name, info, false);
+        ChartUtilities.writeImageMap(writer, name, info,
+                new StandardToolTipTagFragmentGenerator(),
+                new StandardURLTagFragmentGenerator());
 
     }
 
@@ -569,16 +615,46 @@ public class ChartUtilities {
     public static void writeImageMap(PrintWriter writer, String name, ChartRenderingInfo info,
                                      boolean useOverLibForToolTips) throws IOException {
 
+        ToolTipTagFragmentGenerator toolTipTagFragmentGenerator = null;
+        if (useOverLibForToolTips) {
+            toolTipTagFragmentGenerator = new OverLIBToolTipTagFragmentGenerator();
+        } else {
+            toolTipTagFragmentGenerator = new StandardToolTipTagFragmentGenerator();
+        }
+        ChartUtilities.writeImageMap(writer, name, info,
+                toolTipTagFragmentGenerator, new StandardURLTagFragmentGenerator());
+
+    }
+
+    /**
+     * Writes an image map to the output stream.
+     *
+     * @param writer  the writer.
+     * @param name  the map name.
+     * @param info  the chart rendering info.
+     * @param toolTipTagFragmentGenerator  the tool tip generator.
+     * @param urlTagFragmentGenerator  the url generator.
+     *
+     * @throws IOException if there are any I/O errors.
+     */
+    public static void writeImageMap(PrintWriter writer, String name, ChartRenderingInfo info,
+                                     ToolTipTagFragmentGenerator toolTipTagFragmentGenerator,
+                                     URLTagFragmentGenerator urlTagFragmentGenerator) 
+                                     throws IOException {
+
         writer.println("<MAP NAME=\"" + name + "\">");
-        EntityCollection entities = info.getEntityCollection(); 
-        Iterator iterator = entities.iterator(); 
-        while (iterator.hasNext()) { 
-            ChartEntity entity = (ChartEntity) iterator.next(); 
-            String area = entity.getImageMapAreaTag(useOverLibForToolTips); 
-            if (area.length() > 0) {
-                writer.println(area); 
-            } 
-        }    
+        EntityCollection entities = info.getEntityCollection();
+        if (entities != null) {
+            Iterator iterator = entities.iterator();
+            while (iterator.hasNext()) {
+                ChartEntity entity = (ChartEntity) iterator.next();
+                String area = entity.getImageMapAreaTag(toolTipTagFragmentGenerator, 
+                                                        urlTagFragmentGenerator);
+                if (area.length() > 0) {
+                    writer.println(area);
+                }
+            }
+        }
         writer.println("</MAP>");
 
     }

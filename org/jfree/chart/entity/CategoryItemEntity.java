@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,11 @@
  * -----------------------
  * CategoryItemEntity.java
  * -----------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson;
+ *                   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -37,12 +38,15 @@
  * 05-Aug-2002 : Added new constructor to populate URLText
  *               Moved getImageMapAreaTag() to ChartEntity (superclass) (RA);
  * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 30-Jul-2003 : Added CategoryDataset reference (CZ);
  *
  */
 
 package org.jfree.chart.entity;
 
 import java.awt.Shape;
+
+import org.jfree.data.CategoryDataset;
 
 /**
  * A chart entity that represents one item within a category plot.
@@ -51,6 +55,9 @@ import java.awt.Shape;
  */
 public class CategoryItemEntity extends ChartEntity {
 
+    /** The dataset. */
+    private CategoryDataset dataset;
+    
     /** The series (zero-based index). */
     private int series;
 
@@ -68,6 +75,9 @@ public class CategoryItemEntity extends ChartEntity {
      * @param series  the series (zero-based index).
      * @param category  the category.
      * @param categoryIndex  the index of the category.
+     * 
+     * @deprecated Use alternative constructor.
+     * 
      */
     public CategoryItemEntity(Shape area, String toolTipText,
                               int series, Object category, int categoryIndex) {
@@ -88,6 +98,8 @@ public class CategoryItemEntity extends ChartEntity {
      * @param series  the series (zero-based index).
      * @param category  the category.
      * @param categoryIndex  the category index.
+     * 
+     * @deprecated Use alternative constructor.
      */
     public CategoryItemEntity(Shape area, String toolTipText, String urlText,
                               int series, Object category, int categoryIndex) {
@@ -97,6 +109,47 @@ public class CategoryItemEntity extends ChartEntity {
         this.category = category;
         this.categoryIndex = categoryIndex;
 
+    }
+
+    /**
+     * Creates a new category item entity.
+     *
+     * @param area  the area.
+     * @param toolTipText  the tool tip text.
+     * @param urlText  the URL text for HTML image maps.
+     * @param dataset  the dataset.
+     * @param series  the series (zero-based index).
+     * @param category  the category.
+     * @param categoryIndex  the category index.
+     */
+    public CategoryItemEntity(Shape area, String toolTipText, String urlText,
+                              CategoryDataset dataset,
+                              int series, Object category, int categoryIndex) {
+
+        super(area, toolTipText, urlText);
+        this.dataset = dataset;
+        this.series = series;
+        this.category = category;
+        this.categoryIndex = categoryIndex;
+
+    }
+
+    /**
+     * Returns the datset this entity refers to.
+     *
+     * @return the dataset.
+     */
+    public CategoryDataset getDataset() {
+        return this.dataset; 
+    }
+
+    /**
+     * Sets the datset this entity refers to.
+     *
+     * @param dataset  the dataset.
+     */
+    public void setDataset(CategoryDataset dataset) {
+        this.dataset = dataset;
     }
 
     /**

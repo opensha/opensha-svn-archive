@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Jeremy Bowman.
  *
  * Original Author:  Jeremy Bowman;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -33,6 +33,7 @@
  * -------
  * 13-May-2002 : Version 1 (JB);
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 06-Aug-2003 : No longer required, so deprecated (DG);
  *
  */
 
@@ -44,6 +45,8 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * Default provider of shapes for indicating data points on a Plot.
+ * 
+ * @deprecated No longer used.  Shapes are supplied by the DrawingSupplier if necessary.
  *
  * @author Jeremy Bowman
  */

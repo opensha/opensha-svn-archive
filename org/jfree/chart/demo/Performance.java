@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------
  * Performance.java
  * ----------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited).
+ * Original Author:  David Gilbert (for Object Refinery Limited).
  * Contributor(s):   -;
  *
  * $Id$
@@ -65,9 +65,11 @@ public class Performance {
      */
     public void createLines(int count) {
 
+        Line2D line = new Line2D.Double();
         for (int i = 0; i < count; i++) {
-            Line2D line = new Line2D.Double(1.0, 1.0, 1.0, 1.0);
+            line = new Line2D.Double(1.0, 1.0, 1.0, 1.0);
         }
+        System.out.println(line.toString());
 
     }
 
@@ -92,9 +94,11 @@ public class Performance {
      */
     public void getNumber(int count) {
 
+        double d = 0.0;
         for (int i = 0; i < count; i++) {
-            double d = this.number.doubleValue();
+            d = this.number.doubleValue();
         }
+        System.out.println(d);
 
     }
 
@@ -105,9 +109,11 @@ public class Performance {
      */
     public void getValue(int count) {
 
+        double d = 0.0;
         for (int i = 0; i < count; i++) {
-            double d = this.value;
+            d = this.value;
         }
+        System.out.println(d);
 
     }
 

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -38,11 +38,11 @@
 
 package org.jfree.xml.factory.objects;
 
-import org.jfree.io.IOUtils;
-import org.jfree.util.Configuration;
-import org.jfree.util.Log;
-
 import java.net.URL;
+
+import org.jfree.io.IOUtils;
+import org.jfree.util.Log;
+import org.jfree.xml.Parser;
 
 /**
  * An object-description for a <code>URL</code> object.
@@ -66,7 +66,7 @@ public class URLObjectDescription extends AbstractObjectDescription {
      */
     public Object createObject() {
         String o = (String) getParameter("value");
-        String baseURL = getConfig().getConfigProperty(Configuration.CONTENT_BASE_KEY);
+        String baseURL = getConfig().getConfigProperty(Parser.CONTENTBASE_KEY);
         try {
             try {
                 URL bURL = new URL(baseURL);
@@ -95,7 +95,7 @@ public class URLObjectDescription extends AbstractObjectDescription {
         }
 
         URL comp = (URL) o;
-        String baseURL = getConfig().getConfigProperty(Configuration.CONTENT_BASE_KEY);
+        String baseURL = getConfig().getConfigProperty(Parser.CONTENTBASE_KEY);
         try {
             URL bURL = new URL(baseURL);
             setParameter("value", IOUtils.getInstance().createRelativeURL(comp, bURL));

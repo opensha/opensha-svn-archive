@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by the Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott (for the Australian Antarctic Division);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -33,7 +33,7 @@
  * -------
  * 25-Sep-2002 : Version 1, contributed by Bryan Scott (DG);
  * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
- * 27-Mar-2003 : Changed dataset to KeyedValueDataset (DG);
+ * 27-Mar-2003 : Changed dataset to ValueDataset (DG);
  *
  */
 
@@ -73,14 +73,14 @@ public class CompassDemo extends JPanel {
 
     /** The available needle types. */
     public static final String[] NEEDLE_TYPES
-        = { "Arrow", "Line", "Long", "Pin", "Plum", "Pointer", "Ship", "Wind", "Arrow" };
+        = {"Arrow", "Line", "Long", "Pin", "Plum", "Pointer", "Ship", "Wind", "Arrow"};
 
     /** Dataset 1. */
-    private DefaultValueDataset compassData 
+    private DefaultValueDataset compassData
         = new DefaultValueDataset(new Double(0.0));
 
     /** Dataset 2. */
-    private DefaultValueDataset shipData 
+    private DefaultValueDataset shipData
         = new DefaultValueDataset(new Double(0.0));
 
     /** The compass plot. */

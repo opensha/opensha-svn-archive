@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2002, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * SampleSIgnalDataset.java
  * ------------------------
- * (C) Copyright 2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,9 +39,9 @@
 package org.jfree.chart.demo;
 
 import org.jfree.data.AbstractDataset;
-import org.jfree.data.SignalsDataset;
-import org.jfree.data.HighLowDataset;
 import org.jfree.data.DatasetChangeListener;
+import org.jfree.data.HighLowDataset;
+import org.jfree.data.SignalsDataset;
 
 /**
  * A sample signal dataset.

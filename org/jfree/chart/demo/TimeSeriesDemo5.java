@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * TimeSeriesDemo5.java
  * --------------------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,11 +38,11 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
-import org.jfree.data.XYDataset;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.SeriesException;
+import org.jfree.data.XYDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -82,9 +82,12 @@ public class TimeSeriesDemo5 {
 
         XYDataset data = new TimeSeriesCollection(series);
 
-        JFreeChart chart = ChartFactory.createTimeSeriesChart("Test", "Day", "Value", data, 
+        JFreeChart chart = ChartFactory.createTimeSeriesChart("Test", "Day", "Value", data,
                                                               false, false, false);
-        ChartFrame frame = new ChartFrame("Test", chart);
+
+        ChartFrame frame = new ChartFrame(
+            "\u20A2\u20A2\u20A2\u20A3\u20A4\u20A5\u20A6\u20A7\u20A8\u20A9\u20AA", chart
+        );
         frame.pack();
         RefineryUtilities.positionFrameRandomly(frame);
         frame.setVisible(true);

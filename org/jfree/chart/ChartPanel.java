@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,22 +22,23 @@
  * ---------------
  * ChartPanel.java
  * ---------------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Andrzej Porebski;
- *                   Søren Caspersen;
+ *                   Sï¿½ren Caspersen;
  *                   Jonathan Nash;
  *                   Hans-Jurgen Greiner;
  *                   Andreas Schneider;
  *                   Daniel van Enckevort;
  *                   David M O'Donnell;
+ *                   Arnaud Lelievre;
  *
  * $Id$
  *
  * Changes (from 28-Jun-2001)
  * --------------------------
- * 28-Jun-2001 : Integrated buffering code contributed by Søren Caspersen (DG);
+ * 28-Jun-2001 : Integrated buffering code contributed by Sï¿½ren Caspersen (DG);
  * 18-Sep-2001 : Updated header and fixed DOS encoding problem (DG);
  * 22-Nov-2001 : Added scaling to improve display of charts in small sizes (DG);
  * 26-Nov-2001 : Added property editing, saving and printing (DG);
@@ -72,7 +73,9 @@
  * 14-Jan-2003 : Implemented ChartProgressListener interface (DG);
  * 14-Feb-2003 : Removed deprecated setGenerateTooltips method (DG);
  * 12-Mar-2003 : Added option to enforce filename extension (see bug id 643173) (DG);
- * 
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL);
+ * 18-Sep-2003 : Added getScaleX() and getScaleY() methods (protected) as requested by 
+ *               Irv Thomae (DG);
  */
 
 package org.jfree.chart;
@@ -101,6 +104,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -117,9 +121,11 @@ import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartChangeListener;
 import org.jfree.chart.event.ChartProgressEvent;
 import org.jfree.chart.event.ChartProgressListener;
-import org.jfree.chart.plot.HorizontalValuePlot;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.VerticalValuePlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueAxisPlot;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.ChartPropertyEditPanel;
 import org.jfree.ui.ExtensionFileFilter;
 import org.jfree.ui.RefineryUtilities;
@@ -240,9 +246,13 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
     /** A horizontal trace line. */
     private Line2D horizontalTraceLine;
-    
+
     /** A flag that controls whether or not file extensions are enforced. */
     private boolean enforceFileExtensions;
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                                    ResourceBundle.getBundle("org.jfree.chart.LocalizationBundle");
 
     /**
      * Constructs a JFreeChart panel.
@@ -426,8 +436,10 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             this.refreshBuffer = true;
         }
         Plot plot = chart.getPlot();
-        this.horizontalZoom = this.horizontalZoom && (plot instanceof HorizontalValuePlot);
-        this.verticalZoom = this.verticalZoom && (plot instanceof VerticalValuePlot);
+        ValueAxis horizontalAxis = getHorizontalValueAxis(plot);
+        this.horizontalZoom = this.horizontalZoom && (horizontalAxis != null);
+        ValueAxis verticalAxis = getVerticalValueAxis(plot);
+        this.verticalZoom = this.verticalZoom && (verticalAxis != null);
         repaint();
 
     }
@@ -533,6 +545,24 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     }
 
     /**
+     * Returns the X scale factor for the chart.
+     * 
+     * @return The scale factor.
+     */
+    protected double getScaleX() {
+        return this.scaleX;
+    }
+    
+    /**
+     * Returns the Y scale factory for the chart.
+     * 
+     * @return The scale factor.
+     */
+    protected double getScaleY() {
+        return this.scaleY;
+    }
+    
+    /**
      * Returns the popup menu.
      *
      * @return the popup menu.
@@ -587,7 +617,9 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @param flag  <code>true</code> enables zooming on HorizontalValuePlots.
      */
     public void setHorizontalZoom(boolean flag) {
-        this.horizontalZoom = flag && (chart.getPlot() instanceof HorizontalValuePlot);
+        Plot plot = this.chart.getPlot();
+        ValueAxis axis = getHorizontalValueAxis(plot);
+        this.horizontalZoom = flag && (axis != null);
     }
 
     /**
@@ -606,7 +638,9 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @param flag  <code>true</code> enables zooming on VerticalValuePlots.
      */
     public void setVerticalZoom(boolean flag) {
-        this.verticalZoom = flag && (chart.getPlot() instanceof VerticalValuePlot);
+        Plot plot = this.chart.getPlot();
+        ValueAxis axis = getVerticalValueAxis(plot);
+        this.verticalZoom = flag && (axis != null);
     }
 
     /**
@@ -632,22 +666,22 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     /**
      * Returns <code>true</code> if file extensions should be enforced, and <code>false</code>
      * otherwise.
-     * 
+     *
      * @return The flag.
      */
     public boolean isEnforceFileExtensions() {
         return this.enforceFileExtensions;
     }
-    
+
     /**
      * Sets a flag that controls whether or not file extensions are enforced.
-     * 
+     *
      * @param enforce  the new flag value.
      */
     public void setEnforceFileExtensions(boolean enforce) {
         this.enforceFileExtensions = enforce;
     }
-    
+
     /**
      * Switches chart tooltip generation on or off.
      *
@@ -655,7 +689,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      */
     public void setDisplayToolTips(boolean flag) {
 
-        if (flag == true) {
+        if (flag) {
             ToolTipManager.sharedInstance().registerComponent(this);
         }
         else {
@@ -675,13 +709,15 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
         String result = null;
 
-        EntityCollection entities = this.info.getEntityCollection();
-        if (entities != null) {
-            Insets insets = getInsets();
-            ChartEntity entity = entities.getEntity((int) ((e.getX() - insets.left) / scaleX),
-                                                    (int) ((e.getY() - insets.top) / scaleY));
-            if (entity != null) {
-                result = entity.getToolTipText();
+        if (this.info != null) {
+            EntityCollection entities = this.info.getEntityCollection();
+            if (entities != null) {
+                Insets insets = getInsets();
+                ChartEntity entity = entities.getEntity((int) ((e.getX() - insets.left) / scaleX),
+                                                        (int) ((e.getY() - insets.top) / scaleY));
+                if (entity != null) {
+                    result = entity.getToolTipText();
+                }
             }
         }
 
@@ -730,11 +766,15 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      */
     public ChartEntity getEntityForPoint(int viewX, int viewY) {
 
-        Insets insets = getInsets();
-        double x = (viewX - insets.left) / scaleX;
-        double y = (viewY - insets.top) / scaleY;
-        EntityCollection entities = this.info.getEntityCollection();
-        return entities != null ? entities.getEntity(x, y) : null;
+        ChartEntity result = null;
+        if (this.info != null) {
+            Insets insets = getInsets();
+            double x = (viewX - insets.left) / scaleX;
+            double y = (viewY - insets.top) / scaleY;
+            EntityCollection entities = this.info.getEntityCollection();
+            result = entities != null ? entities.getEntity(x, y) : null; 
+        }
+        return result;
 
     }
 
@@ -764,7 +804,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
+        Graphics2D g2 = (Graphics2D) g.create();
 
         // first determine the size of the chart rendering area...
         Dimension size = getSize();
@@ -895,18 +935,18 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
         String command = event.getActionCommand();
 
         if (command.equals(PROPERTIES_ACTION_COMMAND)) {
-            this.attemptEditChartProperties();
+            attemptEditChartProperties();
         }
         else if (command.equals(SAVE_ACTION_COMMAND)) {
             try {
-                this.doSaveAs();
+                doSaveAs();
             }
             catch (IOException e) {
                 System.err.println("ChartPanel.doSaveAs: i/o exception = " + e.getMessage());
             }
         }
         else if (command.equals(PRINT_ACTION_COMMAND)) {
-            this.createChartPrintJob();
+            createChartPrintJob();
         }
         else if (command.equals(ZOOM_IN_BOTH_ACTION_COMMAND)) {
             zoomInBoth(this.zoomPoint.getX(), this.zoomPoint.getY());
@@ -1009,14 +1049,14 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
                     //for a mouseReleased event, (horizontalZoom || verticalZoom)
                     //will be true, so we can just test for either being false;
                     //otherwise both are true
-                    if (verticalZoom == false) {
+                    if (!verticalZoom) {
                         x = zoomPoint.getX();
                         y = scaledDataArea.getMinY();
                         w = Math.min(zoomRectangle.getWidth(),
                                      scaledDataArea.getMaxX() - zoomPoint.getX());
                         h = scaledDataArea.getHeight();
                     }
-                    else if (horizontalZoom == false) {
+                    else if (!horizontalZoom) {
                         x = scaledDataArea.getMinX();
                         y = zoomPoint.getY();
                         w = scaledDataArea.getWidth();
@@ -1040,7 +1080,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             else {
                 Graphics2D g2 = (Graphics2D) getGraphics();
                 g2.setXORMode(java.awt.Color.gray);
-                if (fillZoomRectangle == true) {
+                if (fillZoomRectangle) {
                     g2.fill(zoomRectangle);
                 }
                 else {
@@ -1080,7 +1120,13 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             return;
         }
 
-        ChartEntity entity = this.info.getEntityCollection().getEntity(x, y);
+        ChartEntity entity = null;
+        if (this.info != null) {
+            EntityCollection entities = this.info.getEntityCollection();
+            if (entities != null) {
+                entity = entities.getEntity(x, y);
+            }
+        }
         ChartMouseEvent chartEvent = new ChartMouseEvent(getChart(), event, entity);
 
         Iterator iterator = chartMouseListeners.iterator();
@@ -1114,7 +1160,13 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
         int x = (int) ((e.getX() - insets.left) / scaleX);
         int y = (int) ((e.getY() - insets.top) / scaleY);
 
-        ChartEntity entity = this.info.getEntityCollection().getEntity(x, y);
+        ChartEntity entity = null;
+        if (this.info != null) {
+            EntityCollection entities = this.info.getEntityCollection();
+            if (entities != null) {
+                entity = entities.getEntity(x, y);
+            }
+        }
         ChartMouseEvent event = new ChartMouseEvent(getChart(), e, entity);
 
         Iterator iterator = chartMouseListeners.iterator();
@@ -1142,7 +1194,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
         // use XOR to erase the previous zoom rectangle (if any)...
         g2.setXORMode(java.awt.Color.gray);
         if (zoomRectangle != null) {
-            if (fillZoomRectangle == true) {
+            if (fillZoomRectangle) {
                 g2.fill(zoomRectangle);
             }
             else {
@@ -1174,7 +1226,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
         if (zoomRectangle != null) {
             // use XOR to draw the new zoom rectangle...
-            if (fillZoomRectangle == true) {
+            if (fillZoomRectangle) {
                 g2.fill(zoomRectangle);
             }
             else {
@@ -1199,6 +1251,78 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     }
 
     /**
+     * Returns a reference to the 'horizontal' value axis, if there is one.
+     *
+     * @param plot  the plot.
+     *
+     * @return The axis.
+     */
+    private ValueAxis getHorizontalValueAxis(Plot plot) {
+
+        if (plot == null) {
+            return null;
+        }
+
+        ValueAxis axis = null;
+
+        if (plot instanceof CategoryPlot) {
+            CategoryPlot cp = (CategoryPlot) plot;
+            if (cp.getOrientation() == PlotOrientation.HORIZONTAL) {
+                axis = cp.getRangeAxis();
+            }
+        }
+
+        if (plot instanceof XYPlot) {
+            XYPlot xyp = (XYPlot) plot;
+            if (xyp.getOrientation() == PlotOrientation.HORIZONTAL) {
+                axis = xyp.getRangeAxis();
+            }
+            else if (xyp.getOrientation() == PlotOrientation.VERTICAL) {
+                axis = xyp.getDomainAxis();
+            }
+        }
+
+        return axis;
+
+    }
+
+    /**
+     * Returns a reference to the 'vertical' value axis, if there is one.
+     *
+     * @param plot  the plot.
+     *
+     * @return The axis.
+     */
+    private ValueAxis getVerticalValueAxis(Plot plot) {
+
+        if (plot == null) {
+            return null;
+        }
+
+        ValueAxis axis = null;
+
+        if (plot instanceof CategoryPlot) {
+            CategoryPlot cp = (CategoryPlot) plot;
+            if (cp.getOrientation() == PlotOrientation.VERTICAL) {
+                axis = cp.getRangeAxis();
+            }
+        }
+
+        if (plot instanceof XYPlot) {
+            XYPlot xyp = (XYPlot) plot;
+            if (xyp.getOrientation() == PlotOrientation.HORIZONTAL) {
+                axis = xyp.getDomainAxis();
+            }
+            else if (xyp.getOrientation() == PlotOrientation.VERTICAL) {
+                axis = xyp.getRangeAxis();
+            }
+        }
+
+        return axis;
+
+    }
+
+    /**
      * Decreases the range on the horizontal axis, centered about a Java2D
      * x coordinate.
      * <P>
@@ -1207,14 +1331,11 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @param x  The x coordinate in Java2D space.
      */
     public void zoomInHorizontal(double x) {
-
-        if (chart.getPlot() instanceof HorizontalValuePlot) {
-            HorizontalValuePlot hvp = (HorizontalValuePlot) chart.getPlot();
-            ValueAxis axis = hvp.getHorizontalValueAxis();
-            double value = axis.translateJava2DtoValue((float) x, this.info.getDataArea());
-            axis.resizeRange(0.5, value);
+        Plot p = chart.getPlot();
+        if (p instanceof ValueAxisPlot) {
+            ValueAxisPlot plot = (ValueAxisPlot) p;
+            plot.zoomHorizontalAxes(0.5);
         }
-
     }
 
     /**
@@ -1226,14 +1347,11 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @param y  The y coordinate in Java2D space.
      */
     public void zoomInVertical(double y) {
-
-        if (chart.getPlot() instanceof VerticalValuePlot) {
-            VerticalValuePlot vvp = (VerticalValuePlot) chart.getPlot();
-            ValueAxis axis = vvp.getVerticalValueAxis();
-            double value = axis.translateJava2DtoValue((float) y, this.info.getDataArea());
-            axis.resizeRange(0.5, value);
+        Plot p = chart.getPlot();
+        if (p instanceof ValueAxisPlot) {
+            ValueAxisPlot plot = (ValueAxisPlot) p;
+            plot.zoomVerticalAxes(0.5);
         }
-
     }
 
     /**
@@ -1258,14 +1376,11 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @param x  The x coordinate in Java2D space.
      */
     public void zoomOutHorizontal(double x) {
-
-        if (chart.getPlot() instanceof HorizontalValuePlot) {
-            HorizontalValuePlot hvp = (HorizontalValuePlot) chart.getPlot();
-            ValueAxis axis = hvp.getHorizontalValueAxis();
-            double value = axis.translateJava2DtoValue((float) x, this.info.getDataArea());
-            axis.resizeRange(2.0, value);
+        Plot p = chart.getPlot();
+        if (p instanceof ValueAxisPlot) {
+            ValueAxisPlot plot = (ValueAxisPlot) p;
+            plot.zoomHorizontalAxes(2.0);
         }
-
     }
 
     /**
@@ -1276,14 +1391,11 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @param y  the y coordinate in Java2D space.
      */
     public void zoomOutVertical(double y) {
-
-        if (chart.getPlot() instanceof VerticalValuePlot) {
-            VerticalValuePlot vvp = (VerticalValuePlot) chart.getPlot();
-            ValueAxis axis = vvp.getVerticalValueAxis();
-            double value = axis.translateJava2DtoValue((float) y, this.info.getDataArea());
-            axis.resizeRange(2.0, value);
+        Plot p = chart.getPlot();
+        if (p instanceof ValueAxisPlot) {
+            ValueAxisPlot plot = (ValueAxisPlot) p;
+            plot.zoomVerticalAxes(2.0);
         }
-
     }
 
     /**
@@ -1293,38 +1405,27 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      */
     public void zoom(Rectangle2D selection) {
 
+        double hLower = 0.0;
+        double hUpper = 0.0;
+        double vLower = 0.0;
+        double vUpper = 0.0;
+        
         if ((selection.getHeight() > 0) && (selection.getWidth() > 0)) {
 
             Rectangle2D scaledDataArea = getScaledDataArea();
-            if (chart.getPlot() instanceof HorizontalValuePlot) {
-                HorizontalValuePlot hvp = (HorizontalValuePlot) chart.getPlot();
-                ValueAxis axis = hvp.getHorizontalValueAxis();
-                double lower = axis.translateJava2DtoValue((float) selection.getX(),
-                                                           scaledDataArea);
-                double upper = axis.translateJava2DtoValue((float) selection.getMaxX(),
-                                                           scaledDataArea);
-                if (lower < upper) {
-                    axis.setRange(lower, upper);
-                } 
-                else {
-                    axis.setRange(upper, lower);
-                }
+            hLower = (selection.getMinX() - scaledDataArea.getMinX()) / scaledDataArea.getWidth();
+            hUpper = (selection.getMaxX() - scaledDataArea.getMinX()) / scaledDataArea.getWidth();
+            vLower = (scaledDataArea.getMaxY() - selection.getMaxY()) / scaledDataArea.getHeight();
+            vUpper = (scaledDataArea.getMaxY() - selection.getMinY()) / scaledDataArea.getHeight();
+
+            Plot p = chart.getPlot();
+            if (p instanceof ValueAxisPlot) {
+                ValueAxisPlot plot = (ValueAxisPlot) p;
+                plot.zoomHorizontalAxes(hLower, hUpper);
+                plot.zoomVerticalAxes(vLower, vUpper);
             }
 
-            if (chart.getPlot() instanceof VerticalValuePlot) {
-                VerticalValuePlot vvp = (VerticalValuePlot) chart.getPlot();
-                ValueAxis axis = vvp.getVerticalValueAxis();
-                double lower = axis.translateJava2DtoValue((float) selection.getMaxY(),
-                                                           scaledDataArea);
-                double upper = axis.translateJava2DtoValue((float) selection.getY(),
-                                                           scaledDataArea);
-                if (lower < upper) {            
-                    axis.setRange(lower, upper);
-                } 
-                else {                               
-                    axis.setRange(upper, lower);
-                }
-            }
+
         }
 
     }
@@ -1341,10 +1442,10 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * Restores the auto-range calculation on the horizontal axis.
      */
     public void autoRangeHorizontal() {
-        if (chart.getPlot() instanceof HorizontalValuePlot) {
-            HorizontalValuePlot hvp = (HorizontalValuePlot) chart.getPlot();
-            ValueAxis axis = hvp.getHorizontalValueAxis();
-            axis.setAutoRange(true);
+        Plot p = chart.getPlot();
+        if (p instanceof ValueAxisPlot) {
+            ValueAxisPlot plot = (ValueAxisPlot) p;
+            plot.zoomHorizontalAxes(0.0);
         }
     }
 
@@ -1352,14 +1453,11 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * Restores the auto-range calculation on the vertical axis.
      */
     public void autoRangeVertical() {
-
         Plot p = chart.getPlot();
-        if (p instanceof VerticalValuePlot) {
-            VerticalValuePlot plot = (VerticalValuePlot) p;
-            ValueAxis axis = plot.getVerticalValueAxis();
-            axis.setAutoRange(true);
+        if (p instanceof ValueAxisPlot) {
+            ValueAxisPlot plot = (ValueAxisPlot) p;
+            plot.zoomVerticalAxes(0.0);
         }
-
     }
 
     /**
@@ -1369,7 +1467,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @return the scaled data area.
      */
     public Rectangle2D getScaledDataArea() {
-        Rectangle2D dataArea = this.info.getDataArea();
+        Rectangle2D dataArea = this.info.getPlotInfo().getDataArea();
         Insets insets = getInsets();
         double x = dataArea.getX() * scaleX + insets.left;
         double y = dataArea.getY() * scaleY + insets.top;
@@ -1439,9 +1537,10 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     private void attemptEditChartProperties() {
 
         ChartPropertyEditPanel panel = new ChartPropertyEditPanel(chart);
-        int result = JOptionPane.showConfirmDialog(this, panel,
-            "Chart Properties", JOptionPane.OK_CANCEL_OPTION,
-            JOptionPane.PLAIN_MESSAGE);
+        int result = 
+            JOptionPane.showConfirmDialog(this, panel, 
+                                          localizationResources.getString("Chart_Properties"),
+                                          JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         if (result == JOptionPane.OK_OPTION) {
             panel.updateChartProperties(chart);
         }
@@ -1455,22 +1554,22 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
      * @throws IOException if there is an I/O error.
      */
     public void doSaveAs() throws IOException {
-        
+
         JFileChooser fileChooser = new JFileChooser();
-        ExtensionFileFilter filter = new ExtensionFileFilter("PNG Image Files", ".png");
+        ExtensionFileFilter filter = 
+            new ExtensionFileFilter(localizationResources.getString("PNG_Image_Files"), ".png");
         fileChooser.addChoosableFileFilter(filter);
-        fileChooser.setAcceptAllFileFilterUsed(!isEnforceFileExtensions());
-        
+        fileChooser.addChoosableFileFilter(new ExtensionFileFilter("All files", ""));
+
         int option = fileChooser.showSaveDialog(this);
-        if (option == JFileChooser.APPROVE_OPTION) {   
+        if (option == JFileChooser.APPROVE_OPTION) {
             String filename = fileChooser.getSelectedFile().getPath();
             if (isEnforceFileExtensions()) {
                 if (!filename.endsWith(".png")) {
                     filename = filename + ".png";
                 }
-            }         
-            ChartUtilities.saveChartAsPNG(new File(filename),
-                                          this.chart, getWidth(), getHeight());
+            }
+            ChartUtilities.saveChartAsPNG(new File(filename), this.chart, getWidth(), getHeight());
         }
 
     }
@@ -1556,7 +1655,8 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
         boolean separator = false;
 
         if (properties) {
-            JMenuItem propertiesItem = new JMenuItem("Properties...");
+            JMenuItem propertiesItem = 
+                                new JMenuItem(localizationResources.getString("Properties..."));
             propertiesItem.setActionCommand(PROPERTIES_ACTION_COMMAND);
             propertiesItem.addActionListener(this);
             result.add(propertiesItem);
@@ -1568,7 +1668,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
                 result.addSeparator();
                 separator = false;
             }
-            JMenuItem saveItem = new JMenuItem("Save as...");
+            JMenuItem saveItem = new JMenuItem(localizationResources.getString("Save_as..."));
             saveItem.setActionCommand(SAVE_ACTION_COMMAND);
             saveItem.addActionListener(this);
             result.add(saveItem);
@@ -1580,7 +1680,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
                 result.addSeparator();
                 separator = false;
             }
-            JMenuItem printItem = new JMenuItem("Print...");
+            JMenuItem printItem = new JMenuItem(localizationResources.getString("Print..."));
             printItem.setActionCommand(PRINT_ACTION_COMMAND);
             printItem.addActionListener(this);
             result.add(printItem);
@@ -1593,62 +1693,68 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
                 separator = false;
             }
 
-            JMenu zoomInMenu = new JMenu("Zoom In");
+            JMenu zoomInMenu = new JMenu(localizationResources.getString("Zoom_In"));
 
-            zoomInBothMenuItem = new JMenuItem("Both Axes");
+            zoomInBothMenuItem = new JMenuItem(localizationResources.getString("All_Axes"));
             zoomInBothMenuItem.setActionCommand(ZOOM_IN_BOTH_ACTION_COMMAND);
             zoomInBothMenuItem.addActionListener(this);
             zoomInMenu.add(zoomInBothMenuItem);
 
             zoomInMenu.addSeparator();
 
-            zoomInHorizontalMenuItem = new JMenuItem("Horizontal Axis");
+            zoomInHorizontalMenuItem = 
+                                new JMenuItem(localizationResources.getString("Horizontal_Axis"));
             zoomInHorizontalMenuItem.setActionCommand(ZOOM_IN_HORIZONTAL_ACTION_COMMAND);
             zoomInHorizontalMenuItem.addActionListener(this);
             zoomInMenu.add(zoomInHorizontalMenuItem);
 
-            zoomInVerticalMenuItem = new JMenuItem("Vertical Axis");
+            zoomInVerticalMenuItem = 
+                                new JMenuItem(localizationResources.getString("Vertical_Axis"));
             zoomInVerticalMenuItem.setActionCommand(ZOOM_IN_VERTICAL_ACTION_COMMAND);
             zoomInVerticalMenuItem.addActionListener(this);
             zoomInMenu.add(zoomInVerticalMenuItem);
 
             result.add(zoomInMenu);
 
-            JMenu zoomOutMenu = new JMenu("Zoom Out");
+            JMenu zoomOutMenu = new JMenu(localizationResources.getString("Zoom_Out"));
 
-            zoomOutBothMenuItem = new JMenuItem("Both Axes");
+            zoomOutBothMenuItem = new JMenuItem(localizationResources.getString("All_Axes"));
             zoomOutBothMenuItem.setActionCommand(ZOOM_OUT_BOTH_ACTION_COMMAND);
             zoomOutBothMenuItem.addActionListener(this);
             zoomOutMenu.add(zoomOutBothMenuItem);
 
             zoomOutMenu.addSeparator();
 
-            zoomOutHorizontalMenuItem = new JMenuItem("Horizontal Axis");
+            zoomOutHorizontalMenuItem = 
+                                new JMenuItem(localizationResources.getString("Horizontal_Axis"));
             zoomOutHorizontalMenuItem.setActionCommand(ZOOM_OUT_HORIZONTAL_ACTION_COMMAND);
             zoomOutHorizontalMenuItem.addActionListener(this);
             zoomOutMenu.add(zoomOutHorizontalMenuItem);
 
-            zoomOutVerticalMenuItem = new JMenuItem("Vertical Axis");
+            zoomOutVerticalMenuItem = 
+                                new JMenuItem(localizationResources.getString("Vertical_Axis"));
             zoomOutVerticalMenuItem.setActionCommand(ZOOM_OUT_VERTICAL_ACTION_COMMAND);
             zoomOutVerticalMenuItem.addActionListener(this);
             zoomOutMenu.add(zoomOutVerticalMenuItem);
 
             result.add(zoomOutMenu);
 
-            JMenu autoRangeMenu = new JMenu("Auto Range");
+            JMenu autoRangeMenu = new JMenu(localizationResources.getString("Auto_Range"));
 
-            autoRangeBothMenuItem = new JMenuItem("Both Axes");
+            autoRangeBothMenuItem = new JMenuItem(localizationResources.getString("All_Axes"));
             autoRangeBothMenuItem.setActionCommand(AUTO_RANGE_BOTH_ACTION_COMMAND);
             autoRangeBothMenuItem.addActionListener(this);
             autoRangeMenu.add(autoRangeBothMenuItem);
 
             autoRangeMenu.addSeparator();
-            autoRangeHorizontalMenuItem = new JMenuItem("Horizontal Axis");
+            autoRangeHorizontalMenuItem = 
+                                new JMenuItem(localizationResources.getString("Horizontal_Axis"));
             autoRangeHorizontalMenuItem.setActionCommand(AUTO_RANGE_HORIZONTAL_ACTION_COMMAND);
             autoRangeHorizontalMenuItem.addActionListener(this);
             autoRangeMenu.add(autoRangeHorizontalMenuItem);
 
-            autoRangeVerticalMenuItem = new JMenuItem("Vertical Axis");
+            autoRangeVerticalMenuItem = 
+                                new JMenuItem(localizationResources.getString("Vertical_Axis"));
             autoRangeVerticalMenuItem.setActionCommand(AUTO_RANGE_VERTICAL_ACTION_COMMAND);
             autoRangeVerticalMenuItem.addActionListener(this);
             autoRangeMenu.add(autoRangeVerticalMenuItem);
@@ -1663,7 +1769,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
     }
 
     /**
-     * The idea is to modify the zooming options depending on the type of chart being displayed by 
+     * The idea is to modify the zooming options depending on the type of chart being displayed by
      * the panel.  This code is incomplete.
      *
      * @param x  horizontal position of the popup.
@@ -1675,9 +1781,11 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
 
             // go through each zoom menu item and decide whether or not to enable it...
             Plot plot = this.chart.getPlot();
-            boolean isHorizontal = (plot instanceof HorizontalValuePlot);
-            boolean isVertical = (plot instanceof VerticalValuePlot);
-            
+            ValueAxis horizontalAxis = getHorizontalValueAxis(plot);
+            boolean isHorizontal = (horizontalAxis != null);
+            ValueAxis verticalAxis = getVerticalValueAxis(plot);
+            boolean isVertical = (verticalAxis != null);
+
             if (this.zoomInHorizontalMenuItem != null) {
                 this.zoomInHorizontalMenuItem.setEnabled(isHorizontal);
             }
@@ -1687,18 +1795,18 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             if (this.autoRangeHorizontalMenuItem != null) {
                 this.autoRangeHorizontalMenuItem.setEnabled(isHorizontal);
             }
-            
+
             if (this.zoomInVerticalMenuItem != null) {
                 this.zoomInVerticalMenuItem.setEnabled(isVertical);
             }
             if (this.zoomOutVerticalMenuItem != null) {
                 this.zoomOutVerticalMenuItem.setEnabled(isVertical);
             }
-            
+
             if (this.autoRangeVerticalMenuItem != null) {
                 this.autoRangeVerticalMenuItem.setEnabled(isVertical);
             }
-            
+
             if (this.zoomInBothMenuItem != null) {
                 this.zoomInBothMenuItem.setEnabled(isHorizontal & isVertical);
             }
@@ -1708,7 +1816,7 @@ public class ChartPanel extends JPanel implements ChartPanelConstants,
             if (this.autoRangeBothMenuItem != null) {
                 this.autoRangeBothMenuItem.setEnabled(isHorizontal & isVertical);
             }
-            
+
             popup.show(this, x, y);
         }
 

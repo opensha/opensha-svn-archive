@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * JCommonResources.java
  * ---------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,6 +41,9 @@
  * 29-Jan-2003 : Changed version number to 0.7.2 (DG);
  * 03-Apr-2003 : Changed version number to 0.7.3 (DG);
  * 24-Apr-2003 : Changed version number to 0.8.0 (DG);
+ * 08-Aug-2003 : Updated version number (DG);
+ * 02-Sep-2003 : Updated version number (DG);
+ * 24-Sep-2003 : Updated version number to 0.8.8 (DG);
  *
  */
 
@@ -50,7 +53,7 @@ import java.util.ListResourceBundle;
 
 /**
  * Localised resources for the JCommon Class Library.
- * 
+ *
  * @author David Gilbert
  */
 public class JCommonResources extends ListResourceBundle {
@@ -67,9 +70,9 @@ public class JCommonResources extends ListResourceBundle {
     private static final Object[][] CONTENTS = {
 
         {"project.name",      "JCommon"},
-        {"project.version",   "0.8.0"},
+        {"project.version",   "0.8.8"},
         {"project.info",      "http://www.jfree.org/jcommon/index.html"},
-        {"project.copyright", "(C)opyright 2000-2003, by Simba Management Limited and"
+        {"project.copyright", "(C)opyright 2000-2003, by Object Refinery Limited and"
                             + " Contributors"}
 
     };

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------
  * RootHandler.java
  * ----------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -44,7 +44,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A SAX handler that delegates work to sub-handlers.
- * 
+ *
  * @author David Gilbert
  */
 public class RootHandler extends DefaultHandler implements DatasetTags {
@@ -52,7 +52,7 @@ public class RootHandler extends DefaultHandler implements DatasetTags {
     /** The sub-handlers. */
     private Stack subHandlers;
 
-    /** 
+    /**
      * Creates a new handler.
      */
     public RootHandler() {
@@ -61,7 +61,7 @@ public class RootHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * Returns the stack of sub handlers.
-     * 
+     *
      * @return The sub-handler stack.
      */
     public Stack getSubHandlers() {
@@ -74,7 +74,7 @@ public class RootHandler extends DefaultHandler implements DatasetTags {
      * @param ch  character buffer.
      * @param start  the start index.
      * @param length  the length of the valid character data.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -110,7 +110,7 @@ public class RootHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * Pushes a sub-handler onto the stack.
-     * 
+     *
      * @param subhandler  the sub-handler.
      */
     public void pushSubHandler(DefaultHandler subhandler) {
@@ -119,7 +119,7 @@ public class RootHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * Pops a sub-handler from the stack.
-     * 
+     *
      * @return The sub-handler.
      */
     public DefaultHandler popSubHandler() {

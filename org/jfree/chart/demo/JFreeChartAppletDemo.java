@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2002, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * JFreeChartAppletDemo.java
  * -------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -44,6 +44,7 @@ import javax.swing.JTabbedPane;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.XYDataset;
 
@@ -68,13 +69,14 @@ public class JFreeChartAppletDemo extends JApplet {
                                            true, false, false, false, true, true);
         tabs.add("Chart 1", panel1);
 
-		CategoryDataset data2 = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart2 = ChartFactory.createHorizontalBarChart("Bar Chart",
-                                                                  "Categories", "Value",
-                                                                  data2, 
-                                                                  true,
-                                                                  true,
-                                                                  false);
+        CategoryDataset data2 = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart2 = ChartFactory.createBarChart("Bar Chart",
+                                                        "Categories", "Value",
+                                                        data2,
+                                                        PlotOrientation.HORIZONTAL,
+                                                        true,
+                                                        true,
+                                                        false);
         ChartPanel panel2 = new ChartPanel(chart2, 400, 300, 200, 100, 400, 200,
                                            true, false, false, false, true, true);
         tabs.add("Chart 2", panel2);

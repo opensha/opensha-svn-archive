@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * XYSeriesCollection.java
  * -----------------------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Aaron Metzger;
  *
  * $Id$
@@ -36,12 +36,14 @@
  * 29-Apr-2002 : Added removeSeries, removeAllSeries methods (ARM);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 04-Aug-2003 : Added getSeries() method (DG);
  *
  */
 
 package org.jfree.data;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 import org.jfree.util.ObjectUtils;
@@ -51,7 +53,7 @@ import org.jfree.util.ObjectUtils;
  *
  * @author David Gilbert
  */
-public class XYSeriesCollection extends AbstractSeriesDataset 
+public class XYSeriesCollection extends AbstractSeriesDataset
                                 implements XYDataset, Serializable {
 
     /** The series that are included in the collection. */
@@ -110,6 +112,15 @@ public class XYSeriesCollection extends AbstractSeriesDataset
      */
     public int getSeriesCount() {
         return this.data.size();
+    }
+
+    /**
+     * Returns a list of all the series in the collection.  
+     * 
+     * @return The list (which is unmodifiable).
+     */
+    public List getSeries() {
+        return Collections.unmodifiableList(this.data);
     }
 
     /**
@@ -176,8 +187,8 @@ public class XYSeriesCollection extends AbstractSeriesDataset
     public Number getXValue(int series, int item) {
 
         XYSeries ts = (XYSeries) data.get(series);
-        XYDataPair dp = ts.getDataPair(item);
-        return dp.getX();
+        XYDataItem xyItem = ts.getDataItem(item);
+        return xyItem.getX();
 
     }
 
@@ -192,8 +203,8 @@ public class XYSeriesCollection extends AbstractSeriesDataset
     public Number getYValue(int series, int index) {
 
         XYSeries ts = (XYSeries) data.get(series);
-        XYDataPair dp = ts.getDataPair(index);
-        return dp.getY();
+        XYDataItem xyItem = ts.getDataItem(index);
+        return xyItem.getY();
 
     }
 
@@ -266,28 +277,28 @@ public class XYSeriesCollection extends AbstractSeriesDataset
 
     /**
      * Tests this collection for equality with an arbitrary object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object obj) {
-        
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
+
         if (obj instanceof XYSeriesCollection) {
             XYSeriesCollection c = (XYSeriesCollection) obj;
-            return ObjectUtils.equalOrBothNull(this.data, c.data);
+            return ObjectUtils.equal(this.data, c.data);
         }
-        
+
         return false;
-        
+
     }
-    
+
 }

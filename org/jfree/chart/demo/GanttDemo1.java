@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * GanttDemo1.java
  * ---------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,9 +39,9 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.IntervalCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
@@ -67,16 +67,7 @@ public class GanttDemo1 extends ApplicationFrame {
         super(title);
 
         IntervalCategoryDataset dataset = DemoDatasetFactory.createGanttDataset1();
-
-        // create the chart...
-        JFreeChart chart = ChartFactory.createGanttChart("Gantt Chart Demo",  // chart title
-                                                         "Task",              // domain axis label
-                                                         "Date",              // range axis label
-                                                         dataset,             // data
-                                                         true,                // include legend
-                                                         true,                // tooltips
-                                                         false                // urls
-                                                         );
+        JFreeChart chart = createChart(dataset);
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
@@ -85,6 +76,26 @@ public class GanttDemo1 extends ApplicationFrame {
 
     }
 
+    /**
+     * Creates a chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return The chart.
+     */
+    private JFreeChart createChart(IntervalCategoryDataset dataset) {
+        JFreeChart chart = ChartFactory.createGanttChart(
+            "Gantt Chart Demo",  // chart title
+            "Task",              // domain axis label
+            "Date",              // range axis label
+            dataset,             // data
+            true,                // include legend
+            true,                // tooltips
+            false                // urls
+        );    
+        return chart;    
+    }
+    
     /**
      * Starting point for the demonstration application.
      *

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * Regression.java
  * ---------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 30-Sep-2002 : Version 1 (DG);
+ * 18-Aug-2003 : Added 'abstract' (DG);
  *
  */
 
@@ -42,7 +43,7 @@ package org.jfree.data;
  *
  * @author David Gilbert.
  */
-public class Regression {
+public abstract class Regression {
 
     /**
      * Returns the parameters 'a' and 'b' for an equation y = a + bx, fitted to the data using

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Anthony Boulestreau and Contributors.
  *
  * Original Author:  Anthony Boulestreau;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  *
  * Changes
@@ -41,22 +41,22 @@ package org.jfree.chart.demo;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
-import javax.swing.JFrame;
 import java.lang.reflect.Array;
-import org.jfree.chart.JFreeChart;
+
+import javax.swing.JFrame;
+
 import org.jfree.chart.ChartFrame;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.HorizontalSymbolicAxis;
-import org.jfree.chart.axis.VerticalSymbolicAxis;
-import org.jfree.chart.plot.CombinedXYPlot;
-import org.jfree.chart.plot.OverlaidXYPlot;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SymbolicAxis;
+import org.jfree.chart.labels.SymbolicXYToolTipGenerator;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.tooltips.SymbolicXYToolTipGenerator;
-import org.jfree.data.XYDataset;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.CombinedDataset;
 import org.jfree.data.SubSeriesDataset;
+import org.jfree.data.XYDataset;
 import org.jfree.data.XisSymbolic;
 import org.jfree.data.YisSymbolic;
 import org.jfree.ui.RefineryUtilities;
@@ -85,12 +85,12 @@ public class SymbolicXYPlotDemo {
 
         //HorizontalSymbolicAxis xSymbolicAxis
         //    = new HorizontalSymbolicAxis(xAxisLabel, ((XisSymbolic) data).getXSymbolicValues());
-        HorizontalNumberAxis xSymbolicAxis = new HorizontalNumberAxis("TEST");
-        
-        VerticalSymbolicAxis ySymbolicAxis
-            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data).getYSymbolicValues());
+        NumberAxis xSymbolicAxis = new NumberAxis("TEST");
 
-        XYPlot plot = new XYPlot(data, xSymbolicAxis, ySymbolicAxis);
+        SymbolicAxis ySymbolicAxis
+            = new SymbolicAxis(yAxisLabel, ((YisSymbolic) data).getYSymbolicValues());
+
+        XYPlot plot = new XYPlot(data, xSymbolicAxis, ySymbolicAxis, null);
         XYItemRenderer renderer
             = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES,
                                          new SymbolicXYToolTipGenerator());
@@ -143,10 +143,10 @@ public class SymbolicXYPlotDemo {
                            "Heavy metals", "Fluors", "Aerosols", "Dead organic materials",
                            "Pathogen micro-organisms"};
 
-        int[][] xd = {{ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
-                        2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }};
-        int[][] yd = {{ 0, 2, 3, 7, 10, 11, 12, 14, 0, 2, 3, 4, 7, 8, 9, 10, 11, 12, 14, 0, 1, 2, 3,
-                        4, 5, 7, 8, 9, 10, 13, 14, 0, 1, 2, 3, 4, 5, 8, 9, 10, 13, 14 }};
+        int[][] xd = {{0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2,
+                       2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}};
+        int[][] yd = {{0, 2, 3, 7, 10, 11, 12, 14, 0, 2, 3, 4, 7, 8, 9, 10, 11, 12, 14, 0, 1, 2, 3,
+                       4, 5, 7, 8, 9, 10, 13, 14, 0, 1, 2, 3, 4, 5, 8, 9, 10, 13, 14}};
         Integer[][] xData = (Integer[][]) toArray(xd);
         Integer[][] yData = (Integer[][]) toArray(yd);
         SampleXYSymbolicDataset xySymbolicData = new SampleXYSymbolicDataset("AXY Sample",
@@ -162,15 +162,15 @@ public class SymbolicXYPlotDemo {
      */
     public static SampleXYSymbolicDataset createXYSymbolicSample2() {
 
-        String[] xsData = { "Physic pollutant", "Chemical pollutant", "Biological pollutant" };
-        String[] ysData = { "Ionizing radiations", "Thermic pollutants", "Hydrocarbon",
+        String[] xsData = {"Physic pollutant", "Chemical pollutant", "Biological pollutant"};
+        String[] ysData = {"Ionizing radiations", "Thermic pollutants", "Hydrocarbon",
                             "Synthetic materials", "Pesticides", "Detergent",
                             "Synthetic organic materials", "Sulphur", "Nitrate", "Phosphate",
                             "Heavy metals", "Fluors", "Aerosols", "Dead organic materials",
-                            "Pathogen micro-organisms" };
+                            "Pathogen micro-organisms"};
 
-        int[][] xd = {{ 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2 }};
-        int[][] yd = {{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 }};
+        int[][] xd = {{0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2}};
+        int[][] yd = {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}};
         Integer[][] xData = (Integer[][]) toArray(xd);
         Integer[][] yData = (Integer[][]) toArray(yd);
         SampleXYSymbolicDataset xySymbolicData = new SampleXYSymbolicDataset("BXY Sample",
@@ -235,22 +235,18 @@ public class SymbolicXYPlotDemo {
         XYDataset series1 = new SubSeriesDataset(data, 1);
 
         // create overlaid plot...
-        HorizontalSymbolicAxis hsymbolicAxis =
-            new HorizontalSymbolicAxis(xAxisLabel, combinedXSymbolicValues);
-        VerticalSymbolicAxis vsymbolicAxis =
-            new VerticalSymbolicAxis(yAxisLabel, combinedYSymbolicValues);
+        SymbolicAxis hsymbolicAxis = new SymbolicAxis(xAxisLabel, combinedXSymbolicValues);
+        SymbolicAxis vsymbolicAxis = new SymbolicAxis(yAxisLabel, combinedYSymbolicValues);
 
-        OverlaidXYPlot mainPlot = new OverlaidXYPlot(hsymbolicAxis, vsymbolicAxis);
+        XYItemRenderer renderer1 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot plot = new XYPlot(series0, hsymbolicAxis, vsymbolicAxis, renderer1);
 
-        // add the sub-plots...
-        XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
-        XYPlot subplot0 = new XYPlot(series0, null, null, renderer);
-        XYPlot subplot1 = new XYPlot(series1, null, null, renderer);
-        mainPlot.add(subplot0);
-        mainPlot.add(subplot1);
+        XYItemRenderer renderer2 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryDataset(0, series1);
+        plot.setSecondaryRenderer(0, renderer2);
 
         // make the chart...
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, mainPlot, true);
+        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
 
         // and present it in a frame...
@@ -293,15 +289,15 @@ public class SymbolicXYPlotDemo {
         JFreeChart chart = null;
 
         // common horizontal and vertical axes
-        HorizontalSymbolicAxis hsymbolicAxis0
-            = new HorizontalSymbolicAxis(x1AxisLabel, ((XisSymbolic) data1).getXSymbolicValues());
-        HorizontalSymbolicAxis hsymbolicAxis1
-            = new HorizontalSymbolicAxis(x2AxisLabel, ((XisSymbolic) data2).getXSymbolicValues());
-        VerticalSymbolicAxis symbolicAxis
-            = new VerticalSymbolicAxis(yAxisLabel, combinedYSymbolicValues);
+        SymbolicAxis hsymbolicAxis0
+            = new SymbolicAxis(x1AxisLabel, ((XisSymbolic) data1).getXSymbolicValues());
+        SymbolicAxis hsymbolicAxis1
+            = new SymbolicAxis(x2AxisLabel, ((XisSymbolic) data2).getXSymbolicValues());
+        SymbolicAxis symbolicAxis
+            = new SymbolicAxis(yAxisLabel, combinedYSymbolicValues);
 
         // create main plot...
-        CombinedXYPlot mainPlot = new CombinedXYPlot(symbolicAxis, CombinedXYPlot.HORIZONTAL);
+        CombinedDomainXYPlot mainPlot = new CombinedDomainXYPlot(symbolicAxis);
 
         // add subplots...
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
@@ -351,17 +347,17 @@ public class SymbolicXYPlotDemo {
         XYDataset series1 = new SubSeriesDataset(data, 1);
 
         // common horizontal and vertical axes
-        HorizontalSymbolicAxis hsymbolicAxis
-            = new HorizontalSymbolicAxis(xAxisLabel, combinedXSymbolicValues);
+        SymbolicAxis hsymbolicAxis
+            = new SymbolicAxis(xAxisLabel, combinedXSymbolicValues);
 
-        VerticalSymbolicAxis vsymbolicAxis0
-            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data1).getYSymbolicValues());
+        SymbolicAxis vsymbolicAxis0
+            = new SymbolicAxis(yAxisLabel, ((YisSymbolic) data1).getYSymbolicValues());
 
-        VerticalSymbolicAxis vsymbolicAxis1
-            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data2).getYSymbolicValues());
+        SymbolicAxis vsymbolicAxis1
+            = new SymbolicAxis(yAxisLabel, ((YisSymbolic) data2).getYSymbolicValues());
 
         // create the main plot...
-        CombinedXYPlot mainPlot = new CombinedXYPlot(hsymbolicAxis, CombinedXYPlot.VERTICAL);
+        CombinedDomainXYPlot mainPlot = new CombinedDomainXYPlot(hsymbolicAxis);
 
         // add the sub-plots...
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);

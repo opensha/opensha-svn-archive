@@ -10,9 +10,12 @@ import javax.swing.border.*;
 import org.scec.gui.*;
 import org.scec.gui.plot.jfreechart.*;
 import org.jfree.chart.*;
+import org.jfree.chart.plot.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
 import org.jfree.chart.renderer.*;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
+
 
 
 /**
@@ -30,7 +33,7 @@ public class GriddedFaultPlotter extends ArrayList{
     protected final static boolean D = false;
 
     private boolean lightweight;
-    private java.awt.Color plotColor = Color.white;
+    private java.awt.Color plotColor = Color.black;
 
     public final static String X_AXIS_LABEL = "Longitude (deg.)";
     public final static String Y_AXIS_LABEL = "Latitude (deg.)";
@@ -91,7 +94,7 @@ public class GriddedFaultPlotter extends ArrayList{
         SUB_SHAPE_RENDERER.setFillColor( new Color(red, green, blue)  );
     }
 
-    protected void setRenderer(GeoXYPlot plot){
+    protected void setRenderer(XYPlot plot){
         switch (plotType) {
             case SHAPES:
               // set the shape so that only circles are drawn
@@ -170,8 +173,11 @@ public class GriddedFaultPlotter extends ArrayList{
 
     private ChartPanel createChartWithSingleDataset(String griddedSurfaceName,double gridSpacing ){
 
-        org.jfree.chart.axis.NumberAxis xAxis =  new org.jfree.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
-        org.jfree.chart.axis.NumberAxis yAxis =  new org.jfree.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis xAxis =  new org.jfree.chart.axis.NumberAxis( X_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis yAxis =  new org.jfree.chart.axis.NumberAxis( Y_AXIS_LABEL );
+        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+        org.jfree.chart.renderer.StandardXYItemRenderer renderer =
+            new org.jfree.chart.renderer.StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
        // X - Axis
         xAxis.setAutoRangeIncludesZero( false );
 
@@ -187,23 +193,31 @@ public class GriddedFaultPlotter extends ArrayList{
         if( functions == null ) return null;
 
         // build the plot
-        GeoXYPlot plot = new GeoXYPlot(functions, xAxis, yAxis);
+        GeoXYPlot plot = new GeoXYPlot(functions, xAxis, yAxis,renderer);
         plot.setDomainCrosshairLockedOnData(false);
         plot.setDomainCrosshairVisible(true);
         plot.setRangeCrosshairLockedOnData(false);
         plot.setRangeCrosshairVisible(true);
 
-        /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
-           being generated  in the Plot.java class constructor*/
-        //Smooth Colors transition from Red to Blue
-        int totalSeries=functions.getSeriesCount();
-        int count = (int)(Math.ceil(255.0/totalSeries));
         plot.setBackgroundPaint( plotColor );
         setRenderer(plot);
-        for(int i=255,j=0;i>=0;i-=count,j++)
+        int totalSeries=functions.getSeriesCount();
+        boolean showLegend = false;
+
+
+        /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
+           being generated  in the Plot.java class constructor*/
+        if(functions instanceof GriddedSurfaceXYDataSet) { // change colors for gridded plot
+          //Smooth Colors transition from Red to Blue
+
+          int count = (int)(Math.ceil(255.0/totalSeries));
+          for(int i=255,j=0;i>=0;i-=count,j++)
           plot.getRenderer().setSeriesPaint(j, new Color(i,0,255-i));
+          showLegend = true;
+        } else if(totalSeries == 1) showLegend = true;
+
         // build chart
-        JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
+        JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, showLegend );
         chart.setBackgroundPaint( GriddedFaultApplet.peach );
 
         // create panel
@@ -218,89 +232,66 @@ public class GriddedFaultPlotter extends ArrayList{
     private ChartPanel createOverlaidChart( String griddedSurfaceName, double gridSpacing) {
 
 
-        org.jfree.chart.axis.NumberAxis xAxis =  new org.jfree.chart.axis.HorizontalNumberAxis( X_AXIS_LABEL );
-        org.jfree.chart.axis.NumberAxis yAxis =  new org.jfree.chart.axis.VerticalNumberAxis( Y_AXIS_LABEL );
-      // X - Axis
+        org.jfree.chart.axis.NumberAxis xAxis =  new org.jfree.chart.axis.NumberAxis( X_AXIS_LABEL );
+        org.jfree.chart.axis.NumberAxis yAxis =  new org.jfree.chart.axis.NumberAxis( Y_AXIS_LABEL );
+        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+        org.jfree.chart.renderer.StandardXYItemRenderer renderer =
+            new org.jfree.chart.renderer.StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
+
+        // X - Axis
         xAxis.setAutoRangeIncludesZero( false );
-
-      // Y axis
+        // Y axis
         yAxis.setAutoRangeIncludesZero( false );
-
-
-        // axis
-
         xAxis.setAutoRange(true) ;
         yAxis.setAutoRange(true);
+
+        // Get the data
+        XYDataset functions ;
+        functions = (XYDataset)this.get(0);
+        if( functions == null ) return null;
         // multi plot
-        OverlaidGeoXYPlot plot = new OverlaidGeoXYPlot(xAxis, yAxis);
+        GeoXYPlot plot = new GeoXYPlot(functions, xAxis, yAxis, renderer);
         plot.setDomainCrosshairLockedOnData(false);
         plot.setDomainCrosshairVisible(false);
         plot.setRangeCrosshairLockedOnData(false);
         plot.setRangeCrosshairVisible(false);
-
-        // Get the data
-        XYDataset functions ;
-        if(this.plotType == this.SHAPES_LINES_AND_SHAPES)
-            functions = (XYDataset)this.get(1);
-        else
-            functions = (XYDataset)this.get(0);
-
-        if( functions == null ) return null;
-
-        /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
-           being generated  in the Plot.java class constructor*/
-        //Smooth Colors transition from Red to Blue
-        int totalSeries=functions.getSeriesCount();
-        Paint[] seriesPaint = new Paint[totalSeries+2];
-        int count = (int)(Math.ceil(255.0/totalSeries));
-        int j=0;
-        for(int i=255;i>=0;i-=count,j++) {
-            seriesPaint[j]=new Color(i,0,255-i);
-         }
-         int numSeries = j;
-         for(int i=0; i < numSeries; ++i)  plot.getRenderer().setSeriesPaint(i,seriesPaint[i]);
-         plot.setBackgroundPaint( plotColor );
-
-
-         // Add all subplots
-         int last = this.size();
-         int counter = 0;
-         ListIterator it = this.listIterator();
-         while(it.hasNext()){
-
-           counter++;
-           XYDataset dataSet = (XYDataset)it.next();
-           GeoXYPlot plot1 = new GeoXYPlot(dataSet, null, null);
-
-           for(int i=0; i < numSeries; ++i) {
-             // set the shapes so that only circles are drawn
-             SUB_SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
-             SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
-           }
-
-           plot1.setBackgroundPaint( plotColor );
-
-           if( plotType == SUB_SHAPES){
-             if( counter == last ) {
-               plot1.setRenderer( SUB_SHAPE_RENDERER );
-             }
-             else plot1.setRenderer( SHAPE_RENDERER );
-           }else if(plotType==SHAPES_LINES_AND_SHAPES) {
-             if( counter == last )
-               plot1.setRenderer(SHAPE_RENDERER);
-             else
-               plot1.setRenderer(SHAPES_AND_LINES_RENDERER);
-           }
-           else setRenderer(plot1);
-           for(int i=0; i < numSeries; ++i)
-             plot1.getRenderer().setSeriesPaint(i,seriesPaint[i]);
-           plot.add(plot1);
-         }
+        int numSeries, count, j;
+        XYDataset dataset1;
+        switch(plotType) {
+          case SHAPES_LINES_AND_SHAPES: /** for grid plot and fault trace */
+            plot.setRenderer(this.SHAPES_AND_LINES_RENDERER);
+            dataset1 = (XYDataset)this.get(1);
+            numSeries = dataset1.getSeriesCount();
+            count = (int)(Math.ceil(255.0/numSeries));
+            j=0;
+            for(int i=255;i>=0;i-=count,j++) this.SHAPE_RENDERER.setSeriesPaint(j, new Color(i,0,255-i));
+            for(int i=0; i<numSeries; ++i)  SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+            plot.setSecondaryDataset(0, dataset1);
+            plot.setSecondaryRenderer(0, SHAPE_RENDERER);
+            break;
+          case SUB_SHAPES: /** for grid plot and sub plot */
+            plot.setRenderer(this.SHAPE_RENDERER);
+            numSeries = functions.getSeriesCount();
+            count = (int)(Math.ceil(255.0/numSeries));
+            j=0;
+            for(int i=255;i>=0;i-=count,j++) this.SHAPE_RENDERER.setSeriesPaint(j, new Color(i,0,255-i));
+            for(int i=0; i<numSeries; ++i) {
+              SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+              SUB_SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
+            }
+            dataset1 = (XYDataset)this.get(1);
+            int numSeries1 = dataset1.getSeriesCount();
+            for(int i=0; i<numSeries1; ++i) this.SUB_SHAPE_RENDERER.setSeriesPaint(i, SUB_SHAPE_RENDERER.getFillColor());
+            plot.setSecondaryDataset(0, dataset1);
+            plot.setSecondaryRenderer(0,SUB_SHAPE_RENDERER);
+            break;
+        }
+        plot.setBackgroundPaint( plotColor );
+        //System.out.println("Lower: "+yAxis.getRange().getLowerBound()+"Upper: "+yAxis.getRange().getUpperBound());
 
         // return a new chart containing the overlaid plot...
         JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, !lightweight);
         chart.setBackgroundPaint( GriddedFaultApplet.peach );
-
         // create panel
         if( multiChartPanel == null ) lazyInitMultiPanel(chart);
         multiChartPanel.setChart(chart);

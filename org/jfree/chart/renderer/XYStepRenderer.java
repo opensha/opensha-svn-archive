@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Roger Studner and Contributors.
  *
  * Original Author:  Roger Studner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -35,6 +35,9 @@
  * 25-Jun-2002 : Updated import statements (DG);
  * 22-Jul-2002 : Added check for null data items (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
  *
  */
 package org.jfree.chart.renderer;
@@ -46,13 +49,16 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.tooltips.XYToolTipGenerator;
 import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.data.XYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.PublicCloneable;
 
 /**
  * Line/Step item renderer for an {@link XYPlot}.  This class draws lines between data
@@ -60,8 +66,10 @@ import org.jfree.data.XYDataset;
  *
  * @author Roger Studner
  */
-public class XYStepRenderer extends AbstractXYItemRenderer 
-                            implements XYItemRenderer, Serializable {
+public class XYStepRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                      Cloneable,
+                                                                      PublicCloneable,
+                                                                      Serializable {
 
     /** A working line (to save creating many instances). */
     private transient Line2D line;
@@ -70,25 +78,27 @@ public class XYStepRenderer extends AbstractXYItemRenderer
      * Constructs a new renderer with no tooltip or URL generation.
      */
     public XYStepRenderer() {
-
-        this(null, null);
-        
+        super();
+        this.line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
     }
 
     /**
      * Constructs a new renderer.
-     * 
+     *
      * @param toolTipGenerator  the tooltip generator.
      * @param urlGenerator  the URL generator.
      */
     public XYStepRenderer(XYToolTipGenerator toolTipGenerator,
                           XYURLGenerator urlGenerator) {
-    
-        super(toolTipGenerator, urlGenerator);
+
+        
+        super();
+        setToolTipGenerator(toolTipGenerator);
+        setURLGenerator(urlGenerator);
         this.line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
-            
+
     }
-                          
+
     /**
      * Draws the visual representation of a single data item.
      *
@@ -99,18 +109,25 @@ public class XYStepRenderer extends AbstractXYItemRenderer
      * @param horizontalAxis  the horizontal axis.
      * @param verticalAxis  the vertical axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo collects information about the crosshairs.
+     * @param pass  the pass index (ignored here).
      */
-    public void drawItem(Graphics2D g2, Rectangle2D dataArea, ChartRenderingInfo info,
-                         XYPlot plot, ValueAxis horizontalAxis, ValueAxis verticalAxis,
-                         XYDataset dataset, int datasetIndex, int series, int item,
-                         CrosshairInfo crosshairInfo) {
+    public void drawItem(Graphics2D g2, 
+                         Rectangle2D dataArea, 
+                         PlotRenderingInfo info,
+                         XYPlot plot, 
+                         ValueAxis horizontalAxis, 
+                         ValueAxis verticalAxis,
+                         XYDataset dataset, 
+                         int series, 
+                         int item,
+                         CrosshairInfo crosshairInfo, 
+                         int pass) {
 
-        Paint seriesPaint = getItemPaint(datasetIndex, series, item);
-        Stroke seriesStroke = getItemStroke(datasetIndex, series, item);
+        Paint seriesPaint = getItemPaint(series, item);
+        Stroke seriesStroke = getItemStroke(series, item);
         g2.setPaint(seriesPaint);
         g2.setStroke(seriesStroke);
 
@@ -121,27 +138,49 @@ public class XYStepRenderer extends AbstractXYItemRenderer
             return;
         }
 
-        double transX1 = horizontalAxis.translateValueToJava2D(x1.doubleValue(), dataArea);
-        double transY1 = verticalAxis.translateValueToJava2D(y1.doubleValue(), dataArea);
+        RectangleEdge xAxisLocation = plot.getDomainAxisEdge();
+        RectangleEdge yAxisLocation = plot.getRangeAxisEdge();
+        double transX1 = horizontalAxis.translateValueToJava2D(x1.doubleValue(), dataArea, 
+                                                               xAxisLocation);
+        double transY1 = verticalAxis.translateValueToJava2D(y1.doubleValue(), dataArea, 
+                                                             yAxisLocation);
 
         if (item > 0) {
             // get the previous data point...
             Number x0 = dataset.getXValue(series, item - 1);
             Number y0 = dataset.getYValue(series, item - 1);
             if (y0 != null) {
-                double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea);
-                double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea);
+                double transX0 = horizontalAxis.translateValueToJava2D(x0.doubleValue(), dataArea, 
+                                                                       xAxisLocation);
+                double transY0 = verticalAxis.translateValueToJava2D(y0.doubleValue(), dataArea, 
+                                                                     yAxisLocation);
 
-                if (transY0 == transY1) { //this represents the situation for drawing a
-                                          //horizontal bar.
-                    line.setLine(transX0, transY0, transX1, transY1);
-                    g2.draw(line);
+                PlotOrientation orientation = plot.getOrientation();
+                if (orientation == PlotOrientation.HORIZONTAL) {
+                    if (transY0 == transY1) { //this represents the situation for drawing a
+                                              //horizontal bar.
+                        line.setLine(transY0, transX0, transY1, transX1);
+                        g2.draw(line);
+                    }
+                    else {  //this handles the need to perform a 'step'.
+                        line.setLine(transY0, transX0, transY1, transX0);
+                        g2.draw(line);
+                        line.setLine(transY1, transX0, transY1, transX1);
+                        g2.draw(line);
+                    }
                 }
-                else {  //this handles the need to perform a 'step'.
-                    line.setLine(transX0, transY0, transX1, transY0);
-                    g2.draw(line);
-                    line.setLine(transX1, transY0, transX1, transY1);
-                    g2.draw(line);
+                else if (orientation == PlotOrientation.VERTICAL) {
+                    if (transY0 == transY1) { //this represents the situation for drawing a
+                                              //horizontal bar.
+                        line.setLine(transX0, transY0, transX1, transY1);
+                        g2.draw(line);
+                    }
+                    else {  //this handles the need to perform a 'step'.
+                        line.setLine(transX0, transY0, transX1, transY0);
+                        g2.draw(line);
+                        line.setLine(transX1, transY0, transX1, transY1);
+                        g2.draw(line);
+                    }
                 }
 
             }
@@ -151,7 +190,8 @@ public class XYStepRenderer extends AbstractXYItemRenderer
         if (plot.isDomainCrosshairLockedOnData()) {
             if (plot.isRangeCrosshairLockedOnData()) {
                 // both crosshairs
-                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue());
+                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue(),
+                                                   transX1, transY1);
             }
             else {
                 // just the horizontal axis...
@@ -166,6 +206,17 @@ public class XYStepRenderer extends AbstractXYItemRenderer
             }
         }
 
+    }
+
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

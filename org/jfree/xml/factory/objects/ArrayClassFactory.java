@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,13 +19,13 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * --------------------------
- * ClassFactoryCollector.java
- * --------------------------
+ * ----------------------
+ * ArrayClassFactory.java
+ * ----------------------
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -35,8 +35,8 @@
  */
 package org.jfree.xml.factory.objects;
 
-import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.jfree.util.Configuration;
 
@@ -48,6 +48,12 @@ import org.jfree.util.Configuration;
  * @author Thomas Morgner.
  */
 public class ArrayClassFactory implements ClassFactory {
+
+    /**
+     * Default constructor.
+     */
+    public ArrayClassFactory() {
+    }
 
     /**
      * Returns an object description for a class.
@@ -105,5 +111,29 @@ public class ArrayClassFactory implements ClassFactory {
      * @param config the configuration, never null
      */
     public void configure(Configuration config) {
+    }
+
+    /**
+     * ArrayClassFactories are always equal, there is nothing that could
+     * not be equal :)
+     *
+     * @param o the other object.
+     * @return true, if both object factories describe the same objects, false otherwise.
+     */
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ArrayClassFactory)) return false;
+        return true;
+    }
+
+    /**
+     * Returns a hash code value for the object. This method is
+     * supported for the benefit of hashtables such as those provided by
+     * <code>java.util.Hashtable</code>.
+     *
+     * @return the computed hashcode.
+     */
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

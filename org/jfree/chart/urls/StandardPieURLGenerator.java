@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
- * Contributors:     David Gilbert (for Simba Management Limited);
+ * Contributors:     David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -89,11 +89,11 @@ public class StandardPieURLGenerator implements PieURLGenerator, Serializable {
      * @param data  the dataset.
      * @param key  the item key.
      * @param pieIndex  the pie index (ignored).
-     * 
+     *
      * @return a string containing the generated URL.
      */
     public String generateURL(PieDataset data, Comparable key, int pieIndex) {
-        
+
         String url = this.prefix;
         if (url.indexOf("?") > -1) {
             url += "&" + this.categoryParameterName + "=" + key.toString();
@@ -101,36 +101,36 @@ public class StandardPieURLGenerator implements PieURLGenerator, Serializable {
         else {
             url += "?" + this.categoryParameterName + "=" + key.toString();
         }
- 
+
         // might want to add pieIndex
- 
+
         return url;
-        
+
     }
-    
+
     /**
      * Tests if this object is equal to another.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
-    
+
         if (o == null) {
             return false;
         }
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof StandardPieURLGenerator) {
             StandardPieURLGenerator generator = (StandardPieURLGenerator) o;
-            return (this.categoryParameterName.equals(generator.categoryParameterName)) 
+            return (this.categoryParameterName.equals(generator.categoryParameterName))
                 && (this.prefix.equals(generator.prefix));
         }
-       
+
         return false;
-            
+
     }
 }

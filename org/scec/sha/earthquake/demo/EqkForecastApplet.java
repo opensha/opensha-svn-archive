@@ -16,6 +16,7 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 import org.scec.param.event.*;
 import org.scec.param.*;
@@ -1211,12 +1212,12 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
 
-      HorizontalNumberAxis xAxis = new HorizontalNumberAxis( xAxisLabel );
+      NumberAxis xAxis = new NumberAxis( xAxisLabel );
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setTickMarksVisible(false);
 
 
-      VerticalNumberAxis yAxis = new VerticalNumberAxis( yAxisLabel );
+      NumberAxis yAxis = new NumberAxis( yAxisLabel );
       yAxis.setAutoRangeIncludesZero( false );
       yAxis.setTickMarksVisible(false);
 
@@ -1225,13 +1226,13 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-      LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+      StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
       //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
 
       // build the plot
 
-      org.jfree.chart.plot.LogXYPlot plot = new org.jfree.chart.plot.LogXYPlot(this.totalData, xAxis, yAxis, renderer);
+      org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(this.totalData, xAxis, yAxis, renderer);
       plot.setBackgroundAlpha( .8f );
       plot.setDomainCrosshairLockedOnData(false);
       plot.setDomainCrosshairVisible(false);

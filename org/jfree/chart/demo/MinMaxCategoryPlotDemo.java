@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------------
  * MinMaxCategoryPlotDemo.java
  * ---------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,11 +39,13 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.MinMaxCategoryRenderer;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
@@ -93,11 +95,12 @@ public class MinMaxCategoryPlotDemo extends ApplicationFrame {
         dataset.addValue(3.0, "Third", "Category 8");
 
         // create the chart...
-        JFreeChart chart
-            = ChartFactory.createVerticalBarChart("Min/Max Category Plot",  // chart title
+        JFreeChart chart = ChartFactory.createBarChart(
+                                                  "Min/Max Category Plot",  // chart title
                                                   "Category",               // domain axis label
                                                   "Value",                  // range axis label
                                                   dataset,                  // data
+                                                  PlotOrientation.VERTICAL,
                                                   true,                     // include legend
                                                   true,                     // tooltips
                                                   false                     // urls
@@ -113,7 +116,7 @@ public class MinMaxCategoryPlotDemo extends ApplicationFrame {
         plot.setRenderer(new MinMaxCategoryRenderer());
 
         // change the category labels to vertical...
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setSkipCategoryLabelsToFit(true);
         // OPTIONAL CUSTOMISATION COMPLETED.
 

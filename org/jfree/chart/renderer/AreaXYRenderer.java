@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,8 +25,9 @@
  * (C) Copyright 2002, 2003 by Hari and Contributors.
  *
  * Original Author:  Hari (ourhari@hotmail.com);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *                   Richard Atkinson;
+ *                   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -42,7 +43,12 @@
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 07-Nov-2002 : Renamed AreaXYItemRenderer --> AreaXYRenderer (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 27-Jul-2003 : Made line and polygon properties protected rather than private (RA);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -56,25 +62,29 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.labels.XYToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.tooltips.XYToolTipGenerator;
 import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.data.XYDataset;
+import org.jfree.util.PublicCloneable;
 
 /**
- * Area item renderer for an XYPlot.  This class can draw (a) shapes at each
+ * Area item renderer for an {@link XYPlot}.  This class can draw (a) shapes at each
  * point, or (b) lines between points, or (c) both shapes and lines, or (d)
  * filled areas, or (e) filled areas and shapes.
  *
  * @author Hari
  */
-public class AreaXYRenderer extends AbstractXYItemRenderer 
-                            implements XYItemRenderer, Serializable {
+public class AreaXYRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                      Cloneable,
+                                                                      PublicCloneable,
+                                                                      Serializable {
 
     /** Useful constant for specifying the type of rendering (shapes only). */
     public static final int SHAPES = 1;
@@ -100,20 +110,14 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
     /** A flag indicating whether or not Area are drawn at each XY point. */
     private boolean plotArea;
 
-    /** Scale factor for standard shapes. */
-    private double shapeScale = 6;
-
     /** A flag that controls whether or not the outline is shown. */
     private boolean showOutline;
 
-    /** The value of zero in Java2D coordinates. */
-    private double zeroToJava2D;
-
     /** A working line (to save creating thousands of instances). */
-    private transient Line2D line;
+    protected transient Line2D line;
 
     /** Area of the complete series */
-    private transient Polygon pArea = null;
+    protected transient Polygon pArea = null;
 
     /**
      * Constructs a new renderer.
@@ -146,7 +150,9 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
     public AreaXYRenderer(int type,
                           XYToolTipGenerator toolTipGenerator, XYURLGenerator urlGenerator) {
 
-        super(toolTipGenerator, urlGenerator);
+        super();
+        setToolTipGenerator(toolTipGenerator);
+        setURLGenerator(urlGenerator);
 
         if (type == SHAPES) {
             this.plotShapes = true;
@@ -216,6 +222,7 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
     }
 
     /**
+<<<<<<< AreaXYRenderer.java
      * Initialises the renderer.  Here we calculate the Java2D y-coordinate for
      * zero, since all the bars have their bases fixed at zero.
      *
@@ -224,16 +231,17 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
      * @param plot  the plot.
      * @param data  the data.
      * @param info  an optional info collection object to return data back to the caller.
+     *
+     * @return The number of passes required by the renderer.
      */
-    public void initialise(Graphics2D g2,
-                           Rectangle2D dataArea,
-                           XYPlot plot,
-                           XYDataset data,
-                           ChartRenderingInfo info) {
+    public int initialise(Graphics2D g2,
+                          Rectangle2D dataArea,
+                          XYPlot plot,
+                          XYDataset data,
+                          PlotRenderingInfo info) {
 
         super.initialise(g2, dataArea, plot, data, info);
-        ValueAxis rangeAxis = plot.getRangeAxis();
-        this.zeroToJava2D = rangeAxis.translateValueToJava2D(0.0, dataArea);
+        return 1;
 
     }
 
@@ -247,59 +255,81 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo  information about crosshairs on a plot.
+     * @param pass  the pass index.
      */
     public void drawItem(Graphics2D g2,
                          Rectangle2D dataArea,
-                         ChartRenderingInfo info,
+                         PlotRenderingInfo info,
                          XYPlot plot,
                          ValueAxis domainAxis,
                          ValueAxis rangeAxis,
                          XYDataset dataset,
-                         int datasetIndex,
                          int series,
                          int item,
-                         CrosshairInfo crosshairInfo) {
+                         CrosshairInfo crosshairInfo,
+                         int pass) {
 
         // Get the item count for the series, so that we can know which is the end of the series.
         int itemCount = dataset.getItemCount(series);
 
-        Paint paint = getItemPaint(datasetIndex, series, item);
-        Stroke seriesStroke = getItemStroke(datasetIndex, series, item);
+        Paint paint = getItemPaint(series, item);
+        Stroke seriesStroke = getItemStroke(series, item);
         g2.setPaint(paint);
         g2.setStroke(seriesStroke);
 
         // get the data point...
         Number x1 = dataset.getXValue(series, item);
         Number y1 = dataset.getYValue(series, item);
-        double transX1 = domainAxis.translateValueToJava2D(x1.doubleValue(), dataArea);
-        double transY1 = rangeAxis.translateValueToJava2D(y1.doubleValue(), dataArea);
+        double transX1 = domainAxis.translateValueToJava2D(x1.doubleValue(), dataArea, 
+                                                           plot.getDomainAxisEdge());
+        double transY1 = rangeAxis.translateValueToJava2D(y1.doubleValue(), dataArea, 
+                                                          plot.getRangeAxisEdge());
 
         if (item == 0) {
             // Create a new Area for the series
             pArea = new Polygon();
 
             // start from Y = 0
-            double transY2 = rangeAxis.translateValueToJava2D(0.0, dataArea);
+            double transY2 = rangeAxis.translateValueToJava2D(0.0, dataArea, 
+                                                              plot.getRangeAxisEdge());
 
             // The first point is (x, 0)
-            pArea.addPoint((int) transX1, (int) transY2);
+            if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+                pArea.addPoint((int) transX1, (int) transY2);
+            }
+            else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+                pArea.addPoint((int) transY2, (int) transX1);
+            }
         }
 
         // Add each point to Area (x, y)
-        pArea.addPoint((int) transX1, (int) transY1);
-
+        if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+            pArea.addPoint((int) transX1, (int) transY1);
+        }
+        else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+            pArea.addPoint((int) transY1, (int) transX1);
+        }
         Shape shape = null;
         if (this.plotShapes) {
-            shape = getItemShape(datasetIndex, series, item);
-            shape = createTransformedShape(shape, transX1, transY1);
+            shape = getItemShape(series, item);
+            if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+                shape = createTransformedShape(shape, transX1, transY1);
+            }
+            else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+                shape = createTransformedShape(shape, transY1, transX1);
+            }
             g2.draw(shape);
         }
         else {
-            shape = new Rectangle2D.Double(transX1 - 2, transY1 - 2, 4.0, 4.0);
+            if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+                shape = new Rectangle2D.Double(transX1 - 2, transY1 - 2, 4.0, 4.0);
+            }
+            else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+                shape = new Rectangle2D.Double(transY1 - 2, transX1 - 2, 4.0, 4.0);
+            }
         }
 
         if (this.plotLines) {
@@ -307,10 +337,17 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
                 // get the previous data point...
                 Number x0 = dataset.getXValue(series, item - 1);
                 Number y0 = dataset.getYValue(series, item - 1);
-                double transX0 = domainAxis.translateValueToJava2D(x0.doubleValue(), dataArea);
-                double transY0 = rangeAxis.translateValueToJava2D(y0.doubleValue(), dataArea);
+                double transX0 = domainAxis.translateValueToJava2D(x0.doubleValue(), dataArea, 
+                                                                   plot.getDomainAxisEdge());
+                double transY0 = rangeAxis.translateValueToJava2D(y0.doubleValue(), dataArea, 
+                                                                  plot.getRangeAxisEdge());
 
-                line.setLine(transX0, transY0, transX1, transY1);
+                if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+                    line.setLine(transX0, transY0, transX1, transY1);
+                }
+                else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+                    line.setLine(transY0, transX0, transY1, transX1);
+                }
                 g2.draw(line);
             }
         }
@@ -319,10 +356,17 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
         // and number of items > 0.  We can't draw an area for a single point.
         if (this.plotArea && item > 0 && item == (itemCount - 1)) {
 
-            double transY2 = rangeAxis.translateValueToJava2D(0.0, dataArea);
+            double transY2 = rangeAxis.translateValueToJava2D(0.0, dataArea, 
+                                                              plot.getRangeAxisEdge());
 
-            // Add the last point (x,0)
-            pArea.addPoint((int) transX1, (int) transY2);
+            if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+                // Add the last point (x,0)
+                pArea.addPoint((int) transX1, (int) transY2);
+            }
+            else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+                // Add the last point (x,0)
+                pArea.addPoint((int) transY2, (int) transX1);
+            }
 
             // fill the polygon
             g2.fill(pArea);
@@ -339,7 +383,8 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
         if (plot.isDomainCrosshairLockedOnData()) {
             if (plot.isRangeCrosshairLockedOnData()) {
                 // both axes
-                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue());
+                crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue(), 
+                                                   transX1, transY1);
             }
             else {
                 // just the horizontal axis...
@@ -356,7 +401,7 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
 
         // collect entity and tool tip information...
         if (getInfo() != null) {
-            EntityCollection entities = getInfo().getEntityCollection();
+            EntityCollection entities = getInfo().getOwner().getEntityCollection();
             if (entities != null && shape != null) {
                 String tip = null;
                 if (getToolTipGenerator() != null) {
@@ -366,11 +411,22 @@ public class AreaXYRenderer extends AbstractXYItemRenderer
                 if (getURLGenerator() != null) {
                     url = getURLGenerator().generateURL(dataset, series, item);
                 }
-                XYItemEntity entity = new XYItemEntity(shape, tip, url, series, item);
+                XYItemEntity entity = new XYItemEntity(shape, dataset, series, item, tip, url);
                 entities.addEntity(entity);
             }
         }
 
     }
 
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+    
 }

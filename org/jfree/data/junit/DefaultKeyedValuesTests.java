@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------------
  * DefaultKeyedValuesTests.java
  * ----------------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 05-Mar-2003 : Version 1 (DG);
+ * 27-Aug-2003 : Moved SortOrder from org.jfree.data --> org.jfree.util (DG);
  *
  */
 
@@ -49,10 +50,10 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.jfree.data.DefaultKeyedValues;
-import org.jfree.data.SortOrder;
+import org.jfree.util.SortOrder;
 
 /**
- * Tests for the {@link DefaultKeyedValuesTests} class.
+ * Tests for the {@link DefaultKeyedValues} class.
  *
  * @author David Gilbert
  */
@@ -84,186 +85,206 @@ public class DefaultKeyedValuesTests extends TestCase {
     }
 
     /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        DefaultKeyedValues v1 = new DefaultKeyedValues();
+        v1.addValue("V1", new Integer(1));
+        v1.addValue("V2", null);
+        v1.addValue("V3", new Integer(3));
+        DefaultKeyedValues v2 = null;
+        try {
+            v2 = (DefaultKeyedValues) v1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            System.err.println("DefaultKeyedValuesTests.testCloning: failed to clone.");
+        }
+        assertTrue(v1 != v2);
+        assertTrue(v1.getClass() == v2.getClass());
+        assertTrue(v1.equals(v2));
+    }
+    
+    /**
      * Test that inserting and retrieving values works as expected.
      */
     public void testInsertAndRetrieve() {
-        
+
         DefaultKeyedValues data = new DefaultKeyedValues();
         data.addValue("A", new Double(1.0));
         data.addValue("B", new Double(2.0));
         data.addValue("C", new Double(3.0));
         data.addValue("D", null);
-        
+
         // check key order
         assertEquals(data.getKey(0), "A");
         assertEquals(data.getKey(1), "B");
         assertEquals(data.getKey(2), "C");
         assertEquals(data.getKey(3), "D");
-        
+
         // check retrieve value by key
         assertEquals(data.getValue("A"), new Double(1.0));
         assertEquals(data.getValue("B"), new Double(2.0));
         assertEquals(data.getValue("C"), new Double(3.0));
         assertEquals(data.getValue("D"), null);
-        
+
         // check retrieve value by index
         assertEquals(data.getValue(0), new Double(1.0));
         assertEquals(data.getValue(1), new Double(2.0));
         assertEquals(data.getValue(2), new Double(3.0));
         assertEquals(data.getValue(3), null);
-        
+
     }
 
     /**
      * Tests sorting of data by key (ascending).
      */
     public void testSortByKeyAscending() {
-        
+
         DefaultKeyedValues data = new DefaultKeyedValues();
         data.addValue("C", new Double(1.0));
         data.addValue("B", null);
         data.addValue("D", new Double(3.0));
         data.addValue("A", new Double(2.0));
-        
+
         data.sortByKeys(SortOrder.ASCENDING);
-        
+
         // check key order
         assertEquals(data.getKey(0), "A");
         assertEquals(data.getKey(1), "B");
         assertEquals(data.getKey(2), "C");
         assertEquals(data.getKey(3), "D");
-        
+
         // check retrieve value by key
         assertEquals(data.getValue("A"), new Double(2.0));
         assertEquals(data.getValue("B"), null);
         assertEquals(data.getValue("C"), new Double(1.0));
         assertEquals(data.getValue("D"), new Double(3.0));
-        
+
         // check retrieve value by index
         assertEquals(data.getValue(0), new Double(2.0));
         assertEquals(data.getValue(1), null);
         assertEquals(data.getValue(2), new Double(1.0));
         assertEquals(data.getValue(3), new Double(3.0));
-        
+
     }
 
     /**
      * Tests sorting of data by key (descending).
      */
     public void testSortByKeyDescending() {
-        
+
         DefaultKeyedValues data = new DefaultKeyedValues();
         data.addValue("C", new Double(1.0));
         data.addValue("B", null);
         data.addValue("D", new Double(3.0));
         data.addValue("A", new Double(2.0));
-        
+
         data.sortByKeys(SortOrder.DESCENDING);
-        
+
         // check key order
         assertEquals(data.getKey(0), "D");
         assertEquals(data.getKey(1), "C");
         assertEquals(data.getKey(2), "B");
         assertEquals(data.getKey(3), "A");
-        
+
         // check retrieve value by key
         assertEquals(data.getValue("A"), new Double(2.0));
         assertEquals(data.getValue("B"), null);
         assertEquals(data.getValue("C"), new Double(1.0));
         assertEquals(data.getValue("D"), new Double(3.0));
-        
+
         // check retrieve value by index
         assertEquals(data.getValue(0), new Double(3.0));
         assertEquals(data.getValue(1), new Double(1.0));
         assertEquals(data.getValue(2), null);
         assertEquals(data.getValue(3), new Double(2.0));
-        
+
     }
 
     /**
      * Tests sorting of data by value (ascending).
      */
     public void testSortByValueAscending() {
-        
+
         DefaultKeyedValues data = new DefaultKeyedValues();
         data.addValue("C", new Double(1.0));
         data.addValue("B", null);
         data.addValue("D", new Double(3.0));
         data.addValue("A", new Double(2.0));
-        
+
         data.sortByValues(SortOrder.ASCENDING);
-        
+
         // check key order
         assertEquals(data.getKey(0), "C");
         assertEquals(data.getKey(1), "A");
         assertEquals(data.getKey(2), "D");
         assertEquals(data.getKey(3), "B");
-        
+
         // check retrieve value by key
         assertEquals(data.getValue("A"), new Double(2.0));
         assertEquals(data.getValue("B"), null);
         assertEquals(data.getValue("C"), new Double(1.0));
         assertEquals(data.getValue("D"), new Double(3.0));
-        
+
         // check retrieve value by index
         assertEquals(data.getValue(0), new Double(1.0));
         assertEquals(data.getValue(1), new Double(2.0));
         assertEquals(data.getValue(2), new Double(3.0));
         assertEquals(data.getValue(3), null);
-        
+
     }
 
     /**
      * Tests sorting of data by key (descending).
      */
     public void testSortByValueDescending() {
-        
+
         DefaultKeyedValues data = new DefaultKeyedValues();
         data.addValue("C", new Double(1.0));
         data.addValue("B", null);
         data.addValue("D", new Double(3.0));
         data.addValue("A", new Double(2.0));
-        
+
         data.sortByValues(SortOrder.DESCENDING);
-        
+
         // check key order
         assertEquals(data.getKey(0), "D");
         assertEquals(data.getKey(1), "A");
         assertEquals(data.getKey(2), "C");
         assertEquals(data.getKey(3), "B");
-        
+
         // check retrieve value by key
         assertEquals(data.getValue("A"), new Double(2.0));
         assertEquals(data.getValue("B"), null);
         assertEquals(data.getValue("C"), new Double(1.0));
         assertEquals(data.getValue("D"), new Double(3.0));
-        
+
         // check retrieve value by index
         assertEquals(data.getValue(0), new Double(3.0));
         assertEquals(data.getValue(1), new Double(2.0));
         assertEquals(data.getValue(2), new Double(1.0));
         assertEquals(data.getValue(3), null);
-        
+
     }
-        
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         DefaultKeyedValues v1 = new DefaultKeyedValues();
         v1.addValue("Key 1", new Double(23));
         v1.addValue("Key 2", null);
         v1.addValue("Key 3", new Double(42));
-        
+
         DefaultKeyedValues v2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(v1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             v2 = (DefaultKeyedValues) in.readObject();
             in.close();
@@ -271,8 +292,8 @@ public class DefaultKeyedValuesTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(v1, v2); 
-        
+        assertEquals(v1, v2);
+
     }
 
 }

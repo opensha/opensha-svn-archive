@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * StackedAreaChartDemo.java
  * -------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -43,9 +43,11 @@ import java.awt.Color;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.CategoryItemRenderer;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DatasetUtilities;
 import org.jfree.ui.ApplicationFrame;
@@ -70,22 +72,23 @@ public class StackedAreaChartDemo extends ApplicationFrame {
 
         // create a dataset...
         double[][] data = new double[][] {
-            { 1.0, 4.0, 3.0, 5.0, 5.0, 7.0, 7.0, 8.0 },
-            { 5.0, 7.0, 6.0, 8.0, 4.0, 4.0, 2.0, 1.0 },
-            { 4.0, 3.0, 2.0, 3.0, 6.0, 3.0, 4.0, 3.0 }
-        };
+            {1.0, 4.0, 3.0, 5.0, 5.0, 7.0, 7.0, 8.0 },
+            {5.0, 7.0, 6.0, 8.0, 4.0, 4.0, 2.0, 1.0 },
+            {4.0, 3.0, 2.0, 3.0, 6.0, 3.0, 4.0, 3.0 }};
 
-		CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Series ", "Type ", data);
+        CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Series ", "Type ", data);
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createStackedAreaChart("Stacked Area Chart", // chart title
-                                                               "Category",    // domain axis label
-                                                               "Value",       // range axis label
-                                                                dataset,      // data
-                                                                true,         // include legend
-                                                                true,
-                                                                false
-                                                        );
+        JFreeChart chart = ChartFactory.createStackedAreaChart(
+            "Stacked Area Chart",      // chart title
+            "Category",                // domain axis label
+            "Value",                   // range axis label
+            dataset,                   // data
+            PlotOrientation.VERTICAL,  // orientation
+            true,                      // include legend
+            true,
+            false
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
@@ -95,9 +98,8 @@ public class StackedAreaChartDemo extends ApplicationFrame {
         // get a reference to the plot for further customisation...
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setForegroundAlpha(0.5f);
-        plot.setValueLabelsVisible(true);
 
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setVerticalCategoryLabels(true);
         domainAxis.setLowerMargin(0.0);
         domainAxis.setUpperMargin(0.0);
@@ -105,6 +107,10 @@ public class StackedAreaChartDemo extends ApplicationFrame {
         // change the auto tick unit selection to integer units only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setItemLabelsVisible(Boolean.TRUE);
+
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         // add the chart to a panel...

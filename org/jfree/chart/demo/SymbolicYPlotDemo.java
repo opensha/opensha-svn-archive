@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Anthony Boulestreau and Contributors.
  *
  * Original Author:  Anthony Boulestreau;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * Changes
  * -------
@@ -40,22 +40,24 @@ package org.jfree.chart.demo;
 
 import java.awt.Color;
 import java.awt.GradientPaint;
+
 import javax.swing.JFrame;
+
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SymbolicAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.SymbolicXYToolTipGenerator;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
+import org.jfree.chart.plot.CombinedRangeXYPlot;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
+import org.jfree.data.CombinedDataset;
 import org.jfree.data.SubSeriesDataset;
 import org.jfree.data.XYDataset;
 import org.jfree.data.YisSymbolic;
-import org.jfree.data.CombinedDataset;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartFrame;
-import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalSymbolicAxis;
-import org.jfree.chart.plot.CombinedXYPlot;
-import org.jfree.chart.plot.OverlaidXYPlot;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.tooltips.SymbolicXYToolTipGenerator;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -123,42 +125,41 @@ public class SymbolicYPlotDemo {
         XYDataset series7 = new SubSeriesDataset(data, 7);
 
         // create main plot...
-        ValueAxis valueAxis = new HorizontalNumberAxis(xAxisLabel);
-        VerticalSymbolicAxis symbolicAxis = new VerticalSymbolicAxis(yAxisLabel,
-                                                                     combinedYSymbolicValues);
-        OverlaidXYPlot mainPlot = new OverlaidXYPlot(valueAxis, symbolicAxis);
-
-        // create sub-plots (no axes required, subplots use axes from main plot)...
+        ValueAxis valueAxis = new NumberAxis(xAxisLabel);
+        SymbolicAxis symbolicAxis = new SymbolicAxis(yAxisLabel, combinedYSymbolicValues);
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
-        XYPlot subplot0 = new XYPlot(series0, null, null, renderer);
-//        subplot0.setSeriesPaint(0, Color.red);
-        XYPlot subplot1 = new XYPlot(series1, null, null, renderer);
-//        subplot1.setSeriesPaint(0, Color.blue);
-        XYPlot subplot2 = new XYPlot(series2, null, null, renderer);
-//        subplot2.setSeriesPaint(0, Color.green);
-        XYPlot subplot3 = new XYPlot(series3, null, null, renderer);
-//        subplot3.setSeriesPaint(0, Color.yellow);
-        XYPlot subplot4 = new XYPlot(series4, null, null, renderer);
-//        subplot4.setSeriesPaint(0, Color.gray);
-        XYPlot subplot5 = new XYPlot(series5, null, null, renderer);
-//        subplot5.setSeriesPaint(0, Color.orange);
-        XYPlot subplot6 = new XYPlot(series6, null, null, renderer);
-//        subplot6.setSeriesPaint(0, Color.magenta);
-        XYPlot subplot7 = new XYPlot(series7, null, null, renderer);
-//        subplot7.setSeriesPaint(0, Color.cyan);
+        XYPlot plot = new XYPlot(series0, valueAxis, symbolicAxis, renderer);
 
-        // add subplots to main plot...
-        mainPlot.add(subplot0);
-        mainPlot.add(subplot1);
-        mainPlot.add(subplot2);
-        mainPlot.add(subplot3);
-        mainPlot.add(subplot4);
-        mainPlot.add(subplot5);
-        mainPlot.add(subplot6);
-        mainPlot.add(subplot7);
+        plot.setSecondaryDataset(0, series1);
+        XYItemRenderer renderer1 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(0, renderer1);
+
+        plot.setSecondaryDataset(1, series2);
+        XYItemRenderer renderer2 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(1, renderer2);
+        
+        plot.setSecondaryDataset(2, series3);
+        XYItemRenderer renderer3 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(2, renderer3);
+        
+        plot.setSecondaryDataset(3, series4);
+        XYItemRenderer renderer4 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(3, renderer4);
+        
+        plot.setSecondaryDataset(4, series5);
+        XYItemRenderer renderer5 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(4, renderer5);
+        
+        plot.setSecondaryDataset(5, series6);
+        XYItemRenderer renderer6 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(5, renderer6);
+        
+        plot.setSecondaryDataset(6, series7);
+        XYItemRenderer renderer7 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        plot.setSecondaryRenderer(6, renderer7);
 
         // make the chart...
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, mainPlot, true);
+        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
 
         // and present it in a frame...
@@ -205,32 +206,36 @@ public class SymbolicYPlotDemo {
         XYDataset series7 = new SubSeriesDataset(data, 7);
 
         // create axes...
-        ValueAxis valueAxis1 = new HorizontalNumberAxis(xAxisLabel);
-        ValueAxis valueAxis2 = new HorizontalNumberAxis(xAxisLabel);
-        VerticalSymbolicAxis symbolicAxis = new VerticalSymbolicAxis(yAxisLabel,
-                                                                     combinedYSymbolicValues);
+        ValueAxis valueAxis0 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis1 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis2 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis3 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis4 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis5 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis6 = new NumberAxis(xAxisLabel);
+        ValueAxis valueAxis7 = new NumberAxis(xAxisLabel);
+        SymbolicAxis symbolicAxis = new SymbolicAxis(yAxisLabel, combinedYSymbolicValues);
 
-        // make a horizontally combined plot
-        CombinedXYPlot mainPlot = new CombinedXYPlot(symbolicAxis, CombinedXYPlot.HORIZONTAL);
+        // make a combined plot
+        CombinedRangeXYPlot mainPlot = new CombinedRangeXYPlot(symbolicAxis);
 
         // add the sub-plots
-        XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
-        XYPlot subplot0 = new XYPlot(series0, valueAxis1, null, renderer);
- //       subplot0.setSeriesPaint(0, Color.red);
-        XYPlot subplot1 = new XYPlot(series1, valueAxis1, null, renderer);
- //       subplot1.setSeriesPaint(0, Color.blue);
-        XYPlot subplot2 = new XYPlot(series2, valueAxis1, null, renderer);
- //       subplot2.setSeriesPaint(0, Color.green);
-        XYPlot subplot3 = new XYPlot(series3, valueAxis1, null, renderer);
-  //      subplot3.setSeriesPaint(0, Color.yellow);
-        XYPlot subplot4 = new XYPlot(series4, valueAxis2, null, renderer);
- //       subplot4.setSeriesPaint(0, Color.gray);
-        XYPlot subplot5 = new XYPlot(series5, valueAxis2, null, renderer);
- //       subplot5.setSeriesPaint(0, Color.orange);
-        XYPlot subplot6 = new XYPlot(series6, valueAxis2, null, renderer);
- //       subplot6.setSeriesPaint(0, Color.magenta);
-        XYPlot subplot7 = new XYPlot(series7, valueAxis2, null, renderer);
- //       subplot7.setSeriesPaint(0, Color.cyan);
+        XYItemRenderer renderer0 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot0 = new XYPlot(series0, valueAxis0, null, renderer0);
+        XYItemRenderer renderer1 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot1 = new XYPlot(series1, valueAxis1, null, renderer1);
+        XYItemRenderer renderer2 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot2 = new XYPlot(series2, valueAxis2, null, renderer2);
+        XYItemRenderer renderer3 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot3 = new XYPlot(series3, valueAxis3, null, renderer3);
+        XYItemRenderer renderer4 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot4 = new XYPlot(series4, valueAxis4, null, renderer4);
+        XYItemRenderer renderer5 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot5 = new XYPlot(series5, valueAxis5, null, renderer5);
+        XYItemRenderer renderer6 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot6 = new XYPlot(series6, valueAxis6, null, renderer6);
+        XYItemRenderer renderer7 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot7 = new XYPlot(series7, valueAxis7, null, renderer7);
 
         mainPlot.add(subplot0, 1);
         mainPlot.add(subplot1, 1);
@@ -286,33 +291,32 @@ public class SymbolicYPlotDemo {
         XYDataset series7 = new SubSeriesDataset(data, 7);
 
         // common horizontal and vertical axes
-        ValueAxis valueAxis = new HorizontalNumberAxis(xAxisLabel);
-        VerticalSymbolicAxis symbolicAxis1
-            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data1).getYSymbolicValues());
-        VerticalSymbolicAxis symbolicAxis2
-            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data2).getYSymbolicValues());
+        ValueAxis valueAxis = new NumberAxis(xAxisLabel);
+        SymbolicAxis symbolicAxis1
+            = new SymbolicAxis(yAxisLabel, ((YisSymbolic) data1).getYSymbolicValues());
+        SymbolicAxis symbolicAxis2
+            = new SymbolicAxis(yAxisLabel, ((YisSymbolic) data2).getYSymbolicValues());
 
         // create the main plot...
-        CombinedXYPlot mainPlot = new CombinedXYPlot(valueAxis, CombinedXYPlot.VERTICAL);
+        CombinedDomainXYPlot mainPlot = new CombinedDomainXYPlot(valueAxis);
 
         // and the sub-plots...
-        XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
-        XYPlot subplot0 = new XYPlot(series0, null, symbolicAxis1, renderer);
- //       subplot0.setSeriesPaint(0, Color.red);
-        XYPlot subplot1 = new XYPlot(series1, null, symbolicAxis1, renderer);
- //       subplot1.setSeriesPaint(0, Color.blue);
-        XYPlot subplot2 = new XYPlot(series2, null, symbolicAxis1, renderer);
- //       subplot2.setSeriesPaint(0, Color.green);
-        XYPlot subplot3 = new XYPlot(series3, null, symbolicAxis1, renderer);
- //       subplot3.setSeriesPaint(0, Color.yellow);
-        XYPlot subplot4 = new XYPlot(series4, null, symbolicAxis2, renderer);
- //       subplot4.setSeriesPaint(0, Color.gray);
-        XYPlot subplot5 = new XYPlot(series5, null, symbolicAxis2, renderer);
- //       subplot5.setSeriesPaint(0, Color.orange);
-        XYPlot subplot6 = new XYPlot(series6, null, symbolicAxis2, renderer);
- //       subplot6.setSeriesPaint(0, Color.magenta);
-        XYPlot subplot7 = new XYPlot(series7, null, symbolicAxis2, renderer);
- //       subplot7.setSeriesPaint(0, Color.cyan);
+        XYItemRenderer renderer0 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot0 = new XYPlot(series0, null, symbolicAxis1, renderer0);
+        XYItemRenderer renderer1 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot1 = new XYPlot(series1, null, symbolicAxis1, renderer1);
+        XYItemRenderer renderer2 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot2 = new XYPlot(series2, null, symbolicAxis1, renderer2);
+        XYItemRenderer renderer3 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot3 = new XYPlot(series3, null, symbolicAxis1, renderer3);
+        XYItemRenderer renderer4 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot4 = new XYPlot(series4, null, symbolicAxis2, renderer4);
+        XYItemRenderer renderer5 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot5 = new XYPlot(series5, null, symbolicAxis2, renderer5);
+        XYItemRenderer renderer6 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot6 = new XYPlot(series6, null, symbolicAxis2, renderer6);
+        XYItemRenderer renderer7 = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES, null);
+        XYPlot subplot7 = new XYPlot(series7, null, symbolicAxis2, renderer7);
 
         // add the subplots to the main plot...
         mainPlot.add(subplot0, 1);
@@ -351,11 +355,11 @@ public class SymbolicYPlotDemo {
                                                  String yAxisLabel, XYDataset data,
                                                  boolean legend) {
 
-        ValueAxis valueAxis = new HorizontalNumberAxis(xAxisLabel);
-        VerticalSymbolicAxis symbolicAxis
-            = new VerticalSymbolicAxis(yAxisLabel, ((YisSymbolic) data).getYSymbolicValues());
+        ValueAxis valueAxis = new NumberAxis(xAxisLabel);
+        SymbolicAxis symbolicAxis
+            = new SymbolicAxis(yAxisLabel, ((YisSymbolic) data).getYSymbolicValues());
 
-        XYPlot plot = new XYPlot(data, valueAxis, symbolicAxis);
+        XYPlot plot = new XYPlot(data, valueAxis, symbolicAxis, null);
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES,
                                                              new SymbolicXYToolTipGenerator());
         plot.setRenderer(renderer);

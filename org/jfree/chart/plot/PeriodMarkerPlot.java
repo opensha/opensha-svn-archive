@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,8 @@
  * (C) Copyright 2002, by Sylvain Vieujot and Contributors.
  *
  * Original Author:  Sylvain Vieujot;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *                   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -39,42 +40,39 @@
  * 13-Jun-2002 : Removed commented out code (DG);
  * 25-Jun-2002 : Removed redundant import (DG);
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
  *
  */
 
 package org.jfree.chart.plot;
 
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Shape;
-import java.awt.Paint;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
-import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
+import java.util.ResourceBundle;
 
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.LegendItemCollection;
-import org.jfree.chart.axis.Axis;
-import org.jfree.chart.axis.HorizontalAxis;
-import org.jfree.chart.axis.VerticalAxis;
+import org.jfree.chart.axis.AxisSpace;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.HorizontalDateAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.renderer.AbstractRenderer;
-import org.jfree.data.Dataset;
 import org.jfree.data.XYDataset;
-import org.jfree.data.DatasetUtilities;
-import org.jfree.data.Range;
 
 /**
  * A plot that marks time periods, for use in overlaid plots.
  *
  * @author  sylvain
  */
-public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, VerticalValuePlot {
+public class PeriodMarkerPlot extends XYPlot implements ValueAxisPlot {
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.plot.LocalizationBundle");
 
     /**
      * Creates a new period marker plot.
@@ -84,7 +82,7 @@ public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, Ver
      * @param rangeAxis  the range axis.
      */
     public PeriodMarkerPlot(XYDataset data, ValueAxis domainAxis, ValueAxis rangeAxis) {
-        super(data, domainAxis, rangeAxis);
+        super(data, domainAxis, rangeAxis, null);
     }
 
     /**
@@ -102,25 +100,7 @@ public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, Ver
      * @return <i>Period Marker Plot</i>.
      */
     public String getPlotType() {
-          return "Period Marker Plot";
-    }
-
-    /**
-     * Returns the range for the vertical axis.
-     *
-     * @return the axis range.
-     */
-    public Range getVerticalDataRange() {
-
-        Range result = null;
-
-        Dataset dataset = getDataset();
-        if (dataset != null) {
-            result = DatasetUtilities.getRangeExtent(dataset);
-        }
-
-        return result;
-
+          return localizationResources.getString("Period_Marker_Plot");
     }
 
     /**
@@ -133,92 +113,39 @@ public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, Ver
         return (XYDataset) getDataset();
     }
 
-    /*public SignalsDataset getDataset() {
-        return (SignalsDataset)chart.getDataset();
-    }*/
-
-    /**
-     * Checks the compatibility of a horizontal axis, returning true if the
-     * axis is compatible with the plot, and false otherwise.
-     *
-     * @param axis  the horizontal axis.
-     *
-     * @return <code>true</code> if the axis is compatible with the plot.
-     */
-    public boolean isCompatibleHorizontalAxis(Axis axis) {
-
-        if (axis instanceof HorizontalNumberAxis) {
-            return true;
-        }
-        else if (axis instanceof HorizontalDateAxis) {
-            return true;
-        }
-        else {
-            return false;
-        }
-
-    }
-
-    /**
-     * Checks the compatibility of a vertical axis, returning true if the axis
-     * is compatible with the plot, and false otherwise.  The vertical axis for
-     * this plot must be an instance of VerticalNumberAxis.
-     *
-     * @param axis  the vertical axis.
-     *
-     * @return <code>true</code> if the axis is compatible with the plot.
-     */
-    public boolean isCompatibleVerticalAxis(Axis axis) {
-
-        if (axis instanceof VerticalNumberAxis) {
-            return true;
-        }
-        else {
-            return false;
-        }
-
-    }
-
     /**
      * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
      *
      * @param g2  the graphics device.
-     * @param drawArea  the area within which the plot should be drawn.
+     * @param plotArea  the area within which the plot should be drawn.
      * @param info  an optional info collection object to return data back to the caller.
      */
-    public void draw(Graphics2D g2, Rectangle2D drawArea, ChartRenderingInfo info) {
+    public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
 
         Insets insets = getInsets();
         if (insets != null) {
-            drawArea = new Rectangle2D.Double(drawArea.getX() + insets.left,
-                drawArea.getY() + insets.top,
-                drawArea.getWidth() - insets.left - insets.right,
-                drawArea.getHeight() - insets.top - insets.bottom);
+            plotArea = new Rectangle2D.Double(plotArea.getX() + insets.left,
+                plotArea.getY() + insets.top,
+                plotArea.getWidth() - insets.left - insets.right,
+                plotArea.getHeight() - insets.top - insets.bottom);
         }
 
-        // we can cast the axes because HiLowPlot enforces support of these interfaces
-        HorizontalAxis ha = getHorizontalAxis();
-        VerticalAxis va = getVerticalAxis();
+        AxisSpace space = new AxisSpace();
+        ValueAxis domainAxis = getDomainAxis();
+        ValueAxis rangeAxis = getRangeAxis();
+        space = domainAxis.reserveSpace(g2, this, plotArea, getDomainAxisEdge(), space);
+        space = rangeAxis.reserveSpace(g2, this, plotArea, getRangeAxisEdge(), space);
+        Rectangle2D dataArea = space.shrink(plotArea, null);
 
-        double h = ha.reserveHeight(g2, this, drawArea, getDomainAxisLocation());
-        double w = va.reserveWidth(g2, this, drawArea, getRangeAxisLocation(),
-                                   h, getDomainAxisLocation());
-
-        // compute the plot area
-        Rectangle2D plotArea =
-            new Rectangle2D.Double(drawArea.getX() + w,
-                                   drawArea.getY(),
-                                   drawArea.getWidth() - w,
-                                   drawArea.getHeight() - h);
-
-        drawBackground(g2, plotArea);
+        drawBackground(g2, dataArea);
 
         // draw the axes
-        getDomainAxis().draw(g2, drawArea, plotArea, getDomainAxisLocation());
-        getRangeAxis().draw(g2, drawArea, plotArea, getRangeAxisLocation());
+        double cursor = 0.0;
+        cursor = getDomainAxis().draw(g2, cursor, plotArea, dataArea, getDomainAxisEdge());
+        cursor = getRangeAxis().draw(g2, cursor, plotArea, dataArea, getRangeAxisEdge());
 
         Shape originalClip = g2.getClip();
-        g2.clip(plotArea);
+        g2.clip(dataArea);
 
         //SignalsDataset data = getDataset();
         XYDataset data = getTempXYDataset();
@@ -226,11 +153,11 @@ public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, Ver
             int seriesCount = data.getSeriesCount();
             for (int serie = 0; serie < seriesCount; serie++) {
                 // area should be remaining area only
-                drawMarkedPeriods(data, serie, g2, plotArea);
+                drawMarkedPeriods(data, serie, g2, dataArea);
             }
         }
 
-        drawOutline(g2, plotArea);
+        drawOutline(g2, dataArea);
         g2.setClip(originalClip);
     }
 
@@ -294,8 +221,10 @@ public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, Ver
                 xEnd = data.getXValue(serie, j - 1);
             }
 
-            double xxStart = getDomainAxis().translateValueToJava2D(xStart.doubleValue(), plotArea);
-            double xxEnd = getDomainAxis().translateValueToJava2D(xEnd.doubleValue(), plotArea);
+            double xxStart = getDomainAxis().translateValueToJava2D(xStart.doubleValue(), plotArea,
+                                     getDomainAxisEdge());
+            double xxEnd = getDomainAxis().translateValueToJava2D(xEnd.doubleValue(), plotArea,
+                                    getDomainAxisEdge());
 
             markPeriod(xxStart, xxEnd, minY, maxY, g2);
         }
@@ -324,17 +253,5 @@ public class PeriodMarkerPlot extends XYPlot implements HorizontalValuePlot, Ver
      */
     public void zoom(double percent) {
     }
-
-    /**
-     * Returns the legend item labels.
-     *
-     * @return the legend item labels.
-     *
-     * @deprecated use getLegendItems().
-     */
-    public List getLegendItemLabels() {
-        return null;
-    }
-
 
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * ImageMapDemo2.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson (richard_c_atkinson@ntlworld.com);
  *
  * $Id$
@@ -40,19 +40,20 @@
 package org.jfree.chart.demo;
 
 import java.awt.Insets;
-import java.io.File;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
-import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import org.jfree.chart.JFreeChart;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+
 import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.StandardEntityCollection;
+import org.jfree.chart.labels.StandardPieItemLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.tooltips.StandardPieToolTipGenerator;
 import org.jfree.chart.urls.StandardPieURLGenerator;
 import org.jfree.data.DefaultPieDataset;
 
@@ -92,7 +93,7 @@ public class ImageMapDemo2 {
         if (drilldown) {
             PiePlot plot = new PiePlot(data);
             plot.setInsets(new Insets(0, 5, 5, 5));
-            plot.setToolTipGenerator(new StandardPieToolTipGenerator());
+            plot.setItemLabelGenerator(new StandardPieItemLabelGenerator());
             plot.setURLGenerator(new StandardPieURLGenerator("pie_chart_detail.jsp"));
             chart = new JFreeChart("Pie Chart Demo 1", JFreeChart.DEFAULT_TITLE_FONT, plot, true);
         }

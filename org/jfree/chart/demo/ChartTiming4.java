@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------
  * ChartTiming4.java
  * -----------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,15 +42,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+
 import javax.swing.Timer;
+
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.Plot;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.FastScatterPlot;
+import org.jfree.chart.plot.Plot;
 
 /**
  * Draws a scatter plot over and over for 10 seconds.  Reports on how many redraws were achieved.
+ * <p>
+ * On my PC (SuSE Linux 8.2, JDK 1.4, 256mb RAM, 2.66ghz Pentium) I get 31 charts per second.
  *
  * @author David Gilbert
  */
@@ -66,6 +69,12 @@ public class ChartTiming4 implements ActionListener {
      * Creates a new application.
      */
     public ChartTiming4() {
+    }
+
+    /**
+     * Runs the test.
+     */
+    public void run() {
 
         this.finished = false;
 
@@ -73,9 +82,7 @@ public class ChartTiming4 implements ActionListener {
         populateData();
 
         // create a fast scatter chart...
-        Plot plot = new FastScatterPlot(this.data,
-                                        new HorizontalNumberAxis("X"),
-                                        new VerticalNumberAxis("Y"));
+        Plot plot = new FastScatterPlot(this.data, new NumberAxis("X"), new NumberAxis("Y"));
         JFreeChart chart = new JFreeChart("Fast Scatter Plot Timing",
                                           JFreeChart.DEFAULT_TITLE_FONT,
                                           plot, true);
@@ -131,6 +138,7 @@ public class ChartTiming4 implements ActionListener {
     public static void main(String[] args) {
 
         ChartTiming4 app = new ChartTiming4();
+        app.run();
 
     }
 

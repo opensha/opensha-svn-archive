@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * DefaultKeyedValues.java
  * -----------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,6 +36,8 @@
  * 05-Mar-2003 : Added methods to sort stored data 'by key' or 'by value' (DG);
  * 13-Mar-2003 : Implemented Serializable (DG);
  * 08-Apr-2003 : Modified removeValue(Comparable) method to fix bug 717049 (DG);
+ * 18-Aug-2003 : Implemented Cloneable (DG);
+ * 27-Aug-2003 : Moved SortOrder from org.jfree.data --> org.jfree.util (DG);
  *
  */
 
@@ -47,6 +49,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.jfree.util.SortOrder;
+
 /**
  * A collection of (key, value) pairs.
  * <P>
@@ -54,7 +58,7 @@ import java.util.List;
  *
  * @author David Gilbert
  */
-public class DefaultKeyedValues implements KeyedValues, Serializable {
+public class DefaultKeyedValues implements KeyedValues, Cloneable, Serializable {
 
     /** Storage for the data. */
     private List data;
@@ -161,14 +165,14 @@ public class DefaultKeyedValues implements KeyedValues, Serializable {
      * @return the value.
      */
     public Number getValue(Comparable key) {
-        
+
         Number result = null;
         int index = getIndex(key);
         if (index >= 0) {
             result = getValue(index);
         }
         return result;
-        
+
     }
 
     /**
@@ -224,46 +228,47 @@ public class DefaultKeyedValues implements KeyedValues, Serializable {
             removeValue(index);
         }
     }
-    
+
     /**
      * Sorts the items in the list by key.
-     * 
+     *
      * @param order  the sort order (ascending or descending).
      */
     public void sortByKeys(SortOrder order) {
-        
-        Comparator comparator = new KeyedValueComparator(KeyedValueComparatorType.BY_KEY, 
-                                                         order);
+
+        Comparator comparator = new KeyedValueComparator(
+            KeyedValueComparatorType.BY_KEY, order
+        );
         Collections.sort(this.data, comparator);
-    }    
-    
+    }
+
     /**
      * Sorts the items in the list by value.
-     * 
+     *
      * @param order  the sort order (ascending or descending).
      */
     public void sortByValues(SortOrder order) {
-        Comparator comparator = new KeyedValueComparator(KeyedValueComparatorType.BY_VALUE, 
+        Comparator comparator = new KeyedValueComparator(KeyedValueComparatorType.BY_VALUE,
                                                          order);
         Collections.sort(this.data, comparator);
     }
 
     /**
      * Tests if this object is equal to another.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
-    
+
         if (o == null) {
             return false;
         }
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof KeyedValues) {
             KeyedValues kvs = (KeyedValues) o;
             int count = getItemCount();
@@ -277,7 +282,7 @@ public class DefaultKeyedValues implements KeyedValues, Serializable {
                         if (v2 != null) {
                             return false;
                         }
-                    } 
+                    }
                     else {
                         if (!v1.equals(v2)) {
                             return false;
@@ -290,9 +295,28 @@ public class DefaultKeyedValues implements KeyedValues, Serializable {
             }
             return true;
         }
-       
+
         return false;
-            
+
+    }
+
+    /**
+     * Returns a clone.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  this class will not throw this exception, but subclasses 
+     *         might.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        DefaultKeyedValues clone = (DefaultKeyedValues) super.clone();
+        clone.data = new java.util.ArrayList();
+        Iterator iterator = this.data.iterator();
+        while (iterator.hasNext()) {
+            DefaultKeyedValue kv = (DefaultKeyedValue) iterator.next();
+            clone.data.add(kv.clone());
+        }
+        return clone;    
     }
     
 }

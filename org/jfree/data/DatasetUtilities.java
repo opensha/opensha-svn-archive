@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,12 @@
  * ---------------------
  * DatasetUtilities.java
  * ---------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Andrzej Porebski (bug fix);
  *                   Jonathan Nash (bug fix);
+ *                   Richard Atkinson;
  *
  * $Id$
  *
@@ -54,11 +55,19 @@
  * 18-Nov-2002 : Changed CategoryDataset to TableDataset (DG);
  * 04-Mar-2003 : Added isEmpty(XYDataset) method (DG);
  * 05-Mar-2003 : Added a method for creating a CategoryDataset from a KeyedValues instance (DG);
+ * 15-May-2003 : Renamed isEmpty --> isEmptyOrNull (DG);
+ * 25-Jun-2003 : Added limitPieDataset methods (RA);
+ * 26-Jun-2003 : Modified getDomainExtent(...) method to accept null datasets (DG);
+ * 27-Jul-2003 : Added getStackedRangeExtent(TableXYDataset data) (RA);
+ * 18-Aug-2003 : getStackedRangeExtent(TableXYDataset data) now handles null values (RA);
+ * 02-Sep-2003 : Added method to check for null or empty PieDataset (DG);
+ * 18-Sep-2003 : Fix for bug 803660 (getMaximumRangeValue for CategoryDataset) (DG);
  *
  */
 
 package org.jfree.data;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,7 +79,13 @@ import java.util.List;
 public class DatasetUtilities {
 
     /**
-     * Constructs an array of <code>Number</code> objects from an array of <code>double</code> 
+     * To prevent instantiation.
+     */
+    protected DatasetUtilities() {
+    }
+
+    /**
+     * Constructs an array of <code>Number</code> objects from an array of <code>double</code>
      * primitives.
      *
      * @param data  the data.
@@ -114,17 +129,18 @@ public class DatasetUtilities {
 
     /**
      * Returns the range of values in the domain for the dataset.
+     * <P>
+     * If the supplied dataset is <code>null</code>, the range returned is <code>null</code>.
      *
-     * @param data  the dataset.
+     * @param data  the dataset (<code>null</code> permitted).
      *
-     * @return the range of values.
+     * @return The range of values (possibly <code>null</code>).
      */
     public static Range getDomainExtent(Dataset data) {
 
         // check parameters...
         if (data == null) {
-            throw new IllegalArgumentException(
-                "Datasets.getDomainExtent: null dataset not allowed.");
+            return null;
         }
 
         if ((data instanceof CategoryDataset) && !(data instanceof XYDataset)) {
@@ -193,8 +209,7 @@ public class DatasetUtilities {
 
         // check parameters...
         if (data == null) {
-            throw new IllegalArgumentException(
-                "Datasets.getMinimumRangeValue: null dataset not allowed.");
+            return null;
         }
 
         // work out the minimum value...
@@ -558,8 +573,8 @@ public class DatasetUtilities {
 
             CategoryDataset categoryData = (CategoryDataset) data;
             double maximum = Double.NEGATIVE_INFINITY;
-            int seriesCount = categoryData.getColumnCount();
-            int itemCount = categoryData.getRowCount();
+            int seriesCount = categoryData.getRowCount();
+            int itemCount = categoryData.getColumnCount();
             for (int series = 0; series < seriesCount; series++) {
                 for (int item = 0; item < itemCount; item++) {
                     Number value = null;
@@ -898,15 +913,15 @@ public class DatasetUtilities {
     }
 
     /**
-     * Creates a {@link CategoryDataset} that contains a copy of the data in an array 
+     * Creates a {@link CategoryDataset} that contains a copy of the data in an array
      * (instances of <code>Double</code> are created to represent the data items).
      * <p>
      * Row and column keys are created by appending 0, 1, 2, ... to the supplied prefixes.
-     * 
+     *
      * @param rowKeyPrefix  the row key prefix.
      * @param columnKeyPrefix  the column key prefix.
      * @param data  the data.
-     * 
+     *
      * @return the dataset.
      */
     public static CategoryDataset createCategoryDataset(String rowKeyPrefix,
@@ -929,11 +944,11 @@ public class DatasetUtilities {
      * Creates a {@link CategoryDataset} that contains a copy of the data in an array.
      * <p>
      * Row and column keys are created by appending 0, 1, 2, ... to the supplied prefixes.
-     * 
+     *
      * @param rowKeyPrefix  the row key prefix.
      * @param columnKeyPrefix  the column key prefix.
      * @param data  the data.
-     * 
+     *
      * @return the dataset.
      */
     public static CategoryDataset createCategoryDataset(String rowKeyPrefix,
@@ -953,48 +968,258 @@ public class DatasetUtilities {
     }
 
     /**
-     * Creates a {@link CategoryDataset} by copying the data from the supplied {@link KeyedValues} 
+     * Creates a {@link CategoryDataset} that contains a copy of the data in an array
+     * (instances of <code>Double</code> are created to represent the data items).
+     * <p>
+     * Row and column keys are taken from the supplied arrays.
+     *
+     * @param rowKeys  the row keys.
+     * @param columnKeys  the column keys.
+     * @param data  the data.
+     *
+     * @return The dataset.
+     */
+    public static CategoryDataset createCategoryDataset(String[] rowKeys,
+                                                        String[] columnKeys,
+                                                        double[][] data) {
+
+        DefaultCategoryDataset result = new DefaultCategoryDataset();
+        for (int r = 0; r < data.length; r++) {
+            String rowKey = rowKeys[r];
+            for (int c = 0; c < data[r].length; c++) {
+                String columnKey = columnKeys[c];
+                result.addValue(new Double(data[r][c]), rowKey, columnKey);
+            }
+        }
+        return result;
+
+    }
+
+    /**
+     * Creates a {@link CategoryDataset} by copying the data from the supplied {@link KeyedValues}
      * instance.
-     * 
+     *
      * @param rowKey  the row key.
      * @param rowData  the row data.
-     * 
+     *
      * @return A dataset.
      */
     public static CategoryDataset createCategoryDataset(String rowKey, KeyedValues rowData) {
-        
+
         DefaultCategoryDataset result = new DefaultCategoryDataset();
         for (int i = 0; i < rowData.getItemCount(); i++) {
             result.addValue(rowData.getValue(i), rowKey, rowData.getKey(i));
         }
-        return result;    
-        
+        return result;
+
     }
-    
+
     /**
-     * Returns <code>true</code> if the dataset is empty, and <code>false</code> otherwise.
-     * <p>
-     * If the dataset is <code>null</code>, it is considered to be empty.
-     * 
+     * Returns <code>true</code> if the dataset is empty (or <code>null</code>), and
+     * <code>false</code> otherwise.
+     *
      * @param data  the dataset (<code>null</code> permitted).
-     * 
+     *
      * @return A boolean.
-     */    
-    public static boolean isEmpty(XYDataset data) {
+     */
+    public static boolean isEmptyOrNull(XYDataset data) {
 
         boolean result = true;
-        
+
         if (data != null) {
             for (int s = 0; s < data.getSeriesCount(); s++) {
                 if (data.getItemCount(s) > 0) {
                     result = false;
                     continue;
                 }
-            }            
+            }
         }
-        
-        return result;        
 
+        return result;
+
+    }
+
+    /**
+     * Returns <code>true</code> if the dataset is empty (or <code>null</code>), and
+     * <code>false</code> otherwise.
+     *
+     * @param dataset  the dataset (<code>null</code> permitted).
+     *
+     * @return A boolean.
+     */
+    public static boolean isEmptyOrNull(PieDataset dataset) {
+
+        if (dataset == null) {
+            return true;
+        }
+
+        int itemCount = dataset.getItemCount();
+        if (itemCount == 0) {
+            return true;
+        }
+
+        for (int item = 0; item < itemCount; item++) {
+            Number y = dataset.getValue(item);
+            if (y != null) {
+                double yy = y.doubleValue();
+                if (yy > 0.0) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Returns <code>true</code> if the dataset is empty (or <code>null</code>), and
+     * <code>false</code> otherwise.
+     *
+     * @param data  the dataset (<code>null</code> permitted).
+     *
+     * @return A boolean.
+     */
+    public static boolean isEmptyOrNull(CategoryDataset data) {
+
+        if (data == null) {
+            return true;
+        }
+
+        int rowCount = data.getRowCount();
+        int columnCount = data.getColumnCount();
+        if (rowCount == 0 || columnCount == 0) {
+            return true;
+        }
+
+        for (int r = 0; r < rowCount; r++) {
+            for (int c = 0; c < columnCount; c++) {
+                if (data.getValue(r, c) != null) {
+                    return false;
+                }
+
+            }
+        }
+
+        return true;
+
+    }
+
+    /**
+     * Creates an "Other" slice for percentages below the percent threshold.
+     *
+     * @param data  the PieDataset.
+     * @param percentThreshold  the percent threshold.
+     * @return A PieDataset.
+     */
+    public static PieDataset limitPieDataset(PieDataset data, double percentThreshold) {
+        return DatasetUtilities.limitPieDataset(data, percentThreshold, 1, "Other");
+    }
+
+    /**
+     * Create an "Other" slice for percentages below the percent threshold providing there
+     * are more slices below the percent threshold than specified in the slice threshold.
+     *
+     * @param data  the PieDataset.
+     * @param percentThreshold  the percent threshold.
+     * @param sliceThreshold  the slice threshold.
+     * @return A PieDataset.
+     */
+    public static PieDataset limitPieDataset(PieDataset data,
+                                             double percentThreshold, int sliceThreshold) {
+        return DatasetUtilities.limitPieDataset(data, percentThreshold, sliceThreshold, "Other");
+    }
+
+    /**
+     * Create an Other slice with a given label for percentages below the percent threshold
+     * providing there are more slices below the percent threshold than specified in the slice
+     * threshold.
+     *
+     * @param data  the PieDataset.
+     * @param percentThreshold  the percent threshold.
+     * @param sliceThreshold  the slice threshold.
+     * @param label  the label to give the "Other" slice.
+     * @return A PieDataset.
+     */
+    public static PieDataset limitPieDataset(PieDataset data,
+                                             double percentThreshold, int sliceThreshold,
+                                             String label) {
+        DefaultPieDataset newDataset = new DefaultPieDataset();
+        double total = DatasetUtilities.getPieDatasetTotal(data);
+
+        //  Iterate and find all keys below threshold percentThreshold
+        List keys = data.getKeys();
+        ArrayList otherKeys = new ArrayList();
+        Iterator kIter = keys.iterator();
+        while (kIter.hasNext()) {
+            Comparable key = (Comparable) kIter.next();
+            Number dataValue = data.getValue(key);
+            if (dataValue != null) {
+                double value = dataValue.doubleValue();
+                if (value / total < percentThreshold / 100) {
+                    otherKeys.add(key);
+                }
+            }
+        }
+
+        //  Create new dataset with keys above threshold percentThreshold
+        kIter = keys.iterator();
+        double otherValue = 0;
+        while (kIter.hasNext()) {
+            Comparable key = (Comparable) kIter.next();
+            Number dataValue = data.getValue(key);
+            if (dataValue != null) {
+                if (otherKeys.contains(key) && otherKeys.size() > sliceThreshold) {
+                    //  Do not add key to dataset
+                    otherValue += dataValue.doubleValue();
+                }
+                else {
+                    //  Add key to dataset
+                    newDataset.setValue(key, dataValue);
+                }
+            }
+            //  Add other category if applicable
+            if (otherKeys.size() > sliceThreshold) {
+                newDataset.setValue(label, otherValue);
+            }
+        }
+        return newDataset;
+    }
+
+    /**
+     * Returns the minimum and maximum values for the dataset's range,
+     * assuming that the series are stacked.
+     *
+     * @param data  the dataset.
+     * @return  the value range.
+     */
+    public static Range getStackedRangeExtent(TableXYDataset data) {
+        // check parameters...
+        if (data == null) {
+            return null;
+        }
+        double minimum = Double.POSITIVE_INFINITY;
+        double maximum = Double.NEGATIVE_INFINITY;
+        for (int itemNo = 0; itemNo < data.getItemCount(); itemNo++) {
+            double value = 0;
+            for (int seriesNo = 0; seriesNo < data.getSeriesCount(); seriesNo++) {
+                if (data.getYValue(seriesNo, itemNo) != null) {
+                    value += (data.getYValue(seriesNo, itemNo).doubleValue());
+                }
+            }
+            if (value > maximum) {
+                maximum = value;
+            } 
+            if (value < minimum) {
+                minimum = value;
+            } 
+        }
+        if (minimum == Double.POSITIVE_INFINITY) {
+            return null;
+        } 
+        else {
+            return new Range(minimum, maximum);
+        }
     }
 
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Pascal Collet.
  *
  * Original Author:  Pascal Collet;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -43,7 +43,7 @@ import java.util.List;
 
 /**
  * A convenience class that provides a default implementation of the
- * <code>StatisticalCategoryDataset</code> interface.
+ * {@link StatisticalCategoryDataset} interface.
  * <p>
  * The standard constructor accepts data in a two dimensional array where the
  * first dimension is the series, and the second dimension is the category.
@@ -59,13 +59,13 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
 
     /** The minimum range value. */
     private Number minimumRangeValue;
-    
+
     /** The maximum range value. */
     private Number maximumRangeValue;
-    
+
     /** The range of values. */
     private Range valueRange;
-    
+
     /**
      * Creates a new dataset.
      */
@@ -87,7 +87,7 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
      * @return the mean value.
      */
     public Number getMeanValue (int row, int column) {
-        
+
         Number result = null;
         MeanAndStandardDeviation masd = (MeanAndStandardDeviation) this.data.getObject(row, column);
         if (masd != null) {
@@ -107,7 +107,7 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
      */
     public Number getValue (int row, int column) {
         return getMeanValue(row, column);
-    }   
+    }
 
     /**
      * Returns the value for an item.
@@ -119,7 +119,7 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
      */
     public Number getValue (Comparable rowKey, Comparable columnKey) {
         return getMeanValue(rowKey, columnKey);
-    }   
+    }
 
     /**
      * Returns the mean value for an item.
@@ -130,15 +130,15 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
      * @return the mean value.
      */
     public Number getMeanValue (Comparable rowKey, Comparable columnKey) {
-        
+
         Number result = null;
-        MeanAndStandardDeviation masd 
+        MeanAndStandardDeviation masd
             = (MeanAndStandardDeviation) this.data.getObject(rowKey, columnKey);
         if (masd != null) {
             result = masd.getMean();
         }
         return result;
-        
+
     }
 
     /**
@@ -150,14 +150,14 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
      * @return the standard deviation.
      */
     public Number getStdDevValue (int row, int column) {
-        
+
         Number result = null;
         MeanAndStandardDeviation masd = (MeanAndStandardDeviation) this.data.getObject(row, column);
         if (masd != null) {
             result = masd.getStandardDeviation();
         }
         return result;
-        
+
     }
 
     /**
@@ -169,9 +169,9 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
      * @return the standard deviation.
      */
     public Number getStdDevValue (Comparable rowKey, Comparable columnKey) {
-        
+
         Number result = null;
-        MeanAndStandardDeviation masd 
+        MeanAndStandardDeviation masd
             = (MeanAndStandardDeviation) this.data.getObject(rowKey, columnKey);
         if (masd != null) {
             result = masd.getStandardDeviation();
@@ -261,28 +261,28 @@ public class DefaultStatisticalCategoryDataset extends AbstractDataset
     }
 
     /**
-     * Adds a mean and standard deviation to the table.  
-     * 
+     * Adds a mean and standard deviation to the table.
+     *
      * @param mean  the mean.
      * @param standardDeviation  the standard deviation.
      * @param rowKey  the row key.
      * @param columnKey  the column key.
      */
-    public void add(double mean, double standardDeviation, 
+    public void add(double mean, double standardDeviation,
                     Comparable rowKey, Comparable columnKey) {
-                   
+
         MeanAndStandardDeviation item = new MeanAndStandardDeviation(new Double(mean),
                                                                      new Double(standardDeviation));
-                                                                              
+
         this.data.addObject(item, rowKey, columnKey);
         if ((mean + standardDeviation) > this.maximumRangeValue.doubleValue()) {
             this.maximumRangeValue = new Double(mean + standardDeviation);
-            this.valueRange = new Range(this.minimumRangeValue.doubleValue(), 
+            this.valueRange = new Range(this.minimumRangeValue.doubleValue(),
                                         this.maximumRangeValue.doubleValue());
         }
         if ((mean - standardDeviation) < this.minimumRangeValue.doubleValue()) {
             this.minimumRangeValue = new Double(mean - standardDeviation);
-            this.valueRange = new Range(this.minimumRangeValue.doubleValue(), 
+            this.valueRange = new Range(this.minimumRangeValue.doubleValue(),
                                         this.maximumRangeValue.doubleValue());
         }
 

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * ChartRenderingInfo.java
  * -----------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,26 +36,29 @@
  * 05-Mar-2002 : Added a clear() method (DG);
  * 23-May-2002 : Renamed DrawInfo --> ChartRenderingInfo (DG);
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
+ * 17-Sep-2003 : Added PlotRenderingInfo (DG);
  *
  */
 
 package org.jfree.chart;
 
 import java.awt.geom.Rectangle2D;
+
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.StandardEntityCollection;
+import org.jfree.chart.plot.PlotRenderingInfo;
 
 /**
  * A structure for storing rendering information from one call to the
  * JFreeChart.draw(...) method.
  * <P>
- * An instance of the JFreeChart class can draw itself within an arbitrary
+ * An instance of the {@link JFreeChart} class can draw itself within an arbitrary
  * rectangle on any Graphics2D.  It is assumed that client code will sometimes
- * render the same chart in more than one view, so the JFreeChart instance does
+ * render the same chart in more than one view, so the {@link JFreeChart} instance does
  * not retain any information about its rendered dimensions.  This information
  * can be useful sometimes, so you have the option to collect the information
- * at each call to JFreeChart.draw(...), by passing an instance of this
- * ChartRenderingInfo class.
+ * at each call to <code>JFreeChart.draw(...)</code>, by passing an instance of this
+ * <code>ChartRenderingInfo</code> class.
  *
  * @author David Gilbert
  */
@@ -64,13 +67,20 @@ public class ChartRenderingInfo {
     /** The area in which the chart is drawn. */
     private Rectangle2D chartArea;
 
+    /** Rendering info for the chart's plot (and subplots, if any). */
+    private PlotRenderingInfo plotInfo;
+    
     /** The area in which the plot and axes are drawn. */
     private Rectangle2D plotArea;
 
     /** The area in which the data is plotted. */
-    private Rectangle2D dataArea;
+    //private Rectangle2D dataArea;
 
-    /** Storage for the chart entities. */
+    /** 
+     * Storage for the chart entities.  Since retaining entity information for charts with a
+     * large number of data points consumes a lot of memory, it is intended that you can set
+     * this to <code>null</code> to prevent the information being collected.
+     */
     private EntityCollection entities;
 
     /**
@@ -94,8 +104,10 @@ public class ChartRenderingInfo {
 
         this.chartArea = new Rectangle2D.Double();
         this.plotArea = new Rectangle2D.Double();
-        this.dataArea = new Rectangle2D.Double();
-
+        //this.dataArea = new Rectangle2D.Double();
+    
+        this.plotInfo = new PlotRenderingInfo(this);
+    
         this.entities = entities;
 
     }
@@ -137,27 +149,9 @@ public class ChartRenderingInfo {
     }
 
     /**
-     * Returns the area in which the data was plotted.
+     * Returns the collection of entities maintained by this instance.
      *
-     * @return the data area.
-     */
-    public Rectangle2D getDataArea() {
-        return this.dataArea;
-    }
-
-    /**
-     * Sets the area in which the data has been plotted.
-     *
-     * @param area  the data area.
-     */
-    public void setDataArea(Rectangle2D area) {
-        dataArea.setRect(area);
-    }
-
-    /**
-     * Returns a collection of entities.
-     *
-     * @return the entity collection.
+     * @return The entity collection (possibly <code>null</code>.
      */
     public EntityCollection getEntityCollection() {
         return this.entities;
@@ -166,7 +160,7 @@ public class ChartRenderingInfo {
     /**
      * Sets the entity collection.
      *
-     * @param entities  the entity collection.
+     * @param entities  the entity collection (<code>null</code> permitted).
      */
     public void setEntityCollection(EntityCollection entities) {
         this.entities = entities;
@@ -179,11 +173,20 @@ public class ChartRenderingInfo {
 
         this.chartArea.setRect(0.0, 0.0, 0.0, 0.0);
         this.plotArea.setRect(0.0, 0.0, 0.0, 0.0);
-        this.dataArea.setRect(0.0, 0.0, 0.0, 0.0);
+        this.plotInfo = new PlotRenderingInfo(this);
         if (this.entities != null) {
             this.entities.clear();
         }
 
+    }
+  
+    /**
+     * Returns the rendering info for the chart's plot.
+     * 
+     * @return The rendering info for the plot.
+     */  
+    public PlotRenderingInfo getPlotInfo() {
+        return this.plotInfo;
     }
 
 }

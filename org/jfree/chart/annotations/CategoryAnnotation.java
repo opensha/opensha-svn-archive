@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * CategoryAnnotation.java
  * -----------------------
- * (C) Copyright 2003 by Simba Management Limited.
+ * (C) Copyright 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes:
  * --------
  * 02-Apr-2003 : Version 1 (DG);
+ * 02-Jul-2003 : Eliminated Annotation base interface (DG);
  *
  */
 
@@ -45,12 +46,12 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CategoryPlot;
 
 /**
- * The interface that must be supported by annotations that are to be added to an 
+ * The interface that must be supported by annotations that are to be added to an
  * {@link org.jfree.chart.plot.CategoryPlot}.
  *
  * @author David Gilbert
  */
-public interface CategoryAnnotation extends Annotation {
+public interface CategoryAnnotation {
 
     /**
      * Draws the annotation.

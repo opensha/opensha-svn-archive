@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * XYDataPair.java
  * ---------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,26 +36,21 @@
  * 27-Aug-2002 : Implemented cloneable (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 05-Aug-2003 : Renamed XYDataPair --> XYDataItem (DG);
  *
  */
 
 package org.jfree.data;
 
-import java.io.Serializable;
 
 /**
  * Represents one (x, y) data item for an xy-series.
+ * 
+ * @deprecated Use {@link XYDataItem}.
  *
  * @author David Gilbert
  */
-public class XYDataPair implements Cloneable, Comparable, Serializable {
-
-    /** The x-value. */
-    private Number x;
-
-    /** The y-value. */
-    private Number y;
-
+public class XYDataPair extends XYDataItem {
     /**
      * Constructs a new data pair.
      *
@@ -63,8 +58,7 @@ public class XYDataPair implements Cloneable, Comparable, Serializable {
      * @param y  the y-value.
      */
     public XYDataPair(Number x, Number y) {
-        this.x = x;
-        this.y = y;
+        super(x, y);
     }
 
     /**
@@ -74,100 +68,7 @@ public class XYDataPair implements Cloneable, Comparable, Serializable {
      * @param y  the y-value.
      */
     public XYDataPair(double x, double y) {
-        this(new Double(x), new Double(y));
-    }
-
-    /**
-     * Returns the x-value.
-     *
-     * @return the x-value.
-     */
-    public Number getX() {
-        return this.x;
-    }
-
-    /**
-     * Returns the y-value.
-     *
-     * @return the y-value.
-     */
-    public Number getY() {
-        return this.y;
-    }
-
-    /**
-     * Sets the y-value for this data pair.
-     * <P>
-     * Note that there is no corresponding method to change the x-value.
-     *
-     * @param y  the new y-value.
-     */
-    public void setY(Number y) {
-        this.y = y;
-    }
-
-    /**
-     * Returns an integer indicating the order of this data pair object relative to another object.
-     * <P>
-     * For the order we consider only the x-value:
-     * negative == "less-than", zero == "equal", positive == "greater-than".
-     *
-     * @param o1  the object being compared to.
-     *
-     * @return  an integer indicating the order of this data pair object
-     *      relative to another object.
-     */
-    public int compareTo(Object o1) {
-
-        int result;
-
-        // CASE 1 : Comparing to another TimeSeriesDataPair object
-        // -------------------------------------------------------
-        if (o1 instanceof XYDataPair) {
-            XYDataPair datapair = (XYDataPair) o1;
-            double compare = this.x.doubleValue() - datapair.getX().doubleValue();
-            if (compare > 0) {
-                result = 1;
-            }
-            else {
-                if (compare < 0) {
-                    result = -1;
-                }
-                else {
-                    result = 0;
-                }
-            }
-        }
-
-        // CASE 2 : Comparing to a general object
-        // ---------------------------------------------
-        else {
-            // consider time periods to be ordered after general objects
-            result = 1;
-        }
-
-        return result;
-
-    }
-
-    /**
-     * Returns a clone of this XYDataPair.
-     *
-     * @return a clone of the data pair.
-     */
-    public Object clone() {
-
-        Object clone = null;
-
-        try {
-            clone = super.clone();
-        }
-        catch (CloneNotSupportedException e) { // won't get here...
-            System.err.println("XYDataPair.clone(): operation not supported.");
-        }
-
-        return clone;
-
+        super(x, y);
     }
 
 }

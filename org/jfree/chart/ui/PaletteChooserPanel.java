@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by David M. O'Donnell.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -44,7 +44,7 @@ import javax.swing.JPanel;
 
 /**
  * A component for choosing a palette from a list of available palettes.
- * 
+ *
  * @author David M. O'Donnell.
  */
 public class PaletteChooserPanel extends JPanel {
@@ -54,7 +54,7 @@ public class PaletteChooserPanel extends JPanel {
 
     /**
      * Constructor.
-     * 
+     *
      * @param current  the current palette sample.
      * @param available  an array of 'available' palette samples.
      */
@@ -68,7 +68,7 @@ public class PaletteChooserPanel extends JPanel {
 
     /**
      * Returns the selected palette.
-     * 
+     *
      * @return The selected palette.
      */
     public ColorPalette getSelectedPalette() {

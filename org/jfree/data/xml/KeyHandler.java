@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * KeyHandler.java
  * ---------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,8 +42,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * A SAX handler for reading a key. 
- * 
+ * A SAX handler for reading a key.
+ *
  * @author David Gilbert
  */
 public class KeyHandler extends DefaultHandler implements DatasetTags {
@@ -62,7 +62,7 @@ public class KeyHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * Creates a new handler.
-     * 
+     *
      * @param rootHandler  the root handler.
      * @param itemHandler  the item handler.
      */
@@ -75,12 +75,12 @@ public class KeyHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * The start of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
      * @param atts  the attributes.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void startElement(String namespaceURI,
@@ -99,11 +99,11 @@ public class KeyHandler extends DefaultHandler implements DatasetTags {
 
     /**
      * The end of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void endElement(String namespaceURI,

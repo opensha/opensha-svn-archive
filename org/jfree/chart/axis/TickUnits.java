@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------
  * TickUnits.java
  * --------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,6 +41,8 @@
  * 26-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  * 08-Nov-2002 : Moved to new package com.jrefinery.chart.axis (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 13-Aug-2003 : Implemented Cloneable (DG);
+ * 23-Sep-2003 : Implemented TickUnitSource interface (DG);
  *
  */
 
@@ -60,16 +62,16 @@ import java.util.Locale;
  *
  * @author David Gilbert
  */
-public class TickUnits implements Serializable {
+public class TickUnits implements TickUnitSource, Cloneable, Serializable {
 
     /** Storage for the tick units. */
-    private List units;
+    private List tickUnits;
 
     /**
      * Constructs a new collection of tick units.
      */
     public TickUnits() {
-        this.units = new java.util.ArrayList();
+        this.tickUnits = new java.util.ArrayList();
     }
 
     /**
@@ -81,8 +83,8 @@ public class TickUnits implements Serializable {
      */
     public void add(TickUnit unit) {
 
-        units.add(unit);
-        Collections.sort(units);
+        this.tickUnits.add(unit);
+        Collections.sort(this.tickUnits);
 
     }
 
@@ -95,7 +97,7 @@ public class TickUnits implements Serializable {
      */
     public TickUnit getLargerTickUnit(TickUnit unit) {
 
-        int index = Collections.binarySearch(units, unit);
+        int index = Collections.binarySearch(this.tickUnits, unit);
         if (index >= 0) {
             index = index + 1;
         }
@@ -103,7 +105,7 @@ public class TickUnits implements Serializable {
             index = -index;
         }
 
-        return (TickUnit) units.get(Math.min(index, units.size() - 1));
+        return (TickUnit) this.tickUnits.get(Math.min(index, this.tickUnits.size() - 1));
 
     }
 
@@ -117,13 +119,13 @@ public class TickUnits implements Serializable {
      */
     public TickUnit getCeilingTickUnit(TickUnit unit) {
 
-        int index = Collections.binarySearch(units, unit);
+        int index = Collections.binarySearch(this.tickUnits, unit);
         if (index >= 0) {
-            return (TickUnit) units.get(index);
+            return (TickUnit) this.tickUnits.get(index);
         }
         else {
             index = -(index + 1);
-            return (TickUnit) units.get(Math.min(index, units.size() - 1));
+            return (TickUnit) this.tickUnits.get(Math.min(index, this.tickUnits.size() - 1));
         }
 
     }
@@ -153,7 +155,7 @@ public class TickUnits implements Serializable {
      *
      * @deprecated this method has been moved to the NumberAxis class.
      */
-    public static TickUnits createStandardTickUnits() {
+    public static TickUnitSource createStandardTickUnits() {
 
         TickUnits units = new TickUnits();
 
@@ -223,7 +225,7 @@ public class TickUnits implements Serializable {
      *
      * @deprecated this method has been moved to the NumberAxis class.
      */
-    public static TickUnits createIntegerTickUnits() {
+    public static TickUnitSource createIntegerTickUnits() {
 
         TickUnits units = new TickUnits();
 
@@ -276,7 +278,7 @@ public class TickUnits implements Serializable {
      *
      * @deprecated this method has been moved to the NumberAxis class.
      */
-    public static TickUnits createStandardTickUnits(Locale locale) {
+    public static TickUnitSource createStandardTickUnits(Locale locale) {
 
         TickUnits units = new TickUnits();
 
@@ -351,7 +353,7 @@ public class TickUnits implements Serializable {
      *
      * @deprecated this method has been moved to the NumberAxis class.
      */
-    public static TickUnits createIntegerTickUnits(Locale locale) {
+    public static TickUnitSource createIntegerTickUnits(Locale locale) {
 
         TickUnits units = new TickUnits();
 
@@ -393,4 +395,42 @@ public class TickUnits implements Serializable {
 
     }
 
+    /**
+     * Returns a clone of the collection.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException if an item in the collection does not support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        TickUnits clone = (TickUnits) super.clone();
+        clone.tickUnits = new java.util.ArrayList(this.tickUnits);
+        return clone;
+    }
+    
+    /**
+     * Tests an object for equality with this instance.
+     * 
+     * @param object  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
+        
+        if (object == null) {
+            return false;
+        }
+        
+        if (object == this) {
+            return true;
+        }
+        
+        if (object instanceof TickUnits) {
+            TickUnits tu = (TickUnits) object;    
+            return tu.tickUnits.equals(this.tickUnits);
+        }
+        
+        return false;
+    }
+    
 }

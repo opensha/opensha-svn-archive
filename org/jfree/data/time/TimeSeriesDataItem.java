@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * TimeSeriesDataItem.java
  * -----------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,8 +36,8 @@
  * 29-Nov-2001 : Added cloning (DG);
  * 24-Jun-2002 : Removed unnecessary import (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
- * 13-Mar-2003 : Renamed TimeSeriesDataPair --> TimeSeriesDataItem, moved to 
- *               com.jrefinery.data.time package, implemented Serializable (DG) 
+ * 13-Mar-2003 : Renamed TimeSeriesDataPair --> TimeSeriesDataItem, moved to
+ *               com.jrefinery.data.time package, implemented Serializable (DG)
  */
 
 package org.jfree.data.time;
@@ -47,20 +47,20 @@ import java.io.Serializable;
 /**
  * Represents one data item in a time series.
  * <P>
- * The time period can be any of the following: 
+ * The time period can be any of the following:
  * <ul>
- * <li>Year</li>
- * <li>Quarter</li>
- * <li>Month</li>
- * <li>Week</li>
- * <li>Day</li>
- * <li>Hour</li>
- * <li>Minute</li>
- * <li>Second</li>
- * <li>Millisecond</li>
- * <li>FixedMillisecond</li>
+ * <li>{@link Year}</li>
+ * <li>{@link Quarter}</li>
+ * <li>{@link Month}</li>
+ * <li>{@link Week}</li>
+ * <li>{@link Day}</li>
+ * <li>{@link Hour}</li>
+ * <li>{@link Minute}</li>
+ * <li>{@link Second}</li>
+ * <li>{@link Millisecond}</li>
+ * <li>{@link FixedMillisecond}</li>
  * </ul>
- * 
+ *
  * The time period is an immutable property of the data item.  Data items will
  * often be sorted within a list, and allowing the time period to be changed
  * could destroy the sort order.
@@ -104,29 +104,6 @@ public class TimeSeriesDataItem implements Cloneable, Comparable, Serializable {
     }
 
     /**
-     * Clones the data pair.
-     * <P>
-     * Notes:
-     * --> no need to clone the period or value since they are immutable classes.
-     *
-     * @return a clone of this data pair.
-     */
-    public Object clone() {
-
-        Object clone = null;
-
-        try {
-            clone = super.clone();
-        }
-        catch (CloneNotSupportedException e) { // won't get here...
-            System.err.println("TimeSeriesDataPair.clone(): operation not supported.");
-        }
-
-        return clone;
-
-    }
-
-    /**
      * Returns the time period.
      *
      * @return the time period.
@@ -155,15 +132,15 @@ public class TimeSeriesDataItem implements Cloneable, Comparable, Serializable {
 
     /**
      * Tests this object for equality with the target object.
-     * 
+     *
      * @param target  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object target) {
-    
+
         boolean result = false;
-        
+
         if (this == target) {
             result = true;
         }
@@ -181,11 +158,11 @@ public class TimeSeriesDataItem implements Cloneable, Comparable, Serializable {
                 result = this.period.equals(item.getPeriod()) && sameValues;
             }
         }
-        
+
         return result;
-        
+
     }
-    
+
     /**
      * Returns an integer indicating the order of this data pair object
      * relative to another object.
@@ -216,6 +193,29 @@ public class TimeSeriesDataItem implements Cloneable, Comparable, Serializable {
         }
 
         return result;
+
+    }
+
+    /**
+     * Clones the data pair.
+     * <P>
+     * Notes:
+     * --> no need to clone the period or value since they are immutable classes.
+     *
+     * @return a clone of this data pair.
+     */
+    public Object clone() {
+
+        Object clone = null;
+
+        try {
+            clone = super.clone();
+        }
+        catch (CloneNotSupportedException e) { // won't get here...
+            System.err.println("TimeSeriesDataPair.clone(): operation not supported.");
+        }
+
+        return clone;
 
     }
 

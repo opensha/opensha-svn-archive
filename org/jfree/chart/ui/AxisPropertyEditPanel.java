@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,11 @@
  * --------------------------
  * AxisPropertyEditPanel.java
  * --------------------------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * Original Author:  David Gilbert;
  * Contributor(s):   Andrzej Porebski;
+ *                   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -37,35 +38,39 @@
  * 21-Nov-2001 : Allowed for null axes (DG);
  * 09-Apr-2002 : Minor change to import statement to fix Javadoc error (DG);
  * 15-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
  *
  */
 
 package org.jfree.chart.ui;
 
-import java.awt.Font;
-import java.awt.Paint;
-import java.awt.Color;
-import java.awt.Insets;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.JCheckBox;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JColorChooser;
-import javax.swing.BorderFactory;
+
 import org.jfree.chart.axis.Axis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.layout.LCBLayout;
-import org.jfree.ui.PaintSample;
+import org.jfree.ui.FontChooserPanel;
+import org.jfree.ui.FontDisplayField;
 import org.jfree.ui.InsetsChooserPanel;
 import org.jfree.ui.InsetsTextField;
-import org.jfree.ui.FontDisplayField;
-import org.jfree.ui.FontChooserPanel;
+import org.jfree.ui.PaintSample;
 
 /**
  * A panel for editing the properties of an axis.
@@ -122,6 +127,10 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
     /** A tabbed pane for... */
     private JTabbedPane otherTabs;
 
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.ui.LocalizationBundle");
+
     /**
      * A static method that returns a panel that is appropriate for the axis
      * type.
@@ -168,41 +177,41 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
         setLayout(new BorderLayout());
 
         JPanel general = new JPanel(new BorderLayout());
-        general.setBorder(BorderFactory.createTitledBorder(
-                              BorderFactory.createEtchedBorder(), "General:"));
+        general.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), 
+                                                      localizationResources.getString("General")));
 
         JPanel interior = new JPanel(new LCBLayout(5));
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        interior.add(new JLabel("Label:"));
+        interior.add(new JLabel(localizationResources.getString("Label")));
         label = new JTextField(axis.getLabel());
         interior.add(label);
         interior.add(new JPanel());
 
-        interior.add(new JLabel("Font:"));
+        interior.add(new JLabel(localizationResources.getString("Font")));
         labelFontField = new FontDisplayField(labelFont);
         interior.add(labelFontField);
-        JButton b = new JButton("Select...");
+        JButton b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectLabelFont");
         b.addActionListener(this);
         interior.add(b);
 
-        interior.add(new JLabel("Paint:"));
+        interior.add(new JLabel(localizationResources.getString("Paint")));
         interior.add(labelPaintSample);
-        b = new JButton("Select...");
+        b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectLabelPaint");
         b.addActionListener(this);
         interior.add(b);
 
-        interior.add(new JLabel("Label Insets:"));
-        b = new JButton("Edit...");
+        interior.add(new JLabel(localizationResources.getString("Label_Insets")));
+        b = new JButton(localizationResources.getString("Edit..."));
         b.setActionCommand("LabelInsets");
         b.addActionListener(this);
         labelInsetsTextField = new InsetsTextField(this.labelInsets);
         interior.add(labelInsetsTextField);
         interior.add(b);
 
-        interior.add(new JLabel("Tick Label Insets:"));
-        b = new JButton("Edit...");
+        interior.add(new JLabel(localizationResources.getString("Tick_Label_Insets")));
+        b = new JButton(localizationResources.getString("Edit..."));
         b.setActionCommand("TickLabelInsets");
         b.addActionListener(this);
         tickLabelInsetsTextField = new InsetsTextField(this.tickLabelInsets);
@@ -217,7 +226,8 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
 
         JPanel other = new JPanel(new BorderLayout());
         other.setBorder(BorderFactory.createTitledBorder(
-                             BorderFactory.createEtchedBorder(), "Other:"));
+                             BorderFactory.createEtchedBorder(), 
+                             localizationResources.getString("Other")));
 
         otherTabs = new JTabbedPane();
         otherTabs.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
@@ -225,27 +235,28 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
         JPanel ticks = new JPanel(new LCBLayout(3));
         ticks.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-        showTickLabelsCheckBox = new JCheckBox("Show tick labels",
-            axis.isTickLabelsVisible());
+        showTickLabelsCheckBox = new JCheckBox(localizationResources.getString("Show_tick_labels"),
+                                               axis.isTickLabelsVisible());
         ticks.add(showTickLabelsCheckBox);
         ticks.add(new JPanel());
         ticks.add(new JPanel());
 
-        ticks.add(new JLabel("Tick label font:"));
+        ticks.add(new JLabel(localizationResources.getString("Tick_label_font")));
         tickLabelFontField = new FontDisplayField(tickLabelFont);
         ticks.add(tickLabelFontField);
-        b = new JButton("Select...");
+        b = new JButton(localizationResources.getString("Select..."));
         b.setActionCommand("SelectTickLabelFont");
         b.addActionListener(this);
         ticks.add(b);
 
-        showTickMarksCheckBox = new JCheckBox("Show tick marks",
-            axis.isTickMarksVisible());
+
+        showTickMarksCheckBox = new JCheckBox(localizationResources.getString("Show_tick_marks"),
+                                              axis.isTickMarksVisible());
         ticks.add(showTickMarksCheckBox);
         ticks.add(new JPanel());
         ticks.add(new JPanel());
 
-        otherTabs.add("Ticks", ticks);
+        otherTabs.add(localizationResources.getString("Ticks"), ticks);
 
         other.add(otherTabs);
 
@@ -381,13 +392,12 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
 
         FontChooserPanel panel = new FontChooserPanel(labelFont);
         int result = JOptionPane.showConfirmDialog(this, panel,
-            "Font Selection",
+            localizationResources.getString("Font_Selection"),
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             labelFont = panel.getSelectedFont();
-            labelFontField.setText(labelFont.getFontName() + " "
-                + labelFont.getSize());
+            labelFontField.setText(labelFont.getFontName() + " " + labelFont.getSize());
         }
 
     }
@@ -397,7 +407,8 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
      */
     private void attemptModifyLabelPaint() {
         Color c;
-        c = JColorChooser.showDialog(this, "Label Color", Color.blue);
+        c = JColorChooser.showDialog(this, localizationResources.getString("Label_Color"),
+                                     Color.blue);
         if (c != null) {
             labelPaintSample.setPaint(c);
         }
@@ -410,7 +421,7 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
 
         FontChooserPanel panel = new FontChooserPanel(tickLabelFont);
         int result = JOptionPane.showConfirmDialog(this, panel,
-            "Font Selection",
+            localizationResources.getString("Font_Selection"),
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
@@ -428,8 +439,8 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
      */
     private void editTickLabelInsets() {
         InsetsChooserPanel panel = new InsetsChooserPanel(this.tickLabelInsets);
-        int result =  JOptionPane.showConfirmDialog(this, panel, "Edit Insets",
-                                                    JOptionPane.OK_CANCEL_OPTION,
+        int result =  JOptionPane.showConfirmDialog(this, panel, 
+                                                    localizationResources.getString("Edit_Insets"),
                                                     JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
@@ -445,8 +456,8 @@ public class AxisPropertyEditPanel extends JPanel implements ActionListener {
      */
     private void editLabelInsets() {
         InsetsChooserPanel panel = new InsetsChooserPanel(this.labelInsets);
-        int result = JOptionPane.showConfirmDialog(this, panel, "Edit Insets",
-                                                   JOptionPane.OK_CANCEL_OPTION,
+        int result = JOptionPane.showConfirmDialog(this, panel, 
+                                                   localizationResources.getString("Edit_Insets"),
                                                    JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {

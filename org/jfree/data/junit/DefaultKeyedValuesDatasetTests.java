@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------------------
  * DefaultKeyedValuesDatasetTests.java
  * -----------------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -52,7 +52,7 @@ import org.jfree.data.DefaultKeyedValuesDataset;
 import org.jfree.data.KeyedValuesDataset;
 
 /**
- * Tests for the {@link DefaultKeyedValue} class.
+ * Tests for the {@link DefaultKeyedValuesDataset} class.
  *
  * @author David Gilbert
  */
@@ -77,24 +77,44 @@ public class DefaultKeyedValuesDatasetTests extends TestCase {
     }
 
     /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        DefaultKeyedValuesDataset d1 = new DefaultKeyedValuesDataset();
+        d1.setValue("V1", new Integer(1));
+        d1.setValue("V2", null);
+        d1.setValue("V3", new Integer(3));
+        DefaultKeyedValuesDataset d2 = null;
+        try {
+            d2 = (DefaultKeyedValuesDataset) d1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            System.err.println("DefaultKeyedValuesDatasetTests.testCloning: failed to clone.");
+        }
+        assertTrue(d1 != d2);
+        assertTrue(d1.getClass() == d2.getClass());
+        assertTrue(d1.equals(d2));
+    }
+
+    /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         DefaultKeyedValuesDataset d1 = new DefaultKeyedValuesDataset();
         d1.setValue("C1", new Double(234.2));
         d1.setValue("C2", null);
         d1.setValue("C3", new Double(345.9));
         d1.setValue("C4", new Double(452.7));
-        
+
         KeyedValuesDataset d2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(d1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             d2 = (KeyedValuesDataset) in.readObject();
             in.close();
@@ -102,8 +122,8 @@ public class DefaultKeyedValuesDatasetTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(d1, d2); 
-        
+        assertEquals(d1, d2);
+
     }
 
 }

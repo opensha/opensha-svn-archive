@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * TimePeriodValue.java
  * --------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,7 +32,7 @@
  * Changes
  * -------
  * 22-Apr-2003 : Version 1 (DG);
- *  
+ *
  */
 
 package org.jfree.data.time;
@@ -78,29 +78,6 @@ public class TimePeriodValue implements Cloneable, Serializable {
     }
 
     /**
-     * Clones the data pair.
-     * <P>
-     * Notes:
-     * --> no need to clone the period or value since they are immutable classes.
-     *
-     * @return a clone of this data pair.
-     */
-    public Object clone() {
-
-        Object clone = null;
-
-        try {
-            clone = super.clone();
-        }
-        catch (CloneNotSupportedException e) { // won't get here...
-            System.err.println("TimePeriodValue.clone(): operation not supported.");
-        }
-
-        return clone;
-
-    }
-
-    /**
      * Returns the time period.
      *
      * @return the time period.
@@ -129,21 +106,21 @@ public class TimePeriodValue implements Cloneable, Serializable {
 
     /**
      * Tests this object for equality with the target object.
-     * 
+     *
      * @param target  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object target) {
-    
+
         boolean result = false;
-        
+
         if (this == target) {
             result = true;
         }
         else {
             if (target instanceof TimePeriodValue) {
-				TimePeriodValue item = (TimePeriodValue) target;
+                TimePeriodValue item = (TimePeriodValue) target;
                 Number value = item.getValue();
                 boolean sameValues;
                 if (this.value == null) {
@@ -155,9 +132,32 @@ public class TimePeriodValue implements Cloneable, Serializable {
                 result = this.period.equals(item.getPeriod()) && sameValues;
             }
         }
-        
+
         return result;
-        
+
+    }
+
+    /**
+     * Clones the data pair.
+     * <P>
+     * Notes:
+     * --> no need to clone the period or value since they are immutable classes.
+     *
+     * @return a clone of this data pair.
+     */
+    public Object clone() {
+
+        Object clone = null;
+
+        try {
+            clone = super.clone();
+        }
+        catch (CloneNotSupportedException e) { // won't get here...
+            System.err.println("TimePeriodValue.clone(): operation not supported.");
+        }
+
+        return clone;
+
     }
 
 }

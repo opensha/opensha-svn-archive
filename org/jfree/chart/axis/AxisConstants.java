@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * AxisConstants.java
  * ------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,17 +37,18 @@
  * 16-Oct-2002 : Changed default tick paint to light gray (DG);
  * 08-Nov-2002 : Moved to new package com.jrefinery.chart.axis.  Added axis location
  *               constants (DG);
+ * 02-May-2003 : Removed TOP, BOTTOM, LEFT and RIGHT (see AxisLocation) (DG);
  *
  */
 
 package org.jfree.chart.axis;
 
-import java.awt.Font;
-import java.awt.Paint;
-import java.awt.Color;
-import java.awt.Stroke;
 import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Stroke;
 
 /**
  * Useful constants for the {@link Axis} class and its subclasses.
@@ -58,7 +59,7 @@ public interface AxisConstants {
 
     /** The default axis visibility. */
     public static final boolean DEFAULT_AXIS_VISIBLE = true;
-    
+
     /** The default axis label font. */
     public static final Font DEFAULT_AXIS_LABEL_FONT = new Font("SansSerif", Font.PLAIN, 12);
 
@@ -70,7 +71,7 @@ public interface AxisConstants {
 
     /** The default tick labels visibility. */
     public static final boolean DEFAULT_TICK_LABELS_VISIBLE = true;
-    
+
     /** The default tick label font. */
     public static final Font DEFAULT_TICK_LABEL_FONT = new Font("SansSerif", Font.PLAIN, 10);
 
@@ -82,7 +83,7 @@ public interface AxisConstants {
 
     /** The default tick marks visible. */
     public static final boolean DEFAULT_TICK_MARKS_VISIBLE = true;
-    
+
     /** The default tick stroke. */
     public static final Stroke DEFAULT_TICK_MARK_STROKE = new BasicStroke(1);
 
@@ -91,20 +92,8 @@ public interface AxisConstants {
 
     /** The default tick mark inside length. */
     public static final float DEFAULT_TICK_MARK_INSIDE_LENGTH = 0.0f;
-    
+
     /** The default tick mark outside length. */
     public static final float DEFAULT_TICK_MARK_OUTSIDE_LENGTH = 2.0f;
-    
-    /** Axis location constant. */
-    public static final int TOP = 0;
-
-    /** Axis location constant. */
-    public static final int BOTTOM = 1;
-
-    /** Axis location constant. */
-    public static final int RIGHT = 2;
-
-    /** Axis location constant. */
-    public static final int LEFT = 3;
 
 }

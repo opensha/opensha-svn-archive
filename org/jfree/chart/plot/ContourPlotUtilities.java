@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,13 +25,14 @@
  * (C) Copyright 2002, 2003 by David M. O'Donnell and Contributors.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
  * Changes
  * -------
  * 26-Nov-2002 : Version 1 contributed by David M. O'Donnell (DG);
+ * 22-Jul-2003 : Made this class abstract as there is no need to instantiate it (DG);
  *
  */
 
@@ -42,26 +43,19 @@ import org.jfree.data.DefaultContourDataset;
 import org.jfree.data.Range;
 
 /**
- * Some utility methods for the ContourPlot class.
- * 
+ * Some utility methods for the {@link ContourPlot} class.
+ *
  * @author David M. O'Donnell
  */
-public class ContourPlotUtilities {
-
-    /**
-     * Creates a new instance.
-     */
-    public ContourPlotUtilities() {
-        super();
-    }
+public abstract class ContourPlotUtilities {
 
     /**
      * Returns the visible z-range.
-     * 
+     *
      * @param data  the dataset.
      * @param x  the x range.
      * @param y  the y range.
-     * 
+     *
      * @return The range.
      */
     public static Range visibleRange(ContourDataset data, Range x, Range y) {

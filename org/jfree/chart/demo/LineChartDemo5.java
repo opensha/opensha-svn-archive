@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * LineChartDemo5.java
  * -------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -47,11 +47,12 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardLegend;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
+import org.jfree.chart.plot.DefaultDrawingSupplier;
+import org.jfree.chart.plot.DrawingSupplier;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.LineAndShapeRenderer;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
@@ -119,78 +120,77 @@ public class LineChartDemo5 extends ApplicationFrame {
         dataset.addValue(3.0, series3, type8);
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createLineChart("Line Chart Demo 5",  // chart title
-                                                        "Type",               // domain axis label
-                                                        "Value",              // range axis label
-                                                        dataset,              // data
-                                                        true,                 // include legend
-                                                        true,                 // tooltips
-                                                        false                 // urls
-                                                        );
+        JFreeChart chart = ChartFactory.createLineChart(
+            "Line Chart Demo 5",      // chart title
+            "Type",                   // domain axis label
+            "Value",                  // range axis label
+            dataset,                  // data
+            PlotOrientation.VERTICAL, // orientation
+            true,                     // include legend
+            true,                     // tooltips
+            false                     // urls
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         StandardLegend legend = (StandardLegend) chart.getLegend();
         legend.setDisplaySeriesShapes(true);
-        
-        chart.setBackgroundPaint(Color.yellow);
 
+        Shape[] shapes = new Shape[3];
+        int[] xpoints;
+        int[] ypoints;
+
+        // right-pointing triangle
+        xpoints = new int[] {-3, 3, -3};
+        ypoints = new int[] {-3, 0, 3};
+        shapes[0] = new Polygon(xpoints, ypoints, 3);
+
+        // vertical rectangle
+        shapes[1] = new Rectangle2D.Double(-2, -3, 3, 6);
+
+        // left-pointing triangle
+        xpoints = new int[] {-3, 3, 3};
+        ypoints = new int[] {0, -3, 3};
+        shapes[2] = new Polygon(xpoints, ypoints, 3);
+
+        DrawingSupplier supplier = new DefaultDrawingSupplier(
+            DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
+            DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
+            shapes
+        );
         CategoryPlot plot = chart.getCategoryPlot();
+        plot.setDrawingSupplier(supplier);
+
+        chart.setBackgroundPaint(Color.yellow);
 
         // set the stroke for each series...
         plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f,
                                                               BasicStroke.CAP_ROUND,
                                                               BasicStroke.JOIN_ROUND,
                                                               1.0f,
-                                                              new float[] { 10.0f, 6.0f },
+                                                              new float[] {10.0f, 6.0f},
                                                               0.0f));
         plot.getRenderer().setSeriesStroke(1, new BasicStroke(2.0f,
                                                               BasicStroke.CAP_ROUND,
                                                               BasicStroke.JOIN_ROUND,
                                                               1.0f,
-                                                              new float[] { 6.0f, 6.0f },
+                                                              new float[] {6.0f, 6.0f},
                                                               0.0f));
         plot.getRenderer().setSeriesStroke(2, new BasicStroke(2.0f,
                                                               BasicStroke.CAP_ROUND,
                                                               BasicStroke.JOIN_ROUND,
                                                               1.0f,
-                                                              new float[] { 2.0f, 6.0f },
+                                                              new float[] {2.0f, 6.0f},
                                                               0.0f));
 
-        // label data points with values...
-        plot.setValueLabelsVisible(true);
-        
         // customise the renderer...
         LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
         renderer.setDrawShapes(true);
-        
-        Shape[] shapes = new Shape[3];
-        int[] xpoints;
-        int[] ypoints;
-        
-		// right-pointing triangle
-        xpoints = new int[] {-3, 3, -3};
-		ypoints = new int[] {-3, 0, 3};
-		shapes[0] = new Polygon(xpoints, ypoints, 3);
-        
-		// vertical rectangle
-		shapes[1] = new Rectangle2D.Double(-2, -3, 3, 6);
-        
-		// left-pointing triangle
-		xpoints = new int[] {-3, 3, 3};
-		ypoints = new int[] {0, -3, 3};
-		shapes[2] = new Polygon(xpoints, ypoints, 3);
+        renderer.setItemLabelsVisible(Boolean.TRUE);
 
-        DrawingSupplier supplier = new DefaultDrawingSupplier(
-        	DefaultDrawingSupplier.DEFAULT_PAINT_SEQUENCE,
-        	DefaultDrawingSupplier.DEFAULT_OUTLINE_PAINT_SEQUENCE,
-        	DefaultDrawingSupplier.DEFAULT_STROKE_SEQUENCE,
-        	DefaultDrawingSupplier.DEFAULT_OUTLINE_STROKE_SEQUENCE,
-        	shapes
-        );
-        renderer.setDrawingSupplier(supplier);
-        
         // customise the domain axis...
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setVerticalCategoryLabels(true);
 
         // customise the range axis...

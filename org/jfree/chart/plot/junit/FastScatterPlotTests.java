@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * FastScatterPlotTests.java
  * -------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,9 +48,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jfree.chart.axis.HorizontalNumberAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.plot.FastScatterPlot;
 
 /**
@@ -79,23 +78,52 @@ public class FastScatterPlotTests extends TestCase {
     }
 
     /**
+     * Test the equals method.
+     */
+    public void testEquals() {
+        
+        FastScatterPlot plot1 = new FastScatterPlot();
+        FastScatterPlot plot2 = new FastScatterPlot();
+        assertTrue(plot1.equals(plot2));    
+        
+    }
+
+    /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        FastScatterPlot p1 = new FastScatterPlot();
+        FastScatterPlot p2 = null;
+        try {
+            p2 = (FastScatterPlot) p1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            System.err.println("FastScatterPlotTests.testCloning: failed to clone.");
+        }
+        assertTrue(p1 != p2);
+        assertTrue(p1.getClass() == p2.getClass());
+        assertTrue(p1.equals(p2));
+    }
+
+    /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         float[][] data = createData();
 
-        ValueAxis domainAxis = new HorizontalNumberAxis("X");
-        ValueAxis rangeAxis = new VerticalNumberAxis("Y");
+        ValueAxis domainAxis = new NumberAxis("X");
+        ValueAxis rangeAxis = new NumberAxis("Y");
         FastScatterPlot p1 = new FastScatterPlot(data, domainAxis, rangeAxis);
         FastScatterPlot p2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(p1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             p2 = (FastScatterPlot) in.readObject();
             in.close();
@@ -103,13 +131,14 @@ public class FastScatterPlotTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(p1, p2); 
-        
+        boolean b = p1.equals(p2);
+        assertEquals(p1, p2);
+
     }
 
     /**
      * Populates the data array with random values.
-     * 
+     *
      * @return Random data.
      */
     private float[][] createData() {

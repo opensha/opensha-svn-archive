@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * KeyedValues2DDataset.java
  * -----------------------
- * (C) Copyright 2003 by Simba Management Limited.
+ * (C) Copyright 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,7 +42,7 @@ package org.jfree.data;
 /**
  * A dataset containing (key, value) data items.  This dataset is equivalent to a
  * {@link CategoryDataset} and is included for completeness only.
- * 
+ *
  * @author David Gilbert
  */
 public interface KeyedValues2DDataset extends CategoryDataset {

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott (for Australian Antarctic Division).
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -38,23 +38,25 @@
 package org.jfree.chart.demo;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.text.DecimalFormat;
+
 import javax.swing.BorderFactory;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import org.jfree.chart.JFreeChart;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.JThermometer;
 import org.jfree.chart.plot.MeterPlot;
-import org.jfree.data.DefaultMeterDataset;
+import org.jfree.data.DefaultValueDataset;
 
 /**
  * A demonstration application for the thermometer plot.
@@ -67,7 +69,7 @@ public class ThermometerDemo extends JPanel {
     protected static final String[] OPTIONS = {"None", "Right", "Bulb"};
 
     /** The dataset. */
-    private DefaultMeterDataset data = new DefaultMeterDataset();
+    private DefaultValueDataset data = new DefaultValueDataset(20.0);
 
     /** The meter plot (dial). */
     private MeterPlot meterplot = new MeterPlot(data);
@@ -203,7 +205,7 @@ public class ThermometerDemo extends JPanel {
      */
     void jbInit() throws Exception {
 
-        data.setRange(new Double(-20), new Double(20));
+        //data.setRange(new Double(-20), new Double(20));
         thermo[0] = thermo1;
         thermo[1] = thermo2;
         thermo[2] = thermo3;
@@ -401,7 +403,7 @@ public class ThermometerDemo extends JPanel {
     private void setMeterValue(double value) {
         try {
             double newValue = value;
-            if (data.isValueValid()) {
+            if (data.getValue() != null) {
                 newValue += data.getValue().doubleValue();
             }
             data.setValue(new Double(newValue));

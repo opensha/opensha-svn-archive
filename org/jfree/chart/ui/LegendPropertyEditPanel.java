@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ----------------------------
  * LegendPropertyEditPanel.java
  * ----------------------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
  * Original Author:  David Gilbert;
- * Contributor(s):   -;
+ * Contributor(s):   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -35,33 +35,37 @@
  * 07-Nov-2001 : Separated the JCommon Class Library classes, JFreeChart now requires
  *               jcommon.jar (DG);
  * 25-Jun-2002 : Revised header, removed redundant code (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
  *
  */
 
 package org.jfree.chart.ui;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.Color;
 import java.awt.Stroke;
-import java.awt.BasicStroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ResourceBundle;
+
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JColorChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import org.jfree.chart.Legend;
 import org.jfree.chart.StandardLegend;
 import org.jfree.layout.LCBLayout;
-import org.jfree.ui.StrokeSample;
-import org.jfree.ui.StrokeChooserPanel;
-import org.jfree.ui.PaintSample;
-import org.jfree.ui.FontDisplayField;
 import org.jfree.ui.FontChooserPanel;
+import org.jfree.ui.FontDisplayField;
+import org.jfree.ui.PaintSample;
+import org.jfree.ui.StrokeChooserPanel;
+import org.jfree.ui.StrokeSample;
 
 /**
  * A panel for editing the properties of a {@link Legend}.
@@ -90,7 +94,11 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /** A field for displaying the series label font. */
     private FontDisplayField fontDisplayField;
-    
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.ui.LocalizationBundle");
+
     /**
      * Standard constructor: builds a panel based on the specified legend.
      *
@@ -115,42 +123,43 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
         JPanel general = new JPanel(new BorderLayout());
         general.setBorder(BorderFactory.createTitledBorder(
-                              BorderFactory.createEtchedBorder(), "General:"));
+                              BorderFactory.createEtchedBorder(), 
+                              localizationResources.getString("General")));
 
         JPanel interior = new JPanel(new LCBLayout(5));
         interior.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 
-        interior.add(new JLabel("Outline:"));
+        interior.add(new JLabel(localizationResources.getString("Outline")));
         interior.add(outlineStroke);
-        JButton button = new JButton("Select...");
+        JButton button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("OutlineStroke");
         button.addActionListener(this);
         interior.add(button);
 
-        interior.add(new JLabel("Outline Paint:"));
-        button = new JButton("Select...");
+        interior.add(new JLabel(localizationResources.getString("Outline_Paint")));
+        button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("OutlinePaint");
         button.addActionListener(this);
         interior.add(outlinePaint);
         interior.add(button);
 
-        interior.add(new JLabel("Background:"));
-        button = new JButton("Select...");
+        interior.add(new JLabel(localizationResources.getString("Background")));
+        button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("BackgroundPaint");
         button.addActionListener(this);
         interior.add(backgroundPaint);
         interior.add(button);
 
-        interior.add(new JLabel("Series label font:"));
-        button = new JButton("Select...");
+        interior.add(new JLabel(localizationResources.getString("Series_label_font")));
+        button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("SeriesFont");
         button.addActionListener(this);
         fontDisplayField = new FontDisplayField(seriesFont);
         interior.add(fontDisplayField);
         interior.add(button);
 
-        interior.add(new JLabel("Series label paint:"));
-        button = new JButton("Select...");
+        interior.add(new JLabel(localizationResources.getString("Series_label_paint")));
+        button = new JButton(localizationResources.getString("Select..."));
         button.setActionCommand("SeriesPaint");
         button.addActionListener(this);
         interior.add(seriesPaint);
@@ -162,7 +171,7 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current outline stroke.
-     * 
+     *
      * @return The current outline stroke.
      */
     public Stroke getOutlineStroke() {
@@ -171,7 +180,7 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current outline paint.
-     * 
+     *
      * @return The current outline paint.
      */
     public Paint getOutlinePaint() {
@@ -180,7 +189,7 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current background paint.
-     * 
+     *
      * @return The current background paint.
      */
     public Paint getBackgroundPaint() {
@@ -189,7 +198,7 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current series label font.
-     * 
+     *
      * @return The current series label font.
      */
     public Font getSeriesFont() {
@@ -198,7 +207,7 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the current series label paint.
-     * 
+     *
      * @return The current series label paint.
      */
     public Paint getSeriesPaint() {
@@ -233,18 +242,17 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
      * Allows the user the opportunity to change the outline stroke.
      */
     private void attemptModifyOutlineStroke() {
-        
+
         StrokeChooserPanel panel = new StrokeChooserPanel(outlineStroke, availableStrokeSamples);
-        int result = JOptionPane.showConfirmDialog(this, 
-                                                   panel,
-                                                   "Pen/Stroke Selection",
-                                                   JOptionPane.OK_CANCEL_OPTION, 
-                                                   JOptionPane.PLAIN_MESSAGE);
+        int result = 
+            JOptionPane.showConfirmDialog(this, panel,
+                                          localizationResources.getString("Pen_Stroke_Selection"),
+                                          JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             outlineStroke.setStroke(panel.getSelectedStroke());
         }
-        
+
     }
 
     /**
@@ -252,7 +260,8 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
      */
     private void attemptModifyOutlinePaint() {
         Color c;
-        c = JColorChooser.showDialog(this, "Outline Color", Color.blue);
+        c = JColorChooser.showDialog(this, localizationResources.getString("Outline_Color"),
+                                     Color.blue);
         if (c != null) {
             outlinePaint.setPaint(c);
         }
@@ -263,7 +272,8 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
      */
     private void attemptModifyBackgroundPaint() {
         Color c;
-        c = JColorChooser.showDialog(this, "Background Color", Color.blue);
+        c = JColorChooser.showDialog(this, localizationResources.getString("Background_Color"),
+                                     Color.blue);
         if (c != null) {
             backgroundPaint.setPaint(c);
         }
@@ -275,11 +285,10 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
     public void attemptModifySeriesFont() {
 
         FontChooserPanel panel = new FontChooserPanel(seriesFont);
-        int result = JOptionPane.showConfirmDialog(this, 
-                                                   panel,
-                                                   "Font Selection",
-                                                   JOptionPane.OK_CANCEL_OPTION, 
-                                                   JOptionPane.PLAIN_MESSAGE);
+        int result = 
+            JOptionPane.showConfirmDialog(this, panel,
+                                          localizationResources.getString("Font_Selection"),
+                                          JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (result == JOptionPane.OK_OPTION) {
             seriesFont = panel.getSelectedFont();
@@ -293,7 +302,8 @@ class LegendPropertyEditPanel extends JPanel implements ActionListener {
      */
     private void attemptModifySeriesPaint() {
         Color c;
-        c = JColorChooser.showDialog(this, "Series Label Color", Color.blue);
+        c = JColorChooser.showDialog(this, localizationResources.getString("Series_Label_Color"),
+                                     Color.blue);
         if (c != null) {
             seriesPaint.setPaint(c);
         }

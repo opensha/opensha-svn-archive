@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><!--JBuilder QuickDoc-->
+<HEAD>
+<TITLE>Class org.jfree.ui.RectangleEdge</TITLE><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<H2>
+<FONT SIZE="-1">org.jfree.ui</FONT>
+<BR>Class RectangleEdge</H2>
+<DL>
+<DT>public class <B>RectangleEdge</B><DT>implements Serializable
+</DL>
+<DL><DD>Used to indicate the edge of a rectangle.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Author:</B><DD>David Gilbert</DD>
+</DL>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Field Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>TOP</H3>
+<PRE>
+public static final org.jfree.ui.RectangleEdge <B>TOP</B></PRE>
+<DL><DD>Top.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>BOTTOM</H3>
+<PRE>
+public static final org.jfree.ui.RectangleEdge <B>BOTTOM</B></PRE>
+<DL><DD>Bottom.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>LEFT</H3>
+<PRE>
+public static final org.jfree.ui.RectangleEdge <B>LEFT</B></PRE>
+<DL><DD>Left.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>RIGHT</H3>
+<PRE>
+public static final org.jfree.ui.RectangleEdge <B>RIGHT</B></PRE>
+<DL><DD>Right.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<H3>name</H3>
+<PRE>
+private String <B>name</B></PRE>
+<DL><DD>The name.<DL><DD></DD></DL></DD>
+</DL>
+<DL></DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Constructor Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>RectangleEdge</H3>
+<PRE>
+private <B>RectangleEdge</B>(String&nbsp;name)</PRE>
+<DL><DD>Private constructor.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>name</CODE> - the name.</DD>
+</DL>
+<HR>
+
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Method Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>toString</H3>
+<PRE>
+public String <B>toString</B>()</PRE>
+<DL><DD>Returns a string representing the object.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The string.</DD>
+</DL>
+<HR>
+
+<H3>equals</H3>
+<PRE>
+public boolean <B>equals</B>(Object&nbsp;o)</PRE>
+<DL><DD>Returns <code>true</code> if this object is equal to the specified object, and <code>false</code> otherwise.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>o</CODE> - the other object.</DD>
+<DT><B>Returns:</B><DD>A boolean.</DD>
+</DL>
+<HR>
+
+<H3>isTopOrBottom</H3>
+<PRE>
+public static boolean <B>isTopOrBottom</B>(org.jfree.ui.RectangleEdge&nbsp;edge)</PRE>
+<DL><DD>Returns <code>true</code> if the edge is <code>TOP</code> or <code>BOTTOM</code>, and <code>false</code> otherwise.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>edge</CODE> - the edge.</DD>
+<DT><B>Returns:</B><DD>A boolean.</DD>
+</DL>
+<HR>
+
+<H3>isLeftOrRight</H3>
+<PRE>
+public static boolean <B>isLeftOrRight</B>(org.jfree.ui.RectangleEdge&nbsp;edge)</PRE>
+<DL><DD>Returns <code>true</code> if the edge is <code>LEFT</code> or <code>RIGHT</code>, and <code>false</code> otherwise.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>edge</CODE> - the edge.</DD>
+<DT><B>Returns:</B><DD>A boolean.</DD>
+</DL>
+<HR>
+
+<H3>opposite</H3>
+<PRE>
+public static org.jfree.ui.RectangleEdge <B>opposite</B>(org.jfree.ui.RectangleEdge&nbsp;edge)</PRE>
+<DL><DD>Returns the opposite edge.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>edge</CODE> - an edge.</DD>
+<DT><B>Returns:</B><DD>The opposite edge.</DD>
+</DL>
+<HR>
+
+<H3>coordinate</H3>
+<PRE>
+public static double <B>coordinate</B>(Rectangle2D&nbsp;rectangle,
+                                org.jfree.ui.RectangleEdge&nbsp;edge)</PRE>
+<DL><DD>Returns the x or y coordinate of the specified edge.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>rectangle</CODE> - the rectangle.</DD>
+<DD><CODE>edge</CODE> - the edge.</DD>
+<DT><B>Returns:</B><DD>The coordinate.</DD>
+</DL>
+<HR>
+
+</BODY>
+</HTML>

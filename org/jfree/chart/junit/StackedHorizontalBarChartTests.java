@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------------------
  * StackedHorizontalBarChartTests.java
  * -----------------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -52,6 +52,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.ChartChangeEvent;
 import org.jfree.chart.event.ChartChangeListener;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DatasetUtilities;
 import org.jfree.data.Range;
@@ -123,16 +124,15 @@ public class StackedHorizontalBarChartTests extends TestCase {
 
         // create a dataset...
         Number[][] data = new Integer[][]
-            { { new Integer(-30), new Integer(-20) },
-              { new Integer(-10), new Integer(10) },
-              { new Integer(20), new Integer(30) }
-            };
+            {{new Integer(-30), new Integer(-20)},
+             {new Integer(-10), new Integer(10)},
+             {new Integer(20), new Integer(30)}};
 
-		CategoryDataset newData = DatasetUtilities.createCategoryDataset("S", "C", data);
+        CategoryDataset newData = DatasetUtilities.createCategoryDataset("S", "C", data);
 
         LocalListener l = new LocalListener();
         chart.addChangeListener(l);
-        chart.getPlot().setDataset(newData);
+        chart.getCategoryPlot().setDataset(newData);
         assertEquals(true, l.flag);
         ValueAxis axis = chart.getCategoryPlot().getRangeAxis();
         Range range = axis.getRange();
@@ -152,22 +152,22 @@ public class StackedHorizontalBarChartTests extends TestCase {
 
         // create a dataset...
         Number[][] data = new Integer[][]
-            { { new Integer(-3), new Integer(-2) },
-              { new Integer(-1), new Integer(1) },
-              { new Integer(2), new Integer(3) }
-            };
+            {{new Integer(-3), new Integer(-2)},
+             {new Integer(-1), new Integer(1)},
+             {new Integer(2), new Integer(3)}};
 
-		CategoryDataset dataset = DatasetUtilities.createCategoryDataset("S", "C", data);
+        CategoryDataset dataset = DatasetUtilities.createCategoryDataset("S", "C", data);
 
         // create the chart...
-        return ChartFactory.createStackedHorizontalBarChart(
-                                                "Stacked Horizontal Bar Chart",  // chart title
-                                                "Domain", "Range",
-                                                dataset,      // data
-                                                true,         // include legend
-                                                true,
-                                                false
-                                            );
+        return ChartFactory.createStackedBarChart(
+            "Stacked Horizontal Bar Chart",  // chart title
+            "Domain", "Range",
+            dataset,      // data
+            PlotOrientation.HORIZONTAL,
+            true,         // include legend
+            true,
+            false
+        );
 
     }
 

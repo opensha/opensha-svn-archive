@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ---------------------
  * XYBubbleRenderer.java
  * ---------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
- * Contributor(s):   -;
+ * Original Author:  David Gilbert (for Object Refinery Limited);
+ * Contributor(s):   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -33,7 +33,11 @@
  * -------
  * 28-Jan-2003 : Version 1 (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -45,16 +49,19 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.labels.XYZToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.tooltips.XYZToolTipGenerator;
 import org.jfree.chart.urls.XYZURLGenerator;
 import org.jfree.data.XYDataset;
 import org.jfree.data.XYZDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.PublicCloneable;
 
 /**
  * A renderer that draws a circle at each data point.  The renderer expects the dataset to be an
@@ -62,50 +69,66 @@ import org.jfree.data.XYZDataset;
  *
  * @author David Gilbert
  */
-public class XYBubbleRenderer extends AbstractXYItemRenderer
-                              implements XYItemRenderer, Serializable {
+public class XYBubbleRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                        Cloneable,
+                                                                        PublicCloneable,
+                                                                        Serializable {
 
     /** A useful constant. */
     public static final int SCALE_ON_BOTH_AXES = 0;
-    
+
     /** A useful constant. */
     public static final int SCALE_ON_DOMAIN_AXIS = 1;
-    
+
     /** A useful constant. */
     public static final int SCALE_ON_RANGE_AXIS = 2;
 
-    /** Controls how the width and height of the bubble are scaled. */    
+    /** Controls how the width and height of the bubble are scaled. */
     private int scaleType;
 
     /**
      * Constructs a new renderer.
      */
     public XYBubbleRenderer() {
-        this(SCALE_ON_BOTH_AXES, null, null);
+        this(SCALE_ON_BOTH_AXES); 
     }
-    
+
     /**
      * Constructs a new renderer.
-     * 
+     *
      * @param scaleType  the type of scaling.
-     * @param toolTipGenerator  the tool-tip generator (<code>null</code> permitted).
-     * @param urlGenerator  the URL generator (<code>null</code> permitted).
      */
-    public XYBubbleRenderer(int scaleType,
-                            XYZToolTipGenerator toolTipGenerator, XYZURLGenerator urlGenerator) {
-        super(toolTipGenerator, urlGenerator);
+    public XYBubbleRenderer(int scaleType) {
+        super(); 
         this.scaleType = scaleType;
     }
 
     /**
-     * Returns the scale type.
+     * Constructs a new renderer.
+     *
+     * @param scaleType  the type of scaling.
+     * @param toolTipGenerator  the tool-tip generator (<code>null</code> permitted).
+     * @param urlGenerator  the URL generator (<code>null</code> permitted).
      * 
+     * @deprecated Use default constructor.
+     */
+    public XYBubbleRenderer(int scaleType,
+                            XYZToolTipGenerator toolTipGenerator, XYZURLGenerator urlGenerator) {
+        super();
+        this.scaleType = scaleType;
+        setToolTipGenerator(toolTipGenerator);
+        setURLGenerator(urlGenerator);
+    }
+
+    /**
+     * Returns the scale type.
+     *
      * @return the scale type.
      */
     public int getScaleType() {
         return this.scaleType;
     }
-    
+
     /**
      * Draws the visual representation of a single data item.
      *
@@ -116,22 +139,22 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
      * @param domainAxis  the domain (horizontal) axis.
      * @param rangeAxis  the range (vertical) axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo  information about crosshairs on a plot.
+     * @param pass  the pass index.
      */
     public void drawItem(Graphics2D g2,
                          Rectangle2D dataArea,
-                         ChartRenderingInfo info,
+                         PlotRenderingInfo info,
                          XYPlot plot,
                          ValueAxis domainAxis,
                          ValueAxis rangeAxis,
                          XYDataset dataset,
-                         int datasetIndex,
                          int series,
                          int item,
-                         CrosshairInfo crosshairInfo) {
+                         CrosshairInfo crosshairInfo,
+                         int pass) {
 
         // get the data point...
         Number xn = dataset.getXValue(series, item);
@@ -145,36 +168,56 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
             double x = xn.doubleValue();
             double y = yn.doubleValue();
             double z = zn.doubleValue();
-            double transX = domainAxis.translateValueToJava2D(x, dataArea);
-            double transY = rangeAxis.translateValueToJava2D(y, dataArea);
 
-            double transWidth = 0.0;
-            double transHeight = 0.0;
+            RectangleEdge domainAxisLocation = plot.getDomainAxisEdge();
+            RectangleEdge rangeAxisLocation = plot.getRangeAxisEdge();
+            double transX = domainAxis.translateValueToJava2D(x, dataArea, domainAxisLocation);
+            double transY = rangeAxis.translateValueToJava2D(y, dataArea, rangeAxisLocation);
+
+            double transDomain = 0.0;
+            double transRange = 0.0;
             double zero;
-            
+
             switch(this.scaleType) {
                 case SCALE_ON_DOMAIN_AXIS:
-                    zero = domainAxis.translateValueToJava2D(0.0, dataArea);
-                    transWidth = domainAxis.translateValueToJava2D(z, dataArea) - zero;
-                    transHeight = transWidth;
+                    zero = domainAxis.translateValueToJava2D(0.0, dataArea, domainAxisLocation);
+                    transDomain = domainAxis.translateValueToJava2D(z, dataArea, rangeAxisLocation) 
+                                  - zero;
+                    transRange = transDomain;
                     break;
                 case SCALE_ON_RANGE_AXIS:
-                    zero = rangeAxis.translateValueToJava2D(0.0, dataArea);
-                    transWidth = zero - rangeAxis.translateValueToJava2D(z, dataArea);
-                    transHeight = transWidth;
+                    zero = rangeAxis.translateValueToJava2D(0.0, dataArea, rangeAxisLocation);
+                    transRange = zero 
+                                 - rangeAxis.translateValueToJava2D(z, dataArea, rangeAxisLocation);
+                    transDomain = transRange;
                     break;
                 default:
-                    double zero1 = domainAxis.translateValueToJava2D(0.0, dataArea);
-                    double zero2 = rangeAxis.translateValueToJava2D(0.0, dataArea);
-                    transWidth = domainAxis.translateValueToJava2D(z, dataArea) - zero1;
-                    transHeight = zero2 - rangeAxis.translateValueToJava2D(z, dataArea);
+                    double zero1 = domainAxis.translateValueToJava2D(0.0, dataArea, 
+                                                                     domainAxisLocation);
+                    double zero2 = rangeAxis.translateValueToJava2D(0.0, dataArea, 
+                                                                    rangeAxisLocation);
+                    transDomain = domainAxis.translateValueToJava2D(z, dataArea, domainAxisLocation)
+                                                                    - zero1;
+                    transRange = zero2 - rangeAxis.translateValueToJava2D(z, dataArea, 
+                                                                          rangeAxisLocation);
             }
-            double transZ = -rangeAxis.translateValueToJava2D(z, dataArea) 
-                          + rangeAxis.translateValueToJava2D(0.0, dataArea);
-            Ellipse2D circle = new Ellipse2D.Double(transX - transZ / 2.0, 
-                                                    transY - transZ / 2.0, 
-                                                    transWidth, transHeight);
-            g2.setPaint(getItemPaint(datasetIndex, series, item));
+            double transZ = -rangeAxis.translateValueToJava2D(z, dataArea, rangeAxisLocation)
+                            + rangeAxis.translateValueToJava2D(0.0, dataArea, rangeAxisLocation);
+            transZ = Math.abs(transZ);
+            transDomain = Math.abs(transDomain);
+            transRange = Math.abs(transRange);
+            Ellipse2D circle = null;
+            if (plot.getOrientation() == PlotOrientation.VERTICAL) {
+                circle = new Ellipse2D.Double(transX - transZ / 2.0,
+                                              transY - transZ / 2.0,
+                                              transDomain, transRange);
+            }
+            else if (plot.getOrientation() == PlotOrientation.HORIZONTAL) {
+                circle = new Ellipse2D.Double(transY - transZ / 2.0,
+                                              transX - transZ / 2.0,
+                                              transRange, transDomain);
+            }
+            g2.setPaint(getItemPaint(series, item));
             g2.fill(circle);
             g2.setStroke(new BasicStroke(1.0f));
             g2.setPaint(Color.lightGray);
@@ -183,9 +226,9 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
             // setup for collecting optional entity info...
             EntityCollection entities = null;
             if (info != null) {
-                entities = info.getEntityCollection();
+                entities = info.getOwner().getEntityCollection();
             }
-        
+
             // add an entity for the item...
             if (entities != null) {
                 String tip = null;
@@ -196,7 +239,7 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
                 if (getURLGenerator() != null) {
                     url = getURLGenerator().generateURL(dataset, series, item);
                 }
-                XYItemEntity entity = new XYItemEntity(circle, tip, url, series, item);
+                XYItemEntity entity = new XYItemEntity(circle, dataset, series, item, tip, url);
                 entities.addEntity(entity);
             }
 
@@ -204,7 +247,7 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
             if (plot.isDomainCrosshairLockedOnData()) {
                 if (plot.isRangeCrosshairLockedOnData()) {
                     // both axes
-                    crosshairInfo.updateCrosshairPoint(x, y);
+                    crosshairInfo.updateCrosshairPoint(x, y, transX, transY);
                 }
                 else {
                     // just the horizontal axis...
@@ -219,6 +262,17 @@ public class XYBubbleRenderer extends AbstractXYItemRenderer
             }
         }
 
+    }
+
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

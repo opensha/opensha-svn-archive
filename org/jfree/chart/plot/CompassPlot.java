@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,8 @@
  * (C) Copyright 2002, 2003, by the Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott (for the Australian Antarctic Division);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *                   Arnaud Lelievre;
  *
  * $Id$
  *
@@ -35,6 +36,12 @@
  * 23-Jan-2003 : Removed one constructor (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
  * 27-Mar-2003 : Changed MeterDataset to ValueDataset (DG);
+ * 21-Aug-2003 : Implemented Cloneable (DG);
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
+ * 09-Sep-2003 : Changed Color --> Paint (DG);
+ * 15-Sep-2003 : Added null data value check (bug report 805009) (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.plot;
@@ -51,10 +58,10 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.ResourceBundle;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.LegendItemCollection;
-import org.jfree.chart.axis.Axis;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.needle.ArrowNeedle;
 import org.jfree.chart.needle.LineNeedle;
@@ -67,6 +74,7 @@ import org.jfree.chart.needle.ShipNeedle;
 import org.jfree.chart.needle.WindNeedle;
 import org.jfree.data.DefaultValueDataset;
 import org.jfree.data.ValueDataset;
+import org.jfree.util.ObjectUtils;
 
 /**
  * A specialised plot that draws a compass to indicate a direction based on the value from a
@@ -74,7 +82,7 @@ import org.jfree.data.ValueDataset;
  *
  * @author Bryan Scott
  */
-public class CompassPlot extends Plot implements Serializable {
+public class CompassPlot extends Plot implements Cloneable, Serializable {
 
     /** The default label font. */
     public static final Font DEFAULT_LABEL_FONT = new Font("SansSerif", Font.BOLD, 10);
@@ -94,38 +102,42 @@ public class CompassPlot extends Plot implements Serializable {
     /** A flag that controls whether or not a border is drawn. */
     private boolean drawBorder = false;
 
-    /** The rose highlight color. */
-    private Color roseHighlightColour = Color.black;
+    /** The rose highlight paint. */
+    private Paint roseHighlightPaint = Color.black;
 
-    /** The rose color. */
-    private Color roseColour = Color.yellow;
+    /** The rose paint. */
+    private Paint rosePaint = Color.yellow;
 
-    /** The rose center color. */
-    private Color roseCenterColour = Color.white;
+    /** The rose center paint. */
+    private Paint roseCenterPaint = Color.white;
 
     /** The compass font. */
     private Font compassFont = new Font("Arial", Font.PLAIN, 10);
 
     /** A working shape. */
-    private transient Ellipse2D.Double circle1;
+    private transient Ellipse2D circle1;
 
     /** A working shape. */
-    private transient Ellipse2D.Double circle2;
+    private transient Ellipse2D circle2;
 
     /** A working area. */
-    private transient Area a1, a2, a3, a4;
-
+    private transient Area a1;
+    
     /** A working area. */
-    private transient Area needleArea;
+    private transient Area a2;
 
     /** A working shape. */
     private transient Rectangle2D rect1;
 
-    /** An array of meter datasets. */
+    /** An array of value datasets. */
     private ValueDataset[] datasets = new ValueDataset[1];
 
     /** An array of needles. */
     private MeterNeedle[] seriesNeedle = new MeterNeedle[1];
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.plot.LocalizationBundle");
 
     /**
      * Default constructor.
@@ -137,22 +149,22 @@ public class CompassPlot extends Plot implements Serializable {
     /**
      * Constructs a new compass plot.
      *
-     * @param data  the dataset for the plot.
+     * @param dataset  the dataset for the plot.
      */
-    public CompassPlot(ValueDataset data) {
+    public CompassPlot(ValueDataset dataset) {
 
-        super(data);
+        super();
 
-        if (data != null) {
-           datasets[0] = data;
-           data.addChangeListener(this);
+        if (dataset != null) {
+           datasets[0] = dataset;
+           dataset.addChangeListener(this);
         }
 
         circle1 = new Ellipse2D.Double();
         circle2 = new Ellipse2D.Double();
         rect1   = new Rectangle2D.Double();
         setSeriesNeedle(0);
-        
+
     }
 
     /**
@@ -328,7 +340,11 @@ public class CompassPlot extends Plot implements Serializable {
             case 8:
                 setSeriesNeedle(index, new ArrowNeedle(true));
                 break;
+            default:
+                String message = "CompassPlot.setSeriesNeedle(...): unrecognised type.";
+                throw new IllegalArgumentException(message);
         }
+        
     }
 
     /**
@@ -407,7 +423,7 @@ public class CompassPlot extends Plot implements Serializable {
      * @param plotArea  the area within which the plot should be drawn.
      * @param info  collects info about the drawing.
      */
-    public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
+    public void draw(Graphics2D g2, Rectangle2D plotArea, PlotRenderingInfo info) {
 
         int outerRadius = 0;
         int innerRadius = 0;
@@ -446,16 +462,16 @@ public class CompassPlot extends Plot implements Serializable {
 
         circle1.setFrame(midX - radius, midY - radius, diameter, diameter);
         circle2.setFrame(midX - radius + 15, midY - radius + 15, diameter - 30, diameter - 30);
-        g2.setColor(roseColour);
+        g2.setPaint(this.rosePaint);
         a1 = new Area(circle1);
         a2 = new Area(circle2);
         a1.subtract(a2);
         g2.fill(a1);
 
-        g2.setColor(roseCenterColour);
+        g2.setPaint(this.roseCenterPaint);
         x1 = diameter - 30;
         g2.fillOval(midX - radius + 15, midY - radius + 15, x1, x1);
-        g2.setColor(roseHighlightColour);
+        g2.setPaint(this.roseHighlightPaint);
         g2.drawOval(midX - radius, midY - radius, diameter, diameter);
         x1 = diameter - 20;
         g2.drawOval(midX - radius + 10, midY - radius + 10, x1, x1);
@@ -475,7 +491,7 @@ public class CompassPlot extends Plot implements Serializable {
             g2.drawLine(x1, y1, x2, y2);
         }
 
-        g2.setColor(roseHighlightColour);
+        g2.setPaint(this.roseHighlightPaint);
         innerRadius = radius - 26;
         outerRadius = 7;
         for (int w = 45; w < 360; w += 90) {
@@ -520,13 +536,13 @@ public class CompassPlot extends Plot implements Serializable {
         for (; i >= 0; --i) {
             ValueDataset data = datasets[i];
 
-            if (data != null) {
+            if (data != null && data.getValue() != null) {
                 value = (data.getValue().doubleValue()) % 360;
                 current = i % x;
                 seriesNeedle[current].draw(g2, needleArea, value);
             }
         }
-        
+
         if (drawBorder) {
             drawOutline(g2, plotArea);
         }
@@ -539,47 +555,7 @@ public class CompassPlot extends Plot implements Serializable {
      * @return a string describing the plot.
      */
     public String getPlotType() {
-        return "Compass Plot";
-    }
-
-    /**
-     * Returns true if the axis is compatible with the compass plot, and false
-     * otherwise.  Since a compass plot requires no axes, only a null axis is
-     * compatible.
-     *
-     * @param axis  the axis.
-     *
-     * @return true if the axis is compatible, and false otherwise.
-     */
-    public boolean isCompatibleHorizontalAxis(Axis axis) {
-
-        if (axis == null) {
-            return true;
-        }
-        else {
-            return false;
-        }
-
-    }
-
-    /**
-     * Returns true if the axis is compatible with the compass plot, and false
-     * otherwise.  Since a compass plot requires no axes, only a null axis is
-     * compatible.
-     *
-     * @param axis  the axis.
-     *
-     * @return true if the axis is compatible, and false otherwise.
-     */
-    public boolean isCompatibleVerticalAxis(Axis axis) {
-
-        if (axis == null) {
-            return true;
-        }
-        else {
-           return false;
-        }
-
+        return localizationResources.getString("Compass_Plot");
     }
 
     /**
@@ -629,5 +605,80 @@ public class CompassPlot extends Plot implements Serializable {
     public java.util.List getLegendItemLabels() {
         return null;
     }
+    
+    
+    /**
+     * Tests an object for equality with this plot.
+     * 
+     * @param object  the object.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
+    
+        if (object == null) {
+            return false;    
+        }
+        
+        if (object == this) {
+            return true;
+        }
+        
+        if (object instanceof CompassPlot && super.equals(object)) {
+            CompassPlot p = (CompassPlot) object;
+            
+            boolean b0 = (this.labelType == p.labelType);
+            boolean b1 = ObjectUtils.equal(this.labelFont, p.labelFont);
+            boolean b2 = (this.drawBorder == p.drawBorder);
+            boolean b3 = ObjectUtils.equal(this.roseHighlightPaint, p.roseHighlightPaint);
+            boolean b4 = ObjectUtils.equal(this.rosePaint, p.rosePaint);
+            boolean b5 = ObjectUtils.equal(this.roseCenterPaint, p.roseCenterPaint);
+            boolean b6 = ObjectUtils.equal(this.compassFont, p.compassFont);
+            boolean b7 = Arrays.equals(this.seriesNeedle, p.seriesNeedle);
+            
+            return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7;
+            
+        }
+        return false;
+        
+    }
+    
+    /**
+     * Returns a clone of the annotation.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  this class will not throw this exception, but subclasses
+     *         (if any) might.
+     */
+    public Object clone() throws CloneNotSupportedException {
+
+        CompassPlot clone = (CompassPlot) super.clone();
+        //private int labelType <-- primitive
+        //private Font labelFont <-- immutable
+        //private boolean drawBorder = false <-- primitive
+        //private Color roseHighlightColour <-- immutable
+        //private Color roseColour <-- immutable
+        //private Color roseCenterColour <-- immutable
+        //private Font compassFont <-- immutable
+        clone.circle1 = (Ellipse2D) this.circle1.clone();
+        clone.circle2 = (Ellipse2D) this.circle2.clone();
+        clone.a1 = (Area) this.a1.clone();
+        clone.a2 = (Area) this.a2.clone();
+        clone.rect1 = (Rectangle2D) this.rect1.clone();
+        clone.datasets = (ValueDataset[]) this.datasets.clone();
+        clone.seriesNeedle = (MeterNeedle[]) this.seriesNeedle.clone();
+
+        // clone share data sets => add the clone as listener to the dataset
+        for (int i = 0; i < datasets.length; ++i) {
+            if (clone.datasets[i] != null) {
+                clone.datasets[i].addChangeListener(clone);  
+            }
+        }
+        
+        return clone();
+
+    }
+
 
 }

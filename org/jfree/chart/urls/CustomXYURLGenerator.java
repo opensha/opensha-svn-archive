@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
- * Contributors:     David Gilbert (for Simba Management Limited);
+ * Contributors:     David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -62,22 +62,22 @@ public class CustomXYURLGenerator implements XYURLGenerator, Serializable {
 
     /**
      * Returns the number of URL lists stored by the renderer.
-     * 
+     *
      * @return The list count.
      */
     public int getListCount() {
         return this.urlSeries.size();
     }
-    
+
     /**
      * Returns the number of URLs in a given list.
-     * 
+     *
      * @param list  the list index (zero based).
-     * 
+     *
      * @return The URL count.
      */
     public int getURLCount(int list) {
-        
+
         int result = 0;
         List tooltips = (List) this.urlSeries.get(list);
         if (tooltips != null) {
@@ -88,16 +88,16 @@ public class CustomXYURLGenerator implements XYURLGenerator, Serializable {
 
     /**
      * Returns the URL for an item.
-     * 
+     *
      * @param series  the series index.
      * @param item  the item index.
-     * 
+     *
      * @return The URL.
-     */    
+     */
     public String getURL(int series, int item) {
 
         String result = null;
-        
+
         if (series < getListCount()) {
             List tooltips = (List) this.urlSeries.get(series);
             if (tooltips != null) {
@@ -106,10 +106,10 @@ public class CustomXYURLGenerator implements XYURLGenerator, Serializable {
                 }
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * Generates a URL.
      *
@@ -131,23 +131,23 @@ public class CustomXYURLGenerator implements XYURLGenerator, Serializable {
     public void addURLSeries(List urls) {
         this.urlSeries.add(urls);
     }
-    
+
     /**
      * Tests if this object is equal to another.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
-    
+
         if (o == null) {
             return false;
         }
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof CustomXYURLGenerator) {
             CustomXYURLGenerator generator = (CustomXYURLGenerator) o;
             boolean result = true;
@@ -165,9 +165,9 @@ public class CustomXYURLGenerator implements XYURLGenerator, Serializable {
             }
             return result;
         }
-        
+
         return false;
-        
+
     }
 
 }

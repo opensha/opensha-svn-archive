@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * JFreeChartTests.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -33,6 +33,8 @@
  * --------
  * 11-Jun-2002 : Version 1 (DG);
  * 17-Oct-2002 : Fixed errors reported by Checkstyle (DG);
+ * 23-Sep-2003 : Removed null title test, since TM has added code to ensure null titles 
+ *               cannot be created (DG);
  *
  */
 
@@ -51,6 +53,7 @@ import junit.framework.TestSuite;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.data.DefaultPieDataset;
 
@@ -94,12 +97,13 @@ public class JFreeChartTests extends TestCase {
         data.setValue("C/C++", new Double(17.5));
 
         // create the chart...
-        pieChart = ChartFactory.createPieChart("Pie Chart",  // chart title
-                                               data,         // data
-                                               true,         // include legend
-                                               true,
-                                               false
-                                               );
+        this.pieChart = ChartFactory.createPieChart(
+            "Pie Chart",  // chart title
+            data,         // data
+            true,         // include legend
+            true,
+            false
+        );
 
     }
 
@@ -112,73 +116,72 @@ public class JFreeChartTests extends TestCase {
         assertEquals(count, 0);
 
     }
-
-    /**
-     * Serialize an instance, restore it, and check for equality.
-     */
-    public void testSerialization1() {
-        
-        DefaultPieDataset data = new DefaultPieDataset();
-        data.setValue("Type 1", 54.5);
-        data.setValue("Type 2", 23.9);
-        data.setValue("Type 3", 45.8);
-        
-        JFreeChart c1 = ChartFactory.createPieChart("Test", data, true, true, true);
-        JFreeChart c2 = null;
-        
-        try {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            ObjectOutput out = new ObjectOutputStream(buffer);
-            out.writeObject(c1);
-            out.close();
-        
-            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            c2 = (JFreeChart) in.readObject();
-            in.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        assertEquals(c1, c2); 
-        
-    }
-
-    /**
-     * Serialize an instance, restore it, and check for equality.
-     */
-    public void testSerialization2() {
-        
-        DefaultPieDataset data = new DefaultPieDataset();
-        data.setValue("Type 1", 54.5);
-        data.setValue("Type 2", 23.9);
-        data.setValue("Type 3", 45.8);
-        
-        JFreeChart c1 = ChartFactory.createPie3DChart("Test", data, true, true, true);
-        JFreeChart c2 = null;
-        
-        try {
-            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            ObjectOutput out = new ObjectOutputStream(buffer);
-            out.writeObject(c1);
-            out.close();
-        
-            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            c2 = (JFreeChart) in.readObject();
-            in.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        boolean b = c1.equals(c2);
-        assertEquals(c1, c2); 
-        
-    }
     
     /**
-     * Serialize an instance, restore it, and check for equality.
+     * Serialize a pie chart, restore it, and check for equality.
+     */
+    public void testSerialization1() {
+
+        DefaultPieDataset data = new DefaultPieDataset();
+        data.setValue("Type 1", 54.5);
+        data.setValue("Type 2", 23.9);
+        data.setValue("Type 3", 45.8);
+
+        JFreeChart c1 = ChartFactory.createPieChart("Test", data, true, true, true);
+        JFreeChart c2 = null;
+
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            ObjectOutput out = new ObjectOutputStream(buffer);
+            out.writeObject(c1);
+            out.close();
+
+            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+            c2 = (JFreeChart) in.readObject();
+            in.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(c1, c2);
+
+    }
+
+    /**
+     * Serialize a 3D pie chart, restore it, and check for equality.
+     */
+    public void testSerialization2() {
+
+        DefaultPieDataset data = new DefaultPieDataset();
+        data.setValue("Type 1", 54.5);
+        data.setValue("Type 2", 23.9);
+        data.setValue("Type 3", 45.8);
+
+        JFreeChart c1 = ChartFactory.createPie3DChart("Test", data, true, true, true);
+        JFreeChart c2 = null;
+
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            ObjectOutput out = new ObjectOutputStream(buffer);
+            out.writeObject(c1);
+            out.close();
+
+            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+            c2 = (JFreeChart) in.readObject();
+            in.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals(c1, c2);
+
+    }
+
+    /**
+     * Serialize a bar chart, restore it, and check for equality.
      */
     public void testSerialization3() {
-        
+
         // row keys...
         String series1 = "First";
         String series2 = "Second";
@@ -225,23 +228,25 @@ public class JFreeChartTests extends TestCase {
         dataset.addValue(3.0, series3, category8);
 
         // create the chart...
-        JFreeChart c1 = ChartFactory.createVerticalBarChart(
-                                                     "Vertical Bar Chart",  // chart title
-                                                     "Category",            // domain axis label
-                                                     "Value",               // range axis label
-                                                     dataset,               // data
-                                                     true,                  // include legend
-                                                     true,
-                                                     false
-                                                 );
+        JFreeChart c1 = ChartFactory.createBarChart(
+            "Vertical Bar Chart",      // chart title
+            "Category",                // domain axis label
+            "Value",                   // range axis label
+            dataset,                   // data
+            PlotOrientation.VERTICAL,  // orientation
+            true,                      // include legend
+            true,
+            false
+        );
+
         JFreeChart c2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(c1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             c2 = (JFreeChart) in.readObject();
             in.close();
@@ -249,8 +254,8 @@ public class JFreeChartTests extends TestCase {
         catch (Exception e) {
             e.printStackTrace();
         }
-        assertEquals(c1, c2); 
-        
+        assertEquals(c1, c2);
+
     }
-    
+
 }

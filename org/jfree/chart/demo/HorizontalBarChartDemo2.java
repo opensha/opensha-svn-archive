@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------------
  * HorizontalBarChartDemo2.java
  * ----------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,10 +48,10 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.IntervalMarker;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.HorizontalMarkerAxisBand;
-import org.jfree.chart.axis.HorizontalNumberAxis;
+import org.jfree.chart.axis.MarkerAxisBand;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DatasetUtilities;
 import org.jfree.ui.ApplicationFrame;
@@ -75,25 +75,26 @@ public class HorizontalBarChartDemo2 extends ApplicationFrame {
 
         // create a dataset...
         double[][] data = new double[][] {
-            { 1.0, 43.0, 35.0, 58.0, 54.0, 77.0, 71.0, 89.0 },
-            { 54.0, 75.0, 63.0, 83.0, 43.0, 46.0, 27.0, 13.0 },
-            { 41.0, 33.0, 22.0, 34.0, 62.0, 32.0, 42.0, 34.0 }
+            {1.0, 43.0, 35.0, 58.0, 54.0, 77.0, 71.0, 89.0},
+            {54.0, 75.0, 63.0, 83.0, 43.0, 46.0, 27.0, 13.0},
+            {41.0, 33.0, 22.0, 34.0, 62.0, 32.0, 42.0, 34.0}
         };
 
-		CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Series ", 
-                                                                         "Factor ", 
+        CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Series ",
+                                                                         "Factor ",
                                                                          data);
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createHorizontalBarChart(
-                                                     "Horizontal Bar Chart",  // chart title
-                                                     "Category",              // domain axis label
-                                                     "Score (%)",             // range axis label
-                                                     dataset,                 // data
-                                                     true,                    // include legend
-                                                     true,
-                                                     false
-                                                 );
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Horizontal Bar Chart",  // chart title
+            "Category",              // domain axis label
+            "Score (%)",             // range axis label
+            dataset,                 // data
+            PlotOrientation.HORIZONTAL,
+            true,                    // include legend
+            true,
+            false
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
@@ -105,14 +106,14 @@ public class HorizontalBarChartDemo2 extends ApplicationFrame {
         plot.getRenderer().setSeriesPaint(0, new Color(0, 0, 255));
         plot.getRenderer().setSeriesPaint(1, new Color(75, 75, 255));
         plot.getRenderer().setSeriesPaint(2, new Color(150, 150, 255));
-        
+
         // change the auto tick unit selection to integer units only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setRange(0.0, 100.0);
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        HorizontalNumberAxis hna = (HorizontalNumberAxis) rangeAxis;
-        HorizontalMarkerAxisBand band = new HorizontalMarkerAxisBand(hna, 2.0, 2.0, 2.0, 2.0,
+        NumberAxis hna = (NumberAxis) rangeAxis;
+        MarkerAxisBand band = new MarkerAxisBand(hna, 2.0, 2.0, 2.0, 2.0,
                                         new Font("SansSerif", Font.PLAIN, 9));
 
         IntervalMarker m1 = new IntervalMarker(0.0, 33.0, "Low", Color.gray,

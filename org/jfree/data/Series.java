@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------
  * Series.java
  * -----------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -36,6 +36,9 @@
  * 30-Jan-2002 : Added a description attribute and changed the constructors to protected (DG);
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 13-Mar-2003 : Implemented Serializable (DG);
+ * 01-May-2003 : Added equals(...) method (DG);
+ * 26-Jun-2003 : Changed listener list to use EventListenerList - see bug 757027 (DG);
+ *
  */
 
 package org.jfree.data;
@@ -43,17 +46,19 @@ package org.jfree.data;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
-import java.util.Iterator;
-import java.util.List;
+
+import javax.swing.event.EventListenerList;
+
+import org.jfree.util.ObjectUtils;
 
 /**
  * Base class representing a data series.  Subclasses are left to implement the
  * actual data structures.
  * <P>
  * The series has two properties ("Name" and "Description") for which you can
- * register a PropertyChangeListener.
+ * register a {@link PropertyChangeListener}.
  * <P>
- * You can also register a SeriesChangeListener to receive notification of
+ * You can also register a {@link SeriesChangeListener} to receive notification of
  * changes to the series data.
  *
  * @author David Gilbert
@@ -67,7 +72,7 @@ public class Series implements Cloneable, Serializable {
     private String description;
 
     /** Storage for registered change listeners. */
-    private List listeners;
+    private EventListenerList listeners;
 
     /** Object to support property change notification. */
     private PropertyChangeSupport propertyChangeSupport;
@@ -91,8 +96,8 @@ public class Series implements Cloneable, Serializable {
 
         this.name = name;
         this.description = description;
-        this.listeners = new java.util.ArrayList();
-        propertyChangeSupport = new PropertyChangeSupport(this);
+        this.listeners = new EventListenerList();
+        this.propertyChangeSupport = new PropertyChangeSupport(this);
 
     }
 
@@ -140,7 +145,7 @@ public class Series implements Cloneable, Serializable {
 
         String old = this.description;
         this.description = description;
-        propertyChangeSupport.firePropertyChange("Description", old, description);
+        this.propertyChangeSupport.firePropertyChange("Description", old, description);
 
     }
 
@@ -166,7 +171,7 @@ public class Series implements Cloneable, Serializable {
         }
 
         Series clone = (Series) obj;
-        clone.listeners = new java.util.ArrayList();
+        clone.listeners = new EventListenerList();
         clone.propertyChangeSupport = new PropertyChangeSupport(clone);
 
         return clone;
@@ -174,32 +179,57 @@ public class Series implements Cloneable, Serializable {
     }
 
     /**
-     * Registers an object with this series, to receive notification whenever
-     * the series changes.
-     * <P>
-     * Objects being registered must implement the SeriesChangeListener
-     * interface.
+     * Tests the series for equality with another object.
      *
-     * @param listener The object to register.
+     * @param object  the object.
+     *
+     * @return <code>true</code> or <code>false</code>.
      */
-    public void addChangeListener(SeriesChangeListener listener) {
+    public boolean equals(Object object) {
 
-        this.listeners.add(listener);
+        if (object == null) {
+            return false;
+        }
+
+        if (object == this) {
+            return true;
+        }
+
+        boolean result = false;
+
+        if (object instanceof Series) {
+            Series s = (Series) object;
+            boolean b1 = getName().equals(s.getName());
+            boolean b2 = ObjectUtils.equal(getDescription(), s.getDescription());
+            result = b1 && b2;
+        }
+
+        return result;
 
     }
 
     /**
-     * Deregisters an object, so that it not longer receives notification
-     * whenever the series changes.
+     * Registers an object with this series, to receive notification whenever the series changes.
      * <P>
-     * Call this method when an object no longer needs to be notified of
-     * changes to the series.
+     * Objects being registered must implement the {@link SeriesChangeListener} interface.
      *
-     * @param listener The object to deregister.
+     * @param listener  the listener to register.
+     */
+    public void addChangeListener(SeriesChangeListener listener) {
+
+        this.listeners.add(SeriesChangeListener.class, listener);
+
+    }
+
+    /**
+     * Deregisters an object, so that it not longer receives notification whenever the series 
+     * changes.
+     *
+     * @param listener  the listener to deregister.
      */
     public void removeChangeListener(SeriesChangeListener listener) {
 
-        this.listeners.remove(listener);
+        this.listeners.remove(SeriesChangeListener.class, listener);
 
     }
 
@@ -220,10 +250,11 @@ public class Series implements Cloneable, Serializable {
      */
     protected void notifyListeners(SeriesChangeEvent event) {
 
-        Iterator iterator = listeners.iterator();
-        while (iterator.hasNext()) {
-            SeriesChangeListener listener = (SeriesChangeListener) iterator.next();
-            listener.seriesChanged(event);
+        Object[] listenerList = this.listeners.getListenerList();
+        for (int i = listenerList.length - 2; i >= 0; i -= 2) {
+            if (listenerList[i] == SeriesChangeListener.class) {
+                ((SeriesChangeListener) listenerList[i + 1]).seriesChanged(event);
+            }
         }
 
     }

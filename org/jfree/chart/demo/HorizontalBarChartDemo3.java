@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------------
  * HorizontalBarChartDemo3.java
  * ----------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -40,15 +40,17 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
+import java.awt.Insets;
 
-import org.jfree.data.DefaultCategoryDataset;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.DefaultCategoryDataset;
+import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -73,20 +75,21 @@ public class HorizontalBarChartDemo3 extends ApplicationFrame {
         dataset.addValue(83.0, "First", "Factor 1");
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createHorizontalBarChart(
-                                                     null,  // chart title
-                                                     "Category",             // domain axis label
-                                                     "Score (%)",            // range axis label
-                                                     dataset,                // data
-                                                     false,                  // include legend
-                                                     true,
-                                                     false
-                                                 );
+        JFreeChart chart = ChartFactory.createBarChart(
+            null,  // chart title
+            "Category",             // domain axis label
+            "Score (%)",            // range axis label
+            dataset,                // data
+            PlotOrientation.HORIZONTAL,
+            false,                  // include legend
+            true,
+            false
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.yellow);  // not seen
         CategoryPlot plot = chart.getCategoryPlot();
-        plot.setInsets(null);
+        plot.setInsets(new Insets(0, 0, 0, 0));
         CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setLowerMargin(0.20);
         domainAxis.setUpperMargin(0.20);

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -26,7 +26,7 @@
  *
  * Original Author:  Bill Kelemen;
  * Contributor(s):   Sylvain Vieujot;
- *                   David Gilbert (for Simba Management Limited);
+ *                   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -44,12 +44,8 @@
 package org.jfree.data;
 
 /**
- * This class will create a Dataset with one or more series from another
- * SeriesDataset. This is required when using a combined plot to assign a
- * sub-dataset to internal plots and avoid displaying all series on all
- * internal plots.
- *
- * @see org.jfree.chart.plot.CombinedXYPlot
+ * This class will create a dataset with one or more series from another
+ * {@link SeriesDataset}. 
  *
  * @author Bill Kelemen (bill@kelemen-usa.com)
  */
@@ -92,11 +88,12 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the high-value for the specified series and item.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link HighLowDataset}.
      *
      * @param series  the index of the series of interest (zero-based).
      * @param item  the index of the item of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a HighLowDataset
      *
      * @return the high-value for the specified series and item.
      */
@@ -106,11 +103,12 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the low-value for the specified series and item.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link HighLowDataset}.
      *
      * @param series  the index of the series of interest (zero-based).
      * @param item  the index of the item of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a HighLowDataset
      *
      * @return the low-value for the specified series and item.
      */
@@ -120,11 +118,12 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the open-value for the specified series and item.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link HighLowDataset}.
      *
      * @param series  the index of the series of interest (zero-based).
      * @param item  the index of the item of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a HighLowDataset
      *
      * @return the open-value for the specified series and item.
      */
@@ -134,11 +133,12 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the close-value for the specified series and item.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link HighLowDataset}.
      *
      * @param series  the index of the series of interest (zero-based).
      * @param item  the index of the item of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a HighLowDataset
      *
      * @return the close-value for the specified series and item.
      */
@@ -148,6 +148,9 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the volume.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link HighLowDataset}.
      *
      * @param series  the series (zero based index).
      * @param item  the item (zero based index).
@@ -165,11 +168,12 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the X-value for the specified series and item.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link XYDataset}.
      *
      * @param series  the index of the series of interest (zero-based);
      * @param item  the index of the item of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a XYDataset
      *
      * @return the X-value for the specified series and item.
      */
@@ -179,11 +183,12 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the Y-value for the specified series and item.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link XYDataset}.
      *
      * @param series  the index of the series of interest (zero-based).
      * @param item  the index of the item of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a XYDataset
      *
      * @return the Y-value for the specified series and item.
      */
@@ -193,10 +198,11 @@ public class SubSeriesDataset extends AbstractSeriesDataset
 
     /**
      * Returns the number of items in a series.
+     * <p>
+     * Note: throws <code>ClassCastException</code> if the series if not from a 
+     * {@link XYDataset}.
      *
      * @param series  the index of the series of interest (zero-based).
-     *
-     * @exception ClassCastException if the series if not from a XYDataset
      *
      * @return the number of items in a series.
      */

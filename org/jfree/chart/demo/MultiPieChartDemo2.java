@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * MultiPieChartDemo2.java
  * -----------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -66,32 +66,33 @@ public class MultiPieChartDemo2 extends ApplicationFrame {
 
         // create a dataset...
         double[][] data = new double[][] {
-            { 3.0, 4.0, 3.0, 5.0 },
-            { 5.0, 7.0, 6.0, 8.0 },
-            { 5.0, 7.0, 3.0, 8.0 },
-            { 1.0, 2.0, 3.0, 4.0 },
-            { 2.0, 3.0, 2.0, 3.0 }
+            {3.0, 4.0, 3.0, 5.0},
+            {5.0, 7.0, 6.0, 8.0},
+            {5.0, 7.0, 3.0, 8.0},
+            {1.0, 2.0, 3.0, 4.0},
+            {2.0, 3.0, 2.0, 3.0}
         };
 
-		CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Region ", 
-                                                                         "Sales/Q", 
+        CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Region ",
+                                                                         "Sales/Q",
                                                                          data);
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createPieChart("Multi Pie Chart 2",  // chart title
-                                                       dataset,              // data
-                                                       PiePlot.PER_COLUMN,
-                                                       true,                 // include legend
-                                                       true,
-                                                       false
-                                                       );
+        JFreeChart chart = ChartFactory.createPieChart(
+            "Multi Pie Chart 2",  // chart title
+            dataset,              // data
+            PiePlot.PER_COLUMN,
+            true,                 // include legend
+            true,
+            false
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
         chart.setBackgroundPaint(Color.yellow);
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionLabelType(PiePlot.VALUE_AND_PERCENT_LABELS);
-        
+
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         // add the chart to a panel...

@@ -31,41 +31,37 @@ import org.scec.util.*;
  * @version 1.0
  */
 
-public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
+public class FaultTraceXYDataSet extends ArrayList implements XYDataset, NamedObjectAPI {
 
     /** Class name used for debug statements */
-    protected final static String C = "FaultTraceXYDataSet";
+    private final static String C = "FaultTraceXYDataSet";
     /** If true prints out debug statements */
-    protected final static boolean D = false;
+    private final static boolean D = false;
 
 
     /** The real data of this class - Internal trace of Locations */
-    protected FaultTrace trace = null;
+    //private ArrayList traces = new ArrayList();
 
     /** list of listeners for data changes */
-    protected Vector listeners = new Vector();
+    private Vector listeners = new Vector();
 
     /**
      *  Name of this Function2DList. Used for display purposes and identifying
      *  unique Lists.
      */
-    protected String name;
+    private String name;
 
     /** The group that the dataset belongs to. */
     private DatasetGroup group;
 
     DecimalFormat format = new DecimalFormat("#,###.##");
 
-    /** Returns true if FaultTrace pointer is not null, false otherwise. */
-    public boolean checkFaultTrace(){
-        if( trace != null ) return true;
-        else return false;
-    }
+
 
     /** Constructor that set's the FaultTrace.  */
     public FaultTraceXYDataSet(FaultTrace trace) {
+        this.add(trace);
         this.group = new DatasetGroup();
-        this.trace = trace;
     }
 
 
@@ -82,8 +78,7 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
      *  fault trace is null. It that case 0 is returned.
      */
     public int getSeriesCount() {
-        if ( checkFaultTrace() )  return 1;
-        else return 0;
+       return this.size();
     }
 
 
@@ -92,8 +87,7 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
      *  always only have one series. Useful for displays.
      */
     public String getSeriesName( int series ){
-        if ( !checkFaultTrace() )  return name + ' ' + series;
-        else return "Trace = " + trace.getName();
+        return ((FaultTrace)get(series)).getName();
     }
 
     /**
@@ -102,10 +96,7 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
      *  number of Locations in a FaultTrace.
      */
     public int getItemCount( int series ) {
-        if ( !checkFaultTrace() ) return 0;
-        if( series != 0 ) return 0;
-        if( trace != null ) return trace.getNumLocations();
-        return 0;
+        return ((FaultTrace)get(series)).getNumLocations();
     }
 
 
@@ -120,14 +111,9 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
      * @return         The x-value for an item within a series.
      */
     public Number getXValue( int series, int item ) {
-
-        if ( checkFaultTrace() && series < getSeriesCount() ) {
-            Location loc = trace.getLocationAt(item);
-            Double lon = new Double( loc.getLongitude() );
-            return ( Number ) lon;
-        }
-        else return null;
-
+       Location loc= ((FaultTrace)get(series)).getLocationAt(item);
+       Double lon = new Double( loc.getLongitude() );
+       return ( Number ) lon;
     }
 
 
@@ -139,18 +125,14 @@ public class FaultTraceXYDataSet implements XYDataset, NamedObjectAPI {
      * @return         The y-value for an item within a series.
      */
     public Number getYValue( int series, int item ) {
-
-        if ( checkFaultTrace() && series < getSeriesCount() ) {
-            Location loc = trace.getLocationAt(item);
-            Double lat = new Double( loc.getLatitude() );
-            return ( Number ) lat;
-        }
-        else return null;
+      Location loc= ((FaultTrace)get(series)).getLocationAt(item);
+      Double lat = new Double( loc.getLatitude() );
+      return ( Number ) lat;
 
     }
 
     /** XYDataSetAPI - sets the FaultTrace reference to null */
-    public void clear() { trace = null; }
+    public void clear() { this.clear(); }
 
     /** XYDataSetAPI - Registers an object for notification of changes to the dataset. */
     public void addChangeListener( DatasetChangeListener listener ) {

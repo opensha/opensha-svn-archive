@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------------
  * CustomXYURLGeneratorTests.java
  * ------------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -80,29 +80,29 @@ public class CustomXYURLGeneratorTests extends TestCase {
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         List u1 = new java.util.ArrayList();
         u1.add("URL A1");
         u1.add("URL A2");
         u1.add("URL A3");
-        
+
         List u2 = new java.util.ArrayList();
         u2.add("URL B1");
         u2.add("URL B2");
         u2.add("URL B3");
-        
+
         CustomXYURLGenerator g1 = new CustomXYURLGenerator();
         CustomXYURLGenerator g2 = null;
-        
+
         g1.addURLSeries(u1);
         g1.addURLSeries(u2);
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(g1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             g2 = (CustomXYURLGenerator) in.readObject();
             in.close();
@@ -110,8 +110,8 @@ public class CustomXYURLGeneratorTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(g1, g2); 
-        
+        assertEquals(g1, g2);
+
     }
 
 }

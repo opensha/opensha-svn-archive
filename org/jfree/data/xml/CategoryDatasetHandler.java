@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------------
  * CategoryDatasetHandler.java
  * ---------------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,11 +37,11 @@
 
 package org.jfree.data.xml;
 
+import org.jfree.data.CategoryDataset;
+import org.jfree.data.DefaultCategoryDataset;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import org.jfree.data.CategoryDataset;
-import org.jfree.data.DefaultCategoryDataset;
 
 /**
  * A SAX handler for reading a {@link CategoryDataset} from an XML file.
@@ -62,7 +62,7 @@ public class CategoryDatasetHandler extends RootHandler implements DatasetTags {
 
     /**
      * Returns the dataset.
-     * 
+     *
      * @return The dataset.
      */
     public CategoryDataset getDataset() {
@@ -71,7 +71,7 @@ public class CategoryDatasetHandler extends RootHandler implements DatasetTags {
 
     /**
      * Adds an item to the dataset.
-     * 
+     *
      * @param rowKey  the row key.
      * @param columnKey  the column key.
      * @param value  the value.
@@ -82,12 +82,12 @@ public class CategoryDatasetHandler extends RootHandler implements DatasetTags {
 
     /**
      * The start of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
      * @param atts  the element attributes.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void startElement(String namespaceURI,
@@ -115,11 +115,11 @@ public class CategoryDatasetHandler extends RootHandler implements DatasetTags {
 
     /**
      * The end of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void endElement(String namespaceURI,

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------
  * Week.java
  * ---------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Aimin Han;
  *
  * $Id$
@@ -425,25 +425,25 @@ public class Week extends RegularTimePeriod implements Serializable {
                 String s1 = s.substring(0, i).trim();
                 String s2 = s.substring(i + 1, s.length()).trim();
 
-                Year year = Week.evaluateAsYear(s1);
-                int week;
-                if (year != null) {
-                    week = Week.stringToWeek(s2);
-                    if (week == -1) {
+                Year y = Week.evaluateAsYear(s1);
+                int w;
+                if (y != null) {
+                    w = Week.stringToWeek(s2);
+                    if (w == -1) {
                         throw new TimePeriodFormatException(
                             "Week.parseWeek(String): can't evaluate the week.");
                     }
-                    result = new Week(week, year);
+                    result = new Week(w, y);
                 }
                 else {
-                    year = Week.evaluateAsYear(s2);
-                    if (year != null) {
-                        week = Week.stringToWeek(s1);
-                        if (week == -1) {
+                    y = Week.evaluateAsYear(s2);
+                    if (y != null) {
+                        w = Week.stringToWeek(s1);
+                        if (w == -1) {
                             throw new TimePeriodFormatException(
                                 "Week.parseWeek(String): can't evaluate the week.");
                         }
-                        result = new Week(week, year);
+                        result = new Week(w, y);
                     }
                     else {
                         throw new TimePeriodFormatException(

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * PieChartDemo1.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -41,12 +41,13 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
-import org.jfree.data.DefaultPieDataset;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.labels.StandardPieItemLabelGenerator;
 import org.jfree.chart.plot.PiePlot;
-import org.jfree.chart.tooltips.StandardPieToolTipGenerator;
+import org.jfree.data.DefaultPieDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -75,7 +76,7 @@ public class PieChartDemo1 extends ApplicationFrame {
         data.setValue("Four", new Double(17.5));
         data.setValue("Five", new Double(11.0));
         data.setValue("Six", new Double(19.4));
-
+        
         // create the chart...
         JFreeChart chart = ChartFactory.createPieChart("Pie Chart Demo 1",  // chart title
                                                        data,                // data
@@ -89,7 +90,7 @@ public class PieChartDemo1 extends ApplicationFrame {
         PiePlot plot = (PiePlot) chart.getPlot();
         plot.setSectionLabelType(PiePlot.NAME_AND_PERCENT_LABELS);
         plot.setNoDataMessage("No data available");
-        plot.setToolTipGenerator(new StandardPieToolTipGenerator());
+        plot.setItemLabelGenerator(new StandardPieItemLabelGenerator());
 
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);

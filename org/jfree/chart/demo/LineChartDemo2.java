@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * LineChartDemo2.java
  * -------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -38,15 +38,17 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
-import org.jfree.data.XYSeriesCollection;
-import org.jfree.data.XYSeries;
-import org.jfree.ui.ApplicationFrame;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.data.XYSeries;
+import org.jfree.data.XYSeriesCollection;
+import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -103,14 +105,16 @@ public class LineChartDemo2 extends ApplicationFrame {
         dataset.addSeries(series3);
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createLineXYChart("Line Chart Demo 2",  // chart title
-                                                          "X",                  // x axis label
-                                                          "Y",                  // y axis label
-                                                          dataset,              // data
-                                                          true,                 // include legend
-                                                          true,                 // tooltips
-                                                          false                 // urls
-                                                          );
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Line Chart Demo 2",      // chart title
+            "X",                      // x axis label
+            "Y",                      // y axis label
+            dataset,                  // data
+            PlotOrientation.VERTICAL,
+            true,                     // include legend
+            true,                     // tooltips
+            false                     // urls
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.setBackgroundPaint(Color.orange);
@@ -119,7 +123,7 @@ public class LineChartDemo2 extends ApplicationFrame {
         XYPlot plot = chart.getXYPlot();
         StandardXYItemRenderer renderer = (StandardXYItemRenderer) plot.getRenderer();
         renderer.setPlotShapes(true);
-        renderer.setDefaultShapeFilled(true);
+        renderer.setShapesFilled(true);
 
         // change the auto tick unit selection to integer units only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();

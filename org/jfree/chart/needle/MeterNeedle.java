@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,8 @@
  * (C) Copyright 2002, 2003, by the Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott (for the Australian Antarctic Division);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
+ *                   Nicolas Brodu (for Astrium and EADS Corporate Research Center);
  *
  * $Id$
  *
@@ -33,6 +34,7 @@
  * --------
  * 25-Sep-2002 : Version 1, contributed by Bryan Scott (DG);
  * 07-Nov-2002 : Fixed errors reported by Checkstyle (DG);
+ * 01-Sep-2003 : Implemented Serialization (NB);
  *
  */
 
@@ -47,25 +49,32 @@ import java.awt.Stroke;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import org.jfree.io.SerialUtilities;
+import org.jfree.util.ObjectUtils;
 
 /**
  * The base class used to represent the needle on a {@link org.jfree.chart.plot.CompassPlot}.
  *
  * @author Bryan Scott
  */
-public abstract class MeterNeedle {
+public abstract class MeterNeedle implements Serializable {
 
     /** The outline paint. */
-    private Paint outlinePaint = Color.black;
+    private transient Paint outlinePaint = Color.black;
 
     /** The outline stroke. */
-    private Stroke outlineStroke = new BasicStroke(2);
+    private transient Stroke outlineStroke = new BasicStroke(2);
 
     /** The fill paint. */
-    private Paint fillPaint = null;
+    private transient Paint fillPaint = null;
 
     /** The highlight paint. */
-    private Paint highlightPaint = null;
+    private transient Paint highlightPaint = null;
 
     /** The size. */
     private int size = 5;
@@ -78,9 +87,6 @@ public abstract class MeterNeedle {
 
     /** A transform. */
     private static AffineTransform transform = new AffineTransform();
-
-    /** 180 degrees in radians. */
-    private static final double ANGLE180 = Math.toRadians(180);
 
     /**
      * Creates a new needle.
@@ -322,5 +328,65 @@ public abstract class MeterNeedle {
     public AffineTransform getTransform() {
         return MeterNeedle.transform;
     }
-
+    
+    /**
+     * Tests another object for equality with this object.
+     * 
+     * @param object  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (object == this) {
+            return true;
+        }
+        if (object instanceof MeterNeedle) {
+            
+            MeterNeedle n = (MeterNeedle) object;
+            boolean b0 = ObjectUtils.equal(this.outlinePaint, n.outlinePaint);
+            boolean b1 = ObjectUtils.equal(this.outlineStroke, n.outlineStroke);
+            boolean b2 = ObjectUtils.equal(this.fillPaint, n.fillPaint);
+            boolean b3 = ObjectUtils.equal(this.highlightPaint, n.highlightPaint);
+            boolean b4 = (this.size == n.size);
+            boolean b5 = (this.rotateX == n.rotateX);
+            boolean b6 = (this.rotateY == n.rotateY);            
+            return b0 && b1 && b2 && b3 && b4 && b5 && b6;
+        }
+        return false;
+    }
+    
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the output stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     */
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.defaultWriteObject();
+        SerialUtilities.writeStroke(this.outlineStroke, stream);
+        SerialUtilities.writePaint(this.outlinePaint, stream);
+        SerialUtilities.writePaint(this.fillPaint, stream);
+        SerialUtilities.writePaint(this.highlightPaint, stream);
+    }
+    
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the input stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     * @throws ClassNotFoundException  if there is a classpath problem.
+     */
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
+        this.outlineStroke = SerialUtilities.readStroke(stream);
+        this.outlinePaint = SerialUtilities.readPaint(stream);
+        this.fillPaint = SerialUtilities.readPaint(stream);
+        this.highlightPaint = SerialUtilities.readPaint(stream);
+    }
+       
 }

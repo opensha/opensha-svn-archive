@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------
  * Dataset.java
  * ------------
- * (C) Copyright 2000-2003, by Simba Management Limited.
+ * (C) Copyright 2000-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,15 +48,15 @@ package org.jfree.data;
 /**
  * The base interface for data sets.
  * <P>
- * All datasets are required to support the {@link DatasetChangeEvent} mechanism by allowing 
+ * All datasets are required to support the {@link DatasetChangeEvent} mechanism by allowing
  * listeners to register and receive notification of any changes to the dataset.
  * <P>
- * In addition, all datasets must belong to one (and only one) {@link DatasetGroup}.  The group 
+ * In addition, all datasets must belong to one (and only one) {@link DatasetGroup}.  The group
  * object maintains a reader-writer lock which provides synchronised access to the datasets in
  * multi-threaded code.
  *
  * @author David Gilbert
- * 
+ *
  */
 public interface Dataset {
 

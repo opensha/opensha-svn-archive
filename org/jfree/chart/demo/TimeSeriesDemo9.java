@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * TimeSeriesDemo9.java
  * --------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -56,7 +56,7 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * An example of a time series chart. 
+ * An example of a time series chart.
  *
  * @author David Gilbert
  */
@@ -77,20 +77,20 @@ public class TimeSeriesDemo9 extends ApplicationFrame {
         XYDataset dataset = createDataset();
 
         JFreeChart chart = ChartFactory.createTimeSeriesChart(chartTitle, "Date", "Price Per Unit",
-                                                              dataset, 
+                                                              dataset,
                                                               true,
                                                               true,
                                                               false);
-                                                              
+
         StandardLegend sl = (StandardLegend) chart.getLegend();
         sl.setDisplaySeriesShapes(true);
-                                                              
+
         XYPlot plot = chart.getXYPlot();
         XYItemRenderer r = plot.getRenderer();
         if (r instanceof StandardXYItemRenderer) {
             StandardXYItemRenderer renderer = (StandardXYItemRenderer) r;
             renderer.setPlotShapes(true);
-            renderer.setDefaultShapeFilled(true);
+            renderer.setShapesFilled(true);
             renderer.setSeriesShape(0, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
             renderer.setSeriesShape(1, new Rectangle2D.Double(-3.0, -3.0, 6.0, 6.0));
             GeneralPath s2 = new GeneralPath();
@@ -115,7 +115,9 @@ public class TimeSeriesDemo9 extends ApplicationFrame {
             s3.closePath();
             renderer.setSeriesShape(3, s3);
         }
-        
+
+        plot.getDomainAxis().setVisible(false);
+        plot.getRangeAxis().setVisible(false);
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);
@@ -124,31 +126,31 @@ public class TimeSeriesDemo9 extends ApplicationFrame {
 
     /**
      * Creates a sample dataset.
-     * 
+     *
      * @return The dataset.
      */
     public XYDataset createDataset() {
-    
+
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         for (int i = 0; i < 4; i++) {
             dataset.addSeries(createTimeSeries(i, 10));
         }
         return dataset;
-    
+
     }
-    
+
     /**
      * Creates a time series containing random daily data.
      *
      * @param series  the series index.
      * @param count  the number of items for the series.
-     * 
+     *
      * @return the dataset.
      */
     public TimeSeries createTimeSeries(int series, int count) {
 
         TimeSeries result = new TimeSeries("Series " + series , Day.class);
-        
+
         Day start = new Day();
         for (int i = 0; i < count; i++) {
             result.add(start, Math.random());

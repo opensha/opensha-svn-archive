@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2002, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Pascal Collet and Contributors.
  *
  * Original Author:  Pascal Collet;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -44,14 +44,13 @@ import java.awt.Font;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.VerticalCategoryPlot;
+import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.CategoryItemRenderer;
-import org.jfree.chart.renderer.VerticalStatisticalBarRenderer;
-import org.jfree.data.DefaultStatisticalCategoryDataset;
-import org.jfree.data.StatisticalCategoryDataset;
+import org.jfree.chart.renderer.StatisticalBarRenderer;
+import org.jfree.data.statistics.DefaultStatisticalCategoryDataset;
+import org.jfree.data.statistics.StatisticalCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -64,7 +63,7 @@ public class StatisticalBarChartDemo extends ApplicationFrame {
 
     /**
      * Creates a new demo.
-     * 
+     *
      * @param title  the frame title.
      */
     public StatisticalBarChartDemo(String title) {
@@ -72,54 +71,54 @@ public class StatisticalBarChartDemo extends ApplicationFrame {
         super(title);
         StatisticalCategoryDataset dataset = createDataset();
 
-        CategoryAxis xAxis = new HorizontalCategoryAxis("Type");
+        CategoryAxis xAxis = new CategoryAxis("Type");
         xAxis.setLowerMargin(0.01d); // percentage of space before first bar
         xAxis.setUpperMargin(0.01d); // percentage of space after last bar
         xAxis.setCategoryMargin(0.05d); // percentage of space between categories
-        ValueAxis yAxis = new VerticalNumberAxis("Value");
+        ValueAxis yAxis = new NumberAxis("Value");
 
         // define the plot
-        CategoryItemRenderer renderer = new VerticalStatisticalBarRenderer();
-        VerticalCategoryPlot plot = new VerticalCategoryPlot(dataset, xAxis, yAxis, renderer);
+        CategoryItemRenderer renderer = new StatisticalBarRenderer();
+        CategoryPlot plot = new CategoryPlot(dataset, xAxis, yAxis, renderer);
 
-        JFreeChart chart = new JFreeChart("Statistical Bar Chart Demo", 
-                                          new Font("Helvetica", Font.BOLD, 14), 
-                                          plot, 
+        JFreeChart chart = new JFreeChart("Statistical Bar Chart Demo",
+                                          new Font("Helvetica", Font.BOLD, 14),
+                                          plot,
                                           true);
         //chart.setBackgroundPaint(Color.white);
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);
-        
+
     }
 
     /**
      * Creates a sample dataset.
-     * 
+     *
      * @return The dataset.
      */
     private StatisticalCategoryDataset createDataset() {
-    
+
         DefaultStatisticalCategoryDataset result = new DefaultStatisticalCategoryDataset();
 
         result.add(32.5, 17.9, "Series 1", "Type 1");
         result.add(27.8, 11.4, "Series 1", "Type 2");
         result.add(29.3, 14.4, "Series 1", "Type 3");
         result.add(37.9, 10.3, "Series 1", "Type 4");
-        
+
         result.add(22.9,  7.9, "Series 2", "Type 1");
         result.add(21.8, 18.4, "Series 2", "Type 2");
         result.add(19.3, 12.4, "Series 2", "Type 3");
         result.add(30.3, 20.7, "Series 2", "Type 4");
-        
+
         result.add(12.5, 10.9, "Series 3", "Type 1");
         result.add(24.8,  7.4, "Series 3", "Type 2");
         result.add(19.3, 13.4, "Series 3", "Type 3");
         result.add(17.1, 10.6, "Series 3", "Type 4");
-        
+
         return result;
-        
+
     }
 
     /**
@@ -135,5 +134,5 @@ public class StatisticalBarChartDemo extends ApplicationFrame {
         demo.setVisible(true);
 
     }
-    
+
 }

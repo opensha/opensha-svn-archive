@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * JFreeChartDemoBase.java
  * -----------------------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Andrzej Porebski;
  *                   Matthew Wright;
  *                   Serge V. Grachov;
@@ -51,36 +51,34 @@ import java.util.ResourceBundle;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.Legend;
 import org.jfree.chart.Spacer;
 import org.jfree.chart.TextTitle;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
-import org.jfree.chart.axis.HorizontalDateAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalLogarithmicAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
+import org.jfree.chart.labels.HighLowToolTipGenerator;
+import org.jfree.chart.labels.TimeSeriesToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.CombinedXYPlot;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
+import org.jfree.chart.plot.CombinedRangeXYPlot;
 import org.jfree.chart.plot.CompassPlot;
+import org.jfree.chart.plot.DialShape;
 import org.jfree.chart.plot.MeterPlot;
-import org.jfree.chart.plot.OverlaidXYPlot;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.chart.plot.Plot;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.ThermometerPlot;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
 import org.jfree.chart.renderer.HighLowRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.renderer.VerticalXYBarRenderer;
+import org.jfree.chart.renderer.XYBarRenderer;
 import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.tooltips.HighLowToolTipGenerator;
-import org.jfree.chart.tooltips.TimeSeriesToolTipGenerator;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.CombinedDataset;
 import org.jfree.data.DatasetUtilities;
-import org.jfree.data.DefaultMeterDataset;
 import org.jfree.data.DefaultValueDataset;
 import org.jfree.data.HighLowDataset;
 import org.jfree.data.IntervalCategoryDataset;
@@ -115,41 +113,41 @@ public class JFreeChartDemoBase {
      * 3) Append details to DemoResources
      */
     public static final String[][] CHART_COMMANDS = {
-        { "HORIZONTAL_BAR_CHART", "createHorizontalBarChart", "chart1"},
-        { "HORIZONTAL_STACKED_BAR_CHART", "createStackedHorizontalBarChart", "chart2"},
-        { "VERTICAL_BAR_CHART", "createVerticalBarChart", "chart3"},
-        { "VERTICAL_3D_BAR_CHART", "createVertical3DBarChart", "chart4"},
-        { "VERTICAL_STACKED_BAR_CHART", "createVerticalStackedBarChart", "chart5"},
-        { "VERTICAL_STACKED_3D_BAR_CHART", "createVerticalStacked3DBarChart", "chart6"},
-        { "PIE_CHART_1", "createPieChartOne", "chart7"},
-        { "PIE_CHART_2", "createPieChartTwo", "chart8"},
-        { "XY_PLOT", "createXYPlot", "chart9"},
-        { "TIME_SERIES_1_CHART", "createTimeSeries1Chart", "chart10"},
-        { "TIME_SERIES_2_CHART", "createTimeSeries2Chart", "chart11"},
-        { "TIME_SERIES_WITH_MA_CHART", "createTimeSeriesWithMAChart", "chart12"},
-        { "HIGH_LOW_CHART", "createHighLowChart", "chart13"},
-        { "CANDLESTICK_CHART", "createCandlestickChart", "chart14"},
-        { "SIGNAL_CHART", "createSignalChart", "chart15"},
-        { "WIND_PLOT", "createWindPlot", "chart16"},
-        { "SCATTER_PLOT", "createScatterPlot", "chart17"},
-        { "LINE_CHART", "createLineChart", "chart18"},
-        { "VERTICAL_XY_BAR_CHART", "createVerticalXYBarChart", "chart19"},
-        { "XY_PLOT_NULL", "createNullXYPlot", "chart20"},
-        { "XY_PLOT_ZERO", "createXYPlotZeroData", "chart21"},
-        { "TIME_SERIES_CHART_SCROLL", "createTimeSeriesChartInScrollPane", "chart22"},
-        { "SINGLE_SERIES_BAR_CHART", "createSingleSeriesBarChart", "chart23"},
-        { "DYNAMIC_CHART", "createDynamicXYChart", "chart24"},
-        { "OVERLAID_CHART", "createOverlaidChart", "chart25"},
-        { "HORIZONTALLY_COMBINED_CHART", "createHorizontallyCombinedChart", "chart26"},
-        { "VERTICALLY_COMBINED_CHART", "createVerticallyCombinedChart", "chart27"},
-        { "COMBINED_OVERLAID_CHART", "createCombinedAndOverlaidChart1", "chart28"},
-        { "COMBINED_OVERLAID_DYNAMIC_CHART", "createCombinedAndOverlaidDynamicXYChart", "chart29"},
-        { "THERMOMETER_CHART", "createThermometerChart", "chart30"},
-        { "METER_CHART", "createMeterChartCircle", "chart31"},
-        { "GANTT_CHART", "createGanttChart", "chart32"},
-        { "METER_CHART2", "createMeterChartPie", "chart33"},
-        { "METER_CHART3", "createMeterChartChord", "chart34"},
-        { "COMPASS_CHART", "createCompassChart", "chart35"},
+        {"HORIZONTAL_BAR_CHART", "createHorizontalBarChart", "chart1"},
+        {"HORIZONTAL_STACKED_BAR_CHART", "createStackedHorizontalBarChart", "chart2"},
+        {"VERTICAL_BAR_CHART", "createVerticalBarChart", "chart3"},
+        {"VERTICAL_3D_BAR_CHART", "createVertical3DBarChart", "chart4"},
+        {"VERTICAL_STACKED_BAR_CHART", "createVerticalStackedBarChart", "chart5"},
+        {"VERTICAL_STACKED_3D_BAR_CHART", "createVerticalStacked3DBarChart", "chart6"},
+        {"PIE_CHART_1", "createPieChartOne", "chart7"},
+        {"PIE_CHART_2", "createPieChartTwo", "chart8"},
+        {"XY_PLOT", "createXYPlot", "chart9"},
+        {"TIME_SERIES_1_CHART", "createTimeSeries1Chart", "chart10"},
+        {"TIME_SERIES_2_CHART", "createTimeSeries2Chart", "chart11"},
+        {"TIME_SERIES_WITH_MA_CHART", "createTimeSeriesWithMAChart", "chart12"},
+        {"HIGH_LOW_CHART", "createHighLowChart", "chart13"},
+        {"CANDLESTICK_CHART", "createCandlestickChart", "chart14"},
+        {"SIGNAL_CHART", "createSignalChart", "chart15"},
+        {"WIND_PLOT", "createWindPlot", "chart16"},
+        {"SCATTER_PLOT", "createScatterPlot", "chart17"},
+        {"LINE_CHART", "createLineChart", "chart18"},
+        {"VERTICAL_XY_BAR_CHART", "createVerticalXYBarChart", "chart19"},
+        {"XY_PLOT_NULL", "createNullXYPlot", "chart20"},
+        {"XY_PLOT_ZERO", "createXYPlotZeroData", "chart21"},
+        {"TIME_SERIES_CHART_SCROLL", "createTimeSeriesChartInScrollPane", "chart22"},
+        {"SINGLE_SERIES_BAR_CHART", "createSingleSeriesBarChart", "chart23"},
+        {"DYNAMIC_CHART", "createDynamicXYChart", "chart24"},
+        {"OVERLAID_CHART", "createOverlaidChart", "chart25"},
+        {"HORIZONTALLY_COMBINED_CHART", "createHorizontallyCombinedChart", "chart26"},
+        {"VERTICALLY_COMBINED_CHART", "createVerticallyCombinedChart", "chart27"},
+        {"COMBINED_OVERLAID_CHART", "createCombinedAndOverlaidChart1", "chart28"},
+        {"COMBINED_OVERLAID_DYNAMIC_CHART", "createCombinedAndOverlaidDynamicXYChart", "chart29"},
+        {"THERMOMETER_CHART", "createThermometerChart", "chart30"},
+        {"METER_CHART", "createMeterChartCircle", "chart31"},
+        {"GANTT_CHART", "createGanttChart", "chart32"},
+        {"METER_CHART2", "createMeterChartPie", "chart33"},
+        {"METER_CHART3", "createMeterChartChord", "chart34"},
+        {"COMPASS_CHART", "createCompassChart", "chart35"},
     };
 
     /** Base class name for localised resources. */
@@ -160,7 +158,7 @@ public class JFreeChartDemoBase {
     private ResourceBundle resources;
 
     /** An array of charts. */
-    private JFreeChart[] chart = new JFreeChart[CHART_COMMANDS.length];
+    private JFreeChart[] charts = new JFreeChart[CHART_COMMANDS.length];
 
     /**
      * Default constructor.
@@ -178,21 +176,21 @@ public class JFreeChartDemoBase {
      */
     public JFreeChart getChart(int i) {
 
-        if ((i < 0) && (i >= chart.length)) {
+        if ((i < 0) && (i >= charts.length)) {
             i = 0;
         }
 
-        if (chart[i] == null) {
+        if (charts[i] == null) {
             /// Utilise reflection to invoke method to create new chart if required.
             try {
                 Method method = getClass().getDeclaredMethod(CHART_COMMANDS[i][1], null);
-                chart[i] = (JFreeChart) method.invoke(this, null);
+                charts[i] = (JFreeChart) method.invoke(this, null);
             }
             catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        return chart[i];
+        return charts[i];
     }
 
     /**
@@ -216,13 +214,15 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("bar.horizontal.domain");
         String range = resources.getString("bar.horizontal.range");
 
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart = ChartFactory.createHorizontalBarChart(title, domain, range, data, 
-                                                                 true,
-                                                                 true,
-                                                                 false);
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart = ChartFactory.createBarChart(title, domain, range, data,
+                                                       PlotOrientation.HORIZONTAL,
+                                                       true,
+                                                       true,
+                                                       false);
 
         // then customise it a little...
+        chart.getLegend().setAnchor(Legend.EAST);
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.orange));
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setRangeCrosshairVisible(false);
@@ -246,12 +246,13 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("bar.horizontal-stacked.domain");
         String range = resources.getString("bar.horizontal-stacked.range");
 
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart = ChartFactory.createStackedHorizontalBarChart(title, domain, range,
-                                                                        data, 
-                                                                        true,
-                                                                        true,
-                                                                        false);
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart = ChartFactory.createStackedBarChart(title, domain, range,
+                                                              data,
+                                                              PlotOrientation.HORIZONTAL,
+                                                              true,
+                                                              true,
+                                                              false);
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.blue));
@@ -270,11 +271,12 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("bar.vertical.domain");
         String range = resources.getString("bar.vertical.range");
 
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart = ChartFactory.createVerticalBarChart(title, domain, range, data, 
-                                                               true,
-                                                               true,
-                                                               false);
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart = ChartFactory.createBarChart(title, domain, range, data,
+                                                       PlotOrientation.VERTICAL,
+                                                       true,
+                                                       true,
+                                                       false);
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.red));
@@ -297,11 +299,16 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("bar.vertical3D.domain");
         String range = resources.getString("bar.vertical3D.range");
 
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart = ChartFactory.createVerticalBarChart3D(title, domain, range, data,
-                                                                 true,
-                                                                 true,
-                                                                 false);
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart = ChartFactory.createBarChart3D(
+            title,
+            domain,
+            range, data,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.blue));
@@ -323,12 +330,13 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("bar.vertical-stacked.domain");
         String range = resources.getString("bar.vertical-stacked.range");
 
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
         JFreeChart chart
-            = ChartFactory.createStackedVerticalBarChart(title, domain, range, data, 
-                                                         true,
-                                                         true,
-                                                         false);
+            = ChartFactory.createStackedBarChart(title, domain, range, data,
+                                                 PlotOrientation.VERTICAL,
+                                                 true,
+                                                 true,
+                                                 false);
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.red));
@@ -347,10 +355,10 @@ public class JFreeChartDemoBase {
         String title = resources.getString("bar.vertical-stacked3D.title");
         String domain = resources.getString("bar.vertical-stacked3D.domain");
         String range = resources.getString("bar.vertical-stacked3D.range");
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart
-            = ChartFactory.createStackedVerticalBarChart3D(title, domain, range, data,
-                                                           true, true, false);
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart = ChartFactory.createStackedBarChart3D(title, domain, range, data,
+                                                                PlotOrientation.VERTICAL,
+                                                                true, true, false);
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.red));
@@ -367,7 +375,7 @@ public class JFreeChartDemoBase {
 
         // create a default chart based on some sample data...
         String title = resources.getString("pie.pie1.title");
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
         PieDataset extracted = DatasetUtilities.createPieDatasetForRow(data, 0);
         JFreeChart chart = ChartFactory.createPieChart(title, extracted, true, true, false);
 
@@ -391,7 +399,7 @@ public class JFreeChartDemoBase {
 
         // create a default chart based on some sample data...
         String title = resources.getString("pie.pie2.title");
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
         Comparable category = (Comparable) data.getColumnKeys().get(1);
         PieDataset extracted = DatasetUtilities.createPieDatasetForColumn(data, category);
         JFreeChart chart = ChartFactory.createPieChart(title, extracted, true, true, false);
@@ -420,9 +428,14 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("xyplot.sample1.domain");
         String range = resources.getString("xyplot.sample1.range");
         XYDataset data = DemoDatasetFactory.createSampleXYDataset();
-        JFreeChart chart = ChartFactory.createLineXYChart(title, domain, range, data, true, 
-                                                          true, 
-                                                          false);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            title, 
+            domain, range, data, 
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.green));
@@ -444,7 +457,7 @@ public class JFreeChartDemoBase {
         String range = resources.getString("timeseries.sample1.range");
         String copyrightStr = resources.getString("timeseries.sample1.copyright");
         XYDataset data = DemoDatasetFactory.createTimeSeriesCollection3();
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, data, 
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, data,
                                                               true,
                                                               true,
                                                               false);
@@ -461,7 +474,7 @@ public class JFreeChartDemoBase {
 
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
         XYPlot plot = chart.getXYPlot();
-        HorizontalDateAxis axis = (HorizontalDateAxis) plot.getDomainAxis();
+        DateAxis axis = (DateAxis) plot.getDomainAxis();
         axis.setVerticalTickLabels(true);
         return chart;
 
@@ -480,7 +493,7 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("timeseries.sample2.domain");
         String range = resources.getString("timeseries.sample2.range");
         XYDataset data = DemoDatasetFactory.createTimeSeriesCollection4();
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, data, 
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, data,
                                                               true, true, false);
 
         // then customise it a little...
@@ -488,8 +501,8 @@ public class JFreeChartDemoBase {
         chart.addSubtitle(subtitle);
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 0, 1000, Color.blue));
         XYPlot plot = chart.getXYPlot();
-        VerticalLogarithmicAxis vla = new VerticalLogarithmicAxis(range);
-        plot.setRangeAxis(vla);
+        LogarithmicAxis rangeAxis = new LogarithmicAxis(range);
+        plot.setRangeAxis(rangeAxis);
         return chart;
 
     }
@@ -511,7 +524,7 @@ public class JFreeChartDemoBase {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(jpy);
         dataset.addSeries(mav);
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, dataset, 
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, dataset,
                                                               true,
                                                               true,
                                                               false);
@@ -629,12 +642,12 @@ public class JFreeChartDemoBase {
         String title = resources.getString("meter.meter.title");
         String subtitleStr = resources.getString("meter.meter.subtitle");
         String units = resources.getString("meter.meter.units");
-        DefaultMeterDataset data = DemoDatasetFactory.createMeterDataset();
-
-        data.setUnits(units);
+        //DefaultMeterDataset data = DemoDatasetFactory.createMeterDataset();
+        DefaultValueDataset data = new DefaultValueDataset(50.0);
+        //data.setUnits(units);
         MeterPlot plot = new MeterPlot(data);
         plot.setMeterAngle(270);
-        plot.setDialType(1);
+        plot.setDialShape(DialShape.CIRCLE);
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT,
                                           plot, false);
 
@@ -656,14 +669,13 @@ public class JFreeChartDemoBase {
         String title = resources.getString("meter.meter.title");
         String subtitleStr = resources.getString("meter.meter.subtitle");
         String units = resources.getString("meter.meter.units");
-        DefaultMeterDataset data = DemoDatasetFactory.createMeterDataset();
-
-        data.setUnits(units);
+        //DefaultMeterDataset data = DemoDatasetFactory.createMeterDataset();
+        DefaultValueDataset data = new DefaultValueDataset(50.0);
+        //data.setUnits(units);
         MeterPlot plot = new MeterPlot(data);
         plot.setMeterAngle(270);
-        plot.setDialType(0);
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT,
-                                          plot, false);
+        plot.setDialShape(DialShape.PIE);
+        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 
         // then customise it a little...
         TextTitle subtitle = new TextTitle(subtitleStr, new Font("SansSerif", Font.BOLD, 12));
@@ -683,14 +695,13 @@ public class JFreeChartDemoBase {
         String title = resources.getString("meter.meter.title");
         String subtitleStr = resources.getString("meter.meter.subtitle");
         String units = resources.getString("meter.meter.units");
-        DefaultMeterDataset data = DemoDatasetFactory.createMeterDataset();
-
-        data.setUnits(units);
+        //DefaultMeterDataset data = DemoDatasetFactory.createMeterDataset();
+        DefaultValueDataset data = new DefaultValueDataset(45.0);
+        //data.setUnits(units);
         MeterPlot plot = new MeterPlot(data);
         plot.setMeterAngle(270);
-        plot.setDialType(2);
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT,
-                                          plot, false);
+        plot.setDialShape(DialShape.CHORD);
+        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false);
 
         // then customise it a little...
         TextTitle subtitle = new TextTitle(subtitleStr, new Font("SansSerif", Font.BOLD, 12));
@@ -712,8 +723,12 @@ public class JFreeChartDemoBase {
         DefaultValueDataset data = new DefaultValueDataset(new Double(45.0));
 
         Plot plot = new CompassPlot(data);
-        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT,
-                                          plot, false);
+        JFreeChart chart = new JFreeChart(
+            title, 
+            JFreeChart.DEFAULT_TITLE_FONT,
+            plot, 
+            false
+        );
 
         // then customise it a little...
         TextTitle subtitle = new TextTitle(subtitleStr, new Font("SansSerif", Font.BOLD, 12));
@@ -734,7 +749,7 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("other.wind.domain");
         String range = resources.getString("other.wind.range");
         WindDataset data = DemoDatasetFactory.createWindDataset1();
-        JFreeChart chart = ChartFactory.createWindPlot(title, domain, range, data, 
+        JFreeChart chart = ChartFactory.createWindPlot(title, domain, range, data,
                                                        true,
                                                        false,
                                                        false);
@@ -757,10 +772,16 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("other.scatter.domain");
         String range = resources.getString("other.scatter.range");
         XYDataset data = new SampleXYDataset2();
-        JFreeChart chart = ChartFactory.createScatterPlot(title, domain, range, data, true, 
-                                                          true,  // tooltips
-                                                          false  // urls
-                                                          );
+        JFreeChart chart = ChartFactory.createScatterPlot(
+            title, 
+            domain, 
+            range, 
+            data,
+            PlotOrientation.VERTICAL, 
+            true,
+            true,  // tooltips
+            false  // urls
+        );
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.green));
@@ -785,8 +806,9 @@ public class JFreeChartDemoBase {
         String title = resources.getString("other.line.title");
         String domain = resources.getString("other.line.domain");
         String range = resources.getString("other.line.range");
-		CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
-        JFreeChart chart = ChartFactory.createLineChart(title, domain, range, data, 
+        CategoryDataset data = DemoDatasetFactory.createCategoryDataset();
+        JFreeChart chart = ChartFactory.createLineChart(title, domain, range, data,
+                                                        PlotOrientation.VERTICAL,
                                                         true,
                                                         true,
                                                         false);
@@ -797,7 +819,7 @@ public class JFreeChartDemoBase {
 
         CategoryPlot plot = (CategoryPlot) chart.getPlot();
         plot.setBackgroundAlpha(0.65f);
-        HorizontalCategoryAxis axis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        CategoryAxis axis = plot.getDomainAxis();
         axis.setVerticalCategoryLabels(true);
         return chart;
     }
@@ -815,10 +837,16 @@ public class JFreeChartDemoBase {
         String range = resources.getString("other.xybar.range");
         TimeSeriesCollection data = DemoDatasetFactory.createTimeSeriesCollection1();
         data.setDomainIsPointsInTime(false);
-        JFreeChart chart = ChartFactory.createVerticalXYBarChart(title, domain, range, data,
-                                                                 true,
-                                                                 false,
-                                                                 false);
+        JFreeChart chart = ChartFactory.createXYBarChart(
+            title, 
+            domain, 
+            range, 
+            data,
+            PlotOrientation.VERTICAL,
+            true,
+            false,
+            false
+        );
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.blue));
@@ -840,10 +868,13 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("test.null.domain");
         String range = resources.getString("test.null.range");
         XYDataset data = null;
-        JFreeChart chart = ChartFactory.createLineXYChart(title, domain, range, data, 
-                                                          true,
-                                                          true,
-                                                          false);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            title, domain, range, data,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.red));
@@ -863,10 +894,13 @@ public class JFreeChartDemoBase {
         String domain = resources.getString("test.zero.domain");
         String range = resources.getString("test.zero.range");
         XYDataset data = new EmptyXYDataset();
-        JFreeChart chart = ChartFactory.createLineXYChart(title, domain, range, data, 
-                                                          true, 
-                                                          true,
-                                                          false);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            title, domain, range, data,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
 
         // then customise it a little...
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.red));
@@ -886,7 +920,7 @@ public class JFreeChartDemoBase {
         String range = resources.getString("test.scroll.range");
         String subtitleStr = resources.getString("test.scroll.subtitle");
         XYDataset data = DemoDatasetFactory.createTimeSeriesCollection2();
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, data, 
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(title, domain, range, data,
                                                               true,
                                                               true,
                                                               false);
@@ -913,12 +947,13 @@ public class JFreeChartDemoBase {
         String subtitle1Str = resources.getString("test.single.subtitle1");
         String subtitle2Str = resources.getString("test.single.subtitle2");
 
-		CategoryDataset data = DemoDatasetFactory.createSingleSeriesCategoryDataset();
+        CategoryDataset data = DemoDatasetFactory.createSingleSeriesCategoryDataset();
 
-        JFreeChart chart = ChartFactory.createHorizontalBarChart(title, domain, range, data,
-                                                                 true,
-                                                                 true,
-                                                                 false);
+        JFreeChart chart = ChartFactory.createBarChart(title, domain, range, data,
+                                                       PlotOrientation.HORIZONTAL,
+                                                       true,
+                                                       true,
+                                                       false);
         chart.addSubtitle(new TextTitle(subtitle1Str));
         chart.addSubtitle(new TextTitle(subtitle2Str));
         chart.setBackgroundPaint(new GradientPaint(0, 0, Color.white, 1000, 0, Color.red));
@@ -939,10 +974,13 @@ public class JFreeChartDemoBase {
         String range = resources.getString("test.dynamic.range");
 
         SampleXYDataset data = new SampleXYDataset();
-        JFreeChart chart = ChartFactory.createLineXYChart(title, domain, range, data, 
-                                                          true, 
-                                                          true,
-                                                          false);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            title, domain, range, data,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
         SampleXYDatasetThread update = new SampleXYDatasetThread(data);
 
         Thread thread = new Thread(update);
@@ -954,6 +992,10 @@ public class JFreeChartDemoBase {
 
     /**
      * Creates and returns a sample overlaid chart.
+     * <P>
+     * Note:  with the introduction of multiple secondary datasets in JFreeChart version 0.9.10,
+     * the overlaid chart facility has been removed.  You can achieve the same results using
+     * a regular XYPlot with multiple datasets.
      *
      * @return an overlaid chart.
      */
@@ -962,38 +1004,32 @@ public class JFreeChartDemoBase {
         // create a default chart based on some sample data...
         String title = this.resources.getString("combined.overlaid.title");
         String subtitleStr = this.resources.getString("combined.overlaid.subtitle");
-        String domain = this.resources.getString("combined.overlaid.domain");
-        String range = this.resources.getString("combined.overlaid.range");
+        String domainAxisLabel = this.resources.getString("combined.overlaid.domain");
+        String rangeAxisLabel = this.resources.getString("combined.overlaid.range");
 
         // create high-low and moving average dataset
         HighLowDataset highLowData = DemoDatasetFactory.createHighLowDataset();
-        XYDataset maData = MovingAverage.createMovingAverage(highLowData, " (Moving Average)", 
-                                     5 * 24 * 60 * 60 * 1000L, 
-                                     5 * 24 * 60 * 60 * 1000L);
-                                     
-        // create a drawing supplier to control colors...
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
+
         // make an overlaid plot
-        OverlaidXYPlot plot = new OverlaidXYPlot("Date", "Price");
-        plot.setDomainAxis(new HorizontalDateAxis("Date"));
-        NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+        ValueAxis domainAxis = new DateAxis(domainAxisLabel);
+        NumberAxis rangeAxis = new NumberAxis(rangeAxisLabel);
         rangeAxis.setAutoRangeIncludesZero(false);
-        
-        // create and add subplot 1...
-        XYItemRenderer renderer1 = new HighLowRenderer(new HighLowToolTipGenerator());
-        renderer1.setDrawingSupplier(supplier);
-        XYPlot subplot1 = new XYPlot(highLowData, null, null, renderer1);
+        XYItemRenderer renderer1 = new HighLowRenderer();
+        renderer1.setToolTipGenerator(new HighLowToolTipGenerator());
 
-        plot.add(subplot1);
+        XYPlot plot = new XYPlot(highLowData, domainAxis, rangeAxis, renderer1);
 
-        //XYDataset data2 = new SubSeriesDataset(maData, 1); // MA data
-        XYPlot subplot2 = new XYPlot(maData, null, null);
+        // overlay a moving average dataset
+        XYDataset maData = MovingAverage.createMovingAverage(
+            highLowData, 
+            " (Moving Average)",
+            5 * 24 * 60 * 60 * 1000L,
+            5 * 24 * 60 * 60 * 1000L
+        );
+        plot.setSecondaryDataset(0, maData);
         XYItemRenderer renderer2 = new StandardXYItemRenderer();
-        renderer2.setDrawingSupplier(supplier);
         renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0.00"));
-        subplot2.setRenderer(renderer2);
-        plot.add(subplot2);
+        plot.setSecondaryRenderer(0, renderer2);
 
         // make the top level JFreeChart object
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
@@ -1018,52 +1054,46 @@ public class JFreeChartDemoBase {
         String title = this.resources.getString("combined.horizontal.title");
         String subtitleStr = this.resources.getString("combined.horizontal.subtitle");
         String[] domains = this.resources.getStringArray("combined.horizontal.domains");
-        String range = this.resources.getString("combined.horizontal.range");
+        String rangeAxisLabel = this.resources.getString("combined.horizontal.range");
 
         TimeSeriesCollection dataset0 = new TimeSeriesCollection();
         TimeSeries eur = DemoDatasetFactory.createEURTimeSeries();
         dataset0.addSeries(eur);
 
         TimeSeriesCollection dataset1 = new TimeSeriesCollection();
-//        TimeSeries usd = DemoDatasetFactory.createUSDTimeSeries();
         TimeSeries mav = MovingAverage.createMovingAverage(eur, "EUR/GBP (30 Day MA)", 30, 30);
         dataset1.addSeries(eur);
         dataset1.addSeries(mav);
 
         TimeSeriesCollection dataset2 = new TimeSeriesCollection();
-        //TimeSeries gbp = DemoDatasetFactory.createGBPTimeSeries();
         dataset2.addSeries(eur);
 
-        JFreeChart chart = null;
-
-        // make a common vertical axis for all the sub-plots
-        NumberAxis valueAxis = new VerticalNumberAxis(range);
+        // make a combined range plot
+        NumberAxis valueAxis = new NumberAxis(rangeAxisLabel);
         valueAxis.setAutoRangeIncludesZero(false);  // override default
+        CombinedRangeXYPlot parent = new CombinedRangeXYPlot(valueAxis);
+        parent.setRenderer(new StandardXYItemRenderer());
 
-        // make a horizontally combined plot
-        CombinedXYPlot multiPlot = new CombinedXYPlot(valueAxis, CombinedXYPlot.HORIZONTAL);
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
-        int[] weight = { 1, 1, 1 }; // control horizontal space assigned to each subplot
+        // add subplots
+        int[] weight = {1, 1, 1}; // controls space assigned to each subplot
 
         // add subplot 1...
-        XYPlot subplot1 = new XYPlot(dataset0, new HorizontalDateAxis("Date"), null);
-        subplot1.getRenderer().setDrawingSupplier(supplier);
-        multiPlot.add(subplot1, weight[0]);
+        XYPlot subplot1 = new XYPlot(dataset0, new DateAxis(domains[0]), null, 
+                                     new StandardXYItemRenderer());
+        parent.add(subplot1, weight[0]);
 
         // add subplot 2...
-        XYPlot subplot2 = new XYPlot(dataset1, new HorizontalDateAxis("Date"), null);
-        subplot2.getRenderer().setDrawingSupplier(supplier);
-        multiPlot.add(subplot2, weight[1]);
+        XYPlot subplot2 = new XYPlot(dataset1, new DateAxis(domains[1]), null, 
+                                     new StandardXYItemRenderer());
+        parent.add(subplot2, weight[1]);
 
         // add subplot 3...
-        XYPlot subplot3 = new XYPlot(dataset2, new HorizontalDateAxis("Date"),
-                                     null, new VerticalXYBarRenderer(0.20));
-        subplot3.getRenderer().setDrawingSupplier(supplier);
-        multiPlot.add(subplot3, weight[2]);
+        XYPlot subplot3 = new XYPlot(dataset2, new DateAxis(domains[2]),
+                                     null, new XYBarRenderer(0.20));
+        parent.add(subplot3, weight[2]);
 
         // now make the top level JFreeChart
-        chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, multiPlot, true);
+        JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, parent, true);
 
         // then customise it a little...
         TextTitle subtitle = new TextTitle(subtitleStr, new Font("SansSerif", Font.BOLD, 12));
@@ -1100,41 +1130,38 @@ public class JFreeChartDemoBase {
         XYDataset dataset2 = DemoDatasetFactory.createHighLowDataset();
 
         TimeSeriesCollection dataset3 = new TimeSeriesCollection();
-        TimeSeries usd = DemoDatasetFactory.createUSDTimeSeries();
         dataset3.addSeries(eur);
 
         // make one shared horizontal axis
-        ValueAxis timeAxis = new HorizontalDateAxis(domain);
+        ValueAxis timeAxis = new DateAxis(domain);
 
         // make a vertically CombinedPlot that will contain the sub-plots
-        CombinedXYPlot multiPlot = new CombinedXYPlot(timeAxis, CombinedXYPlot.VERTICAL);
+        CombinedDomainXYPlot multiPlot = new CombinedDomainXYPlot(timeAxis);
 
-        int[] weight = { 1, 1, 1, 1 }; // control vertical space allocated to each sub-plot
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
+        int[] weight = {1, 1, 1, 1}; // control vertical space allocated to each sub-plot
+
         // add subplot1...
-        XYPlot subplot1 = new XYPlot(dataset0, null, new VerticalNumberAxis("Value"));
+        XYPlot subplot1 = new XYPlot(dataset0, null, new NumberAxis(ranges[0]), 
+                                     new StandardXYItemRenderer());
         NumberAxis range1 = (NumberAxis) subplot1.getRangeAxis();
         range1.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
         range1.setLabelFont(new Font("SansSerif", Font.PLAIN, 8));
         range1.setAutoRangeIncludesZero(false);
-        subplot1.getRenderer().setDrawingSupplier(supplier);
         multiPlot.add(subplot1, weight[0]);
 
         // add subplot2...
-        XYPlot subplot2 = new XYPlot(dataset1, null, new VerticalNumberAxis("Value"));
+        XYPlot subplot2 = new XYPlot(dataset1, null, new NumberAxis(ranges[1]), 
+                                     new StandardXYItemRenderer());
         NumberAxis range2 = (NumberAxis) subplot2.getRangeAxis();
         range2.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
         range2.setLabelFont(new Font("SansSerif", Font.PLAIN, 8));
         range2.setAutoRangeIncludesZero(false);
-        subplot2.getRenderer().setDrawingSupplier(supplier);
         multiPlot.add(subplot2, weight[1]);
 
         // add subplot3...
-        XYPlot subplot3 = new XYPlot(dataset2, null, new VerticalNumberAxis("Value"));
+        XYPlot subplot3 = new XYPlot(dataset2, null, new NumberAxis(ranges[2]), null);
         XYItemRenderer renderer3 = new HighLowRenderer();
         subplot3.setRenderer(renderer3);
-        renderer3.setDrawingSupplier(supplier);
         NumberAxis range3 = (NumberAxis) subplot3.getRangeAxis();
         range3.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
         range3.setLabelFont(new Font("SansSerif", Font.PLAIN, 8));
@@ -1142,9 +1169,8 @@ public class JFreeChartDemoBase {
         multiPlot.add(subplot3, weight[2]);
 
         // add subplot4...
-        XYPlot subplot4 = new XYPlot(dataset3, null, new VerticalNumberAxis("Value"));
-        XYItemRenderer renderer4 = new VerticalXYBarRenderer();
-        renderer4.setDrawingSupplier(supplier);
+        XYPlot subplot4 = new XYPlot(dataset3, null, new NumberAxis(ranges[3]), null);
+        XYItemRenderer renderer4 = new XYBarRenderer();
         subplot4.setRenderer(renderer4);
         NumberAxis range4 = (NumberAxis) subplot4.getRangeAxis();
         range4.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
@@ -1165,6 +1191,9 @@ public class JFreeChartDemoBase {
 
     /**
      * Creates a combined and overlaid chart.
+     * <p>
+     * Note: from version 0.9.10, the overlaid chart is no longer supported (you can achieve
+     * the same result using a regular XYPlot with multiple datasets and renderers).
      *
      * @return a combined and overlaid chart.
      */
@@ -1186,75 +1215,68 @@ public class JFreeChartDemoBase {
         dataset1.addSeries(jpy);
         dataset1.addSeries(mav);
 
-
         HighLowDataset highLowDataset = DemoDatasetFactory.createHighLowDataset();
-        XYDataset highLowDatasetMA = MovingAverage.createMovingAverage(highLowDataset, " (MA)",
-                             5 * 24 * 60 * 60 * 1000L, 5 * 24 * 60 * 60 * 1000L);
-
-        int n = 3;    // number of combined (vertically laidout) charts
+        XYDataset highLowDatasetMA = MovingAverage.createMovingAverage(
+            highLowDataset, 
+            " (MA)",
+            5 * 24 * 60 * 60 * 1000L, 
+            5 * 24 * 60 * 60 * 1000L
+        );
 
         // make one vertical axis for each (vertical) chart
         NumberAxis[] valueAxis = new NumberAxis[3];
         for (int i = 0; i < valueAxis.length; i++) {
-            valueAxis[i] = new VerticalNumberAxis(ranges[i]);
+            valueAxis[i] = new NumberAxis(ranges[i]);
             if (i <= 1) {
                 valueAxis[i].setAutoRangeIncludesZero(false);  // override default
             }
         }
 
         // create CombinedPlot...
-        CombinedXYPlot multiPlot = new CombinedXYPlot(new HorizontalDateAxis(domain),
-                                                      CombinedXYPlot.VERTICAL);
-                                                      
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
+        CombinedDomainXYPlot parent = new CombinedDomainXYPlot(new DateAxis(domain));
 
-        int[] weight = { 1, 2, 2 };
+        int[] weight = {1, 2, 2};
 
         // add subplot1...
-        XYPlot subplot1 = new XYPlot(dataset0, null, new VerticalNumberAxis(ranges[0]));
+        XYItemRenderer renderer1 = new StandardXYItemRenderer();
+        XYPlot subplot1 = new XYPlot(dataset0, null, new NumberAxis(ranges[0]), renderer1);
         NumberAxis axis1 = (NumberAxis) subplot1.getRangeAxis();
         axis1.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
         axis1.setLabelFont(new Font("SansSerif", Font.PLAIN, 8));
         axis1.setAutoRangeIncludesZero(false);
-        subplot1.getRenderer().setDrawingSupplier(supplier);
-        multiPlot.add(subplot1, weight[0]);
+        parent.add(subplot1, weight[0]);
 
         // add subplot2 (an overlaid plot)...
-        OverlaidXYPlot subplot2 = new OverlaidXYPlot(null, new VerticalNumberAxis(ranges[1]));
+        XYPlot subplot2 = new XYPlot(dataset0, null, new NumberAxis(ranges[1]), 
+                                     new StandardXYItemRenderer());
         NumberAxis axis2 = (NumberAxis) subplot2.getRangeAxis();
         axis2.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
         axis2.setLabelFont(new Font("SansSerif", Font.PLAIN, 8));
         axis2.setAutoRangeIncludesZero(false);
-        XYPlot p1 = new XYPlot(dataset0, null, null);
-        p1.getRenderer().setDrawingSupplier(supplier);
-        subplot2.add(p1);
-        XYPlot p2 = new XYPlot(dataset1, null, null);
-        p2.getRenderer().setDrawingSupplier(supplier);
-        subplot2.add(p2);
+        subplot2.setSecondaryDataset(0, dataset1);
+        subplot2.setSecondaryRenderer(0, new StandardXYItemRenderer());
 
-        multiPlot.add(subplot2, weight[1]);
+        parent.add(subplot2, weight[1]);
 
         // add subplot3 (an overlaid plot)...
-        OverlaidXYPlot subplot3 = new OverlaidXYPlot(null, new VerticalNumberAxis(ranges[2]));
+        XYItemRenderer renderer3 = new HighLowRenderer();
+        XYPlot subplot3 = new XYPlot(highLowDataset, null, new NumberAxis(ranges[2]), renderer3);
         NumberAxis axis3 = (NumberAxis) subplot3.getRangeAxis();
         axis3.setTickLabelFont(new Font("Monospaced", Font.PLAIN, 7));
         axis3.setLabelFont(new Font("SansSerif", Font.PLAIN, 8));
         axis3.setAutoRangeIncludesZero(false);
+        subplot3.setSecondaryDataset(0, highLowDatasetMA);
+        subplot3.setSecondaryRenderer(0, new StandardXYItemRenderer());
 
-        XYItemRenderer renderer3 = new HighLowRenderer();
-        renderer3.setDrawingSupplier(supplier);
-        XYPlot p3 = new XYPlot(highLowDataset, null, null, renderer3);
-        subplot3.add(p3);
-        XYPlot p4 = new XYPlot(highLowDatasetMA, null, null);
-        p4.getRenderer().setDrawingSupplier(supplier);
-        subplot3.add(p4);
-
-        multiPlot.add(subplot3, weight[2]);
+        parent.add(subplot3, weight[2]);
 
         // now create the master JFreeChart object
-        JFreeChart chart = new JFreeChart(title,
-                                          new Font("SansSerif", Font.BOLD, 12),
-                                          multiPlot, true);
+        JFreeChart chart = new JFreeChart(
+            title,
+            new Font("SansSerif", Font.BOLD, 12),
+            parent, 
+            true
+        );
 
         // then customise it a little...
         TextTitle subtitle = new TextTitle(subtitleStr, new Font("SansSerif", Font.BOLD, 10));
@@ -1275,7 +1297,7 @@ public class JFreeChartDemoBase {
         // chart title and axis labels...
         String title = this.resources.getString("combined.dynamic.title");
         String subtitleStr = this.resources.getString("combined.dynamic.subtitle");
-        String domain = this.resources.getString("combined.dynamic.domain");
+        String domainAxisLabel = this.resources.getString("combined.dynamic.domain");
         String[] ranges = this.resources.getStringArray("combined.dynamic.ranges");
 
         // setup sample base 2-series dataset
@@ -1290,47 +1312,38 @@ public class JFreeChartDemoBase {
         combinedData.add(series1);
 
         // create common time axis
-        NumberAxis timeAxis = new HorizontalNumberAxis(domain);
+        NumberAxis timeAxis = new NumberAxis(domainAxisLabel);
         timeAxis.setTickMarksVisible(true);
         timeAxis.setAutoRangeIncludesZero(false);
-        //timeAxis.setCrosshairVisible(false);
 
         // make one vertical axis for each (vertical) chart
         NumberAxis[] valueAxis = new NumberAxis[4];
         for (int i = 0; i < valueAxis.length; i++) {
-            valueAxis[i] = new VerticalNumberAxis(ranges[i]);
+            valueAxis[i] = new NumberAxis(ranges[i]);
             valueAxis[i].setAutoRangeIncludesZero(false);
-        //    valueAxis[i].setCrosshairVisible(false);
         }
 
-        CombinedXYPlot plot = new CombinedXYPlot(timeAxis, CombinedXYPlot.VERTICAL);
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
+        CombinedDomainXYPlot plot = new CombinedDomainXYPlot(timeAxis);
 
         // add subplot1...
-        XYPlot subplot0 = new XYPlot(series0, null, valueAxis[0]);
-        subplot0.getRenderer().setDrawingSupplier(supplier);
+        XYItemRenderer renderer0 = new StandardXYItemRenderer();
+        XYPlot subplot0 = new XYPlot(series0, null, valueAxis[0], renderer0);
         plot.add(subplot0, 1);
 
         // add subplot2...
-        XYPlot subplot1 = new XYPlot(series1, null, valueAxis[1]);
-        subplot1.getRenderer().setDrawingSupplier(supplier);
+        XYItemRenderer renderer1 = new StandardXYItemRenderer();
+        XYPlot subplot1 = new XYPlot(series1, null, valueAxis[1], renderer1);
         plot.add(subplot1, 1);
 
         // add subplot3...
-        OverlaidXYPlot subplot2 = new OverlaidXYPlot(null, valueAxis[2]);
-
-        // add two overlaid XY charts (share both axes)
-        XYPlot p1 = new XYPlot(series0, null, null);
-        p1.getRenderer().setDrawingSupplier(supplier);
-        subplot2.add(p1);
-        XYPlot p2 = new XYPlot(series1, null, null);
-        p2.getRenderer().setDrawingSupplier(supplier);
-        subplot2.add(p2);
+        XYPlot subplot2 = new XYPlot(series0, null, valueAxis[2], new StandardXYItemRenderer());
+        subplot2.setSecondaryDataset(0, series1);
+        subplot2.setSecondaryRenderer(0, new StandardXYItemRenderer());
         plot.add(subplot2, 1);
 
         // add subplot4...
-        XYPlot subplot3 = new XYPlot(data, null, valueAxis[3]);
-        subplot3.getRenderer().setDrawingSupplier(supplier);
+        XYItemRenderer renderer3 = new StandardXYItemRenderer();
+        XYPlot subplot3 = new XYPlot(data, null, valueAxis[3], renderer3);
         plot.add(subplot3, 1);
 
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true);
@@ -1362,7 +1375,7 @@ public class JFreeChartDemoBase {
 
         IntervalCategoryDataset data = DemoDatasetFactory.createGanttDataset1();
 
-        JFreeChart chart = ChartFactory.createGanttChart(title, domain, range, data, 
+        JFreeChart chart = ChartFactory.createGanttChart(title, domain, range, data,
                                                          true,
                                                          true,
                                                          false);

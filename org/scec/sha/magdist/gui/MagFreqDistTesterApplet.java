@@ -13,7 +13,7 @@ import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
-
+import org.jfree.chart.labels.*;
 
 import org.scec.gui.*;
 import org.scec.gui.plot.LogPlotAPI;
@@ -818,32 +818,32 @@ public class MagFreqDistTesterApplet extends JApplet
 
         TickUnits units = MyTickUnits.createStandardTickUnits();
         // create X- axis for mag vs incremental rate
-        incrXAxis = new HorizontalNumberAxis( incrXAxisLabel );
+        incrXAxis = new NumberAxis( incrXAxisLabel );
         incrXAxis.setAutoRangeIncludesZero( false );
         incrXAxis.setStandardTickUnits(units);
         incrXAxis.setTickMarksVisible(false);
 
         // create X- axis for mag vs cum rate
-        cumXAxis = new HorizontalNumberAxis( cumXAxisLabel );
+        cumXAxis = new NumberAxis( cumXAxisLabel );
         cumXAxis.setAutoRangeIncludesZero( false );
         cumXAxis.setStandardTickUnits(units);
         cumXAxis.setTickMarksVisible(false);
 
         // create x- axis for mag vs moment rate
-        moXAxis = new HorizontalNumberAxis( moXAxisLabel );
+        moXAxis = new NumberAxis( moXAxisLabel );
         moXAxis.setAutoRangeIncludesZero( false );
         moXAxis.setStandardTickUnits(units);
         moXAxis.setTickMarksVisible(false);
 
         if (yLog)  {
-          incrYAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(incrYAxisLabel);
-          cumYAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(cumYAxisLabel);
-          moYAxis = new org.jfree.chart.axis.VerticalLogarithmicAxis(moYAxisLabel);
+          incrYAxis = new org.jfree.chart.axis.LogarithmicAxis(incrYAxisLabel);
+          cumYAxis = new org.jfree.chart.axis.LogarithmicAxis(cumYAxisLabel);
+          moYAxis = new org.jfree.chart.axis.LogarithmicAxis(moYAxisLabel);
         }
         else {
-          incrYAxis = new VerticalNumberAxis(incrYAxisLabel);
-          cumYAxis = new VerticalNumberAxis(cumYAxisLabel);
-          moYAxis = new VerticalNumberAxis(moYAxisLabel);
+          incrYAxis = new NumberAxis(incrYAxisLabel);
+          cumYAxis = new NumberAxis(cumYAxisLabel);
+          moYAxis = new NumberAxis(moYAxisLabel);
        }
 
        // set properties for mag vs incremental rate Y- axis
@@ -874,8 +874,8 @@ public class MagFreqDistTesterApplet extends JApplet
 
         int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-        org.jfree.chart.renderer.LogXYItemRenderer renderer =
-            new org.jfree.chart.renderer.LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+        org.jfree.chart.renderer.StandardXYItemRenderer renderer =
+            new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
         /* to set the range of the axis on the input from the user if the range combo box is selected*/
         if(this.incrCustomAxis) {
@@ -893,9 +893,9 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
         // build the plot
-        org.jfree.chart.plot.LogXYPlot incrPlot = new org.jfree.chart.plot.LogXYPlot(this,incrData, incrXAxis, incrYAxis, false, yLog);
-        org.jfree.chart.plot.LogXYPlot cumPlot = new org.jfree.chart.plot.LogXYPlot(this,toCumData, cumXAxis, cumYAxis, false, yLog);
-        org.jfree.chart.plot.LogXYPlot moPlot = new org.jfree.chart.plot.LogXYPlot(this,toMoData, moXAxis, moYAxis, false, yLog);
+        org.jfree.chart.plot.XYPlot incrPlot = new org.jfree.chart.plot.XYPlot(incrData, incrXAxis, incrYAxis, renderer);
+        org.jfree.chart.plot.XYPlot cumPlot = new org.jfree.chart.plot.XYPlot(toCumData, cumXAxis, cumYAxis, renderer);
+        org.jfree.chart.plot.XYPlot moPlot = new org.jfree.chart.plot.XYPlot(toMoData, moXAxis, moYAxis, renderer);
 
 
         incrPlot.setBackgroundAlpha( .8f );

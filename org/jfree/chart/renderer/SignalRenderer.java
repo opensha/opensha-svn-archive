@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,12 @@
  * -------------------
  * SignalRenderer.java
  * -------------------
- * (C) Copyright 2001, 2002, by Sylvain Viuejot and Contributors.
+ * (C) Copyright 2001-2003, by Sylvain Viuejot and Contributors.
  *
  * Original Author:  Sylvain Vieujot;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *                   Richard Atkinson;
+ *                   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -45,7 +46,11 @@
  * 05-Aug-2002 : Small modification to drawItem method to support URLs for HTML image maps (RA);
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 01-May-2003 : Modified drawItem(...) method signature (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 20-Aug-2003 : Implemented Cloneable and PublicCloneable (DG);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -59,22 +64,25 @@ import java.awt.geom.GeneralPath;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.CrosshairInfo;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.entity.XYItemEntity;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.SignalsDataset;
 import org.jfree.data.XYDataset;
+import org.jfree.util.PublicCloneable;
 
 /**
- * A renderer that draws signals on an XY plot (requires a SignalsDataset).
+ * A renderer that draws signals on an {@link XYPlot}.
  *
  * @author Sylvain Vieujot
  */
-public class SignalRenderer extends AbstractXYItemRenderer 
-                            implements XYItemRenderer, Serializable {
+public class SignalRenderer extends AbstractXYItemRenderer implements XYItemRenderer, 
+                                                                      Cloneable,
+                                                                      PublicCloneable,
+                                                                      Serializable {
 
     /** The mark offset. */
     private double markOffset = 5;
@@ -155,21 +163,27 @@ public class SignalRenderer extends AbstractXYItemRenderer
      * @param horizontalAxis  the horizontal axis.
      * @param verticalAxis  the vertical axis.
      * @param dataset  the dataset.
-     * @param datasetIndex  the dataset index (zero-based).
      * @param series  the series index (zero-based).
      * @param item  the item index (zero-based).
      * @param crosshairInfo  information about crosshairs on a plot.
+     * @param pass  the pass index.
      */
-    public void drawItem(Graphics2D g2, Rectangle2D dataArea,
-                         ChartRenderingInfo info,
-                         XYPlot plot, ValueAxis horizontalAxis, ValueAxis verticalAxis,
-                         XYDataset dataset, int datasetIndex, int series, int item,
-                         CrosshairInfo crosshairInfo) {
+    public void drawItem(Graphics2D g2, 
+                         Rectangle2D dataArea,
+                         PlotRenderingInfo info,
+                         XYPlot plot, 
+                         ValueAxis horizontalAxis, 
+                         ValueAxis verticalAxis,
+                         XYDataset dataset, 
+                         int series, 
+                         int item,
+                         CrosshairInfo crosshairInfo,
+                         int pass) {
 
         // setup for collecting optional entity info...
         EntityCollection entities = null;
         if (info != null) {
-            entities = info.getEntityCollection();
+            entities = info.getOwner().getEntityCollection();
         }
 
         SignalsDataset signalData = (SignalsDataset) dataset;
@@ -179,11 +193,13 @@ public class SignalRenderer extends AbstractXYItemRenderer
         int type = signalData.getType(series, item);
         //double level = signalData.getLevel(series, item);
 
-        double xx = horizontalAxis.translateValueToJava2D(x.doubleValue(), dataArea);
-        double yy = verticalAxis.translateValueToJava2D(y.doubleValue(), dataArea);
+        double xx = horizontalAxis.translateValueToJava2D(x.doubleValue(), dataArea, 
+                                                          plot.getDomainAxisEdge());
+        double yy = verticalAxis.translateValueToJava2D(y.doubleValue(), dataArea, 
+                                                        plot.getRangeAxisEdge());
 
-        Paint p = getItemPaint(datasetIndex, series, item);
-        Stroke s = getItemStroke(datasetIndex, series, item);
+        Paint p = getItemPaint(series, item);
+        Stroke s = getItemStroke(series, item);
         g2.setPaint(p);
         g2.setStroke(s);
 
@@ -210,11 +226,12 @@ public class SignalRenderer extends AbstractXYItemRenderer
         else {
             path.moveTo((float) xx, (float) yy);
             path.lineTo((float) xx, (float) (yy - direction * shapeHeight));
-            Ellipse2D.Double ellipse =
-                new Ellipse2D.Double(xx - shapeWidth / 2,
-                                     yy
-                                     + (direction == 1 ? -shapeHeight : shapeHeight - shapeWidth),
-                                     shapeWidth, shapeWidth);
+            Ellipse2D.Double ellipse = new Ellipse2D.Double(
+                xx - shapeWidth / 2,
+                yy + (direction == 1 ? -shapeHeight : shapeHeight - shapeWidth),
+                shapeWidth, 
+                shapeWidth
+            );
             path.append(ellipse, false);
         }
 
@@ -224,7 +241,7 @@ public class SignalRenderer extends AbstractXYItemRenderer
 
         // add an entity for the item...
         if (entities != null) {
-            String tip = "";
+            String tip = null;
             if (getToolTipGenerator() != null) {
                 tip = getToolTipGenerator().generateToolTip(dataset, series, item);
             }
@@ -232,10 +249,21 @@ public class SignalRenderer extends AbstractXYItemRenderer
             if (getURLGenerator() != null) {
                 url = getURLGenerator().generateURL(dataset, series, item);
             }
-            XYItemEntity entity = new XYItemEntity(path, tip, url, series, item);
+            XYItemEntity entity = new XYItemEntity(path, dataset, series, item, tip, url);
             entities.addEntity(entity);
         }
 
+    }
+
+    /**
+     * Returns a clone of the renderer.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException  if the renderer cannot be cloned.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
 }

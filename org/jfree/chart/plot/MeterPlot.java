@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,8 +25,10 @@
  * (C) Copyright 2000-2003, by Hari and Contributors.
  *
  * Original Author:  Hari (ourhari@hotmail.com);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *                   Bob Orchard;
+ *                   Arnaud Lelievre;
+ *                   Nicolas Brodu;
  *
  * $Id$
  *
@@ -39,6 +41,13 @@
  * 01-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 23-Jan-2003 : Removed one constructor (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 20-Aug-2003 : Changed dataset from MeterDataset --> ValueDataset, added equals(...) method,
+ * 08-Sep-2003 : Added internationalization via use of properties resourceBundle (RFE 690236) (AL); 
+ *               implemented Cloneable, and various other changes (DG);
+ * 08-Sep-2003 : Added serialization methods (NB);
+ * 11-Sep-2003 : Added cloning support (NB);
+ * 16-Sep-2003 : Changed ChartRenderingInfo --> PlotRenderingInfo (DG);
+ * 25-Sep-2003 : Fix useless cloning. Correct dataset listener registration in constructor. (NB)
  *
  */
 
@@ -58,14 +67,22 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.ResourceBundle;
 
-import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.data.DatasetChangeEvent;
 import org.jfree.data.MeterDataset;
+import org.jfree.data.Range;
+import org.jfree.data.ValueDataset;
+import org.jfree.io.SerialUtilities;
+import org.jfree.util.ObjectUtils;
 
 /**
  * A plot that displays a single value in the context of several ranges ('normal', 'warning'
@@ -73,16 +90,7 @@ import org.jfree.data.MeterDataset;
  *
  * @author Hari
  */
-public class MeterPlot extends Plot implements Serializable {
-
-    /** Constant for meter type 'pie'. */
-    public static final int DIALTYPE_PIE = 0;
-
-    /** Constant for meter type 'circle'. */
-    public static final int DIALTYPE_CIRCLE = 1;
-
-    /** Constant for meter type 'chord'. */
-    public static final int DIALTYPE_CHORD = 2;
+public class MeterPlot extends Plot implements Serializable, Cloneable {
 
     /** The default text for the normal level. */
     public static final String NORMAL_TEXT = "Normal";
@@ -135,8 +143,38 @@ public class MeterPlot extends Plot implements Serializable {
     /** Constant for the label type. */
     public static final int VALUE_LABELS = 1;
 
-    /** The dial type (background shape). */
-    private int dialType = DIALTYPE_CIRCLE;
+    /** The dataset. */
+    private ValueDataset dataset;
+
+    /** The units displayed on the dial. */    
+    private String units;
+    
+    /** The overall range. */
+    private Range range;
+    
+    /** The normal range. */
+    private Range normalRange;
+    
+    /** The warning range. */
+    private Range warningRange;
+    
+    /** The critical range. */
+    private Range criticalRange;
+    
+    /** The outline paint. */
+    private Paint dialOutlinePaint;
+
+    /** The 'normal' level color. */
+    private transient Paint normalPaint = DEFAULT_NORMAL_PAINT;
+
+    /** The 'warning' level color. */
+    private transient Paint warningPaint = DEFAULT_WARNING_PAINT;
+
+    /** The 'critical' level color. */
+    private transient Paint criticalPaint = DEFAULT_CRITICAL_PAINT;
+
+    /** The dial shape (background shape). */
+    private DialShape shape = DialShape.CIRCLE;
 
     /** The paint for the dial background. */
     private transient Paint dialBackgroundPaint;
@@ -156,18 +194,6 @@ public class MeterPlot extends Plot implements Serializable {
     /** The tick label font. */
     private Font tickLabelFont;
 
-    /** The 'normal' level color. */
-    private transient Paint normalPaint = DEFAULT_NORMAL_PAINT;
-
-    /** The 'warning' level color. */
-    private transient Paint warningPaint = DEFAULT_WARNING_PAINT;
-
-    /** The 'critical' level color. */
-    private transient Paint criticalPaint = DEFAULT_CRITICAL_PAINT;
-
-    /** The color of the border around the dial. */
-    private Color dialBorderColor;
-
     /** A flag that controls whether or not the border is drawn. */
     private boolean drawBorder;
 
@@ -176,6 +202,10 @@ public class MeterPlot extends Plot implements Serializable {
 
     /** ??? */
     private double meterRange = -1;
+
+    /** The resourceBundle for the localization. */
+    static protected ResourceBundle localizationResources = 
+                            ResourceBundle.getBundle("org.jfree.chart.plot.LocalizationBundle");
 
     /** The dial extent. */
     private int meterAngle = DEFAULT_METER_ANGLE;
@@ -186,12 +216,17 @@ public class MeterPlot extends Plot implements Serializable {
     /**
      * Default constructor.
      *
-     * @param data  The dataset.
+     * @param dataset  The dataset.
      */
-    public MeterPlot(MeterDataset data) {
+    public MeterPlot(ValueDataset dataset) {
 
-        super(data);
+        super();
 
+        this.units = "Units";
+        this.range = new Range(0.0, 100.0);
+        this.normalRange = new Range(0.0, 60.0);
+        this.warningRange = new Range(60.0, 90.0);
+        this.criticalRange = new Range(90.0, 100.0);
         this.tickLabelType = MeterPlot.VALUE_LABELS;
         this.tickLabelFont = MeterPlot.DEFAULT_LABEL_FONT;
 
@@ -200,30 +235,122 @@ public class MeterPlot extends Plot implements Serializable {
         this.valueFont = MeterPlot.DEFAULT_VALUE_FONT;
         this.valuePaint = MeterPlot.DEFAULT_VALUE_PAINT;
 
+		this.setDataset(dataset);
     }
 
     /**
-     * Returns the type of dial (DIALTYPE_PIE, DIALTYPE_CIRCLE, DIALTYPE_CHORD).
-     *
-     * @return The dial type.
+     * Returns the units for the dial.
+     * 
+     * @return The units.
      */
-    public int getDialType() {
-        return this.dialType;
+    public String getUnits() {
+        return this.units;
     }
-
+    
     /**
-     * Sets the dial type (background shape).
-     * <P>
-     * This controls the shape of the dial background.  Use one of the constants:
-     * DIALTYPE_PIE, DIALTYPE_CIRCLE, or DIALTYPE_CHORD.
-     *
-     * @param type The dial type.
+     * Sets the units for the dial.
+     * 
+     * @param units  the units.
      */
-    public void setDialType(int type) {
-        this.dialType = type;
+    public void setUnits(String units) {
+        this.units = units;    
         notifyListeners(new PlotChangeEvent(this));
     }
-
+    
+    /**
+     * Returns the overall range for the dial.
+     * 
+     * @return The overall range.
+     */
+    public Range getRange() {
+        return this.range;    
+    }
+    
+    /**
+     * Sets the overall range for the dial.
+     * 
+     * @param range  the range.
+     */
+    public void setRange(Range range) {
+        this.range = range;    
+    }
+    
+    /**
+     * Returns the normal range for the dial.
+     * 
+     * @return The normal range.
+     */
+    public Range getNormalRange() {
+        return this.normalRange;    
+    }
+    
+    /**
+     * Sets the normal range for the dial.
+     * 
+     * @param range  the range.
+     */
+    public void setNormalRange(Range range) {
+        this.normalRange = range;    
+        notifyListeners(new PlotChangeEvent(this));
+    }
+    
+    /**
+     * Returns the warning range for the dial.
+     * 
+     * @return The warning range.
+     */
+    public Range getWarningRange() {
+        return this.warningRange;    
+    }
+    
+    /**
+     * Sets the warning range for the dial.
+     * 
+     * @param range  the range.
+     */
+    public void setWarningRange(Range range) {
+        this.warningRange = range;    
+        notifyListeners(new PlotChangeEvent(this));
+    }
+    
+    /**
+     * Returns the critical range for the dial.
+     * 
+     * @return The critical range.
+     */
+    public Range getCriticalRange() {
+        return this.criticalRange;    
+    }
+    
+    /**
+     * Sets the critical range for the dial.
+     * 
+     * @param range  the range.
+     */
+    public void setCriticalRange(Range range) {
+        this.criticalRange = range;    
+        notifyListeners(new PlotChangeEvent(this));
+    }
+    
+    /**
+     * Returns the dial shape.
+     * 
+     * @return The dial shape.
+     */
+    public DialShape getDialShape() {
+        return this.shape;
+    }
+    
+    /**
+     * Sets the dial shape.
+     * 
+     * @param shape  the shape.
+     */
+    public void setDialShape(DialShape shape) {
+        this.shape = shape;
+        notifyListeners(new PlotChangeEvent(this));
+    }
+    
     /**
      * Returns the paint for the dial background.
      *
@@ -475,32 +602,56 @@ public class MeterPlot extends Plot implements Serializable {
     }
 
     /**
-     * Returns the color of the border for the dial.
+     * Returns the dial outline paint.
      *
-     * @return the color of the border for the dial.
+     * @return The paint.
      */
-    public Color getDialBorderColor() {
-        return this.dialBorderColor;
+    public Paint getDialOutlinePaint() {
+        return this.dialOutlinePaint;
     }
 
     /**
-     * Sets the color for the border of the dial.
+     * Sets the dial outline paint.
      *
-     * @param color  the color.
+     * @param paint  the paint.
      */
-    public void setDialBorderColor(Color color) {
-        this.dialBorderColor = color;
+    public void setDialOutlinePaint(Paint paint) {
+        this.dialOutlinePaint = paint;
     }
 
     /**
-     * Returns the dataset for the plot, cast as a MeterDataset.
-     * <P>
-     * Provided for convenience.
-     *
-     * @return the dataset for the plot, cast as a MeterDataset.
+     * Returns the primary dataset for the plot.
+     * 
+     * @return The primary dataset (possibly <code>null</code>).
      */
-    public MeterDataset getMeterDataset() {
-        return (MeterDataset) getDataset();
+    public ValueDataset getDataset() {
+        return this.dataset;
+    }
+    
+    /**
+     * Sets the dataset for the plot, replacing the existing dataset if there is one.
+     * 
+     * @param dataset  the dataset (<code>null</code> permitted).
+     */
+    public void setDataset(ValueDataset dataset) {
+        
+        // if there is an existing dataset, remove the plot from the list of change listeners...
+        ValueDataset existing = this.dataset;
+        if (existing != null) {
+            existing.removeChangeListener(this);
+        }
+
+        // set the new dataset, and register the chart as a change listener...
+        this.dataset = dataset;
+        if (dataset != null) {
+            setDatasetGroup(dataset.getGroup());
+            dataset.addChangeListener(this);
+        }
+
+        // send a dataset change event to self...
+        DatasetChangeEvent event = new DatasetChangeEvent(this, dataset);
+        datasetChanged(event);
+        
     }
 
     /**
@@ -526,11 +677,11 @@ public class MeterPlot extends Plot implements Serializable {
     /**
      * Draws the plot on a Java 2D graphics device (such as the screen or a printer).
      *
-     * @param g2  The graphics device.
-     * @param plotArea  The area within which the plot should be drawn.
-     * @param info  Collects info about the drawing.
+     * @param g2  the graphics device.
+     * @param plotArea  the area within which the plot should be drawn.
+     * @param info  collects info about the drawing.
      */
-    public void draw(Graphics2D g2, Rectangle2D plotArea, ChartRenderingInfo info) {
+    public void draw(Graphics2D g2, Rectangle2D plotArea, PlotRenderingInfo info) {
 
         if (info != null) {
             info.setPlotArea(plotArea);
@@ -562,16 +713,14 @@ public class MeterPlot extends Plot implements Serializable {
         double meterY = plotArea.getY() + gapVertical / 2;
         double meterW = plotArea.getWidth() - gapHorizontal;
         double meterH = plotArea.getHeight() - gapVertical
-                        + ((meterAngle <= 180) && (dialType != DIALTYPE_CIRCLE)
+                        + ((meterAngle <= 180) && (this.shape != DialShape.CIRCLE)
                            ? plotArea.getHeight() / 1.25 : 0);
 
-        {
-            double min = Math.min(meterW, meterH) / 2;
-            meterX = (meterX + meterX + meterW) / 2 - min;
-            meterY = (meterY + meterY + meterH) / 2 - min;
-            meterW = 2 * min;
-            meterH = 2 * min;
-        }
+        double min = Math.min(meterW, meterH) / 2;
+        meterX = (meterX + meterX + meterW) / 2 - min;
+        meterY = (meterY + meterY + meterH) / 2 - min;
+        meterW = 2 * min;
+        meterH = 2 * min;
 
         Rectangle2D meterArea = new Rectangle2D.Double(meterX,
                                                        meterY,
@@ -587,10 +736,12 @@ public class MeterPlot extends Plot implements Serializable {
         double meterMiddleY = meterArea.getCenterY();
 
         // plot the data (unless the dataset is null)...
-        MeterDataset data = getMeterDataset();
+        ValueDataset data = getDataset();
         if (data != null) {
-            double dataMin = data.getMinimumValue().doubleValue();
-            double dataMax = data.getMaximumValue().doubleValue();
+            //double dataMin = data.getMinimumValue().doubleValue();
+            //double dataMax = data.getMaximumValue().doubleValue();
+            double dataMin = this.range.getLowerBound();
+            double dataMax = this.range.getUpperBound();
             minMeterValue = dataMin;
 
             meterCalcAngle = 180 + ((meterAngle - 180) / 2);
@@ -609,10 +760,10 @@ public class MeterPlot extends Plot implements Serializable {
             drawArcFor(g2, meterArea, data, MeterDataset.WARNING_DATA);
             drawArcFor(g2, meterArea, data, MeterDataset.CRITICAL_DATA);
 
-            if (data.isValueValid()) {
+            if (data.getValue() != null) {
 
                 double dataVal = data.getValue().doubleValue();
-                drawTick(g2, meterArea, dataVal, true, this.valuePaint, true, data.getUnits());
+                drawTick(g2, meterArea, dataVal, true, this.valuePaint, true, getUnits());
 
                 g2.setPaint(this.needlePaint);
                 g2.setStroke(new BasicStroke(2.0f));
@@ -667,64 +818,63 @@ public class MeterPlot extends Plot implements Serializable {
      * @param data The dataset.
      * @param type The level.
      */
-    void drawArcFor(Graphics2D g2, Rectangle2D meterArea, MeterDataset data, int type) {
+    void drawArcFor(Graphics2D g2, Rectangle2D meterArea, ValueDataset data, int type) {
 
-        Number minValue = null;
-        Number maxValue = null;
+        double minValue = 0.0;
+        double maxValue = 0.0;
         Paint paint = null;
 
         switch (type) {
 
             case MeterDataset.NORMAL_DATA:
-                minValue = data.getMinimumNormalValue();
-                maxValue = data.getMaximumNormalValue();
+                minValue = this.normalRange.getLowerBound();
+                maxValue = this.normalRange.getUpperBound();
                 paint = getNormalPaint();
                 break;
 
             case MeterDataset.WARNING_DATA:
-                minValue = data.getMinimumWarningValue();
-                maxValue = data.getMaximumWarningValue();
+                minValue = this.warningRange.getLowerBound();
+                maxValue = this.warningRange.getUpperBound();
                 paint = getWarningPaint();
                 break;
 
             case MeterDataset.CRITICAL_DATA:
-                minValue = data.getMinimumCriticalValue();
-                maxValue = data.getMaximumCriticalValue();
+                minValue = this.criticalRange.getLowerBound();
+                maxValue = this.criticalRange.getUpperBound();
                 paint = getCriticalPaint();
                 break;
 
             case MeterDataset.FULL_DATA:
-                minValue = data.getMinimumValue();
-                maxValue = data.getMaximumValue();
-                paint = DEFAULT_BACKGROUND_PAINT;
+                minValue = this.range.getLowerBound();
+                maxValue = this.range.getUpperBound();
+               paint = DEFAULT_BACKGROUND_PAINT;
                 break;
 
             default:
                 return;
         }
 
-        if (minValue != null && maxValue != null) {
-            if (data.getBorderType() == type) {
-                drawArc(g2, meterArea,
-                        minValue.doubleValue(),
-                        data.getMinimumValue().doubleValue(),
-                        paint);
-                drawArc(g2, meterArea,
-                        data.getMaximumValue().doubleValue(),
-                        maxValue.doubleValue(),
-                        paint);
-            }
-            else {
-                drawArc(g2, meterArea,
-                        minValue.doubleValue(),
-                        maxValue.doubleValue(),
-                        paint);
-            }
+//        if (data.getBorderType() == type) {
+//            drawArc(g2, meterArea,
+//                    minValue.doubleValue(),
+//                    data.getMinimumValue().doubleValue(),
+//                    paint);
+//            drawArc(g2, meterArea,
+//                    data.getMaximumValue().doubleValue(),
+//                    maxValue.doubleValue(),
+//                    paint);
+//        }
+//        else {
+        drawArc(g2, meterArea,
+                minValue,
+                maxValue,
+                paint);
+//        }
 
             // draw a tick at each end of the range...
-            drawTick(g2, meterArea, minValue.doubleValue(), true, paint);
-            drawTick(g2, meterArea, maxValue.doubleValue(), true, paint);
-        }
+            drawTick(g2, meterArea, minValue, true, paint);
+            drawTick(g2, meterArea, maxValue, true, paint);
+        //}
 
     }
 
@@ -773,22 +923,24 @@ public class MeterPlot extends Plot implements Serializable {
 
         int joinType = Arc2D.OPEN;
         if (outlineType > 0) {
-            switch (dialType) {
-                case DIALTYPE_PIE:
+            if (this.shape == DialShape.PIE) {
+                joinType = Arc2D.PIE;
+            }
+            else if (this.shape == DialShape.CHORD) {
+                if (meterAngle > 180) {
+                    joinType = Arc2D.CHORD;
+                }
+                else {
                     joinType = Arc2D.PIE;
-                    break;
-                case DIALTYPE_CHORD:
-                    if (meterAngle > 180) {
-                        joinType = Arc2D.CHORD;
-                    }
-                    else {
-                        joinType = Arc2D.PIE;
-                    }
-                    break;
-                case DIALTYPE_CIRCLE:
-                    joinType = Arc2D.PIE;
-                    extent = 360;
-                    break;
+                }
+            }
+            else if (this.shape == DialShape.CIRCLE) {
+                joinType = Arc2D.PIE;
+                extent = 360;
+            }
+            else {
+                throw new IllegalStateException("MeterPlot.drawArc(...): "
+                                              + "dialType not recognised.");
             }
         }
         Arc2D.Double arc = new Arc2D.Double(x, y, w, h, startAngle, extent, joinType);
@@ -951,7 +1103,7 @@ public class MeterPlot extends Plot implements Serializable {
      * @return always <i>Meter Plot</i>.
      */
     public String getPlotType() {
-        return "Meter Plot";
+        return localizationResources.getString("Meter_Plot");
     }
 
     /**
@@ -963,6 +1115,173 @@ public class MeterPlot extends Plot implements Serializable {
      * @param percent   The zoom percentage.
      */
     public void zoom(double percent) {
+    }
+    
+    /**
+     * Tests an object for equality with this plot.
+     * 
+     * @param object  the object.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
+    
+        if (object == null) {
+            return false;    
+        }
+        
+        if (object == this) {
+            return true;
+        }
+        
+        if (object instanceof MeterPlot && super.equals(object)) {
+            MeterPlot p = (MeterPlot) object;
+            //private ValueDataset dataset <-- ignored
+            boolean b0 = (this.units.equals(p.units));
+            boolean b1 = (this.range.equals(p.range));
+            boolean b2 = (this.normalRange.equals(p.normalRange));
+            boolean b3 = (this.warningRange.equals(p.warningRange));
+            boolean b4 = (this.criticalRange.equals(p.criticalRange));
+            boolean b5 = ObjectUtils.equal(this.dialOutlinePaint, p.dialOutlinePaint);
+            boolean b6 = ObjectUtils.equal(this.normalPaint, p.normalPaint);
+            boolean b7 = ObjectUtils.equal(this.warningPaint, p.warningPaint);
+            boolean b8 = ObjectUtils.equal(this.criticalPaint, p.criticalPaint);
+            boolean b9 = (this.shape == p.shape);
+            boolean b10 = ObjectUtils.equal(this.dialBackgroundPaint, p.dialBackgroundPaint);
+            boolean b11 = ObjectUtils.equal(this.needlePaint, p.needlePaint);
+            boolean b12 = ObjectUtils.equal(this.valueFont, p.valueFont);
+            boolean b13 = ObjectUtils.equal(this.valuePaint, p.valuePaint);
+            //private int tickLabelType;
+            //private Font tickLabelFont;
+            //private boolean drawBorder;
+            //private int meterCalcAngle = -1;
+            //private double meterRange = -1;
+            //private int meterAngle = DEFAULT_METER_ANGLE;
+            //private double minMeterValue = 0.0;
+            return b0 && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 
+                && b10 && b11 && b12 && b13;
+                        
+        }
+        
+        return false;
+        
+    }
+    
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the output stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     */
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+    
+        stream.defaultWriteObject();
+        SerialUtilities.writePaint(this.criticalPaint, stream);
+        SerialUtilities.writePaint(this.dialBackgroundPaint, stream);
+        SerialUtilities.writePaint(this.needlePaint, stream);
+        SerialUtilities.writePaint(this.normalPaint, stream);
+        SerialUtilities.writePaint(this.valuePaint, stream);
+        SerialUtilities.writePaint(this.warningPaint, stream);
+    
+    }
+    
+    /**
+     * Provides serialization support.
+     *
+     * @param stream  the input stream.
+     *
+     * @throws IOException  if there is an I/O error.
+     * @throws ClassNotFoundException  if there is a classpath problem.
+     */
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+    
+        stream.defaultReadObject();
+        this.criticalPaint = SerialUtilities.readPaint(stream);
+        this.dialBackgroundPaint = SerialUtilities.readPaint(stream);
+        this.needlePaint = SerialUtilities.readPaint(stream);
+        this.normalPaint = SerialUtilities.readPaint(stream);
+        this.valuePaint = SerialUtilities.readPaint(stream);
+        this.warningPaint = SerialUtilities.readPaint(stream);
+          
+        if (dataset != null) dataset.addChangeListener(this);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // DEPRECATED
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    
+    /** Constant for meter type 'pie'. */
+    public static final int DIALTYPE_PIE = 0;
+
+    /** Constant for meter type 'circle'. */
+    public static final int DIALTYPE_CIRCLE = 1;
+
+    /** Constant for meter type 'chord'. */
+    public static final int DIALTYPE_CHORD = 2;
+
+    /**
+     * Returns the type of dial (DIALTYPE_PIE, DIALTYPE_CIRCLE, DIALTYPE_CHORD).
+     *
+     * @return The dial type.
+     * 
+     * @deprecated Use getDialShape().
+     */
+    public int getDialType() {
+        if (this.shape == DialShape.CIRCLE) {
+            return MeterPlot.DIALTYPE_CIRCLE;
+        }
+        else if (this.shape == DialShape.CHORD) {
+            return MeterPlot.DIALTYPE_CHORD;
+        }
+        else if (this.shape == DialShape.PIE) {
+            return MeterPlot.DIALTYPE_PIE;
+        }
+        else {
+            throw new IllegalStateException("MeterPlot.getDialType: unrecognised dial type.");
+        }        
+    }
+
+    /**
+     * Sets the dial type (background shape).
+     * <P>
+     * This controls the shape of the dial background.  Use one of the constants:
+     * DIALTYPE_PIE, DIALTYPE_CIRCLE, or DIALTYPE_CHORD.
+     *
+     * @param type The dial type.
+     * 
+     * @deprecated Use setDialShape(...).
+     */
+    public void setDialType(int type) {
+        switch (type) {
+            case MeterPlot.DIALTYPE_CIRCLE:
+                setDialShape(DialShape.CIRCLE);
+                break;
+            case MeterPlot.DIALTYPE_CHORD:
+                setDialShape(DialShape.CHORD);
+                break;
+            case MeterPlot.DIALTYPE_PIE:
+                setDialShape(DialShape.PIE);
+                break;
+            default:
+                throw new IllegalArgumentException("MeterPlot.setDialType: unrecognised type.");
+        }
+    }
+
+    /** 
+     * Correct cloning support, management of deeper copies and listeners
+     * @see Plot#clone()
+     */
+    public Object clone() throws CloneNotSupportedException {
+        MeterPlot clone = (MeterPlot) super.clone();
+
+        if (clone.dataset != null) clone.dataset.addChangeListener(clone); 
+
+		// range immutable -> OK
+        // DialShape immutable -> OK
+        // private DialShape shape = DialShape.CIRCLE;
+
+        return clone;
     }
 
 }

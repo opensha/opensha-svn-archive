@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors;
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors;
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------
  * JCommonTestSuite.java
  * ---------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -33,6 +33,7 @@
  * -------
  * 11-Nov-2001 : Version 1 (DG);
  * 02-Sep-2002 : Removed DataPackageTests (DG);
+ * 18-Sep-2003 : Added new org.jfree.io package tests (DG);
  *
  */
 
@@ -41,7 +42,10 @@ package org.jfree.junit;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
 import org.jfree.date.junit.DatePackageTests;
+import org.jfree.io.junit.IOPackageTests;
+import org.jfree.util.junit.UtilPackageTests;
 
 /**
  * A test suite for the JCommon class library that can be run using JUnit (http://www.junit.org).
@@ -58,6 +62,8 @@ public class JCommonTestSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("JCommon");
         suite.addTest(DatePackageTests.suite());
+        suite.addTest(IOPackageTests.suite());
+        suite.addTest(UtilPackageTests.suite());
         return suite;
     }
 

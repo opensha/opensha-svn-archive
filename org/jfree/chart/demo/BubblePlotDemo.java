@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * BubblePlotDemo.java
  * -------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,12 +37,13 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.data.XYZDataset;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.XYZDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -62,11 +63,37 @@ public class BubblePlotDemo extends ApplicationFrame {
 
         super(title);
         XYZDataset data = new SampleXYZDataset();
-        JFreeChart chart = ChartFactory.createBubbleChart("Bubble Plot Demo",
-                                                          "X", "Y", data, true, true, false);
+        JFreeChart chart = createChart(data);
+        
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        chartPanel.setVerticalZoom(true);
+        chartPanel.setHorizontalZoom(true);
+        setContentPane(chartPanel);
+
+    }
+    
+    /**
+     * Creates a chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return The chart.
+     */
+    private JFreeChart createChart(XYZDataset dataset) {
+        JFreeChart chart = ChartFactory.createBubbleChart(
+            "Bubble Plot Demo",
+            "X", 
+            "Y", 
+            dataset, 
+            PlotOrientation.VERTICAL,
+            true, 
+            true, 
+            false
+        );
         XYPlot plot = chart.getXYPlot();
         plot.setForegroundAlpha(0.65f);
-        
+
         // increase the margins to account for the fact that the auto-range doesn't take into
         // account the bubble size...
         NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
@@ -75,12 +102,7 @@ public class BubblePlotDemo extends ApplicationFrame {
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setLowerMargin(0.15);
         rangeAxis.setUpperMargin(0.15);
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        chartPanel.setVerticalZoom(true);
-        chartPanel.setHorizontalZoom(true);
-        setContentPane(chartPanel);
-
+        return chart;
     }
 
     /**

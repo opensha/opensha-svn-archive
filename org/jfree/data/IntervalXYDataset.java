@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,10 +22,10 @@
  * ----------------------
  * IntervalXYDataset.java
  * ----------------------
- * (C) Copyright 2001-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, by Object Refinery Limited and Contributors.
  *
  * Original Author:  Mark Watson (www.markwatson.com);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -39,7 +39,7 @@
 package org.jfree.data;
 
 /**
- * An extension of the XYDataset interface that allows a range of data to be
+ * An extension of the {@link XYDataset} interface that allows a range of data to be
  * defined for the X values, the Y values, or both the X and Y values.
  * <P>
  * This versatile interface will be used to support (among other things) bar

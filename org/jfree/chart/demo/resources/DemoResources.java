@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This program is free software; you can redistribute it and/or modify it under the terms
  * of the GNU General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * DemoResources.java
  * ------------------
- * (C) Copyright 2002, by Simba Management Limited.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -67,25 +67,25 @@ public class DemoResources extends ListResourceBundle {
     private static final Object[][] CONTENTS = {
 
         // about frame...
-        { "about.title", "About..."},
-        { "about.version.label", "Version"},
+        {"about.title", "About..."},
+        {"about.version.label", "Version"},
 
         // menu labels...
-        { "menu.file", "File"},
-        { "menu.file.mnemonic", new Character('F') },
+        {"menu.file", "File"},
+        {"menu.file.mnemonic", new Character('F') },
 
-        { "menu.file.exit", "Exit"},
-        { "menu.file.exit.mnemonic", new Character('x') },
+        {"menu.file.exit", "Exit"},
+        {"menu.file.exit.mnemonic", new Character('x') },
 
-        { "menu.help", "Help"},
-        { "menu.help.mnemonic", new Character('H')},
+        {"menu.help", "Help"},
+        {"menu.help.mnemonic", new Character('H')},
 
-        { "menu.help.about", "About..."},
-        { "menu.help.about.mnemonic", new Character('A')},
+        {"menu.help.about", "About..."},
+        {"menu.help.about.mnemonic", new Character('A')},
 
         // dialog messages...
-        { "dialog.exit.title", "Confirm exit..."},
-        { "dialog.exit.message", "Are you sure you want to exit?"},
+        {"dialog.exit.title", "Confirm exit..."},
+        {"dialog.exit.message", "Are you sure you want to exit?"},
 
         // labels for the tabs in the main window...
         // Maximum of Twenty (20) charts per page.
@@ -369,7 +369,7 @@ public class DemoResources extends ListResourceBundle {
         {"timeseries.sample1.subtitle",  "Value of GBP in JPY"},
         {"timeseries.sample1.domain",    "Date"},
         {"timeseries.sample1.range",     "CCY per GBP"},
-        {"timeseries.sample1.copyright", "(C)opyright 2002, by Simba Management Limited"},
+        {"timeseries.sample1.copyright", "(C)opyright 2002, by Object Refinery Limited"},
 
         {"timeseries.sample2.title",    "Time Series Chart 2"},
         {"timeseries.sample2.domain",   "Millisecond"},
@@ -450,19 +450,19 @@ public class DemoResources extends ListResourceBundle {
 
         {"combined.horizontal.title",     "Horizontal Combined Chart"},
         {"combined.horizontal.subtitle",  "Time Series and XY Bar Charts"},
-        {"combined.horizontal.domains",   new String[] {"Date 1", "Date 2", "Date 3"} },
+        {"combined.horizontal.domains",   new String[] {"Date 1", "Date 2", "Date 3"}},
         {"combined.horizontal.range",     "CCY per GBP"},
 
         {"combined.vertical.title",     "Vertical Combined Chart"},
         {"combined.vertical.subtitle",  "Four charts in one"},
         {"combined.vertical.domain",    "Date"},
-        {"combined.vertical.ranges",    new String[] {"CCY per GBP", "Pounds", "IBM", "Bars"} },
+        {"combined.vertical.ranges",    new String[] {"CCY per GBP", "Pounds", "IBM", "Bars"}},
 
         {"combined.combined-overlaid.title",    "Combined and Overlaid Chart"},
         {"combined.combined-overlaid.subtitle", "XY, Overlaid (two TimeSeries) and Overlaid "
                                                 + "(HighLow and TimeSeries)"},
         {"combined.combined-overlaid.domain",   "Date"},
-        {"combined.combined-overlaid.ranges",   new String[] {"CCY per GBP", "Pounds", "IBM"} },
+        {"combined.combined-overlaid.ranges",   new String[] {"CCY per GBP", "Pounds", "IBM"}},
 
         {"combined.dynamic.title",    "Dynamic Combined Chart"},
         {"combined.dynamic.subtitle", "XY (series 0), XY (series 1), Overlaid (both series) "

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -38,11 +38,12 @@ package org.jfree.chart.servlet;
 
 import java.io.File;
 import java.io.IOException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * Servlet used for streaming charts to the client browser from the temporary
@@ -51,7 +52,7 @@ import javax.servlet.http.HttpServletResponse;
  * <xmp>
  * <servlet>
  *    <servlet-name>DisplayChart</servlet-name>
- *    <servlet-class>com.jrefinery.chart.servlet.DisplayChart</servlet-class>
+ *    <servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
  * </servlet>
  * <servlet-mapping>
  *     <servlet-name>DisplayChart</servlet-name>

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * MeterPlotTests.java
  * -------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -75,20 +75,36 @@ public class MeterPlotTests extends TestCase {
         super(name);
     }
 
+//    /**
+//     * Test the equals method.
+//     */
+//    public void testEquals() {
+//        MeterPlot plot1 = new MeterPlot();
+//        MeterPlot plot2 = new MeterPlot();
+//        assertTrue(plot1.equals(plot2));    
+//        
+//        // labelType...
+//        plot1.setLabelType(CompassPlot.VALUE_LABELS);
+//        assertFalse(plot1.equals(plot2));
+//        plot2.setLabelType(CompassPlot.VALUE_LABELS);
+//        assertTrue(plot1.equals(plot2));
+//        
+//    }
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         MeterPlot p1 = new MeterPlot(null);
         MeterPlot p2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(p1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             p2 = (MeterPlot) in.readObject();
             in.close();
@@ -96,8 +112,8 @@ public class MeterPlotTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(p1, p2); 
-        
+        assertEquals(p1, p2);
+
     }
 
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -26,7 +26,8 @@
  *
  * Original Author:  Dan Rivett (adapted from AreaCategoryItemRenderer);
  * Contributor(s):   Jon Iles;
- *                   David Gilbert (for Simba Management Limited);
+ *                   David Gilbert (for Object Refinery Limited);
+ *                   Christian W. Zuckschwerdt;
  *
  * $Id$
  *
@@ -43,7 +44,9 @@
  * 26-Nov-2002 : Replaced isStacked() method with getRangeType() method (DG);
  * 17-Jan-2003 : Moved plot classes to a separate package (DG);
  * 25-Mar-2003 : Implemented Serializable (DG);
- *
+ * 13-May-2003 : Modified to take into account the plot orientation (DG);
+ * 30-Jul-2003 : Modified entity constructor (CZ);
+ * 
  */
 
 package org.jfree.chart.renderer;
@@ -58,38 +61,26 @@ import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.CategoryItemEntity;
 import org.jfree.chart.entity.EntityCollection;
+import org.jfree.chart.labels.CategoryItemLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.tooltips.CategoryToolTipGenerator;
-import org.jfree.chart.urls.CategoryURLGenerator;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.CategoryDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.util.PublicCloneable;
 
 /**
- * A category item renderer that draws stacked area charts. 
- * <p>
- * For use with the {@link org.jfree.chart.plot.VerticalCategoryPlot} class.
+ * A renderer that draws stacked area charts for a {@link org.jfree.chart.plot.CategoryPlot}.
  *
  * @author Dan Rivett
  */
-public class StackedAreaRenderer extends AreaRenderer implements Serializable {
+public class StackedAreaRenderer extends AreaRenderer 
+                                 implements Cloneable, PublicCloneable, Serializable {
 
     /**
      * Creates a new renderer.
      */
     public StackedAreaRenderer() {
-        this(null, null);
-    }
-
-    /**
-     * Creates a new renderer.
-     *
-     * @param toolTipGenerator  the tool tip generator (<code>null</code> permitted).
-     * @param urlGenerator  the URL generator (<code>null</code> permitted).
-     */
-    public StackedAreaRenderer(CategoryToolTipGenerator toolTipGenerator,
-                               CategoryURLGenerator urlGenerator) {
-
-        super(toolTipGenerator, urlGenerator);
-
+        super();
     }
 
     /**
@@ -97,8 +88,8 @@ public class StackedAreaRenderer extends AreaRenderer implements Serializable {
      *
      * @return the range type.
      */
-    public int getRangeType() {
-        return CategoryItemRenderer.STACKED;
+    public RangeType getRangeType() {
+        return RangeType.STACKED;
     }
 
     /**
@@ -109,8 +100,7 @@ public class StackedAreaRenderer extends AreaRenderer implements Serializable {
      * @param plot  the plot.
      * @param domainAxis  the domain axis.
      * @param rangeAxis  the range axis.
-     * @param data  the data.
-     * @param dataset  the dataset index (zero-based).
+     * @param dataset  the data.
      * @param row  the row index (zero-based).
      * @param column  the column index (zero-based).
      */
@@ -119,85 +109,102 @@ public class StackedAreaRenderer extends AreaRenderer implements Serializable {
                          CategoryPlot plot,
                          CategoryAxis domainAxis,
                          ValueAxis rangeAxis,
-                         CategoryDataset data,
-                         int dataset,
+                         CategoryDataset dataset,
                          int row,
                          int column) {
 
         // plot non-null values...
-        Number value = data.getValue(row, column);
-        if (value != null) {
-            // leave the y values (y1, y0) untranslated as it is going to be be stacked
-            // up later by previous series values, after this it will be translated.
-            double x1 = domainAxis.getCategoryMiddle(column, getColumnCount(), dataArea);
-            double y1 = 0.0;  // calculate later
-            double y1Untranslated = value.doubleValue();
+        Number value = dataset.getValue(row, column);
+        if (value == null) {
+            return;
+        }
 
-            g2.setPaint(getItemPaint(dataset, row, column));
-            g2.setStroke(getItemStroke(dataset, row, column));
+        // leave the y values (y1, y0) untranslated as it is going to be be stacked
+        // up later by previous series values, after this it will be translated.
+        double x1 = domainAxis.getCategoryMiddle(column, getColumnCount(), dataArea,
+                                                 plot.getDomainAxisEdge());
+        double y1 = 0.0;  // calculate later
+        double y1Untranslated = value.doubleValue();
 
-            if (column != 0) {
+        g2.setPaint(getItemPaint(row, column));
+        g2.setStroke(getItemStroke(row, column));
 
-                Number previousValue = data.getValue(row, column - 1);
-                if (previousValue != null) {
+        if (column != 0) {
 
-                    double x0 = domainAxis.getCategoryMiddle(column - 1,
-                                                             getColumnCount(), dataArea);
-                    double y0Untranslated = previousValue.doubleValue();
+            Number previousValue = dataset.getValue(row, column - 1);
+            if (previousValue != null) {
 
-                    // Get the previous height, but this will be different for both y0 and y1 as
-                    // the previous series values could differ.
-                    double previousHeightx0Untranslated = getPreviousHeight(data, row, column - 1);
-                    double previousHeightx1Untranslated = getPreviousHeight(data, row, column);
+                double x0 = domainAxis.getCategoryMiddle(column - 1,
+                                                         getColumnCount(), dataArea,
+                                                         plot.getDomainAxisEdge());
+                double y0Untranslated = previousValue.doubleValue();
 
-                    // Now stack the current y values on top of the previous values.
-                    y0Untranslated += previousHeightx0Untranslated;
-                    y1Untranslated += previousHeightx1Untranslated;
+                // Get the previous height, but this will be different for both y0 and y1 as
+                // the previous series values could differ.
+                double previousHeightx0Untranslated = getPreviousHeight(dataset, row, column - 1);
+                double previousHeightx1Untranslated = getPreviousHeight(dataset, row, column);
 
-                    // Now translate the previous heights
-                    double previousHeightx0
-                        = rangeAxis.translateValueToJava2D(previousHeightx0Untranslated, dataArea);
-                    double previousHeightx1
-                        = rangeAxis.translateValueToJava2D(previousHeightx1Untranslated, dataArea);
+                // Now stack the current y values on top of the previous values.
+                y0Untranslated += previousHeightx0Untranslated;
+                y1Untranslated += previousHeightx1Untranslated;
 
-                    // Now translate the current y values.
-                    double y0 = rangeAxis.translateValueToJava2D(y0Untranslated, dataArea);
-                    y1 = rangeAxis.translateValueToJava2D(y1Untranslated, dataArea);
+                // Now translate the previous heights
+                RectangleEdge location = plot.getRangeAxisEdge();
+                double previousHeightx0 
+                    = rangeAxis.translateValueToJava2D(previousHeightx0Untranslated, dataArea, 
+                                                       location);
+                double previousHeightx1
+                    = rangeAxis.translateValueToJava2D(previousHeightx1Untranslated, dataArea, 
+                                                       location);
 
-                    // create the Polygon of these stacked, translated values.
-                    Polygon p = new Polygon();
+                // Now translate the current y values.
+                double y0 = rangeAxis.translateValueToJava2D(y0Untranslated, dataArea, location);
+                y1 = rangeAxis.translateValueToJava2D(y1Untranslated, dataArea, location);
+
+                Polygon p = null;
+                PlotOrientation orientation = plot.getOrientation();
+                if (orientation == PlotOrientation.HORIZONTAL) {
+                    p = new Polygon();
+                    p.addPoint((int) y0, (int) x0);
+                    p.addPoint((int) y1, (int) x1);
+                    p.addPoint((int) previousHeightx1, (int) x1);
+                    p.addPoint((int) previousHeightx0, (int) x0);
+                }
+                else if (orientation == PlotOrientation.VERTICAL) {
+                    p = new Polygon();
                     p.addPoint((int) x0, (int) y0);
                     p.addPoint((int) x1, (int) y1);
                     p.addPoint((int) x1, (int) previousHeightx1);
                     p.addPoint((int) x0, (int) previousHeightx0);
-
-                    g2.setPaint(getItemPaint(dataset, row, column));
-                    g2.setStroke(getItemStroke(dataset, row, column));
-                    g2.fill(p);
                 }
-
-            }
-
-            // collect entity and tool tip information...
-            if (getInfo() != null) {
-                EntityCollection entities = getInfo().getEntityCollection();
-                Shape shape = new Rectangle2D.Double(x1 - 3.0, y1 - 3.0, 6.0, 6.0);
-                if (entities != null && shape != null) {
-                    String tip = null;
-                    if (getToolTipGenerator() != null) {
-                        tip = getToolTipGenerator().generateToolTip(data, row, column);
-                    }
-                    String url = null;
-                    if (getURLGenerator() != null) {
-                        url = getURLGenerator().generateURL(data, row, column);
-                    }
-                    CategoryItemEntity entity = new CategoryItemEntity(shape, tip, url, row, 
-                                                        data.getColumnKey(column), column);
-                    entities.addEntity(entity);
-                }
+                g2.setPaint(getItemPaint(row, column));
+                g2.setStroke(getItemStroke(row, column));
+                g2.fill(p);
             }
 
         }
+
+        // collect entity and tool tip information...
+        if (getInfo() != null) {
+            EntityCollection entities = getInfo().getOwner().getEntityCollection();
+            Shape shape = new Rectangle2D.Double(x1 - 3.0, y1 - 3.0, 6.0, 6.0);
+            if (entities != null && shape != null) {
+                String tip = null;
+                CategoryItemLabelGenerator generator = getItemLabelGenerator(row, column);
+                if (generator != null) {
+                    tip = generator.generateToolTip(dataset, row, column);
+                }
+                String url = null;
+                if (getItemURLGenerator(row, column) != null) {
+                    url = getItemURLGenerator(row, column).generateURL(dataset, row, column);
+                }
+                CategoryItemEntity entity = new CategoryItemEntity(
+                    shape, tip, url, dataset, row, dataset.getColumnKey(column), column
+                );
+                entities.addEntity(entity);
+            }
+        }
+
     }
 
     /**

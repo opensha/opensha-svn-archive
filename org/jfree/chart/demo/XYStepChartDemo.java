@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Roger Studner and Contributors.
  *
  * Original Author:  Roger Studner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -40,9 +40,11 @@ package org.jfree.chart.demo;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.XYDataset;
 import org.jfree.ui.RefineryUtilities;
@@ -71,19 +73,22 @@ public class XYStepChartDemo {
 
             XYDataset data = DemoDatasetFactory.createStepXYDataset();
 
-            JFreeChart chart = ChartFactory.createXYStepChart(title,
-                                                              xAxisLabel, yAxisLabel,
-                                                              data,
-                                                              true,   // legend
-                                                              true,   // tooltips
-                                                              false   // urls
-                                                              );
+            JFreeChart chart = ChartFactory.createXYStepChart(
+                title,
+                xAxisLabel, yAxisLabel,
+                data,
+                PlotOrientation.VERTICAL,
+                true,   // legend
+                true,   // tooltips
+                false   // urls
+            );
 
             // then customise it a little...
             chart.setBackgroundPaint(new Color(216, 216, 216));
             XYPlot plot = chart.getXYPlot();
-            plot.getRenderer().setDefaultStroke(new BasicStroke(2.0f));
-
+            plot.getRenderer().setSeriesStroke(0, new BasicStroke(2.0f));
+            plot.getRenderer().setSeriesStroke(1, new BasicStroke(2.0f));
+            
             // and present it in a frame...
             frame = new ChartFrame("Plan Comparison", chart);
             frame.pack();

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,12 +19,12 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * -----------------------
- * DefaultKeyedValues.java
- * -----------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * ----------------------
+ * DefaultKeyedValue.java
+ * ----------------------
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -33,6 +33,7 @@
  * --------
  * 31-Oct-2002 : Version 1 (DG);
  * 13-Mar-2003 : Added equals(...) method, and implemented Serializable (DG);
+ * 18-Aug-2003 : Implemented Cloneable (DG);
  *
  */
 
@@ -47,7 +48,7 @@ import java.io.Serializable;
  *
  * @author David Gilbert
  */
-public class DefaultKeyedValue implements KeyedValue, Serializable {
+public class DefaultKeyedValue implements KeyedValue, Cloneable, Serializable {
 
     /** The key. */
     private Comparable key;
@@ -89,26 +90,26 @@ public class DefaultKeyedValue implements KeyedValue, Serializable {
      *
      * @param value  the value.
      */
-    public void setValue(Number value) {
+    public synchronized void setValue(Number value) {
         this.value = value;
     }
 
     /**
      * Tests if this object is equal to another.
-     * 
+     *
      * @param o  the other object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object o) {
-    
+
         if (o == null) {
             return false;
         }
         if (o == this) {
             return true;
         }
-        
+
         if (o instanceof KeyedValue) {
             KeyedValue kv = (KeyedValue) o;
             if (this.key.equals(kv.getKey())) {
@@ -120,9 +121,21 @@ public class DefaultKeyedValue implements KeyedValue, Serializable {
                 }
             }
         }
-       
+
         return false;
-            
+
     }
-    
+
+    /**
+     * Returns a clone.  It is assumed that both the key and value are immutable objects,
+     * so only the references are cloned, not the objects themselves.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException Not thrown by this class, but subclasses (if any) might.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        DefaultKeyedValue clone = (DefaultKeyedValue) super.clone();
+        return clone;
+    }
 }

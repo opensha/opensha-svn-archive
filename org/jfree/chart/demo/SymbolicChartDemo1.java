@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------------
  * SymbolicChartDemo.java
  * ----------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,13 +39,13 @@ package org.jfree.chart.demo;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.HorizontalNumberAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SymbolicAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalSymbolicAxis;
+import org.jfree.chart.labels.SymbolicXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
 import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.tooltips.SymbolicXYToolTipGenerator;
 import org.jfree.data.XYDataset;
 import org.jfree.data.YisSymbolic;
 import org.jfree.ui.ApplicationFrame;
@@ -70,16 +70,16 @@ public class SymbolicChartDemo1 extends ApplicationFrame {
         // create a title...
         XYDataset dataset = createDataset();
 
-        ValueAxis domainAxis = new HorizontalNumberAxis("X");
-        VerticalSymbolicAxis symbolicAxis
-            = new VerticalSymbolicAxis("Y", ((YisSymbolic) dataset).getYSymbolicValues());
+        ValueAxis domainAxis = new NumberAxis("X");
+        SymbolicAxis symbolicAxis
+            = new SymbolicAxis("Y", ((YisSymbolic) dataset).getYSymbolicValues());
 
-        XYPlot plot = new XYPlot(dataset, domainAxis, symbolicAxis);
+        XYPlot plot = new XYPlot(dataset, domainAxis, symbolicAxis, null);
         XYItemRenderer renderer = new StandardXYItemRenderer(StandardXYItemRenderer.SHAPES,
                                                              new SymbolicXYToolTipGenerator());
         plot.setRenderer(renderer);
         JFreeChart chart = new JFreeChart(title, plot);
-   
+
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);

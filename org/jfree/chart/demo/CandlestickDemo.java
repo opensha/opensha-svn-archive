@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * CandlestickDemo.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,9 +37,10 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.HighLowDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
@@ -61,19 +62,32 @@ public class CandlestickDemo extends ApplicationFrame {
         super(title);
 
         HighLowDataset dataset = DemoDatasetFactory.createHighLowDataset();
-        JFreeChart chart = ChartFactory.createCandlestickChart("Candlestick Demo",
-                                                               "Time", "Value",
-                                                               dataset, true);
-        //XYPlot plot = chart.getXYPlot();
-        //plot.addRangeMarker(new Marker(64, Color.blue));
-        //Calendar calendar = new GregorianCalendar(2001, Calendar.JANUARY, 16);
-        //plot.addDomainMarker(new Marker((double) calendar.getTime().getTime(), Color.blue));
+        JFreeChart chart = createChart(dataset);
+        chart.getXYPlot().setOrientation(PlotOrientation.VERTICAL);
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);
 
     }
 
+    /**
+     * Creates a chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return The dataset.
+     */
+    private JFreeChart createChart(HighLowDataset dataset) {
+        JFreeChart chart = ChartFactory.createCandlestickChart(
+            "Candlestick Demo",
+            "Time", 
+            "Value",
+            dataset, 
+            true
+        );
+        return chart;        
+    }
+    
     /**
      * Starting point for the demonstration application.
      *

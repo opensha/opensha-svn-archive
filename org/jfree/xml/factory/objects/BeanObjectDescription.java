@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -65,7 +65,7 @@ public class BeanObjectDescription extends AbstractObjectDescription {
      *
      * @param className  the class.
      * @param init  set to true, to autmaoticly initialise the object description.
-     * If set to false, the initialisation is elsewhere. 
+     * If set to false, the initialisation is elsewhere.
      */
     public BeanObjectDescription(Class className, boolean init) {
         super(className);

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------
  * LineChartDemo4.java
  * -------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -40,6 +40,7 @@ package org.jfree.chart.demo;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.XYDataset;
 import org.jfree.ui.ApplicationFrame;
@@ -62,22 +63,24 @@ public class LineChartDemo4 extends ApplicationFrame {
         super(title);
 
         // create a dataset...
-        XYDataset dataset = new SampleXYDataset();        
+        XYDataset dataset = new SampleXYDataset();
 
         // create the chart...
-        JFreeChart chart = ChartFactory.createLineXYChart("Line Chart Demo 4",  // chart title
-                                                          "X",                  // x axis label
-                                                          "Y",                  // y axis label
-                                                          dataset,              // data
-                                                          true,                 // include legend
-                                                          true,                 // tooltips
-                                                          false                 // urls
-                                                          );
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Line Chart Demo 4",      // chart title
+            "X",                      // x axis label
+            "Y",                      // y axis label
+            dataset,                  // data
+            PlotOrientation.VERTICAL,  
+            true,                     // include legend
+            true,                     // tooltips
+            false                     // urls
+        );
 
         XYPlot plot = chart.getXYPlot();
         plot.getDomainAxis().setLowerMargin(0.0);
         plot.getDomainAxis().setUpperMargin(0.0);
-        
+
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));

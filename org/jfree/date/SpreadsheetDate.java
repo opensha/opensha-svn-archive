@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * SpreadsheetDate.java
  * --------------------
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -40,6 +40,8 @@
  * 29-May-2002 : Added equals(Object) method (SourceForge ID 558850) (DG);
  * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 13-Mar-2003 : Implemented Serializable (DG);
+ * 04-Sep-2003 : Completed isInRange(...) methods (DG);
+ * 05-Sep-2003 : Implemented Comparable (DG);
  *
  */
 
@@ -264,6 +266,18 @@ public class SpreadsheetDate extends SerialDate implements Serializable {
     }
 
     /**
+     * Implements the method required by the Comparable interface.
+     * 
+     * @param other  the other object (usually another SerialDate).
+     * 
+     * @return A negative integer, zero, or a positive integer as this object is less than, 
+     *         equal to, or greater than the specified object.
+     */
+    public int compareTo(Object other) {
+        return compare((SerialDate) other);    
+    }
+    
+    /**
      * Returns true if this SerialDate represents the same date as the
      * specified SerialDate.
      *
@@ -329,16 +343,16 @@ public class SpreadsheetDate extends SerialDate implements Serializable {
     }
 
     /**
-     * Returns true if this SerialDate is within the specified range
-     * (INCLUSIVE).  The order of d1 d2 is not important.
+     * Returns <code>true</code> if this {@link SerialDate} is within the specified range 
+     * (INCLUSIVE).  The date order of d1 and d2 is not important.
      *
-     * @param d1  one boundary date for the range.
-     * @param d2  a second boundary date for the range.
+     * @param d1  a boundary date for the range.
+     * @param d2  the other boundary date for the range.
      *
-     * @return <code>true</code> if this SerialDate is within the specified range.
+     * @return A boolean.
      */
     public boolean isInRange(SerialDate d1, SerialDate d2) {
-        return false;
+        return isInRange(d1, d2, SerialDate.INCLUDE_BOTH);
     }
 
     /**
@@ -348,12 +362,30 @@ public class SpreadsheetDate extends SerialDate implements Serializable {
      *
      * @param d1  one boundary date for the range.
      * @param d2  a second boundary date for the range.
-     * @param include   if <code>true</code> include d2 in the search.
+     * @param include  a code that controls whether or not the start and end dates are
+     *                 included in the range.
      *
      * @return <code>true</code> if this SerialDate is within the specified range.
      */
     public boolean isInRange(SerialDate d1, SerialDate d2, int include) {
-        return false;
+        int s1 = d1.toSerial();
+        int s2 = d2.toSerial();
+        int start = Math.min(s1, s2);
+        int end = Math.max(s1, s2);
+        
+        int s = toSerial();
+        if (include == SerialDate.INCLUDE_BOTH) {
+            return (s >= start && s <= end);
+        }
+        else if (include == SerialDate.INCLUDE_FIRST) {
+            return (s >= start && s < end);            
+        }
+        else if (include == SerialDate.INCLUDE_SECOND) {
+            return (s > start && s <= end);            
+        }
+        else {
+            return (s > start && s < end);            
+        }    
     }
 
     /**

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2000-2003, by David Berry and Contributors;
  *
  * Original Author:  David Berry;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -40,7 +40,7 @@
  * 25-Jun-2002 : Updated import statements (DG);
  * 23-Sep-2002 : Fixed errors reported by Checkstyle (DG);
  * 26-Nov-2002 : Added method for drawing images at left or right (DG);
- *
+ * 22-Sep-2003 : Added checks that the Image can never be null (TM).
  */
 
 package org.jfree.chart;
@@ -48,6 +48,7 @@ package org.jfree.chart;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.geom.Rectangle2D;
+
 import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.ui.Size2D;
 
@@ -84,12 +85,12 @@ public class ImageTitle extends AbstractTitle {
     public ImageTitle(Image image) {
 
         this(image,
-             image.getHeight(null), 
-             image.getWidth(null),
-             AbstractTitle.DEFAULT_POSITION,
-             AbstractTitle.DEFAULT_HORIZONTAL_ALIGNMENT,
-             AbstractTitle.DEFAULT_VERTICAL_ALIGNMENT,
-             AbstractTitle.DEFAULT_SPACER);
+            image.getHeight(null),
+            image.getWidth(null),
+            AbstractTitle.DEFAULT_POSITION,
+            AbstractTitle.DEFAULT_HORIZONTAL_ALIGNMENT,
+            AbstractTitle.DEFAULT_VERTICAL_ALIGNMENT,
+            AbstractTitle.DEFAULT_SPACER);
 
     }
 
@@ -97,22 +98,22 @@ public class ImageTitle extends AbstractTitle {
      * Creates a new image title.
      *
      * @param image  the image.
-     * @param position  the title position (<code>LEFT</code>, <code>RIGHT</code>, 
+     * @param position  the title position (<code>LEFT</code>, <code>RIGHT</code>,
      *                  <code>TOP</code> or <code>BOTTOM</code>).
-     * @param horizontalAlignment  the horizontal alignment of the title (<code>LEFT</code>, 
+     * @param horizontalAlignment  the horizontal alignment of the title (<code>LEFT</code>,
      *                             <code>CENTER</code> or <code>RIGHT</code>).
-     * @param verticalAlignment  the vertical alignment of the title (<code>TOP</code>, 
+     * @param verticalAlignment  the vertical alignment of the title (<code>TOP</code>,
      *                           <code>MIDDLE</code> or <code>BOTTOM</code>).
      */
     public ImageTitle(Image image, int position, int horizontalAlignment, int verticalAlignment) {
 
-        this(image, 
-             image.getHeight(null), 
-             image.getWidth(null),
-             position, 
-             horizontalAlignment, 
-             verticalAlignment,
-             AbstractTitle.DEFAULT_SPACER);
+        this(image,
+            image.getHeight(null),
+            image.getWidth(null),
+            position,
+            horizontalAlignment,
+            verticalAlignment,
+            AbstractTitle.DEFAULT_SPACER);
 
     }
 
@@ -120,14 +121,14 @@ public class ImageTitle extends AbstractTitle {
      * Creates a new image title with the given image scaled to the given
      * width and height in the given location.
      *
-     * @param image  the image.
+     * @param image  the image (not null).
      * @param height  the height used to draw the image.
      * @param width  the width used to draw the image.
-     * @param position  the title position (<code>LEFT</code>, <code>RIGHT</code>, 
+     * @param position  the title position (<code>LEFT</code>, <code>RIGHT</code>,
      *                  <code>TOP</code> or <code>BOTTOM</code>).
-     * @param horizontalAlignment  the horizontal alignment of the title (<code>LEFT</code>, 
+     * @param horizontalAlignment  the horizontal alignment of the title (<code>LEFT</code>,
      *                             <code>CENTER</code> or <code>RIGHT</code>).
-     * @param verticalAlignment  the vertical alignment of the title (<code>TOP</code>, 
+     * @param verticalAlignment  the vertical alignment of the title (<code>TOP</code>,
      *                           <code>MIDDLE</code> or <code>BOTTOM</code>).
      * @param spacer  the amount of space to leave around the outside of the title.
      */
@@ -135,6 +136,9 @@ public class ImageTitle extends AbstractTitle {
                       int horizontalAlignment, int verticalAlignment, Spacer spacer) {
 
         super(position, horizontalAlignment, verticalAlignment, spacer);
+        if (image == null) {
+            throw new NullPointerException("ImageTitle(..): Image argument is null.");
+        }
         this.image = image;
         this.height = height;
         this.width = width;
@@ -154,12 +158,15 @@ public class ImageTitle extends AbstractTitle {
      * Sets the image for the title and notifies registered listeners that the
      * title has been modified.
      *
-     * @param image  the new image.
+     * @param image  the new image (<code>null</code> not permitted).
      */
     public void setImage(Image image) {
 
+        if (image == null) {
+            throw new NullPointerException("ImageTitle.setImage (..): Image must not be null.");
+        }
         this.image = image;
-        notifyListeners(new TitleChangeEvent((AbstractTitle) this));
+        notifyListeners(new TitleChangeEvent(this));
 
     }
 
@@ -193,11 +200,13 @@ public class ImageTitle extends AbstractTitle {
     public boolean isValidPosition(int position) {
 
         switch (position) {
-            case TOP :
-            case BOTTOM :
-            case RIGHT :
-            case LEFT : return true;
-            default : return false;
+            case TOP:
+            case BOTTOM:
+            case RIGHT:
+            case LEFT:
+                return true;
+            default :
+                return false;
         }
 
     }
@@ -214,9 +223,9 @@ public class ImageTitle extends AbstractTitle {
         double result = this.width;
 
         Spacer spacer = getSpacer();
-        if (spacer != null) {
-            result = spacer.getAdjustedWidth(result);
-        }
+        //if (spacer != null) {
+        result = spacer.getAdjustedWidth(result);
+        //}
 
         return result;
 
@@ -234,9 +243,10 @@ public class ImageTitle extends AbstractTitle {
         double result = this.height;
 
         Spacer spacer = getSpacer();
-        if (spacer != null) {
-            result = spacer.getAdjustedHeight(result);
-        }
+        // AbstractTitle is implemented in a way that spacer can never be null
+        //if (spacer != null) {
+        result = spacer.getAdjustedHeight(result);
+        //}
 
         return result;
 
@@ -259,15 +269,16 @@ public class ImageTitle extends AbstractTitle {
         double rightSpace = 0.0;
 
         Spacer spacer = getSpacer();
-        if (spacer != null) {
-            topSpace = spacer.getTopSpace(this.height);
-            bottomSpace = spacer.getBottomSpace(this.height);
-            leftSpace = spacer.getLeftSpace(this.width);
-            rightSpace = spacer.getRightSpace(this.width);
-        }
+        // AbstractTitle is implemented in a way that spacer can never be null
+        //if (spacer != null) {
+        topSpace = spacer.getTopSpace(this.height);
+        bottomSpace = spacer.getBottomSpace(this.height);
+        leftSpace = spacer.getLeftSpace(this.width);
+        rightSpace = spacer.getRightSpace(this.width);
+        //}
 
         if (getPosition() == TOP) {
-            startY =  chartArea.getY() + topSpace;
+            startY = chartArea.getY() + topSpace;
         }
         else {
             startY = chartArea.getY() + chartArea.getHeight() - bottomSpace - this.height;
@@ -293,7 +304,7 @@ public class ImageTitle extends AbstractTitle {
         g2.drawImage(image, (int) startX, (int) startY, this.width, this.height, null);
 
         return new Size2D(chartArea.getWidth() + leftSpace + rightSpace,
-                          this.height + topSpace + bottomSpace);
+            this.height + topSpace + bottomSpace);
 
     }
 
@@ -322,7 +333,7 @@ public class ImageTitle extends AbstractTitle {
         }
 
         if (getPosition() == LEFT) {
-            startX =  chartArea.getX() + leftSpace;
+            startX = chartArea.getX() + leftSpace;
         }
         else {
             startX = chartArea.getMaxX() - rightSpace - this.width;
@@ -348,7 +359,7 @@ public class ImageTitle extends AbstractTitle {
         g2.drawImage(image, (int) startX, (int) startY, this.width, this.height, null);
 
         return new Size2D(chartArea.getWidth() + leftSpace + rightSpace,
-                          this.height + topSpace + bottomSpace);
+            this.height + topSpace + bottomSpace);
 
     }
 

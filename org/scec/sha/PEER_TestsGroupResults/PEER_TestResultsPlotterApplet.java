@@ -20,6 +20,7 @@ import org.jfree.chart.renderer.*;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
+import org.jfree.chart.labels.StandardXYToolTipGenerator;
 
 
 import org.scec.data.function.*;
@@ -605,16 +606,16 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       // to be shown in show data
       pointsTextArea.setText(plotFunctions.toString());
       /// check if x log is selected or not
-      if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
-      else xAxis = new HorizontalNumberAxis( xAxisLabel );
+      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
+      else xAxis = new NumberAxis( xAxisLabel );
 
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
 
       /// check if y log is selected or not
-      if(yLog) yAxis = new VerticalLogarithmicAxis(yAxisLabel);
-      else yAxis = new VerticalNumberAxis( yAxisLabel );
+      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
+      else yAxis = new NumberAxis( yAxisLabel );
 
       yAxis.setAutoRangeIncludesZero( false );
       yAxis.setStandardTickUnits(units);
@@ -623,7 +624,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
 
-      LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator());
+      StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator());
 
 
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
@@ -633,9 +634,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
         }
       data.setFunctions(plotFunctions);
       // build the plot
-      org.jfree.chart.plot.LogXYPlot plot
-          = new org.jfree.chart.plot.LogXYPlot(this,data,
-                                       xAxis, yAxis, xLog, yLog);
+      org.jfree.chart.plot.XYPlot plot
+          = new org.jfree.chart.plot.XYPlot(data,
+                                       xAxis, yAxis,renderer);
 
 
       plot.setBackgroundAlpha( .8f );

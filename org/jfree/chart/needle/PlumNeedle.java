@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by the Australian Antarctic Division and Contributors.
  *
  * Original Author:  Bryan Scott (for the Australian Antarctic Division);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -33,6 +33,7 @@
  * --------
  * 25-Sep-2002 : Version 1, contributed by Bryan Scott (DG);
  * 27-Mar-2003 : Implemented Serializable (DG);
+ * 09-Sep-2003 : Added equals(...) method (DG);
  *
  */
 
@@ -46,7 +47,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 
 /**
- * A needle for use with the {@link org.jfree.chart.plot.CompassPlot} class. 
+ * A needle for use with the {@link org.jfree.chart.plot.CompassPlot} class.
  *
  * @author Bryan Scott
  */
@@ -83,6 +84,26 @@ public class PlumNeedle extends MeterNeedle implements Serializable {
         }
 
         defaultDisplay(g2, s);
+    }
+    
+    /**
+     * Tests another object for equality with this object.
+     * 
+     * @param object  the object to test.
+     * 
+     * @return A boolean.
+     */
+    public boolean equals(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (object == this) {
+            return true;
+        }
+        if (super.equals(object) && object instanceof PlumNeedle) {
+            return true;
+        }
+        return false;
     }
 
 }

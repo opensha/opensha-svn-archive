@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * SeriesException.java
  * --------------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -33,17 +33,20 @@
  * -------
  * 15-Nov-2001 : Version 1 (DG);
  * 26-Mar-2002 : Modified to extend RuntimeException rather than Exception (DG);
+ * 18-Aug-2003 : Implemented Serializable (DG);
  *
  */
 
 package org.jfree.data;
+
+import java.io.Serializable;
 
 /**
  * A general purpose exception class for data series.
  *
  * @author David Gilbert
  */
-public class SeriesException extends RuntimeException {
+public class SeriesException extends RuntimeException implements Serializable {
 
     /**
      * Constructs a new series exception.

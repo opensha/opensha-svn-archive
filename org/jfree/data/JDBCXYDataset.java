@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Bryan Scott and Contributors.
  *
  * Original Author:  Bryan Scott;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  *
  * Changes
@@ -37,22 +37,23 @@
  * 13-Aug-2002 : Updated Javadoc comments and imports (DG);
  * 18-Sep-2002 : Updated to support BIGINT (BS);
  * 21-Jan-2003 : Renamed JdbcXYDataset --> JDBCXYDataset (DG);
- *
+ * 01-Jul-2003 : Added support to query whether a timeseries (BS);
+ * 30-Jul-2003 : Added empty contructor and executeQuery(connection,string) method (BS);
  */
 
 package org.jfree.data;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.DriverManager;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.Vector;
 
 /**
- *  This class provides an chart XYDataset implementation over a database JDBC result set.
+ *  This class provides an {@link XYDataset} implementation over a database JDBC result set.
  *  The dataset is populated via a call to executeQuery with the string sql query.
  *  The sql query must return at least two columns.  The first column will be
  *  the x-axis and remaining columns y-axis values.
@@ -86,7 +87,15 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
     /**  The minimum y value of the returned result set */
     protected double minValue = 0.0;
 
+    /** Is this dataset a timeseries ? */
     public boolean isTimeSeries = false;
+
+    /**
+     * Creates a new JDBCXYDataset (initially empty) with no database connection.
+     *
+     */
+    public JDBCXYDataset() {
+    }
 
     /**
      * Creates a new JDBCXYDataset (initially empty) and establishes a new database connection.
@@ -153,7 +162,20 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
      * @param  query  The query to be executed
      */
     public void executeQuery(String query) {
+      executeQuery(connection, query);
+    }
 
+    /**
+     * ExecuteQuery will attempt execute the query passed to it against the
+     * provided database connection.  If connection is null then no action is taken
+     *
+     * The results from the query are extracted and cached locally, thus
+     * applying an upper limit on how many rows can be retrieved successfully.
+     *
+     * @param  query  The query to be executed
+     * @param  con    The connection the query is to be executed against
+     */
+    public void executeQuery(Connection con, String query) {
         Object xObject = null;
         int column = 0;
         int currentColumn = 0;
@@ -161,13 +183,13 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
         int numberOfValidColumns = 0;
         int columnTypes[] = null;
 
-        if (connection == null) {
+        if (con == null) {
             System.err.println("There is no database to execute the query.");
             return;
         }
 
         try {
-            statement = connection.createStatement();
+            statement = con.createStatement();
             resultSet = statement.executeQuery(query);
             metaData = resultSet.getMetaData();
 
@@ -195,7 +217,7 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
                         default:
                             System.err.println("Unable to load column "
                                 + column + " (" + type + ","
-                                + metaData.getColumnClassName(column+1) + ")");
+                                + metaData.getColumnClassName(column + 1) + ")");
                             columnTypes[column] = Types.NULL;
                             break;
                     }
@@ -217,9 +239,8 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
                 }
             }
 
-
             // Might need to add, to free memory from any previous result sets
-            if ( rows != null) {
+            if (rows != null) {
                 for (column = 0; column < rows.size(); column++) {
                     Vector row = (Vector) rows.get(column);
                     row.removeAllElements();
@@ -253,7 +274,7 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
                         case Types.FLOAT:
                         case Types.DECIMAL:
                         case Types.BIGINT:
-                            newRow.addElement((Number) xObject);
+                            newRow.addElement(xObject);
                             break;
 
                         case Types.DATE:
@@ -307,7 +328,7 @@ public class JDBCXYDataset extends AbstractDataset implements XYDataset, RangeIn
                 }
             }
 
-            fireDatasetChanged();// Tell the listeners a new table has arrived.
+            fireDatasetChanged(); // Tell the listeners a new table has arrived.
         }
         catch (SQLException ex) {
             System.err.println(ex);

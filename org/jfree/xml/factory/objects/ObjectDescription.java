@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -38,6 +38,7 @@
 
 package org.jfree.xml.factory.objects;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import org.jfree.util.Configuration;
@@ -47,7 +48,7 @@ import org.jfree.util.Configuration;
  *
  * @author Thomas Morgner
  */
-public interface ObjectDescription {
+public interface ObjectDescription extends Serializable {
 
     /**
      * Returns a parameter definition. If the parameter is invalid, this
@@ -100,9 +101,27 @@ public interface ObjectDescription {
     public Object createObject();
 
     /**
-     * Returns a new instance of the object description.
+     * Returns a cloned instance of the object description. The contents
+     * of the parameter objects collection are cloned too, so that any
+     * already defined parameter value is copied to the new instance.
+     * <p>
+     * Parameter definitions are not cloned, as they are considered read-only.
+     * <p>
+     * The newly instantiated object description is not configured. If it
+     * need to be configured, then you have to call configure on it.
      *
-     * @return The object description.
+     * @return A cloned instance.
+     */
+    public ObjectDescription getUnconfiguredInstance();
+
+    /**
+     * Returns a cloned instance of the object description. The contents
+     * of the parameter objects collection are cloned too, so that any
+     * already defined parameter value is copied to the new instance.
+     * <p>
+     * Parameter definitions are not cloned, as they are considered read-only.
+     *
+     * @return A cloned instance.
      */
     public ObjectDescription getInstance();
 
@@ -127,5 +146,14 @@ public interface ObjectDescription {
      * @param config the configuration, never null
      */
     public void configure(Configuration config);
+
+    /**
+     * Compares whether two object descriptions are equal.
+     *
+     * @param o the other object.
+     * @return true, if both object desciptions describe the same object, false otherwise.
+     */
+    public boolean equals (Object o);
+
 
 }

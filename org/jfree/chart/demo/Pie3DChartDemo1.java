@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * Pie3DChartDemo1.java
  * --------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -40,13 +40,16 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
-import org.jfree.data.DefaultPieDataset;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.Pie3DPlot;
+import org.jfree.data.DefaultPieDataset;
+import org.jfree.data.PieDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+import org.jfree.util.Rotation;
 
 /**
  * A simple demonstration application showing how to create a pie chart using data from a
@@ -66,34 +69,64 @@ public class Pie3DChartDemo1 extends ApplicationFrame {
         super(title);
 
         // create a dataset...
-        DefaultPieDataset data = new DefaultPieDataset();
-        data.setValue("Java", new Double(43.2));
-        data.setValue("Visual Basic", new Double(10.0));
-        data.setValue("C/C++", new Double(17.5));
-        data.setValue("PHP", new Double(32.5));
-        data.setValue("Perl", new Double(0.0));
-
+        PieDataset dataset = createSampleDataset();
+        
         // create the chart...
-        JFreeChart chart = ChartFactory.createPie3DChart("Pie Chart 3D Demo 1",  // chart title
-                                                         data,                // data
-                                                         true,                // include legend
-                                                         true,
-                                                         false
-                                                         );
-
-        // set the background color for the chart...
-        chart.setBackgroundPaint(Color.yellow);
-        Pie3DPlot plot = (Pie3DPlot) chart.getPlot();
-        plot.setStartAngle(270);
-        plot.setDirection(Pie3DPlot.CLOCKWISE);
-        plot.setForegroundAlpha(0.5f);
+        JFreeChart chart = createChart(dataset);
+        
         // add the chart to a panel...
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(chartPanel);
 
     }
+    
+    /**
+     * Creates a sample dataset for the demo.
+     * 
+     * @return A sample dataset.
+     */
+    private PieDataset createSampleDataset() {
+        
+        DefaultPieDataset result = new DefaultPieDataset();
+        result.setValue("Java", new Double(43.2));
+        result.setValue("Visual Basic", new Double(10.0));
+        result.setValue("C/C++", new Double(17.5));
+        result.setValue("PHP", new Double(32.5));
+        result.setValue("Perl", new Double(0.0));
+        return result;
+        
+    }
+    
+    /**
+     * Creates a sample chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return A chart.
+     */
+    private JFreeChart createChart(PieDataset dataset) {
+        
+        JFreeChart chart = ChartFactory.createPie3DChart(
+            "Pie Chart 3D Demo 1",  // chart title
+            dataset,                // data
+            true,                   // include legend
+            true,
+            false
+        );
 
+        // set the background color for the chart...
+        chart.setBackgroundPaint(Color.yellow);
+        Pie3DPlot plot = (Pie3DPlot) chart.getPlot();
+        plot.setStartAngle(270);
+        plot.setDirection(Rotation.CLOCKWISE);
+        plot.setForegroundAlpha(0.5f);
+        plot.setNoDataMessage("No data to display");
+        
+        return chart;
+        
+    }
+    
     /**
      * Starting point for the demonstration application.
      *

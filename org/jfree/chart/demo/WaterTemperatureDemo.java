@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * WaterTemperatureDemo.java
  * -------------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,27 +32,26 @@
  * Changes
  * -------
  * 17-Jan-2003 : Version 1 (DG);
- * 
+ *
  */
 
 package org.jfree.chart.demo;
 
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.XYDataset;
 import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.ReverseXYItemRenderer;
-import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * This demo shows the use of the {@link ReverseXYItemRenderer} to plot water temperature at 
+ * This demo shows the use of the {@link ReverseXYItemRenderer} to plot water temperature at
  * various depths.
  *
  * @author David Gilbert
@@ -68,18 +67,19 @@ public class WaterTemperatureDemo extends ApplicationFrame {
 
         super(title);
         XYDataset dataset = createDataset();
-        
-        HorizontalNumberAxis axis1 = new HorizontalNumberAxis("Temperature");
-        axis1.setRange(-0.55, -0.15);
 
-        VerticalNumberAxis axis2 = new VerticalNumberAxis("Depth");
-        axis2.setInverted(true);
-        axis2.setRange(0.0, 35.0);
-        axis2.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        
-        XYItemRenderer renderer = new ReverseXYItemRenderer();
-       
-        XYPlot plot = new XYPlot(dataset, axis1, axis2, renderer);
+        NumberAxis rangeAxis = new NumberAxis("Temperature");
+        rangeAxis.setRange(-0.55, -0.15);
+
+        NumberAxis domainAxis = new NumberAxis("Depth");
+        domainAxis.setInverted(true);
+        domainAxis.setRange(0.0, 35.0);
+        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+
+        XYItemRenderer renderer = new StandardXYItemRenderer();
+
+        XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+        plot.setOrientation(PlotOrientation.HORIZONTAL);
         JFreeChart chart = new JFreeChart("Water Temperature By Depth", plot);
 
         ChartPanel chartPanel = new ChartPanel(chart);
@@ -90,11 +90,11 @@ public class WaterTemperatureDemo extends ApplicationFrame {
 
     /**
      * Creates a sample dataset.
-     * 
+     *
      * @return The dataset.
      */
     private XYDataset createDataset() {
-    
+
         XYSeries series = new XYSeries("Zone 1");
         series.add(1.0, -0.5);
         series.add(5.0, -0.5);
@@ -104,11 +104,11 @@ public class WaterTemperatureDemo extends ApplicationFrame {
         series.add(25.0, -0.3);
         series.add(30.0, -0.2);
         series.add(35.0, -0.2);
-        
+
         return new XYSeriesCollection(series);
-        
-    }    
-    
+
+    }
+
     /**
      * Starting point for the demonstration application.
      *

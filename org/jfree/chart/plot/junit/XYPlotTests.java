@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ----------------
  * XYPlotTests.java
  * ----------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,6 +37,10 @@
 
 package org.jfree.chart.plot.junit;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Stroke;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInput;
@@ -48,14 +52,20 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jfree.chart.axis.HorizontalDateAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.Marker;
+import org.jfree.chart.Spacer;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.TimeSeriesToolTipGenerator;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.DefaultXYItemRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.renderer.VerticalXYBarRenderer;
+import org.jfree.chart.renderer.XYBarRenderer;
 import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.tooltips.TimeSeriesToolTipGenerator;
 import org.jfree.data.IntervalXYDataset;
 import org.jfree.data.XYDataset;
 import org.jfree.data.XYSeriesCollection;
@@ -90,40 +100,238 @@ public class XYPlotTests extends TestCase {
     }
 
     /**
-     * Setting a null renderer should be allowed, but is generating a null pointer exception in 
+     * Test the equals method.
+     */
+    public void testEquals() {
+        
+        XYPlot plot1 = new XYPlot();
+        XYPlot plot2 = new XYPlot();
+        assertTrue(plot1.equals(plot2));    
+        
+        // orientation...
+        plot1.setOrientation(PlotOrientation.HORIZONTAL);
+        assertFalse(plot1.equals(plot2));
+        plot2.setOrientation(PlotOrientation.HORIZONTAL);
+        assertTrue(plot1.equals(plot2));
+        
+        // axisOffset...
+        plot1.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 0.05, 0.05, 0.05, 0.05));
+        assertFalse(plot1.equals(plot2));
+        plot2.setAxisOffset(new Spacer(Spacer.ABSOLUTE, 0.05, 0.05, 0.05, 0.05));
+        assertTrue(plot1.equals(plot2));
+
+        // domainAxis...
+        plot1.setDomainAxis(new NumberAxis("Domain Axis"));
+        assertFalse(plot1.equals(plot2));
+        plot2.setDomainAxis(new NumberAxis("Domain Axis"));
+        assertTrue(plot1.equals(plot2));
+
+        // domainAxisLocation...
+        plot1.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
+        assertFalse(plot1.equals(plot2));
+        plot2.setDomainAxisLocation(AxisLocation.TOP_OR_RIGHT);
+        assertTrue(plot1.equals(plot2));
+
+        // secondaryDomainAxes...
+        plot1.setSecondaryDomainAxis(11, new NumberAxis("Secondary Domain Axis"));
+        assertFalse(plot1.equals(plot2));
+        plot2.setSecondaryDomainAxis(11, new NumberAxis("Secondary Domain Axis"));
+        assertTrue(plot1.equals(plot2));
+
+        // secondaryDomainAxisLocations...
+        plot1.setSecondaryDomainAxisLocation(11, AxisLocation.TOP_OR_RIGHT);
+        assertFalse(plot1.equals(plot2));
+        plot2.setSecondaryDomainAxisLocation(11, AxisLocation.TOP_OR_RIGHT);
+        assertTrue(plot1.equals(plot2));
+
+        // rangeAxis...
+        plot1.setRangeAxis(new NumberAxis("Range Axis"));
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeAxis(new NumberAxis("Range Axis"));
+        assertTrue(plot1.equals(plot2));
+
+        // rangeAxisLocation...
+        plot1.setRangeAxisLocation(AxisLocation.TOP_OR_RIGHT);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeAxisLocation(AxisLocation.TOP_OR_RIGHT);
+        assertTrue(plot1.equals(plot2));
+
+        // secondaryRangeAxes...
+        plot1.setSecondaryRangeAxis(11, new NumberAxis("Secondary Range Axis"));
+        assertFalse(plot1.equals(plot2));
+        plot2.setSecondaryRangeAxis(11, new NumberAxis("Secondary Range Axis"));
+        assertTrue(plot1.equals(plot2));
+
+        // secondaryRangeAxisLocations...
+        plot1.setSecondaryRangeAxisLocation(11, AxisLocation.TOP_OR_RIGHT);
+        assertFalse(plot1.equals(plot2));
+        plot2.setSecondaryRangeAxisLocation(11, AxisLocation.TOP_OR_RIGHT);
+        assertTrue(plot1.equals(plot2));
+        
+        // secondaryDatasetDomainAxisMap...
+        plot1.mapSecondaryDatasetToDomainAxis(11, new Integer(11));
+        assertFalse(plot1.equals(plot2));
+        plot2.mapSecondaryDatasetToDomainAxis(11, new Integer(11));
+        assertTrue(plot1.equals(plot2));
+
+        // secondaryDatasetRangeAxisMap...
+        plot1.mapSecondaryDatasetToRangeAxis(11, new Integer(11));
+        assertFalse(plot1.equals(plot2));
+        plot2.mapSecondaryDatasetToRangeAxis(11, new Integer(11));
+        assertTrue(plot1.equals(plot2));
+        
+        // renderer
+        plot1.setRenderer(new DefaultXYItemRenderer());
+        assertFalse(plot1.equals(plot2));
+        plot2.setRenderer(new DefaultXYItemRenderer());
+        assertTrue(plot1.equals(plot2));
+        
+        // secondary renderers
+        plot1.setSecondaryRenderer(11, new DefaultXYItemRenderer());
+        assertFalse(plot1.equals(plot2));
+        plot2.setSecondaryRenderer(11, new DefaultXYItemRenderer());
+        assertTrue(plot1.equals(plot2));
+        
+        // domainGridlinesVisible
+        plot1.setDomainGridlinesVisible(false);
+        assertFalse(plot1.equals(plot2));
+        plot2.setDomainGridlinesVisible(false);
+        assertTrue(plot1.equals(plot2));
+
+        // domainGridlineStroke
+        Stroke stroke = new BasicStroke(2.0f);
+        plot1.setDomainGridlineStroke(stroke);
+        assertFalse(plot1.equals(plot2));
+        plot2.setDomainGridlineStroke(stroke);
+        assertTrue(plot1.equals(plot2));
+        
+        // domainGridlinePaint
+        plot1.setDomainGridlinePaint(Color.blue);
+        assertFalse(plot1.equals(plot2));
+        plot2.setDomainGridlinePaint(Color.blue);
+        assertTrue(plot1.equals(plot2));
+        
+        // rangeGridlinesVisible
+        plot1.setRangeGridlinesVisible(false);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeGridlinesVisible(false);
+        assertTrue(plot1.equals(plot2));
+
+        // rangeGridlineStroke
+        plot1.setRangeGridlineStroke(stroke);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeGridlineStroke(stroke);
+        assertTrue(plot1.equals(plot2));
+        
+        // rangeGridlinePaint
+        plot1.setRangeGridlinePaint(Color.blue);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeGridlinePaint(Color.blue);
+        assertTrue(plot1.equals(plot2));
+                
+        // rangeCrosshairVisible
+        plot1.setRangeCrosshairVisible(true);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeCrosshairVisible(true);
+        assertTrue(plot1.equals(plot2));
+        
+        // rangeCrosshairValue
+        plot1.setRangeCrosshairValue(100.0);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeCrosshairValue(100.0);
+        assertTrue(plot1.equals(plot2));
+        
+        // rangeCrosshairStroke
+        plot1.setRangeCrosshairStroke(stroke);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeCrosshairStroke(stroke);
+        assertTrue(plot1.equals(plot2));
+        
+        // rangeCrosshairPaint
+        plot1.setRangeCrosshairPaint(Color.red);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeCrosshairPaint(Color.red);
+        assertTrue(plot1.equals(plot2));
+        
+        // rangeCrosshairLockedOnData
+        plot1.setRangeCrosshairLockedOnData(false);
+        assertFalse(plot1.equals(plot2));
+        plot2.setRangeCrosshairLockedOnData(false);
+        assertTrue(plot1.equals(plot2));
+        
+        // range markers
+        plot1.addRangeMarker(new Marker(4.0));
+        assertFalse(plot1.equals(plot2));
+        plot2.addRangeMarker(new Marker(4.0));
+        assertTrue(plot1.equals(plot2));
+        
+        // secondary range markers
+        plot1.addSecondaryRangeMarker(new Marker(4.0));
+        assertFalse(plot1.equals(plot2));
+        plot2.addSecondaryRangeMarker(new Marker(4.0));
+        assertTrue(plot1.equals(plot2));
+                
+        // weight
+        plot1.setWeight(3);
+        assertFalse(plot1.equals(plot2));
+        plot2.setWeight(3);
+        assertTrue(plot1.equals(plot2));
+        
+    }
+
+    /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        XYPlot p1 = new XYPlot();
+        XYPlot p2 = null;
+        try {
+            p2 = (XYPlot) p1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            System.err.println("XYPlotTests.testCloning: failed to clone.");
+        }
+        assertTrue(p1 != p2);
+        assertTrue(p1.getClass() == p2.getClass());
+        assertTrue(p1.equals(p2));
+    }
+    
+    /**
+     * Setting a null renderer should be allowed, but is generating a null pointer exception in
      * 0.9.7.
      */
     public void testSetNullRenderer() {
-    	
-    	boolean failed = false;
-    	try {
-            XYPlot plot = new XYPlot(null, new HorizontalNumberAxis("X"), new VerticalNumberAxis("Y"));
-    	    plot.setRenderer(null);
-    	}
-    	catch (Exception e) {
-    	    failed = true;
-    	}
-    	assertTrue(!failed);
+
+        boolean failed = false;
+        try {
+            XYPlot plot = new XYPlot(null, new NumberAxis("X"), new NumberAxis("Y"), null);
+            plot.setRenderer(null);
+        }
+        catch (Exception e) {
+            failed = true;
+        }
+        assertTrue(!failed);
     }
-    
+
     /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization1() {
-        
+
         XYDataset data = new XYSeriesCollection();
-        HorizontalNumberAxis domainAxis = new HorizontalNumberAxis("Domain");
-        VerticalNumberAxis rangeAxis = new VerticalNumberAxis("Range");
+        NumberAxis domainAxis = new NumberAxis("Domain");
+        NumberAxis rangeAxis = new NumberAxis("Range");
         StandardXYItemRenderer renderer = new StandardXYItemRenderer();
         XYPlot p1 = new XYPlot(data, domainAxis, rangeAxis, renderer);
         XYPlot p2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(p1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             p2 = (XYPlot) in.readObject();
             in.close();
@@ -131,8 +339,9 @@ public class XYPlotTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(p1, p2); 
-        
+        boolean test = p1.equals(p2);
+        assertEquals(p1, p2);
+
     }
 
 
@@ -140,21 +349,21 @@ public class XYPlotTests extends TestCase {
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization2() {
-        
+
         IntervalXYDataset data1 = createDataset1();
-        XYItemRenderer renderer1 = new VerticalXYBarRenderer(0.20);
+        XYItemRenderer renderer1 = new XYBarRenderer(0.20);
 
         renderer1.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0,000.0"));
-        XYPlot p1 = new XYPlot(data1, new HorizontalDateAxis("Date"), null, renderer1);
+        XYPlot p1 = new XYPlot(data1, new DateAxis("Date"), null, renderer1);
 
         XYPlot p2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(p1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             p2 = (XYPlot) in.readObject();
             in.close();
@@ -162,10 +371,58 @@ public class XYPlotTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(p1, p2); 
-        
+        assertEquals(p1, p2);
+
     }
-    
+
+    /**
+     * Test to reproduce a bug in serialization.  The bug (first reported against the CategoryPlot
+     * class) is a null pointer exception that occurs when drawing a plot after deserialization.  
+     * It is caused by four temporary storage structures (axesAtTop, axesAtBottom, axesAtLeft and 
+     * axesAtRight - all initialized as empty lists in the constructor) not being initialized by
+     * the readObject(...) method following deserialization.  This test has been written to 
+     * reproduce the bug (now fixed).
+     */
+    public void testSerialization3() {
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Test Chart",
+            "Domain Axis",
+            "Range Axis",
+            dataset,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
+        JFreeChart chart2 = null;
+        
+        // serialize and deserialize the chart....
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            ObjectOutput out = new ObjectOutputStream(buffer);
+            out.writeObject(chart);
+            out.close();
+
+            ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+            chart2 = (JFreeChart) in.readObject();
+            in.close();
+        }
+        catch (Exception e) {
+            System.out.println(e.toString());
+        }
+
+        boolean passed = true;
+        try {
+            BufferedImage image = chart2.createBufferedImage(300, 200);
+        }
+        catch (Exception e) {
+            passed = false;  
+            e.printStackTrace();            
+        }
+        assertTrue(passed);
+    }
+
     /**
      * Creates a sample dataset.
      *

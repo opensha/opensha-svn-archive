@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -----------------------
  * OverlaidXYPlotDemo.java
  * -----------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited).
+ * Original Author:  David Gilbert (for Object Refinery Limited).
  * Contributor(s):   -;
  *
  * $Id$
@@ -42,21 +42,21 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
+import java.awt.Font;
+
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYTextAnnotation;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.HorizontalDateAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.OverlaidXYPlot;
+import org.jfree.chart.labels.TimeSeriesToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
-import org.jfree.chart.renderer.VerticalXYBarRenderer;
-import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.tooltips.TimeSeriesToolTipGenerator;
-import org.jfree.data.XYDataset;
+import org.jfree.chart.renderer.XYBarRenderer;
+import org.jfree.chart.renderer.XYItemRenderer;
 import org.jfree.data.IntervalXYDataset;
+import org.jfree.data.XYDataset;
 import org.jfree.data.time.Day;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
@@ -93,28 +93,24 @@ public class OverlaidXYPlotDemo extends ApplicationFrame {
      */
     private JFreeChart createOverlaidChart() {
 
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
-        // create subplot 1...
+        // create plot ...
         IntervalXYDataset data1 = createDataset1();
-        XYItemRenderer renderer1 = new VerticalXYBarRenderer(0.20);
-        renderer1.setDrawingSupplier(supplier);
+        XYItemRenderer renderer1 = new XYBarRenderer(0.20);
         renderer1.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0.00"));
-        XYPlot subplot1 = new XYPlot(data1, null, null, renderer1);
+        DateAxis domainAxis = new DateAxis("Date");
+        ValueAxis rangeAxis = new NumberAxis("Value");
+        XYPlot plot = new XYPlot(data1, domainAxis, rangeAxis, renderer1);
+        double x = (double) new Day(9, SerialDate.MARCH, 2002).getMiddleMillisecond();
+        XYTextAnnotation annotation = new XYTextAnnotation("Hello!", x, 10000.0);
+        annotation.setFont(new Font("SansSerif", Font.PLAIN, 9));
+        plot.addAnnotation(annotation);
 
-        // create subplot 2...
+        // add a second dataset and renderer...
         XYDataset data2 = createDataset2();
         XYItemRenderer renderer2 = new StandardXYItemRenderer();
-        renderer2.setDrawingSupplier(supplier);
         renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0.00"));
-        XYPlot subplot2 = new XYPlot(data2, null, null, renderer2);
-
-        // make an overlaid plot and add the subplots...
-        ValueAxis domainAxis = new HorizontalDateAxis("Date");
-        ValueAxis rangeAxis = new VerticalNumberAxis("Value");
-        OverlaidXYPlot plot = new OverlaidXYPlot(domainAxis, rangeAxis);
-        plot.add(subplot1);
-        plot.add(subplot2);
+        plot.setSecondaryDataset(0, data2);
+        plot.setSecondaryRenderer(0, renderer2);
 
         // return a new chart containing the overlaid plot...
         return new JFreeChart("Overlaid Plot Example", JFreeChart.DEFAULT_TITLE_FONT, plot, true);
@@ -175,7 +171,8 @@ public class OverlaidXYPlotDemo extends ApplicationFrame {
         series2.add(new Day(15, SerialDate.MARCH, 2002), 18500.7);
         series2.add(new Day(16, SerialDate.MARCH, 2002), 19595.9);
 
-        return new TimeSeriesCollection(series2);
+        TimeSeriesCollection tsc = new TimeSeriesCollection(series2);
+        return tsc;
 
     }
 

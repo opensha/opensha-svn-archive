@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * ParetoChartDemo.java
  * --------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited).
+ * Original Author:  David Gilbert (for Object Refinery Limited).
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 05-Mar-2003 : Version 1 (DG);
+ * 27-Aug-2003 : Moved SortOrder from org.jfree.data --> org.jfree.util (DG);
  *
  */
 
@@ -44,25 +45,24 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.TextTitle;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
+import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.LineAndShapeRenderer;
 import org.jfree.data.CategoryDataset;
 import org.jfree.data.DataUtilities;
 import org.jfree.data.DatasetUtilities;
 import org.jfree.data.DefaultKeyedValues;
 import org.jfree.data.KeyedValues;
-import org.jfree.data.SortOrder;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
+import org.jfree.util.SortOrder;
 
 /**
  * A demo showing the creation of a pareto chart.
- * 
+ *
  * @author David Gilbert
  */
 public class ParetoChartDemo extends ApplicationFrame {
@@ -90,51 +90,49 @@ public class ParetoChartDemo extends ApplicationFrame {
 
         data.sortByValues(SortOrder.DESCENDING);
         KeyedValues cumulative = DataUtilities.getCumulativePercentages(data);
-		CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Languages", data);
-        
+        CategoryDataset dataset = DatasetUtilities.createCategoryDataset("Languages", data);
+
         // create the chart...
-        JFreeChart chart = ChartFactory.createVerticalBarChart(
-                                                     "Freshmeat Software Projects",  // chart title
-                                                     "Language",            // domain axis label
-                                                     "Projects",            // range axis label
-                                                     dataset,               // data
-                                                     true,                  // include legend
-                                                     true,
-                                                     false
-                                                 );
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Freshmeat Software Projects",  // chart title
+            "Language",                     // domain axis label
+            "Projects",                     // range axis label
+            dataset,                        // data
+            PlotOrientation.VERTICAL,
+            true,                           // include legend
+            true,
+            false
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
         chart.addSubtitle(new TextTitle("By Programming Language"));
         chart.addSubtitle(new TextTitle("As at 5 March 2003"));
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
 
         // set the background color for the chart...
         chart.setBackgroundPaint(new Color(0xBBBBDD));
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot = chart.getCategoryPlot();
-        plot.getRenderer().setDrawingSupplier(supplier);
-        
-        // skip some labels if they overlap...
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setLowerMargin(0.02);
         domainAxis.setUpperMargin(0.02);
-        //domainAxis.setSkipCategoryLabelsToFit(true);
 
         // set the range axis to display integers only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
         LineAndShapeRenderer renderer2 = new LineAndShapeRenderer();
-        renderer2.setDrawingSupplier(supplier);
-        
-		CategoryDataset dataset2 = DatasetUtilities.createCategoryDataset("Cumulative", cumulative);
-        NumberAxis axis2 = new VerticalNumberAxis("Percent");
-        axis2.setNumberFormatOverride(NumberFormat.getPercentInstance());
-        plot.setSecondaryRangeAxis(axis2);
-        plot.setSecondaryDataset(dataset2);
-        plot.setSecondaryRenderer(renderer2);
 
+        CategoryDataset dataset2 = DatasetUtilities.createCategoryDataset("Cumulative", cumulative);
+        NumberAxis axis2 = new NumberAxis("Percent");
+        axis2.setNumberFormatOverride(NumberFormat.getPercentInstance());
+        plot.setSecondaryRangeAxis(0, axis2);
+        plot.setSecondaryDataset(0, dataset2);
+        plot.setSecondaryRenderer(0, renderer2);
+        plot.mapSecondaryDatasetToRangeAxis(0, new Integer(0));
+
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.REVERSE);
         // OPTIONAL CUSTOMISATION COMPLETED.
 
         // add the chart to a panel...

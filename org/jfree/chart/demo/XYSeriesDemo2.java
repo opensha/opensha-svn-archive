@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * XYSeriesDemo2.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,13 +37,14 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.data.XYSeries;
-import org.jfree.data.XYSeriesCollection;
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.XYSeries;
+import org.jfree.data.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
@@ -73,11 +74,16 @@ public class XYSeriesDemo2 extends ApplicationFrame {
         series.add(25.6, 100.0);
         series.add(30.0, 100.0);
         XYSeriesCollection data = new XYSeriesCollection(series);
-        JFreeChart chart = ChartFactory.createLineXYChart("XY Series Demo 2",
-                                                          "X", "Y", data, 
-                                                          true,
-                                                          true,
-                                                          false);
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "XY Series Demo 2",
+            "X", 
+            "Y", 
+            data,
+            PlotOrientation.VERTICAL,
+            true,
+            true,
+            false
+        );
 
         XYPlot plot = (XYPlot) chart.getPlot();
         NumberAxis axis = (NumberAxis) plot.getRangeAxis();

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,12 @@
  * -------------
  * XYSeries.java
  * -------------
- * (C) Copyright 2001-2003, Simba Management Limited and Contributors.
+ * (C) Copyright 2001-2003, Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Aaron Metzger;
  *                   Jonathan Gabbai;
+ *                   Richard Atkinson;
  *
  * $Id$
  *
@@ -41,6 +42,10 @@
  * 07-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 11-Nov-2002 : Added maximum item count, code contributed by Jonathan Gabbai (DG);
  * 26-Mar-2003 : Implemented Serializable (DG);
+ * 04-Aug-2003 : Added getItems() method (DG);
+ * 15-Aug-2003 : Changed 'data' from private to protected, added new add(...) methods with a
+ *               'notify' argument (DG);
+ * 22-Sep-2003 : Added getAllowDuplicateXValues() method (RA);
  *
  */
 
@@ -53,14 +58,18 @@ import java.util.List;
 import org.jfree.util.ObjectUtils;
 
 /**
- * Represents a sequence of zero or more data pairs in the form (x, y).
+ * Represents a sequence of zero or more data items in the form (x, y).
  *
  * @author David Gilbert
  */
 public class XYSeries extends Series implements Serializable {
 
-    /** The list of data pairs in the series. */
-    private List data;
+    /** Storage for the data items in the series. */
+    protected List data;
+
+    // In version 0.9.12, in response to several developer requests, I changed the 'data' attribute 
+    // from 'private' to 'protected', so that others can make subclasses that work directly with 
+    // the underlying data structure.
 
     /** The maximum number of items for the series. */
     private int maximumItemCount = Integer.MAX_VALUE;
@@ -102,6 +111,25 @@ public class XYSeries extends Series implements Serializable {
     }
 
     /**
+     * Returns whether duplicate X-Values are allowed.
+     *
+     * @return Whether they are.
+     */
+    public boolean getAllowDuplicateXValues() {
+        return this.allowDuplicateXValues;
+    }
+
+    /**
+     * Returns the list of data items for the series (the list contains {@link XYDataItem} 
+     * objects and is unmodifiable).
+     * 
+     * @return The list of data items.
+     */
+    public List getItems() {
+        return Collections.unmodifiableList(this.data);    
+    }
+    
+    /**
      * Returns the maximum number of items that will be retained in the series.
      * <P>
      * The default value is <code>Integer.MAX_VALUE</code>).
@@ -126,41 +154,61 @@ public class XYSeries extends Series implements Serializable {
     }
 
     /**
-     * Adds a data item to the series.
+     * Adds a data item to the series. A {@link SeriesChangeEvent} is sent to all registered 
+     * listeners.
      *
-     * @param pair  the (x, y) pair.
+     * @param item  the (x, y) item.
      *
      * @throws SeriesException if there is a problem adding the data.
      */
-    public void add(XYDataPair pair) throws SeriesException {
+    public void add(XYDataItem item) throws SeriesException {
+        add(item, true);
+    }
+    
+    /**
+     * Adds a data item to the series.  If requested (via <code>notify</code>), a
+     * {@link SeriesChangeEvent} is sent to all registered listeners.
+     *
+     * @param item  the (x, y) item.
+     * @param notify  a flag that controls whether or not a {@link SeriesChangeEvent} is sent to 
+     *                all registered listeners.
+     *
+     * @throws SeriesException if there is a problem adding the data.
+     */
+    public void add(XYDataItem item, boolean notify) throws SeriesException {
 
         // check arguments...
-        if (pair == null) {
+        if (item == null) {
             throw new IllegalArgumentException("XYSeries.add(...): null item not allowed.");
         }
 
         // make the change (if it's not a duplicate x-value)...
-        int index = Collections.binarySearch(data, pair);
+        boolean changed = false;
+        int index = Collections.binarySearch(data, item);
         if (index < 0) {
-            data.add(-index - 1, pair);
-
+            data.add(-index - 1, item);
+         
             // check if this addition will exceed the maximum item count...
             if (getItemCount() > this.maximumItemCount) {
                 this.data.remove(0);
             }
-            fireSeriesChanged();
+            changed = true;
         }
         else {
             if (allowDuplicateXValues == true) {
-                data.add(index, pair);
+                data.add(index, item);
                 if (getItemCount() > this.maximumItemCount) {
                     this.data.remove(0);
                 }
-                fireSeriesChanged();
+                changed = true;
             }
             else {
                 throw new SeriesException("XYSeries.add(...): x-value already exists.");
             }
+        }
+        
+        if (notify && changed) {
+            fireSeriesChanged();
         }
 
     }
@@ -174,9 +222,21 @@ public class XYSeries extends Series implements Serializable {
      * @throws SeriesException if there is a problem adding the data.
      */
     public void add(double x, double y) throws SeriesException {
+        add(new Double(x), new Double(y), true);
+    }
 
-        add(new Double(x), new Double(y));
-
+    /**
+     * Adds a data item to the series.
+     *
+     * @param x  the x value.
+     * @param y  the y value.
+     * @param notify  a flag that controls whether or not a {@link SeriesChangeEvent} is sent to 
+     *                all registered listeners.
+     *
+     * @throws SeriesException if there is a problem adding the data.
+     */
+    public void add(double x, double y, boolean notify) throws SeriesException {
+        add(new Double(x), new Double(y), notify);
     }
 
     /**
@@ -190,9 +250,23 @@ public class XYSeries extends Series implements Serializable {
      * @throws SeriesException if there is a problem adding the data.
      */
     public void add(double x, Number y) throws SeriesException {
-
         add(new Double(x), y);
+    }
 
+    /**
+     * Adds a data item to the series.
+     * <P>
+     * The unusual pairing of parameter types is to make it easier to add null y-values.
+     *
+     * @param x  the x value.
+     * @param y  the y value.
+     * @param notify  a flag that controls whether or not a {@link SeriesChangeEvent} is sent to 
+     *                all registered listeners.
+     *
+     * @throws SeriesException if there is a problem adding the data.
+     */
+    public void add(double x, Number y, boolean notify) throws SeriesException {
+        add(new Double(x), y, notify);
     }
 
     /**
@@ -207,10 +281,25 @@ public class XYSeries extends Series implements Serializable {
      * @throws SeriesException if there is a problem adding the data.
      */
     public void add(Number x, Number y) throws SeriesException {
-
-        XYDataPair pair = new XYDataPair(x, y);
-        add(pair);
-
+        add(x, y, true);
+    }
+    
+    /**
+     * Adds new data to the series.
+     * <P>
+     * Throws an exception if the x-value is a duplicate AND the allowDuplicateXValues flag is
+     * false.
+     *
+     * @param x  the x-value.
+     * @param y  the y-value.
+     * @param notify  a flag the controls whether or not a {@link SeriesChangeEvent} is sent to 
+     *                all registered listeners.
+     *
+     * @throws SeriesException if there is a problem adding the data.
+     */
+    public void add(Number x, Number y, boolean notify) throws SeriesException {
+        XYDataItem item = new XYDataItem(x, y);
+        add(item, notify);
     }
 
     /**
@@ -244,9 +333,21 @@ public class XYSeries extends Series implements Serializable {
      * @param index  The index.
      *
      * @return The data pair with the specified index.
+     * @deprecated Use getDataItem(index).
      */
     public XYDataPair getDataPair(int index) {
         return (XYDataPair) data.get(index);
+    }
+
+    /**
+     * Return the data item with the specified index.
+     *
+     * @param index  The index.
+     *
+     * @return The data item with the specified index.
+     */
+    public XYDataItem getDataItem(int index) {
+        return (XYDataItem) data.get(index);
     }
 
     /**
@@ -257,7 +358,7 @@ public class XYSeries extends Series implements Serializable {
      * @return The x-value.
      */
     public Number getXValue(int index) {
-        return getDataPair(index).getX();
+        return getDataItem(index).getX();
     }
 
     /**
@@ -268,7 +369,7 @@ public class XYSeries extends Series implements Serializable {
      * @return The y-value.
      */
     public Number getYValue(int index) {
-        return getDataPair(index).getY();
+        return getDataItem(index).getY();
     }
 
     /**
@@ -278,8 +379,8 @@ public class XYSeries extends Series implements Serializable {
      * @param y  The new value.
      */
     public void update(int index, Number y) {
-        XYDataPair pair = getDataPair(index);
-        pair.setY(y);
+        XYDataItem item = getDataItem(index);
+        item.setY(y);
         fireSeriesChanged();
     }
 
@@ -312,8 +413,8 @@ public class XYSeries extends Series implements Serializable {
         copy.data = new java.util.ArrayList();
         if (data.size() > 0) {
             for (int index = start; index <= end; index++) {
-                XYDataPair pair = (XYDataPair) this.data.get(index);
-                XYDataPair clone = (XYDataPair) pair.clone();
+                XYDataItem item = (XYDataItem) this.data.get(index);
+                XYDataItem clone = (XYDataItem) item.clone();
                 try {
                     copy.add(clone);
                 }
@@ -326,35 +427,35 @@ public class XYSeries extends Series implements Serializable {
         return copy;
 
     }
-    
+
     /**
      * Tests this series for equality with an arbitrary object.
-     * 
+     *
      * @param obj  the object.
-     * 
+     *
      * @return A boolean.
      */
     public boolean equals(Object obj) {
-    
+
         if (obj == null) {
             return false;
         }
-        
+
         if (obj == this) {
             return true;
         }
-        
+
         if (obj instanceof XYSeries) {
             XYSeries s = (XYSeries) obj;
-            boolean b0 = ObjectUtils.equalOrBothNull(this.data, s.data);
+            boolean b0 = ObjectUtils.equal(this.data, s.data);
             boolean b1 = (this.maximumItemCount == s.maximumItemCount);
             boolean b2 = (this.allowDuplicateXValues == s.allowDuplicateXValues);
             return b0 && b1 && b2;
         }
-        
+
         return false;
-        
+
     }
-    
+
 }
 

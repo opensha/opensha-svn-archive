@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------------------
  * DefaultKeyedValueTests.java
  * ---------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -76,19 +76,56 @@ public class DefaultKeyedValueTests extends TestCase {
     }
 
     /**
+     * Confirm that the equals method can distinguish all the required fields.
+     */
+    public void testEquals() {
+        
+        DefaultKeyedValue v1 = new DefaultKeyedValue("Test", new Double(45.5));
+        DefaultKeyedValue v2 = new DefaultKeyedValue("Test", new Double(45.5));
+        assertTrue(v1.equals(v2));
+        assertTrue(v2.equals(v1));
+
+        v1 = new DefaultKeyedValue("Test 1", new Double(45.5));
+        v2 = new DefaultKeyedValue("Test 2", new Double(45.5));
+        assertFalse(v1.equals(v2));
+
+        v1 = new DefaultKeyedValue("Test", new Double(45.5));
+        v2 = new DefaultKeyedValue("Test", new Double(45.6));
+        assertFalse(v1.equals(v2));
+
+    }
+
+    /**
+     * Confirm that cloning works.
+     */
+    public void testCloning() {
+        DefaultKeyedValue v1 = new DefaultKeyedValue("Test", new Double(45.5));
+        DefaultKeyedValue v2 = null;
+        try {
+            v2 = (DefaultKeyedValue) v1.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            System.err.println("DefaultKeyedValueTests.testCloning: failed to clone.");
+        }
+        assertTrue(v1 != v2);
+        assertTrue(v1.getClass() == v2.getClass());
+        assertTrue(v1.equals(v2));
+    }
+
+    /**
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
+
         DefaultKeyedValue v1 = new DefaultKeyedValue("Test", new Double(25.3));
         DefaultKeyedValue v2 = null;
-        
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(v1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
             v2 = (DefaultKeyedValue) in.readObject();
             in.close();
@@ -96,8 +133,8 @@ public class DefaultKeyedValueTests extends TestCase {
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        assertEquals(v1, v2); 
-        
+        assertEquals(v1, v2);
+
     }
 
 }

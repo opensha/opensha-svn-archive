@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * AboutFrame.java
  * ---------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,12 +48,13 @@ import java.awt.Dimension;
 import java.awt.Image;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
 /**
@@ -64,7 +65,7 @@ import javax.swing.border.Border;
 public class AboutFrame extends JFrame {
 
     /** The preferred size for the frame. */
-    public static final Dimension PREFERRED_SIZE = new Dimension(400, 300);
+    public static final Dimension PREFERRED_SIZE = new Dimension(560, 360);
 
     /** The default border for the panels in the tabbed pane. */
     public static final Border STANDARD_BORDER = BorderFactory.createEmptyBorder(5, 5, 5, 5);

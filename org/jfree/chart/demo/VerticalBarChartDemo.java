@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * -------------------------
  * VerticalBarChartDemo.java
  * -------------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -45,9 +45,12 @@ import java.awt.Color;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.HorizontalCategoryAxis;
+import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.BarRenderer;
+import org.jfree.data.CategoryDataset;
 import org.jfree.data.DefaultCategoryDataset;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
@@ -68,6 +71,23 @@ public class VerticalBarChartDemo extends ApplicationFrame {
 
         super(title);
 
+        CategoryDataset dataset = createDataset();
+        JFreeChart chart = createChart(dataset);
+
+        // add the chart to a panel...
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+        setContentPane(chartPanel);
+
+    }
+
+    /**
+     * Returns a sample dataset.
+     * 
+     * @return The dataset.
+     */
+    private CategoryDataset createDataset() {
+        
         // row keys...
         String series1 = "First";
         String series2 = "Second";
@@ -79,9 +99,6 @@ public class VerticalBarChartDemo extends ApplicationFrame {
         String category3 = "Category 3";
         String category4 = "Category 4";
         String category5 = "Category 5";
-        String category6 = "Category 6";
-        String category7 = "Category 7";
-        String category8 = "Category 8";
 
         // create the dataset...
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -91,38 +108,43 @@ public class VerticalBarChartDemo extends ApplicationFrame {
         dataset.addValue(3.0, series1, category3);
         dataset.addValue(5.0, series1, category4);
         dataset.addValue(5.0, series1, category5);
-        dataset.addValue(7.0, series1, category6);
-        dataset.addValue(7.0, series1, category7);
-        dataset.addValue(8.0, series1, category8);
 
         dataset.addValue(5.0, series2, category1);
         dataset.addValue(7.0, series2, category2);
         dataset.addValue(6.0, series2, category3);
         dataset.addValue(8.0, series2, category4);
         dataset.addValue(4.0, series2, category5);
-        dataset.addValue(4.0, series2, category6);
-        dataset.addValue(2.0, series2, category7);
-        dataset.addValue(1.0, series2, category8);
 
         dataset.addValue(4.0, series3, category1);
         dataset.addValue(3.0, series3, category2);
         dataset.addValue(2.0, series3, category3);
         dataset.addValue(3.0, series3, category4);
         dataset.addValue(6.0, series3, category5);
-        dataset.addValue(3.0, series3, category6);
-        dataset.addValue(4.0, series3, category7);
-        dataset.addValue(3.0, series3, category8);
-
+        
+        return dataset;
+        
+    }
+    
+    /**
+     * Creates a sample chart.
+     * 
+     * @param dataset  the dataset.
+     * 
+     * @return The chart.
+     */
+    private JFreeChart createChart(CategoryDataset dataset) {
+        
         // create the chart...
-        JFreeChart chart = ChartFactory.createVerticalBarChart(
-                                                     "Vertical Bar Chart",  // chart title
-                                                     "Category",            // domain axis label
-                                                     "Value",               // range axis label
-                                                     dataset,               // data
-                                                     true,                  // include legend
-                                                     true,
-                                                     false
-                                                 );
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Vertical Bar Chart",     // chart title
+            "Category",               // domain axis label
+            "Value",                  // range axis label
+            dataset,                  // data
+            PlotOrientation.VERTICAL,
+            true,                     // include legend
+            true,                     // tooltips?
+            false                     // URLs?
+        );
 
         // NOW DO SOME OPTIONAL CUSTOMISATION OF THE CHART...
 
@@ -131,24 +153,25 @@ public class VerticalBarChartDemo extends ApplicationFrame {
 
         // get a reference to the plot for further customisation...
         CategoryPlot plot = chart.getCategoryPlot();
-
+        
         // skip some labels if they overlap...
-        HorizontalCategoryAxis domainAxis = (HorizontalCategoryAxis) plot.getDomainAxis();
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setSkipCategoryLabelsToFit(true);
 
         // set the range axis to display integers only...
         NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
+        // disable bar outlines...
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setDrawBarOutline(false);
+        
         // OPTIONAL CUSTOMISATION COMPLETED.
-
-        // add the chart to a panel...
-        ChartPanel chartPanel = new ChartPanel(chart);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(chartPanel);
-
+        
+        return chart;
+        
     }
-
+    
     /**
      * Starting point for the demonstration application.
      *

@@ -677,10 +677,11 @@ public class GriddedFaultApplet
                     frame.setTitle( this.getAppletInfo() + ": [" + currentGriddedSurfaceName + ']');
 
                 int max = this.simpleFaultDataList.size();
-                for( int i = 0; i < max; i++){
-                    FaultTraceXYDataSet dataSet = new FaultTraceXYDataSet( simpleFaultDataList.getSimpleFaultDataAt(i).getFaultTrace() );
-                    plotter.add(dataSet);
+                FaultTraceXYDataSet dataSet = new FaultTraceXYDataSet( simpleFaultDataList.getSimpleFaultDataAt(0).getFaultTrace() );
+                for( int i = 1; i < max; i++) {
+                    dataSet.add( simpleFaultDataList.getSimpleFaultDataAt(i).getFaultTrace() );
                 }
+                plotter.add(dataSet);
                 addGraphPanel();
                 break;
 
@@ -889,6 +890,7 @@ public class GriddedFaultApplet
 
                     }
                 }
+                rect.enable();
                 addGraphPanel();
                 break;
 

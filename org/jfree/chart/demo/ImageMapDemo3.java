@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -37,26 +37,26 @@
  */
 package org.jfree.chart.demo;
 
-import java.io.File;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
-import java.io.PrintWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartUtilities;
+
 import org.jfree.chart.ChartRenderingInfo;
-import org.jfree.chart.axis.HorizontalDateAxis;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.entity.StandardEntityCollection;
+import org.jfree.chart.labels.CustomXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.StandardXYItemRenderer;
-import org.jfree.chart.tooltips.CustomXYToolTipGenerator;
 import org.jfree.chart.urls.StandardXYURLGenerator;
 import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
@@ -110,14 +110,14 @@ public class ImageMapDemo3 {
 
         //  Create the chart
         StandardXYURLGenerator urlg = new StandardXYURLGenerator("xy_details.jsp");
-        ValueAxis timeAxis = new HorizontalDateAxis("");
-        NumberAxis valueAxis = new VerticalNumberAxis("");
+        ValueAxis timeAxis = new DateAxis("");
+        NumberAxis valueAxis = new NumberAxis("");
         valueAxis.setAutoRangeIncludesZero(false);  // override default
-        XYPlot plot = new XYPlot(xyDataset, timeAxis, valueAxis);
+        XYPlot plot = new XYPlot(xyDataset, timeAxis, valueAxis, null);
         StandardXYItemRenderer sxyir = new StandardXYItemRenderer(
             StandardXYItemRenderer.LINES + StandardXYItemRenderer.SHAPES,
             ttg, urlg);
-        sxyir.setDefaultShapeFilled(true);
+        sxyir.setShapesFilled(true);
         plot.setRenderer(sxyir);
         JFreeChart chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
         chart.setBackgroundPaint(java.awt.Color.white);

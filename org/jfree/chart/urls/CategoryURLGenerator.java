@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by Richard Atkinson and Contributors.
  *
  * Original Author:  Richard Atkinson (richard_c_atkinson@ntlworld.com);
- * Contributors:     David Gilbert (for Simba Management Limited);
+ * Contributors:     David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -35,9 +35,10 @@
  * 09-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  * 10-Apr-2003 : Replaced reference to CategoryDataset with KeyedValues2DDataset (DG);
  * 23-Apr-2003 : Switched around CategoryDataset and KeyedValues2DDataset (again) (DG);
- * 
+ * 13-Aug-2003 : Added clone() method (DG);
+ *
  */
- 
+
 package org.jfree.chart.urls;
 
 import org.jfree.data.CategoryDataset;
@@ -59,5 +60,14 @@ public interface CategoryURLGenerator extends URLGenerator {
      * @return a string containing the URL.
      */
     public String generateURL(CategoryDataset data, int series, int category);
+    
+    /**
+     * Returns an independent copy of the URL generator.
+     * 
+     * @return A clone.
+     * 
+     * @throws CloneNotSupportedException if the generator does not support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException;
 
 }

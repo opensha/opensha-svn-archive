@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * DataUtilities.java
  * ------------------
- * (C) Copyright 2003, by Simba Management Limited.
+ * (C) Copyright 2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -32,7 +32,7 @@
  * Changes
  * -------
  * 05-Mar-2003 : Version 1 (DG);
- * 
+ *
  */
 
 package org.jfree.data;
@@ -40,25 +40,25 @@ package org.jfree.data;
 /**
  * Utility methods for use with some of the data classes (but not the datasets, see
  * {@link DatasetUtilities}).
- * 
+ *
  * @author David Gilbert
  */
-public class DataUtilities { 
+public class DataUtilities {
 
     /**
      * Returns a {@link KeyedValues} instance that contains the cumulative percentage values
      * for the data in another {@link KeyedValues} instance.
      * <p>
      * The percentages are values between 0.0 and 1.0 (where 1.0 = 100%).
-     *  
+     *
      * @param data  the data.
      *
      * @return The cumulative percentages.
      */
     public static KeyedValues getCumulativePercentages(KeyedValues data) {
-    
+
         DefaultKeyedValues result = new DefaultKeyedValues();
-        
+
         double total = 0.0;
         for (int i = 0; i < data.getItemCount(); i++) {
             Number v = data.getValue(i);
@@ -67,7 +67,7 @@ public class DataUtilities {
             }
         }
 
-        double runningTotal = 0.0;        
+        double runningTotal = 0.0;
         for (int i = 0; i < data.getItemCount(); i++) {
             Number v = data.getValue(i);
             if (v != null) {
@@ -77,7 +77,7 @@ public class DataUtilities {
         }
 
         return result;
-    
+
     }
 
 }

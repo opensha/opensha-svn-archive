@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2002, 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -156,7 +156,7 @@ public class IOUtils {
         for (int i = 0; i < minIdx; i++) {
             String baseToken = (String) baseName.get(i);
             String urlToken = (String) urlName.get(i);
-            if (baseToken.equals(urlToken) == false) {
+            if (!baseToken.equals(urlToken)) {
                 return i;
             }
         }
@@ -173,10 +173,10 @@ public class IOUtils {
      * false otherwise.
      */
     private boolean isSameService(URL url, URL baseUrl) {
-        if (url.getProtocol().equals(baseUrl.getProtocol()) == false) {
+        if (!url.getProtocol().equals(baseUrl.getProtocol())) {
             return false;
         }
-        if (url.getHost().equals(baseUrl.getHost()) == false) {
+        if (!url.getHost().equals(baseUrl.getHost())) {
             return false;
         }
         if (url.getPort() != baseUrl.getPort()) {

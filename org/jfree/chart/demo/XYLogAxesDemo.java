@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------
  * XYLogAxesDemo.java
  * ------------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Clemens;
  *
  * $Id$
@@ -39,15 +39,17 @@
 package org.jfree.chart.demo;
 
 import java.awt.Color;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.LogarithmicAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.XYSeries;
 import org.jfree.data.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.HorizontalLogarithmicAxis;
-import org.jfree.chart.axis.VerticalLogarithmicAxis;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.ui.RefineryUtilities;
 
 /**
@@ -66,37 +68,44 @@ public class XYLogAxesDemo extends ApplicationFrame {
 
         super(title);
 
-        Object[][][] data = new Object[3][50][2];
+        //Object[][][] data = new Object[3][50][2];
         XYSeries s1 = new XYSeries("Series 1");
         XYSeries s2 = new XYSeries("Series 2");
         XYSeries s3 = new XYSeries("Series 3");
-        
+
+//        for (int i = 1; i <= 50; i++) {
+//            s1.add(i, 1000 * Math.pow(i, -2));
+//            s2.add(i, 1000 * Math.pow(i, -3));
+//            s3.add(i, 1000 * Math.pow(i, -4));
+//        }
+
         for (int i = 1; i <= 50; i++) {
-            s1.add(i, 1000 * Math.pow(i, -2));
-            s2.add(i, 1000 * Math.pow(i, -3));
-            s3.add(i, 1000 * Math.pow(i, -4));
+            s1.add(i, 10 * Math.exp(i / 5.0));
+            s2.add(i, 20 * Math.exp(i / 5.0));
+            s3.add(i, 30 * Math.exp(i / 5.0));
         }
-        
+
         XYSeriesCollection dataset = new XYSeriesCollection();
         dataset.addSeries(s1);
         dataset.addSeries(s2);
         dataset.addSeries(s3);
 
-        JFreeChart chart = ChartFactory.createLineXYChart("Log Axis Demo", // chart title
-                                                          "Category",      // domain axis label
-                                                          "Value",         // range axis label
-                                                          dataset,         // data
-                                                          true,            // include legend
-                                                          true,
-                                                          false
-                                                          );
-
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Log Axis Demo",          // chart title
+            "Category",               // domain axis label
+            "Value",                  // range axis label
+            dataset,                  // data
+            PlotOrientation.VERTICAL,
+            true,                     // include legend
+            true,
+            false
+        );
 
         XYPlot plot = chart.getXYPlot();
-        VerticalLogarithmicAxis v = new VerticalLogarithmicAxis("Log(y)");
-        HorizontalLogarithmicAxis h = new HorizontalLogarithmicAxis("Log(x)");
-        plot.setRangeAxis(v);
-        plot.setDomainAxis(h);
+        NumberAxis domainAxis = new NumberAxis("x");
+        NumberAxis rangeAxis = new LogarithmicAxis("Log(y)");
+        plot.setDomainAxis(domainAxis);
+        plot.setRangeAxis(rangeAxis);
         chart.setBackgroundPaint(Color.white);
         plot.setOutlinePaint(Color.black);
         ChartPanel chartPanel = new ChartPanel(chart);

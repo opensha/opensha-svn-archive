@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,11 +22,12 @@
  * ----------------
  * ChartEntity.java
  * ----------------
- * (C) Copyright 2002, 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   Richard Atkinson;
  *                   Xavier Poinsard;
+ *                   Robert Fuller;
  *
  * $Id$
  *
@@ -44,6 +45,9 @@
  *               image maps now work in Mozilla and Opera as well as Internet Explorer (RA);
  * 13-Mar-2003 : Change getImageMapAreaTag to only return a tag when there is a tooltip or URL,
  *               as suggested by Xavier Poinsard (see Feature Request 688079) (DG);
+ * 12-Aug-2003 : Added support for custom image maps using ToolTipTagFragmentGenerator and
+ *               URLTagFragmentGenerator (RA);
+ * 02-Sep-2003 : Incorporated fix (791901) submitted by Robert Fuller (DG);
  *
  */
 
@@ -52,6 +56,9 @@ package org.jfree.chart.entity;
 import java.awt.Shape;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
+
+import org.jfree.chart.imagemap.ToolTipTagFragmentGenerator;
+import org.jfree.chart.imagemap.URLTagFragmentGenerator;
 
 /**
  * A class that captures information about some component of a chart (a bar, line etc).
@@ -68,6 +75,15 @@ public class ChartEntity {
 
     /** The URL text for the entity. */
     private String urlText;
+
+    /**
+     * Creates a new chart entity.
+     *
+     * @param area  the area occupied by the entity.
+     */
+    public ChartEntity(Shape area) {
+        this(area, null);
+    }
 
     /**
      * Creates a new entity.
@@ -175,6 +191,15 @@ public class ChartEntity {
         int y1 = (int) rectangle.getY();
         int x2 = x1 + (int) rectangle.getWidth();
         int y2 = y1 + (int) rectangle.getHeight();
+        //      fix by rfuller
+        if (x2 == x1) {
+            x2++;
+        }
+        if (y2 == y1) {
+            y2++;
+        }
+        //      end fix by rfuller
+        
         return x1 + "," + y1 + "," + x2 + "," + y2;
     }
 
@@ -192,7 +217,7 @@ public class ChartEntity {
         boolean first = true;
         float[] coords = new float[6];
         PathIterator pi = shape.getPathIterator(null, 1.0);
-        while (pi.isDone() == false) {
+        while (!pi.isDone()) {
             pi.currentSegment(coords);
             if (first) {
                 first = false;
@@ -209,49 +234,28 @@ public class ChartEntity {
     /**
      * Returns an HTML image map tag tag for this entity.
      *
-     * @return the HTML tag
+     * @param toolTipTagFragmentGenerator  the generator for tooltip fragment.
+     * @param urlTagFragmentGenerator  the generator for the URL fragment.
+     * @return  The HTML tag
      */
-    public String getImageMapAreaTag() {
-        return getImageMapAreaTag(false);
-    }
-
-    /**
-     * Returns an HTML image map tag tag for this entity.
-     *
-     * @param useOverLibForToolTips Whether to use OverLIB for tooltips
-     *        (http://www.bosrup.com/web/overlib/).
-     *
-     * @return The HTML tag
-     */
-    public String getImageMapAreaTag(boolean useOverLibForToolTips) {
+    public String getImageMapAreaTag(ToolTipTagFragmentGenerator toolTipTagFragmentGenerator,
+                                     URLTagFragmentGenerator urlTagFragmentGenerator) {
 
         StringBuffer tag = new StringBuffer();
-        
         boolean hasURL = (this.urlText == null ? false : !this.urlText.equals(""));
         boolean hasToolTip = (this.toolTipText == null ? false : !this.toolTipText.equals(""));
-        if (hasURL || hasToolTip) { 
- 
-            tag.append("<AREA SHAPE=\"" + getShapeType() + "\""
-                       + " COORDS=\"" + getShapeCoords() + "\"");
-            
-            if (hasURL) {
-                tag.append(" href=\"" + this.urlText + "\"");
-            } 
-           
+        if (hasURL || hasToolTip) {
+            tag.append("<AREA SHAPE=\"" + getShapeType() + "\"" + " COORDS=\"" 
+                       + getShapeCoords() + "\"");
             if (hasToolTip) {
-                if (useOverLibForToolTips) { 
-                    tag.append(" onmouseover=\"return overlib('" + this.toolTipText 
-                               + "');\" onmouseout=\"return nd();\"");
-                } 
-                else { 
-                    tag.append(" title=\"" + this.toolTipText + "\"");
-                } 
-            } 
-            tag.append(">"); 
-        } 
-        
-        return tag.toString(); 
-
+                tag.append(toolTipTagFragmentGenerator.generateToolTipFragment(this.toolTipText));
+            }
+            if (hasURL) {
+                tag.append(urlTagFragmentGenerator.generateURLFragment(this.urlText));
+            }
+            tag.append(">");
+        }
+        return tag.toString();
     }
 
     /**

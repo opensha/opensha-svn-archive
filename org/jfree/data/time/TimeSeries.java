@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.  All rights reserved.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.  All rights reserved.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ---------------
  * TimeSeries.java
  * ---------------
- * (C) Copyright 2001-2003, by Simba Management Limited.
+ * (C) Copyright 2001-2003, by Object Refinery Limited.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -44,7 +44,10 @@
  * 29-Oct-2002 : Added series change notification to addOrUpdate(...) method (DG);
  * 28-Jan-2003 : Changed name back to TimeSeries (DG);
  * 13-Mar-2003 : Moved to com.jrefinery.data.time package and implemented Serializable (DG);
- *
+ * 01-May-2003 : Updated equals(...) method (see bug report 727575) (DG);
+ * 14-Aug-2003 : Added ageHistoryCountItems method (copied existing code for contents) made
+ *               a method and added to addOrUpdate.  Made a public method to enable ageing
+                 against a specified time (eg now) as opposed to lastest time in series.
  */
 
 package org.jfree.data.time;
@@ -62,7 +65,7 @@ import org.jfree.data.SeriesException;
  *
  * @author David Gilbert
  */
-public class TimeSeries extends Series implements Serializable {
+public class TimeSeries extends Series implements Cloneable, Serializable {
 
     /** Default value for the domain description. */
     protected static final String DEFAULT_DOMAIN_DESCRIPTION = "Time";
@@ -77,10 +80,10 @@ public class TimeSeries extends Series implements Serializable {
     private String range;
 
     /** The type of period for the data. */
-    private Class timePeriodClass;
+    protected Class timePeriodClass;
 
     /** The list of data pairs in the series. */
-    private List data;
+    protected List data;
 
     /** The maximum number of items for the series. */
     private int maximumItemCount;
@@ -202,6 +205,16 @@ public class TimeSeries extends Series implements Serializable {
     }
 
     /**
+     * Returns the list of data items for the series (the list contains {@link TimeSeriesDataItem}
+     * objects and is unmodifiable).
+     *
+     * @return The list of data items.
+     */
+    public List getItems() {
+        return Collections.unmodifiableList(this.data);
+    }
+
+    /**
      * Returns the maximum number of items that will be retained in the series.
      * <P>
      * The default value is <code>Integer.MAX_VALUE</code>).
@@ -269,8 +282,22 @@ public class TimeSeries extends Series implements Serializable {
      * @param index  the item index (zero-based).
      *
      * @return one data pair for the series.
+     * @deprecated Use getDataItem(int).
      */
     public TimeSeriesDataItem getDataPair(int index) {
+
+        return getDataItem(index);
+
+    }
+
+    /**
+     * Returns one data item for the series.
+     *
+     * @param index  the item index (zero-based).
+     *
+     * @return One data item for the series.
+     */
+    public TimeSeriesDataItem getDataItem(int index) {
 
         return (TimeSeriesDataItem) data.get(index);
 
@@ -282,14 +309,30 @@ public class TimeSeries extends Series implements Serializable {
      * @param period  the period of interest.
      *
      * @return the data pair matching the specified period (or null if there is no match).
+     * @deprecated Use getDataItem(RegularTimePeriod).
      *
      */
     public TimeSeriesDataItem getDataPair(RegularTimePeriod period) {
 
+        return getDataItem(period);
+
+    }
+
+    /**
+     * Returns the data item for a specific period.
+     *
+     * @param period  the period of interest (<code>null</code> not allowed).
+     *
+     * @return The data item matching the specified period (or <code>null</code> if there is
+     *         no match).
+     *
+     */
+    public TimeSeriesDataItem getDataItem(RegularTimePeriod period) {
+
         // check arguments...
         if (period == null) {
             throw new IllegalArgumentException(
-                "TimeSeries.getDataPair(...): null time period not allowed.");
+                "TimeSeries.getDataItem(...): null time period not allowed.");
         }
 
         // fetch the value...
@@ -371,23 +414,23 @@ public class TimeSeries extends Series implements Serializable {
     }
 
     /**
-     * Returns the index of the specified time period.
+     * Returns the index for the item (if any) that corresponds to a time period.
      *
-     * @param period  time period to lookup.
+     * @param period  the time period (<code>null</code> not permitted).
      *
-     * @return the index of the specified time period.
+     * @return The index.
      */
     public int getIndex(RegularTimePeriod period) {
 
-        if (period != null) {
-            // fetch the value...
-            TimeSeriesDataItem dummy = new TimeSeriesDataItem(period, new Integer(0));
-            int index = Collections.binarySearch(data, dummy);
-            return index;
+        // check argument...
+        if (period == null) {
+            throw new IllegalArgumentException("TimeSeries.getIndex(...) : null not permitted.");
         }
-        else {
-            return -1;
-        }
+        
+        // fetch the value...
+        TimeSeriesDataItem dummy = new TimeSeriesDataItem(period, new Integer(0));
+        int index = Collections.binarySearch(data, dummy);
+        return index;
 
     }
 
@@ -455,12 +498,7 @@ public class TimeSeries extends Series implements Serializable {
             }
 
             // check if there are any values earlier than specified by the history count...
-            if ((getItemCount() > 1) && (this.historyCount > 0)) {
-                long latest = getTimePeriod(getItemCount() - 1).getSerialIndex();
-                while ((latest - getTimePeriod(0).getSerialIndex()) >= historyCount) {
-                    this.data.remove(0);
-                }
-            }
+            ageHistoryCountItems();
             fireSeriesChanged();
         }
         else {
@@ -563,9 +601,7 @@ public class TimeSeries extends Series implements Serializable {
                 }
             }
         }
-
         return overwritten;
-
     }
 
     /**
@@ -586,15 +622,46 @@ public class TimeSeries extends Series implements Serializable {
             TimeSeriesDataItem existing = (TimeSeriesDataItem) data.get(index);
             overwritten = (TimeSeriesDataItem) existing.clone();
             existing.setValue(value);
+            ageHistoryCountItems();
             fireSeriesChanged();
         }
         else {
             data.add(-index - 1, new TimeSeriesDataItem(period, value));
+            ageHistoryCountItems();
             fireSeriesChanged();
         }
-
         return overwritten;
 
+    }
+
+    /**
+     * age items in the series.  Ensure that the timespan from the youngest to the oldest record
+     * in the series does not exceed history count.  oldest items will be removed if required
+     */
+    public void ageHistoryCountItems() {
+      // check if there are any values earlier than specified by the history count...
+      if ((getItemCount() > 1) && (this.historyCount > 0)) {
+        long latest = getTimePeriod(getItemCount() - 1).getSerialIndex();
+        while ((latest - getTimePeriod(0).getSerialIndex()) >= historyCount) {
+          this.data.remove(0);
+        }
+      }
+    }
+
+    /**
+     * age items in the series.  Ensure that the timespan from the supplied time to the
+     * oldest record in the series does not exceed history count.  oldest items will be
+     * removed if required
+     *
+     * @param latest the time to be compared against when aging data.
+     */
+    public void ageHistoryCountItems(long latest) {
+      // check if there are any values earlier than specified by the history count...
+      if ((getItemCount() > 1) && (this.historyCount > 0)) {
+        while ((latest - getTimePeriod(0).getSerialIndex()) >= historyCount) {
+          this.data.remove(0);
+        }
+      }
     }
 
     /**
@@ -627,12 +694,9 @@ public class TimeSeries extends Series implements Serializable {
      * <P>
      * Notes:
      * <ul>
-     *   <li>
-     *     no need to clone the domain and range descriptions, since String object is immutable;
-     *   </li>
-     *   <li>
-     *     we pass over to the more general method clone(start, end).
-     *   </li>
+     *   <li>no need to clone the domain and range descriptions, since String object is 
+     *     immutable;</li>
+     *   <li>we pass over to the more general method clone(start, end).</li>
      * </ul>
      *
      * @return a clone of the time series.
@@ -660,8 +724,8 @@ public class TimeSeries extends Series implements Serializable {
         copy.data = new java.util.ArrayList();
         if (data.size() > 0) {
             for (int index = start; index <= end; index++) {
-                TimeSeriesDataItem pair = (TimeSeriesDataItem) this.data.get(index);
-                TimeSeriesDataItem clone = (TimeSeriesDataItem) pair.clone();
+                TimeSeriesDataItem item = (TimeSeriesDataItem) this.data.get(index);
+                TimeSeriesDataItem clone = (TimeSeriesDataItem) item.clone();
                 try {
                     copy.add(clone);
                 }
@@ -686,40 +750,66 @@ public class TimeSeries extends Series implements Serializable {
     public TimeSeries createCopy(RegularTimePeriod start, RegularTimePeriod end) {
 
         int startIndex = getIndex(start);
+        if (startIndex < 0) {
+            startIndex = -(startIndex + 1);
+        }
         int endIndex = getIndex(end);
-        TimeSeries copy = createCopy(startIndex, endIndex);
-        return copy;
+        if (endIndex < 0) {               // end period is not in original series
+            endIndex = -(endIndex + 1);  // this gives first item AFTER end period
+            endIndex = endIndex - 1;      // so this gives last item BEFORE end period
+        }
+        
+        TimeSeries result = createCopy(startIndex, endIndex);        
+        
+        return result;
 
     }
-    
+
     /**
-     * Tests this time series for equality with another object.
-     * 
-     * @param target  the other object.
-     * 
-     * @return A boolean.
+     * Tests the series for equality with another object.
+     *
+     * @param object  the object.
+     *
+     * @return <code>true</code> or <code>false</code>.
      */
-    public boolean equals(Object target) {
-        
-        boolean result = false;
-        
-        if (this == target) {
-            result = true;
-        }     
-        else {
-            if (target instanceof TimeSeries) {
-                TimeSeries s = (TimeSeries) target;
+    public boolean equals(Object object) {
+
+        if (object == null) {
+            return false;
+        }
+
+        if (object == this) {
+            return true;
+        }
+
+        boolean result = super.equals(object);
+
+        if (object instanceof TimeSeries) {
+            TimeSeries s = (TimeSeries) object;
+            boolean b1 = getDomainDescription().equals(s.getDomainDescription());
+            boolean b2 = getRangeDescription().equals(s.getRangeDescription());
+            boolean b3 = getClass().equals(s.getClass());
+            boolean b4 = getHistoryCount() == s.getHistoryCount();
+            boolean b5 = getMaximumItemCount() == s.getMaximumItemCount();
+
+            result = result && b1 && b2 && b3 && b4 && b5;
+
+            if (result == true) {
+
+                boolean match = true;
                 int count = getItemCount();
-                boolean same = true;
-                if (s.getItemCount() == count) {
+                if (count == s.getItemCount()) {
                     for (int i = 0; i < count; i++) {
-                        same = same && getDataPair(i).equals(s.getDataPair(i));
-                        if (!same) {
+                        match = match && getDataPair(i).equals(s.getDataPair(i));
+                        if (!match) {
                             continue;
                         }
                     }
+                    result = match;
                 }
-                result = same;
+                else {
+                    result = false;
+                }
             }
         }
 

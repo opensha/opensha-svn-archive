@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by David M. O'Donnell and Contributors.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -40,19 +40,14 @@ package org.jfree.chart.demo;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.util.Date;
-import org.jfree.chart.JFreeChart;
+
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.axis.HorizontalColorBarAxis;
-import org.jfree.chart.axis.HorizontalDateAxis;
-import org.jfree.chart.axis.HorizontalLogarithmicAxis;
-import org.jfree.chart.axis.HorizontalLogarithmicColorBarAxis;
-import org.jfree.chart.axis.HorizontalNumberAxis;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ColorBar;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
-import org.jfree.chart.axis.VerticalColorBarAxis;
-import org.jfree.chart.axis.VerticalLogarithmicAxis;
-import org.jfree.chart.axis.VerticalLogarithmicColorBarAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
 import org.jfree.chart.plot.ContourPlot;
 import org.jfree.data.ContourDataset;
 import org.jfree.data.DefaultContourDataset;
@@ -71,12 +66,12 @@ public class ContourPlotDemo extends ApplicationFrame {
 
     /** The x-axis. */
     private ValueAxis xAxis = null;
-    
+
     /** The y-axis. */
     private NumberAxis yAxis = null;
-    
+
     /** The z-axis. */
-    private NumberAxis zAxis = null;
+    private ColorBar zColorBar = null;
 
     /** Flag for vertical z-axis. */
     private static boolean zIsVertical = false;
@@ -86,19 +81,19 @@ public class ContourPlotDemo extends ApplicationFrame {
 
     /** Flag for x is log. */
     private static boolean xIsLog = false;
-    
+
     /** Flag for y is log. */
     private static boolean yIsLog = false;
-    
+
     /** Flag for z is log. */
     private static boolean zIsLog = false;
 
     /** Flag for x is inverted. */
     private static boolean xIsInverted = false;
-    
+
     /** Flag for y is inverted. */
     private static boolean yIsInverted = false;
-    
+
     /** Flag for z is inverted. */
     private static boolean zIsInverted = false;
 
@@ -107,13 +102,14 @@ public class ContourPlotDemo extends ApplicationFrame {
 
     /** The number of x values in the dataset. */
     private static int numX = 10;
-    
+
     /** The number of y values in the dataset. */
     private static int numY = 20;
 
     /** The ratio. */
     private static double ratio = 0.0;
     
+    /** The panel. */
     public ChartPanel panel = null;
 
 
@@ -151,49 +147,38 @@ public class ContourPlotDemo extends ApplicationFrame {
         String zAxisLabel = "Color Values";
 
         if (xIsDate) {
-            xAxis = new HorizontalDateAxis(xAxisLabel);
+            xAxis = new DateAxis(xAxisLabel);
             xIsLog = false; // force axis to be linear when displaying dates
         }
         else {
             if (xIsLog) {
-                xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
+                xAxis = new LogarithmicAxis(xAxisLabel);
             }
             else {
-                xAxis = new HorizontalNumberAxis(xAxisLabel);
+                xAxis = new NumberAxis(xAxisLabel);
             }
         }
 
         if (yIsLog) {
-            yAxis = new VerticalLogarithmicAxis(yAxisLabel);
+            yAxis = new LogarithmicAxis(yAxisLabel);
         }
         else {
-            yAxis = new VerticalNumberAxis(yAxisLabel);
+            yAxis = new NumberAxis(yAxisLabel);
         }
 
-        if (zIsVertical) {
-            if (zIsLog) {
-                zAxis = new VerticalLogarithmicColorBarAxis(zAxisLabel);
-            }
-            else {
-                zAxis = new VerticalColorBarAxis(zAxisLabel);
-            }
+        if (zIsLog) {
+            zColorBar = new ColorBar(zAxisLabel);
         }
         else {
-            if (zIsLog) {
-                zAxis = new HorizontalLogarithmicColorBarAxis(zAxisLabel);
-            }
-            else {
-                zAxis = new HorizontalColorBarAxis(zAxisLabel);
-            }
+            zColorBar = new ColorBar(zAxisLabel);
         }
-
-        if (xAxis instanceof HorizontalNumberAxis) {
-            ((HorizontalNumberAxis) xAxis).setAutoRangeIncludesZero(false);
-            ((HorizontalNumberAxis) xAxis).setInverted(xIsInverted);
+ 
+        if (xAxis instanceof NumberAxis) {
+            ((NumberAxis) xAxis).setAutoRangeIncludesZero(false);
+            ((NumberAxis) xAxis).setInverted(xIsInverted);
         }
 
         yAxis.setAutoRangeIncludesZero(false);
-        zAxis.setAutoRangeIncludesZero(false);
 
         yAxis.setInverted(yIsInverted);
 
@@ -205,12 +190,12 @@ public class ContourPlotDemo extends ApplicationFrame {
         yAxis.setLowerMargin(0.0);
         yAxis.setUpperMargin(0.0);
 
-        zAxis.setInverted(zIsInverted);
-        zAxis.setTickMarksVisible(true);
+        zColorBar.getAxis().setInverted(zIsInverted);
+        zColorBar.getAxis().setTickMarksVisible(true);
 
         ContourDataset data = createDataset();
 
-        ContourPlot plot = new ContourPlot(data, xAxis, yAxis, zAxis);
+        ContourPlot plot = new ContourPlot(data, xAxis, yAxis, zColorBar);
 
         if (xIsDate) {
             ratio = Math.abs(ratio); // don't use plot units for ratios when x axis is date
@@ -230,12 +215,11 @@ public class ContourPlotDemo extends ApplicationFrame {
      * @return ContourDataset.
      */
     private ContourDataset createDataset() {
-        
+
         int numValues = numX * numY;
         Date[] tmpDateX = new Date[numValues];
         double[] tmpDoubleX = new double[numValues];
         double[] tmpDoubleY = new double[numValues];
-        double[] tmpDoubleZ = new double[numValues];
 
         Double[] oDoubleX = new Double[numValues];
         Double[] oDoubleY = new Double[numValues];
@@ -261,7 +245,7 @@ public class ContourPlotDemo extends ApplicationFrame {
             double rad = Math.random();
             if (makeHoles && (rad > 0.4 && rad < 0.6)) {
                 oDoubleZ[k] = null;
-            } 
+            }
             else {
 //                tmpDoubleZ[k] = 3.0 * ((tmpDoubleX[k] + 1) * (tmpDoubleY[k] + 1) + 100);
                 oDoubleZ[k] = new Double(3.0 * ((tmpDoubleX[k] + 1) * (tmpDoubleY[k] + 1) + 100));
@@ -272,7 +256,7 @@ public class ContourPlotDemo extends ApplicationFrame {
 
         if (xIsDate) {
             data = new DefaultContourDataset("Contouring", tmpDateX, oDoubleY, oDoubleZ);
-        } 
+        }
         else {
             data = new DefaultContourDataset("Contouring", oDoubleX, oDoubleY, oDoubleZ);
         }
@@ -284,20 +268,20 @@ public class ContourPlotDemo extends ApplicationFrame {
      * Sets options passed via the command line
      *
      * @param args  the command line arguments.
-     * 
+     *
      * @return Flag indicating whether program should continue.
      */
     protected static boolean processArgs(String[] args) {
-        
-        String[] options = { "-?", 
-                             "-invert", 
-                             "-log", 
-                             "-date", 
-                             "-vertical", 
-                             "-holes", 
-                             "-ratio:",
-                             "-numX:", 
-                             "-numY:" };
+
+        String[] options = {"-?",
+                            "-invert",
+                            "-log",
+                            "-date",
+                            "-vertical",
+                            "-holes",
+                            "-ratio:",
+                            "-numX:",
+                            "-numY:"};
 
         for (int i = 0; i < args.length; i++) {
             boolean foundOption = false;

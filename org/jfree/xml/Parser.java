@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C)opyright 2003, by Thomas Morgner and Contributors.
  *
  * Original Author:  Thomas Morgner (taquera@sherito.org);
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -33,15 +33,19 @@
  * -------
  * 09-Jan-2003 : Initial version.
  * 29-Apr-2003 : Destilled from the JFreeReport project and moved into JCommon
- *
+ * 14-Jul-2003 : More help with the error location given by catching all exceptions.
+ * 
  */
+ 
 package org.jfree.xml;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
+import org.jfree.util.Configuration;
+import org.jfree.util.DefaultConfiguration;
 import org.xml.sax.Attributes;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -54,7 +58,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author Thomas Morgner
  */
-public abstract class Parser extends DefaultHandler {
+public abstract class Parser extends DefaultHandler implements Configuration {
 
     /** A key for the content base. */
     public static final String CONTENTBASE_KEY = "content-base";
@@ -66,14 +70,46 @@ public abstract class Parser extends DefaultHandler {
     private ElementDefinitionHandler initialFactory;
 
     /** Storage for the parser configuration. */
-    private HashMap parserConfiguration;
+    private DefaultConfiguration parserConfiguration;
+
+    /** Storage for temporary objects and factories used during the parsing process. */
+    private HashMap parserHelperObjects;
+
+    /** The DocumentLocator can be used to resolve the current parse position. */
+    private Locator locator;
 
     /**
      * Creates a new parser.
      */
     public Parser() {
         activeFactories = new Stack();
-        parserConfiguration = new HashMap();
+        parserConfiguration = new DefaultConfiguration();
+        parserHelperObjects = new HashMap();
+    }
+
+    /**
+     * Receive an object for locating the origin of SAX document events.
+     *
+     * The locator allows the application to determine the end position of
+     * any document-related event, even if the parser is not reporting an
+     * error. Typically, the application will use this information for
+     * reporting its own errors (such as character content that does not
+     * match an application's business rules). The information returned by
+     * the locator is probably not sufficient for use with a search engine.
+     *
+     * @param locator  the locator.
+     */
+    public void setDocumentLocator(Locator locator) {
+        this.locator = locator;
+    }
+
+    /**
+     * Returns the current locator.
+     *
+     * @return the locator.
+     */
+    public Locator getLocator() {
+        return locator;
     }
 
     /**
@@ -155,7 +191,16 @@ public abstract class Parser extends DefaultHandler {
      */
     public void characters(char ch[], int start, int length)
         throws SAXException {
-        peekFactory().characters(ch, start, length);
+        try {
+            peekFactory().characters(ch, start, length);
+        }
+        catch (ParseException pe)
+        {
+            throw pe;
+        }
+        catch (Exception e) {
+            throw new ParseException(e, getLocator());
+        }
     }
 
     /**
@@ -176,8 +221,18 @@ public abstract class Parser extends DefaultHandler {
      */
     public void endElement(String uri, String localName, String qName)
         throws SAXException {
-        peekFactory().endElement(qName);
+        try {
+            peekFactory().endElement(qName);
+        }
+        catch (ParseException pe)
+        {
+            throw pe;
+        }
+        catch (Exception e) {
+            throw new ParseException(e, getLocator());
+        }
     }
+
 
     /**
      * Receive notification of the start of an element.
@@ -199,7 +254,16 @@ public abstract class Parser extends DefaultHandler {
     public void startElement(String uri, String localName,
                              String qName, Attributes attributes)
         throws SAXException {
-        peekFactory().startElement(qName, attributes);
+        try {
+            peekFactory().startElement(qName, attributes);
+        }
+        catch (ParseException pe)
+        {
+            throw pe;
+        }
+        catch (Exception e) {
+            throw new ParseException(e, getLocator());
+        }
     }
 
     /**
@@ -221,23 +285,30 @@ public abstract class Parser extends DefaultHandler {
     }
 
     /**
-     * Returns the parser configuration.
+     * Returns the configuration property with the specified key.
      *
-     * @return A hash table.
+     * @param key  the property key.
+     *
+     * @return the property value.
      */
-    public Map getParserConfiguration() {
-        return parserConfiguration;
+    public String getConfigProperty(String key) {
+        return getConfigProperty(key, null);
     }
 
     /**
-     * Returns a configuration value.
+     * Returns the configuration property with the specified key (or the specified default value
+     * if there is no such property).
+     * <p>
+     * If the property is not defined in this configuration, the code will lookup the property in
+     * the parent configuration.
      *
-     * @param key  the key.
+     * @param key  the property key.
+     * @param defaultValue  the default value.
      *
-     * @return An object.
+     * @return the property value.
      */
-    public Object getConfigurationValue(Object key) {
-        return parserConfiguration.get(key);
+    public String getConfigProperty(String key, String defaultValue) {
+        return parserConfiguration.getConfigProperty(key, defaultValue);
     }
 
     /**
@@ -246,13 +317,39 @@ public abstract class Parser extends DefaultHandler {
      * @param key  the key.
      * @param value  the value.
      */
-    public void setConfigurationValue(Object key, Object value) {
+    public void setConfigProperty(String key, String value) {
         if (value == null) {
             parserConfiguration.remove(key);
         }
         else {
-            parserConfiguration.put(key, value);
+            parserConfiguration.setProperty(key, value);
         }
+    }
+
+    /**
+     * Sets a helper object.
+     * 
+     * @param key  the key.
+     * @param value  the value.
+     */
+    public void setHelperObject(String key, Object value) {
+        if (value == null) {
+            parserHelperObjects.remove(key);
+        }
+        else {
+            parserHelperObjects.put(key, value);
+        }
+    }
+
+    /**
+     * Returns a helper object.
+     * 
+     * @param key  the key.
+     * 
+     * @return The object.
+     */
+    public Object getHelperObject(String key) {
+        return parserHelperObjects.get(key);
     }
 
     /**

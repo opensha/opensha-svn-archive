@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------
  * TimeSeriesDemo2.java
  * --------------------
- * (C) Copyright 2002, 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2002, 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -37,9 +37,9 @@
 
 package org.jfree.chart.demo;
 
-import org.jfree.chart.JFreeChart;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
 import org.jfree.chart.Marker;
 import org.jfree.data.time.Quarter;
 import org.jfree.data.time.TimeSeries;
@@ -48,7 +48,7 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
 /**
- * A demo showing a time series (quarterly data) with a <code>null</code> value.  The 
+ * A demo showing a time series (quarterly data) with a <code>null</code> value.  The
  * <code>null</code> value causes a gap in the line connecting the data points.
  *
  * @author David Gilbert
@@ -76,7 +76,7 @@ public class TimeSeriesDemo2 extends ApplicationFrame {
         TimeSeriesCollection dataset = new TimeSeriesCollection(series);
         JFreeChart chart = ChartFactory.createTimeSeriesChart("Time Series Demo 2",
                                                               "Time", "Value",
-                                                              dataset, 
+                                                              dataset,
                                                               true,
                                                               true,
                                                               false);

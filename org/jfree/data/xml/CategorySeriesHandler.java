@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * --------------------------
  * CategorySeriesHandler.java
  * --------------------------
- * (C) Copyright 2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2003, by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -39,31 +39,30 @@ package org.jfree.data.xml;
 
 import java.util.Iterator;
 
+import org.jfree.data.DefaultKeyedValues;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import org.jfree.data.DefaultKeyedValues;
-
 /**
- * A handler for reading a series for a category dataset. 
- * 
+ * A handler for reading a series for a category dataset.
+ *
  * @author David Gilbert
  */
 public class CategorySeriesHandler extends DefaultHandler implements DatasetTags {
-    
+
     /** The root handler. */
     private RootHandler root;
 
     /** The series name. */
     private String seriesName;
-    
+
     /** The values. */
     private DefaultKeyedValues values;
-    
+
     /**
      * Creates a new item handler.
-     * 
+     *
      * @param root  the root handler.
      */
     public CategorySeriesHandler(RootHandler root) {
@@ -73,7 +72,7 @@ public class CategorySeriesHandler extends DefaultHandler implements DatasetTags
 
     /**
      * Sets the series name.
-     * 
+     *
      * @param name  the name.
      */
     public void setSeriesName(String name) {
@@ -82,22 +81,22 @@ public class CategorySeriesHandler extends DefaultHandler implements DatasetTags
 
     /**
      * Adds an item to the temporary storage for the series.
-     * 
+     *
      * @param key  the key.
      * @param value  the value.
      */
     public void addItem(Comparable key, Number value) {
         this.values.addValue(key, value);
     }
-    
+
     /**
      * The start of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
      * @param atts  the attributes.
-     * 
+     *
      * @throws SAXException for errors.
      */
     public void startElement(String namespaceURI,
@@ -115,7 +114,7 @@ public class CategorySeriesHandler extends DefaultHandler implements DatasetTags
             this.root.pushSubHandler(subhandler);
             subhandler.startElement(namespaceURI, localName, qName, atts);
         }
-        
+
         else {
             throw new SAXException("Expecting <Series> or <Item> tag...found " + qName);
         }
@@ -123,7 +122,7 @@ public class CategorySeriesHandler extends DefaultHandler implements DatasetTags
 
     /**
      * The end of an element.
-     * 
+     *
      * @param namespaceURI  the namespace.
      * @param localName  the element name.
      * @param qName  the element name.
@@ -134,7 +133,7 @@ public class CategorySeriesHandler extends DefaultHandler implements DatasetTags
 
         if (this.root instanceof CategoryDatasetHandler) {
             CategoryDatasetHandler handler = (CategoryDatasetHandler) this.root;
-            
+
             Iterator iterator = values.getKeys().iterator();
             while (iterator.hasNext()) {
                 Comparable key = (Comparable) iterator.next();
@@ -146,5 +145,5 @@ public class CategorySeriesHandler extends DefaultHandler implements DatasetTags
         }
 
     }
-    
+
 }

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -33,12 +33,12 @@
 
 package org.jfree.threads;
 
-import java.util.Vector;
 import java.util.Enumeration;
+import java.util.Vector;
 
 /**
  * A reader-writer lock from "Java Threads" by Scott Oak and Henry Wong.
- * 
+ *
  * @author Scott Oak and Henry Wong
  */
 public class ReaderWriterLock {
@@ -130,7 +130,7 @@ public class ReaderWriterLock {
 
     /**
      * Returns the index of the first waiting writer.
-     * 
+     *
      * @return The index.
      */
     private int firstWriter() {
@@ -147,9 +147,9 @@ public class ReaderWriterLock {
 
     /**
      * Returns the index of a thread.
-     * 
+     *
      * @param t  the thread.
-     * 
+     *
      * @return The index.
      */
     private int getIndex(Thread t) {
@@ -168,20 +168,20 @@ public class ReaderWriterLock {
 
 /**
  * A node for the waiting list.
- * 
+ *
  * @author Scott Oak and Henry Wong
  */
 class ReaderWriterNode {
 
     /** A reader. */
     static final int READER = 0;
-    
+
     /** A writer. */
     static final int WRITER = 1;
-    
+
     /** The thread. */
     Thread t;
-    
+
     /** The state. */
     int state;
 
@@ -190,7 +190,7 @@ class ReaderWriterNode {
 
     /**
      * Creates a new node.
-     * 
+     *
      * @param t  the thread.
      * @param state  the state.
      */

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -22,9 +22,9 @@
  * ------------------------
  * CombinedXYPlotTests.java
  * ------------------------
- * (C) Copyright 2003 by Simba Management Limited and Contributors.
+ * (C) Copyright 2003 by Object Refinery Limited and Contributors.
  *
- * Original Author:  David Gilbert (for Simba Management Limited);
+ * Original Author:  David Gilbert (for Object Refinery Limited);
  * Contributor(s):   -;
  *
  * $Id$
@@ -48,16 +48,15 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.jfree.chart.axis.AxisConstants;
-import org.jfree.chart.axis.HorizontalDateAxis;
-import org.jfree.chart.axis.VerticalNumberAxis;
-import org.jfree.chart.plot.CombinedXYPlot;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.labels.TimeSeriesToolTipGenerator;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.DefaultDrawingSupplier;
-import org.jfree.chart.renderer.DrawingSupplier;
-import org.jfree.chart.renderer.VerticalXYBarRenderer;
+import org.jfree.chart.renderer.StandardXYItemRenderer;
+import org.jfree.chart.renderer.XYBarRenderer;
 import org.jfree.chart.renderer.XYItemRenderer;
-import org.jfree.chart.tooltips.TimeSeriesToolTipGenerator;
 import org.jfree.data.IntervalXYDataset;
 import org.jfree.data.XYDataset;
 import org.jfree.data.time.Day;
@@ -94,52 +93,46 @@ public class CombinedXYPlotTests extends TestCase {
      * Serialize an instance, restore it, and check for equality.
      */
     public void testSerialization() {
-        
-        // create a parent plot...
-        CombinedXYPlot p1 = new CombinedXYPlot(new VerticalNumberAxis("Value"), 
-                                               CombinedXYPlot.HORIZONTAL);
-        p1.setRangeAxisLocation(AxisConstants.RIGHT);
 
-        // create a drawing supplier to ensure all series use a unique paint/stroke...
-        DrawingSupplier supplier = new DefaultDrawingSupplier();
-        
+        // create a parent plot...
+        CombinedDomainXYPlot p1 = new CombinedDomainXYPlot(new NumberAxis("Value"));
+        p1.setRangeAxisLocation(AxisLocation.TOP_OR_RIGHT);
+
         // create subplot 1...
         IntervalXYDataset data1 = createDataset1();
-        XYItemRenderer renderer1 = new VerticalXYBarRenderer(0.20);
-        renderer1.setDrawingSupplier(supplier);
+        XYItemRenderer renderer1 = new XYBarRenderer(0.20);
         renderer1.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0,000.0"));
-        XYPlot subplot1 = new XYPlot(data1, new HorizontalDateAxis("Date"), null, renderer1);
+        XYPlot subplot1 = new XYPlot(data1, new DateAxis("Date"), null, renderer1);
 
         // create subplot 2...
         XYDataset data2 = this.createDataset2();
-        XYPlot subplot2 = new XYPlot(data2, new HorizontalDateAxis("Date"), null);
-        XYItemRenderer renderer2 = subplot2.getRenderer();
-        renderer2.setDrawingSupplier(supplier);
+        XYItemRenderer renderer2 = new StandardXYItemRenderer();
         renderer2.setToolTipGenerator(new TimeSeriesToolTipGenerator("d-MMM-yyyy", "0,000.0"));
+        XYPlot subplot2 = new XYPlot(data2, new DateAxis("Date"), null, renderer2);
 
         // add the subplots...
         p1.add(subplot1, 1);
         p1.add(subplot2, 1);
-                                                              
-        CombinedXYPlot p2 = null;
-        
+
+        CombinedDomainXYPlot p2 = null;
+
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             ObjectOutput out = new ObjectOutputStream(buffer);
             out.writeObject(p1);
             out.close();
-        
+
             ObjectInput in = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
-            p2 = (CombinedXYPlot) in.readObject();
+            p2 = (CombinedDomainXYPlot) in.readObject();
             in.close();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        assertEquals(p1, p2); 
-        
+        assertEquals(p1, p2);
+
     }
-    
+
     /**
      * Creates a sample dataset.
      *

@@ -5,7 +5,7 @@
  * Project Info:  http://www.jfree.org/jfreechart/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2003, by Simba Management Limited and Contributors.
+ * (C) Copyright 2000-2003, by Object Refinery Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -25,7 +25,7 @@
  * (C) Copyright 2002, 2003, by David M. O'Donnell.
  *
  * Original Author:  David M. O'Donnell;
- * Contributor(s):   David Gilbert (for Simba Management Limited);
+ * Contributor(s):   David Gilbert (for Object Refinery Limited);
  *
  * $Id$
  *
@@ -53,7 +53,7 @@ import javax.swing.ListCellRenderer;
 
 /**
  * A panel that displays a palette sample.
- * 
+ *
  * @author David M. O'Donnell
  */
 public class PaletteSample extends JComponent implements ListCellRenderer {
@@ -66,7 +66,7 @@ public class PaletteSample extends JComponent implements ListCellRenderer {
 
     /**
      * Creates a new sample.
-     * 
+     *
      * @param palette  the palette.
      */
     public PaletteSample(ColorPalette palette) {
@@ -77,13 +77,13 @@ public class PaletteSample extends JComponent implements ListCellRenderer {
     /**
      * Returns a list cell renderer for the stroke, so the sample can be displayed in a list or
      * combo.
-     * 
+     *
      * @param list  the list component.
      * @param value  the value.
      * @param index  the index.
      * @param isSelected  a flag that indicates whether or not the item is selected.
      * @param cellHasFocus  a flag that indicates whether or not the cell has the focus.
-     * 
+     *
      * @return The renderer.
      */
     public Component getListCellRendererComponent(JList list, Object value, int index,
@@ -97,7 +97,7 @@ public class PaletteSample extends JComponent implements ListCellRenderer {
 
     /**
      * Returns the current palette object being displayed.
-     * 
+     *
      * @return The palette.
      */
     public ColorPalette getPalette() {
@@ -106,7 +106,7 @@ public class PaletteSample extends JComponent implements ListCellRenderer {
 
     /**
      * Returns the preferred size of the component.
-     * 
+     *
      * @return The preferred size.
      */
     public Dimension getPreferredSize() {
@@ -115,7 +115,7 @@ public class PaletteSample extends JComponent implements ListCellRenderer {
 
     /**
      * Draws the sample.
-     * 
+     *
      * @param g  the graphics device.
      */
     public void paintComponent(Graphics g) {
@@ -145,12 +145,12 @@ public class PaletteSample extends JComponent implements ListCellRenderer {
 
     /**
      * Sets the palette object being displayed.
-     * 
+     *
      * @param palette  the palette.
      */
     public void setPalette(ColorPalette palette) {
         this.palette = palette;
         this.repaint();
     }
-    
+
 }
