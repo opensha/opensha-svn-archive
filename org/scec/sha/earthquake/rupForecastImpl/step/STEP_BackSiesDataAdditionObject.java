@@ -43,14 +43,13 @@ public class STEP_BackSiesDataAdditionObject {
    * @param step : ArrayList for the Step Addon Prob
    * backGround and Addon
    */
-  public ArrayList addDataSet(ArrayList backSiesDataSet,ArrayList stepDataSet){
-    ArrayList resultSet = new ArrayList();
-    int size = backSiesDataSet.size();
+  public double[] addDataSet(double[] backSiesDataSet,double[] stepDataSet){
+
+    int size = backSiesDataSet.length;
+    double[] resultSet = new double[size];
     for(int i=0;i<size;++i){
-      double backSiesProb = ((Double)backSiesDataSet.get(i)).doubleValue();
-      double stepAddonProb = ((Double)stepDataSet.get(i)).doubleValue();
-      double finalProb = backSiesProb + stepAddonProb - (backSiesProb)*(stepAddonProb);
-      resultSet.add(new Double(finalProb));
+      double finalProb = backSiesDataSet[i] + stepDataSet[i] - (backSiesDataSet[i])*(stepDataSet[i]);
+      resultSet[i] = finalProb;
     }
     return resultSet;
   }

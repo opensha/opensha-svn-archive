@@ -66,6 +66,41 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
   }
 
 
+
+  /**
+   * Gets the list for Site Params for region from application called this function.
+   * @param willsSiteClass : String Array of Wills Site Class Values
+   * @param bd : double Array of Basin Depth Values
+   */
+  public void setSiteParamsForRegion(String[] willsSiteClass, double[] bd){
+    //as we are getting the values from application and want to set the site params
+
+    if(willsSiteClass != null && bd != null && willsSiteClass.length != bd.length)
+      throw new RuntimeException("Invalid Range Site Type Values, both Wills "+
+                                 "Site Class and Basindepth should have same number of values");
+
+    //if either wills site class or basin depth are not null
+    if(willsSiteClass !=null || bd!=null){
+      //either wills site class or basin depth are not null then each site needs
+      //to be filled up with actaul site type parameters.
+       setSameSiteParams = false;
+       //if wills site class vlaues are not null then fill their values
+       if(willsSiteClass !=null){
+         int size = willsSiteClass.length;
+         vs30 = new ArrayList();
+         for(int i=0;i<size;++i)
+           vs30.add(new String(willsSiteClass[i]));
+       }
+       //If basin depth Values are not null, then fill in their values
+       if(bd !=null){
+         int size = bd.length;
+         basinDepth = new ArrayList();
+         for(int i=0;i<size;++i)
+           basinDepth.add(new Double(bd[i]));
+       }
+    }
+  }
+
   /**
    * Gets the site at specified index.
    * @param index

@@ -54,11 +54,14 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final String METADATA_FILE_SUFFIX = "_metadata.dat";
   private static final String WILLS_SITE_CLASS_FILE_NAME = "wills_class.txt";
   private static final double IML_VALUE = Math.log(0.126);
-  private ArrayList latVals;
-  private ArrayList lonVals;
+  private double[] latVals;
+  private double[] lonVals;
   //list to store the Wills Site Class Value
-  private ArrayList willSiteClassVals ;
+  private String[] willSiteClassVals ;
   DecimalFormat format = new DecimalFormat("0.00##");
+
+  //number fo sites for which calculation has to be done
+  private int numSites;
 
   public STEP_DataSetGenerator() {
     try{
@@ -81,10 +84,6 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       }
       long currentTime = System.currentTimeMillis();
       fw.write("Time to instantiate STEP ERF :"+(currentTime - startTime)+"\n");
-      latVals = new ArrayList();
-      lonVals = new ArrayList();
-      //list to store the Wills Site Class Value
-      willSiteClassVals = new ArrayList();
 
       // make the imr
       ShakeMap_2003_AttenRel attenRel = new ShakeMap_2003_AttenRel(this);
@@ -103,13 +102,15 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Region Object :"+(currentTime - startTime)+"\n");
 
-      int numSites = region.getNumGridLocs();
+      numSites = region.getNumGridLocs();
+      latVals = new double[numSites];
+      lonVals = new double[numSites];
 
       //adding the numSites to the lat and Lon ArrayList
       for(int i=0;i<numSites;++i){
 
-        latVals.add(new Double(format.format(region.getSite(i).getLocation().getLatitude())));
-        lonVals.add(new Double(format.format(region.getSite(i).getLocation().getLongitude())));
+        latVals[i]=(new Double(format.format(region.getSite(i).getLocation().getLatitude()))).doubleValue();
+        lonVals[i]=(new Double(format.format(region.getSite(i).getLocation().getLongitude()))).doubleValue();
       }
       currentTime = System.currentTimeMillis();
       fw.write("Time to create Lat and Lon ArrayList :"+(currentTime - startTime)+"\n");
@@ -125,15 +126,24 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       //if file does not already exists then create it.
       else{
         try{
-          willSiteClassVals = ConnectToCVM.getWillsSiteTypeFromCVM(region.getGridLocationsList());
+         ArrayList siteVals = ConnectToCVM.getWillsSiteTypeFromCVM(region.getGridLocationsList());
+         int size = siteVals.size();
+         willSiteClassVals = new String[size];
+         for(int i=0;i<size;++i)
+           willSiteClassVals[i] = (String)siteVals.get(i);
+         siteVals = null;
         }catch(Exception e){
           System.out.println("could not connect with wills site class servlet");
           e.printStackTrace();
         }
-        this.createFile(willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
+        createWillsSiteClassFile(willSiteClassVals,this.STEP_DIR+this.WILLS_SITE_CLASS_FILE_NAME);
         currentTime = System.currentTimeMillis();
         fw.write("Time to read  and create Site Value File :"+(currentTime - startTime)+"\n");
       }
+      //sending the Array for the Wills Site class to the region class
+      region.setSiteParamsForRegion(willSiteClassVals,null);
+      willSiteClassVals =null;
+
       //MetaData String
       String metadata = "IMR Info: \n"+
                         "\t"+"Name: "+attenRel.getName()+"\n"+
@@ -158,7 +168,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         forecast.updateForecast();
         //generating the file for the BackGround
         File backSiesFile = new File(this.STEP_DIR+this.STEP_BACKGROUND_FILE);
-        ArrayList backSiesProbVals = new ArrayList();
+        double[] backSiesProbVals = new double[numSites];
         //if the file for the backGround already exists then just pick up the values for the Prob from the file
         if(backSiesFile.exists()){
           getValForLatLon(backSiesProbVals,this.STEP_DIR+this.STEP_BACKGROUND_FILE);
@@ -189,7 +199,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         //getting the name of the STEP data(XYZ )file from the first line on the STEP website which basically tells the time of updation
         String stepDirName = this.getStepDirName();
         //creating the dataFile for the STEP Addon Probabilities
-        ArrayList stepAddonProbVals = new ArrayList();
+        double[] stepAddonProbVals = new double[numSites];
 
         File addonFile = new File(this.STEP_DIR+stepDirName+this.STEP_ADDON_FILE_SUFFIX);
         //if addon file already exists
@@ -217,7 +227,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
                    metadata;
         //combining the backgound and Addon dataSet and wrinting the result to the file
         STEP_BackSiesDataAdditionObject addStepData = new STEP_BackSiesDataAdditionObject();
-        ArrayList stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
+        double[] stepBothProbVals = addStepData.addDataSet(backSiesProbVals,stepAddonProbVals);
         File bothFile = new File(this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
         if(!bothFile.exists()){
           createFile(stepBothProbVals,this.STEP_DIR+stepDirName+this.STEP_COMBINED_FILE_SUFFIX);
@@ -1200,13 +1210,13 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param probVals : Probablity values ArrayList for each Lat and Lon
    * @param fileName : File to create
    */
-  private void createFile(ArrayList probVals, String fileName){
-    int size = probVals.size();
+  private void createFile(double[] probVals, String fileName){
+    int size = probVals.length;
    // System.out.println("Size of the Prob ArrayList is:"+size);
     try{
       FileWriter fr = new FileWriter(fileName);
       for(int i=0;i<size;++i)
-        fr.write(latVals.get(i)+"  "+lonVals.get(i)+"  "+probVals.get(i)+"\n");
+        fr.write(latVals[i]+"  "+lonVals[i]+"  "+probVals[i]+"\n");
       fr.close();
     }catch(IOException ee){
       ee.printStackTrace();
@@ -1215,24 +1225,44 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
 
   /**
+   * craetes the output xyz files
+   * @param SiteVals : Wills Site class value for each Lat and Lon
+   * @param fileName : File to create
+   */
+  private void createWillsSiteClassFile(String[] siteVals, String fileName){
+    int size = siteVals.length;
+   // System.out.println("Size of the Prob ArrayList is:"+size);
+    try{
+      FileWriter fr = new FileWriter(fileName);
+      for(int i=0;i<size;++i)
+        fr.write(latVals[i]+"  "+lonVals[i]+"  "+siteVals[i]+"\n");
+      fr.close();
+    }catch(IOException ee){
+      ee.printStackTrace();
+    }
+  }
+
+
+
+  /**
    * returns the prob or VS30 vals in a vector(vals) for the file( fileName)
-   * @param vals : ArrayList containing the values( z values)
+   * @param vals : double[] containing the values( z values)
    * @param fileName : Name of the file from which we collect the values
    */
-  private void getValForLatLon(ArrayList vals,String fileName){
+  private void getValForLatLon(double[] vals,String fileName){
     try{
       ArrayList fileLines = FileUtils.loadFile(fileName);
       ListIterator it = fileLines.listIterator();
+      int i=0;
       while(it.hasNext()){
         StringTokenizer st = new StringTokenizer((String)it.next());
         st.nextToken();
         st.nextToken();
         String val =st.nextToken().trim();
-        //System.out.println("Val: "+val);
         if(!val.equalsIgnoreCase("NaN"))
-          vals.add(new Double(val));
+          vals[i++]=(new Double(val)).doubleValue();
         else
-          vals.add(new Double(Double.NaN));
+          vals[i++]=(new Double(Double.NaN)).doubleValue();
       }
     }catch(Exception e){
       e.printStackTrace();
@@ -1245,16 +1275,17 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param fileName : Name of the file from which we collect the values
    */
   private void getWillsSiteClassValForLatLon(String fileName){
+    willSiteClassVals = new String[numSites];
     try{
       ArrayList fileLines = FileUtils.loadFile(fileName);
       ListIterator it = fileLines.listIterator();
+      int i=0;
       while(it.hasNext()){
         StringTokenizer st = new StringTokenizer((String)it.next());
         st.nextToken();
         st.nextToken();
         String val =st.nextToken().trim();
-        //System.out.println("Val: "+val);
-        willSiteClassVals.add(val);
+        willSiteClassVals[i++] = val;
       }
     }catch(Exception e){
       e.printStackTrace();
@@ -1310,7 +1341,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       double condProb =0;
       imr.setSite(region.getSite(j));
       //adding the wills site class value for each site
-      String willSiteClass = (String)this.willSiteClassVals.get(j);
+      String willSiteClass = willSiteClassVals[j];
       //only add the wills value if we have a value available for that site else leave default "D"
       if(!willSiteClass.equals("NA"))
         imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
@@ -1378,11 +1409,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
    * @param eqkRupForecast : STEP Forecast
    * @returns the ArrayList of Probability values for the given region
    */
-  private ArrayList getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
+  private double[] getProbVals_faster(FileWriter fw,ShakeMap_2003_AttenRel imr,SitesInGriddedRegion region,
                                      EqkRupForecast eqkRupForecast){
 
-    ArrayList probVals = new ArrayList();
-    double MAX_DISTANCE = 100;
+    double[] probVals = new double[numSites];
+    double MAX_DISTANCE = 200;
 
     // declare some varibles used in the calculation
     double qkProb, distance;
@@ -1401,19 +1432,20 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       int numSourcesSkipped =0;
       long startCalcTime = System.currentTimeMillis();
       fw.write("start step hazard calculation:"+startCalcTime);
-      ParameterAPI siteParam =region.getSite(0).getParameter(imr.WILLS_SITE_NAME);
+
+
       for(int j=0;j<numSites;++j){
         double hazVal =1;
         double condProb =0;
         Site site = region.getSite(j);
         imr.setSite(site);
         //adding the wills site class value for each site
-        String willSiteClass = (String)this.willSiteClassVals.get(j);
+       // String willSiteClass = willSiteClassVals[j];
         //only add the wills value if we have a value available for that site else leave default "D"
-        if(!willSiteClass.equals("NA"))
-          siteParam.setValue(willSiteClass);
-        else
-          siteParam.setValue(imr.WILLS_SITE_D);
+        //if(!willSiteClass.equals("NA"))
+          //imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+        //else
+         // imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
 
         // loop over sources
         for(i=0;i < numSources ;i++) {
@@ -1442,7 +1474,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
         else
           hazVal = 0.0;
         //System.out.println("HazVal: "+hazVal);
-        probVals.add(new Double(hazVal));
+        probVals[j]=hazVal;
         long currentTime = System.currentTimeMillis();
         fw.write("Time to finish calculation for Site: "+j+" at :"+(currentTime-startCalcTime)+"\n");
       }

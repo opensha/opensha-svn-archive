@@ -14,6 +14,7 @@ import java.awt.Toolkit;
 import org.scec.sha.gui.beans.ERF_GuiBean;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
+import org.scec.sha.gui.infoTools.ExceptionWindow;
 
 /**
  * <p>Title: HazardCurveLocalModeApplication</p>
@@ -72,8 +73,11 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
     try{
       erfGuiBean = new ERF_GuiBean(erf_Classes);
     }catch(InvocationTargetException e){
-      e.printStackTrace();
-      throw new RuntimeException("Connection to ERF's failed");
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
+      //e.printStackTrace();
+      //throw new RuntimeException("Connection to ERF's failed");
     }
     erfPanel.setLayout(gridBagLayout5);
     erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -94,7 +98,10 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
       if(disaggregationFlag)
         disaggCalc = new DisaggregationCalculator();
     }catch(Exception e){
-      e.printStackTrace();
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
+ //     e.printStackTrace();
     }
   }
 
