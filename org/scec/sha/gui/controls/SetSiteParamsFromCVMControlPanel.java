@@ -200,7 +200,6 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       ois.close();
 
       System.out.println("Vs30 is:"+vs30);
-      JOptionPane.showMessageDialog(this,"We have got the vs30 from SCEC CVM");
       return vs30;
     }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -253,7 +252,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       ois.close();
 
       System.out.println("basindepth is:"+ basinDepth );
-      JOptionPane.showMessageDialog(this,"We have got the basin depth from SCEC CVM");
+      JOptionPane.showMessageDialog(this,"We have got the Site Params from SCEC CVM");
       return basinDepth;
 
     }catch (NumberFormatException ex) {
