@@ -20,6 +20,7 @@ public class AllTests extends TestCase {
     // suite.addTest(new TestSuite(org.scec.util.tests.FaultUtilsTests.class));
     suite.addTest(org.scec.util.tests.UtilSuite.suite());
     suite.addTest(org.scec.data.tests.DataSuite.suite());
+    suite.addTest(org.scec.data.region.tests.RegionSuite.suite());
     return suite;
   }
 }
