@@ -992,7 +992,7 @@ public class GriddedFaultApplet
         faultNameLabel.setValue( simpleFaultData.getFaultTrace().getName() );
         if(toSetPlotter)  plotter.add( new FaultTraceXYDataSet(simpleFaultData.getFaultTrace()) );
       }
-      else // for listric fault
+      else {// for listric fault
 
         dipLabel.setValue("N/A");
         upperSeismoLabel.setValue( "N/A");
@@ -1000,6 +1000,7 @@ public class GriddedFaultApplet
         faultNameLabel.setValue( this.customFaultTrace.getName() );
 
         if(toSetPlotter) plotter.add( new FaultTraceXYDataSet(this.customFaultTrace));
+      }
     }
 
 
