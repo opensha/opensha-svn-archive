@@ -48,7 +48,7 @@ import org.scec.sha.gui.infoTools.HazardCurveDisaggregationWindow;
 import org.scec.util.ImageUtils;
 import org.scec.util.SystemPropertiesUtils;
 import org.scec.util.FileUtils;
-
+import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 import ch.randelshofer.quaqua.QuaquaManager;
 import java.awt.*;
 
@@ -297,7 +297,7 @@ public class HazardDataSetPlotter extends JApplet
 
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
-
+    buttonControlPanel.setPlotPrefercesButtonVisible(false);
     buttonPanel.add(addButton, 0);
     buttonPanel.add(clearButton, 1);
     buttonPanel.add(peelOffButton, 2);
@@ -653,6 +653,15 @@ public class HazardDataSetPlotter extends JApplet
     return functionList;
   }
 
+  /**
+   * plots the curves with defined color,line width and shape.
+   * @param plotFeatures
+   */
+  public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
+    graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel,plotFeatures);
+    togglePlot();
+  }
+
 
   /**
    * Actual method implementation of the "Peel-Off"
@@ -675,4 +684,12 @@ public class HazardDataSetPlotter extends JApplet
     peelOffCurves();
   }
 
+  /**
+   *
+   * @returns the plotting feature like width, color and shape type of each
+   * curve in list.
+   */
+  public PlotCurveCharacterstics[] getPlottingFeatures(){
+    return graphPanel.getCurvePlottingCharactersticInfo();
+  }
 }

@@ -10,6 +10,9 @@ import org.scec.util.*;
 import org.scec.sha.gui.infoTools.ButtonControlPanelAPI;
 import org.scec.sha.gui.controls.AxisLimitsControlPanel;
 import org.scec.sha.gui.controls.AxisLimitsControlPanelAPI;
+import org.scec.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
+import org.scec.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanelAPI;
 
 /**
  * <p>Title: ButtonControlPanel</p>
@@ -19,7 +22,8 @@ import org.scec.sha.gui.controls.AxisLimitsControlPanelAPI;
  * @version 1.0
  */
 
-public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanelAPI{
+public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanelAPI,
+    PlotColorAndLineTypeSelectorControlPanelAPI{
   private JCheckBox jCheckxlog = new JCheckBox();
 
 
@@ -41,8 +45,12 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
   //Axis Range control panel object (creates the instance for the AxisLimitsControl)
   private AxisLimitsControlPanel axisControlPanel;
 
+  //Curve color scheme and its line shape control panel instance
+  private PlotColorAndLineTypeSelectorControlPanel plotControl;
+
   //boolean to check if axis range is auto or custom
   private boolean customAxis = false;
+  private JButton colorLineTypeButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
   public ButtonControlPanel(ButtonControlPanelAPI api) {
@@ -90,20 +98,34 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     toggleButton.setPreferredSize(new Dimension(106, 26));
     toggleButton.setToolTipText("");*/
 
-    this.add(toggleButton, 0);
-    this.add(setAxisButton, 1);
-    this.add(jCheckylog, 2);
-    this.add(jCheckxlog, 3);
+    colorLineTypeButton.setText("Plot Pref.");
+    colorLineTypeButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        colorLineTypeButton_actionPerformed(e);
+      }
+    });
+    this.add(colorLineTypeButton, 0);
+    this.add(toggleButton, 1);
+    this.add(setAxisButton, 2);
+    this.add(jCheckylog, 3);
+    this.add(jCheckxlog, 4);
   }
+
+
   void imgLabel_mousePressed(MouseEvent e) {
 
   }
+
+
   void imgLabel_mouseReleased(MouseEvent e) {
 
   }
+
+
   void imgLabel_mouseEntered(MouseEvent e) {
 
   }
+
   void imgLabel_mouseExited(MouseEvent e) {
 
   }
@@ -172,6 +194,15 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     axisControlPanel.show();
   }
 
+
+  /**
+   * plots the curves with defined color,line width and shape.
+   * @param plotFeatures
+   */
+  public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
+    application.drawGraph(plotFeatures);
+   }
+
   /**
    * sets the range for X and Y axis
    * @param xMin : minimum value for X-axis
@@ -221,4 +252,25 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     setAxisButton.setEnabled(flag);
     toggleButton.setEnabled(flag);
   }
+
+  void colorLineTypeButton_actionPerformed(ActionEvent e) {
+    PlotCurveCharacterstics[] plotFeatures = application.getPlottingFeatures();
+    if(plotControl == null)
+      plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
+    else
+      plotControl.setPlotColorAndLineType(plotFeatures);
+      plotControl.show();
+      //plotControl.pack();
+  }
+
+
+  /**
+   * Sets the Plot Preference, button that allows users to set the color codes
+   * and curve plotting preferences.
+   * @param flag
+   */
+  public void setPlotPrefercesButtonVisible(boolean flag){
+    colorLineTypeButton.setVisible(false);
+  }
+
 }

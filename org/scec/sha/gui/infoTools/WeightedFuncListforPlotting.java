@@ -1,6 +1,7 @@
 package org.scec.sha.gui.infoTools;
 
 import java.util.*;
+import java.awt.Color;
 
 import org.scec.data.function.WeightedFuncList;
 
@@ -15,9 +16,12 @@ import org.scec.data.function.WeightedFuncList;
 
 public class WeightedFuncListforPlotting extends WeightedFuncList{
 
+
   private boolean individualCurvesToPlot = true;
   private boolean fractilesToPlot = true;
   private boolean meantoPlot = true;
+
+
 
 
   /**
@@ -68,5 +72,7 @@ public class WeightedFuncListforPlotting extends WeightedFuncList{
   public boolean isMeanToPlot(){
     return meantoPlot;
   }
+
+
 
 }

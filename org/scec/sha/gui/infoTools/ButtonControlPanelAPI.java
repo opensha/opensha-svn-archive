@@ -4,7 +4,7 @@ import java.awt.Component;
 
 import org.scec.sha.gui.controls.AxisLimitsControlPanelAPI;
 import org.jfree.data.Range;
-
+import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 
 /**
  * <p>Title: ButtonControlPanelAPI</p>
@@ -47,5 +47,16 @@ public interface ButtonControlPanelAPI extends AxisLimitsControlPanelAPI{
     */
    public Range getY_AxisRange();
 
+   /**
+    *
+    * @returns the plotting feature like width, color and shape type of each
+    * curve in list.
+    */
+   public PlotCurveCharacterstics[] getPlottingFeatures();
 
+   /**
+    * plots the curves with defined color,line width and shape.
+    * @param plotFeatures
+    */
+   public void drawGraph(PlotCurveCharacterstics[] plotFeatures);
 }

@@ -9,6 +9,7 @@ import org.scec.sha.gui.infoTools.*;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 
+
 /**
  * <p>Title: GraphWindow</p>
  * <p>Description: This window pops up when the user wants to see the plot curves
@@ -66,6 +67,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    * for Y-log, 0 values will be converted to this small value
    */
   private double Y_MIN_VAL = 1e-16;
+
 
   /**
    *
@@ -195,6 +197,16 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
      togglePlot();
    }
 
+   /**
+    * plots the curves with defined color,line width and shape.
+    * @param plotFeatures
+    */
+   public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
+     graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,
+                               TITLE+"-"+windowNumber,buttonControlPanel,plotFeatures);
+     togglePlot();
+   }
+
    //checks if the user has plot the data window or plot window
    public void togglePlot(){
      chartPane.removeAll();
@@ -239,4 +251,12 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
      return maxYValue;
   }
 
+  /**
+   *
+   * @returns the plotting feature like width, color and shape type of each
+   * curve in list.
+   */
+  public PlotCurveCharacterstics[] getPlottingFeatures(){
+    return graphPanel.getCurvePlottingCharactersticInfo();
+  }
 }

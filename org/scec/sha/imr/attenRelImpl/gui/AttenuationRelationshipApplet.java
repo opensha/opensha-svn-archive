@@ -558,7 +558,7 @@ public class AttenuationRelationshipApplet extends JApplet
         buttonPanel.add(clearButton, 1);
         buttonPanel.add(buttonControlPanel,2);
         buttonPanel.add(plotColorCheckBox, 3);
-
+        buttonControlPanel.setPlotPrefercesButtonVisible(false);
         outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
         outerPanel.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -721,7 +721,14 @@ public class AttenuationRelationshipApplet extends JApplet
         togglePlot();
     }
 
-
+    /**
+     * plots the curves with defined color,line width and shape.
+     * @param plotFeatures
+     */
+    public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel,plotFeatures);
+      togglePlot();
+    }
 
 
     private void clearButton(){
@@ -1200,4 +1207,14 @@ public class AttenuationRelationshipApplet extends JApplet
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
     }
   }
+
+  /**
+   *
+   * @returns the plotting feature like width, color and shape type of each
+   * curve in list.
+   */
+  public PlotCurveCharacterstics[] getPlottingFeatures(){
+    return graphPanel.getCurvePlottingCharactersticInfo();
+  }
+
 }

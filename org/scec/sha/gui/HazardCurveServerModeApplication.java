@@ -91,6 +91,7 @@ import org.scec.sha.calc.HazardCurveCalculatorAPI;
 import org.scec.sha.calc.DisaggregationCalculatorAPI;
 import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.scec.sha.earthquake.ERF_API;
+import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 import ch.randelshofer.quaqua.QuaquaManager;
 
 
@@ -500,7 +501,7 @@ public class HazardCurveServerModeApplication extends JApplet
     buttonPanel.add(progressCheckBox, 4);
     buttonPanel.add(buttonControlPanel,5);
     buttonPanel.add(imgLabel, 6);
-
+    buttonControlPanel.setPlotPrefercesButtonVisible(false);
 
 
     topSplitPane.add(chartSplit, JSplitPane.TOP);
@@ -759,7 +760,14 @@ public class HazardCurveServerModeApplication extends JApplet
      addGraphPanel();
     }
 
-
+    /**
+     * plots the curves with defined color,line width and shape.
+     * @param plotFeatures
+     */
+    public void drawGraph(PlotCurveCharacterstics[] plotFeatures){
+      graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,TITLE,buttonControlPanel,plotFeatures);
+      togglePlot();
+    }
 
 
   /**
@@ -1764,6 +1772,15 @@ public class HazardCurveServerModeApplication extends JApplet
    */
   void peelOffButton_actionPerformed(ActionEvent e) {
     peelOffCurves();
+  }
+
+  /**
+   *
+   * @returns the plotting feature like width, color and shape type of each
+   * curve in list.
+   */
+  public PlotCurveCharacterstics[] getPlottingFeatures(){
+    return graphPanel.getCurvePlottingCharactersticInfo();
   }
 
 }

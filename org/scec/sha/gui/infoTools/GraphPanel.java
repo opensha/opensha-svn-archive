@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
 import java.util.ArrayList;
+import java.awt.geom.*;
 
 import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
@@ -12,6 +13,7 @@ import org.jfree.chart.renderer.*;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.data.*;
 import org.jfree.chart.plot.*;
+import org.jfree.util.ShapeUtils;
 
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
@@ -19,6 +21,8 @@ import org.scec.gui.*;
 import org.scec.sha.gui.infoTools.ButtonControlPanel;
 import org.scec.util.*;
 import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
+import org.scec.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+
 
 /**
  * <p>Title: GraphPanel</p>
@@ -48,12 +52,31 @@ public class GraphPanel extends JPanel {
   private JScrollPane metadataScrollPane = new JScrollPane();
   private JPanel chartPane = new JPanel();
 
+
+  private StandardXYItemRenderer CIRCLE_SHAPE_RENDERER ;
+  private StandardXYItemRenderer DIAMOND_SHAPE_RENDERER ;
+  private StandardXYItemRenderer UP_TRIANGLE_SHAPE_RENDERER ;
+  private StandardXYItemRenderer DOWN_TRIANGLE_SHAPE_RENDERER;
+  private StandardXYItemRenderer DIAGONAL_CROSS_SHAPE_RENDERER;
+  private StandardXYItemRenderer REGULAR_CROSS_SHAPE_RENDERER;
+  private StandardXYItemRenderer LINE_RENDERER ;
+
+
+  // these are coordinates and size of the circles visible in the plot
+  private final static double SIZE = 6.0;
+  private final static double DELTA = SIZE / 2.0;
+
+
   private Insets plotInsets = new Insets( 4, 4, 4, 4 );
 
   //dataset to handover the data to JFreechart
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
   //functionList
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+
+  //variable to see how many datasets exists with different types of color coding scheme.
+  private int numDataset =0;
+
 
   /**
    * for Y-log, 0 values will be converted to this small value
@@ -85,6 +108,10 @@ public class GraphPanel extends JPanel {
 
   JTextPane metadataText = new JTextPane();
 
+  //characterstics for each curve that we plot which include the line color,line width,
+  //line type.
+  PlotCurveCharacterstics[] curvePlottingCharacterstics;
+
   /**
    * adding scroll pane for showing data
    */
@@ -93,6 +120,8 @@ public class GraphPanel extends JPanel {
   // text area to show the data values
   private JTextArea pointsTextArea = new JTextArea();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+
 
   /**
    * class constructor
@@ -133,6 +162,317 @@ public class GraphPanel extends JPanel {
   }
 
 
+
+  public void drawGraphPanel(String xAxisName,String yAxisName,ArrayList funcList,
+                             boolean xLog,boolean yLog,boolean customAxis,String title,
+                             ButtonControlPanel buttonControlPanel,
+                             PlotCurveCharacterstics[] plotCharacterstics){
+
+    //curve characterstics list
+    curvePlottingCharacterstics = plotCharacterstics;
+
+    // Starting
+    String S = "drawGraphPanel(): ";
+
+    totalProbFuncs.setXAxisName(xAxisName);
+    totalProbFuncs.setYAxisName(yAxisName);
+
+
+    // set the log flag in the XY dataset
+    data.setXLog(xLog);
+    data.setYLog(yLog);
+
+
+    //flags to check if the exception was thrown on selection of the x-log or y-log.
+    boolean logErrorFlag = false;
+
+
+    //create the standard ticks so that smaller values too can plotted on the chart
+    TickUnits units = MyTickUnits.createStandardTickUnits();
+
+    try{
+
+      /// check if x log is selected or not
+      if(xLog) xAxis = new LogarithmicAxis(xAxisName);
+      else xAxis = new NumberAxis( xAxisName );
+
+      if (!xLog)
+        xAxis.setAutoRangeIncludesZero(true);
+      else
+        xAxis.setAutoRangeIncludesZero( false );
+      xAxis.setStandardTickUnits(units);
+      xAxis.setTickMarksVisible(false);
+      //added to have the minimum range within the Upper and Lower Bound of the Axis
+      //xAxis.setAutoRangeMinimumSize(.1);
+
+      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+      if(customAxis)
+        xAxis.setRange(application.getMinX(),application.getMaxX());
+
+    }catch(Exception e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"X-Plot Error",JOptionPane.OK_OPTION);
+      graphOn=false;
+      xLog = false;
+      buttonControlPanel.setXLog(xLog);
+      xAxis = xAxis1;
+      logErrorFlag = true;
+    }
+
+    try{
+      /// check if y log is selected or not
+      if(yLog) yAxis = new LogarithmicAxis(yAxisName);
+      else yAxis = new NumberAxis( yAxisName );
+
+      if (!yLog)
+        yAxis.setAutoRangeIncludesZero(true);
+      else
+        yAxis.setAutoRangeIncludesZero( false );
+
+      yAxis.setStandardTickUnits(units);
+      yAxis.setTickMarksVisible(false);
+      //added to have the minimum range within the Upper and Lower Bound of the Axis
+      //yAxis.setAutoRangeMinimumSize(.1);
+
+      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+      if(customAxis)
+        yAxis.setRange(application.getMinY(),application.getMaxY());
+
+    }catch(Exception e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
+      graphOn=false;
+      yLog = true;
+      buttonControlPanel.setYLog(yLog);
+      yAxis = yAxis1;
+      logErrorFlag = false;
+    }
+
+
+
+    // build the plot
+    plot = new XYPlot(data,xAxis, yAxis, LINE_RENDERER);
+
+    //setting the plot properties
+    plot.setDomainCrosshairLockedOnData(false);
+    plot.setDomainCrosshairVisible(false);
+    plot.setRangeCrosshairLockedOnData(false);
+    plot.setRangeCrosshairVisible(false);
+    plot.setInsets(new Insets(10, 0, 0, 20));
+
+
+    //total number of funtions that need to be plotted differently
+    int numFuncs = plotCharacterstics.length;
+    int datasetIndex = 0;
+    for(int j=0; j < numFuncs; ++j){
+      int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
+      DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
+      DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
+      dataset.setFunctions(dataFunctions);
+      Color color = plotCharacterstics[j].getCurveColor();
+      double lineWidth = plotCharacterstics[j].getCurveWidth();
+      String lineType = plotCharacterstics[j].getCurveType();
+
+      //creating the secondary dataset to show it in different color and shapes
+      for(int i=datasetIndex;i<(datasetIndex+numCurves);++i){
+        dataFunctions.add(totalProbFuncs.get(i));
+        plot.getRenderer().setSeriesPaint(i,color);
+        plot.getRenderer().setSeriesStroke(i,new BasicStroke((float)lineWidth));
+      }
+      datasetIndex +=numCurves;
+      plot.setSecondaryDataset(j,dataset);
+
+      if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.LINE)){
+        LINE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+            new StandardXYToolTipGenerator()
+            );
+        plot.setSecondaryRenderer(j,LINE_RENDERER);
+        LINE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        LINE_RENDERER.setPaint(color);
+      }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_CIRCLES)){
+        CIRCLE_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+            new StandardXYToolTipGenerator()
+            );
+        CIRCLE_SHAPE_RENDERER.setShape(new Ellipse2D.Double(-DELTA-lineWidth/2,
+          -DELTA-lineWidth/2, SIZE+lineWidth, SIZE+lineWidth));
+        plot.setSecondaryRenderer(j,CIRCLE_SHAPE_RENDERER);
+        CIRCLE_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        CIRCLE_SHAPE_RENDERER.setPaint(color);
+      }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_UP_TRIANGLE)){
+        UP_TRIANGLE_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+            new StandardXYToolTipGenerator()
+            );
+        UP_TRIANGLE_SHAPE_RENDERER.setShape(ShapeUtils.createUpTriangle((float)lineWidth));
+        plot.setSecondaryRenderer(j,UP_TRIANGLE_SHAPE_RENDERER);
+        //UP_TRIANGLE_SHAPE_RENDERER.setSeriesShape(datasetIndex
+        UP_TRIANGLE_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        UP_TRIANGLE_SHAPE_RENDERER.setPaint(color);
+      }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_DOWN_TRIANGLE)){
+        DOWN_TRIANGLE_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+            new StandardXYToolTipGenerator()
+            );
+        DOWN_TRIANGLE_SHAPE_RENDERER.setShape(ShapeUtils.createDownTriangle((float)lineWidth));
+        plot.setSecondaryRenderer(j,DOWN_TRIANGLE_SHAPE_RENDERER);
+        DOWN_TRIANGLE_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        DOWN_TRIANGLE_SHAPE_RENDERER.setPaint(color);
+      }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.FILLED_DIAMOND)){
+        DIAMOND_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+            new StandardXYToolTipGenerator()
+            );
+        DIAMOND_SHAPE_RENDERER.setShape(ShapeUtils.createDiamond((float)lineWidth));
+        plot.setSecondaryRenderer(j,DIAMOND_SHAPE_RENDERER);
+        DIAMOND_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        DIAMOND_SHAPE_RENDERER.setPaint(color);
+      }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.REGULAR_CROSS)){
+        REGULAR_CROSS_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+            new StandardXYToolTipGenerator()
+            );
+        REGULAR_CROSS_SHAPE_RENDERER.setShape(ShapeUtils.createRegularCross((float)lineWidth/2,1.0f));
+        REGULAR_CROSS_SHAPE_RENDERER.setShapesFilled(false);
+        plot.setSecondaryRenderer(j,REGULAR_CROSS_SHAPE_RENDERER);
+        REGULAR_CROSS_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        REGULAR_CROSS_SHAPE_RENDERER.setPaint(color);
+      }
+      else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.DIAGONAL_CROSS)){
+        DIAGONAL_CROSS_SHAPE_RENDERER = new StandardXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.SHAPES,
+            new StandardXYToolTipGenerator()
+            );
+        DIAGONAL_CROSS_SHAPE_RENDERER.setShape(ShapeUtils.createDiagonalCross((float)lineWidth/2,1.0f));
+        DIAGONAL_CROSS_SHAPE_RENDERER.setShapesFilled(false);
+        plot.setSecondaryRenderer(j,DIAGONAL_CROSS_SHAPE_RENDERER);
+        DIAGONAL_CROSS_SHAPE_RENDERER.setStroke(new BasicStroke((float)lineWidth));
+        DIAGONAL_CROSS_SHAPE_RENDERER.setPaint(color);
+      }
+    }
+
+    //plot.setRenderer( LINE_RENDERER );
+    plot.setBackgroundAlpha( .8f );
+
+    JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+
+    chart.setBackgroundPaint( lightBlue );
+
+    // Put into a panel
+    chartPanel = new ChartPanel(chart, true, true, true, true, false);
+
+    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+    chartPanel.setMouseZoomable(true);
+    chartPanel.setDisplayToolTips(true);
+    chartPanel.setHorizontalAxisTrace(false);
+    chartPanel.setVerticalAxisTrace(false);
+
+    // set the font of legend
+    int numOfColors = plot.getSeriesCount();
+
+    /**
+     * Adding the metadata text to the Window below the Chart
+     */
+    metadataText.removeAll();
+    metadataText.setEditable(false);
+    setLegend =new SimpleAttributeSet();
+    setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
+                           Boolean.TRUE);
+    Document doc = metadataText.getStyledDocument();
+    try {
+
+      /**
+       * formatting the metadata to be added , according to the colors of the
+       * Curves. So now curves and metadata will be displayed in the same color.
+       */
+      doc.remove(0,doc.getLength());
+      //total number of elements in the list containing individual functions and
+      //weighted function list.
+      int totalNumofFunctions = funcList.size();
+      //getting the metadata associated with each function in the list
+      for(int i=0,j=0;i<totalNumofFunctions;++i){
+        String legend=null;
+        //setting the font style for the legend
+        setLegend =new SimpleAttributeSet();
+        StyleConstants.setFontSize(setLegend,12);
+        //checking if element in the list is weighted function list object
+        Object obj = funcList.get(i);
+        if(obj instanceof WeightedFuncListforPlotting){
+          //getting the metadata for weighted functionlist
+          WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
+
+          String listInfo = weightedList.getInfo();
+          legend = new String("DATASET #"+(i+1)+"\n\n"+
+                              listInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          StyleConstants.setForeground(setLegend,Color.black);
+          doc.insertString(doc.getLength(),legend,setLegend);
+          //checking if individual curves need to be plotted
+          if(weightedList.areIndividualCurvesToPlot()){
+            //getting the metadata for each individual curves and creating the legend string
+            String listFunctionsInfo = weightedList.getFunctionTraceInfo();
+
+            legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
+
+            StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
+            doc.insertString(doc.getLength(),legend,setLegend);
+            ++j;
+          }
+          //checking if fractiles need to be plotted
+          if(weightedList.areFractilesToPlot()){
+            //getting the fractile info for the weighted function list and adding that to the legend
+            String fractileListInfo = weightedList.getFractileInfo();
+
+            legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
+            doc.insertString(doc.getLength(),legend,setLegend);
+            ++j;
+          }
+          //checking if mean fractile need to be plotted
+          if(weightedList.isMeanToPlot()){
+            //getting the fractileinfo and showing it as legend
+            String meanInfo = weightedList.getMeanFunctionInfo();
+
+            legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
+            doc.insertString(doc.getLength(),legend,setLegend);
+            ++j;
+           }
+        }
+        else{ //if element in the list are individual function then get their info and show as legend
+          DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
+          String functionInfo = func.getInfo();
+          String name = func.getName();
+
+          legend = new String("DATASET #"+(i+1)+"\n\n"+
+                              name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
+                              functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          StyleConstants.setForeground(setLegend,plotCharacterstics[j].getCurveColor());
+          doc.insertString(doc.getLength(),legend,setLegend);
+          ++j;
+        }
+      }
+    } catch (BadLocationException e) {
+      return;
+    }
+    graphOn=false;
+
+    //Check to see if there is no log Error and only  xLog or yLog are selected
+    if(!logErrorFlag && !xLog)
+      xAxis1 = xAxis;
+    if(!logErrorFlag && !yLog)
+      yAxis1 = yAxis;
+
+    //setting the info in the
+    pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
+    return ;
+
+
+  }
+
   /**
    * Draws the graph panel
    */
@@ -143,6 +483,8 @@ public class GraphPanel extends JPanel {
 
     // Starting
     String S = "drawGraphPanel(): ";
+
+    ArrayList plottingFeatures = new ArrayList();
 
     //if(legendColor == null)
     createColorSchemeAndFunctionList(funcList);
@@ -221,13 +563,14 @@ public class GraphPanel extends JPanel {
     }
     int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-
-    org.jfree.chart.renderer.StandardXYItemRenderer renderer
-        = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+    LINE_RENDERER = new AdjustableScaleXYItemRenderer(
+            org.jfree.chart.renderer.StandardXYItemRenderer.LINES,
+            new StandardXYToolTipGenerator()
+            );
 
 
     // build the plot
-    plot = new XYPlot(data,xAxis, yAxis, renderer);
+    plot = new XYPlot(data,xAxis, yAxis, LINE_RENDERER);
 
     //setting the plot properties
     plot.setDomainCrosshairLockedOnData(false);
@@ -236,10 +579,13 @@ public class GraphPanel extends JPanel {
     plot.setRangeCrosshairVisible(false);
     plot.setInsets(new Insets(10, 0, 0, 20));
 
-    int numSeries = legendPaint.length;
-    for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
+    float lineWidth = ((BasicStroke)LINE_RENDERER.getBaseStroke()).getLineWidth();
+    String plotType = PlotColorAndLineTypeSelectorControlPanel.LINE;
 
-    plot.setRenderer( renderer );
+    int numSeries = totalProbFuncs.size();
+    for(int i=0; i < numSeries; ++i) LINE_RENDERER.setSeriesPaint(i,legendPaint[i]);
+
+    plot.setRenderer( LINE_RENDERER );
     plot.setBackgroundAlpha( .8f );
 
     JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
@@ -290,12 +636,15 @@ public class GraphPanel extends JPanel {
           WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
 
           String listInfo = weightedList.getInfo();
-          legend = new String("DATASET #"+(i+1)+"\n\n"+
+          legend = new String("DATASET #"+(i+1)+"\n"+
                               listInfo+SystemPropertiesUtils.getSystemLineSeparator());
           StyleConstants.setForeground(setLegend,Color.black);
           doc.insertString(doc.getLength(),legend,setLegend);
           //checking if individual curves need to be plotted
           if(weightedList.areIndividualCurvesToPlot()){
+            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
+            plotChar.setNumContinuousCurvesWithSameCharaceterstics(weightedList.getNumWeightedFunctions());
+            plottingFeatures.add(plotChar);
             //getting the metadata for each individual curves and creating the legend string
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
@@ -304,11 +653,14 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
             j=j+weightedList.getNumWeightedFunctions();
+
           }
           //checking if fractiles need to be plotted
           if(weightedList.areFractilesToPlot()){
-
-            //getting the fractile info for the weighted function list and adding that to the legend
+            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
+            plotChar.setNumContinuousCurvesWithSameCharaceterstics(weightedList.getNumFractileFunctions());
+            plottingFeatures.add(plotChar);
+             //getting the fractile info for the weighted function list and adding that to the legend
             String fractileListInfo = weightedList.getFractileInfo();
 
             legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
@@ -318,6 +670,8 @@ public class GraphPanel extends JPanel {
           }
           //checking if mean fractile need to be plotted
           if(weightedList.isMeanToPlot()){
+            PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
+            plottingFeatures.add(plotChar);
             //getting the fractileinfo and showing it as legend
             String meanInfo = weightedList.getMeanFunctionInfo();
 
@@ -325,14 +679,16 @@ public class GraphPanel extends JPanel {
             StyleConstants.setForeground(setLegend,legendColor[j]);
             doc.insertString(doc.getLength(),legend,setLegend);
             ++j;
-          }
+           }
         }
         else{ //if element in the list are individual function then get their info and show as legend
+          PlotCurveCharacterstics plotChar = new PlotCurveCharacterstics(plotType,legendColor[j],lineWidth);
+          plottingFeatures.add(plotChar);
           DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
           String functionInfo = func.getInfo();
           String name = func.getName();
 
-          legend = new String("DATASET #"+(i+1)+"\n\n"+
+          legend = new String("DATASET #"+(i+1)+"\n"+
                               name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
                               functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
           StyleConstants.setForeground(setLegend,legendColor[j]);
@@ -350,6 +706,14 @@ public class GraphPanel extends JPanel {
       xAxis1 = xAxis;
     if(!logErrorFlag && !yLog)
       yAxis1 = yAxis;
+
+    //creating the plotting feature array
+    int  numDiffPlots = plottingFeatures.size();
+    curvePlottingCharacterstics = new PlotCurveCharacterstics[numDiffPlots];
+    for(int i=0;i<numDiffPlots;++i)
+      curvePlottingCharacterstics[i] =(PlotCurveCharacterstics)plottingFeatures.get(i);
+
+    plottingFeatures =null;
 
     //setting the info in the
     pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
@@ -530,7 +894,14 @@ public class GraphPanel extends JPanel {
     return legendColor;
   }
 
-
+  /**
+   *
+   * @returns the Array of PlotCurveCharacterstics[] that contain the info about
+   * plotting the curve like plot line color , its width and line type.
+   */
+  public PlotCurveCharacterstics[] getCurvePlottingCharactersticInfo(){
+    return curvePlottingCharacterstics;
+  }
 
   /**
    * Sets the default color scheme for the cureves drawn
@@ -590,6 +961,9 @@ public class GraphPanel extends JPanel {
 
     int numDiffColors = numColorArray.size();
 
+    //sets the num of datset with differnt color scheme.
+    this.numDataset = numDiffColors;
+
     //int colorChoice = (int)255/numDiffColors;
     //creating the color array
     int index=0;
@@ -601,10 +975,11 @@ public class GraphPanel extends JPanel {
       int val = ((Integer)numColorArray.get(i)).intValue();
       for(int j=0;j<val;++j)
         color[index++] = defaultColor[defaultColorIndex];
-      }
-      //setting the color scheme
-      setSeriesColor(color);
+    }
+    //setting the color scheme
+    setSeriesColor(color);
   }
+
 
 
 }
