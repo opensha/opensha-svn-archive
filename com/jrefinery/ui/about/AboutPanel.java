@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,8 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Nov-2001 : Version 1 (DG);
+ * 27-Jun-2002 : Added logo (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -45,18 +47,23 @@ import java.awt.Image;
 import javax.swing.SwingConstants;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.BorderFactory;
 import com.jrefinery.ui.RefineryUtilities;
 
 /**
  * A standard panel for displaying information about an application.
+ *
+ * @author DG
  */
 public class AboutPanel extends JPanel {
 
     /**
      * Constructs a panel.
-     * @param application The application name.
-     * @param version The version.
-     * @param info Other info.
+     *
+     * @param application  the application name.
+     * @param version  the version.
+     * @param copyright  the copyright statement.
+     * @param info  other info.
      */
     public AboutPanel(String application, String version, String copyright, String info) {
 
@@ -66,17 +73,19 @@ public class AboutPanel extends JPanel {
 
     /**
      * Constructs a panel.
-     * @param application The application name.
-     * @param version The version.
-     * @param info Other info.
-     * @param image To be implemented...
+     *
+     * @param application  the application name.
+     * @param version  the version.
+     * @param copyright  the copyright statement.
+     * @param info  other info.
+     * @param logo  an optional logo.
      */
     public AboutPanel(String application, String version, String copyright, String info,
-                      Image image) {
+                      Image logo) {
 
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new GridLayout(4, 1, 0, 4));
+        JPanel textPanel = new JPanel(new GridLayout(4, 1, 0, 4));
 
         JPanel appPanel = new JPanel();
         Font f1 = new Font("Dialog", Font.BOLD, 14);
@@ -100,13 +109,21 @@ public class AboutPanel extends JPanel {
         infoLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         infoPanel.add(infoLabel);
 
+        textPanel.add(appPanel);
+        textPanel.add(verPanel);
+        textPanel.add(copyrightPanel);
+        textPanel.add(infoPanel);
 
-        panel.add(appPanel);
-        panel.add(verPanel);
-        panel.add(copyrightPanel);
-        panel.add(infoPanel);
+        add(textPanel);
 
-        this.add(panel, BorderLayout.NORTH);
+        if (logo != null) {
+            JPanel imagePanel = new JPanel(new BorderLayout());
+            imagePanel.add(new javax.swing.JLabel(new javax.swing.ImageIcon(logo)));
+            imagePanel.setBorder(BorderFactory.createLineBorder(Color.black));
+            JPanel imageContainer = new JPanel(new BorderLayout());
+            imageContainer.add(imagePanel, BorderLayout.NORTH);
+            add(imageContainer, BorderLayout.WEST);
+        }
 
     }
 

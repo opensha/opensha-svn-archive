@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,25 +32,30 @@
  * Changes (from 26-Oct-2001)
  * ----------------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Font;
+import javax.swing.JTextField;
 
 /**
  * A field for displaying a font selection.  The display field itself is read-only, to the developer
  * must provide another mechanism to allow the user to change the font.
+ *
+ * @author DG
  */
 public class FontDisplayField extends JTextField {
 
-    /** The current font; */
-    protected Font displayFont;
+    /** The current font. */
+    private Font displayFont;
 
     /**
      * Standard constructor - builds a FontDescriptionField initialised with the specified font.
+     *
+     * @param font  the font.
      */
     public FontDisplayField(Font font) {
         super("");
@@ -60,6 +65,8 @@ public class FontDisplayField extends JTextField {
 
     /**
      * Returns the current font.
+     *
+     * @return the font.
      */
     public Font getDisplayFont() {
         return this.displayFont;
@@ -67,6 +74,8 @@ public class FontDisplayField extends JTextField {
 
     /**
      * Sets the font.
+     *
+     * @param font  the font.
      */
     public void setDisplayFont(Font font) {
         this.displayFont = font;
@@ -75,12 +84,18 @@ public class FontDisplayField extends JTextField {
 
     /**
      * Returns a string representation of the specified font.
+     *
+     * @param font  the font.
+     *
+     * @return a string describing the font.
      */
     private String fontToString(Font font) {
-        if (font!=null) {
-            return font.getFontName()+", "+font.getSize();
+        if (font != null) {
+            return font.getFontName() + ", " + font.getSize();
         }
-        else return "No font selected.";
+        else {
+            return "No font selected.";
+        }
     }
 
 }

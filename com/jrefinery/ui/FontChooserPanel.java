@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,39 +32,50 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Font;
+import java.awt.BorderLayout;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
+import javax.swing.JPanel;
+import javax.swing.JCheckBox;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.BorderFactory;
 
 /**
  * A panel for choosing a font from the available system fonts - still a bit of a hack at the
  * moment, but good enough for demonstration applications.
+ *
+ * @author DG
  */
 public class FontChooserPanel extends JPanel {
 
-    /** The font sizes that can be selected; */
-    String[] sizes = { "9", "10", "11", "12", "14", "16", "18", "20", "22", "24", "28",
-                       "36", "48", "72" };
+    /** The font sizes that can be selected. */
+    public static final String[] SIZES = { "9", "10", "11", "12", "14", "16", "18",
+                                           "20", "22", "24", "28", "36", "48", "72" };
 
-    /** The list of fonts; */
+    /** The list of fonts. */
     private JList fontlist;
 
-    /** The list of sizes; */
+    /** The list of sizes. */
     private JList sizelist;
 
-    /** The checkbox that indicates whether the font is bold; */
+    /** The checkbox that indicates whether the font is bold. */
     private JCheckBox bold;
 
-    /** The checkbox that indicates whether or not the font is italic; */
+    /** The checkbox that indicates whether or not the font is italic. */
     private JCheckBox italic;
 
     /**
      * Standard constructor - builds a FontChooserPanel initialised with the specified font.
-     * @param font The initial font to display;
+     *
+     * @param font  the initial font to display.
      */
     public FontChooserPanel(Font font) {
 
@@ -86,7 +97,7 @@ public class FontChooserPanel extends JPanel {
         JPanel sizePanel = new JPanel(new BorderLayout());
         sizePanel.setBorder(BorderFactory.createTitledBorder(
                             BorderFactory.createEtchedBorder(), "Size:"));
-        sizelist = new JList(sizes);
+        sizelist = new JList(SIZES);
         JScrollPane sizepane = new JScrollPane(sizelist);
         sizepane.setBorder(BorderFactory.createEtchedBorder());
         sizePanel.add(sizepane);
@@ -107,6 +118,8 @@ public class FontChooserPanel extends JPanel {
 
     /**
      * Returns a Font object representing the selection in the panel.
+     *
+     * @return the font.
      */
     public Font getSelectedFont() {
         return new Font(getSelectedName(), getSelectedStyle(), getSelectedSize());
@@ -114,17 +127,21 @@ public class FontChooserPanel extends JPanel {
 
     /**
      * Returns the selected name.
+     *
+     * @return the name.
      */
     public String getSelectedName() {
-        return (String)fontlist.getSelectedValue();
+        return (String) fontlist.getSelectedValue();
     }
 
     /**
      * Returns the selected style.
+     *
+     * @return the style.
      */
     public int getSelectedStyle() {
         if (bold.isSelected() && italic.isSelected()) {
-            return Font.BOLD+Font.ITALIC;
+            return Font.BOLD + Font.ITALIC;
         }
         if (bold.isSelected()) {
             return Font.BOLD;
@@ -132,18 +149,24 @@ public class FontChooserPanel extends JPanel {
         if (italic.isSelected()) {
             return Font.ITALIC;
         }
-        else return Font.PLAIN;
+        else {
+            return Font.PLAIN;
+        }
     }
 
     /**
      * Returns the selected size.
+     *
+     * @return the size.
      */
     public int getSelectedSize() {
-        String selected = (String)sizelist.getSelectedValue();
-        if (selected!=null) {
+        String selected = (String) sizelist.getSelectedValue();
+        if (selected != null) {
             return Integer.parseInt(selected);
         }
-        else return 10;
+        else {
+            return 10;
+        }
     }
 
 }

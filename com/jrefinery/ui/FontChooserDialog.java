@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,28 +32,36 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.Dialog;
+import java.awt.Frame;
+import javax.swing.JPanel;
+import javax.swing.BorderFactory;
 
 /**
  * A dialog for choosing a font from the available system fonts.
+ *
+ * @author DG
  */
 public class FontChooserDialog extends StandardDialog {
 
-    /** The panel within the dialog that contains the font selection controls; */
+    /** The panel within the dialog that contains the font selection controls. */
     private FontChooserPanel fontChooserPanel;
 
     /**
      * Standard constructor - builds a font chooser dialog owned by another dialog.
-     * @param owner The dialog that 'owns' this dialog;
-     * @param title The title for the dialog;
-     * @param modal A boolean that indicates whether or not the dialog is modal;
-     * @param font The initial font displayed;
+     *
+     * @param owner  the dialog that 'owns' this dialog.
+     * @param title  the title for the dialog.
+     * @param modal  a boolean that indicates whether or not the dialog is modal.
+     * @param font  the initial font displayed.
      */
     public FontChooserDialog(Dialog owner, String title, boolean modal, Font font) {
         super(owner, title, modal);
@@ -62,10 +70,11 @@ public class FontChooserDialog extends StandardDialog {
 
     /**
      * Standard constructor - builds a font chooser dialog owned by a frame.
-     * @param owner The frame that 'owns' this dialog;
-     * @param title The title for the dialog;
-     * @param modal A boolean that indicates whether or not the dialog is modal;
-     * @param font The initial font displayed;
+     *
+     * @param owner  the frame that 'owns' this dialog.
+     * @param title  the title for the dialog.
+     * @param modal  a boolean that indicates whether or not the dialog is modal.
+     * @param font  the initial font displayed.
      */
     public FontChooserDialog(Frame owner, String title, boolean modal, Font font) {
         super(owner, title, modal);
@@ -74,6 +83,8 @@ public class FontChooserDialog extends StandardDialog {
 
     /**
      * Returns the selected font.
+     *
+     * @return the font.
      */
     public Font getSelectedFont() {
         return fontChooserPanel.getSelectedFont();
@@ -81,14 +92,18 @@ public class FontChooserDialog extends StandardDialog {
 
     /**
      * Returns the panel that is the user interface.
+     *
+     * @param font  the font.
+     *
+     * @return the panel.
      */
     private JPanel createContent(Font font) {
         JPanel content = new JPanel(new BorderLayout());
         content.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-        if (font==null) {
+        if (font == null) {
             font = new Font("Dialog", 10, Font.PLAIN);
         }
-            fontChooserPanel = new FontChooserPanel(font);
+        fontChooserPanel = new FontChooserPanel(font);
         content.add(fontChooserPanel);
 
         JPanel buttons = createButtonPanel();

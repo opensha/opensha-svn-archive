@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,44 +32,61 @@
  * Changes (from 7-Nov-2001)
  * -------------------------
  * 07-Nov-2001 : Added to com.jrefinery.ui package (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
+import java.awt.Insets;
+import java.awt.BorderLayout;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 
 /**
  * A component for editing an instance of the Insets class.
+ *
+ * @author AP
  */
 public class InsetsChooserPanel extends JPanel {
 
-    JTextField topValueEditor;
-    JTextField leftValueEditor;
-    JTextField bottomValueEditor;
-    JTextField rightValueEditor;
+    /** A text field for the 'top' setting. */
+    private JTextField topValueEditor;
+
+    /** A text field for the 'left' setting. */
+    private JTextField leftValueEditor;
+
+    /** A text field for the 'bottom' setting. */
+    private JTextField bottomValueEditor;
+
+    /** A text field for the 'right' setting. */
+    private JTextField rightValueEditor;
 
     /**
      * Creates a chooser panel that allows manipulation of Insets values.
      * The values are initialized to the empty insets (0,0,0,0).
      */
     public InsetsChooserPanel() {
-        this(new Insets(0,0,0,0));
+        this(new Insets(0, 0, 0, 0));
     }
 
     /**
      * Creates a chooser panel that allows manipulation of Insets values.
      * The values are initialized to the current values of provided insets.
+     *
+     * @param current  the insets.
      */
     public InsetsChooserPanel(Insets current) {
-        current = (current == null) ? new Insets(0,0,0,0) : current;
+        current = (current == null) ? new Insets(0, 0, 0, 0) : current;
 
-        topValueEditor = new JTextField(new IntegerDocument(),""+current.top,0);
-        leftValueEditor = new JTextField(new IntegerDocument(),""+current.left,0);
-        bottomValueEditor =new JTextField(new IntegerDocument(),""+current.bottom,0);
-        rightValueEditor =new JTextField(new IntegerDocument(),""+current.right,0);
+        topValueEditor = new JTextField(new IntegerDocument(), "" + current.top, 0);
+        leftValueEditor = new JTextField(new IntegerDocument(), "" + current.left, 0);
+        bottomValueEditor = new JTextField(new IntegerDocument(), "" + current.bottom, 0);
+        rightValueEditor = new JTextField(new IntegerDocument(), "" + current.right, 0);
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(new TitledBorder("Insets"));
@@ -125,12 +142,14 @@ public class InsetsChooserPanel extends JPanel {
                                          GridBagConstraints.CENTER, GridBagConstraints.NONE,
                                          new Insets(0, 0, 0, 0), 0, 0));
         setLayout(new BorderLayout());
-        add(panel,BorderLayout.CENTER);
+        add(panel, BorderLayout.CENTER);
 
     }
 
     /**
      * Returns the current Insets.
+     *
+     * @return the insets.
      */
     public Insets getInsets() {
         return new Insets(stringToInt(topValueEditor.getText()),
@@ -143,11 +162,16 @@ public class InsetsChooserPanel extends JPanel {
      * Converts a string representing an integer into its numerical value.
      * If this string does not represent a valid integer value, value of 0
      * is returned.
+     *
+     * @param value  the string.
+     *
+     * @return the value.
      */
     protected int stringToInt(String value) {
         value = value.trim();
-        if ( value.length() == 0)
+        if (value.length() == 0) {
             return 0;
+        }
         else {
             try {
                 return Integer.parseInt(value);

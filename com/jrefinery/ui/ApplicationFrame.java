@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,7 @@
  * Changes (from 30-May-2002)
  * --------------------------
  * 30-May-2002 : Added title (DG);
+ * 13-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -45,26 +46,28 @@ import javax.swing.JFrame;
  * A base class for creating the main frame for simple applications.  The frame listens for
  * window closing events, and responds by shutting down the JVM.  This is OK for small demo
  * applications...for more serious applications, you'll want to use something more robust.
+ *
+ * @author DG
  */
 public class ApplicationFrame extends JFrame implements WindowListener {
 
     /**
      * Constructs a new application frame.
      *
-     * @param title The frame title.
+     * @param title  the frame title.
      */
     public ApplicationFrame(String title) {
         super(title);
-        this.addWindowListener(this);
+        addWindowListener(this);
     }
 
     /**
      * Listens for the main window closing, and shuts down the application.
      *
-     * @param event Information about the window event;
+     * @param event  information about the window event.
      */
     public void windowClosing(WindowEvent event) {
-        if (event.getWindow()==this) {
+        if (event.getWindow() == this) {
             dispose();
             System.exit(0);
         }
@@ -72,43 +75,55 @@ public class ApplicationFrame extends JFrame implements WindowListener {
 
     /**
      * Required for WindowListener interface, but not used by this class.
+     *
+     * @param event  information about the window event.
      */
-    public void windowClosed(WindowEvent e) {
+    public void windowClosed(WindowEvent event) {
         // ignore
     }
 
     /**
      * Required for WindowListener interface, but not used by this class.
+     *
+     * @param event  information about the window event.
      */
-    public void windowActivated(WindowEvent e) {
+    public void windowActivated(WindowEvent event) {
         // ignore
     }
 
     /**
      * Required for WindowListener interface, but not used by this class.
+     *
+     * @param event  information about the window event.
      */
-    public void windowDeactivated(WindowEvent e) {
+    public void windowDeactivated(WindowEvent event) {
         // ignore
     }
 
     /**
      * Required for WindowListener interface, but not used by this class.
+     *
+     * @param event  information about the window event.
      */
-    public void windowDeiconified(WindowEvent e) {
+    public void windowDeiconified(WindowEvent event) {
         // ignore
     }
 
     /**
      * Required for WindowListener interface, but not used by this class.
+     *
+     * @param event  information about the window event.
      */
-    public void windowIconified(WindowEvent e) {
+    public void windowIconified(WindowEvent event) {
         // ignore
     }
 
     /**
      * Required for WindowListener interface, but not used by this class.
+     *
+     * @param event  information about the window event.
      */
-    public void windowOpened(WindowEvent e) {
+    public void windowOpened(WindowEvent event) {
         // ignore
     }
 

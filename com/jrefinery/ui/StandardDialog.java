@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -37,20 +37,31 @@
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.Frame;
+import java.awt.Dialog;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JButton;
+import javax.swing.BorderFactory;
 
 /**
  * The base class for standard dialogs.
+ *
+ * @author DG
  */
 public class StandardDialog extends JDialog implements ActionListener {
 
-    /** Flag that indicates whether or not the dialog was cancelled; */
-    protected boolean cancelled;
+    /** Flag that indicates whether or not the dialog was cancelled. */
+    private boolean cancelled;
 
     /**
      * Standard constructor - builds a dialog...
+     *
+     * @param owner  the owner.
+     * @param title  the title.
+     * @param modal  modal?
      */
     public StandardDialog(Frame owner, String title, boolean modal) {
         super(owner, title, modal);
@@ -59,6 +70,10 @@ public class StandardDialog extends JDialog implements ActionListener {
 
     /**
      * Standard constructor - builds a dialog...
+     *
+     * @param owner  the owner.
+     * @param title  the title.
+     * @param modal  modal?
      */
     public StandardDialog(Dialog owner, String title, boolean modal) {
         super(owner, title, modal);
@@ -67,6 +82,8 @@ public class StandardDialog extends JDialog implements ActionListener {
 
     /**
      * Returns a flag that indicates whether or not the dialog has been cancelled.
+     *
+     * @return boolean.
      */
     public boolean isCancelled() {
         return this.cancelled;
@@ -74,6 +91,8 @@ public class StandardDialog extends JDialog implements ActionListener {
 
     /**
      * Handles clicks on the standard buttons.
+     *
+     * @param event  the event.
      */
     public void actionPerformed(ActionEvent event) {
         String command = event.getActionCommand();
@@ -93,6 +112,8 @@ public class StandardDialog extends JDialog implements ActionListener {
     /**
      * Builds and returns the user interface for the dialog.  This method is shared among the
      * constructors.
+     *
+     * @return the button panel.
      */
     protected JPanel createButtonPanel() {
 

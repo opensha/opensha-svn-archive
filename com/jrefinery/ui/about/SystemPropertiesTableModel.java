@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,6 +34,7 @@
  * 26-Oct-2001 : Changed package to com.jrefinery.ui (DG);
  * 28-Feb-2001 : Changed package to com.jrefinery.ui.about (DG);
  * 15-Mar-2002 : Modified to use a ResourceBundle for elements that require localisation (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -49,17 +50,19 @@ import com.jrefinery.ui.SortableTableModel;
 
 /**
  * A sortable table model containing the system properties.
+ *
+ * @author DG
  */
 public class SystemPropertiesTableModel extends SortableTableModel {
 
     /** Storage for the properties. */
-    protected List properties;
+    private List properties;
 
     /** Localised name column label. */
-    protected String nameColumnLabel;
+    private String nameColumnLabel;
 
     /** Localised property column label. */
-    protected String valueColumnLabel;
+    private String valueColumnLabel;
 
     /**
      * Creates a new table model using the properties of the current Java Virtual Machine.
@@ -70,7 +73,7 @@ public class SystemPropertiesTableModel extends SortableTableModel {
         Properties p = System.getProperties();
         Iterator iterator = p.keySet().iterator();
         while (iterator.hasNext()) {
-            String name = (String)iterator.next();
+            String name = (String) iterator.next();
             String value = System.getProperty(name);
             SystemProperty sp = new SystemProperty(name, value);
             this.properties.add(sp);
@@ -87,16 +90,28 @@ public class SystemPropertiesTableModel extends SortableTableModel {
     }
 
     /**
-     * Returns true for the first column, and false otherwise - sorting is only allowed on the first
-     * column.
+     * Returns true for the first column, and false otherwise - sorting is only allowed on the
+     * first column.
+     *
+     * @param column  the column index.
+     *
+     * @return true for column 0, and false for all other columns.
      */
-    public boolean isSortable(int columnIndex) {
-        if (columnIndex==0) return true;
-        else return false;
+    public boolean isSortable(int column) {
+
+        if (column == 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
     }
 
     /**
      * Returns the number of rows in the table model (that is, the number of system properties).
+     *
+     * @return the row count.
      */
     public int getRowCount() {
         return this.properties.size();
@@ -105,6 +120,8 @@ public class SystemPropertiesTableModel extends SortableTableModel {
     /**
      * Returns the number of columns in the table model.  In this case, there are two columns: one
      * for the property name, and one for the property value.
+     *
+     * @return the column count (always 2 in this case).
      */
     public int getColumnCount() {
         return 2;
@@ -112,10 +129,14 @@ public class SystemPropertiesTableModel extends SortableTableModel {
 
     /**
      * Returns the name of the specified column.
+     *
+     * @param column  the column index.
+     *
+     * @return the column name.
      */
-    public String getColumnName(int columnIndex) {
+    public String getColumnName(int column) {
 
-        if (columnIndex==0) {
+        if (column == 0) {
             return this.nameColumnLabel;
         }
         else {
@@ -127,22 +148,43 @@ public class SystemPropertiesTableModel extends SortableTableModel {
     /**
      * Returns the value at the specified row and column.  This method supports the TableModel
      * interface.
+     *
+     * @param row  the row index.
+     * @param column  the column index.
+     *
+     * @return the value.
      */
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        SystemProperty sp = (SystemProperty)properties.get(rowIndex);
-        if (columnIndex==0) return sp.getName();
-        else if (columnIndex==1) return sp.getValue();
-        else return null;
+    public Object getValueAt(int row, int column) {
+
+        SystemProperty sp = (SystemProperty) properties.get(row);
+        if (column == 0) {
+            return sp.getName();
+        }
+        else {
+            if (column == 1) {
+                return sp.getValue();
+            }
+            else {
+                return null;
+            }
+        }
+
     }
 
     /**
      * Sorts on the specified column.
+     *
+     * @param column  the column index.
+     * @param ascending  a flag that controls the sort order.
+     *
      */
     public void sortByColumn(int column, boolean ascending) {
+
         if (isSortable(column)) {
-            this.sortingColumn = column;
+            super.sortByColumn(column, ascending);
             Collections.sort(properties, new SystemPropertyComparator(ascending));
         }
+
     }
 
 
@@ -150,6 +192,8 @@ public class SystemPropertiesTableModel extends SortableTableModel {
 
 /**
  * Useful class for holding the name and value of a system property.
+ *
+ * @author DG
  */
 class SystemProperty {
 
@@ -161,6 +205,9 @@ class SystemProperty {
 
     /**
      * Standard constructor - builds a new SystemProperty.
+     *
+     * @param name  the property name.
+     * @param value  the property value.
      */
     public SystemProperty(String name, String value) {
             this.name = name;
@@ -169,6 +216,8 @@ class SystemProperty {
 
     /**
      * Returns the property name.
+     *
+     * @return the property name.
      */
     public String getName() {
         return this.name;
@@ -176,6 +225,8 @@ class SystemProperty {
 
     /**
      * Returns the property value.
+     *
+     * @return the property value.
      */
     public String getValue() {
         return this.value;
@@ -185,6 +236,8 @@ class SystemProperty {
 
 /**
  * A class for comparing SystemProperty objects.
+ *
+ * @author DG
  */
 class SystemPropertyComparator implements Comparator {
 
@@ -193,6 +246,8 @@ class SystemPropertyComparator implements Comparator {
 
     /**
      * Standard constructor.
+     *
+     * @param ascending  a flag that controls the sort order (ascending or descending).
      */
     public SystemPropertyComparator(boolean ascending) {
         this.ascending = ascending;
@@ -200,18 +255,37 @@ class SystemPropertyComparator implements Comparator {
 
     /**
      * Compares two objects.
+     *
+     * @param o1  the first object.
+     * @param o2  the second object.
+     *
+     * @return an integer that indicates the relative order of the objects.
      */
     public int compare(Object o1, Object o2) {
+
         if ((o1 instanceof SystemProperty) && (o2 instanceof SystemProperty)) {
-            SystemProperty sp1 = (SystemProperty)o1;
-            SystemProperty sp2 = (SystemProperty)o2;
-            if (ascending) return sp1.getName().compareTo(sp2.getName());
-            else return sp2.getName().compareTo(sp1.getName());
+            SystemProperty sp1 = (SystemProperty) o1;
+            SystemProperty sp2 = (SystemProperty) o2;
+            if (ascending) {
+                return sp1.getName().compareTo(sp2.getName());
+            }
+            else {
+                return sp2.getName().compareTo(sp1.getName());
+            }
         }
-        else return 0;
+        else {
+            return 0;
+        }
+
     }
 
-    /** */
+    /**
+     * Tests for equality.
+     *
+     * @param object  the object to test.
+     *
+     * @return  this implementation always returns false.
+     */
     public boolean equals(Object object) {
         return false;
     }

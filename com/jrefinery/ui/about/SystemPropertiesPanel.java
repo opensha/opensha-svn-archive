@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -35,6 +35,8 @@
  * 28-Feb-2002 : Changed package to com.jrefinery.ui.about (DG);
  * 04-Mar-2002 : Added popup menu code by Carl ?? (DG);
  * 15-Mar-2002 : Modified to use ResourceBundle for elements that require localisation (DG);
+ * 26-Jun-2002 : Removed unnecessary import (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -46,7 +48,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import java.util.ResourceBundle;
@@ -60,15 +61,21 @@ import javax.swing.KeyStroke;
 
 /**
  * A panel containing a table of system properties.
+ *
+ * @author DG
  */
 public class SystemPropertiesPanel extends JPanel {
 
     /** The table that displays the system properties. */
-    protected JTable table;
+    private JTable table;
 
     /** Allows for a popup menu for copying */
     private JPopupMenu copyPopupMenu;
+
+    /** A copy menu item. */
     private JMenuItem copyMenuItem;
+
+    /** A popup listener. */
     private PopupListener copyPopupListener;
 
     /**
@@ -79,28 +86,29 @@ public class SystemPropertiesPanel extends JPanel {
         String baseName = "com.jrefinery.ui.about.resources.AboutResources";
         ResourceBundle resources = ResourceBundle.getBundle(baseName);
 
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         this.table = SystemProperties.createSystemPropertiesTable();
-        this.add(new JScrollPane(table));
+        add(new JScrollPane(table));
 
         // Add a popup menu to copy to the clipboard...
         copyPopupMenu = new JPopupMenu();
 
         String label = resources.getString("system-properties-panel.popup-menu.copy");
-        KeyStroke accelerator = (KeyStroke)resources.getObject("system-properties-panel.popup-menu.copy.accelerator");
-        copyMenuItem=new JMenuItem(label);
+        KeyStroke accelerator = (KeyStroke)
+            resources.getObject("system-properties-panel.popup-menu.copy.accelerator");
+        copyMenuItem = new JMenuItem(label);
         copyMenuItem.setAccelerator(accelerator);
         copyMenuItem.getAccessibleContext().setAccessibleDescription(label);
         copyMenuItem.addActionListener(new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-           copySystemPropertiesToClipboard();
-          }
+            public void actionPerformed(ActionEvent e) {
+                copySystemPropertiesToClipboard();
+            }
         });
-        copyPopupMenu.add( copyMenuItem );
+        copyPopupMenu.add(copyMenuItem);
 
-        // Add Popup Listener to the table
+        // add popup Listener to the table
         copyPopupListener = new PopupListener();
-        table.addMouseListener( copyPopupListener );
+        table.addMouseListener(copyPopupListener);
 
     }
 
@@ -113,11 +121,13 @@ public class SystemPropertiesPanel extends JPanel {
         ListSelectionModel selection = table.getSelectionModel();
         int firstRow = selection.getMinSelectionIndex();
         int lastRow = selection.getMaxSelectionIndex();
-        if ((firstRow!=-1) && (lastRow!=-1)) {
-            for (int r=firstRow; r<=lastRow; r++) {
-                for (int c=0; c<table.getColumnCount(); c++) {
+        if ((firstRow != -1) && (lastRow != -1)) {
+            for (int r = firstRow; r <= lastRow; r++) {
+                for (int c = 0; c < table.getColumnCount(); c++) {
                     buffer.append(table.getValueAt(r, c));
-                    if (c!=2) buffer.append("\t");
+                    if (c != 2) {
+                        buffer.append("\t");
+                    }
                 }
                 buffer.append("\n");
             }
@@ -128,23 +138,37 @@ public class SystemPropertiesPanel extends JPanel {
 
     }
 
-    //
-    // ---------------------   INNER CLASSES -----------------------------
-    //
-
+    /**
+     * A popup listener.
+     */
     class PopupListener extends MouseAdapter {
 
+        /**
+         * Mouse pressed event.
+         *
+         * @param e  the event.
+         */
         public void mousePressed(MouseEvent e) {
             maybeShowPopup(e);
         }
 
+        /**
+         * Mouse released event.
+         *
+         * @param e  the event.
+         */
         public void mouseReleased(MouseEvent e) {
             maybeShowPopup(e);
         }
 
+        /**
+         * Event handler.
+         *
+         * @param e  the event.
+         */
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                copyPopupMenu.show( table, e.getX(), e.getY() );
+                copyPopupMenu.show(table, e.getX(), e.getY());
             }
         }
     }

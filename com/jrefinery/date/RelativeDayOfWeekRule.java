@@ -32,28 +32,31 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.date.*;
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.date;
 
 /**
- * An annual date rule that returns a date for each year based on (a) a reference rule; (b) a
- * day of the week; and (c) a selection parameter (SerialDate.PRECEDING, SerialDate.NEAREST,
- * SerialDate.FOLLOWING).
+ * An annual date rule that returns a date for each year based on (a) a
+ * reference rule; (b) a day of the week; and (c) a selection parameter
+ * (SerialDate.PRECEDING, SerialDate.NEAREST, SerialDate.FOLLOWING).
  * <P>
  * For example, Good Friday can be specified as 'the Friday PRECEDING Easter Sunday'.
+ *
+ * @author DG
  */
 public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
 
     /** A reference to the annual date rule on which this rule is based. */
-    protected AnnualDateRule subrule;
+    private AnnualDateRule subrule;
 
     /** The day of the week (SerialDate.MONDAY, SerialDate.TUESDAY, and so on). */
-    protected int dayOfWeek;
+    private int dayOfWeek;
 
     /** Specifies which day of the week (PRECEDING, NEAREST or FOLLOWING). */
-    protected int relative;
+    private int relative;
 
     /**
      * Default constructor - builds a rule for the Monday following 1 January.
@@ -64,9 +67,10 @@ public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
 
     /**
      * Standard constructor - builds rule based on the supplied sub-rule.
-     * @param subrule The rule that determines the reference date;
-     * @param dayOfWeek The day-of-the-week relative to the reference date;
-     * @param relative Indicates *which* day-of-the-week (preceding, nearest or following);
+     *
+     * @param subrule  the rule that determines the reference date.
+     * @param dayOfWeek  the day-of-the-week relative to the reference date.
+     * @param relative  indicates *which* day-of-the-week (preceding, nearest or following).
      */
     public RelativeDayOfWeekRule(AnnualDateRule subrule, int dayOfWeek, int relative) {
         this.subrule = subrule;
@@ -76,15 +80,17 @@ public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
 
     /**
      * Returns the sub-rule (also called the reference rule).
-     * @return The annual date rule that determines the reference date for this rule;
+     *
+     * @return the annual date rule that determines the reference date for this rule.
      */
     public AnnualDateRule getSubrule() {
         return subrule;
     }
 
     /**
-     * Sets the sub-rule;
-     * @param subrule The annual date rule that determines the reference date for this rule;
+     * Sets the sub-rule.
+     *
+     * @param subrule  the annual date rule that determines the reference date for this rule.
      */
     public void setSubrule(AnnualDateRule subrule) {
         this.subrule = subrule;
@@ -92,7 +98,8 @@ public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
 
     /**
      * Returns the day-of-the-week for this rule.
-     * @return The day-of-the-week for this rule;
+     *
+     * @return the day-of-the-week for this rule.
      */
     public int getDayOfWeek() {
         return dayOfWeek;
@@ -100,26 +107,28 @@ public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
 
     /**
      * Sets the day-of-the-week for this rule.
-     * @param dayOfWeek The day-of-the-week (SerialDate.MONDAY, SerialDate.TUESDAY, and so on);
+     *
+     * @param dayOfWeek  the day-of-the-week (SerialDate.MONDAY, SerialDate.TUESDAY, and so on).
      */
     public void setDayOfWeek(int dayOfWeek) {
         this.dayOfWeek = dayOfWeek;
     }
 
     /**
-     * Returns the 'relative' attribute, that determines *which* day-of-the-week we are interested
-     * in.
-     * @return The 'relative' attribute (SerialDate.PRECEDING, SerialDate.NEAREST or
-     *         SerialDate.FOLLOWING).
+     * Returns the 'relative' attribute, that determines *which* day-of-the-week we are
+     * interested in (SerialDate.PRECEDING, SerialDate.NEAREST or SerialDate.FOLLOWING).
+     *
+     * @return the 'relative' attribute.
      */
     public int getRelative() {
         return relative;
     }
 
     /**
-     * Sets the 'relative' attribute.
-     * @param relative Determines *which* day-of-the-week is selected by this rule
-     *                 (SerialDate.PRECEDING, SerialDate.NEAREST, SerialDate.FOLLOWING);
+     * Sets the 'relative' attribute (SerialDate.PRECEDING, SerialDate.NEAREST,
+     * SerialDate.FOLLOWING).
+     *
+     * @param relative  determines *which* day-of-the-week is selected by this rule.
      */
     public void setRelative(int relative) {
         this.relative = relative;
@@ -127,32 +136,39 @@ public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
 
     /**
      * Creates a clone of this rule.
+     *
+     * @return a clone of this rule.
+     *
+     * @throws CloneNotSupportedException this should never happen.
      */
     public Object clone() throws CloneNotSupportedException {
         RelativeDayOfWeekRule duplicate = null;
-        duplicate = (RelativeDayOfWeekRule)super.clone();
-        duplicate.subrule = (AnnualDateRule)duplicate.getSubrule().clone();
+        duplicate = (RelativeDayOfWeekRule) super.clone();
+        duplicate.subrule = (AnnualDateRule) duplicate.getSubrule().clone();
         return duplicate;
     }
 
     /**
      * Returns the date generated by this rule, for the specified year.
-     * @param The year (1900 <= year <= 9999).
-     * @return The date generated by the rule for the given year (null possible).
+     *
+     * @param year  the year (1900 &lt;= year &lt;= 9999).
+     *
+     * @return the date generated by the rule for the given year (null possible).
      */
     public SerialDate getDate(int year) {
 
         // check argument...
-        if ((year<SerialDate.MINIMUM_YEAR_SUPPORTED) || (year>SerialDate.MAXIMUM_YEAR_SUPPORTED)) {
-            throw new IllegalArgumentException("RelativeDayOfWeekRule.getDate(...): "
-                                               +"year outside valid range.");
+        if ((year < SerialDate.MINIMUM_YEAR_SUPPORTED)
+            || (year > SerialDate.MAXIMUM_YEAR_SUPPORTED)) {
+            throw new IllegalArgumentException(
+                "RelativeDayOfWeekRule.getDate(...): year outside valid range.");
         }
 
         // calculate the date...
         SerialDate result = null;
         SerialDate base = subrule.getDate(year);
 
-        if (base!=null) {
+        if (base != null) {
 
             switch (relative) {
 
@@ -168,7 +184,8 @@ public class RelativeDayOfWeekRule extends AnnualDateRule implements Cloneable {
                     result = SerialDate.getFollowingDayOfWeek(dayOfWeek, base);
                     break;
 
-                default: ;
+                default:
+                    break;
 
             }
 

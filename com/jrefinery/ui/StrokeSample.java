@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,30 +32,43 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import java.awt.geom.*;
-
-import javax.swing.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Component;
+import java.awt.Insets;
+import java.awt.Stroke;
+import java.awt.Dimension;
+import java.awt.geom.Point2D;
+import java.awt.geom.Line2D;
+import java.awt.geom.Ellipse2D;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 
 /**
  * A panel that displays a stroke sample.
+ *
+ * @author DG
  */
 public class StrokeSample extends JComponent implements ListCellRenderer {
 
     /** The stroke being displayed. */
-    protected Stroke stroke;
+    private Stroke stroke;
 
-    /** The preferred size of the component; */
-    protected Dimension preferredSize;
+    /** The preferred size of the component. */
+    private Dimension preferredSize;
 
     /**
      * Creates a StrokeSample for the specified stroke.
-     * @param stroke The sample stroke;
+     *
+     * @param stroke  the sample stroke.
      */
     public StrokeSample(Stroke stroke) {
         this.stroke = stroke;
@@ -64,6 +77,8 @@ public class StrokeSample extends JComponent implements ListCellRenderer {
 
     /**
      * Returns the current Stroke object being displayed.
+     *
+     * @return the stroke.
      */
     public Stroke getStroke() {
         return stroke;
@@ -71,14 +86,18 @@ public class StrokeSample extends JComponent implements ListCellRenderer {
 
     /**
      * Sets the Stroke object being displayed.
+     *
+     * @param stroke  the stroke.
      */
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
-        this.repaint();
+        repaint();
     }
 
     /**
      * Returns the preferred size of the component.
+     *
+     * @return the preferred size of the component.
      */
     public Dimension getPreferredSize() {
         return preferredSize;
@@ -86,25 +105,27 @@ public class StrokeSample extends JComponent implements ListCellRenderer {
 
     /**
      * Draws a line using the sample stroke.
+     *
+     * @param g  the graphics device.
      */
     public void paintComponent(Graphics g) {
 
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Dimension size = getSize();
         Insets insets = getInsets();
         double xx = insets.left;
         double yy = insets.top;
-        double ww = size.getWidth()-insets.left-insets.right;
-        double hh = size.getHeight()-insets.top-insets.bottom;
+        double ww = size.getWidth() - insets.left - insets.right;
+        double hh = size.getHeight() - insets.top - insets.bottom;
 
         // calculate point one
-        Point2D one =  new Point2D.Double(xx+6, yy+hh/2);
+        Point2D one =  new Point2D.Double(xx + 6, yy + hh / 2);
         // calculate point two
-        Point2D two =  new Point2D.Double(xx+ww-6, yy+hh/2);
+        Point2D two =  new Point2D.Double(xx + ww - 6, yy + hh / 2);
         // draw a circle at point one
-        Ellipse2D circle1 = new Ellipse2D.Double(one.getX()-5, one.getY()-5, 10, 10);
-        Ellipse2D circle2 = new Ellipse2D.Double(two.getX()-6, two.getY()-5, 10, 10);
+        Ellipse2D circle1 = new Ellipse2D.Double(one.getX() - 5, one.getY() - 5, 10, 10);
+        Ellipse2D circle2 = new Ellipse2D.Double(two.getX() - 6, two.getY() - 5, 10, 10);
 
         // draw a circle at point two
         g2.draw(circle1);
@@ -122,11 +143,19 @@ public class StrokeSample extends JComponent implements ListCellRenderer {
     /**
      * Returns a list cell renderer for the stroke, so the sample can be displayed in a list or
      * combo.
+     *
+     * @param list  the list.
+     * @param value  the value.
+     * @param index  the index.
+     * @param isSelected  selected?
+     * @param cellHasFocus  focussed?
+     *
+     * @return the component for rendering.
      */
     public Component getListCellRendererComponent(JList list, Object value, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
         if (value instanceof StrokeSample) {
-            StrokeSample in = (StrokeSample)value;
+            StrokeSample in = (StrokeSample) value;
             this.setStroke(in.getStroke());
         }
         return this;

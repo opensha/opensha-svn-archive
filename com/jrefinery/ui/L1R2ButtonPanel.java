@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,32 +32,41 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 26-Jun-2002 : Removed unnecessary import (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import javax.swing.JPanel;
+import javax.swing.JButton;
 
 /**
  * A 'ready-made' panel that has one button on the left and two buttons on the right - nested
  * panels and layout managers take care of resizing.
+ *
+ * @author DG
  */
 public class L1R2ButtonPanel extends JPanel {
 
-    /** The left button; */
+    /** The left button. */
     private JButton left;
 
-    /** The first button on the right of the panel; */
+    /** The first button on the right of the panel. */
     private JButton right1;
 
-    /** The second button on the right of the panel; */
+    /** The second button on the right of the panel. */
     private JButton right2;
 
     /**
      * Standard constructor - creates a three button panel with the specified button labels.
+     *
+     * @param label1  the label for button 1.
+     * @param label2  the label for button 2.
+     * @param label3  the label for button 3.
      */
     public L1R2ButtonPanel(String label1, String label2, String label3) {
 
@@ -80,6 +89,8 @@ public class L1R2ButtonPanel extends JPanel {
 
     /**
      * Returns a reference to button 1, allowing the caller to set labels, action-listeners etc.
+     *
+     * @return the left button.
      */
     public JButton getLeftButton() {
         return left;
@@ -87,6 +98,8 @@ public class L1R2ButtonPanel extends JPanel {
 
     /**
      * Returns a reference to button 2, allowing the caller to set labels, action-listeners etc.
+     *
+     * @return the right button 1.
      */
     public JButton getRightButton1() {
         return right1;
@@ -94,6 +107,8 @@ public class L1R2ButtonPanel extends JPanel {
 
     /**
      * Returns a reference to button 3, allowing the caller to set labels, action-listeners etc.
+     *
+     * @return  the right button 2.
      */
     public JButton getRightButton2() {
         return right2;

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,7 @@
  * -------------------------
  * 05-Nov-2001 : Changed package to com.jrefinery.io.* (DG);
  * 04-Mar-2002 : Renamed Files.java --> FileUtilities.java (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,12 +44,19 @@ import java.util.StringTokenizer;
 
 /**
  * A class containing useful utility methods relating to files.
+ *
+ * @author DG
  */
 public class FileUtilities {
 
     /**
-     * Returns a reference to a file with the specified name that is located somewhere on the
-     * classpath.  The code for this method is an adaptation of code supplied by Dave Postill.
+     * Returns a reference to a file with the specified name that is located
+     * somewhere on the classpath.  The code for this method is an adaptation
+     * of code supplied by Dave Postill.
+     *
+     * @param name  the filename.
+     *
+     * @return a reference to a file or <code>null</code> if no file could be found.
      */
     public static File findFileOnClassPath(String name) {
 
@@ -65,12 +73,16 @@ public class FileUtilities {
             File absoluteDirectoryOrJar = directoryOrJar.getAbsoluteFile();
 
             if (absoluteDirectoryOrJar.isFile()) {
-                File target = new File(absoluteDirectoryOrJar.getParent()+fileSeparator+name);
-                if (target.exists()) return target;
+                File target = new File(absoluteDirectoryOrJar.getParent() + fileSeparator + name);
+                if (target.exists()) {
+                    return target;
+                }
             }
             else {
                 File target = new File(pathElement + fileSeparator + name);
-                if (target.exists()) return target;
+                if (target.exists()) {
+                    return target;
+                }
             }
 
         }

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -31,30 +31,35 @@
  *
  * Changes (from 26-Oct-2001)
  * --------------------------
- * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 26-Oct-2001 : Changed package to com.jrefinery.ui.* (DG);
+ * 26-Jun-2002 : Updated imports (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.io.*;
-import javax.swing.filechooser.*;
+import java.io.File;
+import javax.swing.filechooser.FileFilter;
 
 /**
  * A filter for JFileChooser that filters files by extension.
+ *
+ * @author DG
  */
-public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
+public class ExtensionFileFilter extends FileFilter {
 
-    /** A description for the file type; */
+    /** A description for the file type. */
     private String description;
 
-    /** The extension (for example, "png" for *.png files); */
+    /** The extension (for example, "png" for *.png files). */
     private String extension;
 
     /**
      * Standard constructor.
-     * @param description A description of the file type;
-     * @param extension The file extension;
+     *
+     * @param description  a description of the file type;
+     * @param extension  the file extension;
      */
     public ExtensionFileFilter(String description, String extension) {
         this.description = description;
@@ -63,21 +68,31 @@ public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
 
     /**
      * Returns true if the file ends with the specified extension.
-     * @param file The file to test;
-     * @return A boolean that indicates whether or not the file is accepted by the filter;
+     *
+     * @param file  the file to test.
+     *
+     * @return A boolean that indicates whether or not the file is accepted by the filter.
      */
     public boolean accept(File file) {
 
-        if (file.isDirectory()) return true;
+        if (file.isDirectory()) {
+            return true;
+        }
 
         String name = file.getName().toLowerCase();
-        if (name.endsWith(extension)) return true;
-        else return false;
+        if (name.endsWith(extension)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
     }
 
     /**
      * Returns the description of the filter.
-     * @return A description of the filter;
+     *
+     * @return a description of the filter.
      */
     public String getDescription() {
         return description;

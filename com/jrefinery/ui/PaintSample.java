@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,30 +32,38 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import java.awt.geom.*;
-
-import javax.swing.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Paint;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.geom.Rectangle2D;
+import javax.swing.JComponent;
 
 /**
  * A panel that displays a paint sample.
+ *
+ * @author DG
  */
 public class PaintSample extends JComponent {
 
-    /** The paint; */
-    protected Paint paint;
+    /** The paint. */
+    private Paint paint;
 
-    /** The preferred size of the component; */
-    protected Dimension preferredSize;
+    /** The preferred size of the component. */
+    private Dimension preferredSize;
 
     /**
      * Standard constructor - builds a paint sample.
-     * @param paint The paint to display;
+     *
+     * @param paint   the paint to display.
      */
     public PaintSample(Paint paint) {
         this.paint = paint;
@@ -64,6 +72,8 @@ public class PaintSample extends JComponent {
 
     /**
      * Returns the current Paint object being displayed in the panel.
+     *
+     * @return the paint.
      */
     public Paint getPaint() {
         return paint;
@@ -71,14 +81,18 @@ public class PaintSample extends JComponent {
 
     /**
      * Sets the Paint object being displayed in the panel.
+     *
+     * @param paint  the paint.
      */
     public void setPaint(Paint paint) {
         this.paint = paint;
-        this.repaint();
+        repaint();
     }
 
     /**
      * Returns the preferred size of the component.
+     *
+     * @return the preferred size.
      */
     public Dimension getPreferredSize() {
         return preferredSize;
@@ -86,16 +100,18 @@ public class PaintSample extends JComponent {
 
     /**
      * Fills the component with the current Paint.
+     *
+     * @param g  the graphics device.
      */
     public void paintComponent(Graphics g) {
 
-        Graphics2D g2 = (Graphics2D)g;
+        Graphics2D g2 = (Graphics2D) g;
         Dimension size = getSize();
         Insets insets = getInsets();
         double xx = insets.left;
         double yy = insets.top;
-        double ww = size.getWidth()-insets.left-insets.right-1;
-        double hh = size.getHeight()-insets.top-insets.bottom-1;
+        double ww = size.getWidth() - insets.left - insets.right - 1;
+        double hh = size.getHeight() - insets.top - insets.bottom - 1;
         Rectangle2D area = new Rectangle2D.Double(xx, yy, ww, hh);
         g2.setPaint(paint);
         g2.fill(area);

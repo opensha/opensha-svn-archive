@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -31,19 +31,23 @@
  *
  * Changes (from 26-Oct-2001)
  * --------------------------
- * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 26-Oct-2001 : Changed package to com.jrefinery.ui.* (DG);
+ * 26-Jun-2002 : Removed unnecessary import (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import javax.swing.JPanel;
+import javax.swing.JButton;
 
 /**
  * A 'ready-made' panel that has one button on the left and another button on the right - a layout
  * manager takes care of resizing.
+ *
+ * @author DG
  */
 public class L1R1ButtonPanel extends JPanel {
 
@@ -55,6 +59,9 @@ public class L1R1ButtonPanel extends JPanel {
 
     /**
      * Standard constructor - creates a two-button panel with the specified labels.
+     *
+     * @param leftLabel  the label for the left button.
+     * @param rightLabel  the label for the right button.
      */
     public L1R1ButtonPanel(String leftLabel, String rightLabel) {
 
@@ -68,6 +75,8 @@ public class L1R1ButtonPanel extends JPanel {
 
     /**
      * Returns a reference to button 1, allowing the caller to set labels, action-listeners etc.
+     *
+     * @return the button.
      */
     public JButton getLeftButton() {
         return left;
@@ -75,6 +84,8 @@ public class L1R1ButtonPanel extends JPanel {
 
     /**
      * Returns a reference to button 2, allowing the caller to set labels, action-listeners etc.
+     *
+     * @return the button.
      */
     public JButton getRightButton() {
         return right;

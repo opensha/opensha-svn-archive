@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,6 +34,7 @@
  * 10-Dec-2001 : Version 1 (DG);
  * 28-Feb-2002 : Moved into package com.jrefinery.ui.about.  Changed import statements and
  *               updated Javadoc comments (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -47,27 +48,31 @@ import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
 /**
- * A panel containing a table that lists the contributors to a project.  Used in the AboutFrame
- * class.
+ * A panel containing a table that lists the contributors to a project.
+ * <P>
+ * Used in the AboutFrame class.
+ *
+ * @author DG
  */
 public class ContributorsPanel extends JPanel {
 
     /** The table. */
-    protected JTable table;
+    private JTable table;
 
     /** The data. */
-    protected TableModel model;
+    private TableModel model;
 
     /**
-     * Constructs a ContributorsPanel.
-     * @param contributors A list of contributors (represented by Contributor objects).
+     * Creates a new contributors panel.
+     *
+     * @param contributors  a list of contributors (represented by Contributor objects).
      */
     public ContributorsPanel(List contributors) {
 
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         model = new ContributorsTableModel(contributors);
         table = new JTable(model);
-        this.add(new JScrollPane(table));
+        add(new JScrollPane(table));
 
     }
 

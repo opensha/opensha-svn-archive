@@ -38,10 +38,12 @@
 package com.jrefinery.date;
 
 /**
- * Useful constants for months.  Note that these are NOT equivalent to the constants defined by
- * java.util.Calendar (where JANUARY=0 and DECEMBER=11).
+ * Useful constants for months.  Note that these are NOT equivalent to the
+ * constants defined by java.util.Calendar (where JANUARY=0 and DECEMBER=11).
  * <P>
  * Used by the SerialDate and TimePeriod classes.
+ *
+ * @author DG
  */
 public interface MonthConstants {
 

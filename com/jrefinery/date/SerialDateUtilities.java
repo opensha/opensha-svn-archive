@@ -19,9 +19,9 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ----------------
- * SerialDates.java
- * ----------------
+ * ------------------------
+ * SerialDateUtilities.java
+ * ------------------------
  * (C) Copyright 2001, 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
@@ -34,6 +34,8 @@
  * 26-Oct-2001 : Changed package to com.jrefinery.date.*;
  * 08-Dec-2001 : Dropped isLeapYear(...) method (DG);
  * 04-Mar-2002 : Renamed SerialDates.java --> SerialDateUtilities.java (DG);
+ * 25-Jun-2002 : Fixed a bug in the dayCountActual(...) method (DG);
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,31 +45,34 @@ import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
 /**
- * A utility class that provides a number of useful methods (some static).  Many of these are used
- * in the implementation of the day-count convention classes.  I recognise some limitations
- * in this implementation:
- *
- * [1] some of the methods assume that the default Calendar is a GregorianCalendar (used mostly to
- * determine leap years) - so the code won't work if some other Calendar is the default.  I'm not
- * sure how to handle this properly?
- *
+ * A utility class that provides a number of useful methods (some static).
+ * Many of these are used in the implementation of the day-count convention
+ * classes.  I recognise some limitations in this implementation:
+ * <p>
+ * [1] some of the methods assume that the default Calendar is a
+ * GregorianCalendar (used mostly to determine leap years) - so the code
+ * won&rsquo;t work if some other Calendar is the default.  I'm not sure how
+ * to handle this properly?
+ * <p>
  * [2] a whole bunch of static methods isn't very object-oriented - but I couldn't think of a good
- * way to extend the Date and Calendar classes to add the functions I required, so static methods
- * are doing the job for now.
+ * way to extend the Date and Calendar classes to add the functions I required,
+ * so static methods are doing the job for now.
+ *
+ * @author DG
  */
 public class SerialDateUtilities {
 
-    /** The default date format symbols; */
-    protected DateFormatSymbols dateFormatSymbols;
+    /** The default date format symbols. */
+    private DateFormatSymbols dateFormatSymbols;
 
-    /** Strings representing the weekdays; */
-    protected String[] weekdays;
+    /** Strings representing the weekdays. */
+    private String[] weekdays;
 
-    /** Strings representing the months; */
-    protected String[] months;
+    /** Strings representing the months. */
+    private String[] months;
 
     /**
-     * Constructor.
+     * Creates a new utility class for the default locale.
      */
     public SerialDateUtilities() {
         dateFormatSymbols = new DateFormatSymbols();
@@ -77,7 +82,8 @@ public class SerialDateUtilities {
 
     /**
      * Returns an array of strings representing the days-of-the-week.
-     * @return An array of strings representing the days-of-the-week;
+     *
+     * @return an array of strings representing the days-of-the-week.
      */
     public String[] getWeekdays() {
         return weekdays;
@@ -85,7 +91,8 @@ public class SerialDateUtilities {
 
     /**
      * Returns an array of strings representing the months.
-     * @return An array of strings representing the months;
+     *
+     * @return an array of strings representing the months.
      */
     public String[] getMonths() {
         return months;
@@ -93,50 +100,73 @@ public class SerialDateUtilities {
 
     /**
      * Converts the specified string to a weekday, using the default locale.
-     * @param s A string representing the day-of-the-week;
-     * @return An integer representing the day-of-the-week;
+     *
+     * @param s  a string representing the day-of-the-week.
+     *
+     * @return an integer representing the day-of-the-week.
      */
     public int stringToWeekday(String s) {
-        if (s.equals(weekdays[Calendar.SATURDAY])) return SerialDate.SATURDAY;
-        else if (s.equals(weekdays[Calendar.SUNDAY])) return SerialDate.SUNDAY;
-        else if (s.equals(weekdays[Calendar.MONDAY])) return SerialDate.MONDAY;
-        else if (s.equals(weekdays[Calendar.TUESDAY])) return SerialDate.TUESDAY;
-        else if (s.equals(weekdays[Calendar.WEDNESDAY])) return SerialDate.WEDNESDAY;
-        else if (s.equals(weekdays[Calendar.THURSDAY])) return SerialDate.THURSDAY;
-        else return SerialDate.FRIDAY;
+
+        if (s.equals(weekdays[Calendar.SATURDAY])) {
+            return SerialDate.SATURDAY;
+        }
+        else if (s.equals(weekdays[Calendar.SUNDAY])) {
+            return SerialDate.SUNDAY;
+        }
+        else if (s.equals(weekdays[Calendar.MONDAY])) {
+            return SerialDate.MONDAY;
+        }
+        else if (s.equals(weekdays[Calendar.TUESDAY])) {
+            return SerialDate.TUESDAY;
+        }
+        else if (s.equals(weekdays[Calendar.WEDNESDAY])) {
+            return SerialDate.WEDNESDAY;
+        }
+        else if (s.equals(weekdays[Calendar.THURSDAY])) {
+            return SerialDate.THURSDAY;
+        }
+        else {
+            return SerialDate.FRIDAY;
+        }
+
     }
 
     /**
      * Returns the actual number of days between two dates.
-     * @param start The start date;
-     * @param end The end date;
-     * @result The number of days between the start date and the end date.
+     *
+     * @param start  the start date.
+     * @param end  the end date.
+     *
+     * @return the number of days between the start date and the end date.
      */
     public static int dayCountActual(SerialDate start, SerialDate end) {
-        return start.compare(end);
+        return end.compare(start);
     };
 
     /**
-     * Returns the number of days between the specified start and end dates, assuming that there are
-     * thirty days in every month (that is, corresponding to the 30/360 day-count convention).
+     * Returns the number of days between the specified start and end dates,
+     * assuming that there are thirty days in every month (that is,
+     * corresponding to the 30/360 day-count convention).
      * <P>
-     * The method handles cases where the start date is before the end date (by switching the dates
-     * and returning a negative result).
-     * @param start The start date;
-     * @param end The end date;
-     * @result The number of days between the two dates, assuming the 30/360 day-count convention;
+     * The method handles cases where the start date is before the end date (by
+     * switching the dates and returning a negative result).
+     *
+     * @param start  the start date.
+     * @param end  the end date.
+     *
+     * @return the number of days between the two dates, assuming the 30/360 day-count convention.
      */
     public static int dayCount30(SerialDate start, SerialDate end) {
         int d1, m1, y1;
         int d2, m2, y2;
         if (start.isBefore(end)) {  // check the order of the dates
-            d1=start.getDayOfMonth();
-            m1=start.getMonth();
-            y1=start.getYYYY();
-            d2=end.getDayOfMonth();
-            m2=end.getMonth();
-            y2=end.getYYYY();
-            return 360*(y2-y1)+30*(m2-m1)+(d2-d1);
+            d1 = start.getDayOfMonth();
+            m1 = start.getMonth();
+            y1 = start.getYYYY();
+            d2 = end.getDayOfMonth();
+            m2 = end.getMonth();
+            y2 = end.getYYYY();
+            return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
         }
         else {
             return -dayCount30(end, start);
@@ -144,30 +174,37 @@ public class SerialDateUtilities {
     }
 
     /**
-     * Returns the number of days between the specified start and end dates, assuming that there are
-     * thirty days in every month, and applying the ISDA adjustments (i.e. corresponding to the
-     * 30/360 (ISDA) day-count convention).
+     * Returns the number of days between the specified start and end dates,
+     * assuming that there are thirty days in every month, and applying the
+     * ISDA adjustments (i.e. corresponding to the 30/360 (ISDA) day-count
+     * convention).
      * <P>
-     * The method handles cases where the start date is before the end date (by switching the dates
-     * around and returning a negative result).
-     * @param start The start date;
-     * @param end The end date;
-     * @result The number of days between the two dates, assuming the 30/360 (ISDA) day-count
-     *         convention;
+     * The method handles cases where the start date is before the end date (by
+     * switching the dates around and returning a negative result).
+     *
+     * @param start  the start date.
+     * @param end  the end date.
+     *
+     * @return The number of days between the two dates, assuming the 30/360
+     *      (ISDA) day-count convention.
      */
     public static int dayCount30ISDA(SerialDate start, SerialDate end) {
         int d1, m1, y1;
         int d2, m2, y2;
         if (start.isBefore(end)) {
-            d1=start.getDayOfMonth();
-            m1=start.getMonth();
-            y1=start.getYYYY();
-            if (d1==31) { d1=30; }               // first ISDA adjustment
-            d2=end.getDayOfMonth();
-            m2=end.getMonth();
-            y2=end.getYYYY();
-            if ((d2==31) && (d1==30)) { d2=30; } // second ISDA adjustment
-            return 360*(y2-y1)+30*(m2-m1)+(d2-d1);
+            d1 = start.getDayOfMonth();
+            m1 = start.getMonth();
+            y1 = start.getYYYY();
+            if (d1 == 31) {  // first ISDA adjustment
+                d1 = 30;
+            }
+            d2 = end.getDayOfMonth();
+            m2 = end.getMonth();
+            y2 = end.getYYYY();
+            if ((d2 == 31) && (d1 == 30)) {  // second ISDA adjustment
+                d2 = 30;
+            }
+            return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
         }
         else if (start.isAfter(end)) {
             return -dayCount30ISDA(end, start);
@@ -178,35 +215,41 @@ public class SerialDateUtilities {
     }
 
     /**
-     * Returns the number of days between the specified start and end dates, assuming that there are
-     * thirty days in every month, and applying the PSA adjustments (i.e. corresponding to the
-     * 30/360 (PSA) day-count convention. The method handles cases where the start date is before
-     * the end date (by switching the dates around and returning a negative result).
-     * @param start The start date;
-     * @param end The end date;
-     * @result The number of days between the two dates, assuming the 30/360 (PSA) day-count
-     *         convention;
+     * Returns the number of days between the specified start and end dates,
+     * assuming that there are thirty days in every month, and applying the PSA
+     * adjustments (i.e. corresponding to the 30/360 (PSA) day-count convention.
+     * The method handles cases where the start date is before the end date (by
+     * switching the dates around and returning a negative result).
+     *
+     * @param start  the start date.
+     * @param end  the end date.
+     *
+     * @return The number of days between the two dates, assuming the 30/360
+     *      (PSA) day-count convention.
      */
     public static int dayCount30PSA(SerialDate start, SerialDate end) {
         int d1, m1, y1;
         int d2, m2, y2;
 
         if (start.isOnOrBefore(end)) { // check the order of the dates
-            d1=start.getDayOfMonth();
-            m1=start.getMonth();
-            y1=start.getYYYY();
+            d1 = start.getDayOfMonth();
+            m1 = start.getMonth();
+            y1 = start.getYYYY();
 
             if (SerialDateUtilities.isLastDayOfFebruary(start)) {
-                d1=30;
+                d1 = 30;
             }
-            if ((d1==31) || SerialDateUtilities.isLastDayOfFebruary(start)) { // first PSA adjustment
-                d1=30;
+            if ((d1 == 31) || SerialDateUtilities.isLastDayOfFebruary(start)) {
+                // first PSA adjustment
+                d1 = 30;
             }
-            d2=end.getDayOfMonth();
-            m2=end.getMonth();
-            y2=end.getYYYY();
-            if ((d2==31) && (d1==30)) { d2=30; }    // second PSA adjustment
-            return 360*(y2-y1)+30*(m2-m1)+(d2-d1);
+            d2 = end.getDayOfMonth();
+            m2 = end.getMonth();
+            y2 = end.getYYYY();
+            if ((d2 == 31) && (d1 == 30)) {  // second PSA adjustment
+                d2 = 30;
+            }
+            return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
         }
         else {
             return -dayCount30PSA(end, start);
@@ -214,53 +257,75 @@ public class SerialDateUtilities {
     }
 
     /**
-     * Returns the number of days between the specified start and end dates, assuming that there are
-     * thirty days in every month, and applying the European adjustment (i.e. corresponds to the
-     * 30E/360 day-count convention).
+     * Returns the number of days between the specified start and end dates,
+     * assuming that there are thirty days in every month, and applying the
+     * European adjustment (i.e. corresponds to the 30E/360 day-count
+     * convention).
      * <P>
-     * The method handles cases where the start date is before the end date (by switching the dates
-     * around and returning a negative result).
-     * @param start The start date;
-     * @param end The end date;
-     * @result The number of days between the two dates, assuming the 30E/360 day-count convention;
+     * The method handles cases where the start date is before the end date (by
+     * switching the dates around and returning a negative result).
+     *
+     * @param start  the start date.
+     * @param end  the end date.
+     *
+     * @return the number of days between the two dates, assuming the 30E/360
+     *      day-count convention.
      */
     public static int dayCount30E(SerialDate start, SerialDate end) {
         int d1, m1, y1;
         int d2, m2, y2;
         if (start.isBefore(end)) {
-            d1=start.getDayOfMonth();
-            m1=start.getMonth();
-            y1=start.getYYYY();
-            if (d1==31) { d1=30; }               // first European adjustment
-            d2=end.getDayOfMonth();
-            m2=end.getMonth();
-            y2=end.getYYYY();
-            if (d2==31) { d2=30; }               // first European adjustment
-            return 360*(y2-y1)+30*(m2-m1)+(d2-d1);
+            d1 = start.getDayOfMonth();
+            m1 = start.getMonth();
+            y1 = start.getYYYY();
+            if (d1 == 31) {  // first European adjustment
+                d1 = 30;
+            }
+            d2 = end.getDayOfMonth();
+            m2 = end.getMonth();
+            y2 = end.getYYYY();
+            if (d2 == 31) {  // first European adjustment
+                d2 = 30;
+            }
+            return 360 * (y2 - y1) + 30 * (m2 - m1) + (d2 - d1);
         }
         else if (start.isAfter(end)) {
             return -dayCount30E(end, start);
         }
-        else { return 0; }
+        else {
+            return 0;
+        }
     }
 
     /**
-     * Returns true if the specified date is the last day in February (i.e. the 28th in non-leap
-     * years, and the 29th in leap years).
-     * @param d The date to be tested;
-     * @return A boolean that indicates whether or not the specified date is the last day of
-     *         February;
+     * Returns true if the specified date is the last day in February (i.e. the
+     * 28th in non-leap years, and the 29th in leap years).
+     *
+     * @param d  the date to be tested.
+     *
+     * @return a boolean that indicates whether or not the specified date is
+     *      the last day of February.
      */
     public static boolean isLastDayOfFebruary(SerialDate d) {
 
         int dom;
-        if (d.getMonth()==SerialDate.FEBRUARY) {
-            dom=d.getDayOfMonth();
+        if (d.getMonth() == SerialDate.FEBRUARY) {
+            dom = d.getDayOfMonth();
             if (SerialDate.isLeapYear(d.getYYYY())) {
-                if (dom==29) return true; else return false;
+                if (dom == 29) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
             else {
-                if (dom==28) return true; else return false;
+                if (dom == 28) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
             }
         }
         else { // not even February
@@ -270,25 +335,29 @@ public class SerialDateUtilities {
     }
 
     /**
-     * Returns the number of times that February 29 falls within the specified date range.  The
-     * result needs to correspond to the ACT/365 (Japanese) day-count convention.  The difficult
-     * cases are where the start or the end date is Feb 29 (include or not?).  Need to find out how
-     * JGBs do this (since this is where the ACT/365 (Japanese) convention comes from...
-     * @param start The start date;
-     * @param end The end date;
-     * @return The number of times that February 29 occurs within the date range;
+     * Returns the number of times that February 29 falls within the specified
+     * date range.  The result needs to correspond to the ACT/365 (Japanese)
+     * day-count convention.  The difficult cases are where the start or the
+     * end date is Feb 29 (include or not?).  Need to find out how JGBs do this
+     * (since this is where the ACT/365 (Japanese) convention comes from ...
+     *
+     * @param start  the start date.
+     * @param end  the end date.
+     *
+     * @return the number of times that February 29 occurs within the date
+     *      range.
      */
     public static int countFeb29s(SerialDate start, SerialDate end) {
-        int count=0;
+        int count = 0;
         SerialDate feb29;
         int y1, y2, year;
 
         // check the order of the dates
         if (start.isBefore(end)) {
 
-            y1=start.getYYYY();
-            y2=end.getYYYY();
-            for (year=y1; year==y2; year++) {
+            y1 = start.getYYYY();
+            y2 = end.getYYYY();
+            for (year = y1; year == y2; year++) {
                 if (SerialDate.isLeapYear(year)) {
                     feb29 = SerialDate.createInstance(29, SerialDate.FEBRUARY, year);
                     if (feb29.isInRange(start, end, SerialDate.INCLUDE_SECOND)) {

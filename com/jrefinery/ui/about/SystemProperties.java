@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,7 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 04-Mar-2002 : Version 1 (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -45,6 +46,7 @@ import com.jrefinery.ui.SortableTable;
 /**
  * A utility class for working with system properties.
  *
+ * @author DG
  */
 public class SystemProperties {
 
@@ -52,6 +54,8 @@ public class SystemProperties {
      * Creates and returns a JTable containing all the system properties.  This method returns a
      * table that is configured so that the user can sort the properties by clicking on the table
      * header.
+     *
+     * @return a system properties table.
      */
     public static SortableTable createSystemPropertiesTable() {
 

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,16 +32,22 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
-import java.awt.*;
 
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Stroke;
+import java.awt.BasicStroke;
+import javax.swing.JPanel;
+import javax.swing.JComboBox;
 
 /**
  * A component for choosing a stroke from a list of available strokes.  This class needs work.
+ *
+ * @author DG
  */
 public class StrokeChooserPanel extends JPanel {
 
@@ -51,8 +57,9 @@ public class StrokeChooserPanel extends JPanel {
     /**
      * Creates a panel containing a combo-box that allows the user to select
      * one stroke from a list of available strokes.
-     * @param current The current stroke sample;
-     * @param available An array of 'available' stroke samples;
+     *
+     * @param current  the current stroke sample.
+     * @param available  an array of 'available' stroke samples.
      */
     public StrokeChooserPanel(StrokeSample current, StrokeSample[] available) {
         setLayout(new BorderLayout());
@@ -64,9 +71,11 @@ public class StrokeChooserPanel extends JPanel {
 
     /**
      * Returns the selected stroke.
+     *
+     * @return the selected stroke.
      */
     public Stroke getSelectedStroke() {
-        StrokeSample sample = (StrokeSample)selector.getSelectedItem();
+        StrokeSample sample = (StrokeSample) selector.getSelectedItem();
         return sample.getStroke();
     }
 

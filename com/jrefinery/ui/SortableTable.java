@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,35 +32,42 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.JTable;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.JTableHeader;
 
 /**
  * A simple extension of JTable that supports the use of a SortableTableModel.
+ *
+ * @author DG
  */
 public class SortableTable extends JTable {
 
-    /** A listener for sorting; */
-    SortableTableHeaderListener headerListener;
+    /** A listener for sorting. */
+    private SortableTableHeaderListener headerListener;
 
     /**
      * Standard constructor - builds a table for the specified model.
+     *
+     * @param model  the data.
      */
     public SortableTable(SortableTableModel model) {
+
         super(model);
 
         SortButtonRenderer renderer = new SortButtonRenderer();
-        TableColumnModel columnModel = this.getColumnModel();
-        for (int i=0; i<columnModel.getColumnCount(); i++) {
+        TableColumnModel columnModel = getColumnModel();
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setHeaderRenderer(renderer);
         }
 
-        JTableHeader header = this.getTableHeader();
+        JTableHeader header = getTableHeader();
         headerListener = new SortableTableHeaderListener(model, renderer);
         header.addMouseListener(headerListener);
         header.addMouseMotionListener(headerListener);
@@ -70,18 +77,23 @@ public class SortableTable extends JTable {
     }
 
     /**
-     * Changes the model for the table.  Takes care of updating the header listener at the same time.
+     * Changes the model for the table.  Takes care of updating the header listener at the
+     * same time.
+     *
+     * @param model  the table model.
+     *
      */
     public void setSortableModel(SortableTableModel model) {
+
         super.setModel(model);
         headerListener.setTableModel(model);
         SortButtonRenderer renderer = new SortButtonRenderer();
         TableColumnModel columnModel = this.getColumnModel();
-        for (int i=0; i<columnModel.getColumnCount(); i++) {
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
             columnModel.getColumn(i).setHeaderRenderer(renderer);
         }
-
         model.sortByColumn(0, true);
+
     }
 
 }

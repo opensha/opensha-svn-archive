@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,24 +32,29 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.LayoutManager;
+import javax.swing.JPanel;
 
 /**
  * A panel that provides the user interface for a single step in a WizardDialog.
+ *
+ * @author DG
  */
 public abstract class WizardPanel extends JPanel {
 
     /** The owner. */
-    protected WizardDialog owner;
+    private WizardDialog owner;
 
     /**
-     * Standard constructor.
+     * Creates a new panel.
+     *
+     * @param layout  the layout manager.
      */
     protected WizardPanel(LayoutManager layout) {
         super(layout);
@@ -58,20 +63,28 @@ public abstract class WizardPanel extends JPanel {
 
     /**
      * Returns a reference to the dialog that owns the panel.
+     *
+     * @return the owner.
      */
     public WizardDialog getOwner() {
         return this.owner;
     }
 
     /**
-     * Sets the reference to the dialog that owns the panel (this is called automatically by the
-     * dialog when the panel is added to the dialog).
+     * Sets the reference to the dialog that owns the panel (this is called automatically by
+     * the dialog when the panel is added to the dialog).
+     *
+     * @param owner  the owner.
      */
     public void setOwner(WizardDialog owner) {
         this.owner = owner;
     }
 
-    /** */
+    /**
+     * Returns the result.
+     *
+     * @return the result.
+     */
     public Object getResult() {
         return null;
     }
@@ -86,18 +99,30 @@ public abstract class WizardPanel extends JPanel {
     /**
      * Returns true if it is OK to redisplay the last version of the next panel, or false if a new
      * version is required.
+     *
+     * @return boolean.
      */
     public abstract boolean canRedisplayNextPanel();
 
-    /** */
+    /**
+     * Returns true if there is a next panel.
+     *
+     * @return boolean.
+     */
     public abstract boolean hasNextPanel();
 
-    /** */
+    /**
+     * Returns true if it is possible to finish from this panel.
+     *
+     * @return boolean.
+     */
     public abstract boolean canFinish();
 
     /**
      * Returns the next panel in the sequence, given the current user input.  Returns null if this
      * panel is the last one in the sequence.
+     *
+     * @return the next panel in the sequence.
      */
     public abstract WizardPanel getNextPanel();
 

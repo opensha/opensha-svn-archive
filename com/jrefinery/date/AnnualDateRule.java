@@ -33,32 +33,40 @@
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.date.* (DG);
  * 12-Nov-2001 : Javadoc comments updated (DG);
+ * 03-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.date;
 
 /**
- * The base class for all 'annual' date rules: that is, rules for generating one date for any
- * given year.
+ * The base class for all 'annual' date rules: that is, rules for generating
+ * one date for any given year.
  * <P>
  * One example is Easter Sunday (which can be calculated using published algorithms).
+ *
+ * @author DG
  */
 public abstract class AnnualDateRule implements Cloneable {
 
     /**
      * Returns the date for this rule, given the year.
-     * @param yyyy The year (1900 <= year <= 9999).
-     * @return The date for this rule, given the year.
+     *
+     * @param year  the year (1900 &lt;= year &lt;= 9999).
+     *
+     * @return the date for this rule, given the year.
      */
     public abstract SerialDate getDate(int year);
 
     /**
      * Returns a clone of the rule.
      * <P>
-     * You should refer to the documentation of the clone() method in each subclass for exact
-     * details.
-     * @return A clone of the rule.
+     * You should refer to the documentation of the clone() method in each
+     * subclass for exact details.
+     *
+     * @return a clone of the rule.
+     *
+     * @throws CloneNotSupportedException if the rule is not clonable.
      */
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

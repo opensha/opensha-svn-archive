@@ -35,6 +35,9 @@
  * 19-Apr-2002 : Changed version number to 0.6.1-dev (DG);
  * 06-Jun-2002 : Changed version number to 0.6.2 (DG);
  * 13-Jun-2002 : Changed version number to 0.6.3 (DG);
+ * 26-Jun-2002 : Changed version number to 0.6.4 (DG);
+ * 27-Aug-2002 : Changed version number to 0.7.0 (DG);
+ * 16-Oct-2002 : Changed version number to 0.7.1 (DG);
  *
  */
 
@@ -49,6 +52,7 @@ public class JCommonResources extends ListResourceBundle {
 
     /**
      * Returns the array of strings in the resource bundle.
+     * @return the array of strings in the resource bundle.
      */
     public Object[][] getContents() {
         return contents;
@@ -58,9 +62,10 @@ public class JCommonResources extends ListResourceBundle {
     static final Object[][] contents = {
 
         {"project.name",      "JCommon"},
-        {"project.version",   "0.6.3"},
+        {"project.version",   "0.7.1"},
         {"project.info",      "http://www.object-refinery.com/jcommon/index.html"},
-        {"project.copyright", "(C)opyright 2000-2002, by Simba Management Limited and Contributors"}
+        {"project.copyright", "(C)opyright 2000-2002, by Simba Management Limited and"
+                            + " Contributors"}
 
     };
 

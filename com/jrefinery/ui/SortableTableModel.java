@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,22 +33,26 @@
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.* (DG);
  * 20-Nov-2001 : Made constructor protected (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
-import javax.swing.table.*;
+
+import javax.swing.table.AbstractTableModel;
 
 /**
  * The base class for a sortable table model.
+ *
+ * @author DG
  */
 public abstract class SortableTableModel extends AbstractTableModel {
 
     /** The column on which the data is sorted (-1 for no sorting). */
-    protected int sortingColumn;
+    private int sortingColumn;
 
     /** Indicates ascending (true) or descending (false) order. */
-    protected boolean ascending;
+    private boolean ascending;
 
     /**
      * Constructs a sortable table model.
@@ -60,15 +64,17 @@ public abstract class SortableTableModel extends AbstractTableModel {
 
     /**
      * Returns the index of the sorting column, or -1 if the data is not sorted on any column.
-     * @param The column used for sorting.
+     *
+     * @return the column used for sorting.
      */
     public int getSortingColumn() {
         return sortingColumn;
     }
 
     /**
-     * Returns true if the data is sorted in ascending order, and false otherwise. *
-     * @return True if the data is sorted in ascending order, and false otherwise.
+     * Returns true if the data is sorted in ascending order, and false otherwise.
+     *
+     * @return true if the data is sorted in ascending order, and false otherwise.
      */
     public boolean getAscending() {
         return this.ascending;
@@ -76,7 +82,8 @@ public abstract class SortableTableModel extends AbstractTableModel {
 
     /**
      * Sets the flag that determines whether the sort order is ascending or descending.
-     * @param flag The flag.
+     *
+     * @param flag  the flag.
      */
     public void setAscending(boolean flag) {
         this.ascending = flag;
@@ -84,8 +91,9 @@ public abstract class SortableTableModel extends AbstractTableModel {
 
     /**
      * Sorts the table.
-     * @param column The column to sort on (zero-based index).
-     * @param ascending A flag to indicate ascending order or descending order.
+     *
+     * @param column  the column to sort on (zero-based index).
+     * @param ascending  a flag to indicate ascending order or descending order.
      */
     public void sortByColumn(int column, boolean ascending) {
         if (isSortable(column)) {
@@ -95,7 +103,10 @@ public abstract class SortableTableModel extends AbstractTableModel {
 
     /**
      * Returns a flag indicating whether or not a column is sortable.
-     * @param column The column (zero-based index).
+     *
+     * @param column  the column (zero-based index).
+     *
+     * @return boolean.
      */
     public boolean isSortable(int column) {
         return false;

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -31,17 +31,23 @@
  *
  * Changes (from 26-Oct-2001)
  * --------------------------
- * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 26-Oct-2001 : Changed package to com.jrefinery.ui.* (DG);
+ * 26-Jun-2002 : Removed unnecessary import (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.util.*;
-import java.awt.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
+
+import java.awt.Component;
+import java.awt.Insets;
+import javax.swing.JButton;
+import javax.swing.JTable;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 /**
  * A table cell renderer for table headings - uses one of three JButton instances to indicate the
@@ -49,6 +55,8 @@ import javax.swing.table.*;
  * <P>
  * This class (and also BevelArrowIcon) is adapted from original code by Nobuo Tamemasa (version
  * 1.0, 26-Feb-1999) posted on www.codeguru.com.
+ *
+ * @author NT
  */
 public class SortButtonRenderer implements TableCellRenderer {
 
@@ -62,10 +70,10 @@ public class SortButtonRenderer implements TableCellRenderer {
     public static final int UP   = 2;
 
     /** The current pressed column (-1 for no column). */
-    protected int pressedColumn = -1;
+    private int pressedColumn = -1;
 
     /** The three buttons that are used to render the table header cells. */
-    JButton normalButton, ascendingButton, descendingButton;
+    private JButton normalButton, ascendingButton, descendingButton;
 
     /**
      * Constructs a SortButtonRenderer.
@@ -101,15 +109,27 @@ public class SortButtonRenderer implements TableCellRenderer {
 
     /**
      * Returns the renderer component.
+     *
+     * @param table  the table.
+     * @param value  the value.
+     * @param isSelected  selected?
+     * @param hasFocus  focussed?
+     * @param row  the row.
+     * @param column  the column.
+     *
+     * @return the renderer.
      */
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                   boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(JTable table,
+                                                   Object value,
+                                                   boolean isSelected,
+                                                   boolean hasFocus,
+                                                   int row, int column) {
 
         JButton button = normalButton;
         int cc = table.convertColumnIndexToModel(column);
-        if (table!=null) {
-            SortableTableModel model = (SortableTableModel)table.getModel();
-            if (model.getSortingColumn()==cc) {
+        if (table != null) {
+            SortableTableModel model = (SortableTableModel) table.getModel();
+            if (model.getSortingColumn() == cc) {
                 if (model.getAscending()) {
                     button = ascendingButton;
                 }
@@ -126,7 +146,7 @@ public class SortButtonRenderer implements TableCellRenderer {
             button.setFont(header.getFont());
         }
 
-        button.setText((value==null) ? "" : value.toString());
+        button.setText((value == null) ? "" : value.toString());
         boolean isPressed = (cc == pressedColumn);
         button.getModel().setPressed(isPressed);
         button.getModel().setArmed(isPressed);
@@ -135,6 +155,8 @@ public class SortButtonRenderer implements TableCellRenderer {
 
     /**
      * Sets the pressed column.
+     *
+     * @param column  the column.
      */
     public void setPressedColumn(int column) {
         this.pressedColumn = column;

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,16 +32,22 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
-import java.awt.event.*;
-import javax.swing.table.*;
+
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import javax.swing.table.JTableHeader;
 
 /**
  * Captures mouse clicks on a table header, with the intention of triggering a sort.  Adapted from
  * code by Nabuo Tamemasa posted on http://www.codeguru.com.
+ *
+ * @author NT
  */
 public class SortableTableHeaderListener implements MouseListener, MouseMotionListener {
 
@@ -56,8 +62,9 @@ public class SortableTableHeaderListener implements MouseListener, MouseMotionLi
 
     /**
      * Standard constructor.
-     * @param model ;
-     * @param renderer ;
+     *
+     * @param model  the model.
+     * @param renderer  the renderer.
      */
     public SortableTableHeaderListener(SortableTableModel model, SortButtonRenderer renderer) {
         this.model = model;
@@ -66,6 +73,8 @@ public class SortableTableHeaderListener implements MouseListener, MouseMotionLi
 
     /**
      * Sets the table model for the listener.
+     *
+     * @param model  the model.
      */
     public void setTableModel(SortableTableModel model) {
         this.model = model;
@@ -74,13 +83,15 @@ public class SortableTableHeaderListener implements MouseListener, MouseMotionLi
     /**
      * Handle a mouse press event - if the user is NOT resizing a column and NOT dragging a column
      * then give visual feedback that the column header has been pressed.
+     *
+     * @param e  the mouse event.
      */
     public void mousePressed(MouseEvent e) {
 
-        JTableHeader header = (JTableHeader)e.getComponent();
+        JTableHeader header = (JTableHeader) e.getComponent();
 
-        if (header.getResizingColumn()==null) {  // resizing takes precedence over sorting
-            if (header.getDraggedDistance()<1) {   // dragging also takes precedence over sorting
+        if (header.getResizingColumn() == null) {  // resizing takes precedence over sorting
+            if (header.getDraggedDistance() < 1) {   // dragging also takes precedence over sorting
                 int columnIndex = header.columnAtPoint(e.getPoint());
                 int modelColumnIndex = header.getTable().convertColumnIndexToModel(columnIndex);
                 if (model.isSortable(modelColumnIndex)) {
@@ -91,7 +102,9 @@ public class SortableTableHeaderListener implements MouseListener, MouseMotionLi
                         header.getTable().getCellEditor().stopCellEditing();
                     }
                 }
-                else sortColumnIndex = -1;
+                else {
+                    sortColumnIndex = -1;
+                }
             }
         }
 
@@ -99,52 +112,63 @@ public class SortableTableHeaderListener implements MouseListener, MouseMotionLi
 
     /**
      * If the user is dragging or resizing, then we clear the sort column.
+     *
+     * @param e  the mouse event.
      */
     public void mouseDragged(MouseEvent e) {
 
-        JTableHeader header = (JTableHeader)e.getComponent();
+        JTableHeader header = (JTableHeader) e.getComponent();
 
-        if ((header.getDraggedDistance()>0) || (header.getResizingColumn()!=null)) {
+        if ((header.getDraggedDistance() > 0) || (header.getResizingColumn() != null)) {
             renderer.setPressedColumn(-1);
-            sortColumnIndex=-1;
+            sortColumnIndex = -1;
         }
     }
 
     /**
      * This event is ignored (not required).
+     *
+     * @param e  the mouse event.
      */
     public void mouseEntered(MouseEvent e) {
     }
 
     /**
      * This event is ignored (not required).
+     *
+     * @param e  the mouse event.
      */
-
     public void mouseClicked(MouseEvent e) {
     }
 
     /**
      * This event is ignored (not required).
+     *
+     * @param e  the mouse event.
      */
     public void mouseMoved(MouseEvent e) {
     }
 
     /**
      * This event is ignored (not required).
+     *
+     * @param e  the mouse event.
      */
     public void mouseExited(MouseEvent e) {
     }
 
     /**
      * When the user releases the mouse button, we attempt to sort the table.
+     *
+     * @param e  the mouse event.
      */
     public void mouseReleased(MouseEvent e) {
 
-        JTableHeader header = (JTableHeader)e.getComponent();
+        JTableHeader header = (JTableHeader) e.getComponent();
 
-        if (header.getResizingColumn()==null) {  // resizing the column takes precedence over sorting
-            if (sortColumnIndex!=-1) {
-                SortableTableModel model = (SortableTableModel)(header.getTable().getModel());
+        if (header.getResizingColumn() == null) {  // resizing takes precedence over sorting
+            if (sortColumnIndex != -1) {
+                SortableTableModel model = (SortableTableModel) header.getTable().getModel();
                 boolean ascending = !model.getAscending();
                 model.setAscending(ascending);
                 model.sortByColumn(sortColumnIndex, ascending);

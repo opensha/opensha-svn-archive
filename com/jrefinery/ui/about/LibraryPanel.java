@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 28-Feb-2002 : Version 1 (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -45,27 +46,31 @@ import javax.swing.JTable;
 import javax.swing.table.TableModel;
 
 /**
- * A panel containing a table that lists the libraries used in a project.  Used in the AboutFrame
- * class.
+ * A panel containing a table that lists the libraries used in a project.
+ * <P>
+ * Used in the AboutFrame class.
+ *
+ * @author DG
  */
 public class LibraryPanel extends JPanel {
 
     /** The table. */
-    protected JTable table;
+    private JTable table;
 
     /** The data. */
-    protected TableModel model;
+    private TableModel model;
 
     /**
      * Constructs a LibraryPanel.
-     * @param libraries A list of libraries (represented by Library objects).
+     *
+     * @param libraries  a list of libraries (represented by Library objects).
      */
     public LibraryPanel(List libraries) {
 
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         model = new LibraryTableModel(libraries);
         table = new JTable(model);
-        this.add(new JScrollPane(table));
+        add(new JScrollPane(table));
 
     }
 

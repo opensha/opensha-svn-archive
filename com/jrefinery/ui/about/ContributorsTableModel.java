@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -34,7 +34,7 @@
  * 10-Dec-2001 : Version 1 (DG);
  * 28-Feb-2002 : Moved into package com.jrefinery.ui.about.  Changed import statements and
  *               updated Javadoc comments (DG);
- *
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  */
 
 package com.jrefinery.ui.about;
@@ -44,24 +44,27 @@ import java.util.ResourceBundle;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * A table model containing a list of contributors to a project.  Used in the ContributorsPanel
- * class.
+ * A table model containing a list of contributors to a project.
+ * <P>
+ * Used in the ContributorsPanel class.
+ *
+ * @author DG
  */
 public class ContributorsTableModel extends AbstractTableModel {
 
     /** Storage for the contributors. */
-    protected List contributors;
+    private List contributors;
 
     /** Localised version of the name column label. */
-    protected String nameColumnLabel;
+    private String nameColumnLabel;
 
     /** Localised version of the contact column label. */
-    protected String contactColumnLabel;
+    private String contactColumnLabel;
 
     /**
      * Constructs a ContributorsTableModel.
      *
-     * @param contributors The contributors.
+     * @param contributors  the contributors.
      */
     public ContributorsTableModel(List contributors) {
 
@@ -96,8 +99,9 @@ public class ContributorsTableModel extends AbstractTableModel {
     /**
      * Returns the name of a column in the table model.
      *
-     * @param column The column index (zero-based).
-     * @return The name of the specified column.
+     * @param column  the column index (zero-based).
+     *
+     * @return  the name of the specified column.
      */
     public String getColumnName(int column) {
 
@@ -120,19 +124,20 @@ public class ContributorsTableModel extends AbstractTableModel {
     /**
      * Returns the value for a cell in the table model.
      *
-     * @param row The row index (zero-based).
-     * @param column The column index (zero-based).
-     * @return The value.
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
+     *
+     * @return the value.
      */
     public Object getValueAt(int row, int column) {
 
         Object result = null;
-        Contributor contributor = (Contributor)contributors.get(row);
+        Contributor contributor = (Contributor) contributors.get(row);
 
-        if (column==0) {
+        if (column == 0) {
             result = contributor.getName();
         }
-        else if (column==1) {
+        else if (column == 1) {
             result = contributor.getEmail();
         }
         return result;

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,19 +33,34 @@
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.* (DG);
  * 08-Dec-2001 : Dropped the getMonths() method (DG);
+ * 13-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
-import com.jrefinery.date.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.Vector;
+import java.util.Enumeration;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JComboBox;
+import javax.swing.JButton;
+import javax.swing.BorderFactory;
+import com.jrefinery.date.SerialDate;
 
 /**
  * A panel that allows the user to select a date.
+ *
+ * @author DG
  */
 public class DateChooserPanel extends JPanel implements ActionListener {
 
@@ -68,7 +83,7 @@ public class DateChooserPanel extends JPanel implements ActionListener {
     private int yearSelectionRange = 20;
 
     /** The font used to display the date; */
-    private Font dateFont = new Font("Arial", Font.PLAIN, 10);
+    private Font dateFont = new Font("SansSerif", Font.PLAIN, 10);
 
     /** A combo for selecting the month; */
     private JComboBox monthSelector = null;
@@ -94,26 +109,28 @@ public class DateChooserPanel extends JPanel implements ActionListener {
 
     /**
      * Constructs a new date chooser panel.
-     * @param calendar The calendar controlling the date.
-     * @param controlPanel A flag that indicates whether or not the 'today' button should appear
-     *                     on the panel;
+     *
+     * @param calendar  the calendar controlling the date.
+     * @param controlPanel  a flag that indicates whether or not the 'today' button should
+     *                      appear on the panel.
      */
     public DateChooserPanel(Calendar calendar, boolean controlPanel) {
 
         super(new BorderLayout());
-        this.add(constructSelectionPanel(), BorderLayout.NORTH);
-        this.add(getCalendarPanel(), BorderLayout.CENTER);
+        add(constructSelectionPanel(), BorderLayout.NORTH);
+        add(getCalendarPanel(), BorderLayout.CENTER);
         if (controlPanel) {
-            this.add(constructControlPanel(), BorderLayout.SOUTH);
+            add(constructControlPanel(), BorderLayout.SOUTH);
         }
         // the default date is today...
-        chosenDate=calendar;
+        chosenDate = calendar;
         setDate(calendar.getTime());
     }
 
     /**
      * Sets the date chosen in the panel.
-     * @param theDate The new date;
+     *
+     * @param theDate  the new date.
      */
     public void setDate(Date theDate) {
 
@@ -126,7 +143,8 @@ public class DateChooserPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the date selected in the panel.
-     * @return The selected date;
+     *
+     * @return the selected date.
      */
     public Date getDate() {
         return chosenDate.getTime();
@@ -134,7 +152,8 @@ public class DateChooserPanel extends JPanel implements ActionListener {
 
     /**
      * Handles action-events from the date panel.
-     * @param e Information about the event that occurred;
+     *
+     * @param e information about the event that occurred.
      */
     public void actionPerformed(ActionEvent e) {
 
@@ -142,15 +161,15 @@ public class DateChooserPanel extends JPanel implements ActionListener {
         Integer y = null;
 
         if (e.getActionCommand().equals("monthSelectionChanged")) {
-            c = (JComboBox)e.getSource();
+            c = (JComboBox) e.getSource();
             chosenDate.set(Calendar.MONTH, c.getSelectedIndex());
             refreshButtons();
         }
 
         if (e.getActionCommand().equals("yearSelectionChanged")) {
             if (!refreshing) {
-                c = (JComboBox)e.getSource();
-                y = (Integer)c.getSelectedItem();
+                c = (JComboBox) e.getSource();
+                y = (Integer) c.getSelectedItem();
                 chosenDate.set(Calendar.YEAR, y.intValue());
                 refreshYearSelector();
                 refreshButtons();
@@ -162,10 +181,10 @@ public class DateChooserPanel extends JPanel implements ActionListener {
         }
 
         if (e.getActionCommand().equals("dateButtonClicked")) {
-            JButton b=null;
-            b = (JButton)e.getSource();
+            JButton b = null;
+            b = (JButton) e.getSource();
             int i = Integer.parseInt(b.getName());
-            Calendar cal=getFirstVisibleDate();
+            Calendar cal = getFirstVisibleDate();
             cal.add(Calendar.DATE, i);
             setDate(cal.getTime());
         }
@@ -175,13 +194,15 @@ public class DateChooserPanel extends JPanel implements ActionListener {
     /**
      * Returns a panel of buttons, each button representing a day in the month.  This is a
      * sub-component of the DatePanel.
+     *
+     * @return the panel.
      */
     private JPanel getCalendarPanel() {
 
         JPanel p = null;
         JButton b = null;
 
-        p = new JPanel(new GridLayout(7,7));
+        p = new JPanel(new GridLayout(7, 7));
         p.add(new JLabel("Sun", JLabel.CENTER));
         p.add(new JLabel("Mon", JLabel.CENTER));
         p.add(new JLabel("Tue", JLabel.CENTER));
@@ -191,15 +212,15 @@ public class DateChooserPanel extends JPanel implements ActionListener {
         p.add(new JLabel("Sat", JLabel.CENTER));
 
         buttons = new JButton[42];
-        for(int i=0; i<42; i++) {
-            b=new JButton("");
+        for (int i = 0; i < 42; i++) {
+            b = new JButton("");
             b.setMargin(new Insets(1, 1, 1, 1));
             b.setName(new Integer(i).toString());
             b.setFont(dateFont);
             b.setFocusPainted(false);
             b.setActionCommand("dateButtonClicked");
             b.addActionListener(this);
-            buttons[i]=b;
+            buttons[i] = b;
             p.add(b);
         }
         return p;
@@ -208,38 +229,53 @@ public class DateChooserPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the button color according to the specified date.
+     *
+     * @param theDate  the date.
+     *
+     * @return the color.
      */
     private Color getButtonColor(Calendar theDate) {
         if (equalDates(theDate, chosenDate)) {
             return chosenDateButtonColor;
         }
-        else if (theDate.get(Calendar.MONTH)==chosenDate.get(Calendar.MONTH)) {
+        else if (theDate.get(Calendar.MONTH) == chosenDate.get(Calendar.MONTH)) {
             return chosenMonthButtonColor;
         }
-        else return chosenOtherButtonColor;
+        else {
+            return chosenOtherButtonColor;
+        }
     }
 
     /**
      * Returns true if the two dates are equal (time of day is ignored).
+     *
+     * @param c1  the first date.
+     * @param c2  the second date.
+     *
+     * @return boolean.
      */
     private boolean equalDates(Calendar c1, Calendar c2) {
-        if ((c1.get(Calendar.DATE)==c2.get(Calendar.DATE)) &&
-            (c1.get(Calendar.MONTH)==c2.get(Calendar.MONTH)) &&
-            (c1.get(Calendar.YEAR)==c2.get(Calendar.YEAR))) {
+        if ((c1.get(Calendar.DATE) == c2.get(Calendar.DATE))
+            && (c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH))
+            && (c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR))) {
             return true;
         }
-        else return false;
+        else {
+            return false;
+        }
     }
 
     /**
      * Returns the first date that is visible in the grid.  This should always be in the month
      * preceding the month of the selected date.
+     *
+     * @return the date.
      */
     private Calendar getFirstVisibleDate() {
         Calendar c = Calendar.getInstance();
         c.set(chosenDate.get(Calendar.YEAR), chosenDate.get(Calendar.MONTH), 1);
         c.add(Calendar.DATE, -1);
-        while (c.get(Calendar.DAY_OF_WEEK)!=getFirstDayOfWeek()) {
+        while (c.get(Calendar.DAY_OF_WEEK) != getFirstDayOfWeek()) {
             c.add(Calendar.DATE, -1);
         }
         return c;
@@ -247,31 +283,12 @@ public class DateChooserPanel extends JPanel implements ActionListener {
 
     /**
      * Returns the first day of the week (controls the labels in the date panel).
+     *
+     * @return the first day of the week.
      */
     private int getFirstDayOfWeek() {
         return firstDayOfWeek;
     }
-
-//    /**
-//     * Returns a vector containing strings representing the months of the year.
-//     */
-//    private Vector getMonths() {
-//        Vector v = null;
-//        v = new Vector();
-//        v.addElement("January");
-//        v.addElement("February");
-//        v.addElement("March");
-//        v.addElement("April");
-//        v.addElement("May");
-//        v.addElement("June");
-//        v.addElement("July");
-//        v.addElement("August");
-//        v.addElement("September");
-//        v.addElement("October");
-//        v.addElement("November");
-//        v.addElement("December");
-//        return v;
-//    }
 
     /**
      * Update the button labels and colors to reflect date selection.
@@ -279,8 +296,8 @@ public class DateChooserPanel extends JPanel implements ActionListener {
     private void refreshButtons() {
         JButton b = null;
         Calendar c = getFirstVisibleDate();
-        for (int i=0; i<42; i++) {
-            b=buttons[i];
+        for (int i = 0; i < 42; i++) {
+            b = buttons[i];
             b.setText(new Integer(c.get(Calendar.DATE)).toString());
             b.setBackground(getButtonColor(c));
             c.add(Calendar.DATE, 1);
@@ -288,15 +305,15 @@ public class DateChooserPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Changes the contents of the year selection JComboBox to reflect the chosen date and the year
-     * range.
+     * Changes the contents of the year selection JComboBox to reflect the chosen date and the
+     * year range.
      */
     private void refreshYearSelector() {
         if (!refreshing) {
             refreshing = true;
             yearSelector.removeAllItems();
             Vector v = getYears(chosenDate.get(Calendar.YEAR));
-            for (Enumeration e = v.elements() ; e.hasMoreElements() ;) {
+            for (Enumeration e = v.elements(); e.hasMoreElements();) {
                 yearSelector.addItem(e.nextElement());
             }
             yearSelector.setSelectedItem(new Integer(chosenDate.get(Calendar.YEAR)));
@@ -305,26 +322,32 @@ public class DateChooserPanel extends JPanel implements ActionListener {
     }
 
     /**
-     * Returns a vector of years preceding and following the specified year.  The number of years
-     * preceding and following is determined by the yearSelectionRange attribute.
+     * Returns a vector of years preceding and following the specified year.  The number of
+     * years preceding and following is determined by the yearSelectionRange attribute.
+     *
+     * @param chosenYear  the selected year.
+     *
+     * @return a vector of years.
      */
     private Vector getYears(int chosenYear) {
         Vector v = null;
         v = new Vector();
-        for (int i=chosenYear-yearSelectionRange; i<=chosenYear+yearSelectionRange; i++) {
+        for (int i = chosenYear - yearSelectionRange; i <= chosenYear + yearSelectionRange; i++) {
             v.addElement(new Integer(i));
         }
         return v;
     }
 
     /**
-     * Constructs a panel containing two JComboBoxes (for the month and year) and a button (to reset
-     * the date to TODAY).
+     * Constructs a panel containing two JComboBoxes (for the month and year) and a button (to
+     * reset the date to TODAY).
+     *
+     * @return the panel.
      */
     private JPanel constructSelectionPanel() {
         JPanel p = null;
 
-        p=new JPanel();
+        p = new JPanel();
         monthSelector = new JComboBox(SerialDate.getMonths());
         monthSelector.addActionListener(this);
         monthSelector.setActionCommand("monthSelectionChanged");
@@ -341,6 +364,8 @@ public class DateChooserPanel extends JPanel implements ActionListener {
     /**
      * Returns a panel that appears at the bottom of the calendar panel - contains a button for
      * selecting today's date.
+     *
+     * @return the panel.
      */
     private JPanel constructControlPanel() {
 

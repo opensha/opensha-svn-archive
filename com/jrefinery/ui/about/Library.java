@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -39,29 +39,33 @@
 package com.jrefinery.ui.about;
 
 /**
- * A simple class representing a library in a software project.  Used in the AboutFrame class.
+ * A simple class representing a library in a software project.
+ * <P>
+ * Used in the AboutFrame class.
+ *
+ * @author DG
  */
 public class Library {
 
     /** The name. */
-    protected String name;
+    private String name;
 
     /** The version. */
-    protected String version;
+    private String version;
 
     /** The licence. */
-    protected String licence;
+    private String licence;
 
     /** The version. */
-    protected String info;
+    private String info;
 
     /**
      * Creates a new library reference.
      *
-     * @param name The name.
-     * @param version The version.
-     * @param licence The licence.
-     * @param info The web address or other info.
+     * @param name  the name.
+     * @param version  the version.
+     * @param licence  the licence.
+     * @param info  the web address or other info.
      */
     public Library(String name, String version, String licence, String info) {
 
@@ -75,7 +79,7 @@ public class Library {
     /**
      * Constructs a library reference from a ProjectInfo object.
      *
-     * @param project Information about a project.
+     * @param project  information about a project.
      */
     public Library(ProjectInfo project) {
 
@@ -87,28 +91,36 @@ public class Library {
     }
 
     /**
-     * Returns the name.
+     * Returns the library name.
+     *
+     * @return the library name.
      */
     public String getName() {
         return this.name;
     }
 
     /**
-     * Returns the version.
+     * Returns the library version.
+     *
+     * @return the library version.
      */
     public String getVersion() {
         return this.version;
     }
 
     /**
-     * Returns the licence.
+     * Returns the licence text.
+     *
+     * @return the licence text.
      */
     public String getLicence() {
         return this.licence;
     }
 
     /**
-     * Returns the info.
+     * Returns the project info for the library.
+     *
+     * @return the project info.
      */
     public String getInfo() {
         return this.info;

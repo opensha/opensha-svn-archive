@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -47,6 +47,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  * A table cell renderer that centers information in each cell.
+ *
+ * @author DG
  */
 public class NumberCellRenderer extends DefaultTableCellRenderer implements TableCellRenderer {
 
@@ -60,13 +62,15 @@ public class NumberCellRenderer extends DefaultTableCellRenderer implements Tabl
 
     /**
      * Returns itself as the renderer. Supports the TableCellRenderer interface.
-     * @param table The table;
-     * @param value The data to be rendered;
-     * @param isSelected A boolean that indicates whether or not the cell is selected;
-     * @param hasFocus A boolean that indicates whether or not the cell has the focus;
-     * @param row The (zero-based) row index;
-     * @param column The (zero-based) column index;
-     * @return The component that can render the contents of the cell;
+     *
+     * @param table  the table.
+     * @param value  the data to be rendered.
+     * @param isSelected  a boolean that indicates whether or not the cell is selected.
+     * @param hasFocus  a boolean that indicates whether or not the cell has the focus.
+     * @param row  the (zero-based) row index.
+     * @param column  the (zero-based) column index.
+     *
+     * @return the component that can render the contents of the cell.
      */
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                  boolean hasFocus, int row, int column) {

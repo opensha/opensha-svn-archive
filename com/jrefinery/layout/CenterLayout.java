@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -31,93 +31,134 @@
  *
  * Changes (from 5-Nov-2001)
  * -------------------------
- * 05-Nov-2001 : Changed package to com.jrefinery.layout.*;
+ * 05-Nov-2001 : Changed package to com.jrefinery.layout.* (DG);
+ * 10-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.layout;
 
-import java.awt.*;
+import java.awt.LayoutManager;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Component;
+import java.awt.Insets;
 import java.io.Serializable;
 
 /**
  * A layout manager that displays a single component in the center of its container.
+ *
+ * @author DG
  */
-public class CenterLayout implements LayoutManager, java.io.Serializable {
+public class CenterLayout implements LayoutManager, Serializable {
 
     /**
-     * Standard constructor.
+     * Creates a new layout manager.
      */
     public CenterLayout() {
     }
 
     /**
-     * Returns the preferred size...
+     * Returns the preferred size.
+     *
+     * @param parent  the parent.
+     *
+     * @return the preferred size.
      */
     public Dimension preferredLayoutSize(Container parent) {
-        Dimension d=null;
+
+        Dimension d = null;
         synchronized (parent.getTreeLock()) {
             Insets insets = parent.getInsets();
-            if (parent.getComponentCount()>0) {
+            if (parent.getComponentCount() > 0) {
                 Component component = parent.getComponent(0);
                 d = component.getPreferredSize();
             }
-            return new Dimension((int)d.getWidth()+insets.left+insets.right, (int)d.getHeight()+insets.top
-                                 +insets.bottom);
+            return new Dimension((int) d.getWidth() + insets.left + insets.right,
+                                 (int) d.getHeight() + insets.top + insets.bottom);
         }
+
     }
 
     /**
-     * Returns the minimum size...
+     * Returns the minimum size.
+     *
+     * @param parent  the parent.
+     *
+     * @return the minimum size.
      */
     public Dimension minimumLayoutSize(Container parent) {
-        Dimension d=null;
+
+        Dimension d = null;
         synchronized (parent.getTreeLock()) {
             Insets insets = parent.getInsets();
-            if (parent.getComponentCount()>0) {
+            if (parent.getComponentCount() > 0) {
                 Component component = parent.getComponent(0);
                 d = component.getMinimumSize();
             }
-            return new Dimension((int)d.getWidth()+insets.left+insets.right, (int)d.getHeight()+insets.top
-                                  +insets.bottom);
+            return new Dimension((int) d.getWidth() + insets.left + insets.right,
+                                 (int) d.getHeight() + insets.top + insets.bottom);
         }
+
     }
 
     /**
-     * Lays out the components...
+     * Lays out the components.
+     *
+     * @param parent  the parent.
      */
     public void layoutContainer(Container parent) {
 
         synchronized (parent.getTreeLock()) {
-            if (parent.getComponentCount()>0) {
+            if (parent.getComponentCount() > 0) {
                 Insets insets = parent.getInsets();
                 Dimension parentSize = parent.getSize();
                 Component component = parent.getComponent(0);
                 Dimension componentSize = component.getPreferredSize();
-                int xx = insets.left+(Math.max((parentSize.width-insets.left-insets.right
-                                            -componentSize.width)/2, 0));
-                int yy = insets.top+(Math.max((parentSize.height-insets.top-insets.bottom
-                                            -componentSize.height)/2, 0));
+                int xx = insets.left
+                         + (Math.max((parentSize.width - insets.left - insets.right
+                                      - componentSize.width) / 2, 0));
+                int yy = insets.top
+                         + (Math.max((parentSize.height - insets.top - insets.bottom
+                                      - componentSize.height) / 2, 0));
                 component.setBounds(xx, yy, componentSize.width, componentSize.height);
             }
         }
 
     }
 
-    /** Not used. */
+    /**
+     * Not used.
+     *
+     * @param comp  the component.
+     */
     public void addLayoutComponent(Component comp) {
     }
 
-    /** Not used. */
+    /**
+     * Not used.
+     *
+     * @param comp  the component.
+     */
     public void removeLayoutComponent(Component comp) {
     }
 
-    /** Not used. */
+    /**
+     * Not used.
+     *
+     * @param name  the component name.
+     * @param comp  the component.
+     */
     public void addLayoutComponent(String name, Component comp) {
     }
 
-    /** Not used. */
+    /**
+     * Not used.
+     *
+     * @param name  the component name.
+     * @param comp  the component.
+     */
     public void removeLayoutComponent(String name, Component comp) {
-  }
+    }
 
 }

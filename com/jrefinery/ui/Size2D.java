@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,7 @@
  * Changes (from 26-Oct-2001)
  * --------------------------
  * 26-Oct-2001 : Changed package to com.jrefinery.ui.*;
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -40,19 +41,22 @@ package com.jrefinery.ui;
  * A simple class for representing the dimensions of an object.  I would use Dimension2D, but refer
  * to Bug ID 4189446 on the Java Developer Connection for why not (last checked 20 July 2000, maybe
  * it's been fixed now).
+ *
+ * @author DG
  */
 public class Size2D {
 
-    /** The width; */
+    /** The width. */
     public double width;
 
-    /** The height; */
+    /** The height. */
     public double height;
 
     /**
      * Standard constructor - builds a Size2D with the specified width and height.
-     * @param width The width;
-     * @param height The height;
+     *
+     * @param width  the width.
+     * @param height  the height.
      */
     public Size2D(double width, double height) {
         this.width = width;
@@ -60,14 +64,18 @@ public class Size2D {
     }
 
     /**
-     * Returns the height;
+     * Returns the height.
+     *
+     * @return the height.
      */
     public double getHeight() {
         return this.height;
     }
 
     /**
-     * Returns the width;
+     * Returns the width.
+     *
+     * @return the width.
      */
     public double getWidth() {
         return this.width;

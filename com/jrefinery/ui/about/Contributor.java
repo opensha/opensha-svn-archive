@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,7 @@
  * -------
  * 10-Dec-2001 : Version 1 (DG);
  * 28-Feb-2002 : Moved into package com.jrefinery.ui.about (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -42,19 +43,22 @@ package com.jrefinery.ui.about;
  * A simple class representing a contributor to a software project.
  * <P>
  * Used in the AboutFrame class.
+ *
+ * @author DG
  */
 public class Contributor {
 
     /** The name. */
-    protected String name;
+    private String name;
 
     /** The e-mail address. */
-    protected String email;
+    private String email;
 
     /**
      * Creates a new contributor.
-     * @param name The name.
-     * @param email The e-mail address.
+     *
+     * @param name  the name.
+     * @param email  the e-mail address.
      */
     public Contributor(String name, String email) {
         this.name = name;
@@ -62,14 +66,18 @@ public class Contributor {
     }
 
     /**
-     * Returns the name.
+     * Returns the contributor's name.
+     *
+     * @return the contributor's name.
      */
     public String getName() {
         return this.name;
     }
 
     /**
-     * Returns the e-mail address.
+     * Returns the contributor's e-mail address.
+     *
+     * @return the contributor's e-mail address.
      */
     public String getEmail() {
         return this.email;

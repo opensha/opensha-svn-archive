@@ -55,13 +55,17 @@ import com.jrefinery.chart.tooltips.StandardXYToolTipGenerator;
 public class LogXYItemRenderer extends StandardXYItemRenderer{
 
 
+  /** A working line (to save creating thousands of instances). */
+      private Line2D line;
+
+
     /**
      * Constructs a new renderer.
      */
     public LogXYItemRenderer() {
 
         super(LINES, new StandardXYToolTipGenerator());
-
+        line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
     }
 
     /**
@@ -74,6 +78,7 @@ public class LogXYItemRenderer extends StandardXYItemRenderer{
      */
     public LogXYItemRenderer(int type, XYToolTipGenerator toolTipGenerator) {
         super(type,toolTipGenerator);
+        line = new Line2D.Double(0.0, 0.0, 0.0, 0.0);
     }
 
 
@@ -141,7 +146,7 @@ public class LogXYItemRenderer extends StandardXYItemRenderer{
             if (paint != null) {
               g2.setPaint(paint);
             }
-            if (this.plotLines) {
+            if (this.getPlotLines()) {
                 if (item>0) {
                     // get the previous data point...
                     Number x0 = data.getXValue(series, item-1);
@@ -167,6 +172,7 @@ public class LogXYItemRenderer extends StandardXYItemRenderer{
                         if(ylog && foundY0) transY0 = ((VerticalLogarithmicAxis)verticalAxis).myTranslateValueToJava2D(valueY0, dataArea);
                         if(!xlog) transX0 = horizontalAxis.translateValueToJava2D(valueX0, dataArea);
                         if(!ylog) transY0 = verticalAxis.translateValueToJava2D(valueY0, dataArea);
+
                         line.setLine(transX0, transY0, transX1, transY1);
                         if (line.intersects(dataArea)) {
                             g2.draw(line);
@@ -175,63 +181,70 @@ public class LogXYItemRenderer extends StandardXYItemRenderer{
                 }
             }
 
-            if (this.plotShapes) {
+            if (this.getPlotShapes()) {
 
-                shapeScale = getShapeScale(plot, series, item, transX1, transY1);
-                Shape shape = getShape(plot, series, item, transX1, transY1, shapeScale);
-                if (isShapeFilled(plot, series, item, transX1, transY1)) {
-                    if (shape.intersects(dataArea)) g2.fill(shape);
-                } else {
-                    if (shape.intersects(dataArea)) g2.draw(shape);
-                }
-                entityArea = shape;
+                           double scale = getShapeScale(plot, series, item, transX1, transY1);
+                           Shape shape = getShape(plot, series, item, transX1, transY1, scale);
+                           if (shape.intersects(dataArea)) {
+                               if (isShapeFilled(plot, series, item, transX1, transY1)) {
+                                   g2.fill(shape);
+                               }
+                               else {
+                                   g2.draw(shape);
+                               }
+                           }
+                           entityArea = shape;
 
-            }
+                       }
 
-            if (this.plotImages) {
-                // use shape scale with transform??
-                shapeScale = getShapeScale(plot, series, item, transX1, transY1);
-                Image image = getImage(plot, series, item, transX1, transY1);
-                if (image != null) {
-                    Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
-                    g2.drawImage(image,(int)(transX1-hotspot.getX()),(int)(transY1-hotspot.getY()),(ImageObserver)null);
-                }
-                // tooltipArea = image; not sure how to handle this yet
-            }
+                       if (this.getPlotImages()) {
+                           // use shape scale with transform??
+                           double scale = getShapeScale(plot, series, item, transX1, transY1);
+                           Image image = getImage(plot, series, item, transX1, transY1);
+                           if (image != null) {
+                               Point hotspot = getImageHotspot(plot, series, item, transX1, transY1, image);
+                               g2.drawImage(image,
+                                            (int) (transX1 - hotspot.getX()),
+                                            (int) (transY1 - hotspot.getY()), (ImageObserver) null);
+                           }
+                           // tooltipArea = image; not sure how to handle this yet
+                       }
 
-            // add an entity for the item...
-            if (entities!=null) {
-                if (entityArea==null) {
-                    entityArea = new Rectangle2D.Double(transX1-2, transY1-2, 4, 4);
-                }
-                String tip = "";
-                if (this.toolTipGenerator!=null) {
-                    tip = this.toolTipGenerator.generateToolTip(data, series, item);
-                }
-                XYItemEntity entity = new XYItemEntity(entityArea, tip, series, item);
-                entities.addEntity(entity);
-            }
+                       // add an entity for the item...
+                       if (entities != null) {
+                           if (entityArea == null) {
+                               entityArea = new Rectangle2D.Double(transX1 - 2, transY1 - 2, 4, 4);
+                           }
+                           String tip = "";
+                           if (getToolTipGenerator() != null) {
+                               tip = getToolTipGenerator().generateToolTip(data, series, item);
+                           }
+                           String url = null;
+                           if (getURLGenerator() != null) {
+                               url = getURLGenerator().generateURL(data, series, item);
+                           }
+                           XYItemEntity entity = new XYItemEntity(entityArea, tip, url, series, item);
+                           entities.addEntity(entity);
+                       }
 
-            // do we need to update the crosshair values?
-            double distance = 0.0;
-            if (horizontalAxis.isCrosshairLockedOnData()) {
-                if (verticalAxis.isCrosshairLockedOnData()) {
-                    // both axes
-                    crosshairInfo.updateCrosshairPoint(x1.doubleValue(), y1.doubleValue());
-                }
-                else {
-                    // just the horizontal axis...
-                    crosshairInfo.updateCrosshairX(x1.doubleValue());
-                }
-            }
-            else {
-                if (verticalAxis.isCrosshairLockedOnData()) {
-                    // just the vertical axis...
-                    crosshairInfo.updateCrosshairY(y1.doubleValue());
-                }
-            }
-        }
+                       // do we need to update the crosshair values?
+                       if (horizontalAxis.isCrosshairLockedOnData()) {
+                           if (verticalAxis.isCrosshairLockedOnData()) {
+                               // both axes
+                               crosshairInfo.updateCrosshairPoint(valueX, valueY);
+                           }
+                           else {
+                               // just the horizontal axis...
+                               crosshairInfo.updateCrosshairX(valueX);
+                           }
+                       }
+                       else {
+                           if (verticalAxis.isCrosshairLockedOnData()) {
+                               // just the vertical axis...
+                               crosshairInfo.updateCrosshairY(valueY);
+                           }
+                       }
+                   }
 
-    }
-
+               }
 }

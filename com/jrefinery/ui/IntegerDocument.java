@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,23 +32,41 @@
  * Changes (from 7-Nov-2001)
  * -------------------------
  * 07-Nov-2001 : Added to com.jrefinery.ui package (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
 package com.jrefinery.ui;
 
-import javax.swing.text.*;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 
-class IntegerDocument extends PlainDocument {
+/**
+ * A document for editing integers.
+ *
+ * @author AP
+ */
+public class IntegerDocument extends PlainDocument {
+
+    /**
+     * Inserts a string.
+     *
+     * @param i  i.
+     * @param s  s.
+     * @param attributes  the attributes.
+     *
+     * @throws BadLocationException ??
+     */
     public void insertString(int i, String s, AttributeSet attributes)
-        throws BadLocationException
-    {
+        throws BadLocationException {
+
         super.insertString(i, s, attributes);
-        if(s != null && (!s.equals("-") || i != 0 || s.length() >= 2)) {
+        if (s != null && (!s.equals("-") || i != 0 || s.length() >= 2)) {
             try {
                 Integer.parseInt(getText(0, getLength()));
             }
-            catch(NumberFormatException e) {
+            catch (NumberFormatException e) {
                 remove(i, s.length());
             }
         }

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -37,17 +37,21 @@
 
 package com.jrefinery.ui;
 
-import javax.swing.*;
 import java.awt.Insets;
+import javax.swing.JTextField;
 
 /**
  * A JTextField for displaying insets.
+ *
+ * @author AP
  */
 public class InsetsTextField extends JTextField {
 
     /**
-     * Default constructor. Initializes this text field with formatted
-     * string describing provided insets.
+     * Default constructor. Initializes this text field with formatted string describing
+     * provided insets.
+     *
+     * @param insets  the insets.
      */
     public InsetsTextField(Insets insets) {
         super();
@@ -56,21 +60,27 @@ public class InsetsTextField extends JTextField {
     }
 
     /**
-     * Returns a formatted string describing provided insets
+     * Returns a formatted string describing provided insets.
+     *
+     * @param insets  the insets.
+     *
+     * @return the string.
      */
-    static public String formatInsetsString(Insets insets) {
-        insets = (insets == null) ? new Insets(0,0,0,0):insets;
+    public static String formatInsetsString(Insets insets) {
+        insets = (insets == null) ? new Insets(0, 0, 0, 0) : insets;
         return
-            "T: "+insets.top+", "+
-            "L: "+insets.left+", "+
-            "B: "+insets.bottom+", "+
-            "R: "+insets.right;
+            "T: " + insets.top + ", "
+             + "L: " + insets.left + ", "
+             + "B: " + insets.bottom + ", "
+             + "R: " + insets.right;
     }
 
     /**
      * Sets the text of this text field to the formatted string
      * describing provided insets. If insets is null, empty insets
      * (0,0,0,0) are used.
+     *
+     * @param insets  the insets.
      */
     public void setInsets(Insets insets) {
         setText(formatInsetsString(insets));

@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* =======================================================
+ * JCommon : a free general purpose class library for Java
+ * =======================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -32,6 +32,7 @@
  * Changes
  * -------
  * 26-Mar-2002 : Version 1, translation by Hans-Jurgen Greiner (DG);
+ * 14-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -44,18 +45,22 @@ import java.util.ListResourceBundle;
 
 /**
  * A resource bundle that stores all the user interface items that might need localisation.
+ *
+ * @author HJG
  */
 public class AboutResources_es extends ListResourceBundle {
 
     /**
      * Returns the array of strings in the resource bundle.
+     *
+     * @return the resources.
      */
     public Object[][] getContents() {
-        return contents;
+        return CONTENTS;
     }
 
     /** The resources to be localised. */
-    static final Object[][] contents = {
+    static final Object[][] CONTENTS = {
 
         {"about-frame.tab.about",             "Acerca"},
         {"about-frame.tab.system",            "Sistema"},

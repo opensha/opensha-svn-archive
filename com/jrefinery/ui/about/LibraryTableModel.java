@@ -1,6 +1,6 @@
-/* ================================================================
- * JCommon : a general purpose, open source, class library for Java
- * ================================================================
+/* ===================================================
+ * JCommon : a free general purpose Java class library
+ * ===================================================
  *
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
@@ -33,6 +33,7 @@
  * -------
  * 28-Feb-2002 : Version 1 (DG);
  * 15-Mar-2002 : Modified to use ResourceBundle for elements that require localisation (DG);
+ * 08-Oct-2002 : Fixed errors reported by Checkstyle (DG);
  *
  */
 
@@ -43,30 +44,33 @@ import java.util.ResourceBundle;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * A table model containing a list of libraries used in a project.  Used in the
- * LibraryReferencePanel class.
+ * A table model containing a list of libraries used in a project.
+ * <P>
+ * Used in the LibraryPanel class.
+ *
+ * @author DG
  */
 public class LibraryTableModel extends AbstractTableModel {
 
     /** Storage for the libraries. */
-    protected List libraries;
+    private List libraries;
 
     /** Localised name column label. */
-    protected String nameColumnLabel;
+    private String nameColumnLabel;
 
     /** Localised version column label. */
-    protected String versionColumnLabel;
+    private String versionColumnLabel;
 
     /** Localised licence column label. */
-    protected String licenceColumnLabel;
+    private String licenceColumnLabel;
 
     /** Localised info column label. */
-    protected String infoColumnLabel;
+    private String infoColumnLabel;
 
     /**
      * Constructs a LibraryTableModel.
      *
-     * @param libraries The libraries.
+     * @param libraries  the libraries.
      */
     public LibraryTableModel(List libraries) {
 
@@ -85,7 +89,7 @@ public class LibraryTableModel extends AbstractTableModel {
     /**
      * Returns the number of rows in the table model.
      *
-     * @return The number of rows.
+     * @return the number of rows.
      */
     public int getRowCount() {
         return libraries.size();
@@ -95,7 +99,7 @@ public class LibraryTableModel extends AbstractTableModel {
      * Returns the number of columns in the table model.  In this case, there are always four
      * columns (name, version, licence and other info).
      *
-     * @return The number of columns in the table model.
+     * @return the number of columns in the table model.
      */
     public int getColumnCount() {
         return 4;
@@ -104,8 +108,9 @@ public class LibraryTableModel extends AbstractTableModel {
     /**
      * Returns the name of a column in the table model.
      *
-     * @param column The column index (zero-based).
-     * @return The name of the specified column.
+     * @param column  the column index (zero-based).
+     *
+     * @return the name of the specified column.
      */
     public String getColumnName(int column) {
 
@@ -134,25 +139,26 @@ public class LibraryTableModel extends AbstractTableModel {
     /**
      * Returns the value for a cell in the table model.
      *
-     * @param row The row index (zero-based).
-     * @param column The column index (zero-based).
-     * @return The value.
+     * @param row  the row index (zero-based).
+     * @param column  the column index (zero-based).
+     *
+     * @return the value.
      */
     public Object getValueAt(int row, int column) {
 
         Object result = null;
-        Library library = (Library)libraries.get(row);
+        Library library = (Library) libraries.get(row);
 
-        if (column==0) {
+        if (column == 0) {
             result = library.getName();
         }
-        else if (column==1) {
+        else if (column == 1) {
             result = library.getVersion();
         }
-        else if (column==2) {
+        else if (column == 2) {
             result = library.getLicence();
         }
-        else if (column==3) {
+        else if (column == 3) {
             result = library.getInfo();
         }
         return result;
