@@ -1087,7 +1087,7 @@ public class HazardCurveApplet extends JApplet
    */
   public String getCurveParametersInfo(){
     return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
-        "Site Param List: "+siteGuiBean.getParameterList().toString()+"\n"+
+        "Site Param List: "+siteGuiBean.getParameterListEditor().getParameterList().toString()+"\n"+
         "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
         "Forecast Param List: "+erfGuiBean.getParameterList().toString();
   }

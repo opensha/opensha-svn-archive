@@ -100,8 +100,8 @@ public class SitesOfInterestControlPanel extends JFrame {
   private void setLatAndLon() {
     int index = this.sitesComboBox.getSelectedIndex();
     // set the lat and lon in the editor
-    siteGuiBean.getParameterList().getParameter(Site_GuiBean.LATITUDE).setValue(latVector.get(index));
-    siteGuiBean.getParameterList().getParameter(Site_GuiBean.LONGITUDE).setValue(lonVector.get(index));
-    siteGuiBean.synchToModel();
+    siteGuiBean.getParameterListEditor().getParameterList().getParameter(Site_GuiBean.LATITUDE).setValue(latVector.get(index));
+    siteGuiBean.getParameterListEditor().getParameterList().getParameter(Site_GuiBean.LONGITUDE).setValue(lonVector.get(index));
+    siteGuiBean.getParameterListEditor().synchToModel();
   }
 }

@@ -171,7 +171,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     if(D) System.out.println(S+"::entering");
 
     //Gets the siteParamList
-    ParameterList siteParams = siteGuiBean.getParameterList();
+    ParameterList siteParams = siteGuiBean.getParameterListEditor().getParameterList();
 
     // set the distance in control panel
     this.distanceControlPanel.setDistance(this.MAX_DISTANCE);
@@ -187,7 +187,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     // refresh the editor according to parameter values
     imrGuiBean.synchToModel();
     imtGuiBean.synchToModel();
-    siteGuiBean.synchToModel();
+    siteGuiBean.getParameterListEditor().synchToModel();
     erfGuiBean.synchToModel();
     timeSpanGuiBean.synchToModel();
   }
@@ -256,7 +256,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(Campbell_1997_AttenRel.STD_DEV_TYPE_MAG_DEP);
      imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
-     siteGuiBean.getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
+     siteGuiBean.getParameterListEditor().getParameterList().getParameter(Campbell_1997_AttenRel.SITE_TYPE_NAME).setValue(Campbell_1997_AttenRel.SITE_TYPE_SOFT_ROCK);
      siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
    }
 
@@ -317,7 +317,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
      // for fault site 1
      if(selectedSite.equals(SITE_ONE)) {
-       siteGuiBean.getParameterList().getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.113));
+       siteGuiBean.getParameterListEditor().getParameterList().getParameter(Site_GuiBean.LATITUDE).setValue(new Double(38.113));
        siteParams.getParameter(Site_GuiBean.LONGITUDE).setValue(new Double(-122.0));
      }
      // for fault site 2
