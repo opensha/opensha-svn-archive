@@ -22,11 +22,11 @@ import org.scec.param.event.*;
  * <p>Description: This class will accept 5
  *   THIS WILL BE USED TO RUN IN CONDOR POOL
        args array will have following order:
-       // index 0 - start index for sites
-       // index 1 - end index for sites
-       // index 2 - GriddedRegion file name (region.dat)
-      // index 3 - ERF File Name (stepForecast.dat)
-      // index 4 - IMR File Name (shakemap_imr.dat) </p>
+       // index 1 - GriddedRegion file name (region.dat)
+      // index 2 - ERF File Name (stepForecast.dat)
+      // index 0 - IMR File Name (shakemap_imr.dat)
+      // index 3 - X-Values file name
+       // index 4 - Max Source distance.</p>
  * @author Ned Field, Nitin Gupta, Vipin Gupta
  * @date Mar 16, 2004
  * @version 1.0
