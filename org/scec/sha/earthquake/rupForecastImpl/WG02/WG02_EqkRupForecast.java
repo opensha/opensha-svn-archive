@@ -169,7 +169,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast
     double lat, lon;
     double dip=0, downDipWidth=0, rupArea;
     double prob, meanMag, magSigma, nSigmaTrunc, rake;
-    String ruptureName, fault, rup, sourceName;
+    String fault, rup, sourceName;
     int numPts, i, lineIndex;
 
     // Create iterator over inputFileStrings
@@ -193,7 +193,10 @@ public class WG02_EqkRupForecast extends EqkRupForecast
       st = new StringTokenizer(it.next().toString());
       fault = st.nextToken().toString();
       rup = st.nextToken().toString();
-      sourceName = "fault "+fault+"; rupture "+rup;
+
+      // line with source name
+      st = new StringTokenizer(it.next().toString());
+      sourceName = st.nextToken().toString();
 
       // line with number of fault-trace points
       st = new StringTokenizer(it.next().toString());
