@@ -165,7 +165,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
      if(index==num) { // if we reached upperMag and tempTotMoRate > totMoRate
        double diff1 = Math.abs(tempTotMoRate-totMoRate);
        if(getMomentRate(index-1)/2 < diff1)
-          throw new DiscretizedFuncException(C+":setAllButMagUpper():"+"Invalid Total moment Rate");
+          throw new DiscretizedFuncException("Invalid Total moment Rate");
      }
      else { // if tempTotMoRate < totMoRate
        double diff1 = Math.abs(tempTotMoRate-totMoRate); // for next point
@@ -230,9 +230,9 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     // checks that magUpper, magLower lie between minX and maxX
     // it also checks that magUpper > magLower
     if(magLower < minX || magLower > maxX)
-        throw new DataPoint2DException(C+":calculateRelativeRates():"+"magLower should lie between minX and maxX");
+        throw new DataPoint2DException("magLower should lie between minX and maxX");
     if(magLower > magUpper)
-        throw new InvalidRangeException(C+":calculateRelativeRates():"+"magLower cannot be less than magUpper");
+        throw new InvalidRangeException("magLower must be < magUpper");
 
 
 
@@ -328,7 +328,7 @@ public DiscretizedFuncAPI deepClone(){
     **/
 
    public void setName(String name) {
-     throw new UnsupportedOperationException(C+"::setName not allowed for MagFreqDist.");
+     throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
    }
 
@@ -336,7 +336,7 @@ public DiscretizedFuncAPI deepClone(){
     * this function is for setting the info
     **/
    public void setInfo(String info) {
-     throw new UnsupportedOperationException(C+"::::setInfo not allowed for MagFreqDist.");
+     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
    }
 
