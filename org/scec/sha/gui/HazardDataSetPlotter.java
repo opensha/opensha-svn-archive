@@ -349,7 +349,7 @@ public class HazardDataSetPlotter extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Hazard Curve Calculator");
+    frame.setTitle(applet.getAppletInfo());
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
