@@ -55,7 +55,7 @@ public class GMT_MapGenerator implements Serializable{
   private final static Double MIN_LAT_PARAM_DEFAULT = new Double(32.5);
   private final static Double MAX_LAT_PARAM_DEFAULT = new Double(36.6);
   private final static Double MIN_LON_PARAM_DEFAULT = new Double(-121.5);
-  private final static Double MAX_LON_PARAM_DEFAULT = new Double(-114.50);
+  private final static Double MAX_LON_PARAM_DEFAULT = new Double(-115.0);
   private final static Double GRID_SPACING_PARAM_DEFAULT = new Double(.1);
   DoubleParameter minLatParam;
   DoubleParameter maxLatParam;

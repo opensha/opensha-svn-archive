@@ -163,8 +163,17 @@ public class MapGuiBean extends JPanel implements
       //Vector to add the Z Values as the Log space
       Vector zLogVals = new Vector();
       int size = zLinearVals.size();
-      for(int i=0;i<size;++i)
-        zLogVals.add(new Double(0.4343 * Math.log(((Double)zLinearVals.get(i)).doubleValue())));
+      for(int i=0;i<size;++i){
+        double zVal = ((Double)zLinearVals.get(i)).doubleValue();
+        if(zVal ==0){
+          JOptionPane.showMessageDialog(this,"Cannot take out log becuase Values contain zeros,"+
+                                        "so reverting back to Linear","Cannot Plot Log",JOptionPane.OK_OPTION);
+          this.logPlotCheck.setSelected(false);
+          zLogVals = zLinearVals;
+          break;
+        }
+        zLogVals.add(new Double(0.4343 * Math.log(zVal)));
+      }
       //setting the values in the XYZ Dataset.
       xyzVals.setXYZ_DataSet(xyzVals.getX_DataSet(),xyzVals.getY_DataSet(),zLogVals);
     }

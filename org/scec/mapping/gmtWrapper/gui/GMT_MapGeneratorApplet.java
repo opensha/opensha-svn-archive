@@ -201,6 +201,7 @@ public class GMT_MapGeneratorApplet extends Applet {
         xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
       }catch(Exception ee){
         JOptionPane.showMessageDialog(this,new String("Please enter URL"),"Error", JOptionPane.OK_OPTION);
+        ee.printStackTrace();
       }
     }
 
