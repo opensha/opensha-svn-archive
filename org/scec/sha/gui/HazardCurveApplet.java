@@ -262,8 +262,12 @@ public class HazardCurveApplet extends JApplet
   GridBagLayout gridBagLayout10 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   HazardCurveCalculator calc;
+  DisaggregationCalculator disaggCalc;
   CalcProgressBar progressClass;
+  CalcProgressBar disaggProgressClass;
   Timer timer;
+  Timer disaggTimer;
+
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -669,6 +673,7 @@ public class HazardCurveApplet extends JApplet
       computeHazardCurve();
     }
 
+
     /**
      * this function is called to draw the graph
      */
@@ -692,13 +697,27 @@ public class HazardCurveApplet extends JApplet
               isIndividualCurves = false;
             }
             if (calc.done()) {
-             // Toolkit.getDefaultToolkit().beep();
+              // Toolkit.getDefaultToolkit().beep();
               timer.stop();
               progressClass.dispose();
               drawGraph();
             }
           }
         });
+
+        // timer for disaggregation progress bar
+        disaggTimer = new Timer(500, new ActionListener() {
+          public void actionPerformed(ActionEvent evt) {
+            if(disaggCalc.getCurrRuptures()!=-1)
+              disaggProgressClass.updateProgress(disaggCalc.getCurrRuptures(), disaggCalc.getTotRuptures());
+            if (disaggCalc.done()) {
+              // Toolkit.getDefaultToolkit().beep();
+              disaggTimer.stop();
+              disaggProgressClass.dispose();
+            }
+          }
+        });
+
         Thread t = new Thread(this);
         t.start();
       }
@@ -725,15 +744,6 @@ public class HazardCurveApplet extends JApplet
 
      this.pointsTextArea.setText(totalProbFuncs.toString());
      addGraphPanel();
-
-     //displays the disaggregation string in the pop-up window
-     if(disaggregationString !=null) {
-       HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
-       disaggregation.pack();
-       disaggregation.show();
-
-     }
-      disaggregationString=null;
     }
 
     /**
@@ -937,8 +947,8 @@ public class HazardCurveApplet extends JApplet
     if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
         progressClass.displayProgressBar();
+        timer.start();
     }
-     if(this.progressCheckBox.isSelected()) timer.start();
 
     // get the selected IMR
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
@@ -986,38 +996,48 @@ public class HazardCurveApplet extends JApplet
      return;
    }
 
-   //inititialising the disaggregation String
-   disaggregationString=null;
-   //checking the disAggregation flag
-   if(this.disaggregationFlag){
-     DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
-     // do not show progress bar if not desired by user
-     disaggCalc.showProgressBar(this.progressCheckBox.isSelected());
-     if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-     int num = hazFunction.getNum();
-     double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
-     //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-    if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
-      JOptionPane.showMessageDialog(this,
-                                    new String("Chosen Probability is not"+
-                                    " within the range of the min and max prob."+
-                                    " in the Hazard Curve"),
-                                    "Disaggregation Prob. selection error message",
-                                    JOptionPane.OK_OPTION);
-    else{
-      //gets the Disaggregation data
-      double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
-      disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
-      disaggregationString=disaggCalc.getResultsString();
-    }
-   }
-
    // add the function to the function list
    totalProbFuncs.add(hazFunction);
-
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
+
+   disaggregationString=null;
+   //checking the disAggregation flag
+   if(this.disaggregationFlag) {
+     disaggCalc = new DisaggregationCalculator();
+     if(this.progressCheckBox.isSelected())  {
+       disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
+       disaggProgressClass.displayProgressBar();
+       disaggTimer.start();
+    }
+
+     if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
+     int num = hazFunction.getNum();
+     double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
+     //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+     if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
+       JOptionPane.showMessageDialog(this,
+                                     new String("Chosen Probability is not"+
+                                     " within the range of the min and max prob."+
+                                     " in the Hazard Curve"),
+                                     "Disaggregation Prob. selection error message",
+                                     JOptionPane.OK_OPTION);
+     else{
+       //gets the Disaggregation data
+       double iml= hazFunction.getFirstInterpolatedX(disaggregationProb);
+       disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)eqkRupForecast);
+       disaggregationString=disaggCalc.getResultsString();
+     }
+   }
+   //displays the disaggregation string in the pop-up window
+   if(disaggregationString !=null) {
+     HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+     disaggregation.pack();
+     disaggregation.show();
+
+   }
+   disaggregationString=null;
   }
 
 
@@ -1178,7 +1198,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+  // erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);

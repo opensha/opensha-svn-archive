@@ -21,7 +21,7 @@ import org.scec.sha.gui.infoTools.*;
  * of disaggregation.  The Dbar computed here is for rupture distance.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author Nitin Gupta & Vipin Gupta
+ * @author Ned Field
  * @date Oct 28, 2002
  * @version 1.0
  */
@@ -64,10 +64,8 @@ public class DisaggregationCalculator {
 
   private double iml, prob, totalRate;
 
-  // boolean for telling whether to show a progress bar
-  boolean showProgressBar = true;
-
-  private CalcProgressBar progressClass ;
+  private int currRuptures = -1;
+  private int totRuptures=0;
 
 
   /**
@@ -84,15 +82,6 @@ public class DisaggregationCalculator {
 
 
   /**
-   * This allows tuning on or off the showing of a progress bar
-   * @param show - set as true to show it, or false to not show it
-   */
-  public void showProgressBar(boolean show) {
-    this.showProgressBar=show;
-  }
-
-
-  /**
    * this function performs the disaggregation
    *
    * @param iml: the intensity measure level to disaggregate
@@ -105,7 +94,6 @@ public class DisaggregationCalculator {
         AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     double rate, mean, stdDev, condProb;
-    int totRuptures=0, currRuptures=0;
 
     DistanceRupParameter distRup = new DistanceRupParameter();
 
@@ -123,22 +111,13 @@ public class DisaggregationCalculator {
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
 
-    // check if progress bar is desired and set it up if so
-    if(this.showProgressBar) {
-      progressClass = new CalcProgressBar("Disaggregation Status"," Starting Disaggregation ...");
-      progressClass.displayProgressBar();
+    // compute the total number of ruptures for updating the progress bar
+    totRuptures = 0;
+    for(int i=0;i<numSources;++i)
+      totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
-      // compute the total number of ruptures for updating the progress bar
-      totRuptures = 0;
-      for(int i=0;i<numSources;++i)
-        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
-
-      // init the current rupture number (also for progress bar)
-      currRuptures = 0;
-
-      // initialize the progress bar to zero ruptures
-      progressClass.updateProgress(currRuptures, totRuptures);
-    }
+    // init the current rupture number (also for progress bar)
+    currRuptures = 0;
 
     try {
       // set the site in IMR
@@ -147,9 +126,6 @@ public class DisaggregationCalculator {
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
     }
-
-    for(int i=0;i<numSources;++i)
-        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
 
     // initialize
     Ebar = 0;
@@ -168,18 +144,21 @@ public class DisaggregationCalculator {
       ProbEqkSource source = eqkRupForecast.getSource(i);
       double distance = source.getMinDistance(site);
 
-      // if source is greater than the MAX_DISTANCE, ignore the source
-      if(distance > MAX_DISTANCE)
-        continue;
-
       // for each source, get the number of ruptures
       int numRuptures = eqkRupForecast.getNumRuptures(i);
 
+
+
+      // if source is greater than the MAX_DISTANCE, ignore the source
+      if(distance > MAX_DISTANCE) {
+       this.currRuptures+=numRuptures;
+        continue;
+      }
+
+
+
       // loop over ruptures
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
-
-        // update the progress bar is necessary
-        if(showProgressBar)  progressClass.updateProgress(currRuptures, totRuptures);
 
           // get the rupture
           ProbEqkRupture rupture = source.getRupture(n);
@@ -274,8 +253,18 @@ public class DisaggregationCalculator {
     if( D ) System.out.println(S + "DistMode = " + D_mode3D + "; binNum = " + modeDistBin);
     if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
-   if(showProgressBar)  progressClass.dispose();
+  }
 
+  public int getCurrRuptures() {
+    return this.currRuptures;
+  }
+
+  public int getTotRuptures() {
+    return this.totRuptures;
+  }
+
+  public boolean done() {
+    return (currRuptures==totRuptures);
   }
 
   public String getResultsString() {
