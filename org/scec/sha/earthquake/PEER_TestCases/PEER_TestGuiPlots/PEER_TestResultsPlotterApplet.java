@@ -53,8 +53,9 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JSplitPane plotSplitPane = new JSplitPane();
 
   private static final String C="PEER_Test_GuiPlotter";
+  private static final String version = "0.0.0";
 
-  private static final boolean D= true;
+  private static final boolean D= false;
 
   // default insets
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -188,6 +189,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   private JCheckBox averageCheck = new JCheckBox();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private JButton toggleButton = new JButton();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   //Construct the applet
@@ -201,9 +203,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   //Initialize the applet
   public void init() {
     try {
-      JOptionPane.showMessageDialog(this,
-                                  new String("If you are running this Application as Standalone, it might not contain upto data, you can go to the Website www.opensha.org to get the latest application"),
-                                  "Information Message",JOptionPane.INFORMATION_MESSAGE);
       jbInit();
       //shows the selection for the different Test Cases files
       initTestParamList();
@@ -276,6 +275,12 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
     xLogCheckBox.setForeground(new Color(80, 80, 133));
     yLogCheckBox.setForeground(new Color(80, 80, 133));
     rangeLabel.setForeground(new Color(80, 80, 133));
+    toggleButton.setText("Show Data");
+    toggleButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        toggleButton_actionPerformed(e);
+      }
+    });
     dataScrollPane.getViewport().add( pointsTextArea, null );
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
@@ -308,15 +313,17 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(7, 0, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
     buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 18, 3, 0), 21, 12));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 18, 13, 0), 21, 12));
     buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 8, 3, 0), 14, 12));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 8, 13, 0), 14, 12));
     buttonPanel.add(rangeComboBox,  new GridBagConstraints(4, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(15, 0, 11, 224), -10, 2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(25, 0, 21, 0), -10, 2));
     buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 9, 3, 0), 7, 20));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(17, 9, 13, 0), 7, 20));
     buttonPanel.add(averageCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 18, 3, 0), 21, 9));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 18, 13, 0), 21, 9));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 23, 19, 66), 48, -3));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(520);
     plotSplitPane.setDividerLocation(475);
@@ -357,12 +364,16 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
   //Main method
   public static void main(String[] args) {
+
     PEER_TestResultsPlotterApplet applet = new PEER_TestResultsPlotterApplet();
+    JOptionPane.showMessageDialog(applet,
+                                  new String("If you are running this Application as Standalone, it might not contain upto data, you can go to the Website www.opensha.org to get the latest application"),
+                                  "Information Message",JOptionPane.INFORMATION_MESSAGE);
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("PEER Tests Plots");
+    frame.setTitle("PEER Tests Plots (Version " + version +")");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -506,7 +517,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
                 legendPaint[k++]=checkBox.getForeground();
               }
               //see if the Average Check Box is selected, only then add to the functions to calc. average
-              if(avgCheckBox.isSelected())  avgFunctions.add(func);
+              if(avgCheckBox.isSelected() && this.averageCheck.isSelected())
+                avgFunctions.add(func);
             }
           }
         }
@@ -523,8 +535,8 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
         plotFunctions.add(avgFunc);
         legendPaint[k++] = AVERAGE_COLOR;
       }
-
-
+      // to be shown in show data
+      pointsTextArea.setText(plotFunctions.toString());
       /// check if x log is selected or not
       if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
       else xAxis = new HorizontalNumberAxis( xAxisLabel );
@@ -566,7 +578,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       plot.setRenderer( renderer );
 
 
-      JFreeChart chart = new JFreeChart(null,JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+      JFreeChart chart = new JFreeChart(" ",JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
       chart.setBackgroundPaint( lightBlue );
 
@@ -582,28 +594,34 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
       chartPanel.setDisplayToolTips(true);
       chartPanel.setHorizontalAxisTrace(false);
       chartPanel.setVerticalAxisTrace(false);
-      drawPlot();
+      graphOn = false;
+      togglePlot();
    }
 
 
    /**
     *  Description of the Method
     */
-   private void drawPlot() {
+   private void togglePlot() {
 
 
       String S= C+":drawPlot";
       plotPanel.removeAll();
-       // panel added here
-       if(chartPanel !=null)
-         plotPanel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-             , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-       else
-         // innerPlotPanel.setBorder(oval);
-         plotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+      if ( graphOn ) { // if data is to be shown
+          toggleButton.setText( "Show Plot" );
+          graphOn = false;
+          plotPanel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
          , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+      } else { // if plot is to be shown
+        toggleButton.setText( "Show Data" );
+        graphOn = true;
+        // panel added here
+        if(chartPanel !=null)
+          plotPanel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+              , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
+      }
 
      validate();
      repaint();
@@ -812,7 +830,6 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
   /**Handles the ActionEvent Method for the Plot Data Checkboxes, Included  In Average
    * Checkboxes, and when different set of test case is selected in the combo boxes.
    */
-
   public void actionPerformed(ActionEvent e){
     if(e.getSource() instanceof JCheckBox) addGraphPanel();
     if(e.getSource() instanceof JComboBox) addButton();
@@ -828,7 +845,15 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
        avgSplitPane.setDividerLocation(140);
      }
      else  this.avgSplitPane.setRightComponent(null);
-    addGraphPanel();
+     addGraphPanel();
+  }
+
+  /**
+   * this function is called when "show data" button is clicked
+   * @param e
+   */
+  void toggleButton_actionPerformed(ActionEvent e) {
+    togglePlot();
   }
 
 }

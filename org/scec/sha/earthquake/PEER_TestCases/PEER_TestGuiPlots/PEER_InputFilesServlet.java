@@ -114,20 +114,21 @@ public class PEER_InputFilesServlet extends HttpServlet {
      LineNumberReader lin = new LineNumberReader(logFile);
      Vector fileNamesVector = new Vector();
      String str = lin.readLine();
-     //str = str.replace('\n',' ');
-     //str = str.trim();
      while(str!=null) {
        if(!str.equals(fileName)) fileNamesVector.add(str);
        System.out.println("str="+str+",length(str)="+str.length()+
                           "fileName="+fileName+",length(fileName)="+fileName.length()+
                           "sizeofvector="+fileNamesVector.size());
        str = lin.readLine();
-       //str = str.replace('\n',' ');
-       //str = str.trim();
      }
      lin.close();
      logFile.close();
      RunScript.runScript("rm GroupTestDataFiles/files.log");
+
+
+     // remove this file from the GUI Plotter JAR also
+     RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
+
      // rewrite the log file after removing the name of the removed file
      FileWriter newLogFile = new FileWriter("GroupTestDataFiles/files.log");
      int size = fileNamesVector.size();
@@ -135,12 +136,10 @@ public class PEER_InputFilesServlet extends HttpServlet {
        newLogFile.write((String)fileNamesVector.get(i)+"\n");
      newLogFile.close();
 
-     // remove this file from the GUI Plotter JAR also
-     RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
      RunScript.runScript("rm  GroupTestDataFiles/"+fileName);
      RunScript.runScript("rm "+JAR_PATH+"PEER_TestResultsPlotterApp.jar");
      RunScript.runScript("jar cfm "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
-                                    "META-INF/MANIFEST.MF org/");
+                                    "PEER_MANIFEST.MF org/");
      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
                                    "com/");
      RunScript.runScript("jar uf "+JAR_PATH+"PEER_TestResultsPlotterApp.jar "+
@@ -150,11 +149,18 @@ public class PEER_InputFilesServlet extends HttpServlet {
      RunScript.runScript("rm -rf org/");
      for(int i =0; i< size; ++i)
        RunScript.runScript("rm GroupTestDataFiles/"+(String)fileNamesVector.get(i));
-     RunScript.runScript("rm -rf META-INF");
+     RunScript.runScript("rm PEER_MANIFEST.MF");
 
 
      // remove this file from the Data Submission JAR also
      RunScript.runScript("jar xf "+JAR_PATH+"PEER_TestResultsSubmApp.jar");
+
+     // rewrite the log file after removing the name of the removed file
+     newLogFile = new FileWriter("GroupTestDataFiles/files.log");
+     for(int i =0; i< size; ++i)
+       newLogFile.write((String)fileNamesVector.get(i)+"\n");
+     newLogFile.close();
+
      RunScript.runScript("rm GroupTestDataFiles/"+fileName);
      RunScript.runScript("rm "+JAR_PATH+"PEER_TestResultsSubmApp.jar");
      RunScript.runScript("jar cf "+JAR_PATH+"PEER_TestResultsSubmApp.jar "+
@@ -188,32 +194,21 @@ public class PEER_InputFilesServlet extends HttpServlet {
 
 class RunScript {
 
-
+  private static Runtime runtime = null;
   /**
    * accepts the command and executes on java runtime environment
    *
    * @param command : command to execute
    */
   public static void runScript(String command) {
+
+    if(runtime==null) runtime = Runtime.getRuntime();
+
     try {
       // wait for the shell script to end
       System.out.println("Command to execute: " +command);
-      Process p=Runtime.getRuntime().exec(command);
+      Process p=runtime.exec(command);
       p.waitFor();
-      int i=p.exitValue();
-
-      // check the process status after the process ends
-      if ( i == 0 ) {
-        // Display the normal o/p if script completed successfully.
-        System.out.println("script exited with i =" + i);
-        displayOutput(p.getInputStream());
-      }
-      else {
-        // Display the normal and error o/p if script failed.
-        System.out.println("script exited with i =" + i);
-        displayOutput(p.getErrorStream());
-        displayOutput(p.getInputStream());
-      }
 
     } catch(Exception e) {
       // if there is some other exception, print the detailed explanation
@@ -222,20 +217,4 @@ class RunScript {
     }
   }
 
-  /**
-   * display the input stream
-   * @param is inputstream
-   * @throws Exception
-   */
-  public static void displayOutput(InputStream is) throws Exception {
-    String s;
-    try {
-      BufferedReader br = new BufferedReader(new InputStreamReader(is));
-      while ((s = br.readLine()) != null)
-        System.out.println(s);
-    } catch (Exception e) {
-      System.out.println("Exception in RunCoreCode:displayOutput:"+e);
-      e.printStackTrace();
-    }
-  }
 }
