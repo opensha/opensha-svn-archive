@@ -996,6 +996,18 @@ public class HazardSpectrumApplet extends JApplet
 
     // intialize the hazard function
     ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+    ArbitrarilyDiscretizedFunc tempHazFunction = new ArbitrarilyDiscretizedFunc();
+
+    //what selection does the user have made, IML@Prob or Prob@IML
+    String imlOrProb=imlProbGuiBean.getSelectedOption();
+    //gets the IML or Prob value filled in by the user
+    double imlProbValue=imlProbGuiBean.getIML_Prob();
+    boolean imlAtProb = false, probAtIML = false;
+    if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
+      imlAtProb=true;
+    else probAtIML=true;
+    //gets the Sa Period Vector size
+    int size = this.saPeriodVector.size();
 
     //If the user has chosen the Probabilistic
     if(((String)probDeterSelection.getSelectedItem()).equalsIgnoreCase(this.PROBABILISTIC)){
@@ -1014,24 +1026,28 @@ public class HazardSpectrumApplet extends JApplet
       // if this is forecast list , handle it differently
       boolean isEqkForecastList = false;
       if(eqkRupForecast instanceof ERF_List)  {
-        handleForecastList(site, imr, eqkRupForecast);
+        handleForecastList(site, imr, eqkRupForecast,imlProbValue,imlAtProb,probAtIML);
         return;
       }
       calc.setNumForecasts(1);
       // this is not a eqk list
       this.isEqkList = false;
-      // calculate the hazard curve
-      //HazardCurveCalculator calc = new HazardCurveCalculator();
-      // do not show progress bar if not desired by user
-      //calc.showProgressBar(this.progressCheckBox.isSelected());
+
+       // set the value for the distance from the distance control panel
       if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
       // initialize the values in condProbfunc with log values as passed in hazFunction
-      initX_Values(hazFunction);
+      initX_Values(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
       try {
-        // calculate the hazard curve
-        calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
-        hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-        hazFunction = toggleHazFuncLogValues(hazFunction);
+        //iterating over all the SA Periods for the IMR's
+        for(int i=0;i< size;++i){
+          double saPeriodVal = ((Double)this.saPeriodVector.get(i)).doubleValue();
+          imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(i));
+          // calculate the hazard curve for each SA Period
+          calc.getHazardCurve(tempHazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
+          hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+          double val = toggleHazFuncLogValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
+          hazFunction.set(saPeriodVal,val);
+        }
       }catch (RuntimeException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(),
                                       "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1078,8 +1094,6 @@ public class HazardSpectrumApplet extends JApplet
       disaggregationString=null;*/
     }
     else{ //If the Deterministic has been chosen by the user
-
-      boolean imlAtProb=false, probAtIML=false;
       imr.setSite(site);
       try{
         imr.setProbEqkRupture(this.erfRupSelectorGuiBean.getRupture());
@@ -1090,16 +1104,6 @@ public class HazardSpectrumApplet extends JApplet
         this.validate();
         return;
       }
-      //what selection does the user have made, IML@Prob or Prob@IML
-      String imlOrProb=imlProbGuiBean.getSelectedOption();
-      //gets the IML or Prob value filled in by the user
-      double imlProbValue=imlProbGuiBean.getIML_Prob();
-
-      if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
-        imlAtProb=true;
-      else probAtIML=true;
-      //gets the Sa Period Vector size
-      int size = this.saPeriodVector.size();
 
       if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
@@ -1162,6 +1166,8 @@ public class HazardSpectrumApplet extends JApplet
     }
   }
 
+
+
   /**
    * Handle the Eqk Forecast List.
    * @param site : Selected site
@@ -1170,8 +1176,13 @@ public class HazardSpectrumApplet extends JApplet
    */
   private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
-                                  EqkRupForecastAPI eqkRupForecast) {
+                                  EqkRupForecastAPI eqkRupForecast,
+                                  double imlProbValue,boolean imlAtProb,
+                                  boolean probAtIML) {
+
    ERF_List erfList  = (ERF_List)eqkRupForecast;
+   //gets the Sa Period Vector size
+   int size = this.saPeriodVector.size();
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
    calc.setNumForecasts(numERFs);
    // clear the function list
@@ -1187,14 +1198,21 @@ public class HazardSpectrumApplet extends JApplet
     else this.isIndividualCurves = true;
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+     ArbitrarilyDiscretizedFunc tempHazFunction = new ArbitrarilyDiscretizedFunc();
       if(this.progressCheckBox.isSelected()) while(isIndividualCurves);
      // intialize the hazard function
-     initX_Values(hazFunction);
+     initX_Values(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
      try {
-       // calculate the hazard curve
-       calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
-       hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
-       hazFunction = toggleHazFuncLogValues(hazFunction);
+       //iterating over all the SA Periods for the IMR's
+       for(int j=0;j< size;++j){
+         double saPeriodVal = ((Double)this.saPeriodVector.get(j)).doubleValue();
+         imr.getParameter(this.SA_PERIOD).setValue(this.saPeriodVector.get(j));
+          // calculate the hazard curve for each SA Period
+         calc.getHazardCurve(tempHazFunction, site, imr, erfList.getERF(i));
+         hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+         double val= toggleHazFuncLogValues(tempHazFunction,imlProbValue,imlAtProb,probAtIML);
+         hazFunction.set(saPeriodVal,val);
+       }
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1240,6 +1258,58 @@ public class HazardSpectrumApplet extends JApplet
    totalProbFuncs.setYAxisName("Probability of Exceedance");
    isIndividualCurves = false;
   }
+
+
+
+  /**
+   * set x values in log space for Hazard Function to be passed to IMR as IMT is
+   * always SA
+   * It accepts 1 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   */
+  private void initX_Values(DiscretizedFuncAPI arb, double imlProbVal,boolean imlAtProb,
+                            boolean probAtIML){
+
+    if(probAtIML) //prob@iml
+      arb.set(Math.log(imlProbVal),1);
+    else //iml@Prob then we have to interpolate over a range of X-Values
+      for(int i=0; i<this.xValuesSA.length; ++i)
+        arb.set(Math.log(xValuesSA[i]),1 );
+  }
+
+  /**
+   * set x values back from the log space to the original linear values
+   * for Hazard Function after completion of the Hazard Calculations
+   * and returns back to the user IML or Prob value
+   * It accepts 1 parameters
+   *
+   * @param hazFunction :  this is the function with X values set
+   */
+  private double toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc,
+                                     double imlProbVal,boolean imlAtProb, boolean probAtIML) {
+
+    int numPoints = hazFunc.getNum();
+    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
+
+    //prob at iml is selected just return the Y Value back
+    if(probAtIML)
+      return tempFunc.getY(numPoints-1);
+    else{ //if iml at prob is selected just return the interpolated IML value.
+      int i;
+      for(i=0; i<numPoints-1; ++i){
+        if(imlProbVal>=xValuesSA[i] && imlProbVal<=xValuesSA[i+1])
+          break;
+      }
+      //interpolating the IML value over the range of the X Values
+      double imlVal = (((tempFunc.getY(i+1)-tempFunc.getY(i)) * (imlProbVal - xValuesSA[i])) /
+                         ( xValuesSA[i+1] - xValuesSA[i])) + tempFunc.getY(i);
+
+      return imlVal;
+    }
+  }
+
+
 
   /**
    *
@@ -1602,37 +1672,6 @@ public class HazardSpectrumApplet extends JApplet
     axisControlPanel.pack();
     axisControlPanel.show();
   }
-
-
-
-  /**
-   * set x values in log space for Hazard Function to be passed to IMR
-   * if the selected IMT are SA , PGA or PGV
-   * It accepts 1 parameters
-   *
-   * @param originalFunc :  this is the function with X values set
-   */
-  private void initX_Values(DiscretizedFuncAPI arb){
-       for(int i=0; i<this.xValuesSA.length; ++i)
-          arb.set(Math.log(xValuesSA[i]),1 );
-  }
-
-  /**
-   * set x values back from the log space to the original linear values
-   * for Hazard Function after completion of the Hazard Calculations
-   * It accepts 1 parameters
-   *
-   * @param hazFunction :  this is the function with X values set
-   */
-  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc){
-    int numPoints = hazFunc.getNum();
-    DiscretizedFuncAPI tempFunc = hazFunc.deepClone();
-    hazFunc = new ArbitrarilyDiscretizedFunc();
-    for(int i=0; i<numPoints; ++i)
-         hazFunc.set(xValuesSA[i], tempFunc.getY(i));
-      return hazFunc;
-  }
-
 
 
   /**
