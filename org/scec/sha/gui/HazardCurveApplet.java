@@ -922,8 +922,8 @@ public class HazardCurveApplet extends JApplet
    try {
      // calculate the hazard curve
      calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
-     hazFunction.setInfo(getParametersInfo());
      hazFunction = toggleHazFuncLogValues(hazFunction);
+     hazFunction.setInfo(getParametersInfo());
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1009,8 +1009,8 @@ public class HazardCurveApplet extends JApplet
      try {
        // calculate the hazard curve
        calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
-       hazFunction.setInfo(getParametersInfo());
        hazFunction = toggleHazFuncLogValues(hazFunction);
+       hazFunction.setInfo(getParametersInfo());
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1497,7 +1497,7 @@ public class HazardCurveApplet extends JApplet
         imtGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        erfGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        /*erfGuiBean.getParameterList().toString()+systemSpecificLineSeparator+*/
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
         timeSpanGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator;

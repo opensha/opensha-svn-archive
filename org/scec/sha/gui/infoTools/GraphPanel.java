@@ -223,7 +223,8 @@ public class GraphPanel extends JPanel {
           if(j==legendColor.length)
             j=0;
 
-          String legend = new String(i+1+") "+":"+SystemPropertiesUtils.getSystemLineSeparator()+totalProbFuncs.get(i).getInfo()+SystemPropertiesUtils.getSystemLineSeparator());
+          String legend = new String(i+1+") "+":"+SystemPropertiesUtils.getSystemLineSeparator()+
+                                     totalProbFuncs.get(i).getInfo()+SystemPropertiesUtils.getSystemLineSeparator());
           setLegend =new SimpleAttributeSet();
           StyleConstants.setFontSize(setLegend,12);
           StyleConstants.setForeground(setLegend,legendColor[j]);
