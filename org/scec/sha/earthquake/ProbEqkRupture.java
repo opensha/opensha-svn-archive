@@ -37,9 +37,9 @@ public class ProbEqkRupture {
     protected final static String C = "ProbEqkRupture";
     protected final static boolean D = false;
 
-	protected double mag;
-	protected double aveRake;
-	protected double probability;
+    protected double mag;
+    protected double aveRake;
+    protected double probability;
     protected Location hypocenterLocation = null;
 
     /** Represents a start time and duration => has end time */
@@ -49,7 +49,7 @@ public class ProbEqkRupture {
     protected GriddedSurfaceAPI ruptureSurface = null;
 
     /** object to contain arbitrary parameters */
-    protected ParameterList peParameters = new ParameterList();
+    protected ParameterList otherParams = new ParameterList();
 
 
 
@@ -88,16 +88,16 @@ public class ProbEqkRupture {
      * aspects of a program are used per user session.
      */
     public void addParameter(ParameterAPI parameter){
-        if( peParameters == null) peParameters = new ParameterList();
-        if(!peParameters.containsParameter(parameter)){
-            peParameters.addParameter(parameter);
+        if( otherParams == null) otherParams = new ParameterList();
+        if(!otherParams.containsParameter(parameter)){
+            otherParams.addParameter(parameter);
         }
-        else{ peParameters.updateParameter(parameter); }
+        else{ otherParams.updateParameter(parameter); }
     }
 
     public void removeParameter(ParameterAPI parameter){
-        if( peParameters == null) return;
-        peParameters.removeParameter(parameter);
+        if( otherParams == null) return;
+        otherParams.removeParameter(parameter);
     }
 
     /**
@@ -107,8 +107,8 @@ public class ProbEqkRupture {
      * short name to me.
      */
     public ListIterator getAddedParametersIterator(){
-        if( peParameters == null) return null;
-        else{ return peParameters.getParametersIterator(); }
+        if( otherParams == null) return null;
+        else{ return otherParams.getParametersIterator(); }
     }
 
 	public double getMag() { return mag; }
