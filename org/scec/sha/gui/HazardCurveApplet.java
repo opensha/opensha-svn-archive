@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.PEER_TestCases;
+package org.scec.sha.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -23,17 +23,18 @@ import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.util.*;
+import org.scec.sha.gui.controls.*;
 
 
 /**
- * <p>Title: PEER_TestsApplet</p>
+ * <p>Title: HazardCurveApplet</p>
  * <p>Description: </p>
  * @author Nitin Gupta and Vipin Gupta
  * Date : Sept 23 , 2002
  * @version 1.0
  */
 
-public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
+public class HazardCurveApplet extends JApplet implements LogPlotAPI {
 
   /**
    * Name of the class
@@ -124,7 +125,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
 
   // make the GroupTestGUIBean instance
-  PEER_TestsGuiBean peerTestGuiBean;
+  HazardCurveGuiBean hazardCurveGuiBean;
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
@@ -224,7 +225,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   }
 
   //Construct the applet
-  public PEER_TestsApplet() {
+  public HazardCurveApplet() {
 
   data.setFunctions(this.totalProbFuncs);
   // for Y-log, convert 0 values in Y axis to this small value
@@ -240,8 +241,8 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       // make the GroupTestGuiBean
       String testSelected = testCasesCombo.getSelectedItem().toString();
       testCasesCombo.setLightWeightPopupEnabled(false);
-      peerTestGuiBean = new PEER_TestsGuiBean(this);
-      peerTestGuiBean.setTestCaseAndSite(testSelected);
+      hazardCurveGuiBean = new HazardCurveGuiBean(this);
+      hazardCurveGuiBean.setTestCaseAndSite(testSelected);
       this.updateChoosenIMR();
       this.updateChoosenTestCase();
       this.updateChoosenIMT();
@@ -663,7 +664,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
   //Main method
   public static void main(String[] args) {
-    PEER_TestsApplet applet = new PEER_TestsApplet();
+    HazardCurveApplet applet = new HazardCurveApplet();
     applet.isStandalone = true;
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
@@ -693,7 +694,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the test case choosen
    */
   public void updateChoosenTestCase() {
-    if(this.peerTestGuiBean==null)
+    if(this.hazardCurveGuiBean==null)
       return;
   }
 
@@ -703,11 +704,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    *  update the GUI with the IMT choosen
    */
   public void updateChoosenIMT() {
-    if(this.peerTestGuiBean==null)
+    if(this.hazardCurveGuiBean==null)
       return;
     imtPanel.removeAll();
     imtPanel.setLayout(gridBagLayout8);
-    imtPanel.add(peerTestGuiBean.getIMTEditor(),
+    imtPanel.add(hazardCurveGuiBean.getIMTEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -721,17 +722,17 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    */
   public void updateChoosenIMR() {
     // update the IMR and site panel
-    if(this.peerTestGuiBean==null)
+    if(this.hazardCurveGuiBean==null)
       return;
     imrPanel.removeAll();
     sitePanel.removeAll();
     // update the imr editor
-    imrPanel.add(peerTestGuiBean.getImrEditor(),
+    imrPanel.add(hazardCurveGuiBean.getImrEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
     // update the site editor
-    sitePanel.add(peerTestGuiBean.getSiteEditor(),
+    sitePanel.add(hazardCurveGuiBean.getSiteEditor(),
                  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                  GridBagConstraints.CENTER,
                  GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -747,11 +748,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
    */
   public void updateChoosenEqkSource() {
     // update the EqkSource panel
-    if(this.peerTestGuiBean==null)
+    if(this.hazardCurveGuiBean==null)
       return;
     this.sourcePanel.removeAll();
     sourcePanel.setLayout(gridBagLayout5);
-    sourcePanel.add(peerTestGuiBean.get_erf_Editor(),
+    sourcePanel.add(hazardCurveGuiBean.get_erf_Editor(),
                     new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
@@ -909,7 +910,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       // clear the function list
       //this.totalProbFuncs.clear();
 
-      peerTestGuiBean.getChoosenFunction(totalProbFuncs);
+      hazardCurveGuiBean.getChoosenFunction(totalProbFuncs);
 
 
 
@@ -927,10 +928,10 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
       addGraphPanel();
 
       //displays the disaggregation string in the pop-up window
-      String disaggregationString= peerTestGuiBean.getDisaggregationString();
+      String disaggregationString= hazardCurveGuiBean.getDisaggregationString();
       if(disaggregationString !=null) {
 
-        PEER_TestsDisaggregationWindow disaggregation=new PEER_TestsDisaggregationWindow(disaggregationString);
+        HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(disaggregationString);
         disaggregation.setBounds(xCenter-50,yCenter-60,320, 250);
         disaggregation.show();
 
@@ -1091,7 +1092,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
   void testCasesCombo_actionPerformed(ActionEvent e) {
     String testSelected = testCasesCombo.getSelectedItem().toString();
-    peerTestGuiBean.setTestCaseAndSite(testSelected);
+    hazardCurveGuiBean.setTestCaseAndSite(testSelected);
   }
 
   void disaggregationCheckbox_actionPerformed(ActionEvent e) {

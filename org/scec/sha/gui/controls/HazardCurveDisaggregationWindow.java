@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.PEER_TestCases;
+package org.scec.sha.gui.controls;
 
 import java.awt.*;
 import javax.swing.*;
@@ -6,14 +6,14 @@ import javax.swing.text.*;
 import java.awt.event.*;
 
 /**
- * <p>Title: PEER_TestsDisaggregationWindow</p>
+ * <p>Title: HazardCurveDisaggregationWindow</p>
  * <p>Description: This class shows the Disaggregation Result in a seperate window</p>
  * @author : Nitin Gupta & Vipin Gupta
  * Date :Feb,19,2003
  * @version 1.0
  */
 
-class PEER_TestsDisaggregationWindow extends JFrame {
+public class HazardCurveDisaggregationWindow extends JFrame {
   private JPanel jMessagePanel = new JPanel();
   private JButton jMessageButton = new JButton();
   private String infoMessage;
@@ -21,7 +21,7 @@ class PEER_TestsDisaggregationWindow extends JFrame {
   private SimpleAttributeSet setMessage;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  public PEER_TestsDisaggregationWindow(String s) {
+  public HazardCurveDisaggregationWindow(String s) {
     this.infoMessage=s;
     try {
       jbInit();
