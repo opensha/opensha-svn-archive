@@ -1547,7 +1547,7 @@ public class ClassicIMRTesterApp extends JApplet
         if ( D ) System.out.println( S + "Starting" );
 
         if ( e.getSource().equals( imrComboBox ) ){
-            this.customAxis =false;
+           // this.customAxis =false;
             updateChoosenIMR();
          }
 
