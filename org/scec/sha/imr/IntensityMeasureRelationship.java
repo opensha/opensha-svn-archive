@@ -47,13 +47,21 @@ public abstract class IntensityMeasureRelationship
     /** ParameterList of all ProbEqkRupture parameters */
     protected ParameterList probEqkRuptureParams = new ParameterList();
 
-    /** ParameterList of all Propagation-Effect parameters */
+    /**
+     * ParameterList of all Propagation-Effect parameters (this should perhaps
+     * exist only in subclasses since not all IMRs will have these?)
+     */
     protected ParameterList propagationEffectParams = new ParameterList();
 
     /** ParameterList of all supported Intensity Measure parameters */
     protected ParameterList supportedIMParams = new ParameterList();
 
-    /** ParameterList of other parameters that don't fit into above categories */
+    /**
+     * ParameterList of other parameters that don't fit into above categories
+     * (that is, any parameter that the IMR depends upon that is not an IMT,
+     * and will not be contained in either a site object or an EqkRupture object
+     * (probEqkRuptureParams are set from Site and EqkRupture objects))
+     */
     protected ParameterList otherParams = new ParameterList();
 
     /** The current Site object (passing one in will set site-related parameters). */
@@ -304,7 +312,22 @@ public abstract class IntensityMeasureRelationship
 
 
     /**
-     *  Returns an iterator over all Potential-Earthquake related parameters.
+     *  Returns an iterator over all other parameters.  Other parameters are those
+     * that the IMR depends upon but which are not the supported IMTs, nor are they
+     * contained in or computed from a Site or EqkRupture object.
+     *
+     * @return    Iterator for otherParameters
+     */
+    public ListIterator getOtherParamsIterator() {
+        return otherParams.getParametersIterator();
+    }
+
+
+
+    /**
+     *  Returns an iterator over all Potential-Earthquake related parameters
+     * (perhaps this method should exist only in subclasses that have these types
+     * of parameters).
      *
      * @return    The Potential Earthquake Parameters Iterator
      */

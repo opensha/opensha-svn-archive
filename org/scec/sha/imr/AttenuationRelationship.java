@@ -843,7 +843,11 @@ public abstract class AttenuationRelationship
 
         /* Exceed Propability Parameter used only by the getIML_AtExceedProb() method.
            The attributes are hard-coded here because they won't change and do not
-           generally need to be known by others.
+           generally need to be known by others.  Note that this is not added to the
+           otherParams list below because it should not be returned by the getOtherParams
+           methods (it's merely created here for lack of a better location).  Perhaps this
+           should have it's own init method here that's called by the constructor of sub-
+           classes.
         */
         exceedProbParam = new DoubleParameter( EXCEED_PROB_NAME, EXCEED_PROB_MIN, EXCEED_PROB_MAX, EXCEED_PROB_DEFAULT);
         exceedProbParam.setInfo( EXCEED_PROB_INFO );
@@ -854,8 +858,6 @@ public abstract class AttenuationRelationship
 
         otherParams.addParameter( sigmaTruncTypeParam );
         otherParams.addParameter( sigmaTruncLevelParam );
-        otherParams.addParameter( exceedProbParam );
-
 
     }
 
