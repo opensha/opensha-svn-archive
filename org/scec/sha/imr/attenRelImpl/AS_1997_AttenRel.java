@@ -160,40 +160,19 @@ public class AS_1997_AttenRel
      * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
      * is something else (strike slip and normal faulting).
      *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either "Reverse",
-     * "Reverse-Oblique", or "Other" according to rake as described above.
+     * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String determineFaultTypeFromRake( double rake )
+    protected void setFaultTypeFromRake( double rake )
         throws InvalidRangeException
     {
-    /* */
         FaultUtils.assertValidRake( rake );
-        if( rake >= 67.5 && rake <= 112.5 )       return FLT_TYPE_REVERSE;
-        else if ( rake < 67.5 && rake >= 22.5 )   return FLT_TYPE_REV_OBL;
-        else if ( rake <= 157.5 && rake > 112.5 ) return FLT_TYPE_REV_OBL;
-        else                                      return FLT_TYPE_OTHER;
+        if( rake >= 67.5 && rake <= 112.5 )       fltTypeParam.setValue(FLT_TYPE_REVERSE);
+        else if ( rake < 67.5 && rake >= 22.5 )   fltTypeParam.setValue(FLT_TYPE_REV_OBL);
+        else if ( rake <= 157.5 && rake > 112.5 ) fltTypeParam.setValue(FLT_TYPE_REV_OBL);
+        else                                      fltTypeParam.setValue(FLT_TYPE_OTHER);
     }
 
-    /**
-     * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam; since their paper does not quantify the
-     * distinction, Norm advised as follows: Reverse if 67.5<rake<112.5;
-     * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
-     * is something else (strike slip and normal faulting).
-     *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either "Reverse",
-     * "Reverse-Oblique", or "Other" according to rake as described above.
-     * @throws InvalidRangeException    If not valid rake angle
-     */
-    protected static String determineFaultTypeFromRake( Double rake )
-        throws InvalidRangeException
-    {
-        return determineFaultTypeFromRake( rake.doubleValue() );
-    }
 
 
     /**
@@ -208,10 +187,7 @@ public class AS_1997_AttenRel
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
-
         Double magOld = (Double)magParam.getValue( );
-        String fltOld = (String)fltTypeParam.getValue();
-
 
         try {
           // constraints get checked
@@ -221,8 +197,7 @@ public class AS_1997_AttenRel
         }
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
-            fltTypeParam.setValue(fltTypeStr);
+            setFaultTypeFromRake( probEqkRupture.getAveRake() );
         }
         catch( ConstraintException e ){
             magParam.setValue( (Double)magOld );

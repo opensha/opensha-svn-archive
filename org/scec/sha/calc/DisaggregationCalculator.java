@@ -33,7 +33,7 @@ public class DisaggregationCalculator {
 
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
-  protected final double MAX_DISTANCE = 250;
+  protected double MAX_DISTANCE = 250;
 
   // progress bar stuff:
   private int FRAME_WIDTH = 250;
@@ -42,15 +42,15 @@ public class DisaggregationCalculator {
   private int FRAME_STARTY = 200;
   private JProgressBar progress;
 
-  // disaggregation stuff
+  // disaggregation stuff - MIN and MAX are centers of first and last bins
   private double MIN_MAG = 5.0;
   private double MAX_MAG = 9.0;
   private int NUM_MAG = 41;
   private double deltaMag = (MAX_MAG-MIN_MAG)/(NUM_MAG-1);
 
   private double MIN_DIST = 5;
-  private double MAX_DIST = 245;
-  private int NUM_DIST = 25;
+  private double MAX_DIST = 295;
+  private int NUM_DIST = 30;
   private double deltaDist = (MAX_DIST-MIN_DIST)/(NUM_DIST-1);
 
   private double MIN_E = -5.0;
@@ -69,8 +69,20 @@ public class DisaggregationCalculator {
   private double M_mode1D, D_mode1D, E_mode1D;
   private double M_mode3D, D_mode3D, E_mode3D;
 
-  private double iml, prob;
+  private double iml, prob, totalRate;
 
+
+  /**
+   * This sets the maximum distance of sources to be considered in the calculation
+   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
+   * Sources more than this distance away are ignored.
+   * Default value is 250 km.
+   *
+   * @param distance: the maximum distance in km
+   */
+  public void setMaxSourceDistance(double distance) {
+    MAX_DISTANCE = distance;
+  }
 
   /**
    * this function performs the disaggregation
@@ -84,7 +96,7 @@ public class DisaggregationCalculator {
   public void disaggregate(double iml, Site site,
         AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
 
-    double totalRate, rate, mean, stdDev, condProb;
+    double rate, mean, stdDev, condProb;
 
     DistanceRupParameter distRup = new DistanceRupParameter();
 
@@ -271,9 +283,35 @@ public class DisaggregationCalculator {
 
     String results;
 
-    results = "Disaggregation Result:\n\n\tMbar = " + Mbar + "\n\tDbar = " +
-              Dbar + "\n\tEbar = " + Ebar + "\n\n\t Mmode = " + M_mode3D +
+    float mm_l = (float) (M_mode3D-deltaMag/2.0);
+    float mm_u = (float) (M_mode3D+deltaMag/2.0);
+    float dm_l = (float) (D_mode3D-deltaDist/2.0);
+    float dm_u = (float) (D_mode3D+deltaDist/2.0);
+    float em_l = (float) (E_mode3D-deltaE/2.0);
+    float em_u = (float) (E_mode3D+deltaE/2.0);
+
+    results = "Disaggregation Results:\n" +
+              "\n  Mbar = " + (float) Mbar +
+              "\n  Dbar = " + (float) Dbar +
+              "\n  Ebar = " + (float) Ebar + "\n" +
+              "\n  " + mm_l+" ² Mmode < " + mm_u +
+              "\n  " + dm_l+" ² Dmode < " + dm_u;
+    if( E_mode3D == Double.NEGATIVE_INFINITY || E_mode3D == Double.POSITIVE_INFINITY)
+      results += "\n  Emode = " + E_mode3D;
+    else
+      results += "\n  " + em_l+" ² Emode < " + em_u;
+
+    if(totalRate == 0.0)
+      results += "\n\nNote:\n" +
+                 "The above NaN values result from the chosen IML\n" +
+                 "(or that interpolated from the chosen probability)\n" +
+                 "never being exceeded.";
+
+/*
+        results = "Disaggregation Result:\n\n\tMbar = " + Mbar + "\n\tDbar = " +
+              Dbar + "\n\tEbar = " + Ebar + "\n\n\tMmode = " + M_mode3D +
               "\n\tDmode = " + D_mode3D + "\n\tEmode = " + E_mode3D;
+*/
 
     return results;
 
@@ -291,7 +329,7 @@ public class DisaggregationCalculator {
           iEpsilon = Math.round((float) ((epsilon-MIN_E)/deltaE));
           // check to make sure it didn't fall onto the last two bins here
           if(iEpsilon == NUM_E-1 || iEpsilon == NUM_E-2)
-              iEpsilon = NUM_E + 1;
+              iEpsilon = NUM_E + 1;  // make it fall outside
       }
 
       if( iMag < 0 || iMag >= NUM_MAG ) withinBounds = false;

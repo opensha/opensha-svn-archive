@@ -87,39 +87,20 @@ public class BJF_1997_AttenRel
     /**
      * Determines the style of faulting from the rake angle (which
      * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam.
+     * value of the fltTypeParam.  Options are "Reverse" if 150>rake>30,
+     * "Strike-Slip" if rake is within 30 degrees of 0 or 180, and "Other"
+     * otherwise (which means normal-faulting events are assigned as "Other").
      *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either Strike-Slip,
-     * Reverse, or Unknown if the rake is within 30 degrees of 0 or 180 degrees,
-     * between 30 and 150 degrees, or not one of these two cases, respectivly.
+     * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String determineFaultTypeFromRake( double rake )
+    protected void setFaultTypeFromRake( double rake )
         throws InvalidRangeException
     {
         FaultUtils.assertValidRake( rake );
-        if( Math.abs( Math.sin( rake*Math.PI/180 ) ) <= 0.5 ) return FLT_TYPE_STRIKE_SLIP;  // 0.5 = sin(30)
-        else if ( rake >= 30 && rake <= 150 )  return FLT_TYPE_REVERSE;
-        else return FLT_TYPE_UNKNOWN;
-    }
-
-    /**
-     * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam.
-     *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either Strike-Slip,
-     * Reverse, or Unknown if the rake is within 30 degrees of 0 or 180 degrees,
-     * between 30 and 150 degrees, or not one of these two cases, respectivly.
-     * @throws InvalidRangeException    If not valid rake angle
-     */
-    protected static String determineFaultTypeFromRake( Double rake )
-        throws InvalidRangeException
-    {
-        if ( rake == null ) return FLT_TYPE_UNKNOWN;
-        else return determineFaultTypeFromRake( rake.doubleValue() );
+        if( Math.abs( Math.sin( rake*Math.PI/180 ) ) <= 0.5 ) fltTypeParam.setValue(FLT_TYPE_STRIKE_SLIP);  // 0.5 = sin(30)
+        else if ( rake >= 30 && rake <= 150 )                 fltTypeParam.setValue(FLT_TYPE_REVERSE);
+        else                                                  fltTypeParam.setValue(FLT_TYPE_UNKNOWN);
     }
 
 
@@ -137,7 +118,6 @@ public class BJF_1997_AttenRel
 
 
         Double magOld = (Double)magParam.getValue( );
-        String fltOld = (String)fltTypeParam.getValue();
 
         try {
         // constraints get checked
@@ -148,15 +128,14 @@ public class BJF_1997_AttenRel
 
         try {
           // If fail, rollback to all old values
-          String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
-          fltTypeParam.setValue(fltTypeStr);
+          setFaultTypeFromRake( probEqkRupture.getAveRake() );
         }
         catch( ConstraintException e ){
             magParam.setValue( magOld );
             throw e;
         }
 
-        // Set the PE
+        // Set the probEqkRupture
         this.probEqkRupture = probEqkRupture;
 
        /* Calculate the PropagationEffectParameters; this is

@@ -164,12 +164,10 @@ public class Abrahamson_2000_AttenRel
      * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
      * is something else (strike slip and normal faulting).
      *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either "Reverse",
-     * "Reverse-Oblique", or "Other" according to rake as described above.
+     * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String determineFaultTypeFromRake( double rake )
+    protected static String setFaultTypeFromRake( double rake )
         throws InvalidRangeException
     {
     /* */
@@ -177,25 +175,6 @@ public class Abrahamson_2000_AttenRel
         // not yet sure what to do here
 
         return null;
-    }
-
-    /**
-     * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam; since their paper does not quantify the
-     * distinction, Norm advised as follows: Reverse if 67.5<rake<112.5;
-     * Oblique-Reverse if 22.5<rake<67.5 or 112.5<rake<157.5; Other is rake
-     * is something else (strike slip and normal faulting).
-     *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either "Reverse",
-     * "Reverse-Oblique", or "Other" according to rake as described above.
-     * @throws InvalidRangeException    If not valid rake angle
-     */
-    protected static String determineFaultTypeFromRake( Double rake )
-        throws InvalidRangeException
-    {
-        return determineFaultTypeFromRake( rake.doubleValue() );
     }
 
 
@@ -211,9 +190,7 @@ public class Abrahamson_2000_AttenRel
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
-
         Double magOld = (Double)magParam.getValue( );
-        String fltOld = (String)fltTypeParam.getValue();
 
         try {
           // constraints get checked
@@ -224,8 +201,7 @@ public class Abrahamson_2000_AttenRel
 
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
-            fltTypeParam.setValue(fltTypeStr);
+            setFaultTypeFromRake( probEqkRupture.getAveRake() );
         }
         catch( ConstraintException e ){
             magParam.setValue( (Double)magOld );

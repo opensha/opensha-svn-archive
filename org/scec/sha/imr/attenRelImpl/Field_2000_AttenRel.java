@@ -99,40 +99,19 @@ public class Field_2000_AttenRel
     /**
      * Determines the style of faulting from the rake angle (which
      * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam.
+     * value of the fltTypeParam.  Options are "Reverse" if 135>rake>45
+     * or "Other/Unknown" otherwise.
      *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either Strike-Slip,
-     * Reverse, or Unknown if the rake is within 30 degrees of 0 or 180 degrees,
-     * between 30 and 150 degrees, or not one of these two cases, respectivly.
+     * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String determineFaultTypeFromRake( double rake )
+    protected void setFaultTypeFromRake( double rake )
         throws InvalidRangeException
     {
         FaultUtils.assertValidRake( rake );
-        if( rake >= 45 && rake <= 135 ) return FLT_TYPE_REVERSE;
-        else return FLT_TYPE_OTHER;
+        if( rake >= 45 && rake <= 135 ) fltTypeParam.setValue(FLT_TYPE_REVERSE);
+        else fltTypeParam.setValue(FLT_TYPE_OTHER);
     }
-
-    /**
-     * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam.
-     *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either Strike-Slip,
-     * Reverse, or Unknown if the rake is within 30 degrees of 0 or 180 degrees,
-     * between 30 and 150 degrees, or not one of these two cases, respectivly.
-     * @throws InvalidRangeException    If not valid rake angle
-     */
-    protected static String determineFaultTypeFromRake( Double rake )
-        throws InvalidRangeException
-    {
-        if ( rake == null ) return FLT_TYPE_OTHER;
-        else return determineFaultTypeFromRake( rake.doubleValue() );
-    }
-
 
     /**
      *  This sets the potential-earthquake related parameters (magParam
@@ -148,7 +127,6 @@ public class Field_2000_AttenRel
 
 
         Double magOld = (Double)magParam.getValue( );
-        String fltOld = (String)fltTypeParam.getValue();
 
         try {
           // constraints get checked
@@ -159,8 +137,7 @@ public class Field_2000_AttenRel
 
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
-            fltTypeParam.setValue(fltTypeStr);
+            setFaultTypeFromRake( probEqkRupture.getAveRake() );
         }
         catch( ConstraintException e ){
             magParam.setValue( magOld );

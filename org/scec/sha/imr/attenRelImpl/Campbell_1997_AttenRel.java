@@ -127,37 +127,21 @@ public class Campbell_1997_AttenRel
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object).
+     * comes from the probEqkRupture object) and fills in the
+     * value of the fltTypeParam.  Options are "Reverse" if 157.5>rake>22.5
+     * or "Other" otherwise.
      *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either Strike-Slip,
-     * Reverse if 22.5<rake<=67.5 degrees
+     * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String determineFaultTypeFromRake( double rake )
+    protected void setFaultTypeFromRake( double rake )
         throws InvalidRangeException
     {
-
         FaultUtils.assertValidRake( rake );
-        if( rake >= 22.5 && rake <= 157.5 ) return FLT_TYPE_REVERSE;
-        else return FLT_TYPE_OTHER;
+        if( rake >= 22.5 && rake <= 157.5 ) fltTypeParam.setValue(FLT_TYPE_REVERSE);
+        else fltTypeParam.setValue(FLT_TYPE_OTHER);
 //        NOTE: FLT_TYPE_UNKNOWN is not possible unless rake can == null, which it can't
-//        because rake is a double in ProbEqkRupture;
-    }
-
-    /**
-     * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object).
-     *
-     * @param rake                      Input determines the fault type
-     * @return                          Fault Type, either Strike-Slip,
-     * Reverse if 22.5<rake<=67.5 degrees
-     * @throws InvalidRangeException    If not valid rake angle
-     */
-    protected static String determineFaultTypeFromRake( Double rake )
-        throws InvalidRangeException
-    {
-        return determineFaultTypeFromRake( rake.doubleValue() );
+//        because rake is a double in ProbEqkRupture (although it could equal NaN);
     }
 
 
@@ -173,9 +157,7 @@ public class Campbell_1997_AttenRel
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
-
         Double magOld = (Double)magParam.getValue( );
-        String fltOld = (String)fltTypeParam.getValue();
 
         try {
           // constraints get checked
@@ -186,15 +168,14 @@ public class Campbell_1997_AttenRel
 
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );
-            fltTypeParam.setValue(fltTypeStr);
+            setFaultTypeFromRake( probEqkRupture.getAveRake() );
         }
         catch( ConstraintException e ){
             magParam.setValue( magOld );
             throw e;
         }
 
-        // Set the PE
+        // Set the probEqkRupture
         this.probEqkRupture = probEqkRupture;
 
        /* Calculate the PropagationEffectParameters; this is

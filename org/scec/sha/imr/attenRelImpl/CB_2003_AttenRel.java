@@ -137,17 +137,16 @@ public class CB_2003_AttenRel
 
 
     /**
-     * Determines the style of faulting from the rake & dip angles (which
-     * come from the probEqkRupture object).
+     * Sets the style of faulting from the rake & dip angles (which
+     * come from the probEqkRupture object).  It's "Thrust" if
+     * 22.5<rake<=67.5  & dip<45 degrees, "Reverse" if 22.5<rake<=67.5  & dip>=45
+     * degrees, and "Other" if the rake is any other value.
      *
      * @param rake                      ave. rake of rupture (degrees)
      * @param dip                       ave. dip (degrees)
-     * @return                          Fault-Type String, Thrust if
-     * 22.5<rake<=67.5  & dip<45 degrees, Reverse if 22.5<rake<=67.5  & dip>=45
-     * degrees, and "Other" if the rake is any other value.
      * @throws InvalidRangeException    If not valid rake angle
      */
-    protected static String determineFaultType( double rake, double dip )
+    protected void setFaultType( double rake, double dip )
         throws InvalidRangeException
     {
 
@@ -156,9 +155,9 @@ public class CB_2003_AttenRel
         FaultUtils.assertValidDip( dip );
 
         if( rake >= 22.5 && rake <= 157.5 )
-            if( dip >= 45)  return FLT_TYPE_REVERSE;
-            else            return FLT_TYPE_THRUST;
-        else                return FLT_TYPE_OTHER;
+          if( dip >= 45)   fltTypeParam.setValue(FLT_TYPE_REVERSE);
+            else           fltTypeParam.setValue(FLT_TYPE_THRUST);
+        else               fltTypeParam.setValue(FLT_TYPE_OTHER);
     }
 
 
@@ -174,9 +173,7 @@ public class CB_2003_AttenRel
      */
     public void setProbEqkRupture( ProbEqkRupture probEqkRupture ) throws ConstraintException{
 
-
         Double magOld = (Double)magParam.getValue( );
-        String fltOld = (String)fltTypeParam.getValue();
 
         try {
           // constraints get checked
@@ -187,8 +184,7 @@ public class CB_2003_AttenRel
 
         // If fail, rollback to all old values
         try{
-            String fltTypeStr = determineFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
-            fltTypeParam.setValue(fltTypeStr);
+            setFaultType( probEqkRupture.getAveRake(), probEqkRupture.getRuptureSurface().getAveDip() );
         }
         catch( ConstraintException e ){
             magParam.setValue( magOld );
