@@ -16,7 +16,7 @@ import java.lang.*;
  * @version 1.0
  */
 
-public class GR_MagFreqDist extends DiscreteMagFreqDist
+public class GR_MagFreqDist extends IncrementalMagFreqDist
 {
 
     /* *******************/

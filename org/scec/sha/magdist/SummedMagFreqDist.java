@@ -22,7 +22,7 @@ import org.scec.data.function.DiscretizedFuncAPI;
  * @version    1.0
  */
 
-public class SummedMagFreqDist extends DiscreteMagFreqDist {
+public class SummedMagFreqDist extends  IncrementalMagFreqDist{
 
 
 
@@ -31,7 +31,7 @@ public class SummedMagFreqDist extends DiscreteMagFreqDist {
      *
      * @param  discreteMagFreqDist  Description of the Parameter
      */
-    public void add( DiscreteMagFreqDist discreteMagFreqDist ) { }
+    public void add( IncrementalMagFreqDist incrementalMagFreqDist ) { }
 
 
     /**
@@ -39,7 +39,7 @@ public class SummedMagFreqDist extends DiscreteMagFreqDist {
      *
      * @param  discreteMagFreqDist  Description of the Parameter
      */
-    public void remove( DiscreteMagFreqDist discreteMagFreqDist ) { }
+    public void remove( IncrementalMagFreqDist incrementalMagFreqDist ) { }
 
 
 

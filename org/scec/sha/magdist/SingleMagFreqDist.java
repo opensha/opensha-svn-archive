@@ -23,7 +23,7 @@ import org.scec.data.function.DiscretizedFuncAPI;
  * @version    1.0
  */
 
-public class SingleMagFreqDist extends DiscreteMagFreqDist {
+public class SingleMagFreqDist extends IncrementalMagFreqDist {
     /*
      *  implements MagFreqDistAPI
      */

@@ -1,6 +1,6 @@
 package org.scec.sha.earthquake;
 
-import org.scec.sha.magdist.MagFreqDistAPI;
+import org.scec.sha.magdist.IncrementalMagFreqDistAPI;
 import org.scec.data.TimeSpan;
 import java.util.ListIterator;
 
@@ -40,7 +40,7 @@ public class EqkRupForecast {
     /** @todo  Getters / Setters */
     /* ***************************/
 
-    public MagFreqDistAPI getMagFreqDist(){ return null;}
+    public IncrementalMagFreqDistAPI getMagFreqDist(){ return null;}
 
     public ProbEqkRuptureList getProbEqkRuptureList(){ return peList; }
     public void setProbEqkRuptureList( ProbEqkRuptureList peList){ this.peList = peList; }

@@ -15,7 +15,7 @@ import org.scec.data.function.DiscretizedFuncAPI;
  * @version 1.0
  */
 
-public class GaussianMagFreqDist extends DiscreteMagFreqDist {
+public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
 
     /*
