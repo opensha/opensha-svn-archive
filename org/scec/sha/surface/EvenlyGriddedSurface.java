@@ -74,14 +74,30 @@ public class EvenlyGriddedSurface extends GriddedSurface {
         numSubSurfaceRows = numRows;
       }
 
+      return getNthSubsetSurface(numSubSurfaceCols, numSubSurfaceRows, numSubSurfaceOffset, nSubSurfaceAlong, n);
+   //     throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
+    }
+
+
+    /**
+     * Gets the Nth subSurface on the surface
+     *
+     * @param numSubSurfaceCols  Number of grid points along length
+     * @param numSubSurfaceRows  Number of grid points along width
+     * @param numSubSurfaceOffset Number of grid poits for offset
+     * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
+     *
+     */
+    private GriddedSubsetSurface getNthSubsetSurface(int numSubSurfaceCols,int numSubSurfaceRows,
+                                                     int numSubSurfaceOffset,int nSubSurfaceAlong,
+                                                     int n){
       //getting the row number in which that subsetSurface is present
       int row = n/nSubSurfaceAlong * numSubSurfaceOffset;
 
       //getting the column from which that subsetSurface starts
       int col = n%nSubSurfaceAlong * numSubSurfaceOffset;
 
-       return (new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,row,col,this));
-   //     throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
+      return (new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,row,col,this));
     }
 
 
@@ -139,7 +155,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
 
         //adding each subset surface to the Vector
         for(int i=0;i<totalSubSetSurface;++i)
-          v.add(getNthSubsetSurface(numSubSurfaceCols,numSubSurfaceRows,numSubSurfaceOffset,i));
+          v.add(getNthSubsetSurface(numSubSurfaceCols,numSubSurfaceRows,numSubSurfaceOffset,nSubSurfaceAlong,i));
 
        return v.iterator();
    }
