@@ -553,17 +553,15 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
   void showInformationFrame(JFrame frame,String msg){
 
-
     frame.setTitle("Information");
-
     JLabel label =new JLabel(msg);
     frame.getContentPane().setLayout(new GridBagLayout());
     frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 230,30));
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 290,50));
     frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
     frame.show();
+    frame.setVisible(true);
     label.paintImmediately(label.getBounds());
-
   }
 
 
@@ -572,10 +570,8 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
    */
   void openConnection() {
 
-
-
     //Frame added to show the user that data processing going on
-    String msg="                 Adding new file, Please be patient......";
+    String msg="  Adding new file, Please be patient......";
     JFrame frame = new JFrame();
     showInformationFrame(frame,msg);
 
@@ -663,7 +659,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
 
 
     //Frame added to show the user that data processing going on
-    String msg ="                 Deletion being performed, Please be patient......";
+    String msg ="  Deletion being performed, Please be patient......";
     JFrame frame = new JFrame();
     showInformationFrame(frame,msg);
     try{
@@ -799,14 +795,13 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     void openOverwriteConnection(String fileName) {
 
       overwriteFlag=false;
-      String msg="                 Overwriting file, Please be patient......";
+      String msg="  Overwriting file, Please be patient......";
       //Frame added to show the user that data processing going on
       JFrame frame = new JFrame();
       showInformationFrame(frame,msg);
       //vector which contains all the X and Y values from the function  to be send to the
       //servlet.
       Vector vt =new Vector();
-
       int size = function.getNum();
       for(int i=0;i<size;i++){
         String temp= new String(function.getX(i) +" "+function.getY(i));
@@ -871,7 +866,6 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
         e.printStackTrace();
       }
     }
-
 
 
 

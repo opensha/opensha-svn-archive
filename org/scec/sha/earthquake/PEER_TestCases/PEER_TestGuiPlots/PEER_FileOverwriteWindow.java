@@ -80,8 +80,7 @@ public class PEER_FileOverwriteWindow extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(66, 24, 0, 0), 33, 10));
     this.getContentPane().add(jLabel5,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 33, 0, 44), 114, 16));
-    this.setTitle("Deletion Window");
-    this.setTitle("PEER Data File Deletion Window");
+    this.setTitle("PEER Data File Overwrite Window");
   }
 
 

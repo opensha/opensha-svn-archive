@@ -120,7 +120,6 @@ public class PEER_FileDeleteWindow extends JFrame {
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(20, 15, 0, 108), 63, 10));
     this.getContentPane().add(jLabel1,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 36, 0, 0), 24, 11));
-    this.setTitle("Deletion Window");
     deletionMessageText.setText("Choose test case, the Identifier, " +
                                 "enter the password, and hit OK to delete the file.\n");
     deletionMessageText.setEditable(false);
