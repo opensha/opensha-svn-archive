@@ -90,7 +90,7 @@ public class GriddedFaultApplet
     protected final static int GRIDDED_RUPTURE_PLOT_TYPE = 8;
 
     // to save the rupture length, width and offset in case of rupture plot
-    private double ruptureLength, ruptureWidth, ruptureOffset;
+    private int ruptureCols, ruptureRows, ruptureOffset;
 
     ArrayList files;
     static {
@@ -194,9 +194,9 @@ public class GriddedFaultApplet
 
 
     final static Dimension NUMERIC_DIM = new Dimension(40, 18);
-    NumericTextField lengthTextField = new NumericTextField();
-    NumericTextField widthTextField = new NumericTextField();
-    NumericTextField offsetTextField = new NumericTextField();
+    IntegerTextField lengthTextField = new IntegerTextField();
+    IntegerTextField widthTextField = new IntegerTextField();
+    IntegerTextField offsetTextField = new IntegerTextField();
 
     GriddedFaultPlotter plotter = new GriddedFaultPlotter();
     GriddedSurfaceAPI surface = null;
@@ -917,9 +917,9 @@ public class GriddedFaultApplet
 
             case GRIDDED_RUPTURE_PLOT_TYPE :
               try{
-                ruptureLength = Double.parseDouble(lengthTextField.getText());
-                ruptureWidth = Double.parseDouble(widthTextField.getText());
-                ruptureOffset = Double.parseDouble(offsetTextField.getText());
+                ruptureCols = Integer.parseInt(lengthTextField.getText());
+                ruptureRows = Integer.parseInt(widthTextField.getText());
+                ruptureOffset = Integer.parseInt(offsetTextField.getText());
                 }catch(Exception e) {
                    JOptionPane.showMessageDialog(this,"Check the input in Gridded subset Panel");
                    break;
@@ -1727,7 +1727,7 @@ public class GriddedFaultApplet
          EvenlyGriddedSurface  evenlyGriddedSurface =(EvenlyGriddedSurface)surface;
 
          // get the iterator over all the subset surfaces
-         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureLength,ruptureWidth,(int)ruptureOffset);
+         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureCols ,ruptureRows, ruptureOffset);
          //Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(3,2,3);
          while(it.hasNext()) {
             // get next subset surface

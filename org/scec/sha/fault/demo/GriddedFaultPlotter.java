@@ -167,7 +167,7 @@ public class GriddedFaultPlotter extends ArrayList{
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
            being generated  in the Plot.java class constructor*/
        //Smooth Colors transition from Red to Blue
-       int totalSeries=functions.getSeriesCount();
+        int totalSeries=functions.getSeriesCount();
         Paint[] seriesPaint = new Paint[totalSeries+2];
         int count = (int)(Math.ceil(255.0/totalSeries));
         for(int i=255,j=0;i>=0;i-=count,j++) {
@@ -200,6 +200,21 @@ public class GriddedFaultPlotter extends ArrayList{
         OverlaidGridXYPlot plot = new OverlaidGridXYPlot(xAxis, yAxis);
         //OverlaidXYPlot plot = new OverlaidXYPlot(xAxis, yAxis);
 
+        // Get the data
+        XYDataset functions = (XYDataset)this.get(0);
+        if( functions == null ) return null;
+
+        /* To set the rainbow colors based on the depth of the fault, this also overrides the colors
+           being generated  in the Plot.java class constructor*/
+        //Smooth Colors transition from Red to Blue
+        int totalSeries=functions.getSeriesCount();
+        Paint[] seriesPaint = new Paint[totalSeries+2];
+        int count = (int)(Math.ceil(255.0/totalSeries));
+        for(int i=255,j=0;i>=0;i-=count,j++) {
+            seriesPaint[j]=new Color(i,0,255-i);
+         }
+        plot.setSeriesPaint(seriesPaint);
+        plot.setBackgroundPaint( plotColor );
 
 
         // Add all subplots
@@ -210,18 +225,8 @@ public class GriddedFaultPlotter extends ArrayList{
 
             counter++;
             XYDataset dataSet = (XYDataset)it.next();
-           /* To set the rainbow colors based on the depth of the fault, this also
-              overrides the colors being generated  in the Plot.java class constructor */
-           //Smooth Colors transition from Red to Blue
-            int totalSeries=dataSet.getSeriesCount();
-            Paint[] seriesPaint = new Paint[totalSeries+2];
-            int count = (int)(Math.ceil(255.0/totalSeries));
-            for(int i=255,j=0;i>=0;i-=count,j++) {
-              seriesPaint[j]=new Color(i,0,255-i);
-            }
 
-            plot.setSeriesPaint(seriesPaint);
-            plot.setBackgroundPaint( plotColor );
+
 
             org.scec.sha.fault.demo.PSHAGridXYPlot plot1 = new org.scec.sha.fault.demo.PSHAGridXYPlot(dataSet, null, null);
             plot1.setSeriesPaint(seriesPaint);
