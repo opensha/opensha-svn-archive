@@ -160,7 +160,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         imrNames.put( A_NAME, A_CLASS_NAME );
         imrNames.put( CB_NAME, CB_CLASS_NAME );
 
-        try { UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() ); }
+        try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
         catch ( Exception e ) {}
     }
 
@@ -467,8 +467,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         clearButton.setBackground( lightBlue );
         clearButton.setForeground( darkBlue );
+    clearButton.setMaximumSize(new Dimension(80, 20));
         clearButton.setFont( BUTTON_FONT );
-        clearButton.setFocusPainted( false );
         clearButton.setText( "Clear Plot" );
 
         clearButton.addFocusListener(
@@ -487,13 +487,13 @@ public class AttenuationRelationshipTesterApp extends JApplet
                 }
             } );
         clearButton.setPreferredSize( BUTTON_DIM );
-        clearButton.setMinimumSize( BUTTON_DIM );
+        clearButton.setMinimumSize(new Dimension(80, 20) );
 
-        addButton.setBackground( lightBlue );
+        addButton.setBackground(new Color(200, 200, 230) );
         addButton.setForeground( darkBlue );
+
         addButton.setFont( BUTTON_FONT );
-        addButton.setMaximumSize(new Dimension(55, 21));
-        addButton.setFocusPainted( false );
+        addButton.setMaximumSize(new Dimension(80, 20));
         addButton.setText( "Add Trace" );
 
 
@@ -517,13 +517,13 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
 
-        addButton.setPreferredSize( BUTTON_DIM );
-        addButton.setMinimumSize( BUTTON_DIM );
+        addButton.setPreferredSize(new Dimension(80, 20) );
+        addButton.setMinimumSize(new Dimension(80, 20) );
 
         toggleButton.setBackground( lightBlue );
         toggleButton.setForeground( darkBlue );
+    toggleButton.setMaximumSize(new Dimension(80, 20));
         toggleButton.setFont( BUTTON_FONT );
-        toggleButton.setFocusPainted( false );
         toggleButton.setText( "Show Data" );
 
         toggleButton.addFocusListener(
@@ -676,11 +676,11 @@ public class AttenuationRelationshipTesterApp extends JApplet
    dataScrollPane.getViewport().add( pointsTextArea, null );
 
 
-   buttonPanel.add( clearButton,           new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 6, 12) );
+   buttonPanel.add( clearButton,             new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13) );
 
-   buttonPanel.add( toggleButton,           new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 1), 11, 12) );
+   buttonPanel.add( toggleButton,             new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13) );
 
    //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
      //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
@@ -700,8 +700,8 @@ public class AttenuationRelationshipTesterApp extends JApplet
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
     buttonPanel.add(jAxisScale,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 0, 0, 0), 0, 0));
-    buttonPanel.add(addButton,             new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 3, 0, 3), 7, 13));
+    buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13));
 
 
         parametersSplitPane.setBottomComponent( sheetPanel );
