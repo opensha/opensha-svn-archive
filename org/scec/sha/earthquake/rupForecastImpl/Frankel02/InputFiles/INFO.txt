@@ -1,0 +1,67 @@
+These input files came from the directory:
+
+	PSHA/Frankel_2002_Stuff/InputFilesForOpenSHA
+
+on Ned Field's computer (these were originally sent from Cao of the CGS, and everything up through the attenuation relationship stuff was cut from the beginning of each file).
+
+Only fault files are included so far (used in haxFXv3 and haxFXv3a)
+
+The elements of each fault file are as follows.
+
+For each fault source:
+
+	1st Line:  
+
+		fault_grid_spacing_km
+		floater_offset_km
+
+	Lines 2-4:
+
+		num_epistemic_mag_uncert_vals
+		increments (in units of mag)
+		wts
+
+	Line 5:
+
+		aleatory_uncert_stddev
+		truncation level (units of stddev)
+
+	6th Line:
+
+		faultClass		(either "A" or "B")
+		faultingStyle	("SS", "R", or "N") 
+		faultName
+
+	7th Line:
+
+		charMag
+		charRate
+
+	8th Line:
+
+		dip			(may be negative!)
+		downDipWidth
+		depthToTop
+
+	9th Line:
+
+		numFaultTraceLocs
+
+	Last lines (total of numFaultTraceLocs lines):
+
+	lat[i], lon[i]		(fault-trace points)
+
+
+NOTES:  
+
+1) It would be better to list the actual rake rather than "SS", "R", and "N", but I didn't have time to hand edit whether "SS" was rake=0 or rake=180.
+
+2) It would be better (more physical; less model dependent) to list the momentRate rather than charRate.
+
+
+
+Ned Field
+USGS
+Feb 10, 2004
+
+
