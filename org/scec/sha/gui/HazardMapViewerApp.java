@@ -94,7 +94,6 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
   private JComboBox dataSetCombo = new JComboBox();
   private JSplitPane gmtSplitPane = new JSplitPane();
   private JPanel sitePanel = new JPanel();
-  private JTextArea dataSetText = new JTextArea();
   private JLabel jLabel2 = new JLabel();
   private JButton refreshButton = new JButton();
   private JLabel jLabel1 = new JLabel();
@@ -102,10 +101,12 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
   private JSplitPane mainSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
+  private JScrollPane metadataScrollPane = new JScrollPane();
+  private JTextArea dataSetText = new JTextArea();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -156,8 +157,6 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     gmtSplitPane.setLeftComponent(siteSplitPane);
     gmtSplitPane.setRightComponent(gmtPanel);
     sitePanel.setLayout(gridBagLayout4);
-    dataSetText.setBorder(border1);
-    dataSetText.setLineWrap(true);
     jLabel2.setForeground(new Color(80, 80, 133));
     jLabel2.setText("Data Set Info:");
     refreshButton.setText("Refresh");
@@ -170,9 +169,13 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Choose Data Set:");
     imlProbPanel.setLayout(gridBagLayout3);
+    mainSplitPane.setMinimumSize(new Dimension(100, 578));
     mainSplitPane.setBottomComponent(gmtSplitPane);
+    mainSplitPane.setLastDividerLocation(150);
     mainSplitPane.setLeftComponent(null);
     mainSplitPane.setRightComponent(gmtSplitPane);
+    dataSetText.setBorder(border1);
+    dataSetText.setLineWrap(true);
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(10, 10, 10, 9), 600, 543));
@@ -183,20 +186,21 @@ public class HazardMapViewerApp extends JApplet implements GMT_MapGuiBeanAPI{
     mainSplitPane.add(dataSetPanel, JSplitPane.TOP);
     mainSplitPane.add(gmtSplitPane, JSplitPane.BOTTOM);
     dataSetPanel.add(dataSetCombo,  new GridBagConstraints(1, 0, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 6, 0, 37), 17, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(24, 6, 0, 37), 18, 1));
     dataSetPanel.add(refreshButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 43), 41, 1));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 44), 41, 1));
     dataSetPanel.add(mapButton,  new GridBagConstraints(0, 4, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(39, 81, 24, 133), 29, 11));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(17, 81, 24, 133), 29, 11));
     dataSetPanel.add(jLabel2,  new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(20, 15, 0, 0), 74, 6));
-    dataSetPanel.add(dataSetText,  new GridBagConstraints(0, 3, 3, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 15, 0, 29), 0, 329));
     dataSetPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 15, 0, 0), 17, 4));
+    dataSetPanel.add(metadataScrollPane,  new GridBagConstraints(0, 3, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 15, 0, 18), 0, 354));
+    metadataScrollPane.getViewport().add(dataSetText, null);
     siteSplitPane.setDividerLocation(300);
-    gmtSplitPane.setDividerLocation(150);
-    mainSplitPane.setDividerLocation(350);
+    gmtSplitPane.setDividerLocation(280);
+    mainSplitPane.setDividerLocation(375);
 
   }
   //Start the applet
