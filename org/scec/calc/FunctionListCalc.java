@@ -1,4 +1,4 @@
-package org.scec.sha.calc;
+package org.scec.calc;
 
 import org.scec.data.function.*;
 
