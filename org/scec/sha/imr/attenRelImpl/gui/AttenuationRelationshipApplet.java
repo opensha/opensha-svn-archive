@@ -44,13 +44,13 @@ import org.scec.sha.gui.controls.*;
  * @version    1.0
  */
 
-public class AttenuationRelationshipTesterApp extends JApplet
+public class AttenuationRelationshipApplet extends JApplet
     implements ParameterChangeFailListener,
         ParameterChangeWarningListener,
         ItemListener, LogPlotAPI, AxisLimitsControlPanelAPI {
 
-    protected final static String C = "AttenuationRelationshipTesterApp";
-    private final static String version = "0.4.9";
+    protected final static String C = "AttenuationRelationshipApplet";
+    private final static String version = "0.5.10";
     protected final static boolean D = false;
   /**
    * these four values save the custom axis scale specified by user
@@ -280,7 +280,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     /**
      *  Construct the applet
      */
-    public AttenuationRelationshipTesterApp() {
+    public AttenuationRelationshipApplet() {
       data.setFunctions(functions);
 
       // for Y-log, convert 0 values in Y axis to this small value
@@ -668,7 +668,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         parametersSplitPane.setBottomComponent( sheetPanel );
         parametersSplitPane.setTopComponent( inputPanel );
         // parametersSplitPane.setDividerLocation( 360 );
-        parametersSplitPane.setDividerLocation(180 );
+        parametersSplitPane.setDividerLocation(220 );
 
         parametersSplitPane.setOneTouchExpandable( false );
 
@@ -718,7 +718,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
      */
     public static void main( String[] args ) {
 
-        AttenuationRelationshipTesterApp applet = new AttenuationRelationshipTesterApp();
+        AttenuationRelationshipApplet applet = new AttenuationRelationshipApplet();
 
         Color c = new Color( .9f, .9f, 1.0f, 1f );
         Font f = new Font( "Dialog", Font.PLAIN, 11 );
@@ -829,7 +829,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
 
     /**
-     *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipTesterApplet object
+     *  Adds a feature to the GraphPanel attribute of the AttenuationRelationshipApplet object
      */
     private void addGraphPanel() {
 
@@ -1266,8 +1266,9 @@ public class AttenuationRelationshipTesterApp extends JApplet
         if ( D ) System.out.println( S + "Starting" );
         if ( D ) System.out.println( S + "Controls = " + this.imr.controlsEditor.getParameterList().toString() );
 
-        int xAxis = imr.X_AXIS;
-        String XLabel = imr.getGraphControlsParamValue(xAxis);
+
+        String XLabel = (String)imr.getControlsEditor().getParameterList().getParameter(imr.X_AXIS_NAME).getValue();
+        String YLabel = (String)imr.getControlsEditor().getParameterList().getParameter(imr.Y_AXIS_NAME).getValue();
 
         //if the user just wants to see the result for the single value.
         if(XLabel.equals(imr.X_AXIS_SINGLE_VAL)){
@@ -1283,11 +1284,9 @@ public class AttenuationRelationshipTesterApp extends JApplet
           double yVal = imr.getChosenValue();
           String info = "";
           info = "AttenuationRelationship Name: " + imr.getImr().getName()+"\n\n";
-          info += "Intensity Measure: "+imr.getSelectedIMParam().getName()+"\n";
-          info += "Y-Axis: "+ imr.getGraphIMYAxisLabel()+"\n";
-          info += "X-Axis: "+ XLabel+"\n";
-          info += "Info: "+imr.getIndependentsEditor().getParameterList().toString()+"\n\n";
-          info += "Individual Value : "+yVal;
+          info += "Intensity Measure: "+(String)imr.getSelectedIMParam().getValue()+"\n\n";
+          info += "Info: "+imr.getIndependentsEditor().getVisibleParametersCloned().toString()+"\n\n";
+          info += YLabel+":  "+yVal;
           pointsTextArea.setText(info);
           //making the panel for the JFreechart null, so that it only shows the indivdual value
           panel =null;

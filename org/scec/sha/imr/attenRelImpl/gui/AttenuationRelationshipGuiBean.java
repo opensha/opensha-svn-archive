@@ -120,7 +120,7 @@ public class AttenuationRelationshipGuiBean
     protected ParameterList independentParams = new ParameterList();
 
 
-    AttenuationRelationshipTesterApp applet = null;
+    AttenuationRelationshipApplet applet = null;
 
     protected ArrayList translatedList = new ArrayList();
     private boolean translateIMR = true;
@@ -139,7 +139,7 @@ public class AttenuationRelationshipGuiBean
      * @param  applet     The main applet application that will use these beans
      *      to swap in and out different IMR's.
      */
-    public AttenuationRelationshipGuiBean( String className, String name, AttenuationRelationshipTesterApp applet ) {
+    public AttenuationRelationshipGuiBean( String className, String name, AttenuationRelationshipApplet applet ) {
 
         // Starting
         String S = C + ": Constructor(): ";
@@ -906,7 +906,7 @@ public class AttenuationRelationshipGuiBean
      *
      * @param  applet  Description of the Parameter
      */
-    protected void initControlsParamListAndEditor( AttenuationRelationshipTesterApp applet ) {
+    protected void initControlsParamListAndEditor( AttenuationRelationshipApplet applet ) {
 
         // Starting
         String S = C + ": initControlsParamListAndEditor(): ";
@@ -1021,7 +1021,7 @@ public class AttenuationRelationshipGuiBean
      * @param  applet                  Description of the Parameter
      * @exception  ParameterException  Description of the Exception
      */
-    private void initIndependentParamListAndEditor( AttenuationRelationshipTesterApp applet )
+    private void initIndependentParamListAndEditor( AttenuationRelationshipApplet applet )
              throws ParameterException {
 
         // Starting
@@ -1526,7 +1526,6 @@ public class AttenuationRelationshipGuiBean
         yAxisMap.put( Y_AXIS_V3, new Integer( EXCEED_PROB ) );
         yAxisMap.put( Y_AXIS_V4, new Integer( IML_AT_EXCEED_PROB) );
     }
-
 
 }
 
