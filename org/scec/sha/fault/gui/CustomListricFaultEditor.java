@@ -200,7 +200,7 @@ public class CustomListricFaultEditor extends JFrame {
           depth = (new Double(token.nextToken())).doubleValue();
           faultTrace.addLocation(new Location(lat, lon, depth));
        }
-       applet.setCustomFaultParams(dips, depths, faultTrace);
+       //applet.setCustomFaultParams(dips, depths, faultTrace);
        this.dispose();
      }catch (RuntimeException ex) {
        String message = ex.getMessage();

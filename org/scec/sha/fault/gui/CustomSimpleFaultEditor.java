@@ -158,7 +158,7 @@ public class CustomSimpleFaultEditor extends JFrame {
       // make simple data object and pass it to fault applet to be displayed
       SimpleFaultData simpleFaultData = new SimpleFaultData(dip,
           lowerSeismoDepth, upperSeismoDepth, faultTrace);
-      applet.setCustomSimpleFault(simpleFaultData);
+      //applet.setCustomSimpleFault(simpleFaultData);
       this.dispose();
     }catch (RuntimeException ex) {
       String message = ex.getMessage();

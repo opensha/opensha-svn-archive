@@ -93,6 +93,14 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   String dipsName ="Dips";
   String depthsName = "Depths";
 
+  /**
+   * Some variable declarations
+   */
+  private double avgDip;
+  private FaultTrace fltTrace;
+  private double upperSies;
+  private double lowerSies;
+
 
   //Reference to the EvenlyGriddedSurface Param
   SimpleFaultParameter surfaceParam;
@@ -424,6 +432,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    */
   public void setFaultNameVisible(boolean flag){
     showFaultName = flag;
+    this.editor.getParameterEditor(FAULT_NAME).setVisible(flag);
   }
 
   /**
@@ -614,6 +623,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
         Location loc = new Location(lat,lon,depth);
         fltTrace.addLocation(loc);
       }
+      this.fltTrace = fltTrace;
       //getting the gridSpacing
       double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
 
@@ -627,11 +637,14 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       if(numDips ==1){
         //gets the dip as the only value in the vector of dips
         double dip = ((Double)dips.get(0)).doubleValue();
+        this.avgDip =dip;
         //gets the fault type
         String fltType = (String)this.faultTypeEditor.getParameter().getValue();
         //gets the upperSiesDepth and LowerSiesDepth
         double upperSiesDepth =((Double)depths.get(0)).doubleValue();
         double lowerSiesDepth =((Double)depths.get(1)).doubleValue();
+        upperSies = upperSiesDepth;
+        lowerSies = lowerSiesDepth;
         //make the object of the FrankelGriddedFaultFactory
         if(fltType.equalsIgnoreCase(this.FRANKEL)){
           fltFactory = new FrankelGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
@@ -653,6 +666,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       this.evenlyGriddedParamChange = false;
     }
   }
+
   /**
    * whether you want the update button to be visible or not
    *
@@ -661,6 +675,27 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    */
   public void setUpdateButtonVisible(boolean visible) {
     button.setVisible(visible);
+  }
+
+
+  public double getAvgDip(){
+    return avgDip;
+  }
+
+  public FaultTrace getFaultTrace(){
+    return fltTrace;
+  }
+
+  public double getUpperSiesmogenicDepth(){
+    return upperSies;
+  }
+
+  public double getLowerSiesmogenicDepth(){
+    return lowerSies;
+  }
+
+  public String getFaultName(){
+    return (String)parameterList.getParameter(this.FAULT_NAME).getValue();
   }
 }
 

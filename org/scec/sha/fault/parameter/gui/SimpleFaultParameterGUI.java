@@ -6,6 +6,7 @@ import javax.swing.*;
 import org.scec.param.ParameterAPI;
 import org.scec.sha.fault.parameter.*;
 import org.scec.sha.fault.parameter.gui.*;
+import org.scec.sha.fault.FaultTrace;
 
 /**
  * <p>Title: SimpleFaultParameterGUI</p>
@@ -77,4 +78,31 @@ public class SimpleFaultParameterGUI extends JFrame{
     gridSurface.setEvenlyGriddedSurfaceFromParams();
     this.dispose();
   }
+
+  public FaultTrace getFaultTrace(){
+   return gridSurface.getFaultTrace();
+  }
+
+  public double getAvgDip(){
+    return gridSurface.getAvgDip();
+  }
+
+  public double getUpperSies(){
+    return gridSurface.getUpperSiesmogenicDepth();
+  }
+
+  public double getLowerSies(){
+    return gridSurface.getLowerSiesmogenicDepth();
+  }
+
+  public String getFaultName(){
+    return gridSurface.getFaultName();
+  }
+
+  public SimpleFaultParameterEditor getSimpleParameterFaultEditor(){
+    return this.gridSurface;
+  }
+
+
+
 }
