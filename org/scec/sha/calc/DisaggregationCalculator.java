@@ -110,6 +110,7 @@ public class DisaggregationCalculator {
 
 
     progress=new CalcProgressBar("Disaggregation Status"," Starting Disaggregation ...");
+    progress.displayProgressBar();
 
 
     try {
@@ -256,7 +257,7 @@ public class DisaggregationCalculator {
     if( D ) System.out.println(S + "DistMode = " + D_mode3D + "; binNum = " + modeDistBin);
     if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
-
+    progress.dispose();
 
   }
 

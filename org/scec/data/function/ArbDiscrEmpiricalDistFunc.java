@@ -94,7 +94,7 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
       ArbitrarilyDiscretizedFunc tempCumDist = getNormalizedCumDist();
 
       if(fraction < tempCumDist.getMinX())
-        throw new InvalidRangeException("The chosen fraction is below the minimum value of the cumulative distribution");
+        throw new InvalidRangeException("The chosen fraction "+fraction+" is below the minimum value of the cumulative distribution");
 
       return tempCumDist.getFirstInterpolatedX(fraction);
     }

@@ -45,6 +45,7 @@ public class DisaggregationControlPanel extends JFrame
       // show the window at center of the parent component
       this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
                      parentComponent.getY()+parentComponent.getHeight()/2);
+      parent.setDisaggregationSelected(diaggregateCheckBox.isSelected());
 
     }
     catch(Exception e) {
@@ -113,11 +114,17 @@ public class DisaggregationControlPanel extends JFrame
    */
   void diaggregateCheckBox_actionPerformed(ActionEvent e) {
     parent.setDisaggregationSelected(diaggregateCheckBox.isSelected());
-    if(this.diaggregateCheckBox.isSelected()) {
-      disaggregationEditor.setVisible(true);
-      parent.setDisaggregationProb(((Double)this.disaggregationParam.getValue()).doubleValue());
-    }
+    if(this.diaggregateCheckBox.isSelected()) disaggregationEditor.setVisible(true);
     else disaggregationEditor.setVisible(false);
   }
+
+  /**
+   * This function returns disaggregation prob value
+   * @return :double value of prob between 0 and 1
+   */
+  public double getDisaggregationProb() {
+    return ((Double)disaggregationParam.getValue()).doubleValue();
+  }
+
 
 }

@@ -159,7 +159,7 @@ public class ERF_EpistemicListControlPanel extends JFrame
    * This function returns custom percentile value
    * @return :double value of percentile between 0 and 100
    */
-  public double getCustomPercentilsValue() {
+  public double getCustomPercentileValue() {
     return ((Double)percentileParam.getValue()).doubleValue();
   }
 

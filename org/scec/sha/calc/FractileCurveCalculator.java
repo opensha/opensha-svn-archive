@@ -98,6 +98,7 @@ public class FractileCurveCalculator {
         empirical.set(funcList.get(j).getY(i),
                       ((Double)relativeWeights.get(j)).doubleValue());
       empiricalDists.add(empirical);
+      System.out.println("111  i="+i+"; dist="+empirical.toString());
     }
 
   }
@@ -110,9 +111,11 @@ public class FractileCurveCalculator {
   public ArbitrarilyDiscretizedFunc getFractile(double fraction) {
     // function to save the result
     ArbitrarilyDiscretizedFunc result = new ArbitrarilyDiscretizedFunc();
-    for(int i=0; i<num; ++i)
+    for(int i=0; i<num; ++i) {
+       System.out.println("2222  i="+i+"; dist="+((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).toString());
       result.set(funcList.get(0).getX(i),
                  ((ArbDiscrEmpiricalDistFunc)empiricalDists.get(i)).getFractile(fraction));
+    }
     return result;
   }
 }

@@ -18,11 +18,5 @@ public interface DisaggregationControlPanelAPI  {
    */
   public void setDisaggregationSelected(boolean isSelected);
 
-  /**
-   * This function is needed to set the prob. enetered by the user
-   *
-   * @param prob : disaggregation prob. selected by the user
-   */
-  public void setDisaggregationProb(double prob);
 
 }

@@ -175,7 +175,6 @@ public class HazardCurveApplet extends JApplet
 
   //flag to check for the disaggregation functionality
   private boolean disaggregationFlag= false;
-  private double disaggregationProb;
   private String disaggregationString;
 
   // PEER Test Cases
@@ -691,7 +690,8 @@ public class HazardCurveApplet extends JApplet
 
       //displays the disaggregation string in the pop-up window
       if(disaggregationString !=null) {
-        HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(disaggregationString);
+        HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+        disaggregation.pack();
         disaggregation.show();
 
       }
@@ -816,13 +816,6 @@ public class HazardCurveApplet extends JApplet
      disaggregationFlag = isSelected;
    }
 
-   /**
-    * This function is needed to set the prob. enetered by the user
-    * @param prob : disaggregation prob. selected by the user
-    */
-   public void setDisaggregationProb(double prob) {
-     this.disaggregationProb = prob;
-   }
 
 
   void imgLabel_mouseClicked(MouseEvent e) {
@@ -905,7 +898,7 @@ public class HazardCurveApplet extends JApplet
    * Gets the probabilities functiion based on selected parameters
    * this function is called when add Graph is clicked
    */
-  public void computeHazardCurve() {
+  private void computeHazardCurve() {
     this.isEqkList = false;
 
     // intialize the hazard function
@@ -962,9 +955,9 @@ public class HazardCurveApplet extends JApplet
    if(this.disaggregationFlag){
      DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
      int num = hazFunction.getNum();
-
+     double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-    if(this.disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
+    if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
       JOptionPane.showMessageDialog(this,
                                     new String("Chosen Probability is not"+
                                     " within the range of the min and max prob."+
@@ -1048,7 +1041,7 @@ public class HazardCurveApplet extends JApplet
      totalProbFuncs.add(fractileCalc.getFractile(.95)); // 95th fractile
    } else if(this.percentileOption.equalsIgnoreCase // for custom percentile
       (ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE )) {
-     double percentile = this.epistemicControlPanel.getCustomPercentilsValue();
+     double percentile = this.epistemicControlPanel.getCustomPercentileValue();
      totalProbFuncs.add(fractileCalc.getFractile(percentile/100));
    }
 

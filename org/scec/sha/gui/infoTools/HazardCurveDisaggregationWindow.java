@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import java.awt.event.*;
+import javax.swing.border.*;
 
 /**
  * <p>Title: HazardCurveDisaggregationWindow</p>
@@ -19,12 +20,17 @@ public class HazardCurveDisaggregationWindow extends JFrame {
   private String infoMessage;
   private JTextPane jMessagePane = new JTextPane();
   private SimpleAttributeSet setMessage;
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
-  public HazardCurveDisaggregationWindow(String s) {
+  Border border1;
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  BorderLayout borderLayout1 = new BorderLayout();
+  public HazardCurveDisaggregationWindow(Component parent, String s) {
     this.infoMessage=s;
     try {
       jbInit();
+      // show the window at center of the parent component
+      this.setLocation(parent.getX()+parent.getWidth()/2,
+                       parent.getY()+parent.getHeight()/2);
+
       jMessagePane.setEditable(false);
       Document doc = jMessagePane.getStyledDocument();
       doc.remove(0,doc.getLength());
@@ -38,6 +44,7 @@ public class HazardCurveDisaggregationWindow extends JFrame {
     }
   }
   private void jbInit() throws Exception {
+    border1 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     jMessagePanel.setLayout(gridBagLayout1);
     this.setTitle("Disaggregation Result Window");
     this.getContentPane().setLayout(borderLayout1);
@@ -51,19 +58,17 @@ public class HazardCurveDisaggregationWindow extends JFrame {
     });
     jMessagePanel.setBackground(new Color(200, 200, 230));
     jMessagePanel.setForeground(new Color(80, 18, 133));
-    jMessagePanel.setMaximumSize(new Dimension(370, 145));
-    jMessagePanel.setMinimumSize(new Dimension(370, 145));
-    jMessagePanel.setPreferredSize(new Dimension(370, 145));
-    this.setResizable(false);
+    jMessagePanel.setBorder(border1);
+    this.setResizable(true);
     this.getContentPane().setBackground(new Color(200, 200, 230));
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     jMessagePane.setBorder(null);
     jMessagePane.setToolTipText("");
     jMessagePane.setEditable(false);
+    jMessagePanel.add(jMessagePane,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 0, 0, 5), 100, 263));
     jMessagePanel.add(jMessageButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 83, 3, 79), 9, 12));
-    jMessagePanel.add(jMessagePane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 1, 0, 2), 251, 223));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 57, 5, 58), 0, 0));
     this.getContentPane().add(jMessagePanel, BorderLayout.CENTER);
   }
 
