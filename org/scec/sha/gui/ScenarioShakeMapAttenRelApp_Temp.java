@@ -313,9 +313,6 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    */
   private void initIMRGuiBean() {
     imrGuiBean = new AttenuationRelationshipGuiBean(this);
-
-    //selects the Attenuations for the choosen Intensity Measure , if AttenuationRelationship supports it.
-    imrGuiBean.selectIMRsForChoosenIMT();
     imrGuiBean.getIntensityMeasureParamEditor().getParameterEditor(imrGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
     // show this IMRgui bean the Panel
     imrPanel.add(imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,

@@ -1162,6 +1162,8 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
      toggleButton.setText(MULTIPLE_ATTEN_REL);
      initSingleAttenRelParamListAndEditor();
    }
+
+   //set the site params for the selected Atten Rels
    application.setGriddedRegionSiteParams();
  }
 
