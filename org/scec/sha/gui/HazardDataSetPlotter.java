@@ -34,7 +34,7 @@ import org.scec.data.function.DiscretizedFuncList;
 import org.scec.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.param.event.ParameterChangeListener;
-import org.scec.sha.calc.FractileCurveCalculator;
+import org.scec.calc.FractileCurveCalculator;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.gui.beans.HazardDataSiteSelectionGuiBean;
 import org.scec.sha.gui.infoTools.ButtonControlPanel;

@@ -77,7 +77,10 @@ public class HazardMapViewerServlet  extends HttpServlet {
         fw.close();
         // jpg file name
         map.setMetatdataFileName(metadataFileName);
-        String jpgFileName  = map.makeMapUsingServlet(xyzData,"IML",metadata,null);
+        //get the map scale label
+        String mapLabel = getMapLabel(isProbAt_IML);
+
+        String jpgFileName  = map.makeMapUsingServlet(xyzData,mapLabel,metadata,null);
         ObjectOutputStream outputToApplet =new ObjectOutputStream(response.getOutputStream());
         outputToApplet.writeObject(jpgFileName);
         outputToApplet.close();
@@ -94,6 +97,21 @@ public class HazardMapViewerServlet  extends HttpServlet {
     doGet(request,response);
   }
 
+
+  /**
+   *
+   * @returns the Map label based on the selected Map Type( Prob@IML or IML@Prob)
+   */
+  private String getMapLabel(boolean isProbAtIML){
+    //making the map
+    String label;
+
+    if(isProbAtIML)
+      label="Prob";
+    else
+      label="IML";
+    return label;
+  }
 
  /**
   * Read the data sets, their names, their params needed to generate map

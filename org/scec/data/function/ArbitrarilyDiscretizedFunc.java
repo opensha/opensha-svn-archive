@@ -436,8 +436,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
           break;
       }
       //finding the y values for the coressponding x values
-      double y1=getY(x1);
-      double y2=getY(x2);
+      double y1=Math.log(getY(x1));
+      double y2=Math.log(getY(x2));
       x1 = Math.log(x1);
       x2 = Math.log(x2);
       x = Math.log(x);
