@@ -18,29 +18,32 @@ public class DataGenerator_NEHRP
     implements DataGeneratorAPI_NEHRP {
 
   //gets the selected region
-  private String geographicRegion;
+  protected String geographicRegion;
   //gets the selected edition
-  private String dataEdition;
+  protected String dataEdition;
 
-  private ArbitrarilyDiscretizedFunc saFunction;
+  protected ArbitrarilyDiscretizedFunc saFunction;
 
 
-  private float faVal;
-  private float fvVal;
-  private String siteClass = GlobalConstants.SITE_CLASS_B;
-  private ArbitrarilyDiscretizedFunc sdSpectrumSaSdFunction;
-  private ArbitrarilyDiscretizedFunc smSpectrumSaSdFunction;
-  private ArbitrarilyDiscretizedFunc mapSpectrumSaSdFunction;
-  private ArbitrarilyDiscretizedFunc sdSpectrumSaTFunction;
-  private ArbitrarilyDiscretizedFunc smSpectrumSaTFunction;
-  private ArbitrarilyDiscretizedFunc mapSpectrumSaTFunction;
+  protected float faVal;
+  protected float fvVal;
+  protected String siteClass = GlobalConstants.SITE_CLASS_B;
+  protected ArbitrarilyDiscretizedFunc sdSpectrumSaSdFunction;
+  protected ArbitrarilyDiscretizedFunc smSpectrumSaSdFunction;
+  protected ArbitrarilyDiscretizedFunc mapSpectrumSaSdFunction;
+  protected ArbitrarilyDiscretizedFunc sdSpectrumSaTFunction;
+  protected ArbitrarilyDiscretizedFunc smSpectrumSaTFunction;
+  protected ArbitrarilyDiscretizedFunc mapSpectrumSaTFunction;
 
 
   //holds all the data and its info in a String format.
-  private String dataInfo = "";
+  protected String dataInfo = "";
 
   //metadata to be shown when plotting the curves
-  private String metadataForPlots;
+  protected String metadataForPlots;
+
+  //sets the selected spectra type
+  protected String selectedSpectraType;
 
   /**
    * Default class constructor
@@ -65,7 +68,7 @@ public class DataGenerator_NEHRP
   }
 
 
-  private void addDataInfo(String data){
+  protected void addDataInfo(String data){
     dataInfo += geographicRegion + "\n";
     dataInfo += dataEdition + "\n";
     dataInfo +=data+"\n\n";
@@ -136,7 +139,7 @@ public class DataGenerator_NEHRP
     saFunction = function;
   }
 
-  private void createMetadataForPlots(String location){
+  protected void createMetadataForPlots(String location){
     metadataForPlots = GlobalConstants.SA_DAMPING +"\n";
     metadataForPlots += geographicRegion + "\n";
     metadataForPlots += dataEdition + "\n";
@@ -187,7 +190,7 @@ public class DataGenerator_NEHRP
    *
    * @param mapSpectrumFunctions DiscretizedFuncList
    */
-  private void getFunctionsForMapSpectrum(DiscretizedFuncList mapSpectrumFunctions){
+  protected void getFunctionsForMapSpectrum(DiscretizedFuncList mapSpectrumFunctions){
 
 
     int numFunctions = mapSpectrumFunctions.size();
@@ -218,7 +221,7 @@ public class DataGenerator_NEHRP
    *
    * @param smSpectrumFunctions DiscretizedFuncList
    */
-  private void getFunctionsForSMSpectrum(DiscretizedFuncList smSpectrumFunctions){
+  protected void getFunctionsForSMSpectrum(DiscretizedFuncList smSpectrumFunctions){
 
     int numFunctions = smSpectrumFunctions.size();
     int i=0;
@@ -246,7 +249,7 @@ public class DataGenerator_NEHRP
    *
    * @param sdSpectrumFunctions DiscretizedFuncList
    */
-  private void getFunctionsForSDSpectrum(DiscretizedFuncList sdSpectrumFunctions){
+  protected void getFunctionsForSDSpectrum(DiscretizedFuncList sdSpectrumFunctions){
 
     int numFunctions = sdSpectrumFunctions.size();
     int i=0;
@@ -398,4 +401,13 @@ public class DataGenerator_NEHRP
   public String getSelectedSiteClass(){
     return siteClass;
   }
+
+  /**
+   * Sets the Spectra type
+   * @param spectraType String
+   */
+  public void setSpectraType(String spectraType){
+    selectedSpectraType = spectraType;
+  }
+
 }

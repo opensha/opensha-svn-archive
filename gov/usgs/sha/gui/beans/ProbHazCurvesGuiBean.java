@@ -328,18 +328,24 @@ public class ProbHazCurvesGuiBean
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       createLocation();
       createIMT_PeriodsParameter();
-
+     viewCurveButton.setEnabled(false);
+     singleHazardCurveValButton.setEnabled(false);
     }
     else if(paramName.equals(datasetGui.EDITION_PARAM_NAME)){
       selectedEdition = datasetGui.getSelectedDataSetEdition();
+      viewCurveButton.setEnabled(false);
+      singleHazardCurveValButton.setEnabled(false);
     }
     else if(paramName.equals(SINGLE_HAZARD_CURVE_PARAM_NAME)){
       singleHazardCalcMethod= (String)singleHazardValListEditor.getParameterEditor(
           SINGLE_HAZARD_CURVE_PARAM_NAME).getValue();
       setParametersForSingleHazardValueVisible();
     }
-    else if (paramName.equals(HAZ_CURVE_IMT_PERIOD_PARAM_NAME))
+    else if (paramName.equals(HAZ_CURVE_IMT_PERIOD_PARAM_NAME)){
       imt = (String) hazardCurveIMTPeriodSelectionParam.getValue();
+      viewCurveButton.setEnabled(false);
+      singleHazardCurveValButton.setEnabled(false);
+    }
     else if (paramName.equals(RETURN_PERIOD_PARAM_NAME))
       returnPeriod = (String) singleHazardValListEditor.getParameterEditor(this.
           RETURN_PERIOD_PARAM_NAME).getValue();

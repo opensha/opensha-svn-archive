@@ -1,20 +1,16 @@
 package gov.usgs.sha.gui;
 
+import java.util.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import gov.usgs.util.GlobalConstants;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.*;
 
+import org.scec.util.*;
+import gov.usgs.sha.gui.api.*;
 import gov.usgs.sha.gui.beans.*;
-import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import java.util.Properties;
-import org.scec.util.DataUtil;
-import java.io.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title:ProbabilisticHazardApplication </p>
@@ -39,8 +35,7 @@ import java.io.*;
  * @version 1.0
  */
 public class ProbabilisticHazardApplication
-    extends JFrame implements ProbabilisticHazardApplicationAPI{
-
+    extends JFrame implements ProbabilisticHazardApplicationAPI {
 
   JPanel contentPane;
 
@@ -76,7 +71,8 @@ public class ProbabilisticHazardApplication
 
   Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
       Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
-  TitledBorder outputBorder = new TitledBorder(border9, "Output for All Calculations");
+  TitledBorder outputBorder = new TitledBorder(border9,
+                                               "Output for All Calculations");
 
   //instance of the gui bean for the selected analysis option
   private AnalysisOptionsGuiBeanAPI guiBeanAPI;
@@ -135,7 +131,6 @@ public class ProbabilisticHazardApplication
       }
     });
 
-
     jPanel1.setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     mainSplitPane.setForeground(Color.black);
@@ -147,12 +142,14 @@ public class ProbabilisticHazardApplication
     analysisOptionSelectionCombo.setForeground(new Color(200, 200, 240));
 
     //adding the supported Analysis option to the combo selection
-    ArrayList supportAnalysisOptions = GlobalConstants.getSupportedAnalysisOptions();
+    ArrayList supportAnalysisOptions = GlobalConstants.
+        getSupportedAnalysisOptions();
     int size = supportAnalysisOptions.size();
 
-    for(int i=0;i<size;++i)
+    for (int i = 0; i < size; ++i) {
       analysisOptionSelectionCombo.addItem(supportAnalysisOptions.get(i));
-    previousSelectedAnalysisOption = (String)supportAnalysisOptions.get(0);
+    }
+    previousSelectedAnalysisOption = (String) supportAnalysisOptions.get(0);
 
     analysisOptionSelectionCombo.addItemListener(new ItemListener() {
       public void itemStateChanged(ItemEvent itemEvent) {
@@ -165,7 +162,7 @@ public class ProbabilisticHazardApplication
     outputBorder.setTitleColor(Color.RED);
     dataTextArea.setText("");
     dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
-    parametersScrollPane.setBounds(new Rectangle(2,2,530,720));
+    parametersScrollPane.setBounds(new Rectangle(2, 2, 530, 720));
     parametersPanel.setLayout(borderLayout4);
     buttonPanel.setLayout(flowLayout1);
     clearDataButton.setText("Clear Data");
@@ -180,8 +177,6 @@ public class ProbabilisticHazardApplication
         clearDataButton_actionPerformed(actionEvent);
       }
     });
-
-
 
     viewMapsButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -203,7 +198,8 @@ public class ProbabilisticHazardApplication
     explainationText.setEditable(false);
 
     dataScrollPane.getViewport().add(dataTextArea, java.awt.BorderLayout.CENTER);
-    parametersScrollPane.getViewport().add(parametersPanel,java.awt.BorderLayout.CENTER);
+    parametersScrollPane.getViewport().add(parametersPanel,
+                                           java.awt.BorderLayout.CENTER);
     buttonPanel.add(clearDataButton, null);
     buttonPanel.add(viewMapsButton, null);
     jPanel1.add(analysisOptionLabel,
@@ -224,7 +220,8 @@ public class ProbabilisticHazardApplication
         new Insets(10, 8, 5, 10), 777, 597));
     setJMenuBar(applicationMenu);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setLocation((d.width - this.getSize().width) / 2, (d.height - this.getSize().height) / 2);
+    this.setLocation( (d.width - this.getSize().width) / 2,
+                     (d.height - this.getSize().height) / 2);
     mainSplitPane.setDividerLocation(550);
     dataSplitPane.setDividerLocation(600);
   }
@@ -239,15 +236,15 @@ public class ProbabilisticHazardApplication
     closeWindow();
   }
 
-
-  private void closeWindow(){
+  private void closeWindow() {
     int option = JOptionPane.showConfirmDialog(this,
-        "Do you really want to exit the application?\n" +
+                                               "Do you really want to exit the application?\n" +
                                                "You will loose any unsaved data",
                                                "Closing Application",
                                                JOptionPane.OK_CANCEL_OPTION);
-    if (option == JOptionPane.OK_OPTION)
+    if (option == JOptionPane.OK_OPTION) {
       System.exit(0);
+    }
     return;
 
   }
@@ -261,7 +258,6 @@ public class ProbabilisticHazardApplication
     save();
   }
 
-
   /**
    * File | Print action performed.
    *
@@ -271,40 +267,39 @@ public class ProbabilisticHazardApplication
     print();
   }
 
-
-  private void save(){
-    DataUtil.save(this,guiBeanAPI.getData());
+  private void save() {
+    DataUtil.save(this, guiBeanAPI.getData());
   }
-
 
   /**
    * Method to print the Data
    */
-  private void print(){
+  private void print() {
     Properties p = new Properties();
-    PrintJob pjob = getToolkit().getPrintJob(this,"Printing" , p);
-      if (pjob != null) {
-        Graphics pg = pjob.getGraphics();
-        if (pg != null) {
-          DataUtil.print(pjob, pg, guiBeanAPI.getData());
-          pg.dispose();
-        }
-        pjob.end();
+    PrintJob pjob = getToolkit().getPrintJob(this, "Printing", p);
+    if (pjob != null) {
+      Graphics pg = pjob.getGraphics();
+      if (pg != null) {
+        DataUtil.print(pjob, pg, guiBeanAPI.getData());
+        pg.dispose();
       }
+      pjob.end();
+    }
   }
-
-
 
   private void analysisOptionSelectionCombo_itemStateChanged(ItemEvent
       itemEvent) {
     showAnalysisOptionInWindow();
-    analysisOptionHash.put(previousSelectedAnalysisOption,guiBeanAPI);
-    String selectedAnalysisOption = (String)analysisOptionSelectionCombo.getSelectedItem();
-    guiBeanAPI = (AnalysisOptionsGuiBeanAPI)analysisOptionHash.get(selectedAnalysisOption);
+    analysisOptionHash.put(previousSelectedAnalysisOption, guiBeanAPI);
+    String selectedAnalysisOption = (String) analysisOptionSelectionCombo.
+        getSelectedItem();
+    guiBeanAPI = (AnalysisOptionsGuiBeanAPI) analysisOptionHash.get(
+        selectedAnalysisOption);
     parametersPanel.removeAll();
-    if(guiBeanAPI == null)
+    if (guiBeanAPI == null) {
       createGuiBeanInstance();
-    else{
+    }
+    else {
       parametersPanel.add(guiBeanAPI.getGuiBean(), java.awt.BorderLayout.CENTER);
       parametersPanel.updateUI();
     }
@@ -312,8 +307,9 @@ public class ProbabilisticHazardApplication
     previousSelectedAnalysisOption = selectedAnalysisOption;
   }
 
-  private void createGuiBeanInstance(){
-    String selectedAnalysisOption = (String)(String)analysisOptionSelectionCombo.getSelectedItem();
+  private void createGuiBeanInstance() {
+    String selectedAnalysisOption = (String) (String)
+        analysisOptionSelectionCombo.getSelectedItem();
     if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES)) {
       guiBeanAPI = new ProbHazCurvesGuiBean(this);
     }
@@ -322,30 +318,26 @@ public class ProbabilisticHazardApplication
     else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
       guiBeanAPI = new NEHRP_GuiBean(this);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_273)) {
+    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
+      guiBeanAPI = new FEMA_GuiBean(this);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
-    }
+
     else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_RESIDENTIAL_CODE)) {
-     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
+    else if (selectedAnalysisOption.equals(GlobalConstants.
+                                           INTL_RESIDENTIAL_CODE)) {
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.NFPA_5000)) {
-
+    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
+      guiBeanAPI = new ASCE7_NFPA_GuiBean(this);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
-
+    if (guiBeanAPI != null) {
+      parametersPanel.add(guiBeanAPI.getGuiBean(), java.awt.BorderLayout.CENTER);
     }
-
-    if(guiBeanAPI !=null)
-      parametersPanel.add(guiBeanAPI.getGuiBean(),java.awt.BorderLayout.CENTER);
 
     parametersPanel.updateUI();
   }
 
-  private void showAnalysisOptionInWindow(){
+  private void showAnalysisOptionInWindow() {
     String frameTitle = (String) analysisOptionSelectionCombo.getSelectedItem();
     if (frame != null) {
       frame.setTitle(frameTitle);
@@ -354,13 +346,12 @@ public class ProbabilisticHazardApplication
 
   }
 
-
   /**
    * Sets the information from the Gui beans in Data window
    * @param dataInfo String
    */
-  public void setDataInWindow(String dataInfo){
-   dataTextArea.setText(dataInfo);
+  public void setDataInWindow(String dataInfo) {
+    dataTextArea.setText(dataInfo);
   }
 
   /**
@@ -368,13 +359,12 @@ public class ProbabilisticHazardApplication
    * @param actionEvent ActionEvent
    */
   private void ExplainButton_actionPerformed(ActionEvent actionEvent) {
-    if(frame == null)
+    if (frame == null) {
       showSelectedAnalysisExplaination();
+    }
 
     frame.show();
   }
-
-
 
   /**
    *
@@ -385,8 +375,6 @@ public class ProbabilisticHazardApplication
     setDataInWindow("");
   }
 
-
-
   /**
    *
    * @param actionEvent ActionEvent
@@ -395,22 +383,20 @@ public class ProbabilisticHazardApplication
 
   }
 
-
   /**
    *
    *
    */
   private void showSelectedAnalysisExplaination() {
 
-
-
     //Panel Parent
     Container parent = this;
     /*This loops over all the parent of this class until the parent is Frame(applet)
          this is required for the passing in the JDialog to keep the focus on the adjustable params
          frame*/
-    while (! (parent instanceof JFrame) && parent != null)
+    while (! (parent instanceof JFrame) && parent != null) {
       parent = parent.getParent();
+    }
     frame = new JDialog( (JFrame) parent);
     frame.setModal(true);
     frame.setSize(400, 200);
@@ -419,9 +405,8 @@ public class ProbabilisticHazardApplication
                                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
-    frame.setLocation(getSize().width/ 2,this.getSize().height/2);
+    frame.setLocation(getSize().width / 2, this.getSize().height / 2);
   }
-
 
   /**
    *
@@ -462,7 +447,7 @@ public class ProbabilisticHazardApplication
                                     "and response spectra (both for period and displacement), " +
                                     "for Site Class A through E.");
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_273)) {
+    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
       this.explainationText.setText("FEMA 273, MCE Guidelines for the Seismic " +
                                     "Rehabilitation of Buildings  - " +
                                     "This option may be used for FEMA 273,  " +
@@ -470,18 +455,33 @@ public class ProbabilisticHazardApplication
                                     "(1997).  The user may calculate seismic " +
                                     "design parameters and response spectra " +
                                     "(both for period and displacement), for " +
-                                    "Site Class A through E.");
-    }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
-      this.explainationText.setText("FEMA 356, Prestandard and Commentary for " +
+                                    "Site Class A through E.\n" +
+                                    "FEMA 356, Prestandard and Commentary for " +
                                     "the Seismic Rehabilitation of Buildings  - " +
                                     "This option may be used for FEMA 356,  " +
                                     "Prestandard and Commentary for the Seismic " +
                                     "Rehabilitation of Buildings (2000).  The " +
                                     "user may calculate seismic design parameters " +
                                     "and response spectra (both for period and " +
-                                    "displacement), for Site Class A through E.");
+                                    "displacement), for Site Class A through E.\n" +
+                                    "International Existing Building Code  - " +
+                                    "This option may be used for the 1997, 2000, " +
+                                    "and 2003 editions of the  International Existing " +
+                                    "Building Code.  The user may calculate seismic " +
+                                    "design parameters and response spectra " +
+                                    "(both for period and displacement), " +
+                                    "for Site Class A through E.");
     }
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
+     this.explainationText.setText("FEMA 356, Prestandard and Commentary for " +
+     "the Seismic Rehabilitation of Buildings  - " +
+                                    "This option may be used for FEMA 356,  " +
+     "Prestandard and Commentary for the Seismic " +
+     "Rehabilitation of Buildings (2000).  The " +
+     "user may calculate seismic design parameters " +
+     "and response spectra (both for period and " +
+     "displacement), for Site Class A through E.");
+         }*/
     else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
       this.explainationText.setText("International Building Code  - This " +
                                     "option may be used for the 2000 and 2003 " +
@@ -490,7 +490,8 @@ public class ProbabilisticHazardApplication
                                     "and response spectra (both for period and displacement), " +
                                     "for Site Class A through E.");
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_RESIDENTIAL_CODE)) {
+    else if (selectedAnalysisOption.equals(GlobalConstants.
+                                           INTL_RESIDENTIAL_CODE)) {
       this.explainationText.setText("International Residential Code  - " +
                                     "This option may be used for the 2000, " +
                                     "2003, and 2004 editions of the  " +
@@ -498,7 +499,7 @@ public class ProbabilisticHazardApplication
                                     "user may determine the Seismic Design " +
                                     "Categories for the default Site Class D.");
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
       this.explainationText.setText("International Existing Building Code  - " +
                                     "This option may be used for the 1997, 2000, " +
                                     "and 2003 editions of the  International Existing " +
@@ -506,18 +507,15 @@ public class ProbabilisticHazardApplication
                                     "design parameters and response spectra " +
                                     "(both for period and displacement), " +
                                     "for Site Class A through E.");
-    }
-    else if (selectedAnalysisOption.equals(GlobalConstants.NFPA_5000)) {
+    }*/
+    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
       this.explainationText.setText(
           "NFPA 5000 Building Construction and Safety Code " +
           "- This option may be used for the 2000 edition " +
           "of the  NFPA 5000 Building Construction and " +
           "Safety Code.  The user may calculate seismic " +
           "design parameters and response spectra (both " +
-          "for period and displacement), for Site Class A through E.");
-    }
-    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
-      this.explainationText.setText(
+          "for period and displacement), for Site Class A through E.\n"+
           "ASCE 7 Standard, Minimum Design Loads for " +
           "Buildings and Other Structures  - This option " +
           "may be used for the 1998 and 2002 editions " +
@@ -527,6 +525,17 @@ public class ProbabilisticHazardApplication
           "parameters and response spectra (both for " +
           "period and displacement), for Site Class A through E.");
     }
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
+      this.explainationText.setText(
+          "ASCE 7 Standard, Minimum Design Loads for " +
+          "Buildings and Other Structures  - This option " +
+          "may be used for the 1998 and 2002 editions " +
+          "of the ASCE 7 Standard,  Minimum Design Loads " +
+          "for Buildings and Other Structures.  " +
+          "The user may calculate seismic design " +
+          "parameters and response spectra (both for " +
+          "period and displacement), for Site Class A through E.");
+    }*/
   }
 
   void this_windowClosing(WindowEvent e) {

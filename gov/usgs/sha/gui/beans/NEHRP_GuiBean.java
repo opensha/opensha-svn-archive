@@ -38,9 +38,10 @@ import gov.usgs.exceptions.LocationErrorException;
  */
 public class NEHRP_GuiBean
     extends JPanel implements ParameterChangeListener,AnalysisOptionsGuiBeanAPI {
+
   //Dataset selection Gui instance
-  private DataSetSelectionGuiBean datasetGui;
-  private LocationGuiBean locGuiBean;
+  protected DataSetSelectionGuiBean datasetGui;
+  protected LocationGuiBean locGuiBean;
   JSplitPane mainSplitPane = new JSplitPane();
   JSplitPane locationSplitPane = new JSplitPane();
   JSplitPane buttonsSplitPane = new JSplitPane();
@@ -70,27 +71,26 @@ public class NEHRP_GuiBean
   BorderLayout borderLayout1 = new BorderLayout();
 
 
-  private boolean locationVisible;
+  protected boolean locationVisible;
 
 
   //creating the Ground Motion selection parameter
-  StringParameter groundMotionParam;
-  ConstrainedStringParameterEditor groundMotionParamEditor;
-  private static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
-  private static final String MCE_GROUND_MOTION = "MCE Ground Motion";
+  protected StringParameter groundMotionParam;
+  protected ConstrainedStringParameterEditor groundMotionParamEditor;
+  protected static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
 
 
-  private DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
+  protected DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
 
   //site coeffiecient window instance
   SiteCoefficientInfoWindow siteCoefficientWindow;
 
   //instance of the application using this GUI bean
-  private ProbabilisticHazardApplicationAPI application;
+  protected ProbabilisticHazardApplicationAPI application;
 
-  private boolean mapSpectrumCalculated,smSpectrumCalculated,sdSpectrumCalculated ;
+  protected boolean mapSpectrumCalculated,smSpectrumCalculated,sdSpectrumCalculated ;
 
-  private String selectedRegion,selectedEdition;
+  protected String selectedRegion,selectedEdition,spectraType;
 
   public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -100,6 +100,10 @@ public class NEHRP_GuiBean
       createGroundMotionParameter();
       datasetGui = new DataSetSelectionGuiBean();
       locGuiBean = new LocationGuiBean();
+    }
+    catch(AnalysisOptionNotSupportedException e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+      return;
     }
     catch (Exception exception) {
       exception.printStackTrace();
@@ -134,20 +138,21 @@ public class NEHRP_GuiBean
 
 
 
-  private void createGroundMotionParameter(){
+  protected void createGroundMotionParameter() throws AnalysisOptionNotSupportedException{
 
-    ArrayList supportedGroundMotion = new ArrayList();
-    supportedGroundMotion.add(MCE_GROUND_MOTION);
+
+    ArrayList supportedGroundMotion = GlobalConstants.getSupportedSpectraTypes(GlobalConstants.NEHRP);
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
                                             supportedGroundMotion,
                                             (String) supportedGroundMotion.get(0));
     groundMotionParamEditor = new ConstrainedStringParameterEditor(groundMotionParam);
+    spectraType = (String)groundMotionParam.getValue();
   }
 
 
 
 
-  private void jbInit() throws Exception {
+  protected void jbInit() throws Exception {
     this.setLayout(borderLayout1);
     this.setMinimumSize(new Dimension(540, 740));
     this.setPreferredSize(new Dimension(540, 740));
@@ -264,7 +269,7 @@ public class NEHRP_GuiBean
   }
 
 
-  private void setButtonsEnabled(boolean disableButtons){
+  protected void setButtonsEnabled(boolean disableButtons){
     siteCoeffButton.setEnabled(disableButtons);
     smSDButton.setEnabled(disableButtons);
     mapSpecButton.setEnabled(disableButtons);
@@ -295,10 +300,13 @@ public class NEHRP_GuiBean
     if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       createLocation();
+      setButtonsEnabled(false);
     }
     else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
       selectedEdition = datasetGui.getSelectedDataSetEdition();
+      setButtonsEnabled(false);
     }
+
   }
 
 
@@ -313,7 +321,7 @@ public class NEHRP_GuiBean
   /**
    * Creating the location gui bean
    */
-  private void createLocation() {
+  protected void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
     Component comp = locationSplitPane.getBottomComponent();
     if(comp != null)
@@ -337,12 +345,12 @@ public class NEHRP_GuiBean
    *
    * @return RectangularGeographicRegion
    */
-  private RectangularGeographicRegion getRegionConstraint() {
+  protected RectangularGeographicRegion getRegionConstraint() {
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
         selectedRegion.equals(GlobalConstants.HAWAII) ||
-        selectedRegion.equals(GlobalConstants.NEHRP_2003))
+        selectedEdition.equals(GlobalConstants.NEHRP_2003))
 
       return RegionUtil.getRegionConstraint(selectedRegion);
 
@@ -354,7 +362,7 @@ public class NEHRP_GuiBean
    * Creates the Parameter that allows user to select  the Editions based on the
    * selected Analysis and choosen geographic region.
    */
-  private void createEditionSelectionParameter() {
+  protected void createEditionSelectionParameter() {
 
     ArrayList supportedEditionList = new ArrayList();
 
@@ -372,7 +380,7 @@ public class NEHRP_GuiBean
    * if selected Analysis option is NEHRP.
    *
    */
-  private void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
 
     ArrayList supportedRegionList = RegionUtil.
         getSupportedGeographicalRegions(GlobalConstants.NEHRP) ;
@@ -385,9 +393,9 @@ public class NEHRP_GuiBean
   /**
    * Gets the SA Period and Values from datafiles
    */
-  private void getDataForSA_Period() {
+  protected void getDataForSA_Period() {
 
-
+    dataGenerator.setSpectraType(spectraType);
     dataGenerator.setRegion(selectedRegion);
     dataGenerator.setEdition(selectedEdition);
 
@@ -427,7 +435,7 @@ public class NEHRP_GuiBean
   }
 
 
-  private void ssButton_actionPerformed(ActionEvent actionEvent) {
+  protected void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
     application.setDataInWindow(getData());
     siteCoeffButton.setEnabled(true);
@@ -443,7 +451,7 @@ public class NEHRP_GuiBean
   }
 
 
-  private void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
+  protected void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
     if(siteCoefficientWindow == null)
       siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
           dataGenerator.getSa(),dataGenerator.getSelectedSiteClass());
@@ -457,13 +465,13 @@ public class NEHRP_GuiBean
     setButtonsEnabled(true);
   }
 
-  private void smSDButton_actionPerformed(ActionEvent actionEvent) {
+  protected void smSDButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSsS1();
     dataGenerator.calculatedSDSsS1();
     application.setDataInWindow(getData());
   }
 
-  private void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
+  protected void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateMapSpectrum();
     application.setDataInWindow(getData());
     if(!viewButton.isEnabled())
@@ -471,7 +479,7 @@ public class NEHRP_GuiBean
     mapSpectrumCalculated = true;
   }
 
-  private void smSpecButton_actionPerformed(ActionEvent actionEvent) {
+  protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSMSpectrum();
     application.setDataInWindow(getData());
     if(!viewButton.isEnabled())
@@ -479,7 +487,7 @@ public class NEHRP_GuiBean
     smSpectrumCalculated = true;
   }
 
-  private void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
+  protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateSDSpectrum();
     application.setDataInWindow(getData());
     if(!viewButton.isEnabled())
@@ -487,7 +495,7 @@ public class NEHRP_GuiBean
    sdSpectrumCalculated = true;
   }
 
-  private void viewButton_actionPerformed(ActionEvent actionEvent) {
+  protected void viewButton_actionPerformed(ActionEvent actionEvent) {
    ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
         mapSpectrumCalculated, sdSpectrumCalculated,smSpectrumCalculated);
     GraphWindow window = new GraphWindow(functions);

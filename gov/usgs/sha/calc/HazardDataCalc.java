@@ -97,6 +97,24 @@ public class HazardDataCalc {
                             longitude);
   }
 
+  /**
+   *
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param latitude double
+   * @param longitude double
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  public ArbitrarilyDiscretizedFunc computeSsS1(String selectedRegion,
+                                                String selectedEdition,
+                                                double latitude,
+                                                double longitude,
+                                                String spectraType) {
+    SsS1Calculator ssS1Calc = new SsS1Calculator();
+    return ssS1Calc.getSsS1(selectedRegion, selectedEdition, latitude,
+                            longitude,spectraType);
+  }
+
 
   /**
    *
@@ -112,6 +130,23 @@ public class HazardDataCalc {
       ZipCodeErrorException {
     SsS1Calculator ssS1Calc = new SsS1Calculator();
     return ssS1Calc.getSsS1(selectedRegion, selectedEdition, zipCode);
+  }
+
+
+  /**
+   *
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param zipCode String
+   * @return DiscretizedFuncList
+   * @throws ZipCodeErrorException
+   */
+  public ArbitrarilyDiscretizedFunc computeSsS1(String selectedRegion,
+                                         String selectedEdition,
+                                         String zipCode,String spectraType) throws
+      ZipCodeErrorException {
+    SsS1Calculator ssS1Calc = new SsS1Calculator();
+    return ssS1Calc.getSsS1(selectedRegion, selectedEdition, zipCode,spectraType);
   }
 
   /**

@@ -135,4 +135,10 @@ public interface DataGeneratorAPI_NEHRP {
    */
   public void setFv(float fv);
 
+  /**
+   * Sets the Spectra type
+   * @param spectraType String
+   */
+  public void setSpectraType(String spectraType);
+
 }

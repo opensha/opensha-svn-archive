@@ -22,7 +22,8 @@ public final class RegionUtil {
     public static ArrayList getSupportedGeographicalRegions(String
         selectedAnalysisOption) throws AnalysisOptionNotSupportedException {
       ArrayList supportedRegionList = new ArrayList();
-      if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
+      if (selectedAnalysisOption.equals(GlobalConstants.NEHRP) ||
+          selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
         supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
         supportedRegionList.add(GlobalConstants.ALASKA);
         supportedRegionList.add(GlobalConstants.HAWAII);
@@ -46,9 +47,14 @@ public final class RegionUtil {
         supportedRegionList.add(GlobalConstants.ST_THOMAS);
         supportedRegionList.add(GlobalConstants.VIEQUES);
       }
+      else if(selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)){
+        supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
+        supportedRegionList.add(GlobalConstants.ALASKA);
+        supportedRegionList.add(GlobalConstants.HAWAII);
+      }
       else {
         throw new AnalysisOptionNotSupportedException(
-            "This Analysis Option not supported!!\nPlease provide correct option.");
+            "This "+selectedAnalysisOption +" analysis option not supported!!\nPlease provide correct option.");
       }
 
       return supportedRegionList;

@@ -1,6 +1,7 @@
 package gov.usgs.util;
 
 import java.util.*;
+import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 
 /**
  * <p>Title: GlobalConstants</p>
@@ -65,18 +66,22 @@ public final class GlobalConstants {
   public static final String PROB_UNIFORM_HAZ_RES =
       "Probabilistic Uniform Hazard Response Spectra";
   public static final String NEHRP = "NEHRP Recommended Provisions for Seismic Regulations for New Buildings and Other Structure";
-  public static final String FEMA_273 =
-      "FEMA 273,MCE Guidelines for the Seismic Rehabilitation of Buildings";
-  public static final String FEMA_356 = "FEMA 356,Prestandard and Commentary for the Seismic Rehabilitation of Buildings";
+  //public static final String FEMA_273 =
+    //  "FEMA 273,MCE Guidelines for the Seismic Rehabilitation of Buildings";
+  //public static final String FEMA_356 = "FEMA 356,Prestandard and Commentary for the Seismic Rehabilitation of Buildings";
   public static final String INTL_BUILDING_CODE = "International Building Code";
   public static final String INTL_RESIDENTIAL_CODE =
       "International Residential Code";
   public static final String INTL_EXIST_CODE =
       "International Existing Building Code";
-  public static final String NFPA_5000 =
-      "NFPA 5000 Building construction and safety code";
-  public static final String ASCE_7 =
-      "ASCE 7 standard , Minimum Design Loads for Building and other structures";
+  //public static final String NFPA_5000 =
+    //  "NFPA 5000 Building construction and safety code";
+  //public static final String ASCE_7 =
+    //  "ASCE 7 standard , Minimum Design Loads for Building and other structures";
+
+  public static final String ASCE_NFPA = "ASCE 7 and NFPA 5000 building construction and safety codes";
+
+  public static final String FEMA_IEBC_2003 = "Fema(273 and 356) and Intl. existing building code";
 
   private static final String analysis_choices_info =
       "The User may perform an " +
@@ -238,6 +243,35 @@ public final class GlobalConstants {
   public final static String EXP_TIME_100 = "100";
   public final static String EXP_TIME_250 = "250";
 
+
+
+  //supported Spectra types
+  public static final String MCE_GROUND_MOTION = "MCE Ground Motion";
+  public static final String PE_10 = "10 % PE in 50 years";
+  public static final String PE_5 = "5 % PE in 50 years";
+  public static final String PE_2 = "2 % PE in 50 years";
+
+
+
+
+  public static ArrayList getSupportedSpectraTypes(String selectedAnalysisType) throws
+      AnalysisOptionNotSupportedException {
+    ArrayList supportedSpectraTypes = new ArrayList();
+    if (selectedAnalysisType.equals(NEHRP))
+      supportedSpectraTypes.add(MCE_GROUND_MOTION);
+    else if (selectedAnalysisType.equals(FEMA_IEBC_2003)) {
+      supportedSpectraTypes.add(MCE_GROUND_MOTION);
+      supportedSpectraTypes.add(PE_10);
+    }
+    else {
+      throw new AnalysisOptionNotSupportedException("Either " +
+          selectedAnalysisType +
+          " analysis type not supported or does not have any spectra type");
+    }
+    return supportedSpectraTypes;
+  }
+
+
   /**
    * Supported Return Periods.
    * @return ArrayList
@@ -321,13 +355,11 @@ public final class GlobalConstants {
     supportedAnalysisOption.add(PROB_HAZ_CURVES);
     supportedAnalysisOption.add(PROB_UNIFORM_HAZ_RES);
     supportedAnalysisOption.add(NEHRP);
-    supportedAnalysisOption.add(FEMA_273);
-    supportedAnalysisOption.add(FEMA_356);
+    supportedAnalysisOption.add(FEMA_IEBC_2003);
     supportedAnalysisOption.add(INTL_BUILDING_CODE);
     supportedAnalysisOption.add(INTL_RESIDENTIAL_CODE);
     supportedAnalysisOption.add(INTL_EXIST_CODE);
-    supportedAnalysisOption.add(NFPA_5000);
-    supportedAnalysisOption.add(ASCE_7);
+    supportedAnalysisOption.add(ASCE_NFPA);
     return supportedAnalysisOption;
   }
 }
