@@ -591,7 +591,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
            //create the string parameter for the independent parameter with its
            //constarint being the indParamOptions.
            DoubleDiscreteParameter independentParam = new DoubleDiscreteParameter(param2.getName(),
-               values, (Double)allowedValues.get(0));
+               values, param2.getUnits (), (Double)allowedValues.get(0));
 
            // added by Ned so the default period is 1.0 sec (this is a hack).
            if( ((String) independentParam.getName()).equals(AttenuationRelationship.PERIOD_NAME) )

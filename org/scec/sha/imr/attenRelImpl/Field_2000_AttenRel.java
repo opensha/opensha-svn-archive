@@ -22,7 +22,7 @@ import org.scec.util.*;
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>saParam - Response Spectral Acceleration
- * <LI>pgvParam - Peak Ground Velocity (from 1-sec SA using the Newmark & Hall (1982) amp factor of 37.27*2.54)
+ * <LI>pgvParam - Peak Ground Velocity (from 1-sec SA using the Newmark & Hall (1982) mult factor of 37.27*2.54)
  * </UL><p>
  * Other Independent Parameters:<p>
  * <UL>
