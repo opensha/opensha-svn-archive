@@ -1,13 +1,9 @@
-/*
- * Created on Apr 1, 2004
- *
- * To change the template for this generated file go to
- * Window>Preferences>Java>Code Generation>Code and Comments
- */
 package org.scec.sha.earthquake.rupForecastImpl.remote;
+
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -15,60 +11,91 @@ import org.scec.data.Location;
 import org.scec.data.TimeSpan;
 import org.scec.data.region.GeographicRegion;
 import org.scec.param.ParameterList;
-import org.scec.sha.earthquake.ProbEqkRupture;
-import org.scec.sha.earthquake.ProbEqkSource;
+import org.scec.param.ParameterAPI;
 
 /**
- * @author cmeutils
- *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
+ * <p>Title: RemoteERF_API</p>
+ * <p>Description: This defines the interface for the Remote ERF_LIST and
+ * Remote EqkRupForecast classes. Both Remote ERF_List and Remote EqkRupForcast
+ * classes implements this interface.It is the parent interface that both Remote
+ * ERF_List and Remote EqkRupForecast have to implement.
+ * This interface is needed so that common functions for both list and single forecast
+ * can go in this interface. In the application one does not have care if it is a list
+ * or single ERF because it will call the respective methods of the classes automatically
+ * based on who soever object was created</p>
+ * @author : Nitin Gupta
+ * @created Sept 30, 2004
+ * @version 1.0
  */
-public interface RemoteERF_API extends RemoteEqkRupForecastAPI {
+
+public interface RemoteERF_API  extends Remote{
 
 
   /**
-   *
-   * @returns the total number os sources
+   * This method updates the forecast according to the currently specified
+   * parameters.  Call this once before looping over the getRupture() or
+   * getSource() methods to ensure a fresh forecast.  This approach was chosen
+   * over checking whether parameters have changed during each getRupture() etc.
+   * method call because a user might inadvertently change a parameter value in
+   * the middle of the loop.  This approach is also faster.
+   * @return
    */
-  public int getNumSources() throws RemoteException;
+   public void updateForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
+
+   /**
+    * save the forecast in a file
+    * @throws RemoteException
+    */
+   public String saveForecast() throws RemoteException ;
 
   /**
+   * Return the name for this class
    *
-   * @returns the sourceList
+   * @return : return the name for this class
    */
-  public ArrayList getSourceList() throws RemoteException;
+   public String getName() throws RemoteException;
 
-  /**
-   * Return the earhthquake source at index i.   Note that this returns a
-   * pointer to the source held internally, so that if any parameters
-   * are changed, and this method is called again, the source obtained
-   * by any previous call to this method will no longer be valid.
-   *
-   * @param iSource : index of the desired source (only "0" allowed here).
-   *
-   * @return Returns the ProbEqkSource at index i
-   *
-   */
-  public ProbEqkSource getSource(int iSource) throws RemoteException;
+   /**
+    * This method sets the time-span field
+    * @param time
+    */
+   public void setTimeSpan(TimeSpan time) throws RemoteException;
 
 
-  /**
-   *
-   * @param iSource
-   * @returns the number of ruptures for the ithSource
-   */
-  public int getNumRuptures(int iSource) throws RemoteException;
+   /**
+    * This method gets the time-span field
+    */
+   public TimeSpan getTimeSpan() throws RemoteException;
 
 
+   /**
+    * This function finds whether a particular location lies in applicable
+    * region of the forecast
+    *
+    * @param loc : location
+    * @return: True if this location is within forecast's applicable region, else false
+    */
+   public boolean isLocWithinApplicableRegion(Location loc) throws RemoteException;
 
-  /**
-   *
-   * @param iSource
-   * @param nRupture
-   * @returns the ProbEqkRupture object for the ithSource and nth rupture
-   */
-  public ProbEqkRupture getRupture(int iSource,int nRupture) throws RemoteException;
+
+   /**
+    * Get the region for which this forecast is applicable
+    * @return : Geographic region object specifying the applicable region of forecast
+    */
+   public GeographicRegion getApplicableRegion() throws RemoteException;
+
+   /**
+    * Gets the Adjustable parameter list for the ERF
+    * @return
+    */
+   public ParameterList getAdjustableParameterList() throws RemoteException;
+
+   /**
+    *
+    * @param paramName
+    * @returns the Parameter from the parameter list with param name.
+    */
+   public ParameterAPI getParameter(String paramName) throws RemoteException;
 
 
 }

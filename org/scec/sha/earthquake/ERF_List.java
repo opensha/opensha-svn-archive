@@ -11,7 +11,7 @@ import org.scec.data.TimeSpan;
 import org.scec.param.ParameterList;
 import org.scec.param.ParameterAPI;
 import org.scec.data.region.GeographicRegion;
-import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_API;
+import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 
 
 /**
@@ -23,11 +23,11 @@ import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_API;
  * @version 1.0
  */
 
-public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
+public abstract class ERF_List implements ERF_ListAPI,
     TimeSpanChangeListener,ParameterChangeListener {
 
   // vector to hold the instances of Eqk Rup Forecasts
-  private ArrayList erf_List = new ArrayList();
+  protected ArrayList erf_List = new ArrayList();
   //vector to hold relative weight of each ERF
   private ArrayList relativeWeight  = new ArrayList();
   // declaration of the flag to check if any parameter has been changed from its original value.
@@ -63,8 +63,10 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index) {
-    return (ERF_API)erf_List.get(index);
+  public EqkRupForecastAPI getERF(int index) {
+    ERF_API eqkRupForecast = (ERF_API)erf_List.get(index);
+    eqkRupForecast.setTimeSpan(timeSpan);
+    return (EqkRupForecastAPI)eqkRupForecast;
   }
 
   /**
@@ -118,7 +120,7 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
     if(this.parameterChangeFlag) {
       int num = erf_List.size();
       for(int i=0; i< num; ++i)
-        ((EqkRupForecast)this.getERF(i)).updateForecast();
+        ((EqkRupForecastAPI)this.getERF(i)).updateForecast();
     }
     this.parameterChangeFlag = false;
   }
@@ -137,9 +139,6 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    */
   public void setTimeSpan(TimeSpan time) {
     timeSpan = time;
-    int  numERFs = erf_List.size();
-    for(int i=0; i<numERFs; ++i)
-      ((EqkRupForecast)erf_List.get(i)).setTimeSpan(time);
  }
 
 
@@ -215,15 +214,15 @@ public abstract class ERF_List implements EqkRupForecastAPI, ERF_ListAPI,
    * on the server given the index.
    * **NOTE: All the functionality in this functionlity remains same as that of getERF but only differs
    * when returning each ERF from the ERF List. getERF() return the instance of the
-   * ERF_API which is transferring the whole object on to the user's machine, but this functin
-   * return back the RemoteERF_API. This is useful becuase whole ERF object does not
+   * EqkRupForecastAPI which is transferring the whole object on to the user's machine, but this functin
+   * return back the RemoteEqkRupForecastAPI. This is useful becuase whole ERF object does not
    * get transfer to the users machine, just a stub of the remotely existing ERF gets
    * transferred.
    *
    * This function returns null, but if anyone needs to host his ERF as the remote
    * then he will have to implement this method.
    */
-  public RemoteERF_API getRemoteERF(int index){
+  public RemoteEqkRupForecastAPI getRemoteERF(int index){
     return null;
   }
 

@@ -24,7 +24,7 @@ import org.scec.sha.gui.infoTools.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.sha.calc.ScenarioShakeMapCalculator_Old;
-import org.scec.sha.earthquake.ERF_API;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.exceptions.ParameterException;
 
 

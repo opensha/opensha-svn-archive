@@ -15,21 +15,21 @@ import org.scec.param.ParameterAPI;
 import org.scec.param.ParameterList;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.ProbEqkSource;
-import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_API;
+import org.scec.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 
 /**
  *
- * <p>Title: RemoteERF_Impl.java </p>
+ * <p>Title: RemoteEqkRupForecast_Impl </p>
  * <p>Description: This class wraps the ERFs for remote access </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Nitin Gupta, Vipin Gupta
  * @version 1.0
  */
-public class RemoteERF_Impl
+public class RemoteEqkRupForecast_Impl
 	extends UnicastRemoteObject
-	implements RemoteERF_API {
+	implements RemoteEqkRupForecastAPI {
 
    private EqkRupForecast eqkRupForecast = null;
    private static final boolean D = false;
@@ -41,7 +41,7 @@ public class RemoteERF_Impl
     * @throws java.rmi.RemoteException
     * @throws IOException
     */
-   public RemoteERF_Impl(String className)
+   public RemoteEqkRupForecast_Impl(String className)
        throws java.rmi.RemoteException, IOException {
      eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(className);;
    }
@@ -53,7 +53,7 @@ public class RemoteERF_Impl
     * @throws java.rmi.RemoteException
     * @throws IOException
     */
-   public RemoteERF_Impl(ArrayList params,ArrayList paramTypes,String className)
+   public RemoteEqkRupForecast_Impl(ArrayList params,ArrayList paramTypes,String className)
        throws java.rmi.RemoteException, IOException {
      eqkRupForecast = (EqkRupForecast)org.scec.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
    }
@@ -170,6 +170,26 @@ public class RemoteERF_Impl
      return eqkRupForecast.getSource(iSource);
    }
 
+   /**
+     * Return the earthquake source at index i. This methos DOES NOT return the
+     * reference to the class variable. So, when you call this method again,
+     * result from previous method call is still valid. This behavior is in contrast
+     * with the behavior of method getSource(int i)
+     *
+     * @param iSource : index of the source needed
+     *
+     * @return Returns the ProbEqkSource at index i
+     *
+     * FIX:FIX :: This function has not been implemented yet. Have to give a thought on that
+     *
+     */
+   public ProbEqkSource getSourceClone(int iSource) throws RemoteException{
+     // TODO Auto-generated method stub
+     return eqkRupForecast.getSourceClone(iSource);
+   }
+
+
+
    /* (non-Javadoc)
     * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getNumRuptures(int)
     */
@@ -185,6 +205,32 @@ public class RemoteERF_Impl
        RemoteException {
      // TODO Auto-generated method stub
      return eqkRupForecast.getRupture(iSource, nRupture);
+   }
+
+
+
+   /**
+    *
+    * @param paramName
+    * @returns the Parameter from the parameter list with param name.
+    */
+   public ParameterAPI getParameter(String paramName) throws RemoteException{
+     // TODO Auto-generated method stub
+     return eqkRupForecast.getParameter(paramName);
+   }
+
+   /**
+    * Get the ith rupture of the source. this method DOES NOT return reference
+    * to the object. So, when you call this method again, result from previous
+    * method call is valid. This behavior is in contrast with
+    * getRupture(int source, int i) method
+    *
+    * @param source
+    * @param i
+    * @return
+    */
+   public ProbEqkRupture getRuptureClone(int iSource, int nRupture) throws RemoteException{
+     return eqkRupForecast.getRuptureClone(iSource,nRupture);
    }
 
 }

@@ -67,21 +67,21 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
  public final static String FAULT_MODEL_STIRLING = new String ("Stirling's");
 
  // make the grid spacing parameter
- private DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
+ protected DoubleParameter gridParam=new DoubleParameter(GRID_PARAM_NAME,GRID_PARAM_MIN,
      GRID_PARAM_MAX,GRID_PARAM_UNITS,DEFAULT_GRID_VAL);
 
  // make the rupture offset parameter
- private DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
+ protected DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM_MIN,
      OFFSET_PARAM_MAX,OFFSET_PARAM_UNITS,DEFAULT_OFFSET_VAL);
 
  // make the mag-length sigma parameter
- private DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
+ protected DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
      SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
 
 
  // make the fault-model parameter
  private ArrayList faultModelNamesStrings = new ArrayList();
- private StringParameter faultModelParam;
+ protected StringParameter faultModelParam;
 
 
 
@@ -168,9 +168,10 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList{
         eqkRupForecast.getParameter(SIGMA_PARAM_NAME).setValue(lengthSigmaParam.getValue());
         eqkRupForecast.getParameter(FAULT_MODEL_NAME).setValue(faultModelParam.getValue());
         eqkRupForecast.getTimeSpan().setDuration(timeSpan.getDuration());
+        eqkRupForecast.updateForecast();
       }
     }
-    super.updateForecast();
+    this.parameterChangeFlag = false;
   }
 }
 

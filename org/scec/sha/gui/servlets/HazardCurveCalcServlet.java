@@ -94,7 +94,7 @@ public class HazardCurveCalcServlet extends HttpServlet {
     try{
       HazardCurveCalculator calc = new HazardCurveCalculator();
       calc.setMaxSourceDistance(maxDistance);
-      calc.getHazardCurve((DiscretizedFuncAPI)function,site,imr,(ERF_API)eqkRupForecast);
+      calc.getHazardCurve((DiscretizedFuncAPI)function,site,imr,(EqkRupForecastAPI)eqkRupForecast);
     }catch(RemoteException e){
       e.printStackTrace();
     }

@@ -2,17 +2,20 @@ package org.scec.sha.gui.controls;
 
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 import org.scec.param.DoubleParameter;
 import org.scec.param.editor.DoubleParameterEditor;
 import org.scec.param.event.*;
 import org.scec.param.ParameterAPI;
 import org.scec.param.ParameterConstraintAPI;
-import java.awt.event.*;
+
 
 /**
  * <p>Title: ERF Epistemic List Control Panel</p>
- * <p>Description: This window will allow the user to select the percentile to be
+ * <p>Description: This window will allow the user to select the fractile to be
  * plotted for the ERF list</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -23,21 +26,22 @@ import java.awt.event.*;
 public class ERF_EpistemicListControlPanel extends JFrame
     implements ParameterChangeFailListener{
   private JCheckBox allCurvesCheckBox = new JCheckBox();
-  private JComboBox percentileComboBox = new JComboBox();
+  private JComboBox fractileComboBox = new JComboBox();
 
-  // static Strings to be shown in Percentile pick list
-  public final static String NO_PERCENTILE = "No Percentile";
-  public final static String FIVE_50_95_PERCENTILE = "5th, 50th and 95th Percentile";
-  public final static String CUSTOM_PERCENTILE = "Custom Percentile";
+  // static Strings to be shown in Fractile pick list
+  public final static String NO_PERCENTILE = "No Fractile";
+  public final static String CUSTOM_FRACTILE = "Custom Fractile";
 
-  //percentile Parameter
-  private DoubleParameter percentileParam =
-      new DoubleParameter("Percentile", 0, 100, new Double(50));
-  private DoubleParameterEditor percentileEditor=new DoubleParameterEditor();
 
   // saving the instance of caller class
   ERF_EpistemicListControlPanelAPI api;
   private JCheckBox avgCheckBox = new JCheckBox();
+  private JScrollPane fractileScrollPane = new JScrollPane();
+  private JTextArea fractilesTextArea = new JTextArea();
+
+  //ArrayList to store the fractile Values.
+  private ArrayList fractileValues;
+  private JButton updateFractileButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
@@ -50,22 +54,29 @@ public class ERF_EpistemicListControlPanel extends JFrame
     try {
       jbInit();
       this.api = api;
-      initPercentileCombo();
+      initFractileCombo();
       // show the window at center of the parent component
       this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
                      parentComponent.getY()+parentComponent.getHeight()/2);
       // set the initial values in the caller
-      api.setPercentileOption(percentileComboBox.getSelectedItem().toString());
+      api.setFractileOption(fractileComboBox.getSelectedItem().toString());
       api.setAverageSelected(this.avgCheckBox.isSelected());
       api.setPlotAllCurves(this.allCurvesCheckBox.isSelected());
-      api.setPercentileOption(percentileComboBox.getSelectedItem().toString());
+      api.setFractileOption(fractileComboBox.getSelectedItem().toString());
     }
     catch(Exception e) {
       e.printStackTrace();
     }
+
+    //creating the default custom fractile values list
+    ArrayList defaultFractileValues = new ArrayList();
+    defaultFractileValues.add(new Double(.05));
+    defaultFractileValues.add(new Double(.50));
+    defaultFractileValues.add(new Double(.95));
+    setCustomFractileValues(defaultFractileValues);
   }
   private void jbInit() throws Exception {
-    allCurvesCheckBox.setActionCommand("Plot all curves in one color");
+    allCurvesCheckBox.setActionCommand("Plot all curves (in one color)");
     allCurvesCheckBox.setSelected(true);
     allCurvesCheckBox.setText("Plot all curves (in one color)");
     allCurvesCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -73,50 +84,52 @@ public class ERF_EpistemicListControlPanel extends JFrame
         allCurvesCheckBox_actionPerformed(e);
       }
     });
+    this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.setTitle("Epistemic List Control");
     this.getContentPane().setLayout(gridBagLayout1);
-    percentileComboBox.setForeground(Color.red);
-    percentileComboBox.addActionListener(new java.awt.event.ActionListener() {
+    fractileComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        percentileComboBox_actionPerformed(e);
+        fractileComboBox_actionPerformed(e);
       }
     });
 
-    avgCheckBox.setForeground(Color.green);
     avgCheckBox.setText("Average");
     avgCheckBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         avgCheckBox_actionPerformed(e);
       }
     });
-    this.getContentPane().add(percentileComboBox,    new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 8, 5, 0), 0, 0));
 
-    // set the percentile editor
-   percentileParam.addParameterChangeFailListener(this);
-   percentileEditor.setParameter(percentileParam);
 
-   // add the percentile editor to the window
-   this.getContentPane().add(percentileEditor,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    this.getContentPane().add(allCurvesCheckBox,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 10, 2, 13), 10, 3));
-    this.getContentPane().add(avgCheckBox,        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 10, 4, 13), 126, 0));
+    updateFractileButton.setText("Update Fractile List");
+    updateFractileButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        updateFractileButton_actionPerformed(e);
+      }
+    });
+    this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 11, 0, 34), 0, 3));
+    this.getContentPane().add(avgCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 11, 0, 34), 125, 0));
+    this.getContentPane().add(fractileComboBox,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(9, 11, 0, 20), 67, 0));
+    this.getContentPane().add(fractileScrollPane,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(14, 17, 0, 29), 187, 296));
+    this.getContentPane().add(updateFractileButton,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 22, 19, 31), 30, 8));
+    fractileScrollPane.getViewport().add(fractilesTextArea, null);
 
-    percentileEditor.setVisible(false);
 
     // set the size
-    this.setSize(220,200);
+    this.setSize(new Dimension(270, 210));
   }
 
   /**
-   * Initialize the percentile combo box
+   * Initialize the fractile combo box
    */
-  private void initPercentileCombo() {
-    percentileComboBox.addItem(NO_PERCENTILE);
-    percentileComboBox.addItem(FIVE_50_95_PERCENTILE);
-    percentileComboBox.addItem(CUSTOM_PERCENTILE);
+  private void initFractileCombo() {
+    fractileComboBox.addItem(NO_PERCENTILE);
+    fractileComboBox.addItem(CUSTOM_FRACTILE);
   }
 
   /**
@@ -152,35 +165,41 @@ public class ERF_EpistemicListControlPanel extends JFrame
   }
 
   /**
-   * this function is called whenever user selects anything in percentile pick list
+   * this function is called whenever user selects anything in fractile pick list
    * @param e
    */
-  void percentileComboBox_actionPerformed(ActionEvent e) {
-    String selected = percentileComboBox.getSelectedItem().toString();
-    if(selected.equalsIgnoreCase(this.CUSTOM_PERCENTILE))
-      this.percentileEditor.setVisible(true);
-    else percentileEditor.setVisible(false);
+  void fractileComboBox_actionPerformed(ActionEvent e) {
+    String selected = fractileComboBox.getSelectedItem().toString();
+
+    if(selected.equalsIgnoreCase(this.NO_PERCENTILE)){
+      fractileScrollPane.setVisible(false);
+      updateFractileButton.setVisible(false);
+      // set the size
+      this.setSize(new Dimension(270, 210));
+    }
+
+    else if(selected.equalsIgnoreCase(CUSTOM_FRACTILE)){
+      // set the size
+      this.setSize(new Dimension(270, 492));
+      fractileScrollPane.setVisible(true);
+      updateFractileButton.setVisible(true);
+
+      //showing the fractile values( either default or user's last modified values)
+      setValuesInFractileTextArea();
+    }
+
     // update the option in the calling class also
-    api.setPercentileOption(selected);
+    api.setFractileOption(selected);
 
   }
 
-  /**
-   * This function returns custom percentile value
-   * @return :double value of percentile between 0 and 100
-   */
-  public double getCustomPercentileValue() {
-    return ((Double)percentileParam.getValue()).doubleValue();
-  }
 
   /**
-   * This function sets the custom percentile value.
-   * @param value : Value of the percentile to be set.
+   * If user wants to set the custom values for fractiles from application
+   * @param values
    */
-  public void setCustomPercentileValue(double value) {
-    percentileComboBox.setSelectedItem(CUSTOM_PERCENTILE);
-    percentileParam.setValue(value);
-    percentileEditor.refreshParamEditor();
+  public void setCustomFractileValues(ArrayList values) {
+    fractileValues = values;
   }
 
   /**
@@ -200,4 +219,72 @@ public class ERF_EpistemicListControlPanel extends JFrame
   void avgCheckBox_actionPerformed(ActionEvent e) {
     api.setAverageSelected(this.avgCheckBox.isSelected());
   }
+
+  void updateFractileButton_actionPerformed(ActionEvent e) {
+    boolean errorFlag = false;
+    try{
+      setCustomFractileValues();
+      //if the user text area for the X values is empty
+      if(this.fractilesTextArea.getText().trim().equalsIgnoreCase("")){
+        JOptionPane.showMessageDialog(this,"Must enter Fractile values","Invalid Entry",
+                                      JOptionPane.OK_OPTION);
+        errorFlag = true;
+      }
+    }catch(NumberFormatException ee){
+      errorFlag = true;
+      //if user has not entered a valid number in the textArea
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Entry",
+                                    JOptionPane.OK_OPTION);
+    }
+    catch(RuntimeException ee){
+      errorFlag = true;
+      //if user has not entered a invalid Fractil value, it must be between 0 and 1
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Entry",
+                                    JOptionPane.OK_OPTION);
+    }
+
+
+    //close the window when user has updated the fractile values list.
+    if(!errorFlag)
+      dispose();
+  }
+
+  /**
+   * Gets the fractiles values from Text Area, filled in by user.
+   */
+  private void setCustomFractileValues(){
+    //getting the fractiles values filled in by the user.
+    String str = fractilesTextArea.getText();
+    StringTokenizer st = new StringTokenizer(str,"\n");
+    fractileValues.clear();
+    while(st.hasMoreTokens()){
+      double fractileVal = (new Double(st.nextToken().trim())).doubleValue();
+      if(fractileVal<1.0 && fractileVal>0)
+        fractileValues.add(new Double(fractileVal));
+      else
+        throw new RuntimeException("Fractile value must  be between 0 and 1");
+    }
+  }
+
+  /**
+   * shows the fractile values in the text area.
+   */
+  private void setValuesInFractileTextArea(){
+    String fractileVals = "";
+    int size = fractileValues.size();
+    for(int i=0;i<size;++i){
+      fractileVals += (Double)fractileValues.get(i)+"\n";
+    }
+    fractilesTextArea.setText(fractileVals);
+  }
+
+
+  /**
+   *
+   * @returns the fractile values for fractiles needed to be calculated
+   */
+  public ArrayList getSelectedFractileValues(){
+    return fractileValues;
+  }
+
 }

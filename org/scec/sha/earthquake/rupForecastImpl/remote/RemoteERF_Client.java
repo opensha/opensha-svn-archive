@@ -1,9 +1,3 @@
-/*
- * Created on Apr 1, 2004
- *
- * To change the template for this generated file go to
- * Window>Preferences>Java>Code Generation>Code and Comments
- */
 package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.net.MalformedURLException;
@@ -20,6 +14,7 @@ import org.scec.param.ParameterAPI;
 import org.scec.param.event.*;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ProbEqkSource;
+import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.earthquake.rupForecastImpl.remote.*;
 import org.scec.data.Location;
 import org.scec.data.region.GeographicRegion;
@@ -33,7 +28,7 @@ import org.scec.data.region.GeographicRegion;
 public class RemoteERF_Client extends EqkRupForecast implements
     ParameterChangeListener,TimeSpanChangeListener {
 
-  private RemoteERF_API erfServer = null;
+  private RemoteEqkRupForecastAPI erfServer = null;
 
 
   /**
@@ -71,7 +66,8 @@ public class RemoteERF_Client extends EqkRupForecast implements
     try {
       RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
       erfServer = remoteERF_Factory.getRemoteERF(paramArrays,paramTypes,className);
-      ListIterator it = erfServer.getAdjustableParamsIterator();
+      adjustableParams = erfServer.getAdjustableParameterList();
+      ListIterator it = adjustableParams.getParametersIterator();
       while(it.hasNext())
         ((ParameterAPI)it.next()).addParameterChangeListener(this);
     }
@@ -87,9 +83,25 @@ public class RemoteERF_Client extends EqkRupForecast implements
   }
 
 
+   /**
+    * This function returns the parameter with specified name from adjustable param list
+    * @param paramName : Name of the parameter needed from adjustable param list
+    * @return : ParamterAPI instance
+    */
+   public ParameterAPI getParameter(String paramName) {
+     try {
+       return erfServer.getParameter(paramName);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+    return null;
+   }
+
+
 
   /* (non-Javadoc)
-   * @see org.scec.sha.earthquake.ERF_API#getNumSources()
+   * @see org.scec.sha.earthquake.EqkRupForecastAPI#getNumSources()
    */
   public int getNumSources() {
     try {
@@ -102,7 +114,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
   }
 
   /* (non-Javadoc)
-   * @see org.scec.sha.earthquake.ERF_API#getSource(int)
+   * @see org.scec.sha.earthquake.EqkRupForecastAPI#getSource(int)
    */
   public ProbEqkSource getSource(int iSource) {
     // TODO Auto-generated method stub
@@ -116,7 +128,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
   }
 
   /* (non-Javadoc)
-   * @see org.scec.sha.earthquake.ERF_API#getSourceList()
+   * @see org.scec.sha.earthquake.EqkRupForecastAPI#getSourceList()
    */
   public ArrayList getSourceList() {
     try {
@@ -167,8 +179,87 @@ public class RemoteERF_Client extends EqkRupForecast implements
      return null;
    }
 
+   /**
+    * Get number of ruptures for source at index iSource
+    * This method iterates through the list of 3 vectors for charA , charB and grB
+    * to find the the element in the vector to which the source corresponds
+    * @param iSource index of source whose ruptures need to be found
+    */
+   public int getNumRuptures(int iSource){
+     try {
+       return erfServer.getNumRuptures(iSource);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+     return -1;
+   }
 
 
+   /**
+    * Get the ith rupture of the source. this method DOES NOT return reference
+    * to the object. So, when you call this method again, result from previous
+    * method call is valid. This behavior is in contrast with
+    * getRupture(int source, int i) method
+    *
+    * @param source
+    * @param i
+    * @return
+    */
+   public ProbEqkRupture getRupture(int iSource, int nRupture) {
+     try {
+       return erfServer.getRupture(iSource,nRupture);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+     return null;
+   }
+
+
+   /**
+    * Get the ith rupture of the source. this method DOES NOT return reference
+    * to the object. So, when you call this method again, result from previous
+    * method call is valid. This behavior is in contrast with
+    * getRupture(int source, int i) method
+    *
+    * @param source
+    * @param i
+    * @return
+    */
+   public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
+     try {
+       return erfServer.getRuptureClone(iSource,nRupture);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+     return null;
+   }
+
+
+   /**
+     * Return the earthquake source at index i. This methos DOES NOT return the
+     * reference to the class variable. So, when you call this method again,
+     * result from previous method call is still valid. This behavior is in contrast
+     * with the behavior of method getSource(int i)
+     *
+     * @param iSource : index of the source needed
+     *
+     * @return Returns the ProbEqkSource at index i
+     *
+     * FIX:FIX :: This function has not been implemented yet. Have to give a thought on that
+     *
+     */
+   public ProbEqkSource getSourceClone(int iSource) {
+     try {
+       return erfServer.getSourceClone(iSource);
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+     return null;
+   }
 
 
   /* (non-Javadoc)
@@ -230,19 +321,6 @@ public class RemoteERF_Client extends EqkRupForecast implements
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParamsIterator()
-   */
-  public ListIterator getAdjustableParamsIterator() {
-    try {
-      // TODO Auto-generated method stub
-      return getAdjustableParameterList().getParametersIterator();
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    return null;
-  }
 
   /* (non-Javadoc)
    * @see org.scec.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getAdjustableParameterList()
@@ -262,13 +340,13 @@ public class RemoteERF_Client extends EqkRupForecast implements
    *
    * @returns the instance to the remote ERF on the server
    */
-  public RemoteERF_API getERF_Server(){
+  public RemoteEqkRupForecastAPI getERF_Server(){
     return this.erfServer;
   }
 
 
-  public void setERF_Server(RemoteERF_API remoteERF_API){
-    this.erfServer = remoteERF_API;
+  public void setERF_Server(RemoteEqkRupForecastAPI remoteEqkRupForecastAPI){
+    this.erfServer = remoteEqkRupForecastAPI;
   }
 
 }

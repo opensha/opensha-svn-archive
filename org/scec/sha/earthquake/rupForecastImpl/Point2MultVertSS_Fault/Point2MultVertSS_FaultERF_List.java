@@ -36,14 +36,14 @@ import org.scec.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRelat
 public class Point2MultVertSS_FaultERF_List extends ERF_EpistemicList{
 
   //for Debug purposes
-  private static String  C = new String("Point2MultVertSS_FaultERF_List");
-  private boolean D = false;
+  protected static String  C = new String("Point2MultVertSS_FaultERF_List");
+  protected boolean D = false;
 
   //name for this classs
   public final static String  NAME = "Point2Mult Vertical SS Fault ERF List";
 
   // this is the source (only 1 for this ERF)
-  private Point2MultVertSS_FaultSource source;
+  protected Point2MultVertSS_FaultSource source;
 
   // these are hard coded for now
   WC1994_MagLengthRelationship magLengthRel = new WC1994_MagLengthRelationship();

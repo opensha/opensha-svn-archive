@@ -1,10 +1,15 @@
 package org.scec.sha.earthquake.rupForecastImpl.remote;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import org.scec.sha.earthquake.*;
+import org.scec.data.Location;
+import org.scec.data.TimeSpan;
+import org.scec.data.region.GeographicRegion;
+import org.scec.param.ParameterList;
+import org.scec.param.ParameterAPI;
 
 /**
  * <p>Title: RemoteERF_ListAPI</p>
@@ -14,14 +19,14 @@ import org.scec.sha.earthquake.*;
  * @version 1.0
  */
 
-public interface  RemoteERF_ListAPI extends RemoteEqkRupForecastAPI {
+public interface  RemoteERF_ListAPI extends RemoteERF_API{
 
   /**
    * get the ERF in the list with the specified index
    * @param index : index of Eqk Rup forecast to return
    * @return
    */
-  public RemoteERF_API getRemoteERF(int index) throws RemoteException;
+  public RemoteEqkRupForecastAPI getRemoteERF(int index) throws RemoteException;
 
 
   /**

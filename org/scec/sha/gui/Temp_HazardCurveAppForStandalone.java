@@ -32,11 +32,14 @@ public class Temp_HazardCurveAppForStandalone extends Temp_HazardCurveApplicatio
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
+  public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
   public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.FloatingPoissonFaultERF";
   public final static String SIMPLE_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PoissonFaultERF";
   public final static String FRANKEL02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-  public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
+  public final static String POINT_SRC_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.PointSourceERF";
+  public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
+  public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
 
 
   /**
@@ -59,6 +62,9 @@ public class Temp_HazardCurveAppForStandalone extends Temp_HazardCurveApplicatio
     erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
     erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
     erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
+    erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
+    erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
+    erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
     try{
       erfGuiBean = new ERF_GuiBean(erf_Classes);
     }catch(InvocationTargetException e){

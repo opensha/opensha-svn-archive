@@ -1,69 +1,93 @@
 package org.scec.sha.earthquake;
 
-import java.util.ArrayList;
 
-import org.scec.sha.earthquake.ProbEqkRupture;
-import org.scec.sha.earthquake.ProbEqkSource;
 import org.scec.data.TimeSpan;
+import org.scec.param.ParameterList;
+import org.scec.data.Location;
+import org.scec.data.region.GeographicRegion;
+import org.scec.data.NamedObjectAPI;
+import java.util.ListIterator;
 
 
 /**
  * <p>Title: ERF_API</p>
- * <p>Description: Interface to the details of the Sources and Ruptures</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author : Ned Field, Nitin Gupta and Vipin Gupta
+ * <p>Description: This defines the interface for the ERF_LIST and EqkRupForecast
+ * classes. Both ERF_List and EqkRupForcast classes implements this interface.
+ * It is the parent interface that both ERF_List and EqkRupForecast have to implement.
+ * This interface is needed so that common functions for both list and single forecast
+ * can go in this interface. In the application one does not have care if it is a list
+ * or single ERF because it will call the respective methods of the classes automatically
+ * based on who soever object was created.</p>
+ * @author : Nitin Gupta and Vipin Gupta
+ * @created Sept 30,2004
  * @version 1.0
  */
 
-public interface ERF_API extends ForecastAPI{
+public interface ERF_API extends NamedObjectAPI{
 
   /**
-   *
-   * @returns the total number os sources
+   * This method updates the forecast according to the currently specified
+   * parameters.  Call this once before looping over the getRupture() or
+   * getSource() methods to ensure a fresh forecast.  This approach was chosen
+   * over checking whether parameters have changed during each getRupture() etc.
+   * method call because a user might inadvertently change a parameter value in
+   * the middle of the loop.  This approach is also faster.
+   * @return
    */
-  public int getNumSources();
+  public void updateForecast();
 
   /**
-   *
-   * @returns the sourceList
+   * Update and save the serialized forecast into the file
    */
-  public ArrayList getSourceList();
+  public String updateAndSaveForecast();
 
   /**
-   * Return the earhthquake source at index i.   Note that this returns a
-   * pointer to the source held internally, so that if any parameters
-   * are changed, and this method is called again, the source obtained
-   * by any previous call to this method will no longer be valid.
+   * Return the name for this class
    *
-   * @param iSource : index of the desired source (only "0" allowed here).
-   *
-   * @return Returns the ProbEqkSource at index i
-   *
+   * @return : return the name for this class
    */
-  public ProbEqkSource getSource(int iSource);
-
-
-  /**
-   *
-   * @param iSource
-   * @returns the number of ruptures for the ithSource
-   */
-  public int getNumRuptures(int iSource);
-
-
+  public String getName();
 
   /**
-   *
-   * @param iSource
-   * @param nRupture
-   * @returns the ProbEqkRupture object for the ithSource and nth rupture
-   */
-  public ProbEqkRupture getRupture(int iSource,int nRupture);
-
-  /**
-   * set the TimeSpan in the ERF
-   * @param timeSpan : TimeSpan object
+   * This method sets the time-span field
+   * @param time
    */
   public void setTimeSpan(TimeSpan time);
+
+
+  /**
+   * This method gets the time-span field
+   */
+  public TimeSpan getTimeSpan();
+
+
+  /**
+   * get the adjustable parameters for this forecast
+   *
+   * @return
+   */
+  public ListIterator getAdjustableParamsIterator();
+
+  /**
+   * This function finds whether a particular location lies in applicable
+   * region of the forecast
+   *
+   * @param loc : location
+   * @return: True if this location is within forecast's applicable region, else false
+   */
+  public boolean isLocWithinApplicableRegion(Location loc);
+
+
+  /**
+   * Get the region for which this forecast is applicable
+   * @return : Geographic region object specifying the applicable region of forecast
+   */
+  public GeographicRegion getApplicableRegion() ;
+
+  /**
+   * Gets the Adjustable parameter list for the ERF
+   * @return
+   */
+  public ParameterList getAdjustableParameterList();
+
 }

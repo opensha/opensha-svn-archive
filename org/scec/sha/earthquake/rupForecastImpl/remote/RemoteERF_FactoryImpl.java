@@ -3,6 +3,8 @@ package org.scec.sha.earthquake.rupForecastImpl.remote;
 import java.rmi.server.UnicastRemoteObject;
 import java.rmi.Naming;
 import java.util.ArrayList;
+
+
 /**
  * <p>Title: RemoteERF_FactoryImpl.java </p>
  * <p>Description: This class generates a new ERF remote object and passes its
@@ -24,9 +26,9 @@ public class RemoteERF_FactoryImpl extends UnicastRemoteObject
    * @return Remote ERF
    * @throws java.rmi.RemoteException
    */
-  public RemoteERF_API getRemoteERF(String className) throws java.rmi.RemoteException {
+  public RemoteEqkRupForecastAPI getRemoteERF(String className) throws java.rmi.RemoteException {
     try {
-       RemoteERF_API erfServer = new RemoteERF_Impl(className);
+       RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(className);
        return erfServer;
     }catch(Exception e) { e.printStackTrace();}
     return null;
@@ -40,9 +42,9 @@ public class RemoteERF_FactoryImpl extends UnicastRemoteObject
    * @return
    * @throws java.rmi.RemoteException
    */
-  public RemoteERF_API getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException {
+  public RemoteEqkRupForecastAPI getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException {
     try {
-      RemoteERF_API erfServer = new RemoteERF_Impl(params,paramTypes,className);
+      RemoteEqkRupForecastAPI erfServer = new RemoteEqkRupForecast_Impl(params,paramTypes,className);
       return erfServer;
       }catch(Exception e) { e.printStackTrace();}
       return null;

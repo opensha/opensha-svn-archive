@@ -4,7 +4,7 @@ import java.rmi.Remote;
 
 import org.scec.data.function.DiscretizedFuncAPI;
 import org.scec.data.Site;
-import org.scec.sha.earthquake.ERF_API;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 
 
@@ -41,7 +41,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
    * @return
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, AttenuationRelationshipAPI imr, ERF_API eqkRupForecast)
+                             Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
       throws java.rmi.RemoteException ;
 
 

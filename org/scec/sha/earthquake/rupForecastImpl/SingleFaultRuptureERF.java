@@ -117,7 +117,7 @@ public class SingleFaultRuptureERF extends EqkRupForecast{
   }
 
   /**
-   * Constructor for this source (no arguments)
+   * Constructor for this source
    */
   public SingleFaultRuptureERF(EqkRupture eqkRupture, double probability) {
     this();

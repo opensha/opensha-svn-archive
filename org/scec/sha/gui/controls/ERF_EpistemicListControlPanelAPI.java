@@ -22,13 +22,13 @@ public interface ERF_EpistemicListControlPanelAPI {
 
   /**
    * This function sets the percentils option chosen by the user.
-   * User can choose "No Percentile", "5th, 50th and 95th Percentile" or
-   * "Custom Percentile"
+   * User can choose "No Fractile", "5th, 50th and 95th Fractile" or
+   * "Custom Fractile"
    *
-   * @param percentileOption : Oprion selected by the user. It can be set by
+   * @param fractileOption : Oprion selected by the user. It can be set by
    * various constant String values in ERF_EpistemicListControlPanel
    */
-  public void setPercentileOption(String percentileOption);
+  public void setFractileOption(String fractileOption);
 
 
   /**

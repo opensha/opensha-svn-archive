@@ -23,7 +23,7 @@ import org.scec.param.event.ParameterChangeEvent;
  * @version 1.0
  */
 
-public abstract class EqkRupForecast implements EqkRupForecastAPI, ERF_API,
+public abstract class EqkRupForecast implements EqkRupForecastAPI,
     TimeSpanChangeListener,ParameterChangeListener {
 
   // adjustable params for each forecast

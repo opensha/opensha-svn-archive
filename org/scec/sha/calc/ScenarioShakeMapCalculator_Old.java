@@ -9,7 +9,7 @@ import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
-import org.scec.sha.earthquake.ERF_API;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.imr.AttenuationRelationship;
 import org.scec.exceptions.ParameterException;
 

@@ -286,7 +286,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index) {
+  public EqkRupForecastAPI getERF(int index) {
 
     // get the sublist from the inputFileLines
     int firstLine = ((Integer) iterationLineNumbers.get(index)).intValue();
@@ -324,7 +324,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList{
    public static void main(String[] args) {
      WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
      list.updateForecast();
-     ERF_API fcast = list.getERF(4);
+     EqkRupForecastAPI fcast = list.getERF(4);
   }
 
 }

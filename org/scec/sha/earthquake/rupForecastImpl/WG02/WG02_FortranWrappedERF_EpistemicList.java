@@ -527,7 +527,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index) {
+  public EqkRupForecastAPI getERF(int index) {
 
     ArrayList inputFileStrings = getDataForERF(index);
 
@@ -544,20 +544,26 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
    * Note:
    * This function remains same as that of getERF() but only differs
    * when returning each ERF from the ERF List. In getERF() instance of the
-   * ERF_API which is transferring the whole object on to the user's machine, but this function
-   * return back the RemoteERF_API. This is useful becuase whole ERF object does not
+   * EqkRupForecastAPI which is transferring the whole object on to the user's machine, but this function
+   * return back the RemoteEqkRupForecastAPI. This is useful becuase whole ERF object does not
    * get transfer to the users machine, just a stub of the remotely existing ERF gets
    * transferred.
    *
    */
-  public RemoteERF_API getRemoteERF(int index) {
+  public RemoteEqkRupForecastAPI getRemoteERF(int index) {
 
     ArrayList inputFileStrings = getDataForERF(index);
 
-    WG02_EqkRupForecastClient wg02 =new WG02_EqkRupForecastClient(inputFileStrings, rupOffset, gridSpacing,
-        deltaMag, backSeis, grTail, "no name", timeSpan);
+    try{
+      WG02_EqkRupForecastClient wg02 =new WG02_EqkRupForecastClient(inputFileStrings, rupOffset, gridSpacing,
+          deltaMag, backSeis, grTail, "no name", timeSpan);
+      return wg02.getERF_Server();
+    }catch(Exception e){
+      e.printStackTrace();
+    }
 
-    return wg02.getERF_Server();
+    return null;
+
   }
 
   /**
@@ -606,7 +612,7 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
    public static void main(String[] args) {
      WG02_ERF_Epistemic_List list = new WG02_ERF_Epistemic_List();
      list.updateForecast();
-     ERF_API fcast = list.getERF(1);
+     EqkRupForecastAPI fcast = list.getERF(1);
   }
 
 }

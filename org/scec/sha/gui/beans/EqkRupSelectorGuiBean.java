@@ -28,7 +28,6 @@ import org.scec.param.StringParameter;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.event.ParameterChangeEvent;
 import org.scec.param.event.ParameterChangeListener;
-import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.ProbEqkRupture;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
@@ -136,10 +135,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
 
    // get the selected forecast
-   EqkRupForecast erf = null;
+   EqkRupForecastAPI erf = null;
    try{
      //gets the instance of the selected ERF
-     erf = (EqkRupForecast)erfGuiBean.getSelectedERF();
+     erf = (EqkRupForecastAPI)erfGuiBean.getSelectedERF();
    }catch(Exception e){
      e.printStackTrace();
    }
@@ -463,7 +462,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    public EqkRupForecastAPI getSelectedERF_Instance() {
      EqkRupForecastAPI erfAPI=null;
      try{
-       erfAPI = erfGuiBean.getSelectedERF_Instance();
+       erfAPI = (EqkRupForecastAPI)erfGuiBean.getSelectedERF_Instance();
      }catch(Exception e){
        e.printStackTrace();
      }

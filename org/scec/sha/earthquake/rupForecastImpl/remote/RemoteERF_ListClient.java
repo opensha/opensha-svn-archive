@@ -51,10 +51,6 @@ public class RemoteERF_ListClient extends ERF_List implements ParameterChangeLis
   }
 
 
-
-
-
-
   /**
    * get the number of Eqk Rup Forecasts in this list
    * @return : number of eqk rup forecasts in this list
@@ -74,10 +70,10 @@ public class RemoteERF_ListClient extends ERF_List implements ParameterChangeLis
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public ERF_API getERF(int index) {
+  public EqkRupForecastAPI getERF(int index) {
     try{
       RemoteERF_Client erfClient = new RemoteERF_Client();
-      RemoteERF_API remoteERF = erfListServer.getRemoteERF(index);
+      RemoteEqkRupForecastAPI remoteERF = erfListServer.getRemoteERF(index);
       erfClient.setERF_Server(remoteERF);
       return erfClient;
     }catch(RemoteException e){
@@ -114,18 +110,6 @@ public class RemoteERF_ListClient extends ERF_List implements ParameterChangeLis
     return null;
   }
 
-  /**
-   * return the list of adjustable params
-   * @return
-   */
-  public ListIterator getAdjustableParamsIterator() {
-    try{
-      return erfListServer.getAdjustableParamsIterator();
-    }catch(RemoteException e){
-      e.printStackTrace();
-    }
-    return null;
-  }
 
 
   /**

@@ -22,7 +22,7 @@ import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Site;
 import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.infoTools.*;
-import org.scec.sha.earthquake.ERF_API;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.exceptions.ParameterException;
 import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
@@ -363,7 +363,7 @@ public class HazardMapApplet extends JApplet
     the forecast while erfGuiBean.getSelectedERF updates the forecast
     */
    try {
-     EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+     EqkRupForecastAPI eqkRupForecast = (EqkRupForecastAPI)erfGuiBean.getSelectedERF_Instance();
      // create the TimeSpan Gui Bean object
      timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
      // show the sitebean in JPanel

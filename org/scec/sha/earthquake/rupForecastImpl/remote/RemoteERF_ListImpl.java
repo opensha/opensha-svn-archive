@@ -56,7 +56,7 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
    * @param index : index of Eqk rup forecast to return
    * @return
    */
-  public RemoteERF_API getRemoteERF(int index) {
+  public RemoteEqkRupForecastAPI getRemoteERF(int index) {
     return erfList.getRemoteERF(index);
   }
 
@@ -166,6 +166,17 @@ public class RemoteERF_ListImpl extends UnicastRemoteObject implements RemoteERF
  public void setParameterChangeFlag(boolean flag){
    erfList.setParameterChangeFlag(flag);
  }
+
+
+ /**
+  *
+  * @param paramName
+  * @returns the Parameter from the parameter list with param name.
+  */
+ public ParameterAPI getParameter(String paramName) throws RemoteException{
+   // TODO Auto-generated method stub
+   return erfList.getParameter(paramName);
+   }
 
  /**
    * Update the forecast and save it in serialized mode into a file

@@ -88,7 +88,7 @@ import org.scec.sha.gui.controls.CalcOptionControl;
 import org.scec.sha.calc.remoteHazardCalc.RemoteHazardCurveClient;
 import org.scec.sha.calc.HazardCurveCalculatorAPI;
 import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
-
+import org.scec.sha.earthquake.ERF_API;
 import ch.randelshofer.quaqua.QuaquaManager;
 
 /**
@@ -126,9 +126,11 @@ public class Temp_HazardCurveApplication extends JApplet
   public final static String RMI_PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_AreaForecastClient";
   public final static String RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_NonPlanarFaultForecastClient";
   public final static String RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_MultiSourceForecastClient";
-  public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
+  public final static String RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
   public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
-
+  public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
+  public final static String RMI_PEER_LOGIC_TREE_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_LogicTreeERF_ListClient";
+  public final static String RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -174,12 +176,6 @@ public class Temp_HazardCurveApplication extends JApplet
 
 
 
-  /*setting the colors for the different plots so that legends
-  *can be shown with the same color
-  */
-  Color [] defaultColor = {Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
-    Color.cyan,Color.pink,Color.yellow,Color.lightGray,Color.gray,Color.darkGray};
-
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -211,15 +207,12 @@ public class Temp_HazardCurveApplication extends JApplet
   //instance to get the default IMT X values for the hazard Curve
   private IMT_Info imtInfo = new IMT_Info();
 
-
-
-
   // variable needed for plotting Epistemic list
   private boolean isEqkList = false; // whther we are plottin the Eqk List
   //private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
   private boolean isAllCurves = true; // whether to plot all curves
-  // whether user wants to plot No percentile, or 5, 50 and 95 percentile or custom percentile
-  private String percentileOption ;
+  // whether user wants to plot custom fractile
+  private String fractileOption ;
   // whether avg is selected by the user
   private boolean avgSelected = false;
 
@@ -612,7 +605,7 @@ public class Temp_HazardCurveApplication extends JApplet
             int size = testCasesTwo.size();
             /*if(epistemicControlPanel == null)
               epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
-            epistemicControlPanel.setCustomPercentileValue(05);
+            epistemicControlPanel.setCustomFractileValue(05);
             epistemicControlPanel.setVisible(false); */
             setAverageSelected(true);
             for(int i=18 ;i < size; ++i){
@@ -869,7 +862,7 @@ public class Temp_HazardCurveApplication extends JApplet
         Difference is that erfGuiBean.getSelectedERF_Instance() does not update
         the forecast while erfGuiBean.getSelectedERF updates the
         */
-        EqkRupForecastAPI erfAPI = null;
+        ERF_API erfAPI = null;
         try{
           erfAPI = erfGuiBean.getSelectedERF_Instance();
           this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
@@ -903,7 +896,7 @@ public class Temp_HazardCurveApplication extends JApplet
     //starting the calculation
     isHazardCalcDone= false;
 
-    EqkRupForecastAPI forecast = null;
+    ERF_API forecast = null;
     // whwther to show progress bar in case of update forecast
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
@@ -975,7 +968,7 @@ public class Temp_HazardCurveApplication extends JApplet
         // calculate the hazard curve
         //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
         try{
-          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)forecast);
+          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
         }catch(RemoteException e){
           e.printStackTrace();
         }
@@ -1045,7 +1038,7 @@ public class Temp_HazardCurveApplication extends JApplet
    */
   private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
-                                  EqkRupForecastAPI eqkRupForecast) {
+                                  ERF_API eqkRupForecast) {
 
     ERF_List erfList  = (ERF_List)eqkRupForecast;
 
@@ -1108,21 +1101,13 @@ public class Temp_HazardCurveApplication extends JApplet
    else
      weightedFuncList.setIndividualCurvesToPlot(true);
 
-   // if 5th, 50 and 95th percetile need to be plotted
-   if(this.percentileOption.equalsIgnoreCase
-      (ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE)) {
+   // if custom fractile needed to be plotted
+   if(this.fractileOption.equalsIgnoreCase
+      (ERF_EpistemicListControlPanel.CUSTOM_FRACTILE)) {
      weightedFuncList.setFractilesToPlot(true);
-     ArrayList fractionList = new ArrayList();
-     fractionList.add(new Double(.05));
-     fractionList.add(new Double(.50));
-     fractionList.add(new Double(.95));
-     weightedFuncList.addFractiles(fractionList);
-   } else if(this.percentileOption.equalsIgnoreCase // for custom percentile
-      (ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE )) {
-     double fraction = this.epistemicControlPanel.getCustomPercentileValue();
-     weightedFuncList.setFractilesToPlot(true);
-     weightedFuncList.addFractile(fraction/100);
-   }else weightedFuncList.setFractilesToPlot(false);
+     weightedFuncList.addFractiles(epistemicControlPanel.getSelectedFractileValues());
+   }
+   else weightedFuncList.setFractilesToPlot(false);
 
    // calculate average
    if(this.avgSelected) {
@@ -1198,8 +1183,13 @@ public class Temp_HazardCurveApplication extends JApplet
    erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
    erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
+   erf_Classes.add(RMI_PEER_LOGIC_TREE_ERF_LIST_CLASS_NAME);
+   erf_Classes.add(RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
+
+
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -1225,7 +1215,7 @@ public class Temp_HazardCurveApplication extends JApplet
     the forecast while erfGuiBean.getSelectedERF updates the forecast
     */
     try{
-      EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
+      ERF_API eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
       // create the TimeSpan Gui Bean object
       timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
     }catch(Exception e){
@@ -1506,14 +1496,14 @@ public class Temp_HazardCurveApplication extends JApplet
 
   /**
    * This function sets the percentils option chosen by the user.
-   * User can choose "No Percentile", "5th, 50th and 95th Percentile" or
-   * "Custom Percentile"
+   * User can choose "No Fractile", "5th, 50th and 95th Fractile" or
+   * "Custom Fractile"
    *
-   * @param percentileOption : Option selected by the user. It can be set by
+   * @param fractileOption : Option selected by the user. It can be set by
    * various constant String values in ERF_EpistemicListControlPanel
    */
-  public void setPercentileOption(String percentileOption) {
-    this.percentileOption = percentileOption;
+  public void setFractileOption(String fractileOption) {
+    this.fractileOption = fractileOption;
   }
 
   /**

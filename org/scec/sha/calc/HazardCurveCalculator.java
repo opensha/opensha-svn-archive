@@ -18,7 +18,7 @@ import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
 import org.scec.util.FileUtils;
-import org.scec.sha.earthquake.ERF_API;
+import org.scec.sha.earthquake.EqkRupForecastAPI;
 /**
  * <p>Title: HazardCurveCalculator </p>
  * <p>Description: This class calculates the Hazard curve based on the
@@ -83,7 +83,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
    * @return
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
-                             Site site, AttenuationRelationshipAPI imr, ERF_API eqkRupForecast)
+                             Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
   throws java.rmi.RemoteException{
 
     this.currRuptures = -1;

@@ -25,7 +25,7 @@ public interface RemoteERF_FactoryAPI extends Remote {
    * @return
    * @throws java.rmi.RemoteException
    */
-  public RemoteERF_API getRemoteERF(String className) throws java.rmi.RemoteException;
+  public RemoteEqkRupForecastAPI getRemoteERF(String className) throws java.rmi.RemoteException;
 
 
   /**
@@ -35,6 +35,6 @@ public interface RemoteERF_FactoryAPI extends Remote {
    * @return
    * @throws java.rmi.RemoteException
    */
-  public RemoteERF_API getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException;
+  public RemoteEqkRupForecastAPI getRemoteERF(ArrayList params,ArrayList paramTypes,String className) throws java.rmi.RemoteException;
 
 }

@@ -42,7 +42,7 @@ public class WG02_EqkRupForecastClient extends RemoteERF_Client {
    */
   public WG02_EqkRupForecastClient(ArrayList inputFileStrings, double rupOffset, double gridSpacing,
                              double deltaMag, String backSeisValue, String grTailValue, String name,
-    TimeSpan timespan) {
+    TimeSpan timespan) throws java.rmi.RemoteException{
 
     //Class array to define the types of arguments that the constructor accepts
     ArrayList paramTypes = new ArrayList();
