@@ -51,7 +51,7 @@ ActionListener{
    * Set the values in the parameters in this parameterList parameter
    */
   public void setParameter(ParameterAPI param)  {
-
+    setParameterInEditor(param);
     valueEditor = new JButton(param.getName());
     ((JButton)valueEditor).addActionListener(this);
     add(valueEditor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0

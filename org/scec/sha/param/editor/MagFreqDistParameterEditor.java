@@ -80,7 +80,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
     public MagFreqDistParameterEditor(ParameterAPI model){
       super(model);
-      this.setParameter(model);
+      setParameter(model);
   }
 
     /**
@@ -90,7 +90,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         String S = C + ": Constructor(): ";
         if ( D ) System.out.println( S + "Starting:" );
-
+        setParameterInEditor(param);
         valueEditor = new JButton("Set "+param.getName());
         ((JButton)valueEditor).addActionListener(this);
         add(valueEditor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
@@ -168,9 +168,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * when using it's GUI Editor.
      */
     protected void jbInit() throws Exception {
-
-        // Main component
-        this.setLayout( new GridBagLayout());
+      //super.jbInit();
+      // Main component
+      this.setLayout( new GridBagLayout());
     }
 
     /**

@@ -48,6 +48,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    * Set the values in the Parameters for the EvenlyGridded Surface
    */
   public void setParameter(ParameterAPI param)  {
+    setParameterInEditor(param);
     valueEditor = new JButton(param.getName());
     ((JButton)valueEditor).addActionListener(this);
     add(valueEditor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0

@@ -217,6 +217,24 @@ public class ParameterEditor
 
     }
 
+    /**
+     * Set's the parameter to be edited by this editor.
+     * The editor is updated with the name of the parameter as well as the widget
+     * component value. It attempts to use the Constraint name ifdifferent from
+     * the parameter and present, else uses the parameter name
+     * @param model : Parameter
+     */
+    public void setParameterInEditor(ParameterAPI model){
+      String S = C + ": setParameter(): ";
+      if ( model == null )
+        throw new NullPointerException( S + "Input Parameter data cannot be null" );
+      else
+        this.model = model;
+
+      String name = "";
+      name = model.getName();
+      Object value = model.getValue();
+    }
 
     /**
      *  Set's the parameter to be edited by this editor. The editor is
@@ -228,20 +246,11 @@ public class ParameterEditor
      */
     public void setParameter( ParameterAPI model ) {
 
-        String S = C + ": setParameter(): ";
-        if ( model == null )
-            throw new NullPointerException( S + "Input Parameter data cannot be null" );
-        else
-            this.model = model;
-
-        String name = "";
-        name = model.getName();
-        Object value = model.getValue();
-
+        setParameterInEditor(model);
         removeWidget();
         addWidget();
 
-        setWidgetObject( name, value );
+        setWidgetObject( model.getName(), model.getValue() );
 
     }
 

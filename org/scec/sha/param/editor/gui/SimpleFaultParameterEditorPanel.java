@@ -112,7 +112,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     String S = C + ": Constructor(): ";
     if ( D ) System.out.println( S + "Starting:" );
     // remove the previous editor
-    super.setParameter(param);
+    setParameterInEditor(param);
     removeAll();
     surfaceParam = (SimpleFaultParameter) param;
 
@@ -339,7 +339,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
    * when using it's GUI Editor.
    */
   protected void jbInit() throws Exception {
-    super.jbInit();
     // Main component
     this.setLayout( new GridBagLayout());
   }

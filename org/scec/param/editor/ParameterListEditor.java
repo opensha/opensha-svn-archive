@@ -6,7 +6,7 @@ import javax.swing.*;
 import com.borland.jbcl.layout.VerticalFlowLayout;
 import org.scec.gui.*;
 import org.scec.param.ParameterAPI;
-
+import org.scec.param.DependentParameter;
 import org.scec.param.ParameterList;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
@@ -159,7 +159,9 @@ public class ParameterListEditor extends LabeledBoxPanel {
             Object key = it.next();
             ParameterEditor editor = ( ParameterEditor ) parameterEditors.get( key );
             if ( editor.isVisible() ) {
-                ParameterAPI param = ( ParameterAPI ) editor.getParameter().clone();
+                ParameterAPI param = ( ParameterAPI ) editor.getParameter();
+                ParameterList paramList = ((DependentParameter)param).getIndependentParameterList();
+                traverse(paramList,visibles);
                 visibles.addParameter( param );
             }
 
@@ -167,6 +169,15 @@ public class ParameterListEditor extends LabeledBoxPanel {
         return visibles;
     }
 
+
+    private void traverse(ParameterList paramList,ParameterList visibles){
+      ListIterator it1 = paramList.getParametersIterator();
+      while(it1.hasNext()){
+        ParameterList list= ((DependentParameter)it1.next()).getIndependentParameterList();
+        traverse(list,visibles);
+        visibles.addParameterList(list);
+      }
+    }
 
     /**
      *  Gets the parameterEditor attribute of the ParameterListEditor object

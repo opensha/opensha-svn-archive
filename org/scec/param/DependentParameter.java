@@ -73,25 +73,13 @@ public abstract class DependentParameter
     /**
     * Returns an iterator of all parameters in the list.<p>
     *
-    * Note: SWR - I choose to implement the iterator an easy way
-    * but not the best way. I create a vector, add all parameters from
-    * the Hashtable. Quick and dirty. May want to improve in the future.
+    * May want to improve in the future.
     * The treemap provides no easy access to an iterator. Since in our
     * case the list will always be small this is not a performance
     * problem.
     */
     public ListIterator getIndependentParametersIterator(){
-
-        Set set = independentParameters.keySet();
-        Iterator it = set.iterator();
-        Vector v = new Vector();
-
-        while( it.hasNext() ){
-            ParameterAPI param = (ParameterAPI)independentParameters.get( it.next() );
-            v.add( param );
-        }
-
-        return v.listIterator();
+        return getIndependentParameterList().getParametersIterator();
     }
 
 
@@ -200,8 +188,19 @@ public abstract class DependentParameter
 
     }
 
+    /**
+     *
+     * @returns the independent parameter list for the dependent parameter
+     */
+    public ParameterList getIndependentParameterList(){
+      Set set = independentParameters.keySet();
+      Iterator it = set.iterator();
+      ParameterList list = new ParameterList();
 
-
-
-
+      while( it.hasNext() ){
+        ParameterAPI param = (ParameterAPI)independentParameters.get( it.next() );
+        list.addParameter(param);
+      }
+      return list;
+    }
 }
