@@ -145,7 +145,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
     * totMoRate exactly else it matches totCumRate exactly
     */
    public void setAllButMagUpper(double magLower, double totMoRate, double totCumRate,
-                                 double bValue, boolean relaxCumRate) throws DiscretizedFunction2DException {
+                                 double bValue, boolean relaxCumRate) throws DiscretizedFuncException {
      magUpper = maxX; // temporarily set the vale of magUpper
      calculateRelativeRates();
      scaleToCumRate(magLower,totCumRate);
@@ -164,7 +164,7 @@ public class GuttenbergRichterMagFreqDist extends IncrementalMagFreqDist {
      if(index==num) { // if we reached upperMag and tempTotMoRate > totMoRate
        double diff1 = Math.abs(tempTotMoRate-totMoRate);
        if(getMomentRate(index-1)/2 < diff1)
-          throw new DiscretizedFunction2DException(C+":setAllButMagUpper():"+"Invalid Total moment Rate");
+          throw new DiscretizedFuncException(C+":setAllButMagUpper():"+"Invalid Total moment Rate");
      }
      else { // if tempTotMoRate < totMoRate
        double diff1 = Math.abs(tempTotMoRate-totMoRate); // for next point

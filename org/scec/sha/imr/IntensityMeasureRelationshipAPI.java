@@ -98,6 +98,15 @@ public interface IntensityMeasureRelationshipAPI extends NamedObjectAPI {
      */
      public void setIntensityMeasure(ParameterAPI intensityMeasure) throws ParameterException;
 
+
+     /**
+     * Sets the intensity measure Parameter by neame if supported.
+     *
+     * @param  imt  The new intensityMeasureType value
+     */
+     public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException;
+
+
     /**
      *  Gets a reference to the currently chosen Intensity-Measure Parameter
      *  from the IMR.

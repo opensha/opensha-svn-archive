@@ -177,6 +177,21 @@ public abstract class IntensityMeasureRelationship
     }
 
 
+    /**
+     *  This sets the intensityMeasure parameter as that which has the name
+     *  passed in; no value (level) is set.
+     *
+     * @param  intensityMeasure  The new intensityMeasure Parameter
+     */
+    public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException, ConstraintException {
+
+        if( supportedIMParams.containsParameter( intensityMeasureName ) ) {
+            im = supportedIMParams.getParameter( intensityMeasureName );
+        }
+        else throw new ParameterException( C + ": setIntensityMeasure(): " + "This im is not supported, name = " + intensityMeasureName );
+    }
+
+
 
     /**
      *  Checks if the Parameter is a supported intensity-Measure; checking

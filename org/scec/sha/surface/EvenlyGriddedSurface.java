@@ -39,6 +39,41 @@ public class EvenlyGriddedSurface extends GriddedSurface {
     }
 
 
+
+    /**
+     * Gets the Nth rupture on the surface
+     *
+     * @param numRupCols  Number of grid points according to length
+     * @param numRupRows  Number of grid points according to width
+     * @param numRupOffset Number of grid poits for offset
+     * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
+     *
+     */
+    public GriddedSubsetSurface getNthSubsetSurface(int numRupCols, int numRupRows, int numRupOffset, int n) {
+
+        Iterator it = getSubsetSurfacesIterator(numRupCols, numRupRows, numRupOffset);
+
+        return (GriddedSubsetSurface) it.next();
+
+    }
+
+
+    /**
+     * Gets the Nth rupture on the surface
+     *
+     * @param numRupCols  subsurface length in km
+     * @param numRupRows  subsurface width in km
+     * @param numRupOffset offset in km
+     * @param n The index of the desired surface (from 0 to (getNumSubsetSurfaces - 1))
+     *
+     */
+    public GriddedSubsetSurface getNthSubsetSurface(double rupLength, double rupWidth, double rupOffset, int n) {
+       return getNthSubsetSurface((int)Math.rint(rupLength/gridSpacing),
+                                  (int)Math.rint(rupWidth/gridSpacing),
+                                  (int)Math.rint(rupOffset/gridSpacing),
+                                  n);
+    }
+
     /**
      * Get the ruptures on this fault
      *
@@ -108,7 +143,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      * @param rupOffset Ruture offset
      * @return total number of ruptures along the fault
      */
-    public int getTotalRuptures(double rupLength,double rupWidth,double rupOffset){
+    public int getNumSubsetSurfaces(double rupLength,double rupWidth,double rupOffset){
       int length =  (int)Math.rint(rupLength/gridSpacing);
       int width =    (int)Math.rint(rupWidth/gridSpacing);
       int offset =   (int)Math.rint(rupOffset/gridSpacing);

@@ -1,19 +1,19 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> DiscretizedFunction2DException<p>
- *  <b>Description:</b> Exception thrown when DiscretizedFunction2D errors occur<p>
+ *  <b>Title:</b> DiscretizedFuncException<p>
+ *  <b>Description:</b> Exception thrown when Discretized Function errors occur<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002
  * @version    1.0
  */
-public class DiscretizedFunction2DException extends RuntimeException {
+public class DiscretizedFuncException extends RuntimeException {
 
     /**
      *  No-arg constructor
      */
-    public DiscretizedFunction2DException() { }
+    public DiscretizedFuncException() { }
 
 
     /**
@@ -21,7 +21,7 @@ public class DiscretizedFunction2DException extends RuntimeException {
      *
      * @param  string  Describes the error
      */
-    public DiscretizedFunction2DException( String string ) {
+    public DiscretizedFuncException( String string ) {
         super( string );
     }
 }

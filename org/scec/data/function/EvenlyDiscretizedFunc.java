@@ -74,7 +74,23 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @param max - Ending x value
      */
     public EvenlyDiscretizedFunc(double min, double max, int num) {
-        this(min, num, (max-min)/(num-1));
+
+        if (min > max) throw new DiscretizedFuncException("min must be less than max");
+        else if (min < max)
+            delta = (max-min)/(num-1);
+        else { // max == min
+            if (num == 1)
+                delta = 0;
+            else
+                throw new DiscretizedFuncException("num must = 1 if min==max");
+        }
+
+        this.minX = min;
+        this.maxX = max;
+        this.num = num;
+
+        points = new double[num];
+
     }
 
     /**

@@ -73,7 +73,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
   /**
    * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
    */
-  private int timeSpan;
+  private double timeSpan;
   private TimeSpan time;
 
 
@@ -222,7 +222,7 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
              dip *= -1;
           }
 
-          System.out.println(C+":faultTrace::"+faultTrace.toString());
+          if( D ) System.out.println(C+":faultTrace::"+faultTrace.toString());
 
 
 
@@ -260,9 +260,9 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
 
   /**
    * sets the timeSpan field
-   * @param yrs : have to be modfied from the int varible to the timeSpan field variable
+   * @param yrs : have to be modfied from the double varible to the timeSpan field variable
    */
-  public void setTimeSpan(int yrs){
+  public void setTimeSpan(double yrs){
     timeSpan =yrs;
   }
 
@@ -449,6 +449,8 @@ public class Frankel96_EqkRupForecast implements EqkRupForecastAPI {
 
    public static  void main(String args[]){
     Frankel96_EqkRupForecast f= new Frankel96_EqkRupForecast();
+    f.readFrankel96_Char(0);
+    f.readFrankel96_Char(1);
     f.readFrankel96_Char(2);
   }
 }

@@ -19,7 +19,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
 
 
   // rate for this source.
-  // We need rate to set the probability when we come come to know about the timeSpan
+  // We need rate to set the probability when we come to know about the timeSpan
   private double rate;
 
 
@@ -31,7 +31,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
    *
    * @param rake : ave rake of the surface
    * @param mag  : Magnitude of the earthquake
-   * @param rate : Rate at this mag
+   * @param rate : Rate (events/yr) at this mag
    * @param surface : Fault Surface
    */
   public Frankel96_CharEqkSource(double rake,

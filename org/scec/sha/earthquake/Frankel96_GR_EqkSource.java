@@ -20,19 +20,26 @@ import java.util.Iterator;
 
 public class Frankel96_GR_EqkSource extends ProbEqkSource {
 
+
+  //for Debug purposes
+  private static String  C = new String("Frankel96_GR_EqkSource");
+  private boolean D =false;
+
   private GuttenbergRichterMagFreqDist gR;
   private double rake;
   private double timeSpan;
   //these are the static static defined varibles to be used to find the number of ruptures.
   private final static double RUPTURE_WIDTH =100.0;
   private final static double RUPTURE_OFFSET =10.0;
+  private int totNumRups;
+  private EvenlyGriddedSurface surface;
 
   /**
    * constructor specifying the values needed for Guttenberg Richter
    * and also for constructing the rupture
    *
    * @param rake  : Average rake of the surface
-   * @param aValue : a  Value in GR distribution
+   * @param aValue : a  Value of GR distribution (events/yr at mag=0 increment)
    * @param bValue : b Value in the GR distribution
    * @param magLower : magLower as in GR distribution
    * @param magUpper : magUpper as in GR distribution
@@ -48,68 +55,69 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
                                 EvenlyGriddedSurface surface) {
 
     this.rake=rake;
+    this.surface=surface;
     // see here that we have rounded num to nearest integer value
 
     int num = (int)Math.rint((magUpper - magLower)/delta + 1);
-    System.out.println("Frankel96_GR_EqkSource:magUpper::"+magUpper);
-    System.out.println("Frankel96_GR_EqkSource:magLower::"+magLower);
-    System.out.println("Frankel96_GR_EqkSource:delta::"+delta);
-    System.out.println("Frankel96_GR_EqkSource:num::"+num);
+    if( D ) System.out.println("Frankel96_GR_EqkSource:magUpper::"+magUpper);
+    if( D ) System.out.println("Frankel96_GR_EqkSource:magLower::"+magLower);
+    if( D ) System.out.println("Frankel96_GR_EqkSource:delta::"+delta);
+    if( D ) System.out.println("Frankel96_GR_EqkSource:num::"+num);
     probEqkRupture = new ProbEqkRupture();
     probEqkRupture.setAveRake(rake);
-    probEqkRupture.setRuptureSurface(surface);
-
-    /*
-    This statement checks for the num to be 1, if it is then we make the num to be 2,
-    otherwise EvenlyDiscretizedFunc will be throwing an exception for division by zero in the constructor
-    */
-    if(num==1)
-      gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,2);
-    else
-      gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
 
     //Setting the GuttenbergDistribution
+    gR = new GuttenbergRichterMagFreqDist(magLower,magUpper,num);
     gR.setAllButTotMoRate(magLower,magUpper,1,bValue );
     double rate = Math.pow(10,aValue - bValue*magLower);
     gR.scaleToIncrRate(magLower,rate);
 
-    System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:momentRate::"+gR.getTotalMomentRate());
+    // Determine number of ruptures
+    int numMags = gR.getNum();
+    int totNumRups=0;
+    for(int i=0;i<num;++i){
+      double rupLen = WC1994_MagLengthRelationship.getMeanLength(gR.getX(i),rake);
+      totNumRups += getNumRuptures(rupLen);
+    }
+
+    if( D ) System.out.println("Frankel96_GR_EqkSource:Frankel96_GR_EqkSource:momentRate::"+gR.getTotalMomentRate());
   }
 
   /**
    * this functions sums up all the ruptures for all magnitudes
    * @return the total num of rutures for all magnitudes
    */
-  public int getNumRuptures() {
-    int num = gR.getNum();
-    int numRuptures=0;
-    for(int i=0;i<num;++i){
-      double mag=gR.getX(i);
-      numRuptures += getNumRuptures(mag);
-    }
-    return numRuptures;
-  }
+  public int getNumRuptures() { return totNumRups; }
 
 
   /**
    * This method sets the probability of the different rupture surface for different mag
-   * @param nRupture : it is to find the mag and rate to which that rupture number correspond
+   * @param nthRupture : it is to find the mag and rate to which that rupture number correspond
    * @return the object of the ProbEqkRupture class after setting the probability
    */
-  public ProbEqkRupture getRupture(int nRupture){
-    int num = gR.getNum();
-    double mag=0;
-    int ruptures=0;
-    for(int i=0;i<num;++i){
+  public ProbEqkRupture getRupture(int nthRupture){
+    int numMags = gR.getNum();
+    double mag=0, rupLen=0;
+    int numRups=0, tempNumRups=0;
+    for(int i=0;i<numMags;++i){
       mag=gR.getX(i);
-      ruptures += getNumRuptures(mag);
-      if(nRupture <= ruptures)
+      rupLen = WC1994_MagLengthRelationship.getMeanLength(mag,rake);
+      numRups = getNumRuptures(rupLen);
+      tempNumRups += numRups;
+      if(nthRupture <= tempNumRups)
         break;
     }
-   double rate = gR.getY(mag);
-   double prob = 1- Math.exp(-(timeSpan*rate)/ruptures);
-   probEqkRupture.setProbability(prob);
-   return probEqkRupture;
+    // set probability
+    double rate = gR.getY(mag);
+    double prob = 1- Math.exp(-timeSpan*rate/numRups);
+    probEqkRupture.setProbability(prob);
+
+    // set rupture surface
+    probEqkRupture.setRuptureSurface( surface.getNthSubsetSurface(rupLen,
+                                      RUPTURE_WIDTH,RUPTURE_OFFSET,
+                                      nthRupture+numRups-tempNumRups-1));
+
+    return probEqkRupture;
   }
 
 
@@ -145,8 +153,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
   */
   public Vector getRuptureList(){
     Vector v= new Vector();
-    int num = gR.getNum();
-    for(int i=0;i<num;++i)
+    for(int i=0;i<totNumRups;++i)
       v.add(this.getRuptureClone(i));
     return v;
   }
@@ -156,11 +163,7 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
    * @param mag
    * @return the total number of ruptures associated with the given mag
    */
-  private int getNumRuptures(double mag){
-    int numRuptures=0;
-    EvenlyGriddedSurface evenGS = (EvenlyGriddedSurface)probEqkRupture.getRuptureSurface();
-    double ruptureLen=WC1994_MagLengthRelationship.getMeanLength(mag,rake);
-    numRuptures = evenGS.getTotalRuptures(ruptureLen,RUPTURE_WIDTH,RUPTURE_OFFSET);
-    return numRuptures;
+  private int getNumRuptures(double rupLen){
+    return surface.getNumSubsetSurfaces(rupLen,RUPTURE_WIDTH,RUPTURE_OFFSET);
  }
 }

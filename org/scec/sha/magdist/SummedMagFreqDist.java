@@ -4,7 +4,7 @@ import java.util.Vector;
 
 import org.scec.data.DataPoint2D;
 import org.scec.data.function.DiscretizedFuncList;
-import org.scec.exceptions.DiscretizedFunction2DException;
+import org.scec.exceptions.DiscretizedFuncException;
 import org.scec.exceptions.MagFreqDistException;
 import org.scec.exceptions.DataPoint2DException;
 
@@ -119,14 +119,14 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void addIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-               throws DiscretizedFunction2DException,DataPoint2DException {
+               throws DiscretizedFuncException,DataPoint2DException {
 
      /* check whether mun,num and delta of new distribution matches
         the min, num and delta in  the constructor */
 
      if(magFreqDist.getMinX()!=minX || magFreqDist.getDelta()!=delta
                                     || magFreqDist.getNum()!=num)
-        throw new DiscretizedFunction2DException(C+":addIncrementalMagFreqDist"+
+        throw new DiscretizedFuncException(C+":addIncrementalMagFreqDist"+
                   "invalid value of min, num or delta of new distribution");
 
 
@@ -185,13 +185,13 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
     */
 
    public void removeIncrementalMagFreqDist(IncrementalMagFreqDist magFreqDist)
-                          throws DiscretizedFunction2DException,DataPoint2DException {
+                          throws DiscretizedFuncException,DataPoint2DException {
 
      if(saveMagFreqDists) {    // check if this distribution exists
        int index = savedMagFreqDists.indexOf(magFreqDist);
 
        if(index==-1)  // if this distribution is not found in the list
-         throw new DiscretizedFunction2DException("this distribution does not exist");
+         throw new DiscretizedFuncException("this distribution does not exist");
        else           // remove the distribution if it is found
          savedMagFreqDists.remove(magFreqDist);
      }
@@ -200,12 +200,12 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
        int index = savedInfoList.indexOf(magFreqDist.getInfo());
 
        if(index==-1)  // if this distribution is not found in the list
-         throw new DiscretizedFunction2DException("this distribution does not exist");
+         throw new DiscretizedFuncException("this distribution does not exist");
        else          // remove the distribution if it is found
          savedInfoList.remove(magFreqDist.getInfo());
      }
      else
-        throw new DiscretizedFunction2DException("Distributions are not saved");
+        throw new DiscretizedFuncException("Distributions are not saved");
 
      for(int i=0;i<num;++i)      // remove the rates associated with the removed distribution
        super.set(i,this.getY(i) - magFreqDist.getY(i));

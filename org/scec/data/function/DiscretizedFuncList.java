@@ -242,9 +242,9 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * Adds the DiscretizedFuncAPI if it doesn't exist based on the equals() method, else throws exception.
      * THis function first checks if the passed in function is allowed.
      */
-    public void add(DiscretizedFuncAPI function) throws DiscretizedFunction2DException{
+    public void add(DiscretizedFuncAPI function) throws DiscretizedFuncException{
 
-        if( !isFuncAllowed(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is not allowed.");
+        if( !isFuncAllowed(function) ) throw new DiscretizedFuncException(C + ": add(): " + "This function is not allowed.");
         //if( contains(function) ) throw new DiscretizedFunction2DException(C + ": add(): " + "This function is already in the list.");
         functions.add( function );
 
@@ -255,13 +255,13 @@ public class DiscretizedFuncList implements NamedObjectAPI{
      * Adds all DiscretizedFuncAPI of the DiscretizedFuncList to this one, if the
      * named DiscretizedFuncAPI is not already in the list
      */
-    public void addAll(DiscretizedFuncList list) throws DiscretizedFunction2DException{
+    public void addAll(DiscretizedFuncList list) throws DiscretizedFuncException{
 
         ListIterator it = list.listIterator();
         while( it.hasNext() ){
             DiscretizedFuncAPI function = (DiscretizedFuncAPI)it.next();
             try{ add(function); }
-            catch( DiscretizedFunction2DException ex) {}
+            catch( DiscretizedFuncException ex) {}
         }
 
 

@@ -125,6 +125,6 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
     * @param yrs
     */
 
-   public void setTimeSpan(int yrs);
+   public void setTimeSpan(double yrs);
 
 }
