@@ -1,4 +1,4 @@
-//package org.scec.util.tests;
+package org.scec.util.tests;
 
 import java.awt.*;
 import java.awt.event.*;

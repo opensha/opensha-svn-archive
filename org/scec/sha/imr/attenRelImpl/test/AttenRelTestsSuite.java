@@ -28,6 +28,7 @@ public class AttenRelTestsSuite extends TestCase {
     suite.addTest(new TestSuite(CB_2003_test.class));
     suite.addTest(new TestSuite(SCEMY_1997_test.class));
     suite.addTest(new TestSuite(Campbell_1997_test.class));
+    suite.addTest(new TestSuite(Field_2000_test.class));
     return suite;
   }
 
