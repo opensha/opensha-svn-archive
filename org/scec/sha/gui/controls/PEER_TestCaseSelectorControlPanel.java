@@ -293,7 +293,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    }
    else {// if it area case
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_AreaForecast.ERF_NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_AreaForecast.NAME);
 
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
@@ -436,7 +436,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case -1
    if(selectedTest.equalsIgnoreCase(TEST_CASE_ONE)){
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.ERF_NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.NAME);
      // add sigma for maglength(0-1)
      erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
@@ -450,7 +450,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case -2
    if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO)){
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_MultiSourceForecast.ERF_NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_MultiSourceForecast.NAME);
 
      erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
      erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
@@ -461,7 +461,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case 3 or 4
    if(selectedTest.equalsIgnoreCase(TEST_CASE_THREE) || selectedTest.equalsIgnoreCase(TEST_CASE_FOUR) ) {
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_FaultForecast.ERF_NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_FaultForecast.NAME);
 
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.DIP_PARAM_NAME).setValue(new Double(90.0));
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
@@ -473,13 +473,13 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case 5
      if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) ) {
-       erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.ERF_NAME);
+       erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
        timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
      }
 
    //if test case -6
    if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)){
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_ListricFaultForecast.ERF_NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_ListricFaultForecast.NAME);
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
