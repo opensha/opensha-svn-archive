@@ -345,8 +345,8 @@ public class AS_1997_AttenRel
     /**
      * This determines whether the rupture is on the hanging wall by creating a polygon
      * that is extended in the down-dip direction, and then checking whether the site is
-     * inside.  This should really be implemented as a PropagationEffectParameter, but we
-     * don't yet have a boolearn parameter implemented.
+     * inside.  This should really be implemented as a formal PropagationEffectParameter,
+     * but we don't yet have a boolean parameter implemented.
      * @return
      */
     protected boolean isOnHangingWall() {
