@@ -3,6 +3,9 @@ package org.scec.sha.earthquake.rupForecastImpl.step;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.text.DecimalFormat;
+
+
 import org.scec.sha.earthquake.rupForecastImpl.step.*;
 import org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
@@ -32,11 +35,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   // VS 30 value to be set in the IMR
   private final Double VS_30= new Double(760);
 
-  private final double MIN_LAT= 32.45;
-  private final double MAX_LAT= 36.60;
-  private final double MIN_LON = -121.45 ;
+  private final double MIN_LAT= 32.5;
+  private final double MAX_LAT= 36.6;
+  private final double MIN_LON = -121.5 ;
   private final double MAX_LON= -114.50;
-  private final double GRID_SPACING= 1.0;
+  private final double GRID_SPACING= .1;
   private static final String STEP_DIR = "step/";
   private static final String STEP_BACKGROUND_FILE = "backGround.txt";
   private static final String STEP_ADDON_FILE_SUFFIX = "_addon.txt";
@@ -45,7 +48,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
   private static final double IML_VALUE = 0.126;
   private Vector latVals = new Vector();
   private Vector lonVals = new Vector();
-
+  DecimalFormat format = new DecimalFormat("0.00##");
 
   public STEP_DataSetGenerator() {
     // make the forecast
@@ -71,8 +74,9 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
     //adding the numSites to the lat and Lon Vector
     for(int i=0;i<numSites;++i){
-      latVals.add(new Double(region.getSite(i).getLocation().getLatitude()));
-      lonVals.add(new Double(region.getSite(i).getLocation().getLongitude()));
+
+      latVals.add(new Double(format.format(region.getSite(i).getLocation().getLatitude())));
+      lonVals.add(new Double(format.format(region.getSite(i).getLocation().getLongitude())));
     }
 
 
@@ -226,11 +230,11 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     // this boolean will tell us whether a source was actually used
     // (e.g., all could be outside MAX_DISTANCE)
     boolean sourceUsed = false;
-    double sourceHazVal =0;
-    double hazVal =1;
-    double condProb =0;
+
     int numSites = region.getNumGridLocs();
     for(int j=0;j<numSites;++j){
+      double hazVal =1;
+      double condProb =0;
       imr.setSite(region.getSite(j));
 
       // loop over sources
@@ -274,7 +278,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
 
       // finalize the hazard function
       if(sourceUsed) {
-        System.out.println("HazVal:"+hazVal);
+        //System.out.println("HazVal:"+hazVal);
         hazVal = 1-hazVal;
       }
       else
