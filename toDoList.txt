@@ -3,6 +3,8 @@
 
 Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label).
 
+JFreeChart - remove negative value option for log axes and the "10^N" format option.  clean up the class and document changes in the code (the way they do).  Submit class with app to JFreeChart (with Eric Cced).
+
 Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x).
 
 Change "Set X Values for Hazard Curve Calc" as follows:
@@ -52,8 +54,6 @@ Lets chance syncToModel (and "synchToModel" as it is spelled in some places) met
 Make the WG02 ERF servlet so that more than one user can use it at any given time. 
 
 Look at Bruce's code for Shape-file generation for scenarios (different from probabilistic map inputs)
-
-JFreeChart - finish the tester GUI and compose email of suggested changes
 
 Resolve memory issues, after we figure out exactly what they are.
 

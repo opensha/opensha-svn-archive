@@ -155,6 +155,8 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
     private final static Double DURATION_DEFAULT = new Double(50.);
     private DoubleConstraint durationConstraint = new DoubleConstraint(0.0,Double.MAX_VALUE);
     private DoubleParameter durationParam;
+    private DoubleDiscreteParameter discreteDurationParam;
+    private boolean isDurationDiscrete;  // default is false
 
    // to define the maximum precision for the start time
     public final static String START_TIME_PRECISION = "Start-Time Precision";
@@ -165,17 +167,17 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
     // whenver any change is made in this timespan object, all the listeners are notified
     private transient Vector changeListeners;
 
+
     /**
-     *  Constructor; this should actually take the start-time precision string since it
-     *  cannot be set publically (do later or I'll have to change TimeSpan construction
-     *  in existing ERFs)
+     * Constructor
+     * @param startTimePrecision
+     * @param durationUnits
      */
     public TimeSpan(String startTimePrecision, String durationUnits) {
       initParams();
       setStartTimePrecision(startTimePrecision);
       setDurationUnits(durationUnits);
     }
-
 
 
 
@@ -204,8 +206,10 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
       durationUnitsConstraint.setNonEditable();
       durationUnitsParam = new StringParameter(this.DURATION_UNITS,durationUnitsConstraint,DURATION_UNITS_DEFAULT);
 
-      // Duration Parameter
+      // Duration Parameters (continuous versus discrete; only one used at any one time)
       durationParam = new DoubleParameter(DURATION,durationConstraint,DURATION_UNITS_DEFAULT,DURATION_DEFAULT);
+      discreteDurationParam = new DoubleDiscreteParameter(DURATION,DURATION_UNITS_DEFAULT,DURATION_DEFAULT);
+      isDurationDiscrete = false;    // continuous is the default
 
       // Start Time Precision Parameter
       StringConstraint precisionConstraint = new StringConstraint();
@@ -232,6 +236,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
       startSecondParam.addParameterChangeListener(this);
       startMillisecondParam.addParameterChangeListener(this);
       durationParam.addParameterChangeListener(this);
+      discreteDurationParam.addParameterChangeListener(this);
       startTimePrecisionParam.addParameterChangeListener(this);
     }
 
@@ -483,6 +488,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
     private void setDurationUnits(String durationUnits) {
       durationUnitsParam.setValue(durationUnits);
       durationParam.setUnits(durationUnits);
+      discreteDurationParam.setUnits(durationUnits);
     }
 
     /**
@@ -499,7 +505,10 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      * @param duration
      */
     public void setDuration( double duration ) {
-      durationParam.setValue(duration);
+      if(isDurationDiscrete)
+        discreteDurationParam.setValue(new Double(duration));
+      else
+        durationParam.setValue(duration);
     }
 
 
@@ -512,7 +521,11 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      */
     public void setDuration( double duration, String units ) {
       String desiredUnits = (String) durationUnitsParam.getValue();
-      durationParam.setValue(convertDurationUnits(duration,units,desiredUnits));
+      double newValue = convertDurationUnits(duration,units,desiredUnits);
+      if(isDurationDiscrete)
+         discreteDurationParam.setValue(new Double(newValue));
+       else
+         durationParam.setValue(newValue);
     }
 
     /**
@@ -528,9 +541,35 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
       if(durationConstraint.isAllowed(min) && durationConstraint.isAllowed(min)) {
         DoubleConstraint constraint = new DoubleConstraint(min, max);
         durationParam.setConstraint(constraint);
+        isDurationDiscrete = false;
       }
+      else throw new RuntimeException(C+"setDuractionConstraint - negative values not allowed");
 
     }
+
+
+    /**
+     * This puts a new discrete constraint (list of doubles) on the duration
+     * parameter. All the new values must be within the default values
+     * (0 and Double.MAX_VALUE, respectively).
+     * @param doubles - a vector of doubles
+     */
+    public void setDuractionConstraint(Vector doubles) {
+
+      // make sure new values are all positive (within the originals)
+      Iterator it = doubles.iterator();
+      while(it.hasNext()) {
+        if( ((Double)it.next()).doubleValue() < 0  )
+          throw new RuntimeException(C+"setDuractionConstraint - negative values not allowed");
+      }
+
+      DoubleDiscreteConstraint constraint = new DoubleDiscreteConstraint(doubles);
+      discreteDurationParam.setConstraint(constraint);
+      isDurationDiscrete = true;
+
+    }
+
+
 
     /**
      * This converts the input duration in it's present units into the desired units.
@@ -583,7 +622,10 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      * @return
      */
     public double getDuration() {
-      return ((Double)durationParam.getValue()).doubleValue();
+      if(isDurationDiscrete)
+        return ((Double)discreteDurationParam.getValue()).doubleValue();
+      else
+        return ((Double)durationParam.getValue()).doubleValue();
     }
 
     /**
@@ -595,7 +637,11 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
      */
     public double getDuration( String units ) {
       String presentUnits = (String) durationUnitsParam.getValue();
-      double duration = ((Double) durationParam.getValue()).doubleValue();
+      double duration;
+      if(isDurationDiscrete)
+        duration = ((Double) discreteDurationParam.getValue()).doubleValue();
+      else
+        duration = ((Double) durationParam.getValue()).doubleValue();
       return convertDurationUnits(duration,presentUnits,units);
     }
 
@@ -929,7 +975,10 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
       ParameterList list = new ParameterList();
 
       // always add duration
-      list.addParameter(durationParam);
+      if(isDurationDiscrete)
+        list.addParameter(discreteDurationParam);
+      else
+        list.addParameter(durationParam);
 
       if(getStartTimePrecInt() > 0)
         list.addParameter(startYearParam);
