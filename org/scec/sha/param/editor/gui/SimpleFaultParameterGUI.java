@@ -60,8 +60,8 @@ public class SimpleFaultParameterGUI extends JDialog{
     this.getContentPane().setLayout(borderLayout1);
     evenlyGriddedSurfacePanel.setLayout(gridBagLayout1);
     parameterPanel.setLayout(gridBagLayout2);
-    evenlyGriddedSurfacePanel.setPreferredSize(new Dimension(370, 450));
-    evenlyGriddedParamsScroll.setPreferredSize(new Dimension(370, 450));
+    evenlyGriddedSurfacePanel.setPreferredSize(new Dimension(300, 450));
+    evenlyGriddedParamsScroll.setPreferredSize(new Dimension(300, 450));
     this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
     this.getContentPane().add(evenlyGriddedSurfacePanel, BorderLayout.CENTER);
     evenlyGriddedSurfacePanel.add(evenlyGriddedParamsScroll,   new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
@@ -70,7 +70,6 @@ public class SimpleFaultParameterGUI extends JDialog{
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
     button.setText("Make Simple Fault");
     button.setForeground(new Color(80,80,133));
-    button.setBackground(new Color(200,200,230));
     button.addActionListener(new java.awt.event.ActionListener() {
      public void actionPerformed(ActionEvent e) {
        button_actionPerformed(e);

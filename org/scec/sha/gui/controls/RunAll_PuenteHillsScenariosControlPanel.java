@@ -76,7 +76,10 @@ public class RunAll_PuenteHillsScenariosControlPanel {
       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(((Double)magnitudes.get(i)).doubleValue()));
       erfParamGuiBean.getERFParameterListEditor().refreshParamEditor();
       magEditor.setMagDistFromParams();
-      erfPanel.setParamsInForecast(0,0);
+      //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
+      erfPanel.setSourceFromSelectedERF(0);
+      erfPanel.setRuptureForSelectedSource(0);
+      erfPanel.getHypocenterLocationsForSelectedRupture();
 
       for(int j=0;j<attenRelSize;++j){
         imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).setValue(attenuationRelationships.get(j));

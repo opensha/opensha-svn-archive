@@ -359,7 +359,9 @@ public class PuenteHillsScenarioControlPanel {
     magEditor.setMagDistFromParams();
 
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
-    erfPanel.setParamsInForecast(0,0);
+    erfPanel.setSourceFromSelectedERF(0);
+    erfPanel.setRuptureForSelectedSource(0);
+    erfPanel.getHypocenterLocationsForSelectedRupture();
 
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship.
     imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.NAME);

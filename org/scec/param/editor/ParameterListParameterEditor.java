@@ -158,7 +158,6 @@ ActionListener,ParameterChangeListener{
       JButton button = new JButton();
       button.setText("Update "+param.getName());
       button.setForeground(new Color(80,80,133));
-      button.setBackground(new Color(200,200,230));
       button.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
           button_actionPerformed(e);

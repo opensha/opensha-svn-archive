@@ -19,7 +19,7 @@ import org.scec.param.event.*;
  */
 
 public class BooleanParameterEditor extends ParameterEditor implements
-ActionListener{
+    ItemListener{
 
   /** Class name for debugging. */
   protected final static String C = "BooleanParameterEditor";
@@ -48,7 +48,7 @@ ActionListener{
           valueEditor.setMinimumSize(LABEL_DIM);
       valueEditor.setBorder(ETCHED);
 
-      ((JCheckBox)valueEditor).addActionListener(this);
+      ((JCheckBox)valueEditor).addItemListener(this);
       ((JCheckBox)valueEditor).setSelected(((Boolean)model.getValue()).booleanValue());
       widgetPanel.add(valueEditor, ParameterEditor.WIDGET_GBC);
   }
@@ -105,9 +105,9 @@ ActionListener{
    *
    * @param ae
    */
-  public void actionPerformed(ActionEvent ae ) {
+  public void itemStateChanged(ItemEvent ae ) {
     boolean isSelected = ((JCheckBox) valueEditor).isSelected();
-    model.setValue(new Boolean(isSelected));
+    this.setValue(new Boolean(isSelected));
   }
 
 }

@@ -24,7 +24,8 @@ import org.scec.data.Location;
  * @version 1.0
  */
 
-public class SimpleFaultParameter extends DependentParameter implements java.io.Serializable{
+public class SimpleFaultParameter extends DependentParameter implements ParameterChangeListener,
+    java.io.Serializable{
 
   /** Class name for debugging. */
   protected final static String C = "SimpleFaultParameter";
@@ -61,6 +62,8 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
   public static final String FRANKEL ="Frankel's";
   public static final String STIRLING ="Stirling's";
 
+  //checks when the parameter has changed only then update the fault param else not.
+  private boolean faultParameterChange = true;
 
   /**
    * Some variable declarations
@@ -213,6 +216,9 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
 
     //dipDirection param is also dependent on the value of the faultTypeParam
     faultTypeParam.addIndependentParameter(dipDirectionParam);
+    dipDirectionParam.addParameterChangeListener(this);
+    faultTypeParam.addParameterChangeListener(this);
+
   }
 
   /**
@@ -238,6 +244,12 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
     fltType.add(this.FRANKEL);
     fltType.add(this.STIRLING);
     faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
+
+    //adding the parameter change listener to each parameter in the list
+    faultName.addParameterChangeListener(this);
+    gridSpacing.addParameterChangeListener(this);
+    numFltTrace.addParameterChangeListener(this);
+    numDipParam.addParameterChangeListener(this);
     //creates the dependent ParamList
     addDependenParamList();
   }
@@ -313,6 +325,18 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
 
 
   /**
+   *  This is the main function of this interface. Any time a control
+   *  paramater or independent paramater is changed by the user this
+   *  function is called, and a paramater change event is passed in.
+   *
+   * @param  event
+   */
+  public void parameterChange( ParameterChangeEvent event ) {
+    faultParameterChange = true;
+  }
+
+
+  /**
    * Creates Latitude and Longitude parameters based on the number of the faultTrace.
    * If the user has already specified the values for these parameters once ,it saves
    * those values for future reference. So that when the number of fault-trace changes
@@ -340,6 +364,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
                                      new Double(38.2248 - i/2.0));
       else
         lat[i] = new DoubleParameter(LAT_PARAM_NAME+(i+1),-90.0,90.0,"Degrees", (Double)prevLats.get(i));
+      lat[i].addParameterChangeListener(this);
       parameterListForLats.addParameter(lat[i]);
 
     }
@@ -356,7 +381,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
         new Double(-122.0 - i/2.0));
       else
         lon[i] = new DoubleParameter(this.LON_PARAM_NAME+(i+1),-360.0,360.0,"Degrees",(Double)prevLons.get(i));
-
+      lon[i].addParameterChangeListener(this);
       parameterListForLons.addParameter(lon[i]);
     }
     parameterListParameterForLons = new ParameterListParameter(LON_TITLE,parameterListForLons);
@@ -396,6 +421,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
                                      new Double(90-(i+30)));
       else
         dip[i] = new DoubleParameter(DIP_PARAM_NAME+(i+1),0.0,90.0,"Degrees",(Double)prevDips.get(i));
+      dip[i].addParameterChangeListener(this);
       parameterListForDips.addParameter(dip[i]);
     }
     parameterListParameterForDips = new ParameterListParameter(DIP_TITLE,parameterListForDips);
@@ -434,6 +460,7 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
       else
         depth[i] = new DoubleParameter(DEPTH_PARAM_NAME+(i+1),0.0,99999.0,"Kms",(Double)prevDepths.get(i));
       parameterListForDepths.addParameter(depth[i]);
+      depth[i].addParameterChangeListener(this);
     }
     parameterListParameterForDepths = new ParameterListParameter(DEPTH_TITLE,parameterListForDepths);
 
@@ -453,144 +480,147 @@ public class SimpleFaultParameter extends DependentParameter implements java.io.
    * @throws RuntimeException
    */
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
+    //only update the parameter if any parameter in the parameer list has been changed
+    if(faultParameterChange){
+      ParameterList independentParamList  = new ParameterList();
+      // EvenlyGriddedSurface
+      GriddedFaultFactory fltFactory = null;
+      //gets the faultName
+      String fltName = (String)parameterList.getParameter(this.FAULT_NAME).getValue();
+      //creates the fault trace data
+      fltTrace = new FaultTrace(fltName);
 
-    ParameterList independentParamList  = new ParameterList();
-    // EvenlyGriddedSurface
-    GriddedFaultFactory fltFactory = null;
-    //gets the faultName
-    String fltName = (String)parameterList.getParameter(this.FAULT_NAME).getValue();
-    //creates the fault trace data
-    fltTrace = new FaultTrace(fltName);
+      //Adding the fault Name to the independent Param List
+      if(fltName !=null) //add only if the flt NAme is not equal to null
+        independentParamList.addParameter(parameterList.getParameter(this.FAULT_NAME));
 
-    //Adding the fault Name to the independent Param List
-    if(fltName !=null) //add only if the flt NAme is not equal to null
-      independentParamList.addParameter(parameterList.getParameter(this.FAULT_NAME));
+      //initializing the vectors for the lats, lons, depths and dips
+      ArrayList lats = new ArrayList();
+      ArrayList lons = new ArrayList();
+      ArrayList depths = new ArrayList();
+      ArrayList dips = new ArrayList();
+      //getting the number of  fault trace
+      int fltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
+      //getting the number of dips
+      int numDips = ((Integer)numDipParam.getValue()).intValue();
 
-    //initializing the vectors for the lats, lons, depths and dips
-    ArrayList lats = new ArrayList();
-    ArrayList lons = new ArrayList();
-    ArrayList depths = new ArrayList();
-    ArrayList dips = new ArrayList();
-    //getting the number of  fault trace
-    int fltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
-    //getting the number of dips
-    int numDips = ((Integer)numDipParam.getValue()).intValue();
+      //adding the fault trace and num dip param to the independent param list
+      independentParamList.addParameter(parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE));
+      independentParamList.addParameter(numDipParam);
 
-    //adding the fault trace and num dip param to the independent param list
-    independentParamList.addParameter(parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE));
-    independentParamList.addParameter(numDipParam);
-
-    //adding the latitudes to the ArrayList
-    for(int i=0;i<fltTracePoints;++i){
-      Double latLocation =(Double)parameterListParameterForLats.getParameter().getParameter(this.LAT_PARAM_NAME+(i+1)).getValue();
-      lats.add(latLocation);
-    }
-
-    //adding the longitudes to the ArrayList
-    for(int i=0;i<fltTracePoints;++i){
-      Double lonLocation =(Double)parameterListParameterForLons.getParameter().getParameter(this.LON_PARAM_NAME+(i+1)).getValue();
-      lons.add(lonLocation);
-    }
-
-    //variable added to store the previous Depth (to make sure they're in ascending order)
-    double prevDepth=((Double)parameterListParameterForDepths.getParameter().getParameter(this.DEPTH_PARAM_NAME+("1")).getValue()).doubleValue();
-
-    //adding the depths(equal to numDips +1) to the ArrayList
-    for(int i=0;i<=numDips;++i){
-      Double depthLocation = (Double)parameterListParameterForDepths.getParameter().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
-      depths.add(depthLocation);
-      //compares the depths, becuase depths should be entered in the increasing order
-      if(depthLocation.doubleValue() < prevDepth)
-        throw new RuntimeException("Depths should be entered in increasing order");
-      prevDepth = depthLocation.doubleValue();
-    }
-
-    //adding the dips to the vector
-    for(int i=0;i<numDips;++i){
-      Double dipLocation = (Double)parameterListParameterForDips.getParameter().getParameter(this.DIP_PARAM_NAME+(i+1)).getValue();
-      dips.add(dipLocation);
-    }
-
-    //adding the Lat,Lon,Depths and Dip param to the independent Param List
-    independentParamList.addParameter(parameterListParameterForLats);
-    independentParamList.addParameter(parameterListParameterForLons);
-    independentParamList.addParameter(parameterListParameterForDepths);
-    independentParamList.addParameter(parameterListParameterForDips);
-
-    //adding the locations to the FaultTrace
-    for(int i=0;i<fltTracePoints;++i){
-      double lat = ((Double)lats.get(i)).doubleValue();
-      double lon = ((Double)lons.get(i)).doubleValue();
-      double depth = ((Double)depths.get(0)).doubleValue();
-      Location loc = new Location(lat,lon,depth);
-      fltTrace.addLocation(loc);
-    }
-    this.fltTrace = fltTrace;
-
-    if(D)
-      System.out.println("Fault-trace length (km) = "+fltTrace.getTraceLength());
-
-    //getting the gridSpacing
-    double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
-
-    //adding the gridSpacing param to the indendent Param List
-    independentParamList.addParameter(parameterList.getParameter(this.GRID_SPACING));
-
-    /**
-     * Checking for the number of Dips.
-     * If the number of dip is equal to 1 then give the option to the user
-     * to make the FaultType (Frankel or Stirling) parameter visible to the
-     * user. Else no choice is given to the user and make the object of the
-     * SimpleListricGriddedFaultFactory.
-     */
-    if(numDips ==1){
-      //gets the dip as the only value in the vector of dips
-      double dip = ((Double)dips.get(0)).doubleValue();
-      this.avgDip =dip;
-      //gets the fault type
-      String fltType = (String)this.faultTypeParam.getValue();
-      //System.out.println("Fault-type: "+fltType);
-      //gets the upperSiesDepth and LowerSiesDepth
-      double upperSiesDepth =((Double)depths.get(0)).doubleValue();
-      double lowerSiesDepth =((Double)depths.get(1)).doubleValue();
-      upperSies = upperSiesDepth;
-      lowerSies = lowerSiesDepth;
-      //make the object of the FrankelGriddedFaultFactory
-      if(fltType.equalsIgnoreCase(this.FRANKEL)){
-        fltFactory = new FrankelGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
-      }
-      //make the object for the Stirling gridded fault
-      if(fltType.equalsIgnoreCase(this.STIRLING)){
-        fltFactory = new StirlingGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
-        //checking to see if the Dip Direction Param value is null then assign default Double.NaN
-        //else assign the dip direction value.
-        Double aveDipDir = (Double)dipDirectionParam.getValue();
-        if(aveDipDir == null)
-          ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(Double.NaN);
-        else
-          ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(aveDipDir.doubleValue());
+      //adding the latitudes to the ArrayList
+      for(int i=0;i<fltTracePoints;++i){
+        Double latLocation =(Double)parameterListParameterForLats.getParameter().getParameter(this.LAT_PARAM_NAME+(i+1)).getValue();
+        lats.add(latLocation);
       }
 
-      //adding the Fault type param to the independent param list
-      independentParamList.addParameter(faultTypeParam);
-    }
-    else{
-      //make the object for the simple Listric fault
-      fltFactory = new SimpleListricGriddedFaultFactory(fltTrace,dips,depths,gridSpacing);
-    }
-    //gets the griddedsurface from the faultFactory and sets the Value for the
-    //SimpleFaultParameter
-    setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
+      //adding the longitudes to the ArrayList
+      for(int i=0;i<fltTracePoints;++i){
+        Double lonLocation =(Double)parameterListParameterForLons.getParameter().getParameter(this.LON_PARAM_NAME+(i+1)).getValue();
+        lons.add(lonLocation);
+      }
 
-    if(D) {
-      EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getGriddedSurface();
-      for(int i=0;i<surf.getNumCols();i++)
-        for(int k=0;k<surf.getNumRows();k++)
-          System.out.println(surf.getLocation(k,i).toString());
-    }
+      //variable added to store the previous Depth (to make sure they're in ascending order)
+      double prevDepth=((Double)parameterListParameterForDepths.getParameter().getParameter(this.DEPTH_PARAM_NAME+("1")).getValue()).doubleValue();
 
-    //saving the independent Param List inside SimpleFault parameter
-    setIndependentParameters(independentParamList);
+      //adding the depths(equal to numDips +1) to the ArrayList
+      for(int i=0;i<=numDips;++i){
+        Double depthLocation = (Double)parameterListParameterForDepths.getParameter().getParameter(this.DEPTH_PARAM_NAME+(i+1)).getValue();
+        depths.add(depthLocation);
+        //compares the depths, becuase depths should be entered in the increasing order
+        if(depthLocation.doubleValue() < prevDepth)
+          throw new RuntimeException("Depths should be entered in increasing order");
+        prevDepth = depthLocation.doubleValue();
+      }
+
+      //adding the dips to the vector
+      for(int i=0;i<numDips;++i){
+        Double dipLocation = (Double)parameterListParameterForDips.getParameter().getParameter(this.DIP_PARAM_NAME+(i+1)).getValue();
+        dips.add(dipLocation);
+      }
+
+      //adding the Lat,Lon,Depths and Dip param to the independent Param List
+      independentParamList.addParameter(parameterListParameterForLats);
+      independentParamList.addParameter(parameterListParameterForLons);
+      independentParamList.addParameter(parameterListParameterForDepths);
+      independentParamList.addParameter(parameterListParameterForDips);
+
+      //adding the locations to the FaultTrace
+      for(int i=0;i<fltTracePoints;++i){
+        double lat = ((Double)lats.get(i)).doubleValue();
+        double lon = ((Double)lons.get(i)).doubleValue();
+        double depth = ((Double)depths.get(0)).doubleValue();
+        Location loc = new Location(lat,lon,depth);
+        fltTrace.addLocation(loc);
+      }
+      this.fltTrace = fltTrace;
+
+      if(D)
+        System.out.println("Fault-trace length (km) = "+fltTrace.getTraceLength());
+
+      //getting the gridSpacing
+      double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
+
+      //adding the gridSpacing param to the indendent Param List
+      independentParamList.addParameter(parameterList.getParameter(this.GRID_SPACING));
+
+      /**
+       * Checking for the number of Dips.
+       * If the number of dip is equal to 1 then give the option to the user
+       * to make the FaultType (Frankel or Stirling) parameter visible to the
+       * user. Else no choice is given to the user and make the object of the
+       * SimpleListricGriddedFaultFactory.
+       */
+      if(numDips ==1){
+        //gets the dip as the only value in the vector of dips
+        double dip = ((Double)dips.get(0)).doubleValue();
+        this.avgDip =dip;
+        //gets the fault type
+        String fltType = (String)this.faultTypeParam.getValue();
+        //System.out.println("Fault-type: "+fltType);
+        //gets the upperSiesDepth and LowerSiesDepth
+        double upperSiesDepth =((Double)depths.get(0)).doubleValue();
+        double lowerSiesDepth =((Double)depths.get(1)).doubleValue();
+        upperSies = upperSiesDepth;
+        lowerSies = lowerSiesDepth;
+        //make the object of the FrankelGriddedFaultFactory
+        if(fltType.equalsIgnoreCase(this.FRANKEL)){
+          fltFactory = new FrankelGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
+        }
+        //make the object for the Stirling gridded fault
+        if(fltType.equalsIgnoreCase(this.STIRLING)){
+          fltFactory = new StirlingGriddedFaultFactory(fltTrace,dip,upperSiesDepth,lowerSiesDepth,gridSpacing);
+          //checking to see if the Dip Direction Param value is null then assign default Double.NaN
+          //else assign the dip direction value.
+          Double aveDipDir = (Double)dipDirectionParam.getValue();
+          if(aveDipDir == null)
+            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(Double.NaN);
+          else
+            ((StirlingGriddedFaultFactory)fltFactory).setAveDipDir(aveDipDir.doubleValue());
+        }
+
+        //adding the Fault type param to the independent param list
+        independentParamList.addParameter(faultTypeParam);
+      }
+      else{
+        //make the object for the simple Listric fault
+        fltFactory = new SimpleListricGriddedFaultFactory(fltTrace,dips,depths,gridSpacing);
+      }
+      //gets the griddedsurface from the faultFactory and sets the Value for the
+      //SimpleFaultParameter
+      setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
+
+      if(D) {
+        EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getGriddedSurface();
+        for(int i=0;i<surf.getNumCols();i++)
+          for(int k=0;k<surf.getNumRows();k++)
+            System.out.println(surf.getLocation(k,i).toString());
+      }
+
+      //saving the independent Param List inside SimpleFault parameter
+      setIndependentParameters(independentParamList);
+      faultParameterChange = false;
+    }
   }
 
   /**

@@ -25,6 +25,7 @@ import org.scec.param.ParameterAPI;
 import org.scec.param.ParameterList;
 import org.scec.param.StringConstraint;
 import org.scec.param.StringParameter;
+import org.scec.param.IntegerConstraint;
 import org.scec.param.editor.ParameterEditor;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.event.ParameterChangeEvent;
@@ -81,6 +82,22 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
   //ListEditor
   private ParameterListEditor listEditor;
+  //parameterlist
+  private ParameterList parameterList;
+
+  //rupture parameter
+  private IntegerParameter ruptureParam;
+
+  //source parameter
+  private StringParameter sourceParam;
+
+  //hypocenter location parameter
+  private StringParameter hypoCenterLocationParam;
+
+  //selected source Index for the ERF
+  private int sourceValue =0;
+  //selected rupture value
+  private int ruptureValue =0;
 
   //see if we have to show all the Adjustable Params for the ERF in a seperate window
   //when user selects different ERF.
@@ -97,6 +114,9 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   // which this forecast  has already been selected it will not pop up adjustable params window
   private ArrayList  alreadySeenERFs = new ArrayList();
 
+  // get the selected forecast
+  private EqkRupForecastAPI erf = null;
+
   //progressBar class to be shown when ruptures are being updated
   CalcProgressBar progress;
 
@@ -108,86 +128,126 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
    // create the instance of ERFs
    erfGuiBean= new ERF_GuiBean(erfClassNames);
+   parameterList = new ParameterList();
+   setSelectedERF();
+   setSourceFromSelectedERF(0);
+   setRuptureForSelectedSource(0);
+   getHypocenterLocationsForSelectedRupture();
+   listEditor  = new ParameterListEditor(parameterList);
+   // now make the editor based on the parameter list
+   listEditor.setTitle( TITLE );
+   setHypocenterLocationInRupture(false);
    try {
       jbInit();
     }
     catch(Exception e) {
       e.printStackTrace();
     }
-
-    setParamsInForecast(0,0);
-
  }
 
-
  /**
-  * this function is called to add the paramters based on the forecast
-  *  selected by the user.
-  * This updates the selecetd forecast and sets the sourceIndex and RuptureIndex
-  * for the ScenarioMap.
-  *
-  * @param sourceIndex : "0" as the default
-  * @param ruptureIndex : "0" as the default
+  * creates the selected ERF based on the selected ERF Name
   */
- public void setParamsInForecast(int sourceIndex,int ruptureIndex) {
-
-
-   // get the selected forecast
-   EqkRupForecastAPI erf = null;
+ public void setSelectedERF(){
+   if(erf == null){
+     // add the select forecast parameter
+     ParameterAPI chooseERF_Param = erfGuiBean.getERFParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
+     chooseERF_Param.addParameterChangeListener(this);
+     parameterList.addParameter(chooseERF_Param);
+   }
    try{
      //gets the instance of the selected ERF
      erf = (EqkRupForecastAPI)erfGuiBean.getSelectedERF();
    }catch(Exception e){
      e.printStackTrace();
    }
+ }
 
-   // add the select forecast parameter
-   ParameterAPI chooseERF_Param = erfGuiBean.getERFParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
-   chooseERF_Param.addParameterChangeListener(this);
-   ParameterList parameterList = new ParameterList();
-   parameterList.addParameter(chooseERF_Param);
-
+ /**
+  * set the source, from selected ERF, with sourceIndex in the Source parameter
+  * @param sourceIndex
+  */
+ public void setSourceFromSelectedERF(int sourceIndex){
    int numSources = erf.getNumSources();
    ArrayList sourcesVector = new ArrayList();
 
    if(progress == null)
-     progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
+     progress = new CalcProgressBar("Updating Ruptures","Please wait while sources are being updated");
    else
-     progress.show();
+     progress.setProgressMessage("Please wait while sources are being updated");
+
 
    for(int i=0;i<numSources;++i)
      sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
 
-   StringParameter sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(sourceIndex));
-
-   sourceParam.addParameterChangeListener(this);
-   parameterList.addParameter(sourceParam);
+   if(sourceParam == null){
+     sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(sourceIndex));
+     sourceParam.addParameterChangeListener(this);
+     parameterList.addParameter(sourceParam);
+   }
+   else{
+     sourceParam.setConstraint(new StringConstraint(sourcesVector));
+     sourceParam.setValue((String)sourcesVector.get(sourceIndex));
+   }
 
    //add parameter for selecting the rupture for selected source index
-   int sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
+   sourceValue = Integer.parseInt((((String)sourceParam.getValue()).substring(0,((String)sourceParam.getValue()).indexOf("("))).trim());
    int numRuptures = erf.getNumRuptures(sourceValue);
-   IntegerParameter ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,
-       0,numRuptures-1,new Integer(ruptureIndex));
-   ruptureParam.addParameterChangeListener(this);
-   parameterList.addParameter(ruptureParam);
-
-   //getting the surface of the rupture
-   ArrayList v = new  ArrayList();
-   int ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
-
    //writing the ruptures info. for each selected source in the text Area below the rupture
    String rupturesInfo = "Rupture info for \"";
-   rupturesInfo += ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim();
+   rupturesInfo += sourceValue;
    rupturesInfo += "\":\n";
    for(int i=0;i< numRuptures;++i)
      rupturesInfo += "\n  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
    sourceRupInfoText.setText(rupturesInfo);
    sourceRupInfoText.setCaretPosition(0);
    progress.showProgress(false);
+ }
 
-   //getting the selected rupture fro the source
+ /**
+  * set the rupture, for the selected source, with ruptureIndex in the Rupture Index parameter
+  * @param ruptureIndex
+  */
+ public void setRuptureForSelectedSource(int ruptureIndex){
+   int numRuptures = erf.getNumRuptures(sourceValue);
+
+   if(progress == null)
+     progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated");
+   else
+     progress.setProgressMessage("Please wait while ruptures are being updated");
+
+
+   if(ruptureParam == null){
+     ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,
+         0,numRuptures-1,new Integer(ruptureIndex));
+     ruptureParam.addParameterChangeListener(this);
+     parameterList.addParameter(ruptureParam);
+   }
+   else{
+     ruptureParam.setConstraint(new IntegerConstraint(0,numRuptures-1));
+     ruptureParam.setValue(new Integer(ruptureIndex));
+   }
+   ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
+
+   //getting the selected rupture for the source
    probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
+   progress.dispose();
+ }
 
+ /**
+  * gets the hypocenter locations for the selected rupture and adds those to the
+  * hypocenter location parameter.
+  */
+ public void getHypocenterLocationsForSelectedRupture(){
+
+   if(progress == null)
+     progress = new CalcProgressBar("Updating Ruptures","Please wait while hypocenter locations are being updated");
+   else
+     progress.setProgressMessage("Please wait while hypocenter locations are being updated");
+
+
+   //getting the surface of the rupture
+   ArrayList v = new  ArrayList();
    // The first row of all the rupture surfaces is the list of their hypocenter locations
    ListIterator hypoLocationsIt = probEqkRupture.getRuptureSurface().getColumnIterator(0);
    Location loc;
@@ -200,43 +260,35 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      v.add(lat+" "+lon+" "+depth);
    }
    StringConstraint constraints= new StringConstraint(v);
-   StringParameter hypoCenterLocationParam = new StringParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME,
-       constraints,v.get(0).toString());
-   parameterList.addParameter(hypoCenterLocationParam);
-   hypoCenterLocationParam.addParameterChangeListener(this);
 
-   if(listEditor!=null) this.remove(listEditor);
-   listEditor= new ParameterListEditor(parameterList);
-
-   // now make the editor based on the parameter list
-   listEditor.setTitle( TITLE );
-
-   if(!this.hypoCentreCheck.isSelected()){
-     probEqkRupture.setHypocenterLocation(null);
-     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(false);
+   if(hypoCenterLocationParam == null){
+     hypoCenterLocationParam = new StringParameter(RUPTURE_HYPOLOCATIONS_PARAM_NAME,
+         constraints,v.get(0).toString());
+     parameterList.addParameter(hypoCenterLocationParam);
+     hypoCenterLocationParam.addParameterChangeListener(this);
    }
    else{
-     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(true);
-     //getting the HypoCenterLocation Object and setting the Rupture HypocenterLocation
-     probEqkRupture.setHypocenterLocation(getHypocenterLocation());
+    hypoCenterLocationParam.setConstraint(constraints);
+    hypoCenterLocationParam.setValue(v.get(0));
    }
+   progress.dispose();
+ }
 
-   // get the panel for increasing the font and border
-   // this is hard coding for increasing the IMR font
-   // the colors used here are from ParameterEditor
-   JPanel panel = listEditor.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getOuterPanel();
-   TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
-   titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
-   Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
-   titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
-   titledBorder1.setTitle(erfGuiBean.ERF_PARAM_NAME);
-   Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
-   panel.setBorder(border1);
-   this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
-   this.validate();
-   this.repaint();
-   showAllAdjustableParamForERF= true;
+ /**
+  *
+  * @param visible: Based on the boolean value of visible, it makes the hypocenter
+  * location parameter visible or invisible.
+  */
+ private void setHypocenterLocationInRupture(boolean visible) {
+   if(!visible)
+     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(false);
+   else
+     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(true);
+
+
+   //getting the HypoCenterLocation Object and setting the Rupture HypocenterLocation
+   probEqkRupture.setHypocenterLocation(getHypocenterLocation());
+
  }
 
  /**
@@ -265,27 +317,31 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
          getAllERFAdjustableParams();
          alreadySeenERFs.add(event.getNewValue());
        }
-       setParamsInForecast(0,0);
+       hypoCentreCheck.setSelected(false);
+       setSourceFromSelectedERF(0);
+       setRuptureForSelectedSource(0);
+       getHypocenterLocationsForSelectedRupture();
        listEditor.refreshParamEditor();
      }
    }
 
    // if source selected by the user  changes
    else if( name1.equals(this.SOURCE_PARAM_NAME) ){
-     String value = event.getNewValue().toString();
-     int sourceValue = Integer.parseInt(value.substring(0,value.indexOf("(")).trim());
      // set the new forecast parameters. Also change the number of ruptures in this source
-     setParamsInForecast(sourceValue,0);
+     hypoCentreCheck.setSelected(false);
+     setRuptureForSelectedSource(0);
+     getHypocenterLocationsForSelectedRupture();
      listEditor.refreshParamEditor();
    }
 
    // if source selected by the user  changes
    else if( name1.equals(this.RUPTURE_PARAM_NAME) ){
-     String value = event.getNewValue().toString();
-     String sourceParamVal = (String)listEditor.getParameterList().getParameter(SOURCE_PARAM_NAME).getValue();
-     int sourceValue = Integer.parseInt(sourceParamVal.substring(0,sourceParamVal.indexOf("(")).trim());
+
      // set the new forecast parameters. Also change the number of ruptures in this source
-     setParamsInForecast(sourceValue,Integer.parseInt(value));
+     hypoCentreCheck.setSelected(false);
+     getHypocenterLocationsForSelectedRupture();
+     //getting the selected rupture for the source
+     probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
      listEditor.refreshParamEditor();
    }
 
@@ -321,6 +377,21 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
     this.add(hypoCentreCheck,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
+
+
+    // get the panel for increasing the font and border
+    // this is hard coding for increasing the IMR font
+    // the colors used here are from ParameterEditor
+    JPanel panel = listEditor.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getOuterPanel();
+    TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
+    titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
+    Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
+    titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
+    titledBorder1.setTitle(erfGuiBean.ERF_PARAM_NAME);
+    Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
+    panel.setBorder(border1);
+    this.add(listEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
   }
 
   void erfAdjParamButton_actionPerformed(ActionEvent e) {
@@ -365,7 +436,10 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    */
   public void setERF_ParamEditor(ERF_GuiBean erfGuiBean){
     this.erfGuiBean = erfGuiBean;
-    setParamsInForecast(0,0);
+    setSelectedERF();
+    setSourceFromSelectedERF(0);
+    setRuptureForSelectedSource(0);
+    getHypocenterLocationsForSelectedRupture();
   }
 
   /**
@@ -437,8 +511,11 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   }
 
   void button_actionPerformed(ActionEvent e) {
-   setParamsInForecast(0,0);
    frame.dispose();
+   setSelectedERF();
+   setSourceFromSelectedERF(0);
+   setRuptureForSelectedSource(0);
+   getHypocenterLocationsForSelectedRupture();
   }
 
 
@@ -488,11 +565,10 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    * @param e
    */
   void hypoCentreCheck_actionPerformed(ActionEvent e) {
-    String sourceValue = (String)listEditor.getParameterList().getParameter(this.SOURCE_PARAM_NAME).getValue();
-
-    int sourceIndex = Integer.parseInt(sourceValue.substring(0,sourceValue.indexOf("(")).trim());
-    int ruptureIndex = ((Integer)listEditor.getParameterList().getParameter(this.RUPTURE_PARAM_NAME).getValue()).intValue();
-    setParamsInForecast(sourceIndex,ruptureIndex);
+    if(hypoCentreCheck.isSelected())
+      setHypocenterLocationInRupture(true);
+    else
+      setHypocenterLocationInRupture(false);
   }
 
   //returns the parameterListEditor

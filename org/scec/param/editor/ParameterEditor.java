@@ -206,7 +206,6 @@ public class ParameterEditor
                     model.setValue( value );
                 }
                 catch(ParameterException ee){
-
                     System.out.println(S + ee.toString());
 
                 }

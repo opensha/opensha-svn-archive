@@ -136,7 +136,10 @@ public class SF_BayAreaScenarioControlPanel {
         erfParamGuiBean.getSelectedERF().updateForecast();
 
         //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
-        erfPanel.setParamsInForecast(sourceIndex,ruptureIndex);
+        //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
+        erfPanel.setSourceFromSelectedERF(sourceIndex);
+        erfPanel.setRuptureForSelectedSource(ruptureIndex);
+        erfPanel.getHypocenterLocationsForSelectedRupture();
         mapGuiBean.setDirectoryName(directoryName);
         hazusControlPanel.runToGenerateShapeFilesAndMaps();
       }
