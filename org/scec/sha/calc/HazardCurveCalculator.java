@@ -87,8 +87,6 @@ public class HazardCurveCalculator {
     int numSources = eqkRupForecast.getNumSources();
     ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
 
-
-
     // totRuptures holds the total ruptures for all sources
     int totRuptures = 0;
     for(int i=0;i<numSources;++i)
