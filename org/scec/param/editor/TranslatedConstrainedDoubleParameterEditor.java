@@ -1,7 +1,24 @@
 package org.scec.param.editor;
 
+import java.util.*;
+import java.awt.*;
+
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.*;
+
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
+import org.scec.gui.SidesBorder;
+import org.scec.param.DoubleDiscreteConstraint;
+import org.scec.param.DoubleDiscreteParameter;
+import org.scec.param.ParameterAPI;
+import org.scec.param.ParameterConstraintAPI;
+import org.scec.exceptions.ConstraintException;
+
 /**
- * <p>Title: </p>
+ * <p>Title: TranslatedConstrainedDoubleParameterEditor</p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
