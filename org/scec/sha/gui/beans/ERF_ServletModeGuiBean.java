@@ -18,8 +18,9 @@ import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
 import org.scec.sha.magdist.parameter.MagFreqDistParameter;
 import org.scec.sha.earthquake.ERF_EpistemicList;
 import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
+import org.scec.sha.earthquake.rupForecastImpl.WG02.*;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
-import org.scec.sha.gui.servlets.erf.ERF_API;
+import org.scec.sha.gui.servlets.erf.*;
 import org.scec.data.TimeSpan;
 
 
@@ -62,6 +63,8 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   //for that forecast has been changed
   private Hashtable parameterChangeFlagsForAllERF = new Hashtable();
 
+
+
   /**
    * default constructor
    */
@@ -75,8 +78,8 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    */
   public ERF_ServletModeGuiBean(Vector erfClassNames) {
 
-    // forecast 1  is selected initially
-    this.openConnectionToAllERF_Servlets();
+
+
 
     //gets the supported ERF List and initialise the selction of the ERF for the user
     initERF_List();
@@ -100,13 +103,9 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     searchPaths[1] = "org.scec.sha.magdist.gui" ;
 
-    // gets the Names of all the ERF from the Hashtable and adds them to the vector
-    //this list of ERF names act as the selection list for user to choose the ERF of his desire.
-    Enumeration enum= this.paramListForAllERF.keys();
-    this.erfNamesVector.removeAllElements();
-    while(enum.hasMoreElements())
-      this.erfNamesVector.add(enum.nextElement());
-
+    //open the connections to all the ERF servlets to get their paramList and timspan
+    //It also initialises all Vector with names of all the ERF's
+    this.openConnectionToAllERF_Servlets();
     // make the forecast selection parameter
     StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
         erfNamesVector, (String)erfNamesVector.get(0));
@@ -200,7 +199,7 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    * It returns the ERF after updating its forecast
    * @return
    */
-  public ERF_API getSelectedERF() {
+  public ForecastAPI getSelectedERF() {
 
     // update the mag dist param
     if(this.getMagDistEditor()!=null)
@@ -216,16 +215,24 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     }
     // get the selected forecast model
     String selectedForecast = getSelectedERF_Name();
-    ERF_API eqkRupForecast=null;
+
+    //Reference to the EqkRupForecast Objects returned from the ERF servlets
+    ForecastAPI eqkRupForecast=null;
 
     //checks if any parameter for the forecast has been changed only then get the
     //new forecast object from the server
     if(((Boolean)parameterChangeFlagsForAllERF.get(selectedForecast)).booleanValue()){
-    //Based on the selected ERF model it connects to the srevlet for that ERF
-    // and gets it ERF Object
+
+    //Based on the selected ERF model it connects to the servlet for that ERF
+    //and gets it ERF Object.
     //if the selected forecast is PEER_Fault Forecast
     if(selectedForecast.equalsIgnoreCase(PEER_FaultForecast.NAME))
-      eqkRupForecast=(ERF_API)this.openPEERFaultConnection(this.getERF_API);
+      eqkRupForecast=(ForecastAPI)this.openPEERFaultConnection(this.getERF_API);
+
+    //if the selected forecast is WG02_List Forecast
+    if(selectedForecast.equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))
+      eqkRupForecast=(ForecastAPI)this.openWG02_ERFConnection(this.getERF_ListAPI);
+
     //changing the paramterChangeFlag for the selected forecast to false
     parameterChangeFlagsForAllERF.put(selectedForecast,new Boolean(false));
     }
@@ -236,13 +243,14 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   /**
    * It sees whether selected ERF is a Epistemic list.
    * @return : true if selected ERF is a epistemic list, else false
-
+   */
   public boolean isEpistemicList() {
-    EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
-    if(eqkRupForecast instanceof ERF_EpistemicList)
+    //This needed to fix , to remove the hard codeing
+    //it is being used to pop up the control panel for the Epistemic List
+    if(this.getSelectedERF_Name().equalsIgnoreCase(WG02_ERF_Epistemic_List.NAME))
       return true;
     else return false;
-  }*/
+  }
 
 
   /**checks if the magFreqDistParameter exists inside it ,
@@ -349,13 +357,27 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
    */
   private void openConnectionToAllERF_Servlets(){
     //open the connection with the PEER_FaultForecastServlet.
-    String forecastName =(String)openPEERFaultConnection(getName);
-    ParameterList paramList =(ParameterList)openPEERFaultConnection(getAdjParams);
-    TimeSpan timeSpan =(TimeSpan)openPEERFaultConnection(getTimeSpan);
-    timeSpan.addParameterChangeListener(this);
-    paramListForAllERF.put(forecastName,paramList);
-    timespanListForAllERF.put(forecastName,timeSpan);
-    parameterChangeFlagsForAllERF.put(forecastName,new Boolean(true));
+    String peerForecastName =(String)openPEERFaultConnection(getName);
+    ParameterList peerParamList =(ParameterList)openPEERFaultConnection(getAdjParams);
+    TimeSpan peerTimeSpan =(TimeSpan)openPEERFaultConnection(getTimeSpan);
+    peerTimeSpan.addParameterChangeListener(this);
+    paramListForAllERF.put(peerForecastName,peerParamList);
+    timespanListForAllERF.put(peerForecastName,peerTimeSpan);
+    parameterChangeFlagsForAllERF.put(peerForecastName,new Boolean(true));
+
+    //open the connection for the WG-02 ERF EpistemicList
+    String wg02ForecastName =(String)openWG02_ERFConnection(getName);
+    ParameterList wg02ParamList =(ParameterList)openWG02_ERFConnection(getAdjParams);
+    TimeSpan wg02TimeSpan =(TimeSpan)openWG02_ERFConnection(getTimeSpan);
+    wg02TimeSpan.addParameterChangeListener(this);
+    paramListForAllERF.put(wg02ForecastName,wg02ParamList);
+    timespanListForAllERF.put(wg02ForecastName,wg02TimeSpan);
+    parameterChangeFlagsForAllERF.put(wg02ForecastName,new Boolean(true));
+
+    // gets the Names of all the ERF from the Hashtable and adds them to the vector
+    //this list of ERF names act as the selection list for user to choose the ERF of his desire.
+    this.erfNamesVector.add(peerForecastName);
+    this.erfNamesVector.add(wg02ForecastName);
   }
 
 
@@ -399,7 +421,71 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
       if(function.equalsIgnoreCase(this.getERF_API)){
         //gives the Adjustable Params  object to the Servelet
         outputToServlet.writeObject(this.getAdjParamList());
-        System.out.println("MagDist Value:"+this.getAdjParamList().getParameter("Mag Dist").getValue().toString());
+        //gives the timeSpan object to the servlet
+        outputToServlet.writeObject(this.getTimeSpan());
+      }
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "object" from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      outputFromServletFunction=inputToServlet.readObject();
+      System.out.println("Received the input from the servlet");
+      inputToServlet.close();
+
+    }catch(FileNotFoundException ee){
+      ee.printStackTrace();
+    }
+    catch (Exception e) {
+      System.out.println("Exception in connection with servlet:" +e);
+      e.printStackTrace();
+    }
+    return outputFromServletFunction;
+  }
+
+  /**
+   * sets up the connection with the WG-02 Forecast Servlet on the server (scec.usc.edu)
+   */
+  private  Object openWG02_ERFConnection(String function) {
+
+    Object outputFromServletFunction=null;
+    try{
+      URL wg02_Servlet = new
+                             URL("http://scec.usc.edu:9999/examples/servlet/WG02_EqkRupForecastServlet");
+
+      URLConnection servletConnection = wg02_Servlet.openConnection();
+      System.out.println("connection established:"+servletConnection.toString());
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+      System.out.println("Calling the function:"+function);
+
+      //tells the servlet which function to call
+      outputToServlet.writeObject(function);
+
+      /**
+       * if the function to be called is getERF_API
+       * then we need to passs the TimeSpan and Adjustable ParamList to the
+       * servlet.
+       */
+      if(function.equalsIgnoreCase(this.getERF_ListAPI)){
+        //gives the Adjustable Params  object to the Servelet
+        outputToServlet.writeObject(this.getAdjParamList());
+
         //gives the timeSpan object to the servlet
         outputToServlet.writeObject(this.getTimeSpan());
       }

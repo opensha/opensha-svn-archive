@@ -21,10 +21,6 @@ import org.scec.data.TimeSpan;
 public class WG02_ERF_ListObject implements ERF_ListAPI,java.io.Serializable{
 
 
-  // vector to hold the instances of Eqk Rup Forecasts
-  private Vector erf_List = new Vector();
-
-
   // vector to hold the line numbers where each iteration starts
   private Vector iterationLineNumbers;
 
@@ -48,18 +44,20 @@ public class WG02_ERF_ListObject implements ERF_ListAPI,java.io.Serializable{
    * @param iterationsNumber: vector to hold the line numbers where each iteration starts
    *
    * // adjustable parameter primitives
+   * @param numIterations
    * @param rupOffset
    * @param deltaMag
    * @param gridSpacing
    * @param backSies
    * @param grTail
    */
-  public WG02_ERF_ListObject(ArrayList lines, Vector iterationsNumber,
+  public WG02_ERF_ListObject(ArrayList lines, Vector iterationsNumber,int numIterations,
                              double rupOffset,double deltaMag,double gridSpacing,
                              String backSies,String grTail) {
 
     this.inputFileLines=lines;
     this.iterationLineNumbers=iterationsNumber;
+    this.numIterations=numIterations;
     this.rupOffset=rupOffset;
     this.deltaMag=deltaMag;
     this.gridSpacing=gridSpacing;
@@ -74,7 +72,7 @@ public class WG02_ERF_ListObject implements ERF_ListAPI,java.io.Serializable{
    * @return : number of eqk rup forecasts in this list
    */
   public int getNumERFs() {
-    return erf_List.size();
+    return numIterations;
   }
 
   /**
@@ -121,9 +119,7 @@ public class WG02_ERF_ListObject implements ERF_ListAPI,java.io.Serializable{
    * @param time
    */
   public void setTimeSpan(TimeSpan time) {
-    int  numERFs = erf_List.size();
-    for(int i=0; i<numERFs; ++i)
-      ((ERF_API)erf_List.get(i)).setTimeSpan(time);
+    this.timeSpan=time;
   }
 
 }

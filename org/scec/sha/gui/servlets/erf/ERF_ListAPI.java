@@ -13,7 +13,7 @@ import org.scec.sha.earthquake.*;
  * @version 1.0
  */
 
-public interface ERF_ListAPI{
+public interface ERF_ListAPI extends ForecastAPI{
 
 
   /**

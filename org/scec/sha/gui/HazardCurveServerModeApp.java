@@ -39,6 +39,8 @@ import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.calc.FractileCurveCalculator;
 import org.scec.data.Site;
 import org.scec.sha.gui.servlets.erf.ERF_API;
+import org.scec.sha.gui.servlets.erf.ERF_ListAPI;
+import org.scec.sha.gui.servlets.erf.ForecastAPI;
 
 /**
  * <p>Title: HazardCurveServerModeApp</p>
@@ -77,6 +79,7 @@ public class HazardCurveServerModeApp extends JApplet
    *  The object class names for all the supported Eqk Rup Forecasts
    */
   public final static String PEER_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultForecast";
+  public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   /*public final static String PEER_AREA_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
   public final static String PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_NonPlanarFaultForecast";
   public final static String PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_ListricFaultForecast";
@@ -85,7 +88,6 @@ public class HazardCurveServerModeApp extends JApplet
   public final static String FRANKEL_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast";
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-  public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";*/
 
   // instances of the GUI Beans which will be shown in this applet
@@ -937,10 +939,10 @@ public class HazardCurveServerModeApp extends JApplet
         controlComboBox.removeAllItems();
         this.initControlList();
         // add the Epistemic control panel option if Epistemic ERF is selected
-       /* if(erfGuiBean.isEpistemicList()) {
+        if(erfGuiBean.isEpistemicList()) {
           this.controlComboBox.addItem(EPISTEMIC_CONTROL);
           controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
-        }*/
+        }
         this.timeSpanGuiBean.validate();
         this.timeSpanGuiBean.repaint();
       }
@@ -959,7 +961,8 @@ public class HazardCurveServerModeApp extends JApplet
     // whwther to show progress bar in case of update forecast
     erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
-    ERF_API eqkRupForecast = erfGuiBean.getSelectedERF();
+    ForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
+
     if(this.progressCheckBox.isSelected())  {
         progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
         progressClass.displayProgressBar();
@@ -983,11 +986,11 @@ public class HazardCurveServerModeApp extends JApplet
 
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
-    /*boolean isEqkForecastList = false;
-    if(eqkRupForecast instanceof ERF_List)  {
-      handleForecastList(site, imr, eqkRupForecast);
+    //boolean isEqkForecastList = false;
+    if(eqkRupForecast instanceof ERF_ListAPI)  {
+      handleForecastList(site, imr, (ERF_ListAPI)eqkRupForecast);
       return;
-    }*/
+    }
     calc.setNumForecasts(1);
     // this is not a eqk list
    this.isEqkList = false;
@@ -1002,7 +1005,7 @@ public class HazardCurveServerModeApp extends JApplet
    initX_Values(hazFunction);
    try {
      // calculate the hazard curve
-     calc.getHazardCurve(hazFunction, site, imr, (ERF_API)eqkRupForecast);
+     calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
      hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
      hazFunction = toggleHazFuncLogValues(hazFunction);
    }catch (RuntimeException e) {
@@ -1066,8 +1069,8 @@ public class HazardCurveServerModeApp extends JApplet
    */
   private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
-                                  EqkRupForecastAPI eqkRupForecast) {
-   ERF_List erfList  = (ERF_List)eqkRupForecast;
+                                  ERF_ListAPI eqkRupForecast) {
+   ERF_ListAPI erfList  = eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
    calc.setNumForecasts(numERFs);
    // clear the function list
@@ -1211,6 +1214,7 @@ public class HazardCurveServerModeApp extends JApplet
      // create the ERF Gui Bean object
    Vector erf_Classes = new Vector();
    erf_Classes.add(PEER_FAULT_FORECAST_CLASS_NAME);
+   erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    /*erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
    erf_Classes.add(PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME);
@@ -1219,7 +1223,6 @@ public class HazardCurveServerModeApp extends JApplet
    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erfGuiBean = new ERF_ServletModeGuiBean(erf_Classes);*/
    erfGuiBean = new ERF_ServletModeGuiBean(erf_Classes);

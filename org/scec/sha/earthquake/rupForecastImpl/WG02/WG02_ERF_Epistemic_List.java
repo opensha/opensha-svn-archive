@@ -43,8 +43,10 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
     implements ParameterChangeListener{
 
   //for Debug purposes
-  private static String  C = new String("WG02 ERF List");
+  private static final String  C = new String("WG02 ERF List");
   private boolean D = false;
+
+  public static final String  NAME = new String("WG02 ERF List");
 
   /**
    * Static variable for input file name

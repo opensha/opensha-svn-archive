@@ -23,7 +23,7 @@ import org.scec.data.region.*;
 import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_FaultSource;
 import org.scec.util.FileUtils;
 import org.scec.exceptions.FaultException;
-
+import org.scec.sha.gui.servlets.erf.*;
 
 /**
  * <p>Title: WG02_EqkRupForecastServlet </p>
@@ -41,7 +41,7 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
   /**
    * Static variable for input file name
    */
-  private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/WG02/WG02_WRAPPER_INPUT.DAT";
+  private final static String INPUT_FILE_NAME = "WG02_WRAPPER_INPUT.DAT";
 
   // vector to hold the line numbers where each iteration starts
   private Vector iterationLineNumbers;
@@ -112,7 +112,7 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
       initAdjParams();
 
       // read the lines of the input files into a list
-      try{ inputFileLines = FileUtils.loadJarFile( INPUT_FILE_NAME ); }
+      try{ inputFileLines = FileUtils.loadFile( INPUT_FILE_NAME ); }
       catch( FileNotFoundException e){ System.out.println(e.toString()); }
       catch( IOException e){ System.out.println(e.toString());}
 
@@ -179,6 +179,7 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
       numRealizationsParam.setInfo(NUM_REALIZATIONS_PARAM_INFO);
 
       // add adjustable parameters to the list
+      adjustableParams = new ParameterList();
       adjustableParams.addParameter(rupOffset_Param);
       adjustableParams.addParameter(gridSpacing_Param);
       adjustableParams.addParameter(deltaMag_Param);
@@ -217,9 +218,11 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
 
       //gets the EqkRupForecast object for the selected ERF model
       else if(funcToCall.equalsIgnoreCase(ERF_ServletModeGuiBean.getERF_ListAPI)){
+        System.out.println("Getting the List object");
         ParameterList paramList=(ParameterList)inputFromApplet.readObject();
         TimeSpan time=(TimeSpan)inputFromApplet.readObject();
         outputToApplet.writeObject(this.getERF_ListAPI(time,paramList));
+        System.out.println("Received the ParamList and TimeSpan");
       }
       outputToApplet.close();
 
@@ -285,15 +288,19 @@ public class WG02_EqkRupForecastServlet extends HttpServlet implements ERF_ListW
     * @returns the object for the ERF_List
     */
    public ERF_ListAPI getERF_ListAPI(TimeSpan time, ParameterList param){
-     numIterations = ((Integer) numRealizationsParam.getValue()).intValue();
-     rupOffset = ((Double)rupOffset_Param.getValue()).doubleValue();
-     deltaMag = ((Double)deltaMag_Param.getValue()).doubleValue();
-     gridSpacing = ((Double)gridSpacing_Param.getValue()).doubleValue();
-     backSeis = (String)backSeisParam.getValue();
-     grTail = (String)grTailParam.getValue();
-     return new WG02_ERF_ListObject(this.inputFileLines,this.iterationLineNumbers,
-                                    this.rupOffset,this.deltaMag,this.gridSpacing,
+     System.out.println("Inside the getERF_List function");
+     numIterations = ((Integer)adjustableParams.getParameter(this.NUM_REALIZATIONS_PARAM_NAME).getValue()).intValue();
+     rupOffset = ((Double)adjustableParams.getParameter(this.RUP_OFFSET_PARAM_NAME).getValue()).doubleValue();
+     deltaMag = ((Double)adjustableParams.getParameter(this.DELTA_MAG_PARAM_NAME).getValue()).doubleValue();
+     gridSpacing = ((Double)adjustableParams.getParameter(this.GRID_SPACING_PARAM_NAME).getValue()).doubleValue();
+     backSeis = (String)adjustableParams.getParameter(this.BACK_SEIS_NAME).getValue();
+     grTail = (String)adjustableParams.getParameter(this.GR_TAIL_NAME).getValue();
+     System.out.println("numIter:"+numIterations+";rupOffset:"+rupOffset+";deltaMag:"+deltaMag+";gridSpacing:"+";backSies:"+backSeis+";grTail:"+grTail);
+     WG02_ERF_ListObject wg02_ERF_List= new WG02_ERF_ListObject(this.inputFileLines,this.iterationLineNumbers,
+                                    this.numIterations,this.rupOffset,this.deltaMag,this.gridSpacing,
                                     this.backSeis,this.grTail);
+     wg02_ERF_List.setTimeSpan(time);
+     return wg02_ERF_List;
    }
 
  /**

@@ -16,7 +16,7 @@ import org.scec.data.TimeSpan;
  * @version 1.0
  */
 
-public interface ERF_API {
+public interface ERF_API extends ForecastAPI{
 
   /**
    *
