@@ -19,35 +19,35 @@ public class HazusIML_FileGenerator {
     double time = 50;
 
     double returnPd = 100;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 100: "+prob);
 
     returnPd = 250;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 250: "+prob);
 
     returnPd = 500;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 500: "+prob);
 
     returnPd = 750;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 750: "+prob);
 
     returnPd = 1000;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 1000: "+prob);
 
     returnPd = 1500;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 1500: "+prob);
 
     returnPd = 2000;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 2000: "+prob);
 
     returnPd = 2500;
-    prob = 1- Math.exp((1/returnPd)*50);
+    prob = -1*(1- Math.exp((1/returnPd)*50));
     System.out.println("Prob for 2500: "+prob);
   }
   public static void main(String[] args) {
