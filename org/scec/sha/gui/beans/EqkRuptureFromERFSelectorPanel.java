@@ -323,6 +323,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
          alreadySeenERFs.add(event.getNewValue());
        }
        hypoCentreCheck.setSelected(false);
+       this.setSelectedERF();
        setSourceFromSelectedERF(0);
        setRuptureForSelectedSource(0);
        getHypocenterLocationsForSelectedRupture();

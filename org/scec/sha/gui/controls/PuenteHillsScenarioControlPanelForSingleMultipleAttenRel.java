@@ -349,6 +349,8 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
     erfPanel.setSourceFromSelectedERF(0);
     erfPanel.setRuptureForSelectedSource(0);
+    erfPanel.showAllParamsForForecast(true);
+
 
     //checking if the single AttenRel is selected
     boolean isSingleAttenRelSelected =imrGuiBean.isSingleAttenRelTypeSelected();

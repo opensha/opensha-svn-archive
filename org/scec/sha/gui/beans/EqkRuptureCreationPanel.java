@@ -311,6 +311,7 @@ public class EqkRuptureCreationPanel extends  JPanel
    * @returns the EqkRupture Object
    */
   public EqkRupture getRupture(){
+    createRupture();
     return eqkRupture;
   }
 
