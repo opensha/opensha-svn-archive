@@ -897,7 +897,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         xLog=this.jCheckxlog.isSelected();
         yLog=this.jCheckylog.isSelected();
-
         String newXYAxisName = functions.getXYAxesName();
 
         boolean newPlot = ( !newXYAxisName.equals( lastXYAxisName ) );
@@ -956,7 +955,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
         plot.setRenderer( renderer );
 
 
-        JFreeChart chart = new JFreeChart(plot);
+        JFreeChart chart = new JFreeChart(" ",this.LEGEND_FONT,plot,false);
         chart.setBackgroundPaint( lightBlue );
 
         // set the font of legend
@@ -1284,7 +1283,6 @@ public class AttenuationRelationshipTesterApp extends JApplet
         catch( Exception ee){
 
             String name = param.getName();
-
             b.append( "You have exceeded the recommended range for: \n");
             b.append( name + '\n' );
             b.append( "Click Yes to accept the new value: " );

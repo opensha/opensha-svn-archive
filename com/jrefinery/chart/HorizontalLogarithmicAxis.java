@@ -491,9 +491,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
         double sum=0.0f;
         int i=lowest;
 
-        /**
-         * removed temporarily
-         */
+
 
         // see whther there exists any major axis in data
         double lower = getRange().getLowerBound();
