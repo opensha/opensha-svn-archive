@@ -313,8 +313,11 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
         PlotCurveCharacterstics curvePlotPref = (PlotCurveCharacterstics)plottingFeatures.get(i);
         if(button.equals(colorChooserButton[i])){
           Color color = JColorChooser.showDialog(this,"Select Color",curvePlotPref.getCurveColor());
-          curvePlotPref.setCurveColor(color);
-          datasetSelector[i].setForeground(color);
+          //chnage the default color only if user has selected a new color , else leave it the way it is
+          if(color !=null){
+            curvePlotPref.setCurveColor(color);
+            datasetSelector[i].setForeground(color);
+          }
         }
       }
     }
