@@ -273,8 +273,6 @@ public class IMR_GuiBean extends ParameterListEditor
 
      StringBuffer b = new StringBuffer();
 
-
-
      try{
        Double min = param.getWarningMin();
        Double max = param.getWarningMax();

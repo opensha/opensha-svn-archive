@@ -104,31 +104,25 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
    */
  public void addSiteParams(Iterator it) {
    Parameter tempParam;
+   Vector siteTempVector= new Vector();
    while(it.hasNext()) {
      tempParam = (Parameter)it.next();
      if(!parameterList.containsParameter(tempParam)) { // if this does not exist already
        parameterList.addParameter(tempParam);
+       //adding the parameter to the vector,
+       //VEctor is used to pass the add the site parameters to the gridded region sites.
+       siteTempVector.add(tempParam);
        if(tempParam instanceof StringParameter) { // if it Stringparamter, set its initial values
          StringParameter strConstraint = (StringParameter)tempParam;
          tempParam.setValue(strConstraint.getAllowedStrings().get(0));
         }
      }
-     //checking whether the parameter exists in that site, if it does not then add it.
 
-    /* for(int i=0;i<gridRectRegion.getNumGridLocs();++i)
-     if(!gridRectRegion.getSite(i).containsParameter(tempParam))
-       gridRectRegion.getSite(i).addParameter(tempParam);*/
    }
-   gridRectRegion.addSiteParams(it);
+   gridRectRegion.addSiteParams(siteTempVector.iterator());
 
-  /* int size =  siteVector.size();
-   Site site;
-   for(int i=0; i < size; ++i) {
-     site= (Site)siteVector.get(i);
-     System.out.println(site.toString());
-   }*/
-  this.editorPanel.removeAll();
-  this.addParameters();
+  editorPanel.removeAll();
+  addParameters();
  }
 
  /**
@@ -166,9 +160,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   */
  public void replaceSiteParams(Iterator it) {
 
-   // make the new site object
-   //getting the new gridded region
-   //createAndUpdateSites();
+
+   createAndUpdateSites();
    // first remove all the parameters except latitude and longitude
    Iterator siteIt = parameterList.getParameterNamesIterator();
    while(siteIt.hasNext()) { // remove all the parameters except latitude and longitude and gridSpacing
@@ -181,7 +174,8 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
        parameterList.removeParameter(paramName);
    }
    //removing the existing sites Params from the gridded Region sites
-   gridRectRegion.replaceSiteParams(it);
+   Iterator it1=it;
+   gridRectRegion.removeSiteParams();
    // now add all the new params
    addSiteParams(it);
  }

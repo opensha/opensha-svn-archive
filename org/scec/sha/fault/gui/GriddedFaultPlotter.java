@@ -305,6 +305,6 @@ public class GriddedFaultPlotter extends ArrayList{
         if( multiChartPanel == null ) lazyInitMultiPanel(chart);
         multiChartPanel.setChart(chart);
         return multiChartPanel;
- }
+     }
 
 }

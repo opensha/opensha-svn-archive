@@ -59,12 +59,11 @@ public class SitesInGriddedRegion extends EvenlyGriddedRectangularGeographicRegi
   *
   * @param it
   */
- public void replaceSiteParams(Iterator it){
+ public void removeSiteParams(){
 
    ListIterator it1=site.getParametersIterator();
    while(it1.hasNext())
        site.removeParameter((ParameterAPI)it1.next());
-   addSiteParams(it);
  }
 
  /**
