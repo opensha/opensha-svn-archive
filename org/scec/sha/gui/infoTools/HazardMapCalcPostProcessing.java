@@ -17,7 +17,7 @@ import sun.net.smtp.SmtpClient;
 
 
 public class HazardMapCalcPostProcessing {
-  static final String FROM = "sceccme";
+  static final String FROM = "OpenSHA-CME";
   static final String HOST = "email.usc.edu";
 
 
@@ -32,7 +32,8 @@ public class HazardMapCalcPostProcessing {
   public HazardMapCalcPostProcessing(String fileName,
                                      int expectedNumOfFiles,
                                      String emailAddr,
-                                     long datasetId) {
+                                     long datasetId,
+                                     String startTime) {
     try {
       FileReader file = new FileReader(fileName);
       BufferedReader reader = new BufferedReader(file);
@@ -52,9 +53,14 @@ public class HazardMapCalcPostProcessing {
       msg.println("To: " + emailAddr); // so mailers will display the recipient's e-mail address
       msg.println("From: " + FROM); // so that mailers will display the sender's e-mail address
       msg.println("Subject: Grid Job Status \n");
-      msg.println("Grid Computation complete\nExpected Num of Files="+
-                  expectedNumOfFiles+"\nFiles Generated="+actualFiles+
-                  "\nDataset Id="+datasetId);
+      msg.println("THIS IS A AUTOMATED GNERATED EMAIL. DO NOT REPLY\n"+
+                  "Grid Computation complete\n"+
+                  "Expected Num of Files="+expectedNumOfFiles+"\n"+
+                  "Files Generated="+actualFiles+"\n"+
+                  "Dataset Id="+datasetId+"\n"+
+                  "Simulation Start Time="+startTime+"\n"+
+                  "Simulation End Time="+java.util.Calendar.getInstance().getTime().toString().replaceAll(" ","_"));
+
       // Close the connection to the SMTP server and send the message out to the recipient
       smtp.closeServer();
     }
@@ -74,7 +80,8 @@ public class HazardMapCalcPostProcessing {
   public static void main(String[] args) {
     HazardMapCalcPostProcessing hazardMapCalcPostProcessing1 =
         new HazardMapCalcPostProcessing(args[0], Integer.parseInt(args[1]),
-                                        args[2], Long.parseLong(args[3]));
+                                        args[2], Long.parseLong(args[3]),
+                                        args[4]);
   }
 
 }

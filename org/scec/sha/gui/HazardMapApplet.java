@@ -23,6 +23,9 @@ import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.exceptions.ParameterException;
+import org.scec.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.sha.calc.HazardCurveCalculator;
 
 
 
@@ -37,7 +40,7 @@ import org.scec.exceptions.ParameterException;
  */
 
 public class HazardMapApplet extends JApplet
-    implements ParameterChangeListener{
+    implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI {
 
 
   /**
@@ -60,6 +63,7 @@ public class HazardMapApplet extends JApplet
 
   //gets the instance of the selected AttenuationRelationship
   private AttenuationRelationship attenRel;
+  private boolean useCustomX_Values = false;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -94,10 +98,14 @@ public class HazardMapApplet extends JApplet
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
   private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
+  private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
+  private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
 
 
-    // objects for control panels
+  // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
+  private X_ValuesInCurveControlPanel xValuesPanel;
+  private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -135,6 +143,11 @@ public class HazardMapApplet extends JApplet
   JLabel emailLabel = new JLabel();
   JTextField emailText = new JTextField();
   GridBagLayout gridBagLayout4 = new GridBagLayout();
+  //holds the ArbitrarilyDiscretizedFunc
+  private ArbitrarilyDiscretizedFunc function;
+  //instance to get the default IMT X values for the hazard Curve
+  private IMT_Info imtInfo = new IMT_Info();
+
 
 
   //Get a parameter value
@@ -450,8 +463,10 @@ public class HazardMapApplet extends JApplet
    * Initialize the items to be added to the control list
    */
   private void initControlList() {
-    this.controlComboBox.addItem(CONTROL_PANELS);
-    this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
+    controlComboBox.addItem(CONTROL_PANELS);
+    controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
+    controlComboBox.addItem(X_VALUES_CONTROL);
+    controlComboBox.addItem(DISTANCE_CONTROL);
   }
 
 
@@ -467,6 +482,59 @@ public class HazardMapApplet extends JApplet
     regionsOfInterest.pack();
     regionsOfInterest.show();
   }
+
+  /**
+    * initialize the X values for the Hazard Map
+    * It will enable the user to set the X values
+    */
+   private void initX_ValuesControl(){
+     if(xValuesPanel == null)
+       xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
+     if(!useCustomX_Values) xValuesPanel.useDefaultX_Values();
+     else xValuesPanel.setX_Values(function);
+     xValuesPanel.pack();
+     xValuesPanel.show();
+   }
+
+   /**
+    * Initialize the Min Source and site distance control.
+    * This function is called when user selects "Source Site Distance Control"
+    * from controls pick list
+    */
+   private void initDistanceControl() {
+     if (this.distanceControlPanel == null)
+       distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(this);
+     distanceControlPanel.pack();
+     distanceControlPanel.show();
+   }
+
+
+   /**
+    *
+    * @returns the selected IMT
+    */
+   public String getSelectedIMT() {
+     return imtGuiBean.getSelectedIMT();
+   }
+
+
+   /**
+    * This forces use of default X-axis values (according to the selected IMT)
+    */
+   public void setX_ValuesForHazardCurve() {
+     useCustomX_Values = false;
+   }
+
+   /**
+    * Sets the hazard curve x-axis values (if user wants custom values x-axis values).
+    * Note that what's passed in is not cloned (the y-axis values will get modified).
+    * @param func
+    */
+   public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func) {
+     useCustomX_Values = true;
+     function = func;
+   }
+
 
 
   /**
@@ -487,6 +555,10 @@ public class HazardMapApplet extends JApplet
    String selectedControl = controlComboBox.getSelectedItem().toString();
    if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
      initRegionsOfInterestControl();
+   else if(selectedControl.equalsIgnoreCase(this.X_VALUES_CONTROL))
+      initX_ValuesControl();
+   else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
+      initDistanceControl();
    controlComboBox.setSelectedItem(this.CONTROL_PANELS);
  }
 
@@ -549,12 +621,24 @@ public class HazardMapApplet extends JApplet
      ObjectOutputStream toServlet = new
          ObjectOutputStream(servletConnection.getOutputStream());
 
+     if(!useCustomX_Values)
+       function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
+
      //sending the object of the gridded region sites to the servlet
      toServlet.writeObject(regionSites);
      //sending the IMR object to the servlet
      toServlet.writeObject(imr);
      //sending the EQK forecast object to the servlet
      toServlet.writeObject(eqkRupForecastLocation);
+     //send the X values in a arraylist
+     ArrayList list = new ArrayList();
+     for(int i = 0; i<function.getNum(); ++i) list.add(new String(""+function.getX(i)));
+     toServlet.writeObject(list);
+     // send the MAX DISTANCE
+     Double maxDistance;
+     if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+     else maxDistance = new Double(distanceControlPanel.getDistance());
+     toServlet.writeObject(maxDistance);
      //sending email address to the servlet
      toServlet.writeObject(emailText.getText());
      //sending the parameters info. to the servlet

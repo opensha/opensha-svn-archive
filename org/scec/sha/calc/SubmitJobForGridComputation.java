@@ -99,7 +99,10 @@ public class SubmitJobForGridComputation {
    * place. So, compuatations will take place in directory /home/rcf-71/vgupta/pool/remoteMachineSubdirName
    */
   public SubmitJobForGridComputation(String imrFileName, String erfFileName,
-                                     String regionFileName, String outputDir,
+                                     String regionFileName,
+                                     String xValuesFileName,
+                                     double maxDistance,
+                                     String outputDir,
                                      long remoteMachineSubdirName,
                                      SitesInGriddedRegion griddedSites,
                                      String emailAddr) {
@@ -158,7 +161,7 @@ public class SubmitJobForGridComputation {
       //creates the shell script to gridftp the condor submit files(in tar format)
       //to almaak.usc.edu
       ftpSubmitFilesToRemoteMachine(scriptFiles,submitFilesDir, remoteDir, imrFileName, erfFileName,
-                                     regionFileName);
+                                    regionFileName, xValuesFileName);
       frmap.write("Script Post "+PRE_PROCESSOR_JOB_NAME+" "+
                   PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
 
@@ -191,7 +194,9 @@ public class SubmitJobForGridComputation {
 
       // make the submit files to submit the jobs
       LinkedList list  = getSubmitFileNames(imrFileName, erfFileName,
-                                     regionFileName, submitFilesDir, remoteDir,
+                                     regionFileName, xValuesFileName,
+                                     maxDistance,
+                                     submitFilesDir, remoteDir,
                                      griddedSites);
       Iterator it = list.iterator();
       int i=0;
@@ -251,7 +256,9 @@ public class SubmitJobForGridComputation {
    */
   private LinkedList getSubmitFileNames(String imrFileName, String erfFileName,
                                      String regionFileName,
-                                     String outputDir,String remoteDir,
+                                     String xValuesFileName,
+                                     double maxDistance,
+                                     String outputDir, String remoteDir,
                                      SitesInGriddedRegion griddedSites) {
 
     int numSites = griddedSites.getNumGridLocs(); // num grid locs
@@ -268,14 +275,15 @@ public class SubmitJobForGridComputation {
         "WhenToTransferOutput = ON_EXIT" + "\n" +
         "transfer_input_files=" + HAZARD_MAP_JAR_FILE_NAME+","+
         REMOTE_EXECUTABLE_NAME+","+ regionFileName + "," + erfFileName + "," +
-        imrFileName + "\n" +
+        imrFileName + "," + xValuesFileName+"\n" +
         "notification=error\n"+
         "queue" + "\n";
     LinkedList list = new LinkedList();
 
     // snd start index and end index to each computer
     String arg1 = REMOTE_EXECUTABLE_NAME.substring(0,REMOTE_EXECUTABLE_NAME.indexOf('.'));
-    String arg2 = regionFileName+ " " + erfFileName + " " + imrFileName+" -Xmx400M";
+    String arg2 = regionFileName+ " " + erfFileName + " " + imrFileName
+        +" "+xValuesFileName+" "+maxDistance+" -Xmx400M";
     for (int site = 0; site < numSites; site += this.SUGGESTED_NUM_SITES_IN_WORK_UNIT) {
       startSite = site;
       endSite = site + SUGGESTED_NUM_SITES_IN_WORK_UNIT;
@@ -329,7 +337,8 @@ public class SubmitJobForGridComputation {
   private void ftpSubmitFilesToRemoteMachine(String outputDir,String submitFilesDir,
                                              String remoteDir, String imrFileName,
                                              String erfFileName,
-                                             String regionFileName) {
+                                             String regionFileName,
+                                             String xValuesFileName) {
     try {
 
       //When all jobs are finished, grid ftp files from almaak to gravity
@@ -339,7 +348,7 @@ public class SubmitJobForGridComputation {
       frFTP.write("#!/bin/csh\n");
       frFTP.write("cd " + submitFilesDir + "\n");
       frFTP.write("tar -cf " + SUBMIT_TAR_FILES + " "+HAZARD_CURVES_SUBMIT+"*.sub "+imrFileName+" "+
-                  erfFileName+" "+regionFileName+ "\n");
+                  erfFileName+" "+regionFileName+ " "+xValuesFileName+"\n");
       frFTP.write("globus-url-copy file:" + submitFilesDir +
                   SUBMIT_TAR_FILES +
                   " gsiftp://almaak.usc.edu" + remoteDir + SUBMIT_TAR_FILES +
@@ -370,7 +379,8 @@ public class SubmitJobForGridComputation {
       frFTP.write("ls -l *_*.txt | wc -l > " + fileName + "\n");
       frFTP.write("java -classpath /opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/ERF.jar:/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/lib/mail.jar:$CLASSPATH org.scec.sha.gui.infoTools.HazardMapCalcPostProcessing " +
                   fileName + " " + expectedNumOfFiles + " " + emailAddr + " "+
-                  datasetId+"\n");
+                  datasetId+" "+
+                  java.util.Calendar.getInstance().getTime().toString().replaceAll(" ","_")+"\n");
       frFTP.close();
     }
     catch (Exception e) {

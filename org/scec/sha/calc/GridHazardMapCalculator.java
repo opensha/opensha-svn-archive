@@ -1,6 +1,7 @@
 package org.scec.sha.calc;
 
 
+import java.util.ArrayList;
 
 import java.io.*;
 import org.scec.data.region.SitesInGriddedRegion;
@@ -11,6 +12,7 @@ import org.scec.data.Site;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import java.text.DecimalFormat;
 import org.scec.data.function.DiscretizedFuncAPI;
+import org.scec.util.FileUtils;
 
 /**
  *
@@ -34,10 +36,8 @@ public class GridHazardMapCalculator
 {
   private static boolean D = false;
   // make a array for saving the X values
-  private double[] xValues = {
-      .005, .007, .0098, .0137, .0192, .0269, .0376, .0527, .0738,
-      .103, .145, .203, .284, .397, .556, .778, 1.09, 1.52, 2.13};
-  private static int MAX_DISTANCE = 200;
+  private double[] xValues ;
+  private static double MAX_DISTANCE = 200;
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   private boolean xLogFlag = true;
 
@@ -67,7 +67,7 @@ public class GridHazardMapCalculator
 /**
  * this function generates a set of curves for a region
  *
- * @param urls  addresses to IMR/ Forecast/griddedregion metadat files
+ * @param urls  addresses to IMR/ Forecast/griddedregion metadata files
  * @param mapParametersInfo Parameters need to regenerate the map
  */
 public void getHazardMapCurves(String[] args, int startSiteIndex,
@@ -77,6 +77,12 @@ public void getHazardMapCurves(String[] args, int startSiteIndex,
      SitesInGriddedRegion griddedSites = (SitesInGriddedRegion)loadObject(args[2]);
      EqkRupForecast eqkRupForecast = (EqkRupForecast)loadObject(args[3]);
      AttenuationRelationshipAPI imr = (AttenuationRelationshipAPI)loadObject(args[4]);
+     ArrayList xValuesList = FileUtils.loadFile(args[5]);
+     MAX_DISTANCE = Double.parseDouble(args[6]);
+
+     xValues = new double[xValuesList.size()];
+     for(int i=0; i<xValuesList.size(); ++i)
+       xValues[i] = Double.parseDouble((String)xValuesList.get(i));
 
      // now run the hazard map calculations
      HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();

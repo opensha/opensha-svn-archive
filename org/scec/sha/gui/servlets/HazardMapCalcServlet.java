@@ -4,6 +4,7 @@ package org.scec.sha.gui.servlets;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
+import java.util.ArrayList;
 import org.scec.util.FileUtils;
 
 
@@ -30,6 +31,7 @@ public class HazardMapCalcServlet extends HttpServlet {
   private static final String IMR_FILE_NAME = "imr.obj";
   private static final String ERF_FILE_NAME = "erf.obj";
   private static final String REGION_FILE_NAME = "region.obj";
+  private static final String X_VALUES_FILE_NAME = "xValues.obj";
   public  static final String METADATA_FILE_NAME = "metadata.txt";
   public  static final String SITES_FILE_NAME = "sites.txt";
 
@@ -52,6 +54,10 @@ public class HazardMapCalcServlet extends HttpServlet {
       //get the selected EqkRupForecast
       String  eqkRupForecastLocation =
           (String) inputFromApplet.readObject();
+      // get the X values
+      ArrayList xValuesList = (ArrayList) inputFromApplet.readObject();
+      // get the MAX_SOURCE distance
+      double maxDistance =  ((Double) inputFromApplet.readObject()).doubleValue();
       //get the email address from the applet
       String emailAddr = (String) inputFromApplet.readObject();
       //get the parameter values in String form needed to reproduce this
@@ -69,6 +75,12 @@ public class HazardMapCalcServlet extends HttpServlet {
 
       String newDir = this.PARENT_DIR+newDirId+"/";
       new File(newDir).mkdir();
+
+      // write X values to a file
+      FileWriter fwX_Values = new FileWriter(newDir+this.X_VALUES_FILE_NAME);
+      for (int i=0; i<xValuesList.size(); ++i)
+        fwX_Values.write(xValuesList.get(i)+"\n");
+      fwX_Values.close();
 
       // write the metadata to the metadata file
       FileWriter fwMetadata = new FileWriter(newDir+this.METADATA_FILE_NAME);
@@ -100,7 +112,8 @@ public class HazardMapCalcServlet extends HttpServlet {
       // now run the calculation on grid
       SubmitJobForGridComputation computation =
           new SubmitJobForGridComputation(IMR_FILE_NAME, ERF_FILE_NAME,
-                                     REGION_FILE_NAME, newDir, newDirId, sites,
+                                     REGION_FILE_NAME, X_VALUES_FILE_NAME,
+                                     maxDistance, newDir, newDirId, sites,
                                      emailAddr);
     }
     catch (Exception e) {
