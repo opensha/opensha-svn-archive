@@ -133,6 +133,7 @@ public class IMRTesterApplet extends JApplet
     protected final static int A1 = 360;
     protected final static int A2 = 430;
     protected final static Font BUTTON_FONT = new java.awt.Font( "Dialog", 1, 11 );
+    protected final static Font LEGEND_FONT = new java.awt.Font( "Arial", Font.PLAIN, 7 );
 
     /**
      *  Min number of data points where if you have less in a Discretized
@@ -864,14 +865,9 @@ public class IMRTesterApplet extends JApplet
         if ( D ) System.out.println( S + "Starting: Last xy axis name = " + lastXYAxisName );
          // ImageIcon icon  = new ImageIcon(this.imagePath + File.separator + "z_splash.jpg");
         // Image image = icon.getImage();
-        if(this.jCheckxlog.isSelected())
-          xLog=true;
-        else
-          xLog=false;
-        if(this.jCheckylog.isSelected())
-          yLog=true;
-        else
-          yLog=false;
+
+        xLog=this.jCheckxlog.isSelected();
+        yLog=this.jCheckylog.isSelected();
 
         String newXYAxisName = functions.getXYAxesName();
         boolean newPlot = ( !newXYAxisName.equals( lastXYAxisName ) );
@@ -887,10 +883,8 @@ public class IMRTesterApplet extends JApplet
 
 
 
-        if (xLog)
-            xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis( xAxisLabel );
-        else
-            xAxis = new SHAHorizontalNumberAxis( xAxisLabel );
+        if (xLog) xAxis = new com.jrefinery.chart.HorizontalLogarithmicAxis( xAxisLabel );
+        else xAxis = new SHAHorizontalNumberAxis( xAxisLabel );
 
         xAxis.setAutoRangeIncludesZero( false );
         xAxis.setCrosshairLockedOnData( false );
@@ -936,13 +930,12 @@ public class IMRTesterApplet extends JApplet
         JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
         chart.setBackgroundPaint( lightBlue );
 
-        // chart.setBackgroundImage(image);
-        // chart.setBackgroundImageAlpha(.3f);
+        // set the font of legend
+        StandardLegend legend = (StandardLegend)chart.getLegend();
+        legend.setItemFont(LEGEND_FONT);
 
         // Put into a panel
         panel = new ChartPanel(chart, true, true, true, true, false);
-        //panel.setMouseZoomable(true);
-
         panel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
         panel.setMouseZoomable(true);
         panel.setGenerateToolTips(true);
@@ -1426,23 +1419,6 @@ public class IMRTesterApplet extends JApplet
     }
 
 
-    /**
-    * Function to disable the Log-Log plotting option
-    */
-    public void loglogDisable(){
-        this.jCheckxlog.setSelected(false);
-        this.jCheckxlog.setEnabled(false);
-        this.jCheckylog.setSelected(false);
-        this.jCheckylog.setEnabled(false);
-    }
-
-    /**
-     * Function to enable the Log-Log plotting option
-     */
-    public void loglogEnable(){
-        this.jCheckxlog.setEnabled(true);
-        this.jCheckylog.setEnabled(true);
-    }
 
     /**
      *  Description of the Method

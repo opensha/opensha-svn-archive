@@ -15,6 +15,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   /**
    * todo variables
    */
+  public static String NAME = "Single Dist.";
   private double mag;
   private double rate;
 
@@ -119,7 +120,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    * @return the name of the class which was invoked by the user
    */
  public String getName() {
-   return "SingleMagFreqDist";
+   return NAME;
  }
 
  /**

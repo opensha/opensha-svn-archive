@@ -39,11 +39,11 @@ public class MagDistGuiBean implements ParameterChangeListener {
   /**
    *  Temp until figure out way to dynamically load classes during runtime
    */
-  protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
-  protected final static String GR_NAME = "GutenbergRichter Distribution";
-  protected final static String SINGLE_NAME = "Single Distribution";
-  protected final static String YC_1985__NAME = "Youngs & Coppersmith 1985 Char";
-  protected final static String SUMMED_NAME = "Summed Distribution";
+  protected static String GAUSSIAN_NAME ;
+  protected static String GR_NAME ;
+  protected static String SINGLE_NAME ;
+  protected static String YC_1985__NAME ;
+  protected static String SUMMED_NAME;
 
   protected final static String DISTRIBUTION_NAME="Choose Distribution";
 
@@ -188,7 +188,8 @@ public class MagDistGuiBean implements ParameterChangeListener {
         if ( D ) System.out.println( S + "Starting:" );
         this.magFreqAPI = (MagFreqDistTesterAPI)applet;
         this.listener = (ParameterChangeFailListener) applet;
-
+        //this.GAUSSIAN_NAME = GaussianMagFreqDist_CLASS_NAME.getClass().NAME;
+        this.SINGLE_NAME = SingleMagFreqDist_CLASS_NAME.getClass().getName();
         initControlsParamListAndEditor( GAUSSIAN_NAME);
 
         // Create independent parameters

@@ -53,10 +53,12 @@ public class IMRGuiBean
     public final static String Y_AXIS_V1 = "Median";
     public final static String Y_AXIS_V2 = "Std. Dev.";
     public final static String Y_AXIS_V3 = "Exceed Prob.";
+    public final static String Y_AXIS_V4 = "Get IML at Exceed Prob.";
 
     public final static int MEAN = 1;
     public final static int STD_DEV = 2;
     public final static int EXCEED_PROB = 3;
+    public final static int IML_AT_EXCEED_PROB = 4;
 
     private final static int IM = 10;
     private final static int Y_AXIS = 11;
@@ -485,34 +487,6 @@ public class IMRGuiBean
         }
 
 
-        /**
-         * Just for debugging right now
-         */
-
-         /*
-        int num = 20;
-        ParameterList newClones = new ParameterList();
-        ListIterator it100 = clones.getParametersIterator();
-        if( clones.size() > 0 ){
-            if ( num > clones.size() ) num = clones.size();
-            for(int i = 0; i < num; i++){
-
-                ParameterAPI param100 = (ParameterAPI)it100.next();
-                newClones.addParameter((ParameterAPI) param100.clone());
-
-            }
-            clones = newClones;
-        }
-        System.out.println("Clones size = " + clones.size());
-        */
-
-        // Needed if IM are not in independent parameter list
-        //ParameterAPI clone = ( ParameterAPI ) imr.getIntensityMeasure().clone();
-        //if ( !clones.containsParameter( clone ) ) clones.addParameter( clone );
-
-        // Final settings in function list
-        // Function given parameter list to identify other functions that could be
-        // plotted on same axis, and to prevent plotting the exact same function again
         if ( function != null ) {
             ((ArbDiscrFuncWithParams)function).setParameterList( clones );
         }
@@ -820,6 +794,7 @@ public class IMRGuiBean
         yaxisConstraint.addString( Y_AXIS_V1 );
         yaxisConstraint.addString( Y_AXIS_V2 );
         yaxisConstraint.addString( Y_AXIS_V3 );
+         yaxisConstraint.addString( Y_AXIS_V4 );
         StringParameter yaxis = new StringParameter( Y_AXIS_NAME, yaxisConstraint, Y_AXIS_V1 );
 
         // IM Choices picklist Parameter - Note these choices are now all DoubleParameters
@@ -946,6 +921,15 @@ public class IMRGuiBean
 
         }
 
+        // Add IML at exceedence probability parameters
+        it = imr.getIML_AtExceedProbIndependentParamsIterator();
+        while ( it.hasNext() ) {
+            ParameterAPI param = ( DependentParameterAPI ) it.next();
+            if ( !( independentParams.containsParameter( param.getName() ) ) )
+                independentParams.addParameter( param );
+
+        }
+
         // Add im parameters and their independent parameters
         it = imr.getSupportedIntensityMeasuresIterator();
         while ( it.hasNext() ) {
@@ -1029,29 +1013,25 @@ public class IMRGuiBean
         while ( it.hasNext() )
             independentsEditor.setParameterInvisible( ( ( ParameterAPI ) it.next() ).getName(), false );
 
-
-        // Add im parameters independent parameters to list
-        DependentParameterAPI imParam = ( DependentParameterAPI ) imr.getParameter( imName );
-        ListIterator imIt = imParam.getIndependentParametersIterator();
-        setParamsInIteratorVisible( imIt );
-
+        DependentParameterAPI imParam = null;
+        // Add im parameters independent parameters to list if IML at Exceed Prob. is not selected
+        if(!yAxisName.equals( Y_AXIS_V4 )) {
+          imParam = ( DependentParameterAPI ) imr.getParameter( imName );
+          ListIterator imIt = imParam.getIndependentParametersIterator();
+          setParamsInIteratorVisible( imIt );
+        }
 
 
 
         // Determine which y-axis function was choosen - then add it's required parameters
-        if ( yAxisName.equals( Y_AXIS_V1 ) ){
+        if ( yAxisName.equals( Y_AXIS_V1 ) )
+           //if mean is selected
             setParamsInIteratorVisible( imr.getMeanIndependentParamsIterator() );
-            //to enable the log log plotting option; calling the function IMRTesterApplet class
-            applet.loglogEnable();
-        }
-        else if ( yAxisName.equals( Y_AXIS_V2 ) ){
+        else if ( yAxisName.equals( Y_AXIS_V2 ) )
+            // if std dev is selected
             setParamsInIteratorVisible( imr.getStdDevIndependentParamsIterator() );
-            //to disable the log log plotting option ;calling the function IMRTesterApplet class
-            applet.loglogEnable();
-        }
         else if ( yAxisName.equals( Y_AXIS_V3 ) ) {
-            setParamsInIteratorVisible( imr.getMeanIndependentParamsIterator() );
-            setParamsInIteratorVisible( imr.getStdDevIndependentParamsIterator() );
+           //if exceed Prob is selected
             setParamsInIteratorVisible( imr.getExceedProbIndependentParamsIterator() );
 
             // Hardcoded for special values
@@ -1060,10 +1040,16 @@ public class IMRGuiBean
                 String value = paramEditor.getParameter().getValue().toString();
                 toggleSigmaLevelBasedOnTypeValue(value);
             }
-
-
-            // to enable the log log plotting option; calling the function IMRTesterApplet class
-             applet.loglogEnable();
+        }
+        // if IML at Exceed Prob is selected
+        else if ( yAxisName.equals( Y_AXIS_V4 ) ) {
+            setParamsInIteratorVisible( imr.getIML_AtExceedProbIndependentParamsIterator());
+            // Hardcoded for special values
+            ParameterEditorAPI paramEditor = independentsEditor.getParameterEditor(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+            if( paramEditor != null ){
+               String value = paramEditor.getParameter().getValue().toString();
+               toggleSigmaLevelBasedOnTypeValue(value);
+            }
         }
 
         else
@@ -1086,7 +1072,9 @@ public class IMRGuiBean
                 imr.getStdDevIndependentParamsIterator(), xAxisConstraint
                  );
 
-        xAxisConstraint = addToXAxisConstraint(
+       // if IML at Exceed Prob is selectd, then do not show IML
+        if( !yAxisName.equals(Y_AXIS_V4))
+         xAxisConstraint = addToXAxisConstraint(
                 imParam.getIndependentParametersIterator(), xAxisConstraint
                  );
 
@@ -1384,6 +1372,7 @@ public class IMRGuiBean
         yAxisMap.put( Y_AXIS_V1, new Integer( MEAN ) );
         yAxisMap.put( Y_AXIS_V2, new Integer( STD_DEV ) );
         yAxisMap.put( Y_AXIS_V3, new Integer( EXCEED_PROB ) );
+        yAxisMap.put( Y_AXIS_V4, new Integer( IML_AT_EXCEED_PROB) );
     }
 }
 

@@ -28,7 +28,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
   private DiscretizedFuncList savedMagFreqDists;  // to save the each distribution
   private Vector savedInfoList;     // to save the info strings only
 
-  private String C = "SummedMagFreqDist";
+  private static String NAME = "Summed Dist";
 
 
 
@@ -257,7 +257,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public String getName() {
-    return "SummedMagFreqDist";
+    return NAME;
   }
 
 

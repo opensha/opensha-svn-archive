@@ -50,38 +50,88 @@ public class SHAVerticalNumberAxis extends VerticalNumberAxis {
 
     }
 
-   /**
-     * Sets the axis minimum and maximum values so that all the data is visible.
-     * <P>
-     * You can control the range calculation in several ways.  First, you can define upper and
-     * lower margins as a percentage of the data range (the default is a 5% margin for each).
-     * Second, you can set a flag that forces the range to include zero.  Finally, you can set
-     * another flag, the 'sticky zero' flag, that only affects the range when zero falls within the
-     * axis margins.  When this happens, the margin is truncated so that zero is the upper or lower
-     * limit for the axis.
-     */
-    protected void autoAdjustRange() {
 
-        if (plot==null) return;  // no plot, no data
+      /**
+   * Sets the axis minimum and maximum values so that all the data is visible.
+   * <P>
+   * You can control the range calculation in several ways.  First, you can define upper and
+   * lower margins as a percentage of the data range (the default is a 5% margin for each).
+   * Second, you can set a flag that forces the range to include zero.  Finally, you can set
+   * another flag, the 'sticky zero' flag, that only affects the range when zero falls within the
+   * axis margins.  When this happens, the margin is truncated so that zero is the upper or lower
+   * limit for the axis.
+   */
+  protected void autoAdjustRange() {
 
-        if (plot instanceof VerticalValuePlot) {
-            VerticalValuePlot vvp = (VerticalValuePlot)plot;
+      if (plot==null) return;  // no plot, no data
 
-            Range r = vvp.getVerticalDataRange();
-            if (r==null) r = new Range(DEFAULT_MINIMUM_AXIS_VALUE, DEFAULT_MAXIMUM_AXIS_VALUE);
+      if (plot instanceof VerticalValuePlot) {
+          VerticalValuePlot vvp = (VerticalValuePlot)plot;
 
-            double lower = r.getLowerBound();
-            double upper = r.getUpperBound();
+          Range r = vvp.getVerticalDataRange();
+          if (r==null) r = new Range(DEFAULT_MINIMUM_AXIS_VALUE, DEFAULT_MAXIMUM_AXIS_VALUE);
 
-            // if upper and  lower bound are same
-            if(lower==upper) {
-              double diff = lower/2;
-              lower= lower - diff;
-              upper= upper + diff;
-            }
-            this.range = new Range(lower, upper);
-        }
+          double lower = r.getLowerBound();
+          double upper = r.getUpperBound();
+          if(upper==lower) {
+            this.range = new Range(lower-0.5,lower+0.5);
+            return;
+          }
+
+
+          double range = upper-lower;
+
+          // ensure the autorange is at least <minRange> in size...
+          double minRange = this.autoRangeMinimumSize.doubleValue();
+          if (range<minRange) {
+              upper = (upper+lower+minRange)/2;
+              lower = (upper+lower-minRange)/2;
+          }
+
+          if (this.autoRangeIncludesZero) {
+              if (this.autoRangeStickyZero) {
+                  if (upper<=0.0) {
+                      upper = 0.0;
+                  }
+                  else {
+                      upper = upper+upperMargin*range;
+                  }
+                  if (lower>=0.0) {
+                      lower = 0.0;
+                  }
+                  else {
+                      lower = lower-lowerMargin*range;
+                  }
+              }
+              else {
+                  upper = Math.max(0.0, upper+upperMargin*range);
+                  lower = Math.min(0.0, lower-lowerMargin*range);
+              }
+          }
+          else {
+              if (this.autoRangeStickyZero) {
+                  if (upper<=0.0) {
+                      upper = Math.min(0.0, upper+upperMargin*range);
+                  }
+                  else {
+                      upper = upper+upperMargin*range;
+                  }
+                  if (lower>=0.0) {
+                      lower = Math.max(0.0, lower-lowerMargin*range);
+                  }
+                  else {
+                      lower = lower-lowerMargin*range;
+                  }
+              }
+              else {
+                  upper = upper+upperMargin*range;
+                  lower = lower-lowerMargin*range;
+              }
+          }
+
+          this.range = new Range(lower, upper);
+      }
+
+
     }
-
-
 }

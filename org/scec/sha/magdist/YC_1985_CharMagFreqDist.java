@@ -23,7 +23,7 @@ import org.scec.data.DataPoint2D;
 public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   private String C = new String("YC_1985_CharMagFreqDist"); // for showing messages
-
+  private String NAME = new String("Youngs and Coppersmith Dist.");
   private double magLower;
   private double magUpper;
   private double deltaMagChar;
@@ -259,7 +259,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public String getName() {
-     return C;
+     return NAME;
   }
 
 
