@@ -39,7 +39,7 @@ public class HazardCurveCalculator {
   protected double MAX_DISTANCE = 300;
 
   // boolean for telling whether to show a progress bar
-  boolean showProgressBar = false;
+  boolean showProgressBar = true;
 
   private CalcProgressBar progressClass ;
 
@@ -65,20 +65,10 @@ public class HazardCurveCalculator {
   }
 
   /**
-   * This function determines the hazard curve based on the parameters.  Note that
-   * two functions are taken here only for computational efficiency (otherwise there
-   * is overhead in duplicating a function each time this method is called from,
-   * for example, the HazardMapCalculator).  The first function contains the X-values
-   * (IMLs) that will be used, and the second function will contain the desired Y
-   * values when done.  The X values on the second funtion are ignored (so those on
-   * the first can be the log of those on the second as needed of for SA, PGA, and PGV),
-   * and the Y values on the first function are meaningless on entry and exit.  These
-   * two functions must have the same number of points.
-   *
-   * @param condProbFunc: contains the X values used (IMLs) for computing the hazard
-   * curve.
-   * @param hazFunction: This contains the desired curve (Y values) for the
-   * specified site.
+   * This function computes a hazard curve for the given Site, IMR, and ERF.  The curve
+   * in place in the passed in hazFunction (with the X-axis values being the IMLs for which
+   * exceedance probabilites are desired).
+   * @param hazFunction: This function is where the hazard curve is placed
    * @param site: site object
    * @param imr: selected IMR object
    * @param eqkRupForecast: selected Earthquake rup forecast
@@ -87,16 +77,22 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
-    ArbitrarilyDiscretizedFunc test = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+    // this will allow the calcs to be done differently if it's a poisson source
+    // this is hard coded here, but could rather be an attribute of a ProbEqkSource id desired
+    boolean poissonSource = false;
 
+    ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
+    ArbitrarilyDiscretizedFunc sourceHazFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
 
     // declare some varibles used in the calculation
     double qkProb, distance;
-    int numPoints,k,i,totRuptures=0,currRuptures=0;
+    int k,i,totRuptures=0,currRuptures=0;
+
+    // get the number of points
+    int numPoints = hazFunction.getNum();
 
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
-
 
     // check if progress bar is desired and set it up if so
     if(this.showProgressBar) {
@@ -116,7 +112,7 @@ public class HazardCurveCalculator {
     }
 
     // initialize the hazard function to 1.0
-    initDiscretizeValues(hazFunction);
+    initDiscretizeValues(hazFunction, 1.0);
 
     // set the Site in IMR
     try {
@@ -153,6 +149,10 @@ public class HazardCurveCalculator {
       // indicate that a source has been used
       sourceUsed = true;
 
+      // initialize the source hazard function to 0.0 if it's a non-poisson source
+      if(!poissonSource)
+        initDiscretizeValues(sourceHazFunc, 0.0);
+
       // get the number of ruptures for the current source
       int numRuptures = source.getNumRuptures();
 
@@ -174,16 +174,21 @@ public class HazardCurveCalculator {
         }
 
         // get the conditional probability of exceedance from the IMR
-        test=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(test);
+        condProbFunc=(ArbitrarilyDiscretizedFunc)imr.getExceedProbabilities(condProbFunc);
 
-        // calculate the hazard function
-        numPoints = test.getNum();
-        for(k=0;k<numPoints;k++)
-          hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,test.getY(k)));
+
+
+        if(poissonSource)  // For poisson source
+          for(k=0;k<numPoints;k++)
+            hazFunction.set(k,hazFunction.getY(k)*Math.pow(1-qkProb,condProbFunc.getY(k)));
+        else // For non-Poissin source
+          for(k=0;k<numPoints;k++)
+            sourceHazFunc.set(k,sourceHazFunc.getY(k) + qkProb*condProbFunc.getY(k));
       }
+      if(!poissonSource)
+        for(k=0;k<numPoints;k++)
+          hazFunction.set(k,hazFunction.getY(k)*(1-sourceHazFunc.getY(k)));
     }
-
-    numPoints = hazFunction.getNum();
 
     // finalize the hazard function
     if(sourceUsed)
@@ -204,9 +209,10 @@ public class HazardCurveCalculator {
    *
    * @param arb
    */
-  private void initDiscretizeValues(DiscretizedFuncAPI arb){
-    for(int i=0;i<arb.getNum();++i)
-      arb.set(i,1);
+  private void initDiscretizeValues(DiscretizedFuncAPI arb, double val){
+    int num = arb.getNum();
+    for(int i=0;i<num;++i)
+      arb.set(i,val);
   }
 
 
