@@ -56,6 +56,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     try{
       forecast = new STEP_EqkRupForecast();
     }catch(Exception e){
+      e.printStackTrace();
       System.out.println("No internet connection available");
     }
 
