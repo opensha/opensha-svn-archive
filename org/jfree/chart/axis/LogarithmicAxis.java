@@ -886,6 +886,7 @@ public class LogarithmicAxis extends NumberAxis {
           if(eIndex==-1)
             g2.drawString(tick.getText(), tick.getX(), tick.getY());
           else {
+            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+1));
             g2.drawString("10", tick.getX(), tick.getY());
             g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-1));
             g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+13,tick.getY()-4);
