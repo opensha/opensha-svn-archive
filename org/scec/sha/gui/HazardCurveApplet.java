@@ -103,7 +103,6 @@ public class HazardCurveApplet extends JApplet
   private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
-
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
   private final static String AXIS_RANGE_NOT_ALLOWED =
@@ -250,8 +249,9 @@ public class HazardCurveApplet extends JApplet
   private JButton toggleButton = new JButton();
   private JButton clearButton = new JButton();
   private JPanel timeSpanPanel = new JPanel();
-  private GridBagLayout gridBagLayout10 = new GridBagLayout();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
+  private JCheckBox progressCheckBox = new JCheckBox();
+  private GridBagLayout gridBagLayout10 = new GridBagLayout();
   private GridBagLayout gridBagLayout14 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
 
@@ -432,6 +432,10 @@ public class HazardCurveApplet extends JApplet
     buttonSplitPane.setLeftComponent(buttonPanel);
     buttonSplitPane.setRightComponent(timeSpanPanel);
     timeSpanPanel.setLayout(gridBagLayout12);
+    progressCheckBox.setBackground(Color.white);
+    progressCheckBox.setFont(new java.awt.Font("Dialog", 1, 12));
+    progressCheckBox.setForeground(new Color(80, 80, 133));
+    progressCheckBox.setText("Show Progress Bar");
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -440,17 +444,19 @@ public class HazardCurveApplet extends JApplet
     topSplitPane.add(buttonSplitPane, JSplitPane.BOTTOM);
     buttonSplitPane.add(buttonPanel, JSplitPane.TOP);
     buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(16, 13, 0, 0), 48, 2));
-    buttonPanel.add(addButton,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(16, 57, 0, 0), 0, 0));
-    buttonPanel.add(clearButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(16, 18, 0, 0), 0, 0));
-    buttonPanel.add(toggleButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(16, 9, 0, 181), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(13, 13, 0, 0), 48, 2));
+    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(13, 57, 0, 0), 0, 0));
+    buttonPanel.add(clearButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(13, 18, 0, 0), 0, 0));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(13, 9, 0, 181), 0, 0));
     buttonPanel.add(jCheckylog,   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 23, 41, 26), 1, 3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 25, 8, 29), 1, 3));
     buttonPanel.add(jCheckxlog,   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 64, 41, 24), 1, 7));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 66, 8, 27), 1, 7));
+    buttonPanel.add(progressCheckBox,   new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 15, 8, 101), 14, 0));
     buttonSplitPane.add(timeSpanPanel, JSplitPane.BOTTOM);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(parameterSplitPane, JSplitPane.RIGHT);
@@ -914,6 +920,8 @@ public class HazardCurveApplet extends JApplet
 
 
 
+    // whwther to show progress bar in case of update forecast
+    erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
     // get the selected forecast model
     EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF();
 
@@ -944,8 +952,9 @@ public class HazardCurveApplet extends JApplet
    this.isEqkList = false;
     // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
-   if(distanceControlPanel!=null)
-     calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   // do not show progress bar if not desired by user
+   calc.showProgressBar(this.progressCheckBox.isSelected());
+   if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // initialize the values in condProbfunc with log values as passed in hazFunction
    // intialize the hazard function
    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -967,6 +976,9 @@ public class HazardCurveApplet extends JApplet
    //checking the disAggregation flag
    if(this.disaggregationFlag){
      DisaggregationCalculator disaggCalc = new DisaggregationCalculator();
+     // do not show progress bar if not desired by user
+     disaggCalc.showProgressBar(this.progressCheckBox.isSelected());
+     if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
      int num = hazFunction.getNum();
      double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
@@ -1011,10 +1023,9 @@ public class HazardCurveApplet extends JApplet
    totalProbFuncs.clear();
    // calculate the hazard curve
    HazardCurveCalculator calc = new HazardCurveCalculator();
-   if(distanceControlPanel!=null)
-     calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-
-
+   if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
+   // do not show progress bar if not desired by user
+   calc.showProgressBar(this.progressCheckBox.isSelected());
 
    // calculate hazard curve for each ERF within the list
    for(int i=0; i<numERFs; ++i) {
@@ -1035,19 +1046,6 @@ public class HazardCurveApplet extends JApplet
      totalProbFuncs.add(hazFunction);
    }
 
-// TEMP FOR TESTING:
-ArbitrarilyDiscretizedFunc tempFunc = (ArbitrarilyDiscretizedFunc) totalProbFuncs.get(0);
-int numPts = tempFunc.getNum();
-int imli, hi;
-for( imli=0;imli<numPts;imli++)
-    System.out.print("g"+(float)tempFunc.getX(imli)+"  ");
-System.out.print("\n");
-for( hi=0; hi<totalProbFuncs.size(); hi++) {
-  tempFunc = (ArbitrarilyDiscretizedFunc) totalProbFuncs.get(hi);
-  for( imli=0;imli<numPts;imli++)
-    System.out.print((float)tempFunc.getY(imli)+"  ");
-  System.out.print("\n");
-}
 
    // if fractile or average needs to be calculated
    if(!this.percentileOption.equalsIgnoreCase
@@ -1055,7 +1053,7 @@ for( hi=0; hi<totalProbFuncs.size(); hi++) {
      // set the function list and weights in the calculator
      if (fractileCalc==null)
        fractileCalc = new FractileCurveCalculator(totalProbFuncs,
-         erfList.getRelativeWeightsList());
+           erfList.getRelativeWeightsList());
      else  fractileCalc.set(totalProbFuncs, erfList.getRelativeWeightsList());
    }
 
@@ -1227,9 +1225,12 @@ for( hi=0; hi<totalProbFuncs.size(); hi++) {
     //JComboBox, so it is like a control panel for creating the JComboBox containing the
     //name of different sets and the test cases
     //peerTestsParamSetter takes the instance of the hazardCurveGuiBean as its instance
+    // distance control panel is needed here so that distance can be set for PEER cases
+    if(distanceControlPanel==null) distanceControlPanel= new SetMinSourceSiteDistanceControlPanel(this);
     if(peerTestsControlPanel==null)
       peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,
-          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean);
+          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
+          this.distanceControlPanel);
     peerTestsControlPanel.pack();
     peerTestsControlPanel.show();
   }
@@ -1323,12 +1324,12 @@ for( hi=0; hi<totalProbFuncs.size(); hi++) {
   }
 
   /**
-     * set x values back from the log space to the original linear values
-     * for Hazard Function after completion of the Hazard Calculations
-     * if the selected IMT are SA , PGA or PGV
-     * It accepts 1 parameters
-     *
-     * @param hazFunction :  this is the function with X values set
+   * set x values back from the log space to the original linear values
+   * for Hazard Function after completion of the Hazard Calculations
+   * if the selected IMT are SA , PGA or PGV
+   * It accepts 1 parameters
+   *
+   * @param hazFunction :  this is the function with X values set
    */
   private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(ArbitrarilyDiscretizedFunc hazFunc){
     int numPoints = hazFunc.getNum();

@@ -204,8 +204,7 @@ public class HazardCurveCalculator {
       for(i=0;i<numPoints;++i)
         hazFunction.set(i,0.0);
 
-    if(showProgressBar)
-      progressClass.dispose();
+    if(showProgressBar)  progressClass.dispose();
 
     if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
 

@@ -20,6 +20,7 @@ import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.sha.gui.beans.*;
+import org.scec.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
 import java.awt.*;
 import javax.swing.*;
 
@@ -75,6 +76,11 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   public final static String SITE_SIX = "f";
   public final static String SITE_SEVEN = "g";
 
+   /* maximum permitted distance between fault and site to consider source in
+  hazard analysis for that site; this default value is to allow all PEER test
+  cases to pass through
+  */
+  private double MAX_DISTANCE = 300;
 
   // various gui beans
   private IMT_GuiBean imtGuiBean;
@@ -82,6 +88,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private Site_GuiBean siteGuiBean;
   private ERF_GuiBean erfGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
+  private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
 
   //Stores the test case,
   private String selectedTest;
@@ -96,7 +103,8 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
                                Site_GuiBean siteGuiBean,
                                IMT_GuiBean imtGuiBean,
                                ERF_GuiBean erfGuiBean,
-                               TimeSpanGuiBean timeSpanGuiBean){
+                               TimeSpanGuiBean timeSpanGuiBean,
+                               SetMinSourceSiteDistanceControlPanel distanceControlPanel){
 
     try {
      jbInit();
@@ -110,6 +118,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     this.imtGuiBean = imtGuiBean;
     this.erfGuiBean = erfGuiBean;
     this.timeSpanGuiBean = timeSpanGuiBean;
+    this.distanceControlPanel = distanceControlPanel;
     // fill the combo box with tests and sites
     this.initializeTestsAndSites();
 
@@ -163,6 +172,9 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
     //Gets the siteParamList
     ParameterList siteParams = siteGuiBean.getParameterList();
+
+    // set the distance in control panel
+    this.distanceControlPanel.setDistance(this.MAX_DISTANCE);
 
     //if set-1 PEER test case is selected
     if(selectedSet.equalsIgnoreCase(PEER_TESTS_SET_ONE))

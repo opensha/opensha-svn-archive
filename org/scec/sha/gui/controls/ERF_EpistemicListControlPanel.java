@@ -99,16 +99,16 @@ public class ERF_EpistemicListControlPanel extends JFrame
 
    // add the percentile editor to the window
    this.getContentPane().add(percentileEditor,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
-    this.getContentPane().add(allCurvesCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 10, 9, 13), 10, 3));
-    this.getContentPane().add(avgCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 9, 0, 13), 117, -12));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+    this.getContentPane().add(allCurvesCheckBox,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 10, 2, 13), 10, 3));
+    this.getContentPane().add(avgCheckBox,     new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 9, 4, 13), 117, 0));
 
     percentileEditor.setVisible(false);
 
     // set the size
-    this.setSize(220,190);
+    this.setSize(220,200);
   }
 
   /**

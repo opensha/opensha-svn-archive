@@ -39,7 +39,8 @@ public class ERF_GuiBean extends ParameterListEditor implements
   public final static String ERF_PARAM_NAME = "Eqk Rup Forecast";
   // these are to store the list of independ params for chosen ERF
   public final static String ERF_EDITOR_TITLE =  "Select Forecast";
-
+  // boolean for telling whether to show a progress bar
+  boolean showProgressBar = true;
 
   /**
    * default constructor
@@ -245,13 +246,15 @@ public class ERF_GuiBean extends ParameterListEditor implements
     */
    public EqkRupForecastAPI getSelectedERF() {
      EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();
-
-     // also show the progress bar while the forecast is being updated
-     CalcProgressBar progress = new CalcProgressBar("Forecast","Updating Forecast");
-     progress.displayProgressBar();
+     CalcProgressBar progress= null;
+     if(this.showProgressBar) {
+       // also show the progress bar while the forecast is being updated
+       progress = new CalcProgressBar("Forecast","Updating Forecast");
+       progress.displayProgressBar();
+     }
      // update the forecast
      eqkRupForecast.updateForecast();
-     progress.dispose();
+     if (this.showProgressBar) progress.dispose();
      return eqkRupForecast;
 
    }
@@ -343,6 +346,14 @@ public class ERF_GuiBean extends ParameterListEditor implements
        this.repaint();
        //       applet.updateChosenERF();
      }
+   }
+
+   /**
+    * This allows tuning on or off the showing of a progress bar
+    * @param show - set as true to show it, or false to not show it
+    */
+   public void showProgressBar(boolean show) {
+     this.showProgressBar=show;
    }
 }
 

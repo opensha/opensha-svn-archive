@@ -1023,7 +1023,7 @@ public class MagFreqDistTesterApplet extends JApplet
        showMessage.show();
        incrData.setYLog(false);
        toCumData.setYLog(false);
-       this.toMoData.setYLog(false);
+       toMoData.setYLog(false);
      }
      this.addGraphPanel();
   }

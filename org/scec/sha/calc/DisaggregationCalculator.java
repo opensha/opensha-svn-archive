@@ -35,9 +35,6 @@ public class DisaggregationCalculator {
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected double MAX_DISTANCE = 250;
 
-
-
-
   // disaggregation stuff - MIN and MAX are centers of first and last bins
   private double MIN_MAG = 5.0;
   private double MAX_MAG = 9.0;
@@ -67,7 +64,10 @@ public class DisaggregationCalculator {
 
   private double iml, prob, totalRate;
 
-  CalcProgressBar progress;
+  // boolean for telling whether to show a progress bar
+  boolean showProgressBar = true;
+
+  private CalcProgressBar progressClass ;
 
 
   /**
@@ -82,6 +82,16 @@ public class DisaggregationCalculator {
     MAX_DISTANCE = distance;
   }
 
+
+  /**
+   * This allows tuning on or off the showing of a progress bar
+   * @param show - set as true to show it, or false to not show it
+   */
+  public void showProgressBar(boolean show) {
+    this.showProgressBar=show;
+  }
+
+
   /**
    * this function performs the disaggregation
    *
@@ -95,6 +105,7 @@ public class DisaggregationCalculator {
         AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
     double rate, mean, stdDev, condProb;
+    int totRuptures=0, currRuptures=0;
 
     DistanceRupParameter distRup = new DistanceRupParameter();
 
@@ -109,9 +120,25 @@ public class DisaggregationCalculator {
 
 
 
-    progress=new CalcProgressBar("Disaggregation Status"," Starting Disaggregation ...");
-    progress.displayProgressBar();
+    // get total number of sources
+    int numSources = eqkRupForecast.getNumSources();
 
+    // check if progress bar is desired and set it up if so
+    if(this.showProgressBar) {
+      progressClass = new CalcProgressBar("Disaggregation Status"," Starting Disaggregation ...");
+      progressClass.displayProgressBar();
+
+      // compute the total number of ruptures for updating the progress bar
+      totRuptures = 0;
+      for(int i=0;i<numSources;++i)
+        totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
+
+      // init the current rupture number (also for progress bar)
+      currRuptures = 0;
+
+      // initialize the progress bar to zero ruptures
+      progressClass.updateProgress(currRuptures, totRuptures);
+    }
 
     try {
       // set the site in IMR
@@ -121,16 +148,8 @@ public class DisaggregationCalculator {
       ex.printStackTrace();
     }
 
-    // get number of sources
-    int numSources = eqkRupForecast.getNumSources();
-
-    // totRuptures holds the total number of ruptures for all sources
-    int totRuptures = 0;
     for(int i=0;i<numSources;++i)
         totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
-
-    // rupture number presently being processed
-    int currRuptures = 0;
 
     // initialize
     Ebar = 0;
@@ -142,8 +161,6 @@ public class DisaggregationCalculator {
       for(int j=0; j<NUM_DIST; j++)
         for(int k=0; k<NUM_E; k++)
           pmf[i][j][k]=0;
-
-    progress.updateProgress(currRuptures, totRuptures);
 
     for(int i=0;i < numSources ;i++) {
 
@@ -161,8 +178,8 @@ public class DisaggregationCalculator {
       // loop over ruptures
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
-          //check the progress
-          progress.updateProgress(currRuptures, totRuptures);
+        // update the progress bar is necessary
+        if(showProgressBar)  progressClass.updateProgress(currRuptures, totRuptures);
 
           // get the rupture
           ProbEqkRupture rupture = source.getRupture(n);
@@ -257,7 +274,7 @@ public class DisaggregationCalculator {
     if( D ) System.out.println(S + "DistMode = " + D_mode3D + "; binNum = " + modeDistBin);
     if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
-    progress.dispose();
+   if(showProgressBar)  progressClass.dispose();
 
   }
 
