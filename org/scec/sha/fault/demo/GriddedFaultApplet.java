@@ -90,7 +90,7 @@ public class GriddedFaultApplet
     protected final static int GRIDDED_RUPTURE_PLOT_TYPE = 8;
 
     // to save the rupture length, width and offset in case of rupture plot
-    private int ruptureCols, ruptureRows, ruptureOffset;
+    private double ruptureLength, ruptureWidth, ruptureOffset;
 
     ArrayList files;
     static {
@@ -194,9 +194,9 @@ public class GriddedFaultApplet
 
 
     final static Dimension NUMERIC_DIM = new Dimension(40, 18);
-    IntegerTextField lengthTextField = new IntegerTextField();
-    IntegerTextField widthTextField = new IntegerTextField();
-    IntegerTextField offsetTextField = new IntegerTextField();
+    NumericTextField lengthTextField = new NumericTextField();
+    NumericTextField widthTextField = new NumericTextField();
+    NumericTextField offsetTextField = new NumericTextField();
 
     GriddedFaultPlotter plotter = new GriddedFaultPlotter();
     GriddedSurfaceAPI surface = null;
@@ -917,9 +917,9 @@ public class GriddedFaultApplet
 
             case GRIDDED_RUPTURE_PLOT_TYPE :
               try{
-                ruptureCols = Integer.parseInt(lengthTextField.getText());
-                ruptureRows = Integer.parseInt(widthTextField.getText());
-                ruptureOffset = Integer.parseInt(offsetTextField.getText());
+                ruptureLength = Double.parseDouble(lengthTextField.getText());
+                ruptureWidth = Double.parseDouble(widthTextField.getText());
+                ruptureOffset = Double.parseDouble(offsetTextField.getText());
                 }catch(Exception e) {
                    JOptionPane.showMessageDialog(this,"Check the input in Gridded subset Panel");
                    break;
@@ -1647,9 +1647,9 @@ public class GriddedFaultApplet
      JPanel lengthPanel = new JPanel();
      JPanel widthPanel = new JPanel();
      JPanel offsetPanel = new JPanel();
-     JLabel lengthLabel = new JLabel("Length:");
-     JLabel widthLabel = new JLabel("Width:");
-     JLabel offsetLabel = new JLabel("Offset:");
+     JLabel lengthLabel = new JLabel("Length(in km):");
+     JLabel widthLabel = new JLabel("Width(in km):");
+     JLabel offsetLabel = new JLabel("Offset(in km):");
 
 
      lengthLabel.setBackground( Color.white);
@@ -1727,7 +1727,7 @@ public class GriddedFaultApplet
          EvenlyGriddedSurface  evenlyGriddedSurface =(EvenlyGriddedSurface)surface;
 
          // get the iterator over all the subset surfaces
-         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureCols ,ruptureRows, ruptureOffset);
+         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureLength ,ruptureWidth, ruptureOffset);
          //Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(3,2,3);
          while(it.hasNext()) {
             // get next subset surface

@@ -51,11 +51,21 @@ public class EvenlyGriddedSurface extends GriddedSurface {
 
         // number of ruptures along the length of fault
         int nRupAlong = (int)Math.floor((numCols-numRupCols)/numRupOffset +1);
-        if(nRupAlong <1) nRupAlong=1;
+
+        // there is only one rupture
+        if(nRupAlong <=1) {
+          nRupAlong=1;
+          numRupCols = numCols;
+        }
 
         // nnmber of ruptures along fault width
         int nRupDown =  (int)Math.floor((numRows-numRupRows)/numRupOffset +1);
-        if(nRupDown <1) nRupDown=1;
+
+        // one rupture along width
+        if(nRupDown <=1) {
+          nRupDown=1;
+          numRupRows = numRows;
+        }
 
         // save the ruptures in a vector
         int col = 0;
@@ -82,9 +92,10 @@ public class EvenlyGriddedSurface extends GriddedSurface {
     * @return           Iterator over all ruptures
     */
     public Iterator getSubsetSurfacesIterator(double rupLength,double rupWidth,double rupOffset) {
-       return getSubsetSurfacesIterator(Math.rint(rupLength/gridSpacing),
-                                        Math.rint(rupWidth/gridSpacing),
-                                        Math.rint(rupOffset/gridSpacing));
+
+       return getSubsetSurfacesIterator((int)Math.rint(rupLength/gridSpacing),
+                                        (int)Math.rint(rupWidth/gridSpacing),
+                                        (int)Math.rint(rupOffset/gridSpacing));
 
     }
 

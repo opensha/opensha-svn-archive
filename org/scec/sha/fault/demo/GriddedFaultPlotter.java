@@ -201,7 +201,12 @@ public class GriddedFaultPlotter extends ArrayList{
         //OverlaidXYPlot plot = new OverlaidXYPlot(xAxis, yAxis);
 
         // Get the data
-        XYDataset functions = (XYDataset)this.get(0);
+        XYDataset functions ;
+        if(this.plotType == this.SHAPES_LINES_AND_SHAPES)
+            functions = (XYDataset)this.get(1);
+        else
+            functions = (XYDataset)this.get(0);
+
         if( functions == null ) return null;
 
         /* To set the rainbow colors based on the depth of the fault, this also overrides the colors

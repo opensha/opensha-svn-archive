@@ -1651,9 +1651,9 @@ public class GriddedFaultApplet3D
      JPanel lengthPanel = new JPanel();
      JPanel widthPanel = new JPanel();
      JPanel offsetPanel = new JPanel();
-     JLabel lengthLabel = new JLabel("Length:");
-     JLabel widthLabel = new JLabel("Width:");
-     JLabel offsetLabel = new JLabel("Offset:");
+     JLabel lengthLabel = new JLabel("Length(in km):");
+     JLabel widthLabel = new JLabel("Width(in km):");
+     JLabel offsetLabel = new JLabel("Offset(in km):");
 
 
      lengthLabel.setBackground( Color.white);
@@ -1731,7 +1731,7 @@ public class GriddedFaultApplet3D
          EvenlyGriddedSurface  evenlyGriddedSurface =(EvenlyGriddedSurface)surface;
 
          // get the iterator over all the subset surfaces
-         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureLength,ruptureWidth,(int)ruptureOffset);
+         Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(ruptureLength,ruptureWidth, ruptureOffset);
          //Iterator it =evenlyGriddedSurface.getSubsetSurfacesIterator(3,2,3);
          while(it.hasNext()) {
             // get next subset surface
