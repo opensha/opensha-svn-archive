@@ -29,11 +29,11 @@ import org.scec.sha.propagation.DistanceRupParameter;
 public class DisaggregationCalculator {
 
   protected final static String C = "DisaggregationCalculator";
-  protected final static boolean D = true;
+  protected final static boolean D = false;
 
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
-  protected final double MAX_DISTANCE = 200;
+  protected final double MAX_DISTANCE = 250;
 
   // progress bar stuff:
   private int FRAME_WIDTH = 250;
@@ -49,8 +49,8 @@ public class DisaggregationCalculator {
   private double deltaMag = (MAX_MAG-MIN_MAG)/(NUM_MAG-1);
 
   private double MIN_DIST = 5;
-  private double MAX_DIST = 195;
-  private int NUM_DIST = 20;
+  private double MAX_DIST = 245;
+  private int NUM_DIST = 25;
   private double deltaDist = (MAX_DIST-MIN_DIST)/(NUM_DIST-1);
 
   private double MIN_E = -5.0;

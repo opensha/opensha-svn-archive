@@ -109,7 +109,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   private final static Double DEPTH_PARAM_DEFAULT = new Double(5);
 
   //timespan Variable
-  public final static String TIMESPAN_PARAM_NAME = "Area Timespan";
+  public final static String TIMESPAN_PARAM_NAME = "Timespan";
   public final static String TIMESPAN_PARAM_UNITS = "yrs";
   private final static Double TIMESPAN_PARAM_DEFAULT = new Double(1);
   private final static double TIMESPAN_PARAM_MIN = 1e-10;
@@ -167,25 +167,23 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
     // make the mag-freq dists for the sources
     double bValue = 0.9;
-    double magLower = 5.0;
     // area source distribution:
-    dist_gr_A_orig = new GutenbergRichterMagFreqDist(5, 6.5, 16);
-    dist_gr_A_orig.setAllButTotMoRate(5,6.5,0.0395,bValue);
+    dist_gr_A_orig = new GutenbergRichterMagFreqDist(5.05, 6.45, 15);
+    dist_gr_A_orig.setAllButTotMoRate(5.05, 6.45,0.0395,bValue);
     // Fault B distribution
-    double tempMoRate = FaultMomentCalc.getMoment(75.0e3*12.0e3, 2e-2);
-    double magUpper = 7.2;
+    double tempMoRate = FaultMomentCalc.getMoment(75.0e3*12.0e3, 2e-3);
+    double magLower = 0.05;
+    double magUpper = 7.25;
     double deltaMagChar = 0.5;
-    double magPrime = 6.7;
+    double magPrime = 6.75;
     double deltaMagPrime = 1.0;
-    dist_yc_B = new YC_1985_CharMagFreqDist(0,7.5, 76);
+    dist_yc_B = new YC_1985_CharMagFreqDist(magLower,magUpper, 73);
     dist_yc_B.setAllButTotCharRate(magLower, magUpper,deltaMagChar,magPrime,deltaMagPrime,bValue,tempMoRate);
     // Fault C distribution
-    tempMoRate = FaultMomentCalc.getMoment(25.0e3*12.0e3, 1e-2);
-    magUpper = 6.7;
-    deltaMagChar = 0.5;
-    magPrime = 6.2;
-    deltaMagPrime = 1.0;
-    dist_yc_C = new YC_1985_CharMagFreqDist(0,7.0, 71);
+    tempMoRate = FaultMomentCalc.getMoment(25.0e3*12.0e3, 1e-3);
+    magUpper = 6.75;
+    magPrime = 6.25;
+    dist_yc_C = new YC_1985_CharMagFreqDist(magLower,magUpper, 68);
     dist_yc_C.setAllButTotCharRate(magLower, magUpper,deltaMagChar,magPrime,deltaMagPrime,bValue,tempMoRate);
 
     // make the fault traces for the fault sources.
@@ -255,7 +253,7 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
       double cumRate = dist_GR.getCumRate((int) 0);
       cumRate /= numLocs;
-      dist_GR.scaleToCumRate(0,cumRate);
+      dist_GR.scaleToCumRate((int) 0,cumRate);
 
       pointGR_EqkSource = new PointGR_EqkSource(new Location(),dist_GR, RAKE, DIP);
       pointGR_EqkSource.setTimeSpan(timeSpan);
@@ -269,26 +267,23 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
       double offset = ((Double)offsetParam.getValue()).doubleValue();
       double lengthSigma = 0;
 
-      // for fault B:
-      FrankelGriddedFaultFactory factoryB = new FrankelGriddedFaultFactory( faultTraceB,
+      // Make gridded surface factory for the two faults (create with fault B trace)
+
+      FrankelGriddedFaultFactory factory = new FrankelGriddedFaultFactory( faultTraceB,
                                                                      DIP,
                                                                      seisUpper,
                                                                      seisLower,
                                                                      gridSpacing );
-      GriddedSurfaceAPI surfaceB = factoryB.getGriddedSurface();
 
+      // get the surface and make the source for Fault B
+      GriddedSurfaceAPI surfaceB = factory.getGriddedSurface();
       fltSourceB = new  PEER_FaultSource(dist_yc_B, RAKE, offset,
                                           (EvenlyGriddedSurface) surfaceB,
                                           timeSpan, lengthSigma );
 
       // for fault C:
-      FrankelGriddedFaultFactory factoryC = new FrankelGriddedFaultFactory( faultTraceC,
-                                                                     DIP,
-                                                                     seisUpper,
-                                                                     seisLower,
-                                                                     gridSpacing );
-      GriddedSurfaceAPI surfaceC = factoryC.getGriddedSurface();
-
+      factory.setFaultTrace(faultTraceC);
+      GriddedSurfaceAPI surfaceC = factory.getGriddedSurface();
       fltSourceC = new  PEER_FaultSource(dist_yc_C, RAKE, offset,
                                           (EvenlyGriddedSurface)surfaceC,
                                           timeSpan, lengthSigma );

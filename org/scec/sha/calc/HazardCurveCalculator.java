@@ -31,10 +31,25 @@ public class HazardCurveCalculator {
   protected final static boolean D = false;
 
 
-  // maximum permitted distance between fault and site to consider source in hazard analysis for that site
-  protected final double MAX_DISTANCE = 200;
+  /* maximum permitted distance between fault and site to consider source in
+  hazard analysis for that site; this default value is to allow all PEER test
+  cases to pass through
+  */
+  protected double MAX_DISTANCE = 250;
 
   private ProgressClass progressClass = new ProgressClass();
+
+  /**
+   * This sets the maximum distance of sources to be considered in the calculation
+   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
+   * Sources more than this distance away are ignored.
+   * Default value is 250 km.
+   *
+   * @param distance: the maximum distance in km
+   */
+  public void setMaxSourceDistance(double distance) {
+    MAX_DISTANCE = distance;
+  }
 
   /**
    * this function determines the hazard curve based on the parameters
