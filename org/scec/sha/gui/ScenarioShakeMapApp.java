@@ -436,8 +436,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.IML_AT_PROB))
       imlAtProb=true;
-    else
-      probAtIML=true;
+    else probAtIML=true;
 
 
     // get the selected IMR
@@ -462,7 +461,9 @@ public class ScenarioShakeMapApp extends JApplet implements
       try {
         imr.setProbEqkRupture(erfGuiBean.getRupture());
       } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Rupture not allowed for this IMR");
         System.out.println("Parameter change warning caught");
+        return;
       }
       if(probAtIML)
         siteValue.add(new Double(imr.getExceedProbability(imlProbValue)));
@@ -479,7 +480,7 @@ public class ScenarioShakeMapApp extends JApplet implements
     try {
       makeFile(siteLat,siteLon,siteValue);
     }catch(Exception e) {
-
+      e.printStackTrace();
     }
     mapGuiBean.makeMap(this.fileNameTextField.getText().trim()+".txt");
   }
