@@ -11,8 +11,9 @@ import java.net.*;
 import java.lang.reflect.InvocationTargetException;
 import java.io.*;
 
-import org.jfree.data.*;
+import ch.randelshofer.quaqua.QuaquaManager;
 
+import org.jfree.data.*;
 import org.scec.data.function.*;
 import org.scec.gui.*;
 import org.scec.gui.plot.jfreechart.*;
@@ -522,13 +523,17 @@ public class HazardCurveApplet extends JApplet
 
   //static initializer for setting look & feel
   static {
+    String osName = System.getProperty("os.name");
     try {
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-      //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+      if(osName.startsWith("Mac OS"))
+        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
+      else
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
     }
   }
+
 
 
   /**
