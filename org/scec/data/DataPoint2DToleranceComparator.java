@@ -1,6 +1,7 @@
 package org.scec.data;
 
 import org.scec.exceptions.InvalidRangeException;
+import java.io.Serializable;
 
 
 /**
@@ -36,7 +37,8 @@ import org.scec.exceptions.InvalidRangeException;
  * @version    1.0
  */
 
-public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI {
+public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
+                                                       Serializable{
 
     /**
      *  The tlorance allowed in specifying a x-value near a real x-value, so

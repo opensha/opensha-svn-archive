@@ -254,7 +254,7 @@ public class MagFreqDistTesterApplet extends JApplet
     clearButton.setBackground(new Color(200, 200, 230));
     clearButton.setFont(BUTTON_FONT);
     clearButton.setForeground(new Color(80, 80, 133));
-    clearButton.setBorder(BorderFactory.createRaisedBevelBorder());
+    clearButton.setBorder(null);
     clearButton.setFocusPainted(false);
     clearButton.setText("Clear Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
@@ -276,7 +276,7 @@ public class MagFreqDistTesterApplet extends JApplet
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(BUTTON_FONT);
     toggleButton.setForeground(new Color(80, 80, 133));
-    toggleButton.setBorder(BorderFactory.createRaisedBevelBorder());
+    toggleButton.setBorder(null);
     toggleButton.setFocusPainted(false);
     toggleButton.setText("Show Data");
     toggleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -290,7 +290,7 @@ public class MagFreqDistTesterApplet extends JApplet
     addButton.setBackground(new Color(200, 200, 230));
     addButton.setFont(BUTTON_FONT);
     addButton.setForeground(new Color(80, 80, 133));
-    addButton.setBorder(BorderFactory.createRaisedBevelBorder());
+    addButton.setBorder(null);
     addButton.setFocusPainted(false);
     addButton.setText("Add Dist");
     addButton.addActionListener(new java.awt.event.ActionListener() {
