@@ -1232,7 +1232,7 @@ public class HazardCurveServerModeApplication extends JApplet
      AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
      siteGuiBean = new Site_GuiBean();
-     siteGuiBean.replaceSiteParams(imr.getSiteParamsIterator());
+     siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
      // show the sitebean in JPanel
      sitePanel.add(this.siteGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
              GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

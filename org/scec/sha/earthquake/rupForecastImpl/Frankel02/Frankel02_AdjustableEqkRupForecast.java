@@ -68,8 +68,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
    * Static variables for input files
    */
 
-  //private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
-  private final static String IN_FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
+  private final static String IN_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/WEB-INF/dataFiles/frankel02_inputfiles/";
+  //private final static String IN_FILE_PATH = "org/scec/sha/earthquake/rupForecastImpl/Frankel02/InputFiles/";
 
   /**
    * Vectors for holding the various sources, separated by type
@@ -111,8 +111,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   private Double DEFAULT_RUP_OFFSET_VAL= new Double(10);
   private final static String RUP_OFFSET_PARAM_UNITS = "km";
   private final static String RUP_OFFSET_PARAM_INFO = "Length of offset for floating ruptures";
-  private final static double RUP_OFFSET_PARAM_MIN = 1;
-  private final static double RUP_OFFSET_PARAM_MAX = 100;
+  public final static double RUP_OFFSET_PARAM_MIN = 1;
+  public final static double RUP_OFFSET_PARAM_MAX = 100;
   DoubleParameter rupOffset_Param;
 
 /*
