@@ -1,4 +1,4 @@
- package org.scec.sha.imr.attenRelImpl.gui;
+package org.scec.sha.imr.attenRelImpl.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -715,10 +715,9 @@ public class AttenuationRelationshipApplet extends JApplet
      */
     private void addGraphPanel() {
 
-
+        graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
         if( isWhite ) graphPanel.setPlotBackgroundColor(Color.white );
         else graphPanel.setPlotBackgroundColor( Color.black );
-        graphPanel.drawGraphPanel(xAxisName,yAxisName,functionList,xLog,yLog,customAxis,null,buttonControlPanel);
         togglePlot();
     }
 

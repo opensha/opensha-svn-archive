@@ -310,4 +310,10 @@ public abstract class WarningDoublePropagationEffectParameter
         else return false;
     }
 
+    /**
+     * Standard Java function. Creates a copy of this class instance
+     * so originaly can not be modified
+     */
+    public abstract Object clone();
+
 }
