@@ -733,7 +733,7 @@ public class HazardCurveApplet extends JApplet
               this.clearPlot(true);
 
             }
-            System.exit(101);
+            //System.exit(101);
             //peerResultsFile.close();
           }catch(Exception ee){
             ee.printStackTrace();

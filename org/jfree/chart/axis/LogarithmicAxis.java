@@ -659,8 +659,9 @@ public class LogarithmicAxis extends NumberAxis {
     double tickVal;
     String tickLabel;
     boolean zeroTickFlag = false;
-
-    //setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
+    if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
+      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
+    }
     boolean superscript=false;
 
     // whether you want to show in superscript form or not
@@ -873,8 +874,10 @@ public class LogarithmicAxis extends NumberAxis {
     double tickVal;
     String tickLabel;
     boolean zeroTickFlag = false;
-    //setRange(Math.pow(10,iBegCount),Math.pow(10,iEndCount));
 
+    if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
+      setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
+    }
     boolean superscript=false;
 
     // whether you want to show in superscript form or not
@@ -1075,6 +1078,9 @@ public class LogarithmicAxis extends NumberAxis {
   protected double drawTickMarksAndLabels(Graphics2D g2, double cursor,
       Rectangle2D plotArea,
       Rectangle2D dataArea, RectangleEdge edge) {
+
+    if(!log10TickLabelsInPowerFlag)
+      return drawTickMarksAndLabels(g2, cursor,plotArea, dataArea, edge);
 
     if (isAxisLineVisible()) {
       drawAxisLine(g2, cursor, dataArea, edge);

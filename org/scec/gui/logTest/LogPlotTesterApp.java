@@ -124,7 +124,7 @@ public class LogPlotTesterApp extends JApplet  {
   private JRadioButton log10PowerCheck = new JRadioButton();
   private JRadioButton log10AsECheck = new JRadioButton();
   private JCheckBox minorAxisCheck = new JCheckBox();
-
+  private ButtonGroup group = new ButtonGroup();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //declaration for the class that lets the user to enter his own data
@@ -285,6 +285,7 @@ public class LogPlotTesterApp extends JApplet  {
         log10AsECheck_actionPerformed(e);
       }
     });
+    minorAxisCheck.setSelected(true);
     minorAxisCheck.setText("Show Minor Axis");
     minorAxisCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -336,6 +337,11 @@ public class LogPlotTesterApp extends JApplet  {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 12, 0, 26), 67, 8));
     this.getContentPane().add(jSplitPane1, BorderLayout.CENTER);
     jSplitPane1.setDividerLocation(500);
+
+    group.add(log10AsECheck);
+    group.add(log10CaretCheck);
+    group.add(log10PowerCheck);
+    log10PowerCheck.setSelected(true);
   }
   //Get Applet information
   public String getAppletInfo() {
@@ -771,19 +777,29 @@ public class LogPlotTesterApp extends JApplet  {
   }
 
   void log10CaretCheck_actionPerformed(ActionEvent e) {
-
+    ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
+    ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
   }
 
   void log10PowerCheck_actionPerformed(ActionEvent e) {
-
+    ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
+    ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
   }
 
   void log10AsECheck_actionPerformed(ActionEvent e) {
-
+    ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
+    ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
   }
 
   void minorAxisCheck_actionPerformed(ActionEvent e) {
-
+    if(minorAxisCheck.isSelected()){
+      ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(true);
+      ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(true);
+    }
+    else{
+      ((LogarithmicAxis)xAxis).setMinorAxisTickLabelFlag(false);
+      ((LogarithmicAxis)yAxis).setMinorAxisTickLabelFlag(false);
+    }
   }
 
 
