@@ -22,19 +22,23 @@ public abstract class ParameterConstraint implements ParameterConstraintAPI {
      */
     protected final static boolean D = false;
 
+    /** No arg constructor does nothing */
     public ParameterConstraint() {}
 
     /**
      *  This value indicates if the value is editable after it is first set.
      */
     protected boolean editable = true;
+
+    /** Every constraint has a assigned name - useful for displays and lookups */
     protected String name = null;
 
+    /** Inidcates whether null values are allowed as possible values */
     protected boolean nullAllowed = false;
 
     /**
      *  Every parameter constraint has a name, this function returns that name.
-     *
+     *  Useful for displays and lookups
      * @return    The name value
      */
     public String getName(){ return name; }
