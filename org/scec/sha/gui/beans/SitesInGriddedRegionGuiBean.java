@@ -46,14 +46,14 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
   public final static String MAX_LATITUDE =  "Max  Latitude";
   public final static String GRID_SPACING =  "Grid Spacing";
   public final static String VS30_DEFAULT =  "VS(30) Default";
-  public final static String VS30_DEFAULT_INFO =  "VS(30) Value in Water(for site in Ocean)";
+  public final static String VS30_DEFAULT_INFO =  "VS(30) Value in Water (for site in Ocean)";
 
   // min and max limits of lat and lin for which CVM can work
   private static final double MIN_CVM_LAT = 32.0;
   private static final double MAX_CVM_LAT = 36.0;
   private static final double MIN_CVM_LON = -121.0;
   private static final double MAX_CVM_LON = -114.0;
-  private static final double VS30_DEFAULT_VALUE = 500.00;
+  private static final double VS30_DEFAULT_VALUE = 200.00;
 
   //Vs30 vector: the values that return from the CVM
   private Vector vs30Vector;
