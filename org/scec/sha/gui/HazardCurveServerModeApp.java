@@ -10,12 +10,7 @@ import java.util.Iterator;
 import java.net.*;
 
 
-
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
-import org.jfree.chart.labels.*;
 
 import ch.randelshofer.quaqua.QuaquaManager;
 
@@ -45,7 +40,18 @@ import org.scec.sha.earthquake.ForecastAPI;
 
 /**
  * <p>Title: HazardCurveServerModeApp</p>
- * <p>Description: </p>
+ * <p>Description: This application shows the Hazard Curves in a window. This
+ * application is very similar to the Hazard Curve Applet. The only difference
+ * between the applications is we create ERF instances on the local machine of the
+ * user in case of the HazardCurve Applet, which can consume lot of users machine
+ * memory. But in the case of the HazardCurveServerMode Application we create the
+ * instance of the ERF's on the server and transfer that object over the network
+ * wire to the user's machine, so user just uses the already instance but all the
+ * calculation is done on the server. The 2nd advantage of using this application
+ * is wrapping of the legacy code( Eg: written in Fortran, C). All the execution of
+ * the code is done on the server or place where we are hosting this legacy code. This
+ * application just calls the webService located on the server which compiles the
+ * legacy code and creates an object of ERF and returns it to the user machine.</p>
  * @author Nitin Gupta and Vipin Gupta
  * Date : Sept 23 , 2002
  * @version 1.0
@@ -54,7 +60,7 @@ import org.scec.sha.earthquake.ForecastAPI;
 public class HazardCurveServerModeApp extends JApplet
     implements Runnable, ParameterChangeListener, AxisLimitsControlPanelAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
-    X_ValuesInCurveControlPanelAPI {
+    X_ValuesInCurveControlPanelAPI, ButtonControlPanelAPI,GraphPanelAPI, GraphWindowAPI {
 
   /**
    * Name of the class
@@ -85,12 +91,21 @@ public class HazardCurveServerModeApp extends JApplet
   private Site_GuiBean siteGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
 
+
+  //instance for the ButtonControlPanel
+  ButtonControlPanel buttonControlPanel;
+
+  //instance of the GraphPanel (window that shows all the plots)
+  GraphPanel graphPanel;
+
+  //instance of the GraphWindow to pop up when the user wants to "Peel-Off" curves;
+  GraphWindow graphWindow;
+
+
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
-  //private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String EPISTEMIC_CONTROL = "ERF Epistemic Control";
-  private final static String AXIS_CONTROL = "Axis Control";
   private final static String DISTANCE_CONTROL = "Max Source-Site Distance";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
   private final static String X_VALUES_CONTROL = "Set X values for Hazard Curve Calc.";
@@ -99,22 +114,12 @@ public class HazardCurveServerModeApp extends JApplet
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
   private DisaggregationControlPanel disaggregationControlPanel;
-  private AxisLimitsControlPanel axisControlPanel;
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
   private SetSiteParamsFromCVMControlPanel cvmControlPanel;
   private X_ValuesInCurveControlPanel xValuesPanel;
 
-  // message string to be dispalayed if user chooses Axis Scale
-   // without first clicking on "Add Graph"
-  private final static String AXIS_RANGE_NOT_ALLOWED =
-      new String("First Choose Add Graph. Then choose Axis Scale option");
-
-
-
-  // mesage needed in case of show data if plot is not available
-  private final static String NO_PLOT_MSG = "No Plot Data Available";
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -147,11 +152,6 @@ public class HazardCurveServerModeApp extends JApplet
 
 
 
-  // Create the x-axis and y-axis - either normal or log
-  private org.jfree.chart.axis.NumberAxis xAxis = null;
-  private org.jfree.chart.axis.NumberAxis yAxis = null;
-
-
   // variable needed for plotting Epistemic list
   private boolean isEqkList = false; // whther we are plottin the Eqk List
   private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
@@ -177,21 +177,9 @@ public class HazardCurveServerModeApp extends JApplet
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-  /**
-   * adding scroll pane for showing data
-   */
-  private JScrollPane dataScrollPane = new JScrollPane();
-
-  // text area to show the data values
-  private JTextArea pointsTextArea = new JTextArea();
-
   //flags to check which X Values the user wants to work with: default or custom
   boolean useCustomX_Values = false;
 
-  /**
-   * chart panel
-   */
-  private ChartPanel chartPanel;
 
   //flag to check for the disaggregation functionality
   private boolean disaggregationFlag= false;
@@ -214,8 +202,7 @@ public class HazardCurveServerModeApp extends JApplet
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private Border border2;
-  private final static String AUTO_SCALE = "Auto Scale";
-  private final static String CUSTOM_SCALE = "Custom Scale";
+
   private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
   private final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
   private Border border3;
@@ -237,13 +224,9 @@ public class HazardCurveServerModeApp extends JApplet
 
   JSplitPane topSplitPane = new JSplitPane();
   JButton clearButton = new JButton();
-  JLabel imgLabel = new JLabel();
-  JCheckBox jCheckylog = new JCheckBox();
-  JButton toggleButton = new JButton();
   JPanel buttonPanel = new JPanel();
   JCheckBox progressCheckBox = new JCheckBox();
   JButton addButton = new JButton();
-  JCheckBox jCheckxlog = new JCheckBox();
   JComboBox controlComboBox = new JComboBox();
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
@@ -271,7 +254,8 @@ public class HazardCurveServerModeApp extends JApplet
   CalcProgressBar disaggProgressClass;
   Timer timer;
   Timer disaggTimer;
-
+  private JButton peelOffButton = new JButton();
+  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -330,14 +314,10 @@ public class HazardCurveServerModeApp extends JApplet
 
 
     // for showing the data on click of "show data" button
-    pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
-    pointsTextArea.setText( NO_PLOT_MSG );
-    pointsTextArea.setLineWrap(true);
-    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
     jPanel1.setLayout(gridBagLayout10);
 
-
+    //creating the Object the GraphPaenl class
+    graphPanel = new GraphPanel(this);
 
     jPanel1.setBackground(Color.white);
     jPanel1.setBorder(border4);
@@ -353,29 +333,21 @@ public class HazardCurveServerModeApp extends JApplet
         clearButton_actionPerformed(e);
       }
     });
-    imgLabel.setText("");
-    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+
+    peelOffButton.setText("Peel Off");
+    peelOffButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        peelOffButton_actionPerformed(e);
+      }
+    });
+
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         imgLabel_mouseClicked(e);
       }
     });
     //jCheckylog.setBackground(Color.white);
-    jCheckylog.setFont(new java.awt.Font("Dialog", 1, 11));
     //jCheckylog.setForeground(new Color(80, 80, 133));
-    jCheckylog.setText("Y Log");
-    jCheckylog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckylog_actionPerformed(e);
-      }
-    });
-    toggleButton.setToolTipText("");
-    toggleButton.setText("Show Data");
-    toggleButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        toggleButton_actionPerformed(e);
-      }
-    });
     //buttonPanel.setBackground(Color.white);
     buttonPanel.setMinimumSize(new Dimension(568, 20));
     buttonPanel.setLayout(flowLayout1);
@@ -391,14 +363,7 @@ public class HazardCurveServerModeApp extends JApplet
       }
     });
    // jCheckxlog.setBackground(Color.white);
-    jCheckxlog.setFont(new java.awt.Font("Dialog", 1, 11));
     //jCheckxlog.setForeground(new Color(80, 80, 133));
-    jCheckxlog.setText("X Log");
-    jCheckxlog.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jCheckxlog_actionPerformed(e);
-      }
-    });
     //controlComboBox.setBackground(new Color(200, 200, 230));
     //controlComboBox.setForeground(new Color(80, 80, 133));
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -406,6 +371,18 @@ public class HazardCurveServerModeApp extends JApplet
         controlComboBox_actionPerformed(e);
       }
     });
+
+
+    buttonControlPanel = new ButtonControlPanel(this);
+
+    buttonPanel.add(controlComboBox, 0);
+    buttonPanel.add(addButton, 1);
+    buttonPanel.add(clearButton, 2);
+    buttonPanel.add(peelOffButton, 3);
+    buttonPanel.add(progressCheckBox, 4);
+    buttonPanel.add(buttonControlPanel,5);
+    buttonPanel.add(imgLabel, 6);
+
     panel.setLayout(gridBagLayout9);
     panel.setBackground(Color.white);
     panel.setBorder(border5);
@@ -431,18 +408,10 @@ public class HazardCurveServerModeApp extends JApplet
     imrPanel.setBackground(Color.white);
     chartSplit.setLeftComponent(panel);
     chartSplit.setRightComponent(paramsTabbedPane);
-    dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
-    buttonPanel.add(controlComboBox, null);
-    buttonPanel.add(addButton, null);
-    buttonPanel.add(clearButton, null);
-    buttonPanel.add(toggleButton, null);
-    buttonPanel.add(jCheckxlog, null);
-    buttonPanel.add(jCheckylog, null);
-    buttonPanel.add(progressCheckBox, null);
-    buttonPanel.add(imgLabel, null);
+
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
     chartSplit.add(paramsTabbedPane, JSplitPane.RIGHT);
@@ -524,168 +493,55 @@ public class HazardCurveServerModeApp extends JApplet
    */
   private void addGraphPanel() {
 
-      // Starting
-      String S = C + ": addGraphPanel(): ";
+    // Starting
+    String S = C + ": addGraphPanel(): ";
 
-      String newXYAxisName = this.totalProbFuncs.getXYAxesName();
+    // draw all plots in black color for Eqk List
+    if(isEqkList) {
+      int num = totalProbFuncs.size();
+      int numFractiles;
+      if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
+        numFractiles = 1;
+      else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
+        numFractiles = 3;
+      else numFractiles = 0;
+      int diff ;
+      if(this.avgSelected && !isIndividualCurves) num= num - 1;
+      diff = num - numFractiles ;
+      int i;
+      Color [] color = new Color[num+1];
+      for(i=0; i<diff; ++i)
+        // set black color for curves
+        color[i] = new Color(Color.black.getRGB());
 
-
-      // create a default chart based on some sample data...
-
-      // Determine which IM to add to the axis labeling
-      String xAxisLabel = totalProbFuncs.getXAxisName();
-      String yAxisLabel = totalProbFuncs.getYAxisName();
-
-
-      //create the standard ticks so that smaller values too can plotted on the chart
-      TickUnits units = MyTickUnits.createStandardTickUnits();
-
-
-      /// check if x log is selected or not
-      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
-      else xAxis = new NumberAxis( xAxisLabel );
-
-      try{
-        if (!xLog)
-         xAxis.setAutoRangeIncludesZero(true);
-       else
-        xAxis.setAutoRangeIncludesZero( false );
-
-        xAxis.setStandardTickUnits(units);
-        xAxis.setTickMarksVisible(false);
-
-        /// check if y log is selected or not
-        if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
-        else yAxis = new NumberAxis( yAxisLabel );
-
-        if (!yLog)
-          yAxis.setAutoRangeIncludesZero(true);
-        else
-          yAxis.setAutoRangeIncludesZero( false );
-
-        yAxis.setStandardTickUnits(units);
-        yAxis.setTickMarksVisible(false);
-
-        int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-
-        org.jfree.chart.renderer.StandardXYItemRenderer renderer
-            = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
-        // draw all plots in black color for Eqk List
-        if(this.isEqkList) {
-          int num = totalProbFuncs.size();
-          int numFractiles;
-          if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
-            numFractiles = 1;
-          else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
-            numFractiles = 3;
-          else numFractiles = 0;
-          int diff ;
-          if(this.avgSelected && !isIndividualCurves) num= num - 1;
-          diff = num - numFractiles ;
-          int i;
-          for(i=0; i<diff; ++i) // set black color for curves
-            renderer.setSeriesPaint(i,Color.black);
-          //checks if the individual curves for each erf in the list are being drawn, if so then don't
-          //try to draw the average and fractiles curves
-          if(!isIndividualCurves){
-            for(i=diff;i<num;++i) // set red color for fractiles
-              renderer.setSeriesPaint(i,Color.red);
-            // draw average in green color
-            if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
-          }
-
-        }
-
-      /* to set the range of the axis on the input from the user if the range combo box is selected*/
-        if(this.customAxis) {
-          xAxis.setRange(this.minXValue,this.maxXValue);
-          yAxis.setRange(this.minYValue,this.maxYValue);
-        }
-
-        // build the plot
-        org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
-            xAxis, yAxis, renderer);
-
-        plot.setDomainCrosshairLockedOnData(false);
-        plot.setDomainCrosshairVisible(false);
-        plot.setRangeCrosshairLockedOnData(false);
-        plot.setRangeCrosshairVisible(false);
-        plot.setBackgroundAlpha( .8f );
-        plot.setRenderer( renderer );
-        plot.setInsets(new Insets(0, 0, 0, 20));
-
-
-        JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
-
-        chart.setBackgroundPaint( lightBlue );
-
-        // chart.setBackgroundImage(image);
-        // chart.setBackgroundImageAlpha(.3f);
-
-        // Put into a panel
-        chartPanel = new ChartPanel(chart, true, true, true, true, false);
-        //panel.setMouseZoomable(true);
-
-        chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-        chartPanel.setMouseZoomable(true);
-        chartPanel.setDisplayToolTips(true);
-        chartPanel.setHorizontalAxisTrace(false);
-        chartPanel.setVerticalAxisTrace(false);
-      }catch(Exception e){
-        JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
-        return;
+      //checks if the individual curves for each erf in the list are being drawn, if so then don't
+      //try to draw the average and fractiles curves
+      if(!isIndividualCurves){
+        for(i=diff;i<num;++i) // set red color for fractiles
+          color[i] = new Color(Color.red.getRGB());
+        // draw average in green color
+        if(this.avgSelected) color[i] = new Color(Color.green.getRGB());
       }
+      graphPanel.setSeriesColor(color);
+    }
+    else //sets the default series color for the curves
+      graphPanel.setDefaultSeriesColor();
 
-      if(D) System.out.println(this.totalProbFuncs.toString());
-      if(D) System.out.println(S + "data:" + data);
-
-      graphOn=false;
-      togglePlot();
-      this.isIndividualCurves = false;
+    graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
+    togglePlot();
+    this.isIndividualCurves = false;
    }
 
 
-   /**
-    *  Toggle between showing the graph and showing the actual data
-    */
-   private void togglePlot() {
-
-       // Starting
-       String S = C + ": togglePlot(): ";
-       panel.removeAll();
-       if ( graphOn ) {
-
-           this.toggleButton.setText( "Show Plot" );
-           graphOn = false;
-
-           panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                   , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-       }
-       else {
-           graphOn = true;
-           // dataScrollPane.setVisible(false);
-           this.toggleButton.setText( "Show Data" );
-                         // panel added here
-           if(chartPanel !=null)
-               panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-
-           else
-               // innerPlotPanel.setBorder(oval);
-               panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
-
-       }
-
-
-       panel.validate();
-       panel.repaint();
-
-       if ( D ) System.out.println( S + "Ending" );
-
-    }
+   //checks if the user has plot the data window or plot window
+   public void togglePlot(){
+     panel.removeAll();
+     graphPanel.togglePlot(buttonControlPanel);
+     panel.add(graphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+     panel.validate();
+     panel.repaint();
+   }
 
     /**
      * this function is called when Add Graph button is clicked
@@ -748,60 +604,40 @@ public class HazardCurveServerModeApp extends JApplet
         Thread t = new Thread(this);
         t.start();
       }
+      //if it is ERF List but no progress bar is selected,
+      //so we want to show curve as they are being drawn on the chart.
+      else if(isEqkList && !progressCheckBox.isSelected()){
+        Thread t = new Thread(this);
+        t.start();
+        drawGraph();
+      }
       else {
         this.computeHazardCurve();
         this.drawGraph();
       }
     }
 
+
+
     /**
      * to draw the graph
      */
     private void drawGraph() {
       // you can show warning messages now
-     imrGuiBean.showWarningMessages(true);
+      imrGuiBean.showWarningMessages(true);
 
-     // set the log values
-     data.setXLog(xLog);
-     data.setYLog(yLog);
-
-     // set the data in the text area
-     String xAxisTitle =  totalProbFuncs.getXAxisName();
-     String yAxisTitle =  totalProbFuncs.getYAxisName();
-
-     this.pointsTextArea.setText(totalProbFuncs.toString());
-     addGraphPanel();
-    }
-
-    /**
-     * if we select or deselect x log
-     * @param e
-     */
-    void jCheckxlog_actionPerformed(ActionEvent e) {
-      xLog  = this.jCheckxlog.isSelected();
+      // set the log values
       data.setXLog(xLog);
+      data.setYLog(yLog);
+
+      // set the data in the text area
+      String xAxisTitle =  totalProbFuncs.getXAxisName();
+      String yAxisTitle =  totalProbFuncs.getYAxisName();
+
       addGraphPanel();
     }
 
-    /**
-     * if we select or deselect x log
-     * @param e
-     */
-    void jCheckylog_actionPerformed(ActionEvent e) {
-      yLog  = this.jCheckylog.isSelected();
-      data.setYLog(yLog);
-      addGraphPanel();
-  }
 
-
-  /**
-   * when "show data" button is clicked
-   *
-   * @param e
-   */
-  void toggleButton_actionPerformed(ActionEvent e) {
-    this.togglePlot();
-  }
 
   /**
    * this function is called when "clear plot" is selected
@@ -822,16 +658,12 @@ public class HazardCurveServerModeApp extends JApplet
 
     int loc = this.chartSplit.getDividerLocation();
     int newLoc = loc;
-
+    graphPanel.removeChartAndMetadata();
     panel.removeAll();
-
-    pointsTextArea.setText( NO_PLOT_MSG );
     if( clearFunctions) {
       this.totalProbFuncs.clear();
     }
-
-    panel.validate();
-    panel.repaint();
+    customAxis = false;
     chartSplit.setDividerLocation( newLoc );
   }
 
@@ -967,7 +799,12 @@ public class HazardCurveServerModeApp extends JApplet
     // if this is forecast list , handle it differently
     //boolean isEqkForecastList = false;
     if(eqkRupForecast instanceof ERF_ListAPI)  {
-      //System.out.println("It is an instance for the ERF_ListAPI");
+      this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
+      //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
+      //in a seperate window.
+      if(isEqkList && (totalProbFuncs.size()>0))
+        //shows the curves for the ERF List in a seperate window
+        peelOffCurves();
       handleForecastList(site, imr, (ERF_ListAPI)eqkRupForecast);
       return;
     }
@@ -986,8 +823,8 @@ public class HazardCurveServerModeApp extends JApplet
    try {
      // calculate the hazard curve
      calc.getHazardCurve(hazFunction, site, imr, (ERF_API)eqkRupForecast);
-     hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
      hazFunction = toggleHazFuncLogValues(hazFunction);
+     hazFunction.setInfo(getParametersInfo());
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1075,8 +912,8 @@ public class HazardCurveServerModeApp extends JApplet
        //new ERF from ERF_List to that reference of only one object of ERF exist at a time
        ERF_API erf = erfList.getERF(i);
        calc.getHazardCurve(hazFunction, site, imr, erf);
-       hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
        hazFunction = toggleHazFuncLogValues(hazFunction);
+       hazFunction.setInfo(getParametersInfo());
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1087,7 +924,8 @@ public class HazardCurveServerModeApp extends JApplet
      this.isIndividualCurves = true;
     if(!this.progressCheckBox.isSelected()) {
       addGraphPanel();
-      chartPanel.paintImmediately(chartPanel.getBounds());
+      //panel that shows the plot curves and metadata
+      panel.paintImmediately(panel.getBounds());
     }
    }
 
@@ -1123,16 +961,7 @@ public class HazardCurveServerModeApp extends JApplet
    isIndividualCurves = false;
   }
 
-  /**
-   *
-   * @returns the String containing the values selected for different parameters
-   */
-  public String getCurveParametersInfo(){
-    return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
-        "Site Param List: "+siteGuiBean.getParameterListEditor().getParameterList().toString()+"\n"+
-        "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
-        "Forecast Param List: "+erfGuiBean.getParameterList().toString();
-  }
+
 
   /**
    * Initialize the IMR Gui Bean
@@ -1227,7 +1056,6 @@ public class HazardCurveServerModeApp extends JApplet
   private void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
-    this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(CVM_CONTROL);
@@ -1245,8 +1073,6 @@ public class HazardCurveServerModeApp extends JApplet
       initDisaggregationControl();
     else if(selectedControl.equalsIgnoreCase(this.EPISTEMIC_CONTROL))
       initEpistemicControl();
-    else if(selectedControl.equalsIgnoreCase(this.AXIS_CONTROL))
-      initAxisControl();
     else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
       initDistanceControl();
     else if(selectedControl.equalsIgnoreCase(this.DISTANCE_CONTROL))
@@ -1353,41 +1179,108 @@ public class HazardCurveServerModeApp extends JApplet
     cvmControlPanel.show();
   }
 
-  /**
-   * Initialize the PEER Test control.
-   * This function is called when user selects "Axis Control"
-   * from controls pick list
-   */
-  private void initAxisControl() {
-    if(xAxis==null || yAxis==null) {
-      JOptionPane.showMessageDialog(this,AXIS_RANGE_NOT_ALLOWED);
-      return;
-    }
-    Range rX = xAxis.getRange();
-    Range rY= yAxis.getRange();
-    double minX=rX.getLowerBound();
-    double maxX=rX.getUpperBound();
-    double minY=rY.getLowerBound();
-    double maxY=rY.getUpperBound();
-    if(this.customAxis) { // select the custom scale in the control window
-      if(axisControlPanel == null)
-        axisControlPanel=new AxisLimitsControlPanel(this, this,
-            AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
-      else  axisControlPanel.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
-                                       minX,maxX,minY,maxY);
 
-    }
-    else { // select the auto scale in the control window
-      if(axisControlPanel == null)
-        axisControlPanel=new AxisLimitsControlPanel(this, this,
-            AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
-      else  axisControlPanel.setParams(AxisLimitsControlPanel.AUTO_SCALE,
-                                       minX,maxX,minY,maxY);
-    }
-    axisControlPanel.pack();
-    axisControlPanel.show();
+  /**
+   *
+   * @returns the Range for the X-Axis
+   */
+  public Range getX_AxisRange(){
+    return graphPanel.getX_AxisRange();
   }
 
+  /**
+   *
+   * @returns the Range for the Y-Axis
+   */
+  public Range getY_AxisRange(){
+    return graphPanel.getY_AxisRange();
+  }
+
+
+  /**
+   *
+   * @returns the Min X-Axis Range Value, if custom Axis is choosen
+   */
+  public double getMinX(){
+    return minXValue;
+  }
+
+  /**
+   *
+   * @returns the Max X-Axis Range Value, if custom axis is choosen
+   */
+  public double getMaxX(){
+    return maxXValue;
+  }
+
+  /**
+   *
+   * @returns the Min Y-Axis Range Value, if custom axis is choosen
+   */
+  public double getMinY(){
+    return minYValue;
+  }
+
+  /**
+   *
+   * @returns the Max Y-Axis Range Value, if custom axis is choosen
+   */
+  public double getMaxY(){
+    return maxYValue;
+  }
+
+  /**
+   *
+   * @returns the instance to the JPanel showing the JFreechart adn metadata
+   */
+  public GraphPanel getGraphPanel(){
+    return graphPanel;
+  }
+
+  /**
+   *
+   * @returns boolean: Checks if Custom Axis is selected
+   */
+  public boolean isCustomAxis(){
+    return customAxis;
+  }
+
+  /**
+   *
+   * @returns the boolean: Log for X-Axis Selected
+   */
+  public boolean getXLog(){
+    return xLog;
+  }
+
+  /**
+   *
+   * @returns the boolean: Log for Y-Axis Selected
+   */
+  public boolean getYLog(){
+    return yLog;
+  }
+
+
+  /**
+   * tells the application if the xLog is selected
+   * @param xLog : boolean
+   */
+  public void setX_Log(boolean xLog){
+    this.xLog = xLog;
+    data.setXLog(xLog);
+    drawGraph();
+  }
+
+  /**
+   * tells the application if the yLog is selected
+   * @param yLog : boolean
+   */
+  public void setY_Log(boolean yLog){
+    this.yLog = yLog;
+    data.setYLog(yLog);
+    drawGraph();
+  }
 
   /**
    * This forces use of default X-axis values (according to the selected IMT)
@@ -1405,6 +1298,36 @@ public class HazardCurveServerModeApp extends JApplet
     useCustomX_Values = true;
     function =func;
   }
+
+  /**
+   *
+   * @returns the DiscretizedFuncList for all the data curves
+   */
+  public DiscretizedFuncList getCurveFunctionList(){
+    return totalProbFuncs;
+  }
+
+
+  /**
+   *
+   * @returns the DiscretizedFunctionXYDataSet to the data
+   */
+  public DiscretizedFunctionXYDataSet getXY_DataSet(){
+    return data;
+  }
+
+
+  /**
+   * Actual method implementation of the "Peel-Off"
+   * This function peels off the window from the current plot and shows in a new
+   * window. The current plot just shows empty window.
+   */
+  private void peelOffCurves(){
+    graphWindow = new GraphWindow(this);
+    clearPlot(true);
+    graphWindow.show();
+  }
+
 
   /**
    *
@@ -1489,6 +1412,39 @@ public class HazardCurveServerModeApp extends JApplet
    */
   public void setAverageSelected(boolean isAvgSelected) {
     this.avgSelected = isAvgSelected;
+  }
+
+  /**
+   * Action method to "Peel-Off" the curves graph window in a seperate window.
+   * This is called when the user presses the "Peel-Off" window.
+   * @param e
+   */
+  void peelOffButton_actionPerformed(ActionEvent e) {
+    peelOffCurves();
+  }
+
+
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
+  public String getParametersInfo(){
+    String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
+    return "IMR Param List:" +systemSpecificLineSeparator+
+           "---------------"+systemSpecificLineSeparator+
+        this.imrGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+systemSpecificLineSeparator+
+        "Site Param List: "+systemSpecificLineSeparator+
+        "----------------"+systemSpecificLineSeparator+
+        siteGuiBean.getParameterListEditor().getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        systemSpecificLineSeparator+"IMT Param List: "+systemSpecificLineSeparator+
+        "---------------"+systemSpecificLineSeparator+
+        imtGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
+        "--------------------"+systemSpecificLineSeparator+
+        /*erfGuiBean.getParameterList().toString()+systemSpecificLineSeparator+*/
+        systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
+        "--------------------"+systemSpecificLineSeparator+
+        timeSpanGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator;
   }
 
   void imgLabel_mousePressed(MouseEvent e) {
