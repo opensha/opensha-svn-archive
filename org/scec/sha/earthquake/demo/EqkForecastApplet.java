@@ -69,17 +69,33 @@ public class EqkForecastApplet extends JApplet
 
   protected final static String SA = "SA";
   protected final static String SA_PERIOD = "SA Period";
+
+  // title for site paramter panel
+  protected final static String SITE_PARAMS = "Site Params";
+  protected final static String VS30_STRING = "Vs30";
+  protected final static String BASIN_DEPTH_STRING = "Basin Depth (Phase III)";
+
+  /**
+   * forecast models supported by this model
+   */
   protected final static String FRANKEL_1996_FORECAST = "Frankel 1996";
+  protected final static String WARD_GRID_TEST = "Ward Grid Test";
+
 
   protected final static String LONGITUDE = "Longitude";
   protected final static String LATITUDE = "Latitude";
   protected final static int W = 915;
   protected final static int H = 725;
 
+  // maximum permitted distance between fault and site to consider source in hazard analysis for that site
+  protected final double MAX_DISTANCE = 200;
+
   /**
    * for Y-log, 0 values will be converted to this small value
    */
   private double Y_MIN_VAL = 1e-8;
+
+  private String Y_AXIS_NAME = "Exceed Probability";
 
   // it maps the IMR names and supported IMT for each IMR
   protected ArrayList[] imtMap;
@@ -142,7 +158,14 @@ public class EqkForecastApplet extends JApplet
 
   private String TITLE = new String("Seismic Hazard Analysis");
 
-  Frankel96_EqkRupForecast eqkRupForecast;
+  /**
+   * objects of diffrent earthquake forecasts
+   */
+  Frankel96_EqkRupForecast frankelRupForecast;
+  WardGridTestEqkRupForecast wardRupForecast;
+
+  // generic forecast API
+  EqkRupForecastAPI eqkRupForecast ;
 
   Color lightBlue = new Color( 200, 200, 230 );
 
@@ -184,6 +207,7 @@ public class EqkForecastApplet extends JApplet
   private JButton jBCalc = new JButton();
   GridBagLayout gridBagLayout2 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
+  JCheckBox jCheckBasin = new JCheckBox();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -197,8 +221,9 @@ public class EqkForecastApplet extends JApplet
     totalData.setFunctions(totalProbFuncs);
     totalData.setConvertZeroToMin(true,Y_MIN_VAL);
     hazFunction = new ArbitrarilyDiscretizedFunc[imrNames.size()];
-    totalProbFuncs.setXAxisName("X Axis");
-    totalProbFuncs.setYAxisName("Y Axis");
+
+    // set Y axis label
+    totalProbFuncs.setYAxisName(Y_AXIS_NAME);
   }
   //Initialize the applet
   public void init() {
@@ -209,12 +234,12 @@ public class EqkForecastApplet extends JApplet
       e.printStackTrace();
     }
     initEqkForecastGui();
-    eqkRupForecast = new Frankel96_EqkRupForecast();
+
   }
   //Component initialization
   private void jbInit() throws Exception {
     jBCalc.setBackground(new Color(200, 200, 230));
-    jBCalc.setBounds(new Rectangle(687, 614, 122, 33));
+    jBCalc.setBounds(new Rectangle(687, 626, 122, 33));
     jBCalc.setForeground(new Color(80, 80, 133));
     jBCalc.setText("Add Graph");
     jBCalc.addActionListener(new java.awt.event.ActionListener() {
@@ -228,12 +253,17 @@ public class EqkForecastApplet extends JApplet
       }
     });
     panel.setLayout(gridBagLayout2);
+    jCheckBasin.setBounds(new Rectangle(638, 540, 219, 22));
+    jCheckBasin.setText("Set Basin Depth from CVM Servlet");
+    jCheckBasin.setForeground(new Color(80, 80, 133));
+    jCheckBasin.setFont(new java.awt.Font("Dialog", 1, 11));
+    jCheckBasin.setBackground(Color.white);
+    jCheckBasin.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jCheckBasin_actionPerformed(e);
+      }
+    });
     jEqkForecastPanel.add(panel, null);
-    jEqkForecastPanel.add(jForecastLabel, null);
-    jEqkForecastPanel.add(jEqkForeType, null);
-    jEqkForecastPanel.add(jTimeSpan, null);
-    jEqkForecastPanel.add(jTimeField, null);
-    jEqkForecastPanel.add(jYears, null);
     jEqkForecastPanel.add(jIMR, null);
     jEqkForecastPanel.add(jIMRList, null);
     jEqkForecastPanel.add(sitePanel, null);
@@ -241,6 +271,12 @@ public class EqkForecastApplet extends JApplet
     jEqkForecastPanel.add(jIMTLabel, null);
     jEqkForecastPanel.add(jIMTComboBox, null);
     jEqkForecastPanel.add(jBCalc, null);
+    jEqkForecastPanel.add(jForecastLabel, null);
+    jEqkForecastPanel.add(jTimeSpan, null);
+    jEqkForecastPanel.add(jTimeField, null);
+    jEqkForecastPanel.add(jYears, null);
+    jEqkForecastPanel.add(jEqkForeType, null);
+    jEqkForecastPanel.add(jCheckBasin, null);
     border1 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border2 = BorderFactory.createEtchedBorder(new Color(200, 200, 230),new Color(80, 80, 133));
     border3 = BorderFactory.createLineBorder(new Color(80, 80, 133),1);
@@ -295,29 +331,29 @@ public class EqkForecastApplet extends JApplet
     jTimeSpan.setFont(new java.awt.Font("Dialog", 1, 11));
     jTimeSpan.setForeground(new Color(80, 80, 133));
     jTimeSpan.setText("Time Span :");
-    jTimeSpan.setBounds(new Rectangle(638, 578, 66, 22));
+    jTimeSpan.setBounds(new Rectangle(638, 599, 66, 22));
     jTimeField.setBackground(Color.white);
     jTimeField.setFont(new java.awt.Font("SansSerif", 1, 11));
     jTimeField.setForeground(new Color(80, 80, 133));
-    jTimeField.setBounds(new Rectangle(752, 577, 99, 22));
+    jTimeField.setBounds(new Rectangle(752, 598, 99, 22));
     jYears.setBackground(new Color(200, 200, 230));
     jYears.setFont(new java.awt.Font("Dialog", 1, 11));
     jYears.setForeground(new Color(80, 80, 133));
     jYears.setText("# yrs");
-    jYears.setBounds(new Rectangle(857, 576, 31, 25));
+    jYears.setBounds(new Rectangle(857, 597, 31, 25));
     jForecastLabel.setBackground(new Color(200, 200, 230));
     jForecastLabel.setForeground(new Color(80, 80, 133));
     jForecastLabel.setFont(new java.awt.Font("Dialog", 1, 11));
     jForecastLabel.setText("Select Eqk Forecast :");
-    jForecastLabel.setBounds(new Rectangle(637, 552, 112, 20));
+    jForecastLabel.setBounds(new Rectangle(637, 573, 112, 20));
     jEqkForeType.setBackground(new Color(200, 200, 230));
     jEqkForeType.setFont(new java.awt.Font("Dialog", 1, 11));
     jEqkForeType.setForeground(new Color(80, 80, 133));
-    jEqkForeType.setBounds(new Rectangle(752, 552, 127, 21));
+    jEqkForeType.setBounds(new Rectangle(752, 573, 127, 21));
     jCheckCVM.setBackground(Color.white);
     jCheckCVM.setFont(new java.awt.Font("Dialog", 1, 11));
     jCheckCVM.setForeground(new Color(80, 80, 133));
-    jCheckCVM.setText("Set Parameters from CVM Servlet");
+    jCheckCVM.setText("Set Vs30 from CVM Servlet");
     jCheckCVM.setBounds(new Rectangle(638, 520, 219, 22));
     this.getContentPane().add(jEqkForecastPanel, null);
   }
@@ -456,7 +492,12 @@ public class EqkForecastApplet extends JApplet
      this.jIMTComboBox.addItem(it.next());
    }
 
+   /**
+    * add the supported forecast types to the combo box
+    */
     jEqkForeType.addItem(FRANKEL_1996_FORECAST);
+    jEqkForeType.addItem(WARD_GRID_TEST);
+
 }
 
 
@@ -508,12 +549,6 @@ public class EqkForecastApplet extends JApplet
         }
 
     }
-
-
-
-
-
-
 
 
   //Main method
@@ -738,8 +773,17 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
   void jCheckBox_itemStateChanged(ItemEvent e) {
     this.siteParamList.clear();
     sitePanel.removeAll();
+
     // make a paramter variable as it is used frequently in this function
     Parameter paramTemp;
+
+    // disable the Vs30 checkbox. Enable later only if paramter contains Vs30 in it
+    this.jCheckCVM.setEnabled(false);
+    this.jCheckCVM.setSelected(false);
+
+    // disable the Basin Depth checkbox. Enable later only if paramter contains Basin Depth in it
+    this.jCheckBasin.setEnabled(false);
+    this.jCheckBasin.setSelected(false);
 
     // get the number of IMRs
     int numOfIMRs = imrNames.size();
@@ -761,6 +805,11 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
             //if this paramter has not been added till now
             if(!siteParamList.containsParameter(paramTemp.getName())) {
                siteParamList.addParameter(paramTemp);
+               // if it is Vs30 paramter, then enable the button to get it from the CVM servlet
+               if(paramTemp.getName().equalsIgnoreCase(this.VS30_STRING))
+                  this.jCheckCVM.setEnabled(true);
+               else if(paramTemp.getName().equalsIgnoreCase(this.BASIN_DEPTH_STRING))
+                 this.jCheckBasin.setEnabled(true);
             }
           }
       }
@@ -768,7 +817,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     }
 
   this.siteEditor = new ParameterListEditor(siteParamList, this, this);
-  siteEditor.setTitle("Site Params");
+  siteEditor.setTitle(SITE_PARAMS);
   sitePanel.add(siteEditor,BorderLayout.CENTER);
   validate();
   repaint();
@@ -782,6 +831,11 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
   */
   void jCheckCVM_actionPerformed(ActionEvent e) {
 
+    // if the check box to get Vs30 from servlet is unselected
+    if(!this.jCheckCVM.isSelected())
+       return;
+
+    // if we want to the paramter from the servlet
     try{
 
     // make connection with servlet
@@ -819,7 +873,14 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
     ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
     Double vs30=(Double)ois.readObject();
     ois.close();
-    JOptionPane.showMessageDialog(this,"Vs30 is "+vs30.doubleValue());
+
+    if (D) System.out.println("Vs30 is:"+vs30.doubleValue());
+
+    // set the value in the list
+
+    siteParamList.getParameter(this.VS30_STRING).setValue(new Double(vs30.doubleValue()));
+
+
    }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
    }catch (Exception exception) {
@@ -842,6 +903,23 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       JOptionPane.showMessageDialog(this,new String("Must enter a valid numerical value in the TimeSpan")
                                     ,"Wrong Data Entered",JOptionPane.ERROR_MESSAGE);
     else{
+
+      // get the selected forecast model
+      String selectedForecast = (String)jEqkForeType.getSelectedItem();
+
+      // if frankel 1996 forecast is selected
+      if(selectedForecast.equalsIgnoreCase(this.FRANKEL_1996_FORECAST)) {
+          if(frankelRupForecast == null)
+              frankelRupForecast = new Frankel96_EqkRupForecast();
+          eqkRupForecast = frankelRupForecast;
+      } else if(selectedForecast.equalsIgnoreCase(this.WARD_GRID_TEST)) {
+        // if ward frid test forecast is selected
+          if(wardRupForecast == null)
+              wardRupForecast = new WardGridTestEqkRupForecast();
+          eqkRupForecast = wardRupForecast;
+      }
+
+
       // intialize the hazFunction for each IMR
        int imrSize=imrNames.size();
        ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
@@ -857,6 +935,8 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
       // get the selected IMT, if it is SA, get the period as well
       String imt = (String)jIMTComboBox.getSelectedItem();
+      // set the X-axis name for the graph
+      totalProbFuncs.setXAxisName(imt);
       double period = 0;
       if((imt.substring(0,2)).equalsIgnoreCase(SA)) {
           StringTokenizer st = new StringTokenizer(imt);
@@ -900,12 +980,18 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       // getye total sources
       int numSources = eqkRupForecast.getNumSources();
       for(int i=0;i < numSources ;i++) {
+
+        // get source and get its distance from the site
+        ProbEqkSource source = eqkRupForecast.getSource(i);
+        double distance = source.getMinDistance(site);
+        if(distance > MAX_DISTANCE)
+           continue;
         // for each source, get the number of ruptures
         int numRuptures = eqkRupForecast.getNumRuptures(i);
          for(int n=1; n <= numRuptures ;n++){
            // for each rupture, set in IMR and do computation
-           double qkProb = ((ProbEqkRupture)eqkRupForecast.getRupture(i,n)).getProbability();
-           for(int imr=0;imr<imrSize;imr++){
+           double qkProb = ((ProbEqkRupture)source.getRupture(n)).getProbability();
+           for(int imr=0;imr<imrSize;imr++) {
               if (D) System.out.println("Source:"+i+",rupture="+n+",imr="+imr);
               if(jIMRNum[imr].isSelected()){
                 // initialize the values in condProbfunc
@@ -1082,5 +1168,8 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       repaint();
 
    }
+  void jCheckBasin_actionPerformed(ActionEvent e) {
+
+  }
 
 }

@@ -119,4 +119,10 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
     */
    public void setTimeSpan(TimeSpan time);
 
+   /**
+   * This method sets the tim span field
+   * @param time
+   */
+   public void setTimeSpan(double yrs);
+
 }
