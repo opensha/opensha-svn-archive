@@ -22,7 +22,7 @@ public class PEER_PasswordCheck extends JApplet {
   private static final boolean D= false;
   private static final String C="PEER_PasswordCheck";
 
-  private JPanel jPanel1 = new JPanel();
+  private JPanel passwordPanel = new JPanel();
   private Border border1;
   private JButton continueButton = new JButton();
   private JPasswordField filePassword = new JPasswordField();
@@ -33,10 +33,15 @@ public class PEER_PasswordCheck extends JApplet {
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
-
+  //Construct the applet
+  public PEER_PasswordCheck() {
+  }
   public void init() {
     try {
       jbInit();
+      /*filePassword.setVisible(true);
+      filePassword.requestFocus(true);
+      filePassword.setText("");*/
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -46,8 +51,8 @@ public class PEER_PasswordCheck extends JApplet {
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     this.getContentPane().setLayout(borderLayout1);
-    jPanel1.setBorder(border1);
-    jPanel1.setLayout(gridBagLayout1);
+    passwordPanel.setBorder(border1);
+    passwordPanel.setLayout(gridBagLayout1);
     continueButton.setBackground(new Color(200, 200, 230));
     continueButton.setFont(new java.awt.Font("Dialog", 1, 12));
     continueButton.setForeground(new Color(80, 80, 133));
@@ -77,21 +82,22 @@ public class PEER_PasswordCheck extends JApplet {
     jLabel2.setFont(new java.awt.Font("Dialog", 1, 12));
     jLabel2.setForeground(new Color(80, 80, 133));
     jLabel2.setText("Enter Password:");
-    this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(jLabel5,   new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 112, 0, 55), 114, 16));
-    jPanel1.add(cancelButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(22, 47, 122, 72), 16, 13));
-    jPanel1.add(jLabel2,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(90, 27, 0, 0), 33, 10));
-    jPanel1.add(filePassword,  new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(85, 10, 0, 93), 172, 13));
-    jPanel1.add(continueButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(22, 0, 122, 0), 4, 13));
+    this.getContentPane().add(passwordPanel, BorderLayout.CENTER);
+    passwordPanel.add(jLabel5,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(39, 61, 0, 41), 107, 16));
+    passwordPanel.add(filePassword,  new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(23, 10, 0, 25), 170, 13));
+    passwordPanel.add(jLabel2,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(29, 27, 0, 0), 33, 10));
+    passwordPanel.add(continueButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 0, 48, 0), 4, 13));
+    passwordPanel.add(cancelButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(20, 9, 48, 25), 16, 13));
 
     String val=getParameter("PEER_Tests");
 
     if(D)System.out.println("Val:"+val);
+
   }
 
 
@@ -114,7 +120,8 @@ public class PEER_PasswordCheck extends JApplet {
       String val=getParameter("PEER_Tests");
       if(D)System.out.println("Val:"+val);
       try{
-        this.getAppletContext().showDocument(new URL(val),"new_");
+        this.getAppletContext().showDocument(new URL(val));
+        this.destroy();
       }catch(java.net.MalformedURLException ee){
         JOptionPane.showMessageDialog(this,new String("Not able to connect to Server"),
                                       "Server Error",JOptionPane.OK_OPTION);
@@ -197,6 +204,7 @@ public class PEER_PasswordCheck extends JApplet {
 
   //Start the applet
   public void start() {
+
   }
   //Stop the applet
   public void stop() {
