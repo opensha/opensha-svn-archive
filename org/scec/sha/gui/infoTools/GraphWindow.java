@@ -168,6 +168,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
      data.setXLog(xLog);
      data.setYLog(yLog);
      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
+     ++windowNumber;
      togglePlot();
    }
 

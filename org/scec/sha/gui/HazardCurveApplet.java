@@ -914,10 +914,13 @@ public class HazardCurveApplet extends JApplet
     // if this is forecast list , handle it differently
     boolean isEqkForecastList = false;
     if(eqkRupForecast instanceof ERF_List)  {
-      handleForecastList(site, imr, eqkRupForecast);
-      if(isEqkList)
+      this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
+      //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
+      //in a seperate window.
+      if(isEqkList && (totalProbFuncs.size()>0))
         //shows the curves for the ERF List in a seperate window
         peelOffCurves();
+      handleForecastList(site, imr, eqkRupForecast);
       return;
     }
     calc.setNumForecasts(1);
@@ -1010,7 +1013,6 @@ public class HazardCurveApplet extends JApplet
    // do not show progress bar if not desired by user
    //calc.showProgressBar(this.progressCheckBox.isSelected());
    //check if the curves are to shown in the same black color for each erf.
-    this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // calculate hazard curve for each ERF within the list
     if(!this.progressCheckBox.isSelected()) this.isIndividualCurves = false;
     else this.isIndividualCurves = true;
