@@ -48,10 +48,6 @@ public class HazardCurveGuiBean implements
   //Disaggregation String
   private String disaggregationString= null;
 
-
-  //instance of class that sets default parameters for each selected test case
-  HazardCurveDefaultParameterClass hazardCurveParameterClass;
-
   /**
    *  Search path for finding editors in non-default packages.
    */
@@ -133,13 +129,6 @@ public class HazardCurveGuiBean implements
   private ParameterList testCasesParamList = new ParameterList();
   private ParameterListEditor testCasesEditor = null;
 
-
-  //This string is sent by the applet and lets the GUIBean know which test case set
-  //and site has been selecetd by the user.
-  private String selectedTest;
-  private String selectedSite;
-  private String selectedSet;
-
   /**
    * constructor
    */
@@ -177,27 +166,12 @@ public class HazardCurveGuiBean implements
     // Stuff hard coded for PEER test cases below
     // ******************************************
 
-    // this class handles all the hard coding stuff needed for test cases
-    hazardCurveParameterClass =new HazardCurveDefaultParameterClass(this);
-
-
     //set the site based on the selected test case
     //hazardCurveParameterClass.setParams();
   }
 
 
-  /**
-   * This method extracts the selected Site and the selected TestCase set
-   * @param testAndSite: Contains both the site and the Selected Test Cases Set
-   */
-  public void setTestCaseAndSite(String testAndSite){
-    int firstIndex=testAndSite.indexOf("-");
-    int lastIndex = testAndSite.lastIndexOf("-");
-    selectedSet = testAndSite.substring(0,firstIndex);
-    selectedTest = testAndSite.substring(firstIndex+1,lastIndex);
-    selectedSite = testAndSite.substring(lastIndex+1);
-    hazardCurveParameterClass.setParams();
-  }
+
 
 
   /**
@@ -1075,40 +1049,32 @@ public class HazardCurveGuiBean implements
 
   /**
    *
-   * @return the selected Set  chosen by the user to plot hazard curve
+   * @return the IMR ParameterList
    */
-  public String getSelectedSet(){
-    return selectedSet;
-  }
-
-  /**
-   *
-   * @return the selected Test Case chosen by the user to plot hazard curve
-   */
-  public String getSelectedTest(){
-    return selectedTest;
-  }
-
-  /**
-   *
-   * @return the selected Site chosen by the user to plot hazard curve
-   */
-  public String getSelectedSite(){
-    return selectedSite;
-  }
-
   public ParameterList getIMRParamList(){
     return imrParamList;
   }
 
+  /**
+   *
+   * @returns the IMT param List
+   */
   public ParameterList getIMTParamList(){
     return imtParamList;
   }
 
+  /**
+   *
+   * @returns the ERF ParamList
+   */
   public ParameterList getERF_IndParamList(){
     return erf_IndParamList;
   }
 
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
   public String getCurveParametersInfo(){
     return "IMR Param List: " +imrParamList.toString()+"\n"+
         "Site Param List: "+siteParamEditor.getParameterList().toString()+"\n"+
