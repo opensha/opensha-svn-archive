@@ -51,7 +51,7 @@ public class SubRectanglePanel extends JPanel{
     JLabel yMaxLabel = new JLabel();
     JTextField yMaxTextField = new IntegerTextField();
     JPanel controlPanel = new JPanel();
-    JButton jButton1 = new JButton();
+   // JButton jButton1 = new JButton();
     GridBagLayout gridBagLayout1 = new GridBagLayout();
     JLabel xLabel = new JLabel();
     JLabel yLabel = new JLabel();
@@ -163,7 +163,7 @@ public class SubRectanglePanel extends JPanel{
         controlPanel.setBorder(BorderFactory.createEtchedBorder());
         controlPanel.setLayout(gridBagLayout1);
 
-        jButton1.setBackground(Color.white);
+        /*jButton1.setBackground(Color.white);
         jButton1.setFont(FONT);
         jButton1.setForeground(SystemColor.activeCaption);
         jButton1.setBorder(BorderFactory.createRaisedBevelBorder());
@@ -172,7 +172,7 @@ public class SubRectanglePanel extends JPanel{
             public void actionPerformed(ActionEvent e) {
                 jButton1_actionPerformed(e);
             }
-        });
+        });*/
 
 
         xLabel.setFont(FONT);
@@ -199,8 +199,8 @@ public class SubRectanglePanel extends JPanel{
 
         this.add(controlPanel,  new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-        controlPanel.add(jButton1,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(1, 4, 1, 2), 0, 0));
+       // controlPanel.add(jButton1,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+        //    ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(1, 4, 1, 2), 0, 0));
         controlPanel.add(xLabel,       new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
@@ -230,7 +230,7 @@ public class SubRectanglePanel extends JPanel{
 
     }
 
-    void jButton1_actionPerformed(ActionEvent e) {
+    /*void jButton1_actionPerformed(ActionEvent e) {
 
         this.xMin = xStart;
         xMinTextField.setText("" + xMin);
@@ -244,7 +244,7 @@ public class SubRectanglePanel extends JPanel{
         this.yMax = yEnd;
         yMaxTextField.setText("" + yMax);
 
-    }
+    }*/
 
     public boolean isEnabled(){
         return enabled;
