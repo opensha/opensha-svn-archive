@@ -47,7 +47,7 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast
   private boolean D = false;
 
   // name of this ERF
-  private static String NAME = new String("USGS/CGS 1996 Cal. ERF");
+  public static String NAME = new String("USGS/CGS 1996 Cal. ERF");
 
   private double GRID_SPACING = 1.0;
   private double B_VALUE =0.9;

@@ -170,8 +170,10 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      Iterator it = eqkRupForecast.getAdjustableParamsIterator();
 
     // make the parameters visible based on selected forecast
-     while(it.hasNext()) parameterList.addParameter((ParameterAPI)it.next());
-
+     while(it.hasNext()){
+       ParameterAPI tempParam = (ParameterAPI)it.next();
+       parameterList.addParameter(tempParam);
+     }
      this.editorPanel.removeAll();
      this.addParameters();
      // now make the editor based on the paramter list

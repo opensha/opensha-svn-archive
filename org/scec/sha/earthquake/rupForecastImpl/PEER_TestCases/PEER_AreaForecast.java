@@ -38,7 +38,7 @@ public class PEER_AreaForecast extends EqkRupForecast
   private boolean D = false;
 
   //name for this classs
-  private final static String  NAME = C;
+  public final static String  NAME = C;
 
   // this is the GR distribution used for all sources
   private GutenbergRichterMagFreqDist dist_GR;

@@ -266,7 +266,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    if(!selectedTest.equalsIgnoreCase(TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
 
      // set the ERF
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_FaultForecast.ERF_NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_FaultForecast.NAME);
 
      // set the common parameters like timespan, grid spacing
      erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));

@@ -41,7 +41,7 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   private boolean D = false;
 
   //name for this classs
-  private final static String  NAME = C;
+  public final static String  NAME = C;
 
   // the GR distribution used for the area source
   private GutenbergRichterMagFreqDist dist_gr_A_orig;

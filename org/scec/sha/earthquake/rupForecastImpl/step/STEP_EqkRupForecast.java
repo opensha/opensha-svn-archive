@@ -40,7 +40,7 @@ import org.scec.param.event.ParameterChangeEvent;
   private boolean D = false;
 
   // name of this ERF
-  private static String  NAME = new String("STEP ERF");
+  public static String  NAME = new String("STEP ERF");
 
   // Input file name
   //private final static String INPUT_FILE_NAME = "org/scec/sha/earthquake/rupForecastImpl/step/SoCalDeltaRates.txt";

@@ -39,7 +39,7 @@ public class PEER_ListricFaultForecast extends EqkRupForecast
   private boolean D = false;
 
   //name for this classs
-  private final static String  NAME = C;
+  public final static String  NAME = C;
 
 
   // save the source. Fault1 has only 1 source
