@@ -20,13 +20,13 @@ import org.scec.sha.gui.infoTools.ConnectToCVM;
 import org.scec.util.SystemPropertiesUtils;
 
 /**
- * <p>Title:SetSiteParamsFromCVMControlPanel </p>
+ * <p>Title:SetSiteParamsFromWebServicesControlPanel </p>
  * <p>Description: Get the Site Params from the CVM</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 
-public class SetSiteParamsFromCVMControlPanel extends JFrame {
+public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
   JComboBox imrComboBox = new JComboBox();
   JButton setButton = new JButton();
 
@@ -55,7 +55,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
    * @param parent : parent frame on which to show this control panel
    * @param imrGuiBean : object of IMR_GuiBean to get the selected IMR or IMR list
    */
-  public SetSiteParamsFromCVMControlPanel(Component parent, IMR_GuiBean imrGuiBean,
+  public SetSiteParamsFromWebServicesControlPanel(Component parent, IMR_GuiBean imrGuiBean,
                                            Site_GuiBean siteGuiBean) {
     try {
       // fill the otions in the pick list

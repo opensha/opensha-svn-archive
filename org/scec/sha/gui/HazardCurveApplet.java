@@ -120,7 +120,7 @@ public class HazardCurveApplet extends JApplet
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
-  private SetSiteParamsFromCVMControlPanel cvmControlPanel;
+  private SetSiteParamsFromWebServicesControlPanel cvmControlPanel;
   private X_ValuesInCurveControlPanel xValuesPanel;
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
 
@@ -1328,7 +1328,7 @@ public class HazardCurveApplet extends JApplet
   */
   private void initCVMControl() {
     if(this.cvmControlPanel==null)
-      cvmControlPanel = new SetSiteParamsFromCVMControlPanel(this, this.imrGuiBean, this.siteGuiBean);
+      cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);
     cvmControlPanel.pack();
     cvmControlPanel.show();
   }
