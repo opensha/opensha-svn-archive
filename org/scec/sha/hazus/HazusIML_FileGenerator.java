@@ -2,6 +2,7 @@ package org.scec.sha.hazus;
 
 import java.io.*;
 import java.util.*;
+import java.text.DecimalFormat;
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -13,10 +14,11 @@ import java.util.*;
 
 public class HazusIML_FileGenerator {
 
-  private final String Hazus ="HazusMapDataSets/";
+  private final String Hazus ="/Users/nitingupta/Desktop/Hazus/HazusMapDataSets/";
+  DecimalFormat format = new DecimalFormat("0.000000##");
   public HazusIML_FileGenerator() {
 
-
+    format.setMaximumFractionDigits(6);
     // for each data set, read the meta data and sites info
 
     try{
@@ -31,35 +33,35 @@ public class HazusIML_FileGenerator {
       }
 
       //doing for the return Pd:100
-      double rate = 1/100;
+      double rate = 1.0/100;
       createReturnPdFile(Hazus+"final_100.dat",rate,metadata);
 
       //doing for the return Pd:250
-      rate = 1/250;
+      rate = 1.0/250;
       createReturnPdFile(Hazus+"final_250.dat",rate,metadata);
 
       //doing for the return Pd:500
-      rate = 1/500;
+      rate = 1.0/500;
       createReturnPdFile(Hazus+"final_500.dat",rate,metadata);
 
       //doing for the return Pd:750
-      rate = 1/750;
+      rate = 1.0/750;
       createReturnPdFile(Hazus+"final_750.dat",rate,metadata);
 
       //doing for the return Pd:1000
-      rate = 1/1000;
+      rate = 1.0/1000;
       createReturnPdFile(Hazus+"final_1000.dat",rate,metadata);
 
       //doing for the return Pd:1500
-      rate = 1/1500;
+      rate = 1.0/1500;
       createReturnPdFile(Hazus+"final_1500.dat",rate,metadata);
 
       //doing for the return Pd:2000
-      rate = 1/2000;
+      rate = 1.0/2000;
       createReturnPdFile(Hazus+"final_2000.dat",rate,metadata);
 
       //doing for the return Pd:2500
-      rate = 1/2500;
+      rate = 1.0/2500;
       createReturnPdFile(Hazus+"final_2500.dat",rate,metadata);
 
     }catch(Exception e){
@@ -101,8 +103,8 @@ public class HazusIML_FileGenerator {
       String lon = dirListPGA[i].substring(dirListPGA[i].indexOf("_")+1,dirListPGA[i].indexOf(".txt"));
       fw.write(lat+"  "+lon+"  ");
       for(int j=0;j<imlVector.size()-1;++j)
-        fw.write(""+((Double)imlVector.get(j)).doubleValue()+",");
-      fw.write(""+((Double)imlVector.get(imlVector.size()-1)).doubleValue()+"\n");
+        fw.write(""+format.format(((Double)imlVector.get(j)).doubleValue())+",");
+      fw.write(""+format.format(((Double)imlVector.get(imlVector.size()-1)).doubleValue())+"\n");
     }
     fw.close();
     }catch(Exception e){
