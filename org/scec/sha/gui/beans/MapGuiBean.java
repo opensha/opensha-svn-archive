@@ -105,10 +105,11 @@ public class MapGuiBean extends GMT_MapGuiBean {
                       XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_pgvVals,
                       EqkRupture eqkRupture,String imt,String metadata){
     String[] imgNames = null;
-    boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    //boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
     //creating the Metadata file in the GMT_MapGenerator
     gmtMap.createMapInfoFile(metadata);
-    if(gmtServerCheck){
+    //if(gmtServerCheck){
     try{
       imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
           pgv_pgvVals,eqkRupture);
@@ -118,8 +119,8 @@ public class MapGuiBean extends GMT_MapGuiBean {
       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
       return;
     }
-    }
-    else{
+   // }
+    /*else{
       try{
         imgNames = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetLocally(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
                                                      pgv_pgvVals,eqkRupture);
@@ -127,12 +128,12 @@ public class MapGuiBean extends GMT_MapGuiBean {
         JOptionPane.showMessageDialog(this,e.getMessage());
         return;
       }
-    }
+    }*/
 
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,gmtServerCheck);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
     }
   }
 

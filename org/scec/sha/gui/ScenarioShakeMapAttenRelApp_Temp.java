@@ -496,11 +496,12 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    */
   public XYZ_DataSetAPI generateShakeMap(ArrayList attenRel) throws ParameterException,RuntimeException{
     try {
+      double value=imlProbValue;
       //if the IMT selected is Log supported then take the log if Prob @ IML
       if(IMT_Info.isIMT_LogNormalDist(imrGuiBean.getSelectedIMT()) && probAtIML)
-        imlProbValue = Math.log(imlProbValue);
+        value = Math.log(imlProbValue);
       //does the calculation for the ScenarioShakeMap Calc and gives back a XYZ dataset
-      xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,imlProbValue);
+      xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,griddedRegionSites,erfGuiBean.getRupture(),probAtIML,value);
 
       //if the IMT is log supported then take the exponential of the Value if IML @ Prob
       if(IMT_Info.isIMT_LogNormalDist(imrGuiBean.getSelectedIMT()) && !probAtIML){

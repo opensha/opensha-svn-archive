@@ -113,8 +113,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param pgaDataSet
    * @param pgvDataSet
    * @param eqkRupture
+   * returns the String[] of the image file names
    */
-  public String makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
+  public String[] makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
                                        EqkRupture eqkRupture) {
     eqkRup = eqkRupture;
@@ -129,6 +130,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="SA";
     SCALE_LABEL = SA_03;
     setFileNames(SCALE_LABEL);
+    String sa_03Image = this.JPG_FILE_NAME;
     xyzDataSet = sa03DataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
@@ -137,6 +139,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="SA";
     SCALE_LABEL = SA_10;
     setFileNames(SCALE_LABEL);
+    String sa_10Image = this.JPG_FILE_NAME;
     xyzDataSet = sa10DataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
@@ -145,6 +148,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="PGA";
     SCALE_LABEL = PGA;
     setFileNames(SCALE_LABEL);
+    String pgaImage = this.JPG_FILE_NAME;
     xyzDataSet = pgaDataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
@@ -153,6 +157,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="PGV";
     SCALE_LABEL = PGV;
     setFileNames(SCALE_LABEL);
+    String pgvImage = this.JPG_FILE_NAME;
     xyzDataSet = pgvDataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
@@ -164,9 +169,17 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     String[] command ={"sh","-c","sh "+GMT_SCRIPT_NAME};
     RunScript.runScript(command);
     imgWebAddr = this.JPG_FILE_NAME;
+
+    //gets the all the image names in a String array.
+    String img[] = new String[4];
+    img[0] = new String(sa_03Image);
+    img[1] = new String(sa_10Image);
+    img[2] = new String(pgaImage);
+    img[3] = new String(pgvImage);
+
     // set the filenames back to default
     setFileNames(null);
-    return imgWebAddr;
+    return img;
   }
 
 
@@ -177,9 +190,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param pgaDataSet
    * @param pgvDataSet
    * @param eqkRupture
-   * @return - the web address where the files are located
+   * @return - the String[] of web addresses(URL) where the images files are located
    */
-  public String makeHazusFileSetUsingServlet(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
+  public String[] makeHazusFileSetUsingServlet(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
                                        EqkRupture eqkRupture) {
     eqkRup = eqkRupture;
@@ -195,6 +208,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     SCALE_LABEL = SA_03;
     xyzDataSet = sa03DataSet;
     setFileNames(SCALE_LABEL);
+    String sa_03Image = this.JPG_FILE_NAME;
     gmtLines.addAll(getGMT_ScriptLines());
 
     // Do 1.0-sec SA
@@ -202,6 +216,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     SCALE_LABEL = SA_10;
     xyzDataSet = sa10DataSet;
     setFileNames(SCALE_LABEL);
+    String sa_10Image = this.JPG_FILE_NAME;
     gmtLines.addAll(getGMT_ScriptLines());
 
     // PGA
@@ -209,6 +224,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     SCALE_LABEL = PGA;
     xyzDataSet = pgaDataSet;
     setFileNames(SCALE_LABEL);
+    String pgaImage = this.JPG_FILE_NAME;
     gmtLines.addAll(getGMT_ScriptLines());
 
     // Do 0.3-sec SA first
@@ -216,16 +232,21 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     SCALE_LABEL = PGV;
     xyzDataSet = pgvDataSet;
     setFileNames(SCALE_LABEL);
+    String pgvImage = this.JPG_FILE_NAME;
     gmtLines.addAll(getGMT_ScriptLines());
 
     //get the metadata lines
     ArrayList metaDataLines = getMapInfoLines();
-    String img;
+    String img[] = new String[4];
     try{
       imgWebAddr = this.openServletConnection(sa03DataSet, sa10DataSet, pgaDataSet,
                                               pgvDataSet, gmtLines, metaDataLines);
-      img = imgWebAddr +this.JPG_FILE_NAME;
+      img[0] = new String(imgWebAddr + sa_03Image);
+      img[1] = new String(imgWebAddr + sa_10Image);
+      img[2] = new String(imgWebAddr + pgaImage);
+      img[3] = new String(imgWebAddr + pgvImage);
     }catch(RuntimeException e){
+      e.printStackTrace();
       throw new RuntimeException(e.getMessage());
     }
 
