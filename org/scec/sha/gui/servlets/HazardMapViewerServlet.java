@@ -218,8 +218,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
             interpolatedVal = func.getFirstInterpolatedX(val);
 
         }catch(Exception e) { } // catch invalid range exception etc.
-        xVals.add(new Double(lon));
-        yVals.add(new Double(lat));
+        xVals.add(new Double(d.format(lat)));
+        yVals.add(new Double(d.format(lon)));
         zVals.add(new Double(interpolatedVal));
       }
     }
