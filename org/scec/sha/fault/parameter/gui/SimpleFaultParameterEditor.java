@@ -55,7 +55,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   public static final int DEFAULT_NUM_FAULT_TRACE =3;
   public static final int DEFAULT_DIPS =1;
   public static final int latlonCols = 2;
-  public static final double DEFAULT_GRID_SPACING = 0.1;
+  public static final double DEFAULT_GRID_SPACING = 2.0;
 
 
 
