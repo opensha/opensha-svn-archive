@@ -28,9 +28,9 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = true;
 
   // name of the file which contains all the GMT commands that we want to run on server
-  private final static String GMT_FILE_NAME = "gmtScript.txt";
+  private String GMT_FILE_NAME = "gmtScript.txt";
 
-  private static final String XYZ_FILE_NAME ="xyz.txt";
+  private String XYZ_FILE_NAME ="xyz.txt";
 
   // PATH where the gmt commands and some others exist.
   public static String gmtPath = null;
@@ -64,6 +64,7 @@ public class GMT_MapGenerator implements Serializable{
 
   //output Image file Name
   private String out_jpg= new String();
+  private String out_ps;
 
 
   public final static String CPT_FILE_PARAM_NAME = "Color Scheme";
@@ -250,7 +251,7 @@ public class GMT_MapGenerator implements Serializable{
       fw = new FileWriter(gmtFileName);
       br = new BufferedWriter(fw);
       String fileName=this.XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-      String out_ps = fileName + ".ps";
+      out_ps = fileName + ".ps";
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
       this.runMapScript(GMT_PATH,br,xyzDataSet);
@@ -271,6 +272,8 @@ public class GMT_MapGenerator implements Serializable{
     ++imageCounter;
     return out_jpg;
   }
+
+
 
   /**
    * this function generates GMT map using the GMT from the SCEC server
@@ -309,7 +312,7 @@ public class GMT_MapGenerator implements Serializable{
       fw = new FileWriter(gmtFileName);
       br = new BufferedWriter(fw);
       String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-      String out_ps = fileName + ".ps";
+      out_ps = fileName + ".ps";
       out_jpg = fileName+"-"+imageCounter+ ".jpg";
 
       runMapScript(GMT_PATH,br,xyzDataSet);
@@ -367,7 +370,7 @@ public class GMT_MapGenerator implements Serializable{
       fw = new FileWriter(gmtFileName);
       br = new BufferedWriter(fw);
       String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-      String out_ps = fileName + ".ps";
+      out_ps = fileName + ".ps";
       out_jpg = fileName + ".jpg";
 
       runMapScript(GMT_PATH,br,xyzDataSet);
@@ -406,6 +409,7 @@ public class GMT_MapGenerator implements Serializable{
     double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
 
     // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
+
     double maxLat = ((int) ((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
     double maxLon = ((int) ((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
 
@@ -415,10 +419,8 @@ public class GMT_MapGenerator implements Serializable{
     String gmtCommandLine =null;
     if(D) System.out.println(C+" region = "+region);
     //all the files of the GMT will be created by this fileName
-    String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.indexOf("."));
-
+    String fileName=XYZ_FILE_NAME.substring(0,XYZ_FILE_NAME.lastIndexOf("."));
     String grdFileName  = fileName+".grd";
-    String out_ps = fileName + ".ps";
     String cptFile = SCEC_GMT_DATA_PATH + (String) cptFileParam.getValue();
 
     String colorScaleMode = (String) colorScaleModeParam.getValue();
@@ -591,6 +593,82 @@ public class GMT_MapGenerator implements Serializable{
       e.printStackTrace();
     }
     return imgWebAddr;
+  }
+
+
+  /**
+   * This function is used to make the map from XYZ file.
+   * This function is called from CME framework. This function was needed because
+   * in CME, there is need that we should be able to specify the name of ps file name
+   * and jpeg filename.
+   *
+   * @param xyzFileName name of the xyz file for which map will be generated
+   * @param psFileName  ps file name
+   * @param jpgFileName jpeg file name
+   * @return
+   */
+  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName) {
+    String GMT_PATH="/opt/install/gmt/bin/";
+    this.XYZ_FILE_NAME = xyzFileName;
+
+    // contruct the xyz datatset using the xyzfilename
+    Vector xVals = new Vector();
+    Vector yVals =  new Vector();
+    Vector zVals =  new Vector();
+    try {
+      FileReader fr = new FileReader(xyzFileName); //open the xyx file
+      BufferedReader bf = new BufferedReader(fr);
+      String str=bf.readLine();
+      StringTokenizer tokenizer;
+      while(str!=null) {
+        tokenizer = new StringTokenizer(str);
+        xVals.add(new Double(tokenizer.nextToken())); // lat
+        yVals.add(new Double(tokenizer.nextToken()));  // lon
+        zVals.add(new Double(tokenizer.nextToken()));  // z value
+        str = bf.readLine();
+      }
+      bf.close();
+    }catch(Exception e) { e.printStackTrace(); }
+
+    org.scec.data.ArbDiscretizedXYZ_DataSet xyzDataSet =
+        new org.scec.data.ArbDiscretizedXYZ_DataSet(xVals, yVals, zVals) ;
+
+    FileWriter fw =null;
+    BufferedWriter br=null;
+
+    //writing the GMT script into the GMT Script file
+    try {
+      gmtFileName=xyzFileName.substring(0,xyzFileName.lastIndexOf("."))+System.currentTimeMillis()+".txt";
+      fw = new FileWriter(gmtFileName);
+      br = new BufferedWriter(fw);
+      out_ps = psFileName;
+      out_jpg = jpgFileName;
+      this.runMapScript(GMT_PATH,br,xyzDataSet);
+      String gmtCommandLine = COMMAND_PATH+"cat "+ out_ps + " | gs -sDEVICE=jpeg -sOutputFile=" + out_jpg + " -";
+      //RunScript.runScript(command);
+      br.write(gmtCommandLine+"\n");
+      br.close();
+    }catch(RuntimeException ee){
+      throw new RuntimeException(ee.getMessage());
+    }catch (Exception e) {
+      // report to the user whether the operation was successful or not
+      e.printStackTrace();
+    }
+    //running the GMT script from the file
+    String[] command ={"sh","-c","sh "+gmtFileName};
+    RunScript.runScript(command);
+  }
+
+
+  /**
+   * Set the parameter values. This function is needed if someone is
+   * not using MapGuiBean but wants to generate maps using GMT_MapGenerator
+   *
+   * @param paramName Parameter name whose value needs to be set
+   * @param value Value to be assigned to that parameter
+   */
+  public void setParameter(String paramName, Object value) {
+    this.adjustableParams.getParameter(paramName).setValue(value);
   }
 }
 
