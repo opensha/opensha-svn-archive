@@ -1,10 +1,11 @@
-package org.scec.sha.fault;
+package org.scec.sha.fault.demo;
 
 import java.util.*;
 import java.io.*;
 import org.scec.util.*;
 import org.scec.exceptions.*;
 import org.scec.data.*;
+import org.scec.sha.fault.*;
 
 /**
  * <p>Title: </p>
@@ -15,23 +16,23 @@ import org.scec.data.*;
  * @version 1.0
  */
 
-public class FaultTraceFactory {
+public class Frankel96_SimpleFaultDataFileReader {
 
-    protected final static String C = "FaultTraceFactory";
+    protected final static String C = "Frankel96_SimpleFaultDataFileReader";
     protected final static boolean D = false;
 
     protected final static FaultException ERR = new FaultException(
            C + ": loadFaultTraces(): Missing metadata from trace, file bad format."
     );
 
-    public static FaultTraceList loadFaultTraces(ArrayList fileNames) throws FaultException{
+    public static SimpleFaultDataList getSimpleFaultDataList(ArrayList fileNames) throws FaultException{
 
         // Debug
         String S = C + ": loadFaultTraces(): ";
         if( D ) System.out.println(S + "Starting");
 
         // variable declaration
-        FaultTraceList list = new FaultTraceList();
+        SimpleFaultDataList list = new SimpleFaultDataList();
         ArrayList rawFaultTraceData = null;
         String l1, l2, l3, l4, dataLine, faultName, latStr, lonStr, temp;
         int i, index, numPoints = 0;
@@ -119,9 +120,6 @@ public class FaultTraceFactory {
 
 
                 FaultTrace trace = new FaultTrace(l1);
-                trace.setAveDip(dip);
-                trace.setLowerSeismogenicDepth( lowerSeismoDepth );
-                trace.setUpperSeismogenicDepth( upperSeismoDepth );
 
                 if( D ) System.out.println(S + "Fault Name " + l1);
                 if( D ) System.out.println(S + "dip" + dip);
@@ -155,12 +153,17 @@ public class FaultTraceFactory {
 
                 // reverse data ordering if dip negative, make positive and reverse trace order
                 if( dip < 0 ) {
-                    trace.setAveDip(-dip);
                     trace.reverse();
+                    dip *= -1;
                 }
 
-                // All done processing trace, add
-                list.addFaultTrace( trace );
+                SimpleFaultData simpFaultData = new SimpleFaultData(  dip,
+                                                                      lowerSeismoDepth,
+                                                                      upperSeismoDepth,
+                                                                      trace);
+                // Add to list
+                list.addSimpleFaultData( simpFaultData );
+
 
             }
         }
@@ -170,7 +173,7 @@ public class FaultTraceFactory {
         return list;
     }
 
-
+/*
     public static FaultTrace getSierraMadre(){
 
         FaultTrace trace = new FaultTrace("Sierra Madre");
@@ -194,9 +197,10 @@ public class FaultTraceFactory {
 
         return trace;
     }
+*/
 
     /**
-     *
+     *  For debugging only
      */
     public static void main(String[] args) {
 
@@ -207,7 +211,7 @@ public class FaultTraceFactory {
         files.add("CALA.char");
         files.add("CALB.char");
 
-        FaultTraceList list = FaultTraceFactory.loadFaultTraces(files);
+        SimpleFaultDataList list = Frankel96_SimpleFaultDataFileReader.getSimpleFaultDataList(files);
 
         if( D ) System.out.println(S + list.toString());
 

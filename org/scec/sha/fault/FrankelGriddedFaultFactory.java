@@ -29,17 +29,30 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
     protected final static String ERR = " is null, unable to process.";
 
     public FrankelGriddedFaultFactory() { super(); }
-    public FrankelGriddedFaultFactory(
-        FaultTrace faultTrace,
-        Double aveDip,
-        Double upperSeismogenicDepth,
-        Double lowerSeismogenicDepth,
-        Double gridSpacing
-    )
-        throws FaultException
-    {
+
+    public FrankelGriddedFaultFactory( SimpleFaultData simpleFaultData,
+                                        Double gridSpacing)
+                                        throws FaultException {
+
+        super(simpleFaultData.getFaultTrace(),
+              new Double(simpleFaultData.getAveDip()),
+              new Double(simpleFaultData.getUpperSeismogenicDepth()),
+              new Double(simpleFaultData.getLowerSeismogenicDepth()),
+              gridSpacing);
+    }
+
+
+    public FrankelGriddedFaultFactory( FaultTrace faultTrace,
+                                        Double aveDip,
+                                        Double upperSeismogenicDepth,
+                                        Double lowerSeismogenicDepth,
+                                        Double gridSpacing )
+                                        throws FaultException {
+
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
     }
+
+
 
 
 

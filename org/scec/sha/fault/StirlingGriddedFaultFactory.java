@@ -29,15 +29,26 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
     protected final static String ERR = " is null, unable to process.";
 
     public StirlingGriddedFaultFactory() { super(); }
-    public StirlingGriddedFaultFactory(
-        FaultTrace faultTrace,
-        Double aveDip,
-        Double upperSeismogenicDepth,
-        Double lowerSeismogenicDepth,
-        Double gridSpacing
-    )
-        throws FaultException
-    {
+
+    public StirlingGriddedFaultFactory( SimpleFaultData simpleFaultData,
+                                        Double gridSpacing)
+                                        throws FaultException {
+
+        super(simpleFaultData.getFaultTrace(),
+              new Double(simpleFaultData.getAveDip()),
+              new Double(simpleFaultData.getUpperSeismogenicDepth()),
+              new Double(simpleFaultData.getLowerSeismogenicDepth()),
+              gridSpacing);
+    }
+
+
+    public StirlingGriddedFaultFactory( FaultTrace faultTrace,
+                                        Double aveDip,
+                                        Double upperSeismogenicDepth,
+                                        Double lowerSeismogenicDepth,
+                                        Double gridSpacing )
+                                        throws FaultException {
+
         super(faultTrace, aveDip, upperSeismogenicDepth, lowerSeismogenicDepth, gridSpacing);
     }
 

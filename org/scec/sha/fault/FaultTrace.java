@@ -22,29 +22,15 @@ import org.scec.data.*;
 public class FaultTrace extends LocationList implements NamedObjectAPI {
 
     /**
-     *  Description of the Field
+     *  Fault name field
      */
     private String faultName;
-    private double upperSeismogenicDepth;
-    private double lowerSeismogenicDepth;
-    private double aveDip;
 
 
     public FaultTrace(String faultName){
         super();
         this.faultName = faultName;
     }
-
-
-    public void setUpperSeismogenicDepth(double upperSeismogenicDepth) { this.upperSeismogenicDepth = upperSeismogenicDepth; }
-    public double getUpperSeismogenicDepth() { return upperSeismogenicDepth; }
-
-    public void setLowerSeismogenicDepth(double lowerSeismogenicDepth) { this.lowerSeismogenicDepth = lowerSeismogenicDepth; }
-    public double getLowerSeismogenicDepth() { return lowerSeismogenicDepth; }
-
-    public void setAveDip(double aveDip) { this.aveDip = aveDip; }
-    public double getAveDip() { return aveDip; }
-
 
     public void setName( String faultName ) { this.faultName = faultName; }
     public String getName() { return faultName; }
@@ -58,9 +44,6 @@ public class FaultTrace extends LocationList implements NamedObjectAPI {
         StringBuffer b = new StringBuffer(C);
         b.append('\n');
         b.append(TAB + "Name = " + faultName);
-        b.append(TAB + "Ave. Dip = " + aveDip);
-        b.append(TAB + "Upper Seismogenic Depth = " + upperSeismogenicDepth);
-        b.append(TAB + "Lower Seismogenic Depth = " + lowerSeismogenicDepth);
 
         b.append( super.toString() ) ;
         return b.toString();
