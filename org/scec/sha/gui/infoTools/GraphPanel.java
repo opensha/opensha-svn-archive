@@ -157,7 +157,7 @@ public class GraphPanel extends JPanel {
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
       //added to have the minimum range within the Upper and Lower Bound of the Axis
-      xAxis.setAutoRangeMinimumSize(.1);
+      //xAxis.setAutoRangeMinimumSize(.1);
 
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
       if(customAxis)
@@ -185,7 +185,7 @@ public class GraphPanel extends JPanel {
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
       //added to have the minimum range within the Upper and Lower Bound of the Axis
-      yAxis.setAutoRangeMinimumSize(.1);
+      //yAxis.setAutoRangeMinimumSize(.1);
 
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
       if(customAxis)
