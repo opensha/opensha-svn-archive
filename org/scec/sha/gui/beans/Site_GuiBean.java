@@ -15,7 +15,7 @@ import org.scec.data.Location;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import org.scec.sha.util.SiteTranslator;
+
 
 /**
  * <p>Title:SiteParamListEditor </p>

@@ -12,7 +12,7 @@ import java.net.URLConnection;
 import org.scec.sha.gui.beans.IMR_GuiBean;
 import org.scec.sha.gui.beans.Site_GuiBean;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
-import org.scec.sha.util.SiteTranslator;
+import org.scec.sha.util.SiteTranslatorNew;
 import org.scec.data.Site;
 import org.scec.data.Location;
 import org.scec.param.ParameterAPI;
@@ -40,7 +40,7 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
   private static final double MAX_CVM_LON = -114.0;
 
   // site translator
-  SiteTranslator siteTranslator = new SiteTranslator();
+  SiteTranslatorNew siteTranslator = new SiteTranslatorNew();
 
   // save the imr gui bean  and  site gui bean
   private IMR_GuiBean imrGuiBean;
@@ -152,8 +152,12 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
     // make the site object
     Site site = new Site(new Location(lat, lon));
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
-    while(it.hasNext())  site.addParameter((ParameterAPI)it.next());
-    this.siteTranslator.setSiteParams(site, vs30, basinDepth);
+    while(it.hasNext()) {
+      ParameterAPI tempParam = (ParameterAPI)it.next();
+      boolean flag = siteTranslator.setParameterValue(tempParam,vs30,basinDepth);
+      site.addParameter(tempParam);
+    }
+
   }
 
   /**
