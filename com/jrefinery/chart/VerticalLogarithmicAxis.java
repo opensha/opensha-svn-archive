@@ -462,9 +462,9 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
               if(eIndex==-1)
                 g2.drawString(tick.getText(), tick.getX(), tick.getY());
               else { // show in superscript form
-                g2.drawString("10", tick.getX(), tick.getY());
+                g2.drawString("10", tick.getX()+4, tick.getY());
                 g2.setFont(new Font(tickLabelFont.getName(),tickLabelFont.getStyle(),tickLabelFont.getSize()-2));
-                g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
+                g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+20,tick.getY()-6);
               }
            }
            if (tickMarksVisible) {
