@@ -47,6 +47,11 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   private int currRuptures = -1;
   private int totRuptures=0;
 
+  //index to keep track how many sources have been traversed
+  private int sourceIndex;
+  // get total number of sources
+  int numSources;
+
   /**
    * creates the HazardCurveCalculator object
    *
@@ -101,7 +106,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
     // declare some varibles used in the calculation
     double qkProb, distance;
-    int k,i;
+    int k;
 
     // get the number of points
     int numPoints = hazFunction.getNum();
@@ -111,13 +116,14 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     imr.setUserMaxDistance(MAX_DISTANCE);
 
     // get total number of sources
-    int numSources = eqkRupForecast.getNumSources();
+    numSources = eqkRupForecast.getNumSources();
     //System.out.println("Number of Sources: "+numSources);
     //System.out.println("ERF info: "+ eqkRupForecast.getClass().getName());
     // compute the total number of ruptures for updating the progress bar
     totRuptures = 0;
-    for(i=0;i<numSources;++i)
-      totRuptures+=eqkRupForecast.getSource(i).getNumRuptures();
+    sourceIndex =0;
+    for(sourceIndex=0;sourceIndex<numSources;++sourceIndex)
+      totRuptures+=eqkRupForecast.getSource(sourceIndex).getNumRuptures();
 
     //System.out.println("Total number of ruptures:"+ totRuptures);
 
@@ -138,10 +144,11 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     if (D) System.out.println(C+": starting hazard curve calculation");
 
     // loop over sources
-    for(i=0;i < numSources ;i++) {
+    sourceIndex =0;
+    for(sourceIndex=0;sourceIndex < numSources ;sourceIndex++) {
 
       // get the ith source
-      ProbEqkSource source = eqkRupForecast.getSource(i);
+      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
 
       // compute the source's distance from the site and skip if it's too far away
       distance = source.getMinDistance(site);
@@ -210,6 +217,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
           hazFunction.set(k,hazFunction.getY(k)*(1-sourceHazFunc.getY(k)));
     }
 
+    int i;
     // finalize the hazard function
     if(sourceUsed)
       for(i=0;i<numPoints;++i)
@@ -224,14 +232,31 @@ public class HazardCurveCalculator extends UnicastRemoteObject
   }
 
 
+  /**
+   *
+   * @returns the current rupture being traversed
+   * @throws java.rmi.RemoteException
+   */
   public int getCurrRuptures() throws java.rmi.RemoteException{
     return this.currRuptures;
   }
 
+  /**
+   *
+   * @returns the total number of ruptures in the earthquake rupture forecast model
+   * @throws java.rmi.RemoteException
+   */
   public int getTotRuptures() throws java.rmi.RemoteException{
     return this.totRuptures;
   }
 
+  /**
+   * stops the Hazard Curve calculations.
+   * @throws java.rmi.RemoteException
+   */
+  public void stopCalc() throws java.rmi.RemoteException{
+    sourceIndex = numSources;
+  }
 
   /**
    * Initialize the prob as 1 for the Hazard function

@@ -1,18 +1,5 @@
 package org.scec.sha.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.SystemColor;
-import java.awt.Toolkit;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -21,20 +8,6 @@ import java.util.ArrayList;
 import java.rmi.RemoteException;
 
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
-import javax.swing.Timer;
-import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.io.*;
@@ -95,6 +68,9 @@ import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 import ch.randelshofer.quaqua.QuaquaManager;
 import org.scec.sha.gui.infoTools.ExceptionWindow;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.*;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -332,13 +308,15 @@ public class HazardCurveServerModeApplication extends JApplet
   DisaggregationCalculatorAPI disaggCalc;
   CalcProgressBar progressClass;
   CalcProgressBar disaggProgressClass;
+  //timer threads to show the progress of calculations
   Timer timer;
   Timer disaggTimer;
+  //calculation thead
+  Thread calcThread;
   //checks to see if HazardCurveCalculations are done
   boolean isHazardCalcDone= false;
   private JButton peelOffButton = new JButton();
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
-  private FlowLayout flowLayout1 = new FlowLayout();
 
 
 
@@ -355,6 +333,8 @@ public class HazardCurveServerModeApplication extends JApplet
   * then add new data to the existing data(this option only works if it is ERF_List).
   * */
   boolean addData= true;
+  private JButton cancelCalcButton = new JButton();
+  private FlowLayout flowLayout1 = new FlowLayout();
 
   //Get command-line parameter value
   public String getParameter(String key, String def) {
@@ -498,6 +478,12 @@ public class HazardCurveServerModeApplication extends JApplet
         imgLabel_mouseClicked(e);
       }
     });
+    cancelCalcButton.setText("Cancel");
+    cancelCalcButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        cancelCalcButton_actionPerformed(e);
+      }
+    });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(11, 4, 5, 6), 243, 231));
@@ -505,13 +491,18 @@ public class HazardCurveServerModeApplication extends JApplet
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
 
+
     buttonPanel.add(controlComboBox, 0);
     buttonPanel.add(addButton, 1);
-    buttonPanel.add(clearButton, 2);
-    buttonPanel.add(peelOffButton, 3);
-    buttonPanel.add(progressCheckBox, 4);
-    buttonPanel.add(buttonControlPanel,5);
-    buttonPanel.add(imgLabel, 6);
+    buttonPanel.add(cancelCalcButton, 2);
+    buttonPanel.add(clearButton, 3);
+    buttonPanel.add(peelOffButton, 4);
+    buttonPanel.add(progressCheckBox, 5);
+    buttonPanel.add(buttonControlPanel, 6);
+    buttonPanel.add(imgLabel, 7);
+
+    //making the cancel button not visible until user has started to do the calculation
+    cancelCalcButton.setVisible(false);
 
     topSplitPane.add(chartSplit, JSplitPane.TOP);
     chartSplit.add(panel, JSplitPane.LEFT);
@@ -665,8 +656,10 @@ public class HazardCurveServerModeApplication extends JApplet
           }
         }
       }
-      else
+      else{
+        cancelCalcButton.setVisible(true);
         addButton();
+      }
     }
 
 
@@ -678,6 +671,9 @@ public class HazardCurveServerModeApplication extends JApplet
     public void run() {
       try{
         computeHazardCurve();
+        cancelCalcButton.setVisible(false);
+        disaggCalc = null;
+        calcThread = null;
       }catch(Exception e){
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
         bugWindow.show();
@@ -693,9 +689,11 @@ public class HazardCurveServerModeApplication extends JApplet
      * calculations are performed on the user's own machine.
      */
     protected void createCalcInstance(){
+      if(calc == null)
       calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
       if(disaggregationFlag)
-        disaggCalc = (new RemoteDisaggregationCalcClient()).getRemoteDisaggregationCalc();
+        if(disaggCalc == null)
+          disaggCalc = (new RemoteDisaggregationCalcClient()).getRemoteDisaggregationCalc();
     }
 
     /**
@@ -713,7 +711,7 @@ public class HazardCurveServerModeApplication extends JApplet
           addData = false;
       }
       try{
-        createCalcInstance();
+          createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
@@ -744,6 +742,7 @@ public class HazardCurveServerModeApplication extends JApplet
                 drawGraph();
               }
             }catch(Exception e){
+              e.printStackTrace();
               timer.stop();
               setButtonsEnable(true);
               ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString());
@@ -775,14 +774,14 @@ public class HazardCurveServerModeApplication extends JApplet
           }
         });
 
-        Thread t = new Thread(this);
-        t.start();
+        calcThread = new Thread(this);
+        calcThread.start();
       }
       //if it is ERF List but no progress bar is selected,
       //so we want to show curve as they are being drawn on the chart.
       else if(isEqkList && !progressCheckBox.isSelected()){
-        Thread t = new Thread(this);
-        t.start();
+        calcThread = new Thread(this);
+        calcThread.start();
         drawGraph();
       }
       else {
@@ -1853,5 +1852,28 @@ public class HazardCurveServerModeApplication extends JApplet
     */
   public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharacterstic();
+  }
+
+  void cancelCalcButton_actionPerformed(ActionEvent e) {
+    calcThread.stop();
+    calcThread = null;
+    if(timer !=null && progressClass !=null){
+      timer.stop();
+      timer = null;
+      progressClass.dispose();
+    }
+    if(calc !=null){
+      try{
+        calc.stopCalc();
+        calc = null;
+      }catch(RemoteException ee){
+        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.toString());
+        bugWindow.show();
+        bugWindow.pack();
+      }
+    }
+    this.isHazardCalcDone = false;
+    setButtonsEnable(true);
+    cancelCalcButton.setVisible(false);
   }
 }
