@@ -17,6 +17,8 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      * @todo Variables
      */
      private double gridSpacing;
+
+     //vector to store the GriddedSurface
      Vector v= new Vector();
 
     /**
@@ -56,21 +58,29 @@ public class EvenlyGriddedSurface extends GriddedSurface {
                                                     int numSubSurfaceRows,
                                                     int numSubSurfaceOffset,
                                                     int n) {
+      // number of subSurfaces along the length of fault
+      int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffset +1);
 
-        Iterator it = getSubsetSurfacesIterator(numSubSurfaceCols,
-                           numSubSurfaceRows, numSubSurfaceOffset);
-        int count = 0;
+      // there is only one subSurface
+      if(nSubSurfaceAlong <=1) {
+        nSubSurfaceAlong=1;
+        numSubSurfaceCols = numCols;
+      }
 
-        // while there are more subset surfaces
-        while(it.hasNext()) {
-          // if this is the desired surface
-          if(count==n)
-            return (GriddedSubsetSurface)it.next();
-          it.next();
-          ++count;
-        }
+      // nnmber of subSurfaces along fault width
+      int nSubSurfaceDown =  (int)Math.floor((numRows-numSubSurfaceRows)/numSubSurfaceOffset +1);
 
-        throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
+      // one subSurface along width
+      if(nSubSurfaceDown <=1) {
+        nSubSurfaceDown=1;
+        numSubSurfaceRows = numRows;
+      }
+
+      int row = n/nSubSurfaceAlong * numSubSurfaceOffset;
+      int col = n%nSubSurfaceAlong * numSubSurfaceOffset;
+
+       return (new GriddedSubsetSurface((int)numSubSurfaceRows,(int)numSubSurfaceCols,row,col,this));
+   //     throw new RuntimeException("EvenlyGriddeddsurface:getNthSubsetSurface::Inavlid n value for subSurface");
     }
 
 
@@ -136,6 +146,7 @@ public class EvenlyGriddedSurface extends GriddedSurface {
        }
        return v.iterator();
    }
+
 
 
    /**
