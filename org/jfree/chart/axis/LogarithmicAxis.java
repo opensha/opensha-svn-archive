@@ -72,11 +72,16 @@ import java.awt.Insets;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.awt.Font;
+import java.util.Iterator;
+import java.awt.geom.Line2D;
 
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.ValueAxisPlot;
 import org.jfree.data.Range;
 import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RefineryUtilities;
+
 
 /**
  * A numerical axis that uses a logarithmic scale.
@@ -883,6 +888,144 @@ public class LogarithmicAxis extends NumberAxis {
             }
         }
     }
+
+
+
+    /**
+     * Draws the axis line, tick marks and tick mark labels.
+     *
+     * @param g2  the graphics device.
+     * @param cursor  the cursor.
+     * @param plotArea  the plot area.
+     * @param dataArea  the data area.
+     * @param edge  the edge that the axis is aligned with.
+     *
+     * @return The width or height used to draw the axis.
+     */
+    protected double drawTickMarksAndLabels(Graphics2D g2, double cursor,
+                                            Rectangle2D plotArea,
+                                            Rectangle2D dataArea, RectangleEdge edge) {
+
+        if (isAxisLineVisible()) {
+            drawAxisLine(g2, cursor, dataArea, edge);
+        }
+        double ol = getTickMarkOutsideLength();
+        double il = getTickMarkInsideLength();
+
+        refreshTicks(g2, cursor, plotArea, dataArea, edge);
+
+
+        //       float maxY = (float)plotArea.getMaxY();
+
+/*        g2.setFont(getTickLabelFont());
+
+        Iterator iterator = this.getTicks().iterator();
+
+        while (iterator.hasNext()) {
+
+          Tick tick = (Tick)iterator.next();
+
+          //float xx = (float)tick.getX();
+
+          double val=1;
+          int eIndex =-1;
+          if(!this.expTickLabelsFlag)
+            eIndex =tick.getText().indexOf("^");
+          else
+            eIndex =tick.getText().indexOf("e");
+          // check whether this is minor axis. for minor axis we save,2-9 in label
+
+          if(!tick.getText().trim().equalsIgnoreCase("") && eIndex==-1)
+            val = Double.parseDouble(tick.getText());
+          //double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
+          //xx = (float)this.translateValueToJava2D(logval, plotArea);
+          if(eIndex!=-1) // for major axis
+            g2.setFont(this.getTickLabelFont());
+          else  // show minor axis in smaller font
+            g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+3));
+          if (this.isTickLabelsVisible()) {
+            g2.setPaint(this.getTickLabelPaint());
+            if (this.isVerticalTickLabels()) {
+              RefineryUtilities.drawRotatedString(tick.getText(), g2,
+                  tick.getX(), tick.getY(), -Math.PI/2);
+            }
+            else {
+              if(eIndex==-1) g2.drawString(tick.getText(), tick.getX(), tick.getY());
+              else { // show in superscript form
+                g2.drawString("10", tick.getX(), tick.getY());
+                g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
+                g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
+              }
+            }
+          }
+        }*/
+
+
+        g2.setFont(getTickLabelFont());
+        Iterator iterator = getTicks().iterator();
+        while (iterator.hasNext()) {
+            Tick tick = (Tick) iterator.next();
+            float xx = (float) translateValueToJava2D(tick.getNumericalValue(), dataArea, edge);
+
+            double val=1;
+            int eIndex =-1;
+            if(!this.expTickLabelsFlag)
+              eIndex =tick.getText().indexOf("^");
+            else
+              eIndex =tick.getText().indexOf("e");
+            // check whether this is minor axis. for minor axis we save,2-9 in label
+
+            if(!tick.getText().trim().equalsIgnoreCase("") && eIndex==-1)
+              val = Double.parseDouble(tick.getText());
+            //double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
+            //xx = (float)this.translateValueToJava2D(logval, plotArea);
+            if(eIndex!=-1) // for major axis
+              g2.setFont(this.getTickLabelFont());
+            else  // show minor axis in smaller font
+              g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()+3));
+
+            if (isTickLabelsVisible()) {
+                g2.setPaint(getTickLabelPaint());
+                if (isVerticalTickLabels()) {
+                    RefineryUtilities.drawRotatedString(tick.getText(), g2,
+                                                        tick.getX(), tick.getY(), -Math.PI / 2);
+                }
+                else {
+                  if(eIndex==-1) g2.drawString(tick.getText(), tick.getX(), tick.getY());
+                  else {
+                    g2.drawString("10", tick.getX(), tick.getY());
+                    g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
+                    g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+16,tick.getY()-6);
+                  }
+                }
+            }
+
+            if (isTickMarksVisible()) {
+                Line2D mark = null;
+                g2.setStroke(getTickMarkStroke());
+                g2.setPaint(getTickMarkPaint());
+                if (edge == RectangleEdge.LEFT) {
+                    mark = new Line2D.Double(cursor - ol, xx, cursor + il, xx);
+                }
+                else if (edge == RectangleEdge.RIGHT) {
+                    mark = new Line2D.Double(cursor + ol, xx, cursor - il, xx);
+                }
+                else if (edge == RectangleEdge.TOP) {
+                    mark = new Line2D.Double(xx, cursor - ol, xx, cursor + il);
+                }
+                else if (edge == RectangleEdge.BOTTOM) {
+                    mark = new Line2D.Double(xx, cursor + ol, xx, cursor - il);
+                }
+                g2.draw(mark);
+            }
+        }
+        return this.reservedForTickLabels;
+
+    }
+
+
+
+
 
     /**
      * Converts the given value to a tick label string.
