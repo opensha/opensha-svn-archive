@@ -166,8 +166,8 @@ public class AttenRelResultsChecker {
           with the result we will obtain with those parameter settings for that IMR.
           */
           else if(str.equalsIgnoreCase(this.START_RESULT_VALUES)){
-            if(testNumber == 19)
-              System.out.println("Hello");
+            /*if(testNumber == 19)
+              System.out.println("Hello");*/
             targetFunction =new ArbitrarilyDiscretizedFunc();
             str = (br.readLine()).trim();
             System.out.println("For("+testNumber+"):"+str);
