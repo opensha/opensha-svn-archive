@@ -399,4 +399,50 @@ public class PSHALogXYPlot
          logPlot.invalidLogPlot(message);
     }
    }
+
+   /**
+    * Utility method for drawing a crosshair on the chart (if required).
+    * This method was overridden from XYPlot so that cross hairs are correct
+    *
+    * @param g2  the graphics device.
+    * @param dataArea  the data area.
+    * @param value  the coordinate, where to draw the line.
+    * @param stroke  the stroke to use.
+    * @param paint  the paint to use.
+    */
+   protected void drawVerticalLine(Graphics2D g2, Rectangle2D dataArea,
+                                   double value, Stroke stroke, Paint paint) {
+
+     if(this.xlogplot)  {
+       double xx = ((HorizontalLogarithmicAxis)getDomainAxis()).myTranslateValueToJava2D(value, dataArea);
+       Line2D line = new Line2D.Double(xx, dataArea.getMinY(),
+                                       xx, dataArea.getMaxY());
+       g2.setStroke(stroke);
+       g2.setPaint(paint);
+       g2.draw(line);
+     } else  super.drawVerticalLine(g2, dataArea, value, stroke, paint);
+
+   }
+
+   /**
+    * Utility method for drawing a crosshair on the chart (if required).
+    * This method was overridden from XYPlot so that cross hairs are correct
+    *
+    * @param g2  the graphics device.
+    * @param dataArea  the data area.
+    * @param value  the coordinate, where to draw the line.
+    * @param stroke  the stroke to use.
+    * @param paint  the paint to use.
+    */
+   protected void drawHorizontalLine(Graphics2D g2, Rectangle2D dataArea,
+                                     double value, Stroke stroke, Paint paint) {
+     if(this.ylogplot) {
+       double yy = ((VerticalLogarithmicAxis)getRangeAxis()).myTranslateValueToJava2D(value, dataArea);
+       Line2D line = new Line2D.Double(dataArea.getMinX(), yy,
+                                       dataArea.getMaxX(), yy);
+       g2.setStroke(stroke);
+       g2.setPaint(paint);
+       g2.draw(line);
+     } else super.drawHorizontalLine(g2, dataArea, value, stroke, paint);
+    }
 }

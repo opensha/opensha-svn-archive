@@ -219,39 +219,16 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
      */
 
     public double translateValueToJava2D(double value, Rectangle2D plotArea) {
-
-
-
 	double axisMin = getRange().getLowerBound();
-
 	double axisMax = getRange().getUpperBound();
-
-
-
 	double maxY = plotArea.getMaxY();
-
 	double minY = plotArea.getMinY();
-
-
-
         if (isInverted()) {
-
            return minY + (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
-
-
-
         }
-
         else {
-
             return maxY - (((value - axisMin)/(axisMax - axisMin)) * (maxY - minY));
-
-
-
         }
-
-
-
     }
 
 
@@ -285,60 +262,24 @@ public class VerticalLogarithmicAxis extends VerticalNumberAxis{
     }
 
     public double translateJava2DtoValue(float java2DValue, Rectangle2D plotArea) {
-	double axisMin = getRange().getLowerBound();
-
-	double axisMax = getRange().getUpperBound();
-
-
-
-	double plotMinY = plotArea.getMinY();
-
-	double plotMaxY = plotArea.getMaxY();
-
-
-
-        // The Math.log() funtion is based on e not 10.
-
-        if (axisMin != 0.0) {
-
-
-
-            axisMin = Math.log(axisMin)/LOG10_VALUE;
-
-        }
-
-
-
-        if (axisMax != 0.0) {
-
-
-
-            axisMax = Math.log(axisMax)/LOG10_VALUE;
-
-        }
-
-
-
-        if (isInverted())
-
-       {
-
-         double logVal=(java2DValue-plotMinY)/(plotMaxY-plotMinY)*(axisMax-axisMin)+axisMin;
-
-         return Math.pow(10,logVal);
-
-       }
-
-       else
-
-       {
-
-         double logVal=( plotMaxY-java2DValue)/(plotMaxY-plotMinY)*(axisMax-axisMin)+axisMin;
-
-         return Math.pow(10,logVal);
-
-       }
-
+      double axisMin = getRange().getLowerBound();
+      double axisMax = getRange().getUpperBound();
+      double plotMinY = plotArea.getMinY();
+      double plotMaxY = plotArea.getMaxY();
+      // The Math.log() funtion is based on e not 10.
+      if (axisMin != 0.0) {
+        axisMin = Math.log(axisMin)/LOG10_VALUE;
+      }
+      if (axisMax != 0.0) {
+        axisMax = Math.log(axisMax)/LOG10_VALUE;
+      }
+      if (isInverted()) {
+        double logVal=(java2DValue-plotMinY)/(plotMaxY-plotMinY)*(axisMax-axisMin)+axisMin;
+        return logVal;
+      } else {
+        double logVal=( plotMaxY-java2DValue)/(plotMaxY-plotMinY)*(axisMax-axisMin)+axisMin;
+        return logVal;
+      }
     }
 
 

@@ -197,150 +197,67 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
       double maxX = plotArea.getMaxX();
       double minX = plotArea.getMinX();
       if (isInverted()) {
-         return maxX - (((value - axisMin)/(axisMax - axisMin)) *
-                                                             (maxX - minX));
-      }
-
-      else
-
-      {
-
-        return minX + (((value - axisMin)/(axisMax - axisMin)) *
-
+        return maxX - (((value - axisMin)/(axisMax - axisMin)) *
                        (maxX - minX));
-
-        }
-
-
-
+      } else {
+        return minX + (((value - axisMin)/(axisMax - axisMin)) *
+                       (maxX - minX));
+      }
     }
 
 
 
     /**
-
-    * Function added for the Log-Log plotting
-
-    */
-
-
+     * Function added for the Log-Log plotting
+     */
 
    public double myTranslateValueToJava2D(double value, Rectangle2D plotArea) {
-
-
-
 	double axisMin = getRange().getLowerBound();
-
 	double axisMax = getRange().getUpperBound();
-
-
-
 	double maxX = plotArea.getMaxX();
-
 	double minX = plotArea.getMinX();
-
-
-
-
-
         if(axisMin==0.0)
-
            axisMin=this.getTickUnit().getSize()/15;//.01;//this.tickUnit.getSize()/3.5;
-
-
-
-         if(axisMin!=0)
-
-             axisMin = Math.log(axisMin)/LOG10_VALUE;
-
-         axisMax = Math.log(axisMax)/LOG10_VALUE;
-
-
-
-
-
+        if(axisMin!=0)
+          axisMin = Math.log(axisMin)/LOG10_VALUE;
+        axisMax = Math.log(axisMax)/LOG10_VALUE;
          if (isInverted()) {
-
            if(axisMin==axisMax)
-
                return maxX;
-
            else
-
                return maxX - ((value - axisMin)/(axisMax - axisMin)) * (maxX - minX);
-
         }
-
         else {
-
           if(axisMin==axisMax)
-
                return minX;
-
           else
-
                return minX + ((value - axisMin)/(axisMax - axisMin)) * (maxX - minX);
-
         }
-
      }
 
 
-
-
-
     /**
-
      * Converts a coordinate in Java2D space to the corresponding data
-
      * value, assuming that the axis runs along one edge of the specified
-
      * plotArea.
-
      * @param java2DValue the coordinate in Java2D space.
-
      * @param plotArea the area in which the data is plotted.
-
      * @return The data value.
-
      */
 
     public double translateJava2DtoValue(float java2DValue, Rectangle2D plotArea) {
-
-
-
         double axisMin = Math.log(getRange().getLowerBound())/LOG10_VALUE;
-
         double axisMax = Math.log(getRange().getUpperBound())/LOG10_VALUE;
-
-
-
         double plotMinX = plotArea.getMinX();
-
         double plotMaxX = plotArea.getMaxX();
-
-
-
-        if (isInverted())
-
-        {
-
+        if (isInverted()) {
           double logVal=(plotMaxX - java2DValue)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
-
-          return Math.pow(10,logVal);
-
+          return logVal;
         }
-
-        else
-
-        {
-
+        else {
           double logVal=( java2DValue - plotMinX)/(plotMaxX-plotMinX)*(axisMax-axisMin)+axisMin;
-
-          return Math.pow(10,logVal);
-
+           return logVal;
         }
-
     }
 
 

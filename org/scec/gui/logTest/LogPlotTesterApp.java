@@ -357,12 +357,14 @@ public class LogPlotTesterApp extends JApplet implements LogPlotAPI {
        xAxis = new com.jrefinery.chart.axis.HorizontalLogarithmicAxis("X-Axis");
        xAxis.setAutoRangeIncludesZero( false );
        xAxis.setStandardTickUnits(units);
+       xAxis.setTickMarksVisible(false);
 
 
        yAxis = new com.jrefinery.chart.axis.VerticalLogarithmicAxis("Y-Axis");
 
        yAxis.setAutoRangeIncludesZero( false );
        yAxis.setStandardTickUnits(units);
+       yAxis.setTickMarksVisible(false);
 
        int type = com.jrefinery.chart.renderer.StandardXYItemRenderer.LINES;
 
