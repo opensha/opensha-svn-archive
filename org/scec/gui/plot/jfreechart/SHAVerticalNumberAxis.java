@@ -78,8 +78,6 @@ public class SHAVerticalNumberAxis extends VerticalNumberAxis {
               double diff = lower/2;
               lower= lower - diff;
               upper= upper + diff;
-            } else {
-               upper = upper + 0.01;
             }
             this.range = new Range(lower, upper);
         }

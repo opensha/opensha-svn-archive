@@ -259,7 +259,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public String getName() {
-     return "GR_MagFreqDist";
+     return C;
   }
 
 

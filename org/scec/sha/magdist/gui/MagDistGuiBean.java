@@ -42,6 +42,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
   protected final static String GAUSSIAN_NAME = "Gaussian Distribution";
   protected final static String GR_NAME = "GutenbergRichter Distribution";
   protected final static String SINGLE_NAME = "Single Distribution";
+  protected final static String YC_1985__NAME = "Youngs & Coppersmith 1985 Char";
   protected final static String SUMMED_NAME = "Summed Distribution";
 
   protected final static String DISTRIBUTION_NAME="Choose Distribution";
@@ -97,6 +98,17 @@ public class MagDistGuiBean implements ParameterChangeListener {
     private static final String FIX_TO_CUM_RATE=new String("Fix Total CUM Rate");
 
 
+    /**
+     * Young and Coppersmith, 1985 Char
+     * Some paramters are same as GutenbergRichter
+     * Rest of the paramters are defined below
+     */
+
+    private static final String DELTA_MAG_CHAR = new String("Delta Mag Char");
+    private static final String MAG_PRIME = new String("Mag Prime");
+    private static final String DELTA_MAG_PRIME = new String("Delta Mag Prime");
+
+
   /**
    * Gaussian Magnitude Frequency Distribution Parameter string list constant
    */
@@ -149,6 +161,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
      */
     protected final static String GaussianMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GaussianMagFreqDist";
     protected final static String GutenbergRichterMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.GutenbergRichterMagFreqDist";
+    protected final static String YC_1985_CharMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.YC_1985_CharMagFreqDist";
     protected final static String SingleMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SingleMagFreqDist";
     protected final static String SummedMagFreqDist_CLASS_NAME = "org.scec.sha.magdist.SummedMagFreqDist";
 
@@ -210,14 +223,17 @@ public class MagDistGuiBean implements ParameterChangeListener {
         distName.add(GAUSSIAN_NAME);
         distName.add(GR_NAME);
         distName.add(SINGLE_NAME);
+        distName.add(YC_1985__NAME);
         StringParameter distributionName =new StringParameter(DISTRIBUTION_NAME,distName,dName);
         controlsParamList.addParameter(distributionName);
         if(dName.equalsIgnoreCase(GR_NAME))
           magDistClassName = new String(GutenbergRichterMagFreqDist_CLASS_NAME);
-        if(dName.equalsIgnoreCase(GAUSSIAN_NAME))
+        else if(dName.equalsIgnoreCase(GAUSSIAN_NAME))
           magDistClassName = new String(GaussianMagFreqDist_CLASS_NAME);
-        if(dName.equalsIgnoreCase(SINGLE_NAME))
+        else if(dName.equalsIgnoreCase(SINGLE_NAME))
           magDistClassName = new String(SingleMagFreqDist_CLASS_NAME);
+        else if(dName.equalsIgnoreCase(YC_1985__NAME))
+          magDistClassName = new String(YC_1985_CharMagFreqDist_CLASS_NAME);
 
         if ( magDistClassName == null || magDistClassName.trim().equalsIgnoreCase("") )
             throw new ParameterException( S + "Distribution is null, unable to continue." );
@@ -342,6 +358,31 @@ public class MagDistGuiBean implements ParameterChangeListener {
            StringParameter fix = new StringParameter(FIX,vStrings1,FIX_TO_CUM_RATE);
            independentParams.addParameter(fix);
          }
+
+
+         /**
+          * Add paramters for Youngs and Coppersmith 1985 char distribution
+          */
+         if(magDistClassName.equalsIgnoreCase(this.YC_1985_CharMagFreqDist_CLASS_NAME)) {
+           DoubleParameter magLower = new DoubleParameter(MAG_LOWER);
+           DoubleParameter magUpper = new DoubleParameter(MAG_UPPER);
+           DoubleParameter deltaMagChar = new DoubleParameter(DELTA_MAG_CHAR);
+           DoubleParameter magPrime = new DoubleParameter(this.MAG_PRIME);
+           DoubleParameter deltaMagPrime = new DoubleParameter(this.DELTA_MAG_PRIME);
+           DoubleParameter bValue = new DoubleParameter(BVALUE);
+           DoubleParameter toMoRate = new DoubleParameter(TO_MORATE);
+
+
+           independentParams.addParameter(magLower);
+           independentParams.addParameter(magUpper);
+           independentParams.addParameter(deltaMagChar);
+           independentParams.addParameter(magPrime);
+           independentParams.addParameter(deltaMagPrime);
+           independentParams.addParameter(bValue);
+           independentParams.addParameter(toMoRate);
+          }
+
+
         String[] searchPaths = new String[2];
         searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
@@ -376,12 +417,15 @@ public class MagDistGuiBean implements ParameterChangeListener {
         String distributionName=controlsParamList.getParameter(DISTRIBUTION_NAME).getValue().toString();
 
         /* check if distribution selection changed */
+
+        //if Gutenberg is selected
         if(distributionName.equalsIgnoreCase(GR_NAME) &&
                        !magDistClassName.equalsIgnoreCase(this.GutenbergRichterMagFreqDist_CLASS_NAME)) {
           magDistClassName = GutenbergRichterMagFreqDist_CLASS_NAME;
           refresh = true;
         }
 
+        // if Gaussian is selected
         if(distributionName.equalsIgnoreCase(GAUSSIAN_NAME) &&
                       !magDistClassName.equalsIgnoreCase(this.GaussianMagFreqDist_CLASS_NAME)) {
 
@@ -389,12 +433,20 @@ public class MagDistGuiBean implements ParameterChangeListener {
            refresh = true;
         }
 
+       // if single Mag Freq Dist is selected
         if(distributionName.equalsIgnoreCase(SINGLE_NAME)  &&
                      !magDistClassName.equalsIgnoreCase(this.SingleMagFreqDist_CLASS_NAME)) {
           magDistClassName = SingleMagFreqDist_CLASS_NAME;
           refresh = true;
         }
 
+        // if Young and Coppersmith 1985 char is selected
+        if(distributionName.equalsIgnoreCase(this.YC_1985__NAME)  &&
+                             !magDistClassName.equalsIgnoreCase(this.YC_1985_CharMagFreqDist_CLASS_NAME)) {
+           magDistClassName = this.YC_1985_CharMagFreqDist_CLASS_NAME;
+           refresh = true;
+
+        }
         /* if distribution selection changed, refresh the editors */
         if(refresh) {
           initControlsParamListAndEditor(distributionName);
@@ -719,12 +771,49 @@ public class MagDistGuiBean implements ParameterChangeListener {
            }
           magDist =  (IncrementalMagFreqDist) gR;
         }
-       }catch(java.lang.NumberFormatException e){
-          throw new NumberFormatException("Value entered must be a valid Numerical Value");
+
+
+        /*
+         * If Young and Coppersmith 1985 MagDist is selected
+         */
+       if(magDistClassName.equalsIgnoreCase(this.YC_1985_CharMagFreqDist_CLASS_NAME)) {
+
+           Double magLower = (Double)independentParams.getParameter(MAG_LOWER).getValue();
+           Double magUpper = (Double)independentParams.getParameter(MAG_UPPER).getValue();
+           Double deltaMagChar = (Double)independentParams.getParameter(DELTA_MAG_CHAR).getValue();
+           Double magPrime = (Double)independentParams.getParameter(MAG_PRIME).getValue();
+           Double deltaMagPrime = (Double)independentParams.getParameter(DELTA_MAG_PRIME).getValue();
+           Double bValue = (Double)independentParams.getParameter(BVALUE).getValue();
+           Double toMoRate = (Double)independentParams.getParameter(this.TO_MORATE).getValue();
+           // check that maglowe r value lies betwenn min and max
+           if(magLower.doubleValue()>max.doubleValue() || magLower.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
+           }
+           // check that magUpper value lies between min and max
+           if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
+               throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
+           }
+
+           /* double min,int num,double delta, double magLower,
+                              double magUpper, double deltaMagChar, double magPrime,
+                              double deltaMagPrime, double bValue, double totMoRate*/
+           YC_1985_CharMagFreqDist yc =
+                  new YC_1985_CharMagFreqDist(min.doubleValue(),max.doubleValue(),
+                         num.intValue());
+           yc.setAll(magLower.doubleValue(), magUpper.doubleValue(),
+                     deltaMagChar.doubleValue(), magPrime.doubleValue(),
+                     deltaMagPrime.doubleValue(), bValue.doubleValue(),
+                     toMoRate.doubleValue());
+           magDist =  (IncrementalMagFreqDist) yc;
         }
+
+
+       }catch(java.lang.NumberFormatException e){
+           throw new NumberFormatException("Value entered must be a valid Numerical Value");
+       }
         catch(java.lang.NullPointerException e){
           throw new NullPointerException("Enter All values");
-        }
+       }
 
      return magDist;
   }
