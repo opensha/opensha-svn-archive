@@ -612,6 +612,7 @@ public class ShakeMap_2003_AttenRel
         double rockVs30_SM = 620;    // these values are from their code
         double rockVs30_BJF = 724;
 
+
         try{
             mag = ((Double)magParam.getValue()).doubleValue();
             distanceJB = ((Double)distanceJBParam.getValue()).doubleValue();
