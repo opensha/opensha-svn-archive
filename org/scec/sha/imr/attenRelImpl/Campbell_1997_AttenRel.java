@@ -334,7 +334,7 @@ public class Campbell_1997_AttenRel
 
         if ( fltType.equals( FLT_TYPE_REVERSE ) )      F = 1.0;
         else if ( fltType.equals( FLT_TYPE_OTHER ) )   F = 0.0;
-        else                                           F = 0.0;  // if "Unknown"
+        else                                           F = 0.5;  // if "Unknown"
 
         if ( siteType.equals( SITE_TYPE_SOFT_ROCK ) )         S_sr = 1.0;
         else if ( siteType.equals( SITE_TYPE_HARD_ROCK ) )    S_hr = 1.0;

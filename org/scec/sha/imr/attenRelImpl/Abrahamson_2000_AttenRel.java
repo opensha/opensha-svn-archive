@@ -351,12 +351,12 @@ public class Abrahamson_2000_AttenRel
         if( im.getName().equalsIgnoreCase( SA_NAME) ) key.append( "/" + periodParam.getValue() );
 
         // so far only the horizontal coeffs case
-        a2 = 0.909;
-        a4 = 0.275;
-        a13 = 0.06;
+        a2 = 0.512;
+        a4 = -0.144;
+        a13 = 0.17;
         c1 = 6.4;
-        c5 = 0.3;
-        n = 3;
+        c5 = 0.03;
+        n = 2;
         if( horzCoeffs.containsKey( key.toString() ) ) coeff = ( Abrahamson_2000_AttenRelCoefficients )horzCoeffs.get( key.toString() );
         else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
     }
@@ -408,7 +408,7 @@ public class Abrahamson_2000_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
-        double F, f5, rockMeanPGA, rockMean, td, tm, yDir, xCosTheta;
+        double F, f5, rockMeanPGA, rockMean, td, tm, yDir, cosTheta;
         int HW;
 
 //       if ( fltType.equals( FLT_TYPE_REVERSE ) )      F = 1.0;
@@ -423,8 +423,8 @@ public class Abrahamson_2000_AttenRel
         HW = 0;
 
         // Get PGA coefficients for ave horz comp
-            a2 = 0.909; a4 = 0.275; a13 = 0.06; c1 = 6.4; c5 = 0.3; n = 3;
-            coeff = ( Abrahamson_2000_AttenRelCoefficients ) horzCoeffs.get( PGA_NAME );
+        a2 = 0.512; a4 = -0.144; a13 = 0.17; c1 = 6.4; c5 = 0.03; n = 2;
+        coeff = ( Abrahamson_2000_AttenRelCoefficients ) horzCoeffs.get( PGA_NAME );
 
         rockMeanPGA = calcRockMean(mag, dist, F, HW);
 
@@ -451,10 +451,10 @@ public class Abrahamson_2000_AttenRel
         else if (mag>6 && mag<=6.5)     tm = 1.0 + (mag-6.5)/0.5;
         else 			        tm = 1.0;
 
-        xCosTheta = x * Math.cos(theta * Math.PI / 180);
+        cosTheta = Math.cos(theta * Math.PI / 180);
 
-        if(xCosTheta<=0.4)		yDir = coeff.c1 + 1.88*coeff.c2*xCosTheta;
-        else                            yDir = coeff.c1 + 0.75*coeff.c2;
+        if(x<=0.4)		        yDir = coeff.c1 + 1.88*coeff.c2*x*cosTheta;
+        else                            yDir = coeff.c1 + 0.75*coeff.c2*cosTheta;
 
         mean += yDir*td*tm;
 
@@ -812,7 +812,7 @@ public class Abrahamson_2000_AttenRel
 
         // PGA
         Abrahamson_2000_AttenRelCoefficients coeff = new Abrahamson_2000_AttenRelCoefficients(PGA_NAME,
-            0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.1, 0, 0 );
+            0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135, 0, 0 );
 
         // SA/5.00
         Abrahamson_2000_AttenRelCoefficients coeff0 = new Abrahamson_2000_AttenRelCoefficients( SA_NAME + '/' +( new Double( "5.00" ) ).doubleValue() ,
@@ -897,10 +897,10 @@ public class Abrahamson_2000_AttenRel
             0.02, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135, 0.0, 0.0 );
         // SA/0.01
         Abrahamson_2000_AttenRelCoefficients coeff27 = new Abrahamson_2000_AttenRelCoefficients( "SA/" +( new Double( "0.01" ) ).doubleValue() ,
-            0.01, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.1, 0.0, 0.0 );
+            0.01, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135, 0.0, 0.0 );
         // SA/0.0 -- same as 0.01
         Abrahamson_2000_AttenRelCoefficients coeff28 = new Abrahamson_2000_AttenRelCoefficients( "SA/" +( new Double( "0.0" ) ).doubleValue() ,
-            0.0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.1, 0.0, 0.0 );
+            0.0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135, 0.0, 0.0 );
 
         horzCoeffs.put( coeff.getName(), coeff );
         horzCoeffs.put( coeff0.getName(), coeff0 );
