@@ -1,6 +1,8 @@
 package org.scec.sha.calc;
 
 import java.util.*;
+import java.net.*;
+import java.io.*;
 
 import org.scec.data.region.SitesInGriddedRegion;
 import org.scec.data.Location;
@@ -130,6 +132,96 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
   }
 
 
+
+  /**
+   * This function computes a Scenario ShakeMap Data for the given Region, IMR, and ERF.
+   * The computed  data in the form of X, Y and Z is place XYZ_DataSetAPI object.
+   * The computation is performed by the server to save the processor memory.
+   * It opens the connection with the servlet hosted on gravity.usc.edu , which does the
+   * calculation  for the it and return back the result to it.
+   * @param selectedAttenRels : ArrayList for the selected AttenuationRelationships
+   * @param attenRelWts : Relative Wts for all the selected AttenuationRelationship models.
+   * @param griddedRegionSites : Gridded Region Object
+   * @param rupture : selected EarthquakeRupture Object.
+   * @param isProbAtIML : if true the prob at the specified IML value (next param) will
+   * be computed; if false the IML at the specified Prob value (next param) will be computed.
+   * @param value : the IML or Prob to compute the map for.
+   * @returns the XYZ_DataSetAPI  : ArbDiscretized XYZ dataset
+   */
+  public XYZ_DataSetAPI getScenarioShakeMapDataUsingServer(ArrayList selectedAttenRels, ArrayList attenRelWts,
+      SitesInGriddedRegion griddedRegionSites,EqkRupture rupture,
+      boolean isProbAtIML,double value) throws ParameterException {
+
+    try{
+
+      if(D) System.out.println("starting to make connection with servlet");
+      URL scenarioshakeMapCalcServlet = new
+                             URL("http://gravity.usc.edu/OpenSHA/servlet/ScenarioShakeMapCalcServlet");
+
+
+      URLConnection servletConnection = scenarioshakeMapCalcServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the ArrayList of the selected AttenuationRelationships
+      outputToServlet.writeObject(selectedAttenRels);
+
+
+      //sending the Absolute weights of the selected AttenRel to the servlet
+      outputToServlet.writeObject(attenRelWts);
+
+      //sending the gridded region object( containing the info. about the sites).
+      outputToServlet.writeObject(griddedRegionSites);
+
+      //sending the EqkRupture object ( rupture info).
+      outputToServlet.writeObject(rupture);
+
+      //sending the Map type ot the servlet, is it Prob@IML or IML@Prob
+      outputToServlet.writeObject(new Boolean(isProbAtIML));
+
+
+      //sending the value of the iml or prob whichever other needs to be computed
+      //based on the selection of the IML@prob or Prob@IML
+      outputToServlet.writeObject(new Double(value));
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      //XYZ data for the scenarioshake as computed using the servlet
+      XYZ_DataSetAPI xyzData =(XYZ_DataSetAPI)inputToServlet.readObject();
+      //if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
+      inputToServlet.close();
+      return xyzData;
+    }catch (Exception e) {
+      throw new RuntimeException("Server is down , please try again later");
+    }
+  }
+
+
+
+
+
+
+
+
   /**
    * Gives the ArrayList of Latitudes from the gridded region
    * @param griddedRegionSites
@@ -194,6 +286,8 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect {
       }
     }
   }
+
+
 
 
   /**
