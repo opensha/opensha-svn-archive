@@ -21,7 +21,7 @@ package org.scec.data;
  * @version    1.0
  */
 
-public class Window2D {
+public class Window2D implements java.io.Serializable{
 
     /** Class name used for debugging. */
     protected final static String C = "ContainerSubset2D";
