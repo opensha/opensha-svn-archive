@@ -467,7 +467,6 @@ public class GraphPanel extends JPanel {
     String S = "drawGraphPanel(): ";
 
 
-    //if(legendColor == null)
     createColorSchemeAndFunctionList(funcList);
 
 
@@ -688,8 +687,8 @@ public class GraphPanel extends JPanel {
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
             legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
-
-            StyleConstants.setForeground(setLegend,legendColor[j]);
+            Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+            StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
             j=j+weightedList.getNumWeightedFunctions();
             ++plotPrefIndex;
@@ -704,7 +703,8 @@ public class GraphPanel extends JPanel {
             String fractileListInfo = weightedList.getFractileInfo();
 
             legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            StyleConstants.setForeground(setLegend,legendColor[j]);
+            Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+            StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
             j = j+weightedList.getNumFractileFunctions();
             ++plotPrefIndex;
@@ -717,7 +717,8 @@ public class GraphPanel extends JPanel {
             String meanInfo = weightedList.getMeanFunctionInfo();
 
             legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
-            StyleConstants.setForeground(setLegend,legendColor[j]);
+            Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+            StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
             ++j;
             ++plotPrefIndex;
@@ -733,7 +734,8 @@ public class GraphPanel extends JPanel {
           legend = new String(datasetName+"\n"+
                               name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
                               functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
-          StyleConstants.setForeground(setLegend,legendColor[j]);
+          Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
+          StyleConstants.setForeground(setLegend,color);
           doc.insertString(doc.getLength(),legend,setLegend);
           ++j;
           ++plotPrefIndex;
@@ -992,8 +994,6 @@ public class GraphPanel extends JPanel {
       }
     }
 
-    int size = totalProbFuncs.size();
-    Color[] color = new Color[size];
 
     //number of different curves with different plotting characterstics.
     int existingCurvesWithPlotPrefs = this.curvePlottingCharacterstics.size();
@@ -1002,8 +1002,6 @@ public class GraphPanel extends JPanel {
 
     //sets the num of datset with differnt color scheme.
     this.numDataset = numDiffColors;
-
-
     //creating the color array
     int index=0;
     //looping over all the default colors to add those to the color array
@@ -1012,16 +1010,11 @@ public class GraphPanel extends JPanel {
       if(defaultColorIndex == defaultColor.length)
         defaultColorIndex = 0;
       int val = ((Integer)numColorArray.get(i)).intValue();
-      for(int j=0;j<val;++j)
-        color[index++] = defaultColor[defaultColorIndex];
       //adding the new curves to the list for plot preferences.
       if(i>=existingCurvesWithPlotPrefs)
         curvePlottingCharacterstics.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
             defaultColor[defaultColorIndex],1.0,val));
-
     }
-    //setting the color scheme
-    setSeriesColor(color);
   }
 
 
