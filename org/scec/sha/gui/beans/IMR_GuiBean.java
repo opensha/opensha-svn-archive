@@ -107,19 +107,24 @@ public class IMR_GuiBean extends ParameterListEditor
     // find & set the selectedIMR
     imr = this.getSelectedIMR_Instance();
 
-    ParameterAPI typeParam = imr.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
-    parameterList.addParameter(typeParam);
-    typeParam.addParameterChangeListener(this);
+    // getting the iterator of the Other Parameters for IMR
+    /**
+     * Instead of getting hard-coding for getting the selected Params Ned added
+     * a method to get the OtherParams for the selected IMR, Otherwise earlier we
+     * were getting the 3 params associated with IMR's by there name. But after
+     * adding the method to get the otherParams, it can also handle params that
+     * are customary to the selected IMR. So this automically adds the parameters
+     * associated with the IMR, which are : SIGMA_TRUNC_TYPE_NAME, SIGMA_TRUNC_LEVEL_NAME,
+     * STD_DEV_TYPE_NAME and any other param assoctade with the IMR.
+     */
+    ListIterator lt = imr.getOtherParamsIterator();
+    while(lt.hasNext()){
+      ParameterAPI tempParam=(ParameterAPI)lt.next();
+      //adding the parameter to the parameterList.
+      tempParam.addParameterChangeListener(this);
+      parameterList.addParameter(tempParam);
+    }
 
-
-    // add trunc level
-    ParameterAPI levelParam = imr.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME);
-    parameterList.addParameter(levelParam);
-
-    //add the sigma param for IMR
-    ParameterAPI sigmaParam = imr.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME);
-    sigmaParam.setValue(((StringParameter)sigmaParam).getAllowedStrings().get(0));
-    parameterList.addParameter(sigmaParam);
     this.editorPanel.removeAll();
     addParameters();
     setTitle(IMR_EDITOR_TITLE);
@@ -137,7 +142,7 @@ public class IMR_GuiBean extends ParameterListEditor
     panel.setBorder(border1);
 
     // set the trunc level based on trunc type
-    String value = (String)parameterList.getValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME);
+    String value = (String)parameterList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).getValue();
     toggleSigmaLevelBasedOnTypeValue(value);
 
   }
