@@ -27,8 +27,8 @@ public class EqkRupture {
     protected final static String C = "EqkRupture";
     protected final static boolean D = false;
 
-    protected double mag;
-    protected double aveRake;
+    protected double mag=Double.NaN;
+    protected double aveRake=Double.NaN;
 
     protected Location hypocenterLocation = null;
 
@@ -122,16 +122,20 @@ public class EqkRupture {
 
 
 
-
     public void setPointSurface(Location location){
         PointSurface ps = new PointSurface(location.getLatitude(), location.getLongitude(), location.getDepth());
         setPointSurface(ps);
     }
+
+    public void setPointSurface(Location location, double aveDip){
+        setPointSurface(location);
+        ruptureSurface.setAveDip(aveDip);
+    }
+
     public void setPointSurface(Location location, double aveStrike, double aveDip){
         setPointSurface(location);
         ruptureSurface.setAveStrike(aveStrike);
         ruptureSurface.setAveDip(aveDip);
-
     }
 
     public void setPointSurface(PointSurface pointSurface){
