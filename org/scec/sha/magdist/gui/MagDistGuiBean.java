@@ -237,25 +237,6 @@ public class MagDistGuiBean implements ParameterChangeListener {
          controlsParamList.addParameter( numParamter );
          controlsParamList.addParameter( maxParamter );
 
-
-       if(magDistClassName.equalsIgnoreCase(GuttenbergRichterMagFreqDist_CLASS_NAME)) {
-           Vector vStrings=new Vector();
-           vStrings.add(TO_MORATE);
-           vStrings.add(TO_CUM_RATE);
-           vStrings.add(MAG_UPPER);
-           StringParameter setParamsBut=new StringParameter(SET_ALL_PARAMS_BUT,vStrings,TO_MORATE);
-           controlsParamList.addParameter(setParamsBut);
-        }
-
-        if(magDistClassName.equalsIgnoreCase(SingleMagFreqDist_CLASS_NAME)) {
-           Vector vStrings=new Vector();
-           vStrings.add(RATE_AND_MAG);
-           vStrings.add(MAG_AND_MORATE);
-           vStrings.add(RATE_AND_MORATE);
-           StringParameter paramsToSet=new StringParameter(PARAMS_TO_SET,vStrings,RATE_AND_MAG);
-           controlsParamList.addParameter(paramsToSet);
-        }
-
         // Now make the Editor for the list
         controlsEditor = new ParameterListEditor( controlsParamList, this, applet );
         controlsEditor.setTitle( "Graph Controls" );
@@ -300,6 +281,12 @@ public class MagDistGuiBean implements ParameterChangeListener {
            DoubleParameter rate=new DoubleParameter(RATE);
            DoubleParameter mag = new DoubleParameter(MAG);
            DoubleParameter moRate=new DoubleParameter(MO_RATE);
+           Vector vStrings=new Vector();
+           vStrings.add(RATE_AND_MAG);
+           vStrings.add(MAG_AND_MORATE);
+           vStrings.add(RATE_AND_MORATE);
+           StringParameter paramsToSet=new StringParameter(PARAMS_TO_SET,vStrings,RATE_AND_MAG);
+           independentParams.addParameter(paramsToSet);
            independentParams.addParameter(rate);
            independentParams.addParameter(mag);
            independentParams.addParameter(moRate);
@@ -327,6 +314,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
            independentParams.addParameter(truncLevel);
         }
 
+
         /**
          * Add parameters for Guttenberg-Richter distribution
          */
@@ -336,15 +324,21 @@ public class MagDistGuiBean implements ParameterChangeListener {
            DoubleParameter bValue = new DoubleParameter(BVALUE);
            DoubleParameter toCumRate = new DoubleParameter(TO_CUM_RATE);
            DoubleParameter toMoRate = new DoubleParameter(TO_MORATE);
+           Vector vStrings=new Vector();
+           vStrings.add(TO_MORATE);
+           vStrings.add(TO_CUM_RATE);
+           vStrings.add(MAG_UPPER);
+           StringParameter setParamsBut=new StringParameter(SET_ALL_PARAMS_BUT,vStrings,TO_MORATE);
+           independentParams.addParameter(setParamsBut);
            independentParams.addParameter(magLower);
            independentParams.addParameter(bValue);
            independentParams.addParameter(magUpper);
            independentParams.addParameter(toCumRate);
            independentParams.addParameter(toMoRate);
-           Vector vStrings = new Vector ();
-           vStrings.add(FIX_TO_CUM_RATE);
-           vStrings.add(FIX_TO_MORATE);
-           StringParameter fix = new StringParameter(FIX,vStrings,FIX_TO_CUM_RATE);
+           Vector vStrings1 = new Vector ();
+           vStrings1.add(FIX_TO_CUM_RATE);
+           vStrings1.add(FIX_TO_MORATE);
+           StringParameter fix = new StringParameter(FIX,vStrings1,FIX_TO_CUM_RATE);
            independentParams.addParameter(fix);
          }
         String[] searchPaths = new String[2];
@@ -420,7 +414,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
          */
         if(this.magDistClassName.equalsIgnoreCase(this.SingleMagFreqDist_CLASS_NAME)) {
 
-           String paramToSet=controlsParamList.getParameter(PARAMS_TO_SET).getValue().toString();
+           String paramToSet=independentParams.getParameter(PARAMS_TO_SET).getValue().toString();
 
            if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
               independentsEditor.setParameterInvisible(MO_RATE,false);
@@ -438,7 +432,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
          *  If Guttenberg Richter Freq dist is selected
          */
         if(this.magDistClassName.equalsIgnoreCase(this.GuttenbergRichterMagFreqDist_CLASS_NAME)) {
-          String paramToSet=controlsParamList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+          String paramToSet=independentParams.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
 
           if(paramToSet.equalsIgnoreCase(TO_MORATE)) {
             independentsEditor.setParameterInvisible(TO_MORATE,false);
@@ -604,7 +598,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
         if(magDistClassName.equalsIgnoreCase(SingleMagFreqDist_CLASS_NAME)) {
             SingleMagFreqDist single =new SingleMagFreqDist(min.doubleValue(),
                                             max.doubleValue(),num.intValue());
-            String paramToSet=controlsParamList.getParameter(PARAMS_TO_SET).getValue().toString();
+            String paramToSet=independentParams.getParameter(PARAMS_TO_SET).getValue().toString();
            // if rate and mag are set
            if(paramToSet.equalsIgnoreCase(RATE_AND_MAG)) {
               Double rate = (Double)independentParams.getParameter(RATE).getValue();
@@ -680,7 +674,7 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
            Double magLower = (Double)independentParams.getParameter(MAG_LOWER).getValue();
            Double bValue = (Double)independentParams.getParameter(BVALUE).getValue();
-           String setAllParamsBut = controlsParamList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+           String setAllParamsBut = independentParams.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
            if(magLower.doubleValue()>max.doubleValue() || magLower.doubleValue()<min.doubleValue()){
                 throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
            }
@@ -733,4 +727,16 @@ public class MagDistGuiBean implements ParameterChangeListener {
   public String getMagDistName(){
       return controlsParamList.getParameter(DISTRIBUTION_NAME).getValue().toString();
   }
+  public double getMin(){
+      return ((Double)controlsParamList.getParameter(MIN).getValue()).doubleValue();
+  }
+
+  public double getMax(){
+      return ((Double)controlsParamList.getParameter(MAX).getValue()).doubleValue();
+  }
+
+  public int getNum(){
+      return ((Integer)controlsParamList.getParameter(NUM).getValue()).intValue();
+  }
+
 }

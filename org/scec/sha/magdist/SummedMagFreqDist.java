@@ -24,7 +24,7 @@ import org.scec.exceptions.DataPoint2DException;
 public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
   private boolean saveMagFreqDists=false;     // whether you want to store each distribution
-  private boolean saveAllInfo=true;          // whether you want to save info for each distribution
+  private boolean saveAllInfo=false;          // whether you want to save info for each distribution
   private DiscretizedFuncList savedMagFreqDists;  // to save the each distribution
   private Vector savedInfoList;     // to save the info strings only
 

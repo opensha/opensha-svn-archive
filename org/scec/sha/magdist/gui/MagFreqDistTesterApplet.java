@@ -65,6 +65,7 @@ public class MagFreqDistTesterApplet extends JApplet
   private final static String INCR_RATE = new String("Incremental Rate");
   private final static String CUM_RATE = new  String("Cumulative Rate");
   private final static String MO_RATE = new  String("Moment Rate");
+  private SummedMagFreqDist summedMagFreqDist;
 
   /**
    *  Temp until figure out way to dynamically load classes during runtime
@@ -187,6 +188,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
    private boolean yLog = false;
+  JCheckBox jCheckSumDist = new JCheckBox();
 
 
 
@@ -352,6 +354,14 @@ public class MagFreqDistTesterApplet extends JApplet
     mainPanel.setBackground(Color.white);
     buttonPanel.setBackground(Color.white);
     buttonPanel.setBorder( topBorder );
+    jCheckSumDist.setBackground(Color.white);
+    jCheckSumDist.setForeground(new Color(80, 80, 133));
+    jCheckSumDist.setText("Summed Dist");
+    jCheckSumDist.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        jCheckSumDist_actionPerformed(e);
+      }
+    });
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 4, 4, 4), 0, 0));
     mainPanel.add(buttonPanel,         new GridBagConstraints(0, 1, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
@@ -378,6 +388,8 @@ public class MagFreqDistTesterApplet extends JApplet
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), -5, 0));*/
     buttonPanel.add(rangeComboBox,       new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+    buttonPanel.add(jCheckSumDist, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
 
     parametersSplitPane.setBottomComponent( sheetPanel );
@@ -830,11 +842,22 @@ public class MagFreqDistTesterApplet extends JApplet
 
         try{
           IncrementalMagFreqDist function= magDist.getChoosenFunction();
+          EvenlyDiscretizedFunc cumRate;
+          EvenlyDiscretizedFunc moRate;
+          if(this.jCheckSumDist.isSelected()) {
+             summedMagFreqDist.addIncrementalMagFreqDist(function);
+             cumRate=(EvenlyDiscretizedFunc)summedMagFreqDist.getCumRateDist();
+             moRate=(EvenlyDiscretizedFunc)summedMagFreqDist.getMomentRateDist();
+          }
+          else {
+             cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
+             moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+          }
+
           incrData.setYLog(yLog);
           toMoData.setYLog(yLog);
           toCumData.setYLog(yLog);
-          EvenlyDiscretizedFunc cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
-          EvenlyDiscretizedFunc moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+
 
 
 
@@ -849,25 +872,17 @@ public class MagFreqDistTesterApplet extends JApplet
               toMoFunctions.clear();
          }
 
-          if( !incrFunctions.contains( function ) || !toMoFunctions.contains(cumRate) || !toMoFunctions.contains(moRate)){
-              if ( D ) System.out.println( S + "Adding new function" );
+
               incrFunctions.add((EvenlyDiscretizedFunc)function);
+              if(this.jCheckSumDist.isSelected()){
+                incrFunctions.clear();
+                incrFunctions.add((EvenlyDiscretizedFunc)summedMagFreqDist);
+                toCumFunctions.clear();
+                toMoFunctions.clear();
+              }
               toCumFunctions.add(cumRate);
               toMoFunctions.add(moRate);
-          }
-          else {
 
-              if(D) System.out.println(S + "Showing Dialog");
-              if( !this.inParameterChangeWarning ){
-
-                JOptionPane.showMessageDialog(
-                    null, "This graph already exists, will not add again.",
-                    "Cannot Add", JOptionPane.INFORMATION_MESSAGE
-                );
-            }
-         }
-
-            if ( D ) System.out.println( S + "Function already exists in graph, not adding .." );
          //   return;
        // }
 
@@ -897,7 +912,8 @@ public class MagFreqDistTesterApplet extends JApplet
        }catch(NumberFormatException e){
           JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }catch(Exception e) {
-          JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(this,new String("abc"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
+          e.printStackTrace();
         }
 
         if ( D ) System.out.println( S + "Ending" );
@@ -1058,6 +1074,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
         int numOfColors = incrPlot.getSeriesCount();
         legendPane.removeAll();
+        legendPane.setEditable(false);
         setLegend =new SimpleAttributeSet();
         setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
                                Boolean.TRUE);
@@ -1068,8 +1085,7 @@ public class MagFreqDistTesterApplet extends JApplet
           for(int i=0,j=0;i<numOfColors;++i,++j){
              if(j==legendColor.length)
               j=0;
-            legend = new String(i+1+"."+this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+";"+
-                        this.toCumFunctions.get(i).getInfo()+";"+this.toMoFunctions.get(i).getInfo()+"\n\n");
+            legend = new String(i+1+"."+this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+"\n\n");
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
             StyleConstants.setForeground(setLegend,legendColor[j]);
@@ -1276,7 +1292,7 @@ public class MagFreqDistTesterApplet extends JApplet
        int xCenter=getAppletXAxisCenterCoor();
        int yCenter=getAppletYAxisCenterCoor();
        MagFreqDistAxisScale axisScale=new MagFreqDistAxisScale(this);
-       axisScale.setBounds(xCenter-60,yCenter-50,375,148);
+       axisScale.setBounds(xCenter-60,yCenter-50,400,400);
        axisScale.pack();
        axisScale.show();
     }
@@ -1304,5 +1320,15 @@ public class MagFreqDistTesterApplet extends JApplet
      maxYValue=yMax;
      this.customAxis=true;
      addGraphPanel();
+  }
+
+  void jCheckSumDist_actionPerformed(ActionEvent e) {
+
+    if(jCheckSumDist.isSelected()) {
+      double min=magDist.getMin();
+      double max=magDist.getMax();
+      int num=magDist.getNum();
+      summedMagFreqDist = new  SummedMagFreqDist(min,max,num);
+    }
   }
 }
