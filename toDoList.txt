@@ -1,26 +1,28 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Implement following ERFs as web services: WG02 (wrapped), USGS/CGS1996, and STEP.
+1) Vs30 & Basin-Depth from CVM interpolation problem (high priority)
 
-1) Vs30 & Basin-Depth from CVM interpolation problem (medium priority)
+2) Finish STEP map making capability (including map-viewer GUI) (high
+priority).  Includes map viewing GUI.
 
-2) picklist for Northridge and Whittier ruptures in CME pathway 1 calcs
-(??? priority)
+3) We might want to add other adjustable parameters to the wrapped WG02
+ERF before the meeting; let's discuss that when we have some time.
 
-3) use max-spectrum and PGV in CME pathway 1 demos (??? priority).
+GRID Benchmarks:
 
-4) update ERF servlets so they work again (high priority)
+	1) gravity (2 cpu server)
+	2) almaak (6 cpu server)
+	2) condor (? cpu server (dynamic))
 
-5) generalize ERF servlet implimentation (low priority)
+Make OpenSHA CME Poster
 
-6) IMT metadata for PGV selection in ShakeMapApp includes Period (medium
-priority)
 
-7) Finish STEP map making capability (including map-viewer GUI) (high
-priority)
 
-I forgot to mention moving the Fortran-Wrapped version of the WG02 ERF to
+-------------- before meeting ------------------------
+
+
+move the Fortran-Wrapped version of the WG02 ERF to
 the org.scec.sha.earthquake.rupForecastImpl.WG02 directory  (this way I can
 add adjustable parameters myself).  I understand that you might not want to
 do this until after you generalize the ERF Servlet implementation.  Let's
@@ -28,11 +30,6 @@ call it:
 
     WG02_FortranWrappedERF_EpistemicList.java
 
-Also, we might want to add other adjustable parameters to the wrapped WG02
-ERF before the meeting; let's discuss that when we have some time.
-
-
-Implement STEP-map maker (adds USGS/CGS1995 hazard map dataset to the STEP hazard map dataset).  This will use Shakemap IMR w/ IMT=PGA; will use site type from CVM, and will plot prob@IML=0.126 g.  Duration is 1 day (0.002738 years).
 
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
 
@@ -47,6 +44,7 @@ Update the makeMapUsingServer() method of the GMT_MapGenerator:
 	make functionality consistent with web service
 
 Incorporate the new JFreechart version in the OpenSHA.
+
 Make the setting values from CVM to be webservice rather than being the servlet. 
 	Currently we are reading the CVM values from the flat files, make it such that it can be plugged to different CVM webservices. 
 
