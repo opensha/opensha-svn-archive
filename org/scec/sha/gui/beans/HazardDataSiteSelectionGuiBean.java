@@ -48,8 +48,8 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
 
   public HazardDataSiteSelectionGuiBean() {
     loadDataSets();
-    fillLatLon();
     selectedDataSet = (String)dataSetParam.getValue();
+    fillLatLon();
     parameterList = new ParameterList();
     parameterList.addParameter(dataSetParam);
     parameterList.addParameter(latParam);
@@ -211,6 +211,7 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
 
    public ArbitrarilyDiscretizedFunc getChoosenFunction(){
      ArrayList dataValues = openConnection();
+     System.out.println("DataValues: "+dataValues.size());
      ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
      int size = dataValues.size();
      for(int i=0;i<size;++i){
@@ -219,6 +220,7 @@ public class HazardDataSiteSelectionGuiBean extends ParameterListEditor implemen
        double yVal = Double.parseDouble(st.nextToken().trim());
        function.set(xVal,yVal);
      }
+     System.out.println("Function Values:" +function.toString());
      return function;
    }
 }
