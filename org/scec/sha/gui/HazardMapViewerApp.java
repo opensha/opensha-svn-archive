@@ -300,6 +300,7 @@ public class HazardMapViewerApp extends JApplet {
       minLatVector.add(""+d.format(lat)); // fill the min Lat combobox
       lat = lat+intervalLat;
     }
+
     // fill the max lat vector
     lat = maxLat;
     while(lat>minLat) {
