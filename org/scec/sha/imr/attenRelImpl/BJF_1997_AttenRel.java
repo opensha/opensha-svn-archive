@@ -88,8 +88,9 @@ public class BJF_1997_AttenRel
      * Determines the style of faulting from the rake angle (which
      * comes from the probEqkRupture object) and fills in the
      * value of the fltTypeParam.  Options are "Reverse" if 150>rake>30,
-     * "Strike-Slip" if rake is within 30 degrees of 0 or 180, and "Other"
-     * otherwise (which means normal-faulting events are assigned as "Other").
+     * "Strike-Slip" if rake is within 30 degrees of 0 or 180, and "Unkown"
+     * otherwise (which means normal-faulting events are assigned as "Unkown";
+     * confirmed by David Boore via email as being correct).
      *
      * @param rake                      in degrees
      * @throws InvalidRangeException    If not valid rake angle

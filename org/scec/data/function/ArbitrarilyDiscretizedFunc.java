@@ -18,7 +18,12 @@ import org.scec.data.*;
  * sorted TreeMap of DataPoint2D. This subclass distinguishes itself
  * by the fact that it assumes no spacing interval along the x-axis.
  * Consecutive points can be spread out or bunched up in no predicatable
- * order. <p>
+ * order.  For at least the default comparator (DataPoint2DComparator),
+ * the tolerance determines whether the set() methods add the point
+ * (if x value is more than tolerance away from that of all existing points)
+ * or whether they replace an existing point (if within tolerance).  A tolerance
+ * of less than about 1e-16 is effectively about 1e-16 due to the numerical
+ * precision of floating point arithmetic (1.0 - (1.0+1e-16) = 1.0). <p>
  *
  * @author Steven W. Rock, Gupta Brothers
  * @version 1.0
@@ -117,7 +122,9 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * These field getters and setters provide the basic information to describe
      * a function. All functions have a name, information string,
      * and a tolerance level that specifies how close two points
-     * have to be along the x axis to be considered equal.
+     * have to be along the x axis to be considered equal.  A tolerance
+     * of less than about 1e-16 is effectively about 1e-16 due to the numerical
+     * precision of floating point arithmetic (1.0 - (1.0+1e-16) = 1.0).
      */
 
     public void setTolerance(double newTolerance) throws InvalidRangeException {
@@ -147,7 +154,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * so this function returns very quickly. Slows down adding new points
      * slightly.  I assume that most of the time these lists will be created
      * once, then used for plotting and in other functions, in other words
-     * more lookups than inserts.
+     * more lookups than inserts.  NOTE: there may be a bug in that minY and maxY
+     * are not updated if a point is removed (see comment in DataPoint2DTreeMap)!
      */
     public double getMinY(){ return points.getMinY(); }
     /**
@@ -156,7 +164,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
      * so this function returns very quickly. Slows down adding new points
      * slightly.  I assume that most of the time these lists will be created
      * once, then used for plotting and in other functions, in other words
-     * more lookups than inserts.
+     * more lookups than inserts.  NOTE: there may be a bug in that minY and maxY
+     * are not updated if a point is removed (see comment in DataPoint2DTreeMap)!
      */
      public double getMaxY(){ return points.getMaxY(); }
 
@@ -290,14 +299,14 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
        int i;
 
        //if passed parameter(y value) is not within range then throw exception
-       if(y<getY(max-1) || y>getY(0))
-          throw new InvalidRangeException("Y Value must be within the range: "+getY(0)+" and "+getY(max-1));
+       if(y>getY(max-1) || y<getY(0))
+          throw new InvalidRangeException("Y Value ("+y+") must be within the range: "+getY(0)+" and "+getY(max-1));
 
       //finds the Y values within which the the given y value lies
        for(i=0;i<max-1;++i) {
          y1=getY(i);
          y2=getY(i+1);
-        if(y<=y1 && y>=y2)
+        if(y>=y1 && y<=y2)
            break;
        }
 
@@ -430,6 +439,33 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
         return b.toString();
     }
 
+
+/*  temp main method to investige numerical precision issues
+public static void main( String[] args ) {
+
+  ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+//  func.setTolerance(Double.MIN_VALUE);
+  func.set(1.0,0);
+  func.set(Double.MIN_VALUE,0);
+  func.set(1+1e-16,1);
+  func.set(1+2e-16,2);
+  func.set(1+3e-16,3);
+  func.set(1+4e-16,4);
+  func.set(1+5e-16,5);
+  func.set(1+6e-16,6);
+  func.set(1+7e-16,7);
+  func.set(1+8e-16,8);
+  func.set(1+9e-16,9);
+  func.set(1+10e-16,10);
+  Iterator it = func.getPointsIterator();
+  DataPoint2D point;
+  while( it.hasNext()) {
+    point = (DataPoint2D) it.next();
+    System.out.println(point.getX()+"  "+point.getY());
+  }
+}
+
+*/
 
     /*
     public void rebuild(){

@@ -18,6 +18,9 @@ import java.io.Serializable;
  *
  * Math.abs( x1 - x2 ) <= tolerance)<p>
  *
+ * A tolerance=0 is actually abaout 1e-16 due to the numerical precision of floating
+ * point arithmetic (1.0 + 1e-16 = 1.0 )<p>
+ *
  * Note: In general comparators are created so that you can have more than one
  * sorting for a class. Imagine that you have a Javabean with 4 fields, id, first name,
  * last name, date created. Typical for a user record in a database. Now you can
@@ -27,7 +30,7 @@ import java.io.Serializable;
  * one for each field. Each header would use the particular comparator for the
  * sorting function. Very nice design pattern. <p>
  *
- * Now let's sya you add another field. You simply make a new Comparator ( almost copy and paste).
+ * Now let's say you add another field. You simply make a new Comparator ( almost copy and paste).
  * You don't have to change youre Javabean or your sorting function. Just pass in this
  * new comparator. <p>
  *
@@ -41,11 +44,12 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
                                                        Serializable{
 
     /**
-     *  The tlorance allowed in specifying a x-value near a real x-value, so
-     *  that the real x-value is used. Note that the tolerance must be smaller
-     *  than 1/2 the delta between data points. If you set the tolerance to 0,
-     *  it is ignored, and defaults to no tolerance. If the tolerance is less
-     *  than zero and InvalidRangeException is thrown
+     *  The tolerance for determining whether two x values are different.  A
+     *  tolerance of 0.0 (the default) is really about 1e-16 due to the numerical
+     *  precision of floating point arithmetic ( 1.0 - (1.0+1e-16) = 0.0 ).
+     *  Note that the tolerance must be smaller than 1/2 of any desired delta
+     *  between data points. If the tolerance is less than zero an
+     *  InvalidRangeException is thrown
      */
     protected double tolerance = 0.0 ;
 
@@ -79,7 +83,9 @@ public class DataPoint2DToleranceComparator implements DataPoint2DComparatorAPI,
 
     /**
      *  Tolerance indicates the distance two values can be apart, but still
-     *  considered equal. This function returns the tolerance.
+     *  considered equal. This function returns the tolerance.  Any tolerance
+     *  less than about 1e-16 is about 1e-16 due to the numerical precision of
+     *  floating point arithmetic.
      *
      * @param  newTolerance               The new tolerance value
      * @exception  InvalidRangeException  Thrown if tolerance is negative

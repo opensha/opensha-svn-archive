@@ -12,8 +12,9 @@ import org.scec.util.*;
  *  they are automatically sorted on the X-Coordinate. The reason for this
  *  subclass is to handle tolerances in the x-value when calling put(), get(),
  *  etc. The tolerance indicates how far apart two DataPoint2Ds can be in the
- *  X-Coordinate and still be considered equal. A tolerance of ser defauts to
- *  exact values for equality. <P>
+ *  X-Coordinate and still be considered equal. A tolerance of less than about
+ *  1e-16 is effectively about 1e-16 due to the numerical precision of floating
+ *  point arithmetic (1.0 - (1.0+1e-16) = 1.0). <P>
  *
  *  This class also provides a get(int index) method to get one of the
  *  DataPoints2D by it's location in the map. This is the whole purpose that we
@@ -161,7 +162,8 @@ public class DataPoint2DTreeMap extends org.scec.data.TreeMap {
 
     /**
      *  Set's the tolerance of this series, i.e. the tolerance of the Comparator
-     *  used to sort the series by the X-Values
+     *  used to sort the series by the X-Values (see comments above about numerical
+     *  precision issues).
      *
      * @param  newTolerance               The new tolerance value
      * @exception  InvalidRangeException  Description of the Exception
