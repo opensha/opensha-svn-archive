@@ -137,7 +137,10 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
 
     //metadata String
     metadata="<br>Hazus Metadata: \n<br>"+
-             "-------------------\n<br>";
+        "-------------------\n<br>";
+
+    //gets the EarthquakeRupture Object
+    application.getEqkRupture();
 
     //doing for SA
     hazusCalcForSA(selectedAttenRels,selectedAttenRelWts);

@@ -132,7 +132,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    erfGuiBean.showProgressBar(false);
    parameterList = new ParameterList();
 
-   progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures being updated ...");
+   progress = new CalcProgressBar("Updating Ruptures","Please wait while ruptures are being updated ...");
    setSelectedERF();
    setSourceFromSelectedERF(0);
    setRuptureForSelectedSource(0);
@@ -156,7 +156,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
  public void setSelectedERF(){
 
    progress.showProgress(true);
-   progress.setProgressMessage("Please wait while ERF being updated ...");
+   progress.setProgressMessage("Please wait while ERF is being updated ...");
 
    if(erf == null){
      // add the select forecast parameter

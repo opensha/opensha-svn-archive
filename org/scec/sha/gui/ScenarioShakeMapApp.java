@@ -29,6 +29,7 @@ import org.scec.sha.calc.ScenarioShakeMapCalculator;
 import org.scec.sha.calc.ScenarioShakeMapCalculator;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.exceptions.ParameterException;
+import org.scec.sha.earthquake.EqkRupture;
 
 
 /**
@@ -91,7 +92,10 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //stores the IML or Prob selection and their value for which we want to compute the
   //scenario shake map. Value we get from the respective guibeans.
   private boolean probAtIML=false;
-  private  double imlProbValue;
+  private double imlProbValue;
+
+  //Eqkrupture Object
+  private EqkRupture eqkRupture;
 
   // stores the instances of the selected AttenuationRelationships
   private ArrayList attenRel;
@@ -513,7 +517,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       if(!calculationFromServer){
         //does the calculation for the ScenarioShakeMap Calc and gives back a XYZ dataset
         xyzDataSet = shakeMapCalc.getScenarioShakeMapData(attenRel,attenRelWts,
-            griddedRegionSites,erfGuiBean.getRupture(),probAtIML,value);
+            griddedRegionSites,eqkRupture,probAtIML,value);
         //if the IMT is log supported then take the exponential of the Value if IML @ Prob
         if(IMT_Info.isIMT_LogNormalDist(imt) && !probAtIML){
           ArrayList zVals = xyzDataSet.getZ_DataSet();
@@ -528,7 +532,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       else{ //if the calculation have to be done on the server
         //calls the scenario shakemap calculator to generate the map data file on the server
         serverXYZDataSetFilePath = shakeMapCalc.getScenarioShakeMapDataUsingServer(attenRel,attenRelWts,
-            serverRegionFilePath,erfGuiBean.getRupture(),probAtIML,value,imt);
+            serverRegionFilePath,eqkRupture,probAtIML,value,imt);
         return serverXYZDataSetFilePath;
       }
     }catch(ParameterException e){
@@ -536,6 +540,15 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       throw new ParameterException(e.getMessage());
     }
   }
+
+
+  /**
+   * Gets the EqkRupture object from the Eqk Rupture GuiBean
+   */
+  public void getEqkRupture(){
+    eqkRupture = erfGuiBean.getRupture();
+  }
+
 
 
   /**
@@ -585,11 +598,11 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     if(!calculationFromServer) //if the calc are to be done on the local system
       //creates the maps and information that goes into the Hazus.
       mapGuiBean.makeHazusShapeFilesAndMap((XYZ_DataSetAPI)datasetForSA_03,(XYZ_DataSetAPI)datasetForSA_1,
-      (XYZ_DataSetAPI)datasetForPGA,(XYZ_DataSetAPI)datasetForPGV,erfGuiBean.getRupture(),mapInfo);
+      (XYZ_DataSetAPI)datasetForPGA,(XYZ_DataSetAPI)datasetForPGV,eqkRupture,mapInfo);
     else //if the calc are to be done on server
       //creates the maps and information that goes into the Hazus.
       mapGuiBean.makeHazusShapeFilesAndMap((String)datasetForSA_03,(String)datasetForSA_1,
-      (String)datasetForPGA,(String)datasetForPGV,erfGuiBean.getRupture(),mapInfo);
+      (String)datasetForPGA,(String)datasetForPGV,eqkRupture,mapInfo);
 
     //sets the GMT parameters changed for Hazus files generation to their original value.
     mapGuiBean.setGMT_ParamsChangedForHazusToOriginalValue();
@@ -642,11 +655,14 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
   void addButton_actionPerformed(ActionEvent e) {
 
-    //gets the metadata as soon as the user presses the button to make map.
-    mapParametersInfo = getMapParametersInfo();
 
     addButton.setEnabled(false);
     calcProgress = new CalcProgressBar("ScenarioShakeMapApp","Initializing ShakeMap Calculation");
+    //get the updated EqkRupture from Rupture Gui Bean
+    getEqkRupture();
+    //gets the metadata as soon as the user presses the button to make map.
+    mapParametersInfo = getMapParametersInfo();
+
     //sets the Gridded region Sites and the type of plot user wants to see
     //IML@Prob or Prob@IML and it value.
 
@@ -693,9 +709,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     String label = getMapLabel();
     if(!calculationFromServer) //if the calculation are to be done on the local system
-      mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,mapParametersInfo);
+      mapGuiBean.makeMap(xyzDataSet,eqkRupture,label,mapParametersInfo);
     else //if calculation are to be done on the server
-      mapGuiBean.makeMap(serverXYZDataSetFilePath,erfGuiBean.getRupture(),label,mapParametersInfo);
+      mapGuiBean.makeMap(serverXYZDataSetFilePath,eqkRupture,label,mapParametersInfo);
     //running the garbage collector to collect the objects
     System.gc();
     step =0;

@@ -34,4 +34,10 @@ public interface GenerateHazusFilesConrolPanelAPI {
    * IML@Prob or Prob@IML and it value.
    */
   public void getGriddedSitesAndMapType();
+
+  /**
+   * Gets the EqkRupture object from the Eqk Rupture GuiBean
+   */
+  public void getEqkRupture();
+
 }
