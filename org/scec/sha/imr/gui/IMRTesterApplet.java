@@ -940,10 +940,6 @@ public class IMRTesterApplet
             this.jCheckxlog.setSelected(false);
           if(yLog)
             this.jCheckylog.setSelected(false);
-          if(xLog && yLog) {
-            this.jCheckxlog.setSelected(false);
-            this.jCheckylog.setSelected(false);
-          }
          JOptionPane.showMessageDialog(this,new String("Data Contains Zero values, so no log Plot"),new String("Log Plot"),JOptionPane.INFORMATION_MESSAGE);
          addGraphPanel();
         }
