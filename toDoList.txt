@@ -1,25 +1,41 @@
    **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Automate HAZUS shape-file generation.
 
-Solve Meta Data Problem:  Right now we can't show metadata for the SimplefaultParam and MagFreqDistParam because the info used to create the object and set the value is not stored inside the parameter (actually it is for the MagFreqDistParam, but maybe it shouldn't be).  Instead this info is in the associated Parameter editors.  The solution options are as follows:
+===================================
 
-	1) get the name/value info from Editors rather than the Parameters  The editor can decide what to give.
+Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot; 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available.
 
-	2) add a setString() method to the above parameters so that whatever creates the 
-	   object can create and arbitrary string to be returned by the toString method.
-	   The question here is having a standard way of parsing this information.
+We obviously want as much of a common solution to these three cases as possible. The goal seems to be achievable by simply saving the settings for all the parameters in the working environment (GUI or batch mode), and for each ParameterListEditor, or its GuiBean subclass, to be able to recreate the previous state when the metaData is fed back in.
 
-	3) Utilize the dependent parameter list of the DependentParameter object.  Then 
-	   the above types of parameters can can iterated through these in the toString 
-           method.  If we go with this option we'll have to decide how to handle IMTs in
-	   the IMT gui bean.  This option would force one to have a parameterList in order
-	   to add such information.
+The solution seems to be for each type of parameter to support a getMetaData() method (which returns either an ascii or XML string) (note that we are using the toString() inappropriately and should probably revert to convention on this method).  For primitive parameter types this will simply give:
 
-   One issue is whether we should be using a toString() method since we are only accessing
-   name/value pairs.  Perhaps we should call this getNameValueString() or getMetaData().
-   I kinda like the latter.  Perhaps our gui beans could have a getMetaData() method as
-   well?
+	parameterType
+	name
+	value
+
+(I don't think the units or constraints are needed because other entities that create the parameters decide these things; all the metaData is going to be used for is for setting values)
+
+Also, if a parameter has any dependent parameters these should get saved as well (as well as dependent parameters of dependent parameters, etc., but hopefully developers won't get carried away with numerous sub levels).
+
+Using the "SA" IMT as an example (it has two dependent parameters: "Period" and "Damping"), the short, plot-label representation might look like:
+
+	IMT = SA [Period = 1.0, Damping = 5.0]
+
+This raises issues with respect to allowed characters in a parameter name; are white spaces allowed? The above formate would imply that "[", "]", ",", and "=" might need to be off limits as well.  It would really help if others had come up with some standards here.  Perhaps XML allows us to avoid such complications?  Things might get more complicated if we decide to add units as well.
+
+With respect to GuiBeans we have discussed two approaches.  Let's take the ERF_GuiBean as an example.  One mode (mentioned above) is to read back in the parameter settings (from XML), set the parameter values accordingly, and then recreate the ERF.  If the ERF is very time consuming to create, then the second mode would be to read back in the serialized version of the object, and since all the parameter are already set, the GuiBean would not have to do anything.  
+
+The only problem here is with our non-primitive parameter types, such as MagFreqDistParam and SimpleFaultParam (and others surely to come), which don't necessarily contain any information on how the value was created.  Such parameters could be given all required info in their dependentParameterList, so the associated editor could compute the parameter value accordingly and/or show the current dependentParam values to the user.  But if the dependent parameter settings are obtained from an XML file, the GuiBean can't make the dependent parameters (e.g., doesn't know the constraint), so the GUI bean must be able to get a the dependent parameters elsewhere.  That elsewhere could be the  editor, but then an editor (a subclass of Jpanel) would have to be used in batch mode as well (where no GUI is involved).  Perhaps we need an intermediate class:
+
+	MagFreqDistParam --> MagFreqDistCalculator --> MagFreqDistParamEditor
+
+The intermediate class would contain all the dependent parameters needed to build any MagFreqDist, and would be able to build it.  MagFreqDistParamEditor would then represent a GUI interface to the MagFreqDistParam (utilizing the MagFreqDistCalculator as well, and knowing what parameters to hide for the various options).
+
+Now the question is whether this will work for the SimpleFaultParameter (which depends on a list of lats and lons).  One will have to set the number of fault trace points before being able to get the trace lat/lon params.  Comments Nitin?
+
+===================================
 
 Update AttenRelPlotter with new generic graphing components.
 
