@@ -1,4 +1,4 @@
-package org.scec.sha.magdist.gui;
+package org.scec.sha.param.editor;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,7 +14,7 @@ import org.scec.param.editor.*;
 import org.scec.param.*;
 import org.scec.exceptions.*;
 import org.scec.param.event.*;
-import org.scec.sha.magdist.parameter.*;
+import org.scec.sha.param.*;
 import org.scec.sha.magdist.*;
 
 
@@ -55,11 +55,6 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     protected String name;
 
     private MagFreqDistParameter magDistParam;
-    /**
-     *  Search path for finding editors in non-default packages.
-     */
-    private String[] searchPaths;
-    final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
     //Checks if the magDist Params have been changed
     private boolean magDistParamsChange = true;
@@ -182,7 +177,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         // make the params editor
         initParamListAndEditor();
-        editor = new ParameterListEditor(parameterList,searchPaths);
+        editor = new ParameterListEditor(parameterList);
         editor.setTitle(MAG_DIST_TITLE);
         add(editor,  new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
               , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
@@ -217,16 +212,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     protected void jbInit() throws Exception {
 
         // Main component
-
         this.setLayout( new GridBagLayout());
-
-
-        // Build package names search path
-       searchPaths = new String[4];
-       searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-       searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-       searchPaths[2] = "org.scec.sha.magdist.gui" ;
-       searchPaths[3] = "org.scec.sha.fault.parameter.gui" ;
     }
 
     /**

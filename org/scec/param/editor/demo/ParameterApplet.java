@@ -30,8 +30,8 @@ import org.scec.param.event.ParameterChangeWarningEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 import org.scec.param.event.ParameterChangeWarningListener;
-import org.scec.sha.fault.parameter.SimpleFaultParameter;
-import org.scec.sha.fault.parameter.gui.SimpleFaultParameterEditor;
+import org.scec.sha.param.SimpleFaultParameter;
+import org.scec.sha.param.editor.SimpleFaultParameterEditor;
 
 
 
@@ -151,11 +151,11 @@ public class ParameterApplet
 
         ParameterList list = makeParameterList( 5 );
         // Build package names search path
-        searchPaths = new String[4];
+        searchPaths = new String[3];
         searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
         searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-        searchPaths[2] = "org.scec.sha.surface.gui" ;
-        searchPaths[3] = "org.scec.sha.fault.parameter.gui";
+        searchPaths[2] = "org.scec.sha.param.editor" ;
+
         ParameterListEditor editor = new ParameterListEditor( list,searchPaths );
 
         jPanel1.add( editor,

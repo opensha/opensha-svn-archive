@@ -10,7 +10,7 @@ import org.scec.param.event.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.imr.*;
 import org.scec.sha.surface.*;
-import org.scec.sha.propagation.*;
+import org.scec.sha.param.*;
 import org.scec.util.*;
 
 /**

@@ -1,4 +1,4 @@
-package org.scec.sha.propagation;
+package org.scec.sha.param;
 
 import org.scec.data.*;
 import org.scec.sha.earthquake.*;

@@ -65,6 +65,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
     /** Calls super() to configure the GUI */
     public ParameterListEditor() {
         super();
+        // Build package names search path
+        searchPaths = new String[2];
+        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+        searchPaths[1] = "org.scec.sha.param.editor";
         this.setLayout( new GridBagLayout());
     }
 
@@ -79,15 +83,10 @@ public class ParameterListEditor extends LabeledBoxPanel {
 
         super();
         parameterList = paramList;
-
-
-
         // Build package names search path
-        searchPaths = new String[1];
+        searchPaths = new String[2];
         searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-
-        this.setLayout( new GridBagLayout());
-
+        searchPaths[1] = "org.scec.sha.param.editor";
         addParameters();
 
     }

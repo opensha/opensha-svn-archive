@@ -2,7 +2,7 @@ package org.scec.sha.gui.beans;
 
 import org.scec.param.event.*;
 import org.scec.param.ParameterList;
-import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
+import org.scec.sha.param.editor.*;
 
 /**
  * <p>Title: ERF_GuiBeanAPI</p>

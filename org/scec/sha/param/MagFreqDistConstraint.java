@@ -1,4 +1,4 @@
-package org.scec.sha.magdist.parameter;
+package org.scec.sha.param;
 
 import java.util.Vector;
 

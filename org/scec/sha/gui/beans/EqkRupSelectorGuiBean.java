@@ -13,7 +13,7 @@ import org.scec.param.ParameterAPI;
 import org.scec.param.StringParameter;
 import org.scec.param.ParameterList;
 import org.scec.param.event.ParameterChangeEvent;
-import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
+import org.scec.sha.param.editor.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ProbEqkRupture;
@@ -74,7 +74,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //ListEditor
   private ParameterListEditor listEditor;
 
-  private String [] searchPaths;
 
 
   //Instance of the JDialog to show all the adjuatble params for the forecast model
@@ -101,9 +100,6 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     catch(Exception e) {
       e.printStackTrace();
     }
-    // Build package names search path
-    searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
 
     setParamsInForecast(0,0);
 
@@ -172,7 +168,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    hypoCenterLocationParam.addParameterChangeListener(this);
 
    if(listEditor!=null) this.remove(listEditor);
-   listEditor= new ParameterListEditor(parameterList, searchPaths);
+   listEditor= new ParameterListEditor(parameterList);
 
    // now make the editor based on the parameter list
    listEditor.setTitle( EQK_RUP_SELECTOR_TITLE );

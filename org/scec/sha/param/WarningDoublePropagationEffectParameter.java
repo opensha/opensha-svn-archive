@@ -1,4 +1,4 @@
-package org.scec.sha.propagation;
+package org.scec.sha.param;
 
 import java.util.*;
 

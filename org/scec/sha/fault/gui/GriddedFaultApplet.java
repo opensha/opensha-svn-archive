@@ -24,8 +24,9 @@ import org.scec.sha.fault.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.util.*;
-import org.scec.sha.fault.parameter.gui.*;
-import org.scec.sha.fault.parameter.*;
+import org.scec.sha.param.*;
+import org.scec.sha.param.editor.*;
+import org.scec.sha.param.editor.gui.*;
 
 /**
  * <p>Title: </p>

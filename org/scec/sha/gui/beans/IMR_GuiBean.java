@@ -52,9 +52,7 @@ public class IMR_GuiBean extends ParameterListEditor
  public IMR_GuiBean(Vector classNames) {
    this.imrClasses = classNames;
    parameterList = new ParameterList();
-   // search path needed for making editors
-   searchPaths = new String[1];
-   searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+
    init_imrParamListAndEditor();
  }
 

@@ -1,4 +1,4 @@
-package org.scec.sha.fault.parameter;
+package org.scec.sha.param;
 
 import org.scec.param.*;
 import org.scec.sha.surface.EvenlyGriddedSurface;

@@ -1,4 +1,4 @@
-package org.scec.sha.propagation;
+package org.scec.sha.param;
 
 import java.util.*;
 
@@ -8,48 +8,52 @@ import org.scec.param.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
-
 /**
- * <b>Title:</b> DistanceRupParameter<p>
+ * <b>Title:</b> DistanceJBParameter<p>
  *
  * <b>Description:</b> Special subclass of PropagationEffectParameter.
- * This finds the shortest distance to the fault surface. <p>
+ * This finds the shortest distance to the surface projection of the fault.
+ * <p>
  *
- * @see DistanceJBParameter
+ * @see DistanceRupParameter
  * @see DistanceSeisParameter
  * @author Steven W. Rock
  * @version 1.0
  */
-public class DistanceRupParameter
+public class DistanceJBParameter
      extends WarningDoublePropagationEffectParameter
      implements WarningParameterAPI
 {
 
 
+
     /** Class name used in debug strings */
-    protected final static String C = "DistanceRupParameter";
+    protected final static String C = "DistanceJBParameter";
     /** If true debug statements are printed out */
     protected final static boolean D = false;
 
 
     /** Hardcoded name */
-    public final static String NAME = "DistanceRup";
+    private final static String NAME = "DistanceJB";
     /** Hardcoded units string */
-    public final static String UNITS = "km";
+    private final static String UNITS = "km";
     /** Hardcoded info string */
-    public final static String INFO = "Rupture Distance (closest distance to fault surface)";
+    private final static String INFO = "Joyner-Boore Distance (closest distance to surface projection of fault)";
     /** Hardcoded min allowed value */
     private final static Double MIN = new Double(0.0);
     /** Hardcoded max allowed value */
     private final static Double MAX = new Double(Double.MAX_VALUE);
 
 
-    /** No-Arg constructor that calls init(). No constraint so all values are allowed.  */
-    public DistanceRupParameter() { init(); }
+    /**
+     * No-Arg constructor that just calls init() with null constraints.
+     * All value are allowed.
+     */
+    public DistanceJBParameter() { init(); }
 
 
     /** Constructor that sets up constraints. This is a constrained parameter. */
-    public DistanceRupParameter(ParameterConstraintAPI warningConstraint)
+    public DistanceJBParameter(ParameterConstraintAPI warningConstraint)
         throws ConstraintException
     {
         if( ( warningConstraint != null ) && !( warningConstraint instanceof DoubleConstraint) ){
@@ -61,10 +65,10 @@ public class DistanceRupParameter
         init( (DoubleConstraint)warningConstraint );
     }
 
-    /** Sets default fields on the Constraint,  such as info and units. */
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init( DoubleConstraint warningConstraint){
         this.warningConstraint = warningConstraint;
-        this.constraint = new DoubleConstraint(MIN, MAX );
+        this.constraint = new DoubleConstraint(MIN,MAX);
         this.constraint.setNullAllowed(false);
         this.name = NAME;
         this.constraint.setName( this.name );
@@ -73,40 +77,32 @@ public class DistanceRupParameter
         //setNonEditable();
     }
 
-    /** Sets the warning constraint to null, then initializes the absolute constraint */
+    /** Initializes the constraints, name, etc. for this parameter */
     protected void init(){ init( null ); }
 
-
     /**
-     * Note that this doesn not throw a warning
+     * Note that this does not throw a warning
      */
     protected void calcValueFromSiteAndPE(){
         if( ( this.site != null ) && ( this.probEqkRupture != null ) ){
 
             Location loc1 = site.getLocation();
             double minDistance = 999999;
-            double horzDist, vertDist, totalDist;
+            double currentDistance;
 
             ListIterator it = probEqkRupture.getRuptureSurface().getLocationsIterator();
             while( it.hasNext() ){
 
                 Location loc2 = (Location) it.next();
-
-                horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
-                vertDist = RelativeLocation.getVertDistance(loc1, loc2);
-
-                totalDist = horzDist * horzDist + vertDist * vertDist;
-                if( totalDist < minDistance ) minDistance = totalDist;
+                currentDistance = RelativeLocation.getHorzDistance(loc1, loc2);
+                if( currentDistance < minDistance ) minDistance = currentDistance;
 
             }
-
-            this.setValueIgnoreWarning( new Double( Math.pow ( minDistance , 0.5 ) ));
-
+            this.setValueIgnoreWarning( new Double( minDistance ) );
         }
-        else this.value = null;
-
-
+        else this.setValue(null);
     }
+
 
     /** This is used to determine what widget editor to use in GUI Applets.  */
     public String getType() {
@@ -145,16 +141,19 @@ public class DistanceRupParameter
             val2 = new Double( val.doubleValue() );
         }
 
-        DistanceRupParameter param = new DistanceRupParameter(  );
+        DistanceJBParameter param = new DistanceJBParameter(  );
+        param.info = info;
         param.value = val2;
-        param.constraint =  c1;
+        param.constraint = c1;
         param.warningConstraint = c2;
         param.name = name;
         param.info = info;
         param.site = site;
         param.probEqkRupture = probEqkRupture;
         if( !this.editable ) param.setNonEditable();
+
         return param;
+
     }
 
 }

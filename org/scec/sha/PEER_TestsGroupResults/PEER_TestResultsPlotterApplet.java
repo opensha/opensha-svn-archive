@@ -193,8 +193,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
                        new Color(255,182,255)};
   Paint[] legendPaint;
 
-  // search path needed for making editors
-  private String[] searchPaths;
+
   private JSplitPane avgSplitPane = new JSplitPane();
   private JPanel avgCasesPanel = new JPanel();
   private JScrollPane avgScrollPane = new JScrollPane();
@@ -222,8 +221,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
 
   //Construct the applet
   public PEER_TestResultsPlotterApplet() {
-    searchPaths = new String[3];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+
     // for Y-log, convert 0 values in Y axis to this small value
     data.setConvertZeroToMin(true,Y_MIN_VAL);
   }

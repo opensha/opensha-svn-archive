@@ -98,9 +98,6 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
    * constuctor which builds up mapping between IMRs and their related sites
    */
   public SitesInGriddedRegionGuiBean() {
-    // Build package names search path
-    String[] searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
 
     // add the longitude and latitude paramters
     parameterList.addParameter(minLon);

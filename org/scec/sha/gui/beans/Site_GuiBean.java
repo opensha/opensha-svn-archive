@@ -66,9 +66,6 @@ public class Site_GuiBean extends JPanel implements
    * constuctor which builds up mapping between IMRs and their related sites
    */
   public Site_GuiBean() {
-    // Build package names search path
-    String[] searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
 
     // add the longitude and latitude paramters
     parameterList.addParameter(longitude);
@@ -81,7 +78,7 @@ public class Site_GuiBean extends JPanel implements
     // maake the new site object
     site= new Site(new Location(((Double)latitude.getValue()).doubleValue(),
                                 ((Double)longitude.getValue()).doubleValue()));
-    parameterEditor = new ParameterListEditor(parameterList,searchPaths);
+    parameterEditor = new ParameterListEditor(parameterList);
     parameterEditor.setTitle(SITE_PARAMS);
     try {
       jbInit();

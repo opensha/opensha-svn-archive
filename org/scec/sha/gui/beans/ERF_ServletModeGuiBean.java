@@ -14,8 +14,8 @@ import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
-import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
-import org.scec.sha.magdist.parameter.MagFreqDistParameter;
+import org.scec.sha.param.editor.MagFreqDistParameterEditor;
+import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.earthquake.ERF_EpistemicList;
 import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
 import org.scec.sha.earthquake.rupForecastImpl.WG02.*;
@@ -93,10 +93,6 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
     EqkRupForecastAPI erf;
     this.parameterList = new ParameterList();
-    // search path needed for making editors
-    searchPaths = new String[2];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-    searchPaths[1] = "org.scec.sha.magdist.gui" ;
 
     //open the connections to all the ERF servlets to get their paramList and timspan
     //It also initialises all Vector with names of all the ERF's

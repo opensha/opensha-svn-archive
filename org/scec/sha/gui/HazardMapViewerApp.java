@@ -359,10 +359,8 @@ public class HazardMapViewerApp extends JApplet {
    sitesParamList.addParameter(maxLonParam);
    sitesParamList.addParameter(gridSpacingParam);
 
-   // make the editor
-   String []searchPaths = new String[1];
-   searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-   this.sitesEditor = new ParameterListEditor(sitesParamList, searchPaths);
+
+   this.sitesEditor = new ParameterListEditor(sitesParamList);
    sitesEditor.setTitle(SITES_TITLE);
 
    // show this gui bean the JPanel

@@ -1,4 +1,4 @@
-package org.scec.sha.fault.parameter.gui;
+package org.scec.sha.param.editor;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -10,8 +10,8 @@ import org.scec.param.editor.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
 import org.scec.param.*;
-import org.scec.sha.fault.parameter.*;
-import org.scec.sha.fault.parameter.gui.*;
+import org.scec.sha.param.*;
+import org.scec.sha.param.editor.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.data.Location;
@@ -67,11 +67,6 @@ public class SimpleFaultParameterEditor extends ParameterEditor
   public static final String FRANKEL ="Frankel's";
   public static final String STIRLING ="Stirling's";
 
-  /**
-   *  Search path for finding editors in non-default packages.
-   */
-  private String[] searchPaths;
-  final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
   JButton button =new JButton("Update Surface");
 
@@ -259,7 +254,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
     parameterList.addParameter(faultName);
     parameterList.addParameter(gridSpacing);
     parameterList.addParameter(numFltTrace);
-    this.editor = new ParameterListEditor(parameterList, searchPaths);
+    this.editor = new ParameterListEditor(parameterList);
     editor.setTitle(SIMPLE_FAULT_EDITOR_TITLE);
     //creating the table for the Lat and Lon of the FltTrace
     setLatLon();
@@ -316,7 +311,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       this.parameterListForLats.addParameter(lat[i]);
       lat[i].addParameterChangeListener(this);
     }
-    editorForLats = new ParameterListEditor(parameterListForLats,searchPaths);
+    editorForLats = new ParameterListEditor(parameterListForLats);
     editorForLats.setTitle(this.LAT_EDITOR_TITLE);
 
     //creating the editor for the Lons
@@ -329,7 +324,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       lon[i].addParameterChangeListener(this);
       this.parameterListForLons.addParameter(lon[i]);
     }
-    editorForLons = new ParameterListEditor(parameterListForLons,searchPaths);
+    editorForLons = new ParameterListEditor(parameterListForLons);
     editorForLons.setTitle(this.LON_EDITOR_TITLE);
     editorForLats.validate();
     editorForLats.revalidate();
@@ -383,7 +378,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       dip[i].addParameterChangeListener(this);
       this.parameterListForDips.addParameter(dip[i]);
     }
-    editorForDips = new ParameterListEditor(parameterListForDips,searchPaths);
+    editorForDips = new ParameterListEditor(parameterListForDips);
     editorForDips.setTitle(this.DIP_EDITOR_TITLE);
     editorForDips.validate();
     editorForDips.revalidate();
@@ -422,7 +417,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
       depth[i].addParameterChangeListener(this);
       this.parameterListForDepths.addParameter(depth[i]);
     }
-    editorForDepths = new ParameterListEditor(parameterListForDepths,searchPaths);
+    editorForDepths = new ParameterListEditor(parameterListForDepths);
     editorForDepths.setTitle(this.DEPTH_EDITOR_TITLE);
     editorForDepths.validate();
     editorForDepths.revalidate();
@@ -483,13 +478,6 @@ public class SimpleFaultParameterEditor extends ParameterEditor
 
     // Main component
     this.setLayout( new GridBagLayout());
-
-
-    // Build package names search path
-    searchPaths = new String[3];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-    searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-    searchPaths[2] = "org.scec.sha.surface.gui" ;
   }
 
   /**

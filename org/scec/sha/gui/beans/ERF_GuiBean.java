@@ -12,12 +12,12 @@ import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
-import org.scec.sha.magdist.gui.MagFreqDistParameterEditor;
-import org.scec.sha.magdist.parameter.MagFreqDistParameter;
+
+import org.scec.sha.param.*;
 import org.scec.sha.earthquake.ERF_EpistemicList;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
-import org.scec.sha.fault.parameter.gui.SimpleFaultParameterEditor;
-import org.scec.sha.fault.parameter.SimpleFaultParameter;
+import org.scec.sha.param.editor.*;
+
 
 /**
  * <p>Title: ERF_GuiBean </p>
@@ -119,11 +119,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
      this.parameterList = new ParameterList();
 
-     // search path needed for making editors
-     searchPaths = new String[3];
-     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-     searchPaths[1] = "org.scec.sha.magdist.gui" ;
-     searchPaths[2] = "org.scec.sha.fault.parameter.gui" ;
 
      //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
      String erfClassName = (String)erfClassNames.get(0);

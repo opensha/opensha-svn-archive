@@ -32,11 +32,6 @@ public class ParameterListParameterEditor extends ParameterEditor {
   //static declaration for the title of the Parameters
   private final static String EDITOR_TITLE = "Prob. Model Wts.";
 
-  /**
-   *  Search path for finding editors in non-default packages.
-   */
-  private String[] searchPaths;
-  final static String SPECIAL_EDITORS_PACKAGE = "org.scec.sha.propagation";
 
   private ParameterListParameter param ;
   //Editor to hold all the parameters in this parameter
@@ -92,13 +87,6 @@ public class ParameterListParameterEditor extends ParameterEditor {
 
     // Main component
     this.setLayout( new GridBagLayout());
-
-
-    // Build package names search path
-    searchPaths = new String[3];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-    searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-
   }
 
 

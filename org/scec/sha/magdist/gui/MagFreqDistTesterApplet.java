@@ -28,7 +28,8 @@ import org.scec.util.ImageUtils;
 
 
 import org.scec.sha.magdist.*;
-import org.scec.sha.magdist.parameter.*;
+import org.scec.sha.param.*;
+import org.scec.sha.param.editor.*;
 
 /**
  * <p>Title: MagFreqDistTesterApplet</p>

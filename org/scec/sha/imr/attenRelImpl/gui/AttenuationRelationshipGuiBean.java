@@ -1095,13 +1095,9 @@ public class AttenuationRelationshipGuiBean
         // it = attenRel.getSupportedIntensityMeasureIterator();
         // while(it.hasNext() ){ list.addParameter( (ParameterAPI)it.next() ); }
 
-        // Build package names search path
-        String[] searchPaths = new String[2];
-        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-        searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
 
         // Build editor list
-        independentsEditor = new ParameterListEditor( independentParams, searchPaths );
+        independentsEditor = new ParameterListEditor( independentParams);
         independentsEditor.setTitle( "Independent Variables" );
 
         // All done

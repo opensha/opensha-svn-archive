@@ -10,7 +10,7 @@ import org.scec.data.function.*;
 import org.scec.exceptions.*;
 import org.scec.util.*;
 import org.scec.data.*;
-import org.scec.sha.propagation.*;
+import org.scec.sha.param.*;
 
 /**
  * <p>Title: AttenRelResultsChecker</p>

@@ -35,9 +35,6 @@ public class IMT_GuiBean extends ParameterListEditor implements ParameterChangeL
    * @param imr
    */
  public IMT_GuiBean(AttenuationRelationshipAPI imr) {
-   // search path needed for making editors
-   searchPaths = new String[1];
-   searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
    setIMR(imr);
  }
 

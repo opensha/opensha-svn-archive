@@ -71,9 +71,7 @@ public class MapGuiBean extends JPanel implements
    * @param gmtMap
    */
   public MapGuiBean() {
-    // search path needed for making editors
-    String[] searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+
     //get the adjustableParam List from the GMT_MapGenerator
     ListIterator it=gmtMap.getAdjustableParamsIterator();
     ParameterList parameterList = new ParameterList();

@@ -11,7 +11,7 @@ import org.scec.data.function.*;
 import org.scec.data.Site;
 import org.scec.sha.imr.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.propagation.DistanceRupParameter;
+import org.scec.sha.param.DistanceRupParameter;
 import org.scec.sha.gui.infoTools.*;
 /**
  * <p>Title: DisaggregationCalculator </p>

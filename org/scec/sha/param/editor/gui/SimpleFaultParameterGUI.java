@@ -1,11 +1,11 @@
-package org.scec.sha.fault.parameter.gui;
+package org.scec.sha.param.editor.gui;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import org.scec.param.ParameterAPI;
-import org.scec.sha.fault.parameter.*;
-import org.scec.sha.fault.parameter.gui.*;
+import org.scec.sha.param.*;
+import org.scec.sha.param.editor.*;
 import org.scec.sha.fault.FaultTrace;
 
 /**

@@ -13,11 +13,11 @@ import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource;
-import org.scec.sha.magdist.parameter.MagFreqDistParameter;
+import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
 
-import org.scec.sha.fault.parameter.SimpleFaultParameter;
+import org.scec.sha.param.SimpleFaultParameter;
 
 
 /**

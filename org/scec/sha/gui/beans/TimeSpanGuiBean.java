@@ -28,9 +28,7 @@ public class TimeSpanGuiBean extends ParameterListEditor{
    */
   public TimeSpanGuiBean() {
     parameterList = new ParameterList();
-    // search path needed for making editors
-    searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+
   }
 
   /**
@@ -41,9 +39,6 @@ public class TimeSpanGuiBean extends ParameterListEditor{
    */
   public TimeSpanGuiBean(TimeSpan timeSpan) {
     parameterList = new ParameterList();
-    // search path needed for making editors
-    searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     setTimeSpan(timeSpan);
   }
 

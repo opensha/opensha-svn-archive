@@ -43,9 +43,6 @@ public class IMLorProbSelectorGuiBean extends ParameterListEditor implements
    */
   public IMLorProbSelectorGuiBean() {
 
-    // Build package names search path
-    searchPaths = new String[1];
-    searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
 
     //combo Box that provides the user to choose either the IML@prob or vis-a-versa
     Vector imlProbVector=new Vector();
