@@ -44,8 +44,11 @@ public class ExceptionWindow extends JFrame {
   private static final String TITLE = "Application bug reporting window";
   private static final boolean D = false;
 
-  public ExceptionWindow(String exceptionText) {
+  public ExceptionWindow(Component parent,String exceptionText) {
     try {
+      // show the window at center of the parent component
+      this.setLocation(parent.getX()+parent.getWidth()/2,
+                       parent.getY()+parent.getHeight()/2);
       jbInit();
       exceptionTextPane.setText(exceptionText);
     }
@@ -53,11 +56,11 @@ public class ExceptionWindow extends JFrame {
       e.printStackTrace();
     }
   }
-  public static void main(String[] args) {
+  /*public static void main(String[] args) {
     ExceptionWindow exceptionWindow = new ExceptionWindow("Hello");
     exceptionWindow.show();
     exceptionWindow.pack();
-  }
+  }*/
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
     jPanel1.setLayout(gridBagLayout1);

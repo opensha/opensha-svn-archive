@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -93,7 +94,7 @@ import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.infoTools.PlotCurveCharacterstics;
 import ch.randelshofer.quaqua.QuaquaManager;
-
+import org.scec.sha.gui.infoTools.ExceptionWindow;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -390,6 +391,9 @@ public class HazardCurveServerModeApplication extends JApplet
       }
     }
     catch(Exception e) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       e.printStackTrace();
     }
   }
@@ -655,7 +659,9 @@ public class HazardCurveServerModeApplication extends JApplet
             System.exit(101);
             //peerResultsFile.close();
           }catch(Exception ee){
-            ee.printStackTrace();
+            ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+            bugWindow.show();
+            bugWindow.pack();
           }
         }
       }
@@ -699,6 +705,9 @@ public class HazardCurveServerModeApplication extends JApplet
         createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        bugWindow.show();
+        bugWindow.pack();
         e.printStackTrace();
       }
 
@@ -723,9 +732,12 @@ public class HazardCurveServerModeApplication extends JApplet
                 progressClass.dispose();
                 drawGraph();
               }
-            }catch(RemoteException e){
+            }catch(Exception e){
+              timer.stop();
               setButtonsEnable(true);
-              e.printStackTrace();
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString());
+              bugWindow.show();
+              bugWindow.pack();
             }
           }
         });
@@ -742,9 +754,12 @@ public class HazardCurveServerModeApplication extends JApplet
                 disaggTimer.stop();
                 disaggProgressClass.dispose();
               }
-            }catch(RemoteException e){
+            }catch(Exception e){
+              disaggTimer.stop();
               setButtonsEnable(true);
-              e.printStackTrace();
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString());
+              bugWindow.show();
+              bugWindow.pack();
             }
           }
         });
@@ -763,6 +778,15 @@ public class HazardCurveServerModeApplication extends JApplet
         this.computeHazardCurve();
         this.drawGraph();
       }
+    }
+
+
+    /**
+     *
+     * @returns the application component
+     */
+    private Component getApplicationComponent(){
+      return this;
     }
 
     /**
@@ -853,7 +877,7 @@ public class HazardCurveServerModeApplication extends JApplet
     }catch(java.net.MalformedURLException ee){
       JOptionPane.showMessageDialog(this,new String("No Internet Connection Available"),
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
-
+      return;
     }
   }
 
@@ -901,6 +925,9 @@ public class HazardCurveServerModeApplication extends JApplet
           this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
         }catch(Exception ee){
           setButtonsEnable(true);
+          ExceptionWindow bugWindow = new ExceptionWindow(this,ee.toString());
+          bugWindow.show();
+          bugWindow.pack();
           ee.printStackTrace();
         }
 
@@ -979,6 +1006,9 @@ public class HazardCurveServerModeApplication extends JApplet
       // this function will get the selected IMT parameter and set it in IMT
       imtGuiBean.setIMT();
     } catch (Exception ex) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.toString());
+      bugWindow.show();
+      bugWindow.pack();
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
     }
@@ -1016,6 +1046,9 @@ public class HazardCurveServerModeApplication extends JApplet
       if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(RemoteException e){
       setButtonsEnable(true);
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       e.printStackTrace();
     }
     // initialize the values in condProbfunc with log values as passed in hazFunction
@@ -1030,6 +1063,9 @@ public class HazardCurveServerModeApplication extends JApplet
         hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
       }catch(RemoteException e){
         setButtonsEnable(true);
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        bugWindow.show();
+        bugWindow.pack();
         e.printStackTrace();
       }
       hazFunction = toggleHazFuncLogValues(hazFunction);
@@ -1063,6 +1099,9 @@ public class HazardCurveServerModeApplication extends JApplet
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
       }catch(RemoteException e){
         setButtonsEnable(true);
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        bugWindow.show();
+        bugWindow.pack();
         e.printStackTrace();
       }
       int num = hazFunction.getNum();
@@ -1083,6 +1122,9 @@ public class HazardCurveServerModeApplication extends JApplet
           disaggregationString=disaggCalc.getResultsString();
         }catch(RemoteException e){
           setButtonsEnable(true);
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+          bugWindow.show();
+          bugWindow.pack();
           e.printStackTrace();
         }
       }
@@ -1126,6 +1168,9 @@ public class HazardCurveServerModeApplication extends JApplet
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(RemoteException e){
       setButtonsEnable(true);
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       e.printStackTrace();
     }
 
@@ -1144,6 +1189,9 @@ public class HazardCurveServerModeApplication extends JApplet
           //System.out.println("Num points:" +hazFunction.toString());
         }catch(RemoteException e){
           setButtonsEnable(true);
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+          bugWindow.show();
+          bugWindow.pack();
           e.printStackTrace();
         }
         hazFunction = toggleHazFuncLogValues(hazFunction);
@@ -1265,6 +1313,9 @@ public class HazardCurveServerModeApplication extends JApplet
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     bugWindow.show();
+     bugWindow.pack();
      e.printStackTrace();
      throw new RuntimeException("Connection to ERF's failed");
    }
@@ -1291,6 +1342,9 @@ public class HazardCurveServerModeApplication extends JApplet
       // create the TimeSpan Gui Bean object
       timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
     }catch(Exception e){
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      bugWindow.show();
+      bugWindow.pack();
       e.printStackTrace();
     }
     // show the sitebean in JPanel
