@@ -390,14 +390,15 @@ public class WG02_FortranWrappedERF_EpistemicList extends ERF_EpistemicList{
           String probModels = br.readLine();
           st = new StringTokenizer(probModels);
           //creating the double parameters for the prob. models based on what we info is given in the file
-          DoubleParameter poisParam = new DoubleParameter(this.POISSON,0,1,
+          DoubleParameter empiricalParam = new DoubleParameter(this.EMPIRICAL,0,1,
               new Double(Double.parseDouble(st.nextToken())));
-          DoubleParameter bptParam = new DoubleParameter(this.BPT,0,1,
+          DoubleParameter poisParam = new DoubleParameter(this.POISSON,0,1,
               new Double(Double.parseDouble(st.nextToken())));
           DoubleParameter bptStepParam = new DoubleParameter(this.BPT_STEP,0,1,
               new Double(Double.parseDouble(st.nextToken())));
-          DoubleParameter empiricalParam = new DoubleParameter(this.EMPIRICAL,0,1,
+          DoubleParameter bptParam = new DoubleParameter(this.BPT,0,1,
               new Double(Double.parseDouble(st.nextToken())));
+
           ParameterList paramList = new ParameterList();
           //adding the parameters to the parameterList
           paramList.addParameter(poisParam);
