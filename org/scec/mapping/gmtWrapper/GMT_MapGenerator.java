@@ -311,8 +311,8 @@ public class GMT_MapGenerator implements Serializable{
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
-    GS_PATH="/usr/bin/gs";
-    CONVERT_PATH="/usr/X11R6/bin/convert";
+    GS_PATH="/usr/local/bin/gs";
+    CONVERT_PATH="/usr/bin/convert";
 
     // The color scale label
     SCALE_LABEL = scaleLabel;
@@ -353,8 +353,8 @@ public class GMT_MapGenerator implements Serializable{
     createMapInfoFile(metadata);
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
-    GS_PATH="/usr/bin/gs";
-    CONVERT_PATH="/usr/X11R6/bin/convert";
+    GS_PATH="/usr/local/bin/gs";
+    CONVERT_PATH="/usr/bin/convert";
 
     // The color scale label
     SCALE_LABEL = scaleLabel;
@@ -620,8 +620,8 @@ public class GMT_MapGenerator implements Serializable{
     // CURRENTLY HARD CODED FOR gravity AT SCEC (for Vipin)
     // IF THIS CAN BE DONE WE CAN GENERALIZE THIS METHOD NAME
     GMT_PATH="/opt/install/gmt/bin/";
-    GS_PATH="/usr/bin/gs";
-    CONVERT_PATH="/usr/X11R6/bin/convert";
+    GS_PATH="/usr/local/bin/gs";
+    CONVERT_PATH="/usr/bin/convert";
 
     // The color scale label
     SCALE_LABEL = scaleLabel;

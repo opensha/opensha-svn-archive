@@ -222,13 +222,13 @@ public class SubmitJobForGridComputation {
       submitDag(outputDir, remoteDir);
 
       //putting the information related to this hazard map in the SRB.
-      SRBDrop srb = new SRBDrop(true);
+      //SRBDrop srb = new SRBDrop(true);
       //putting the whole eventID containing all the files to the SRB
-      srb.directoryPut(outputDir,new String(DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName),true);
+      //srb.directoryPut(outputDir,new String(DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName),true);
       String localPathtoMetadataFile = outputDir+DATA_DIR+HazardMapCalcServlet.METADATA_FILE_NAME;
       String remotePathToMetadataFile = DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName+
                                         DATA_DIR+HazardMapCalcServlet.METADATA_FILE_NAME;
-      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
+      //srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
     }
     catch (Exception ex) {
       ex.printStackTrace();
