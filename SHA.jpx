@@ -1,14 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--JBuilder XML Project-->
 <project>
+  <property category="debug.0" name="BuildTargetOnDebug" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
   <property category="idl" name="ProcessIDL" value="false"/>
+  <property category="optimize.0" name="BuildTargetOnOptimize" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+  <property category="optimize.0" name="OptimizableType" value="com.borland.jbuilder.optimize.IntroOptimizeitProfiler"/>
+  <property category="runtime" name="ConfigurationCount" value="1"/>
+  <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.0" name="ConfigurationName" value="SHA"/>
   <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+  <property category="runtime.0" name="application.class" value="org.scec.sha.magdist.gui.MagFreqDistTesterApplet"/>
   <property category="runtime.0" name="appserver.ejbJarsSaved" value="1"/>
-  <property category="runtime.0" name="appserver.parameters" value="-jts -jns -jss -jdb"/>
-  <property category="runtime.0" name="appserver.servername" value="standard"/>
-  <property category="runtime.0" name="appserver.vmparameters" value="-Dvbroker.agent.port=14000 -Djava.library.path=/BorlandEnterpriseServer/lib:/BorlandEnterpriseServer/bin -Dborland.enterprise.licenseDir=/BorlandEnterpriseServer/var/servers/field.gps.caltech.edu/adm -Dejb.module_preload=true"/>
+  <property category="runtime.0" name="appserver.parameters" value=""/>
+  <property category="runtime.0" name="appserver.servername" value=""/>
+  <property category="runtime.0" name="appserver.vmparameters" value=""/>
   <property category="runtime.0" name="jsprunner.launchuri" value="/"/>
+  <property category="runtime.0" name="server.arguments" value=""/>
+  <property category="runtime.0" name="server.disableServerClassTracing" value="0"/>
+  <property category="runtime.0" name="server.instance.name" value=""/>
+  <property category="runtime.0" name="server.name" value="Tomcat 3.3"/>
+  <property category="runtime.0" name="server.vmparameters" value=""/>
   <property category="runtime.0" name="test.harness" value="junit.textui.TestRunner"/>
+  <property category="runtime.1" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.1" name="ConfigurationName" value="Untitled Runtime Configuration"/>
+  <property category="runtime.1" name="RunnableType" value="com.borland.jbuilder.runtime.AppletRunner"/>
+  <property category="runtime.1" name="applet.class" value="org.scec.sha.magdist.gui.MagFreqDistTesterApplet"/>
+  <property category="runtime.1" name="appserver.parameters" value=""/>
+  <property category="runtime.1" name="appserver.servername" value=""/>
+  <property category="runtime.1" name="appserver.vmparameters" value=""/>
+  <property category="runtime.1" name="server.arguments" value=""/>
+  <property category="runtime.1" name="server.disableServerClassTracing" value="0"/>
+  <property category="runtime.1" name="server.instance.name" value=""/>
+  <property category="runtime.1" name="server.name" value="Tomcat 3.3"/>
+  <property category="runtime.1" name="server.vmparameters" value=""/>
+  <property category="runtime.1" name="test.harness" value="com.borland.jbuilder.unittest.JBTestRunner"/>
   <property category="serverservices" name="ejb.service.server" value="Borland Enterprise Server AppServer Edition 5.0.2+"/>
   <property category="serverservices" name="is.single.server" value="0"/>
   <property category="serverservices" name="jsp.service.server" value="Tomcat 3.3"/>
@@ -49,6 +74,9 @@
     name="uidesign.size.org.scec.sha.imr.gui.IMRAxisScale" value="301,151"/>
   <property category="sys"
     name="uidesign.size.org.scec.sha.imr.gui.ShowMessage" value="450,163"/>
+  <property category="sys"
+    name="uidesign.size.org.scec.sha.magdist.gui.MagFreqDistTesterApplet" value="690,320"/>
+  <property category="sys" name="warn.auto.packages" value="false"/>
   <property category="team" name="ignorePath.0" value="com"/>
   <property category="team" name="ignorePath.1" value="classes"/>
   <property category="team" name="ignorePath.10" value=".DS_Store"/>
@@ -62,56 +90,9 @@
   <property category="team" name="ignorePath.7" value="doc"/>
   <property category="team" name="ignorePath.8" value="edu"/>
   <property category="team" name="ignorePath.9" value="org/.DS_Store"/>
-  <node name="Standard Doclet" type="Javadoc">
-    <property category="javadoc" name="packages.1" value="com.jrefinery"/>
-    <property category="javadoc" name="packages.10" value="com.jrefinery.chart.tooltips"/>
-    <property category="javadoc" name="packages.11" value="com.jrefinery.chart.ui"/>
-    <property category="javadoc" name="packages.12" value="com.jrefinery.data"/>
-    <property category="javadoc" name="packages.13" value="com.jrefinery.data.junit"/>
-    <property category="javadoc" name="packages.14" value="com.jrefinery.data.resources"/>
-    <property category="javadoc" name="packages.15" value="com.jrefinery.date"/>
-    <property category="javadoc" name="packages.16" value="com.jrefinery.date.junit"/>
-    <property category="javadoc" name="packages.17" value="com.jrefinery.io"/>
-    <property category="javadoc" name="packages.18" value="com.jrefinery.junit"/>
-    <property category="javadoc" name="packages.19" value="com.jrefinery.layout"/>
-    <property category="javadoc" name="packages.2" value="com.jrefinery.chart"/>
-    <property category="javadoc" name="packages.20" value="com.jrefinery.resources"/>
-    <property category="javadoc" name="packages.21" value="com.jrefinery.ui"/>
-    <property category="javadoc" name="packages.22" value="com.jrefinery.ui.about"/>
-    <property category="javadoc" name="packages.23" value="com.jrefinery.ui.about.resources"/>
-    <property category="javadoc" name="packages.24" value="com.keypoint"/>
-    <property category="javadoc" name="packages.25" value="edu.uah.math.psol.distributions"/>
-    <property category="javadoc" name="packages.26" value="org.scec.exceptions"/>
-    <property category="javadoc" name="packages.27" value="org.scec.gui"/>
-    <property category="javadoc" name="packages.28" value="org.scec.gui.ned"/>
-    <property category="javadoc" name="packages.29" value="org.scec.param"/>
-    <property category="javadoc" name="packages.3" value="com.jrefinery.chart.combination"/>
-    <property category="javadoc" name="packages.30" value="org.scec.param.editor"/>
-    <property category="javadoc" name="packages.31" value="org.scec.param.editor.demo"/>
-    <property category="javadoc" name="packages.32" value="org.scec.param.editor.document"/>
-    <property category="javadoc" name="packages.33" value="org.scec.param.event"/>
-    <property category="javadoc" name="packages.34" value="org.scec.psha.calc"/>
-    <property category="javadoc" name="packages.35" value="org.scec.psha.calc.demo"/>
-    <property category="javadoc" name="packages.36" value="org.scec.psha.data"/>
-    <property category="javadoc" name="packages.37" value="org.scec.psha.data.test"/>
-    <property category="javadoc" name="packages.38" value="org.scec.psha.earthquake"/>
-    <property category="javadoc" name="packages.39" value="org.scec.psha.imr"/>
-    <property category="javadoc" name="packages.4" value="com.jrefinery.chart.data"/>
-    <property category="javadoc" name="packages.40" value="org.scec.psha.imr.classicImpl"/>
-    <property category="javadoc" name="packages.41" value="org.scec.psha.imr.gui"/>
-    <property category="javadoc" name="packages.42" value="org.scec.psha.magdist"/>
-    <property category="javadoc" name="packages.43" value="org.scec.psha.propagation"/>
-    <property category="javadoc" name="packages.44" value="org.scec.psha.twoD"/>
-    <property category="javadoc" name="packages.45" value="org.scec.psha.twoD.fault"/>
-    <property category="javadoc" name="packages.46" value="org.scec.psha.twoD.function"/>
-    <property category="javadoc" name="packages.47" value="org.scec.util"/>
-    <property category="javadoc" name="packages.5" value="com.jrefinery.chart.demo"/>
-    <property category="javadoc" name="packages.6" value="com.jrefinery.chart.demo.jdbc.swing"/>
-    <property category="javadoc" name="packages.7" value="com.jrefinery.chart.demo.resources"/>
-    <property category="javadoc" name="packages.8" value="com.jrefinery.chart.event"/>
-    <property category="javadoc" name="packages.9" value="com.jrefinery.chart.jdbc"/>
-    <property category="javadoc" name="scope" value="private"/>
-    <property category="nodeJavadoc" name="directory" value="doc"/>
-    <property category="nodeJavadoc" name="displayAllOutput" value="0"/>
+  <node name="ISI" type="Archive">
+    <property category="archiving" name="libraryStates.1" value="3:JUnit"/>
+    <property category="archiving" name="targetCompressed" value="1"/>
+    <property category="archiving" name="targetPath" value="SHA.jar"/>
   </node>
 </project>
