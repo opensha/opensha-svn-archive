@@ -192,10 +192,10 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     double interpolatedVal=0;
     ArrayList fileLines;
-    for(double lat = minLat; lat<=maxLat; lat=lat+gridSpacing){
-      for(double lon = minLon; lon<=maxLon; lon=lon+gridSpacing) {
+    for(double lat = minLat; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
+      for(double lon = minLon; lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
         try {
-          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+d.format(lat)+"_"+ d.format(lon)+".txt");
+          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+lat+"_"+ lon+".txt");
           String dataLine;
           StringTokenizer st;
           ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
@@ -218,8 +218,8 @@ public class HazardMapViewerServlet  extends HttpServlet {
             interpolatedVal = func.getFirstInterpolatedX(val);
 
         }catch(Exception e) { } // catch invalid range exception etc.
-        xVals.add(new Double(d.format(lat)));
-        yVals.add(new Double(d.format(lon)));
+        xVals.add(new Double(lat));
+        yVals.add(new Double(lon));
         zVals.add(new Double(interpolatedVal));
       }
     }
