@@ -610,7 +610,7 @@ public abstract class AttenuationRelationship
      */
     public double getIML_AtExceedProb() throws ParameterException {
 
-        if ( ( exceedProbParam == null ) || ( exceedProbParam.getValue() == null ) )
+        if ( exceedProbParam.getValue() == null )
             throw new ParameterException( C +
                     ": getExceedProbability(): " + "exceedProbParam or its value is null, unable to run this calculation."
                      );
@@ -654,10 +654,6 @@ public abstract class AttenuationRelationship
      */
     public double getIML_AtExceedProb(double exceedProb) throws ParameterException {
 
-        if ( exceedProbParam == null )
-            throw new ParameterException( C +
-                    ": getExceedProbability(): " + "exceedProbParam is null, unable to run this calculation."
-                     );
         //sets the value of the exceedProb Param.
         exceedProbParam.setValue(exceedProb);
         return getIML_AtExceedProb();

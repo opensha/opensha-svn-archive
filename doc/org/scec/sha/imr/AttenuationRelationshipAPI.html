@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><!--JBuilder QuickDoc-->
+<HEAD>
+<TITLE>Class org.scec.sha.imr.AttenuationRelationshipAPI</TITLE><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+</HEAD>
+<BODY>
+
+<H2>
+<FONT SIZE="-1">org.scec.sha.imr</FONT>
+<BR>Interface AttenuationRelationshipAPI</H2>
+<DL>
+<DT>public interface <B>AttenuationRelationshipAPI</B><DT>extends IntensityMeasureRelationshipAPI
+</DL>
+<DL><DD><b>Title:</b> AttenuationRelationshipAPI<br> <b>Description:</b> AttenuationRelationship is a subclass of IntensityMeasureParameter that uses a Gaussian distribution to compute probabilities. It also assumes the intensity-measure type is a scalar value (DoubleParameter). See the abstract class of AttenuationRelationship for more info. <br><DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Version:</B><DD>1.0</DD>
+<DT><B>Author:</B><DD>Edward H. Field & Steven W. Rock</DD>
+</DL>
+<TABLE BORDER="1" CELLPADDING="3" CELLSPACING="0" WIDTH="100%">
+<TR BGCOLOR="#CCCCFF"><TD COLSPAN=1><FONT SIZE="+2">
+<B>Method Detail</B>
+</FONT></TD></TR></TABLE>
+
+<H3>setUserMaxDistance</H3>
+<PRE>
+public void <B>setUserMaxDistance</B>(double&nbsp;maxDist)</PRE>
+<DL><DD>This method sets the user-defined distance beyond which ground motion is set to effectively zero (the mean is a large negative value).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>maxDist</CODE> - </DD>
+</DL>
+<HR>
+
+<H3>setIntensityMeasure</H3>
+<PRE>
+public void <B>setIntensityMeasure</B>(ParameterAPI&nbsp;intensityMeasure)</PRE>
+<DL><DD>Sets the intensityMeasure parameter. IS THIS REALLY NEEDED SINCE IT'S DEFINED IN THE PARENT?<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>intensityMeasure</CODE> - The new intensityMeasure Parameter</DD>
+</DL>
+<HR>
+
+<H3>setIntensityMeasureLevel</H3>
+<PRE>
+public void <B>setIntensityMeasureLevel</B>(Double&nbsp;iml)</PRE>
+<DL><DD>Sets the value of the selected intensityMeasure; IS THIS NEEDED SINCE WE HAVE THE OTHER VERSION THAT TAKES AN OBJECT? IS IT EVER USED?<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>iml</CODE> - The new intensityMeasureLevel value</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>getIML_AtExceedProb</H3>
+<PRE>
+public double <B>getIML_AtExceedProb</B>()</PRE>
+<DL><DD>This calculates the intensity-measure level associated with probability held by the exceedProbParam given the mean and standard deviation. Note that this does not store the answer in the value of the internally held intensity-measure parameter.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The intensity-measure level</DD>
+</DL>
+<HR>
+
+<H3>getIML_AtExceedProb</H3>
+<PRE>
+public double <B>getIML_AtExceedProb</B>(double&nbsp;exceedProb)</PRE>
+<DL><DD>This calculates the intensity-measure level associated with probability held by the exceedProbParam given the mean and standard deviation (according to the chosen truncation type and level). Note that this does not store the answer in the value of the internally held intensity-measure parameter.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>exceedProb</CODE> - : Sets the Value of the exceed Prob param with this value.</DD>
+<DT><B>Returns:</B><DD>The intensity-measure level</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>getMean</H3>
+<PRE>
+public double <B>getMean</B>()</PRE>
+<DL><DD>This returns the mean intensity-measure level for the current set of parameters.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The mean value</DD>
+</DL>
+<HR>
+
+<H3>getStdDev</H3>
+<PRE>
+public double <B>getStdDev</B>()</PRE>
+<DL><DD>This returns the standard deviation (stdDev) of the intensity-measure level for the current set of parameters.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The stdDev value</DD>
+</DL>
+<HR>
+
+<H3>getExceedProbabilities</H3>
+<PRE>
+public DiscretizedFuncAPI <B>getExceedProbabilities</B>(DiscretizedFuncAPI&nbsp;intensityMeasureLevels)</PRE>
+<DL><DD>This fills in the exceedance probability for multiple intensityMeasure levels (often called a "hazard curve"); the levels are obtained from the X values of the input function, and Y values are filled in with the asociated exceedance probabilities.<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Parameters:</B><DD><CODE>intensityMeasureLevel</CODE> - The function to be filled in</DD>
+<DT><B>Returns:</B><DD>The same function</DD>
+</DL>
+<HR>
+
+<H3>getExceedProbability</H3>
+<PRE>
+public double <B>getExceedProbability</B>(double&nbsp;iml)</PRE>
+<DL><DD>This calculates the probability that the supplied intensity-measure level will be exceeded given the mean and stdDev computed from current independent parameter values. Note that the answer is not stored in the internally held exceedProbParam (this latter param is used only for the getIML_AtExceedProb() method).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The exceedProbability value</DD>
+<DT><B>Throws:</B><DD><CODE>ParameterException</CODE> - Description of the Exception</DD>
+<DD><CODE>IMRException</CODE> - Description of the Exception</DD>
+</DL>
+<HR>
+
+<H3>getMeanIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getMeanIndependentParamsIterator</B>()</PRE>
+<DL><DD>Returns an iterator over all the Parameters that the Mean calculation depends upon. (not including the intensity-measure related paramters and their internal, independent parameters).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The Independent Params Iterator</DD>
+</DL>
+<HR>
+
+<H3>getStdDevIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getStdDevIndependentParamsIterator</B>()</PRE>
+<DL><DD>Returns an iterator over all the Parameters that the StdDev calculation depends upon (not including the intensity-measure related paramters and their internal, independent parameters).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The Independent Parameters Iterator</DD>
+</DL>
+<HR>
+
+<H3>getExceedProbIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getExceedProbIndependentParamsIterator</B>()</PRE>
+<DL><DD>Returns an iterator over all the Parameters that the exceedProb calculation depends upon (not including the intensity-measure related paramters and their internal, independent parameters).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The Independent Params Iterator</DD>
+</DL>
+<HR>
+
+<H3>getIML_AtExceedProbIndependentParamsIterator</H3>
+<PRE>
+public ListIterator <B>getIML_AtExceedProbIndependentParamsIterator</B>()</PRE>
+<DL><DD>Returns an iterator over all the Parameters that the IML-at-exceed- probability calculation depends upon. (not including the intensity-measure related paramters and their internal, independent parameters).<DL><DD></DD></DL></DD>
+</DL>
+<DL><DT><B>Returns:</B><DD>The Independent Params Iterator</DD>
+</DL>
+<HR>
+
+</BODY>
+</HTML>

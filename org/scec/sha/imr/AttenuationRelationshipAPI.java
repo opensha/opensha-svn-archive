@@ -64,6 +64,19 @@ public interface AttenuationRelationshipAPI
 
 
     /**
+     *  This calculates the intensity-measure level associated with probability
+     *  held by the exceedProbParam given the mean and standard deviation
+     * (according to the chosen truncation type and level).  Note
+     *  that this does not store the answer in the value of the internally held
+     *  intensity-measure parameter.
+     * @param exceedProb : Sets the Value of the exceed Prob param with this value.
+     * @return                         The intensity-measure level
+     * @exception  ParameterException  Description of the Exception
+     */
+    public double getIML_AtExceedProb(double exceedProb);
+
+
+    /**
      *  This returns the mean intensity-measure level for the current
      *  set of parameters.
      *

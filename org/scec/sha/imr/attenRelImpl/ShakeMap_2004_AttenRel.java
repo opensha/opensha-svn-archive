@@ -19,12 +19,12 @@ import org.scec.util.*;
  * <b>Title:</b> ShakeMap_2004_AttenRel<p>
  *
  * <b>Description:</b> This attenuation relationship computes a mean IML, exceedance
- * probabilty at IML, or IML at exceedance probability that represents an average over
+ * probabilty at IML, or IML at exceedance probability that represents an average of
  * 3-4 previously published relationships (the ones used for California in the 2002
  * National Seismic Hazard Maps; these are listed below).  For each relationship,
  * the predicted rock-site mean is multiplied by Borcherdt's nonlinear amplification
  * factor (1994, Earthquake Spectra, Vol. 10, No. 4, 617-653) as given in equation
- * 7a or 7b of the appendix with a reference velocity of 760 m/sec ( and with the
+ * 7a or 7b of the appendix with a reference velocity of 760 m/sec (and with the
  * mv and ma coefficients linearly interpolated at intermediate input ground motions).
  * That is, the original site effect model of each relationship is not used.  The
  * averaging is performed after the site-depenent value for each relationship is
@@ -34,10 +34,12 @@ import org.scec.util.*;
  * Supported Intensity-Measure Parameters:
  * <UL>
  * <LI>Peak Ground Acceleration (PGA)
- * <LI>Spectral Acceleration (SA) at the following periods (seconds): 0.0, 0.1, 0.2 0.3, 0.4, 0.5, 0.75 1.0, 1.5, 2.0, 3.0, and 4.0
+ * <LI>Spectral Acceleration (SA) at the following periods: 0.0, 0.1, 0.2 0.3, 0.4,
+ * 0.5, 0.75 1.0, 1.5, 2.0, 3.0, and 4.0 seconds
  * <LI>Peak Ground Velocity (PGV) - computed from 1-sec SA using the Newmark-Hall (1982) scalar
  * (applied after the amplification)
- * <LI>Modified Mercalli Intensity (MMI) computed from PGA and PGV as in Wald et al. (1999, Earthquake Spectra)
+ * <LI>Modified Mercalli Intensity (MMI) computed from PGA and PGV as in Wald et al.
+ * (1999, Earthquake Spectra, Vol. 15, No. 3, 557-564))
  * </UL><p>
  *
  * Attenuation Relationships used for the average:
@@ -82,10 +84,10 @@ import org.scec.util.*;
  * Several methods for this class have been overridden to throw Runtime Exceptions, either because
  * it was not clear what to return or because the info is complicated and not necessarily useful.
  * For example, it's not clear what to return from getStdDev(); one could return the
- * average but nothing actually uses such an average (the probability of exceedance calculation
+ * average of the std. dev. of the four relationships, but nothing actually uses such an average (the probability of exceedance calculation
  * uses the mean/stdDev for each relationship separately).  Another example is what to return
  * from the getPropagationEffectParamsIterator - all of the three distance measures
- * used by the relationships? - this would lead to confusion and possible inconsistencies
+ * used by the four relationships? - this would lead to confusion and possible inconsistencies
  * in the AttenuationRelationshipApplet.  The bottom line is we've maintained the
  * IntensityMeasureRelationshipAPI, but not the AttenuationRelationshipAPI (so this
  * relationship cannot be added to the AttenuationRelationshipApplet).  This class could
