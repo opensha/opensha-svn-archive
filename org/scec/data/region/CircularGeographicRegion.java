@@ -58,8 +58,8 @@ public class CircularGeographicRegion extends GeographicRegion {
       System.out.println("computed vert diameter = "+ dist+"; circleRadius = " +circleRadius);
     }
 
-    // set this null for now
-    locList=null;
+    // make the region outline (locList)
+    makeRegionOutline(10.0);
   }
 
 
@@ -81,6 +81,32 @@ public class CircularGeographicRegion extends GeographicRegion {
 
   public static void main(String[] args) {
     CircularGeographicRegion reg = new CircularGeographicRegion(new Location(34,-122,0),111);
+  }
+
+  // this make the locList for the region outline
+  /**
+   * This creates the region outline for the circle, where there are 360/degreeIncrement
+   * equally spaced points (the last two may be closer than this).  The constructore (default)
+   * uses 5 degrees (72 points)
+   *
+   * @param degreeIncrement - difference in azimuth (from the center) between neighboring points
+   */
+  public void makeRegionOutline(double degreeIncrement) {
+    locList = new LocationList();
+    Direction tempDir;
+    for(double deg = 0; deg<360; deg += degreeIncrement) {
+      tempDir = new Direction(0.0,circleRadius,deg,180-deg);
+      locList.addLocation(RelativeLocation.getLocation(circleCenterLocation,tempDir));
+    }
+
+    if(D) {
+      Location tempLoc;
+      System.out.println("Region outline:");
+      for(int i = 0; i < locList.size(); i++) {
+        tempLoc = locList.getLocationAt(i);
+        System.out.println(tempLoc.getLatitude()+"  "+tempLoc.getLongitude());
+      }
+    }
   }
 
 

@@ -13,7 +13,7 @@ import org.scec.data.Location;
  * @version 1.0
  */
 
-interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
+public interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
 
   /**
    * This method sets the grid spacing in degrees.
