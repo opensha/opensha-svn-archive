@@ -139,7 +139,7 @@ public class Campbell_1997_AttenRel
     {
 
         FaultUtils.assertValidRake( rake );
-        if( rake >= 22.5 && rake <= 67.5 ) return FLT_TYPE_REVERSE;
+        if( rake >= 22.5 && rake <= 157.5 ) return FLT_TYPE_REVERSE;
         else return FLT_TYPE_OTHER;
 //        NOTE: FLT_TYPE_UNKNOWN is not possible unless rake can == null, which it can't
 //        because rake is a double in ProbEqkRupture;
