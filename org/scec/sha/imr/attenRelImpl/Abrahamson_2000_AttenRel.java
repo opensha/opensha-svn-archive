@@ -71,7 +71,7 @@ public class Abrahamson_2000_AttenRel
      * Site Type Parameter ("Rock/Shallow-Soil" versus "Deep-Soil")
      */
      private StringParameter siteTypeParam = null;
-     public final static String SITE_TYPE_NAME = "AS Site Type";
+     public final static String SITE_TYPE_NAME = AS_1997_AttenRel.SITE_TYPE_NAME;
      // no units
      public final static String SITE_TYPE_INFO = "Geological conditions at the site";
      public final static String SITE_TYPE_ROCK =  "Rock/Shallow-Soil";
