@@ -424,7 +424,7 @@ public class Campbell_1997_AttenRel
             mean =  lnPGA + 0.26 + 0.29*mag -
                     1.44*Math.log(dist + 0.0203*Math.exp(0.958*mag)) +
                     1.89*Math.log(dist + 0.361*Math.exp(0.576*mag)) +
-                    (0.00001 - 0.000565*mag)*dist - 0.12*F - 0.15*S_sr -
+                    (0.0001 - 0.000565*mag)*dist - 0.12*F - 0.15*S_sr -
                     0.30*S_hr + 0.75 * tanh(0.51*depth)*(1-S_hr);
             if(depth < 1.)
                     mean -= 0.3*(1.0 - depth)*(1.0 - 0.5*S_sr)*(1.0 - S_hr);
