@@ -232,14 +232,18 @@ public class SubmitJobForGridComputation {
       fw.write("cp *.txt "+ METADATA_DIR);
       fw.close();
       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+FILE_MOVE_SCRIPT});*/
+
       // submit the DAG for execution
       submitDag(outputDir, remoteDir);
+
+      //putting the information related to this hazard map in the SRB.
       SRBDrop srb = new SRBDrop(true);
+      //putting the whole eventID containing all the files to the SRB
       srb.directoryPut(outputDir,new String(DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName),true);
-      String localPathtoMetadataFile = dataFiles+HazardMapCalcServlet.METADATA_FILE_NAME;
+      /*String localPathtoMetadataFile = dataFiles+HazardMapCalcServlet.METADATA_FILE_NAME;
       String remotePathToMetadataFile = DIRECTORY_PATH_FOR_SRB+remoteMachineSubdirName+
                                         DATA_DIR+HazardMapCalcServlet.METADATA_FILE_NAME;
-      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");
+      srb.addMDToCollection(localPathtoMetadataFile,remotePathToMetadataFile,"=");*/
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -402,7 +406,7 @@ public class SubmitJobForGridComputation {
        fw.write("chmod +x "+PUT_SUBMIT_FILES_TO_REMOTE_MACHINE+"\n");
        fw.write("condor_submit_dag "+this.DAG_FILE_NAME+"\n");
        fw.close();
-       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_DAG_SHELL_SCRIPT_NAME});
+       RunScript.runScript(new String[]{"sh", "-c", "sh "+outputDir+SUBMIT_FILES_DIR+SUBMIT_DAG_SHELL_SCRIPT_NAME});
     }
     catch (Exception e) {
       e.printStackTrace();
