@@ -94,6 +94,7 @@ and the Ant output directory might be "classes.ant".-->
       <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_FactoryImpl"/>
     </exec>
   </target>
+
   <target name="resource">
     <copy todir="${dest}">
       <fileset dir="${src}">
