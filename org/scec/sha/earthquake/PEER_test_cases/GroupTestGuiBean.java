@@ -65,8 +65,6 @@ public class GroupTestGuiBean implements
   private final static String TEST_PARAM_NAME = "Test Cases";
   private final static String IMR_PARAM_NAME = "IMR NAMES";
   private final static String SIGMA_PARAM_NAME =  "Mag Length Sigma";
-  private final static String TRUNCTYPE_PARAM_NAME =  "Trunc-Type";
-  private final static String TRUNCLEVEL_PARAM_NAME =  "Trunc-Level";
   private final static String IMT_PARAM_NAME =  "Select IMT";
   private final static String STD_DEV_TYPE_NAME = "Std Dev Type";
   protected final static String SIGMA_TRUNC_TYPE_NONE = "None";
@@ -742,14 +740,14 @@ public class GroupTestGuiBean implements
           imr.setIntensityMeasure(imt);
 
           // set the Gaussian truncation type and level
-          String truncType = (String)imrParamList.getValue(this.TRUNCTYPE_PARAM_NAME);
-          imr.getParameter(this.TRUNCTYPE_PARAM_NAME).setValue(truncType);
+          String truncType = (String)imrParamList.getValue(ClassicIMR.SIGMA_TRUNC_TYPE_NAME);
+          imr.getParameter(ClassicIMR.SIGMA_TRUNC_TYPE_NAME).setValue(truncType);
 
           // if trunc type is not none, set the level
           if(!truncType.equalsIgnoreCase(SIGMA_TRUNC_TYPE_NONE)) {
             // set the trunc level
-            Double truncLevel = (Double)imrParamList.getValue(this.TRUNCLEVEL_PARAM_NAME);
-            imr.getParameter(this.TRUNCLEVEL_PARAM_NAME).setValue(truncLevel);
+            Double truncLevel = (Double)imrParamList.getValue(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME);
+            imr.getParameter(ClassicIMR.SIGMA_TRUNC_LEVEL_NAME).setValue(truncLevel);
           }
           //set all the independent parameters related to this IMT
           ListIterator it = this.imtParamList.getParameterNamesIterator();
