@@ -1113,7 +1113,8 @@ public class HazardCurveApplet extends JApplet
 
   }
 
-  /**
+
+ /**
    * Initialize the ERF Gui Bean
    */
   private void initERF_GuiBean() {
