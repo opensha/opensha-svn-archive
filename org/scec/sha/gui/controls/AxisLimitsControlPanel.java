@@ -14,7 +14,7 @@ import org.scec.gui.plot.LogPlotAPI;
  * @version 1.0
  */
 
-public class AxisLimitsControlPanel extends JFrame {
+public class AxisLimitsControlPanel extends JDialog {
 
   /**
    * @todo variables
@@ -65,6 +65,7 @@ public class AxisLimitsControlPanel extends JFrame {
     this.minY=minY;
     this.maxX=maxX;
     this.maxY=maxY;
+    this.setModal(true);
     // show the window at center of the parent component
     this.setLocation(parent.getX()+parent.getWidth()/2,
                      parent.getY()+parent.getHeight()/2);
