@@ -7,8 +7,7 @@ import org.scec.data.NamedObjectAPI;
  * <p>Title: </p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * @author Steven W. Rock
  * @version 1.0
  */
 
