@@ -131,8 +131,7 @@ public class Campbell_1997_IMR
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam.
+     * comes from the probEqkRupture object).
      *
      * @param rake                      Input determines the fault type
      * @return                          Fault Type, either Strike-Slip,
@@ -152,8 +151,7 @@ public class Campbell_1997_IMR
 
     /**
      * Determines the style of faulting from the rake angle (which
-     * comes from the probEqkRupture object) and fills in the
-     * value of the fltTypeParam.
+     * comes from the probEqkRupture object).
      *
      * @param rake                      Input determines the fault type
      * @return                          Fault Type, either Strike-Slip,
@@ -252,14 +250,8 @@ public class Campbell_1997_IMR
     }
 
     /**
-     * This calculates the DistanceSeis propagation effect parameter. <P>
-     *
-     * This code needs to be moved to the DistanceSeisParameter class so that what
-     * exists here is: this.distanceSeisParam.setValue(site,probEqkRupture) <p>
-     *
-     * SWR: Note - This functions performance could be increased by having
-     * RelativeLocation return a double instead of a Direction for the function call
-     * <code>Direction dir = RelativeLocation.getDirection(loc1, loc2)</code>
+     * This sets the DistanceSeis propagation effect parameter based on the current
+     * site and probEqkRupture. <P>
      */
     protected void setPropagationEffectParams(){
 
@@ -583,14 +575,17 @@ public class Campbell_1997_IMR
     /**
      * This creates the list of parameters that StdDev depends upon <br>
      * NOTE: This doesn not include the intensity-measure parameters
-     * or any of thier internal independentParamaters.  Actually, since this
-     * also potentially depends on PGA, all the parameters could be put here.
+     * or any of thier internal independentParamaters.
      */
     protected void initStdDevIndependentParamsList(){
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter(stdDevTypeParam);
-        stdDevIndependentParams.addParameter(magParam);
-        stdDevIndependentParams.addParameter( componentParam );
+        meanIndependentParams.addParameter( siteTypeParam );
+        meanIndependentParams.addParameter( basinDepthParam );
+        meanIndependentParams.addParameter( magParam );
+        meanIndependentParams.addParameter( fltTypeParam );
+        meanIndependentParams.addParameter( distanceSeisParam );
+        meanIndependentParams.addParameter( componentParam );
     }
 
 

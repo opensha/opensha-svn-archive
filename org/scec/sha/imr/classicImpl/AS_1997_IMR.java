@@ -75,11 +75,13 @@ public class AS_1997_IMR
      private final static String SITE_TYPE_DEFAULT =  "Deep-Soil";
 
     /**
-     * Specifies whether the site is directly over the rupture surface.<p>
+     * Specifies whether the site is directly over the rupture surface.
+     * The "AS Defn." is part of the name to distinguish this from the hanging-wall
+     * parameter of the CB_2003_IMR.<p>
      * This should really be a boolean sublcass of PropagationEffectParameter
      */
     private StringParameter isOnHangingWallParam = null;
-    private final static String IS_ON_HANGING_WALL_NAME = "On Hanging Wall";
+    private final static String IS_ON_HANGING_WALL_NAME = "On Hanging Wall (AS Defn.)?";
     private final static String IS_ON_HANGING_WALL_INFO = "Is site directly over rupture?";
     private final static String IS_ON_HANGING_WALL_TRUE = "Yes";
     private final static String IS_ON_HANGING_WALL_FALSE = "No";
@@ -282,15 +284,26 @@ public class AS_1997_IMR
           }catch (WarningException e){
             if(D) System.out.println(C+"Warning Exception:"+e);
           }
+
             /* The following is a bit of a hack. It assumes the fault grid spacing
                is less than 1 km, and that points off the bottem end of the fault
                don't have significant hanging-wall effects;p Norm said the latter
                is probably close enough (it's also what Frankel's code does).
+
+               There is a problem that this term will apply to vertical strike-slip faults
+               when on the fault trace.  The 80-degree dip threshold was the solution
+               recommended by Ken Cambell over the phone today, he will confirm this with
+               Norm next week (Ned, 9-20-02).
             */
-            distanceJBParam.getValue( probEqkRupture, site );
-            if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
-                isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
-            else
+
+            if(probEqkRupture.getRuptureSurface().getAveDip() < 80) {
+                distanceJBParam.setValue( probEqkRupture, site );
+                if ( ( (Double)distanceJBParam.getValue() ).doubleValue() <= 1.0 )
+                    isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_TRUE);
+                else
+                    isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
+            }
+            else // turn it off for vertically dipping faults
                 isOnHangingWallParam.setValue(IS_ON_HANGING_WALL_FALSE);
 
         }
