@@ -23,7 +23,7 @@ import org.scec.param.*;
  * </UL><p>
  * <p>
 
- * Important Notes: 1) the Month parameter constratints here (1 to 12) differ from the 0-11
+ * Important Notes: 1) the Month parameter constraint here (min=1, max=12) differs from the 0-11
  * range in the java.util.GregorianCalendar object.  This means that what's returned from
  * the getStartTimeMonth() method is always one greater than what's obtained using
  * getStartTimeCalendar().get(Calendar.MONTH)). Keep this in mind if you use the setStartTimeCalendar(),
@@ -31,15 +31,17 @@ import org.scec.param.*;
  * to the DATE and HOUR_OF_DAY fields, respecively in java.util.GregorianCalendar (the HOUR field of
  * GregorianCalendar goes from 0 to 11 rather than 0 to 23).<p>
  *
- * The above start-time parameter constraints can be overridden using the ???? method.
- * NEEDS TO BE ADDED!!!!!!!!!!! <p>
+ * The above start-time parameter constraints can be overridden using the
+ * setStartTimeConstraint() method.
  *
  * The startTimePrecision field specifies the level of precision.  For example, if this
  * is set as "Days", then one cannot set or get the Hours, Minute, Second, or Millisecond
- * fields (and the associated methods throw exceptions).  Setting the startTimePrecsion as
- * "None" indicates that only the Duration is relevant (e.g., for a Poissonian forecast).
+ * parameter values (and the associated methods throw exceptions).  Setting the startTimePrecsion
+ * as "None" indicates that only the Duration is relevant (e.g., for a Poissonian forecast).
  * Presently one can only set the startTimePrecision in the constructor, but we could relax
- * this later. <p>
+ * this later.  If one gets a GregorianCalendar using the getStartTimeCalendar() method, the
+ * fields that are not within the specified precision are set to their minimum
+ * value.  <p>
  *
  * Before a value is returned from any one of the getStartTime*() methods, it is
  * first confirmed that the start-time parameter settings correspond to an acutual
@@ -48,18 +50,34 @@ import org.scec.param.*;
  * fields (e.g., getStartYear() or getStartMonth()) an exception will be thrown
  * because there are not 29 days in Feburary (unless it's a leap year).  This check
  * is made in the get* rather than set* methods to allow users to finish their settings
- * (e.g., in a ParameterListEditor of a GUI) before checking values.
+ * (e.g., in a GUI) before checking values.
  *
- * The Units on the Duration field must be set in the constructor, ALTHOUGH WE MAY MAKE THIS
- * ADJUSTABLE LATER. These Units are assumed when using the getDuration() and
+ * The Units on the Duration field must presently be set in the constructor, (this could be
+ * relaxed later). These Units are assumed when using the getDuration() and
  * setDuration(double duration) methods.  If one wishes to get or set the duration with other
- * units, they can use the setDuration(String units, double duration) and
- * getDuration(String units, double duration) methods, but note that the units will
- * not have changed internally as a result. BUILD THESE LATTER TWO METHODS<p>
- * The constraints on the units can be set using the ???????????? ADD METHOD LATER.<p>
+ * units (e.g., to avoid having to check what the internal units are), they can use the
+ * setDuration(String units, double duration) and getDuration(String units, double duration)
+ * methods, but note that the internal "chosen" units will not have changed.
+ * The constraints on the units can be set using the setDurationConstraint()
+ * method.<p>
  *
  * Finally, one can get an end-time calendar object that corresponds to the start time
- * plus the duration. FINISH THIS
+ * plus the duration (getEndTimeCalendar()).<p>
+ *
+ * TO DO LATER:<p>
+ * Make the Duration units adjustable after construction.  This could be done by
+ * allowing an "Adjustable" opting for the duration units in the constructor.  For
+ * this case, make the units field of the durationParameter empty, and use the
+ * value set in the durationUnitsParameter for the getDuration() and setDuration()
+ * methods.  Also add durationUnitsParameter to the list returned by the
+ * getAdjustableParamsList().  This raises the question of how non-default constraints
+ * can be applied if the user is changing the units (perhaps only default constraints
+ * can be applied in this case).  Care will be required in using the getDuration() and
+ * setDuration() methods if other objects can change the units (perhaps these should
+ * throw and non-usable exception).<p>
+ *
+ * We might need a setNonEditable() method here (e.g., to prevent ouside entities from
+ * changing constraints).
  *
  *
  *
@@ -195,6 +213,84 @@ public class TimeSpan {
     }
 
     /**
+     * This method allows one to override the default constraints for any of the
+     * start-time parameters.  The name options (start-time parameter names) are:
+     * "Start Year", "Start Month", "Start Day", "Start Hour", "Start Minute",
+     * "Start Second", or "Start Millisecond".  Note that you cannot set the min
+     * and max outside the default bounds (e.g., min and max for "Start Hour" must
+     * be between 0 and 23).  Note also that this method ignores the start-time precision
+     * (e.g., you can set new constraints on "Start Minute" even if the start-time
+     * precision has been set as "Years").
+     * @param name - the name of the start-time parameter
+     * @param min - the new minimum
+     * @param max - the new maximum
+     */
+    public void setStartTimeConstraint(String name, int min, int max) {
+      // make the new constraint
+      IntegerConstraint constraint = new IntegerConstraint(min,max);
+
+      if (name.equals(START_YEAR)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startYearConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startYearParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else if (name.equals(START_MONTH)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startMonthConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startMonthParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else if (name.equals(START_DAY)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startDayConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startDayParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else if (name.equals(START_HOUR)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startHourConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startHourParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else if (name.equals(START_MINUTE)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startMinuteConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startMinuteParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else if (name.equals(START_SECOND)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startSecondConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startSecondParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else if (name.equals(START_MILLISECOND)) {
+        //check that min and max are within the originally defined constraint (absolute constraint)
+        if (startMillisecondConstraint.isAllowed(min) && startYearConstraint.isAllowed(max))
+          startMillisecondParam.setConstraint(constraint);
+        else
+          throw new RuntimeException("TimeSpan.setStartTimeConstraint(): max or min is outside absolute bounds for \""+
+                                     name+"\"");
+      }
+      else
+        throw new RuntimeException ("TimeSpan.setStartTimeConstraint(): invalid name");
+    }
+
+
+    /**
      * Sets the Start-Time Precision.  Options are "Years", "Months", "Days",
      * "Hours", "Minutes", "Seconds" and "Milliseconds".  "None" can also be
      * set if the start-time is not needed (e.g., for Poissonian models).
@@ -250,7 +346,8 @@ public class TimeSpan {
     }
 
 
-    /**
+    /** Note that our indexing on Month goes from 1 to 12, whereas that for the
+     * GregorianCalendar.MONTH goes from 0 to 11.
      * @return Start-time month
      * @throws RuntimeException if month is not within the start-time precision.
      */
@@ -356,11 +453,13 @@ public class TimeSpan {
 
     /**
      * Sets the units for the duration; presently private until we know how to
-     * handle changes after instantiation.
+     * handle changes after instantiation.  Options are "Years", "Days", "Hours",
+     * "Minutes", "Seconds", and "Milliseconds".
      * @param durationUnits
      */
     private void setDurationUnits(String durationUnits) {
       durationUnitsParam.setValue(durationUnits);
+      durationParam.setUnits(durationUnits);
     }
 
     /**
@@ -373,20 +472,109 @@ public class TimeSpan {
 
 
     /**
-     * Sets the the duration; assumes the units are as they've been set
+     * This sets the duration assuming the previously set units.
      * @param duration
      */
     public void setDuration( double duration ) {
       durationParam.setValue(duration);
     }
 
+
     /**
-     * Gets the duration
+     * This sets the duration from the units specified.  Duration-unit options
+     * are "Years", "Days","Hours", "Minutes", "Seconds", or "Milliseconds".  This
+     * does not change the "chosen" units held internally.
+     * @param duration - in the units supplied
+     * @param units - the units of the passed in duration
+     */
+    public void setDuration( double duration, String units ) {
+      String desiredUnits = (String) durationUnitsParam.getValue();
+      durationParam.setValue(convertDurationUnits(duration,units,desiredUnits));
+    }
+
+    /**
+     * This puts a new constraint on the duration parameter, although the new
+     * min and max must be within the default values (0 and Double.MAX_VALUE,
+     * respectively).
+     * @param min - new minimum
+     * @param max - new maximum
+     */
+    public void setDuractionConstraint(double min, double max) {
+
+      // make sure new values are within the originals
+      if(durationConstraint.isAllowed(min) && durationConstraint.isAllowed(min)) {
+        DoubleConstraint constraint = new DoubleConstraint(min, max);
+        durationParam.setConstraint(constraint);
+      }
+
+    }
+
+    /**
+     * This converts the input duration in it's present units into the desired units.
+     * Duration-unit options are "Years", "Days","Hours", "Minutes", "Seconds", or
+     * "Milliseconds".
+     * @param duration - the duration after units conversion
+     * @param presentUnits - units of the input
+     * @param desiredUnits - units of the output
+     * @return
+     */
+    private double convertDurationUnits(double duration, String presentUnits, String desiredUnits ) {
+      // convert the duration to milliseconds
+      double msecs;
+      if(presentUnits.equals(YEARS))
+         msecs = duration*365.25*24*60*60*1000;
+      else if(presentUnits.equals(DAYS))
+         msecs = duration*24*60*60*1000;
+      else if(presentUnits.equals(HOURS))
+         msecs = duration*60*60*1000;
+      else if(presentUnits.equals(MINUTES))
+         msecs = duration*60*1000;
+      else if(presentUnits.equals(SECONDS))
+         msecs = duration*1000;
+      else // must be milliseconds
+         msecs = duration;
+
+      // now convert to the units desired for output
+      double outDur;
+      if(desiredUnits.equals(YEARS))
+        outDur = msecs/(365.25*24*60*60*1000);
+      else if(desiredUnits.equals(DAYS))
+        outDur = msecs/(24*60*60*1000);
+      else if(desiredUnits.equals(HOURS))
+        outDur = msecs/(60*60*1000);
+      else if(desiredUnits.equals(MINUTES))
+        outDur = msecs/(60*1000);
+      else if(desiredUnits.equals(SECONDS))
+        outDur = msecs/1000;
+      else // must be milliseconds
+        outDur = msecs;
+
+      return outDur;
+
+    }
+
+
+    /**
+     * Gets the duration in the default (internally specified) units
      * @return
      */
     public double getDuration() {
       return ((Double)durationParam.getValue()).doubleValue();
     }
+
+    /**
+     * This returns the duration in the units specified (it leaves the units
+     * specified internally unchanged).  Duration-unit options are "Years",
+     * "Days","Hours", "Minutes", "Seconds", or "Milliseconds".
+     * @param units - the desired units
+     * @return
+     */
+    public double getDuration( String units ) {
+      String presentUnits = (String) durationUnitsParam.getValue();
+      double duration = ((Double) durationParam.getValue()).doubleValue();
+      return convertDurationUnits(duration,presentUnits,units);
+    }
+
 
     /**
      * Sets the start time if start-time precision = "Years".
@@ -561,6 +749,8 @@ public class TimeSpan {
      * This sets the Start-Time Calendar, making any fields greater than the
      * Start-Time Precision equal to defaults (usually the lowest allowed value).
      * This throws an exception if the Day is incompatable with the chosen Month
+     * (and perhaps if any other problems are encountered, although I can't think
+     * of any give our constraints on each parameter).
      * @throws Exception
      */
     private void buildStartTimeCalendar() throws RuntimeException {
@@ -644,7 +834,7 @@ public class TimeSpan {
      * time precision equals "None", then none of the fields are filled in.
      * @param cal
      */
-    public void setStartTimeCalendar( GregorianCalendar cal ) {
+    public void setStartTime( GregorianCalendar cal ) {
       int year = cal.get(Calendar.YEAR);
       int month = cal.get(Calendar.MONTH) + 1; // our indexing starts from 1
       int day = cal.get(Calendar.DATE);
@@ -672,16 +862,20 @@ public class TimeSpan {
 
 
     /**
-     *  NEEDS TO BE FINISHED & TESTED
-     *  Not that fields above start-time precision are given their default values
+     *  This returns an end-time GregorianCalendar representing the start time
+     *  plus the duration.  Note that this correctly accounts for leap years
+     * (and leap seconds?) thanks to the sophistication of the
+     * java.util.GregorianCalendar object.  Note also the indexing
+     * difference for the Month field (our parameter goes from 1 to 12, whereas
+     * GregorianCalendar.MONTH goes from 0 to 11).
      */
-    public GregorianCalendar getEndTime() {
+    public GregorianCalendar getEndTimeCalendar() {
       if(getStartTimePrecInt() > 0) {
         // build the startTime Calendar
         buildStartTimeCalendar();
-        // compute duration in mSec from the duration parameter FINISH
-        long duration_MSec = 1000; //?????????????????????????????????
-        long endTime_mSec =  startTimeCal.getTime().getTime() + duration_MSec;
+        // compute duration in mSec from the duration parameter
+        Double durMsec = new Double(getDuration(MILLISECONDS));
+        long endTime_mSec =  startTimeCal.getTime().getTime() + durMsec.longValue();
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTime( new Date( endTime_mSec ) );
         return cal;
@@ -694,15 +888,55 @@ public class TimeSpan {
     }
 
     /**
+     * This returns a ParameterList (e.g., to put in a GUI so users can set values).
+     * This only includes start-time parameters that are within the chosen precision.
+     * @return
+     */
+    public ParameterList getAdjustableParamsList() {
+      ParameterList list = new ParameterList();
+
+      // always add duration
+      list.addParameter(durationParam);
+
+      if(getStartTimePrecInt() > 0)
+        list.addParameter(startYearParam);
+      if(getStartTimePrecInt() > 1)
+        list.addParameter(startMonthParam);
+      if(getStartTimePrecInt() > 2)
+        list.addParameter(startDayParam);
+      if(getStartTimePrecInt() > 3)
+        list.addParameter(startHourParam);
+      if(getStartTimePrecInt() > 4)
+        list.addParameter(startMinuteParam);
+      if(getStartTimePrecInt() > 5)
+        list.addParameter(startSecondParam);
+      if(getStartTimePrecInt() > 6)
+        list.addParameter(startMillisecondParam);
+
+      return list;
+    }
+
+
+    /**
      * This returns a GregorianCalendar representation of the start-time fields.
      * Those fields above the start-time precision are set to their defaults
      * (generally the lowest possible value).  For example, if start-time precision
      * equals "Day", then the HOUR_OF_DAY, MINUTE, SECOND, and MILLISECOND fields
-     * of the returned GregorianCalendar are all set to 0.
+     * of the returned GregorianCalendar are all set to 0.  Note also the indexing
+     * difference for the Month field (our parameter goes from 1 to 12, whereas
+     * GregorianCalendar.MONTH goes from 0 to 11).
      * @return
      * @throws Exception
      */
-    public GregorianCalendar getStartTimeCalendar(  ) throws RuntimeException{
+    public GregorianCalendar getStartTimeCalendar() throws RuntimeException{
+
+      // check that requesting a calendar is valie
+      if(getStartTimePrecInt() == 0) {
+        String str = "cannot use the getStartTimeCalendar() method when start-time precision equals \"";
+        String prec = (String) this.startTimePrecisionParam.getValue();
+        throw new RuntimeException(START_TIME_ERR+str+prec+"\"");
+      }
+
       buildStartTimeCalendar();
       return startTimeCal;
     }
@@ -711,69 +945,13 @@ public class TimeSpan {
     // this is temporary for testing purposes
     public static void main(String[] args) {
       TimeSpan tSpan = new TimeSpan(YEARS,YEARS);
-      try {
-        tSpan.setStartTime(1964);
-//        tSpan.setStartTime(1964,11,18,19,20,21);
-      }catch (Exception e) {
-        System.out.println(e.getMessage());
-      }
-      try {
-        int i = tSpan.getStartTimeMonth();
-      }catch (Exception e) {
-        System.out.println(e.getMessage());
-      }
-/*
+      tSpan.setStartTime(1964);
+      System.out.println("getStartYear(): "+tSpan.getStartTimeYear());
+      tSpan.setStartTimeConstraint("Start Year", 1980,2003);
+      tSpan.setStartTime(1984);
+      System.out.println("getStartYear(): "+tSpan.getStartTimeYear());
+      tSpan.setStartTimeConstraint("Start Year", -10,2003);
 
-      GregorianCalendar cal = tSpan.getStartTimeCalendar();
-
-      int int1, int2;
-
-      int1 = tSpan.getStartTimeCalendar().get(Calendar.MONTH);
-      int2 = tSpan.getStartTimeMonth();
-      System.out.println("getStartTimeCalendar().get(Calendar.MONTH)) = "+int1);
-      System.out.println("getStartTimeMonth() = "+int2);
-
-/*
-      }
-      System.out.println(cal.toString());
-      System.out.print("Start: \nYear: "+cal.get(Calendar.YEAR)+"; ");
-      System.out.print("Month: "+cal.get(Calendar.MONTH)+"; ");
-      System.out.print("Day: "+cal.get(Calendar.DATE)+"; ");
-      System.out.print("Hour: "+cal.get(Calendar.HOUR_OF_DAY)+"; ");
-      System.out.print("Min: "+cal.get(Calendar.MINUTE)+"; ");
-      System.out.print("Sec: "+cal.get(Calendar.SECOND)+"; ");
-      System.out.print("mSec: "+cal.get(Calendar.MILLISECOND)+"; \n");
-
- /*
-      GregorianCalendar cal = new GregorianCalendar();
-      cal.setLenient(false);
-      cal.set(Calendar.YEAR,2001);
-      cal.set(Calendar.MONTH,0);
-      cal.set(Calendar.DATE,32);
-      cal.set(Calendar.HOUR_OF_DAY,0);
-      cal.set(Calendar.MINUTE,0);
-      cal.set(Calendar.SECOND,0);
-
-      double dur = 3600;
-      TimeSpan tspan = new TimeSpan(cal,dur);
-      GregorianCalendar calEnd = tspan.getEndTime();
-
-      System.out.println(cal.toString());
-      System.out.print("getTime(): "+cal.getTime().getTime());
-      System.out.print("Start: Year: "+cal.get(Calendar.YEAR)+"; ");
-      System.out.print("Month: "+cal.get(Calendar.MONTH)+"; ");
-      System.out.print("Day: "+cal.get(Calendar.DATE)+"; ");
-      System.out.print("Hour: "+cal.get(Calendar.HOUR_OF_DAY)+"; ");
-      System.out.print("Min: "+cal.get(Calendar.MINUTE)+"; ");
-      System.out.print("Sec: "+cal.get(Calendar.SECOND)+"; \n");
-
-      System.out.print("End:   Year: "+calEnd.get(Calendar.YEAR)+"; ");
-      System.out.print("Month: "+calEnd.get(Calendar.MONTH)+"; ");
-      System.out.print("Day: "+calEnd.get(Calendar.DATE)+"; ");
-      System.out.print("Hour: "+calEnd.get(Calendar.HOUR_OF_DAY)+"; ");
-      System.out.print("Min: "+calEnd.get(Calendar.MINUTE)+"; ");
-      System.out.print("Sec: "+calEnd.get(Calendar.SECOND)+"; \n");
-*/
     }
 }
 

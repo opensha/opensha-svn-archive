@@ -4,6 +4,8 @@
 For OpenSHA:
 ------------
 
+EqkRupForecast.getAdjustableParamsList() - this actually returns an iterator, so shouldn't it be called getAdjustableParamsIterator()?
+
 Create FractileCurveCalculator
 
 	methods:	set(DiscretizedFuncList curves, Vector weights)
