@@ -5,7 +5,7 @@
  * Project Info:  http://www.object-refinery.com/jcommon/index.html
  * Project Lead:  David Gilbert (david.gilbert@object-refinery.com);
  *
- * (C) Copyright 2000-2002, by Simba Management Limited and Contributors;
+ * (C) Copyright 2000-2002, by Simba Management Limited and Contributors.
  *
  * This library is free software; you can redistribute it and/or modify it under the terms
  * of the GNU Lesser General Public License as published by the Free Software Foundation;
@@ -19,10 +19,10 @@
  * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * ---------------------
- * JCommonTestSuite.java
- * ---------------------
- * (C) Copyright 2001, 2002, by Simba Management Limited.
+ * ------------------
+ * DateUtilities.java
+ * ------------------
+ * (C) Copyright 2002, by Simba Management Limited.
  *
  * Original Author:  David Gilbert (for Simba Management Limited);
  * Contributor(s):   -;
@@ -31,43 +31,51 @@
  *
  * Changes
  * -------
- * 11-Nov-2001 : Version 1 (DG);
- * 02-Sep-2002 : Removed DataPackageTests (DG);
+ * 11-Oct-2002 : Version 1 (DG);
  *
  */
 
-package com.jrefinery.junit;
+package com.jrefinery.date;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import com.jrefinery.date.junit.DatePackageTests;
+import java.util.Calendar;
+import java.util.Date;
 
-/**
- * A test suite for the JCommon class library that can be run using JUnit (http://www.junit.org).
- *
- * @author DG
- */
-public class JCommonTestSuite extends TestCase {
+public class DateUtilities {
+
+    /** A working calendar. */
+    private static final Calendar CALENDAR = Calendar.getInstance();
 
     /**
-     * Returns a test suite to the JUnit test runner.
+     * Creates a date.
      *
-     * @return a test suite.
+     * @param yyyy  the year.
+     * @param month  the month (1 - 12).
+     * @param day  the day.
+     *
+     * @return a date.
      */
-    public static Test suite() {
-        TestSuite suite = new TestSuite("JCommon");
-        suite.addTest(DatePackageTests.suite());
-        return suite;
+    public static synchronized Date createDate(int yyyy, int month, int day) {
+        CALENDAR.set(yyyy, month - 1, day);
+        return CALENDAR.getTime();
     }
 
     /**
-     * Constructs the test suite.
+     * Creates a date.
      *
-     * @param name  the suite name.
+     * @param yyyy  the year.
+     * @param month  the month (1 - 12).
+     * @param day  the day.
+     * @param hour  the hour.
+     * @param minute  the minute.
+     *
+     * @return a date.
      */
-    public JCommonTestSuite(String name) {
-        super(name);
+    public static synchronized Date createDate(int yyyy, int month, int day, int hour, int min) {
+
+        CALENDAR.set(yyyy, month, day, hour, min);
+        return CALENDAR.getTime();
+
     }
+
 
 }

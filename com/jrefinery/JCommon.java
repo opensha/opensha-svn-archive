@@ -38,14 +38,14 @@
  * 04-Apr-2002 : Added Hari to contributors (DG);
  * 19-Apr-2002 : Added Sam (oldman) to contributors (DG);
  * 07-Jun-2002 : Added contributors (DG);
+ * 24-Jun-2002 : Removed unnecessary imports (DG);
+ * 27-Aug-2002 : Updated version number to 0.7.0 (DG);
  *
  */
 
 package com.jrefinery;
 
-import java.util.List;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 import com.jrefinery.ui.about.ProjectInfo;
 import com.jrefinery.ui.about.Contributor;
@@ -62,6 +62,8 @@ public class JCommon {
 
     /**
      * Prints information about JCommon to standard output.
+     *
+     * @param args  no arguments are honored.
      */
     public static void main(String[] args) {
 
@@ -72,7 +74,8 @@ public class JCommon {
 }
 
 /**
- * Information about the JCommon project.  One instance of this class is assigned to JCommon.INFO.
+ * Information about the JCommon project.  One instance of this class is
+ * assigned to JCommon.INFO.
  */
 class JCommonInfo extends ProjectInfo {
 
@@ -82,40 +85,40 @@ class JCommonInfo extends ProjectInfo {
         String baseResourceClass = "com.jrefinery.resources.JCommonResources";
         ResourceBundle resources = ResourceBundle.getBundle(baseResourceClass);
 
-        this.name = resources.getString("project.name");
-        this.version = resources.getString("project.version");
-        this.info = resources.getString("project.info");
-        this.copyright = resources.getString("project.copyright");
+        setName(resources.getString("project.name"));
+        setVersion(resources.getString("project.version"));
+        setInfo(resources.getString("project.info"));
+        setCopyright(resources.getString("project.copyright"));
 
-        this.licenceName = "LGPL";
-        this.licenceText = Licences.LGPL;
+        setLicenceName("LGPL");
+        setLicenceText(Licences.LGPL);
 
-        this.contributors = Arrays.asList(
+        setContributors(Arrays.asList(
             new Contributor[] {
-                new Contributor("David Gilbert", "david.gilbert@object-refinery.com"),
-                new Contributor("Matthew Wright", "-"),
-                new Contributor("J. David Eisenberg", "-"),
-                new Contributor("Nabuo Tamemasa", "-"),
-                new Contributor("Paul English", "-"),
-                new Contributor("Mark Watson", "-"),
-                new Contributor("Hari", "-"),
-                new Contributor("Sam (oldman)", "-"),
+                new Contributor("Anthony Boulestreau", "-"),
                 new Contributor("Jeremy Bowman", "-"),
-                new Contributor("Aaron Metzger", "-"),
+                new Contributor("J. David Eisenberg", "-"),
+                new Contributor("Paul English", "-"),
+                new Contributor("David Gilbert", "david.gilbert@object-refinery.com"),
                 new Contributor("Hans-Jurgen Greiner", "-"),
                 new Contributor("Achilleus Mantzios", "-"),
-                new Contributor("Anthony Boulestreau", "-"),
                 new Contributor("Thomas Meier", "-"),
-                new Contributor("Krzysztof Paz", "-")
+                new Contributor("Aaron Metzger", "-"),
+                new Contributor("Krzysztof Paz", "-"),
+                new Contributor("Nabuo Tamemasa", "-"),
+                new Contributor("Mark Watson", "-"),
+                new Contributor("Matthew Wright", "-"),
+                new Contributor("Hari", "-"),
+                new Contributor("Sam (oldman)", "-")
             }
-        );
+        ));
 
-        this.libraries = Arrays.asList(
+        setLibraries(Arrays.asList(
             new Library[] {
                 new Library("JUnit", "3.7", "IBM Public Licence", "http://www.junit.org/")
             }
 
-        );
+        ));
 
     }
 
