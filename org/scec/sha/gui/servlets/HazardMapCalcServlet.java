@@ -23,6 +23,7 @@ import org.scec.sha.calc.SubmitJobForGridComputation;
  */
 
 public class HazardMapCalcServlet extends HttpServlet {
+  public final static boolean D =true;
   // parent directory where each new calculation will have its own subdirectory
   public static final String PARENT_DIR = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
   // filenames for IMR, ERF, Region, metadata
@@ -86,8 +87,11 @@ public class HazardMapCalcServlet extends HttpServlet {
       FileUtils.saveObjectInFile(newDir+this.REGION_FILE_NAME, sites);
       FileUtils.saveObjectInFile(newDir+this.IMR_FILE_NAME, imr);
 
-      EqkRupForecast eqkRupForecast = (EqkRupForecast)org.scec.util.FileUtils.loadObjectFromURL(eqkRupForecastLocation);
+      if(D) System.out.println("ERF URL="+eqkRupForecastLocation);
+      EqkRupForecast eqkRupForecast = (EqkRupForecast)FileUtils.loadObjectFromURL(eqkRupForecastLocation);
       FileUtils.saveObjectInFile(newDir+this.ERF_FILE_NAME, eqkRupForecast);
+      //org.scec.util.RunScript.runScript(new String[]{"/bin/sh", "-c", "/usr/bin/wget -O "+newDir+this.ERF_FILE_NAME+" "+eqkRupForecastLocation});
+      if(D) System.out.println("after wget");
 
       // now run the calculation on grid
       SubmitJobForGridComputation computation =
