@@ -115,8 +115,7 @@ public class GraphPanel extends JPanel {
 
 
   public void drawGraphPanel(DiscretizedFuncList totalProbFuncs,DiscretizedFunctionXYDataSet  data,
-                               boolean xLog,boolean yLog,boolean customAxis, String title,
-                               String metadata) {
+                               boolean xLog,boolean yLog,boolean customAxis, String title) {
 
     // Starting
     String S = "drawGraphPanel(): ";
@@ -235,6 +234,7 @@ public class GraphPanel extends JPanel {
       }
     }catch(Exception e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+      e.printStackTrace();
       return;
     }
     graphOn=false;

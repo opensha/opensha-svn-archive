@@ -294,6 +294,7 @@ public class HazardCurveApplet extends JApplet
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
                                       JOptionPane.OK_OPTION);
+        e.printStackTrace();
         System.exit(0);
       }
     }
@@ -490,13 +491,9 @@ public class HazardCurveApplet extends JApplet
 
   //Get Applet information
   public String getAppletInfo() {
-    return "Applet Information";
+    return "Hazard Curves Applet";
   }
 
-  //Get parameter info
-  public String[][] getParameterInfo() {
-    return null;
-  }
 
   //Main method
   public static void main(String[] args) {
@@ -563,7 +560,7 @@ public class HazardCurveApplet extends JApplet
         graphPanel.setSeriesPaint(color);
       }
 
-      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE," ");
+      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE);
       togglePlot();
       this.isIndividualCurves = false;
    }
@@ -755,11 +752,8 @@ public class HazardCurveApplet extends JApplet
 
     int loc = this.chartSplit.getDividerLocation();
     int newLoc = loc;
-
-    panel.removeAll();
-
     graphPanel.removeChartAndMetadata();
-
+    panel.removeAll();
     if( clearFunctions) {
       this.totalProbFuncs.clear();
     }
@@ -928,13 +922,15 @@ public class HazardCurveApplet extends JApplet
    try {
      // calculate the hazard curve
      calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecast)eqkRupForecast);
-     hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+     hazFunction.setInfo(getParametersInfo());
      hazFunction = toggleHazFuncLogValues(hazFunction);
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+     e.printStackTrace();
      return;
    }
+
 
    // add the function to the function list
    totalProbFuncs.add(hazFunction);
@@ -1013,7 +1009,7 @@ public class HazardCurveApplet extends JApplet
      try {
        // calculate the hazard curve
        calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
-       hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+       hazFunction.setInfo(getParametersInfo());
        hazFunction = toggleHazFuncLogValues(hazFunction);
      }catch (RuntimeException e) {
        JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -1062,16 +1058,6 @@ public class HazardCurveApplet extends JApplet
    isIndividualCurves = false;
   }
 
-  /**
-   *
-   * @returns the String containing the values selected for different parameters
-   */
-  public String getCurveParametersInfo(){
-    return "IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
-        "Site Param List: "+siteGuiBean.getParameterListEditor().getParameterList().toString()+"\n"+
-        "IMT Param List: "+imtGuiBean.getParameterList().toString()+"\n"+
-        "Forecast Param List: "+erfGuiBean.getParameterList().toString();
-  }
 
   /**
    * Initialize the IMR Gui Bean
@@ -1491,6 +1477,30 @@ public class HazardCurveApplet extends JApplet
    */
   public double getMinY(){
     return minYValue;
+  }
+
+
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
+  public String getParametersInfo(){
+    String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
+    return "IMR Param List:" +systemSpecificLineSeparator+
+           "---------------"+systemSpecificLineSeparator+
+        this.imrGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+systemSpecificLineSeparator+
+        "Site Param List: "+systemSpecificLineSeparator+
+        "----------------"+systemSpecificLineSeparator+
+        siteGuiBean.getParameterListEditor().getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        systemSpecificLineSeparator+"IMT Param List: "+systemSpecificLineSeparator+
+        "---------------"+systemSpecificLineSeparator+
+        imtGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
+        "--------------------"+systemSpecificLineSeparator+
+        erfGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator+
+        systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
+        "--------------------"+systemSpecificLineSeparator+
+        timeSpanGuiBean.getVisibleParametersCloned().toString()+systemSpecificLineSeparator;
   }
 
   /**
