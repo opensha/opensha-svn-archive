@@ -474,8 +474,6 @@ public class HazardMapApplet extends JApplet implements
     }
 
 
-
-
   /**
    * gets the Applets X-axis center coordinates
    * @return
