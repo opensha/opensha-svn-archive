@@ -153,6 +153,7 @@ public class HazardCurveApplet extends JApplet
 
   // variable needed for plotting Epistemic list
   private boolean isEqkList = false; // whther we are plottin the Eqk List
+  private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
   private boolean isAllCurves = true; // whether to plot all curves
   // whether user wants to plot No percentile, or 5, 50 and 95 percentile or custom percentile
   private String percentileOption = ERF_EpistemicListControlPanel.NO_PERCENTILE;
@@ -571,19 +572,23 @@ public class HazardCurveApplet extends JApplet
         int numFractiles;
         if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE))
           numFractiles = 1;
-        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE))
+        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
           numFractiles = 3;
         else numFractiles = 0;
         int diff ;
-        if(this.avgSelected) num= num - 1;
+        if(this.avgSelected && !isIndividualCurves) num= num - 1;
         diff = num - numFractiles ;
         int i;
         for(i=0; i<diff; ++i) // set black color for curves
           renderer.setSeriesPaint(i,Color.black);
-        for(i=diff;i<num;++i) // set red color for fractiles
-          renderer.setSeriesPaint(i,Color.red);
-        // draw average in green color
-        if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
+        //checks if the individual curves for each erf in the list are being drawn, if so then don't
+        //try to draw the average and fractiles curves
+        if(!isIndividualCurves){
+          for(i=diff;i<num;++i) // set red color for fractiles
+            renderer.setSeriesPaint(i,Color.red);
+          // draw average in green color
+          if(this.avgSelected) renderer.setSeriesPaint(i,Color.green);
+        }
 
       }
 
@@ -1019,7 +1024,7 @@ public class HazardCurveApplet extends JApplet
    if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
    // do not show progress bar if not desired by user
    calc.showProgressBar(this.progressCheckBox.isSelected());
-
+    this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // calculate hazard curve for each ERF within the list
    for(int i=0; i<numERFs; ++i) {
      ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
@@ -1036,6 +1041,7 @@ public class HazardCurveApplet extends JApplet
        e.printStackTrace();
        return;
      }
+     isIndividualCurves = true;
      totalProbFuncs.add(hazFunction);
      addGraphPanel();
      chartPanel.paintImmediately(chartPanel.getBounds());
@@ -1067,10 +1073,10 @@ public class HazardCurveApplet extends JApplet
    }
    // calculate average
    if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
-   this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
+   isIndividualCurves = false;
   }
 
   /**
