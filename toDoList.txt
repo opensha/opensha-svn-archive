@@ -1,4 +1,4 @@
-   **************** SHORT TERM (HIGH PRIORITY): ****************
+    **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
 Automate HAZUS shape-file generation & validate

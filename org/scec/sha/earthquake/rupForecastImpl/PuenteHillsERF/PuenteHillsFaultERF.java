@@ -32,14 +32,12 @@ public class PuenteHillsFaultERF extends EqkRupForecast
 
   //for Debug purposes
   private static String  C = new String("Puente Hills Fault ERF");
-  private boolean D = false;
+  private boolean D = true;
 
   //name for this classs
   public final static String  NAME = C;
 
-  // this is the source (only 1 for this ERF)
-  private SimpleFaultRuptureSource source;
-
+  private Vector sourceList;
 
   /**
    * Constructor for this source (no arguments)
@@ -49,6 +47,72 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     // create the timespan object with start time and duration in years
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
+
+    SimpleFaultRuptureSource source;
+
+    // MAKE THE FAULT SURFACE
+
+    // the original fault trace points as given by Andreas Plesch (reversed to be in correct order)
+    // Coyote Hills segment:
+    //         B 117.868192971 33.899509717 -2500.00000
+    //         A 118.044407949 33.894579252 -3441.00000
+    // Santa Fe Springs segment:
+    //         B 118.014078570 33.929699246 -2850.00000
+    //         A 118.144918182 33.905266010 -2850.00000
+    // Los Angeles segment:
+    //         B 118.122170045 33.971013662 -3000.00000
+    //         A 118.308353340 34.019965922 -3000.00000
+
+    // Fault Trace (my merging of the four segments given by John Shaw and Andreas) at 3 km depth:
+
+    //  33.8995	-117.868	3 km
+    //  33.9122	-118.029	3 km
+    //  33.9381	-118.133	3 km
+    //  34.0200	-118.308	3 km
+
+
+    FaultTrace faultTrace = new FaultTrace("Puente Hills Fault Trace");
+    // this is to move the lats north to where depth is 5 km (assumes all orig depths are 3 km)
+    double latIncr= (5.0-3.0)/(Math.tan(27*Math.PI/180)*111.0);
+    if(D) System.out.println(this.NAME+": latIncr = "+latIncr);
+    if(D) System.out.println(this.NAME+": fault trace name = "+faultTrace.getName());
+
+    // for the jagged version:
+    /*
+    faultTrace.addLocation(new Location(33.899509717+latIncr,-117.868192971,5.0));
+    faultTrace.addLocation(new Location(33.894579252+latIncr,-118.044407949,5.0));
+    faultTrace.addLocation(new Location(33.929699246+latIncr,-118.014078570,5.0));
+    faultTrace.addLocation(new Location(33.905266010+latIncr,-118.144918182,5.0));
+    faultTrace.addLocation(new Location(33.971013662+latIncr,-118.122170045,5.0));
+    faultTrace.addLocation(new Location(34.019965922+latIncr,-118.308353340,5.0));
+    */
+
+    // for the simpler, merged version
+    faultTrace.addLocation(new Location(33.8995+latIncr,-117.868,5.0));
+    faultTrace.addLocation(new Location(33.9122+latIncr,-118.029,5.0));
+    faultTrace.addLocation(new Location(33.9381+latIncr,-118.133,5.0));
+    faultTrace.addLocation(new Location(34.0200+latIncr,-118.308,5.0));
+
+    if(D) System.out.println(this.NAME+" num fault trace points = "+ faultTrace.size());
+
+    StirlingGriddedFaultFactory faultFactory = new StirlingGriddedFaultFactory(faultTrace,27.0,5.0,17.0,1.0);
+
+    // make it dip exactly north
+    double aveDipDir = 5.0;
+    faultFactory.setAveDipDir(aveDipDir);
+    double rake = 90;
+
+    if(D) System.out.println(this.NAME+" aveDipDir = "+ aveDipDir);
+    if(D) System.out.println(this.NAME+" rake = "+ rake);
+
+    sourceList = new Vector();
+    for(int mag=71; mag<=75;mag += 1) {
+      source = new SimpleFaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(), rake, 0.2);
+      source.setName("mag = "+(double)mag/10.0+" PH fault source");
+      sourceList.add(source);
+    }
+
+    if (D) System.out.println(NAME+": number of sources = "+sourceList.size());
 
   }
 
@@ -70,42 +134,6 @@ public class PuenteHillsFaultERF extends EqkRupForecast
      String S = C + "updateForecast::";
 
      if(parameterChangeFlag) {
-
-       // get the mag & prob
-       double mag = 7.1;
-       double prob = 1.0;
-       double rake = 90;
-       if (D) System.out.println(S+":  mag="+mag+"; prob="+prob+"; rake="+rake);
-
-       double aveDipDir = 0; // dipping to the north
-
-       // the original fault trace points as given by Andreas Plesch (reversed to be in correct order)
-       // Coyote Hills segment:
-       //         B 117.868192971 33.899509717 -2500.00000
-       //         A 118.044407949 33.894579252 -3441.00000
-       // Santa Fe Springs segment:
-       //         B 118.014078570 33.929699246 -2850.00000
-       //         A 118.144918182 33.905266010 -2850.00000
-       // Los Angeles segment:
-       //         B 118.122170045 33.971013662 -3000.00000
-       //         A 118.308353340 34.019965922 -3000.00000
-
-       FaultTrace faultTrace = new FaultTrace("Puente Hills Fault Trace");
-       // this is to move the lats north to where depth is 5 km (assumes all orig depths are 3 km)
-       double latIncr= (5.0-3.0)/(Math.tan(27*Math.PI/180)*111.0);
-       if(D) System.out.println("latIncr = "+latIncr);
-       faultTrace.addLocation(new Location(33.899509717+latIncr,-117.868192971,5.0));
-       faultTrace.addLocation(new Location(33.894579252+latIncr,-118.044407949,5.0));
-       faultTrace.addLocation(new Location(33.929699246+latIncr,-118.014078570,5.0));
-       faultTrace.addLocation(new Location(33.905266010+latIncr,-118.144918182,5.0));
-       faultTrace.addLocation(new Location(33.971013662+latIncr,-118.122170045,5.0));
-       faultTrace.addLocation(new Location(34.019965922+latIncr,-118.308353340,5.0));
-
-       StirlingGriddedFaultFactory faultFactory = new StirlingGriddedFaultFactory(faultTrace,27.0,5.0,17.0,1.0);
-       // make it dip exactly north
-       faultFactory.setAveDipDir(0.0);
-
-       source = new SimpleFaultRuptureSource(mag, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(),rake, prob);
        parameterChangeFlag = false;
      }
 
@@ -124,34 +152,27 @@ public class PuenteHillsFaultERF extends EqkRupForecast
     *
     */
    public ProbEqkSource getSource(int iSource) {
-
-     // we have only one source
-    if(iSource!=0)
-      throw new RuntimeException("Only 1 source available, iSource should be equal to 0");
-
-    return source;
+    return (SimpleFaultRuptureSource) sourceList.get(iSource);
    }
 
 
    /**
-    * Returns the number of earthquake sources (always "1" here)
+    * Returns the number of earthquake sources
     *
     * @return integer value specifying the number of earthquake sources
     */
    public int getNumSources(){
-     return 1;
+     return sourceList.size();
    }
 
 
     /**
-     *  This returns a list of sources (contains only one here)
+     *  This returns a list of sources
      *
      * @return Vector of Prob Earthquake sources
      */
     public Vector  getSourceList(){
-      Vector v =new Vector();
-      v.add(source);
-      return v;
+      return this.sourceList;
     }
 
 

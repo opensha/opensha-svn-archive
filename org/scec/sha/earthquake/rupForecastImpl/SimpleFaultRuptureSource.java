@@ -12,7 +12,7 @@ import org.scec.sha.surface.*;
 
 /**
  * <p>Title: SimpleFaultRuptureSource </p>
- * <p>Description: This implements a basic fault source for arbitrary: <p>
+ * <p>Description: This implements a basic, non-Poissonian fault source for arbitrary: <p>
  * <UL>
  * <LI>magnitude - the magnitude of the event
  * <LI>ruptureSurface - any EvenlyDiscretizedSurface
