@@ -32,3 +32,9 @@ wg99_main temp_input
 
 cp WG02_WRAPPER_INPUT.DAT base_mod_23_wgt_n100.OpenSHA.30yr.txt
 
+
+
+
+wg99_main singleIterationWithModes.30yr.inp
+cp WG02_WRAPPER_INPUT.DAT singleIterationWithModes.OpenSHA.30yr.txt
+
