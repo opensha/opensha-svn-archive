@@ -54,8 +54,10 @@ public class GraphPanel extends JPanel {
   private ChartPanel chartPanel;
 
   // Create the x-axis and y-axis - either normal or log
-  private org.jfree.chart.axis.NumberAxis xAxis = null;
-  private org.jfree.chart.axis.NumberAxis yAxis = null;
+  //Xaxis1 and yAxis1 replica of the x-Axis and y-Axis object, in case error occurs
+  //and we have revert back the Axis
+  NumberAxis xAxis, xAxis1 ;
+  NumberAxis yAxis, yAxis1;
 
   // light blue color
   private Color lightBlue = new Color( 200, 200, 230 );
@@ -115,7 +117,8 @@ public class GraphPanel extends JPanel {
 
 
   public void drawGraphPanel(DiscretizedFuncList totalProbFuncs,DiscretizedFunctionXYDataSet  data,
-                               boolean xLog,boolean yLog,boolean customAxis, String title) {
+                             boolean xLog,boolean yLog,boolean customAxis, String title,
+                             ButtonControlPanel buttonControlPanel ) {
 
     // Starting
     String S = "drawGraphPanel(): ";
@@ -128,11 +131,11 @@ public class GraphPanel extends JPanel {
     String xAxisLabel = totalProbFuncs.getXAxisName();
     String yAxisLabel = totalProbFuncs.getYAxisName();
 
+    boolean logErrorFlag = false;
+    //create the standard ticks so that smaller values too can plotted on the chart
+    TickUnits units = MyTickUnits.createStandardTickUnits();
+
     try{
-
-      //create the standard ticks so that smaller values too can plotted on the chart
-      TickUnits units = MyTickUnits.createStandardTickUnits();
-
 
       /// check if x log is selected or not
       if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
@@ -145,6 +148,20 @@ public class GraphPanel extends JPanel {
       xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
 
+      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+      if(customAxis)
+        xAxis.setRange(application.getMinX(),application.getMaxX());
+
+    }catch(Exception e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+      graphOn=false;
+      xLog = false;
+      buttonControlPanel.setXLog(xLog);
+      xAxis = xAxis1;
+      logErrorFlag = true;
+    }
+
+    try{
       /// check if y log is selected or not
       if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
       else yAxis = new NumberAxis( yAxisLabel );
@@ -157,69 +174,75 @@ public class GraphPanel extends JPanel {
       yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
 
-      int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
-
-
-      org.jfree.chart.renderer.StandardXYItemRenderer renderer
-          = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
-
-
       /* to set the range of the axis on the input from the user if the range combo box is selected*/
-      if(customAxis) {
-        xAxis.setRange(application.getMinX(),application.getMaxX());
+      if(customAxis)
         yAxis.setRange(application.getMinY(),application.getMaxY());
-      }
 
-      // build the plot
-      org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
-          xAxis, yAxis, renderer);
+    }catch(Exception e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+      graphOn=false;
+      yLog = false;
+      buttonControlPanel.setYLog(yLog);
+      yAxis = yAxis1;
+      logErrorFlag = false;
+    }
+    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-      //setting the plot properties
-      plot.setDomainCrosshairLockedOnData(false);
-      plot.setDomainCrosshairVisible(false);
-      plot.setRangeCrosshairLockedOnData(false);
-      plot.setRangeCrosshairVisible(false);
-      plot.setInsets(new Insets(0, 0, 0, 20));
 
-      int numSeries = legendPaint.length;
-      for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
+    org.jfree.chart.renderer.StandardXYItemRenderer renderer
+        = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
 
-      plot.setRenderer( renderer );
-      plot.setBackgroundAlpha( .8f );
 
-      JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+    // build the plot
+    org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(data,
+        xAxis, yAxis, renderer);
 
-      chart.setBackgroundPaint( lightBlue );
+    //setting the plot properties
+    plot.setDomainCrosshairLockedOnData(false);
+    plot.setDomainCrosshairVisible(false);
+    plot.setRangeCrosshairLockedOnData(false);
+    plot.setRangeCrosshairVisible(false);
+    plot.setInsets(new Insets(0, 0, 0, 20));
 
-      // Put into a panel
-      chartPanel = new ChartPanel(chart, true, true, true, true, false);
+    int numSeries = legendPaint.length;
+    for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
 
-      chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-      chartPanel.setMouseZoomable(true);
-      chartPanel.setDisplayToolTips(true);
-      chartPanel.setHorizontalAxisTrace(false);
-      chartPanel.setVerticalAxisTrace(false);
+    plot.setRenderer( renderer );
+    plot.setBackgroundAlpha( .8f );
 
-      // set the font of legend
-      int numOfColors = plot.getSeriesCount();
+    JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+
+    chart.setBackgroundPaint( lightBlue );
+
+    // Put into a panel
+    chartPanel = new ChartPanel(chart, true, true, true, true, false);
+
+    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+    chartPanel.setMouseZoomable(true);
+    chartPanel.setDisplayToolTips(true);
+    chartPanel.setHorizontalAxisTrace(false);
+    chartPanel.setVerticalAxisTrace(false);
+
+    // set the font of legend
+    int numOfColors = plot.getSeriesCount();
+
+    /**
+     * Adding the metadata text to the Window below the Chart
+     */
+    metadataText.removeAll();
+    metadataText.setEditable(false);
+    setLegend =new SimpleAttributeSet();
+    setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
+                           Boolean.TRUE);
+    Document doc = metadataText.getStyledDocument();
+    try {
 
       /**
-       * Adding the metadata text to the Window below the Chart
+       * formatting the metadata to be added , according to the colors of the
+       * Curves. So now curves and metadata will be displayed in the same color.
        */
-      metadataText.removeAll();
-      metadataText.setEditable(false);
-      setLegend =new SimpleAttributeSet();
-      setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
-                             Boolean.TRUE);
-      Document doc = metadataText.getStyledDocument();
-      try {
-
-        /**
-         * formatting the metadata to be added , according to the colors of the
-         * Curves. So now curves and metadata will be displayed in the same color.
-         */
-        doc.remove(0,doc.getLength());
-        for(int i=0,j=0;i<numOfColors;++i,++j){
+      doc.remove(0,doc.getLength());
+      for(int i=0,j=0;i<numOfColors;++i,++j){
           if(j==legendColor.length)
             j=0;
 
@@ -233,15 +256,15 @@ public class GraphPanel extends JPanel {
       } catch (BadLocationException e) {
         return;
       }
-    }catch(Exception e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
-      e.printStackTrace();
-      return;
-    }
-    graphOn=false;
+      graphOn=false;
 
-    pointsTextArea.setText(totalProbFuncs.toString());
-    return ;
+      //Check to see if there is no log Error and only  xLog or yLog are selected
+      if(!logErrorFlag && !xLog)
+        xAxis1 = xAxis;
+      if(!logErrorFlag && !yLog)
+        yAxis1 = yAxis;
+      pointsTextArea.setText(totalProbFuncs.toString());
+      return ;
   }
 
   /**

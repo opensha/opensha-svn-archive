@@ -568,7 +568,7 @@ public class HazardCurveApplet extends JApplet
         graphPanel.setSeriesPaint(color);
       }
 
-      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE);
+      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
       this.isIndividualCurves = false;
    }
@@ -765,6 +765,7 @@ public class HazardCurveApplet extends JApplet
     if( clearFunctions) {
       this.totalProbFuncs.clear();
     }
+    customAxis = false;
     chartSplit.setDividerLocation( newLoc );
   }
 
@@ -1489,6 +1490,14 @@ public class HazardCurveApplet extends JApplet
 
   /**
    *
+   * @returns the Max Y-Axis Range Value, if custom axis is choosen
+   */
+  public double getMaxY(){
+    return maxYValue;
+  }
+
+  /**
+   *
    * @returns the instance to the JPanel showing the JFreechart adn metadata
    */
   public GraphPanel getGraphPanel(){
@@ -1535,14 +1544,6 @@ public class HazardCurveApplet extends JApplet
     return data;
   }
 
-
-  /**
-   *
-   * @returns the Max Y-Axis Range Value, if custom axis is choosen
-   */
-  public double getMaxY(){
-    return maxYValue;
-  }
 
   /**
    * Actual method implementation of the "Peel-Off"

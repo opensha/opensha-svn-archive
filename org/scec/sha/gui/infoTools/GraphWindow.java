@@ -56,6 +56,11 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   GraphPanel graphPanel;
 
   /**
+   * for Y-log, 0 values will be converted to this small value
+   */
+  private double Y_MIN_VAL = 1e-16;
+
+  /**
    *
    * @param api : Instance of this application using this object.
    */
@@ -65,6 +70,9 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
     graphPanel.setSeriesPaint(api.getGraphPanel().getSeriesColor());
     data = api.getXY_DataSet().deepClone();
     totalProbFuncs = api.getCurveFunctionList().deepClone();
+    data.setFunctions(totalProbFuncs);
+    // for Y-log, convert 0 values in Y axis to this small value
+    data.setConvertZeroToMin(true,Y_MIN_VAL);
     try {
       jbInit();
     }
@@ -159,7 +167,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
    private void drawGraph() {
      data.setXLog(xLog);
      data.setYLog(yLog);
-     graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE+"-"+windowNumber);
+     graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE+"-"+windowNumber,buttonControlPanel);
      togglePlot();
    }
 

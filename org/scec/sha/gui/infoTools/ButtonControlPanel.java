@@ -147,7 +147,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
     double maxX=xAxisRange.getUpperBound();
     double minY=yAxisRange.getLowerBound();
     double maxY=yAxisRange.getUpperBound();
-    if(this.customAxis) { // select the custom scale in the control window
+    if(customAxis) { // select the custom scale in the control window
       if(axisControlPanel == null)
         axisControlPanel=new AxisLimitsControlPanel(this, this,
             AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
@@ -176,6 +176,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    */
   public void setAxisRange(double xMin,double xMax, double yMin, double yMax) {
     application.setAxisRange(xMin,xMax,yMin,yMax);
+    customAxis=true;
   }
 
   /**
@@ -184,7 +185,22 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
    */
   public void setAutoRange() {
     application.setAutoRange();
+    customAxis = false;
   }
 
+  /**
+   * Sets the X-Log CheckBox to be selected or deselected based on the flag
+   * @param flag
+   */
+  public void setXLog(boolean flag){
+    jCheckxlog.setSelected(flag);
+  }
 
+  /**
+   * Sets the Y-Log CheckBox to be selected or deselected based on the flag
+   * @param flag
+   */
+  public void setYLog(boolean flag){
+    jCheckylog.setSelected(flag);
+  }
 }
