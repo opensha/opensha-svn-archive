@@ -79,6 +79,8 @@ public class GriddedFaultApplet
 
     protected final static String FRANKEL = "Frankel";
     protected final static String STIRLING = "Stirling";
+    protected final static String CUSTOM_FAULT = "Custom Fault";
+    protected final static String FRANKEL_1996 = "Frankel 1996";
 
     protected final static int SUB_SURFACE_PLOT_TYPE = 4;
     protected final static int SURFACE_PLOT_TYPE = 2;
@@ -191,6 +193,8 @@ public class GriddedFaultApplet
     JRadioButton subAndSurfaceRadioButton = new JRadioButton();
     //JRadioButton threeDRadioButton = new JRadioButton();
     JRadioButton rupturesRadioButton= new JRadioButton();
+    JLabel customFrankelLabel = new JLabel("Fault Type: ");
+    JComboBox customFrankelComboBox = new JComboBox();
 
 
     final static Dimension NUMERIC_DIM = new Dimension(40, 18);
@@ -216,8 +220,22 @@ public class GriddedFaultApplet
     protected javax.swing.JFrame frame;
     boolean isWhite = true;
 
+    // whether user has selected the custom fault
+    private boolean isCustomFault = false;
+    // vector for custom fault dip values
+    private Vector customDips = new Vector();
+    // vector for custom fault depth values
+    private Vector customDepths = new Vector();
+    // vector for custom fault trace
+    private FaultTrace customFaultTrace;
+    //custom simple fault data
+    private SimpleFaultData customSimpleFaultData ;
+
+
+
     protected int faultTracePlot = 1;
     GridBagLayout gridBagLayout1 = new GridBagLayout();
+
 
 
     /**
@@ -291,6 +309,11 @@ public class GriddedFaultApplet
         oval.setHeight( 10 );
         oval.setWidth( 10 );
 
+        frankel_StirlingComboBox.addItem(FRANKEL);
+        frankel_StirlingComboBox.addItem(STIRLING);
+
+        customFrankelComboBox.addItem(FRANKEL_1996);
+        customFrankelComboBox.addItem(CUSTOM_FAULT);
         // initialize the current fault
         initFaults();
         initRupturePanel();
@@ -315,8 +338,7 @@ public class GriddedFaultApplet
 
         boolean first = true;
 
-        frankel_StirlingComboBox.addItem(FRANKEL);
-        frankel_StirlingComboBox.addItem(STIRLING);
+
         currentGriddedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
 
         ListIterator it = simpleFaultDataList.listIterator();
@@ -353,42 +375,56 @@ public class GriddedFaultApplet
 
     private GriddedSurfaceAPI getFaultGriddedSurface(String faultName){
 
-        String S = C + " ; getFaultGriddedSurface(): ";
-        if( D ) System.out.println(S + "Starting");
+      String S = C + " ; getFaultGriddedSurface(): ";
+      if( D ) System.out.println(S + "Starting");
+      currentGriddedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
+      SimpleFaultData faultData = null;
+
+      if(!this.isCustomFault ) {
+        // for Frankel 1996 faults
+        faultData = simpleFaultDataList.getSimpleFaultData(faultName);
+        if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
+          factory = new StirlingGriddedFaultFactory(faultData,
+              ((Double)gridSpacingEditor.getValue()).doubleValue());
+        else
+          factory = new FrankelGriddedFaultFactory(faultData,
+              ((Double)gridSpacingEditor.getValue()).doubleValue());
+      } else {
+        // for custom faults
+        int numDips = this.customDips.size();
+
+        if(numDips==1) { // for custom simple fault
+          if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
+          factory = new StirlingGriddedFaultFactory(customSimpleFaultData,
+              ((Double)gridSpacingEditor.getValue()).doubleValue());
+        else
+          factory = new FrankelGriddedFaultFactory(customSimpleFaultData,
+              ((Double)gridSpacingEditor.getValue()).doubleValue());
+        } else { // for custom listric fault
+
+          factory = new SimpleListricGriddedFaultFactory(this.customFaultTrace,
+              customDips, customDepths, ((Double)gridSpacingEditor.getValue()).doubleValue());
+        }
+      }
 
 
-        SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(faultName);
-
-
-        if( D ) System.out.println(S + "Creating StirlingGriddedFaultFactory with " + faultName);
-
-
-       currentGriddedFaultType = (String)frankel_StirlingComboBox.getSelectedItem();
-       if(currentGriddedFaultType.equalsIgnoreCase(this.STIRLING))
-         factory = new StirlingGriddedFaultFactory(faultData,
-                     ((Double)gridSpacingEditor.getValue()).doubleValue());
-       else
-         factory = new FrankelGriddedFaultFactory(faultData,
-                      ((Double)gridSpacingEditor.getValue()).doubleValue());
-
-
-
-        GriddedSurfaceAPI surface = factory.getGriddedSurface();
-        surface.setName(faultName);
-
-        gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km");
-        rowsLabel.setValue("" + surface.getNumRows() );
-        colsLabel.setValue("" + surface.getNumCols() );
+      GriddedSurfaceAPI surface = factory.getGriddedSurface();
+      surface.setName(faultName);
+      gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km");
+      rowsLabel.setValue("" + surface.getNumRows() );
+      colsLabel.setValue("" + surface.getNumCols() );
+      if(faultData!=null) {
         dipLabel.setValue( "" + faultData.getAveDip() );
         upperSeismoLabel.setValue( "" + faultData.getUpperSeismogenicDepth() );
         lowerSeismoLabel.setValue( "" + faultData.getLowerSeismogenicDepth() );
-        faultNameLabel.setValue( faultName );
+      }
+      faultNameLabel.setValue( faultName );
 
 
-        if( D ) System.out.println(S + "Surface = " + surface.toString());
-        if( D ) System.out.println(S + "Ending");
+      if( D ) System.out.println(S + "Surface = " + surface.toString());
+      if( D ) System.out.println(S + "Ending");
 
-        return surface;
+      return surface;
 
     }
 
@@ -433,6 +469,20 @@ public class GriddedFaultApplet
                   && faultTracePlot!=GRIDDED_RUPTURE_PLOT_TYPE) {
           // refresh on selection of fault model only if it is not grid rupture plot
            addPlot();
+        }  else if(src.equals(this.customFrankelComboBox)) {
+           // whether user has chosen Frankel / Custom Fault
+            String selected = (String)customFrankelComboBox.getSelectedItem();
+
+            // if custom fault is selected
+            if(selected.equalsIgnoreCase(CUSTOM_FAULT)) {
+              CustomFault custom = new CustomFault(this);
+              custom.show();
+            } else {
+              // put the Frankel 1996 Faults
+              this.initFaults();
+              isCustomFault = false;
+            }
+
         } else  {
 
             ItemSelectable selectable = e.getItemSelectable();
@@ -637,7 +687,9 @@ public class GriddedFaultApplet
 
             case FAULT_PLOT_TYPE:
 
-                SimpleFaultData simpleFaultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                SimpleFaultData  simpleFaultData;
+                if(!isCustomFault) simpleFaultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                else simpleFaultData = this.customSimpleFaultData;
                 comp3D = null;
                 threeD = false;
                 clearInfo();
@@ -726,7 +778,10 @@ public class GriddedFaultApplet
                 }
                 else{
 
-                  SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                  SimpleFaultData  faultData;
+                  if(!isCustomFault) faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                  else faultData = this.customSimpleFaultData;
+
                   gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
                   rowsLabel.setValue("" + surface.getNumRows() );
                   colsLabel.setValue("" + surface.getNumCols() );
@@ -821,7 +876,10 @@ public class GriddedFaultApplet
                 }
                 else{
 
-                   SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                  SimpleFaultData  faultData;
+                  if(!isCustomFault) faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                  else faultData = this.customSimpleFaultData;
+
                    gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
                    rowsLabel.setValue("" + surface.getNumRows() );
                    colsLabel.setValue("" + surface.getNumCols() );
@@ -898,7 +956,10 @@ public class GriddedFaultApplet
                 //plotter.add(functions3);
 
 
-                SimpleFaultData faultData1 = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                SimpleFaultData  faultData1;
+                if(!isCustomFault) faultData1 = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                else faultData1 = this.customSimpleFaultData;
+
 
                 gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km");
                 rowsLabel.setValue("" + surface.getNumRows() );
@@ -929,7 +990,10 @@ public class GriddedFaultApplet
 
                 comp3D = null;
                 threeD = false;
-                SimpleFaultData faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                SimpleFaultData  faultData;
+                if(!isCustomFault) faultData = simpleFaultDataList.getSimpleFaultData(currentGriddedSurfaceName);
+                else faultData = this.customSimpleFaultData;
+
                 surface = getFaultGriddedSurface(currentGriddedSurfaceName);
                 gridSpacingLabel.setValue( "" + ( (Double)gridSpacingEditor.getValue() ).doubleValue() + " km" );
                 rowsLabel.setValue("" + surface.getNumRows() );
@@ -1304,16 +1368,6 @@ public class GriddedFaultApplet
         clearButton.setFocusPainted( false );
         clearButton.setText( "Clear Plot" );
 
-        /*
-        clearButton.addFocusListener(
-            new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    clearButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            }
-        );
-        */
         clearButton.addMouseListener(
         new java.awt.event.MouseAdapter() {
             public void mouseClicked( MouseEvent e ) {
@@ -1332,16 +1386,6 @@ public class GriddedFaultApplet
         addButton.setFocusPainted( false );
         addButton.setText( "Add Trace" );
 
-        /*
-        addButton.addFocusListener(
-            new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    addButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            }
-        );
-        */
 
         addButton.addMouseListener(
         new java.awt.event.MouseAdapter() {
@@ -1362,17 +1406,6 @@ public class GriddedFaultApplet
         toggleButton.setFocusPainted( false );
         toggleButton.setText( "Show Data" );
 
-
-        /*
-        toggleButton.addFocusListener(
-            new java.awt.event.FocusListener() {
-                public void focusGained(FocusEvent e){
-                    toggleButtonFocusGained();
-                }
-                public void focusLost(FocusEvent e){ }
-            }
-        );
-        */
 
         toggleButton.addMouseListener(
             new java.awt.event.MouseAdapter() {
@@ -1431,13 +1464,13 @@ public class GriddedFaultApplet
         faultLabel.setText( "Choose Fault Trace: " );
         frankel_StirlingLabel.setForeground(darkBlue);
         frankel_StirlingLabel.setText("Fault Model:");
+        this.customFrankelLabel.setForeground(darkBlue);
 
         faultComboBox.setBackground( lightBlue );
         faultComboBox.setForeground( darkBlue );
         faultComboBox.setFont( new java.awt.Font( "Dialog", 0, 11 ) );
         faultComboBox.setBorder( null );
         faultComboBox.setPreferredSize( COMBO_DIM );
-
         faultComboBox.addItemListener( this );
         faultComboBox.setMinimumSize( COMBO_DIM );
 
@@ -1446,9 +1479,16 @@ public class GriddedFaultApplet
         frankel_StirlingComboBox.setFont( new java.awt.Font( "Dialog", 0, 11 ) );
         frankel_StirlingComboBox.setBorder( null );
         frankel_StirlingComboBox.setPreferredSize( SMALL_COMBO_DIM );
-
         frankel_StirlingComboBox.addItemListener( this );
         frankel_StirlingComboBox.setMinimumSize( SMALL_COMBO_DIM );
+
+        customFrankelComboBox.setBackground( lightBlue );
+        customFrankelComboBox.setForeground( darkBlue );
+        customFrankelComboBox.setFont( new java.awt.Font( "Dialog", 0, 11 ) );
+        customFrankelComboBox.setBorder( null );
+        customFrankelComboBox.setPreferredSize( SMALL_COMBO_DIM );
+        customFrankelComboBox.addItemListener( this );
+        customFrankelComboBox.setMinimumSize( SMALL_COMBO_DIM );
 
 
         this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
@@ -1498,25 +1538,32 @@ public class GriddedFaultApplet
 
         dataScrollPane.getViewport().add( pointsTextArea, null );
 
-        buttonPanel.add( addButton, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( addButton, new GridBagConstraints( 6, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-        buttonPanel.add( clearButton, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
-                        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
-
-        buttonPanel.add( toggleButton, new GridBagConstraints( 6, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( clearButton, new GridBagConstraints( 7, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
 
-        buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 7, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( toggleButton, new GridBagConstraints( 8, 0, 1, 1, 0.0, 0.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 3 ), 0, 0 ) );
+
+        buttonPanel.add( plotColorCheckBox, new GridBagConstraints( 9, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 3, 0, 1 ), 0, 0 ) );
 
-        buttonPanel.add( faultComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( faultComboBox, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( faultLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( faultLabel, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-        buttonPanel.add( frankel_StirlingLabel, new GridBagConstraints( 2, 0, 1, 1, 0.0, 0.0
+        // add the combobox for selecting the Frankel / Custom Fault
+        buttonPanel.add (customFrankelComboBox, new GridBagConstraints( 1, 0, 1, 1, 0.0, 0.0
+                      , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
+        buttonPanel.add( customFrankelLabel, new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0
+                        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+
+        buttonPanel.add( frankel_StirlingLabel, new GridBagConstraints( 4, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
-        buttonPanel.add( frankel_StirlingComboBox, new GridBagConstraints( 3, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( frankel_StirlingComboBox, new GridBagConstraints( 5, 0, 1, 1, 0.0, 0.0
                         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 7, 1, 0, 2 ), 0, 0 ) );
 
 
@@ -1717,6 +1764,38 @@ public class GriddedFaultApplet
 
      rupturePanel.setBackground(this.background);
 
+  }
+
+  /**
+   * Set the parameters for the custom fault
+   *
+   * @param dips : Vector for dips
+   * @param depths : Vector for depths
+   * @param faultTrace : Faulttrace for this custom fault
+   */
+  public void setCustomFaultParams(Vector dips, Vector depths, FaultTrace faultTrace) {
+    this.customDips = dips;
+    this.customDepths = depths;
+    this.customFaultTrace = faultTrace;
+
+    // if there is only 1 dip, then it is simple fault
+   if(dips.size()==1) {
+     double dip = ((Double)customDips.get(0)).doubleValue();
+     double upperSeismoDepth = ((Double)customDepths.get(0)).doubleValue();
+     double lowerSeismoDepth = ((Double)customDepths.get(1)).doubleValue();
+     customSimpleFaultData = new SimpleFaultData(dip, lowerSeismoDepth, upperSeismoDepth, this.customFaultTrace);
+    }
+
+    // add this custom fault name to fault combo box
+    faultComboBox.removeItemListener(this);
+    this.faultComboBox.removeAllItems();
+    faultComboBox.addItemListener(this);
+    faultComboBox.addItem(faultTrace.getName());
+    this.isCustomFault = true;
+
+
+    // draw the custom fault
+    this.addPlot();
   }
 
 
