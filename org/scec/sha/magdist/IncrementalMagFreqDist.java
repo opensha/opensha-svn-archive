@@ -13,11 +13,7 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
 
 public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc implements IncrementalMagFreqDistAPI {
 
-    /*
-     These constructors call the functions setMomentRateDist and setCumRateDist which initialise
-     the objects of the class EvenlydiscretizedFunc with the Moment Rate distribution
-     and Cumulative Rate Distribution respectively for all data points.
-    */
+
 
 
     /**
