@@ -45,6 +45,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     xValuesButton.setBackground(new Color(200, 200, 230));
     xValuesButton.setForeground(new Color(80, 80, 133));
     xValuesButton.setText("Set Default");
+    this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     this.setTitle("X Values Control Panel");
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowClosing(WindowEvent e) {
@@ -175,10 +176,10 @@ public class X_ValuesInCurveControlPanel extends JFrame {
                                     JOptionPane.OK_OPTION);
       flag=1;
     }
-    if(flag!=0){
-      //this.pack();
-      this.show();
-    }
+    //if there is no exception occured and user properly entered the X values
+    if(flag==0)
+      this.dispose();
+
   }
 
 
@@ -190,15 +191,5 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     return this.function;
   }
 
-/*  void this_windowClosed(WindowEvent e) {
-    //if the user text area for the X values is empty
-    System.out.println("Function is null");
-    if(function == null){
-      JOptionPane.showMessageDialog(this,"Must enter X values","Invalid Entry",
-                                    JOptionPane.OK_OPTION);
-      return;
-    }
-    else
-      super.dispose();
-  }*/
+
 }
