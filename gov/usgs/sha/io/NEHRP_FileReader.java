@@ -28,6 +28,10 @@ public class NEHRP_FileReader {
 
   private float[] saPeriods;
 
+
+  private String dataInfo=" ";
+
+
   private int numPeriods;
   public NEHRP_FileReader() {
 
@@ -47,9 +51,9 @@ public class NEHRP_FileReader {
     MCE_Record nwRecord = getRecord(1);
     MCE_Record seRecord = getRecord(2);
     minLat = seRecord.latitude;
-    minLon = seRecord.longitude;
+    maxLon = seRecord.longitude;
     maxLat = nwRecord.latitude;
-    maxLon = nwRecord.longitude;
+    minLon = nwRecord.longitude;
     MCE_Record record_4 = getRecord(4);
     MCE_Record record_5 = getRecord(5);
     gridSpacing =  Math.abs(record_4.longitude - record_5.longitude);
@@ -74,7 +78,7 @@ public class NEHRP_FileReader {
 
     float [] vals = new float[numPeriods];
     for(int i=0;i<numPeriods;++i)
-      vals[i] = record.values[i]/100;
+      vals[i] = record.values[i]/GlobalConstants.DIVIDING_FACTOR_HUNDRED;
 
     return vals;
   }
@@ -127,15 +131,25 @@ public class NEHRP_FileReader {
          String lineZipCode =  tokenizer.nextToken();
          if(lineZipCode.equalsIgnoreCase(zipCode)) {
            funcList = new DiscretizedFuncList();
+           for(int i=0;i<4;++i)
+             tokenizer.nextToken();
            ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
            ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
            ArbitrarilyDiscretizedFunc func3 = new ArbitrarilyDiscretizedFunc();
-           func1.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken()));
-           func1.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken()));
-           func2.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken()));
-           func2.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken()));
-           func3.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken()));
-           func3.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken()));
+           func1.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken())/GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+           func1.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken())/GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+           func2.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken())/GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+           func2.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken())/GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+           func3.set(saPeriods[0], Double.parseDouble(tokenizer.nextToken())/GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+           func3.set(saPeriods[1], Double.parseDouble(tokenizer.nextToken())/GlobalConstants.DIVIDING_FACTOR_HUNDRED);
+           //adding the info for each function
+
+           func1.setInfo("");
+           func2.setInfo("");
+           func3.setInfo("");
+           dataInfo +=func1.toString()+"\n\n";
+           dataInfo +=func2.toString()+"\n\n";
+           dataInfo +=func3.toString()+"\n\n";
            funcList.add(func1);
            funcList.add(func2);
            funcList.add(func3);
@@ -153,12 +167,13 @@ public class NEHRP_FileReader {
      return funcList;
    }
 
-  /**
-   *
-   * @param latitude double
-   * @param longitude double
-   */
-  public ArbitrarilyDiscretizedFunc getSsS1(double latitude, double longitude) {
+   /**
+    *
+    * @param latitude double
+    * @param longitude double
+    * @return DiscretizedFuncList
+    */
+   public DiscretizedFuncList getSsS1(double latitude, double longitude) {
     float lat = 0;
     float lon = 0;
     float[] saArray=null;
@@ -191,10 +206,10 @@ public class NEHRP_FileReader {
       int recNum2 = recNum1+gridPointsPerLatitude;
       float[] vals1 = getPeriodValues(recNum1);
       float[] vals2 = getPeriodValues(recNum2);
-      float flat = (float)(latitude - lat)/gridSpacing;
+      float flat = (float)(lat- latitude)/gridSpacing;
       saArray =getPeriodValues(vals1,vals2,flat);
     }
-    else if (longitude > minLon && longitude < maxLon &&
+    else if (latitude > minLat && latitude < maxLat &&
              longitude > minLon && longitude < maxLon) {
       lat = ( (int) (latitude / gridSpacing) + 1) * gridSpacing;
       lon = ( (int) (longitude / gridSpacing)) * gridSpacing;
@@ -207,7 +222,7 @@ public class NEHRP_FileReader {
       float[] vals3 = getPeriodValues(recNum3);
       float[] vals4 = getPeriodValues(recNum4);
       float flon = (float)(longitude - lon)/gridSpacing;
-      float flat = (float)(latitude - lat)/gridSpacing;
+      float flat = (float)(lat - latitude)/gridSpacing;
       float[] periodVals1 =getPeriodValues(vals1,vals2,flon);
       float[] periodVals2 =getPeriodValues(vals3,vals4,flon);
       saArray = getPeriodValues(periodVals1,periodVals2,flat);
@@ -216,14 +231,23 @@ public class NEHRP_FileReader {
       new RuntimeException("Latitude and Longitude outside the Region bounds");
     }
 
-    return createFunction(saArray);
+     ArbitrarilyDiscretizedFunc function =createFunction(saArray);
+     DiscretizedFuncList functionList =  new DiscretizedFuncList() ;
+     functionList.add(function);
+     //set the info for the function being added
+     function.setInfo("");
+     dataInfo += function.toString()+"\n\n";
+     return functionList;
   }
 
 
   private ArbitrarilyDiscretizedFunc createFunction(float[] saVals){
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
-    for(int i=0;i<numPeriods;++i)
-      function.set(saPeriods[i],saVals[i]);
+    for(int i=0;i<numPeriods;++i){
+      System.out.println("SA Period :"+saPeriods[i]);
+      System.out.println(" Value:"+saVals[i]);
+      function.set(saPeriods[i], saVals[i]);
+    }
     return function;
   }
 
@@ -237,12 +261,24 @@ public class NEHRP_FileReader {
   private int getRecordNumber(float lat, float lon) {
     int colIndex = (int)((lon-minLon)/gridSpacing)+1;
     int rowIndex = (int)((maxLat-lat)/gridSpacing)+1;
-    int recNum = (rowIndex-1)*gridPointsPerLatitude+colIndex+(colIndex-1)+1;
-    return recNum;
+    int recNum = (rowIndex-1)*gridPointsPerLatitude+(colIndex-1)+1;
+    return recNum+3;
   }
 
+  /**
+   * gets the data info about the data from the file.
+   * @return String
+   */
+  public String getDataInfo(){
+    return dataInfo;
+  }
 
-
+  /**
+   * removes the information about the data.
+   */
+  public void clearDataInfo(){
+    dataInfo ="";
+  }
 
 
   public static void main(String[] args) {
@@ -261,9 +297,15 @@ public class NEHRP_FileReader {
       record.recordNumber = GlobalConstants.swap(fin.readInt());
       record.latitude = GlobalConstants.swap(fin.readFloat());
       record.longitude = GlobalConstants.swap(fin.readFloat());
-      record.numValues = GlobalConstants.swap(fin.readInt());
+      record.numValues = GlobalConstants.swap(fin.readShort());
       record.values[0] = GlobalConstants.swap(fin.readFloat());
       record.values[1] = GlobalConstants.swap(fin.readFloat());
+      /*record.recordNumber = fin.readInt();
+      record.latitude = fin.readFloat();
+      record.longitude = fin.readFloat();
+      record.numValues = fin.readInt();
+      record.values[0] = fin.readFloat();
+      record.values[1] = fin.readFloat();*/
       fin.close();
       return record;
     }
@@ -277,10 +319,10 @@ public class NEHRP_FileReader {
 }
 
 class MCE_Record{
-  public long recordNumber;
+  public int recordNumber;
   public float latitude;
   public float longitude;
-  public int numValues;
+  public short numValues;
   public float[] values= new float[2];
-  public static final int recordLength = 32+32+32+16+32+32;
+  public static final int recordLength = 4+4+4+4+4+4;
 }

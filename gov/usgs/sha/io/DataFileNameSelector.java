@@ -17,19 +17,60 @@ public class DataFileNameSelector {
 
   private final static String filePath ="/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
 
-  public String getFileName(String selectedAnalysisOption, String selectedEdition,
+  /**
+   *
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @param lat double
+   * @param lon double
+   * @return String
+   */
+  public String getFileName(String selectedRegion, String selectedEdition,
       double lat, double lon){
-    if(selectedEdition.equals(GlobalConstants.CONTER_48_STATES))
+    if(selectedRegion.equals(GlobalConstants.CONTER_48_STATES))
       return getFileNameFor48States(selectedEdition,lat,lon);
-    else if(selectedEdition.equals(GlobalConstants.ALASKA))
-      return getFileNameForAlaska(selectedAnalysisOption);
-    else if(selectedEdition.equals(GlobalConstants.HAWAII))
+    else if(selectedRegion.equals(GlobalConstants.ALASKA))
+      return getFileNameForAlaska(selectedEdition);
+    else if(selectedRegion.equals(GlobalConstants.HAWAII))
       return getFileNameForHawaii(selectedEdition);
     else
       return getFileNameForPRVI(selectedEdition);
   }
 
 
+  /**
+   *
+   * @param selectedRegion String
+   * @param selectedEdition String
+   * @return String
+   */
+  public String getFileName(String selectedRegion, String selectedEdition) {
+
+    return getZipCodeFileName(selectedEdition);
+  }
+
+
+  private String getZipCodeFileName(String selectedEdition) {
+    if (selectedEdition.equals(GlobalConstants.NEHRP_1997) ||
+        selectedEdition.equals(GlobalConstants.NEHRP_2000)) {
+        String fileName = "1997-ZipCode-MCE-data-SsS1.txt";
+        return filePath + fileName;
+    }
+    else if (selectedEdition.equals(GlobalConstants.NEHRP_2003)) {
+        String fileName = "2003-ZipCode-MCEdata-SsS1.txt";
+        return filePath + fileName;
+    }
+    return null;
+  }
+
+
+
+
+  /**
+   *
+   * @param selectedEdition String
+   * @return String
+   */
   private String getFileNameForAlaska(String selectedEdition){
 
     if (selectedEdition.equals(GlobalConstants.NEHRP_1997) ||

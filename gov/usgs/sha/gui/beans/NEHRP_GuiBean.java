@@ -5,12 +5,16 @@ import javax.swing.*;
 import java.util.ArrayList;
 
 import gov.usgs.util.GlobalConstants;
+import gov.usgs.sha.io.DataFileNameSelector;
+import gov.usgs.sha.io.NEHRP_FileReader;
 
 import org.scec.param.event.*;
 import org.scec.param.ParameterAPI;
 import org.scec.data.region.RectangularGeographicRegion;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.ConstrainedStringParameterEditor;
+import org.scec.data.Location;
+import org.scec.data.function.DiscretizedFuncList;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -18,6 +22,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
+
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -61,8 +67,11 @@ public class NEHRP_GuiBean
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
+  private NEHRP_FileReader fileReader = new NEHRP_FileReader();
+  private ArrayList functionsList = new ArrayList();
 
-
+  //gets the datainfo for the calculated data
+  private String dataInfo ="";
 
   //creating the Ground Motion selection parameter
   StringParameter groundMotionParam;
@@ -70,7 +79,12 @@ public class NEHRP_GuiBean
   private static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
   private static final String MCE_GROUND_MOTION = "MCE Ground Motion";
 
-  public NEHRP_GuiBean() {
+
+  //instance of the application using this GUI bean
+  private ProbabilisticHazardApplicationAPI application;
+
+  public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
+    application = api;
     try {
 
       jbInit();
@@ -392,17 +406,65 @@ public class NEHRP_GuiBean
 
 
   private void getDataForSA_Period(){
+    String fileName = null;
+    DataFileNameSelector dataFileSelector = new DataFileNameSelector();
+    String selectedGeographicRegion = datasetGui.getSelectedGeographicRegion();
+    String selectedDataEdition = datasetGui.getSelectedDataSetEdition();
     String locationMode = locGuiBean.getLocationMode();
     if(locationMode.equals(locGuiBean.LAT_LON)){
+      Location loc= locGuiBean.getSelectedLocation();
+      double lat = loc.getLatitude();
+      double lon = loc.getLongitude();
 
+      fileName = dataFileSelector.getFileName(selectedGeographicRegion,
+          selectedDataEdition,lat,lon);
+      fileReader.setFileName(fileName);
+      DiscretizedFuncList functions =fileReader.getSsS1(lat,lon);
+      int numFunctions = functions.size();
+      for(int i=0;i<numFunctions;++i)
+        functionsList.add(functions.get(i));
     }
     else if(locationMode.equals(locGuiBean.ZIP_CODE)){
+      String zipCode = locGuiBean.getZipCode();
+      fileName = dataFileSelector.getFileName(selectedGeographicRegion,
+          selectedDataEdition);
+      try{
 
+        fileReader.setFileName(fileName);
+        DiscretizedFuncList functions = fileReader.getSsS1(zipCode);
+        int numFunctions = functions.size();
+        for (int i = 0; i < numFunctions; ++i)
+          functionsList.add(functions.get(i));
+
+      }catch(Exception e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Zip Code Error",JOptionPane.OK_OPTION);
+        e.printStackTrace();
+        return;
+      }
     }
   }
 
+  /**
+   * Returns the list of Arbitrary Discretized functions.
+   * @return ArrayList
+   */
+  public ArrayList getComputedFunctions(){
+    return functionsList;
+  }
+
+  /**
+   * Returns the data info for the computed data.
+   * @return String
+   */
+  public String getDataInfo(){
+    dataInfo = fileReader.getDataInfo();
+    return dataInfo;
+  }
+
+
   private void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
+    application.setDataInWindow(getDataInfo());
   }
 
 

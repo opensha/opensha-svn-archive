@@ -10,8 +10,9 @@ import gov.usgs.util.GlobalConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
-import gov.usgs.sha.gui.beans.*;
 
+import gov.usgs.sha.gui.beans.*;
+import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
 /**
  * <p>Title:ProbabilisticHazardApplication </p>
  *
@@ -35,7 +36,7 @@ import gov.usgs.sha.gui.beans.*;
  * @version 1.0
  */
 public class ProbabilisticHazardApplication
-    extends JFrame {
+    extends JFrame implements ProbabilisticHazardApplicationAPI{
 
 
   JPanel contentPane;
@@ -225,7 +226,7 @@ public class ProbabilisticHazardApplication
     else if (selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
-      guiBeanAPI = new NEHRP_GuiBean();
+      guiBeanAPI = new NEHRP_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_273)) {
     }
@@ -257,6 +258,15 @@ public class ProbabilisticHazardApplication
       setExplainationForSelectedAnalysisOption(frameTitle);
     }
 
+  }
+
+
+  /**
+   * Sets the information from the Gui beans in Data window
+   * @param dataInfo String
+   */
+  public void setDataInWindow(String dataInfo){
+   dataTextArea.setText(dataInfo);
   }
 
   /**
