@@ -3,7 +3,7 @@ package org.scec.sha.gui.controls;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import org.scec.gui.plot.LogPlotAPI;
+
 /**
  * <p>Title: AxisLimitsControlPanel</p>
  *
