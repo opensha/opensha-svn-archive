@@ -1,0 +1,11 @@
+/opt/install/gmt/bin/xyz2grd map.txt -Gmap.grd -I0.05 -R-119.0/-117.5/33.5/35.0 -D/degree/degree/amp/=/=/=  -: -H0
+/opt/install/gmt/bin/makecpt -C/usr/scec/data/gmt/MaxSpectrum.cpt -T-1.455702663622204/-0.1625594499849842/0.06465716 -Z > map.cpt
+/opt/install/gmt/bin/gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait
+/opt/install/gmt/bin/grdsample map.grd -GmapHiResData.grd -I18c -Q
+/opt/install/gmt/bin/grdcut /usr/scec/data/gmt/calTopoInten18.grd -GmapInten.grd -R-119.0/-117.5/33.5/35.0
+/opt/install/gmt/bin/grdimage mapHiResData.grd -X0.75i -Y2.6363650990549186i -JM6.5i -ImapInten.grd -Cmap.cpt -K -E70 -R-119.0/-117.5/33.5/35.0 > map.ps
+/opt/install/gmt/bin/pscoast  -R-119.0/-117.5/33.5/35.0 -JM6.5i -K -O -W1/17/73/71 -P -S17/73/71 -Dh >> map.ps
+/opt/install/gmt/bin/gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 5 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255
+/opt/install/gmt/bin/psscale -Ba0.3:IML: -D3.5i/-0.5i/6i/0.3ih -Cmap.cpt -K -O -N70 >> map.ps
+/opt/install/gmt/bin/psbasemap -B1/1eWNs -JM6.5i -R-119.0/-117.5/33.5/35.0 -Lfx1.25i/0.6i/33.0/50 -O >> map.ps
+/bin/cat map.ps | gs -sDEVICE=jpeg -sOutputFile=map.jpg -
