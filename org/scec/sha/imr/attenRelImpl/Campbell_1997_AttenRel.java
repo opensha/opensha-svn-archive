@@ -353,7 +353,11 @@ public class Campbell_1997_AttenRel
             depth = 5.0;
         }
 
-
+        // Override basin depth if it's generic rock or generic soil
+        if ( siteType.equals( SITE_TYPE_GEN_ROCK ))
+          depth = 1;
+        if ( siteType.equals( SITE_TYPE_GEN_SOIL ))
+          depth = 5;
 
         // Get horizontal PGA (which all depend on):
         lnPGA = -3.512 + 0.904*mag -

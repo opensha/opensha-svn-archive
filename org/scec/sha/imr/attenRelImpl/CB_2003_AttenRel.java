@@ -473,12 +473,18 @@ public class CB_2003_AttenRel
         }
         else {  // PGA dependent
 
-            // Set PGA coefficients depending on component:
+            // Get the component:
             String component = (String) componentParam.getValue();
+
+            // get the PGA coeffs (Note diff between those for PGA vs SA at zero period)
+            StringBuffer key = new StringBuffer( im.getName() );
+            // If SA, append zero period
+            if( im.getName().equalsIgnoreCase( SA_NAME) ) key.append( "/0.0");
+
             if ( component.equals( COMPONENT_AVE_HORZ ) )
-                coeff = ( CB_2003_AttenRelCoefficients ) horzCoefficients.get( PGA_NAME );
+                coeff = ( CB_2003_AttenRelCoefficients ) horzCoefficients.get( key.toString() );
             else  // vertical component
-                coeff = ( CB_2003_AttenRelCoefficients ) vertCoefficients.get( PGA_NAME );
+                coeff = ( CB_2003_AttenRelCoefficients ) vertCoefficients.get( key.toString() );
 
             double pga = Math.exp(calcMean());
             updateCoefficients();
@@ -870,13 +876,13 @@ public class CB_2003_AttenRel
               1.5, -5.073, 0.756, -0.150, -0.812, 0.012, 0, 0, 0.931, -0.184, 0.171, 0.211, -0.038, -0.018, -0.518, 0.240, 1.031, 0.330, -0.704);
         // SA/2.0
         CB_2003_AttenRelCoefficients coeff12 = new CB_2003_AttenRelCoefficients( SA_NAME + '/' +( new Double( "2.0" ) ).doubleValue() ,
-              2.0, -5.292, 0.756, -0.180, -0.812, 0.012, 0, 0, 0.931, -0.222, 0.114, 0.115, 0.033, -0.022, -0.503, 0.240, 1.031, 0.330, -0.665);
+              2.0, -5.292, 0.756, -0.180, -0.812, 0.012, 0, 0, 0.931, -0.222, 0.114, 0.115, 0.033, -0.022, -0.503, 0.240, 1.031, 0.330, -0.655);
         // SA/3.0
         CB_2003_AttenRelCoefficients coeff13 = new CB_2003_AttenRelCoefficients( SA_NAME + '/' +( new Double( "3.0" ) ).doubleValue() ,
-              3.0, -5.748, 0.756, -0.193, -0.812, 0.012, 0, 0, 0.931, -0.238, 0.179, 0.159, -0.010, -0.047, -0.539, 0.240, 1.031, 0.330, -0.665);
+              3.0, -5.748, 0.756, -0.193, -0.812, 0.012, 0, 0, 0.931, -0.238, 0.179, 0.159, -0.010, -0.047, -0.539, 0.240, 1.031, 0.330, -0.655);
         // SA/4.0
         CB_2003_AttenRelCoefficients coeff14 = new CB_2003_AttenRelCoefficients( SA_NAME + '/' +( new Double( "4.0" ) ).doubleValue() ,
-              4.0, -6.042, 0.756, -0.202, -0.812, 0.012, 0, 0, 0.931, -0.248, 0.237, 0.134, -0.059, -0.267, -0.606, 0.240, 1.031, 0.330, -0.665);
+              4.0, -6.042, 0.756, -0.202, -0.812, 0.012, 0, 0, 0.931, -0.248, 0.237, 0.134, -0.059, -0.267, -0.606, 0.240, 1.031, 0.330, -0.655);
 
         vertCoefficients.put( coeffPGA.getName(), coeffPGA );
         vertCoefficients.put( coeff0.getName(), coeff0 );
