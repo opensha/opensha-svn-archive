@@ -1,24 +1,56 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Change HazardCurveServerModeApp to do the calculations on the server.
+Make email lists for the following (with on-line archives):
 
-MultipleIMR_GuiBean:
+	users@OpenSHA.org
+	developers@OpenSHA.org
+	leaders@OpenSHA.org
+	advisors@OpenSHA.org
 
-	2) test it
+Work on following papers:
 
-	5) check how averaging is done (e.g., on log values?); ned will do this.
+	Hazus for Puente Hills
 
+	So. Cal. Hazard maps using GRID (and other approaches)
 
-Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golder).
+	Announce applications available?
+
+Figure out how to add the OpenSHA logo to shakeMaps.
+
+Get usable scenario ShakeMap app to Wald and Reasonberg.
+
+Go over exception throwing in entire package to make sure it looks appropriate.
+
+Standardize source definition with pathway 1?
+
+Get e-access to SCEC 2005 Consensus Geologic Fault Parameters.
+
+Peter Powers' stress chance calculator (and Jeremy's work)?
+
+Formally test all applications before publication.
+
+Write user's manuals for applications.
+
+Implement Spudich et al. (1999) relationship  **********
+
+Implement point source correction option in PropagationEffect.  ************
+
+Change HazardCurveServerModeApp to do the calculations on the server (done?).
+
+ERFs in distributed mode - problem solved?
+
+Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intial tests on adding such fields to EqkRupture does not significantly increase memory requirements.
 
 Make a library to represent t-surfaces (or look on internet to see if someone else has come up with a good object-oriented design).
 
-Finish the PropagationEffect object and utilize it (Ned will do this).
+Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
 GMT_MapGenerator:
+
+	If MMI chosen (and not log-plot) use unaltered shakemap pallet
 
 	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service
 	
@@ -28,7 +60,7 @@ Finish PEER results plotter & data submission tool (when they give us the final 
 
 Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x). Ned needs to double check these.
 
-Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.
+Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
@@ -57,7 +89,7 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
 
-Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
+Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done. **************
 
 Ned needs to think about the following:
 
@@ -66,7 +98,7 @@ Ned needs to think about the following:
 	Shallow Crustal in Active Tectonic Regions
 	Shallow Crustal in Stable Tectonic Regions
 
-Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D
+Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
 
 Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.  Nitin says there are still important discrepancies.
 
@@ -74,13 +106,14 @@ Finish STEP map making capability according to feedback from Matt and Lucy (and 
 
 SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
 
-Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.
+Explore the benefit of using RelativeLocation.getApproxHorzDistance(*) as opposed to RelativeLocation.getHorzDistance(*) in the hazard calculations.  ********************
 
 Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
 
+Implement NGA relationships when ready.
 
 ProbEqkSource	Define field to declare what type of source it is 
 		(e.g., subduction zone vs normal vs reverse ...) and add to API. 
@@ -101,21 +134,17 @@ Implement getApplicableRegion() and isLocWithinApplicableRegion() methods in imp
 
 DisaggregationCalculator is similar to HazardCurveCalculator; should the two be combined?
 
-HazardCurveApplet - In the IMT editor section the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
+IMT_GuiBean - the loop over independent parameters of the chosen IMT can presently deal only with DoubleDiscreteParameter objects (rather than any parameter type).  Should we generalize this?
 
 Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
 
 Decide on and implement a licensing agreement.
 
-Decide on and implement email groups.
-
 Figure out why applets don't resize with browser window size on Mac OS.
 
-Create an archived email list or discussion board for OpenSHA.
+Vector PSHA?
 
-Add 3D visualization to GriddedFaultApplet (need Java3D on Mac OS first)?
-
-Go over exception throwing in entire package to make sure it looks appropriate.
+Pathway 1.5?
 
 AttenRelApp:
 
