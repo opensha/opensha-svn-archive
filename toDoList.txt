@@ -51,30 +51,43 @@ GMT Web service:
 For OpenSHA:
 ------------
 
-Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible).
+Develop HazardSpectrumApplet for Caltrans.  This is like the hazard curve calculator except:
 
-IMR_GuiBean -	rather than getting the stdDevType, truncType, and truncLevel by hand, 
-		use the getOtherParamsIterator() method of IMR.  This will allow more flexibly 
-		for handling new IMRs that either don't have those particular params or
-		have different ones (this will also include the component parameters for
-		our existing attenuation relationships).
+	X axis will be SA period.  We won't need the X_ValuesInCurveControlPanel here because 
+	the X-axis values will be exactly whatever the chosen IMR supports.
 
-		Note that you will still have to hard-code the hiding of the truncLevel param
-		if the valued of truncType is "None".
+	Remove the IMT_GuiBean because only SA will be supported 
+	(one can plot a spectrum only for SA).
+
+	add the IMLorProbSelectorGuiBean (so the user can specify the Y-axis).  If the
+	user has chosen "prob@IML", the hazard curve will only need one X-axis value
+	(the chosen IML).  If the user has chosen IML@prob, then we will need to interpolate
+	a full hazard curve to find the IML (we'll need a wide-enough range of x-axis IMLs
+	to find the one for the chosen IML; this might be tricky)
+
+	at the bottom of the app, make a two-item pick list where the user can 
+	choose "Probabilistic" or "Deterministic".  When "Probabilistic" is chosen,
+	show the ERF_GuiBean, and do the full hazard calculation 
+	(using the HazardCurveCalculator) for each SA-period on the X axis. 
+	If "Deterministic" is chosen, show the EqkRupSelectorGuiBean and only do the
+	hazard calculation for the single rupture (using the IMR directly, which 
+	basically assumes the rupture has occurred (prob=1), which is the definition
+	of "Deterministic" hazard).  
+
+	Remove the "Dissagregation" control panel (this will need special treatment here).
+
+
+Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); waiting for Ken to finish before finalizing these.
 
 Make apps that use internet connection graceful if it's not available (if not connected locally or if remote server is down).
 
 Fix GriddedFaultApplet - horz/vert scaling.
 
-Create the following control panel for the hazard curve calculator (include a button to revert back to defaults):
+Create X_ValuesInCurveControlPanel for the hazard curve calculator (include a button to revert back to defaults); done - Ned needs to look at.
 
-	X_ValuesInCurveControlPanel
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.  Should we be using UTM coordinates?
 
 Go through existing apps and list issues we'd like to improve.
-
-Develop HazardSpectrumApplet for Caltrans (Ned will provide specs).
 
 getIML_AtExceedProb()
 
