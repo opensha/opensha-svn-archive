@@ -67,9 +67,6 @@ public class HazardMapCalcServlet extends HttpServlet {
       outputToApplet.writeObject(new String(""+newDirId));
       outputToApplet.close();
 
-      // write the objects to the files
-      File mainDir = new File(PARENT_DIR);
-
       String newDir = this.PARENT_DIR+newDirId+"/";
       new File(newDir).mkdir();
 
