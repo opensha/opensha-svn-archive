@@ -20,7 +20,7 @@ public final class WillsSiteClass {
 
 
   //ArrayList for computing the lat and lons for the given gridded region
-  ArrayList locations = new ArrayList();
+  ArrayList locations ;
   String willsSiteClassFile;
 
   /**
@@ -48,6 +48,7 @@ public final class WillsSiteClass {
   public WillsSiteClass(LocationList locList,String fileName){
     int numLocations = locList.size();
     willsSiteClassFile = fileName;
+    locations = new ArrayList();
     for(int i=0;i<numLocations;++i)
       locations.add(locList.getLocationAt(i));
   }
@@ -66,6 +67,7 @@ public final class WillsSiteClass {
   private void prepareSitesInput(double minLon, double maxLon, double minLat,
                                       double maxLat, double gridSpacing) {
 
+    locations = new ArrayList();
     EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
     //System.out.println("Number of Grid Locations:"+region.getNumGridLocs());
     ListIterator it= region.getGridLocationsIterator();

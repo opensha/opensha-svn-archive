@@ -48,6 +48,7 @@ public final class BasinDepthClass {
   public BasinDepthClass(LocationList locList,String fileName){
     int numLocations = locList.size();
     basinDepthFile = fileName;
+    locations = new ArrayList();
     for(int i=0;i<numLocations;++i)
       locations.add(locList.getLocationAt(i));
   }
