@@ -3,6 +3,9 @@
 
 Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label).
 
+Ned - implement the empty-constructor version of the  WG02_EqkRupForecast (1 realization with modal values, handle timespan correctly, and delete WG02_WRAPPER_INPUT.DAT file when done.
+
+Update HavardCurveApp jar file at web site (the non-servlet mode one) - Ned added support for adjustable durations in the WG02 ERF.
 
 Ned needs to think about the following:
 

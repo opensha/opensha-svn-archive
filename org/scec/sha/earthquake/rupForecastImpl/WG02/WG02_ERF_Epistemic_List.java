@@ -51,11 +51,11 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
   /**
    * Static variable for input file name
    */
-  private final static String INPUT_FILE_NAME_30yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.30yr.txt";
-  private final static String INPUT_FILE_NAME_20yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.20yr.txt";
-  private final static String INPUT_FILE_NAME_10yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.10yr.txt";
-  private final static String INPUT_FILE_NAME_5yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.5yr.txt";
-  private final static String INPUT_FILE_NAME_1yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_1K.OpenSHA.1yr.txt";
+  private final static String INPUT_FILE_NAME_30yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_n100.OpenSHA.30yr.txt";
+  private final static String INPUT_FILE_NAME_20yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_n100.OpenSHA.20yr.txt";
+  private final static String INPUT_FILE_NAME_10yr = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_n100.OpenSHA.10yr.txt";
+  private final static String INPUT_FILE_NAME_5yr  = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_n100.OpenSHA.5yr.txt";
+  private final static String INPUT_FILE_NAME_1yr  = "org/scec/sha/earthquake/rupForecastImpl/WG02/base_mod_23_wgt_n100.OpenSHA.1yr.txt";
   private String INPUT_FILE_NAME;
 
   // vector to hold the line numbers where each iteration starts
@@ -112,7 +112,7 @@ public class WG02_ERF_Epistemic_List extends ERF_EpistemicList
   private final static String NUM_REALIZATIONS_PARAM_NAME ="Num Realizations";
   private Integer DEFAULT_NUM_REALIZATIONS_VAL= new Integer(10);
   private int NUM_REALIZATIONS_MIN = 1;
-  private int NUM_REALIZATIONS_MAX = 1000;
+  private int NUM_REALIZATIONS_MAX = 100;
   private final static String NUM_REALIZATIONS_PARAM_INFO = "Number of Monte Carlo ERF realizations";
   IntegerParameter numRealizationsParam;
 

@@ -1,0 +1,3 @@
+The base_mod_23_wgt_n100.OpenSHA.*yr.txt files were made by Ned by running the Neds.shscr (located here) in the wg99_src_v27 directory (the one on Ned's computer, but it should do the same thing elsewhere).
+
+These files allow the time span to be adjusted in our non-fortran-wrapper ERF.

@@ -1,0 +1,34 @@
+sed -e 's/30    nYr/1    nYr/g' < base_mod_23_wgt_1K.inp | sed -e 's/time_pred_2002_30yr_rand.dat/time_pred_2002_1yr_n1000_rand.txt/g' | sed -e 's/1000    number of Monte/100    number of Monte/g' > temp_input
+
+wg99_main temp_input
+
+cp WG02_WRAPPER_INPUT.DAT base_mod_23_wgt_n100.OpenSHA.1yr.txt
+
+
+sed -e 's/30    nYr/5    nYr/g' < base_mod_23_wgt_1K.inp | sed -e 's/time_pred_2002_30yr_rand.dat/time_pred_2002_5yr_n1000_rand.txt/g' | sed -e 's/1000    number of Monte/100    number of Monte/g' > temp_input
+
+wg99_main temp_input
+
+cp WG02_WRAPPER_INPUT.DAT base_mod_23_wgt_n100.OpenSHA.5yr.txt
+
+
+sed -e 's/30    nYr/10    nYr/g' < base_mod_23_wgt_1K.inp | sed -e 's/time_pred_2002_30yr_rand.dat/time_pred_2002_10yr_n1000_rand.txt/g' | sed -e 's/1000    number of Monte/100    number of Monte/g' > temp_input
+
+wg99_main temp_input
+
+cp WG02_WRAPPER_INPUT.DAT base_mod_23_wgt_n100.OpenSHA.10yr.txt
+
+
+sed -e 's/30    nYr/20    nYr/g' < base_mod_23_wgt_1K.inp | sed -e 's/time_pred_2002_30yr_rand.dat/time_pred_2002_20yr_n1000_rand.txt/g' | sed -e 's/1000    number of Monte/100    number of Monte/g' > temp_input
+
+wg99_main temp_input
+
+cp WG02_WRAPPER_INPUT.DAT base_mod_23_wgt_n100.OpenSHA.20yr.txt
+
+
+sed -e 's/1000    number of Monte/100    number of Monte/g' < base_mod_23_wgt_1K.inp > temp_input
+
+wg99_main temp_input
+
+cp WG02_WRAPPER_INPUT.DAT base_mod_23_wgt_n100.OpenSHA.30yr.txt
+
