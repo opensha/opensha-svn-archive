@@ -588,10 +588,15 @@ public class MagDistGuiBean implements ParameterChangeListener {
 
 
         IncrementalMagFreqDist magDist = null;
-        Double min = (Double)controlsParamList.getParameter(MIN).getValue();
-        Double max = (Double)controlsParamList.getParameter(MAX).getValue();
-        Integer num = (Integer)controlsParamList.getParameter(NUM).getValue();
-        //Integer num = new Integer(numDouble.toString());
+        try{
+            Double min = (Double)controlsParamList.getParameter(MIN).getValue();
+            Double max = (Double)controlsParamList.getParameter(MAX).getValue();
+            Integer num = (Integer)controlsParamList.getParameter(NUM).getValue();
+
+        if(min.doubleValue() > max.doubleValue()) {
+           throw new java.lang.RuntimeException("Min Value cannot be less than the Max Value");
+        }
+
 
         /*
          * If Single MagDist is selected
@@ -605,12 +610,19 @@ public class MagDistGuiBean implements ParameterChangeListener {
               Double rate = (Double)independentParams.getParameter(RATE).getValue();
               Double mag = (Double)independentParams.getParameter(MAG).getValue();
               single.setMagAndRate(mag.doubleValue(),rate.doubleValue());
+              if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of Mag must lie between the min and max value");
+              }
            }
            // if mag and moment rate are set
            if(paramToSet.equalsIgnoreCase(MAG_AND_MORATE)) {
               Double mag = (Double)independentParams.getParameter(MAG).getValue();
               Double moRate = (Double)independentParams.getParameter(MO_RATE).getValue();
               single.setMagAndMomentRate(mag.doubleValue(),moRate.doubleValue());
+              if(mag.doubleValue()>max.doubleValue() || mag.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of Mag must lie between the min and max value");
+              }
+
            }
            // if rate and moment  rate are set
            if(paramToSet.equalsIgnoreCase(RATE_AND_MORATE)) {
@@ -630,6 +642,9 @@ public class MagDistGuiBean implements ParameterChangeListener {
               Double stdDev = (Double)independentParams.getParameter(STD_DEV).getValue();
               Double totMoRate = (Double)independentParams.getParameter(TO_MORATE).getValue();
               String truncTypeValue = independentParams.getParameter(TRUNCATION_REQ).getValue().toString();
+              if(mean.doubleValue()>max.doubleValue() || mean.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of Mean must lie between the min and max value");
+              }
               int truncType = 0;
               if(truncTypeValue.equalsIgnoreCase(TRUNCATE_FROM_RIGHT))
                  truncType = 1;
@@ -638,6 +653,10 @@ public class MagDistGuiBean implements ParameterChangeListener {
               GaussianMagFreqDist gaussian;
               if(truncType !=0){
                  Double truncLevel = (Double)independentParams.getParameter(TRUNCATE_NUM_OF_STD_DEV).getValue();
+              if(truncLevel.doubleValue()<0){
+                 throw new java.lang.RuntimeException("Value of "+ TRUNCATE_NUM_OF_STD_DEV+" must be  positive");
+              }
+
                  gaussian = new GaussianMagFreqDist(min.doubleValue(),max.doubleValue(),num.intValue(),
                           mean.doubleValue(), stdDev.doubleValue(),
                           totMoRate.doubleValue(),truncLevel.doubleValue(),truncType);
@@ -662,12 +681,21 @@ public class MagDistGuiBean implements ParameterChangeListener {
            Double magLower = (Double)independentParams.getParameter(MAG_LOWER).getValue();
            Double bValue = (Double)independentParams.getParameter(BVALUE).getValue();
            String setAllParamsBut = controlsParamList.getParameter(SET_ALL_PARAMS_BUT).getValue().toString();
+           if(magLower.doubleValue()>max.doubleValue() || magLower.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of MagLower must lie between the min and max value");
+           }
            // if set all parameters except total moment rate
            if(setAllParamsBut.equalsIgnoreCase(TO_MORATE)) {
               Double magUpper =  (Double)independentParams.getParameter(MAG_UPPER).getValue();
               Double toCumRate = (Double)independentParams.getParameter(TO_CUM_RATE).getValue();
               gR.setAllButTotMoRate(magLower.doubleValue(),magUpper.doubleValue(),
                                     toCumRate.doubleValue(), bValue.doubleValue());
+              if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
+              }
+              if(magLower.doubleValue()>magUpper.doubleValue()){
+                throw new java.lang.RuntimeException("Value of MagLower must be less than or equal to MagUpper");
+              }
            }
            // if set all parameters except total cumulative rate
            if(setAllParamsBut.equalsIgnoreCase(TO_CUM_RATE)) {
@@ -675,6 +703,12 @@ public class MagDistGuiBean implements ParameterChangeListener {
              Double toMoRate = (Double)independentParams.getParameter(TO_MORATE).getValue();
              gR.setAllButTotCumRate(magLower.doubleValue(),magUpper.doubleValue(),
                                     toMoRate.doubleValue(), bValue.doubleValue());
+             if(magUpper.doubleValue()>max.doubleValue() || magUpper.doubleValue()<min.doubleValue()){
+                throw new java.lang.RuntimeException("Value of MagUpper must lie between the min and max value");
+             }
+             if(magLower.doubleValue()>magUpper.doubleValue()){
+               throw new java.lang.RuntimeException("Value of MagLower must be less than or equal to MagUpper");
+             }
            }
            // if set all parameters except total moment rate
            if(setAllParamsBut.equalsIgnoreCase(MAG_UPPER)) {
@@ -689,7 +723,11 @@ public class MagDistGuiBean implements ParameterChangeListener {
                                   relaxCumRate);
            }
           magDist =  (IncrementalMagFreqDist) gR;
-       }
+        }
+       }catch(java.lang.NumberFormatException e){
+          throw new NumberFormatException("Value entered must be a valid Numerical Value");
+        }
+
      return magDist;
   }
   public String getMagDistName(){

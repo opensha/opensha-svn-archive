@@ -144,6 +144,10 @@ public class MagFreqDistTesterApplet extends JApplet
   private JPanel titlePanel = new JPanel();
   private JPanel innerPlotPanel = new JPanel();
 
+  Color[] legendColor={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
+  Paint[] legendPaint={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+                       Color.cyan,Color.pink,Color.yellow,Color.darkGray};
   Color darkBlue = new Color( 80, 80, 133 );
   Color lightBlue = new Color( 200, 200, 230 );
   protected boolean graphOn = false;
@@ -254,11 +258,11 @@ public class MagFreqDistTesterApplet extends JApplet
     rangeComboBox.setMaximumSize(new Dimension(105, 19));
     rangeComboBox.setMinimumSize(new Dimension(105, 19));
     rangeComboBox.setPreferredSize(new Dimension(105, 19));
-    /*incrComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-          incrComboBox_actionPerformed(e);
-        }
-        });*/
+    rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        rangeComboBox_actionPerformed(e);
+      }
+    });
     plotColorCheckBox.setBackground(Color.white);
     plotColorCheckBox.setFont(new java.awt.Font("Dialog", 1, 11));
     plotColorCheckBox.setForeground(new Color(80, 80, 133));
@@ -511,10 +515,10 @@ public class MagFreqDistTesterApplet extends JApplet
         // starting
         String S = C + ": initMagDistGui(): ";
 
-        rangeComboBox.addItem(new String("Custom Scale"));
         rangeComboBox.addItem(new String("IncrRate Auto Scale"));
         rangeComboBox.addItem(new String("CumRate Auto Scale"));
         rangeComboBox.addItem(new String("MoRate Auto Scale"));
+        rangeComboBox.addItem(new String("Custom Scale"));
   }
 
 
@@ -824,46 +828,44 @@ public class MagFreqDistTesterApplet extends JApplet
         if ( D ) System.out.println( S + "Starting" );
         if ( D ) System.out.println( S + "Controls = " + this.magDist.controlsEditor.getParameterList().toString() );
 
-        IncrementalMagFreqDist function = magDist.getChoosenFunction();
+        try{
+          IncrementalMagFreqDist function= magDist.getChoosenFunction();
+          incrData.setYLog(yLog);
+          toMoData.setYLog(yLog);
+          toCumData.setYLog(yLog);
+          EvenlyDiscretizedFunc cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
+          EvenlyDiscretizedFunc moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
 
-        incrData.setYLog(yLog);
-        toMoData.setYLog(yLog);
-        toCumData.setYLog(yLog);
-        EvenlyDiscretizedFunc cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
-        EvenlyDiscretizedFunc moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
 
 
+          /** @todo may have to be switched when different x/y axis choosen */
+          if ( !incrFunctions.isFuncAllowed(function) ) {
+             incrFunctions.clear();
+          }
+          if ( !toCumFunctions.isFuncAllowed(cumRate)) {
+              toCumFunctions.clear();
+          }
+          if ( !toMoFunctions.isFuncAllowed(moRate)) {
+              toMoFunctions.clear();
+         }
 
-        /** @todo may have to be switched when different x/y axis choosen */
-        if ( !incrFunctions.isFuncAllowed(function) ) {
-            incrFunctions.clear();
+          if( !incrFunctions.contains( function ) || !toMoFunctions.contains(cumRate) || !toMoFunctions.contains(moRate)){
+              if ( D ) System.out.println( S + "Adding new function" );
+              incrFunctions.add((EvenlyDiscretizedFunc)function);
+              toCumFunctions.add(cumRate);
+              toMoFunctions.add(moRate);
+          }
+          else {
 
-        }
-        if ( !toCumFunctions.isFuncAllowed(cumRate)) {
-            toCumFunctions.clear();
-
-        }
-        if ( !toMoFunctions.isFuncAllowed(moRate)) {
-            toMoFunctions.clear();
-       }
-
-       // if( !incrFunctions.contains( function )){
-            if ( D ) System.out.println( S + "Adding new function" );
-            incrFunctions.add((EvenlyDiscretizedFunc)function);
-            toCumFunctions.add(cumRate);
-            toMoFunctions.add(moRate);
-       /* }
-        else {
-
-            if(D) System.out.println(S + "Showing Dialog");
-            if( !this.inParameterChangeWarning ){
+              if(D) System.out.println(S + "Showing Dialog");
+              if( !this.inParameterChangeWarning ){
 
                 JOptionPane.showMessageDialog(
                     null, "This graph already exists, will not add again.",
                     "Cannot Add", JOptionPane.INFORMATION_MESSAGE
                 );
-            }*/
-
+            }
+         }
 
             if ( D ) System.out.println( S + "Function already exists in graph, not adding .." );
          //   return;
@@ -891,6 +893,11 @@ public class MagFreqDistTesterApplet extends JApplet
             titleLabel.setText( currentMagDistName );
             titleLabel.validate();
             titleLabel.repaint();
+        }
+       }catch(NumberFormatException e){
+          JOptionPane.showMessageDialog(this,new String("Enter a Valid Numerical Value"),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
+        }catch(Exception e) {
+          JOptionPane.showMessageDialog(this,new String(e.getMessage()),"Invalid Data Entered",JOptionPane.ERROR_MESSAGE);
         }
 
         if ( D ) System.out.println( S + "Ending" );
@@ -933,6 +940,7 @@ public class MagFreqDistTesterApplet extends JApplet
         incrXAxis.setAutoRangeIncludesZero( false );
         incrXAxis.setCrosshairLockedOnData( false );
         incrXAxis.setCrosshairVisible(false);
+
 
         // create X- axis for mag vs cum rate
         cumXAxis = new SHAHorizontalNumberAxis( cumXAxisLabel );
@@ -1007,6 +1015,9 @@ public class MagFreqDistTesterApplet extends JApplet
         incrPlot.setBackgroundAlpha( .8f );
         cumPlot.setBackgroundAlpha( .8f );
         moPlot.setBackgroundAlpha( .8f );
+        incrPlot.setSeriesPaint(legendPaint);
+        cumPlot.setSeriesPaint(legendPaint);
+        moPlot.setSeriesPaint(legendPaint);
 
         if( isWhite ) {
           incrPlot.setBackgroundPaint( Color.white );
@@ -1032,15 +1043,6 @@ public class MagFreqDistTesterApplet extends JApplet
         JFreeChart moChart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, moPlot,false );
 
 
-
-        int numOfColors = incrPlot.getSeriesCount();
-        Color[] legendColor=new Color[numOfColors];
-        for(int i=0;i<numOfColors;++i)
-           legendColor[i]=(Color)incrPlot.getSeriesOutlinePaint(i);
-
-
-
-
         // Graphics
         incrChart.setBackgroundPaint( lightBlue );
         cumChart.setBackgroundPaint( lightBlue );
@@ -1053,29 +1055,31 @@ public class MagFreqDistTesterApplet extends JApplet
         cumPanel = new ChartPanel(cumChart, true, true, true, true, false);
         moPanel = new ChartPanel(moChart, true, true, true, true, false);
 
-       // int xLabel=10;
-       // int yLabel=10;
-       // legendPanel.setLayout(null);
+
+        int numOfColors = incrPlot.getSeriesCount();
         legendPane.removeAll();
         setLegend =new SimpleAttributeSet();
         setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
                                Boolean.TRUE);
         Document doc = legendPane.getStyledDocument();
-        for(int i=0;i<numOfColors;++i){
+        try {
+
+          doc.remove(0,doc.getLength());
+          for(int i=0,j=0;i<numOfColors;++i,++j){
+             if(j==legendColor.length)
+              j=0;
             legend = new String(i+1+"."+this.incrFunctions.get(i).getName()+"::"+this.incrFunctions.get(i).getInfo()+";"+
                         this.toCumFunctions.get(i).getInfo()+";"+this.toMoFunctions.get(i).getInfo()+"\n\n");
             setLegend =new SimpleAttributeSet();
             StyleConstants.setFontSize(setLegend,12);
-            StyleConstants.setForeground(setLegend,legendColor[i]);
-            try {
+            StyleConstants.setForeground(setLegend,legendColor[j]);
+
               doc.insertString(doc.getLength(),legend,setLegend);
-            } catch (BadLocationException e) {
+         }
+       } catch (BadLocationException e) {
                 return;
-            }
-
-
         }
-        //panel.setMouseZoomable(true);
+         //panel.setMouseZoomable(true);
 
 
         // set panel properties for mag vs incremental rate chart
