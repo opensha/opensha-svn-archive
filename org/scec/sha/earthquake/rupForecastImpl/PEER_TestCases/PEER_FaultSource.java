@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.PEER_TestCases;
+package org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases;
 
 import java.util.Vector;
 import java.util.Iterator;

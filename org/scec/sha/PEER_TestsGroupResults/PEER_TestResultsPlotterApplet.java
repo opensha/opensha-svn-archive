@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake.PEER_TestCases.PEER_TestGuiPlots;
+package org.scec.sha.PEER_TestsGroupResults;
 
 import java.awt.*;
 import java.util.Iterator;

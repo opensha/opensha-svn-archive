@@ -4,7 +4,8 @@ import java.util.Vector;
 import java.awt.event.*;
 
 
-import org.scec.sha.earthquake.PEER_TestCases.*;
+import org.scec.sha.PEER_TestsGroupResults.*;
+import org.scec.sha.earthquake.rupForecastImpl.PEER_TestCases.*;
 import org.scec.sha.gui.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
