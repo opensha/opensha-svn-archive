@@ -30,6 +30,7 @@ import org.scec.sha.gui.beans.*;
 import org.scec.sha.gui.infoTools.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.imr.AttenuationRelationship;
+import org.scec.sha.imr.attenRelImpl.WC94_DisplMagRel;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ERF_List;
@@ -69,6 +70,7 @@ public class HazardCurveApplet extends JApplet
   public final static String A_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.CB_2003_AttenRel";
   public final static String SM_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+  public final static String WC_CLASS_NAME = "org.scec.sha.imr.attenRelImpl.WC94_DisplMagRel";
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -83,6 +85,7 @@ public class HazardCurveApplet extends JApplet
   public final static String FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_AdjustableEqkRupForecast";
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
+  public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
 
   // instances of the GUI Beans which will be shown in this applet
   private ERF_GuiBean erfGuiBean;
@@ -1150,6 +1153,7 @@ public class HazardCurveApplet extends JApplet
      imrClasses.add(this.F_CLASS_NAME);
      imrClasses.add(this.A_CLASS_NAME);
      imrClasses.add(this.SM_CLASS_NAME);
+     imrClasses.add(this.WC_CLASS_NAME);
      imrGuiBean = new IMR_GuiBean(imrClasses);
      imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).getParameter().addParameterChangeListener(this);
      // show this gui bean the JPanel
@@ -1205,6 +1209,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
+   erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erfGuiBean = new ERF_GuiBean(erf_Classes);
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -1464,7 +1469,8 @@ public class HazardCurveApplet extends JApplet
    String selectedIMT = imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).getValue().toString();
     if(selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGA_NAME) ||
        selectedIMT.equalsIgnoreCase(AttenuationRelationship.PGV_NAME) ||
-       selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME))
+       selectedIMT.equalsIgnoreCase(AttenuationRelationship.SA_NAME)  ||
+       selectedIMT.equalsIgnoreCase(WC94_DisplMagRel.FAULT_DISPL_NAME))
      return true;
     return false;
   }
