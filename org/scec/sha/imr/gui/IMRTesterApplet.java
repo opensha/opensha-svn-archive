@@ -654,7 +654,7 @@ public class IMRTesterApplet
         mainSplitPane.setTopComponent( plotPanel );
 
         //mainSplitPane.setDividerLocation( 430 );
-        mainSplitPane.setDividerLocation( 580 );
+        mainSplitPane.setDividerLocation(580 );
         mainSplitPane.setOneTouchExpandable( false );
 
         // Big function here, sets all the IMR stuff and puts in sheetsPanel and

@@ -164,12 +164,68 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc {
     }
 
 
-    /** FIX */
-    public double getInterpolatedX(double y){ throw new UnsupportedOperationException(C + ": Not implemented yet."); }
+    /**
+     * This function interpolates the first x-axis value corresponding to the given value of y
+     * @param y(value for which interpolated first x value has to be found
+     * @return x(this  is the interpolated x based on the given y value)
+     */
+    public double getFirstInterpolatedX(double y){
+      // finds the size of the point array
+       int max=points.size();
+       double y1=Double.NaN;
+       double y2=Double.NaN;
+       int i;
+       //if passed parameter(y value) is not within range then throw exception
+       if(y>getY(max-1) || y<getY(0))
+          throw new InvalidRangeException("Y Value must be within the range: "+getY(0)+" and "+getY(max-1));
+      //if y value is equal to the maximum value of all given Y's then return the corresponding X value
+       if(y==getY(max-1))
+         return getX(max-1);
+      //finds the Y values within which the the given y value lies
+       for(i=0;i<max-1;++i) {
+         y1=getY(i);
+         y2=getY(i+1);
+        if(y>=y1 && y<=y2)
+           break;
+       }
+       //finding the x values for the coressponding y values
+       double x1=getX(i);
+       double x2=getX(i+1);
+       //using the linear interpolation equation finding the value of x for given y
+       double x= ((y-y1)*(x2-x1))/(y2-y1) + x1;
+       return x;
+    }
 
-    /** FIX */
-    public double getInterpolatedY(double x){ throw new UnsupportedOperationException(C + ": Not implemented yet."); }
-
+    /**
+     * This function interpolates the y-axis value corresponding to the given value of x
+     * @param x(value for which interpolated first y value has to be found
+     * @return y(this  is the interpolated x based on the given x value)
+     */
+    public double getInterpolatedY(double x){
+    // finds the size of the point array
+       int max=points.size();
+       double x1=Double.NaN;
+       double x2=Double.NaN;
+       //if passed parameter(x value) is not within range then throw exception
+       if(x>getX(max-1) || x<getX(0))
+          throw new InvalidRangeException("x Value must be within the range: "+getX(0)+" and "+getX(max-1));
+      //if x value is equal to the maximum value of all given X's then return the corresponding Y value
+       if(x==getX(max-1))
+         return getY(x);
+      //finds the X values within which the the given x value lies
+       for(int i=0;i<max-1;++i) {
+         x1=getX(i);
+         x2=getX(i+1);
+        if(x>=x1 && x<=x2)
+           break;
+       }
+       //finding the y values for the coressponding x values
+       double y1=getY(x1);
+       double y2=getY(x2);
+       //using the linear interpolation equation finding the value of y for given x
+       double y= ((y2-y1)*(x-x1))/(x2-x1) + y1;
+       return y;
+    }
 
 
     /** Returns a copy of this and all points in this DiscretizedFunction */

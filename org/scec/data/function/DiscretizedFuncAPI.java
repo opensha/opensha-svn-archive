@@ -57,7 +57,7 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
     /** returns the Y value given an x value - within tolerance */
     public double getY(double x);
 
-    public double getInterpolatedX(double y);
+    public double getFirstInterpolatedX(double y);
     public double getInterpolatedY(double x);
 
 
