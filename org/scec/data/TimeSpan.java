@@ -7,33 +7,60 @@ import org.scec.param.*;
 /**
  *  <b>Title:</b> TimeSpan<p>
  *
- *  <b>Description:</b> Represents a start time and a duration, from which you
- *  can calculate the end time of an event.<p>
+ *  <b>Description:</b> This object represents a start time and a duration.<p>
  *
- * Start- and End-Times are based on YEAR, MONTH, DATE, HOUR, MINUTE, SECOND,
- * and MILLISECOND (ERA is restrcted to AD).<p>
+ * The start-time is represented with a Year, Month, Day, Hour, Minute, Second,
+ * and Millisecond, all of which are stored internally with IntegerParameter objects.
+ * The default constraints (range of allowed values) for these parameters are:<p>
+ * <UL>
+ * <LI>Year - 0 to Integer.MAX_VALUE (AD or "common erra")
+ * <LI>Month - 1 to 12
+ * <LI>Day - 1 to 31
+ * <LI>Hour - 0 to 23
+ * <LI>Minute - 0 to 59
+ * <LI>Second - 0 to 59
+ * <LI>Millisecond - 0 to 999
+ * </UL><p>
+ * <p>
+
+ * Important Notes: 1) the Month parameter constratints here (1 to 12) differ from the 0-11
+ * range in the java.util.GregorianCalendar object.  This means that what's returned from
+ * the getStartTimeMonth() method is always one greater than what's obtained using
+ * getStartTimeCalendar().get(Calendar.MONTH)). Keep this in mind if you use the setStartTimeCalendar(),
+ * getStartTimeCalendar(), or getEndTimeCalendar methods.  2) the Day and Hour fields here correspond
+ * to the DATE and HOUR_OF_DAY fields, respecively in java.util.GregorianCalendar (the HOUR field of
+ * GregorianCalendar goes from 0 to 11 rather than 0 to 23).<p>
  *
- * Duration can be specified in units of  YEARS, MONTHS, DAYS, HOURS, MINUTES,
- * SECONDS, or MILLISECONDS (only one cas be used to set duration).<p>
+ * The above start-time parameter constraints can be overridden using the ???? method.
+ * NEEDS TO BE ADDED!!!!!!!!!!! <p>
  *
- * Important notes:
+ * The startTimePrecision field specifies the level of precision.  For example, if this
+ * is set as "Days", then one cannot set or get the Hours, Minute, Second, or Millisecond
+ * fields (and the associated methods throw exceptions).  Setting the startTimePrecsion as
+ * "None" indicates that only the Duration is relevant (e.g., for a Poissonian forecast).
+ * Presently one can only set the startTimePrecision in the constructor, but we could relax
+ * this later. <p>
  *
- * The allowed values of the start-time "Month" parameter here goes from 1-12, which is
- * different from the 0-11 values of the GregorianCalendar.MONTH field.
- * This means that what's returned from the getStartTimeMonth() method is always
- * one greater than what's obtained using getStartTimeCalendar().get(Calendar.MONTH)).
- * Keep this in mind if you use the setStartTimeCalendar(), getStartTimeCalendar(),
- * or getEndTimeCalendar methods.
+ * Before a value is returned from any one of the getStartTime*() methods, it is
+ * first confirmed that the start-time parameter settings correspond to an acutual
+ * date.  For example, assuming the startTimePrecision is "Months", one could execute
+ * the method: setStartTime(2003,2,29).  However, when they go to get one of these
+ * fields (e.g., getStartYear() or getStartMonth()) an exception will be thrown
+ * because there are not 29 days in Feburary (unless it's a leap year).  This check
+ * is made in the get* rather than set* methods to allow users to finish their settings
+ * (e.g., in a ParameterListEditor of a GUI) before checking values.
  *
- * The start-time "Day" field here corresponds to the DATE field of GregorianCalendar,
- * with allowed values starting at 1 (not 0).
+ * The Units on the Duration field must be set in the constructor, ALTHOUGH WE MAY MAKE THIS
+ * ADJUSTABLE LATER. These Units are assumed when using the getDuration() and
+ * setDuration(double duration) methods.  If one wishes to get or set the duration with other
+ * units, they can use the setDuration(String units, double duration) and
+ * getDuration(String units, double duration) methods, but note that the units will
+ * not have changed internally as a result. BUILD THESE LATTER TWO METHODS<p>
+ * The constraints on the units can be set using the ???????????? ADD METHOD LATER.<p>
  *
- * The start-time Hour field here corresponds to the HOUR_OF_DAY field in GregorianCalendar
- * (values between 0 and 23 are allowed; the HOUR field of GregorianCalendar goes
- * between 0 and 11 (with AM vs PM needing to be defined)).
+ * Finally, one can get an end-time calendar object that corresponds to the start time
+ * plus the duration. FINISH THIS
  *
- * The minimum/maximum for the Minutes and Seconds parameters here are 0/59, and
- * the minimum/maximum for the Milliseconds parameter is 0/999.
  *
  *
  *
