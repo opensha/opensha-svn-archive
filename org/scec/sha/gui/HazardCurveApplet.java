@@ -325,9 +325,9 @@ public class HazardCurveApplet extends JApplet
         initERF_GuiBean();
         initTimeSpanGuiBean();
       }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
-                                    JOptionPane.OK_OPTION);
-      System.exit(0);
+        JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
+                                      JOptionPane.OK_OPTION);
+        System.exit(0);
       }
     }
     catch(Exception e) {

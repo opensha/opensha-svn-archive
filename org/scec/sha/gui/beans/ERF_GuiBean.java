@@ -134,11 +134,23 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      //gets the iterator for the class names of all the ERF's
      Iterator it = erfClasses.iterator();
 
+     //Vector to maintain which erf cannot be instatiated and have to be removed from the list
+     Vector erfFailed = new Vector();
      //adding the names of all the ERF's to the erfNamesVector- Pick List for the ERF's
      while(it.hasNext()){
-       Object obj = getERFName((String)it.next());
+       String erfClass = (String)it.next();
+       Object obj = getERFName(erfClass);
        if(obj !=null)
          erfNamesVector.add(obj);
+       else
+         erfFailed.add(erfClass);
+     }
+
+     //removing the erf's from the erfClasses Vector which could not be instantiated
+     if(erfFailed.size() >0){
+       int size =erfFailed.size();
+       for(int i=0;i<size;++i)
+         erfClasses.removeElement(erfFailed.get(i));
      }
 
      Iterator it1 = eqkRupForecast.getAdjustableParamsIterator();
