@@ -30,15 +30,15 @@ public class GMT_MapGenerator implements Serializable{
   protected final static boolean D = false;
 
   // name of the file which contains all the GMT commands that we want to run on server
-  protected String DEFAULT_GMT_SCRIPT_NAME = "map_GMT_Script.txt";
+  protected final static String DEFAULT_GMT_SCRIPT_NAME = "map_GMT_Script.txt";
   protected String GMT_SCRIPT_NAME = DEFAULT_GMT_SCRIPT_NAME;
-  protected String DEFAULT_XYZ_FILE_NAME = "map_data.txt";
+  protected final static String DEFAULT_XYZ_FILE_NAME = "map_data.txt";
   protected String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
-  protected String DEFAULT_METADATA_FILE_NAME = "map_info.txt";
+  protected final static String DEFAULT_METADATA_FILE_NAME = "map_info.txt";
   protected String METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
-  protected String DEFAULT_PS_FILE_NAME = "map.ps";
+  protected final static String DEFAULT_PS_FILE_NAME = "map.ps";
   protected String PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
-  protected String DEFAULT_JPG_FILE_NAME = "map.jpg";
+  protected final static String DEFAULT_JPG_FILE_NAME = "map.jpg";
   protected String JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
   protected String SCALE_LABEL; // what's used to label the color scale
   protected int DPI = 70;
@@ -516,7 +516,13 @@ public class GMT_MapGenerator implements Serializable{
     }
   }
 
-
+  /**
+   * sets the name of the metadata file with fileName( with full path)
+   * @param fileName
+   */
+  public void setMetatdataFileName(String fileName){
+    METADATA_FILE_NAME = fileName;
+  }
 
   /**
    * sets up the connection with the servlet on the server (gravity.usc.edu)
@@ -564,7 +570,7 @@ public class GMT_MapGenerator implements Serializable{
       outputToServlet.writeObject(metadataLines);
 
       //sending the name of the MetadataFile to the server.
-      outputToServlet.writeObject(METADATA_FILE_NAME);
+      outputToServlet.writeObject(DEFAULT_METADATA_FILE_NAME);
 
       outputToServlet.flush();
       outputToServlet.close();
