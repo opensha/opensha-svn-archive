@@ -716,9 +716,9 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
             float xx = (float)tick.getX();
             double val=1;
             int eIndex =tick.getText().indexOf("E");
-            if(tick.getText()!="" && eIndex==-1)
-              val=Double.parseDouble(tick.getText());
-            double logval=Math.log(tick.getNumericalValue())/LOG10_VALUE;
+
+            val=tick.getNumericalValue();
+            double logval=Math.log(val)/LOG10_VALUE;
 	    xx = (float)this.myTranslateValueToJava2D(logval, plotArea);
             if(isPowerOfTen(val)) // for major axis
               g2.setFont(tickLabelFont);
