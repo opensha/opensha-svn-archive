@@ -46,7 +46,7 @@ public class PropagationEffectControlPanel extends JFrame {
   }
   private void jbInit() throws Exception {
     this.setSize(300,350);
-    this.setTitle("Set Distance Parameters");
+    this.setTitle("Calculation Settings");
     this.getContentPane().setLayout(new GridBagLayout());
     this.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));

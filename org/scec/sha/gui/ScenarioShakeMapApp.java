@@ -137,7 +137,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
   private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
-  private final static String DISTANCE_PARAM_CONTROL = "Distance Params";
+  private final static String CALC_PARAMS_CONTROL = "Calculation Settings";
 
     // objects for control panels
   private RegionsOfInterestControlPanel regionsOfInterest;
@@ -145,7 +145,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
-  private PropagationEffectControlPanel distanceControl;
+  private PropagationEffectControlPanel calcParamsControl;
 
   // instances of the GUI Beans which will be shown in this applet
   private EqkRupSelectorGuiBean erfGuiBean;
@@ -351,6 +351,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    ArrayList erf_Classes = new ArrayList();
 
 //   erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+   erf_Classes.add(POINT_POISSON_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
    erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
 //   erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
@@ -362,7 +363,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_FORECAST_CLASS_NAME);
    erf_Classes.add(PUENTE_HILLS_FORECAST_CLASS_NAME);
-   erf_Classes.add(POINT_POISSON_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new EqkRupSelectorGuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -756,7 +756,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
-    this.controlComboBox.addItem(DISTANCE_PARAM_CONTROL);
+    this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
     //this.controlComboBox.addItem(RUN_ALL_CASES_FOR_PUENTE_HILLS);
   }
 
@@ -777,20 +777,20 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       initPuenteHillScenarioControl();
     else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
       initMapCalcMethodSelectionControl();
-    else if(selectedControl.equalsIgnoreCase(DISTANCE_PARAM_CONTROL))
-      initDistanceParamControl();
+    else if(selectedControl.equalsIgnoreCase(CALC_PARAMS_CONTROL))
+      initCalcParamsControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
   /**
    * shows the Distance parameters in a seperate window.
    */
-  private void initDistanceParamControl(){
-    if(distanceControl == null)
-      distanceControl = new PropagationEffectControlPanel(this,this);
+  private void initCalcParamsControl(){
+    if(calcParamsControl == null)
+      calcParamsControl = new PropagationEffectControlPanel(this,this);
 
-    distanceControl.pack();
-    distanceControl.show();
+    calcParamsControl.pack();
+    calcParamsControl.show();
   }
 
 

@@ -25,12 +25,12 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
     private final static String C = "PropagationEffect";
     private final static boolean D = false;
 
-    private boolean APPROX_HORZ_DIST = false;
-    private boolean POINT_SRC_CORR = false;
+    private boolean APPROX_HORZ_DIST = true;
+    private boolean POINT_SRC_CORR = true;
 
     // Approx Horz Dist Parameter
     public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";
-    private final static String APPROX_DIST_PARAM_INFO = "Horz. dist. calculate as 111 * ( (lat1-lat2)^2 + (cos(0.5*(lat1+lat2))*(lon1-lon2))^2 )^0.5";
+    private final static String APPROX_DIST_PARAM_INFO = "Horz. dist. calculated as: 111 * ( (lat1-lat2)^2 + (cos(0.5*(lat1+lat2))*(lon1-lon2))^2 )^0.5";
     BooleanParameter approxDistParam;
 
     // Point source correction Parameter
