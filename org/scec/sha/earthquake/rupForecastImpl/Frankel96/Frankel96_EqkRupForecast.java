@@ -87,8 +87,8 @@ public class Frankel96_EqkRupForecast extends EqkRupForecast {
    * No argument constructor
    */
   public Frankel96_EqkRupForecast() {
-    readFrankel96_File(0);
-    readFrankel96_File(1);
+    readFrankel96_File(TYPE_A_CHAR_FLT);
+    readFrankel96_File(TYPE_B_CHAR_GR_FLT);
   }
 
   /**
