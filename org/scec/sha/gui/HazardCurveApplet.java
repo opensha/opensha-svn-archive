@@ -97,6 +97,7 @@ public class HazardCurveApplet extends JApplet
   private final static String AXIS_CONTROL = "Axis Control";
   private final static String DISTANCE_CONTROL = "Source-Site Distance Control";
   private final static String SITES_OF_INTEREST_CONTROL = "Sites of Interest";
+  private final static String CVM_CONTROL = "Set Site Params from CVM";
 
   // objects for control panels
   private PEER_TestCaseSelectorControlPanel peerTestsControlPanel;
@@ -105,6 +106,8 @@ public class HazardCurveApplet extends JApplet
   private ERF_EpistemicListControlPanel epistemicControlPanel;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
   private SitesOfInterestControlPanel sitesOfInterest;
+  private SetSiteParamsFromCVMControlPanel cvmControlPanel;
+
   // message string to be dispalayed if user chooses Axis Scale
    // without first clicking on "Add Graph"
   private final static String AXIS_RANGE_NOT_ALLOWED =
@@ -1197,6 +1200,7 @@ public class HazardCurveApplet extends JApplet
     this.controlComboBox.addItem(AXIS_CONTROL);
     this.controlComboBox.addItem(DISTANCE_CONTROL);
     this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
+     this.controlComboBox.addItem(CVM_CONTROL);
   }
 
   /**
@@ -1220,7 +1224,8 @@ public class HazardCurveApplet extends JApplet
       initDistanceControl();
     else if(selectedControl.equalsIgnoreCase(this.SITES_OF_INTEREST_CONTROL))
       initSitesOfInterestControl();
-
+    else if(selectedControl.equalsIgnoreCase(this.CVM_CONTROL))
+      initCVMControl();
 
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
@@ -1289,6 +1294,17 @@ public class HazardCurveApplet extends JApplet
       sitesOfInterest = new SitesOfInterestControlPanel(this, this.siteGuiBean);
     sitesOfInterest.pack();
     sitesOfInterest.show();
+  }
+
+  /**
+  * Initialize the Interesting sites control panel
+  * It will provide a pick list of interesting sites
+  */
+  private void initCVMControl() {
+    if(this.cvmControlPanel==null)
+      cvmControlPanel = new SetSiteParamsFromCVMControlPanel(this, this.imrGuiBean, this.siteGuiBean);
+    cvmControlPanel.pack();
+    cvmControlPanel.show();
   }
 
   /**

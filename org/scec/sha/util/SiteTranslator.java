@@ -87,8 +87,8 @@ public class SiteTranslator {
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.BASIN_DEPTH_NAME)){
         if(vs30>=400)
           tempParam.setValue(new Double(0));
-        else
-          tempParam.setValue(new Double(basinDepth));
+        else // set basin depth in kms
+          tempParam.setValue(new Double(basinDepth/1000));
       }
       //Cambell site type(Vs30)
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.SITE_TYPE_NAME)){
@@ -127,7 +127,7 @@ public class SiteTranslator {
 
       //Field site type(Basin Depth)
       else if(tempParam.getName().equalsIgnoreCase(Field_2000_AttenRel.BASIN_DEPTH_NAME)){
-        tempParam.setValue(new Double(basinDepth));
+        tempParam.setValue(new Double(basinDepth/1000));
       }
       //Field site type (Vs30)
       else if(tempParam.getName().equalsIgnoreCase(Field_2000_AttenRel.VS30_NAME)){

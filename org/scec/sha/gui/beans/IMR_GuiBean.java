@@ -418,4 +418,13 @@ public class IMR_GuiBean extends ParameterListEditor
      return imr;
    }
 
+   /**
+    * return a list of imr instances shown in this gui bean
+    *
+    * @return
+    */
+   public Vector getIMR_Objects() {
+     return this.imrObject;
+   }
+
 }

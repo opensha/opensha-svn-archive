@@ -42,25 +42,6 @@ public class Site_GuiBean extends JPanel implements
   public final static String LONGITUDE = "Longitude";
   public final static String LATITUDE = "Latitude";
 
-
-  //VS30 and Basin Depth String Names
-  protected final static String VS30_STRING = "Vs30";
-  protected final static String BASIN_DEPTH_STRING = "Basin Depth (Phase III)";
-
-  //stores the Vs30 from CVM
-  double vs30 ;
-  //stores the basin depth from CVM
-  double basinDepth ;
-
-  // min and max limits of lat and lin for which CVM can work
-  private static final double MIN_CVM_LAT = 32.0;
-  private static final double MAX_CVM_LAT = 36.0;
-  private static final double MIN_CVM_LON = -121.0;
-  private static final double MAX_CVM_LON = -114.0;
-
-  // site translator
-  SiteTranslator siteTranslator = new SiteTranslator();
-
   /**
    * Site object
    */
@@ -79,7 +60,6 @@ public class Site_GuiBean extends JPanel implements
       new Double(-360), new Double(360),new Double(-118));
   private DoubleParameter latitude = new DoubleParameter(LATITUDE,
       new Double(-90), new Double(90), new Double(34.0));
-  private JCheckBox cvmCheckBox = new JCheckBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   /**
@@ -141,7 +121,6 @@ public class Site_GuiBean extends JPanel implements
   parameterEditor.setTitle(SITE_PARAMS);
   this.add(parameterEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
-  if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
  }
 
  /**
@@ -170,7 +149,6 @@ public class Site_GuiBean extends JPanel implements
    parameterEditor.setTitle(SITE_PARAMS);
    this.add(parameterEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0,0));
-   if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
 
  }
 
@@ -243,8 +221,6 @@ public class Site_GuiBean extends JPanel implements
   public void parameterChange(ParameterChangeEvent e) {
     site.setLocation(new Location(((Double)latitude.getValue()).doubleValue(),
                                   ((Double)longitude.getValue()).doubleValue()));
-    if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
-
   }
 
   /**
@@ -283,177 +259,10 @@ public class Site_GuiBean extends JPanel implements
         );
    }
   private void jbInit() throws Exception {
-    cvmCheckBox.setBackground(Color.white);
-    cvmCheckBox.setFont(new java.awt.Font("Dialog", 1, 10));
-    cvmCheckBox.setForeground(new Color(80, 80, 133));
-    cvmCheckBox.setText("Set Site from CVM");
-    cvmCheckBox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        cvmCheckBox_actionPerformed(e);
-      }
-    });
     this.setLayout(gridBagLayout1);
     this.setBackground(Color.white);
-    this.add(cvmCheckBox,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
   }
 
-  /**
-   * If the user selects to choose set the site params from the CVM
-   * @param e
-   */
-  void cvmCheckBox_actionPerformed(ActionEvent e) {
-    if(this.cvmCheckBox.isSelected())   setSiteParamsFromCVM();
-  }
-
-  /**
-   * set the Site Params from the CVM
-   */
-  private void setSiteParamsFromCVM(){
-
-    // give latitude and longitude to the servlet
-      Double lonMin = (Double)parameterList.getParameter(LONGITUDE).getValue();
-      Double lonMax = new Double(lonMin.doubleValue());
-      Double latMin = (Double)parameterList.getParameter(LATITUDE).getValue();
-      Double latMax = new Double(latMin.doubleValue());
-      if(lonMin.doubleValue()<this.MIN_CVM_LON ||
-         lonMax.doubleValue()>this.MAX_CVM_LON ||
-         latMin.doubleValue()<this.MIN_CVM_LAT ||
-         latMax.doubleValue()>this.MAX_CVM_LAT) {
-
-        JOptionPane.showMessageDialog(this, "CVM can not get params for this site\n"+
-                                      "Constraints are:\n "+
-                                      MIN_CVM_LON+" < Longitude < "+MAX_CVM_LON +"\n"+
-                                      MIN_CVM_LAT+" < Latitude < "+MAX_CVM_LAT);
-        this.cvmCheckBox.setSelected(false);
-        return;
-      }
-
-      Double gridSpacing = new Double(0.05);
-
-      // if values in longitude and latitude are invalid
-      if(lonMin == null || latMin == null) {
-        JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-        this.cvmCheckBox.setSelected(false);
-        return ;
-      }
-      getVS30FromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-      getBasinDepthFromCVM(lonMin,lonMax,latMin,latMax,gridSpacing);
-      siteTranslator.setSiteParams(this.getSite(),vs30, basinDepth);
-      this.parameterEditor.synchToModel();
-
-  }
-
-
-  /**
-   * Gets the VS30 from the CVM servlet
-   */
-  private void getVS30FromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
-                              Double gridSpacing) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://scec.usc.edu:9999/examples/servlet/Vs30BasinDepthServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-      outputToServlet.writeObject("Vs30");
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the vs30 as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-      //vectors of lat and lon for the Vs30
-      Vector vslatVector=(Vector)ois.readObject();
-      Vector vslonVector=(Vector)ois.readObject();
-      Vector vs30Vector=(Vector)ois.readObject();
-      vs30 = ((Double)vs30Vector.get(0)).doubleValue();
-      ois.close();
-
-      System.out.println("Vs30 is:"+vs30);
-      JOptionPane.showMessageDialog(this,"We have got the Basin Depth from SCEC CVM");
-
-    }catch (NumberFormatException ex) {
-      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-  }
-
-
-  /**
-   * Gets the Basin Depth from the CVM servlet
-   */
-  private void getBasinDepthFromCVM(Double lonMin,Double lonMax,Double latMin,Double latMax,
-                              Double gridSpacing) {
-
-    // if we want to the paramter from the servlet
-    try{
-
-      // make connection with servlet
-      URL cvmServlet = new URL("http://scec.usc.edu:9999/examples/servlet/Vs30BasinDepthServlet");
-      URLConnection servletConnection = cvmServlet.openConnection();
-
-      servletConnection.setDoOutput(true);
-
-      // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
-
-      // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type", "application/octet-stream");
-
-      // send the student object to the servlet using serialization
-      ObjectOutputStream outputToServlet = new ObjectOutputStream(servletConnection.getOutputStream());
-
-      outputToServlet.writeObject("BasinDepth");
-      outputToServlet.writeObject(lonMin);
-      outputToServlet.writeObject(lonMax);
-      outputToServlet.writeObject(latMin);
-      outputToServlet.writeObject(latMax);
-      outputToServlet.writeObject(gridSpacing);
-
-      outputToServlet.flush();
-      outputToServlet.close();
-
-      // now read the connection again to get the vs30 as sent by the servlet
-      ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-
-      //vectors of lat and lon for the Basin Depth
-      Vector bdlatVector=(Vector)ois.readObject();
-      Vector bdlonVector=(Vector)ois.readObject();
-      Vector basinDepthVector=(Vector)ois.readObject();
-      this.basinDepth = ((Double)basinDepthVector.get(0)).doubleValue();
-      ois.close();
-
-      System.out.println("basindepth is:"+ this.basinDepth );
-      JOptionPane.showMessageDialog(this,"We have got the Vs30 from SCEC CVM");
-
-    }catch (NumberFormatException ex) {
-      JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
-    }catch (Exception exception) {
-      System.out.println("Exception in connection with servlet:" +exception);
-    }
-  }
 
 
   /**
