@@ -122,8 +122,10 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           // parse this line from the file
           double val = Double.parseDouble(st.nextToken());
           double valNext = Double.parseDouble(stNext.nextToken());
+          double valLat = Double.parseDouble(st.nextToken());
+          double valLatNext = Double.parseDouble(stNext.nextToken());
           // add vs30 for new location
-          if(lon>=val || lon<=valNext){
+          if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
             st.nextToken();
             stNext.nextToken();
             double vs30_Curr =Double.parseDouble(st.nextToken());
@@ -172,10 +174,10 @@ public class Vs30BasinDepthCalcServlet  extends HttpServlet {
           // parse this line from the file
           double val = Double.parseDouble(st.nextToken());
           double valNext = Double.parseDouble(stNext.nextToken());
-          // add vs30 for new location
-          if(lon>=val || lon<=valNext){
-            st.nextToken();
-            stNext.nextToken();
+          double valLat = Double.parseDouble(st.nextToken());
+          double valLatNext = Double.parseDouble(stNext.nextToken());
+          // add basinDepth for new location
+          if((lat>=valLat || lat<=valLatNext)&&(lon>=val || lon<=valNext)){
             double bd_Curr =Double.parseDouble(st.nextToken());
             double bd_Next = Double.parseDouble(stNext.nextToken());
             //returns the actual value for the basinDepth
