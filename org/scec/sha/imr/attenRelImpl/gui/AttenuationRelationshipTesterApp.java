@@ -263,6 +263,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
     DiscretizedFuncList functions = new DiscretizedFuncList();
     DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
     private JLabel jAxisScale = new JLabel();
+    AxisLimitsControlPanel axisLimits;
 
     private Vector imrsSelected=new Vector();
 
@@ -1612,16 +1613,25 @@ public class AttenuationRelationshipTesterApp extends JApplet
        double maxX=rX.getUpperBound();
        double minY=rY.getLowerBound();
        double maxY=rY.getUpperBound();
-       AxisLimitsControlPanel axisLimits;
+
        if(this.customAxis) { // select the custom scale in the control window
-         axisLimits=new AxisLimitsControlPanel(this, this,
+         if(axisLimits==null)
+           axisLimits=new AxisLimitsControlPanel(this, this,
              AxisLimitsControlPanel.CUSTOM_SCALE, minX,maxX,minY,maxY);
+         else
+           axisLimits.setParams(AxisLimitsControlPanel.CUSTOM_SCALE,
+                                minX,maxX,minY,maxY);
 
        }
        else { // select the auto scale in the control window
-         axisLimits=new AxisLimitsControlPanel(this, this,
-             AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+         if(axisLimits==null)
+           axisLimits=new AxisLimitsControlPanel(this, this,
+               AxisLimitsControlPanel.AUTO_SCALE, minX,maxX,minY,maxY);
+         else
+           axisLimits.setParams(AxisLimitsControlPanel.AUTO_SCALE,
+                                minX,maxX,minY,maxY);
        }
+
        axisLimits.pack();
        axisLimits.show();
     }

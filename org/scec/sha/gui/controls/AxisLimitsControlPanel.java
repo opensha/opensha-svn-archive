@@ -79,6 +79,30 @@ public class AxisLimitsControlPanel extends JFrame {
     }
   }
 
+  /**
+   * This is called whenever this window is shown again
+   * So, we need to set the params again
+   * @param scale : whether custom scale or auto scale is chosen
+   * @param minX : min X value for graph
+   * @param maxX : max X value for graph
+   * @param minY : min Y value for graph
+   * @param maxY : max Y value for graph
+   */
+  public void setParams(String scale, double minX, double maxX, double minY,
+                        double maxY ) {
+    // fill in the parameters in the window
+    this.minX=minX;
+    this.minY=minY;
+    this.maxX=maxX;
+    this.maxY=maxY;
+    this.jTextMinX.setText(""+this.minX);
+    this.jTextMaxX.setText(""+this.maxX);
+    this.jTextMinY.setText(""+this.minY);
+    this.jTextMaxY.setText(""+this.maxY);
+    this.rangeComboBox.setSelectedItem(scale);
+
+  }
+
   void jbInit() throws Exception {
     rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {

@@ -175,8 +175,6 @@ public class HazardMapApplet extends JApplet implements
   private Border border8;
 
 
-  private PEER_TestsParamSetter peerTestsParamSetter;
-
 
   //images for the OpenSHA
   private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
