@@ -770,7 +770,7 @@ public class ScenarioShakeMapMultipleAttenRelApp extends JApplet implements Para
       imtMetadata = imtGuiBean.getParameterListMetadataString();
     return "IMR Param List:<br>\n " +
            "---------------<br>\n"+
-        //this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        this.imrGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>Region Param List: <br>\n"+
         "----------------<br>\n"+
         sitesGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
