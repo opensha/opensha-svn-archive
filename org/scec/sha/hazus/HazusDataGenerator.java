@@ -33,7 +33,8 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
     Campbell_1997_AttenRel attenRel = new Campbell_1997_AttenRel(this);
     Frankel96_EqkRupForecast forecast = new Frankel96_EqkRupForecast();
-    attenRel.setIntensityMeasure(attenRel.PGA_NAME);
+    attenRel.setIntensityMeasure(attenRel.SA_NAME);
+    ((DoubleDiscreteParameter)attenRel.getParameter(attenRel.PERIOD_NAME)).setValue(new Double(1.0));
     //make the Gridded Region object
     SitesInGriddedRegion region = new SitesInGriddedRegion(MIN_LAT, MAX_LAT, MIN_LON,
         MAX_LON, GRID_SPACING);
@@ -41,18 +42,16 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     region.addSiteParams(attenRel.getSiteParamsIterator());
     forecast.updateForecast();
 
-    double prob =0;
-    double time = 50;
-    double returnPd = 100;
-
     HazardMapCalculator calc = new HazardMapCalculator();
     calc.showProgressBar(false);
-    calc.getHazardMapCurves(DIR_NAME,true,xValues,region,attenRel,forecast,"hello");
-    /**
-     *using the equation provided for the Ned to get the Prob. for the Hazus.
-     */
-    prob = 1- Math.exp((1/returnPd)*50);
-    System.out.print("Prob: "+prob);
+    String metaData = "For SA at 1-sec Values\n\n"+
+                      "ERF: "+forecast.getName()+"\n"+
+                      "IMR Name: "+attenRel.getName()+"\n"+
+                      "\t"+"Site Name: "+ attenRel.SITE_TYPE_GEN_ROCK+"\n"+
+                      "Region Info: "+region.toString()+"\n";
+
+    calc.getHazardMapCurves(DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
+
   }
   public static void main(String[] args) {
     HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
