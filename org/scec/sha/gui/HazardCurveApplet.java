@@ -871,7 +871,6 @@ public class HazardCurveApplet extends JApplet
         e.printStackTrace();
       }*/
 
-
     }
 
     /**
