@@ -10,6 +10,8 @@ import javax.swing.border.*;
 import java.net.*;
 import java.io.*;
 
+import org.scec.sha.param.SimpleFaultParameter;
+import org.scec.sha.param.editor.SimpleFaultParameterEditor;
 import org.scec.param.editor.ParameterListEditor;
 import org.scec.param.*;
 import org.scec.param.event.*;
@@ -176,6 +178,27 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
     }
     return null;
   }
+
+  /**
+   * gets the lists of all the parameters that exists in the ERF parameter Editor
+   * then checks if the simpleFaultParameter exists inside it , if so then returns the
+   * SimpleFaultParameterEditor else return null.  The only reason this is public is
+   * because at least one control panel (for the PEER test cases) needs access.
+   * @returns SimpleFaultParameterEditor
+   */
+  public SimpleFaultParameterEditor getSimpleFaultParamEditor(){
+
+    ListIterator lit = parameterList.getParametersIterator();
+    while(lit.hasNext()){
+      ParameterAPI param=(ParameterAPI)lit.next();
+      if(param instanceof SimpleFaultParameter){
+        SimpleFaultParameterEditor simpleFaultEditor = ((SimpleFaultParameterEditor)getParameterEditor(param.getName()));
+        return simpleFaultEditor;
+      }
+    }
+    return null;
+  }
+
 
 
   /**

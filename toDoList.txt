@@ -1,6 +1,7 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
 
 For JFreeChart, make a stand-alone jar file for the LogPlotTesterApp with our old and their new version.  Nitin and Ned will evaluate this together.  In the meantime revert back to our old version.  Later. send email to JFreeChart asking whether they would adopt our better looking labeling for log plots.
 

@@ -55,7 +55,7 @@ public class SimplePoissonFaultSource extends ProbEqkSource {
 
   //for Debug purposes
   private static String  C = new String("SimplePoissonFaultSource");
-  private boolean D = true;
+  private boolean D = false;
 
   //name for this classs
   protected String  NAME = C;

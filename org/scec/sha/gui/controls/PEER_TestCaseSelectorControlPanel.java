@@ -20,7 +20,9 @@ import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.sha.gui.beans.*;
+import org.scec.sha.param.editor.gui.SimpleFaultParameterEditorPanel;
 import org.scec.sha.gui.controls.SetMinSourceSiteDistanceControlPanel;
+import org.scec.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import java.awt.*;
 import javax.swing.*;
 
@@ -28,13 +30,13 @@ import javax.swing.*;
 /**
  *
  * <p>Title: PEER_TestCaseSelectorControlPanel</p>
- * <p>Description: This class creates the a windoe which contains the
- * list of different PEER tests cases and user can make its selection from these cases.
+ * <p>Description: This class creates the a window that contains the
+ * list of different PEER tests cases so that a user can make a selection.
  * This class also sets the default parameters for the selected test
  * in the HazardCurveApplet. </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author : Nitin Gupta and Vipin Gupta
+ * @author : Nitin Gupta, Vipin Gupta, and Ned Field
  * @created : Feb 24,2003
  * @version 1.0
  */
@@ -42,7 +44,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
 
   protected final static String C = "PEER_TestCaseSelectorControlPanel";
-  protected final static boolean D = false;
+  protected final static boolean D = true;
 
 
   //Supported PEER Test Cases
@@ -65,6 +67,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   public final static String TEST_CASE_NINE_THREE ="Case9-Ca97";
   public final static String TEST_CASE_TEN ="Case10";
   public final static String TEST_CASE_ELEVEN ="Case11";
+  public final static String TEST_CASE_TWELVE ="Case12";
 
 
   //Sites Supported
@@ -82,6 +85,10 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   */
   private double MAX_DISTANCE = 300;
 
+  // some of the universal parameter settings
+  private double GRID_SPACING = 1.0;
+  private String FAULT_TYPE = SimpleFaultParameterEditorPanel.STIRLING;
+
   // various gui beans
   private IMT_GuiBean imtGuiBean;
   private IMR_GuiBean imrGuiBean;
@@ -97,13 +104,15 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private JLabel jLabel2 = new JLabel();
   private JComboBox testCaseComboBox = new JComboBox();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
   //Vector to store the peer test cases names
   private Vector peerTestSetOne = new Vector();
   private Vector peerTestSetTwo = new Vector();
 
-  //These hold the lats, lons, dips, and depths of the faults used in the PoissonFaultERF
+  //These hold the lats, lons, dips, and depths of the faults used in the SimplePoissonFaultERF
   private Vector fault1and2_Lats, fault1and2_Lons, fault1_Dips, fault2_Dips, fault1_Depths, fault2_Depths;
   private Vector faultE_Lats, faultE_Lons, faultE_Dips, faultE_Depths;
+
 
 
   public PEER_TestCaseSelectorControlPanel(Component parent, IMR_GuiBean imrGuiBean,
@@ -113,12 +122,16 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
                                TimeSpanGuiBean timeSpanGuiBean,
                                SetMinSourceSiteDistanceControlPanel distanceControlPanel){
 
+    if (D) System.out.println(C+" Constructor: starting initializeFaultData()");
+    initializeFaultData();
+
     try {
      jbInit();
-   }
-   catch(Exception e) {
+    }
+    catch(Exception e) {
      e.printStackTrace();
     }
+
     //save the instances of the beans
     this.imrGuiBean = imrGuiBean;
     this.siteGuiBean = siteGuiBean;
@@ -126,12 +139,15 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     this.erfGuiBean = erfGuiBean;
     this.timeSpanGuiBean = timeSpanGuiBean;
     this.distanceControlPanel = distanceControlPanel;
+
+    if (D) System.out.println(C+" Constructor: starting initializeTestsAndSites()");
     // fill the combo box with tests and sites
-    this.initializeTestsAndSites();
+    initializeTestsAndSites();
 
     // show the window at center of the parent component
-    this.setLocation(parent.getX()+parent.getWidth()/2,
-                     parent.getY()+parent.getHeight()/2);
+    setLocation(parent.getX()+parent.getWidth()/2,
+                parent.getY()+parent.getHeight()/2);
+
 
   }
 
@@ -267,39 +283,63 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
    }
 
+   //if the selected test case is number 12
+   if(selectedTest.equals(TEST_CASE_TWELVE)){
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
+     imrGuiBean.getParameterList().getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
+   }
+
+
    // *********** Now fill in the ERF parameters ************************
 
-   // if it's one of the "PEER fault" problems (cases 1-9)
+   // if it's one of the "PEER fault" problems (cases 1-9 or 12)
    if(!selectedTest.equalsIgnoreCase(TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
 
      // set the ERF
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_FaultForecast.NAME);
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(SimplePoissonFaultERF.NAME);
 
-     // set the common parameters like timespan, grid spacing
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
+     // set the common parameters like timespan
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
 
-     // magLengthSigma parameter is changed if the test case chosen is 3
+     // magScalingSigma parameter is changed if the test case chosen is 3
      if(selectedTest.equals(TEST_CASE_THREE))
-       erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+       erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
 
-     // set the dip and rake
+     // set the rake for all cases
      if( selectedTest.equals(TEST_CASE_FOUR) ||
          selectedTest.equals(TEST_CASE_NINE_ONE) ||
          selectedTest.equals(TEST_CASE_NINE_TWO) ||
          selectedTest.equals(TEST_CASE_NINE_THREE) ) {
-              erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.DIP_PARAM_NAME).setValue(new Double(60.0));
-              erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.RAKE_PARAM_NAME).setValue(new Double(90.0));
+              erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
      }
      else {
-       erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.DIP_PARAM_NAME).setValue(new Double(90.0));
-       erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
+       erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
      }
 
+     // set the Fault Parameter
+     SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
+     if( selectedTest.equals(TEST_CASE_FOUR) ||
+        selectedTest.equals(TEST_CASE_NINE_ONE) ||
+        selectedTest.equals(TEST_CASE_NINE_TWO) ||
+        selectedTest.equals(TEST_CASE_NINE_THREE) ) {
+             faultPanel.setAll(GRID_SPACING,fault1and2_Lats,fault1and2_Lons,fault2_Dips,fault2_Depths,FAULT_TYPE);
+    }
+    else {
+
+      faultPanel.setAll(GRID_SPACING,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,FAULT_TYPE);
+    }
+    faultPanel.setEvenlyGriddedSurfaceFromParams();
+
    }
-   else {// if it area case
+
+   // it's an area ERF (case 10 or 11)
+   else {
      erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_AreaForecast.NAME);
 
      erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
@@ -468,30 +508,49 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case 3 or 4
    if(selectedTest.equalsIgnoreCase(TEST_CASE_THREE) || selectedTest.equalsIgnoreCase(TEST_CASE_FOUR) ) {
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_FaultForecast.NAME);
 
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.DIP_PARAM_NAME).setValue(new Double(90.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
-     erfGuiBean.getParameterList().getParameter(PEER_FaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0.0));
+     // set the ERF
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(SimplePoissonFaultERF.NAME);
+
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+
+     // set the Fault Parameter
+     SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
+     faultPanel.setAll(GRID_SPACING,fault1and2_Lats,fault1and2_Lons,fault1_Dips,fault1_Depths,FAULT_TYPE);
+     faultPanel.setEvenlyGriddedSurfaceFromParams();
+
    }
 
    //if test case 5
-     if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) ) {
+   if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) ) {
        erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
        timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     }
+   }
 
    //if test case -6
    if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)){
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_ListricFaultForecast.NAME);
-     erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.RAKE_PARAM_NAME).setValue(new Double(0.0));
-     erfGuiBean.getParameterList().getParameter(PEER_ListricFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0.0));
+     // set the ERF
+     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(SimplePoissonFaultERF.NAME);
+
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
+     erfGuiBean.getParameterList().getParameter(SimplePoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+
+     // set the Fault Parameter
+     SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
+     faultPanel.setAll(GRID_SPACING,faultE_Lats,faultE_Lons,faultE_Dips,faultE_Depths,FAULT_TYPE);
+     faultPanel.setEvenlyGriddedSurfaceFromParams();
+
    }
 
    // now set the magFreqDist parameters (if there is one) using the separate method
@@ -567,8 +626,8 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(6.5));
      magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(6));
 
-     // mag dist parameters for test case 1
-     if(selectedTest.equalsIgnoreCase(TEST_CASE_ONE)) {
+     // mag dist parameters for test case 1 & 12
+     if(selectedTest.equalsIgnoreCase(TEST_CASE_ONE) || selectedTest.equalsIgnoreCase(TEST_CASE_TWELVE)) {
        magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
        magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
        magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
@@ -761,9 +820,9 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      faultE_Lats.add(new Double(38.0));
      faultE_Lats.add(new Double(38.2248));
 
-     faultE_Lats = new Vector();
-     faultE_Lats.add(new Double(-122.0));
-     faultE_Lats.add(new Double(-122.0));
+     faultE_Lons = new Vector();
+     faultE_Lons.add(new Double(-122.0));
+     faultE_Lons.add(new Double(-122.0));
 
      faultE_Dips = new Vector();
      faultE_Dips.add(new Double(50.0));
@@ -919,6 +978,16 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_TWO));
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_THREE));
      v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_FOUR));
+
+     //test case-12
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_ONE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_TWO));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_THREE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_FOUR));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_FIVE));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_SIX));
+     v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWELVE+"-"+this.SITE_SEVEN));
+
 
      //adding the SET ONE PEER test cases to the set one vector
      int size = v.size();

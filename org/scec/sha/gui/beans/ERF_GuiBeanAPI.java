@@ -26,6 +26,15 @@ public interface ERF_GuiBeanAPI extends
    */
    public MagFreqDistParameterEditor getMagDistEditor();
 
+   /**
+    * gets the lists of all the parameters that exists in the ERF parameter Editor
+    * then checks if the simpleFaultParameter exists inside it , if so then returns the
+    * SimpleFaultParameterEditor else return null.  The only reason this is public is
+    * because at least one control panel (for the PEER test cases) needs access.
+    * @returns SimpleFaultParameterEditor
+    */
+   public SimpleFaultParameterEditor getSimpleFaultParamEditor();
+
 
    /**
     * returns the name of selected ERF

@@ -221,6 +221,27 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
 
    /**
+    * gets the lists of all the parameters that exists in the ERF parameter Editor
+    * then checks if the simpleFaultParameter exists inside it , if so then returns the
+    * SimpleFaultParameterEditor else return null.  The only reason this is public is
+    * because at least one control panel (for the PEER test cases) needs access.
+    * @returns SimpleFaultParameterEditor
+    */
+   public SimpleFaultParameterEditor getSimpleFaultParamEditor(){
+
+     ListIterator lit = parameterList.getParametersIterator();
+     while(lit.hasNext()){
+       ParameterAPI param=(ParameterAPI)lit.next();
+       if(param instanceof SimpleFaultParameter){
+         SimpleFaultParameterEditor simpleFaultEditor = ((SimpleFaultParameterEditor)getParameterEditor(param.getName()));
+         return simpleFaultEditor;
+       }
+     }
+     return null;
+   }
+
+
+   /**
     * returns the name of selected ERF
     * @return
     */

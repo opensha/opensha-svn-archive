@@ -307,9 +307,9 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
     public static void main(String[] args) {
 
          FaultTrace faultTrace = new FaultTrace("test");
-         faultTrace.addLocation(new Location(38.22480,-122,0.0));
-         faultTrace.addLocation(new Location(38,-122,0.0));
-         faultTrace.addLocation(new Location(37.8, -122.2,0.0));
+         faultTrace.addLocation(new Location(38.22480, -122.0, 0.0));
+         faultTrace.addLocation(new Location(38.00000, -122.0, 0.0));
+         faultTrace.addLocation(new Location(37.80000, -122.2, 0.0));
 
          Vector dips = new Vector();
          dips.add(new Double(60.0));

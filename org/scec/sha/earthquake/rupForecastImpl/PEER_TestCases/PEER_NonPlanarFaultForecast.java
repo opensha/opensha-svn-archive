@@ -8,11 +8,11 @@ import java.util.Iterator;
 import org.scec.data.TimeSpan;
 import org.scec.data.Location;
 
+import org.scec.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
@@ -43,7 +43,11 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
 
 
   // the prob eqk source (only one)
-  private PEER_FaultSource source;
+  private SimplePoissonFaultSource source;
+
+  PEER_testsMagAreaRelationship magScalingRel = new PEER_testsMagAreaRelationship();
+  private double rupAspectRatio = 2;
+  private double minMag = 5;  // the minimum magnitude to consider in the forecast
 
   // grid spacing parameter stuff
   public final static String GRID_PARAM_NAME =  "Fault Grid Spacing";
@@ -290,9 +294,9 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
        }
 
        // Now make the source
-       source = new  PEER_FaultSource(grMagFreqDist, RAKE, offset,
-                                        (EvenlyGriddedSurface)surface,
-                                        timeSpan.getDuration(), lengthSigma);
+       source = new SimplePoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
+                                             magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                             RAKE,timeSpan.getDuration(),minMag);
      }
      parameterChangeFlag = false;
    }

@@ -14,10 +14,10 @@ import org.scec.param.*;
 import org.scec.sha.fault.*;
 import org.scec.sha.surface.*;
 import org.scec.sha.earthquake.*;
-import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_CharEqkSource;
 import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.magdist.*;
 import org.scec.param.event.*;
+import org.scec.calc.magScalingRelations.magScalingRelImpl.PEER_testsMagAreaRelationship;
 
 
 /**
@@ -43,6 +43,11 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   //name for this classs
   public final static String  NAME = C;
 
+  PEER_testsMagAreaRelationship magScalingRel = new PEER_testsMagAreaRelationship();
+  private double rupAspectRatio = 2;
+  private double minMag = 5;  // the minimum magnitude to consider in the forecast
+
+
   // the GR distribution used for the area source
   private GutenbergRichterMagFreqDist dist_gr_A_orig;
 
@@ -62,8 +67,8 @@ public class PEER_MultiSourceForecast extends EqkRupForecast
   private static final Location faultC_loc2 = new Location(37.3242,-122.1410,0);
 
   // these are the fault sources
-  private PEER_FaultSource fltSourceB;
-  private PEER_FaultSource fltSourceC;
+  private SimplePoissonFaultSource fltSourceB;
+  private SimplePoissonFaultSource fltSourceC;
 
   // this is the dip and rake for all events in all sources
 
@@ -261,16 +266,16 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
 
       // get the surface and make the source for Fault B
       GriddedSurfaceAPI surfaceB = factory.getGriddedSurface();
-      fltSourceB = new  PEER_FaultSource(dist_yc_B, RAKE, offset,
-                                          (EvenlyGriddedSurface) surfaceB,
-                                          timeSpan.getDuration(), lengthSigma );
+      fltSourceB = new  SimplePoissonFaultSource(dist_yc_B,(EvenlyGriddedSurface) surfaceB,
+                                                 magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                                 RAKE,timeSpan.getDuration(),minMag);
 
       // for fault C:
       factory.setFaultTrace(faultTraceC);
       GriddedSurfaceAPI surfaceC = factory.getGriddedSurface();
-      fltSourceC = new  PEER_FaultSource(dist_yc_C, RAKE, offset,
-                                          (EvenlyGriddedSurface)surfaceC,
-                                          timeSpan.getDuration(), lengthSigma );
+      fltSourceC = new  SimplePoissonFaultSource(dist_yc_C,(EvenlyGriddedSurface) surfaceC,
+                                                 magScalingRel,lengthSigma,rupAspectRatio,offset,
+                                                 RAKE,timeSpan.getDuration(),minMag);
 
     }
     parameterChangeFlag = false;
