@@ -70,7 +70,7 @@ public class IMRGuiBean
      *  Number of points to calculate between x-axis min and x-axis max, i.e.
      *  the constraint range of the choosen x-axis independent variable
      */
-    public final static int NUM = 30;
+    public final static int NUM = 100;
 
     /**
      *  Search path for finding editors in non-default packages.

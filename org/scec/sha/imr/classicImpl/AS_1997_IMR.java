@@ -314,12 +314,11 @@ public class AS_1997_IMR
         if( im.getName() == SA_NAME ) key.append( "/" + periodParam.getValue() );
 
         // so far only the horizontal coeffs case
-        a2 = 0.909;
-        a4 = 0.275;
-        a13 = 0.06;
-        c1 = 6.4;
-        c5 = 0.3;
-        n = 3;
+
+        // these are the same for all periods
+        a2 = 0.512; a4 = -0.144; a13 = 0.17; c1 = 6.4; c5 = 0.03; n = 2;
+
+        // now get the period dependent coeffs
         if( horzCoeffs.containsKey( key.toString() ) ) coeff = ( AS_1997_IMRCoefficients )horzCoeffs.get( key.toString() );
         else throw new ParameterException( C + ": setIntensityMeasureType(): " + "Unable to locate coefficients with key = " + key );
     }
@@ -359,9 +358,9 @@ public class AS_1997_IMR
 
         // Get PGA coefficients
         // This is only for ave horz come (need an if statement)
-            a2 = 0.909; a4 = 0.275; a13 = 0.06; c1 = 6.4; c5 = 0.3; n = 3;
-            coeff = ( AS_1997_IMRCoefficients ) horzCoeffs.get( PGA_NAME );
+        coeff = ( AS_1997_IMRCoefficients ) horzCoeffs.get( PGA_NAME );
 
+        // Get mean rock PGA
         rockMeanPGA = calcRockMean(mag, dist, F, HW);
 
         // now set coefficients for the corrent im and component
@@ -406,7 +405,15 @@ public class AS_1997_IMR
         else
             f1 = coeff.a1 + a4*(mag-c1) + coeff.a12*Math.pow(8.5 - mag, n) +
               Math.log(R)*(coeff.a3 + a13*(mag-c1));
-
+/*
+System.out.println( coeff.a1 );
+System.out.println( a4 );
+System.out.println( c1 );
+System.out.println( coeff.a12 );
+System.out.println( n );
+System.out.println( coeff.a3 );
+System.out.println( a13 );
+*/
         // Compute f3, the style of faulting factor
         if(mag <=5.8)
             f3 = coeff.a5;
@@ -672,7 +679,7 @@ public class AS_1997_IMR
 
         // PGA
         AS_1997_IMRCoefficients coeff = new AS_1997_IMRCoefficients(PGA_NAME,
-            0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.1 );
+            0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135 );
 
         // SA/5.00
         AS_1997_IMRCoefficients coeff0 = new AS_1997_IMRCoefficients( SA_NAME + '/' +( new Double( "5.00" ) ).doubleValue() ,
@@ -757,10 +764,10 @@ public class AS_1997_IMR
             0.02, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135 );
         // SA/0.01
         AS_1997_IMRCoefficients coeff27 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.01" ) ).doubleValue() ,
-            0.01, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.1 );
+            0.01, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135 );
         // SA/0.0 -- same as 0.01
         AS_1997_IMRCoefficients coeff28 = new AS_1997_IMRCoefficients( "SA/" +( new Double( "0.0" ) ).doubleValue() ,
-            0.0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.1 );
+            0.0, 5.6, 1.64, -1.145, 0.61, 0.26, 0.37, -0.417, -0.23, 0, 0.7, 0.135 );
 
         horzCoeffs.put( coeff.getName(), coeff );
         horzCoeffs.put( coeff0.getName(), coeff0 );

@@ -581,6 +581,11 @@ public class SCEMY_1997_IMR
         // SA/0.0
         SCEMY_1997_IMRCoefficients coeff0 = new SCEMY_1997_IMRCoefficients( SA_NAME + '/' +( new Double( "0.0" ) ).doubleValue() ,
               0.0, -0.624, -1.274, 0.000, -2.100, 0.0, 0.0, 0.0, 0.0, 1.39, 1.52);
+
+/*        // only for comparing with their figures - 0.03 SA = PGA
+        SCEMY_1997_IMRCoefficients coeffTEMP = new SCEMY_1997_IMRCoefficients( SA_NAME + '/' +( new Double( "0.03" ) ).doubleValue() ,
+              0.03, -0.624, -1.274, 0.000, -2.100, 0.0, 0.0, 0.0, 0.0, 1.39, 1.52);
+*/
         // SA/0.075
         SCEMY_1997_IMRCoefficients coeff1 = new SCEMY_1997_IMRCoefficients( "SA/" +( new Double( "0.075" ) ).doubleValue() ,
               0.075, 0.110, -0.540, 0.006, -2.128, -0.082, 0.4572, 0.4572, 0.005, 1.40, 1.54);
@@ -620,6 +625,7 @@ public class SCEMY_1997_IMR
 
         coefficients.put( coeff.getName(), coeff );
         coefficients.put( coeff0.getName(), coeff0 );
+//        coefficients.put( coeffTEMP.getName(), coeffTEMP);    // only for comparing with their figures
         coefficients.put( coeff1.getName(), coeff1 );
         coefficients.put( coeff2.getName(), coeff2 );
         coefficients.put( coeff3.getName(), coeff3 );

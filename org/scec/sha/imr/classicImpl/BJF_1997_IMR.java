@@ -314,6 +314,11 @@ public class BJF_1997_IMR
         // Convert back to normal value
         mean = Math.pow(Math.E, mean);
 
+        /* convert to PSV for comparison with their figures (only for tests!):
+        if ( coeff.period != 0.0 )
+            mean /= (6.28318 /coeff.period);
+        */
+
         // return the result
         return new Double(mean);
     }
