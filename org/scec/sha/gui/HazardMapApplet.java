@@ -314,7 +314,7 @@ public class HazardMapApplet extends JApplet
      attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
      sitesGuiBean = new SitesInGriddedRegionGuiBean();
-     sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
+     sitesGuiBean.addSiteParams(attenRel.getSiteParamsIterator());
      // show the sitebean in JPanel
      gridRegionSitePanel.add(this.sitesGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

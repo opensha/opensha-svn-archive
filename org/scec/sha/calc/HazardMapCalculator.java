@@ -44,7 +44,7 @@ public class HazardMapCalculator {
 
   private DecimalFormat decimalFormat=new DecimalFormat("0.00##");
   // directory where all the hazard map data sets will be saved
-  public static final String DATASETS_PATH = "HazardMapDataSets/";
+  public static final String DATASETS_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/HazardMapDatasets/";
   // flag to indicate whether this IMT requires X values to be in log
   boolean xLogFlag = true;
   // name of the new directory for this data set
@@ -99,7 +99,7 @@ public class HazardMapCalculator {
     }
     //creating a new directory that stores all the HazardCurves for that region
     boolean success = (new File(newDir)).mkdir();
-    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo);
+    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo,null);
   }
 
   /**
@@ -120,14 +120,16 @@ public class HazardMapCalculator {
                                  SitesInGriddedRegion griddedSites,
                                  AttenuationRelationshipAPI imr,
                                  EqkRupForecast eqkRupForecast,
-                                 String mapParametersInfo) {
+                                 String mapParametersInfo, String email) {
     newDir=  new String(dirName);
-    File f = new File(dirName);
-    if(!f.isDirectory()){
+    File f = new File(DATASETS_PATH+dirName);
+    if(!f.exists()){
       //creating a new directory that stores all the HazardCurves for that region
-      boolean success = (new File(newDir)).mkdir();
+      boolean success = f.mkdir();
+      calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo,email);
     }
-    calculate(imtLogFlag, xValues, griddedSites, imr, eqkRupForecast, mapParametersInfo);
+    else
+      throw new RuntimeException("Directory already exists please give some other name");
   }
 
 
@@ -145,14 +147,13 @@ public class HazardMapCalculator {
                                   SitesInGriddedRegion griddedSites,
                                   AttenuationRelationshipAPI imr,
                                   EqkRupForecast eqkRupForecast,
-                                 String mapParametersInfo) {
+                                 String mapParametersInfo, String email) {
     Site site;
     this.xLogFlag = imtLogFlag;
+    int numSites = griddedSites.getNumGridLocs();
     try{
       HazardCurveCalculator hazCurveCalc=new HazardCurveCalculator();
       //hazCurveCalc.showProgressBar(false);
-
-      int numSites = griddedSites.getNumGridLocs();
 
       int numPoints = xValues.length;
       for(int j=0;j<numSites;++j){
@@ -166,7 +167,7 @@ public class HazardMapCalculator {
 
         hazFunction = this.toggleHazFuncLogValues(hazFunction, xValues);
         try{
-          FileWriter fr = new FileWriter(newDir+"/"+lat+"_"+lon+".txt");
+          FileWriter fr = new FileWriter(DATASETS_PATH+newDir+"/"+lat+"_"+lon+".txt");
           for(int i=0;i<numPoints;++i)
             fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
           fr.close();
@@ -180,18 +181,24 @@ public class HazardMapCalculator {
 
     // make the metadata.data and sites.data files
     try{
-      FileWriter fr = new FileWriter(newDir+"/metadata.dat");
+      FileWriter fr = new FileWriter(DATASETS_PATH+newDir+"/metadata.txt");
       fr.write(mapParametersInfo+"\n");
       fr.close();
-      fr=new FileWriter(newDir+"/sites.dat");
+      fr=new FileWriter(DATASETS_PATH+newDir+"/sites.txt");
       fr.write(griddedSites.getMinLat()+" "+griddedSites.getMaxLat()+" "+
                griddedSites.getGridSpacing()+"\n"+griddedSites.getMinLon()+" "+
                griddedSites.getMaxLon()+" "+ griddedSites.getGridSpacing()+"\n");
       fr.close();
+      if(email !=null || !email.equals("")){
+        HazardMapCalcPostProcessing mapPostProcessing = new HazardMapCalcPostProcessing(numSites,
+            email,newDir,java.util.Calendar.getInstance().getTime().toString().replaceAll(" ","_"));
+      }
+
     }catch(IOException ee){
       ee.printStackTrace();
     }
-  }
+
+      }
 
   /**
    * set x values in log space for Hazard Function to be passed to IMR
