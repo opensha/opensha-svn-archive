@@ -35,7 +35,6 @@ public class ExceptionWindow extends JFrame {
   private BorderLayout borderLayout1 = new BorderLayout();
   private JLabel emailLabel = new JLabel();
   private JTextField emailText = new JTextField();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //servlet ( to send the mail)
   private static final String SERVLET_URL = "http://gravity.usc.edu/OpenSHA/servlet/EmailServlet";
@@ -43,6 +42,7 @@ public class ExceptionWindow extends JFrame {
   //TITLE of this window
   private static final String TITLE = "Application bug reporting window";
   private static final boolean D = false;
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   public ExceptionWindow(Component parent,String exceptionText) {
     try {
@@ -84,30 +84,33 @@ public class ExceptionWindow extends JFrame {
       }
     });
     emailLabel.setText("Enter your email:");
+    jPanel1.setMinimumSize(new Dimension(100, 100));
+    jPanel1.setPreferredSize(new Dimension(470, 330));
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(exceptionScrollPane,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 8), 547, 204));
+    jPanel1.add(exceptionScrollPane,  new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 8), 418, 65));
     exceptionScrollPane.getViewport().add(exceptionTextPane, null);
-    jPanel1.add(errorDescriptionPanel,  new GridBagConstraints(0, 3, 4, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 8), 547, 200));
+    jPanel1.add(errorDescriptionPanel,  new GridBagConstraints(0, 3, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 8), 418, 61));
     errorDescriptionPanel.getViewport().add(errorTextPanel, null);
     jPanel1.add(jLabel1,  new GridBagConstraints(0, 2, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 14, 0, 48), 46, 8));
-    jPanel1.add(exceptionLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 15, 0, 101), 25, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 14, 0, 43), 93, 8));
+    jPanel1.add(exceptionLabel,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 15, 0, 123), 148, 12));
     jPanel1.add(emailLabel,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 14, 6, 0), 31, 13));
-    jPanel1.add(sendButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 16, 18, 0), 3, 10));
-    jPanel1.add(emailText,  new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(11, 0, 0, 0), 139, 16));
-    jPanel1.add(cancelButton,  new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 27, 18, 56), 4, 10));
+    jPanel1.add(sendButton,  new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 44, 17, 0), 1, 10));
+    jPanel1.add(emailText,  new GridBagConstraints(1, 4, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(11, 0, 0, 114), 170, 16));
+    jPanel1.add(cancelButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 25, 17, 56), 0, 10));
     emailText.setText("");
   }
 
   void cancelButton_actionPerformed(ActionEvent e) {
     this.dispose();
+    System.exit(0);
   }
 
   void sendButton_actionPerformed(ActionEvent e) {
@@ -131,6 +134,7 @@ public class ExceptionWindow extends JFrame {
       //establishing connection with servlet to email exception message to system maintainer
       sendParametersToServlet(email,emailMessage);
       dispose();
+      System.exit(0);
     }
   }
 
