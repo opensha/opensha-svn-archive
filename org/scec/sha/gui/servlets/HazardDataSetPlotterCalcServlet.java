@@ -111,8 +111,12 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
      double matchingGridSpacing = gridSpacing/2 + .0001;
      double lat = minLat;
      double lon = minLon;
-     for(; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
-       System.out.println("Latitude: "+lat);
+     //lat and lon to compare with maxLat and maxLon, as double varies in precision
+     //so we need different variable for comparison with maximum lat & lons
+     //this needs to eb formatted to be compared.
+     double latForComparison = Double.parseDouble(d.format(lat));
+     double lonForComparison = Double.parseDouble(d.format(lon));
+     for(; latForComparison<=maxLat; lat=lat+gridSpacing,latForComparison = Double.parseDouble(d.format(lat))){
        if(Math.abs(selectedLat-lat) <= (matchingGridSpacing)){
          latFlag=true;
          latForFile =lat;
@@ -125,7 +129,7 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
        latFlag=true;
        latForFile =lat;
      }
-     for(; lon<=maxLon && latFlag; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
+     for(; lonForComparison<=maxLon && latFlag; lon=lon+gridSpacing,lonForComparison = Double.parseDouble(d.format(lon))) {
        //iterating over lon's for each lat
        if(((Math.abs(selectedLon - lon)) <= matchingGridSpacing)){
          lonFlag = true;
@@ -141,6 +145,7 @@ public class HazardDataSetPlotterCalcServlet  extends HttpServlet {
 
      try{
        System.out.println("Selected Lat and Lon:"+latForFile+" , "+lonForFile);
+       System.out.println("Selected Lat and Lon for comparison:"+latForComparison+" , "+lonForComparison);
        String fileName =  d.format(latForFile)+"_"+d.format(lonForFile)+".txt";
        ArrayList listfiles = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileName);
        return listfiles;

@@ -215,17 +215,28 @@ public class HazardMapViewerServlet  extends HttpServlet {
     File dir = new File(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/");
     String[] fileList=dir.list();
     //formatting of the text double Decimal numbers for 2 places of decimal.
-    DecimalFormat d= new DecimalFormat("0.00######");
+    DecimalFormat d= new DecimalFormat("0.00##");
 
     double interpolatedVal=0;
     ArrayList fileLines;
-    for(double lat = minLat; lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
-      for(double lon = minLon; lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
+    //lat and lon to compare with maxLat and maxLon, as double varies in precision
+    //so we need different variable for comparison with maximum lat & lons
+    //this needs to eb formatted to be compared.
+    //String latForComparison = d.format(minLat);
+    for(double lat = minLat;lat<=maxLat; lat=Double.parseDouble(d.format(lat+gridSpacing))){
+      //String lonForComparison = d.format(minLon);
+      for(double lon = minLon;lon<=maxLon; lon=Double.parseDouble(d.format(lon+gridSpacing))) {
         try {
-          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+d.format(lat)+"_"+ d.format(lon)+".txt");
+          String fileToRead = d.format(lat)+"_"+ d.format(lon)+".txt";
+          //System.out.println("File to read: "+fileToRead);
+          fileLines = FileUtils.loadFile(HazardMapCalcServlet.PARENT_DIR+selectedSet+"/"+fileToRead);
           String dataLine;
           StringTokenizer st;
           ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+
+          if(fileLines.size() ==0)
+            System.out.println("File to read but could not found:"+fileToRead);
+
           for(int i=0;i<fileLines.size();++i) {
             dataLine=(String)fileLines.get(i);
             st=new StringTokenizer(dataLine);
@@ -244,7 +255,9 @@ public class HazardMapViewerServlet  extends HttpServlet {
             //corresponding prob.
             interpolatedVal = func.getFirstInterpolatedX_inLogXLogYDomain(val);
 
-        }catch(Exception e) { } // catch invalid range exception etc.
+        }catch(Exception e) {
+          //e.printStackTrace();
+        } // catch invalid range exception etc.
         xVals.add(new Double(lat));
         yVals.add(new Double(lon));
         zVals.add(new Double(interpolatedVal));
