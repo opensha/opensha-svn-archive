@@ -583,7 +583,22 @@ public class HazardMapApplet extends JApplet implements
      SitesInGriddedRegion griddedRegionSites = griddedRegionGuiBean.getGriddedRegionSite();
      // calculate the hazard curve for each site
      calc.getHazardMapCurves(condProbFunc,hazFunction,griddedRegionSites , imr, eqkRupForecast);
-     //hazFunction.setInfo("\n"+getCurveParametersInfo()+"\n");
+
+     try{
+       FileWriter fr = new FileWriter("tempData/metadata.txt");
+       fr.write(this.getCurveParametersInfo()+"\n");
+       fr.close();
+       fr=new FileWriter("tempData/sites.txt");
+       fr.write(griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MIN_LATITUDE).getValue().toString()+
+                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MAX_LATITUDE).getValue().toString()+
+                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.GRID_SPACING).getValue().toString()+
+                "\n"+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MIN_LONGITUDE).getValue().toString()+
+                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.MAX_LONGITUDE).getValue().toString()+
+                " "+griddedRegionGuiBean.getParameterList().getParameter(griddedRegionGuiBean.GRID_SPACING).getValue().toString()+"\n");
+       fr.close();
+     }catch(IOException ee){
+
+     }
    }catch (RuntimeException e) {
      JOptionPane.showMessageDialog(this, e.getMessage(),
                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
