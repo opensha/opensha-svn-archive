@@ -13,7 +13,7 @@ import org.scec.sha.param.*;
  * @version 1.0
  */
 
-public class SimpleFaultParameter extends SimpleFaultParameterCalculator {
+public class SimpleFaultParameter extends SimpleFaultParameterCalculator implements java.io.Serializable{
 
   /** Class name for debugging. */
   protected final static String C = "SimpleFaultParameter";

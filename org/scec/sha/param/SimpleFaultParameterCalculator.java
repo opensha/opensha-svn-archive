@@ -14,7 +14,11 @@ import org.scec.data.Location;
 /**
  * <p>Title: SimpleFaultParameterCalculator</p>
  * <p>Description: This class acts as the intermediatory between SimpleFaultParameter
- * and its editor.</p>
+ * and its editor.It extends the Dependent Parameter class so as to save the list of
+ * visible parameters. Most of the editor functionality has been embedded into this
+ * class because we want to make all the functionality available to the user if
+ * he does not want to use the GUI components.
+ * This class is extended by SimpleFaultParameter.</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
@@ -44,6 +48,7 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
   public static final String DIP_TITLE = "Dips";
   public static final String DEPTH_TITLE = "Depths";
 
+  //Fault Type Param Name
   public static final String FAULT_TYPE_TITLE = "Choose Fault Type";
 
   //static string for the Fault type supported
@@ -178,14 +183,18 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
   }
 
 
+  /**
+   *
+   * creating the parameters for the parameterList that includes:
+   * 1)name of the fault
+   * 2)Grid Spacing
+   * 3)Num of the Flt Trace
+   * All the above parameters are added to one param List and to one ParamList Editor
+   * This is only few parameters that compose the SimpleFaultParameter, which is a complex
+   * parameter comprising of other parameters too.
+   */
   public void initParamList(){
-    /**
-     * creating the parameters for the parameterList that includes:
-     * 1)name of the fault
-     * 2)Grid Spacing
-     * 3)Num of the Flt Trace
-     * All these parameters are added to one param List and to one ParamList Editor
-     */
+
     StringParameter faultName= new StringParameter(this.FAULT_NAME);
     DoubleParameter gridSpacing = new DoubleParameter(this.GRID_SPACING,0.0,100,new Double(this.DEFAULT_GRID_SPACING));
     IntegerParameter numFltTrace = new IntegerParameter(this.NUMBER_OF_FAULT_TRACE,1,100,new Integer(this.DEFAULT_NUM_FAULT_TRACE));
@@ -196,45 +205,84 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
     Vector fltType = new Vector();
     fltType.add(this.FRANKEL);
     fltType.add(this.STIRLING);
-
     faultTypeParam = new StringParameter(this.FAULT_TYPE_TITLE,fltType,(String)fltType.get(0));
   }
 
+
+  /**
+   *
+   * @returns the ParameterList comprising of following parameters:
+   * 1)name of the fault
+   * 2)Grid Spacing
+   * 3)Num of the Flt Trace
+   */
   public ParameterList getFaultTraceParamList(){
     return parameterList;
   }
 
+
+  /**
+   * returns ParameterListParameter
+   * @returns the Parameter comprising of all the latitudes
+   */
   public ParameterAPI getLatParam(){
     return parameterListParameterForLats;
   }
 
+  /**
+   * returns ParameterListParameter
+   * @returns the Parameter comprising of all the longitudes
+   */
   public ParameterAPI getLonParam(){
     return parameterListParameterForLons;
   }
 
+  /**
+   * returns ParameterListParameter
+   * @returns the Parameter comprising of all the depths
+   */
   public ParameterAPI getDepthParam(){
     return parameterListParameterForDepths;
   }
 
+  /**
+   * returns ParameterListParameter
+   * @returns the Parameter comprising of all the dips
+   */
   public ParameterAPI getDipParam(){
     return parameterListParameterForDips;
   }
 
+  /**
+   *
+   * @returns the parameter for the number of Dips
+   */
   public ParameterAPI getNumDipParam(){
     return numDipParam;
   }
 
+  /**
+   *
+   * @returns the parameter for selected fault type
+   */
   public ParameterAPI getFaultTypeParam(){
     return faultTypeParam;
   }
 
+  /**
+   *
+   * @returns the parameter for Dip direction
+   */
   public ParameterAPI getDipDirectionParam(){
     return dipDirectionParam;
   }
 
 
   /**
-   *
+   * Creates Latitude and Longitude parameters based on the number of the faultTrace.
+   * If the user has already specified the values for these parameters once ,it saves
+   * those values for future reference. So that when the number of fault-trace changes
+   * user does not always have to fill in all the values.
    */
   public void initLatLonParamList(){
 
@@ -272,6 +320,12 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
   }
 
 
+  /**
+   * Creates Latitude and Longitude parameters based on the number of the Dips.
+   * If the user has already specified the values for these parameters once ,it saves
+   * those values for future reference. So that when the number of dips changes
+   * user does not always have to fill in all the values.
+   */
   public void initDipParamList(){
     int numDips = ((Integer)numDipParam.getValue()).intValue();
 
@@ -290,6 +344,14 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
     parameterListParameterForDips = new ParameterListParameter(DIP_TITLE,parameterListForDips);
   }
 
+
+  /**
+   * Creates Latitude and Longitude parameters based on the number of the Dips.
+   * If the user has already specified the values for these parameters once ,it saves
+   * those values for future reference. So that when the number of dips changes
+   * user does not always have to fill in all the values.
+   * Number of Depths are always one more than the number of dips
+   */
   public void initDepthParamList(){
     int numDepths = ((Integer)numDipParam.getValue()).intValue()+1;
     DoubleParameter[] depth = new DoubleParameter[numDepths];
@@ -311,9 +373,8 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
 
   /**
    * creates the evenly gridded surface from the fault parameter.
-   * This function has to be called explicitly in order to Create/Update or it can
-   * updated when the user press the "Update Surface" button
-   * the  gridded surface.
+   * This function has to be called explicitly in order to Create/Update
+   * the  gridded surface , if user is not using the GUI.
    * @throws RuntimeException
    */
   public void setEvenlyGriddedSurfaceFromParams()throws RuntimeException{
@@ -537,19 +598,34 @@ public class SimpleFaultParameterCalculator extends DependentParameter implement
     faultTypeParam.setValue(faultType);
   }
 
+  /**
+   *
+   * @returns the Vector containing the values for all the specified Latitudes
+   */
   public Vector getLatParamVals(){
    return prevLats;
   }
 
+  /**
+   *
+   * @returns the Vector containing the values for all the specified Longitudes
+   */
   public Vector getLonParamVals(){
    return prevLons;
   }
 
-
+  /**
+   *
+   * @returns the Vector containing the values for all the specified Dips
+   */
   public Vector getDipParamVals(){
    return prevDips;
   }
 
+  /**
+   *
+   * @returns the Vector containing the values for all the specified Depths
+   */
   public Vector getDepthParamVals(){
    return prevDepths;
   }
