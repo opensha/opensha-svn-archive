@@ -1,4 +1,4 @@
-package org.scec.sha.earthquake;
+package org.scec.sha.gui.beans;
 
 import java.util.*;
 import java.lang.reflect.*;
@@ -24,7 +24,7 @@ import org.scec.data.Location;
 
 
 
-public class SiteParamListEditor extends ParameterListEditor implements ParameterChangeListener{
+public class Site_GuiBean extends ParameterListEditor implements ParameterChangeListener{
 
 // for debug purposes
  protected final static String C = "SiteParamList";
@@ -54,7 +54,7 @@ public class SiteParamListEditor extends ParameterListEditor implements Paramete
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
-  public SiteParamListEditor() {
+  public Site_GuiBean() {
     // Build package names search path
     searchPaths = new String[1];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();

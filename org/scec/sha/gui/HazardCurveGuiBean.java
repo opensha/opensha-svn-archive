@@ -31,6 +31,7 @@ import org.scec.sha.earthquake.PEER_TestCases.*;
 import org.scec.sha.calc.HazardCurveCalculator;
 import org.scec.sha.calc.DisaggregationCalculator;
 import org.scec.sha.gui.controls.*;
+import org.scec.sha.gui.beans.*;
 
 
 public class HazardCurveGuiBean implements
@@ -87,7 +88,7 @@ public class HazardCurveGuiBean implements
 
 
     // Site Gui Editor
-    private SiteParamListEditor siteParamEditor;
+    private Site_GuiBean siteBean;
 
     /**
      *  The object class names for all the supported Eqk Rup Forecasts
@@ -154,10 +155,10 @@ public class HazardCurveGuiBean implements
     init_erf_IndParamListAndEditor();
 
     // make the site gui bean
-    siteParamEditor = new SiteParamListEditor();
+    siteBean = new Site_GuiBean();
     // add fail listener for Latitude and Longitude parameters
-    siteParamEditor.getParameterEditor(SiteParamListEditor.LATITUDE).getParameter().addParameterChangeFailListener(this);
-    siteParamEditor.getParameterEditor(SiteParamListEditor.LONGITUDE).getParameter().addParameterChangeFailListener(this);
+    siteBean.getParameterEditor(Site_GuiBean.LATITUDE).getParameter().addParameterChangeFailListener(this);
+    siteBean.getParameterEditor(Site_GuiBean.LONGITUDE).getParameter().addParameterChangeFailListener(this);
 
 
     // Create site parameters
@@ -511,7 +512,7 @@ public class HazardCurveGuiBean implements
      imr = (AttenuationRelationshipAPI)imrObject.get(i);
      // if this is not the selected IMR then continue
      if(imr.getName().equalsIgnoreCase(value)) {
-        siteParamEditor.replaceSiteParams(imr.getSiteParamsIterator());
+        siteBean.replaceSiteParams(imr.getSiteParamsIterator());
         break;
      }
    }
@@ -553,8 +554,8 @@ public class HazardCurveGuiBean implements
   *
   * @return    The siteEditor value
   */
-  public SiteParamListEditor getSiteEditor() {
-        return siteParamEditor;
+  public Site_GuiBean getSiteEditor() {
+        return siteBean;
  }
 
 
@@ -767,7 +768,7 @@ public class HazardCurveGuiBean implements
     AttenuationRelationshipAPI imr = null;
 
     // make a site object to pass to each IMR
-    Site site = siteParamEditor.getSite();
+    Site site = siteBean.getSite();
 
 
     // do for each IMR
@@ -1065,7 +1066,7 @@ public class HazardCurveGuiBean implements
    */
   public String getCurveParametersInfo(){
     return "IMR Param List: " +imrParamList.toString()+"\n"+
-        "Site Param List: "+siteParamEditor.getParameterList().toString()+"\n"+
+        "Site Param List: "+siteBean.getParameterList().toString()+"\n"+
         "IMT Param List: "+imtParamList.toString()+"\n"+
         "Forecast Param List: "+erf_IndParamList.toString();
   }
