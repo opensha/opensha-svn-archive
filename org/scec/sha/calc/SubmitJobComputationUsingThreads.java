@@ -151,7 +151,7 @@ public class SubmitJobComputationUsingThreads {
                                      griddedSites);
 
       condorSubmit = createCondorScript(fileDataPrefix, fileDataSuffix,
-                                        "" + subFileName,
+                                        subFileName,
                                         outputDir,
                                         PERL_CONDOR_SUBMIT ,
                                         remoteDir, PERL_EXECUTABLE);
@@ -196,7 +196,7 @@ public class SubmitJobComputationUsingThreads {
 
     // some lines needed in the condor submit file
     String fileDataPrefix = "universe = java\n" +
-       "globusscheduler=almaak.usc.edu/jobmanager-fork\n" +
+       "globusscheduler=almaak.usc.edu/jobmanager-pbs\n" +
        "initialdir=" + remoteDir + "\n";
     String fileDataSuffix = "jar_files = " + this.HAZARD_MAP_JAR_FILE_NAME + "\n" +
         "transfer_executable=false" + "\n" +
