@@ -34,7 +34,7 @@ public class GMT_MapGenerator implements Serializable{
   protected String GMT_SCRIPT_NAME = DEFAULT_GMT_SCRIPT_NAME;
   protected final static String DEFAULT_XYZ_FILE_NAME = "map_data.txt";
   protected String XYZ_FILE_NAME = DEFAULT_XYZ_FILE_NAME;
-  protected final static String DEFAULT_METADATA_FILE_NAME = "map_info.txt";
+  protected final static String DEFAULT_METADATA_FILE_NAME = "map_info.html";
   protected String METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
   protected final static String DEFAULT_PS_FILE_NAME = "map.ps";
   protected String PS_FILE_NAME = DEFAULT_PS_FILE_NAME;

@@ -14,7 +14,7 @@ import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
 import org.scec.param.*;
-import org.scec.sha.gui.ScenarioShakeMapAttenRelApp;
+import org.scec.sha.gui.ScenarioShakeMapApp;
 
 /**
  * <p>Title: GenerateHazusControlPanelForSingleMultipleIMRs</p>
@@ -33,7 +33,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
 
 
   //instance of the application calling this control panel.
-  private ScenarioShakeMapAttenRelApp application;
+  private ScenarioShakeMapApp application;
 
 
   //Stores the XYZ data set for the SA-0.3, SA-1.0, PGA and PGV
@@ -67,7 +67,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @param api : Instance of the application using this control panel
    */
   public GenerateHazusControlPanelForSingleMultipleIMRs(Component parent,
-                                        ScenarioShakeMapAttenRelApp api) {
+                                        ScenarioShakeMapApp api) {
 
 
     // show the window at center of the parent component
