@@ -76,6 +76,10 @@ public class LogPlotTesterApp extends JApplet  {
   private static final String TEST_14= new String("14");
   private static final String TEST_15= new String("15");
 
+  //static string to choose the type of Axis
+  private static final String LOG = "Log Scale";
+  private static final String LINEAR = "Linear Scale";
+
   // title for the chart
   private static final String TITLE = "Log-Log Testing";
 
@@ -125,10 +129,12 @@ public class LogPlotTesterApp extends JApplet  {
   private JRadioButton log10AsECheck = new JRadioButton();
   private JCheckBox minorAxisCheck = new JCheckBox();
   private ButtonGroup group = new ButtonGroup();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //declaration for the class that lets the user to enter his own data
   private XYDataWindow dataWindow ;
+  private JLabel jLabel7 = new JLabel();
+  private JComboBox axisCombo = new JComboBox();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -182,6 +188,12 @@ public class LogPlotTesterApp extends JApplet  {
 
     // starting
     String S = C + ": initLogPlotGui(): ";
+
+    //creating the axis Combo selection option
+    axisCombo.addItem(LOG);
+    axisCombo.addItem(LINEAR);
+    axisCombo.setSelectedItem(LOG);
+
     //creating the dataSelection combo
     dataSetCombo.addItem(USE_DEFAULT);
     dataSetCombo.addItem(NEW_DATASET);
@@ -297,18 +309,28 @@ public class LogPlotTesterApp extends JApplet  {
         dataSetCombo_actionPerformed(e);
       }
     });
+    jLabel7.setFont(new java.awt.Font("Lucida Grande", 1, 13));
+    jLabel7.setForeground(new Color(80, 80, 133));
+    jLabel7.setText("Axis:");
+
+
+    axisCombo.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        axisCombo_actionPerformed(e);
+      }
+    });
     jSplitPane1.add(innerPlotPanel, JSplitPane.LEFT);
     jSplitPane1.add(jPanel2, JSplitPane.RIGHT);
     jPanel2.add(minXText,  new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 131, 4));
     jPanel2.add(rangeCombo,  new GridBagConstraints(1, 0, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(120, 0, 0, 12), -4, -2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(120, 0, 0, 10), -4, -2));
     jPanel2.add(maxXText,  new GridBagConstraints(1, 2, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 131, 4));
     jPanel2.add(minYText,  new GridBagConstraints(1, 3, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 131, 4));
     jPanel2.add(maxYText,  new GridBagConstraints(1, 4, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 12), 131, 4));
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 131, 4));
     jPanel2.add(jLabel2,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 0), 23, 9));
     jPanel2.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -319,22 +341,26 @@ public class LogPlotTesterApp extends JApplet  {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 12), 17, 9));
     jPanel2.add(jLabel5,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 15, 0, 18), 7, 9));
-    jPanel2.add(dataSetCombo,  new GridBagConstraints(2, 5, 2, 2, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(35, 0, 72, 12), -13, 4));
-    jPanel2.add(jLabel6,  new GridBagConstraints(0, 5, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(35, 7, 0, 0), 6, 8));
-    jPanel2.add(clearButton,  new GridBagConstraints(3, 10, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 0, 64, 6), 23, 6));
-    jPanel2.add(addButton,  new GridBagConstraints(0, 10, 3, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 8, 64, 0), 21, 6));
-    jPanel2.add(log10CaretCheck,  new GridBagConstraints(0, 6, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(51, 12, 0, 26), 65, 8));
-    jPanel2.add(log10PowerCheck,  new GridBagConstraints(0, 7, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 26), 28, 8));
-    jPanel2.add(log10AsECheck,  new GridBagConstraints(0, 8, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(21, 12, 0, 26), 72, 8));
-    jPanel2.add(minorAxisCheck,  new GridBagConstraints(0, 9, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 12, 0, 26), 67, 8));
+    jPanel2.add(clearButton,  new GridBagConstraints(3, 11, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 0, 63, 10), 23, 6));
+    jPanel2.add(addButton,  new GridBagConstraints(0, 11, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 8, 63, 0), 17, 6));
+    jPanel2.add(log10CaretCheck,  new GridBagConstraints(0, 7, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 24), 65, 8));
+    jPanel2.add(log10PowerCheck,  new GridBagConstraints(0, 8, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 24), 28, 8));
+    jPanel2.add(log10AsECheck,  new GridBagConstraints(0, 9, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(21, 12, 0, 24), 72, 8));
+    jPanel2.add(minorAxisCheck,  new GridBagConstraints(0, 10, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 12, 0, 24), 67, 8));
+    jPanel2.add(dataSetCombo,  new GridBagConstraints(2, 6, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(12, 0, 0, 10), -13, 3));
+    jPanel2.add(jLabel6,  new GridBagConstraints(0, 6, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 7, 0, 0), 6, 8));
+    jPanel2.add(jLabel7,  new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(19, 8, 0, 0), 35, 12));
+    jPanel2.add(axisCombo,  new GridBagConstraints(2, 5, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(19, 0, 0, 10), -13, 3));
     this.getContentPane().add(jSplitPane1, BorderLayout.CENTER);
     jSplitPane1.setDividerLocation(500);
 
@@ -429,15 +455,15 @@ public class LogPlotTesterApp extends JApplet  {
 
        //create the standard ticks so that smaller values too can plotted on the chart
        //TickUnits units = MyTickUnits.createStandardTickUnits();
-
-       xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
+       this.setAxis();
+       //xAxis = new org.jfree.chart.axis.LogarithmicAxis("X-Axis");
 
        xAxis.setAutoRangeIncludesZero( false );
        //xAxis.setStandardTickUnits(units);
        xAxis.setTickMarksVisible(false);
 
 
-       yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
+       //yAxis = new org.jfree.chart.axis.LogarithmicAxis("Y-Axis");
 
        yAxis.setAutoRangeIncludesZero( false );
        //yAxis.setStandardTickUnits(units);
@@ -458,11 +484,13 @@ public class LogPlotTesterApp extends JApplet  {
          yAxis.setRange(minYValue,maxYValue);
        }
 
-       if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
-       else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
-       else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
+       if(this.axisCombo.getSelectedItem().equals(LOG)){
+         if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
+         else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
+         else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
+         setMinorAxisFlag();
+       }
 
-       setMinorAxisFlag();
        // build the plot
        org.jfree.chart.plot.XYPlot plot =null;
        try{
@@ -488,7 +516,6 @@ public class LogPlotTesterApp extends JApplet  {
        panel.setDisplayToolTips(true);
        panel.setHorizontalAxisTrace(false);
        panel.setVerticalAxisTrace(false);
-
 
        innerPlotPanel.removeAll();
        // panel added here
@@ -841,4 +868,29 @@ public class LogPlotTesterApp extends JApplet  {
     }
   }
 
+  private void setAxis(){
+    String axisOption = (String)axisCombo.getSelectedItem();
+    if(axisOption.equals(LOG)){
+      xAxis = new LogarithmicAxis("X-Axis");
+      yAxis = new LogarithmicAxis("Y-Axis");
+      log10AsECheck.setVisible(true);
+      log10CaretCheck.setVisible(true);
+      log10PowerCheck.setVisible(true);
+      minorAxisCheck.setVisible(true);
+
+    }
+    else {
+      xAxis = new NumberAxis("X-Axis");
+      yAxis = new NumberAxis("Y-Axis");
+      log10AsECheck.setVisible(false);
+      log10CaretCheck.setVisible(false);
+      log10PowerCheck.setVisible(false);
+      minorAxisCheck.setVisible(false);
+    }
+  }
+
+  void axisCombo_actionPerformed(ActionEvent e) {
+    setAxis();
+    addGraphPanel();
+  }
 }

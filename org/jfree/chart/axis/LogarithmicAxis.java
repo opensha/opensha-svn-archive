@@ -186,6 +186,7 @@ public class LogarithmicAxis extends NumberAxis {
     log10TickLabelsFlag = false;
     log10TickLabelsInPowerFlag = false;
     setupNumberFmtObj();             //setup number formatter obj
+    setupSmallLogFlag();
   }
 
   /**
@@ -207,6 +208,7 @@ public class LogarithmicAxis extends NumberAxis {
     log10TickLabelsFlag = true;
     expTickLabelsFlag = false;
     log10TickLabelsInPowerFlag = false;
+    setupSmallLogFlag();
   }
 
 
@@ -662,14 +664,7 @@ public class LogarithmicAxis extends NumberAxis {
     if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
       setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
     }
-    boolean superscript=false;
 
-    // whether you want to show in superscript form or not
-
-    if(iEndCount - iBegCount >= 4)
-      superscript=true;
-    if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
-      superscript=true;
 
 
     for (int i = iBegCount; i <= iEndCount; i++) {
@@ -688,13 +683,10 @@ public class LogarithmicAxis extends NumberAxis {
           if (j == 0) {
             //checks to if tick Labels to be represented in the form of superscript of 10.
             if(log10TickLabelsInPowerFlag){
-              if(superscript)
+
                 //if flag is true
                 tickLabel ="10E" +i; //create a "10E" type label, "E" would be trimmed from the tick
                                     //label to represent if the form of superscript of 10.
-
-              else //value does not require the superscript representation
-                tickLabel = ""+Double.parseDouble((j+1)+"e"+i);
             }
             else if (log10TickLabelsFlag) {
               //if flag then
@@ -878,14 +870,6 @@ public class LogarithmicAxis extends NumberAxis {
     if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
       setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
     }
-    boolean superscript=false;
-
-    // whether you want to show in superscript form or not
-
-    if(iEndCount - iBegCount >= 4)
-      superscript=true;
-    if(getRange().getLowerBound()<0.001 || getRange().getUpperBound()>1000.0)
-      superscript=true;
 
     for (int i = iBegCount; i <= iEndCount; i++) {
       //for each tick with a label to be displayed
@@ -904,13 +888,9 @@ public class LogarithmicAxis extends NumberAxis {
 
             //checks to if tick Labels to be represented in the form of superscript of 10.
             if(log10TickLabelsInPowerFlag){
-              if(superscript)
                 //if flag is true
                 tickLabel ="10E" +i; //create a "10E" type label, "E" would be trimmed from the tick
               //label to represent if the form of superscript of 10.
-
-              else //value does not require the superscript representation
-                tickLabel = ""+Double.parseDouble((j+1)+"e"+i);
             }
             //first tick of group; create label text
             else if (log10TickLabelsFlag) {
@@ -947,7 +927,6 @@ public class LogarithmicAxis extends NumberAxis {
           if (zeroTickFlag) {      //if did zero tick last iter then
             --j;
           }               //decrement to do 1.0 tick now
-          System.out.println("Not Small Log Flag");
           tickVal = (i >= 0) ? Math.pow(10, i) + (Math.pow(10, i) * j)
                     : -(Math.pow(10, -i) - (Math.pow(10, -i - 1) * j));
           if (j == 0) {  //first tick of group
