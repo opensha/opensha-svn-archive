@@ -1348,7 +1348,7 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
     boolean sourceUsed = false;
 
     int numSites = region.getNumGridLocs();
-    //System.out.println("Number of sites:"+numSites);
+    System.out.println("Number of sites:"+numSites);
     for(int j=0;j<numSites;++j){
       double hazVal =1;
       double condProb =0;
