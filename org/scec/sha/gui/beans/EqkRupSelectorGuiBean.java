@@ -69,7 +69,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   ERF_GuiBean erfGuiBean;
   private JButton erfAdjParamButton = new JButton();
   private JScrollPane sourceRupInfoScroll = new JScrollPane();
-  private JTextPane sourceRupInfoText = new JTextPane();
+  private JTextArea sourceRupInfoText = new JTextArea();
 
   //ListEditor
   private ParameterListEditor listEditor;
@@ -143,7 +143,7 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    for(int i=0;i<numSources;++i)
      sourcesVector.add(i+" ( "+erf.getSource(i).getName()+" )");
 
-   StringParameter sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(0));
+   StringParameter sourceParam = new StringParameter(SOURCE_PARAM_NAME,sourcesVector,(String)sourcesVector.get(sourceIndex));
 
    sourceParam.addParameterChangeListener(this);
    parameterList.addParameter(sourceParam);
@@ -200,6 +200,13 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
      probEqkRupture.setHypocenterLocation(loc);
    }
 
+   //writing the ruptures info. for each selected source in the text Area below the rupture
+   String rupturesInfo = ((String)sourceParam.getValue()).substring(((String)sourceParam.getValue()).indexOf("(")+1,((String)sourceParam.getValue()).indexOf(")")).trim()+":\n";
+   for(int i=0;i< numRuptures;++i)
+     rupturesInfo += "  rupture #"+i+": \n\n"+erf.getSource(sourceValue).getRupture(i).getInfo();
+   sourceRupInfoText.setText(rupturesInfo);
+
+
    // get the panel for increasing the font and border
    // this is hard coding for increasing the IMR font
    // the colors used here are from ParameterEditor
@@ -251,15 +258,18 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    // if source selected by the user  changes
    if( name1.equals(this.SOURCE_PARAM_NAME) ){
      String value = event.getNewValue().toString();
+     int sourceValue = Integer.parseInt(value.substring(0,value.indexOf("(")).trim());
      // set the new forecast parameters. Also change the number of ruptures in this source
-     setParamsInForecast(Integer.parseInt(value),0);
+     setParamsInForecast(sourceValue,0);
    }
 
    // if source selected by the user  changes
    if( name1.equals(this.RUPTURE_PARAM_NAME) ){
      String value = event.getNewValue().toString();
+     String sourceParamVal = (String)listEditor.getParameterList().getParameter(SOURCE_PARAM_NAME).getValue();
+     int sourceValue = Integer.parseInt(sourceParamVal.substring(0,sourceParamVal.indexOf("(")).trim());
      // set the new forecast parameters. Also change the number of ruptures in this source
-     setParamsInForecast(((Integer)listEditor.getParameterList().getParameter(SOURCE_PARAM_NAME).getValue()).intValue(),Integer.parseInt(value));
+     setParamsInForecast(sourceValue,Integer.parseInt(value));
    }
 
 
@@ -285,6 +295,10 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     erfAdjParamButton.setForeground(new Color(80,80,133));
     erfAdjParamButton.setBackground(new Color(200,200,230));
     this.setLayout(gridBagLayout1);
+    sourceRupInfoText.setLineWrap(true);
+    sourceRupInfoText.setForeground(Color.blue);
+    sourceRupInfoText.setSelectedTextColor(new Color(80, 80, 133));
+    sourceRupInfoText.setSelectionColor(Color.blue);
     sourceRupInfoText.setEditable(false);
     hypoCentreCheck.setText("Set Hypocenter Location");
     hypoCentreCheck.addActionListener(new java.awt.event.ActionListener() {
