@@ -38,6 +38,7 @@ Spike on "how can we specify a Predicate with a URL"
 
 Spike on "How can we run a long lasting program from an action method without blocking"
 
+ProjectTestSuite : 24 Tests
 
 For OpenSHA:
 ------------
