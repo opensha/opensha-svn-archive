@@ -70,6 +70,13 @@
 *               user has the capabilty to label the minor axis ticks. A flag has been
 *               added to label the minor axis ticks. But if the user is using the
 *               "1e#" style labelling then he won't be able to label the minor axis.
+*               Following rules are being for labellig the tickLabels:
+*               minorAxis tick Labels will be labelled if they don't overlap each other
+*               and have sufficient room to label the majorAxis tick label.
+*               If the power of 10 is greater than 3 or less than -3 then no minorAxis tick labels
+*               will be labelled.
+*               There will be atleast 2 major axis tick labels included in all Log plots.
+*               If the difference in power of 10 of any range is greater than 3 then minor axis won't be labelled.
 *
  */
 
