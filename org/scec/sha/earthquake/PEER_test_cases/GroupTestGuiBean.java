@@ -1,8 +1,8 @@
 package org.scec.sha.earthquake.PEER_test_cases;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: GroupTestGuiBean</p>
+ * <p>Description: GUI Bean for PEER Test cases</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Vipin Gupta and Nitin Gupta  Date: Sept 23, 2002
@@ -12,6 +12,7 @@ package org.scec.sha.earthquake.PEER_test_cases;
 import java.lang.reflect.*;
 import java.math.*;
 import java.util.*;
+import javax.swing.JOptionPane;
 
 import org.scec.exceptions.*;
 import org.scec.param.*;
@@ -22,22 +23,26 @@ import org.scec.data.function.*;
 import org.scec.util.*;
 import org.scec.data.*;
 import org.scec.sha.magdist.*;
+import org.scec.sha.earthquake.*;
+import org.scec.sha.calc.HazardCurveCalculator;
 
 
 public class GroupTestGuiBean implements
                          NamedObjectAPI,
-                         ParameterChangeListener {
+                         ParameterChangeListener,
+                         ParameterChangeWarningListener,
+                         ParameterChangeFailListener {
 
 
   protected final static String C = "GroupTestGuiBean";
-  protected final static boolean D = false;
+  protected final static boolean D = true;
   private String name  = "GroupTestGuiBean";
 
   //object for the fault
-  FaultCaseSet1_Fault faultcase1=new FaultCaseSet1_Fault();
+  Set1_Fault_Forecast faultcase1=new Set1_Fault_Forecast();
 
   //object for the Area;
-  FaultCaseSet2_Area faultcase2_area=new FaultCaseSet2_Area();
+  Set1_Area_Forecast faultcase2_area=new Set1_Area_Forecast();
 
   /**
    *  Search path for finding editors in non-default packages.
@@ -70,7 +75,7 @@ public class GroupTestGuiBean implements
   // dip name
   private final static String DIP_PARAM_NAME = "Dip";
   //source Name
-  private final static String SOURCE_PARAM_NAME = "Source";
+  private final static String SOURCE_PARAM_NAME = "Forecast";
 
   //Source Fault Name
   private final static String SOURCE_FAULT_ONE = "Fault";
@@ -296,7 +301,7 @@ public class GroupTestGuiBean implements
     Iterator it= imrClasses.iterator();
     while(it.hasNext()){
        // make the IMR objects as needed to get the site params later
-        ClassicIMRAPI imr = (ClassicIMRAPI ) createIMRClassInstance((String)it.next(),applet);
+        ClassicIMRAPI imr = (ClassicIMRAPI ) createIMRClassInstance((String)it.next(),this);
         imrObject.add(imr);
         imrNamesVector.add(imr.getName());
     }
@@ -661,4 +666,249 @@ public class GroupTestGuiBean implements
     imtEditor.setTitle( "Select IMT" );
 
   }
+
+  /**
+   * Gets the probabilities functiion based on selected parameters
+   * this function is called when add Graph is clicked
+   */
+  public DiscretizedFuncAPI getChoosenFunction() {
+    EqkRupForecast eqkRupForecast = null;
+
+    // get the selected forecast model
+    String selectedForecast = (String)this.eqkSourceParamList.getValue(this.SOURCE_PARAM_NAME);
+
+    // check which forecast has been selected by the user
+    if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
+      //if fault forecast is selected
+      faultcase1.updateGUI();
+      eqkRupForecast = this.faultcase1;
+    } else if(selectedForecast.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
+      // if Area forecast is selected
+      faultcase2_area.updateGUI();
+      eqkRupForecast = this.faultcase2_area;
+    }
+
+    // intialize the condProbFunction for each IMR
+    ArbitrarilyDiscretizedFunc condProbFunc = new ArbitrarilyDiscretizedFunc();
+    ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
+
+    // FIX FIX . set the values according to test cases. get the longitude and latitude values
+    double longVal= -122;
+    double latVal = 38.113;
+
+    //set the X-axis label based on selected IMT
+    // get the selected IMT, if it is SA, get the period as well
+    String imt = (String)this.imtParamList.getValue(this.IMT_PARAM_NAME);
+
+    // get the IMR names list
+    int imrSize=this.imrNamesVector.size();
+
+    // get the selected IMR
+    String selectedIMR = (String)this.imrParamList.getValue(this.IMR_PARAM_NAME);
+
+    // selected IMR object
+    ClassicIMRAPI imr = null;
+
+    // make a site object to pass to each IMR
+    Site site = new Site(new Location(latVal,longVal));
+    site.addParameterList(imrParamList);
+
+
+    // do for each IMR
+    for(int i=0;i<imrSize;++i) {
+      if(((String)imrNamesVector.get(i)).equalsIgnoreCase(selectedIMR)) {
+        // if this IMR is selected
+        initDiscretizeValues(hazFunction);
+        hazFunction.setInfo(selectedIMR);
+
+        // pass the site object to each IMR
+        try {
+          if(D) System.out.println("siteString:::"+site.toString());
+          imr = (ClassicIMRAPI)imrObject.get(i);
+          imr.setIntensityMeasure(imt);
+          break;
+        } catch (Exception ex) {
+          if(D) System.out.println(C + ":Param warning caught"+ex);
+          ex.printStackTrace();
+
+        }
+      }
+    }
+
+   // calculate the hazard curve
+    HazardCurveCalculator calc = new HazardCurveCalculator();
+    calc.getHazardCurve(hazFunction, site, imr, eqkRupForecast);
+
+    return hazFunction;
+  }
+
+
+
+  /**
+   *  Shown when a Constraint error is thrown on a ParameterEditor
+   *
+   * @param  e  Description of the Parameter
+   */
+  public void parameterChangeFailed( ParameterChangeFailEvent e ) {
+
+    String S = C + " : parameterChangeWarning(): ";
+    if(D) System.out.println(S + "Starting");
+
+
+    StringBuffer b = new StringBuffer();
+
+    ParameterAPI param = ( ParameterAPI ) e.getSource();
+
+
+    ParameterConstraintAPI constraint = param.getConstraint();
+    String oldValueStr = e.getOldValue().toString();
+    String badValueStr = e.getBadValue().toString();
+    String name = param.getName();
+
+    try{
+      // only show messages for site parameters
+      if(this.imrParamList.getParameter(name)==null)
+        return;
+    } catch(ParameterException paramException) {
+      // we do not need to do anything in case this paramter is not in site paramters list
+      return;
+    }
+
+    b.append( "The value ");
+    b.append( badValueStr );
+    b.append( " is not permitted for '");
+    b.append( name );
+    b.append( "'.\n" );
+    b.append( "Resetting to ");
+    b.append( oldValueStr );
+    b.append( ". The constraints are: \n");
+    b.append( constraint.toString() );
+
+    JOptionPane.showMessageDialog(
+        applet, b.toString(),
+        "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
+        );
+
+    if(D) System.out.println(S + "Ending");
+
+  }
+
+
+  /**
+   *  Function that must be implemented by all Listeners for
+   *  ParameterChangeWarnEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void parameterChangeWarning( ParameterChangeWarningEvent e ){
+
+    String S = C + " : parameterChangeWarning(): ";
+    if(D) System.out.println(S + "Starting");
+
+
+
+
+    // only display messages if paramters are set at back
+    StringBuffer b = new StringBuffer();
+
+    WarningParameterAPI param = e.getWarningParameter();
+
+
+    try{
+      Double min = param.getWarningMin();
+      Double max = param.getWarningMax();
+
+      String name = param.getName();
+
+      // only show messages for site parameters
+      if(this.imrParamList.getParameter(name)==null)
+        return;
+
+      b.append( "You have exceeded the recommended range for ");
+      b.append( name );
+      b.append( ": (" );
+      b.append( min.toString() );
+
+      b.append( " to " );
+      b.append( max.toString() );
+      b.append( ")\n" );
+      b.append( "Click Yes to accept the new value: " );
+      b.append( e.getNewValue().toString() );
+    }
+
+    catch(ParameterException paramException) {
+      // we do not need to do anything in case this paramter is not in site paramters list
+      param.setValueIgnoreWarning( e.getNewValue() );
+      return;
+    }
+    catch( Exception ee){
+
+      String name = param.getName();
+
+      b.append( "You have exceeded the recommended range for: \n");
+      b.append( name + '\n' );
+      b.append( "Click Yes to accept the new value: " );
+      b.append( e.getNewValue().toString() );
+      b.append( name );
+
+
+    }
+    if(D) System.out.println(S + b.toString());
+
+    int result = 0;
+
+    if(D) System.out.println(S + "Showing Dialog");
+
+    result = JOptionPane.showConfirmDialog( applet, b.toString(),
+        "Exceeded Recommended Values", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+    if(D) System.out.println(S + "You choose" + result);
+
+    switch (result) {
+      case JOptionPane.YES_OPTION:
+        if(D) System.out.println(S + "You choose yes, changing value to " + e.getNewValue().toString() );
+        param.setValueIgnoreWarning( e.getNewValue());
+        break;
+      case JOptionPane.NO_OPTION:
+        if(D) System.out.println(S + "You choose no, keeping value = " + e.getOldValue().toString() );
+        param.setValueIgnoreWarning( e.getOldValue() );
+        break;
+      default:
+        param.setValueIgnoreWarning( e.getOldValue() );
+      if(D) System.out.println(S + "Not sure what you choose, not changing value.");
+      break;
+    }
+
+    if(D) System.out.println(S + "Ending");
+  }
+
+
+
+  /**
+   * Initialize the X values and the prob as 1
+   *
+   * @param arb
+   */
+  private void initDiscretizeValues(ArbitrarilyDiscretizedFunc arb){
+    arb.set(.001,1);
+    arb.set(.01,1);
+    arb.set(.05,1);
+    arb.set(.15,1);
+    arb.set(.2,1);
+    arb.set(.25,1);
+    arb.set(.3,1);
+    arb.set(.4,1);
+    arb.set(.5,1);
+    arb.set(.6,1);
+    arb.set(.7,1);
+    arb.set(.8,1);
+    arb.set(.9,1);
+    arb.set(1.0,1);
+    arb.set(1.1,1);
+    arb.set(1.2,1);
+    arb.set(1.3,1);
+    arb.set(1.4,1);
+    arb.set(1.5,1);
+  }
+
 }

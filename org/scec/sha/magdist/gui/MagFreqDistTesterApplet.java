@@ -888,7 +888,7 @@ public class MagFreqDistTesterApplet extends JApplet
 
         TickUnits units = MyTickUnits.createStandardTickUnits();
         // create X- axis for mag vs incremental rate
-        incrXAxis = new SHAHorizontalNumberAxis( incrXAxisLabel );
+        incrXAxis = new HorizontalNumberAxis( incrXAxisLabel );
         incrXAxis.setAutoRangeIncludesZero( false );
         incrXAxis.setCrosshairLockedOnData( false );
         incrXAxis.setCrosshairVisible(false);
@@ -896,14 +896,14 @@ public class MagFreqDistTesterApplet extends JApplet
 
 
         // create X- axis for mag vs cum rate
-        cumXAxis = new SHAHorizontalNumberAxis( cumXAxisLabel );
+        cumXAxis = new HorizontalNumberAxis( cumXAxisLabel );
         cumXAxis.setAutoRangeIncludesZero( false );
         cumXAxis.setCrosshairLockedOnData( false );
         cumXAxis.setCrosshairVisible(false);
         cumXAxis.setStandardTickUnits(units);
 
         // create x- axis for mag vs moment rate
-        moXAxis = new SHAHorizontalNumberAxis( moXAxisLabel );
+        moXAxis = new HorizontalNumberAxis( moXAxisLabel );
         moXAxis.setAutoRangeIncludesZero( false );
         moXAxis.setCrosshairLockedOnData( false );
         moXAxis.setCrosshairVisible(false);
@@ -916,9 +916,9 @@ public class MagFreqDistTesterApplet extends JApplet
           moYAxis = new com.jrefinery.chart.VerticalLogarithmicAxis(moYAxisLabel);
         }
         else {
-          incrYAxis = new SHAVerticalNumberAxis(incrYAxisLabel);
-          cumYAxis = new SHAVerticalNumberAxis(cumYAxisLabel);
-          moYAxis = new SHAVerticalNumberAxis(moYAxisLabel);
+          incrYAxis = new VerticalNumberAxis(incrYAxisLabel);
+          cumYAxis = new VerticalNumberAxis(cumYAxisLabel);
+          moYAxis = new VerticalNumberAxis(moYAxisLabel);
        }
 
        // set properties for mag vs incremental rate Y- axis

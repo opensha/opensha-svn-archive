@@ -164,7 +164,6 @@ public class EqkForecastApplet extends JApplet
   /**
    * FunctionList declared
    */
-
   DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   DiscretizedFunctionXYDataSet totalData = new DiscretizedFunctionXYDataSet();
 
@@ -1071,15 +1070,6 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
       // get total sources
       int numSources = eqkRupForecast.getNumSources();
 
-/*      // create a frame for showing progress bar
-     JFrame progressFrame = new JFrame();
-     JProgressBar progress = new JProgressBar(1, numSources);
-      // Overlay a string showing the percentage done
-      progress.setStringPainted(true);
-      progressFrame.setSize(200,80);
-      progressFrame.getContentPane().add(progress);
-      progressFrame.show(); */
-
       if(D) System.out.println("number of sources::" +numSources);
       for(int i=0;i < numSources ;i++) {
         if (D) System.out.println("source number:"+i);
@@ -1221,7 +1211,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
 
-      HorizontalNumberAxis xAxis = new SHAHorizontalNumberAxis( xAxisLabel );
+      HorizontalNumberAxis xAxis = new HorizontalNumberAxis( xAxisLabel );
 
       xAxis.setAutoRangeIncludesZero( false );
       xAxis.setCrosshairLockedOnData( false );
@@ -1229,7 +1219,7 @@ public void parameterChangeWarning( ParameterChangeWarningEvent e ){
 
 
 
-      VerticalNumberAxis yAxis = new SHAVerticalNumberAxis( yAxisLabel );
+      VerticalNumberAxis yAxis = new VerticalNumberAxis( yAxisLabel );
 
       yAxis.setAutoRangeMinimumSize(new Integer(0));
       yAxis.setAutoRangeIncludesZero( false );

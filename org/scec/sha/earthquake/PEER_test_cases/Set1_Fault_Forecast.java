@@ -27,7 +27,7 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class FaultCaseSet1_Fault extends EqkRupForecast
+public class Set1_Fault_Forecast extends EqkRupForecast
     implements ParameterChangeListener{
 
   /**
@@ -35,7 +35,7 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
    */
   //for Debug purposes
   private static String  C = new String("FaultCaseTest1_Fault");
-  private boolean D = false;
+  private boolean D = true;
 
   /**
   * timespan field in yrs for now(but have to ultimately make it a TimeSpan class variable
@@ -54,7 +54,7 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
   private final static String OFFSET_PARAM_NAME =  "Offset (km)";
   private final static String MAG_DIST_PARAM_NAME = "Fault Mag Dist";
   private final static String RAKE_PARAM_NAME ="Rake";
-
+  private final static String TIMESPAN_PARAM_NAME ="TimeSpan #years";
   // dip name
   private final static String DIP_PARAM_NAME = "Dip";
 
@@ -95,7 +95,10 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
   DoubleParameter rakeParam = new DoubleParameter(RAKE_PARAM_NAME);
 
 
-  //add the timespan parameter
+  //add the dip parameter
+  DoubleParameter timeSpanParam = new DoubleParameter(this.TIMESPAN_PARAM_NAME);
+
+  //add the dip parameter
   DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
 
   //adding the supported MagDists
@@ -116,7 +119,7 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
    *
    * No argument constructor
    */
-  public FaultCaseSet1_Fault() {
+  public Set1_Fault_Forecast() {
 
     /* Now make the source in Fault 1 */
     adjustableParams.addParameter(gridParam);
@@ -124,6 +127,7 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
     adjustableParams.addParameter(lengthSigmaParam);
     adjustableParams.addParameter(dipParam);
     adjustableParams.addParameter(rakeParam);
+    adjustableParams.addParameter(timeSpanParam);
 
     // adding the supported MagDistclasses
     supportedMagDists.add(GaussianMagFreqDist.NAME);
@@ -174,34 +178,43 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
    * update the sources based on the user paramters, only when user has changed any parameter
    */
    public void updateGUI(){
+     String S = C + "updateGUI::";
+
      if(parameterChangeFlag) {
 
        // dip param value
        double dipValue = ((Double)dipParam.getValue()).doubleValue();
        // first build the fault trace, then add
        // add the location to the trace
-       if(dipValue == 0){
+       if(dipValue == 90){
+         // fault1
          faultTrace = new FaultTrace(FAULT1_NAME);
          faultTrace.addLocation((Location)fault1_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault1_LOCATION1.clone());
+         faultTrace.addLocation((Location)fault1_LOCATION2.clone());
        }
 
        else {
+         //fault2
          faultTrace = new FaultTrace(FAULT2_NAME);
          faultTrace.addLocation((Location)fault2_LOCATION1.clone());
-         faultTrace.addLocation((Location)fault2_LOCATION1.clone());
+         faultTrace.addLocation((Location)fault2_LOCATION2.clone());
        }
-
-       // value of gridspacing has been set to 1 km
-       SimpleFaultData faultData= new SimpleFaultData(dipValue,LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH,faultTrace);
-
+       //make the fault data
+       SimpleFaultData faultData= new SimpleFaultData(dipValue,
+              LOWER_SEISMO_DEPTH,UPPER_SEISMO_DEPTH,faultTrace);
+       if(D) System.out.println(S+"faultdata:"+faultData);
        FrankelGriddedFaultFactory factory =
-           new FrankelGriddedFaultFactory(faultData,((Double)gridParam.getValue()).doubleValue());
-
+           new FrankelGriddedFaultFactory(faultData,
+                                         ((Double)gridParam.getValue()).doubleValue());
        // get the gridded surface
        GriddedSurfaceAPI surface = factory.getGriddedSurface();
+
+       if(D) System.out.println(S+"Columns in surface:"+surface.getNumCols());
+       if(D) System.out.println(S+"Rows in surface:"+surface.getNumRows());
+
        source = new  Set1_Fault_Source((IncrementalMagFreqDist)magDistParam.getValue(),((Double)rakeParam.getValue()).doubleValue() ,
                                        ((Double)offsetParam.getValue()).doubleValue(),(EvenlyGriddedSurface)surface);
+       setTimeSpan(((Double)timeSpanParam.getValue()).doubleValue());
      }
      parameterChangeFlag = false;
    }
@@ -213,6 +226,7 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
   public void setTimeSpan(TimeSpan timeSpan){
     time = new TimeSpan();
     time= timeSpan;
+    source.setTimeSpan(timeSpan);
   }
 
 
@@ -227,7 +241,7 @@ public class FaultCaseSet1_Fault extends EqkRupForecast
       throw new RuntimeException(C+":getNumRuptures():"+
                                  "Only 1 source available, iSource should be equal to 0");
 
-    return 1;
+    return source.getNumRuptures();
   }
 
 

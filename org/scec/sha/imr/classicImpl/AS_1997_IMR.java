@@ -209,9 +209,13 @@ public class AS_1997_IMR
         Double magOld = (Double)magParam.getValue( );
         String fltOld = (String)fltTypeParam.getValue();
 
-        // constraints get checked
-        magParam.setValue( probEqkRupture.getMag() );
 
+        try {
+          // constraints get checked
+          magParam.setValue( probEqkRupture.getMag() );
+        } catch (WarningException e){
+          if(D) System.out.println(C+"Warning Exception:"+e);
+        }
         // If fail, rollback to all old values
         try{
             String fltTypeStr = determineFaultTypeFromRake( probEqkRupture.getAveRake() );

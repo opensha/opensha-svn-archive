@@ -6,6 +6,13 @@ import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+
+
+import com.jrefinery.chart.*;
+import com.jrefinery.chart.tooltips.*;
+import com.jrefinery.data.*;
+
+
 import org.scec.data.function.*;
 import org.scec.gui.*;
 import org.scec.gui.plot.jfreechart.*;
@@ -25,9 +32,7 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class GroupTestApplet extends Applet
-    implements  ParameterChangeWarningListener,
-    ParameterChangeFailListener {
+public class GroupTestApplet extends Applet {
 
   /**
    * Name of the class
@@ -36,14 +41,20 @@ public class GroupTestApplet extends Applet
   // for debug purpose
   protected final static boolean D = true;
 
+  private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
   private boolean isStandalone = false;
   private JSplitPane chartSplit = new JSplitPane();
-  private JPanel chartPanel = new JPanel();
+  private JPanel panel = new JPanel();
   private JPanel buttonPanel = new JPanel();
   private Border border1;
   private JSplitPane controlsSplit = new JSplitPane();
   private JSplitPane magDistSplit = new JSplitPane();
+
+
+  //log flags declaration
+  boolean xLog =false;
+  boolean yLog =false;
 
   // default insets
   Insets defaultInsets = new Insets( 4, 4, 4, 4 );
@@ -51,6 +62,13 @@ public class GroupTestApplet extends Applet
   // height and width of the applet
   protected final static int W = 915;
   protected final static int H = 625;
+
+  /**
+   * FunctionList declared
+   */
+  DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
+
+  DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
 
 
   // make the GroupTestGUIBean instance
@@ -63,9 +81,9 @@ public class GroupTestApplet extends Applet
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
   JButton addButton = new JButton();
   JButton clearButton = new JButton();
-  JButton dataButton = new JButton();
-  JCheckBox jCheckBox1 = new JCheckBox();
-  JCheckBox jCheckBox2 = new JCheckBox();
+  JButton toggleButton = new JButton();
+  JCheckBox jCheckxlog = new JCheckBox();
+  JCheckBox jCheckylog = new JCheckBox();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private JPanel imrPanel = new JPanel();
@@ -77,6 +95,31 @@ public class GroupTestApplet extends Applet
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
 
+  /**
+   * adding scroll pane for showing data
+   */
+  JScrollPane dataScrollPane = new JScrollPane();
+
+  /**
+   * chart panel
+   */
+  ChartPanel chartPanel;
+
+  // PEER Test Cases
+  private String TITLE = new String("PEER Test Cases");
+
+  // light blue color
+  Color lightBlue = new Color( 200, 200, 230 );
+
+  /**
+   * for Y-log, 0 values will be converted to this small value
+   */
+  private double Y_MIN_VAL = 1e-8;
+
+  protected boolean graphOn = false;
+  private GridBagLayout gridBagLayout9 = new GridBagLayout();
+
+
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -85,6 +128,10 @@ public class GroupTestApplet extends Applet
 
   //Construct the applet
   public GroupTestApplet() {
+
+  data.setFunctions(this.totalProbFuncs);
+  // for Y-log, convert 0 values in Y axis to this small value
+  data.setConvertZeroToMin(true,Y_MIN_VAL);
 
   }
   //Initialize the applet
@@ -114,21 +161,27 @@ public class GroupTestApplet extends Applet
     imtSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     testCasesPanel.setLayout(gridBagLayout1);
     addButton.setText("Add Graph");
+    addButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        addButton_actionPerformed(e);
+      }
+    });
     clearButton.setText("Clear Plot");
-    dataButton.setMaximumSize(new Dimension(83, 39));
-    dataButton.setToolTipText("");
-    dataButton.setText("Show Plot");
-    jCheckBox1.setText("X Log");
-    jCheckBox2.setText("Y Log");
+    toggleButton.setMaximumSize(new Dimension(83, 39));
+    toggleButton.setToolTipText("");
+    toggleButton.setText("Show Data");
+    jCheckxlog.setText("X Log");
+    jCheckylog.setText("Y Log");
     imrPanel.setLayout(gridBagLayout2);
     magDistControlPanel.setLayout(gridBagLayout10);
     sourcePanel.setLayout(gridBagLayout5);
-    buttonPanel.add(dataButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+    panel.setLayout(gridBagLayout9);
+    buttonPanel.add(toggleButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), -9, -2));
     buttonPanel.add(clearButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 9, 10, 0), 9, -2));
     this.add(chartSplit, null);
-    chartSplit.add(chartPanel, JSplitPane.TOP);
+    chartSplit.add(panel, JSplitPane.TOP);
     chartSplit.add(controlsSplit, JSplitPane.BOTTOM);
     controlsSplit.add(imtSplitPane, JSplitPane.TOP);
     this.add(buttonPanel, null);
@@ -137,9 +190,9 @@ public class GroupTestApplet extends Applet
     imtSplitPane.add(testCasesPanel, JSplitPane.TOP);
     imtSplitPane.add(imrPanel, JSplitPane.BOTTOM);
     controlsSplit.add(imtPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jCheckBox1,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+    buttonPanel.add(jCheckxlog,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 20, 10, 0), 20, 2));
-    buttonPanel.add(jCheckBox2,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+    buttonPanel.add(jCheckylog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 0, 10, 337), 22, 2));
     this.add(magDistSplit, null);
     magDistSplit.add(sourcePanel, JSplitPane.TOP);
@@ -206,145 +259,6 @@ public class GroupTestApplet extends Applet
     }
   }
 
-  /**
-   *  This is the main function of this interface. Any time a control
-   *  paramater or independent paramater is changed by the user in a GUI this
-   *  function is called, and a paramater change event is passed in. This
-   *  function then determines what to do with the information ie. show some
-   *  paramaters, set some as invisible, basically control the paramater
-   *  lists.
-   *
-   * @param  event
-   */
-  public void parameterChange( ParameterChangeEvent event ) {
-
-    String S = C + ": parameterChange(): ";
-    if ( D )
-      System.out.println( "\n" + S + "starting: " );
-    String name1 = event.getParameterName();
-  }
-
-
-  /**
-   *  Shown when a Constraint error is thrown on a ParameterEditor
-   *
-   * @param  e  Description of the Parameter
-   */
-  public void parameterChangeFailed( ParameterChangeFailEvent e ) {
-
-    String S = C + " : parameterChangeWarning(): ";
-    if(D) System.out.println(S + "Starting");
-
-
-
-    StringBuffer b = new StringBuffer();
-
-    ParameterAPI param = ( ParameterAPI ) e.getSource();
-
-
-    ParameterConstraintAPI constraint = param.getConstraint();
-    String oldValueStr = e.getOldValue().toString();
-    String badValueStr = e.getBadValue().toString();
-    String name = param.getName();
-
-
-    b.append( "The value ");
-    b.append( badValueStr );
-    b.append( " is not permitted for '");
-    b.append( name );
-    b.append( "'.\n" );
-    b.append( "Resetting to ");
-    b.append( oldValueStr );
-    b.append( ". The constraints are: \n");
-    b.append( constraint.toString() );
-
-    JOptionPane.showMessageDialog(
-        this, b.toString(),
-        "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
-        );
-
-    if(D) System.out.println(S + "Ending");
-
-  }
-
-  /**
-   *  Function that must be implemented by all Listeners for
-   *  ParameterChangeWarnEvents.
-   *
-   * @param  event  The Event which triggered this function call
-   */
-  public void parameterChangeWarning( ParameterChangeWarningEvent e ){
-
-    String S = C + " : parameterChangeWarning(): ";
-    if(D) System.out.println(S + "Starting");
-
-
-
-    StringBuffer b = new StringBuffer();
-
-    WarningParameterAPI param = e.getWarningParameter();
-
-
-    try{
-      Double min = param.getWarningMin();
-      Double max = param.getWarningMax();
-
-      String name = param.getName();
-
-      b.append( "You have exceeded the recommended range\n");
-      b.append( name );
-      b.append( ": (" );
-      b.append( min.toString() );
-
-      b.append( " to " );
-      b.append( max.toString() );
-      b.append( ")\n" );
-      b.append( "Click Yes to accept the new value: " );
-      b.append( e.getNewValue().toString() );
-    }
-    catch( Exception ee){
-
-      String name = param.getName();
-
-      b.append( "You have exceeded the recommended range for: \n");
-      b.append( name + '\n' );
-      b.append( "Click Yes to accept the new value: " );
-      b.append( e.getNewValue().toString() );
-      b.append( name );
-
-
-    }
-    if(D) System.out.println(S + b.toString());
-
-    int result = 0;
-
-    if(D) System.out.println(S + "Showing Dialog");
-
-    result = JOptionPane.showConfirmDialog( this, b.toString(),
-        "Exceeded Recommended Values", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-    if(D) System.out.println(S + "You choose " + result);
-
-    switch (result) {
-      case JOptionPane.YES_OPTION:
-        if(D) System.out.println(S + "You choose yes, changing value to " + e.getNewValue().toString() );
-        param.setValueIgnoreWarning( e.getNewValue() );
-        break;
-      case JOptionPane.NO_OPTION:
-        if(D) System.out.println(S + "You choose no, keeping value = " + e.getOldValue().toString() );
-        param.setValueIgnoreWarning( e.getOldValue() );
-        break;
-      default:
-        param.setValueIgnoreWarning( e.getOldValue() );
-      if(D) System.out.println(S + "Not sure what you choose, not changing value.");
-      break;
-    }
-
-    if(D) System.out.println(S + "Ending");
-
-  }
-
-
 
   /**
    *  update the GUI with the test case choosen
@@ -403,5 +317,163 @@ public class GroupTestApplet extends Applet
   }
 
 
+  /**
+   *  Adds a feature to the GraphPanel attribute of the EqkForecastApplet object
+   */
+  protected void addGraphPanel() {
+
+      // Starting
+      String S = C + ": addGraphPanel(): ";
+
+      String newXYAxisName = this.totalProbFuncs.getXYAxesName();
+
+
+      // create a default chart based on some sample data...
+
+      // Determine which IM to add to the axis labeling
+      String xAxisLabel = totalProbFuncs.getXAxisName();
+      String yAxisLabel = totalProbFuncs.getYAxisName();
+
+
+      //create the standard ticks so that smaller values too can plotted on the chart
+      TickUnits units = MyTickUnits.createStandardTickUnits();
+
+      HorizontalNumberAxis xAxis = new HorizontalNumberAxis( xAxisLabel );
+
+      xAxis.setAutoRangeIncludesZero( false );
+      xAxis.setCrosshairLockedOnData( false );
+      xAxis.setCrosshairVisible(false);
+      xAxis.setStandardTickUnits(units);
+
+
+      VerticalNumberAxis yAxis = new VerticalNumberAxis( yAxisLabel );
+
+      yAxis.setAutoRangeIncludesZero( false );
+      yAxis.setCrosshairLockedOnData( false );
+      yAxis.setCrosshairVisible( false);
+      yAxis.setStandardTickUnits(units);
+
+      int type = com.jrefinery.chart.StandardXYItemRenderer.LINES;
+
+
+      LogXYItemRenderer renderer = new LogXYItemRenderer( type, new StandardXYToolTipGenerator() );
+      //StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+
+
+      // build the plot
+
+      org.scec.gui.PSHALogXYPlot plot = new org.scec.gui.PSHALogXYPlot(data, xAxis, yAxis, renderer);
+
+
+      plot.setBackgroundAlpha( .8f );
+
+
+
+      plot.setXYItemRenderer( renderer );
+
+
+      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
+
+      chart.setBackgroundPaint( lightBlue );
+
+      // chart.setBackgroundImage(image);
+      // chart.setBackgroundImageAlpha(.3f);
+
+      // Put into a panel
+      chartPanel = new ChartPanel(chart, true, true, true, true, false);
+      //panel.setMouseZoomable(true);
+
+      chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+      chartPanel.setMouseZoomable(true);
+      chartPanel.setGenerateToolTips(true);
+      chartPanel.setHorizontalAxisTrace(false);
+      chartPanel.setVerticalAxisTrace(false);
+
+      //panel.removeAll();
+      //panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+        //                      , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+
+      if(D) System.out.println(this.totalProbFuncs.toString());
+      if(D) System.out.println(S + "data:" + data);
+
+      //validate();
+      //repaint();
+      graphOn=false;
+      togglePlot();
+
+   }
+
+
+
+   /**
+    *  Description of the Method
+    */
+   protected void togglePlot() {
+
+       // Starting
+       String S = C + ": togglePlot(): ";
+       panel.removeAll();
+       if ( graphOn ) {
+
+           this.toggleButton.setText( "Show Plot" );
+           graphOn = false;
+
+           panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                   , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+       }
+       else {
+           graphOn = true;
+           // dataScrollPane.setVisible(false);
+           this.toggleButton.setText( "Show Data" );
+                         // panel added here
+           if(chartPanel !=null)
+               panel.add( chartPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+
+           else
+               // innerPlotPanel.setBorder(oval);
+               panel.add( dataScrollPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+                       , GridBagConstraints.CENTER, GridBagConstraints.BOTH, plotInsets, 0, 0 ) );
+
+       }
+
+
+       validate();
+       repaint();
+
+       if ( D ) System.out.println( S + "Ending" );
+
+    }
+
+    /**
+     * this function is called when Add Graph button is clicked
+     * @param e
+     */
+    void addButton_actionPerformed(ActionEvent e) {
+      addButton();
+    }
+
+
+    /**
+     * this function is called to draw the graph
+     */
+    private void addButton() {
+
+      DiscretizedFuncAPI function = this.groupTestBean.getChoosenFunction();
+
+      // clear the function list
+      this.totalProbFuncs.clear();
+
+      // set the log values
+      data.setXLog(xLog);
+      data.setYLog(yLog);
+
+      //add this function to the function list
+      totalProbFuncs.add(function);
+
+      addGraphPanel();
+
+    }
 
 }

@@ -170,7 +170,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         this.add(button,  new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
                       , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-               // Update which parameters should be invisible
+
+        // Update which parameters should be invisible
         synchRequiredVisibleParameters();
         // All done
         if ( D ) System.out.println( S + "Ending:" );

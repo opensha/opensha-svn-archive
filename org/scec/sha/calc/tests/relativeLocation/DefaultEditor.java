@@ -1,4 +1,4 @@
-package org.scec.sha.calc.demo;
+package org.scec.sha.calc.tests.relativeLocation;
 
 import java.awt.*;
 

@@ -285,6 +285,7 @@ public class ClassicIMRTesterApp extends JApplet
     private JLabel jAxisScale = new JLabel();
 
     private Vector imrsSelected=new Vector();
+
     /**
      * for Y-log, 0 values will be converted to this small value
      */
@@ -929,6 +930,7 @@ public class ClassicIMRTesterApp extends JApplet
         yLog=this.jCheckylog.isSelected();
 
         String newXYAxisName = functions.getXYAxesName();
+
         boolean newPlot = ( !newXYAxisName.equals( lastXYAxisName ) );
         if ( newPlot ) lastXYAxisName = newXYAxisName;
         if ( D ) System.out.println( S + "New Plot? " + newPlot );

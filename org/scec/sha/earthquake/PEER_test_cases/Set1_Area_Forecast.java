@@ -27,7 +27,7 @@ import org.scec.param.event.*;
  * @version 1.0
  */
 
-public class FaultCaseSet2_Area extends EqkRupForecast
+public class Set1_Area_Forecast extends EqkRupForecast
     implements ParameterChangeListener{
 
   /**
@@ -104,7 +104,7 @@ public class FaultCaseSet2_Area extends EqkRupForecast
    *
    * No argument constructor
    */
-  public FaultCaseSet2_Area() {
+  public Set1_Area_Forecast() {
 
     /* Now make the source in Fault 1 */
     adjustableParams.addParameter(gridParam);
@@ -191,7 +191,7 @@ public class FaultCaseSet2_Area extends EqkRupForecast
     timeSpan =yrs;
     int size = this.area_EqkSources.size();
     for( int i =0; i<size; ++i)
-      ((Set2_Area_Source)area_EqkSources.get(i)).setTimeSpan(yrs);
+      ((PointGR_EqkSource)area_EqkSources.get(i)).setTimeSpan(yrs);
 
   }
 
