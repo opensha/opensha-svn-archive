@@ -197,13 +197,11 @@ public class GriddedFaultPlotter extends ArrayList{
            being generated  in the Plot.java class constructor*/
         //Smooth Colors transition from Red to Blue
         int totalSeries=functions.getSeriesCount();
-        Paint[] seriesPaint = new Paint[totalSeries+2];
         int count = (int)(Math.ceil(255.0/totalSeries));
-        for(int i=255,j=0;i>=0;i-=count,j++) {
-            seriesPaint[j]=new Color(i,0,255-i);
-        }
         plot.setBackgroundPaint( plotColor );
         setRenderer(plot);
+        for(int i=255,j=0;i>=0;i-=count,j++)
+          plot.getRenderer().setSeriesPaint(j, new Color(i,0,255-i));
         // build chart
         JFreeChart chart = new JFreeChart(griddedSurfaceName, JFreeChart.DEFAULT_TITLE_FONT, plot, true );
         chart.setBackgroundPaint( GriddedFaultApplet.peach );
@@ -273,14 +271,14 @@ public class GriddedFaultPlotter extends ArrayList{
            counter++;
            XYDataset dataSet = (XYDataset)it.next();
            GeoXYPlot plot1 = new GeoXYPlot(dataSet, null, null);
+
            for(int i=0; i < numSeries; ++i) {
-             plot1.getRenderer().setSeriesPaint(i,seriesPaint[i]);
              // set the shapes so that only circles are drawn
              SUB_SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
              SHAPE_RENDERER.setSeriesShape(i,new Ellipse2D.Double(-DELTA, -DELTA, SIZE, SIZE));
            }
-           plot1.setBackgroundPaint( plotColor );
 
+           plot1.setBackgroundPaint( plotColor );
 
            if( plotType == SUB_SHAPES){
              if( counter == last ) {
@@ -294,6 +292,8 @@ public class GriddedFaultPlotter extends ArrayList{
                plot1.setRenderer(SHAPES_AND_LINES_RENDERER);
            }
            else setRenderer(plot1);
+           for(int i=0; i < numSeries; ++i)
+             plot1.getRenderer().setSeriesPaint(i,seriesPaint[i]);
            plot.add(plot1);
          }
 

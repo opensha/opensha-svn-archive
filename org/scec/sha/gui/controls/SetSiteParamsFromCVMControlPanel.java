@@ -194,15 +194,13 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
 
       // now read the connection again to get the vs30 as sent by the servlet
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
-      //vectors of lat and lon for the Vs30
-      Vector vslatVector=(Vector)ois.readObject();
-      Vector vslonVector=(Vector)ois.readObject();
+      // vector for vs30
       Vector vs30Vector=(Vector)ois.readObject();
       double vs30 = ((Double)vs30Vector.get(0)).doubleValue();
       ois.close();
 
       System.out.println("Vs30 is:"+vs30);
-      JOptionPane.showMessageDialog(this,"We have got the Basin Depth from SCEC CVM");
+      JOptionPane.showMessageDialog(this,"We have got the vs30 from SCEC CVM");
       return vs30;
     }catch (NumberFormatException ex) {
       JOptionPane.showMessageDialog(this,"Check the values in longitude and latitude");
@@ -249,15 +247,13 @@ public class SetSiteParamsFromCVMControlPanel extends JFrame {
       // now read the connection again to get the basin depth as sent by the servlet
       ObjectInputStream ois=new ObjectInputStream(servletConnection.getInputStream());
 
-      //vectors of lat and lon for the Basin Depth
-      Vector bdlatVector=(Vector)ois.readObject();
-      Vector bdlonVector=(Vector)ois.readObject();
+      // vector for basin depth
       Vector basinDepthVector=(Vector)ois.readObject();
       double basinDepth = ((Double)basinDepthVector.get(0)).doubleValue();
       ois.close();
 
       System.out.println("basindepth is:"+ basinDepth );
-      JOptionPane.showMessageDialog(this,"We have got the Vs30 from SCEC CVM");
+      JOptionPane.showMessageDialog(this,"We have got the basin depth from SCEC CVM");
       return basinDepth;
 
     }catch (NumberFormatException ex) {
