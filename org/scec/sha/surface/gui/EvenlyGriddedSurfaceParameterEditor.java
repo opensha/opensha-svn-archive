@@ -304,8 +304,7 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     editorForLats = new ParameterListEditor(parameterListForLats,searchPaths);
     editorForLats.setTitle(this.LAT_EDITOR_TITLE);
 
-    editorForLats.validate();
-    editorForLats.repaint();
+
 
     //creating the editor for the Lons
     for(int i=0;i<numFltTracePoints;++i){
@@ -315,6 +314,8 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
     }
     editorForLons = new ParameterListEditor(parameterListForLons,searchPaths);
     editorForLons.setTitle(this.LON_EDITOR_TITLE);
+    editorForLats.validate();
+    editorForLats.repaint();
     editorForLons.validate();
     editorForLons.repaint();
   }
@@ -461,8 +462,8 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
 
       add(this.editorForLons,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
           , GridBagConstraints.EAST, GridBagConstraints.EAST, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-      this.validate();
-      this.repaint();
+     // this.validate();
+      //this.repaint();
     }
 
     /**
@@ -489,9 +490,11 @@ public class EvenlyGriddedSurfaceParameterEditor extends ParameterEditor
         add(button,  new GridBagConstraints( 0, 5, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
       }
-      this.validate();
-      this.repaint();
+      //this.validate();
+      //this.repaint();
     }
+    this.validate();
+    this.repaint();
     evenlyGriddedParamChange = true;
   }
 

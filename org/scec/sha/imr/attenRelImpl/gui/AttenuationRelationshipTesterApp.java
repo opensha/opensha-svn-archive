@@ -1275,8 +1275,20 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
             }
         }
+        DiscretizedFuncAPI function =null;
+        try{
 
-        DiscretizedFuncAPI function = imr.getChoosenFunction();
+          /**
+           * This block of the code has been put under the try and catch becuase
+           * if any of the Attenuation Relationships throws any Exception , it can be caought here
+           * and displayed back to the user. Currently it handles the CB-2003 excetion thrown
+           * if BC Boundry is selected for the Vertical component.
+           */
+          function = imr.getChoosenFunction();
+        }catch(RuntimeException e){
+          JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Parameter Input",JOptionPane.ERROR_MESSAGE);
+          return;
+        }
 
 
 
@@ -1317,7 +1329,10 @@ public class AttenuationRelationshipTesterApp extends JApplet
                  " ("+ xUnitsNew+")";
             functions.setXAxisName( xNew );
           }
-        } else newGraph = true;
+        }
+        //if the X-Axis units are null for both old and new
+        else if(xUnitsNew.equals(xUnitsOld))newGraph = false;
+        else newGraph = true;
 
         if( !yOld.equals(yNew) ) newGraph = true;
 
