@@ -3,6 +3,7 @@ package org.scec.mapping.gmtWrapper;
 import java.io.*;
 import java.util.*;
 import javax.activation.*;
+import java.text.DecimalFormat;
 
 import org.scec.param.*;
 import org.scec.data.XYZ_DataSetAPI;
@@ -499,9 +500,14 @@ public class GMT_MapGenerator implements Serializable{
     gmtCommandLine=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
-    gmtCommandLine=GMT_PATH+"psscale -B1:LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
+
+    DecimalFormat df2 = new DecimalFormat("0.E0");
+    Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
+    inc = tickInc.floatValue();
+    gmtCommandLine=GMT_PATH+"psscale -Ba"+inc+":LogIML: -D3.5i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + out_ps;
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
+
     gmtCommandLine=GMT_PATH+"psbasemap -B1/1eWNs " + projWdth + " "+region+" -Lfx1.25i/0.6i/33.0/50 -O >> " + out_ps;
     //RunScript.runScript(command);
     br.write(gmtCommandLine+"\n");
