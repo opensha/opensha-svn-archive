@@ -9,10 +9,9 @@ Make sure that averages over probabilities are not log averages (Nitin will chan
 
 HazardCurveApps:
 
-	1) combine the two existing apps into one (that access both local or servlet ERFs),
-	   but calcs take place locally.
+	1) 1 version where everything is on the user's computer.
 
-	2) create a version where calcs are done on server (ERF is never on the local machine);
+	2) another version where everything (ERFs and calcs) are distributed.  This app is an extension of that above.
 	   IMRs will remain on local machine for now (until we need otherwise).
 
 Implement point source correction option in PropagationEffect.

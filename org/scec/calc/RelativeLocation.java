@@ -618,6 +618,49 @@ public final class RelativeLocation {
         return R * c;
     }
 
+
+    /**
+     * This computes the closest distance to any point on a line segment defined by two locations.
+     * This will not work if points the step by 360 degrees across the zero longitude.
+     * @param loc
+     * @param lineLoc1 - 1st point defining the line
+     * @param lineLoc2 - 2nd point defining the line
+     * @return
+     */
+    public static double getApproxDistToLine(Location loc, Location lineLoc1, Location lineLoc2) {
+
+      // get the horizontal compression from the latitudes
+      double horzCorr = Math.cos( Math.PI*(0.5*loc.getLatitude() + 0.25*lineLoc1.getLatitude()+0.25*lineLoc2.getLatitude())/180.0);
+
+      // get line-point corrdinates (in km) w/ loc transformed to the origin
+      double x1 = 111.111*horzCorr*(lineLoc1.getLongitude()-loc.getLongitude());
+      double x2 = 111.111*horzCorr*(lineLoc2.getLongitude()-loc.getLongitude());
+      double y1 = 111.111*(lineLoc1.getLatitude()-loc.getLatitude());
+      double y2 = 111.111*(lineLoc2.getLatitude()-loc.getLatitude());
+
+      double slope = (y2-y1)/(x2-x1);
+      double intercept = y2 - slope*x2;
+
+      double xTarget = -slope*intercept/(1 + slope*slope);
+      double yTarget = slope*xTarget+ intercept;
+
+      // make sure the target point is in between the two endpoints
+      boolean within = false;
+      if(x2 > x1) {
+        if( xTarget <= x2 && xTarget >= x1) within = true;
+      }
+      else {
+        if( xTarget <= x1 && xTarget >= x2) within = true;
+      }
+
+      if (within)
+        return Math.sqrt(xTarget*xTarget+yTarget*yTarget);
+      else {
+        double d1 = Math.sqrt(x1*x1+y2*y2);
+        double d2 = Math.sqrt(x2*x2+y2*y2);
+        return Math.min(d1,d2);
+      }
+    }
 }
 
 
