@@ -5,6 +5,8 @@ Make default values for FaultParameter
 
 Fix progress bars in ScenarioShakeMapApps
 
+Create the Puente Hill Scenario control in the ScenarioShakeMapApp that supports both the single and multiple AttenuatinRelationship selection.
+
 Change HazardCurveServerModeApp to do the calculations on the server.
 
 After the above, deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.

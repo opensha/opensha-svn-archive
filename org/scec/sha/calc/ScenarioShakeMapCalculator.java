@@ -1,6 +1,5 @@
 package org.scec.sha.calc;
 
-import javax.swing.JOptionPane;
 import java.util.*;
 
 import org.scec.data.region.SitesInGriddedRegion;
@@ -64,7 +63,7 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLat(SitesInGriddedRegion griddedRegionSites){
+  protected ArrayList getSitesLat(SitesInGriddedRegion griddedRegionSites){
     //getting the gridded Locations list iterator
     ListIterator it= griddedRegionSites.getGridLocationsIterator();
 
@@ -80,7 +79,7 @@ public class ScenarioShakeMapCalculator {
    * @param griddedRegionSites
    * @return
    */
-  private ArrayList getSitesLon(SitesInGriddedRegion griddedRegionSites){
+  protected ArrayList getSitesLon(SitesInGriddedRegion griddedRegionSites){
     //getting the gridded Locations list iterator
      //iterating over the locations iterator in the reverse order to get the Longitudes.
     ListIterator it= griddedRegionSites.getGridLocationsIterator();
