@@ -393,14 +393,14 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
 
 
   /**
-   * sets up the connection with the PEER Fault Forecast Servlet on the server (scec.usc.edu)
+   * sets up the connection with the PEER Fault Forecast Servlet on the server (gravity.usc.edu)
    */
   private  Object openPEERFaultConnection(String function) throws Exception{
 
     Object outputFromServletFunction=null;
 
     URL peerFaultServlet = new
-                           URL("http://scec.usc.edu:9999/examples/servlet/PEER_FaultForecastServlet");
+                           URL("http://gravity.usc.edu/OpenSHA/servlet/PEER_FaultForecastServlet");
 
 
     URLConnection servletConnection = peerFaultServlet.openConnection();
@@ -450,13 +450,13 @@ public class ERF_ServletModeGuiBean extends ParameterListEditor
   }
 
   /**
-   * sets up the connection with the WG-02 Forecast Servlet on the server (scec.usc.edu)
+   * sets up the connection with the WG-02 Forecast Servlet on the server (gravity.usc.edu)
    */
   private  Object openWG02_ERFConnection(String function) throws Exception{
 
     Object outputFromServletFunction=null;
     URL wg02_Servlet = new
-                       URL("http://scec.usc.edu:9999/examples/servlet/WG02_EqkRupForecastServlet");
+                       URL("http://gravity.usc.edu/OpenSHA/servlet/WG02_EqkRupForecastServlet");
 
     URLConnection servletConnection = wg02_Servlet.openConnection();
     System.out.println("connection established:"+servletConnection.toString());

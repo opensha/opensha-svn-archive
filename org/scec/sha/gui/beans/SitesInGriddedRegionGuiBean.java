@@ -500,7 +500,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     try{
 
       // make connection with servlet
-      URL cvmServlet = new URL("http://scec.usc.edu:9999/examples/servlet/Vs30BasinDepthCalcServlet");
+      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/Vs30BasinDepthCalcServlet");
       URLConnection servletConnection = cvmServlet.openConnection();
 
       servletConnection.setDoOutput(true);
@@ -548,7 +548,7 @@ public class SitesInGriddedRegionGuiBean extends JPanel implements
     try{
 
       // make connection with servlet
-      URL cvmServlet = new URL("http://scec.usc.edu:9999/examples/servlet/Vs30BasinDepthCalcServlet");
+      URL cvmServlet = new URL("http://gravity.usc.edu/OpenSHA/servlet/Vs30BasinDepthCalcServlet");
       URLConnection servletConnection = cvmServlet.openConnection();
 
       servletConnection.setDoOutput(true);
