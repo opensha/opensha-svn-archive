@@ -146,6 +146,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_1, MAG_2), REL_WEIGHT_3);
     this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_2, MAG_2), REL_WEIGHT_4);
     this.addERF(createERF(PEER_NonPlanarFaultForecast.SEGMENTATION_E, SLIP_RATE_3, MAG_2), REL_WEIGHT_3);
+
   }
 
   /**
@@ -179,13 +180,6 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
     * @param e
     */
   public void parameterChange(ParameterChangeEvent e) {
-    Object newValue = e.getNewValue(); // get new value for this param
-    String name = e.getParameterName(); // get name of param which has been changed
-
-    // set this new value of param in all the EqkRupForecast in the list
-    int num = this.getNumERFs();
-    for(int i=0; i<num; ++i)
-      this.getERF(i).getParameter(name).setValue(newValue);
     // set the parameter change flag to indicate that forecast needs to be updated
     this.parameterChangeFlag = true;
   }
@@ -205,6 +199,7 @@ public class PEER_LogicTreeERF_List extends ERF_EpistemicList
         eqkRupForecast.getParameter(OFFSET_PARAM_NAME).setValue(offsetParam.getValue());
         eqkRupForecast.getParameter(SIGMA_PARAM_NAME).setValue(lengthSigmaParam.getValue());
         eqkRupForecast.getParameter(FAULT_MODEL_NAME).setValue(faultModelParam.getValue());
+        eqkRupForecast.getTimeSpan().setDuration(timeSpan.getDuration());
       }
     }
     super.updateForecast();

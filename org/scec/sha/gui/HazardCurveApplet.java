@@ -186,7 +186,7 @@ public class HazardCurveApplet extends JApplet
   private String disaggregationString;
 
   // PEER Test Cases
-  private String TITLE = new String("PEER Test Cases");
+  private String TITLE = new String("Hazard Curves");
 
   // light blue color
   private Color lightBlue = new Color( 200, 200, 230 );
@@ -500,7 +500,7 @@ public class HazardCurveApplet extends JApplet
     JFrame frame = new JFrame();
     //EXIT_ON_CLOSE == 3
     frame.setDefaultCloseOperation(3);
-    frame.setTitle("Peer Group Tests");
+    frame.setTitle("Hazard Curve Calculator");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
     applet.start();
@@ -1020,6 +1020,20 @@ public class HazardCurveApplet extends JApplet
      }
      totalProbFuncs.add(hazFunction);
    }
+
+// TEMP FOR TESTING:
+ArbitrarilyDiscretizedFunc tempFunc = (ArbitrarilyDiscretizedFunc) totalProbFuncs.get(0);
+int numPts = tempFunc.getNum();
+int imli, hi;
+for( imli=0;imli<numPts;imli++)
+    System.out.print("g"+(float)tempFunc.getX(imli)+"  ");
+System.out.print("\n");
+for( hi=0; hi<totalProbFuncs.size(); hi++) {
+  tempFunc = (ArbitrarilyDiscretizedFunc) totalProbFuncs.get(hi);
+  for( imli=0;imli<numPts;imli++)
+    System.out.print((float)tempFunc.getY(imli)+"  ");
+  System.out.print("\n");
+}
 
    // if fractile needs to be calculated
    if(!this.percentileOption.equalsIgnoreCase

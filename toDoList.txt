@@ -4,6 +4,16 @@
 For OpenSHA:
 ------------
 
+ERF_EpistemicListControlPanel
+
+	Add option to plot the average (which is different from the
+	50% fractile).
+
+All XY plots:
+
+	applets crash if you set the X-axis minimum to zero and then 
+	later click the Ylog check box.
+
 Applets 
 
 	- resizing problems on Mac (revisit now that Java 1.4 is used?)

@@ -77,7 +77,10 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) {
 
-    // this determines how the calucations are done
+    /* this determines how the calucations are done (doing it the way it's outlined
+    in the paper SRL gives probs greater than 1 if the total rate of events for the
+    source exceeds 1.0, even if the rates of individual ruptures are << 1).
+    */
     boolean poissonSource = false;
 
     ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
@@ -130,7 +133,6 @@ public class HazardCurveCalculator {
     // loop over sources
     for(i=0;i < numSources ;i++) {
 
-      if (D) System.out.println(C+": getting source #"+i);
       // get the ith source
       ProbEqkSource source = eqkRupForecast.getSource(i);
 
@@ -204,6 +206,9 @@ public class HazardCurveCalculator {
 
     if(showProgressBar)
       progressClass.dispose();
+
+    if (D) System.out.println(C+"hazFunction.toString"+hazFunction.toString());
+
 
   }
 

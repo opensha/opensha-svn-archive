@@ -381,6 +381,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.PGA_NAME);
    siteParams.getParameter(SCEMY_1997_AttenRel.SITE_TYPE_NAME).setValue(SCEMY_1997_AttenRel.SITE_TYPE_ROCK);
 
+
    // change IMR sigma if it's Case 2
    if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO) || selectedTest.equalsIgnoreCase(TEST_CASE_FIVE)){
      imrGuiBean.getParameterList().getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
@@ -459,8 +460,10 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    }
 
    //if test case 5
-     if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) )
+     if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) ) {
        erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
+       timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
+     }
 
    //if test case -6
    if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)){

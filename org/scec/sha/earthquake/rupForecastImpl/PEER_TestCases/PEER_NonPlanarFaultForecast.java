@@ -212,7 +212,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
    * update the sources based on the user paramters, only when user has changed any parameter
    */
    public void updateForecast(){
-     String S = C + "updateForecast::";
+     String S = C + "updateForecast: ";
 
      if(parameterChangeFlag) {
 
@@ -274,15 +274,25 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast
        double totMoRate = 3e10*faultArea*slipRate;
        grMagFreqDist.setAllButTotCumRate(GR_MAG_LOWER, magUpper, totMoRate,GR_BVALUE);
 
-System.out.println("rate³5="+(float)grMagFreqDist.getCumRate(5.05));
+       double offset = ((Double)offsetParam.getValue()).doubleValue();
+       double lengthSigma = ((Double)lengthSigmaParam.getValue()).doubleValue();
+
+       if(D) {
+         System.out.println(S);
+         System.out.println("   rate³5="+(float)grMagFreqDist.getCumRate(5.05));
+         System.out.println("   segModel = "+segModel);
+         System.out.println("   faultModel = "+faultModel);
+         System.out.println("   magUpper = "+magUpper);
+         System.out.println("   slipRate = "+slipRate);
+         System.out.println("   gridSpacing = "+gridSpacing);
+         System.out.println("   offset = "+offset);
+         System.out.println("   lengthSigma = "+lengthSigma);
+       }
 
        // Now make the source
-       source = new  PEER_FaultSource(grMagFreqDist, RAKE ,
-                                        ((Double)offsetParam.getValue()).doubleValue(),
+       source = new  PEER_FaultSource(grMagFreqDist, RAKE, offset,
                                         (EvenlyGriddedSurface)surface,
-                                        timeSpan.getDuration(),
-                                        ((Double)lengthSigmaParam.getValue()).doubleValue() );
-
+                                        timeSpan.getDuration(), lengthSigma);
      }
      parameterChangeFlag = false;
    }
