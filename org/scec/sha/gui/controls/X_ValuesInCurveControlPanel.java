@@ -49,6 +49,9 @@ public class X_ValuesInCurveControlPanel extends JFrame {
 
   private DecimalFormat format = new DecimalFormat("0.000000##");
 
+  //instance of the application implementing the X_ValuesInCurveControlPanelAPI
+  X_ValuesInCurveControlPanelAPI api;
+
   //Stores the imt selected by the user
   private String imt;
 
@@ -60,6 +63,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
    * show the the default X values based on IMT selected in the application.
    */
   public X_ValuesInCurveControlPanel(Component parent, X_ValuesInCurveControlPanelAPI api) {
+    this.api = api;
     imt  = api.getSelectedIMT();
     try {
       jbInit();
@@ -189,7 +193,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     function  = new ArbitrarilyDiscretizedFunc();
     try{
       //get the min,  max and num values enter by the user.
-      int numIMT_Vals = Integer.parseInt(numText.getText().trim());
+      int numIMT_Vals = (int)Double.parseDouble(numText.getText().trim());
       double minIMT_Val = Double.parseDouble(minText.getText().trim());
       double maxIMT_Val = Double.parseDouble(maxText.getText().trim());
       if(minIMT_Val >= maxIMT_Val){
@@ -217,6 +221,10 @@ public class X_ValuesInCurveControlPanel extends JFrame {
 
   }
 
+  /**
+   * Sets the Control Panel to show the Defualt X values based on the selecetd IMT
+   * @param imt
+   */
   public void setX_Values(String imt){
     this.imt = imt;
     xValuesSelectionCombo.setSelectedItem(DEFAULT);
@@ -224,8 +232,13 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     validate();
   }
 
+  /**
+   * Shows the custom  X-Values from the application in the control Panel.
+   * @param func: ArbitrarilyDiscretizedFunc function to be shown in the control Panel
+   */
   public void setX_Values(ArbitrarilyDiscretizedFunc func){
     ListIterator lt=func.getXValuesIterator();
+    xValuesSelectionCombo.setSelectedItem(CUSTOM_VALUES);
     String st =new String("");
     while(lt.hasNext())
       st += lt.next().toString().trim()+"\n";
@@ -296,17 +309,13 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       flag=1;
     }
     //if there is no exception occured and user properly entered the X values
-    if(flag==0)
-      this.dispose();
+    if(flag==0){
+      if(!xValuesSelectionCombo.getSelectedItem().equals(this.DEFAULT))
+        api.setX_ValuesForHazardCurve(function);
+      dispose();
+    }
   }
 
-  /**
-   *
-   * @returns the ArbitrarilyDiscretizedFunction containing the X values that user entered
-   */
-  public ArbitrarilyDiscretizedFunc getX_ValuesFunction(){
-    return this.function;
-  }
 
   /**
    * Closes the window when the user is done with entering the x values.
@@ -363,7 +372,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
   private void generateXValues(){
     String selectedItem = (String)xValuesSelectionCombo.getSelectedItem();
     if(selectedItem.equals(this.PEER_X_VALUES)){
-      this.createPEER_Function();
+      createPEER_Function();
       setX_Values();
     }
     else if(selectedItem.equals(this.DEFAULT)){
@@ -381,7 +390,7 @@ public class X_ValuesInCurveControlPanel extends JFrame {
       xValuesText.setText("");*/
     }
     else if(selectedItem.equals(this.CUSTOM_VALUES)){
-      //xValuesText.setText("");
+      xValuesText.setText("");
     }
   }
 

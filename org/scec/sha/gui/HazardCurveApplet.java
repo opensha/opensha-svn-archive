@@ -1462,7 +1462,7 @@ public class HazardCurveApplet extends JApplet
   private void initX_ValuesControl(){
     if(xValuesPanel == null)
       xValuesPanel = new X_ValuesInCurveControlPanel(this,this);
-    if(useCustomX_Values)
+    if(!useCustomX_Values)
       xValuesPanel.setX_Values(imtGuiBean.getSelectedIMT());
     else
       xValuesPanel.setX_Values(function);
@@ -1506,14 +1506,14 @@ public class HazardCurveApplet extends JApplet
   }
 
   /**
-   *
+   * It forces the users the use the default X Values for the selected IMT
    */
   public void setX_ValuesForHazardCurve(){
     useCustomX_Values = false;
   }
 
   /**
-   *
+   * Sets the ArbitrarilyDiscretizedFunc if user wants to have its own custom values.
    * @param func
    */
   public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func){

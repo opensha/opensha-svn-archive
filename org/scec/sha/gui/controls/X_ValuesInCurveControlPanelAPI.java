@@ -1,5 +1,7 @@
 package org.scec.sha.gui.controls;
 
+import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+
 /**
  * <p>Title: X_ValuesInCurveControlPanelAPI</p>
  * <p>Description: Interface to Application and XValueControlPanel. It gets the
@@ -13,4 +15,6 @@ package org.scec.sha.gui.controls;
 public interface X_ValuesInCurveControlPanelAPI {
 
   public String getSelectedIMT();
+  public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func);
+  public void setX_ValuesForHazardCurve();
 }
