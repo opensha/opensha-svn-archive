@@ -235,6 +235,11 @@ public class HazardCurveServerModeApplication extends JApplet
   // whether avg is selected by the user
   private boolean avgSelected = false;
 
+  //Variables required to update progress bar if ERF List is selected
+  //total number of ERF's in list
+  private int numERFsInEpistemicList =0;
+  //index number of ERF for which Hazard Curve is being calculated
+  private int currentERFInEpistemicListForHazardCurve =0;
 
   //boolean to check if the plot preferences to be used to draw the curves
   private boolean drawCurvesUsingPlotPrefs;
@@ -705,10 +710,16 @@ public class HazardCurveServerModeApplication extends JApplet
         timer = new Timer(500, new ActionListener() {
           public void actionPerformed(ActionEvent evt) {
             try{
-              int totRupture = calc.getTotRuptures();
-              int currRupture = calc.getCurrRuptures();
-              if(currRupture!=-1)
-                progressClass.updateProgress(currRupture, totRupture);
+              if(!isEqkList){
+                int totRupture = calc.getTotRuptures();
+                int currRupture = calc.getCurrRuptures();
+                if(currRupture!=-1)
+                  progressClass.updateProgress(currRupture, totRupture);
+              }
+              else{
+                if(numERFsInEpistemicList !=0)
+                  progressClass.updateProgress(currentERFInEpistemicListForHazardCurve,numERFsInEpistemicList);
+              }
               if (isHazardCalcDone) {
                 timer.stop();
                 progressClass.dispose();
@@ -964,6 +975,9 @@ public class HazardCurveServerModeApplication extends JApplet
       }
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
       handleForecastList(site, imr, forecast);
+      //initializing the counters for ERF List to 0, for other ERF List calculations
+      currentERFInEpistemicListForHazardCurve =0;
+      numERFsInEpistemicList =0;
       isHazardCalcDone = true;
       return;
     }
@@ -1069,7 +1083,7 @@ public class HazardCurveServerModeApplication extends JApplet
 
     ERF_List erfList  = (ERF_List)eqkRupForecast;
 
-    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
+    numERFsInEpistemicList = erfList.getNumERFs(); // get the num of ERFs in the list
 
 
     if(addData) //add new data on top of the existing data
@@ -1089,7 +1103,9 @@ public class HazardCurveServerModeApplication extends JApplet
     }
 
     DiscretizedFuncList hazardFuncList = new DiscretizedFuncList();
-    for(int i=0; i<numERFs; ++i) {
+    for(int i=0; i<numERFsInEpistemicList; ++i) {
+      //current ERF's being used to calculated Hazard Curve
+      currentERFInEpistemicListForHazardCurve = i;
       ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
 
       // intialize the hazard function
