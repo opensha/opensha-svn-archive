@@ -8,6 +8,7 @@ import java.util.StringTokenizer;
 import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
 import org.scec.sha.fault.SimpleFaultData;
+import org.scec.util.FaultUtils;
 
 /**
  * <p>Title: CustomSimpleFault</p>
@@ -124,6 +125,10 @@ public class CustomSimpleFault extends JFrame {
       double dip= Double.parseDouble(this.dipText.getText());
       double upperSeismoDepth = Double.parseDouble(this.upperSeismoText.getText());
       double lowerSeismoDepth = Double.parseDouble(this.lowerSeismoText.getText()) ;
+
+      // check whther dip and upper and lower seismo depth are valid
+      FaultUtils.assertValidDip(dip);
+      FaultUtils.assertValidSeisUpperAndLower(upperSeismoDepth, lowerSeismoDepth);
 
       //check for the fault Trace
       String faultName = this.faultNameText.getText().trim();

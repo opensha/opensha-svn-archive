@@ -9,6 +9,7 @@ import java.util.StringTokenizer;
 
 import org.scec.sha.fault.FaultTrace;
 import org.scec.data.Location;
+import org.scec.util.FaultUtils;
 
 /**
  * <p>Title:  CustomFault.java </p>
@@ -63,6 +64,10 @@ public class CustomListricFault extends JFrame {
     jPanel1.setLayout(gridBagLayout1);
     dipLabel.setText("Dips (degrees):");
     depthTextArea.setBorder(border1);
+    depthTextArea.setMaximumSize(new Dimension(2147483647, 85));
+    depthTextArea.setLineWrap(true);
+    depthTextArea.setRows(5);
+    depthTextArea.setWrapStyleWord(true);
     depthLabel.setText("Depths:");
     cancelButton.setText("Cancel");
     cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -80,29 +85,33 @@ public class CustomListricFault extends JFrame {
       }
     });
     traceLabel.setText("Fault Trace:");
+    traceTextArea.setLineWrap(true);
+    dipTextArea.setMaximumSize(new Dimension(2147483647, 85));
+    dipTextArea.setLineWrap(true);
+    dipTextArea.setRows(5);
     this.getContentPane().add(jPanel1,  BorderLayout.CENTER);
     jPanel1.add(dipLabel,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 8, 0, 31), 21, 4));
-    jPanel1.add(traceTextArea,  new GridBagConstraints(0, 5, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 8), 324, 154));
-    jPanel1.add(titleLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 73, 0, 32), 34, 7));
-    jPanel1.add(dipTextArea,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 8, 0, 0), 155, 153));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 6, 0, 33), 21, 4));
+    jPanel1.add(titleLabel,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 73, 0, 37), 34, 7));
+    jPanel1.add(dipTextArea,        new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 10), 0, 31));
     jPanel1.add(faultNameLabel,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 8, 0, 46), 29, 7));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 6, 0, 48), 29, 7));
+    jPanel1.add(faultNameText,  new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 103, 0, 0), 86, 2));
+    jPanel1.add(traceTextArea,  new GridBagConstraints(0, 5, 3, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 12), 0, 123));
     jPanel1.add(traceLabel,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 8, 0, 24), 51, 2));
-    jPanel1.add(faultNameText,  new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 103, 0, 0), 56, 2));
-    jPanel1.add(depthLabel,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 32, 0, 61), 32, 7));
-    jPanel1.add(depthTextArea,  new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 13, 0, 8), 152, 149));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 6, 0, 25), 51, 2));
+    jPanel1.add(depthTextArea,       new GridBagConstraints(1, 3, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 12), 0, 31));
+    jPanel1.add(depthLabel,  new GridBagConstraints(1, 2, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(8, 13, 0, 83), 32, 7));
     jPanel1.add(addButton,  new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 61, 7, 0), 4, -3));
-    jPanel1.add(cancelButton,  new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 17, 7, 63), 16, -2));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 60, 12, 0), 4, -3));
+    jPanel1.add(cancelButton,     new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(2, 1, 10, 54), 16, -2));
   }
 
 
@@ -114,9 +123,11 @@ public class CustomListricFault extends JFrame {
   void addButton_actionPerformed(ActionEvent e) {
 
      try {
+
        // check for dips text area
        // vector of dips
        Vector dips = new Vector();
+       double dip;
        // first check the dips. Check that there is only one value in 1 row
        // also only numbers are allowed
        String dipText= this.dipTextArea.getText();
@@ -128,13 +139,17 @@ public class CustomListricFault extends JFrame {
          if(token.countTokens() > 1)
            throw new RuntimeException("Only 1 value in each row is allowed in dip values");
          // add this dip. If it is not numeric charcter, then exceeption will be thrown and caught
-         dips.add(new Double(token.nextToken()));
+         dip=Double.parseDouble(token.nextToken());
+         dips.add(new Double(dip));
+         FaultUtils.assertValidDip(dip);
        }
 
 
        // check for depths text area
        // vector of depths
         Vector depths = new Vector();
+        double upperSeismo = -1;
+        double lowerSeismo;
         // first check the depths. Check that there is only one value in 1 row
         // also only numbers are allowed
         String depthText= this.depthTextArea.getText();
@@ -145,8 +160,12 @@ public class CustomListricFault extends JFrame {
           StringTokenizer token = new StringTokenizer(line,"\t ");
           if(token.countTokens() > 1)
             throw new RuntimeException("Only 1 value in each row is allowed in depth values");
+          lowerSeismo = Double.parseDouble(token.nextToken());
+          // check that depths are in increasing order
+          FaultUtils.assertValidSeisUpperAndLower(upperSeismo, lowerSeismo);
           // add this depth. If it is not numeric charcter, then exceeption will be thrown and caught
-          depths.add(new Double(token.nextToken()));
+          depths.add(new Double(lowerSeismo));
+          upperSeismo = lowerSeismo;
        }
 
        //check that number of depths are 1 greater than the number of dips
