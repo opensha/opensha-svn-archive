@@ -63,15 +63,8 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    * @param gmtMap
    */
   public GMT_MapGuiBean() {
-
-    //get the adjustableParam List from the GMT_MapGenerator
-    ListIterator it=gmtMap.getAdjustableParamsIterator();
-    parameterList = new ParameterList();
-    while(it.hasNext())
-      parameterList.addParameter((ParameterAPI)it.next());
-    editorPanel.removeAll();
-    addParameters();
-    setTitle(GMT_TITLE);
+    //initialise the param list and editor for the GMT Map Params and Editors
+    initParamListAndEditor();
     parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
     changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
     try {
@@ -80,6 +73,18 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+
+  protected void initParamListAndEditor(){
+    //get the adjustableParam List from the GMT_MapGenerator
+    ListIterator it=gmtMap.getAdjustableParamsIterator();
+    parameterList = new ParameterList();
+    while(it.hasNext())
+      parameterList.addParameter((ParameterAPI)it.next());
+    editorPanel.removeAll();
+    addParameters();
+    setTitle(GMT_TITLE);
   }
 
   /**

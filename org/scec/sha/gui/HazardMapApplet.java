@@ -599,7 +599,6 @@ public class HazardMapApplet extends JApplet
                                        AttenuationRelationshipAPI imr,
                                        String eqkRupForecastLocation) {
 
-
    try{
      if(D) System.out.println("starting to make connection with servlet");
      URL hazardMapServlet = new URL(SERVLET_URL);
@@ -639,6 +638,13 @@ public class HazardMapApplet extends JApplet
      if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
      else maxDistance = new Double(distanceControlPanel.getDistance());
      toServlet.writeObject(maxDistance);
+
+     //sending to the server which option the user wants to get the HazardMap Calculation done.
+     String mapCalcOption;
+     if(mapSubmissionMethods == null ) mapCalcOption = new String(HazardMapSubmissionMethods.USE_GRID);
+     else mapCalcOption = mapSubmissionMethods.getMapCalculationOption();
+     toServlet.writeObject(mapCalcOption);
+
      //sending email address to the servlet
      toServlet.writeObject(emailText.getText());
      //sending the parameters info. to the servlet

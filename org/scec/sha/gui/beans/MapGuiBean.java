@@ -9,7 +9,7 @@ import java.awt.event.*;
 
 
 import org.scec.sha.mapping.*;
-import org.scec.param.ParameterAPI;
+import org.scec.param.*;
 import org.scec.sha.gui.infoTools.ImageViewerWindow;
 import org.scec.util.FileUtils;
 import org.scec.webservices.client.*;
@@ -39,18 +39,11 @@ public class MapGuiBean extends GMT_MapGuiBean {
    * @param gmtMap
    */
   public MapGuiBean() {
-
+    gmtMap = null;
     //instance of the GMT Control Panel to get the GMT parameters value.
     gmtMap= new GMT_MapGeneratorForShakeMaps();
-    //get the adjustableParam List from the GMT_MapGenerator
-    ListIterator it=gmtMap.getAdjustableParamsIterator();
-    while(it.hasNext()){
-      ParameterAPI tempParam = (ParameterAPI)it.next();
-      if(!parameterList.containsParameter(tempParam))
-        parameterList.addParameter(tempParam);
-    }
-    editorPanel.removeAll();
-    addParameters();
+    //initialise the param list and editor for the GMT Map Params and Editors
+    initParamListAndEditor();
   }
 
 
@@ -74,8 +67,8 @@ public class MapGuiBean extends GMT_MapGuiBean {
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
       }catch(RuntimeException e){
         e.printStackTrace();
-       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
-       return;
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+        return;
       }
     }
     else{
