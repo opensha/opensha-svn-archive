@@ -62,8 +62,8 @@ public class WeightedFuncList {
    */
   public void addList(ArrayList relWts,DiscretizedFuncList funcList){
 
-    int size = relativeWts.size();
-    if(size != functionList.size()){
+    int size = relWts.size();
+    if(size != funcList.size()){
       throw new RuntimeException(ERROR_WEIGHTS);
     }
 
@@ -81,8 +81,12 @@ public class WeightedFuncList {
     //list of fractiles. We recompute fractiles for all the functions in the list if
     //any new function is added.
     if(fractileList.size() >0){
-      fractileList.clear();
-      addFractiles(fractionList);
+      //creating new instance of the fraction list
+      ArrayList list = new ArrayList();
+      //adding all the contents of the existing fraction list to a new list becuase
+      //we will clear the existing list.
+      list.addAll(fractionList);
+      addFractiles(list);
     }
     //if mean has already been calculated for the existing function list then on addition of
     //new function will result in automatic re-computation mean fractile.
@@ -127,8 +131,12 @@ public class WeightedFuncList {
     //list of fractiles. We recompute fractiles for all the functions in the list if
     //any new function is added.
     if(fractileList.size() >0){
-      fractileList.clear();
-      addFractiles(fractionList);
+      //creating new instance of the fraction list
+      ArrayList list = new ArrayList();
+      //adding all the contents of the existing fraction list to a new list becuase
+      //we will clear the existing list.
+      list.addAll(fractionList);
+      addFractiles(list);
     }
     //if mean has already been calculated for the existing function list then on addition of
     //new function will result in automatic re-computation mean fractile.
@@ -163,7 +171,7 @@ public class WeightedFuncList {
    * sets the fractile curve calculation
    */
   private void setFractileCurveCalcuations(){
-    if(fractileCalc !=null)
+    if(fractileCalc ==null)
       fractileCalc = new FractileCurveCalculator(functionList,relativeWts);
     else
       fractileCalc.set(functionList,relativeWts);
@@ -184,11 +192,15 @@ public class WeightedFuncList {
   /**
    * This function saves the list of fraction list for which fractile needed to be calculated.
    * It then adds this calculated fractiles in a DiscretizedFunctionList.
+   * It will clear the existing fractile list, if it exists.
    * @param fractionList: List of fraction (Doubles) for which we need to compute
    * fractile.
    */
   public void addFractiles(ArrayList list){
     int size  = list.size();
+    //clearing the fractile list
+    fractileList.clear();
+    fractionList.clear();
     setFractileCurveCalcuations();
     for(int i=0;i<size;++i){
       fractionList.add(list.get(i));
@@ -217,6 +229,7 @@ public class WeightedFuncList {
     meanFunction = fractileCalc.getMeanCurve();
     isMeanFractileCalculated = true;
     String meanInfo = "Mean fractile calculated \n";
+    meanFunction.setInfo(meanInfo);
   }
 
 

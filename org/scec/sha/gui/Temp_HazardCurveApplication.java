@@ -87,6 +87,7 @@ import org.scec.util.FileUtils;
 import org.scec.sha.gui.controls.CalcOptionControl;
 import org.scec.sha.calc.remoteHazardCalc.RemoteHazardCurveClient;
 import org.scec.sha.calc.HazardCurveCalculatorAPI;
+import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
 
 import ch.randelshofer.quaqua.QuaquaManager;
 
@@ -202,6 +203,7 @@ public class Temp_HazardCurveApplication extends JApplet
    */
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
   private DiscretizedFunctionXYDataSet data = new DiscretizedFunctionXYDataSet();
+  private ArrayList functionList = new ArrayList();
 
   //holds the ArbitrarilyDiscretizedFunc
   private ArbitrarilyDiscretizedFunc function;
@@ -220,7 +222,6 @@ public class Temp_HazardCurveApplication extends JApplet
   private String percentileOption ;
   // whether avg is selected by the user
   private boolean avgSelected = false;
-  private FractileCurveCalculator fractileCalc;
 
   /**
    * these four values save the custom axis scale specified by user
@@ -316,6 +317,8 @@ public class Temp_HazardCurveApplication extends JApplet
   CalcProgressBar disaggProgressClass;
   Timer timer;
   Timer disaggTimer;
+  //checks to see if HazardCurveCalculations are done
+  boolean isHazardCalcDone= false;
   private JButton peelOffButton = new JButton();
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
   private FlowLayout flowLayout1 = new FlowLayout();
@@ -324,12 +327,10 @@ public class Temp_HazardCurveApplication extends JApplet
 
   //maintains which ERFList was previously selected
   private String prevSelectedERF_List = null;
-  //saves how many ERF's were there in the ERF_List
-  private int prevNumERFinList = 0;
-  //saves the total number of fractile and averge curves in the ERF list.
-  private int numFractileCurvesinList =0;
-  //array that keeps how many curves are to be plotted with same color.
-  private ArrayList curveColorsArray = new ArrayList();
+
+  //keeps track which was the last selected Weighted function list.
+  //It only initialises this weighted function list if user wants to add data to the existing ERF_List
+  private WeightedFuncListforPlotting weightedFuncList;
 
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
@@ -575,33 +576,7 @@ public class Temp_HazardCurveApplication extends JApplet
 
       // Starting
       String S = C + ": addGraphPanel(): ";
-
-      //different number of colors that we have to create
-      int size = curveColorsArray.size();
-      //size of the color array that will contain different color, it is different from
-      //above as it judges 2 same colors as 2 colors whereas the above number take into
-      //consideration different types of colors.
-      int colorArraySize =0;
-      for(int i=0;i<size;++i)
-        colorArraySize += ((Integer)curveColorsArray.get(i)).doubleValue();
-      Color[] color = new Color[colorArraySize];
-
-
-      int val=1;
-
-      //creating the color array
-      int index=0;
-      int numDiffColors = (int)255/size;
-      for(int i=0;i<size;++i){
-        val = ((Integer)curveColorsArray.get(i)).intValue();
-          for(int j=0;j<val;++j)
-            color[index++] = new Color(255-i*numDiffColors,i*numDiffColors,i*numDiffColors);
-      }
-
-      //setting the color series
-      graphPanel.setSeriesColor(color);
-
-      graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
+      graphPanel.drawGraphPanel(functionList,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
       //this.isIndividualCurves = false;
    }
@@ -648,8 +623,9 @@ public class Temp_HazardCurveApplication extends JApplet
               addButton();
 
               FileWriter peerFile=new FileWriter(peerDirName+(String)testCasesTwo.get(i)+"-PGA_OpenSHA.dat");
-              for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
-                peerFile.write(totalProbFuncs.get(0).get(j).getX()+" "+totalProbFuncs.get(0).get(j).getY()+"\n");
+              DiscretizedFuncAPI func = (DiscretizedFuncAPI)functionList.get(0);
+              for(int j=0; j<func.getNum();++j)
+                peerFile.write(func.get(j).getX()+" "+func.get(j).getY()+"\n");
               peerFile.close();
               this.clearPlot(true);
 
@@ -720,11 +696,7 @@ public class Temp_HazardCurveApplication extends JApplet
             try{
               if(calc.getCurrRuptures()!=-1)
                 progressClass.updateProgress(calc.getCurrRuptures(), calc.getTotRuptures());
-              //if(isIndividualCurves) {
-                //drawGraph();
-                //isIndividualCurves = false;
-              //}
-              if (calc.done()) {
+              if (isHazardCalcDone) {
                 // Toolkit.getDefaultToolkit().beep();
                 timer.stop();
                 progressClass.dispose();
@@ -804,11 +776,11 @@ public class Temp_HazardCurveApplication extends JApplet
     graphPanel.removeChartAndMetadata();
     panel.removeAll();
     if( clearFunctions) {
-      this.totalProbFuncs.clear();
+      totalProbFuncs.clear();
+      functionList.clear();
     }
     customAxis = false;
     chartSplit.setDividerLocation( newLoc );
-    curveColorsArray.clear();
   }
 
   /**
@@ -925,6 +897,8 @@ public class Temp_HazardCurveApplication extends JApplet
    * this function is called when add Graph is clicked
    */
   private void computeHazardCurve() {
+    //starting the calculation
+    isHazardCalcDone= false;
 
     EqkRupForecastAPI forecast = null;
     // whwther to show progress bar in case of update forecast
@@ -973,26 +947,15 @@ public class Temp_HazardCurveApplication extends JApplet
         }
       }
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
-      //checks to see if we are dealing with the ERF_List, if so then show the earlier plots
-      //in a seperate window.
-      if(isEqkList )
-        //shows the curves for the ERF List in a seperate window
-        //peelOffCurves();
       handleForecastList(site, imr, forecast);
+      isHazardCalcDone = true;
       return;
     }
 
     //making the previuos selected ERF List to be null
     prevSelectedERF_List = null;
-    //num of previous selected ERF in List to be zero
-    prevNumERFinList = 0;
-    //num of previous selected fractiles in ERF_list to be zero.
-    numFractileCurvesinList =0;
-    try{
-        calc.setNumForecasts(1);
-      }catch(RemoteException e){
-        e.printStackTrace();
-      }
+
+
 
       // this is not a eqk list
       this.isEqkList = false;
@@ -1027,14 +990,13 @@ public class Temp_HazardCurveApplication extends JApplet
 
 
    // add the function to the function list
-   totalProbFuncs.add(hazFunction);
+      functionList.add(hazFunction);
    // set the X-axis label
    String imt = imtGuiBean.getSelectedIMT();
    totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
    totalProbFuncs.setYAxisName("Probability of Exceedance");
-   //set only this curve with the same color
-   curveColorsArray.add(new Integer(1));
 
+   isHazardCalcDone = true;
   // disaggregationString=null;
    //checking the disAggregation flag
    //if(this.disaggregationFlag) {
@@ -1088,154 +1050,86 @@ public class Temp_HazardCurveApplication extends JApplet
 
     int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
 
-    if(prevNumERFinList ==0) //if first time adding the ERF List
-      prevNumERFinList = numERFs;
-    else //adding consecutinve ERF List
-      prevNumERFinList +=numERFs;
-
 
     if(addData) //add new data on top of the existing data
-      curveColorsArray.add(new Integer(numERFs));
-
-    else if(!addData && prevNumERFinList !=0){ // add new data to the existing data
-      int numCurves = totalProbFuncs.size();
-      System.out.println("Number of curves:"+numCurves);
-      //number to saves inside the functionlist without recomputation
-      int numCurvesToAdd = numCurves - numFractileCurvesinList;
-      for(int i=numCurvesToAdd;i<totalProbFuncs.size();++i)
-        totalProbFuncs.remove(i);
-      //removing the Average curve color from the ERF List, if we have add to the existing
-      curveColorsArray.remove(curveColorsArray.size()-1);
-      //removing the fractiles curve color from the ERF List, if we have add to the existing
-      curveColorsArray.remove(curveColorsArray.size()-1);
-      //removing the ERF List curves color from the ERF List, if we have add to the existing
-      curveColorsArray.remove(curveColorsArray.size()-1);
-      //adding the ERF_List curves colors in the list
-      curveColorsArray.add(new Integer(prevNumERFinList));
-      //addGraphPanel();
-    }
-    else if(!addData && prevNumERFinList ==0){
+      weightedFuncList = new WeightedFuncListforPlotting();
+    //if we are adding to the exsintig data then there is no need to create the new instance
+    //weighted functon list.
+    else if(!addData && weightedFuncList == null){
       JOptionPane.showMessageDialog(this,"No ERF List Exists","Wrong selection",JOptionPane.OK_OPTION);
       return;
     }
-    //}
-    try{
-      calc.setNumForecasts(numERFs);
-    }catch(RemoteException e){
-      e.printStackTrace();
-    }
 
-    if(prevSelectedERF_List != null){//????????
-
-    }
     try{
       // calculate the hazard curve
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(RemoteException e){
       e.printStackTrace();
     }
-    // do not show progress bar if not desired by user
-    //calc.showProgressBar(this.progressCheckBox.isSelected());
-    //check if the curves are to shown in the same black color for each erf.
-    // calculate hazard curve for each ERF within the list
-    //if(!this.progressCheckBox.isSelected()) this.isIndividualCurves = false;
-    //else this.isIndividualCurves = true;
+
+    DiscretizedFuncList hazardFuncList = new DiscretizedFuncList();
     for(int i=0; i<numERFs; ++i) {
       ArbitrarilyDiscretizedFunc hazFunction = new ArbitrarilyDiscretizedFunc();
-     // if(this.progressCheckBox.isSelected()) while(isIndividualCurves);
-     // intialize the hazard function
-     initX_Values(hazFunction);
-     try {
-       try{
-         // calculate the hazard curve
-         hazFunction=(ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
-       }catch(RemoteException e){
-         e.printStackTrace();
-       }
-       hazFunction = toggleHazFuncLogValues(hazFunction);
-       hazFunction.setInfo(getParametersInfo());
-     }catch (RuntimeException e) {
-       JOptionPane.showMessageDialog(this, e.getMessage(),
-                                     "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
-       e.printStackTrace();
-       return;
-     }
-     totalProbFuncs.add(hazFunction);
-    // this.isIndividualCurves = true;
-    //if(!this.progressCheckBox.isSelected()) {
-      //addGraphPanel();
-      //panel that shows the plot curves and metadata
-      //panel.paintImmediately(panel.getBounds());
-    //}
-   }
+
+      // intialize the hazard function
+      initX_Values(hazFunction);
+      try {
+        try{
+          // calculate the hazard curve
+          hazFunction=(ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, erfList.getERF(i));
+          //System.out.println("Num points:" +hazFunction.toString());
+        }catch(RemoteException e){
+          e.printStackTrace();
+        }
+        hazFunction = toggleHazFuncLogValues(hazFunction);
+      }catch (RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(),
+                                      "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+        e.printStackTrace();
+        return;
+      }
+      hazardFuncList.add(hazFunction);
+    }
+    //System.out.println("ERF List size:"+erfList.getRelativeWeightsList().size());
+    weightedFuncList.addList(erfList.getRelativeWeightsList(),hazardFuncList);
+    //System.out.println("ERF Relative List size:"+weightedFuncList.getRelativeWtList().size());
+    weightedFuncList.setInfo(getParametersInfo());
 
 
-   // if fractile or average needs to be calculated
-   if(!this.percentileOption.equalsIgnoreCase
-      (ERF_EpistemicListControlPanel.NO_PERCENTILE) || this.avgSelected) {
-
-     //creating a temporary functionlist to calculate the number of fractiles
-     DiscretizedFuncList functionList = new DiscretizedFuncList();
-     int listSize = totalProbFuncs.size();
-     if(addData){ //as curves are added on top so just get the current curves to get the fractile
-       for(int i = listSize-numERFs;i<listSize;++i)
-         functionList.add(totalProbFuncs.get(i));
-     }
-     else if(!addData){ //as curves are added to existing so calculate the fractile al over again.
-       for(int i= listSize-prevNumERFinList;i<listSize;++i)
-         functionList.add(totalProbFuncs.get(i));
-     }
-
-     // set the function list and weights in the calculator
-     if (fractileCalc==null)
-       fractileCalc = new FractileCurveCalculator(functionList,
-           erfList.getRelativeWeightsList());
-     else  fractileCalc.set(functionList, erfList.getRelativeWeightsList());
-   }
-
-   if(!isAllCurves){
-     int listSize = totalProbFuncs.size();
-     if(addData){ //as curves are aded on top so just remove the last one added
-       for(int i = numERFs-1;i<listSize;++i)
-         totalProbFuncs.remove(i); //if all curves are not needed to be drawn
-     }
-     else if(!addData){ //as curves are added to existing so remove the earlier set too
-       for(int i= listSize-prevNumERFinList;i<listSize;++i)
-         totalProbFuncs.remove(i);
-     }
-     curveColorsArray.remove(curveColorsArray.size()-1);
-     //addGraphPanel();
-   }
+   //individual curves are to be plotted
+   if(!isAllCurves)
+     weightedFuncList.setIndividualCurvesToPlot(false);
+   else
+     weightedFuncList.setIndividualCurvesToPlot(true);
 
    // if 5th, 50 and 95th percetile need to be plotted
    if(this.percentileOption.equalsIgnoreCase
       (ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE)) {
-     totalProbFuncs.add(fractileCalc.getFractile(.05)); // 5th fractile
-     totalProbFuncs.add(fractileCalc.getFractile(.5)); // 50th fractile
-     totalProbFuncs.add(fractileCalc.getFractile(.95)); // 95th fractile
-     numFractileCurvesinList =3;
-     curveColorsArray.add(new Integer(3));
+     weightedFuncList.setFractilesToPlot(true);
+     ArrayList fractionList = new ArrayList();
+     fractionList.add(new Double(.05));
+     fractionList.add(new Double(.50));
+     fractionList.add(new Double(.95));
+     weightedFuncList.addFractiles(fractionList);
    } else if(this.percentileOption.equalsIgnoreCase // for custom percentile
       (ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE )) {
-     double percentile = this.epistemicControlPanel.getCustomPercentileValue();
-     totalProbFuncs.add(fractileCalc.getFractile(percentile/100));
-     numFractileCurvesinList =1;
-     curveColorsArray.add(new Integer(1));
-   }
-   else
-     curveColorsArray.add(new Integer(0));
+     double fraction = this.epistemicControlPanel.getCustomPercentileValue();
+     weightedFuncList.setFractilesToPlot(true);
+     weightedFuncList.addFractile(fraction/100);
+   }else weightedFuncList.setFractilesToPlot(false);
+
    // calculate average
-   if(this.avgSelected) { //if average is selected then add it to the color array
-     totalProbFuncs.add(fractileCalc.getMeanCurve());
-     numFractileCurvesinList += 1;
-     curveColorsArray.add(new Integer(1));
-   }
-   else //if average is not selected then add it then just add 0 to the color array.
-     curveColorsArray.add(new Integer(0));
+   if(this.avgSelected) {
+     weightedFuncList.setMeanToPlot(true);
+     weightedFuncList.addMean();
+   }else weightedFuncList.setMeanToPlot(false);
+
+   //adding the data to the functionlist if adding on top
+   if(addData)
+     functionList.add(weightedFuncList);
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");
- //  isIndividualCurves = false;
   }
 
 

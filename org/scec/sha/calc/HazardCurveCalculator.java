@@ -71,9 +71,6 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     MAX_DISTANCE = distance;
   }
 
-  public void setNumForecasts(int num) throws java.rmi.RemoteException{
-    this.numForecasts = num;
-  }
 
 
 
@@ -236,10 +233,6 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
   public int getTotRuptures() throws java.rmi.RemoteException{
     return this.totRuptures;
-  }
-
-  public boolean done() throws java.rmi.RemoteException{
-    return (currRuptures==totRuptures && (numForecasts==0));
   }
 
 

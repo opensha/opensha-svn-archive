@@ -27,13 +27,6 @@ public interface HazardCurveCalculatorAPI extends Remote{
    */
   public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
 
-  /**
-   * gets the total number if the forcasts that needs to applied for that site.
-   * Only used if we are using the ERF_Epistemic List that needs a bunch of forecast
-   * model be applied to each site.
-   *
-   * */
-  public void setNumForecasts(int num) throws java.rmi.RemoteException;
 
 
 
@@ -57,8 +50,5 @@ public interface HazardCurveCalculatorAPI extends Remote{
 
   //gets the total number of ruptures.
   public int getTotRuptures() throws java.rmi.RemoteException;
-
-  //checks if hazard curve calculation  for the site is finished
-  public boolean done() throws java.rmi.RemoteException;
 
 }

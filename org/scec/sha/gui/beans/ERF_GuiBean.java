@@ -319,15 +319,15 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    public String saveSelectedERF() throws InvocationTargetException {
      getSelectedERF_Instance();
      CalcProgressBar progress= null;
-     if(this.showProgressBar) {
+     //if(this.showProgressBar) {
        // also show the progress bar while the forecast is being updated
-       progress = new CalcProgressBar("Forecast","Updating Forecast");
+       //progress = new CalcProgressBar("Forecast","Updating Forecast");
        //progress.displayProgressBar();
-     }
+     //}
 
      //save the updated forecast in the file as the binary object.
      String location = eqkRupForecast.updateAndSaveForecast();
-     if (this.showProgressBar) progress.dispose();
+     //if (this.showProgressBar) progress.dispose();
      return location;
    }
 

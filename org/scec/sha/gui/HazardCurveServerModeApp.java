@@ -242,6 +242,8 @@ public class HazardCurveServerModeApp extends JApplet
   CalcProgressBar disaggProgressClass;
   Timer timer;
   Timer disaggTimer;
+  //checks to see if HazardCurveCalculations are done
+  boolean isHazardCalcDone= false;
   private JButton peelOffButton = new JButton();
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
@@ -571,7 +573,7 @@ public class HazardCurveServerModeApp extends JApplet
                 drawGraph();
                 //isIndividualCurves = false;
               }
-              if (calc.done()) {
+              if (isHazardCalcDone) {
                 // Toolkit.getDefaultToolkit().beep();
                 timer.stop();
                 progressClass.dispose();
@@ -756,6 +758,7 @@ public class HazardCurveServerModeApp extends JApplet
    * this function is called when add Graph is clicked
    */
   private void computeHazardCurve() {
+    isHazardCalcDone= false;
     this.isEqkList = false;
 
     ForecastAPI eqkRupForecast =null;
@@ -801,13 +804,10 @@ public class HazardCurveServerModeApp extends JApplet
         //shows the curves for the ERF List in a seperate window
         peelOffCurves();
       handleForecastList(site, imr, (ERF_ListAPI)eqkRupForecast);
+      isHazardCalcDone= true;
       return;
     }
-    try{
-      calc.setNumForecasts(1);
-    }catch(RemoteException e){
-      e.printStackTrace();
-    }
+
     // this is not a eqk list
    this.isEqkList = false;
     // calculate the hazard curve
@@ -845,6 +845,7 @@ public class HazardCurveServerModeApp extends JApplet
    String imt = imtGuiBean.getSelectedIMT();
    totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
    totalProbFuncs.setYAxisName("Probability of Exceedance");
+   isHazardCalcDone= true;
 
    disaggregationString=null;
    //checking the disAggregation flag
@@ -896,11 +897,6 @@ public class HazardCurveServerModeApp extends JApplet
                                   ERF_ListAPI eqkRupForecast) {
    ERF_ListAPI erfList  = eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   try{
-     calc.setNumForecasts(numERFs);
-   }catch(RemoteException e){
-     e.printStackTrace();
-   }
    // clear the function list
    totalProbFuncs.clear();
    try{

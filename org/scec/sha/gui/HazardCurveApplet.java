@@ -295,10 +295,15 @@ public class HazardCurveApplet extends JApplet
   BorderLayout borderLayout1 = new BorderLayout();
   HazardCurveCalculator calc;
   DisaggregationCalculator disaggCalc;
+
   CalcProgressBar progressClass;
   CalcProgressBar disaggProgressClass;
   Timer timer;
   Timer disaggTimer;
+  //checks to see if HazardCurveCalculations are done
+  boolean isHazardCalcDone= false;
+
+
   private JButton peelOffButton = new JButton();
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
   private FlowLayout flowLayout1 = new FlowLayout();
@@ -722,7 +727,7 @@ public class HazardCurveApplet extends JApplet
                // drawGraph();
                 //isIndividualCurves = false;
               //}
-              if (calc.done()) {
+              if (isHazardCalcDone) {
                 // Toolkit.getDefaultToolkit().beep();
                 timer.stop();
                 progressClass.dispose();
@@ -929,8 +934,9 @@ public class HazardCurveApplet extends JApplet
    * this function is called when add Graph is clicked
    */
   private void computeHazardCurve() {
+    //starting the calculation
+    isHazardCalcDone= false;
     this.isEqkList = false;
-
     EqkRupForecastAPI eqkRupForecast=null;
 
     // whwther to show progress bar in case of update forecast
@@ -976,13 +982,10 @@ public class HazardCurveApplet extends JApplet
         //shows the curves for the ERF List in a seperate window
         peelOffCurves();
       handleForecastList(site, imr, eqkRupForecast);
+      isHazardCalcDone = true;
       return;
     }
-    try{
-      calc.setNumForecasts(1);
-    }catch(RemoteException e){
-      e.printStackTrace();
-    }
+
     // this is not a eqk list
    this.isEqkList = false;
     // calculate the hazard curve
@@ -1022,6 +1025,7 @@ public class HazardCurveApplet extends JApplet
    String imt = imtGuiBean.getSelectedIMT();
    totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
    totalProbFuncs.setYAxisName("Probability of Exceedance");
+   isHazardCalcDone = true;
 
    disaggregationString=null;
    //checking the disAggregation flag
@@ -1073,11 +1077,6 @@ public class HazardCurveApplet extends JApplet
                                   EqkRupForecastAPI eqkRupForecast) {
    ERF_List erfList  = (ERF_List)eqkRupForecast;
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   try{
-     calc.setNumForecasts(numERFs);
-   }catch(RemoteException e){
-     e.printStackTrace();
-   }
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve

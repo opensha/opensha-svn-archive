@@ -8,68 +8,65 @@ import org.scec.data.function.WeightedFuncList;
 /**
  * <p>Title: WeightedFuncListforPlotting</p>
  * <p>Description: This class creates the plotting capabilities for Weighted function
- * list using the JFreechart classes</p>
+ * as required by our wrapper to Jfreechart.</p>
  * @author : Ned Field, Nitin Gupta
  * @version 1.0
  */
 
-public class WeightedFuncListforPlotting {
+public class WeightedFuncListforPlotting extends WeightedFuncList{
 
-  //ArrayList that store the Discretized func list for wt func's ,list of fractiles and mean.
-  private ArrayList funcList ;
+  private boolean individualCurvesToPlot = true;
+  private boolean fractilesToPlot = true;
+  private boolean meantoPlot = true;
 
-  private WeightedFuncList weightedFuncList;
+
+  /**
+   * Sets boolean based on if application needs to plot individual curves
+   * @param toPlot
+   */
+  public void setIndividualCurvesToPlot(boolean toPlot){
+    individualCurvesToPlot = toPlot;
+  }
+
+
+  /**
+   * Sets boolean based on if application needs to plot fractiles
+   * @param toPlot
+   */
+  public void setFractilesToPlot(boolean toPlot){
+    fractilesToPlot = toPlot;
+  }
+
+  /**
+   * Sets boolean based on if application needs to plot mean curve
+   * @param toPlot
+   */
+  public void setMeanToPlot(boolean toPlot){
+    meantoPlot = toPlot;
+  }
 
   /**
    *
-   * @param weightedFuncList : WeightedFuncList object
+   * @returns true if individual plots need to be plotted , else return false
    */
-  public WeightedFuncListforPlotting(WeightedFuncList weightedFuncList) {
-    this.weightedFuncList = weightedFuncList;
+  public boolean areIndividualCurvesToPlot(){
+    return individualCurvesToPlot;
   }
-
 
   /**
    *
-   * Based on the below boolean parameters it creates the function list from the
-   * weighted function list class to be plotted using the JFreechart.
-   * @param showIndividualCurves : boolean to see if individual curves needs to be plotted
-   * @param showFractiles : boolean to see if fractile curves needs to be plotted
-   * @param showMean : boolean to see if mean need to ne plotted
+   * @returns true if fractile plots need to be plotted, else return false
    */
-  public void addFunctionForPlotting(boolean showIndividualCurves, boolean showFractiles,
-                                     boolean showMean){
-
-    funcList = new ArrayList();
-    //adding individual curves if they needed to be added
-    if(showIndividualCurves){
-      funcList.add(weightedFuncList.getWeightedFunctionList());
-    }
-    //adding fractile function if they need to be shown
-    if(showFractiles)
-      //while(it.hasNext())
-        funcList.add(weightedFuncList.getFractileList());
-    //adding mean function if they need to be shown
-    if(showMean){
-      if(weightedFuncList.isMeanFunctionCalculated())
-        funcList.add(weightedFuncList.getMean());
-    }
+  public boolean areFractilesToPlot(){
+    return fractilesToPlot;
   }
-
 
   /**
    *
-   * @returns the functionlist containing the list of functions from
-   * WeightedFuncList object that needs to be plotted.
+   * @returns true if mean curve needs to be plotted, else return false.
    */
-  public ArrayList getFunctionListToPlot(){
-    return funcList;
+  public boolean isMeanToPlot(){
+    return meantoPlot;
   }
 
-  /**
-   * return the info for the weighted function list
-   */
-  public String getInfo(){
-    return weightedFuncList.getInfo();
-  }
 }

@@ -9,6 +9,7 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.lang.reflect.InvocationTargetException;
+import javax.swing.Timer;
 
 import ch.randelshofer.quaqua.QuaquaManager;
 
@@ -40,7 +41,7 @@ import org.scec.sha.calc.HazardCurveCalculator;
  */
 
 public class HazardMapApplet extends JApplet
-    implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI {
+    implements ParameterChangeListener, X_ValuesInCurveControlPanelAPI, Runnable {
 
 
   /**
@@ -69,11 +70,12 @@ public class HazardMapApplet extends JApplet
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
-  public final static String RMI_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.PoissonFaultERF_Client";
   public final static String RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel96_AdjustableEqkRupForecastClient";
   public final static String RMI_STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_EqkRupForecastClient";
   public final static String RMI_STEP_ALASKAN_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.STEP_AlaskanPipeForecastClient";
   public final static String RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME="org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient";
+  public final static String RMI_WG02_ADJ_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
+  public final static String RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.remoteERF_Clients.FloatingPoissonFaultERF_Client";
 
   // Strings for control pick list
   private final static String CONTROL_PANELS = "Control Panels";
@@ -121,7 +123,7 @@ public class HazardMapApplet extends JApplet
   JComboBox controlComboBox = new JComboBox();
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
-  private int step;
+
   JLabel emailLabel = new JLabel();
   JTextField emailText = new JTextField();
   //holds the ArbitrarilyDiscretizedFunc
@@ -130,6 +132,12 @@ public class HazardMapApplet extends JApplet
   private IMT_Info imtInfo = new IMT_Info();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
+  //keeps track of the step in the application to update the user of the progress.
+  private int step;
+  //timer to show thw progress bar
+  Timer timer;
+  //instance of Progress Bar
+  private CalcProgressBar calcProgress;
 
 
   //Get a parameter value
@@ -323,11 +331,12 @@ public class HazardMapApplet extends JApplet
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
 
-   erf_Classes.add(this.RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(this.RMI_POISSON_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(this.RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(this.RMI_STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(this.RMI_STEP_ALASKAN_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(this.RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
+   erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_STEP_ALASKAN_FORECAST_CLASS_NAME);
+   erf_Classes.add(RMI_WG02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
@@ -545,26 +554,60 @@ public class HazardMapApplet extends JApplet
   * @param e
   */
  void addButton_actionPerformed(ActionEvent e) {
+   calcProgress = new CalcProgressBar("HazardMap Application","Initializing Calculation ...");
    // check that user has entered a valid email address
    if(this.emailText.getText().trim().equalsIgnoreCase("")) {
      JOptionPane.showMessageDialog(this, "Please Enter email Address");
      return;
    }
-   // get the selected forecast model
-   EqkRupForecast eqkRupForecast = null;
-   // get the selected IMR
-   AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
-   try {
+     timer = new Timer(100, new ActionListener() {
+       public void actionPerformed(ActionEvent evt) {
+         if(step ==1)
+           calcProgress.setProgressMessage("Setting ERF on server ...");
+         else if(step == 2)
+           calcProgress.setProgressMessage("Submitting Calculations , Please wait ...");
+         else if(step ==0){
+           addButton.setEnabled(true);
+           timer.stop();
+           calcProgress.dispose();
+           calcProgress = null;
+         }
+       }
+     });
+     Thread t = new Thread(this);
+     t.start();
+ }
+
+ /**
+  *
+  */
+ public void run(){
+   timer.start();
+   try{
+     // get the selected forecast model
+     EqkRupForecast eqkRupForecast = null;
+     // get the selected IMR
+     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
+     step =1;
      //gets the instance of the selected ERF
      String eqkRupForecastLocation =  erfGuiBean.saveSelectedERF();
      // this function will get the selected IMT parameter and set it in IMT
      imtGuiBean.setIMT();
      SitesInGriddedRegion griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+     step =2;
      sendParametersToServlet(griddedRegionSites, imr, eqkRupForecastLocation);
+     step =0;
+   }catch(ParameterException ee){
+     ee.printStackTrace();
+     step =0;
+     JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
+     return;
    }
-   catch (Exception ex) {
-     if (D) System.out.println(C + ":Param warning caught" + ex);
-     ex.printStackTrace();
+   catch(Exception ee){
+     ee.printStackTrace();
+     step =0;
+     JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
+     return;
    }
  }
 

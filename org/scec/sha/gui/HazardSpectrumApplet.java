@@ -1049,13 +1049,10 @@ public class HazardSpectrumApplet extends JApplet
       boolean isEqkForecastList = false;
       if(eqkRupForecast instanceof ERF_List)  {
         handleForecastList(site, imr, eqkRupForecast,imlProbValue,imlAtProb,probAtIML);
+        this.hazCalcDone = true;
         return;
       }
-      try{
-        calc.setNumForecasts(1);
-      }catch(RemoteException e){
-        e.printStackTrace();
-      }
+
       // this is not a eqk list
       this.isEqkList = false;
 
@@ -1224,18 +1221,11 @@ public class HazardSpectrumApplet extends JApplet
 
    ERF_List erfList  = (ERF_List)eqkRupForecast;
 
-   //flag to check whether the Hazard Calc are done
-   this.hazCalcDone = false;
-
    //checks how many SA Periods has been completed
    this.numSA_PeriodValDone =0;
 
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
-   try{
-     calc.setNumForecasts(numERFs);
-   }catch(RemoteException e){
-     e.printStackTrace();
-   }
+
    // clear the function list
    totalProbFuncs.clear();
    // calculate the hazard curve
@@ -1321,7 +1311,6 @@ public class HazardSpectrumApplet extends JApplet
    }
    // calculate average
    if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
-   this.hazCalcDone = true;
    // set the X-axis label
    totalProbFuncs.setXAxisName(X_AXIS_LABEL);
 

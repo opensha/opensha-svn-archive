@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.*;
+import java.util.ArrayList;
 
 import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
@@ -17,6 +18,7 @@ import org.scec.gui.plot.jfreechart.*;
 import org.scec.gui.*;
 import org.scec.sha.gui.infoTools.ButtonControlPanel;
 import org.scec.util.*;
+import org.scec.sha.gui.infoTools.WeightedFuncListforPlotting;
 
 /**
  * <p>Title: GraphPanel</p>
@@ -280,6 +282,174 @@ public class GraphPanel extends JPanel {
   }
 
 
+  public void drawGraphPanel(ArrayList funcList,DiscretizedFunctionXYDataSet  data,
+                             boolean xLog,boolean yLog,boolean customAxis, String title,
+                             ButtonControlPanel buttonControlPanel ) {
+
+    // Starting
+    String S = "drawGraphPanel(): ";
+
+    //getting the functionlist
+    DiscretizedFuncList totalProbFuncs= data.getFunctions();
+    createColorSchemeAndFunctionList(funcList,totalProbFuncs);
+
+    String newXYAxisName = totalProbFuncs.getXYAxesName();
+
+    // create a default chart based on some sample data...
+
+    // Determine which IM to add to the axis labeling
+    String xAxisLabel = totalProbFuncs.getXAxisName();
+    String yAxisLabel = totalProbFuncs.getYAxisName();
+
+    //flags to check if the exception was thrown on selection of the x-log or y-log.
+    boolean logErrorFlag = false;
+
+
+    //create the standard ticks so that smaller values too can plotted on the chart
+    TickUnits units = MyTickUnits.createStandardTickUnits();
+
+    try{
+
+      /// check if x log is selected or not
+      if(xLog) xAxis = new LogarithmicAxis(xAxisLabel);
+      else xAxis = new NumberAxis( xAxisLabel );
+
+      if (!xLog)
+        xAxis.setAutoRangeIncludesZero(true);
+      else
+        xAxis.setAutoRangeIncludesZero( false );
+      xAxis.setStandardTickUnits(units);
+      xAxis.setTickMarksVisible(false);
+      //added to have the minimum range within the Upper and Lower Bound of the Axis
+      //xAxis.setAutoRangeMinimumSize(.1);
+
+      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+      if(customAxis)
+        xAxis.setRange(application.getMinX(),application.getMaxX());
+
+    }catch(Exception e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"X-Plot Error",JOptionPane.OK_OPTION);
+      graphOn=false;
+      xLog = false;
+      buttonControlPanel.setXLog(xLog);
+      xAxis = xAxis1;
+      logErrorFlag = true;
+    }
+
+    try{
+      /// check if y log is selected or not
+      if(yLog) yAxis = new LogarithmicAxis(yAxisLabel);
+      else yAxis = new NumberAxis( yAxisLabel );
+
+      if (!yLog)
+        yAxis.setAutoRangeIncludesZero(true);
+      else
+        yAxis.setAutoRangeIncludesZero( false );
+
+      yAxis.setStandardTickUnits(units);
+      yAxis.setTickMarksVisible(false);
+      //added to have the minimum range within the Upper and Lower Bound of the Axis
+      //yAxis.setAutoRangeMinimumSize(.1);
+
+      /* to set the range of the axis on the input from the user if the range combo box is selected*/
+      if(customAxis)
+        yAxis.setRange(application.getMinY(),application.getMaxY());
+
+    }catch(Exception e){
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
+      graphOn=false;
+      yLog = true;
+      buttonControlPanel.setYLog(yLog);
+      yAxis = yAxis1;
+      logErrorFlag = false;
+    }
+    int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
+
+
+    org.jfree.chart.renderer.StandardXYItemRenderer renderer
+        = new org.jfree.chart.renderer.StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+
+
+    // build the plot
+    plot = new XYPlot(data,xAxis, yAxis, renderer);
+
+    //setting the plot properties
+    plot.setDomainCrosshairLockedOnData(false);
+    plot.setDomainCrosshairVisible(false);
+    plot.setRangeCrosshairLockedOnData(false);
+    plot.setRangeCrosshairVisible(false);
+    plot.setInsets(new Insets(10, 0, 0, 20));
+
+    int numSeries = legendPaint.length;
+    for(int i=0; i < numSeries; ++i) renderer.setSeriesPaint(i,legendPaint[i]);
+
+    plot.setRenderer( renderer );
+    plot.setBackgroundAlpha( .8f );
+
+    JFreeChart chart = new JFreeChart(title, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+
+    chart.setBackgroundPaint( lightBlue );
+
+    // Put into a panel
+    chartPanel = new ChartPanel(chart, true, true, true, true, false);
+
+    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
+    chartPanel.setMouseZoomable(true);
+    chartPanel.setDisplayToolTips(true);
+    chartPanel.setHorizontalAxisTrace(false);
+    chartPanel.setVerticalAxisTrace(false);
+
+    // set the font of legend
+    int numOfColors = plot.getSeriesCount();
+
+    /**
+     * Adding the metadata text to the Window below the Chart
+     */
+    metadataText.removeAll();
+    metadataText.setEditable(false);
+    setLegend =new SimpleAttributeSet();
+    setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
+                           Boolean.TRUE);
+    Document doc = metadataText.getStyledDocument();
+    try {
+
+      /**
+       * formatting the metadata to be added , according to the colors of the
+       * Curves. So now curves and metadata will be displayed in the same color.
+       */
+      doc.remove(0,doc.getLength());
+      //keeps track of function number
+      int count =0;
+      for(int i=0,j=0;i<numOfColors;++i,++j){
+          if(j==legendColor.length)
+            j=0;
+          String name = totalProbFuncs.get(i).getName();
+          String functionInfo = totalProbFuncs.get(i).getInfo();
+          if(functionInfo !=null && !functionInfo.trim().equals("")){
+            ++count;
+            String legend = new String(count+")  "+name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
+                                       functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            setLegend =new SimpleAttributeSet();
+            StyleConstants.setFontSize(setLegend,12);
+            StyleConstants.setForeground(setLegend,legendColor[j]);
+            doc.insertString(doc.getLength(),legend,setLegend);
+          }
+        }
+      } catch (BadLocationException e) {
+        return;
+      }
+      graphOn=false;
+
+      //Check to see if there is no log Error and only  xLog or yLog are selected
+      if(!logErrorFlag && !xLog)
+        xAxis1 = xAxis;
+      if(!logErrorFlag && !yLog)
+        yAxis1 = yAxis;
+      pointsTextArea.setText(totalProbFuncs.toString());
+      return ;
+  }
+
+
   /**
    * Sets the metadata in the Data window
    * @param metadata
@@ -386,7 +556,66 @@ public class GraphPanel extends JPanel {
    * @returns the series color being used for the current graph schemes
    */
   public Color[] getSeriesColor(){
-   return legendColor;
+    return legendColor;
   }
+
+  /**
+   * This method extracts all the functions from the ArrayList and add that
+   * to the DiscretizedFunction List. This method also creates the color scheme
+   * depending on the different types of DiscretizedFunc added to the list.
+   * @param functionList
+   */
+  private DiscretizedFuncList createColorSchemeAndFunctionList(ArrayList functionList,DiscretizedFuncList funcList){
+
+    funcList.clear();
+    int numCurves  = functionList.size();
+    ArrayList numColorArray = new ArrayList();
+
+    for(int i=0;i<numCurves;++i){
+      Object obj = functionList.get(i);
+      if(obj instanceof WeightedFuncListforPlotting){
+        WeightedFuncListforPlotting weightedList = (WeightedFuncListforPlotting)obj;
+        if(weightedList.areIndividualCurvesToPlot()){
+         DiscretizedFuncList list= weightedList.getWeightedFunctionList();
+         list.get(0).setInfo(weightedList.getInfo()+"\n"+"\t"+list.getInfo());
+         numColorArray.add(new Integer(list.size()));
+         funcList.addAll(list);
+        }
+        if(weightedList.areFractilesToPlot()){
+          DiscretizedFuncList list= weightedList.getFractileList();
+          list.get(0).setInfo(list.getInfo());
+          funcList.addAll(list);
+          numColorArray.add(new Integer(list.size()));
+        }
+        if(weightedList.isMeanToPlot()){
+          DiscretizedFuncAPI meanFunc = weightedList.getMean();
+          funcList.add(meanFunc);
+          numColorArray.add(new Integer(1));
+        }
+      }
+      else{
+        funcList.add((DiscretizedFuncAPI)obj);
+        numColorArray.add(new Integer(1));
+      }
+    }
+
+    int size = funcList.size();
+    Color[] color = new Color[size];
+
+
+    int numDiffColors = numColorArray.size();
+    int colorChoice = (int)255/numDiffColors;
+    //creating the color array
+    int index=0;
+    for(int i=0;i<numDiffColors;++i){
+      int val = ((Integer)numColorArray.get(i)).intValue();
+      for(int j=0;j<val;++j)
+        color[index++] = new Color(255-i*colorChoice,i*colorChoice,i*colorChoice);
+      }
+      //setting the color scheme
+      setSeriesColor(color);
+      return funcList;
+  }
+
 
 }
