@@ -3,20 +3,32 @@ package org.scec.util;
 
 import java.io.*;
 import java.util.*;
+
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b>FileUtils<p>
+ * <b>Description:</b>Generic functions used in handling text files, such as
+ * loading in the text data from a file.<p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 
 public class FileUtils {
 
+    /** Class name used for debug strings */
     protected final static String C = "FileUtils";
+    /** boolean that indicates if print out debug statements */
     protected final static boolean D = false;
 
+    /**
+     * Loads in each line to a text file into an ArrayList ( i.e. a vector ). Each
+     * element in the ArrayList represents one line from the file.
+     *
+     * @param fileName                  File to load in
+     * @return                          ArrayList each element one line from the file
+     * @throws FileNotFoundException    If the filename doesn't exist
+     * @throws IOException              Unable to read from the file
+     */
     public static ArrayList loadInCharFile(String fileName)
         throws
             FileNotFoundException,

@@ -28,7 +28,9 @@ import org.scec.data.NamedObjectAPI;
 public abstract class DiscretizedFunc implements DiscretizedFuncAPI, NamedObjectAPI{
 
 
+    /** Class name used for debbuging */
     protected final static String C = "DiscretizedFunc";
+    /** if true print out debugging statements */
     protected final static boolean D = true;
 
 

@@ -1,11 +1,11 @@
 package org.scec.calc;
 
 /**
- * <p>Title: MomentMagCalc.java </p>
+ * <p>Title: MomentMagCalc </p>
  * <p>Description: This is a utility to calculate moment for a given magnitude or vice versa</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author Vipin Gupta  date: aug 7, 2002
+ *
+ * @author Vipin Gupta
+ * @created    August 7, 2002
  * @version 1.0
  */
 

@@ -2,12 +2,16 @@ package org.scec.data;
 
 import org.scec.param.*;
 
+// FIX - Needs more comments
+
 /**
- *  <b>Title:</b> Direction<br>
+ *  <b>Title:</b> Direction<p>
  *  <b>Description:</b> Basic container class that represents a distance vector
- *  between two Location objects<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  between two Location objects<p>
+ *
+ * This class contains the fields vertical distance, horizontal distance,
+ * azimuth and back azimuth. Thses fields describe any point on or under the
+ * surface of the earth with respect to another point. <p>
  *
  *
  * @author     Sid Hellman
@@ -17,13 +21,9 @@ import org.scec.param.*;
 
 public class Direction {
 
-    /**
-     *  Description of the Field
-     */
+    /** Class name used for debbuging */
     protected final static String C = "Location";
-    /**
-     *  Description of the Field
-     */
+    /** if true print out debugging statements */
     protected final static boolean D = false;
 
 

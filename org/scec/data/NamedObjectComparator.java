@@ -3,7 +3,7 @@ package org.scec.data;
 import java.util.Comparator;
 import org.scec.exceptions.NamedObjectException;
 
-
+// FIX - Needs more comments
 
 /**
  *  <b>Title:</b> NamedObjectComparator<br>

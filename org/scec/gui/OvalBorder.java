@@ -14,8 +14,6 @@ import javax.swing.border.*;
  *  point in the future. For our app we use the double thick line so not a
  *  problem<P>
  *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:<br>
  *  @ see Border
  *
  * @author     Steven W. Rock

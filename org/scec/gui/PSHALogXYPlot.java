@@ -14,6 +14,7 @@ import javax.swing.*;
 import org.scec.sha.imr.gui.IMRTesterApplet;
 import org.scec.sha.magdist.gui.MagFreqDistTesterApplet;
 
+
 /**
  * <p>Title: PSHALogXYPlot</p>
  * <p>Description: </p>

@@ -5,20 +5,25 @@ import org.scec.util.*;
 import org.scec.exceptions.*;
 import org.scec.data.*;
 
+// FIX - Needs more comments
+
 /**
- * <b>Title:</b> EvenlyDiscretizedFunc<br>
+ * <b>Title:</b> EvenlyDiscretizedFunc<p>
  * <b>Description:</b> Assumes even spacing between the x points represented by
  * the delta distance. Y Values are stored as doubles in an array of primitives. This
- * allows replacement of values at specified indexes.<br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ * allows replacement of values at specified indexes.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */
 
 public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
+
+    /** Class name used for debbuging */
     protected final static String C = "EvenlyDiscretizedFunc";
+
+    /** if true print out debugging statements */
     protected final static boolean D = false;
 
     /** The internal storage collection of points, stored as a linked list */

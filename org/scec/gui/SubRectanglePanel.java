@@ -18,8 +18,7 @@ import org.scec.param.editor.*;
  * <p>Title: SubRectanglePanel</p>
  * <p>Description: GUI Widget that allows you to specify a window
  * into a 2D matrix </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

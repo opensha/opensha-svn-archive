@@ -5,13 +5,12 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- *  <b>Title: </b> SidesBorder<br>
+ *  <b>Title: </b> SidesBorder<p>
  *  Description: This class implements a Border where you can set any side color
  *  individually. You can also set on or off the drawing of any side. Especially
  *  useful to give the illusion of an underline. Setting the top and sides
  *  border to the same color as the background panel, users only see the bottom
- *  border.<br>
- *  Copyright: Copyright (c) 2001 Company:
+ *  border.<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

@@ -14,12 +14,13 @@ import com.jrefinery.chart.event.*;
 import com.jrefinery.chart.tooltips.*;
 import com.jrefinery.chart.ui.*;
 
+// FIX - Needs more comments
+
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b> MyJFreeChartPanel<p>
+ * <b>Description: </b> <p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

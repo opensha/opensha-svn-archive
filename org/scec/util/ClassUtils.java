@@ -4,11 +4,15 @@ import java.lang.reflect.*;
 //import java.util.*;
 
 /**
- * <p>Title: ClassUtils</p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title: ClassUtils</b><p>
+ * <b>Description:</b> Utility class comprised of static methods for creating classes dynamically at
+ * runtime. This means, given the full package class name as a String, this utility class
+ * can create an object instance. This allows for adding new classes at runtime and they can
+ * be instantiated without recompiling the code. This is real useful for the IMR Tester Applet.
+ * A picklist of IMRs are presented in the GUI. Once a user makes a selection, the IMR class name
+ * is obtained and the class created at runtime via this utility package.<p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

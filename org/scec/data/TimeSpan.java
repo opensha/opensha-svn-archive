@@ -3,13 +3,11 @@ package org.scec.data;
 import java.util.*;
 import org.scec.exceptions.InvalidRangeException;
 
+
 /**
- *  <b>Title:</b> TimeSpan<br>
+ *  <b>Title:</b> TimeSpan<p>
  *  <b>Description:</b> Represents a start time and a duration, from which you
  *  can calculate the end time of an event<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Sid Hellman
  * @created    February 20, 2002

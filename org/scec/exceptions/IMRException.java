@@ -1,14 +1,10 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> ConstraintException<p>
+ *  <b>Title:</b> IMRException<p>
  *
  *  <b>Description:</b> Exception thrown when constraints reject setting a
- *  Parameter value<p>
- *
- *  <b>Copyright:</b> Copyright (c) 2001<p>
- *  <b>Company:</b> <p>
- *
+ *  Parameter value inside the IMR GUI Tester<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

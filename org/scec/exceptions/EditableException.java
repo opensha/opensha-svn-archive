@@ -1,10 +1,11 @@
 package org.scec.exceptions;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <b>Title:</b> EditableException<p>
+ *
+ * <b>Description:</b> SWR: I have no idea what this is used for since
+ * I didn't create the class, and the creator left no comments<p>
+ *
  * @author unascribed
  * @version 1.0
  */

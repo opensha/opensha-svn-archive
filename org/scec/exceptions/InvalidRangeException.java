@@ -1,13 +1,9 @@
-
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> InvalidRangeException<br>
+ *  <b>Title:</b> InvalidRangeException<p>
  *  <b>Description:</b> Exception thrown when trying to set a value outside an
- *  axis range<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  axis range.<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

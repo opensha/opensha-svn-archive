@@ -3,6 +3,7 @@ package org.scec.data;
 import java.util.*;
 import org.scec.exceptions.*;
 
+// FIX - Needs more comments
 
 /**
  *  <b>Title:</b> LocationList<br>
@@ -21,6 +22,7 @@ import org.scec.exceptions.*;
 public class LocationList {
 
     protected final static String C = "LocationList";
+    /** if true print out debugging statements */
     protected final static boolean D = false;
 
     /**

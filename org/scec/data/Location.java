@@ -3,6 +3,8 @@ import org.scec.exceptions.InvalidRangeException;
 
 import org.scec.param.*;
 
+// FIX - Needs more comments
+
 /**
  *  <b>Title:</b> Location <br>
  *  <b>Description:</b> This class represents a physical geographic location.

@@ -4,8 +4,10 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.scec.data.*;
 
+// FIX - Needs more comments
+
 /**
- *  <b>Title:</b> DataPoint2DTestCase<br>
+ *  <b>Title:</b> DataPoint2DTestCase<p>
  *  <b>Description:</b> Class used by the JUnit testing harness to test the
  *  DataPoint2D. This class was used to test using JUnit. For some reason
  *  testEquals() fails in JUnit, but the main() test (hand coded testing) shows

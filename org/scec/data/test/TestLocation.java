@@ -3,12 +3,13 @@ package org.scec.data.test;
 import junit.framework.*;
 import org.scec.data.*;
 
+// FIX - Needs more comments
+
 /**
- * <p>Title: TestLocation</p>
- * <p>Description: JUnit tester for the Location object. Tests every
- * piece of functionality, included expected fail conditions.</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <b>Title:</b> TestLocation<p>
+ * <b>Description:>/b> JUnit tester for the Location object. Tests every
+ * piece of functionality, included expected fail conditions.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

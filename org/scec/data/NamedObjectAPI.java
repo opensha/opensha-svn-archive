@@ -1,11 +1,11 @@
 package org.scec.data;
 
 /**
- *  <b>Title:</b> NamedObjectAPI<br>
- *  <b>Description:</b> This interface flags all implementing classes as being
- *  NamedObjects, i.e. they all have a name field. Used in all Parameters, among
- *  other areas.<br>
+ *  <b>Title:</b> NamedObjectAPI<p>
  *
+ *  <b>Description:</b> This interface flags all implementing classes as being
+ *  NamedObjects, i.e. they all have a name field and implements getName().
+ *  Used in all Parameters, among other areas.<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

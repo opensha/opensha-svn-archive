@@ -1,17 +1,9 @@
-/*
- *  put your module comment here
- *  formatted with JxBeauty (c) johann.langhofer@nextra.at
- */
-
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> InvalidArrayShapeException<br>
+ *  <b>Title:</b> InvalidArrayShapeException<p>
  *  <b>Description:</b> Exception thrown when trying to set invalid sizes to any
- *  2D grid<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  2D grid i nthe gridded fault framework. <p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

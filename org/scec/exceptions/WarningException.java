@@ -1,12 +1,9 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> WarningException<br>
+ *  <b>Title:</b> WarningException<p>
  *  <b>Description:</b> Exception thrown when WarningListener set's a
- *  parameter value, to overide calling ParameterChangeEvent
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  parameter value, to overide calling ParameterChangeEvent<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

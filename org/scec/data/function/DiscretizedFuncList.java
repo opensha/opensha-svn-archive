@@ -9,7 +9,7 @@ import com.jrefinery.data.*;
 import org.scec.gui.plot.jfreechart.*;
 
 /**
- * <b>Title:</b> DiscretizedFuncList<br>
+ * <b>Title:</b> DiscretizedFuncList<p>
  * <b>Description:</b> List container for Discretized Functions.
  * This class stores Discretized func API ( and any subclass )
  * internally in an array list and provides standard list access

@@ -1,10 +1,9 @@
 package org.scec.exceptions;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ * <b>Title:</b> FaultException<p>
+ * <b>Description: </b> Errors thrown when creating fault models.<p>
+ *
  * @author unascribed
  * @version 1.0
  */

@@ -4,16 +4,18 @@ import java.util.*;
 import org.scec.data.*;
 import org.scec.param.*;
 
+// FIX - Needs more comments
+
 /**
- * Title: EvenlyDiscrFuncWithParams
- * Description:
- * Copyright:    Copyright (c) 2001
- * Company:
+ * <b>Title:</b> EvenlyDiscrFuncWithParams<p>
+ * <b>Description:</b> <p>
+ *
  * @see EvenlyDiscretizedFunc
  * @see FuncWithParamsAPI
  * @see DiscretizedFunc
  * @see DiscretizedFuncAPI
  * @see ParameterList
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

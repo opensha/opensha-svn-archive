@@ -1,11 +1,8 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> DataPoint2DException<br>
- *  <b>Description:</b> Exception thrown when DataPoint2D errors occur<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  <b>Title:</b> DataPoint2DException<p>
+ *  <b>Description:</b> Exception thrown when DataPoint2D errors occur<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

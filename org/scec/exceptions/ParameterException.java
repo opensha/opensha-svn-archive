@@ -1,11 +1,9 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> ParameterException<br>
- *  <b>Description:</b> Exception thrown when Parameter errors occur<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  <b>Title:</b> ParameterException<p>
+ *  <b>Description:</b> Exception thrown when Parameter errors occur, such as
+ *  setting a value with an invalid data type for that parameter<p> *
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

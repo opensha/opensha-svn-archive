@@ -1,12 +1,9 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> MagFreqDistException<br>
- *  <b>Description:</b> Exception thrown when MagFreqDistException errors occur
- *  <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  <b>Title:</b> MagFreqDistException<p>
  *
+ *  <b>Description:</b> Exception thrown when MagFreqDistException errors occur<p>
  *
  * @author     Nitin Gupta
  * @created    August, 9,2002

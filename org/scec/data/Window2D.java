@@ -1,17 +1,18 @@
 package org.scec.data;
 
+// FIX - Needs more comments
+
 /**
- *  <b>Title:</b> Window2D<br>
+ *  <b>Title:</b> Window2D<p>
+ *
  *  <b>Description:</b> This class represents the sub indices of a window into a
  *  two dimensional matrix. A two dimensional matrix is usually specified by x
- *  and y coordinates, in other words rows and columns. So a two dimensional
+ *  and y coordinates, i.e. rows and columns. So a two dimensional
  *  matrix will have a max number of rows and a max number of columns. This
  *  window will have a start row and start column, end row and end column which
  *  determines the number of rows and columns that you are peering into.This
  *  class is used by container Subset2D to provide the indices as a window into
- *  the Container2D matrix.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  the Container2D matrix.<p>
  *
  *
  * @author     Steven W. Rock
@@ -21,26 +22,18 @@ package org.scec.data;
 
 public class Window2D {
 
-    /**
-     *  Class name used for debugging.
-     */
+    /** Class name used for debugging. */
     protected final static String C = "ContainerSubset2D";
 
-    /**
-     *  If true debugging statements are printed.
-     */
+    /** If true debugging statements are printed.  */
     protected final static boolean D = false;
 
-    /**
-     *  The first row of the window.
-     */
+    /** The first row of the window.  */
     protected int startRow = 0;
 
     public int getStartRow(){ return startRow; }
 
-    /**
-     *  The first column of the window.
-     */
+    /** The first column of the window. */
     protected int startCol = 0;
 
     /**
@@ -405,6 +398,9 @@ public class Window2D {
 
         return b.toString();
     }
+
+
+
     public void setStartRow(int startRow) {
         this.startRow = startRow;
     }

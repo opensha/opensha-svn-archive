@@ -5,7 +5,7 @@ package org.scec.exceptions;
  *  <b>Description:</b> Exception thrown when translation errors
  *  occur. For example, if the translator is the LogTranslator,
  *  it would throw an error when trying to translate zero or
- *  negative values.<br>
+ *  negative values.<p>
  *
  * @author     Steven W. Rock
  * @created    August 8, 2002

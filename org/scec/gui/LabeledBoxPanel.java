@@ -4,12 +4,13 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 
+// FIX - Needs more comments
+
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author unascribed
+ * <b>Title:</b> <p>
+ * <b>Description:</b> <p>
+ *
+ * @author Steven W. Rock
  * @version 1.0
  */
 

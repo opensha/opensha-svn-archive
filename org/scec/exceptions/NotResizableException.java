@@ -1,17 +1,10 @@
-/*
- *  put your module comment here
- *  formatted with JxBeauty (c) johann.langhofer@nextra.at
- */
-
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> NotResizableException<br>
- *  <b>Description:</b> Exception thrown when trying to resize data structures
- *  that are not resizable<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
+ *  <b>Title:</b> NotResizableException<p>
  *
+ *  <b>Description:</b> Exception thrown when trying to resize data structures
+ *  that are not resizable, such as a GriddedSurface<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

@@ -15,21 +15,28 @@ import org.scec.data.*;
 import org.scec.gui.plot.jfreechart.*;
 
 /**
- * <p>Title: FaultUtils</p>
- * <p>Description: Collection of static utilities used in conjunction with
- * strike, dip and rake angles of faults.</p>
- * <p>Copyright: Copyright (c) 2002</p>
+ * <b>Title:</b> FaultUtils<p>
+ * <b>Description:</b> Collection of static utilities used in conjunction with
+ * strike, dip and rake angles of faults. These functions are assertion functions,
+ * in that they validate the angles as valid strike, dip, and rake angles, and
+ * return true or false if valid. <p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */
 
 public final class FaultUtils {
 
+    /** Class name used for debug strings */
     protected final static String C = "FaultUtils";
+    /** boolean that indicates if print out debug statements */
     protected final static boolean D = false;
 
+    /** debugging string */
     private static final String S1 = C + ": assertValidStrike(): ";
+    /** debugging string */
     private static final String S2 = C + ": assertValidDip(): ";
+    /** debugging string */
     private static final String S3 = C + ": assertValidRake(): ";
 
 

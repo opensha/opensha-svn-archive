@@ -3,11 +3,11 @@ package org.scec.calc;
 import edu.uah.math.psol.distributions.*;
 
 /**
- * <p>Title: GaussianDistCalc.java </p>
- * <p>Description: This is a utility to calculate probability of exceedance assuming a gaussian distribution</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author Edward Field  date: aug 22, 2002
+ * <b>Title:</b> GaussianDistCalc.jav <p>
+ * <b>Description:</p> This is a utility to calculate probability of exceedance assuming a gaussian distribution<p>
+ *
+ * @author Edward Field
+ * @created    aug 22, 2002
  * @version 1.0
  */
 

@@ -1,16 +1,9 @@
-/*
- *  put your module comment here
- *  formatted with JxBeauty (c) johann.langhofer@nextra.at
- */
-
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> LocationException<br>
- *  <b>Description:</b> Exception thrown when Location errors occur<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  <b>Title:</b> LocationException<p>
+ *  <b>Description:</b> Exception thrown when Location errors occur,
+ *  such as trying to set invalid depths, such as a negative number<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

@@ -5,7 +5,7 @@ import java.util.*;
 
 
 /**
- *  <b>Title:</b> ContainerSubset2D<br>
+ *  <b>Title:</b> ContainerSubset2D<p>
  *  <b>Description:</b> Small read only window into larger
  *  Container2d. This class takes a Container2D as a variable,
  *  then becomes a "window" into the larger grid. Since this

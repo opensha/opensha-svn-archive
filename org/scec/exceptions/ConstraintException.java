@@ -1,12 +1,9 @@
 package org.scec.exceptions;
 
 /**
- *  <b>Title:</b> ConstraintException<br>
+ *  <b>Title:</b> ConstraintException<p>
  *  <b>Description:</b> Exception thrown when constraints reject setting a
- *  Parameter value<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  Parameter value<p>
  *
  * @author     Steven W. Rock
  * @created    February 20, 2002

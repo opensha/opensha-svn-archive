@@ -8,6 +8,7 @@ import org.scec.data.*;
 
 /**
  *  <b>Title:</b> RelativeLocation<p>
+ *
  *  <b>Description:</b> This class takes two Location objects & returns a
  *  Direction object, or takes a Location and Direction object and returns a
  *  Location object. The functions are static therefore this class is never
@@ -17,6 +18,7 @@ import org.scec.data.*;
  *  USGS. This code incorporates the idea of ellipsiod models into the program.
  *  This code is written in c, and can certainly be adopted to java. The geod
  *  program is part of the Proj codebase. Here are some reference URLS:
+ *
  *  <UL>
  *  <LI>http://kai.er.usgs.gov/intro/MAPGENdetails.html
  *  <LI>ftp://kai.er.usgs.gov/pub/Proj.4/
@@ -25,10 +27,6 @@ import org.scec.data.*;
  *  <p>
  *
  *  SWR: Note: Depth = - vertical distance
- *
- *  <b>Copyright:</b> Copyright (c) 2001<p>
- *  <b>Company:</b> <p>
- *
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002
