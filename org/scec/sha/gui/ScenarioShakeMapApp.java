@@ -26,7 +26,7 @@ import org.scec.sha.gui.infoTools.*;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.sha.calc.ScenarioShakeMapCalculator;
-import org.scec.sha.calc.ScenarioShakeMapCalculatorWithPropagationEffect;
+import org.scec.sha.calc.ScenarioShakeMapCalculator;
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.exceptions.ParameterException;
 
@@ -100,7 +100,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
   //Instance to the ShakeMap calculator to get the XYZ data for the selected scenario
   //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
-  private ScenarioShakeMapCalculatorWithPropagationEffect shakeMapCalc = new ScenarioShakeMapCalculatorWithPropagationEffect();
+  private ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
 
   //timer to show thw progress bar
   Timer timer;

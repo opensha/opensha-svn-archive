@@ -5,6 +5,8 @@ import org.scec.exceptions.DataPoint2DException;
 
 import java.util.*;
 import java.io.Serializable;
+import java.io.*;
+
 import org.scec.util.*;
 import org.scec.exceptions.*;
 import org.scec.param.ParameterList;
@@ -530,6 +532,36 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
         return b.toString();
     }
 
+    /**
+     * This method creates serialized Outputstream for the DataPoint2D
+     * @param s
+     */
+    private void writeObject(ObjectOutputStream s){
+      Iterator it =getPointsIterator();
+      try{
+        while(it.hasNext())
+          s.writeObject(it.next());
+      }catch(IOException e){
+        e.printStackTrace();
+      }
+    }
+
+    /**
+     * This method deserialises InputStream for the DataPoint2D
+     * @param s
+     */
+    private void readObject(ObjectInputStream s){
+      ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+      try{
+        func.set((DataPoint2D)s.readObject());
+      }catch(ClassNotFoundException e){
+        System.out.println("Class not found");
+        e.printStackTrace();
+      }catch(IOException e){
+        System.out.println("IO Exception ");
+        e.printStackTrace();
+      }
+    }
 
 /*  temp main method to investige numerical precision issues
 public static void main( String[] args ) {

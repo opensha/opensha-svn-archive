@@ -17,7 +17,7 @@ package org.scec.data;
  * @version    1.0
  */
 
-public class DataPoint2D implements Comparable {
+public class DataPoint2D implements Comparable,java.io.Serializable {
 
 
     /* The name of this class, used for debug statements */

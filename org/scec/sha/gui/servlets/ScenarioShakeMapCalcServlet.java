@@ -10,7 +10,7 @@ import org.scec.data.region.*;
 import org.scec.param.*;
 import org.scec.param.event.*;
 import org.scec.sha.imr.*;
-import org.scec.sha.calc.ScenarioShakeMapCalculatorWithPropagationEffect;
+import org.scec.sha.calc.ScenarioShakeMapCalculator;
 import org.scec.sha.earthquake.*;
 import org.scec.data.XYZ_DataSetAPI;
 import org.scec.data.ArbDiscretizedXYZ_DataSet;
@@ -100,7 +100,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
       getIMR_ParametersAndAddListeners(selectedAttenRels);
 
       //creating the object for the ScenarioShakeMapCalculator to compute the XYZ data for the selected region
-      ScenarioShakeMapCalculatorWithPropagationEffect calc = new ScenarioShakeMapCalculatorWithPropagationEffect(propEffect);
+      ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(propEffect);
 
       ArbDiscretizedXYZ_DataSet xyzData = null;
       if(!selectedIMT.equals(AttenuationRelationship.PGV_NAME)){
@@ -164,7 +164,7 @@ public class ScenarioShakeMapCalcServlet  extends HttpServlet implements Paramet
    */
   private XYZ_DataSetAPI getXYZDataForPGV(ArrayList selectedIMRs,ArrayList selectedWts,
       SitesInGriddedRegion region,EqkRupture rupture, boolean isProbAtIML, double value,
-    ScenarioShakeMapCalculatorWithPropagationEffect calc){
+    ScenarioShakeMapCalculator calc){
 
     //ArrayList for the Attenuations supporting and not supporting PGV
     ArrayList attenRelsSupportingPGV = new ArrayList();
