@@ -96,8 +96,6 @@ public class LogarithmicAxis extends NumberAxis {
   /** Smallest arbitrarily-close-to-zero value allowed. */
   public static final double SMALL_LOG_VALUE = 1e-100;
 
-  /** Flag set true to allow negative values in data. */
-  protected boolean allowNegativesFlag = false;
 
   /** Flag set true make axis throw exception if any values are
    * <= 0 and 'allowNegativesFlag' is false. */
@@ -109,8 +107,6 @@ public class LogarithmicAxis extends NumberAxis {
   /** Flag set true for "1e#"-style tick labels. */
   protected boolean expTickLabelsFlag = false;
 
-  /** Flag set true for "10^n"-style tick labels. */
-  protected boolean log10TickLabelsFlag = false;
 
   /** Flag set true for representing the tick labels as the super script of 10 */
   protected boolean log10TickLabelsInPowerFlag = true;
@@ -118,8 +114,6 @@ public class LogarithmicAxis extends NumberAxis {
   /** Flag set true to show the  tick labels for minor axis */
   protected boolean minorAxisTickLabelFlag = true;
 
-  /** Helper flag for log axis processing. */
-  protected boolean smallLogFlag = false;
 
   /**
    * Creates a new axis.
@@ -131,26 +125,7 @@ public class LogarithmicAxis extends NumberAxis {
     setupNumberFmtObj();      //setup number formatter obj
   }
 
-  /**
-   * Sets the 'allowNegativesFlag' flag; true to allow negative values
-   * in data, false to be able to plot positive values arbitrarily close to zero.
-   *
-   * @param flgVal  the new value of the flag.
-   */
-  public void setAllowNegativesFlag(boolean flgVal) {
-    allowNegativesFlag = flgVal;
-  }
 
-  /**
-   * Returns the 'allowNegativesFlag' flag; true to allow negative values
-   * in data, false to be able to plot positive values arbitrarily close
-   * to zero.
-   *
-   * @return the flag.
-   */
-  public boolean getAllowNegativesFlag() {
-    return allowNegativesFlag;
-  }
 
   /**
    * Sets the 'strictValuesFlag' flag; if true and 'allowNegativesFlag'
@@ -183,7 +158,6 @@ public class LogarithmicAxis extends NumberAxis {
    */
   public void setExpTickLabelsFlag() {
     expTickLabelsFlag = true;
-    log10TickLabelsFlag = false;
     log10TickLabelsInPowerFlag = false;
     setupNumberFmtObj();             //setup number formatter obj
   }
@@ -198,27 +172,7 @@ public class LogarithmicAxis extends NumberAxis {
     return expTickLabelsFlag;
   }
 
-  /**
-   * Sets the 'log10TickLabelsFlag' flag to true for for "10^n"-style tick labels,
-   * false for "1e#"-style tick labels and false for representing the power of 10 in superScript.
-   *
-   */
-  public void setLog10TickLabelsFlag() {
-    log10TickLabelsFlag = true;
-    expTickLabelsFlag = false;
-    log10TickLabelsInPowerFlag = false;
-  }
 
-
-  /**
-   * Returns the 'log10TickLabelsFlag' flag.
-   *
-   * @return true for "10^n"-style tick labels, false for "1e#"-style
-   * or regular numeric tick labels.
-   */
-  public boolean getLog10TickLabelsFlag() {
-    return log10TickLabelsFlag;
-  }
 
 
   /**
@@ -228,9 +182,7 @@ public class LogarithmicAxis extends NumberAxis {
    */
   public void setLog10TickLabelsInPowerFlag() {
     log10TickLabelsInPowerFlag = true;
-    smallLogFlag = true;
     expTickLabelsFlag = false;
-    log10TickLabelsFlag = false;
   }
 
 
@@ -277,28 +229,14 @@ public class LogarithmicAxis extends NumberAxis {
       * */
     if(log10TickLabelsInPowerFlag){
       double lower = range.getLowerBound();    //get lower bound value
-      if (strictValuesFlag && !allowNegativesFlag && lower <= 0.0){
+      if (strictValuesFlag && lower <= 0.0){
         //strict flag set, allow-negatives not set and values <= 0
         throw new RuntimeException("Values less than or equal to "
                                    + "zero not allowed with logarithmic axis");
       }
     }
-    setupSmallLogFlag();        // setup flag based on bounds values
   }
 
-  /**
-   * Sets up flag for log axis processing.  Set true if negative values
-   * not allowed and the lower bound is between 0 and 10.
-   */
-  protected void setupSmallLogFlag() {
-    // set flag true if negative values not allowed and the
-    // lower bound is between 0 and 10:
-    double lowerVal = getRange().getLowerBound();
-    if(!log10TickLabelsInPowerFlag)
-      smallLogFlag = (!allowNegativesFlag && lowerVal < 10.0 && lowerVal > 0.0);
-    else
-      smallLogFlag = true;
-  }
 
   /**
    * Sets up the number formatter object according to the
@@ -324,32 +262,10 @@ public class LogarithmicAxis extends NumberAxis {
    * @return log<sub>10</sub>(val).
    */
   protected double switchedLog10(double val) {
-    return smallLogFlag ? StrictMath.log(val) / LOG10_VALUE : adjustedLog10(val);
+    return StrictMath.log(val) / LOG10_VALUE ;
   }
 
-  /**
-   * Returns an adjusted log10 value for graphing purposes.  The first
-   * adjustment is that negative values are changed to positive during
-   * the calculations, and then the answer is negated at the end.  The
-   * second is that, for values less than 10, an increasingly large
-   * (0 to 1) scaling factor is added such that at 0 the value is
-   * adjusted to 1, resulting in a returned result of 0.
-   *
-   * @param val  value for which log10 should be calculated.
-   *
-   * @return an adjusted log<sub>10</sub>(val).
-   */
-  public double adjustedLog10(double val) {
-    final boolean negFlag;
-    if (negFlag = (val < 0.0)) {
-      val = -val;                  // if negative then set flag and make positive
-    }
-    if (val < 10.0) {                // if < 10 then
-      val += (10.0 - val) / 10;    //increase so 0 translates to 0
-    }
-    //return value; negate if original value was negative:
-    return negFlag ? -(StrictMath.log(val) / LOG10_VALUE) : (StrictMath.log(val) / LOG10_VALUE);
-  }
+
 
   /**
    * Returns the largest (closest to positive infinity) double value that is
@@ -364,40 +280,12 @@ public class LogarithmicAxis extends NumberAxis {
   protected double computeLogFloor(double lower) {
 
     double logFloor;
-    if (allowNegativesFlag) {
-      //negative values are allowed
-      if (lower > 10.0) {   //parameter value is > 10
-        // The Math.log() function is based on e not 10.
-        logFloor = Math.log(lower) / LOG10_VALUE;
-        logFloor = Math.floor(logFloor);
-        logFloor = Math.pow(10, logFloor);
-      }
-      else if (lower < -10.0) {   //parameter value is < -10
-        //calculate log using positive value:
-        logFloor = Math.log(-lower) / LOG10_VALUE;
-        //calculate floor using negative value:
-        logFloor = Math.floor(-logFloor);
-        //calculate power using positive value; then negate
-        logFloor = -Math.pow(10, -logFloor);
-      }
-      else {
-        //parameter value is -10 > val < 10
-        logFloor = Math.floor(lower);   //use as-is
-      }
-    }
-    else {
-      //negative values not allowed
-      if (lower > 0.0) {   //parameter value is > 0
-        // The Math.log() function is based on e not 10.
-        logFloor = Math.log(lower) / LOG10_VALUE;
-        logFloor = Math.floor(logFloor);
-        logFloor = Math.pow(10, logFloor);
-      }
-      else {
-        //parameter value is <= 0
-        logFloor = Math.floor(lower);   //use as-is
-      }
-    }
+
+    // The Math.log() function is based on e not 10.
+    logFloor = Math.log(lower) / LOG10_VALUE;
+    logFloor = Math.floor(logFloor);
+    logFloor = Math.pow(10, logFloor);
+
     return logFloor;
   }
 
@@ -414,43 +302,13 @@ public class LogarithmicAxis extends NumberAxis {
   protected double computeLogCeil(double upper) {
 
     double logCeil;
-    if (allowNegativesFlag) {
-      //negative values are allowed
-      if (upper > 10.0) {
-        //parameter value is > 10
-        // The Math.log() function is based on e not 10.
-        logCeil = Math.log(upper) / LOG10_VALUE;
-        logCeil = Math.ceil(logCeil);
-        logCeil = Math.pow(10, logCeil);
-      }
-      else if (upper < -10.0) {
-        //parameter value is < -10
-        //calculate log using positive value:
-        logCeil = Math.log(-upper) / LOG10_VALUE;
-        //calculate ceil using negative value:
-        logCeil = Math.ceil(-logCeil);
-        //calculate power using positive value; then negate
-        logCeil = -Math.pow(10, -logCeil);
-      }
-      else {
-        //parameter value is -10 > val < 10
-        logCeil = Math.ceil(upper);     //use as-is
-      }
-    }
-    else {
-      //negative values not allowed
-      if (upper > 0.0) {
-        //parameter value is > 0
-        // The Math.log() function is based on e not 10.
-        logCeil = Math.log(upper) / LOG10_VALUE;
-        logCeil = Math.ceil(logCeil);
-        logCeil = Math.pow(10, logCeil);
-      }
-      else {
-        //parameter value is <= 0
-        logCeil = Math.ceil(upper);     //use as-is
-      }
-    }
+
+
+    // The Math.log() function is based on e not 10.
+    logCeil = Math.log(upper) / LOG10_VALUE;
+    logCeil = Math.ceil(logCeil);
+    logCeil = Math.pow(10, logCeil);
+
     return logCeil;
   }
 
@@ -477,24 +335,23 @@ public class LogarithmicAxis extends NumberAxis {
       else {
         //actual data is present
         lower = r.getLowerBound();    //get lower bound value
-        if (strictValuesFlag && !allowNegativesFlag && lower <= 0.0)
-            { //strict flag set, allow-negatives not set and values <= 0
+        if (strictValuesFlag && lower <= 0.0){
+          //strict flag set, allow-negatives not set and values <= 0
           throw new RuntimeException("Values less than or equal to "
                                      + "zero not allowed with logarithmic axis");
         }
       }
 
       //change to log version of lowest value to make range
-      // begin at a 10^n value:
       lower = computeLogFloor(lower);
 
-      if (!allowNegativesFlag && lower >= 0.0 && lower < SMALL_LOG_VALUE) {
+      if (lower >0.0 && lower < SMALL_LOG_VALUE) {
         //negatives not allowed and lower range bound is zero
         lower = r.getLowerBound();    //use data range bound instead
       }
 
       double upper = r.getUpperBound();
-      if (!allowNegativesFlag && upper < 1.0 && upper > 0.0 && lower > 0.0) {
+      if (upper < 1.0 && upper > 0.0 && lower > 0.0) {
         //negatives not allowed and upper bound between 0 & 1
         //round up to nearest significant digit for bound:
         //get negative exponent:
@@ -525,8 +382,6 @@ public class LogarithmicAxis extends NumberAxis {
       }
 
       setRange(new Range(lower, upper), false, false);
-
-      setupSmallLogFlag();       //setup flag based on bounds values
     }
   }
 
@@ -651,7 +506,7 @@ public class LogarithmicAxis extends NumberAxis {
     double lowerBoundVal = getRange().getLowerBound();
     //if small log values and lower bound value too small
     // then set to a small value (don't allow <= 0):
-    if (smallLogFlag && lowerBoundVal < SMALL_LOG_VALUE) {
+    if (lowerBoundVal < SMALL_LOG_VALUE) {
       lowerBoundVal = SMALL_LOG_VALUE;
     }
     //get upper bound value
@@ -671,7 +526,7 @@ public class LogarithmicAxis extends NumberAxis {
     double tickVal;
     String tickLabel;
     boolean zeroTickFlag = false;
-    if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
+    if((iEndCount - iBegCount < 2)){
       if(iEndCount == iBegCount)
         ++iEndCount;
       setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
@@ -688,91 +543,42 @@ public class LogarithmicAxis extends NumberAxis {
 
       for (int j = 0; j < jEndCount; j++) {
         //for each tick to be displayed
-        if (smallLogFlag) {
-          //small log values in use
-          tickVal = Double.parseDouble("1e"+i) * (1 + j);
-          //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
-          if (j == 0) {
-            //checks to if tick Labels to be represented in the form of superscript of 10.
-            if(log10TickLabelsInPowerFlag){
 
-                //if flag is true
-                tickLabel ="10E" +i; //create a "10E" type label, "E" would be trimmed from the tick
-                                    //label to represent if the form of superscript of 10.
-            }
-            else if (log10TickLabelsFlag) {
+        //small log values in use
+        tickVal = Double.parseDouble("1e"+i) * (1 + j);
+        //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
+        if (j == 0) {
+          //checks to if tick Labels to be represented in the form of superscript of 10.
+          if(log10TickLabelsInPowerFlag){
+
+            //if flag is true
+            tickLabel ="10E" +i; //create a "10E" type label, "E" would be trimmed from the tick
+            //label to represent if the form of superscript of 10.
+          }
+          else {    //not "log10"-type label
+            if (expTickLabelsFlag) {
               //if flag then
-              tickLabel = "10^" + i;      //create "log10"-type label
+              tickLabel = "1e" + i;   //create "1e#"-type label
             }
-            else {    //not "log10"-type label
-              if (expTickLabelsFlag) {
-                //if flag then
-                tickLabel = "1e" + i;   //create "1e#"-type label
-              }
-              else {    //not "1e#"-type label
-                if (i >= 0) {   //if positive exponent then make integer
-                  tickLabel =  Long.toString((long) Math.rint(tickVal));
-                }
-                else {
-                  //negative exponent; create fractional value
-                  //set exact number of fractional digits to be shown:
-                  numberFormatterObj.setMaximumFractionDigits(-i);
-                  //create tick label:
-                  tickLabel = numberFormatterObj.format(tickVal);
-                }
-              }
-            }
-          }
-          else {   //not first tick to be displayed
-            if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
-              tickLabel = ""+(j+1);     //no tick label
-            else
-              tickLabel = "";
-          }
-        }
-        else { //not small log values in use; allow for values <= 0
-          if (zeroTickFlag) {      //if did zero tick last iter then
-            --j;
-          }               //decrement to do 1.0 tick now
-          tickVal = (i >= 0) ? Double.parseDouble("1e"+i) * (1 + j)
-                    : -Double.parseDouble("1e"+(-i)) - Double.parseDouble("1e"+(-i-1))*j;
-          if (j == 0) {  //first tick of group
-            if (!zeroTickFlag) {     //did not do zero tick last iteration
-              if (i > iBegCount && i < iEndCount
-                  && Math.abs(tickVal - 1.0) < 0.0001) {
-                //not first or last tick on graph and value is 1.0
-                tickVal = 0.0;        //change value to 0.0
-                zeroTickFlag = true;  //indicate zero tick
-                tickLabel = "0";      //create label for tick
+            else {    //not "1e#"-type label
+              if (i >= 0) {   //if positive exponent then make integer
+                tickLabel =  Long.toString((long) Math.rint(tickVal));
               }
               else {
-                //first or last tick on graph or value is 1.0
-                //create label for tick:
-                if (log10TickLabelsFlag) {
-                  //create "log10"-type label
-                  tickLabel = (((i < 0) ? "-" : "") + "10^" + Math.abs(i));
-                }
-                else {
-                  if (expTickLabelsFlag) {
-                    //create "1e#"-type label
-                    tickLabel = (((i < 0) ? "-" : "") + "1e" + Math.abs(i));
-                  }
-                  else {
-                    //create regular numeric label
-                    tickLabel = Long.toString((long) Math.rint(tickVal));
-                  }
-                }
+                //negative exponent; create fractional value
+                //set exact number of fractional digits to be shown:
+                numberFormatterObj.setMaximumFractionDigits(-i);
+                //create tick label:
+                tickLabel = numberFormatterObj.format(tickVal);
               }
             }
-            else {     // did zero tick last iteration
-              tickLabel = "";         //no label
-              zeroTickFlag = false;   //clear flag
-            }
           }
-          else {       // not first tick of group
-            tickLabel = "";           //no label
-            zeroTickFlag = false;     //make sure flag cleared
-          }
+        }
+        else {   //not first tick to be displayed
+          if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
+            tickLabel = ""+(j+1);     //no tick label
+          else
+            tickLabel = "";
         }
 
         if (tickVal > upperBoundVal) {
@@ -858,7 +664,7 @@ public class LogarithmicAxis extends NumberAxis {
     double lowerBoundVal = getRange().getLowerBound();
     //if small log values and lower bound value too small
     // then set to a small value (don't allow <= 0):
-    if (smallLogFlag && lowerBoundVal < SMALL_LOG_VALUE) {
+    if (lowerBoundVal < SMALL_LOG_VALUE) {
       lowerBoundVal = SMALL_LOG_VALUE;
     }
     //get upper bound value
@@ -879,7 +685,7 @@ public class LogarithmicAxis extends NumberAxis {
     String tickLabel;
     boolean zeroTickFlag = false;
 
-    if(log10TickLabelsInPowerFlag && (iEndCount - iBegCount < 2)){
+    if((iEndCount - iBegCount < 2)){
       if(iEndCount == iBegCount)
         ++iEndCount;
       setRange(Double.parseDouble("1e"+iBegCount),Double.parseDouble("1e"+iEndCount));
@@ -894,92 +700,41 @@ public class LogarithmicAxis extends NumberAxis {
 
       for (int j = 0; j < jEndCount; j++) {
         //for each tick to be displayed
-        if (smallLogFlag) {
-          //small log values in use
-          tickVal = Double.parseDouble("1e"+i) * (1 + j);
-          //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
-          if (j == 0) {
+        //small log values in use
+        tickVal = Double.parseDouble("1e"+i) * (1 + j);
+        //tickVal = Math.pow(10, i) + (Math.pow(10, i) * j);
+        if (j == 0) {
 
-            //checks to if tick Labels to be represented in the form of superscript of 10.
-            if(log10TickLabelsInPowerFlag){
-                //if flag is true
-                tickLabel ="10E" +i; //create a "10E" type label, "E" would be trimmed from the tick
-              //label to represent if the form of superscript of 10.
-            }
-            //first tick of group; create label text
-            else if (log10TickLabelsFlag) {
+          //checks to if tick Labels to be represented in the form of superscript of 10.
+          if(log10TickLabelsInPowerFlag){
+            //if flag is true
+            tickLabel ="10E" +i; //create a "10E" type label, "E" would be trimmed from the tick
+            //label to represent if the form of superscript of 10.
+          }
+          else {    //not "log10"-type label
+            if (expTickLabelsFlag) {
               //if flag then
-              tickLabel = "10^" + i;      //create "log10"-type label
+              tickLabel = "1e" + i;   //create "1e#"-type label
             }
-            else {    //not "log10"-type label
-              if (expTickLabelsFlag) {
-                //if flag then
-                tickLabel = "1e" + i;   //create "1e#"-type label
-              }
-              else {    //not "1e#"-type label
-                if (i >= 0) {   //if positive exponent then make integer
-                  tickLabel =  Long.toString((long) Math.rint(tickVal));
-                }
-                else {
-                  //negative exponent; create fractional value
-                  //set exact number of fractional digits to be shown:
-                  numberFormatterObj.setMaximumFractionDigits(-i);
-                  //create tick label:
-                  tickLabel = numberFormatterObj.format(tickVal);
-                }
-              }
-            }
-          }
-          else {   //not first tick to be displayed
-            if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
-              tickLabel = ""+(j+1);     //no tick label
-            else
-              tickLabel = "";
-          }
-        }
-        else { //not small log values in use; allow for values <= 0
-          if (zeroTickFlag) {      //if did zero tick last iter then
-            --j;
-          }               //decrement to do 1.0 tick now
-          tickVal = (i >= 0) ? Double.parseDouble("1e"+i) * (1 + j)
-                    : -Double.parseDouble("1e"+(-i)) - Double.parseDouble("1e"+(-i-1))*j;
-          if (j == 0) {  //first tick of group
-            if (!zeroTickFlag) {     //did not do zero tick last iteration
-              if (i > iBegCount && i < iEndCount
-                  && Math.abs(tickVal - 1.0) < 0.0001) {
-                //not first or last tick on graph and value is 1.0
-                tickVal = 0.0;        //change value to 0.0
-                zeroTickFlag = true;  //indicate zero tick
-                tickLabel = "0";      //create label for tick
+            else {    //not "1e#"-type label
+              if (i >= 0) {   //if positive exponent then make integer
+                tickLabel =  Long.toString((long) Math.rint(tickVal));
               }
               else {
-                //first or last tick on graph or value is 1.0
-                //create label for tick:
-                if (log10TickLabelsFlag) {
-                  //create "log10"-type label
-                  tickLabel = (((i < 0) ? "-" : "") + "10^" + Math.abs(i));
-                }
-                else {
-                  if (expTickLabelsFlag) {
-                    //create "1e#"-type label
-                    tickLabel = (((i < 0) ? "-" : "") + "1e" + Math.abs(i));
-                  }
-                  else {
-                    //create regular numeric label
-                    tickLabel = Long.toString((long) Math.rint(tickVal));
-                  }
-                }
+                //negative exponent; create fractional value
+                //set exact number of fractional digits to be shown:
+                numberFormatterObj.setMaximumFractionDigits(-i);
+                //create tick label:
+                tickLabel = numberFormatterObj.format(tickVal);
               }
             }
-            else {     // did zero tick last iteration
-              tickLabel = "";         //no label
-              zeroTickFlag = false;   //clear flag
-            }
           }
-          else {       // not first tick of group
-            tickLabel = "";           //no label
-            zeroTickFlag = false;     //make sure flag cleared
-          }
+        }
+        else {   //not first tick to be displayed
+          if(log10TickLabelsInPowerFlag && minorAxisTickLabelFlag)
+            tickLabel = ""+(j+1);     //no tick label
+          else
+            tickLabel = "";
         }
 
         if (tickVal > upperBoundVal) {

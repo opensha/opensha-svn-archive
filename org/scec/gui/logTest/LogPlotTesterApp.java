@@ -123,7 +123,6 @@ public class LogPlotTesterApp extends JApplet  {
   private ChartPanel panel;
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private JRadioButton log10CaretCheck = new JRadioButton();
   private JRadioButton log10PowerCheck = new JRadioButton();
   private JRadioButton log10AsECheck = new JRadioButton();
   private JCheckBox minorAxisCheck = new JCheckBox();
@@ -275,12 +274,7 @@ public class LogPlotTesterApp extends JApplet  {
     jLabel6.setFont(new java.awt.Font("Lucida Grande", 1, 13));
     jLabel6.setForeground(new Color(80, 80, 133));
     jLabel6.setText("Set DataSet:");
-    log10CaretCheck.setText("Set tick as(10^N)");
-    log10CaretCheck.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        log10CaretCheck_actionPerformed(e);
-      }
-    });
+
     log10PowerCheck.setText("Set tick as power of 10");
     log10PowerCheck.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -341,8 +335,7 @@ public class LogPlotTesterApp extends JApplet  {
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 0, 63, 10), 23, 6));
     jPanel2.add(addButton,  new GridBagConstraints(0, 11, 3, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(109, 8, 63, 0), 17, 6));
-    jPanel2.add(log10CaretCheck,  new GridBagConstraints(0, 7, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 24), 65, 8));
+
     jPanel2.add(log10PowerCheck,  new GridBagConstraints(0, 8, 4, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(24, 12, 0, 24), 28, 8));
     jPanel2.add(log10AsECheck,  new GridBagConstraints(0, 9, 4, 1, 0.0, 0.0
@@ -361,7 +354,6 @@ public class LogPlotTesterApp extends JApplet  {
     jSplitPane1.setDividerLocation(500);
 
     group.add(log10AsECheck);
-    group.add(log10CaretCheck);
     group.add(log10PowerCheck);
     group.setSelected(log10PowerCheck.getModel(),true);
   }
@@ -415,7 +407,12 @@ public class LogPlotTesterApp extends JApplet  {
     if ( D ) System.out.println( S + "Starting" );
     clearPlot();
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
-      functions.addSeries(dataWindow.getXYDataSet());
+      try{
+        functions.addSeries(dataWindow.getXYDataSet());
+      }catch(Exception e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
+        return;
+      }
       autoScale = true;
     }
     else
@@ -455,18 +452,9 @@ public class LogPlotTesterApp extends JApplet  {
 
     if(this.axisCombo.getSelectedItem().equals(LOG)){
       if(this.log10AsECheck.isSelected()) setLog10AsEFlag();
-      else if(this.log10CaretCheck.isSelected()) setLog10AsCaretFlag();
       else if(this.log10PowerCheck.isSelected()) setLog10AsPowerFlag();
       setMinorAxisFlag();
     }
-
-    xAxis.setAutoRangeIncludesZero( false );
-    //xAxis.setStandardTickUnits(units);
-    xAxis.setTickMarksVisible(false);
-
-    yAxis.setAutoRangeIncludesZero( false );
-    //yAxis.setStandardTickUnits(units);
-    yAxis.setTickMarksVisible(false);
 
 
     int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
@@ -474,6 +462,15 @@ public class LogPlotTesterApp extends JApplet  {
     StandardXYItemRenderer renderer = new StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
 
     try{
+      xAxis.setAutoRangeIncludesZero( false );
+      //xAxis.setStandardTickUnits(units);
+      xAxis.setTickMarksVisible(false);
+
+      yAxis.setAutoRangeIncludesZero( false );
+      //yAxis.setStandardTickUnits(units);
+      yAxis.setTickMarksVisible(false);
+
+
       //If the first test case is not chosen then plot the graph acording to the default x and y axis values
       if(!autoScale){
         xAxis.setRange(minXValue,maxXValue);
@@ -509,7 +506,7 @@ public class LogPlotTesterApp extends JApplet  {
           );
 
     }catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Log Plot",JOptionPane.OK_OPTION);
+      JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Plot",JOptionPane.OK_OPTION);
       return;
     }
 
@@ -812,19 +809,7 @@ public class LogPlotTesterApp extends JApplet  {
     }
   }
 
-  void log10CaretCheck_actionPerformed(ActionEvent e) {
-   setLog10AsCaretFlag();
-   this.addGraphPanel();
-  }
 
-  private void setLog10AsCaretFlag(){
-    if(log10CaretCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)xAxis).setLog10TickLabelsFlag();
-      ((LogarithmicAxis)yAxis).setLog10TickLabelsFlag();
-    }
-  }
 
   void log10PowerCheck_actionPerformed(ActionEvent e) {
     setLog10AsPowerFlag();
@@ -833,8 +818,6 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsPowerFlag(){
     if(log10PowerCheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(false);
-      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(false);
       ((LogarithmicAxis)xAxis).setLog10TickLabelsInPowerFlag();
       ((LogarithmicAxis)yAxis).setLog10TickLabelsInPowerFlag();
     }
@@ -847,8 +830,6 @@ public class LogPlotTesterApp extends JApplet  {
 
   private void setLog10AsEFlag(){
     if(log10AsECheck.isSelected()){
-      ((LogarithmicAxis)xAxis).setAllowNegativesFlag(true);
-      ((LogarithmicAxis)yAxis).setAllowNegativesFlag(true);
       ((LogarithmicAxis)xAxis).setExpTickLabelsFlag();
       ((LogarithmicAxis)yAxis).setExpTickLabelsFlag();
     }
@@ -876,16 +857,17 @@ public class LogPlotTesterApp extends JApplet  {
       xAxis = new LogarithmicAxis("X-Axis");
       yAxis = new LogarithmicAxis("Y-Axis");
       log10AsECheck.setVisible(true);
-      log10CaretCheck.setVisible(true);
       log10PowerCheck.setVisible(true);
-      minorAxisCheck.setVisible(true);
+      if(this.log10PowerCheck.isSelected())
+        minorAxisCheck.setVisible(true);
+      else
+         minorAxisCheck.setVisible(false);
 
     }
     else {
       xAxis = new NumberAxis("X-Axis");
       yAxis = new NumberAxis("Y-Axis");
       log10AsECheck.setVisible(false);
-      log10CaretCheck.setVisible(false);
       log10PowerCheck.setVisible(false);
       minorAxisCheck.setVisible(false);
     }

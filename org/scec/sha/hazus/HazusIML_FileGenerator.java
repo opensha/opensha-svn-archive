@@ -91,7 +91,7 @@ public class HazusIML_FileGenerator {
 
   private double getIML(String filename , double prob){
     try{
-      FileReader fr = new FileReader(filename);
+      FileReader fr = new FileReader(Hazus+filename);
       BufferedReader br = new BufferedReader(fr);
       String line = br.readLine();
       StringTokenizer st = new StringTokenizer(line);
@@ -114,6 +114,7 @@ public class HazusIML_FileGenerator {
       }
     }catch(Exception e){
       System.out.println(filename+" file not found");
+      e.printStackTrace();
     }
     return 0;
   }
