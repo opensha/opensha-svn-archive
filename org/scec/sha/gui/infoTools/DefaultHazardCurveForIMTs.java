@@ -20,7 +20,7 @@ public final class DefaultHazardCurveForIMTs {
   private final static String PGV_NAME = "PGV";
 
   //Default values for the SA and PGA
-  private final static double MIN_SA_PGA = .0001;
+  private final static double MIN_SA_PGA = .001;
   private final static double MAX_SA_PGA = 10;
   private final static double NUM_SA_PGA = 51;
 
