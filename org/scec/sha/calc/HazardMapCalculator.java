@@ -86,7 +86,7 @@ public class HazardMapCalculator {
 
         int numPoints=hazFunction.getNum();
         if(success){
-        FileWriter fr = new FileWriter("tempdata/"+lat+"_"+lon+".txt");
+        FileWriter fr = new FileWriter("tempData/"+lat+"_"+lon+".txt");
         for(int i=0;i<numPoints;++i)
           fr.write(hazFunction.getX(i)+" "+hazFunction.getY(i)+"\n");
         fr.close();

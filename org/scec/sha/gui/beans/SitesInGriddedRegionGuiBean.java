@@ -15,10 +15,8 @@ import org.scec.data.region.*;
 
 /**
  * <p>Title:SiteParamListEditor </p>
- * <p>Description: this class will make the site parameter editor.
+ * <p>Description: this class will make the Gridded Region site parameter editor.
  * </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
  * @author Nitin Gupta & Vipin Gupta
  * @date March 11, 2003
  * @version 1.0
@@ -56,7 +54,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
       new Double(-90), new Double(90), new Double(36.0));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
-      new Double(.01),new Double(100.0),new String("Degrees"),new Double(.05));
+      new Double(.01),new Double(100.0),new String("Degrees"),new Double(1));
 
 
   //Site Vector
@@ -317,7 +315,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
      double minLatitude= ((Double)minLat.getValue()).doubleValue();
      double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
      double minLongitude=((Double)minLon.getValue()).doubleValue();
-     double maxLongitude=((Double)gridSpacing.getValue()).doubleValue();
+     double maxLongitude=((Double)maxLon.getValue()).doubleValue();
 
      boolean flag=true;
 
