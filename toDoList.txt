@@ -1,6 +1,10 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Resolve memory issues.
+
+Implement 2002 National Hazard maps model.
+
 HazardSpectrumApplet - make it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances?
 
 Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
