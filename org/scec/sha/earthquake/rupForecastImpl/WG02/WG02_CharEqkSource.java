@@ -33,7 +33,7 @@ public class WG02_CharEqkSource extends ProbEqkSource {
   private String name = "WG02 Char Eqk Source";
 
   boolean D = false;
-  private String C = "WG02 Char Eqk Source";
+  private String C = "WG02_CharEqkSource";
 
 
   /**

@@ -58,7 +58,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
   private boolean D = false;
 
   //name for this classs
-  protected String  NAME = C;
+  protected String  NAME = "Floating Poisson Fault Source";
 
   // private fields
   private int totNumRups;

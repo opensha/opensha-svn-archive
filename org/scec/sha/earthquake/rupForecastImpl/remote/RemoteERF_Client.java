@@ -21,6 +21,8 @@ import org.scec.param.event.*;
 import org.scec.sha.earthquake.EqkRupForecast;
 import org.scec.sha.earthquake.ProbEqkSource;
 import org.scec.sha.earthquake.rupForecastImpl.remote.*;
+import org.scec.data.Location;
+import org.scec.data.region.GeographicRegion;
 
 /**
  * @author cmeutils
@@ -132,6 +134,42 @@ public class RemoteERF_Client extends EqkRupForecast implements
   public void parameterChange(EventObject event) {
     setParameterChangeFlag(true);
   }
+
+  /**
+   * This function finds whether a particular location lies in applicable
+   * region of the forecast
+   *
+   * @param loc : location
+   * @return: True if this location is within forecast's applicable region, else false
+   */
+  public boolean isLocWithinApplicableRegion(Location loc) {
+    try {
+      return erfServer.isLocWithinApplicableRegion(loc);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    return true;
+  }
+
+
+  /**
+   * Get the region for which this forecast is applicable
+   * @return : Geographic region object specifying the applicable region of forecast
+   */
+   public GeographicRegion getApplicableRegion() {
+     try {
+       return erfServer.getApplicableRegion();
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+     return null;
+   }
+
+
+
+
 
   /* (non-Javadoc)
    * @see org.scec.sha.earthquake.EqkRupForecastAPI#updateForecast()

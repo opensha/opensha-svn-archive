@@ -27,7 +27,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
   /**
    * Name of this class
    */
-  private String name = new String("Frankel96_CharEqkSource");
+  private static final String C = new String("Frankel96_CharEqkSource");
 
   boolean D = false;
 

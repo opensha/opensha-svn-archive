@@ -40,7 +40,7 @@ public class Point2MultVertSS_FaultERF extends EqkRupForecast{
   private boolean D = false;
 
   //name for this classs
-  public final static String  NAME = C;
+  public final static String  NAME = "Point 2 Mult Vertical SS Fault ERF";
 
   // this is the source (only 1 for this ERF)
   private Point2MultVertSS_FaultSource source;

@@ -41,7 +41,7 @@ public class FaultRuptureSource extends ProbEqkSource {
 
 
   //name for this classs
-  protected String  NAME = C;
+  protected String  NAME = "Fault Rupture Source";
 
   protected double duration;
 
