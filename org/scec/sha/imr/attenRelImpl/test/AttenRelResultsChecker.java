@@ -523,9 +523,9 @@ public class AttenRelResultsChecker {
     ListIterator it  = list.getParametersIterator();
     while(it.hasNext()){
       ParameterAPI tempParam = (ParameterAPI)it.next();
-      independentParamValue +=tempParam.getName()+" = "+tempParam.getValue()+"\n";
+      independentParamValue +=tempParam.getName()+" = "+tempParam.getValue()+"\n\t";
     }
-    return independentParamValue +"\n";
+    return independentParamValue +"\n\t";
   }
 
   /**
@@ -533,7 +533,7 @@ public class AttenRelResultsChecker {
    * @returns the name and Value for the control params setting of the test cases IMR
    */
   private String getControlParametersValueForTest(){
-    return this.intensityMeasureName+";"+this.xControlName+";"+this.yControlName+"\n";
+    return this.intensityMeasureName+";"+this.xControlName+";"+this.yControlName+"\n\t";
   }
 
   /**

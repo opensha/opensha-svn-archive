@@ -38,7 +38,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   /**String to see if the user wants to output all the parameter setting for the all the test set
    * or wants to see only the failed test result values, with the default being only the failed tests
    **/
-  private static String showParamsForTests = "fail";
+  private static String showParamsForTests = "fail"; //other option can be "both" to show all results
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
@@ -72,7 +72,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
         int size = failedTestsVector.size();
         for(int i=0;i<size;++i){
           int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
-          this.assertTrue("BJF Test Failed for test Set-"+failedTestNumber+
+          this.assertTrue("BJF-1997 Test Failed for test Set-"+failedTestNumber+
           " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
           (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
         }
@@ -83,7 +83,7 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
         Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
         int size = controlParams.size();
         for(int i=0;i<size;++i){
-          this.assertNotNull("BJF test Set-"+(i+1)+
+          this.assertNotNull("BJF-1997 test Set-"+(i+1)+
           " with following set of params :\n"+(String)controlParams.get(i)+
           (String)independentParams.get(i),new Boolean(result));
         }
@@ -99,7 +99,6 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
   }
 
 
-
   /**
    * Run the test case
    * @param args
@@ -107,10 +106,6 @@ public class BJF_1997_test extends TestCase implements ParameterChangeWarningLis
 
   public static void main (String[] args)
   {
-   if(args.length !=0){
-      tolerence=(new Double(args[0].trim())).doubleValue();
-      showParamsForTests = args[1].trim();
-   }
    junit.swingui.TestRunner.run(BJF_1997_test.class);
   }
 

@@ -32,6 +32,11 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   private static double tolerence = .0001; //default value for the tolerence
 
 
+  /**String to see if the user wants to output all the parameter setting for the all the test set
+   * or wants to see only the failed test result values, with the default being only the failed tests
+   **/
+  private static String showParamsForTests = "fail"; //other option can be "both" to show all results
+
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String CB_2003_RESULTS = RESULT_SET_PATH +"Cambell_Bozorgnia2003TestData.txt";
 
@@ -43,7 +48,7 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
   }
 
   protected void setUp() {
-    // create the instance of the AS_1997
+    // create the instance of the CB_2003
     cb_2003 = new CB_2003_AttenRel(this);
     attenRelChecker = new AttenRelResultsChecker(cb_2003,CB_2003_RESULTS, tolerence);
   }
@@ -56,18 +61,43 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
 
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
-    if(result == false){
-     testNumber = attenRelChecker.getTestNumber();
-     this.assertTrue("CB-2003 Test Failed for following test Set-"+testNumber,result);
-   }
-   else
-      this.assertTrue("CB-2003 Passed all the test",result);
+    testNumber = attenRelChecker.getTestNumber();
+
+    /**
+     * If any test for the CB-2003 failed
+     */
+    if(this.showParamsForTests.equalsIgnoreCase("fail") && result == false){
+      Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
+      int size = failedTestsVector.size();
+      for(int i=0;i<size;++i){
+        int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
+        this.assertTrue("CB-2003 Test Failed for test Set-"+failedTestNumber+
+                        " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
+                        (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
+      }
+    }
+    //if the user wants to see all the tests param values
+    else if( this.showParamsForTests.equalsIgnoreCase("both")){
+      Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
+      Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
+      int size = controlParams.size();
+      for(int i=0;i<size;++i){
+        this.assertNotNull("CB-2003 test Set-"+(i+1)+
+        " with following set of params :\n"+(String)controlParams.get(i)+
+        (String)independentParams.get(i),new Boolean(result));
+      }
+    }
+    //if the all the succeeds and their is no fail for any test
+    else {
+      this.assertTrue("CB-2003 Test succeeded for all the test cases",result);
+    }
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
+    WarningParameterAPI param = e.getWarningParameter();
+    param.setValueIgnoreWarning( e.getNewValue() );
     return;
   }
-
 
 
   /**
@@ -77,9 +107,6 @@ public class CB_2003_test extends TestCase implements ParameterChangeWarningList
 
   public static void main (String[] args)
   {
-    if(args.length !=0)
-      tolerence=(new Double(args[0].trim())).doubleValue();
-    System.out.println("Tolerence :"+tolerence);
     junit.swingui.TestRunner.run(CB_2003_test.class);
   }
 

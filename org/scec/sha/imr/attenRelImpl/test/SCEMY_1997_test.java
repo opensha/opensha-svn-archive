@@ -31,23 +31,25 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
   //Tolerence to check if the results fall within the range.
   private static double tolerence = .0001; //default value for the tolerence
 
+  /**String to see if the user wants to output all the parameter setting for the all the test set
+   * or wants to see only the failed test result values, with the default being only the failed tests
+   **/
+  private static String showParamsForTests = "fail"; //other option can be "both" to show all results
+
   private static final String RESULT_SET_PATH = "AttenRelResultSet/";
   private static final String SADIGH_1997_RESULTS = RESULT_SET_PATH +"Sadigh1997TestData.txt";
 
   //Instance of the class that does the actual comparison for the AttenuationRelationship classes
   AttenRelResultsChecker attenRelChecker;
 
-  /**String to see if the user wants to output all the parameter setting for the all the test set
-   * or wants to see only the failed test result values, with the default being only the failed tests
-   **/
-  private static String showParamsForTests = "fail";
+
 
   public SCEMY_1997_test(final String name) {
     super(name);
   }
 
   protected void setUp() {
-    // create the instance of the AS_1997
+    // create the instance of the SCEMY_1997
     scemy_1997 = new SCEMY_1997_AttenRel(this);
     attenRelChecker = new AttenRelResultsChecker(scemy_1997,SADIGH_1997_RESULTS,tolerence);
   }
@@ -61,36 +63,40 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
     boolean result =attenRelChecker.readResultFile();
     int testNumber;
     testNumber = attenRelChecker.getTestNumber();
-    System.out.println("TestNumber is:"+testNumber);
+
     /**
-     * If any test for the BJF failed
+     * If any test for the CB-2003 failed
      */
-      if(showParamsForTests.equalsIgnoreCase("fail") && result == false){
-        Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
-        int size = failedTestsVector.size();
-        for(int i=0;i<size;++i){
-          int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
-          this.assertTrue("SCEMY-1997 Test Failed for test Set-"+failedTestNumber+
-          " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
-          (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
-        }
+    if(this.showParamsForTests.equalsIgnoreCase("fail") && result == false){
+      Vector failedTestsVector = attenRelChecker.getFailedTestResultNumberList();
+      int size = failedTestsVector.size();
+      for(int i=0;i<size;++i){
+        int failedTestNumber = ((Integer)failedTestsVector.get(i)).intValue();
+        this.assertTrue("CB-2003 Test Failed for test Set-"+failedTestNumber+
+                        " with following set of params :\n"+(String)attenRelChecker.getControlParamsValueForAllTests().get(failedTestNumber -1)+
+                        (String)attenRelChecker.getIndependentParamsValueForAllTests().get(failedTestNumber -1),result);
       }
-      else{
-        Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
-        Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
-        int size = controlParams.size();
-        for(int i=0;i<size;++i){
-          this.assertNotNull("SCEMY-1997 test Set-"+(i+1)+
-          " with following set of params :\n"+(String)controlParams.get(i)+
-          (String)independentParams.get(i),new Boolean(result));
-        }
+    }
+    //if the user wants to see all the tests param values
+    else if( this.showParamsForTests.equalsIgnoreCase("both")){
+      Vector controlParams = attenRelChecker.getControlParamsValueForAllTests();
+      Vector independentParams = attenRelChecker.getIndependentParamsValueForAllTests();
+      int size = controlParams.size();
+      for(int i=0;i<size;++i){
+        this.assertNotNull("CB-2003 test Set-"+(i+1)+
+        " with following set of params :\n"+(String)controlParams.get(i)+
+        (String)independentParams.get(i),new Boolean(result));
       }
+    }
+    //if the all the succeeds and their is no fail for any test
+    else {
+      this.assertTrue("CB-2003 Test succeeded for all the test cases",result);
+    }
   }
 
   public void parameterChangeWarning(ParameterChangeWarningEvent e){
     return;
   }
-
 
 
   /**
@@ -100,10 +106,6 @@ public class SCEMY_1997_test extends TestCase implements ParameterChangeWarningL
 
   public static void main (String[] args)
   {
-    if(args.length !=0){
-       tolerence=(new Double(args[0].trim())).doubleValue();
-       showParamsForTests = args[1].trim();
-   }
     junit.swingui.TestRunner.run(SCEMY_1997_test.class);
   }
 
