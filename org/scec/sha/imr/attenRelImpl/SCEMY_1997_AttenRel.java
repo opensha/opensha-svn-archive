@@ -292,6 +292,8 @@ public class SCEMY_1997_AttenRel
             throw new IMRException(C + ": getMean(): " + ERR);
         }
 
+//System.out.println("Dist_Rup = " + dist);
+
         // the following is inefficient if the im Parameter has not been changed in any way
         updateCoefficients();
 
@@ -319,12 +321,12 @@ public class SCEMY_1997_AttenRel
         // if Site Type is Rock:
         if ( siteType.equals( SITE_TYPE_ROCK ) ) {
             if (mag <= 6.5 ) {
-                mean = coeff.c1_rlt + c2_rlt*mag + coeff.c3*( Math.pow( ( 8.5 - mag), 2 ) ) +
+                mean = coeff.c1_rlt + c2_rlt*mag + coeff.c3*( Math.pow( ( 8.5 - mag), 2.5 ) ) +
                       coeff.c4 * ( Math.log( dist + Math.exp( c5_rlt + c6_rlt * mag ) ) ) +
                       coeff.c7_r * ( Math.log( dist + 2 ) );
             }
             else {
-                mean = coeff.c1_rgt + c2_rgt*mag + coeff.c3*( Math.pow( ( 8.5 - mag), 2 ) ) +
+                mean = coeff.c1_rgt + c2_rgt*mag + coeff.c3*( Math.pow( ( 8.5 - mag), 2.5 ) ) +
                       coeff.c4 * ( Math.log( dist + Math.exp( c5_rgt + c6_rgt * mag ) ) ) +
                       coeff.c7_r * ( Math.log( dist + 2 ) );
             }

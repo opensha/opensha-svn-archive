@@ -277,7 +277,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public String getInfo() {
 
-    return "mean="+mean+"; stdDev="+stdDev+"; totMoRate="+(float)getTotalMomentRate()+
+    return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mean="+mean+"; stdDev="+stdDev+"; totMoRate="+(float)getTotalMomentRate()+
            "; totCumRate="+(float)this.getCumRate(0)+"; truncType="+
            truncType+"; truncLevel="+truncLevel;
 

@@ -336,7 +336,8 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    * @return : returns the String which is needed for Legend in graph
    */
   public String getInfo() {
-    return ("magLower="+magLower+"; magUpper="+magUpper+"; deltaMagChar="+this.getDeltaMagChar()+
+    return ("minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; magLower="+magLower+"; magUpper="+
+            magUpper+"; deltaMagChar="+this.getDeltaMagChar()+
         "; magPrime="+this.getMagPrime()+"; deltaMagPrime="+getDeltaMagPrime()+
         " bValue="+bValue+"; totMoRate="+(float)this.getTotalMomentRate()+
         "; totCumRate="+(float)getCumRate(magLower));

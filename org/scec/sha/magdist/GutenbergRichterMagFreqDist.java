@@ -337,7 +337,7 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    * @return : returns the String which is needed for Legend in graph
    */
   public String getInfo() throws DataPoint2DException{
-    return ("bValue="+bValue+"; magLower="+magLower+"; magUpper="+(float)magUpper +
+    return ("minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; bValue="+bValue+"; magLower="+magLower+"; magUpper="+(float)magUpper +
         "; totMoRate="+ (float) this.getTotalMomentRate()+"; totCumRate="+ (float) getCumRate(magLower));
   }
 

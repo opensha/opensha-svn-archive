@@ -135,7 +135,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   */
  public String getInfo() {
    double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
-   return "mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
+   return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
 
  /**
