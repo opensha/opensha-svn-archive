@@ -180,7 +180,7 @@ public class HazardCurveApplet extends JApplet
   private boolean isIndividualCurves = false; //to keep account that we are first drawing the individual curve for erf in the list
   private boolean isAllCurves = true; // whether to plot all curves
   // whether user wants to plot No percentile, or 5, 50 and 95 percentile or custom percentile
-  private String percentileOption = ERF_EpistemicListControlPanel.NO_PERCENTILE;
+  private String percentileOption ;
   // whether avg is selected by the user
   private boolean avgSelected = false;
   private FractileCurveCalculator fractileCalc;
@@ -699,37 +699,42 @@ public class HazardCurveApplet extends JApplet
         if(this.runAllPEER_Tests.runAllPEER_TestCases()){
           try{
             progressCheckBox.setSelected(false);
-            FileWriter peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt");
-            peerResultsFile.write("PEER Set One Test Cases Results:\n");
-            peerResultsFile.close();
+            String peerDirName = "peer/";
+            //creating the peer directory in which we put all the peer related files
+            File peerDir = new File(peerDirName);
+            if(!peerDir.isDirectory()) { // if main directory does not exist
+              boolean success = (new File(peerDirName)).mkdir();
+            }
+
             Vector testCasesOne = this.peerTestsControlPanel.getPEER_SetOneTestCasesNames();
-            peerResultsFile = new FileWriter("PEER_TestCasesSetOneResultsFile.txt",true);
+
             int size = testCasesOne.size();
-            for(int i=0;i< size; ++i){
-              System.out.println("Working on # "+i+" of "+size);
+            for(int i=0 ;i < size; ++i){
+              System.out.println("Working on # "+(i+1)+" of "+size);
+
               // first do PGA
               peerTestsControlPanel.setTestCaseAndSite((String)testCasesOne.get(i));
               addButton();
-              peerResultsFile.write("\n\n"+(String)testCasesOne.get(i)+"--PGA\n\n");
+
+              FileWriter peerFile=new FileWriter(peerDirName+(String)testCasesOne.get(i)+"-PGA_OpenSHA.dat");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
-                peerResultsFile.write((float)(totalProbFuncs.get(0).getY(j))+"\n");
-              this.repaint();
-              this.validate();
+                peerFile.write(totalProbFuncs.get(0).get(j).getX()+" "+totalProbFuncs.get(0).get(j).getY()+"\n");
+              peerFile.close();
               this.clearPlot(true);
 
               // now do SA
               imtGuiBean.getParameterList().getParameter(IMT_GuiBean.IMT_PARAM_NAME).setValue(AttenuationRelationship.SA_NAME);
               imtGuiBean.getParameterList().getParameter(AttenuationRelationship.PERIOD_NAME).setValue("1.0");
               addButton();
-              peerResultsFile.write("\n\n"+(String)testCasesOne.get(i)+"-- 1sec SA\n\n");
+              peerFile = new FileWriter(peerDirName+(String)testCasesOne.get(i)+"-1secSA_OpenSHA.dat");
               for(int j=0; j<totalProbFuncs.get(0).getNum();++j)
-                peerResultsFile.write((float)(totalProbFuncs.get(0).getY(j))+"\n");
-              this.repaint();
-              this.validate();
+                peerFile.write(totalProbFuncs.get(0).get(j).getX()+" "+totalProbFuncs.get(0).get(j).getY()+"\n");
+              peerFile.close();
               this.clearPlot(true);
 
             }
-            peerResultsFile.close();
+            System.exit(101);
+            //peerResultsFile.close();
           }catch(Exception ee){
             ee.printStackTrace();
           }

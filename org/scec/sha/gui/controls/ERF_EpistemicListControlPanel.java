@@ -58,6 +58,7 @@ public class ERF_EpistemicListControlPanel extends JFrame
       api.setPercentileOption(percentileComboBox.getSelectedItem().toString());
       api.setAverageSelected(this.avgCheckBox.isSelected());
       api.setPlotAllCurves(this.allCurvesCheckBox.isSelected());
+      api.setPercentileOption(percentileComboBox.getSelectedItem().toString());
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -172,6 +173,16 @@ public class ERF_EpistemicListControlPanel extends JFrame
    */
   public double getCustomPercentileValue() {
     return ((Double)percentileParam.getValue()).doubleValue();
+  }
+
+  /**
+   * This function sets the custom percentile value.
+   * @param value : Value of the percentile to be set.
+   */
+  public void setCustomPercentileValue(double value) {
+    percentileComboBox.setSelectedItem(CUSTOM_PERCENTILE);
+    percentileParam.setValue(value);
+    percentileEditor.synchToModel();
   }
 
   /**
