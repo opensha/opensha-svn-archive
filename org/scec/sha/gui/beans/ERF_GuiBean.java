@@ -194,7 +194,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      MagFreqDistParameterEditor magDistEditor=getMagDistEditor();
      if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
 
-
    }
 
 
