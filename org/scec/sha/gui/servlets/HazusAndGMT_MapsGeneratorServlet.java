@@ -49,58 +49,22 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       //create a gmt directory for each user in which all his gmt files will be stored
       boolean success =(new File(newDir)).mkdir();
 
+      //reading the gmtScript file that user sent as the attachment and create
+     //a new gmt script inside the directory created for the user.
+     //The new gmt script file created also has one minor modification
+     //at the top of the gmt script file I am adding the "cd ... " command so
+     //that it should pick all the gmt related files from the directory cretade for the user.
+     //reading the gmt script file sent by user as te attchment
+
+     String gmtScriptFile = newDir+"/"+this.GMT_SCRIPT_FILE;
+
+
       // get an input stream from the applet
       ObjectInputStream inputFromApplet = new ObjectInputStream(request.getInputStream());
 
       //gets the object for the GMT_MapGenerator script
       ArrayList gmtMapScript = (ArrayList) inputFromApplet.readObject();
       System.out.println("Received GMT Lines");
-
-      //XValues recieved from the application from the XYZ dataset
-      ArrayList xValues = (ArrayList) inputFromApplet.readObject();
-      //YValues recieved from the application from XYZ dataset
-      ArrayList yValues = (ArrayList) inputFromApplet.readObject();
-
-      //Z dataset for SA-0.3sec being received from the applet
-      ArrayList sa03_zDataSet = (ArrayList)inputFromApplet.readObject();
-      System.out.println("Received SA-03 object");
-
-      //Z dataset for SA-1.0sec being received from the applet
-      ArrayList sa10_zDataSet = (ArrayList)inputFromApplet.readObject();
-      System.out.println("Received SA-10 object");
-
-      //Z dataset for PGA being received from the applet
-      ArrayList pga_zDataSet = (ArrayList)inputFromApplet.readObject();
-      System.out.println("Received PGA object");
-
-      //Z dataset for PGV being received from the applet
-      ArrayList pgv_zDataSet = (ArrayList)inputFromApplet.readObject();
-      System.out.println("Received PGV object");
-
-      //Prefix String being received to be prefixed before the name of the files
-      String sa03 = (String)inputFromApplet.readObject();
-      String sa01 = (String)inputFromApplet.readObject();
-      String pga = (String)inputFromApplet.readObject();
-      String pgv = (String)inputFromApplet.readObject();
-
-
-      //Name of the XYZ file
-      String xyzFileName = (String)inputFromApplet.readObject();
-
-      //Metadata content: Map Info
-      String metadata = (String)inputFromApplet.readObject();
-
-      //Name of the Metadata file
-      String metadataFileName = (String)inputFromApplet.readObject();
-
-      //reading the gmtScript file that user sent as the attachment and create
-      //a new gmt script inside the directory created for the user.
-      //The new gmt script file created also has one minor modification
-      //at the top of the gmt script file I am adding the "cd ... " command so
-      //that it should pick all the gmt related files from the directory cretade for the user.
-      //reading the gmt script file sent by user as te attchment
-
-      String gmtScriptFile = newDir+"/"+this.GMT_SCRIPT_FILE;
       //creating a new gmt script for the user and writing it ot the directory created for the user
       FileWriter fw = new FileWriter(gmtScriptFile);
       BufferedWriter bw = new BufferedWriter(fw);
@@ -109,15 +73,53 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       for(int i=0;i<size;++i)
         bw.write((String)gmtMapScript.get(i)+"\n");
       bw.close();
+      gmtMapScript = null;
 
+      //XValues recieved from the application from the XYZ dataset
+      ArrayList xValues = (ArrayList) inputFromApplet.readObject();
+      //YValues recieved from the application from XYZ dataset
+      ArrayList yValues = (ArrayList) inputFromApplet.readObject();
+
+      //Prefix String being received to be prefixed before the name of the files
+      String sa03 = (String)inputFromApplet.readObject();
+      String sa01 = (String)inputFromApplet.readObject();
+      String pga = (String)inputFromApplet.readObject();
+      String pgv = (String)inputFromApplet.readObject();
+      //Name of the XYZ file
+      String xyzFileName = (String)inputFromApplet.readObject();
+      //Metadata content: Map Info
+      String metadata = (String)inputFromApplet.readObject();
+      //Name of the Metadata file
+      String metadataFileName = (String)inputFromApplet.readObject();
       //write the metadata file
       writeMetadataFile(newDir,metadata,metadataFileName);
+      metadata  = null;
+      metadataFileName = null;
 
-      //writes the XYZ data files for each selected IMT.
+
+      //Z dataset for SA-0.3sec being received from the applet
+      ArrayList sa03_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received SA-03 object");
       writeXYZ_DataFile(newDir,sa03,xyzFileName,xValues,yValues,sa03_zDataSet);
+      sa03_zDataSet = null;
+
+      //Z dataset for SA-1.0sec being received from the applet
+      ArrayList sa10_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received SA-10 object");
       writeXYZ_DataFile(newDir,sa01,xyzFileName,xValues,yValues,sa10_zDataSet);
+      sa10_zDataSet = null;
+
+      //Z dataset for PGA being received from the applet
+      ArrayList pga_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received PGA object");
       writeXYZ_DataFile(newDir,pga,xyzFileName,xValues,yValues,pga_zDataSet);
+      pga_zDataSet = null;
+
+      //Z dataset for PGV being received from the applet
+      ArrayList pgv_zDataSet = (ArrayList)inputFromApplet.readObject();
+      System.out.println("Received PGV object");
       writeXYZ_DataFile(newDir,pgv,xyzFileName,xValues,yValues,pgv_zDataSet);
+      pgv_zDataSet = null;
 
       //running the gmtScript file
       String[] command ={"sh","-c","sh "+gmtScriptFile};

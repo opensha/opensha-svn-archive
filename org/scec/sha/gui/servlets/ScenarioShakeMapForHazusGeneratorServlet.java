@@ -72,6 +72,11 @@ public class ScenarioShakeMapForHazusGeneratorServlet extends HttpServlet {
       String[] webaddr = gmtMap.makeHazusFileSetUsingServlet(sa_03xyzData,sa_10xyzData,
           pga_xyzData,pgvxyzData,rupture,metadata);
 
+      //making the XYZ dataset objects to be null.
+      sa_03xyzData = null;
+      sa_10xyzData = null;
+      pga_xyzData = null;
+      pgvxyzData = null;
 
       // get an ouput stream from the applet
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());

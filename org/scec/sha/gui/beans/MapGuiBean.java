@@ -190,7 +190,6 @@ public class MapGuiBean extends GMT_MapGuiBean {
     try{
       imgNames = openConnectionToServerToGenerateShakeMapForHazus(sa03_xyzVals, sa10_xyzVals,
           pga_xyzVals, pgv_xyzVals,eqkRupture,metadata);
-
       //webaddr where all the GMT related file for this map resides on server
       String webaddr = imgNames[0].substring(0,imgNames[0].lastIndexOf("/")+1);
       /*imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
@@ -207,6 +206,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
       //adding the image to the Panel and returning that to the applet
       ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
     }
+
   }
 
 

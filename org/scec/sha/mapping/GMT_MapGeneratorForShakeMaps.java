@@ -297,13 +297,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
 
 
-
-      //as all the dataset have the same X and Y values so just send them once
-      //but as Z data differ for all dataset so send them seperately.
-      ArrayList xValues = sa03_xyzDataVals.getX_DataSet();
-      ArrayList yValues = sa03_xyzDataVals.getY_DataSet();
-
-
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
@@ -313,9 +306,35 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       outputToServlet.writeObject(gmtFileLines);
       gmtFileLines = null;
 
+
+      //as all the dataset have the same X and Y values so just send them once
+      //but as Z data differ for all dataset so send them seperately.
+      ArrayList xValues = sa03_xyzDataVals.getX_DataSet();
+
       //sending the X and Y values for all the datasets.
       outputToServlet.writeObject(xValues);
+      xValues = null;
+      ArrayList yValues = sa03_xyzDataVals.getY_DataSet();
       outputToServlet.writeObject(yValues);
+      yValues=null;
+
+
+
+      //sending the static String as IMT names to be prefixed before the names of the
+     //the files when generating the files for the Hazus.
+      outputToServlet.writeObject(SA_03);
+      outputToServlet.writeObject(SA_10);
+      outputToServlet.writeObject(PGA);
+      outputToServlet.writeObject(PGV);
+
+      //sending the xyz file name to the servlet
+      outputToServlet.writeObject(DEFAULT_XYZ_FILE_NAME);
+
+      //sending the contents of the Metadata file to the server.
+      outputToServlet.writeObject(metadata);
+
+     //sending the name of the MetadataFile to the server.
+      outputToServlet.writeObject(METADATA_FILE_NAME);
 
       //sending the contents of the SA-0.3sec Z values set to the servlet
       outputToServlet.writeObject(sa03_xyzDataVals.getZ_DataSet());
@@ -332,22 +351,6 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       //sending the contents of the PGV Z values set to the servlet
       outputToServlet.writeObject(pgv_xyzDataVals.getZ_DataSet());
       pgv_xyzDataVals = null;
-
-      //sending the static String as IMT names to be prefixed before the names of the
-      //the files when generating the files for the Hazus.
-      outputToServlet.writeObject(SA_03);
-      outputToServlet.writeObject(SA_10);
-      outputToServlet.writeObject(PGA);
-      outputToServlet.writeObject(PGV);
-
-      //sending the xyz file name to the servlet
-      outputToServlet.writeObject(DEFAULT_XYZ_FILE_NAME);
-
-      //sending the contents of the Metadata file to the server.
-      outputToServlet.writeObject(metadata);
-
-      //sending the name of the MetadataFile to the server.
-      outputToServlet.writeObject(METADATA_FILE_NAME);
 
       outputToServlet.flush();
       outputToServlet.close();
