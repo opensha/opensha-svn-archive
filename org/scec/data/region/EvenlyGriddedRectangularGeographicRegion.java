@@ -1,6 +1,7 @@
 package org.scec.data.region;
 
 import java.util.ListIterator;
+import java.text.DecimalFormat;
 
 import org.scec.data.LocationList;
 import org.scec.data.Location;
@@ -28,7 +29,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
   private final static String C = "EvenlyGriddedRectangularGeographicRegion";
   private final static boolean D = false;
-
+  DecimalFormat format = new DecimalFormat(".000#");
 
   /**
    * class constructor
@@ -43,8 +44,10 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     this.gridSpacing=gridSpacing;
 
     //set the number of grid points for lat and lon
-    numLatGridPoints = (int) Math.ceil((getMaxLat()-getMinLat())/gridSpacing)+1;
-    numLonGridPoints = (int) Math.ceil((getMaxLon()-getMinLon())/gridSpacing)+1;
+    double latGridDiff= Double.parseDouble(format.format((getMaxLat()-getMinLat())/gridSpacing));
+    double lonGridDiff= Double.parseDouble(format.format((getMaxLon()-getMinLon())/gridSpacing));
+    numLatGridPoints = (int)Math.ceil(latGridDiff)+1;
+    numLonGridPoints = (int)Math.ceil(lonGridDiff)+1;
 
     if (D) System.out.println("numLatGridPoints="+numLatGridPoints+"; numLonGridPoints="+numLonGridPoints);
 
