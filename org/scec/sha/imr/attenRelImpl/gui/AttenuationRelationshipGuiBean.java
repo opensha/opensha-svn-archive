@@ -453,7 +453,7 @@ public class AttenuationRelationshipGuiBean
         DiscretizedFuncAPI function = getFunctionForXAxis( xAxisParam, type );
 
         // Clone the parameter list used to calculate this Discretized Function
-        ParameterList clones = independentsEditor.getVisibleParametersCloned();
+        ParameterList clones = (ParameterList)independentsEditor.getVisibleParametersCloned().clone();
 
         /**
          * @todo FIX - Legend AttenRel translation done here.
