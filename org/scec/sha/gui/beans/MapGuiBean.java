@@ -23,8 +23,12 @@ import org.scec.param.editor.*;
 public class MapGuiBean extends JPanel {
 
 
+  private final static String GMT_TITLE = new String("Set GMT Parameters");
+
   //instance of the GMT Control Panel to get the GMT parameters value.
   private GMT_MapGenerator gmtMap= new GMT_MapGenerator();
+
+
 
   // PATH where the gmt commands and some others exist.
   private static String GMT_PATH = "/sw/bin/";
@@ -80,6 +84,7 @@ public class MapGuiBean extends JPanel {
       listEditor.getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(false);
       listEditor.getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(false);
     }
+    listEditor.setTitle(GMT_TITLE);
     return listEditor;
   }
 
