@@ -349,7 +349,6 @@ public class ShakeMap_2004_AttenRel
       double ave_bc, pga_bc, amp, mean;
 
       String imt = im.getName();
-      double iml = ( ( Double ) ( ( ParameterAPI ) im ).getValue() ).doubleValue();
 
       if(imt.equals(PGA_NAME)) {
         attenRel.setIntensityMeasure(im);
@@ -460,7 +459,7 @@ public class ShakeMap_2004_AttenRel
           double ave_iml=0;
           vs30 = ((Double) vs30Param.getValue()).doubleValue();
           setAttenRelsStdDevTypes();
-          String imt = (String) im.getValue();
+          String imt = (String) im.getName();
           double per = ((Double) periodParam.getValue()).doubleValue();
           if(imt.equals(this.SA_NAME) && ( per >= 3.0 )) {
             ave_iml += getMean(as_1997_attenRel)+stRndVar*getStdDev(as_1997_attenRel);

@@ -12,48 +12,15 @@ import org.scec.calc.RelativeLocation;
 /**
  * <b>Title:</b> PropagationEffect<p>
  *
- * <b>WARNING:</b> SWR: I noticed alot of incomplete functions in this class. Is
- * this class even being used??? <p>
- *
- * <b>Description:</b> This is a ParameterList of PropagationEffectParameters that also maintains
- * a reference to the Site and probEqkRupture objects that are common
- * to all the parameters. Recall from the PropagationEffectParameter documentation
- * these two parameters can be set in the PropagationEffectParameter to
- * uniquly determine the parameters's value, bypassing the normal useage
- * of setValue() to update the parameter's value. <p>
- *
- * The parameter options are held internally as a ParamterList
- * of PropagationEffectParameter objects which extend Paramter. These parameters
- * can be access by name, and the value can also be returned. <p>
- *
- * Since this class is a ParameterList one can create and add a new, arbitrary
- * PropagationEffectCalculator() to the vector of options. More importantly
- * this class also maintains a list of pre-defined parameters. This class
- * recognizes (and checks for first) the following
- * common propagation-effect parameter names (used in existing
- * IntensityMeasureRelationships) and performs some of the calculations
- * simultaneously to increase efficiency (e.g., it's faster to compute
- * Rrup, Rjb,and Rseis simultaneously, for the same Site and
- * ProbEqkRupture, rather than in series):<p>
- *
- * This can be accomplished by spawning new threads to return the desired
- * requested result first. These threads should be set at low priority.<p>
+ * <b>Description:</b>
  *
  * <br><br>
  * <br>     Rrup	\
  * <br>     Rjb	 > (km; these are three common distance
  * <br>                 measures used by the Rseis	/
  * <br>                 various IntensityMeasureRelationships)
- * <br>     AS_1997_HangingWall	(int 0 or 1)
- * <br>     Abrahamson_2000_X   (fraction of fault length that ruptures toward
- * <br>                          the site; a directivity parameter)
- * <br>     Abrahamson_2000_Theta 	(angle between strike and
- * <br>                               epicentral azimuth; a directivity parameter)
- * <p>
  *
- * FIX *** FIX *** SWR: Many functions not implemented. Is this class still needed???
- *
- * @author Steven W. Rock
+ * @author Ned Field
  * @version 1.0
  */
 public class PropagationEffect {
@@ -67,14 +34,16 @@ public class PropagationEffect {
 
 
     /** this distance measure for the DistanceRupParameter */
-   	protected double distanceRup;
+    protected double distanceRup;
 
     /** this distance measure for the DistanceJBParameter */
-   	protected double distanceJB;
+    protected double distanceJB;
 
     /** this distance measure for the DistanceSeisParameter */
-   	protected double distanceSeis;
+    protected double distanceSeis;
 
+    // this tells whether values are out of date w/ respect to current Site and ProbEqkRupture
+    protected boolean STALE = true;
 
     /** No Argument consructor */
     public PropagationEffect() { }
@@ -94,32 +63,75 @@ public class PropagationEffect {
     /** Sets the Site object */
     public void setSite(Site site) {
         this.site = site;
+        STALE = true;
     }
 
     /** Sets the ProbEqkRupture object */
     public void setProbEqkRupture(ProbEqkRupture probEqkRupture) {
         this.probEqkRupture = probEqkRupture;
+        STALE = true;
     }
 
     /** Sets both the ProbEqkRupture and Site object */
     public void setAll(ProbEqkRupture probEqkRupture, Site site) {
         this.probEqkRupture = probEqkRupture;
         this.site = site;
+        STALE = true;
     }
 
 
     /**
      */
     public Object getParamValue(String paramName) {
-      if(paramName.equals(DistanceSeisParameter.)
-    	return null;
+
+      if(STALE == true)
+        computeParamValues();
+
+      if(paramName.equals(DistanceRupParameter.NAME))
+    	return new Double(distanceRup);
+      else if(paramName.equals(DistanceJBParameter.NAME))
+        return new Double(distanceJB);
+      else if(paramName.equals(DistanceSeisParameter.NAME))
+        return new Double(distanceSeis);
+      else
+        throw new RuntimeException("Parameter not supported");
     }
+
 
     /**
      */
     public void setParamValue( ParameterAPI param ) {
-    	return null;
+      param.setValue(getParamValue(param.getName()));
     }
+
+
+    /**
+     *
+     * @param paramName
+     * @return
+     */
+    public boolean isParamSupported(String paramName) {
+      if(paramName.equals(DistanceRupParameter.NAME))
+        return true;
+      else if(paramName.equals(DistanceJBParameter.NAME))
+        return true;
+      else if(paramName.equals(DistanceSeisParameter.NAME))
+        return true;
+      else
+        return false;
+    }
+
+
+    /**
+     *
+     * @param param
+     * @return
+     */
+    public boolean isParamSupported( ParameterAPI param ) {
+      return isParamSupported(param.getName());
+    }
+
+
 
     /**
      *
@@ -156,6 +168,7 @@ public class PropagationEffect {
           distanceRup = Math.pow(distanceRup,0.5);
           distanceSeis = Math.pow(distanceSeis,0.5);
 
+          STALE = true;
       }
 
       throw new RuntimeException ("Site or ProbEqkRupture is null");

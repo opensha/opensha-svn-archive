@@ -37,7 +37,7 @@ public class DistanceSeisParameter
 
 
     /** Hardcoded name */
-    private final static String NAME = "DistanceSeis";
+    public final static String NAME = "DistanceSeis";
     /** Hardcoded units string */
     private final static String UNITS = "km";
     /** Hardcoded info string */
