@@ -62,7 +62,7 @@ public class ClassicIMRGuiBean
 
     protected static HashMap yAxisMap = new HashMap();
 
-    StringParameter xaxis = null;
+    //StringParameter xaxis = null;
 
 
     /**
@@ -736,9 +736,10 @@ public class ClassicIMRGuiBean
             System.out.println( "\n" + S + "starting: " );
 
         String name1 = event.getParameterName();
+        if (D) System.out.println(S+"parametr changed:"+name1);
         if ( this.controlsParamList.containsParameter( name1 ) ) {
             if ( D )
-                System.out.println( S + "Control Parameter changed, need to update gui parameter editors" );
+                System.out.println( S +":Control Parameter changed, need to update gui parameter editors" );
             synchRequiredVisibleParameters();
         }
         else if( name1.equals(ClassicIMR.SIGMA_TRUNC_TYPE_NAME) ){  // special case hardcoded. Not the best way to do it, but need framework to handle it.
@@ -852,7 +853,7 @@ public class ClassicIMRGuiBean
                     xAxisConstraint.addString( name );
             }
         }
-        xaxis = new StringParameter( X_AXIS_NAME, xAxisConstraint, val );
+        StringParameter xaxis = new StringParameter( X_AXIS_NAME, xAxisConstraint, val );
         xaxis.addParameterChangeListener(this);
         // Now make the parameters list
         // At this point all values have been set for the IM type, xaxis, and the yaxis
@@ -1109,6 +1110,7 @@ public class ClassicIMRGuiBean
         // Get the x-axis parameter
         StringParameter param = ( StringParameter ) editor.getParameter();
 
+
         // Create the new parameter
         StringParameter param2 = new StringParameter(
                 param.getName(),
@@ -1116,7 +1118,7 @@ public class ClassicIMRGuiBean
                 param.getUnits(),
                 val
                  );
-
+        param2.addParameterChangeListener(this);
         // swap editors
         controlsEditor.replaceParameterForEditor( param.getName(), param2 );
 

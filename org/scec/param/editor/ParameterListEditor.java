@@ -48,14 +48,17 @@ public class ParameterListEditor extends LabeledBoxPanel {
     /** If true print out debug statements. */
     protected final static boolean D = false;
 
+
     /** The internal list of parameters that this editor will allow modification on. */
-    private ParameterList parameterList;
+    protected ParameterList parameterList;
+
 
     /** List of all individual editors, one for each parameter in the parameter list */
     private HashMap parameterEditors = new HashMap();
 
+
     /** The collection of paths used to search for editor classes. */
-    String[] searchPaths;
+    protected String[] searchPaths;
 
 
     /** Calls super() to configure the GUI */
@@ -233,7 +236,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
      * set for the factory, each ParameterEditor is created, and then added
      * as a JPanel ( base class of all Editors ) to this list GUI scrolling list.
      */
-    private void addParameters() {
+    protected void addParameters() {
 
         if ( parameterList == null )
             return;
