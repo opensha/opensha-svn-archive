@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.util.*;
 import java.awt.event.*;
-
+import javax.swing.Timer;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.gui.controls.GenerateHazusFilesConrolPanelAPI;
@@ -24,7 +24,9 @@ import org.scec.sha.gui.ScenarioShakeMapAttenRelApp_Temp;
  * @version 1.0
  */
 
-public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
+public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
+    implements Runnable{
+
   private JPanel jPanel1 = new JPanel();
   private JTextPane infoPanel = new JTextPane();
   private BorderLayout borderLayout1 = new BorderLayout();
@@ -52,6 +54,12 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
 
   //progress bar
   CalcProgressBar calcProgress;
+
+  //timer instance to show the progress bar component
+  Timer timer;
+
+  //to keep track of different stages o show in progress bar
+  private int step;
 
   /**
    * Class constructor.
@@ -313,21 +321,46 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
     return pgv_xyzdata;
   }
 
-  void generateHazusShapeFilesButton_actionPerformed(ActionEvent e) {
+
+  /**
+   * thread method
+   */
+  public void run(){
     getRegionAndMapType();
     generateShapeFilesForHazus();
+  }
+
+  /**
+   * When the Button to generate dataset for hazus is pressed
+   * @param e
+   */
+  void generateHazusShapeFilesButton_actionPerformed(ActionEvent e) {
+    calcProgress = new CalcProgressBar("Hazus Shape file data","Starting Calculation...");
+    timer = new Timer(200, new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        if(step == 1)
+          calcProgress.setProgressMessage("Doing Calculation for the Hazus ShapeFile Data...");
+        else if(step ==2){
+          timer.stop();
+          calcProgress.dispose();
+        }
+      }
+    });
+    Thread t = new Thread(this);
+    t.start();
   }
 
   /**
    * Creates the dataset to generate the shape files that goes as input to Hazus.
    */
   public void generateShapeFilesForHazus(){
-    calcProgress = new CalcProgressBar("Hazus Shape file data","Starting Calculation...");
-    calcProgress.setProgressMessage("Doing Calculation for the Hazus ShapeFile Data...");
+
+
     generateHazusFiles(application.getSelectedAttenuationRelationships());
     //keeps tracks if the user has pressed the button to generate the xyz dataset
     //for prodcing the shapefiles for Hazus.
     setGenerateShapeFilesForHazus(true);
+    step = 2;
   }
 
   /**
@@ -348,6 +381,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame {
    * IML@Prob or Prob@IML and it value.
    */
   public void getRegionAndMapType(){
+    step =1;
+    timer.start();
     application.getGriddedSitesMapTypeAndSelectedAttenRels();
   }
 

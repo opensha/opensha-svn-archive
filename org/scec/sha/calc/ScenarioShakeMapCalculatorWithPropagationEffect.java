@@ -25,6 +25,13 @@ import org.scec.sha.param.PropagationEffect;
 
 public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioShakeMapCalculator{
 
+
+  //stores the number of sites
+  private int numSites;
+  //gets the current site being processed
+  private int currentSiteBeingProcessed;
+
+
   public ScenarioShakeMapCalculatorWithPropagationEffect() {
   }
 
@@ -45,7 +52,7 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioSha
       SitesInGriddedRegion griddedRegionSites,EqkRupture rupture,
       boolean isProbAtIML,double value) throws ParameterException {
 
-    int numSites = griddedRegionSites.getNumGridLocs();
+    numSites = griddedRegionSites.getNumGridLocs();
 
     //instance of the XYZ dataSet.
     XYZ_DataSetAPI xyzDataSet =null;
@@ -64,6 +71,8 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioSha
     double attenRelsAvgValForSite = 0.0;
     //iterating over all the sites and averaging the values for all AttenRels
     for(int k=0;k<numSites;++k){
+      //saves the number of the current site being processed
+      currentSiteBeingProcessed = k+1;
       //for each site initialising it to 0.0
       attenRelsAvgValForSite = 0.0;
       //getting one site at a time
@@ -133,5 +142,33 @@ public class ScenarioShakeMapCalculatorWithPropagationEffect extends ScenarioSha
     }
   }
 
+
+  /**
+   *
+   * @returns the total number of sites in the region
+   */
+  public int getNumSites(){
+    return numSites;
+  }
+
+
+  /**
+   *
+   * @returns the current site being processed
+   */
+  public int getCurrentSite(){
+    return currentSiteBeingProcessed ;
+  }
+
+  /**
+   *
+   * @returns true if calculations for all the sites are done
+   * else return false.
+   */
+  public boolean done(){
+   if(currentSiteBeingProcessed == numSites)
+     return true;
+   return false;
+  }
 
 }

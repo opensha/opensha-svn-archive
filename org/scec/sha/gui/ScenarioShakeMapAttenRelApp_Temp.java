@@ -8,8 +8,9 @@ import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-
+import java.lang.Thread;
 import ch.randelshofer.quaqua.QuaquaManager;
+import javax.swing.Timer;
 
 import org.scec.sha.gui.beans.*;
 import org.scec.sha.imr.*;
@@ -32,7 +33,8 @@ import org.scec.exceptions.ParameterException;
 
 /**
  * <p>Title: ScenarioShakeMapAttenRelApp_Temp</p>
- * <p>Description: </p>
+ * <p>Description: This application provides  the flexibility to plot shakemaps
+ *  using the single Attenuation as well as the multiple attenuation relationships.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author unascribed
@@ -40,7 +42,7 @@ import org.scec.exceptions.ParameterException;
  */
 
 public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements ParameterChangeListener,
-    AttenuationRelationshipSiteParamsRegionAPI {
+    AttenuationRelationshipSiteParamsRegionAPI,Runnable{
 
   /**
    * Name of the class
@@ -78,9 +80,9 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
 
   //Instance to the ShakeMap calculator to get the XYZ data for the selected scenario
   //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
-  private ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculatorWithPropagationEffect();
+  private ScenarioShakeMapCalculatorWithPropagationEffect shakeMapCalc = new ScenarioShakeMapCalculatorWithPropagationEffect();
 
-
+  Timer timer;
 
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
@@ -243,23 +245,8 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
     mainSplitPane.setDividerLocation(630);
   }
-  //Start the applet
-  public void start() {
-  }
-  //Stop the applet
-  public void stop() {
-  }
-  //Destroy the applet
-  public void destroy() {
-  }
-  //Get Applet information
-  public String getAppletInfo() {
-    return "Applet Information";
-  }
-  //Get parameter info
-  public String[][] getParameterInfo() {
-    return null;
-  }
+
+
   //Main method
   public static void main(String[] args) {
     ScenarioShakeMapAttenRelApp_Temp applet = new ScenarioShakeMapAttenRelApp_Temp();
@@ -426,6 +413,36 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
 
   }
 
+  /**
+   *
+   */
+  public void run(){
+
+    try{
+      addButton();
+    }catch(ParameterException ee){
+      ee.printStackTrace();
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
+      if(calcProgress !=null){
+        calcProgress.showProgress(false);
+        calcProgress.dispose();
+      }
+      return;
+    }
+    catch(Exception ee){
+      ee.printStackTrace();
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
+      if(calcProgress !=null){
+        calcProgress.showProgress(false);
+        calcProgress.dispose();
+      }
+      return;
+    }
+    //make sures that next time user wants to generate the shapefiles for hazus
+    //he would have to pull up the control panel again and punch the button.
+    if(hazusControl !=null)
+      hazusControl.setGenerateShapeFilesForHazus(false);
+  }
 
   /**
    *
@@ -524,8 +541,8 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
           zVals.set(i,new Double(tempVal));
         }
       }
-
     }catch(ParameterException e){
+      e.printStackTrace();
       throw new ParameterException(e.getMessage());
     }
     return xyzDataSet;
@@ -562,7 +579,6 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
    * corresponding relative wts.
    */
   public void getGriddedSitesMapTypeAndSelectedAttenRels(){
-    calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     //gets the IML or Prob selected value
     getIMLorProb();
     //get the site values for each site in the gridded region
@@ -572,12 +588,11 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     attenRelWts = imrGuiBean.getSelectedIMR_Weights();
     //selected IMR's
     attenRel= imrGuiBean.getSelectedIMRs();
-
-    calcProgress.dispose();
-    calcProgress.showProgress(false);
   }
 
   void addButton_actionPerformed(ActionEvent e) {
+
+    calcProgress = new CalcProgressBar("ScenarioShakeMapApp","Initialising for shakemap calculation");
    //sets the Gridded region Sites and the type of plot user wants to see
    //IML@Prob or Prob@IML and it value.
     if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus()){
@@ -586,34 +601,28 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       imrGuiBean.setIMT();
     }
 
-    try{
-      addButton();
-    }catch(ParameterException ee){
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
-      calcProgress.showProgress(false);
-      calcProgress.dispose();
-      return;
-    }
-    catch(Exception ee){
-      ee.printStackTrace();
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
-      calcProgress.showProgress(false);
-      calcProgress.dispose();
-      return;
-    }
-    //make sures that next time user wants to generate the shapefiles for hazus
-    //he would have to pull up the control panel again and punch the button.
-    if(hazusControl !=null)
-      hazusControl.setGenerateShapeFilesForHazus(false);
+    timer = new Timer(200, new ActionListener() {
+      public void actionPerformed(ActionEvent evt) {
+        if(step == 1)
+          calcProgress.setProgressMessage("Doing calculation for shakemap ...");
+        else if(step == 2)
+          calcProgress.setProgressMessage("Generating the shakemap ...");
+        else if(step ==0){
+         timer.stop();
+         calcProgress.dispose();
+        }
+      }
+    });
+    Thread t = new Thread(this);
+    t.start();
   }
 
   /**
    * when the generate Map button is pressed
    */
   public void addButton(){
+    timer.start();
     step = 1;
-    if(step ==1)
-      calcProgress = new CalcProgressBar("ShakeMapApp","  Calculating ShakeMap Data ...");
     if(hazusControl == null || !hazusControl.isGenerateShapeFilesForHazus())
       generateShakeMap(attenRel);
     //sets the region coordinates for the GMT using the MapGuiBean
@@ -621,7 +630,6 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
     ++step;
 
     if(step==2) {
-      calcProgress.setProgressMessage("  Generating the Map ...");
       String label;
       String imlOrProb=imlProbGuiBean.getSelectedOption();
       if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
@@ -636,7 +644,7 @@ public class ScenarioShakeMapAttenRelApp_Temp extends JApplet implements Paramet
       else
         mapGuiBean.makeMap(xyzDataSet,erfGuiBean.getRupture(),label,getMapParametersInfo());
     }
-    calcProgress.dispose();
+    step =0;
 }
 
 
