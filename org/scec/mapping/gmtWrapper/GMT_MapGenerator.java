@@ -37,6 +37,7 @@ public class GMT_MapGenerator implements Serializable{
   private String PS_FILE_NAME = "map.ps";
   private String JPG_FILE_NAME = "map.jpg";
   private String SCALE_LABEL; // what's used to label the color scale
+  private int DPI = 70;
 
   // paths to needed code
   private String GMT_PATH;
@@ -48,6 +49,8 @@ public class GMT_MapGenerator implements Serializable{
   private static String SCEC_GMT_DATA_PATH = "/usr/scec/data/gmt/";
 
   XYZ_DataSetAPI xyzDataSet;
+
+  int counter=0;
 
   // for map boundary parameters
   public final static String MIN_LAT_PARAM_NAME = "Min Latitude";
@@ -148,7 +151,7 @@ public class GMT_MapGenerator implements Serializable{
     minLatParam.setInfo(LAT_LON_PARAM_INFO);
     maxLonParam = new DoubleParameter(MAX_LON_PARAM_NAME,-360,360,LAT_LON_PARAM_UNITS,MAX_LON_PARAM_DEFAULT);
     minLatParam.setInfo(LAT_LON_PARAM_INFO);
-    gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME,.001,100,LAT_LON_PARAM_UNITS,GRID_SPACING_PARAM_DEFAULT);
+    gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME,0.001,100,LAT_LON_PARAM_UNITS,GRID_SPACING_PARAM_DEFAULT);
     minLatParam.setInfo(GRID_SPACING_PARAM_INFO);
 
     StringConstraint cptFileConstraint = new StringConstraint();
@@ -237,6 +240,10 @@ public class GMT_MapGenerator implements Serializable{
 
     // The color scale label (will be an input param eventually)
     SCALE_LABEL = "IML";
+
+    counter += 1;
+
+    JPG_FILE_NAME = "map"+counter+".jpg";
 
     this.xyzDataSet = xyzDataSet;
 
@@ -623,7 +630,6 @@ public class GMT_MapGenerator implements Serializable{
     double gridSpacing = ((Double) gridSpacingParam.getValue()).doubleValue();
 
     // adjust the max lat and lon to be an exact increment (needed for xyz2grd)
-
     double maxLat = Math.rint(((maxTempLat-minLat)/gridSpacing))*gridSpacing +minLat;
     double maxLon = Math.rint(((maxTempLon-minLon)/gridSpacing))*gridSpacing +minLon;
 
@@ -680,22 +686,31 @@ public class GMT_MapGenerator implements Serializable{
     gmtCommandLines.add(commandLine+"\n");
 
     // set some defaults
-    commandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait";
+    commandLine = GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0 PAGE_ORIENTATION portrait PAPER_MEDIA letter";
     gmtCommandLines.add(commandLine+"\n");
 
     // generate the image depending on whether topo relief is desired
     if( resolution.equals(TOPO_RESOLUTION_NONE) ) {
-      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+ grdFileName + xOff + yOff + " " + projWdth + " -C"+fileName+".cpt -K -E"+DPI+" "+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
     else {
-      commandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q";
+      // redefine the region so that (maxLat-minLat)/topoDelta = int
+      gridSpacing = (new Integer(resolution)).doubleValue()/(3600.0);
+      maxLat = Math.floor(((maxLat-minLat)/gridSpacing))*gridSpacing +minLat;
+      maxLon = Math.floor(((maxLon-minLon)/gridSpacing))*gridSpacing +minLon;
+      region = "-R" + minLon + "/" + maxLon + "/" + minLat + "/" + maxLat;
+
+      commandLine=GMT_PATH+"grdsample "+grdFileName+" -G"+fileName+"HiResData.grd -I" + resolution + "c -Q "+region;
       gmtCommandLines.add(commandLine+"\n");
       commandLine=GMT_PATH+"grdcut " + topoIntenFile + " -G"+fileName+"Inten.grd "+region;
       gmtCommandLines.add(commandLine+"\n");
-      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd "+xOff + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E70 "+ region + " > " + PS_FILE_NAME;
+      commandLine=GMT_PATH+"grdimage "+fileName+"HiResData.grd "+xOff + yOff + " " + projWdth + " -I"+fileName+"Inten.grd -C"+fileName+".cpt -K -E"+DPI+" "+ region + " > " + PS_FILE_NAME;
       gmtCommandLines.add(commandLine+"\n");
     }
+
+  commandLine=GMT_PATH+"gmtdefaults -L > junk";
+  gmtCommandLines.add(commandLine+"\n");
 
     // add highways if desired
     if ( !showHiwys.equals(SHOW_HIWYS_NONE) ) {
@@ -736,8 +751,11 @@ public class GMT_MapGenerator implements Serializable{
 //    gmtCommandLines.add(CONVERT_PATH+" " + PS_FILE_NAME + " " + JPG_FILE_NAME+"\n");
 
     // add a command line to convert the ps file to a jpg file - using gs
-    gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=" + JPG_FILE_NAME + " -"+"\n");
+    gmtCommandLines.add(COMMAND_PATH+"cat "+ PS_FILE_NAME + " | "+GS_PATH+" -sDEVICE=jpeg -sOutputFile=temp.jpg -\n");
 
+    int heightInPixels = (int) ((11.0 - yOffset + 2.0) * (double) DPI);
+    commandLine = CONVERT_PATH+" -crop 595x"+heightInPixels+"+0+0 temp.jpg "+JPG_FILE_NAME;
+    gmtCommandLines.add(commandLine+"\n");
 
     return gmtCommandLines;
   }
