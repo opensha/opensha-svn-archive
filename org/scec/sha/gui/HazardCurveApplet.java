@@ -1199,8 +1199,8 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
    erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-   //erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+   //erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
