@@ -4,10 +4,10 @@
   <property category="idl" name="ProcessIDL" value="false"/>
   <property category="runtime" name="DefaultConfiguration" value="-1"/>
   <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
-  <property category="runtime.0" name="ConfigurationName" value="Untitled Runtime Configuration"/>
+  <property category="runtime.0" name="ConfigurationName" value="data conversion Configuration "/>
   <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
   <property category="runtime.0" name="application.class" value="org.scec.sha.earthquake.PEER_TestCases.PEER_TestGuiPlots.ExcelToData"/>
-  <property category="runtime.0" name="application.parameters" value="/auto/terra-01/vgupta/txtfiles/ /auto/terra-01/vgupta/projects/sha/GroupTestDataFiles/"/>
+  <property category="runtime.0" name="application.parameters" value="/auto/terra-01/vgupta/txtfiles/ /auto/terra-01/vgupta/projects/GroupTestDataFiles/"/>
   <property category="runtime.0" name="appserver.parameters" value=""/>
   <property category="runtime.0" name="appserver.servername" value=""/>
   <property category="runtime.0" name="appserver.vmparameters" value=""/>

@@ -1047,12 +1047,10 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
 
              if (this.isTickMarksVisible()) {
                 g2.setPaint(this.getTickMarkPaint());
+                g2.setStroke(this.getTickMarkStroke());
+                Line2D mark = new Line2D.Float(xx, maxY-2, xx, maxY+2);
 
-                 g2.setStroke(this.getTickMarkStroke());
-
-                 Line2D mark = new Line2D.Float(xx, maxY-2, xx, maxY+2);
-
-                 g2.draw(mark);
+                g2.draw(mark);
 
              }
 
