@@ -227,6 +227,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     numDipsEditor.synchToModel();
     editorForDips.synchToModel();
     editorForDepths.synchToModel();
+    faultTypeEditor.synchToModel();
   }
 
   /**
@@ -330,29 +331,53 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     editorForLons.repaint();
   }
 
-
-  /**
-   * Method to set the values of the Latitudes
-   * @param lats: Vector of Latitudes
-   */
-  public void setLatitudes(Vector lats){
-    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
-    for(int i=0;i<numFltTracePoints;++i)
-      this.parameterListForLats.getParameter(LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));
-
+  public void setAll(String name, double gridSpacing, Vector lats, Vector lons,
+                     Vector dips, Vector depths, String faultType) {
+    parameterList.getParameter(this.FAULT_NAME).setValue(name);
+    setAll(gridSpacing, lats, lons, dips, depths, faultType);
   }
 
+
   /**
-   * Method to set the values of the Longitudes
-   * @param lons: Vector of Longitudes
+   * This sets all the fault data needed to make a evenly discretized fault
+   * @param gridSpacing
+   * @param lats
+   * @param lons
+   * @param dips
+   * @param depths
+   * @param faultType
    */
-  public void setLongitudes(Vector lons){
-    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
-    for(int i=0;i<numFltTracePoints;++i)
-      this.parameterListForLons.getParameter(LON_PARAM_NAME+(i+1)).setValue(lons.get(i));
+  public void setAll(double gridSpacing, Vector lats, Vector lons,
+                     Vector dips, Vector depths, String faultType) {
+    int numFltPts = lats.size();
+    int numDips = dips.size();
 
+    if (lats.size() != lons.size())
+      throw new RuntimeException(C+".setAll(): lats and lons Vectors must be the same size");
+
+    if (dips.size() != depths.size()-1)
+      throw new RuntimeException(C+".setAll(): size of dips Vector must one less than the depths Vector");
+
+    if (dips.size()>1 && faultType.equals(this.FRANKEL))
+      throw new RuntimeException(C+".setAll(): "+FRANKEL+" fault type can't be used if dips.size() > 1");
+
+    parameterList.getParameter(this.GRID_SPACING).setValue(new Double(gridSpacing));
+    parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).setValue(new Integer(numFltPts));
+    numDipsEditor.getParameter().setValue(new Integer(numDips));
+
+    for(int i=0;i<numFltPts;++i) {
+      parameterListForLats.getParameter(LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));
+      parameterListForLons.getParameter(LON_PARAM_NAME+(i+1)).setValue(lons.get(i));
+    }
+
+    for(int i=0;i<numDips;++i)
+      parameterListForDips.getParameter(DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
+
+    for(int i=0;i<numDips+1;++i)
+      parameterListForDepths.getParameter(DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
+
+    faultTypeEditor.getParameter().setValue(faultType);
   }
-
 
 
   /**
@@ -383,18 +408,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
 
 
   /**
-   * Method to set the values of the Dips
-   * @param dips: Vector of dips
-   */
-  public void setDips(Vector dips){
-    int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
-    for(int i=0;i<numDips;++i)
-      this.parameterListForDips.getParameter(DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
-  }
-
-
-
-  /**
    * Sets the Depths
    */
   private void setDepths(){
@@ -418,50 +431,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
     editorForDepths.validate();
     editorForDepths.revalidate();
     editorForDepths.repaint();
-  }
-
-  /**
-   * Method to set the values of the Depths
-   * @param depths: Vector of depths
-   */
-  public void setDepths(Vector depths){
-    int numDepths = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue()+1;
-    for(int i=0;i<numDepths;++i)
-      this.parameterListForDepths.getParameter(DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
-  }
-
-
-
-  /**
-   * sets the Fault Name
-   * @param name
-   */
-  public void setFaultName(String name){
-    this.parameterList.getParameter(this.FAULT_NAME).setValue(name);
-  }
-
-  /**
-   * sets the Grid Spacing
-   * @param value
-   */
-  public void setGridSpacing(double value){
-    this.parameterList.getParameter(this.GRID_SPACING).setValue(new Double(value));
-  }
-
-  /**
-   * sets the Number of Fault Trace Points
-   * @param value
-   */
-  public void setNumFaultTracePoints(int value){
-    this.parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).setValue(new Integer(value));
-  }
-
-  /**
-   * sets the Number of Dips
-   * @param value
-   */
-  public void setNumDips(int value){
-    this.numDipsEditor.getParameter().setValue(new Integer(value));
   }
 
 
@@ -670,7 +639,6 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
       //getting the number of dips
       int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
 
-        //System.out.println("Number of Dips: "+numDips);
       //adding the latitudes to the Vector
       for(int i=0;i<fltTracePoints;++i){
         Double latLocation =(Double)this.editorForLats.getParameterList().getParameter(this.LAT_PARAM_NAME+(i+1)).getValue();
@@ -683,8 +651,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         lons.add(lonLocation);
       }
 
-
-      //variable added to store the previous Depth
+      //variable added to store the previous Depth (to make sure they're in ascending order)
       double prevDepth=((Double)this.editorForDepths.getParameterList().getParameter(this.DEPTH_PARAM_NAME+("1")).getValue()).doubleValue();
 
       //adding the depths(equal to numDips +1) to the Vector
@@ -696,6 +663,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
           throw new RuntimeException("Depths should be entered in increasing order");
         prevDepth = depthLocation.doubleValue();
       }
+
       //adding the dips to the vector
       for(int i=0;i<numDips;++i){
         Double dipLocation = (Double)this.editorForDips.getParameterList().getParameter(this.DIP_PARAM_NAME+(i+1)).getValue();
@@ -711,6 +679,7 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
         fltTrace.addLocation(loc);
       }
       this.fltTrace = fltTrace;
+
       //getting the gridSpacing
       double gridSpacing = ((Double)this.parameterList.getParameter(this.GRID_SPACING).getValue()).doubleValue();
 
@@ -775,6 +744,56 @@ public class SimpleFaultParameterEditorPanel extends ParameterEditor
   public String getFaultName(){
     return (String)parameterList.getParameter(this.FAULT_NAME).getValue();
   }
+
+
+/* NED REPLACED THESE WITH THE setAll(*) method
+
+  public void setLatitudes(Vector lats){
+    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
+    for(int i=0;i<numFltTracePoints;++i)
+      this.parameterListForLats.getParameter(LAT_PARAM_NAME+(i+1)).setValue(lats.get(i));
+
+  }
+
+  public void setLongitudes(Vector lons){
+    int numFltTracePoints = ((Integer)parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).getValue()).intValue();
+    for(int i=0;i<numFltTracePoints;++i)
+      this.parameterListForLons.getParameter(LON_PARAM_NAME+(i+1)).setValue(lons.get(i));
+
+  }
+
+  public void setDips(Vector dips){
+    int numDips = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue();
+    for(int i=0;i<numDips;++i)
+      this.parameterListForDips.getParameter(DIP_PARAM_NAME+(i+1)).setValue(dips.get(i));
+  }
+
+
+  public void setDepths(Vector depths){
+    int numDepths = ((Integer)this.numDipsEditor.getParameter().getValue()).intValue()+1;
+    for(int i=0;i<numDepths;++i)
+      this.parameterListForDepths.getParameter(DEPTH_PARAM_NAME+(i+1)).setValue(depths.get(i));
+  }
+
+
+
+  public void setFaultName(String name){
+    this.parameterList.getParameter(this.FAULT_NAME).setValue(name);
+  }
+
+  public void setGridSpacing(double value){
+    this.parameterList.getParameter(this.GRID_SPACING).setValue(new Double(value));
+  }
+
+  public void setNumFaultTracePoints(int value){
+    this.parameterList.getParameter(this.NUMBER_OF_FAULT_TRACE).setValue(new Integer(value));
+  }
+
+  public void setNumDips(int value){
+    this.numDipsEditor.getParameter().setValue(new Integer(value));
+  }
+*/
+
 }
 
 

@@ -1826,28 +1826,33 @@ public class GriddedFaultApplet
         faultParam = new SimpleFaultParameter(this.SIMPLE_FAULT_PARAM_NAME);
         //GUI for the simpleFaultParameter that contains the parameter settings
         customFault = new SimpleFaultParameterGUI(faultParam);
-        SimpleFaultParameterEditorPanel customFaultEditor = customFault.getSimpleFaultEditor();
-        customFaultEditor.setFaultNameVisible(true);
-        customFaultEditor.setGridSpacing(1.0);
-        customFaultEditor.setFaultName("Fault-1");
-        customFaultEditor.setNumFaultTracePoints(2);
+        SimpleFaultParameterEditorPanel customFaultEditor = customFault.getSimpleFaultEditorPanel();
+
         Vector lats = new Vector();
         lats.add(new Double(38.22480));
         lats.add(new Double(38.00));
         Vector lons = new Vector();
         lons.add(new Double(-122.0));
         lons.add(new Double(-122.0));
-        customFaultEditor.setNumDips(1);
         Vector dips = new Vector();
-        dips.add(new Double(90));
+        dips.add(new Double(45));
         Vector depths = new Vector();
         depths.add(new Double(0));
         depths.add(new Double(10));
-        System.out.println("Calling Set Lat Lon from Gridded Applet ");
+
+        customFaultEditor.setFaultNameVisible(true);
+        customFaultEditor.setAll("Fault-1",1.0,lats,lons,dips,depths,customFaultEditor.STIRLING);
+
+/* NED REPLACED THESE WITH THE ABOVE METHOD
+        customFaultEditor.setGridSpacing(1.0);
+        customFaultEditor.setFaultName("Fault-1");
+        customFaultEditor.setNumFaultTracePoints(2);
+        customFaultEditor.setNumDips(1);
         customFaultEditor.setLatitudes(lats);
         customFaultEditor.setLongitudes(lons);
         customFaultEditor.setDepths(depths);
         customFaultEditor.setDips(dips);
+*/
         customFaultEditor.synchToModel();
         createSimpleFault = false;
       }

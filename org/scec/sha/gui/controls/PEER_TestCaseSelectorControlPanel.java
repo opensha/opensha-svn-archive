@@ -101,6 +101,10 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private Vector peerTestSetOne = new Vector();
   private Vector peerTestSetTwo = new Vector();
 
+  //These hold the lats, lons, dips, and depths of the faults used in the PoissonFaultERF
+  private Vector fault1and2_Lats, fault1and2_Lons, fault1_Dips, fault2_Dips, fault1_Depths, fault2_Depths;
+  private Vector faultE_Lats, faultE_Lons, faultE_Dips, faultE_Depths;
+
 
   public PEER_TestCaseSelectorControlPanel(Component parent, IMR_GuiBean imrGuiBean,
                                Site_GuiBean siteGuiBean,
@@ -263,7 +267,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      siteParams.getParameter(Campbell_1997_AttenRel.BASIN_DEPTH_NAME).setValue(new Double(2.0));
    }
 
-   // *********** Now fill in the forecast parameters ************************
+   // *********** Now fill in the ERF parameters ************************
 
    // if it's one of the "PEER fault" problems (cases 1-9)
    if(!selectedTest.equalsIgnoreCase(TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
@@ -724,7 +728,53 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
      magEditor.setMagDistFromParams();
    }
 
+   /**
+    * This initializes the fault-data vectors needed for the tests that utilize the SimplePoissonFaultERF
+    */
+   private void initializeFaultData() {
 
+     // Set1 faults
+     fault1and2_Lats = new Vector();
+     fault1and2_Lats.add(new Double(38.22480));
+     fault1and2_Lats.add(new Double(38.0));
+
+     fault1and2_Lons = new Vector();
+     fault1and2_Lons.add(new Double(-122.0));
+     fault1and2_Lons.add(new Double(-122.0));
+
+     fault1_Dips = new Vector();
+     fault1_Dips.add(new Double(90.0));
+
+     fault1_Depths = new Vector();
+     fault1_Depths.add(new Double(0.0));
+     fault1_Depths.add(new Double(12.0));
+
+     fault2_Dips = new Vector();
+     fault2_Dips.add(new Double(60.0));
+
+     fault2_Depths = new Vector();
+     fault2_Depths.add(new Double(1.0));
+     fault2_Depths.add(new Double(12.0));
+
+     // Set2 faults
+     faultE_Lats = new Vector();
+     faultE_Lats.add(new Double(38.0));
+     faultE_Lats.add(new Double(38.2248));
+
+     faultE_Lats = new Vector();
+     faultE_Lats.add(new Double(-122.0));
+     faultE_Lats.add(new Double(-122.0));
+
+     faultE_Dips = new Vector();
+     faultE_Dips.add(new Double(50.0));
+     faultE_Dips.add(new Double(20.0));
+
+     faultE_Depths = new Vector();
+     faultE_Depths.add(new Double(0.0));
+     faultE_Depths.add(new Double(6.0));
+     faultE_Depths.add(new Double(12.0));
+
+   }
 
 
    /**
