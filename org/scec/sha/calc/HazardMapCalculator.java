@@ -152,6 +152,8 @@ public class HazardMapCalculator {
     }catch(IOException ee){
       ee.printStackTrace();
     }
+
+    if(this.showProgressBar) progressClass.dispose();
   }
 
   /**
