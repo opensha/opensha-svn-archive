@@ -10,13 +10,16 @@ import org.scec.sha.fault.FaultTrace;
 
 /**
  * <p>Title: SimpleFaultParameterGUI</p>
- * <p>Description: Creates a GUI interface to the EvelyGriddedSurface Parameter</p>
+ * <p>Description: Creates a GUI interface to the EvelyGriddedSurface Parameter.
+ * This GUI acts as the intermediatary between the SimpleFaultEditor which is just a
+ * simple button and the SimpleFaultEditorPanel which shows the actual values for the parameters.
+ * So SimpleFaultEditor gets the access to the values of the parameters using this GUI.</p>
  * @author : Edward Field, Nitin Gupta and Vipin Gupta
  * @created : Aug 3,2003
  * @version 1.0
  */
 
-public class SimpleFaultParameterGUI extends JFrame{
+public class SimpleFaultParameterGUI extends JDialog{
   private JPanel evenlyGriddedSurfacePanel = new JPanel();
   private JScrollPane evenlyGriddedParamsScroll = new JScrollPane();
   private JButton button = new JButton();
@@ -25,10 +28,14 @@ public class SimpleFaultParameterGUI extends JFrame{
   private JPanel parameterPanel = new JPanel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
-  // Object for the SimpleFaultParameter Editor
-  SimpleFaultParameterEditor gridSurface;
 
-  public SimpleFaultParameterGUI(SimpleFaultParameter surfaceParam) {
+
+  //Object for the SimpleFaultParameterEditorPanel
+  SimpleFaultParameterEditorPanel faultEditorPanel;
+
+  //Constructor that takes the Object for the SimpleFaultParameter
+  public SimpleFaultParameterGUI(ParameterAPI surfaceParam) {
+    this.setModal(true);
     try {
       jbInit();
     }
@@ -37,10 +44,9 @@ public class SimpleFaultParameterGUI extends JFrame{
     }
 
     //creating the object for the SimpleFaultParameter Editor
-    gridSurface = new SimpleFaultParameterEditor();
-    gridSurface.setParameter(surfaceParam);
-    gridSurface.setUpdateButtonVisible(false);
-    parameterPanel.add(gridSurface,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    faultEditorPanel = new SimpleFaultParameterEditorPanel();
+    faultEditorPanel.setParameter(surfaceParam);
+    parameterPanel.add(faultEditorPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
   }
 
@@ -79,10 +85,11 @@ public class SimpleFaultParameterGUI extends JFrame{
   void button_actionPerformed(ActionEvent e) {
     boolean disposeFlag = true;
     try{
-      gridSurface.setEvenlyGriddedSurfaceFromParams();
+      faultEditorPanel.setEvenlyGriddedSurfaceFromParams();
     }catch(RuntimeException ee){
       disposeFlag = false;
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect input Parameters",JOptionPane.OK_OPTION);
+      ee.printStackTrace();
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect Input Parameters",JOptionPane.OK_OPTION);
     }
 
     //donot close the application  if any exception has been thrown by the application
@@ -95,7 +102,7 @@ public class SimpleFaultParameterGUI extends JFrame{
    * @return
    */
   public FaultTrace getFaultTrace(){
-   return gridSurface.getFaultTrace();
+   return faultEditorPanel.getFaultTrace();
   }
 
   /**
@@ -103,7 +110,7 @@ public class SimpleFaultParameterGUI extends JFrame{
    * @return
    */
   public double getUpperSies(){
-    return gridSurface.getUpperSiesmogenicDepth();
+    return faultEditorPanel.getUpperSiesmogenicDepth();
   }
 
   /**
@@ -111,7 +118,7 @@ public class SimpleFaultParameterGUI extends JFrame{
    * @return
    */
   public double getLowerSies(){
-    return gridSurface.getLowerSiesmogenicDepth();
+    return faultEditorPanel.getLowerSiesmogenicDepth();
   }
 
   /**
@@ -119,14 +126,34 @@ public class SimpleFaultParameterGUI extends JFrame{
    * @return
    */
   public String getFaultName(){
-    return gridSurface.getFaultName();
+    return faultEditorPanel.getFaultName();
   }
 
   /**
-   * gets the SimpleFaultParameterEditor object back to the applications
-   * @return
+   * Intermediate step to call the SynchToModel for the SimpleFaultEditorPanel
+   * becuase the SimpleFaultEditorPanel is just a simple Editor that shows the
+   * button in the window. But when you click the button only then the actual
+   * parameter values comes up
    */
-  public SimpleFaultParameterEditor getSimpleParameterFaultEditor(){
-    return this.gridSurface;
+  public void synchToModel(){
+    faultEditorPanel.synchToModel();
   }
+
+  /**
+   * Sets the Value of the SimpleFaultParameter
+   * @param param
+   */
+  public void setParameter(ParameterAPI param){
+    faultEditorPanel.setParameter(param);
+  }
+
+  /**
+   *
+   * @returns the Object for the SimpleFaultEditorPanel which actually contains the
+   * values of the parameter for the SimpleFaultParameter
+   */
+  public SimpleFaultParameterEditorPanel getSimpleFaultEditor(){
+    return this.faultEditorPanel;
+  }
+
 }

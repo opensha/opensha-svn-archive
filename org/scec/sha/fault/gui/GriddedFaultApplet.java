@@ -1824,7 +1824,7 @@ public class GriddedFaultApplet
         faultParam = new SimpleFaultParameter(this.SIMPLE_FAULT_PARAM_NAME);
         //GUI for the simpleFaultParameter that contains the parameter settings
         customFault = new SimpleFaultParameterGUI(faultParam);
-        SimpleFaultParameterEditor customFaultEditor = customFault.getSimpleParameterFaultEditor();
+        SimpleFaultParameterEditorPanel customFaultEditor = customFault.getSimpleFaultEditor();
         customFaultEditor.setFaultNameVisible(true);
         customFaultEditor.setGridSpacing(1.0);
         customFaultEditor.setFaultName("Fault-1");

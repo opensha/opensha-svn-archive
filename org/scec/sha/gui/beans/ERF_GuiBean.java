@@ -194,32 +194,10 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      MagFreqDistParameterEditor magDistEditor=getMagDistEditor();
      if(magDistEditor !=null)  magDistEditor.setUpdateButtonVisible(false);
 
-     //checks to see if the forecast include the SimpleFaultParameter
-     SimpleFaultParameterEditor simpleFaultEditor = getSimpleFaultEditor();
-     if(simpleFaultEditor !=null) simpleFaultEditor.setUpdateButtonVisible(false);
 
    }
 
 
-   /**
-    * gets the lists of all the parameters that exists in the ERF parameter Editor
-    * then checks if the simpleFaultParameter exists inside it , if so then returns the Simple FaultEditor
-    * else return null.  The only reason this is public is because at least one control panel
-    * (for the PEER test cases) needs access.
-    * @returns SimpleFaultParameterEditor
-    */
-   public SimpleFaultParameterEditor getSimpleFaultEditor(){
-
-     ListIterator lit = parameterList.getParametersIterator();
-     while(lit.hasNext()){
-       ParameterAPI param=(ParameterAPI)lit.next();
-       if(param instanceof SimpleFaultParameter){
-         SimpleFaultParameterEditor simpleFaultEditor=((SimpleFaultParameterEditor)getParameterEditor(param.getName()));
-         return simpleFaultEditor;
-       }
-     }
-     return null;
-   }
 
 
    /**
@@ -260,9 +238,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      // update the mag dist param
      if(this.getMagDistEditor()!=null)
        this.updateMagDistParam();
-     //update teh simple Fault parameter
-     if(this.getSimpleFaultEditor()!=null)
-       this.updateSimpleFaultParam();
+
      return eqkRupForecast;
    }
 
@@ -311,13 +287,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      if(magEditor!=null)  magEditor.setMagDistFromParams();
    }
 
-   /**checks if the SimpleFaultParameter exists inside it ,
-    * if so then gets its Editor and calls the method to update the simpleFault Parameter.
-    */
-   protected void updateSimpleFaultParam() {
-     SimpleFaultParameterEditor simpleFaultEditor= getSimpleFaultEditor();
-     if(simpleFaultEditor!=null)  simpleFaultEditor.setEvenlyGriddedSurfaceFromParams();
-   }
 
    /**
     *  Shown when a Constraint error is thrown on a ParameterEditor

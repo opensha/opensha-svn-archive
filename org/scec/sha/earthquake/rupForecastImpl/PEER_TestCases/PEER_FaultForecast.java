@@ -114,7 +114,7 @@ public class PEER_FaultForecast extends EqkRupForecast
 
 
   // TEST make SimpleFaultParameter
-//  SimpleFaultParameter testParam;
+  //SimpleFaultParameter testParam;
 
 
 
@@ -144,6 +144,8 @@ public class PEER_FaultForecast extends EqkRupForecast
     supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
     supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
     magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
+   // testParam = new SimpleFaultParameter("Test");
+    //adjustableParams.addParameter(testParam);
     //add the magdist parameter
     adjustableParams.addParameter(this.magDistParam);
 
