@@ -1,8 +1,6 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Make default values for FaultParameter
-
 Fix progress bars in ScenarioShakeMapApps
 
 Create the Puente Hill Scenario control in the ScenarioShakeMapApp that supports both the single and multiple AttenuatinRelationship selection.
@@ -11,18 +9,12 @@ Change HazardCurveServerModeApp to do the calculations on the server.
 
 After the above, deploy USGS/CGS 2002 ERF in Server-Mode Haz Curve App.
 
-make sure x-axis values in hazFunction at line 1023 in the HazardCurveApplet are really in linear domain.
-
-use long-log interpolation in the HazardMapVierwer(s) - test this by hand
-
 Notes on HazardCurveApps:
 
 	1) calcs occur on user's computer
 	2) calcs occur on server
 
 	(ERFs can be both local or distributed in both)
-
-Implement Spudich et al. (1999) relationship  (Ned)
 
 Implement point source correction option in PropagationEffect.  ************
 
