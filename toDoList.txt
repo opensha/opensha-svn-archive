@@ -1,9 +1,9 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-JFreeChart - figure out is there is a way to increase space on right side of plot without increasing the upper axis limit (e.g., if "1000" is the upper limit it's label gets cut off; JFreeChart solves this by making the upper axis limit 1.05*1000).  Also offset the man X-axis labels further down on Log plots (they touch the bar).
+Make sure last x-axis label is not cut off in all our applications (can't be done dynamically based on width of label).
 
-Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).
+Make all interpolations of hazard curves based on log(prob) vs log(IML) or log(EqvPoisRate) vs log(IML).  Do this by adding a method to DiscretizedFunctionAPI (e.g., getInterpolatedY_inLogXLogYDomain(double x).
 
 Change "Set X Values for Hazard Curve Calc" as follows:
 
@@ -15,7 +15,7 @@ Change "Set X Values for Hazard Curve Calc" as follows:
 
 		b) "Custom Values"
 
-		c) "Min, Max, and Num"
+		c) "Min, Max, and Num", & a "set" button
 
 		d) "Default"
 
@@ -37,7 +37,7 @@ Change "Set X Values for Hazard Curve Calc" as follows:
 	X values (since they will no longer be the default).
 
 
-See if mac can now handle different styles of tabs.
+See if mac can now handle different styles of tabs - can change only if you change the entire look and feel (e.g., not OS specific).
 
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?
 
@@ -45,30 +45,13 @@ Finish implementing Set2-Case5 (Nitin knows it's incorrectly implemented).
 
 Check lat/lon values of cities in sites of interest.  Lets try to find some official list of city lats and lons for at least california.
 
-Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).
-
-Remove the following since they are no longer needed (after doing the above):
-
-	PEER_FaultForecast
-	PEER_ListricFaultForecast
-	PEER_FaultSource
-
-	org.scec.sha.earthquake.demo	(old demo that we don't need anymore)
-
-Move the following from org.scec.sha.earthquake to org.scec.sha.earthquake.rupForecastImple:
-
-	PointPoissonEqkSource
-	SimplePoissonFaultERF
-	SimplePoissonFaultSource
-
+Deploy SimplePoissonFaultERF in servlet mode and remove the servlet mode PEER_FaultForecast (update the ERF servlet-mode GUIbean accordingly).  Ned will check out (from web-site jars).
 
 Lets chance syncToModel (and "synchToModel" as it is spelled in some places) method to something like refreshParamEditor (assuming this is used only to refresh editors).
 
 Make the WG02 ERF servlet so that more than one user can use it at any given time. 
 
-
-
-Contact Bruce about Shape-file generation for scenarios (different from probabilistic map inputs)
+Look at Bruce's code for Shape-file generation for scenarios (different from probabilistic map inputs)
 
 JFreeChart - finish the tester GUI and compose email of suggested changes
 
@@ -78,7 +61,7 @@ Implement 2002 National Hazard maps model - Ned will work on.
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out.
 
-Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.
+Make J-unit tests for Campbells tests of the attenuation relationships (generalize as much as possible); shakemap tests well come from Ken later.  ned should look at.  Nitin says there are still important discrepancies.
 
 Generalize ERF servlets so that one object can be used for any arbitrary ERF (or ERF epistemic list).  Ned will check this out.
 
