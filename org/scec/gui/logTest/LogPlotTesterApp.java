@@ -395,6 +395,7 @@ public class LogPlotTesterApp extends JApplet  {
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
       clearPlot();
       functions = (XYSeriesCollection)dataWindow.getXYDataSet();
+      System.out.println("Number of Series: "+ functions.getSeriesCount());
       autoScale = true;
     }
     else
@@ -464,8 +465,13 @@ public class LogPlotTesterApp extends JApplet  {
 
        setMinorAxisFlag();
        // build the plot
-       org.jfree.chart.plot.XYPlot plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
-
+       org.jfree.chart.plot.XYPlot plot =null;
+       try{
+         plot = new org.jfree.chart.plot.XYPlot(functions, xAxis, yAxis,renderer);
+       }catch(Exception e){
+         JOptionPane.showMessageDialog(this,e.getMessage(),"Invalid Log Plot",JOptionPane.OK_OPTION);
+         return;
+       }
        plot.setBackgroundAlpha( .8f );
        plot.setRenderer( renderer );
        plot.setDomainCrosshairLockedOnData(false);
@@ -778,7 +784,7 @@ public class LogPlotTesterApp extends JApplet  {
   void dataSetCombo_actionPerformed(ActionEvent e) {
     if(((String)dataSetCombo.getSelectedItem()).equals(NEW_DATASET)){
       if(dataWindow ==null)
-        dataWindow = new XYDataWindow();
+        dataWindow = new XYDataWindow(this,functions);
       dataWindow.show();
       dataWindow.pack();
     }
