@@ -59,7 +59,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
 
 
   // title for site paramter panel
-  protected final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
+  public final static String GRIDDED_SITE_PARAMS = "Set Gridded Region Params";
 
   //Site Params Vector
   Vector siteParams = new Vector();
@@ -82,7 +82,7 @@ public class SitesInGriddedRegionGuiBean extends ParameterListEditor implements
   private DoubleParameter maxLat = new DoubleParameter(MAX_LATITUDE,
       new Double(-90), new Double(90), new Double(34.7));
   private DoubleParameter gridSpacing = new DoubleParameter(GRID_SPACING,
-      new Double(.0333),new Double(1.0),new String("Degrees"),new Double(.1));
+      new Double(.01666),new Double(1.0),new String("Degrees"),new Double(.1));
 
 
   //StringParameter to set site related params

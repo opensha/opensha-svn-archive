@@ -432,7 +432,7 @@ public class GMT_MapGenerator implements Serializable{
     if(xyzDataSet.checkXYZ_NumVals()){
       int size = xVals.size();
       for(int i=0;i<size;++i)
-        lines.add(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+        lines.add(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i));
     }
     else
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
