@@ -214,4 +214,12 @@ public class MagFreqDistParameter
       throw new java.lang.UnsupportedOperationException("This method not implemented yet");
 
     }
+
+    /**
+     * Returns the type(full path with the classname) of the MagDist Classes
+     */
+    public String getType() {
+      String type = C;
+      return type;
+    }
 }

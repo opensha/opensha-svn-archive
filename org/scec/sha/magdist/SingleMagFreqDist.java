@@ -15,7 +15,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   /**
    * todo variables
    */
-  public static String NAME = "Single Dist.";
+  public static String NAME = "Single Dist." ;
   private double mag;
   private double rate;
 

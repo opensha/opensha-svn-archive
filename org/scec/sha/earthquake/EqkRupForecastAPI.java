@@ -6,6 +6,8 @@ import org.scec.param.ParameterList;
 
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.ListIterator;
+
 /**
  * <b>Title:</b> EqkRupForecast<br>
  * <b>Description: Earthquake Rupture Forecast</b> <br>
@@ -131,6 +133,6 @@ public interface EqkRupForecastAPI extends NamedObjectAPI{
     *
     * @return
     */
-   public ParameterList getAdjustableParamsList();
+   public ListIterator getAdjustableParamsList();
 
 }

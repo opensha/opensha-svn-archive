@@ -402,7 +402,8 @@ public class MagFreqDistTesterApplet extends JApplet
     distNames.add(GutenbergRichterMagFreqDist.NAME);
     distNames.add(YC_1985_CharMagFreqDist.NAME);
     magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
-    magDistEditor = new MagFreqDistParameterEditor(magDist);
+    magDistEditor = new MagFreqDistParameterEditor();
+    magDistEditor.setParameter(magDist);
     //inputPanel.add(magDistEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
       //          , GridBagConstraints.NORTH, GridBagConstraints.BOTH, emptyInsets, 0, 0 ));
 

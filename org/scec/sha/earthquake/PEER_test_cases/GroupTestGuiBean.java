@@ -33,7 +33,8 @@ public class GroupTestGuiBean implements
   protected final static boolean D = false;
   private String name  = "GroupTestGuiBean";
 
-
+  //object for the fault
+  FaultCaseSet1_Fault faultcase1=new FaultCaseSet1_Fault();
   /**
    *  Search path for finding editors in non-default packages.
    */
@@ -148,29 +149,21 @@ public class GroupTestGuiBean implements
   private Vector imrObject = new Vector();
   private GroupTestApplet applet= null;
 
-  //mag dist bean instance for the mag Freq Dist implementations
-  private MagFreqDistParameterEditor magDistEditor;
-
-  //Mag dist parameter
-  private MagFreqDistParameter magDistParam;
 
   /**
    * constructor
    */
   public GroupTestGuiBean(GroupTestApplet applet) {
 
-
     this.applet = applet;
-
 
     //create the instance of magdistbean
     //this.magDistBean = new MagDistGuiBean(applet);
-
     // search path needed for making editors
-    searchPaths = new String[2];
+    searchPaths = new String[3];
     searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
     searchPaths[1] = SPECIAL_EDITORS_PACKAGE;
-
+    searchPaths[2] = "org.scec.sha.magdist" ;
 
     //MAKE changes in this function for any change in test cases
     initTestCasesParamListAndEditor();
@@ -403,7 +396,6 @@ public class GroupTestGuiBean implements
     * init eqkSourceParamList. List of all available sources at this time
     */
     protected void initEqkSourceParamListAndEditor() {
-      this.eqkSourceParamList = new ParameterList();
 
       //add the source Parameter
       Vector faultVector=new Vector();
@@ -414,19 +406,12 @@ public class GroupTestGuiBean implements
       selectSource.addParameterChangeListener(this);
       eqkSourceParamList.addParameter(selectSource);
 
-      // add the grid spacing field
-      DoubleParameter gridParam = new DoubleParameter(GRID_PARAM_NAME, DEFAULT_GRID_VAL);
-      eqkSourceParamList.addParameter(gridParam);
+      //getting the value of the parameters for the fault-1
 
-      // add the rupOffset spacing field
-      DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME, DEFAULT_OFFSET_VAL);
-      eqkSourceParamList.addParameter(offsetParam);
-
-      // add sigma for maglength(0-1)
-      DoubleParameter lengthSigmaParam = new DoubleParameter(SIGMA_PARAM_NAME,
-                          SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, DEFAULT_SIGMA_VAL);
-      lengthSigmaParam.addParameterChangeFailListener(applet);
-      eqkSourceParamList.addParameter(lengthSigmaParam);
+      ListIterator it=faultcase1.getAdjustableParamsList();
+      while(it.hasNext()){
+        eqkSourceParamList.addParameter((ParameterAPI)it.next());
+      }
 
       //add Depth Lower
       DoubleParameter depthLowerParam = new DoubleParameter(DEPTH_LOWER_PARAM_NAME);
@@ -436,9 +421,6 @@ public class GroupTestGuiBean implements
       DoubleParameter depthUpperParam = new DoubleParameter(DEPTH_UPPER_PARAM_NAME);
       eqkSourceParamList.addParameter(depthUpperParam);
 
-      //add the timespan parameter
-      DoubleParameter dipParam = new DoubleParameter(this.DIP_PARAM_NAME);
-      eqkSourceParamList.addParameter(dipParam);
 
       //add the timespan parameter
       DoubleParameter timespanParam = new DoubleParameter(this.TIMESPAN_PARAM_NAME);
@@ -560,14 +542,6 @@ public class GroupTestGuiBean implements
 
 
 
- /**
-  *  Gets the controlssEditor attribute of the MagDistGuiBean object
-  *
-  * @return    The controlsEditor value
-  */
-  public MagFreqDistParameterEditor getMagDistControlsEditor() {
-      return this.magDistEditor;
-  }
 
 
 
@@ -614,7 +588,7 @@ public class GroupTestGuiBean implements
         String value = event.getNewValue().toString();
         setParamsInSourceVisible(value);
         applet.updateChoosenEqkSource();
-        applet.updateChoosenMagDist();
+       // applet.updateChoosenMagDist();
       }
   }
 
@@ -636,14 +610,11 @@ public class GroupTestGuiBean implements
     Vector supportedMagDists = new Vector();
     // if fault1 or fault2 is selected
     if(source.equalsIgnoreCase(this.SOURCE_FAULT_ONE)) {
-      eqkSourceEditor.setParameterInvisible(this.GRID_PARAM_NAME, true);
-      eqkSourceEditor.setParameterInvisible(this.OFFSET_PARAM_NAME, true);
-      eqkSourceEditor.setParameterInvisible(this.SIGMA_PARAM_NAME, true);
-      eqkSourceEditor.setParameterInvisible(this.DIP_PARAM_NAME, true);
-      supportedMagDists.add(GaussianMagFreqDist.NAME);
-      supportedMagDists.add(SingleMagFreqDist.NAME);
-      supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
-      supportedMagDists.add(YC_1985_CharMagFreqDist.NAME);
+     it = faultcase1.getAdjustableParamsList();
+      while(it.hasNext()) {
+        String paramName=((ParameterAPI)it.next()).getName();
+        eqkSourceEditor.setParameterInvisible(paramName, true);
+      }
     } else if(source.equalsIgnoreCase(this.SOURCE_FAULT_AREA)) {
        // if Area source is selected
       eqkSourceEditor.setParameterInvisible(this.GRID_PARAM_NAME, true);
@@ -652,8 +623,7 @@ public class GroupTestGuiBean implements
       supportedMagDists.add(GutenbergRichterMagFreqDist.NAME);
 
     }
-    this.magDistParam = new MagFreqDistParameter(MAG_DIST_PARAM_NAME, supportedMagDists);
-    magDistEditor = new  MagFreqDistParameterEditor(magDistParam);
+
   }
 
 

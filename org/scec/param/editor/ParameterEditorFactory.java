@@ -112,9 +112,7 @@ public class ParameterEditorFactory {
             return editor;
         }
         else{ throw new ParameterException(S + "Created class doesn't extend AbstractParameterEditor: " + c.getName()); }
-
-
-    }
+   }
 
     /**
      * The Class class of the editor found on the

@@ -1,5 +1,6 @@
 package org.scec.sha.earthquake;
 
+import java.util.ListIterator;
 
 import org.scec.param.ParameterList;
 /**
@@ -13,15 +14,15 @@ import org.scec.param.ParameterList;
 
 public abstract class EqkRupForecast implements EqkRupForecastAPI{
 
-  private ParameterList adjustableParams = new ParameterList();
+  protected ParameterList adjustableParams = new ParameterList();
 
   /**
    * get the adjustable parameters for this forecast
    *
    * @return
    */
-   public ParameterList getAdjustableParamsList() {
-     return adjustableParams;
+   public ListIterator getAdjustableParamsList() {
+     return adjustableParams.getParametersIterator();
    }
 
 }
