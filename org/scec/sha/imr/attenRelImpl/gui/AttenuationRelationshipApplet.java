@@ -99,8 +99,8 @@ public class AttenuationRelationshipApplet extends JApplet
     private ArrayList functionList = new ArrayList();
 
     //X and Y Axis  when plotting tha Curves Name
-    private String xAxisName;
-    private String yAxisName;
+    private String xAxisName="";
+    private String yAxisName="";
 
 
     protected boolean inParameterChangeWarning = false;

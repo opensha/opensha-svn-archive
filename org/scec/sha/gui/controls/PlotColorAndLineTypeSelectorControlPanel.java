@@ -120,7 +120,9 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 14, 9, 0), 11, 5));
     jPanel1.add(defaultButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 19, 9, 54), 3, 5));
-    this.setSize(350,200);
+    jPanel1.setSize(400,200);
+    colorAndLineTypeSelectorPanel.setSize(400,200);
+    setSize(400,200);
   }
 
 
