@@ -82,7 +82,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
     erfPanel.setLayout(gridBagLayout5);
     erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
+    erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
 
   }
 

@@ -94,7 +94,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private IMT_GuiBean imtGuiBean;
   private IMR_GuiBean imrGuiBean;
   private Site_GuiBean siteGuiBean;
-  private ERF_GuiBeanAPI erfGuiBean;
+  private ERF_GuiBean erfGuiBean;
   private TimeSpanGuiBean timeSpanGuiBean;
   private SetMinSourceSiteDistanceControlPanel distanceControlPanel;
 
@@ -136,7 +136,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
                                IMR_GuiBean imrGuiBean,
                                Site_GuiBean siteGuiBean,
                                IMT_GuiBean imtGuiBean,
-                               ERF_GuiBeanAPI erfGuiBean,
+                               ERF_GuiBean erfGuiBean,
                                TimeSpanGuiBean timeSpanGuiBean,
                                SetMinSourceSiteDistanceControlPanel distanceControlPanel){
 
@@ -272,7 +272,7 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
     imrGuiBean.refreshParamEditor();
     imtGuiBean.refreshParamEditor();
     siteGuiBean.getParameterListEditor().refreshParamEditor();
-    erfGuiBean.refreshParamEditor();
+    erfGuiBean.getERFParameterListEditor().refreshParamEditor();
     timeSpanGuiBean.getParameterListEditor().refreshParamEditor();
   }
 
@@ -358,29 +358,29 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    if(!selectedTest.equalsIgnoreCase(TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
 
      // set the ERF
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
+     erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
 
      // set the common parameters like timespan
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
 
      // magScalingSigma parameter is changed if the test case chosen is 3
      if(selectedTest.equals(TEST_CASE_THREE))
-       erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
+       erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
 
      // set the rake for all cases
      if( selectedTest.equals(TEST_CASE_FOUR) ||
          selectedTest.equals(TEST_CASE_NINE_ONE) ||
          selectedTest.equals(TEST_CASE_NINE_TWO) ||
          selectedTest.equals(TEST_CASE_NINE_THREE) ) {
-              erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
+              erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90.0));
      }
      else {
-       erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+       erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
      }
 
      // set the Fault Parameter
@@ -401,17 +401,17 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    // it's an area ERF (case 10 or 11)
    else {
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_AreaForecast.NAME);
+     erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_AreaForecast.NAME);
 
-     erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-     erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
-     erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.RAKE_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+     erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DIP_PARAM_NAME).setValue(new Double(90));
+     erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.RAKE_PARAM_NAME).setValue(new Double(0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
      if(selectedTest.equals(TEST_CASE_TEN))
-       erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
+       erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(5));
      else
-       erfGuiBean.getParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+       erfGuiBean.getERFParameterList().getParameter(PEER_AreaForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
    }
 
    // set magFreqDist parameters using seperate method
@@ -557,31 +557,31 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case -1
    if(selectedTest.equalsIgnoreCase(TEST_CASE_ONE)){
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.NAME);
+     erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_NonPlanarFaultForecast.NAME);
      // add sigma for maglength(0-1)
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.SIGMA_PARAM_NAME).setValue(new Double(0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(6.95));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(2.0));
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(PEER_NonPlanarFaultForecast.SEGMENTATION_NO);
-     erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.FAULT_MODEL_NAME).setValue(PEER_NonPlanarFaultForecast.FAULT_MODEL_STIRLING);
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.GR_MAG_UPPER).setValue(new Double(6.95));
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.SLIP_RATE_NAME).setValue(new Double(2.0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.SEGMENTATION_NAME).setValue(PEER_NonPlanarFaultForecast.SEGMENTATION_NO);
+     erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.FAULT_MODEL_NAME).setValue(PEER_NonPlanarFaultForecast.FAULT_MODEL_STIRLING);
      // set the dip direction depending on the chosen
      if(selectedSite.equals(SITE_ONE) || selectedSite.equals(SITE_TWO) || selectedSite.equals(SITE_THREE))
-       erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_EAST);
+       erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_EAST);
      else
-       erfGuiBean.getParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_WEST);
+       erfGuiBean.getERFParameterList().getParameter(PEER_NonPlanarFaultForecast.DIP_DIRECTION_NAME).setValue(PEER_NonPlanarFaultForecast.DIP_DIRECTION_WEST);
    }
 
    //if test case -2
    if(selectedTest.equalsIgnoreCase(TEST_CASE_TWO)){
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_MultiSourceForecast.NAME);
+     erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_MultiSourceForecast.NAME);
 
-     erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
-     erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
-     erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(PEER_MultiSourceForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_LOWER_PARAM_NAME).setValue(new Double(10));
+     erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.DEPTH_UPPER_PARAM_NAME).setValue(new Double(5));
+     erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.GRID_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(PEER_MultiSourceForecast.OFFSET_PARAM_NAME).setValue(new Double(1.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
    }
 
@@ -589,15 +589,15 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    if(selectedTest.equalsIgnoreCase(TEST_CASE_THREE) || selectedTest.equalsIgnoreCase(TEST_CASE_FOUR) ) {
 
      // set the ERF
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
+     erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
 
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
 
      // set the Fault Parameter
      SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
@@ -608,26 +608,26 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
    //if test case 5
    if(selectedTest.equalsIgnoreCase(TEST_CASE_FIVE) ) {
-       erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
-       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.FAULT_MODEL_NAME).setValue(PEER_LogicTreeERF_List.FAULT_MODEL_STIRLING);
-       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.OFFSET_PARAM_NAME).setValue(new Double(1));
-       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.GRID_PARAM_NAME).setValue(new Double(1));
-       erfGuiBean.getParameterList().getParameter(PEER_LogicTreeERF_List.SIGMA_PARAM_NAME).setValue(new Double(0.0));
+       erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(PEER_LogicTreeERF_List.NAME);
+       erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.FAULT_MODEL_NAME).setValue(PEER_LogicTreeERF_List.FAULT_MODEL_STIRLING);
+       erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.OFFSET_PARAM_NAME).setValue(new Double(1));
+       erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.GRID_PARAM_NAME).setValue(new Double(1));
+       erfGuiBean.getERFParameterList().getParameter(PEER_LogicTreeERF_List.SIGMA_PARAM_NAME).setValue(new Double(0.0));
        timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
    }
 
    //if test case -6
    if(selectedTest.equalsIgnoreCase(TEST_CASE_SIX)){
      // set the ERF
-     erfGuiBean.getParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
+     erfGuiBean.getERFParameterList().getParameter(ERF_GuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
 
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(PEER_testsMagAreaRelationship.NAME);
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.SIGMA_PARAM_NAME).setValue(new Double(0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.ASPECT_RATIO_PARAM_NAME).setValue(new Double(2.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MIN_MAG_PARAM_NAME).setValue(new Double(5.0));
      timeSpanGuiBean.getParameterList().getParameter(TimeSpan.DURATION).setValue(new Double(1.0));
-     erfGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
+     erfGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(0.0));
 
      // set the Fault Parameter
      SimpleFaultParameterEditorPanel faultPanel = erfGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();

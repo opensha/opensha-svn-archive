@@ -316,9 +316,9 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
     }
 
     // fill the combo box with available data sets
-    Enumeration enum=metaDataHash.keys();
+    Enumeration enumeration=metaDataHash.keys();
     ArrayList keys = new ArrayList();
-    while(enum.hasMoreElements()) keys.add(enum.nextElement());
+    while(enumeration.hasMoreElements()) keys.add(enumeration.nextElement());
     Collections.sort(keys);
     Iterator it = keys.iterator();
 

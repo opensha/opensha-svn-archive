@@ -1,15 +1,10 @@
 package org.scec.sha.gui.beans;
-import java.awt.Color;
-import java.awt.Font;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
 
-import javax.swing.BorderFactory;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 
@@ -18,8 +13,7 @@ import org.scec.param.ParameterConstraintAPI;
 import org.scec.param.ParameterList;
 import org.scec.param.StringParameter;
 import org.scec.param.editor.ParameterListEditor;
-import org.scec.param.event.ParameterChangeEvent;
-import org.scec.param.event.ParameterChangeFailEvent;
+import org.scec.param.event.*;
 import org.scec.sha.earthquake.ERF_List;
 import org.scec.sha.earthquake.ERF_API;
 import org.scec.sha.gui.infoTools.CalcProgressBar;
@@ -27,6 +21,8 @@ import org.scec.sha.param.MagFreqDistParameter;
 import org.scec.sha.param.SimpleFaultParameter;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.editor.SimpleFaultParameterEditor;
+import java.awt.*;
+import javax.swing.*;
 
 
 /**
@@ -38,7 +34,11 @@ import org.scec.sha.param.editor.SimpleFaultParameterEditor;
  * @version 1.0
  */
 
-public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
+public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
+    ParameterChangeListener{
+
+  private final static String C = "ERF_GuiBean";
+
   //this vector saves the names of all the supported Eqk Rup Forecasts
   protected ArrayList erfNamesVector=new ArrayList();
   //this vector holds the full class names of all the supported Eqk Rup Forecasts
@@ -56,11 +56,18 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
   //instance of progress bar to show the progress of updation of forecast
   CalcProgressBar progress= null;
 
-  /**
-   * default constructor
-   */
-  public ERF_GuiBean() {
-  }
+
+  //parameter List to hold the selected ERF parameters
+  private ParameterList parameterList;
+  private ParameterListEditor listEditor;
+
+  //TimeSpanGui Bean
+  TimeSpanGuiBean timeSpanGuiBean;
+  private JScrollPane erfScrollPane = new JScrollPane();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private JPanel erfAndTimespanPanel = new JPanel();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+
 
 
   /**
@@ -68,6 +75,12 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
    * @param erfClassNames
    */
   public ERF_GuiBean(ArrayList erfClassNames) throws InvocationTargetException{
+    try {
+      jbInit();
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
     // save the classs names of ERFs to be shown
      this.erfClasses = erfClassNames;
 
@@ -138,7 +151,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
      this.parameterList = new ParameterList();
 
-     if(D)  System.out.println("Iterator Class:"+eqkRupForecast.getName());
 
      //gets the iterator for the class names of all the ERF's
      Iterator it = erfClasses.iterator();
@@ -182,7 +194,8 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
 
   /**
     * this function is called to add the paramters based on the forecast
-    *  selected by the user
+    * selected by the user. Based on the selected Forecast it also creates
+    * timespan and add that to the same panel window that shows the ERF parameters.
     * @param forecast
     */
    private void setParamsInForecast(String selectedForecast) throws InvocationTargetException{
@@ -203,15 +216,27 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
        ParameterAPI tempParam = (ParameterAPI)it.next();
        parameterList.addParameter(tempParam);
      }
-     this.editorPanel.removeAll();
-     this.addParameters();
+
+     //remove the parameters if they already exists in the panel.
+     if(listEditor !=null){
+       erfAndTimespanPanel.remove(listEditor);
+       listEditor = null;
+     }
+
+     //creating the new instance of ERF parameter list editors
+     listEditor = new ParameterListEditor(parameterList);
+
+     // show the ERF gui Bean in JPanel
+     erfAndTimespanPanel.add(listEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 4, 4, 4, 4 ), 0, 0 ));
+
      // now make the editor based on the paramter list
-     setTitle( this.ERF_EDITOR_TITLE );
+     listEditor.setTitle(ERF_EDITOR_TITLE);
 
      // get the panel for increasing the font and border
      // this is hard coding for increasing the IMR font
      // the colors used here are from ParameterEditor
-     JPanel panel = this.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
+     JPanel panel = listEditor.getParameterEditor(this.ERF_PARAM_NAME).getOuterPanel();
      TitledBorder titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(new Color( 80, 80, 140 ),3),"");
      titledBorder1.setTitleColor(new Color( 80, 80, 140 ));
      Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 13 );
@@ -220,6 +245,19 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
      panel.setBorder(border1);
 
+
+     if(timeSpanGuiBean == null)
+       // create the TimeSpan Gui Bean object
+       timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+     else
+       erfAndTimespanPanel.remove(timeSpanGuiBean);
+     //adding the Timespan Gui panel to the ERF Gui Bean
+     timeSpanGuiBean.setTimeSpan(eqkRupForecast.getTimeSpan());
+     erfAndTimespanPanel.add(timeSpanGuiBean, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 4, 4, 4, 4 ), 0, 0 ));
+
+     this.validate();
+     this.repaint();
    }
 
 
@@ -238,7 +276,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      while(lit.hasNext()){
        ParameterAPI param=(ParameterAPI)lit.next();
        if(param instanceof MagFreqDistParameter){
-         MagFreqDistParameterEditor magDistEditor=((MagFreqDistParameterEditor)getParameterEditor(param.getName()));
+         MagFreqDistParameterEditor magDistEditor=((MagFreqDistParameterEditor)listEditor.getParameterEditor(param.getName()));
          return magDistEditor;
        }
      }
@@ -259,7 +297,7 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
      while(lit.hasNext()){
        ParameterAPI param=(ParameterAPI)lit.next();
        if(param instanceof SimpleFaultParameter){
-         SimpleFaultParameterEditor simpleFaultEditor = ((SimpleFaultParameterEditor)getParameterEditor(param.getName()));
+         SimpleFaultParameterEditor simpleFaultEditor = ((SimpleFaultParameterEditor)listEditor.getParameterEditor(param.getName()));
          return simpleFaultEditor;
        }
      }
@@ -367,9 +405,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     */
    public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 
-     String S = C + " : parameterChangeFailed(): ";
-     if(D) System.out.println(S + "Starting");
-
 
      StringBuffer b = new StringBuffer();
 
@@ -396,7 +431,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
          "Cannot Change Value", JOptionPane.INFORMATION_MESSAGE
          );
 
-     if(D) System.out.println(S + "Ending");
 
    }
 
@@ -412,9 +446,6 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     */
    public void parameterChange( ParameterChangeEvent event ) {
 
-     String S = C + ": parameterChange(): ";
-     if ( D )
-       System.out.println( "\n" + S + "starting: " );
 
      String name1 = event.getParameterName();
 
@@ -497,4 +528,56 @@ public class ERF_GuiBean extends ParameterListEditor implements ERF_GuiBeanAPI {
     init_erf_IndParamListAndEditor();
     setParamsInForecast(getSelectedERF_Name());
    }
+
+   /**
+    *
+    * @returns the List of ERF parameters
+    */
+   public ParameterList getERFParameterList(){
+     return parameterList;
+   }
+
+   /**
+    *
+    * @returns the parameter list editor for ERF parameters
+    */
+   public ParameterListEditor getERFParameterListEditor(){
+     return listEditor;
+   }
+
+   /**
+    *
+    * @returns the selected ERF timespan gui bean object
+    */
+   public TimeSpanGuiBean getSelectedERFTimespanGuiBean(){
+     return timeSpanGuiBean;
+   }
+
+   /**
+    *
+    * @param paramName
+    * @returns the parameter with the ParamName
+    */
+   public ParameterAPI getParameter(String paramName){
+     if(this.parameterList.containsParameter(paramName)){
+       if(listEditor.getParameterEditor(paramName).isVisible()){
+         return parameterList.getParameter(paramName);
+       }
+     }
+     else{
+       timeSpanGuiBean.getParameterList().getParameter(paramName);
+     }
+     return null;
+   }
+
+
+  private void jbInit() throws Exception {
+    this.setLayout(gridBagLayout1);
+    erfAndTimespanPanel.setLayout(gridBagLayout2);
+    this.add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
+    erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
+  }
+
 }
+

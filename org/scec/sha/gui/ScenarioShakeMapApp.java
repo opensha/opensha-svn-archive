@@ -155,7 +155,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private MapGuiBean mapGuiBean;
-  private TimeSpanGuiBean timeSpanGuiBean;
 
   private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
@@ -167,7 +166,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JPanel gmtPanel = new JPanel();
   private JTabbedPane parameterTabbedPanel = new JTabbedPane();
-  private JPanel timespanPanel = new JPanel();
   private JPanel imrPanel = new JPanel();
   private JPanel imtPanel = new JPanel();
   private JPanel prob_IMLPanel = new JPanel();
@@ -219,7 +217,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.initGriddedRegionGuiBean();
     try{
         this.initERFSelector_GuiBean();
-        initTimeSpanGuiBean();
+
       }catch(RuntimeException e){
         //e.printStackTrace();
         step =0;
@@ -244,7 +242,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     eqkRupPanel.setLayout(gridBagLayout1);
     gmtPanel.setLayout(gridBagLayout9);
 
-    timespanPanel.setLayout(gridBagLayout3);
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
     prob_IMLPanel.setLayout(gridBagLayout2);
@@ -278,7 +275,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab("Earthquake Rupture from Forecast", eqkRupPanel );
-    parameterTabbedPanel.addTab("Time Span", timespanPanel);
     parameterTabbedPanel.addTab( "Exceedance Level/Probability", prob_IMLPanel);
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
     mainSplitPane.setDividerLocation(630);
@@ -372,7 +368,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
   }
 
   /**
@@ -385,24 +380,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
   }
 
-  /**
-   * Initialize the TimeSpan gui bean
-   */
-  private void initTimeSpanGuiBean() {
 
-    /* get the selected ERF
-    NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-    erfGuiBean.getSelectedERF.
-    Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-    the forecast while erfGuiBean.getSelectedERF updates the forecast
-    */
-    EqkRupForecastAPI eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
-    // create the TimeSpan Gui Bean object
-    timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
-    // show the sitebean in JPanel
-    this.timespanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-  }
 
 
 
@@ -437,15 +415,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     String name1 = event.getParameterName();
 
-    //if the ERF Param Name changes
-    if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME))
-      /* get the selected ERF
-       NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-       erfGuiBean.getSelectedERF.
-       Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-       the forecast while erfGuiBean.getSelectedERF updates the ERF
-       */
-      this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
 
     if(name1.equalsIgnoreCase(imrGuiBean.IMT_PARAM_NAME))
       imlProbGuiBean.setIMLConstraintBasedOnSelectedIMT(imrGuiBean.getSelectedIMT());
@@ -941,7 +910,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
         erfGuiBean.getParameterListMetadataString()+"\n"+
         "<br><br>TimeSpan Param List: <br>\n"+
         "--------------------<br>\n"+
-        timeSpanGuiBean.getParameterListMetadataString()+"\n"+
+        erfGuiBean.getTimespanMetadataString()+"\n"+
         "<br><br>GMT Param List: <br>\n"+
         "--------------------<br>\n"+
         mapGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+

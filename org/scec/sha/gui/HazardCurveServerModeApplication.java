@@ -131,7 +131,6 @@ public class HazardCurveServerModeApplication extends JApplet
   private IMR_GuiBean imrGuiBean;
   private IMT_GuiBean imtGuiBean;
   private Site_GuiBean siteGuiBean;
-  private TimeSpanGuiBean timeSpanGuiBean;
 
   //instance for the ButtonControlPanel
   ButtonControlPanel buttonControlPanel;
@@ -286,11 +285,10 @@ public class HazardCurveServerModeApplication extends JApplet
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
   GridBagLayout gridBagLayout9 = new GridBagLayout();
-  JPanel timeSpanPanel = new JPanel();
   GridBagLayout gridBagLayout8 = new GridBagLayout();
   JSplitPane imrSplitPane = new JSplitPane();
   GridBagLayout gridBagLayout5 = new GridBagLayout();
-  JSplitPane erfSplitPane = new JSplitPane();
+
   JPanel sitePanel = new JPanel();
   JPanel imtPanel = new JPanel();
   JSplitPane controlsSplit = new JSplitPane();
@@ -362,7 +360,6 @@ public class HazardCurveServerModeApplication extends JApplet
       initSiteGuiBean();
       try{
         initERF_GuiBean();
-        initTimeSpanGuiBean();
       }catch(RuntimeException e){
         JOptionPane.showMessageDialog(this,"Connection to ERF's failed","Internet Connection Problem",
                                       JOptionPane.OK_OPTION);
@@ -440,13 +437,10 @@ public class HazardCurveServerModeApplication extends JApplet
     panel.setBackground(Color.white);
     panel.setBorder(border5);
     panel.setMinimumSize(new Dimension(0, 0));
-    timeSpanPanel.setLayout(gridBagLayout12);
     imrSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     imrSplitPane.setBottomComponent(imtPanel);
     imrSplitPane.setTopComponent(imrPanel);
-    erfSplitPane.setBottomComponent(timeSpanPanel);
-    erfSplitPane.setLastDividerLocation(210);
-    erfSplitPane.setTopComponent(erfPanel);
+
     sitePanel.setLayout(gridBagLayout13);
     sitePanel.setBackground(Color.white);
     imtPanel.setLayout(gridBagLayout8);
@@ -512,13 +506,11 @@ public class HazardCurveServerModeApplication extends JApplet
     controlsSplit.add(imrSplitPane, JSplitPane.LEFT);
     paramsTabbedPane.add(controlsSplit, "IMR, IMT & Site");
     controlsSplit.add(sitePanel, JSplitPane.RIGHT);
-    paramsTabbedPane.add(erfSplitPane, "ERF & Time Span");
-    erfSplitPane.add(erfPanel, JSplitPane.LEFT);
-    erfSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
+    paramsTabbedPane.add(erfPanel, "ERF & Time Span");
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     topSplitPane.setDividerLocation(600);
     imrSplitPane.setDividerLocation(300);
-    erfSplitPane.setDividerLocation(230);
+
     controlsSplit.setDividerLocation(230);
     erfPanel.validate();
     erfPanel.repaint();
@@ -911,24 +903,6 @@ public class HazardCurveServerModeApplication extends JApplet
         String plottingOption = null;
         if(plotOptionControl !=null)
           plottingOption=this.plotOptionControl.getSelectedOption();
-        /* get the selected ERF
-        NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-        erfGuiBean.getSelectedERF.
-        Difference is that erfGuiBean.getSelectedERF_Instance() does not update
-        the forecast while erfGuiBean.getSelectedERF updates the
-        */
-        ERF_API erfAPI = null;
-        try{
-          erfAPI = erfGuiBean.getSelectedERF_Instance();
-          this.timeSpanGuiBean.setTimeSpan(erfAPI.getTimeSpan());
-        }catch(Exception ee){
-          setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,ee.toString());
-          bugWindow.show();
-          bugWindow.pack();
-          ee.printStackTrace();
-        }
-
         controlComboBox.removeAllItems();
         this.initControlList();
         // add the Epistemic control panel option if Epistemic ERF is selected
@@ -942,8 +916,6 @@ public class HazardCurveServerModeApplication extends JApplet
           plotOptionControl.setSelectedOption(PlottingOptionControl.PLOT_ON_TOP);
           setButtonsEnable(true);
         }
-        this.timeSpanGuiBean.validate();
-        this.timeSpanGuiBean.repaint();
       }
   }
 
@@ -1320,36 +1292,10 @@ public class HazardCurveServerModeApplication extends JApplet
    erfPanel.setLayout(gridBagLayout5);
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
+   erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
 
   }
 
-  /**
-   * Initialize the site gui bean
-   */
-  private void initTimeSpanGuiBean() {
-
-    /* get the selected ERF
-     NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-     erfGuiBean.getSelectedERF.
-    Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-    the forecast while erfGuiBean.getSelectedERF updates the forecast
-    */
-    try{
-      ERF_API eqkRupForecast = erfGuiBean.getSelectedERF_Instance();
-      // create the TimeSpan Gui Bean object
-      timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
-    }catch(Exception e){
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
-      bugWindow.show();
-      bugWindow.pack();
-      e.printStackTrace();
-    }
-    // show the sitebean in JPanel
-    this.timeSpanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-  }
 
   /**
    * Initialize the items to be added to the control list
@@ -1419,7 +1365,7 @@ public class HazardCurveServerModeApplication extends JApplet
     if(distanceControlPanel==null) distanceControlPanel= new SetMinSourceSiteDistanceControlPanel(this);
     if(peerTestsControlPanel==null)
       peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,this,
-          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
+          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, erfGuiBean.getSelectedERFTimespanGuiBean(),
           this.distanceControlPanel);
     if(runAllPEER_Tests == null)
       runAllPEER_Tests = new RunAll_PEER_TestCasesControlPanel(this);
@@ -1441,7 +1387,7 @@ public class HazardCurveServerModeApplication extends JApplet
     if(distanceControlPanel==null) distanceControlPanel= new SetMinSourceSiteDistanceControlPanel(this);
     if(peerTestsControlPanel==null)
       peerTestsControlPanel=new PEER_TestCaseSelectorControlPanel(this,this,
-          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
+          imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, erfGuiBean.getSelectedERFTimespanGuiBean(),
           this.distanceControlPanel);
     peerTestsControlPanel.setPEER_XValues();
     peerTestsControlPanel.pack();
@@ -1782,10 +1728,10 @@ public class HazardCurveServerModeApplication extends JApplet
         imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        erfGuiBean.getParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
+        erfGuiBean.getERFParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
         systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
         "--------------------"+systemSpecificLineSeparator+
-        timeSpanGuiBean.getParameterListMetadataString()+systemSpecificLineSeparator;
+        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString()+systemSpecificLineSeparator;
   }
 
 

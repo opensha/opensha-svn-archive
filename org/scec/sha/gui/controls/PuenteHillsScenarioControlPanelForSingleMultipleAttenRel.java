@@ -283,17 +283,22 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
     //this control panel will set the values by itself.
     //This is done in the EqkRupSelectorGuiBean
-    erfGuiBean.showAllParamsForForecast(false);
+    ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+    paramEditor.setValue(erfGuiBean.RUPTURE_FROM_EXISTING_ERF);
+    paramEditor.refreshParamEditor();
+    EqkRuptureFromERFSelectorPanel erfPanel= (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();
+    erfPanel.showAllParamsForForecast(false);
 
     //changing the ERF to SimpleFaultERF
-    erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(PoissonFaultERF.NAME);
-    erfGuiBean.getParameterListEditor().refreshParamEditor();
+    paramEditor = erfPanel.getParameterEditor(erfPanel.ERF_PARAM_NAME);
+    paramEditor.setValue(PoissonFaultERF.NAME);
+    paramEditor.refreshParamEditor();
 
     //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
-    ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
+    ERF_GuiBean erfParamGuiBean =erfPanel.getERF_ParamEditor();
 
     // Set rake value to 90 degrees
-    erfParamGuiBean.getParameterList().getParameter(PoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90));
+    erfParamGuiBean.getERFParameterList().getParameter(PoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(90));
 
 
     double dip = 27;
@@ -337,12 +342,12 @@ public class PuenteHillsScenarioControlPanelForSingleMultipleAttenRel {
     magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
     magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
     magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(magnitude));
-    erfParamGuiBean.refreshParamEditor();
+    erfParamGuiBean.getERFParameterListEditor().refreshParamEditor();
     // now have the editor create the magFreqDist
     magEditor.setMagDistFromParams();
 
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
-    erfGuiBean.setParamsInForecast(0,0);
+    erfPanel.setParamsInForecast(0,0);
 
     //checking if the single AttenRel is selected
     boolean isSingleAttenRelSelected =imrGuiBean.isSingleAttenRelTypeSelected();

@@ -9,6 +9,7 @@ import org.scec.sha.gui.beans.*;
 import org.scec.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.param.*;
+import org.scec.param.editor.ParameterEditor;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.*;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
@@ -88,14 +89,16 @@ public class SF_BayAreaScenarioControlPanel {
       //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
       //this control panel will set the values by itself.
       //This is done in the EqkRupSelectorGuiBean
-      erfGuiBean.showAllParamsForForecast(false);
+      EqkRuptureFromERFSelectorPanel erfPanel = (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();
+      erfPanel.showAllParamsForForecast(false);
 
       //changing the ERF to Frankel02_AdjustableEqkRupForecast
-      erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(Frankel02_AdjustableEqkRupForecast.NAME);
-      erfGuiBean.getParameterListEditor().refreshParamEditor();
+      ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfPanel.ERF_PARAM_NAME);
+      paramEditor.setValue(Frankel02_AdjustableEqkRupForecast.NAME);
+      paramEditor.refreshParamEditor();
 
       //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
-      ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
+      ERF_GuiBean erfParamGuiBean =erfPanel.getERF_ParamEditor();
 
       //reading the file sent by Paul to generate the shakemaps for defined sources and ruptures
       FileReader fr = new FileReader(fileToRead);
@@ -128,12 +131,12 @@ public class SF_BayAreaScenarioControlPanel {
         fileLines = br.readLine();
 
         // Set rake value to 90 degrees
-        erfParamGuiBean.getParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
+        erfParamGuiBean.getERFParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(new Double(rupOffset));
         //updating the forecast with the changed parameter settings.
         erfParamGuiBean.getSelectedERF().updateForecast();
 
         //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
-        erfGuiBean.setParamsInForecast(sourceIndex,ruptureIndex);
+        erfPanel.setParamsInForecast(sourceIndex,ruptureIndex);
         mapGuiBean.setDirectoryName(directoryName);
         hazusControlPanel.runToGenerateShapeFilesAndMaps();
       }

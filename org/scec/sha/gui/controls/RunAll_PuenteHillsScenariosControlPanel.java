@@ -8,7 +8,7 @@ import org.scec.util.RunScript;
 import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
-
+import org.scec.sha.gui.beans.*;
 
 /**
  * <p>Title: RunAll_PuenteHillsScenariosControlPanel</p>
@@ -68,14 +68,15 @@ public class RunAll_PuenteHillsScenariosControlPanel {
     for(int i=0;i<magSize;++i){
 
       //set the magnitude
-      ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
+      EqkRuptureFromERFSelectorPanel erfPanel = (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();
+      ERF_GuiBean erfParamGuiBean =erfPanel.getERF_ParamEditor();
       MagFreqDistParameterEditor magEditor = erfParamGuiBean.getMagDistEditor();
       magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
       magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
       magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(((Double)magnitudes.get(i)).doubleValue()));
-      erfParamGuiBean.refreshParamEditor();
+      erfParamGuiBean.getERFParameterListEditor().refreshParamEditor();
       magEditor.setMagDistFromParams();
-      erfGuiBean.setParamsInForecast(0,0);
+      erfPanel.setParamsInForecast(0,0);
 
       for(int j=0;j<attenRelSize;++j){
         imrGuiBean.getParameterEditor(imrGuiBean.IMR_PARAM_NAME).setValue(attenuationRelationships.get(j));

@@ -103,7 +103,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
   private IMR_GuiBean imrGuiBean;
   private IMT_GuiBean imtGuiBean;
   private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
-  private TimeSpanGuiBean timeSpanGuiBean;
 
   private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
@@ -115,7 +114,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JSplitPane imr_IMTSplit = new JSplitPane();
   private JTabbedPane parameterTabbedPanel = new JTabbedPane();
-  private JPanel timespanPanel = new JPanel();
   private JPanel imrPanel = new JPanel();
   private JPanel imtPanel = new JPanel();
   private BorderLayout borderLayout2 = new BorderLayout();
@@ -188,7 +186,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
     this.initIMTGuiBean();
     try{
         this.initERFSelector_GuiBean();
-        initTimeSpanGuiBean();
       }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,"Could not create ERF Object","Error occur in ERF",
                                     JOptionPane.OK_OPTION);
@@ -206,7 +203,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
     buttonPanel.setLayout(borderLayout3);
     eqkRupPanel.setLayout(gridBagLayout1);
     imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    timespanPanel.setLayout(gridBagLayout3);
     imrPanel.setLayout(borderLayout2);
     imtPanel.setLayout(gridBagLayout8);
     buttonPanel.setMinimumSize(new Dimension(391, 50));
@@ -259,7 +255,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab( "Earthquake Rupture Forecast", eqkRupPanel );
-    parameterTabbedPanel.addTab("Time Span", timespanPanel);
     mainSplitPane.setDividerLocation(550);
     imr_IMTSplit.setDividerLocation(300);
     imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -369,33 +364,10 @@ public class HazardDatasetCalcCondorApp extends JApplet
    }
    eqkRupPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
   }
 
 
 
-  /**
-   * Initialize the TimeSpan gui bean
-   */
-  private void initTimeSpanGuiBean() {
-
-    /* get the selected ERF
-    NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-    erfGuiBean.getSelectedERF.
-    Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-    the forecast while erfGuiBean.getSelectedERF updates the forecast
-    */
-   try {
-     EqkRupForecastAPI eqkRupForecast = (EqkRupForecastAPI)erfGuiBean.getSelectedERF_Instance();
-     // create the TimeSpan Gui Bean object
-     timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
-     // show the sitebean in JPanel
-     this.timespanPanel.add(this.timeSpanGuiBean,
-                            new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0,
-         0));
-   }catch(Exception e ) { e.printStackTrace(); }
-  }
 
 
 
@@ -423,18 +395,6 @@ public class HazardDatasetCalcCondorApp extends JApplet
       sitesGuiBean.replaceSiteParams(attenRel.getSiteParamsIterator());
       sitesGuiBean.validate();
       sitesGuiBean.repaint();
-    }
-    if(name1.equalsIgnoreCase(this.erfGuiBean.ERF_PARAM_NAME)) {
-      /* get the selected ERF
-           NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-              erfGuiBean.getSelectedERF.
-           Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-              the forecast while erfGuiBean.getSelectedERF updates the ERF
-       */
-      try {
-        this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().
-                                         getTimeSpan());
-      }catch(Exception e) { e.printStackTrace(); }
     }
 
 
@@ -802,12 +762,12 @@ public class HazardDatasetCalcCondorApp extends JApplet
        systemSpecificLineSeparator + "Forecast Param List: " +
        systemSpecificLineSeparator +
        "--------------------" + systemSpecificLineSeparator +
-       erfGuiBean.getParameterList().getParameterListMetadataString() +
+       erfGuiBean.getERFParameterList().getParameterListMetadataString() +
        systemSpecificLineSeparator +
        systemSpecificLineSeparator + "TimeSpan Param List: " +
        systemSpecificLineSeparator +
        "--------------------" + systemSpecificLineSeparator +
-       timeSpanGuiBean.getParameterListMetadataString() + systemSpecificLineSeparator+
+       erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString() + systemSpecificLineSeparator+
        systemSpecificLineSeparator + "Miscellaneous Metadata:"+
        systemSpecificLineSeparator +
        "--------------------" + systemSpecificLineSeparator+

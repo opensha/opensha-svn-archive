@@ -77,7 +77,6 @@ public class HazardSpectrumApplication extends JApplet
   private IMR_GuiBean imrGuiBean;
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private Site_GuiBean siteGuiBean;
-  private TimeSpanGuiBean timeSpanGuiBean;
   private EqkRupSelectorGuiBean erfRupSelectorGuiBean;
 
   // Strings for control pick list
@@ -285,7 +284,6 @@ public class HazardSpectrumApplication extends JApplet
   JSplitPane chartSplit = new JSplitPane();
   JPanel panel = new JPanel();
   GridBagLayout gridBagLayout9 = new GridBagLayout();
-  JPanel timeSpanPanel = new JPanel();
   GridBagLayout gridBagLayout8 = new GridBagLayout();
   JSplitPane imrSplitPane = new JSplitPane();
   GridBagLayout gridBagLayout5 = new GridBagLayout();
@@ -341,7 +339,6 @@ public class HazardSpectrumApplication extends JApplet
       initImlProb_GuiBean();
       try{
         this.initERFSelector_GuiBean();
-        initTimeSpanGuiBean();
       }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
@@ -422,11 +419,9 @@ public class HazardSpectrumApplication extends JApplet
     panel.setBackground(Color.white);
     panel.setBorder(border5);
     panel.setMinimumSize(new Dimension(0, 0));
-    timeSpanPanel.setLayout(gridBagLayout12);
     imrSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     imrSplitPane.setBottomComponent(imtPanel);
     imrSplitPane.setTopComponent(imrPanel);
-    erfSplitPane.setBottomComponent(timeSpanPanel);
     erfSplitPane.setTopComponent(erfPanel);
     sitePanel.setLayout(gridBagLayout13);
     sitePanel.setBackground(Color.white);
@@ -474,7 +469,6 @@ public class HazardSpectrumApplication extends JApplet
     controlsSplit.add(sitePanel, JSplitPane.RIGHT);
     paramsTabbedPane.add(erfSplitPane, "ERF & Time Span");
     erfSplitPane.add(erfPanel, JSplitPane.LEFT);
-    erfSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     topSplitPane.setDividerLocation(600);
     imrSplitPane.setDividerLocation(300);
@@ -788,11 +782,7 @@ public class HazardSpectrumApplication extends JApplet
       the forecast while erfGuiBean.getSelectedERF updates the
       */
       if(erfGuiBean !=null){
-        try{
-          this.timeSpanGuiBean.setTimeSpan(erfGuiBean.getSelectedERF_Instance().getTimeSpan());
-        }catch(Exception e){
-          e.printStackTrace();
-        }
+
         controlComboBox.removeAllItems();
         this.initControlList();
         // add the Epistemic control panel option if Epistemic ERF is selected
@@ -801,11 +791,6 @@ public class HazardSpectrumApplication extends JApplet
           controlComboBox.setSelectedItem(EPISTEMIC_CONTROL);
         }
       }
-      else //If ERF Rup Selector Gui Bean is selected
-        this.timeSpanGuiBean.setTimeSpan(erfRupSelectorGuiBean.getSelectedERF_Instance().getTimeSpan());
-
-      this.timeSpanGuiBean.validate();
-      this.timeSpanGuiBean.repaint();
     }
   }
 
@@ -1251,12 +1236,12 @@ public class HazardSpectrumApplication extends JApplet
       paramInfo="IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
                 "Site Param List: "+siteGuiBean.getParameterListEditor().getParameterList().toString()+"\n"+
                 "IML OR Prob Param List: "+this.imlProbGuiBean.getParameterList().toString()+"\n"+
-                "Forecast Param List: "+erfGuiBean.getParameterList().toString();
+                "Forecast Param List: "+erfGuiBean.getERFParameterList().toString();
     else
       paramInfo="IMR Param List: " +this.imrGuiBean.getParameterList().toString()+"\n"+
                 "Site Param List: "+siteGuiBean.getParameterListEditor().getParameterList().toString()+"\n"+
                 "IML OR Prob Param List: "+this.imlProbGuiBean.getParameterList().toString()+"\n"+
-                "Forecast Param List: "+erfRupSelectorGuiBean.getParameterListEditor().getParameterList().toString();
+                "Forecast Param List: "+erfRupSelectorGuiBean.getParameterListMetadataString();
     return paramInfo;
   }
 
@@ -1352,7 +1337,6 @@ public class HazardSpectrumApplication extends JApplet
    erfPanel.removeAll();
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfGuiBean.getParameterEditor(erfGuiBean.ERF_PARAM_NAME).getParameter().addParameterChangeListener(this);
    erfPanel.validate();
    erfPanel.repaint();
   }
@@ -1384,7 +1368,7 @@ public class HazardSpectrumApplication extends JApplet
    //erfGuiBean = null;
    erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfRupSelectorGuiBean.getParameter(erfRupSelectorGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
+   erfRupSelectorGuiBean.getParameter(ERF_GuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
    erfPanel.validate();
    erfPanel.repaint();
   }
@@ -1393,33 +1377,6 @@ public class HazardSpectrumApplication extends JApplet
 
 
 
-  /**
-   * Initialize the site gui bean
-   */
-  private void initTimeSpanGuiBean() {
-
-    /* get the selected ERF
-     NOTE : We have used erfGuiBean.getSelectedERF_Instance()INSTEAD OF
-     erfGuiBean.getSelectedERF.
-    Dofference is that erfGuiBean.getSelectedERF_Instance() does not update
-    the forecast while erfGuiBean.getSelectedERF updates the forecast
-    */
-    ERF_API eqkRupForecast =null;
-    try{
-      if(erfGuiBean !=null)
-        eqkRupForecast= erfGuiBean.getSelectedERF_Instance();
-      else
-        eqkRupForecast=this.erfRupSelectorGuiBean.getSelectedERF_Instance();
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-    // create the TimeSpan Gui Bean object
-    timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
-    // show the sitebean in JPanel
-    this.timeSpanPanel.add(this.timeSpanGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-
-  }
 
   /**
    * Initialize the items to be added to the control list

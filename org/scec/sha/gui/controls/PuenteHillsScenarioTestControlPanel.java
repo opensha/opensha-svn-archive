@@ -13,6 +13,7 @@ import org.scec.sha.param.editor.MagFreqDistParameterEditor;
 import org.scec.sha.param.*;
 import org.scec.sha.magdist.SingleMagFreqDist;
 import org.scec.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel;
+import org.scec.param.editor.ParameterEditor;
 
 /**
  * <p>Title: PuenteHillsScenarioTestControlPanel</p>
@@ -59,16 +60,21 @@ public class PuenteHillsScenarioTestControlPanel {
     //making the ERF Gui Bean Adjustable Param not visible to the user, becuase
     //this control panel will set the values by itself.
     //This is done in the EqkRupSelectorGuiBean
-    erfGuiBean.showAllParamsForForecast(false);
+    ParameterEditor paramEditor = erfGuiBean.getParameterEditor(erfGuiBean.RUPTURE_SELECTOR_PARAM_NAME);
+    paramEditor.setValue(erfGuiBean.RUPTURE_FROM_EXISTING_ERF);
+    paramEditor.refreshParamEditor();
+    EqkRuptureFromERFSelectorPanel erfPanel= (EqkRuptureFromERFSelectorPanel)erfGuiBean.getEqkRuptureSelectorPanel();
+    erfPanel.showAllParamsForForecast(false);
     //changing the ERF ro SimpleFaultERF
-    erfGuiBean.getParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setValue(FloatingPoissonFaultERF.NAME);
-    erfGuiBean.getParameterListEditor().refreshParamEditor();
+    paramEditor = erfGuiBean.getParameterEditor(erfPanel.ERF_PARAM_NAME);
+    paramEditor.setValue(FloatingPoissonFaultERF.NAME);
+    paramEditor.refreshParamEditor();
 
     //Getting the instance for the editor that holds all the adjustable params for the selcetd ERF
-    ERF_GuiBean erfParamGuiBean =erfGuiBean.getERF_ParamEditor();
+    ERF_GuiBean erfParamGuiBean =erfPanel.getERF_ParamEditor();
     //As the Selecetd ERF is simple FaultERF so updating the rake value to -90 (so the ALL or UKNOWN category is used to be consistent with online shakemaps).
-    erfParamGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(-90));
-    erfParamGuiBean.getParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(WC1994_MagLengthRelationship.NAME);
+    erfParamGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.RAKE_PARAM_NAME).setValue(new Double(-90));
+    erfParamGuiBean.getERFParameterList().getParameter(FloatingPoissonFaultERF.MAG_SCALING_REL_PARAM_NAME).setValue(WC1994_MagLengthRelationship.NAME);
 
     //getting the instance for the SimpleFaultParameterEditorPanel from the GuiBean to adjust the fault Params
     SimpleFaultParameterEditorPanel faultPanel= erfParamGuiBean.getSimpleFaultParamEditor().getParameterEditorPanel();
@@ -106,12 +112,12 @@ public class PuenteHillsScenarioTestControlPanel {
     magEditor.getParameter(MagFreqDistParameter.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
     magEditor.getParameter(MagFreqDistParameter.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameter.MAG_AND_MO_RATE);
     magEditor.getParameter(MagFreqDistParameter.MAG).setValue(new Double(7.1));
-    erfParamGuiBean.refreshParamEditor();
+    erfParamGuiBean.getERFParameterListEditor().refreshParamEditor();
     // now have the editor create the magFreqDist
     magEditor.setMagDistFromParams();
 
     //updating the EQK_RupSelectorGuiBean with the Source and Rupture Index respectively.
-    erfGuiBean.setParamsInForecast(0,0);
+    erfPanel.setParamsInForecast(0,0);
 
     //Updating the IMR Gui Bean with the ShakeMap attenuation relationship.
     imrGuiBean.getParameterList().getParameter(imrGuiBean.IMR_PARAM_NAME).setValue(ShakeMap_2003_AttenRel.NAME);

@@ -146,6 +146,4 @@ public abstract class PropagationEffectParameter
         else return false;
     }
 
-
-
 }

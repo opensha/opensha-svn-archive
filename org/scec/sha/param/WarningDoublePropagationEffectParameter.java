@@ -310,5 +310,4 @@ public abstract class WarningDoublePropagationEffectParameter
         else return false;
     }
 
-
 }

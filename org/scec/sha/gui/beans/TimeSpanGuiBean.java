@@ -106,6 +106,7 @@ public class TimeSpanGuiBean extends JPanel{
 
     nullTimespanWindow.setEditable(false);
     nullTimespanWindow.setText(text);
+    this.setMinimumSize(new Dimension(0, 0));
     this.add(nullTimespanWindow,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH,  new Insets(4, 4, 4, 4), 0,0));
   }
