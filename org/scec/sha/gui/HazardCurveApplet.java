@@ -565,7 +565,7 @@ public class HazardCurveApplet extends JApplet
           // draw average in green color
           if(this.avgSelected) color[i] = new Color(Color.green.getRGB());
         }
-        graphPanel.setSeriesPaint(color);
+        graphPanel.setSeriesColor(color);
       }
 
       graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
@@ -645,6 +645,9 @@ public class HazardCurveApplet extends JApplet
 
     public void run() {
       computeHazardCurve();
+      if(isEqkList)
+        //shows the curves for the ERF List in a seperate window
+        peelOffCurves();
     }
 
 

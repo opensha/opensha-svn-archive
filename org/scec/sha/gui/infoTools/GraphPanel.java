@@ -330,7 +330,7 @@ public class GraphPanel extends JPanel {
    * Sets the paint color of the curves from outside
    * @param color : Array of Color Object
    */
-  public void setSeriesPaint(Color[] color){
+  public void setSeriesColor(Color[] color){
     int size = color.length;
     legendPaint = new Paint[size];
     legendColor = new Color[size];

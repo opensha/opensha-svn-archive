@@ -67,7 +67,7 @@ public class GraphWindow extends JFrame implements ButtonControlPanelAPI,GraphPa
   public GraphWindow(GraphWindowAPI api) {
     application = api;
     graphPanel = new GraphPanel(this);
-    graphPanel.setSeriesPaint(api.getGraphPanel().getSeriesColor());
+    graphPanel.setSeriesColor(api.getGraphPanel().getSeriesColor());
     data = api.getXY_DataSet().deepClone();
     totalProbFuncs = api.getCurveFunctionList().deepClone();
     data.setFunctions(totalProbFuncs);
