@@ -223,7 +223,7 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
     st = new StringTokenizer(it.next().toString());
     st = new StringTokenizer(it.next().toString());
     st = new StringTokenizer(it.next().toString());
-    System.out.println("time duration:"+timeDuration);
+
     while( it.hasNext() ){
       String readString = it.next().toString();
       //System.out.println("String read: "+readString);
@@ -233,7 +233,7 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
       lon =  Double.parseDouble(st.nextToken());
       lat =  Double.parseDouble(st.nextToken());
       rate = Double.parseDouble(st.nextToken());
-      System.out.println("2222:rate="+rate);
+
       if (rate > 0.0) {  // ignore locations with a zero rate
 
         // scale all so the incremental rate at mag=0 index equals rate
@@ -252,11 +252,9 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
 
         // add the source
         FrankelBackgrSeisSources.add(pointPoissonSource);
-        System.out.println("333333333333333333333");
+
       }
     }
-    System.out.println("backseissources:"+FrankelBackgrSeisSources.size());
-
   }
 
 

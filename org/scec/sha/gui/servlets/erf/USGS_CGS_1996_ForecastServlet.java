@@ -193,6 +193,7 @@ public class USGS_CGS_1996_ForecastServlet extends HttpServlet implements ERF_We
 
    USGS_CGS_1996_ERF_Object erf = new USGS_CGS_1996_ERF_Object(param,
        this.inputBackSeisFileLines, this.inputFaultFileLines,time);
+   System.out.println("Successfully created the erf for the USGS/CGS (1996 model");
    return erf;
  }
 
