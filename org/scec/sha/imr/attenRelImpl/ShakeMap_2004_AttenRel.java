@@ -229,7 +229,7 @@ public class ShakeMap_2004_AttenRel
 */
 
        this.propEffect.setProbEqkRupture(probEqkRupture);
-       if(this.site_BC != null) {
+       if(propEffect.getSite() != null) {
          as_1997_attenRel.setPropagationEffect(propEffect);
          bjf_1997_attenRel.setPropagationEffect(propEffect);
          scemy_1997_attenRel.setPropagationEffect(propEffect);
