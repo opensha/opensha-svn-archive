@@ -311,6 +311,8 @@ public class STEP_DataSetGenerator implements ParameterChangeWarningListener{
       //only add the wills value if we have a value available for that site else leave default "D"
       if(!willSiteClass.equals("NA"))
         imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(willSiteClass);
+      else
+        imr.getSite().getParameter(imr.WILLS_SITE_NAME).setValue(imr.WILLS_SITE_D);
 
       // loop over sources
       for(i=0;i < numSources ;i++) {
