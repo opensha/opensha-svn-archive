@@ -11,8 +11,6 @@ import org.scec.sha.earthquake.*;
 import org.scec.util.*;
 
 /**
- *  <p>
- *
  *  <b>Title:</b> ClassicIMR</p> <p>
  *
  *  <b>Description:</b> This subclass of IntensityMeasureRealtionship is an
@@ -158,12 +156,8 @@ import org.scec.util.*;
  *
  *
  *
- *  </p> Note: SWR - SetAll() is not truly robust in case of error. <p>
- *
- *  <b>Copyright:</b> Copyright (c) 2002</p> <p>
- *
- *  <b>Company:</b> </p>
- *
+ * </p> Note: SWR - SetAll() is not truly robust in case of error. <p>
+
  * @author     Steven W. Rock & Edward H. Field
  * @created    April 1st, 2002
  * @version    1.0

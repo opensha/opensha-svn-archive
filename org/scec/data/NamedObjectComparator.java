@@ -6,15 +6,13 @@ import org.scec.exceptions.NamedObjectException;
 // FIX - Needs more comments
 
 /**
- *  <b>Title:</b> NamedObjectComparator<br>
+ *  <b>Title:</b> NamedObjectComparator<p>
+ *
  *  <b>Description:</b> This class can compare any two objects that implement
  *  the NamedObjectAPI and sort them alphabetically. This is useful for passing
  *  into a Collections.sort(Collection, Comparator) function call to sort a list
  *  alphabetically by named. One example is it's use in the ParameterEditorSheet
- *  to edit Parameters.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  to edit Parameters.<p>
  *
  * @author     Steven W. Rock
  * @created    February 21, 2002

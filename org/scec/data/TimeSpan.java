@@ -6,6 +6,7 @@ import org.scec.exceptions.InvalidRangeException;
 
 /**
  *  <b>Title:</b> TimeSpan<p>
+ *
  *  <b>Description:</b> Represents a start time and a duration, from which you
  *  can calculate the end time of an event<br>
  *

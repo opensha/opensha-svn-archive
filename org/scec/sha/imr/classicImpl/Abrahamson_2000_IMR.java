@@ -14,6 +14,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> Abrahamson_2000_IMR<p>
+ *
  * <b>Description:</b> This implements the classicIMR (attenuation relationship)
  * developed by Abrahamson (2000, <i>Proc. of 6th Int. Conf. on Seismic Zonation,
  * Palm Springs</i>, Earthq. Eng. Res. Inst.).  NOTE:  This is only for strike-slip
@@ -39,10 +40,6 @@ import org.scec.util.*;
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
  * NOTE: setSite and setProbEqkRupture ARE NOT FULLY IMPLEMENTED<p>
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field
  * @created    June, 2002

@@ -5,8 +5,9 @@ import org.scec.data.NamedObjectAPI;
 
 
 /**
- * Title: DiscretizedFunc<p>
- * Description: Abstract implementation of the DiscretizedFuncAPI. Performs standard
+ * <b>Title:</b> DiscretizedFunc<p>
+ *
+ * <b>Description:</b> Abstract implementation of the DiscretizedFuncAPI. Performs standard
  * simple or default functions so that subclasses don't have to keep reimplementing the
  * same function bodies. This function implements:<p>
  *

@@ -17,9 +17,10 @@ import org.scec.param.editor.*;
 // FIX - Needs more comments
 
 /**
- * <p>Title: SubRectanglePanel</p>
- * <p>Description: GUI Widget that allows you to specify a window
- * into a 2D matrix </p>
+ * <b>Title:</b> SubRectanglePanel<p>
+ *
+ * <b>Description:</b> GUI Widget that allows you to specify a window
+ * into a 2D matrix <p>
  *
  * @author Steven W. Rock
  * @version 1.0

@@ -8,8 +8,7 @@ import org.scec.data.function.EvenlyDiscretizedFunc;
  * <p>Title: IncrementalMagFreqDistAPI</p>
  * <p>Description:  this Interface gives the rate of EarthQuakes(number per year)in  succession. This class
  * has been made as a generalised API for others to implement depending on their functionality</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author :Nitin Gupta Date: July,26,2002
  * @version 1.0
  */

@@ -7,8 +7,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> IntegerPlainDocument<p>
  *

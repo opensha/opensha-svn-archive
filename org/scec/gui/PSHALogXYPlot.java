@@ -18,8 +18,7 @@ import org.scec.sha.magdist.gui.MagFreqDistTesterApplet;
 /**
  * <p>Title: PSHALogXYPlot</p>
  * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Nitin Gupta and Vipin Gupta
  * @version 1.0
  */

@@ -8,8 +8,7 @@ import org.scec.data.NamedObjectAPI;
 /**
  * <p>Title: EqkSourceAPI</p>
  * <p>Description: THis interface is for getting rupture information about each earhquake source</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Nitin Gupta & Vipin Gupta
  * @date Aug 27 20002
  * @version 1.0

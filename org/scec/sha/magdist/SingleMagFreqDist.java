@@ -5,8 +5,7 @@ import org.scec.calc.*;
  * <p>Title: SingleMagFreqDist</p>
  * <p>Description: This has only a single magnitude with a non-zero rate.
  * Note that this magnitude must equal one of the descrete x-axis points.</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author :Nitin Gupta Date:Aug,8,2002
  * @version 1.0
  */

@@ -9,7 +9,8 @@ import org.scec.data.function.DiscretizedFuncList;
 
 
 /**
- *  <b>Title:</b> DiscretizedFunctionXYDataSet<br>
+ *  <b>Title:</b> DiscretizedFunctionXYDataSet<p>
+ *
  *  <b>Description:</b> Wrapper for a DiscretizedFuncList. Implements
  *  XYDataSet so that it can be passed into the JRefinery Graphing Package <p>
  *
@@ -20,8 +21,6 @@ import org.scec.data.function.DiscretizedFuncList;
  *  Modified 7/21/2002 SWR: (Still need to do) Made this list handle log-log
  *  plots by hiding zero values in x and y axis when choosen. If not
  *  JFreeeChart will throw an arithmatic exception.<p>
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002

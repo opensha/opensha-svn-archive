@@ -8,6 +8,7 @@ import org.scec.param.ParameterList;
 
 /**
  * <b>Title:</b> FuncWithParamsAPI<p>
+ *
  * <b>Description:</b> Any function that supports a parameter list should
  * implement this interface. This interface is for Functions that contain
  * parameter lists. These lists are currently used for storing the parameter

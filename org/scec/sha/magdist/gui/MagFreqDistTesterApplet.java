@@ -27,8 +27,7 @@ import org.scec.sha.magdist.*;
 /**
  * <p>Title: MagFreqDistTesterApplet</p>
  * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Nitin Gupta and Vipin Gupta  Date: Aug,9,2002
  * @version 1.0
  */

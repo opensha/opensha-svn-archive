@@ -3,13 +3,14 @@ package org.scec.gui.plot.jfreechart;
 import com.jrefinery.chart.TickUnits;
 import com.jrefinery.chart.NumberTickUnit;
 import java.text.DecimalFormat;
+
 /**
  * <p>Title: MyTickUnits</p>
+ *
  * <p>Description: This class has been made to generate the small tick units for the
  * JFreechart class TickUnit's function setStandardTickUnit size, which allows
  * the programmer to set the  tick unit</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author: Vipin Gupta & Nitin Gupta  Date:Aug, 23,2002
  * @version 1.0
  */

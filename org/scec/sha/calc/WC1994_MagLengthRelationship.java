@@ -6,22 +6,20 @@ import org.scec.exceptions.InvalidRangeException;
 
 /**
  * <b>Title:</b>WC1994_MagLengthRelationship<br>
- * <b>Description:</b> <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ *
+ * <b>Description:</b> MagLengthRelationshipAPI implementation. <p>
+ *
  * @author Edward H. Field
  * @version 1.0
  */
 
 public class WC1994_MagLengthRelationship implements MagLengthRelationshipAPI {
 
-    // to convert natural to log base 10
+    /** to convert natural to log base 10 */
     private final static double lnToLog = 0.434294;
-    private String name = "WC1994_MagLengthRelationship";
 
-    public WC1994_MagLengthRelationship() {
+    final static String C = "WC1994_MagLengthRelationship";
 
-    }
 
     /**
      * This method is for all fault types (all rakes)
@@ -145,6 +143,6 @@ public class WC1994_MagLengthRelationship implements MagLengthRelationshipAPI {
      * @return String specifying the class name
      */
     public String getName() {
-      return name;
+      return C;
     }
 }

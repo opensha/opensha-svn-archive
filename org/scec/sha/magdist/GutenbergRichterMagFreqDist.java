@@ -10,8 +10,7 @@ import org.scec.data.DataPoint2D;
  * <p>Description: This is a truncated incremental Gutenberg-Richter distribution.
  * Note that magLower and magUpper must exactly equal one of the descrete x-axis
  * values.</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Nitin Gupta & Vipin Gupta   Date: Aug 8, 2002
  * @version 1.0
  */

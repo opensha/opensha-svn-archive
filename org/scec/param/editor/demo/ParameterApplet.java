@@ -27,12 +27,15 @@ import org.scec.param.event.ParameterChangeFailEvent;
 import org.scec.param.event.ParameterChangeFailListener;
 import org.scec.param.event.ParameterChangeListener;
 
-// Fix - Needs more comments
 
 /**
  *  <b>Title:</b> ParameterApplet<p>
+ *
  *  <b>Description:</b> Test applet to demonstrate the ParameterListEditor in
- *  action.<p>
+ *  action. It creates instances of all the various subclasses of parameters,
+ *  places them into a ParameterList, then the ParameterListEditor presents
+ *  all the parameters in a GUI. This demonstrates how each parameter type
+ *  is mapped to it's specific GUI editor type automatically.<p>
  *
  * @author     Steven W. Rock
  * @created    April 17, 2002
@@ -43,60 +46,31 @@ public class ParameterApplet
          extends JApplet
          implements
         ParameterChangeListener,
-        ParameterChangeFailListener {
+        ParameterChangeFailListener
+{
 
-    /**
-     *  Description of the Field
-     */
+
+    /** Classname used for debugging */
     protected final static String C = "ParameterApplet";
-    /**
-     *  Description of the Field
-     */
+
+    /** Boolean flag to conditionaly print out debug statements. */
     protected final static boolean D = true;
 
-    /**
-     *  Description of the Field
-     */
+
+
     final static int NUM = 5;
-    /**
-     *  Description of the Field
-     */
     static int paramCount = 0;
-
-    /**
-     *  Description of the Field
-     */
     boolean isStandalone = false;
-
-    /**
-     *  Description of the Field
-     */
     GridBagLayout gridBagLayout1 = new GridBagLayout();
-    /**
-     *  Description of the Field
-     */
     GridBagLayout gridBagLayout2 = new GridBagLayout();
 
-    /**
-     *  Description of the Field
-     */
     JLabel statusLabel = new JLabel();
-    /**
-     *  Description of the Field
-     */
     JLabel mainTitleLabel = new JLabel();
-
-    /**
-     *  Description of the Field
-     */
     JPanel jPanel1 = new JPanel();
-    /**
-     *  Description of the Field
-     */
     JPanel jPanel2 = new JPanel();
 
     /**
-     *  Gets the parameter attribute of the ParameterApplet object
+     *  Gets the applet parameter attribute of the ParameterApplet object
      *
      * @param  key  Description of the Parameter
      * @param  def  Description of the Parameter
@@ -127,19 +101,15 @@ public class ParameterApplet
     }
 
     /**
-     *  Description of the Method
+     *  Applet startup procedure, Initializes the GUI
      */
     public void init() {
-        try {
-            jbInit();
-        }
-        catch ( Exception e ) {
-            e.printStackTrace();
-        }
+        try { jbInit(); }
+        catch ( Exception e ) { e.printStackTrace(); }
     }
 
     /**
-     *  Description of the Method
+     *  Initializes all GUI elements
      *
      * @exception  Exception  Description of the Exception
      */
@@ -183,10 +153,7 @@ public class ParameterApplet
     }
 
     /**
-     *  Description of the Method
-     *
-     * @param  number  Description of the Parameter
-     * @return         Description of the Return Value
+     *  Builds a ParameterList of all the example Parameters
      */
     private ParameterList makeParameterList( int number ) {
         Vector val = new Vector();
@@ -207,11 +174,7 @@ public class ParameterApplet
         return list;
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedDoubleDiscreteParameter() {
         String name = "Name " + paramCount;
         String value = "12.1";
@@ -227,11 +190,7 @@ public class ParameterApplet
         return param;
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Makes a parameter example of this type */
     private ParameterAPI makeIntegerParameter() {
         String name = "Name " + paramCount;
         String value = "1" + paramCount;
@@ -240,11 +199,7 @@ public class ParameterApplet
         return param;
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedIntegerParameter() {
         String name = "Name " + paramCount;
         String value = "1" + paramCount;
@@ -254,11 +209,7 @@ public class ParameterApplet
         return param;
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Makes a parameter example of this type */
     private ParameterAPI makeDoubleParameter() {
         String name = "Name " + paramCount;
         String value = "12." + paramCount;
@@ -269,11 +220,7 @@ public class ParameterApplet
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Makes a parameter example of this type */
     private ParameterAPI makeStringParameter() {
         String name = "Name " + paramCount;
         String value = "Value " + paramCount;
@@ -282,12 +229,7 @@ public class ParameterApplet
         return param;
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  constraint  Description of the Parameter
-     * @return             Description of the Return Value
-     */
+    /** Makes a parameter example of this type */
     private ParameterAPI makeConstrainedStringParameter
             ( StringConstraint constraint ) {
         String name = "Name " + paramCount;
@@ -297,11 +239,7 @@ public class ParameterApplet
         return param;
     }
 
-    /**
-     *  Description of the Method
-     *
-     * @param  event  Description of the Parameter
-     */
+    /** Makes a parameter example of this type */
     public void parameterChange( ParameterChangeEvent event ) {
         String S = "ParameterApplet: parameterChange(): ";
         System.out.println( S + "starting: " );
@@ -314,24 +252,23 @@ public class ParameterApplet
     }
 
     /**
-     *  Description of the Method
+     *  Called when Applet started
      */
     public void start() { }
 
     /**
-     *  Description of the Method
+     *  Called when applet stopped
      */
     public void stop() { }
 
     /**
-     *  Description of the Method
+     *  Called when applet garbage collected
      */
     public void destroy() { }
 
+
     /**
-     *  The main program for the ParameterApplet class
-     *
-     * @param  args  The command line arguments
+     *  Main function for running this demo example
      */
     public static void main( String[] args ) {
 
@@ -346,12 +283,15 @@ public class ParameterApplet
 
         ParameterApplet applet = new ParameterApplet();
         applet.isStandalone = true;
+
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation( 3 );
         frame.setTitle( "Applet Frame" );
         frame.getContentPane().add( applet, "Center" );
+
         applet.init();
         applet.start();
+
         frame.setSize( 400, 320 );
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         frame.setLocation( ( d.width - frame.getSize().width ) / 2,
@@ -360,9 +300,7 @@ public class ParameterApplet
     }
 
     /**
-     *  Shown when a Constraint error is thrown on a ParameterEditor
-     *
-     * @param  e  Description of the Parameter
+     * Shown when a Constraint error is thrown on a ParameterEditor.
      */
     public void parameterChangeFailed( ParameterChangeFailEvent e ) {
 

@@ -5,12 +5,16 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-// Fix - Needs more comments
-
 /**
- * <b>Title:</b> DefaultEditor <p>
- * <b>Description:</b>
- * <p>
+ * <b>Title:</b> DefaultEditor<p>
+ *
+ * <b>Description:</b> Base class for the Direction and Location editors
+ * used in the Relative Location Applet. These editors are simple a label
+ * and text field. This class defines some of the common parameters and
+ * default setup functions.<p>
+ *
+ * This class is soley to avoid duplication of code between the
+ * LocationEditor and the Direction Editor.<p>
  *
  * @author  Steven W. Rock
  * @version 1.0
@@ -30,9 +34,6 @@ public class DefaultEditor  extends JPanel {
 
     protected final static GridBagLayout GBL = new GridBagLayout();
 
-    /**
-     *  Description of the Field
-     */
     protected final static Insets THREE_INSETS = new Insets( 3, 3, 3, 3 );
     protected final static Insets TEN_FIVE_INSETS = new Insets(0, 10, 0, 5);
     protected final static Insets ZERO_INSETS = new Insets(0, 0, 0, 0);
@@ -54,30 +55,26 @@ public class DefaultEditor  extends JPanel {
      *  Constructor for the LocationEditor object
      */
     public DefaultEditor() {
-        try {
-            jbInit();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-        }
+        try { jbInit(); }
+        catch ( Exception e ) { e.printStackTrace(); }
     }
 
+    /** Sets the title of the titled border. Shows up in the GUI. */
     public void setName(String name){
         this.titledBorder.setTitle( name );
     }
 
     /**
-     *  Sets the editMode attribute of the LocationEditor object
-     *
-     * @param  newEditMode  The new editMode value
+     *  Toggles edit mode for the fields. If false, users cannot
+     *  change the values in the GUI. Will be set to false for the
+     *  output fields.
      */
     public void setEditMode( boolean newEditMode ) {
         editMode = newEditMode;
     }
 
     /**
-     *  Gets the editMode attribute of the LocationEditor object
-     *
-     * @return    The editMode value
+     * Returns true if in edit mode, false if uneditable.
      */
     public boolean isEditMode() {
         return editMode;
@@ -85,9 +82,7 @@ public class DefaultEditor  extends JPanel {
 
 
     /**
-     *  Description of the Method
-     *
-     * @exception  Exception  Description of the Exception
+     * GUI initializer
      */
     private void jbInit() throws Exception {
 
@@ -108,11 +103,8 @@ public class DefaultEditor  extends JPanel {
 
     }
 
-    public void setTextColor(java.awt.Color newTextColor) {
-        textColor = newTextColor;
-    }
-    public java.awt.Color getTextColor() {
-        return textColor;
-    }
+
+    public void setTextColor(java.awt.Color newTextColor) { textColor = newTextColor; }
+    public java.awt.Color getTextColor() { return textColor; }
 
 }

@@ -26,14 +26,14 @@ import org.scec.data.Location;
 import org.scec.data.function.*;
 import org.scec.gui.plot.jfreechart.*;
 import org.scec.exceptions.ParameterException;
+
 import org.scec.sha.earthquake.rupForecastImpl.Frankel96.Frankel96_EqkRupForecast;
 import org.scec.sha.earthquake.rupForecastImpl.WardTest.WardGridTestEqkRupForecast;
 
 /**
  * <p>Title: EqkForecastApplet</p>
  * <p>Description: Earthquake forecast Demo Applet</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author :Nitin Gupta & Vipin Gupta
  * @version 1.0
  */

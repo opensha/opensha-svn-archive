@@ -12,6 +12,7 @@ import javax.swing.border.*;
  *
  * <b>Description:</b> Special ParameterEditor for editing DoubleParameters. The widget
  * is a NumericTextField so that only numbers can be typed in.<p>
+ *
  * @author Steven W. Rock
  * @version 1.0
  */

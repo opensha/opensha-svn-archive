@@ -12,6 +12,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> FaultTraceXYDataSet<p>
+ *
  * <b>Description:</b> Proxy for the FaultTrace to conform to the JFreeChart API
  * for XYDataSet, we can now pass a FaultTrace wrapped in this class into a plot<p>
  *

@@ -8,6 +8,7 @@ import org.scec.exceptions.*;
 
 /**
  * <b>Title:</b> WarningDoubleParameter<p>
+ *
  * <b>Description:</b> <p>
  *
  * @author Steven W. Rock

@@ -3,13 +3,12 @@ package org.scec.data.function;
 import java.util.*;
 import org.scec.data.*;
 import org.scec.exceptions.*;
-
-
 import com.jrefinery.data.*;
 import org.scec.gui.plot.jfreechart.*;
 
 /**
  * <b>Title:</b> DiscretizedFuncList<p>
+ *
  * <b>Description:</b> List container for Discretized Functions.
  * This class stores Discretized func API ( and any subclass )
  * internally in an array list and provides standard list access
@@ -21,8 +20,6 @@ import org.scec.gui.plot.jfreechart.*;
  * @author Steven W. Rock
  * @version 1.0
  */
-
-//public class DiscretizedFuncList extends DiscretizedFunctionXYDataSet{
 public class DiscretizedFuncList implements NamedObjectAPI{
 
 

@@ -5,6 +5,7 @@ import org.scec.exceptions.*;
 
 /**
  *  <b>Title:</b> DoubleDiscreteParameter<p>
+ *
  *  <b>Description:</b> Same as a DoubleParameter except the Constraints are a
  *  list of valid Double choices instead of a Min/Max DoubleConstraint with all
  *  possible values allowed in between.<p>

@@ -8,12 +8,16 @@ import javax.swing.*;
 import org.scec.data.*;
 import org.scec.param.editor.*;
 
-// Fix - Needs more comments
-
-
 /**
  * <b>Title:</b> DirectionEditor <p>
- * <b>Description:</b>
+ * <b>Description:</b> This GUI widget provides an
+ * editor for editing a Direction object. Therefore it has textfields for
+ * editing the horDistanc, verticalDistance, azimuth amd backAzimuth, i.e. the variables
+ * of the Direction object. This GUI lets a user fully specify a Direction
+ * object.<p>
+ *
+ * The basic layout is that there is a label and a textfield within a panel
+ * for each variable( i.e. 4).<p>
  * <p>
  *
  * @author  Steven W. Rock
@@ -24,82 +28,44 @@ import org.scec.param.editor.*;
 public class DirectionEditor extends DefaultEditor {
 
 
-    /**
-     *  Description of the Field
-     */
+    /** Model ( i.e. data ) for this GUI editor */
     protected Direction direction;
 
 
-
-
-    /**
-     *  Description of the Field
-     */
-    /**
-     *  Description of the Field
-     */
+    // Horizontal distnance GUI elements
     JPanel horzPanel = new JPanel();
-    /**
-     *  Description of the Field
-     */
-    JPanel vertPanel = new JPanel();
-    /**
-     *  Description of the Field
-     */
-    JPanel azimuthPanel = new JPanel();
-    JPanel backAzimuthPanel = new JPanel();
-
-    /**
-     *  Description of the Field
-     */
-    /**
-     *  Description of the Field
-     */
     JLabel horzLabel = new JLabel();
-    /**
-     *  Description of the Field
-     */
-    JLabel vertLabel = new JLabel();
-    /**
-     *  Description of the Field
-     */
-    JLabel azimuthLabel = new JLabel();
-    JLabel backAzimuthLabel = new JLabel();
-
-    /**
-     *  Description of the Field
-     */
     NumericTextField horzTextField = new NumericTextField();
-    /**
-     *  Description of the Field
-     */
+
+    // vertical distnance GUI elements
+    JPanel vertPanel = new JPanel();
+    JLabel vertLabel = new JLabel();
     NumericTextField vertTextField = new NumericTextField();
-    /**
-     *  Description of the Field
-     */
+
+    // azimuth GUI elements
+    JPanel azimuthPanel = new JPanel();
+    JLabel azimuthLabel = new JLabel();
     NumericTextField azimuthTextField = new NumericTextField();
 
+    // backAzimuth GUI elements
+    JPanel backAzimuthPanel = new JPanel();
+    JLabel backAzimuthLabel = new JLabel();
     NumericTextField backAzimuthTextField = new NumericTextField();
 
 
 
-    /**
-     *  Constructor for the LocationEditor object
-     */
+
+    /** Constructor  */
     public DirectionEditor() {
         super();
-        try {
-            jbInit2();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-        }
+        try { jbInit2(); }
+        catch ( Exception e ) { e.printStackTrace(); }
     }
 
 
     /**
-     *  Sets the location attribute of the LocationEditor object
-     *
-     * @param  newLocation  The new location value
+     *  Sets all the fields and model of the gui widget by passing in a
+     *  new Dirction object.
      */
     public void setTheDirection( Direction newDirection ) {
         direction = newDirection;
@@ -127,11 +93,7 @@ public class DirectionEditor extends DefaultEditor {
 
 
 
-    /**
-     *  Gets the location attribute of the LocationEditor object
-     *
-     * @return    The location value
-     */
+    /** Returns a Direction object based on all the text field values. */
     public Direction getTheDirection() {
 
         String horzStr = this.horzTextField.getText();
@@ -148,16 +110,8 @@ public class DirectionEditor extends DefaultEditor {
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @exception  Exception  Description of the Exception
-     */
+    /** Initializes all the gui elements */
     private void jbInit2() throws Exception {
-
-
-
-
 
         horzPanel.setBackground( COLORS[0] );
         horzPanel.setLayout(GBL);
@@ -239,11 +193,7 @@ public class DirectionEditor extends DefaultEditor {
     }
 
 
-    /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
-     */
+    /** Returns the model field values as a string. */
     public String toString() {
         return this.direction.toString();
     }

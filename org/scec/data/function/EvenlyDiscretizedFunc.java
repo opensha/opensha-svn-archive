@@ -9,6 +9,7 @@ import org.scec.data.*;
 
 /**
  * <b>Title:</b> EvenlyDiscretizedFunc<p>
+ *
  * <b>Description:</b> Assumes even spacing between the x points represented by
  * the delta distance. Y Values are stored as doubles in an array of primitives. This
  * allows replacement of values at specified indexes.<p>

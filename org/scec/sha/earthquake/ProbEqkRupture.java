@@ -10,8 +10,7 @@ import org.scec.sha.surface.GriddedSurfaceAPI;
 /**
  * <p>Title:ProbEqkRupture </p>
  * <p>Description: Probabilistic Earthquake Rupture</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Nitin Gupta & Vipin Gupta
  * @date aug 27, 2002
  * @version 1.0

@@ -12,17 +12,7 @@ import org.scec.util.*;
  *
  * <b>Title:</b> EqkRupture<br>
  * <b>Description:</b> <br>
- * <b>Revision History:</b><BR>
- * <ul>
- *  <li>1/2/2002
- *      <ul>
- *      <li>SWR: Removed extends ParameterList
- *      </ul>
- * </ul>
- * <br>
  *
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
  * @author Sid Hellman
  * @version 1.0
  */

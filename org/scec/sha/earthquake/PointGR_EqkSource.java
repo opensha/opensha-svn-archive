@@ -10,8 +10,7 @@ import java.util.Iterator;
 /**
  * <p>Title: PointGR_EqkSource </p>
  * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Edward Field
  * @date Sep 2, 2002
  * @version 1.0

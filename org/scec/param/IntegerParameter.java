@@ -4,6 +4,7 @@ import org.scec.exceptions.*;
 
 /**
  *  <b>Title:</b> IntegerParameter<p>
+ *
  *  <b>Description:</b> Generic Data Object that contains an Integer and
  *  optionally a min and max allowed values stored in a constraint object. If no
  *  constraint object is present then all values should be permitted. <p>

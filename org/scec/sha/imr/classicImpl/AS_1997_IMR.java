@@ -13,6 +13,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> AS_1997_IMR<p>
+ *
  * <b>Description:</b> This implements the classicIMR (attenuation relationship)
  * developed by Abrahmson and Silva (1997, Seismological Research Letters, vol
  * 68, num 1, pp 94-127) <p>
@@ -32,11 +33,6 @@ import org.scec.util.*;
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
- *
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field
  * @created    April, 2002

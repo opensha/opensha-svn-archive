@@ -7,8 +7,9 @@ import javax.swing.border.*;
 // FIX - Needs more comments
 
 /**
- *  <b>Title: </b> SidesBorder<p>
- *  Description: This class implements a Border where you can set any side color
+ *  <b>Title:</b> SidesBorder<p>
+ *
+ *  <b>Description:</b> This class implements a Border where you can set any side color
  *  individually. You can also set on or off the drawing of any side. Especially
  *  useful to give the illusion of an underline. Setting the top and sides
  *  border to the same color as the background panel, users only see the bottom

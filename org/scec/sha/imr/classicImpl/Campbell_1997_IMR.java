@@ -13,6 +13,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> Campbell_1997_IMR<p>
+ *
  * <b>Description:</b> This implements the classicIMR (attenuation relationship)
  * developed by Campbell (1997, Seismological Research Letters, vol
  * 68, num 1, pp 154-179), as corrected in the Erratum (Campbell, 2000, Seismological
@@ -34,11 +35,6 @@ import org.scec.util.*;
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation (mag or PGA dependent)
  * </UL><p>
- *
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field
  * @created    February 27, 2002

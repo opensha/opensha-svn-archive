@@ -10,8 +10,7 @@ import javax.swing.border.*;
  * <p>Title: MagFreDistAxisScale</p>
  * <p>Description:  This Class pop up window when custom scale is selecetd for the combo box that enables the
  * user to customise the X and Y Axis scale</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Nitin Gupta   Date: Aug,21,2002
  * @version 1.0
  */

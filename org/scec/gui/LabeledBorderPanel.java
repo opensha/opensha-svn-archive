@@ -8,10 +8,11 @@ import javax.swing.border.*;
 // FIX - Needs more comments
 
 /**
- * <b>Title: LabeledBorderPanel</b>
- * <p>Description: A JPanel GUI widget that contains a TitledBorder,
+ * <b>Title:</b> LabeledBorderPanel<p>
+ *
+ * <p>Description:</b> A JPanel GUI widget that contains a TitledBorder,
  * and a JScrollPane that let's you add any internal Java Compoenent inside it.
- * Useful for creating Parameter Editors.</p>
+ * Useful for creating Parameter Editors.<p>
  *
  * @author Steven W. Rock
  * @version 1.0

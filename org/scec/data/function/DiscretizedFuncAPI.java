@@ -5,7 +5,8 @@ import org.scec.data.*;
 import org.scec.exceptions.*;
 
 /**
- * <b>Title:</b> DiscretizedFuncAPI<br>
+ * <b>Title:</b> DiscretizedFuncAPI<p>
+ *
  * <b>Description:</b> Interface that all Discretized Functions must implement. <P>
  *
  * A Discretized Function is a collection of x and y values grouped together as

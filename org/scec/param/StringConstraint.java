@@ -7,6 +7,7 @@ import org.scec.exceptions.EditableException;
 
 /**
  *  <b>Title:</b> StringConstraint<p>
+ *
  *  <b>Description:</b> Constraint Object containing a vector of allowed string
  *  values<p>
  *

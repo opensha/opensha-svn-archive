@@ -8,94 +8,61 @@ import javax.swing.*;
 import org.scec.data.*;
 import org.scec.param.editor.*;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> LocationEditor <p>
- * <b>Description:</b>
- * <p>
+ *
+ * <b>Description:</b> This GUI widget provides an
+ * editor for editing a Location object. Therefore it has textfields for
+ * editing the latitude, longitude, and depth, i.e. the variables
+ * of the Location object. This GUI lets a user fully specify a Location
+ * object.<p>
+ *
+ * The basic layout is that there is a label and a textfield within a panel
+ * for each variable( i.e. 3 fields so 3 lables and 3 text fields ).<p>
  *
  * @author  Steven W. Rock
  * @version 1.0
  */
 
-public class LocationEditor
-         extends DefaultEditor {
+public class LocationEditor extends DefaultEditor {
 
-    /*
-     *  Debbuging variables
-     */
+    /** Class name used for debugging */
     protected final static String C = "ParameterEditor";
-    /**
-     *  Description of the Field
-     */
     protected final static boolean D = false;
 
-    /**
-     *  Description of the Field
-     */
+    /** Model ( i.e. data ) for this GUI editor */
     protected Location location;
 
 
-
-
-    /**
-     *  Description of the Field
-     */
+    // Latitude gui components
     JPanel latPanel = new JPanel();
-    /**
-     *  Description of the Field
-     */
-    JPanel lonPanel = new JPanel();
-    /**
-     *  Description of the Field
-     */
-    JPanel depthPanel = new JPanel();
-
-
-    /**
-     *  Description of the Field
-     */
     JLabel latLabel = new JLabel();
-    /**
-     *  Description of the Field
-     */
-    JLabel lonLabel = new JLabel();
-    /**
-     *  Description of the Field
-     */
-    JLabel depthLabel = new JLabel();
-
-    /**
-     *  Description of the Field
-     */
     NumericTextField latTextField = new NumericTextField();
-    /**
-     *  Description of the Field
-     */
+
+    // longitude gui components
+    JPanel lonPanel = new JPanel();
+    JLabel lonLabel = new JLabel();
     NumericTextField lonTextField = new NumericTextField();
-    /**
-     *  Description of the Field
-     */
+
+
+    // depth gui components
+    JPanel depthPanel = new JPanel();
+    JLabel depthLabel = new JLabel();
     NumericTextField depthTextField = new NumericTextField();
 
 
 
-    /**
-     *  Constructor for the LocationEditor object
-     */
+    /** Constructor for the LocationEditor object */
     public LocationEditor() {
         super();
-        try {
-            jbInit2();
-        } catch ( Exception e ) {
-            e.printStackTrace();
-        }
+        try { jbInit2(); }
+        catch ( Exception e ) { e.printStackTrace(); }
     }
 
 
     /**
-     *  Sets the location attribute of the LocationEditor object
+     *  Sets the location of the LocationEditor object. Updates
+     *  all text fields with the new values.
      *
      * @param  newLocation  The new location value
      */
@@ -118,7 +85,8 @@ public class LocationEditor
     }
 
     /**
-     *  Gets the location attribute of the LocationEditor object
+     *  Gets the location of the LocationEditor object
+     *  from the text field values.
      *
      * @return    The location value
      */
@@ -138,9 +106,7 @@ public class LocationEditor
 
 
     /**
-     *  Description of the Method
-     *
-     * @exception  Exception  Description of the Exception
+     * GUI Initializer
      */
     private void jbInit2() throws Exception {
 
@@ -206,9 +172,7 @@ public class LocationEditor
 
 
     /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
+     * Returns the location variables values as a string. Useful for debugging.
      */
     public String toString() {
         return this.location.toString();

@@ -5,6 +5,7 @@ import org.scec.exceptions.*;
 
 /**
  *  <b>Title:</b> DoubleParameter<p>
+ *
  *  <b>Description:</b> Generic Data Object that contains a Double and
  *  optionally a min and max allowed values stored in a constraint object. If no
  *  constraint object is present then all values should be permitted.<p>

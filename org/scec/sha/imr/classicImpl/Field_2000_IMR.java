@@ -13,6 +13,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> Field_2000_IMR<p>
+ *
  * <b>Description:</b> This implements the classicIMR (attenuation relationship)
  * developed by Field (2000, Bulletin of the Seismological Society of America, vol
  * 90, num 6b, pp S209-S221) <p>
@@ -32,11 +33,6 @@ import org.scec.util.*;
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
- *
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field
  * @created    February 27, 2002

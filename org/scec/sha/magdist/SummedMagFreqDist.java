@@ -13,8 +13,7 @@ import org.scec.exceptions.DataPoint2DException;
 /**
  * <p>Title:SummedMagFreqDist.java </p>
  * <p>Description: This class is for summing the various Magnitude Frequency distributions</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Nitin Gupta & Vipin Gupta  date: Aug 8, 2002
  * @version 1.0
  */

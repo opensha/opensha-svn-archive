@@ -16,14 +16,14 @@ import org.scec.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: MagDistGuiBean</p>
+ *
  * <p>Description: </p>This class is a java bean container for all the Gui
  *  elements and controller elements for one particular Mag Dist. This allows all the
  *  components to be packaged up in this one class and then for every MagDist that
  *  is created there will be one instance of this bean. This allows these beans
  *  to be easily swapped in and out when you are examining different Mag Dist's in
  *  the main tester applet application.<p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Nitin gupta and Vipin Gupta
  * Date : Aug 11,2002
  * @version 1.0

@@ -13,6 +13,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> BJF_1997_IMR<p>
+ *
  * <b>Description:</b> This implements the classicIMR (attenuation relationship)
  * developed by Boore, Joyner & Fumal (1997, Seismological Research Letters, vol
  * 68, num 1, pp 128-153) <p>
@@ -31,11 +32,6 @@ import org.scec.util.*;
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
- *
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Steven W. Rock & Edward H. Field
  * @created    February 27, 2002

@@ -15,17 +15,13 @@ import java.util.EventObject;
 
 public class ParameterChangeEvent extends EventObject {
 
-    /**
-     *  Name of Parameter being changed.
-     */
+    /** Name of Parameter being changed. */
     private String parameterName;
-    /**
-     *  New value for the Parameter.
-     */
+
+    /** New value for the Parameter. */
     private Object newValue;
-    /**
-     *  Old value for the Parameter.
-     */
+
+    /** Old value for the Parameter. */
     private Object oldValue;
 
 

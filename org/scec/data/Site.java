@@ -23,11 +23,7 @@ import org.scec.util.*;
  *  Provide methods for setting all site parameters from, for example, Vs30
  *  (authors must approve how this is done)? <p>
  *
- *  <b>Copyright:</b> Copyright (c)<br>2001<br>
- *  <b>Company:</b> <br>
- *
- *
- * @author     Sid Hellman
+ * @author     Sid Hellman, Steven W. Rock
  * @created    February 26, 2002
  * @version    1.0
  */

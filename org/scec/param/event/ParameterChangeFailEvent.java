@@ -15,17 +15,14 @@ import java.util.EventObject;
  */
 
 public class ParameterChangeFailEvent extends EventObject {
-    /**
-     *  Name of Parameter tried to change.
-     */
+
+    /** Name of Parameter tried to change. */
     private String parameterName;
-    /**
-     *  New value for the Parameter that failed.
-     */
+
+    /** New invalid value for the Parameter that failed. */
     private Object badValue;
-    /**
-     *  Old value for the Parameter.
-     */
+
+    /** Old value for the Parameter. */
     private Object oldValue;
 
 
@@ -52,27 +49,20 @@ public class ParameterChangeFailEvent extends EventObject {
 
     /**
      *  Gets the name of Parameter that failed a change.
-     *
      * @return    Name of Parameter tried to change
      */
-    public String getParameterName() {
-        return parameterName;
-    }
+    public String getParameterName() { return parameterName; }
 
 
     /**
      *  Gets the failed value.
-     *
      * @return    Failed value for the Parameter
      */
-    public Object getBadValue() {
-        return badValue;
-    }
+    public Object getBadValue() { return badValue; }
 
 
     /**
      *  Gets the old value for the Parameter.
-     *
      * @return    Old value for the Parameter
      */
     public Object getOldValue() {

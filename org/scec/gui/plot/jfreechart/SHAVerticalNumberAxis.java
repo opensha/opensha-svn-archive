@@ -19,11 +19,11 @@ import com.jrefinery.chart.VerticalNumberAxis;
 
 /**
  * <p>Title: SHAVerticalNumberAxis</p>
+ *
  * <p>Description: This class extends the class verticalNumberAxis of the JFreechart
  * package to make the ticks for the small values lower than 1E-7, Now all the
  * Tester Applets will  making use of this class to draw the vertical ticks</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Nitin Gupta   Date:Aug,17,2002
  * @version 1.0
  */

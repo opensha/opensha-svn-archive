@@ -9,7 +9,8 @@ import org.scec.sha.earthquake.*;
 
 
 /**
- *  <b>Title:</b> IntensityMeasureRelationship<br>
+ *  <b>Title:</b> IntensityMeasureRelationship<p>
+ *
  *  <b>Description:</b> Abstract base class for Intensity Measure Relationship (IMR).
  *  All IMRs compute the probability of exceeding a particular shaking level (specified
  *  by an intenisty-measure Parameter) given a Site and ProbEqkRupture object.
@@ -20,10 +21,7 @@ import org.scec.sha.earthquake.*;
  *  as a list of "other" parameters that don't fit into those three categories.
  *  This class also contains a list of supported intensity-measure parameters (which
  *  may have internal independent parameters). These five lists combined should
- *  constitute a complete list of parameters for the IMR. <br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
+ *  constitute a complete list of parameters for the IMR. <p>
  *
  * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002

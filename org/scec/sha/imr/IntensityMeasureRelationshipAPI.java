@@ -12,9 +12,6 @@ import org.scec.util.*;
  *  <b>Title:</b> IntensityMeasureRelationshipAPI<br>
  *  <b>Description:</b> This is the interface defined for all
  *  IntensityMeasureRelationship classes.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002

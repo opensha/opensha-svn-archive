@@ -8,8 +8,7 @@ import java.util.Vector;
 /**
  * <b>Title:</b> EqkRupForecast<br>
  * <b>Description: Earthquake Rupture Forecast</b> <br>
- * <b>Copyright:</b> Copyright (c) 2001<br>
- * <b>Company:</b> <br>
+ *
  * @author Nitin Gupta & Vipin Gupta
  * @date Aug 27, 2002
  * @version 1.0

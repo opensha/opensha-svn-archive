@@ -12,6 +12,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> GriddedSurfaceXYDataSet<p>
+ *
  * <b>Description:</b> Proxy class for GriddedSurfaceAPI to map to the
  * JFreeChart XYDataSet API so a GriddedSurface can be passed into a chart
  * for plotting<p>

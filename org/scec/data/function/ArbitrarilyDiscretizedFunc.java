@@ -11,7 +11,8 @@ import org.scec.param.ParameterList;
 import org.scec.data.*;
 
 /**
- * <b>Title:</b> ArbitrarilyDiscretizedFunc<br>
+ * <b>Title:</b> ArbitrarilyDiscretizedFunc<p>
+ *
  * <b>Description:</b> This class is a sublcass implementation
  * of a DiscretizedFunc that stores the data internaly as a
  * sorted TreeMap of DataPoint2D. This subclass distinguishes itself

@@ -6,11 +6,11 @@ import org.scec.param.WarningParameterAPI;
 /**
  *  <b>Title:</b> ParameterChangeWarningEvent<p>
  *
- *  Description: </p> This event is thrown when you try to modify a parameter's value
+ *  <b>Description:</b> This event is thrown when you try to modify a parameter's value
  *  beyond it's recommended value. This event gives the calling class the ability
  *  to either head the warnings or ignore it and update the parameter anyways. <p>
  *
- * @author     Stevenh W. Rock
+ * @author     Steven W. Rock
  * @created    April 17, 2002
  * @version    1.0
  */

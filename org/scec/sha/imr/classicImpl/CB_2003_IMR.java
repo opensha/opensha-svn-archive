@@ -13,6 +13,7 @@ import org.scec.util.*;
 
 /**
  * <b>Title:</b> CB_2003_IMR<p>
+ *
  * <b>Description:</b> This implements the classicIMR (attenuation relationship)
  * developed by Campbell & Bozorgnia (2003), Bull. Seism. Soc. Am., vol 93
  * , In press)<p>
@@ -38,11 +39,6 @@ import org.scec.util.*;
  * periods, so values were linearly interpolated between 0 and 0.1 seconds) and at 3-
  * and 4-seconds ("bv" not available from BJF_1997 above 2 seconds, so value at 2-seconds
  * was applied).
- *
- *
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field
  * @created    February 27, 2002

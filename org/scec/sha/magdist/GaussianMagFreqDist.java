@@ -9,13 +9,13 @@ import org.scec.exceptions.DataPoint2DException;
 
 /**
  * <p>Title:GaussianMagFreqDist </p>
+ *
  * <p>Description: This assumes a Gaussian distribution with a given mean and standard deviation, with
  * the option of being truncated at some number of standard deviations(one or two sided truncation).
  * The mean can be any value (it doesn not have to exactly equal one of the descrete x-axis values)
  * Note: applying thge scaleTo*() or normalizeBy*() methods of the parent class will not result in
  * totMoRate being updated</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Nitin Gupta , Date: Aug,8,2002
  * @version 1.0
  */
@@ -33,13 +33,13 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   private double stdDev= Double.NaN;
   private double totMoRate = Double.NaN;
 
-  /*
-   The # of stdDev(from Mean) where dist. cut to zero
+  /**
+   * The # of stdDev(from Mean) where dist. cut to zero
    */
   private double truncLevel = Double.NaN;
 
-  /*
-   none if=0;one-sided,upper if=1,two-sided if=2
+  /**
+    * none if=0;one-sided,upper if=1,two-sided if=
    */
   private int truncType =0  ;
 

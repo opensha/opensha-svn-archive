@@ -11,15 +11,24 @@ import org.scec.gui.*;
 import org.scec.sha.calc.*;
 import org.scec.calc.RelativeLocation;
 
-// Fix - Needs more comments
-
 /**
  * <b>Title:</b> RelativeLocationApplet <p>
+ *
  * <b>Description:</b> Tester Applet that contains 2 directions and 1 relative location, all are editable.
  * When you click on calculate the tester applet takes two of the values to calculate the third, depending on
  * which button you click on. For example you can calculate the Direction from two location objects, or calculate
  * the second location from a location and diection. This is a visual verification of the RelativeLocation calculator.
  * <p>
+ *
+ * There are two input Location editors and 1 input Direction editor. There are two buttons; calculate Location, and
+ * calculate Direction. If calcualate Location is pressed the first input location and direction fields are used.
+ * if the calculate Direction is used, only the two input locations are used. In other words there are 3 input sections
+ * but only two are used for any one calculation. Once a calculation is performed then the output fields are shown, either
+ * for the output Direction, or output Location. Initially the output fields are not seen.<p>
+ *
+ * A helpful feature of this tester is that once you calculate the output value from two inputs, you can now
+ * specify this output as a new input. It copies all the output values into the input editor automatically.
+ * It acts like a special copy and pate function.<p>
  *
  * @author  Steven W. Rock
  * @version 1.0
@@ -53,6 +62,7 @@ public class RelativeLocationApplet extends JApplet {
 
     protected final static Insets TWO_INSETS = new Insets(2, 2, 2, 2);
     protected final Dimension BUTTON_DIM = new Dimension(130, 20);
+
 
 
     LocationEditor loc1 = new LocationEditor();
@@ -375,6 +385,7 @@ public class RelativeLocationApplet extends JApplet {
 
     }
 
+    /** Copies the output direction into the input diection fields */
     void setDirection(MouseEvent e) {
 
         // Starting
@@ -406,6 +417,7 @@ public class RelativeLocationApplet extends JApplet {
 
     }
 
+    /** Copies the calculated output location into the input location 1 */
     void setLocation2(MouseEvent e) {
 
         // Starting
@@ -437,6 +449,7 @@ public class RelativeLocationApplet extends JApplet {
 
     }
 
+    /** Copies the calculated output location into the input location 1 */
     void setLocation1(MouseEvent e) {
 
         // Starting
@@ -502,13 +515,5 @@ public class RelativeLocationApplet extends JApplet {
         frame.setVisible(true);
     }
 
-    //static initializer for setting look & feel
-    static {
-        try {
-            //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            //UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        }
-        catch(Exception e) {
-        }
-    }
+
 }

@@ -15,9 +15,6 @@ import org.scec.data.function.*;
  *  method for getting the exceedance probability, this has methods to get the mean
  *  and standard deviation of the gaussian distribution. This API defines these
  *  additional methods.<br>
- *  <b>Copyright:</b> Copyright (c) 2001<br>
- *  <b>Company:</b> <br>
- *
  *
  * @author     Edward H. Field & Steven W. Rock
  * @created    February 21, 2002

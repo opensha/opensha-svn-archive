@@ -9,8 +9,7 @@ import org.scec.data.NamedObjectAPI;
 /**
  * <p>Title: ProbEqkSource</p>
  * <p>Description: Class for Probabilistic earthquake source</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author Nitin Gupta and Vipin Gupta
  * @date Aug 27, 2002
  * @version 1.0
