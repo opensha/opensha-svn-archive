@@ -14,15 +14,26 @@ import org.scec.util.*;
 /**
  * <b>Title:</b> ShakeMap_2003_AttenRel<p>
  *
- * <b>Description:</b> This implements the Attenuation Relationship
- * developed by the ShakeMap group (2003).  There is very little written documentation
- * of this relationship <p>
+ * <b>Description:</b> This implements the Attenuation Relationship used
+ * by the ShakeMap group (2003), which is a hybrid of BJF (1997) and the low-
+ * magnitude regression developed by Vincent Quitoriano (where the former is used
+ * above mag=5.5, the latter is used below 5.0 and a linear-ramp average is used in between).
+ * However, rather than using Vs30 as the site paremeter, this uses the Wills et al.
+ * (2000, Bull. Seism. Soc. Am., 90, S187-S208) classification scheme and the
+ * nonlinear amplification factors of Borcherdt (1994, Earthquake Spectra, 10, 617-654).
+ * There is very little written documentation of this relationship, and what exists
+ * is full of typos and outdated information.  This class was composed by Ned Field
+ * based on numerous queries to David Wald, Vincent Quitoriano, and Bruce Worden.
+ * This relationship has not been thoroughly tested so use at your own risk. <p>
  *
- * Supported Intensity-Measure Parameters:<p>
+ * Supported Intensity-Measure Parameters:
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
+ * <LI>SAParam  - Spectral Acceleration at 0.0, 0.3, 1.0, and 3.0 second periods
+ * <LI>pgvParam - Peak Ground Velocity (computed from 1-sec SA using the Newmark-Hall (1982) scalar)
+ * <LI>mmiParam - Modified Mercalli Intensity computed from PGA and PGV as in Wald et al. (1999, Earthquake Spectra)
  * </UL><p>
- * Other Independent Parameters:<p>
+ * Other Independent Parameters:
  * <UL>
  * <LI>magParam - moment Magnitude
  * <LI>distanceJBParam - closest distance to surface projection of fault
@@ -31,6 +42,22 @@ import org.scec.util.*;
  * <LI>componentParam - Component of shaking (only one)
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
+ * Important Notes:
+ * <UL>
+ * Because for the low-magnitude regression the different sigma estimates were
+ * available only for PGA (only total sigma was available for PGV and SA), the different sigmas
+ * represent those of PGA scaled by the relative difference of the totals.  Again, this
+ * only applies at low maginitudes, and the approximated values should be very close to
+ * the true values.<p>
+ * Regarding the Modified Mercalli Intensity (MMI) IMT, note that what is returned by
+ * the getMean() method is the natural-log of MMI.  Although this is not technically
+ * correct (since MMI is not log-normally distributed), it was the easiest way to implement
+ * it for now.  Furthermore, because the probability distribution of MMI (computed from PGA
+ * or PGV) is presently unknown, we cannot compute the standard deviation, probability of
+ * exceedance, or the IML at any probability other than 0.5.  Therefore, a RuntimeException
+ * is thrown if one tries any of these when the chosen IMT is MMI.  We can relax this when
+ * someone comes up with the probability distribution (which can't be Gaussian because
+ * MMI values below 1 and above 10 are not allowed).
  *
  * @author     Edward H. Field
  * @created    April, 2003
@@ -96,14 +123,14 @@ public class ShakeMap_2003_AttenRel
     protected final static Double MMI_MAX = new Double( Math.log(10.0) );
     public final static String MMI_ERROR_STRING = "Problem: "+
         NAME + " cannot complete\n the requested computation for MMI.\n\n" +
-        "This has occurred because you attempted to compute a\n"+
-        "probability of exceedance, the standard deviation, or\n"+
-        "an IML at some probability other than 0.5.  The inability\n"+
-        "to compute these will remain until someone comes up\n"+
-        " with the probability distribution for MMI (which is \n"+
-        "not trivial).  For now you can compute the median or the\n"+
-        "IML that has a 0.5 chance of being exceeded (the median).\n";
-
+        "This has occurred because you attempted to compute the\n"+
+        "standard deviation (or something else such as probability \n"+
+        "of exceedance which depends on the standard deviation).  \n"+
+        "The inability to compute these will remain until someone comes up\n"+
+        "with the probability distribution for MMI (when computed from\n"+
+        "PGA or PGV).  For now you can compute the median or the\n"+
+        "IML that has exactly a 0.5 chance of being exceeded (assuming\n"+
+        "this application supports such computations).\n";
 
     /**
      * The current set of coefficients based on the selected intensityMeasure
@@ -212,14 +239,14 @@ public class ShakeMap_2003_AttenRel
      *  the same name as that in willsSiteParam).  This also sets the internally held
      *  Site object as that passed in.
      *
-     * @param  site             The new site value which contains a Vs30 Parameter
+     * @param  site             The new site value which contains a Wills site Param.
      * @throws ParameterException Thrown if the Site object doesn't contain a
-     * Vs30 parameter
+     * Wills site parameter
      */
     public void setSite( Site site ) throws ParameterException, IMRException, ConstraintException {
 
 
-        // This will throw a parameter exception if the Vs30Param doesn't exist
+        // This will throw a parameter exception if the Wills Param doesn't exist
         // in the Site object
 
         ParameterAPI willsClass = site.getParameter( this.WILLS_SITE_NAME );
@@ -285,6 +312,11 @@ public class ShakeMap_2003_AttenRel
     }
 
 
+    /**
+     * Note that for MMI this returns the natural log of MMI (this should be changed later)
+     * @return
+     * @throws IMRException
+     */
     public double getMean() throws IMRException{
 
       String imt = im.getName();
@@ -300,7 +332,7 @@ public class ShakeMap_2003_AttenRel
 
     /**
      * This computes the nonlinear amplification factor according to the Wills site class,
-     * IMT, and BC_PGA
+     * IMT, and BC_PGA.
      * @return
      */
     private double getAmpFactor(String imt) {
@@ -799,7 +831,7 @@ public class ShakeMap_2003_AttenRel
 
 
     /**
-     *  Creates the Vs30 site parameter and adds it to the siteParams list.
+     *  Creates the willsSiteParam site parameter and adds it to the siteParams list.
      *  Makes the parameters noneditable.
      */
     protected void initSiteParams( ) {

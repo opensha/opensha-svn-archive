@@ -15,22 +15,26 @@ import org.scec.sha.imr.AttenuationRelationship;
  * Converting from Vs30 & Basin-Depth-2.5 to the above:
 
  Abrahamson & Silva (1997) & Abrahamson (2000):
+ ----------------------------------------------
 
  NA 				if Vs30²180
  Deep-Soil			if Vs30 ² 400 m/s & Basin-Depth-2.5 ³ 100 m
  Rock/Shallow-Soil		otherwise
 
  Sadigh et al. (1997):
+ ---------------------
 
  NA 				if Vs30²180
  Deep-Soil			if Vs30 ² 400 m/s & Basin-Depth-2.5 ³ 100 m
  Rock				otherwise
 
  Boore et al. (1997)
+ -------------------
 
  Vs30 = Vs30			(if Vs30 > 180; NA otherwise)
 
  Campbell (1997)
+ ---------------
 
  NA 				if Vs30²180
  Firm-Soil			if 180<Vs30²400
@@ -41,17 +45,32 @@ import org.scec.sha.imr.AttenuationRelationship;
  Campbell-Basin-Depth = Basin-Depth-2.5      	if Vs30 < 400
 
  Field (2000)
+ ------------
 
  Vs30 = Vs30			(if Vs30 > 180; NA otherwise)
  Basin-Depth-2.5 = Basin-Depth-2.5
 
  Campbell & Bozorgnia (2003)
+ ---------------------------
 
  NA 			if Vs30²180
  Firm-Soil		if 180<Vs30²300
- Very-Firm-Soil	if 300<Vs30²400
+ Very-Firm-Soil	        if 300<Vs30²400
  Soft-Rock		if 400<Vs30²500
  Firm-Rock		if 500>Vs30
+
+ ShakeMap (2003)
+ ---------------
+
+ E                      if Vs30 = 163
+ DE                     if Vs30 = 298
+ D                      if Vs30 = 301
+ CD                     if Vs30 = 372
+ C                      if Vs30 = 464
+ BC                     if Vs30 = 724
+ B                      if Vs30 = 686
+ NA                     if anything else
+
 
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -61,6 +80,7 @@ import org.scec.sha.imr.AttenuationRelationship;
 
 public class SiteTranslator implements java.io.Serializable{
 
+  private final static String C = "SiteTranslator";
   private final static boolean D = false;
 
   private double default_VS30;
@@ -90,15 +110,19 @@ public class SiteTranslator implements java.io.Serializable{
     boolean isDefaultVs30Set = false;
 
     if(D) System.out.println("Site: "+s.getLocation().toString()+"; vs30: "+vs30+"; basinDepth: "+basinDepth);
+
+    // set Vs30 to default if it's less than 180 m/sec or NaN
     if(vs30 <=180 || Double.isNaN(vs30)){
       isDefaultVs30Set= true;
       vs30=this.default_VS30;
     }
+
     ListIterator  it = s.getParametersIterator();
     while(it.hasNext()){
+
       ParameterAPI tempParam = (ParameterAPI)it.next();
 
-      //Abrahamson site type
+      //Abrahamson & Silva (1997) site type
       if(tempParam.getName().equalsIgnoreCase(AS_1997_AttenRel.SITE_TYPE_NAME)){
         if(Double.isNaN(basinDepth)){
           if(vs30 <=400)
@@ -114,8 +138,8 @@ public class SiteTranslator implements java.io.Serializable{
         }
       }
 
-      //BJF site type
-      else if(tempParam.getName().equalsIgnoreCase(BJF_1997_AttenRel.VS30_NAME)){
+      // Vs30 site type (e.g., BJF-1997 and Field-2000) site type
+      else if(tempParam.getName().equalsIgnoreCase(AttenuationRelationship.VS30_NAME)){
         if(vs30>180)
           tempParam.setValue(new Double(vs30));
       }
@@ -132,7 +156,7 @@ public class SiteTranslator implements java.io.Serializable{
         }
       }
 
-      //Cambell 1997 site type(Vs30)
+      //Cambell (1997) site type
       else if(tempParam.getName().equalsIgnoreCase(Campbell_1997_AttenRel.SITE_TYPE_NAME)){
         if(vs30>180 && vs30<=400)
           tempParam.setValue(Campbell_1997_AttenRel.SITE_TYPE_FIRM_SOIL);
@@ -154,8 +178,8 @@ public class SiteTranslator implements java.io.Serializable{
           tempParam.setValue(CB_2003_AttenRel.SITE_TYPE_FIRM_ROCK);
       }
 
-      //Abrahamson site type
-      if(tempParam.getName().equalsIgnoreCase(Abrahamson_2000_AttenRel.SITE_TYPE_NAME)){
+      //Abrahamson (2000) site type - not needed because same as Abrahamson & Silva (1997)
+      else if(tempParam.getName().equalsIgnoreCase(Abrahamson_2000_AttenRel.SITE_TYPE_NAME)){
         if(Double.isNaN(basinDepth)){
           if(vs30 <=400)
             tempParam.setValue(Abrahamson_2000_AttenRel.SITE_TYPE_SOIL);
@@ -171,7 +195,7 @@ public class SiteTranslator implements java.io.Serializable{
       }
 
       //SCEMY Site type
-      if(tempParam.getName().equalsIgnoreCase(SCEMY_1997_AttenRel.SITE_TYPE_NAME)){
+      else if(tempParam.getName().equalsIgnoreCase(SCEMY_1997_AttenRel.SITE_TYPE_NAME)){
         if(Double.isNaN(basinDepth)){
           if(vs30 <=400)
             tempParam.setValue(SCEMY_1997_AttenRel.SITE_TYPE_SOIL);
@@ -186,16 +210,27 @@ public class SiteTranslator implements java.io.Serializable{
         }
       }
 
-      //Field site type(Basin Depth)
+      //Field basin-depth site type
       else if(tempParam.getName().equalsIgnoreCase(Field_2000_AttenRel.BASIN_DEPTH_NAME)){
         // set basin depth in kms
           if(Double.isNaN(basinDepth)) tempParam.setValue(null);
           else  tempParam.setValue(new Double(basinDepth/1000));
       }
-      //Field site type (Vs30)
-      else if(tempParam.getName().equalsIgnoreCase(Field_2000_AttenRel.VS30_NAME)){
-        if(vs30>180)
-          tempParam.setValue(new Double(vs30));
+
+      //The Wills site classification used by the ShakeMap (2003) relationship
+      else if(tempParam.getName().equalsIgnoreCase(ShakeMap_2003_AttenRel.WILLS_SITE_NAME)){
+        if      (vs30 == 163)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_E);
+        else if (vs30 == 298)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_DE);
+        else if (vs30 == 301)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_D);
+        else if (vs30 == 372)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_CD);
+        else if (vs30 == 464)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_C);
+        else if (vs30 == 724)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_BC);
+        else if (vs30 == 686)  tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_B);
+        else tempParam.setValue(ShakeMap_2003_AttenRel.WILLS_SITE_B);
+      }
+
+      else {
+        throw new RuntimeException(C+" does not support the site type: "+tempParam.getName());
       }
     }
     return isDefaultVs30Set;
