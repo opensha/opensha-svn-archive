@@ -544,11 +544,12 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
           this.tickUnit.formatter.setMaximumFractionDigits(3);
 
 
-
+        int upperBound =powerOf10(range.getUpperBound());
+        int lowerBound=powerOf10(range.getLowerBound());
         boolean superscript=false;
 
         // whether you want to show in superscript form or not
-        if((powerOf10(range.getUpperBound())- powerOf10(range.getLowerBound())) >= 4)
+        if((upperBound-lowerBound) >= 4)
            superscript=true;
         if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
           superscript=true;
@@ -655,7 +656,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
            /**
             * Code added to prevent overlapping of the Tick Labels.
             */
-             if(x<x0 && j!=1){
+             if((x<x0 || upperBound-lowerBound >=3) && j!=1){
                 tickLabel="";
              }
              else {
@@ -679,13 +680,7 @@ public class HorizontalLogarithmicAxis extends HorizontalNumberAxis  {
        * @param num
        */
       private boolean isPowerOfTen(double num) {
-         /*for(int i=lowest;;++i) {
-          double val=Math.pow(10,i);
-          if(val==num)
-            return true;
-          if(val>num)
-            return false;
-        }*/
+
         if(num>=2 && num<=9)
           return false;
         return true;

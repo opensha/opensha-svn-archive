@@ -598,9 +598,11 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
            this.tickUnit.formatter.setMaximumFractionDigits(3);
         boolean superscript=false;
 
+        int upperBound=powerOf10(range.getUpperBound());
+        int lowerBound=powerOf10(range.getLowerBound());
 
         // whether you want to show in superscript form or not
-        if((powerOf10(range.getUpperBound())- powerOf10(range.getLowerBound())) >= 4)
+        if((upperBound-lowerBound)>= 4)
            superscript=true;
         if(range.getLowerBound()<0.0001 || range.getUpperBound()>10000.0)
           superscript=true;
@@ -697,7 +699,7 @@ public class VerticalLogarithmicAxis extends NumberAxis implements VerticalAxis 
                 continue;
               if(yy<plotArea.getMinY())
                 return;
-              if(y>y0 && j!=1)
+              if((y>y0 || upperBound-lowerBound>=3) && j!=1)
                 tickLabel="";
 
               else {
