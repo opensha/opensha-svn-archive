@@ -53,14 +53,23 @@ public class HazardCurveCalculator {
   }
 
   /**
-   * this function determines the hazard curve based on the parameters
+   * This function determines the hazard curve based on the parameters.  Note that
+   * two functions are taken here only for computational efficiency (otherwise there
+   * is overhead in duplicating a function each time this method is called from,
+   * for example, the HazardMapCalculator).  The first function contains the X-values
+   * (IMLs) that will be used, and the second function will contain the desired Y
+   * values when done.  The X values on the second funtion are ignored (so those on
+   * the first can be the log of those on the second as needed of for SA, PGA, and PGV),
+   * and the Y values on the first function are meaningless on entry and exit.  These
+   * two functions must have the same number of points.
    *
-   * @param condProbFunc: it has the X values in log becuase IMR takes the input of X values in Log
-   * to calculate the Probablity of Exceedance
-   * @param hazFunction : it has X values set and result will be returned in this function
-   * @param site  : site parameter
-   * @param imr  :selected IMR object
-   * @param eqkRupForecast  : selected Earthquake rup forecast
+   * @param condProbFunc: contains the X values used (IMLs) for computing the hazard
+   * curve.
+   * @param hazFunction: This contains the desired curve (Y values) for the
+   * specified site.
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
    * @return
    */
   public void getHazardCurve(ArbitrarilyDiscretizedFunc condProbFunc,DiscretizedFuncAPI hazFunction,
