@@ -36,13 +36,12 @@ public class AxisLimitsControlPanel extends JFrame {
   private AxisLimitsControlPanelAPI axisLimitAPI;
   private JComboBox rangeComboBox = new JComboBox();
   private JLabel jLabel5 = new JLabel();
-  private JLabel jLabel6 = new JLabel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   // Axis scale options
   public final static String AUTO_SCALE = "Auto Scale";
   public final static String CUSTOM_SCALE = "Custom Scale";
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   /**
    * Contructor which displays the window so that user can set the X and Y axis
@@ -110,32 +109,31 @@ public class AxisLimitsControlPanel extends JFrame {
       }
     });
     panel1.setLayout(gridBagLayout1);
-    panel1.add(rangeComboBox,  new GridBagConstraints(3, 1, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(26, 0, 0, 0), -4, 0));
-    panel1.add(jLabel5,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(24, 0, 0, 0), 26, 11));
-    panel1.add(jTextMaxY,  new GridBagConstraints(5, 3, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 10), 119, 3));
-    panel1.add(jLabel1,  new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(21, 22, 0, 0), 26, 3));
-    panel1.add(jTextMinX,  new GridBagConstraints(1, 2, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(22, 0, 0, 0), 112, 3));
-    panel1.add(jLabel3,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 22, 0, 0), 14, 0));
-    panel1.add(jTextMinY,  new GridBagConstraints(1, 3, 3, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 0), 112, 3));
-    panel1.add(jLabel2,  new GridBagConstraints(4, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(21, 17, 0, 0), 26, 3));
-    panel1.add(jTextMaxX,  new GridBagConstraints(5, 2, 2, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(22, 0, 0, 10), 119, 3));
-    panel1.add(jLabel4,  new GridBagConstraints(4, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 17, 0, 11), 15, -2));
-    panel1.add(cancel,  new GridBagConstraints(6, 4, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 0, 24, 10), 24, 3));
-    panel1.add(ok,  new GridBagConstraints(4, 4, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(14, 17, 24, 18), 35, 3));
-    panel1.add(jLabel6,   new GridBagConstraints(0, 0, 7, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 50, 0, 69), 103, 6));
+    this.setTitle("Axis Control Panel");
+    panel1.add(jLabel5,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 0, 0, 0), 17, 11));
+    panel1.add(rangeComboBox,  new GridBagConstraints(3, 0, 3, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 0, 0, 67), -30, 0));
+    panel1.add(jTextMinY,  new GridBagConstraints(1, 2, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(8, 0, 0, 0), 82, 3));
+    panel1.add(jTextMinX,  new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 0), 84, 3));
+    panel1.add(ok,   new GridBagConstraints(4, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 19, 5, 11), 0, 3));
+    panel1.add(cancel,    new GridBagConstraints(5, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 5, 9), 10, 3));
+    panel1.add(jLabel2,  new GridBagConstraints(4, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 36, 0, 0), 17, 3));
+    panel1.add(jLabel4,  new GridBagConstraints(4, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 37, 6, 0), 15, -2));
+    panel1.add(jTextMaxX,  new GridBagConstraints(5, 1, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(10, 0, 0, 9), 72, 3));
+    panel1.add(jTextMaxY,  new GridBagConstraints(5, 2, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 9), 72, 3));
+    panel1.add(jLabel3,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(12, 11, 0, 0), 14, 0));
+    panel1.add(jLabel1,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 11, 0, 0), 26, 3));
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Min X:");
     jLabel2.setForeground(new Color(80, 80, 133));
@@ -174,12 +172,8 @@ public class AxisLimitsControlPanel extends JFrame {
     rangeComboBox.setForeground(new Color(80, 80, 133));
     jLabel5.setForeground(new Color(80, 80, 133));
     jLabel5.setText("Axis Scale:");
-    jLabel6.setFont(new java.awt.Font("Dialog", 1, 18));
-    jLabel6.setForeground(new Color(80, 80, 133));
-    jLabel6.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel6.setText("Axis Control Panel");
     this.getContentPane().add(panel1,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 0, 0), -48, -7));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 6, 6), -49, 5));
   }
 
 

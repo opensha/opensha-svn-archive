@@ -25,9 +25,6 @@ import java.awt.event.*;
 public class DisaggregationControlPanel extends JFrame
     implements ParameterChangeFailListener{
   private JCheckBox diaggregateCheckBox = new JCheckBox();
-  private JLabel jLabel1 = new JLabel();
-  private JButton okButton = new JButton();
-  private JButton cancelButton = new JButton();
 
   //Disaggregation Parameter
   private DoubleParameter disaggregationParam =
@@ -65,38 +62,13 @@ public class DisaggregationControlPanel extends JFrame
       }
     });
     this.getContentPane().setLayout(gridBagLayout1);
-    jLabel1.setFont(new java.awt.Font("Dialog", 1, 18));
-    jLabel1.setForeground(new Color(80, 80, 133));
-    jLabel1.setText("Disaggregation Control Panel");
-    okButton.setBackground(new Color(200, 200, 230));
-    okButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    okButton.setForeground(new Color(80, 80, 133));
-    okButton.setText("OK");
-    okButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        okButton_actionPerformed(e);
-      }
-    });
-    cancelButton.setBackground(new Color(200, 200, 230));
-    cancelButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    cancelButton.setForeground(new Color(80, 80, 133));
-    cancelButton.setText("Cancel");
-    cancelButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        cancelButton_actionPerformed(e);
-      }
-    });
 
-    this.getContentPane().add(this.disaggregationEditor,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-           ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 23, 0, 0), 30, 0));
-    this.getContentPane().add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 60, 0, 35), 0, 6));
-    this.getContentPane().add(diaggregateCheckBox,   new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 9, 0, 0), 0, 0));
-    this.getContentPane().add(okButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 106, 13, 0), 51, 9));
-    this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 46, 13, 35), 25, 9));
+    this.setTitle("Disaggregation Control Panel");
+    this.getContentPane().add(this.disaggregationEditor,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+          ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 23, 0, 0), 30, 0));
+    this.getContentPane().add(diaggregateCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(15, 6, 18, 50), 15, 0));
+
     disaggregationEditor.setVisible(false);
   }
 
@@ -139,32 +111,12 @@ public class DisaggregationControlPanel extends JFrame
    * @param e
    */
   void diaggregateCheckBox_actionPerformed(ActionEvent e) {
-    if(this.diaggregateCheckBox.isSelected())
+    parent.setDisaggregationSelected(diaggregateCheckBox.isSelected());
+    if(this.diaggregateCheckBox.isSelected()) {
       disaggregationEditor.setVisible(true);
-    else disaggregationEditor.setVisible(false);
-  }
-
-
-  /**
-   * this function is called when Ok button is selected
-   * @param e
-   */
-  void okButton_actionPerformed(ActionEvent e) {
-    // set the diaggregation parameters in the parent
-    boolean diaggregationSelected = diaggregateCheckBox.isSelected();
-    parent.setDisaggregationSelected(diaggregationSelected);
-    if(diaggregationSelected)
       parent.setDisaggregationProb(((Double)this.disaggregationParam.getValue()).doubleValue());
-    this.dispose();
-  }
-
-
-  /**
-   * this function is called when Cancel button is selected
-   * @param e
-   */
-  void cancelButton_actionPerformed(ActionEvent e) {
-    this.dispose();
+    }
+    else disaggregationEditor.setVisible(false);
   }
 
 }

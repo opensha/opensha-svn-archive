@@ -1,4 +1,4 @@
-package org.scec.sha.gui.controls;
+package org.scec.sha.gui.infoTools;
 
 import java.awt.*;
 import javax.swing.*;

@@ -27,6 +27,7 @@ import org.scec.param.event.*;
 import org.scec.util.*;
 import org.scec.sha.gui.controls.*;
 import org.scec.sha.gui.beans.*;
+import org.scec.sha.gui.infoTools.*;
 import org.scec.sha.imr.AttenuationRelationshipAPI;
 import org.scec.sha.earthquake.EqkRupForecastAPI;
 import org.scec.sha.calc.HazardCurveCalculator;
@@ -80,7 +81,7 @@ public class HazardCurveApplet extends JApplet
   private Site_GuiBean siteGuiBean;
 
   // Strings for control pick list
-  private final static String PEER_TEST_CONTROL = "Select Test and Site";
+  private final static String PEER_TEST_CONTROL = "PEER Test Case Selector";
   private final static String DISAGGREGATION_CONTROL = "Disaggregation";
   private final static String AXIS_CONTROL = "Axis Control";
 
@@ -412,20 +413,20 @@ public class HazardCurveApplet extends JApplet
     parameterSplitPane.add(erfPanel, JSplitPane.RIGHT);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 6, 50, 171), 25, 7));
-    buttonPanel.add(controlComboBox,   new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 156, 56, 0), 48, 2));
-    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 40, 50, 0), 0, 0));
-    buttonPanel.add(clearButton,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 15, 50, 0), 0, 0));
-    buttonPanel.add(toggleButton,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 13, 50, 0), 0, 0));
-    buttonPanel.add(jCheckxlog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 50, 0), 1, 7));
-    buttonPanel.add(jCheckylog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 19, 50, 95), 1, 3));
+    buttonPanel.add(jLabel1,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 6, 5, 171), 25, 7));
+    buttonPanel.add(controlComboBox,     new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(10, 156, 5, 0), 48, 2));
+    buttonPanel.add(addButton,    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 40, 5, 0), 0, 0));
+    buttonPanel.add(clearButton,    new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 15, 5, 0), 0, 0));
+    buttonPanel.add(toggleButton,    new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 13, 5, 0), 0, 0));
+    buttonPanel.add(jCheckxlog,    new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 16, 5, 0), 1, 7));
+    buttonPanel.add(jCheckylog,    new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 19, 5, 95), 1, 3));
     jPanel1.add(imgLabel,  new GridBagConstraints(0, 0, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(-1, -1, 0, 0), 0, 0));
     topSplitPane.setDividerLocation(560);

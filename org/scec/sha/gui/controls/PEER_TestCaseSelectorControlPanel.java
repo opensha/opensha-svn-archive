@@ -85,11 +85,8 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
   private String selectedTest;
   private String selectedSite;
   private String selectedSet;
-  private JLabel jLabel1 = new JLabel();
   private JLabel jLabel2 = new JLabel();
   private JComboBox testCaseComboBox = new JComboBox();
-  private JButton okButton = new JButton();
-  private JButton cacelButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
@@ -104,13 +101,14 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
    catch(Exception e) {
      e.printStackTrace();
     }
-    // fill the combo box with tests and sites
-    this.initializeTestsAndSites();
     //save the instances of the beans
     this.imrGuiBean = imrGuiBean;
     this.siteGuiBean = siteGuiBean;
     this.imtGuiBean = imtGuiBean;
     this.erfGuiBean = erfGuiBean;
+    // fill the combo box with tests and sites
+    this.initializeTestsAndSites();
+
     // show the window at center of the parent component
     this.setLocation(parent.getX()+parent.getWidth()/2,
                      parent.getY()+parent.getHeight()/2);
@@ -119,62 +117,23 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
 
 
   private void jbInit() throws Exception {
-    jLabel1.setFont(new java.awt.Font("Dialog", 1, 18));
-    jLabel1.setForeground(new Color(80, 80, 133));
-    jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
-    jLabel1.setText("PEER Test Case Selector");
     this.getContentPane().setLayout(gridBagLayout1);
     jLabel2.setForeground(new Color(80, 80, 133));
     jLabel2.setText("Select Test and Site:");
     testCaseComboBox.setBackground(new Color(200, 200, 230));
     testCaseComboBox.setForeground(new Color(80, 80, 133));
-    okButton.setBackground(new Color(200, 200, 230));
-    okButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    okButton.setForeground(new Color(80, 80, 133));
-    okButton.setText("OK");
-    okButton.addActionListener(new java.awt.event.ActionListener() {
+    testCaseComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        okButton_actionPerformed(e);
+        testCaseComboBox_actionPerformed(e);
       }
     });
-    cacelButton.setBackground(new Color(200, 200, 230));
-    cacelButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    cacelButton.setForeground(new Color(80, 80, 133));
-    cacelButton.setText("Cancel");
-    cacelButton.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        cacelButton_actionPerformed(e);
-      }
-    });
-    this.getContentPane().add(jLabel2,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(38, 6, 0, 0), 22, 5));
-    this.getContentPane().add(testCaseComboBox,  new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(37, 0, 0, 9), 81, -1));
-    this.getContentPane().add(cacelButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 9, 8, 9), 28, -2));
-    this.getContentPane().add(okButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 7, 8, 0), 57, -2));
-    this.getContentPane().add(jLabel1,  new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
-        ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(4, 31, 0, 25), 81, 11));
+    this.setTitle("PEER Test Case Selector");
+    this.getContentPane().add(jLabel2,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 7, 2, 240), 22, 5));
+    this.getContentPane().add(testCaseComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 145, 2, 13), 92, -1));
   }
 
-  /**
-   * this function is called when cancel button is clicked by the user
-   * @param e
-   */
-  void cacelButton_actionPerformed(ActionEvent e) {
-    this.dispose();
-  }
-
-  /**
-   * this fnction is called when ok button is clicked by the user
-   * @param e
-   */
-  void okButton_actionPerformed(ActionEvent e) {
-    String testSelected = this.testCaseComboBox.getSelectedItem().toString();
-    setTestCaseAndSite(testSelected);
-    this.dispose();
-  }
 
   /**
    * This method extracts the selected Site and the selected TestCase set
@@ -919,6 +878,15 @@ public class PEER_TestCaseSelectorControlPanel extends JFrame {
        this.testCaseComboBox.addItem(v.get(i));
 
    }
+
+   /**
+    * this sets the test case params in the GUI
+    * @param e
+    */
+  void testCaseComboBox_actionPerformed(ActionEvent e) {
+    String testSelected = this.testCaseComboBox.getSelectedItem().toString();
+    setTestCaseAndSite(testSelected);
+  }
 
 
 }
