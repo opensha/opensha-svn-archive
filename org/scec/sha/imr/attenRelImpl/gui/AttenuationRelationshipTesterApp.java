@@ -540,7 +540,7 @@ public class AttenuationRelationshipTesterApp extends JApplet
 
         toggleButton.setBackground( lightBlue );
         toggleButton.setForeground( darkBlue );
-    toggleButton.setMaximumSize(new Dimension(80, 20));
+        toggleButton.setMaximumSize(new Dimension(80, 20));
         toggleButton.setFont( BUTTON_FONT );
         toggleButton.setText( "Show Data" );
 
@@ -647,89 +647,89 @@ public class AttenuationRelationshipTesterApp extends JApplet
           rangeComboBox_actionPerformed(e);
         }
         });
-    jAxisScale.setFont(new java.awt.Font("Dialog", 1, 11));
-    jAxisScale.setForeground(new Color(80, 80, 133));
-    jAxisScale.setText("Set Axis: ");
-    legendPane.setEditable(false);
+        jAxisScale.setFont(new java.awt.Font("Dialog", 1, 11));
+        jAxisScale.setForeground(new Color(80, 80, 133));
+        jAxisScale.setText("Set Axis: ");
+        legendPane.setEditable(false);
 
-    //loading the OpenSHA Logo
-    imgLabel.setText("");
-    imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
-    jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
-    jLabel1.setForeground(new Color(80, 80, 133));
-    jLabel1.setText("Attenuation Relationship GUI");
-    this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
+        //loading the OpenSHA Logo
+        imgLabel.setText("");
+        imgLabel.setIcon(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
+        jLabel1.setFont(new java.awt.Font("Dialog", 0, 18));
+        jLabel1.setForeground(new Color(80, 80, 133));
+        jLabel1.setText("Attenuation Relationship GUI");
+        this.getContentPane().add( outerPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-    outerPanel.add( mainPanel,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        outerPanel.add( mainPanel,         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 0, 5), 0, 0) );
 
-    titlePanel.add( this.imrLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
+        titlePanel.add( this.imrLabel, new GridBagConstraints( 0, 0 , 1, 1, 1.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
 
-    titlePanel.add( this.imrComboBox, new GridBagConstraints( 1, 0 , 1, 1, 18.0, 0.0
-                , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
+        titlePanel.add( this.imrComboBox, new GridBagConstraints( 1, 0 , 1, 1, 18.0, 0.0
+            , GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, emptyInsets, 0, 0 ) );
 
 
-    mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
+        mainPanel.add( mainSplitPane, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 2, 4, 4, 4 ), 0, 0 ) );
 
-    mainPanel.add(buttonPanel,  new GridBagConstraints(0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
+        mainPanel.add(buttonPanel,  new GridBagConstraints(0, 2, GridBagConstraints.REMAINDER, GridBagConstraints.REMAINDER, 1.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 1, 1, 1), 0, 0) );
 
 
-   controlPanel.add(parametersPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
+        controlPanel.add(parametersPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-   outerControlPanel.add(controlPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 5, 0, 0 ), 0, 0 ) );
+        outerControlPanel.add(controlPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 5, 0, 0 ), 0, 0 ) );
 
-   parametersPanel.add( parametersSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
+        parametersPanel.add( parametersSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
 
-   plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
-                ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );
-
-
-   plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
-                , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
-
-   //innerPlotPanel.add(legendSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-     //           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
-
-   dataScrollPane.getViewport().add( pointsTextArea, null );
+        plotPanel.add( titlePanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 4, 4, 2, 4 ), 0, 0 ) );
 
 
-   buttonPanel.add( clearButton,             new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+        plotPanel.add( innerPlotPanel, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
+            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ) );
+
+        //innerPlotPanel.add(legendSplitPane, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+        //           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, emptyInsets, 0, 0 ) );
+
+        dataScrollPane.getViewport().add( pointsTextArea, null );
+
+
+        buttonPanel.add( clearButton,             new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13) );
 
-   buttonPanel.add( toggleButton,             new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add( toggleButton,             new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13) );
 
-   //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-     //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
+        //buttonPanel.add( imrComboBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+        //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 1, 0, 15), 0, 0) );
 
-   //buttonPanel.add( imrLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-     //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
+        //buttonPanel.add( imrLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        //       ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 0, 0, 0), 0, 0) );
 
-   buttonPanel.add(jCheckylog,                new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(jCheckylog,                new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
 
-   buttonPanel.add(jCheckxlog,         new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(jCheckxlog,         new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 0), 0, 0));
 
         buttonPanel.add(plotColorCheckBox,           new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(3, 5, 0, 3), 0, 0));
-    buttonPanel.add(rangeComboBox,    new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(rangeComboBox,    new GridBagConstraints(7, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 5, 0, 0), 0, 0));
-    buttonPanel.add(jAxisScale,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+        buttonPanel.add(jAxisScale,   new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(3, 4, 0, 0), 0, 0));
-    buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
+        buttonPanel.add(addButton,               new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 1, 0, 1), 15, 13));
-    outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+        outerPanel.add(imgLabel,         new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(12, 0, 0, 0), 0, 0));
-    outerPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+        outerPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
 
 

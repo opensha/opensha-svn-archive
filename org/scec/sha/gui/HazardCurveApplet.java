@@ -261,6 +261,8 @@ public class HazardCurveApplet extends JApplet implements LogPlotAPI {
     // for showing the data on click of "show data" button
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
     pointsTextArea.setText( NO_PLOT_MSG );
+    pointsTextArea.setLineWrap(true);
+    dataScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     dataScrollPane.setBorder( BorderFactory.createEtchedBorder() );
     jPanel1.setLayout(gridBagLayout12);
 
