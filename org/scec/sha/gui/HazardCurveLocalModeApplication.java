@@ -94,9 +94,11 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
    */
   protected void createCalcInstance(){
     try{
-      calc = new HazardCurveCalculator();
+      if(calc == null)
+        calc = new HazardCurveCalculator();
       if(disaggregationFlag)
-        disaggCalc = new DisaggregationCalculator();
+        if(disaggCalc == null)
+          disaggCalc = new DisaggregationCalculator();
     }catch(Exception e){
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
       bugWindow.show();
