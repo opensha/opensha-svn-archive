@@ -5,6 +5,7 @@ import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.util.Vector;
 
 
 
@@ -49,6 +50,40 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
   private boolean isStandalone = false;
   private Border border1;
+
+
+  //Supported PEER Test Cases
+  public final static String PEER_TESTS_SET_ONE = "Set1";
+  public final static String PEER_TESTS_SET_TWO = "Set2";
+
+  //Test Cases and the Site Lists
+  public final static String TEST_CASE_ONE ="Case1";
+  public final static String TEST_CASE_TWO ="Case2";
+  public final static String TEST_CASE_THREE ="Case3";
+  public final static String TEST_CASE_FOUR ="Case4";
+  public final static String TEST_CASE_FIVE ="Case5";
+  public final static String TEST_CASE_SIX ="Case6";
+  public final static String TEST_CASE_SEVEN ="Case7";
+  public final static String TEST_CASE_EIGHT_ONE ="Case8-0sig";
+  public final static String TEST_CASE_EIGHT_TWO ="Case8-1sig";
+  public final static String TEST_CASE_EIGHT_THREE ="Case8-2sig";
+  public final static String TEST_CASE_NINE_ONE ="Case9-Sa97";
+  public final static String TEST_CASE_NINE_TWO ="Case9-SA97";
+  public final static String TEST_CASE_NINE_THREE ="Case9-Ca97";
+  public final static String TEST_CASE_TEN ="Case10";
+  public final static String TEST_CASE_ELEVEN ="Case11";
+
+
+  //Sites Supported
+  public final static String SITE_ONE = "a";
+  public final static String SITE_TWO = "b";
+  public final static String SITE_THREE = "c";
+  public final static String SITE_FOUR = "d";
+  public final static String SITE_FIVE = "e";
+  public final static String SITE_SIX = "f";
+  public final static String SITE_SEVEN = "g";
+
+
 
 
   //log flags declaration
@@ -145,15 +180,10 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   private JSplitPane parameterSplitPane = new JSplitPane();
   private JSplitPane siteSplitPane = new JSplitPane();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
-  private JSplitPane testSplitPane = new JSplitPane();
-  private JPanel testCasesPanel = new JPanel();
   private JPanel sitePanel = new JPanel();
   private JPanel imtPanel = new JPanel();
   private JSplitPane controlsSplit = new JSplitPane();
-  private GridBagLayout gridBagLayout15 = new GridBagLayout();
-  private GridBagLayout gridBagLayout14 = new GridBagLayout();
   private GridBagLayout gridBagLayout13 = new GridBagLayout();
-  private JPanel imrPanel = new JPanel();
   private JPanel sourcePanel = new JPanel();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private GridBagLayout gridBagLayout10 = new GridBagLayout();
@@ -161,10 +191,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   private Border border6;
   private Border border7;
   private Border border8;
+  private JComboBox testCasesCombo = new JComboBox();
+  private GridBagLayout gridBagLayout15 = new GridBagLayout();
+  private JPanel imrPanel = new JPanel();
+  private JLabel jLabel1 = new JLabel();
   private GridBagLayout gridBagLayout12 = new GridBagLayout();
-
-
-
 
   //Get a parameter value
   public String getParameter(String key, String def) {
@@ -185,7 +216,9 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
 
       jbInit();
       // make the GroupTestGuiBean
+      String testSelected = testCasesCombo.getSelectedItem().toString();
       peerTestGuiBean = new PEER_TestsGuiBean(this);
+      peerTestGuiBean.setTestCaseAndSite(testSelected);
       this.updateChoosenIMR();
       this.updateChoosenTestCase();
       this.updateChoosenIMT();
@@ -245,7 +278,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     //clearButton.setBorder(null);
     clearButton.setMaximumSize(new Dimension(97, 31));
     clearButton.setMinimumSize(new Dimension(97, 31));
-    clearButton.setPreferredSize(new Dimension(97, 31));
+    clearButton.setPreferredSize(new Dimension(92, 33));
     clearButton.setText("Clear Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -254,7 +287,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     });
     jCustomAxisLabel.setFont(new java.awt.Font("Dialog", 1, 11));
     jCustomAxisLabel.setForeground(new Color(80, 80, 133));
-    jCustomAxisLabel.setText("Custom Axis Label");
+    jCustomAxisLabel.setText("Custom Axis Label:");
     toggleButton.setBackground(new Color(200, 200, 230));
     toggleButton.setFont(new java.awt.Font("Dialog", 1, 11));
     toggleButton.setForeground(new Color(80, 80, 133));
@@ -262,7 +295,7 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     //toggleButton.setBorder(null);
     toggleButton.setMaximumSize(new Dimension(97, 31));
     toggleButton.setMinimumSize(new Dimension(97, 31));
-    toggleButton.setPreferredSize(new Dimension(97, 31));
+    toggleButton.setPreferredSize(new Dimension(92, 33));
     toggleButton.setToolTipText("");
     toggleButton.setText("Show Data");
     toggleButton.addActionListener(new java.awt.event.ActionListener() {
@@ -315,18 +348,12 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     chartSplit.setRightComponent(parameterSplitPane);
     siteSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     siteSplitPane.setDividerSize(5);
-    testSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    testSplitPane.setDividerSize(5);
-    testCasesPanel.setLayout(gridBagLayout14);
-    testCasesPanel.setBackground(Color.white);
     sitePanel.setLayout(gridBagLayout13);
     sitePanel.setBackground(Color.white);
     imtPanel.setLayout(gridBagLayout8);
     imtPanel.setBackground(Color.white);
     controlsSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     controlsSplit.setDividerSize(5);
-    imrPanel.setLayout(gridBagLayout15);
-    imrPanel.setBackground(Color.white);
     parameterSplitPane.setLeftComponent(controlsSplit);
     parameterSplitPane.setRightComponent(sourcePanel);
     sourcePanel.setLayout(gridBagLayout5);
@@ -335,6 +362,14 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     sourcePanel.setMaximumSize(new Dimension(2147483647, 10000));
     sourcePanel.setMinimumSize(new Dimension(2, 300));
     sourcePanel.setPreferredSize(new Dimension(2, 300));
+    testCasesCombo.setBackground(new Color(200, 200, 230));
+    testCasesCombo.setForeground(new Color(80, 80, 133));
+    testCasesCombo.setBorder(null);
+    imrPanel.setLayout(gridBagLayout15);
+    imrPanel.setBackground(Color.white);
+    jLabel1.setFont(new java.awt.Font("Dialog", 1, 11));
+    jLabel1.setForeground(new Color(80, 80, 133));
+    jLabel1.setText("Select Test & Site:");
     dataScrollPane.getViewport().add( pointsTextArea, null );
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(topSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -345,39 +380,182 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
     parameterSplitPane.add(controlsSplit, JSplitPane.LEFT);
     siteSplitPane.add(sitePanel, JSplitPane.TOP);
     siteSplitPane.add(imtPanel, JSplitPane.BOTTOM);
+    controlsSplit.add(imrPanel, JSplitPane.TOP);
     parameterSplitPane.add(sourcePanel, JSplitPane.RIGHT);
-    controlsSplit.add(testSplitPane, JSplitPane.TOP);
     controlsSplit.add(siteSplitPane, JSplitPane.BOTTOM);
-    testSplitPane.add(testCasesPanel, JSplitPane.TOP);
-    testSplitPane.add(imrPanel, JSplitPane.BOTTOM);
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jCheckxlog,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 7, 16, 0), 20, 2));
-    buttonPanel.add(jCheckylog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 16, 0), 22, 2));
-    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(22, 0, 16, 0), 0, 0));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(6, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(16, 11, 16, 125), 0, 0));
-    buttonPanel.add(clearButton,        new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 6), -12, 2));
-    buttonPanel.add(toggleButton,        new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 0, 10, 0), -8, 0));
-    buttonPanel.add(addButton,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 94, 9, 6), -5, 2));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(7, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(14, 9, 13, 10), 0, 0));
+    buttonPanel.add(jCustomAxisLabel,  new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(15, 0, 14, 0), 8, 0));
+    buttonPanel.add(jCheckylog,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 0), -4, -4));
+    buttonPanel.add(jCheckxlog,  new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 0), -4, 2));
+    buttonPanel.add(clearButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 86), 0, -5));
+    buttonPanel.add(addButton,   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 0, 7, 0), 0, -3));
+    buttonPanel.add(toggleButton,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 82, 7, 0), 0, -4));
+    buttonPanel.add(testCasesCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(13, 6, 7, 0), -14, 1));
+    buttonPanel.add(jLabel1,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 7, 7, 0), 1, 7));
     topSplitPane.setDividerLocation(575);
     chartSplit.setDividerLocation(575);
     rangeComboBox.addItem(new String(AUTO_SCALE));
     rangeComboBox.addItem(new String(CUSTOM_SCALE));
     parameterSplitPane.setDividerLocation(175);
-    siteSplitPane.setDividerLocation(125);
-    testSplitPane.setDividerLocation(150);
-    controlsSplit.setDividerLocation(350);
+    siteSplitPane.setDividerLocation(175);
+    controlsSplit.setDividerLocation(175);
     sourcePanel.validate();
     sourcePanel.repaint();
 
-  }
+    //initialising the values inside the combobox for the supported test cases and sites
+    Vector v = new Vector();
 
+    //test case-1
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ONE+"-"+this.SITE_SEVEN));
+
+    //test case-2
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TWO+"-"+this.SITE_SEVEN));
+
+    //test case-3
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_THREE+"-"+this.SITE_SEVEN));
+
+    //test case-4
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FOUR+"-"+this.SITE_SEVEN));
+
+    //test case-5
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_FIVE+"-"+this.SITE_SEVEN));
+
+    //test case-6
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SIX+"-"+this.SITE_SEVEN));
+
+    //test case-7
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_SEVEN+"-"+this.SITE_SEVEN));
+
+    //test case-8_0sig
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_ONE+"-"+this.SITE_SEVEN));
+
+    //test case-8_1sig
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_TWO+"-"+this.SITE_SEVEN));
+
+    //test case-8_2sig
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_EIGHT_THREE+"-"+this.SITE_SEVEN));
+
+
+    //test case-9_Sa97
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_ONE+"-"+this.SITE_SEVEN));
+
+    //test case-9_SA97
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_TWO+"-"+this.SITE_SEVEN));
+
+    //test case-9_Ca97
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_FOUR));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_FIVE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_SIX));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_NINE_THREE+"-"+this.SITE_SEVEN));
+
+    //test case-10
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TEN+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TEN+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TEN+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_TEN+"-"+this.SITE_FOUR));
+
+
+    //test case-11
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_ONE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_TWO));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_THREE));
+    v.add(new String(this.PEER_TESTS_SET_ONE +"-"+this.TEST_CASE_ELEVEN+"-"+this.SITE_FOUR));
+
+    int size = v.size();
+    for(int i=0;i<size;++i)
+      this.testCasesCombo.addItem(v.get(i));
+
+    testCasesCombo.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        testCasesCombo_actionPerformed(e);
+      }
+    });
+  }
   //Start the applet
   public void start() {
   }
@@ -434,14 +612,6 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
   public void updateChoosenTestCase() {
     if(this.peerTestGuiBean==null)
       return;
-    testCasesPanel.removeAll();
-    testCasesPanel.add(peerTestGuiBean.getTestCasesEditor(),
-                       new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                       GridBagConstraints.CENTER,
-                       GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    testCasesPanel.validate();
-    testCasesPanel.repaint();
-
   }
 
 
@@ -827,6 +997,11 @@ public class PEER_TestsApplet extends JApplet implements LogPlotAPI {
      maxYValue=yMax;
      this.customAxis=true;
      addGraphPanel();
+  }
+
+  void testCasesCombo_actionPerformed(ActionEvent e) {
+    String testSelected = testCasesCombo.getSelectedItem().toString();
+    peerTestGuiBean.setTestCaseAndSite(testSelected);
   }
 
 }

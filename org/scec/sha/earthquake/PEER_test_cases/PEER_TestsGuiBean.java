@@ -129,34 +129,11 @@ public class PEER_TestsGuiBean implements
   private ParameterList testCasesParamList = new ParameterList();
   private ParameterListEditor testCasesEditor = null;
 
-  // The first parameter in the editor (for selecting case)
-  private final static String TEST_PARAM_NAME = "Test Case";
-  private final static String TEST_CASE_ONE ="1";
-  private final static String TEST_CASE_TWO ="2";
-  private final static String TEST_CASE_THREE ="3";
-  private final static String TEST_CASE_FOUR ="4";
-  private final static String TEST_CASE_FIVE ="5";
-  private final static String TEST_CASE_SIX ="6";
-  private final static String TEST_CASE_SEVEN ="7";
-  private final static String TEST_CASE_EIGHT_ONE ="8_1";
-  private final static String TEST_CASE_EIGHT_TWO ="8_2";
-  private final static String TEST_CASE_EIGHT_THREE ="8_3";
-  private final static String TEST_CASE_NINE_ONE ="9_1";
-  private final static String TEST_CASE_NINE_TWO ="9_2";
-  private final static String TEST_CASE_NINE_THREE ="9_3";
-  private final static String TEST_CASE_TEN ="10";
-  private final static String TEST_CASE_ELEVEN ="11";
 
-  // The second parameter in the editor (for selecting site)
-  private final static String SITE_NUMBER_PARAM = "Site Number";
-  private final static String SITE_ONE = "Site-1";
-  private final static String SITE_TWO = "Site-2";
-  private final static String SITE_THREE = "Site-3";
-  private final static String SITE_FOUR = "Site-4";
-  private final static String SITE_FIVE = "Site-5";
-  private final static String SITE_SIX = "Site-6";
-  private final static String SITE_SEVEN = "Site-7";
-
+  //This string is sent by the applet and lets the GUIBean know which test case
+  //and site has been selecetd by the user.
+  private String selectedTest;
+  private String selectedSite;
 
 
   /**
@@ -165,7 +142,6 @@ public class PEER_TestsGuiBean implements
   public PEER_TestsGuiBean(PEER_TestsApplet applet) {
 
     this.applet = applet;
-
 
     // search path needed for making editors
     searchPaths = new String[3];
@@ -196,11 +172,22 @@ public class PEER_TestsGuiBean implements
     // this class handles all the hard coding stuff needed for test cases
     peerTestParameterClass =new PEER_TestDefaultParameterClass(this);
 
-    //MAKE changes in this function for any change in test cases
-    initTestCasesParamListAndEditor();
 
     //set the site based on the selected test case
-    peerTestParameterClass.setParams(testCasesParamList.getParameter(SITE_NUMBER_PARAM).getValue().toString());
+    //peerTestParameterClass.setParams();
+  }
+
+
+  /**
+   * This method extracts the selected Site and the selected TestCase
+   * @param testAndSite: Contains both the site and the Selected Test Case
+   */
+  public void setTestCaseAndSite(String testAndSite){
+    int firstIndex=testAndSite.indexOf("-");
+    int lastIndex = testAndSite.lastIndexOf("-");
+    selectedTest = testAndSite.substring(firstIndex+1,lastIndex);
+    selectedSite = testAndSite.substring(lastIndex+1);
+    peerTestParameterClass.setParams();
   }
 
 
@@ -293,66 +280,6 @@ public class PEER_TestsGuiBean implements
    }
 
 
-  /**
-   *  Make the parameter list and editor for all the supported test cases.
-   *  MAKE changes here to add more test cases
-   */
-
-  protected void initTestCasesParamListAndEditor() {
-    // Starting
-    String S = C + ": initTestCasesParamListAndEditor(): ";
-    if ( D ) System.out.println( S + "Starting:" );
-
-
-    // make the new paramter list
-    testCasesParamList = new ParameterList();
-
-    // fill the test cases vector with the available test cases
-    Vector testCasesVector = new Vector();
-    // fill the test cases vector with the available test cases
-
-   testCasesVector.add(TEST_CASE_ONE);
-   testCasesVector.add(TEST_CASE_TWO);
-   testCasesVector.add(TEST_CASE_THREE);
-   testCasesVector.add(TEST_CASE_FOUR);
-   testCasesVector.add(TEST_CASE_FIVE);
-   testCasesVector.add(TEST_CASE_SIX);
-   testCasesVector.add(TEST_CASE_SEVEN);
-   testCasesVector.add(TEST_CASE_EIGHT_ONE);
-   testCasesVector.add(TEST_CASE_EIGHT_TWO);
-   testCasesVector.add(TEST_CASE_EIGHT_THREE);
-   testCasesVector.add(TEST_CASE_NINE_ONE);
-   testCasesVector.add(TEST_CASE_NINE_TWO);
-   testCasesVector.add(TEST_CASE_NINE_THREE);
-   testCasesVector.add(TEST_CASE_TEN);
-   testCasesVector.add(TEST_CASE_ELEVEN);
-
-   // add the available test cases
-
-   StringParameter availableTests = new StringParameter(this.TEST_PARAM_NAME,
-                              testCasesVector,(String)testCasesVector.get(0));
-
-   availableTests.addParameterChangeListener(this);
-   testCasesParamList.addParameter(availableTests);
-
-   Vector siteNumber =new Vector();
-   siteNumber.add(SITE_ONE);
-   siteNumber.add(SITE_TWO);
-   siteNumber.add(SITE_THREE);
-   siteNumber.add(SITE_FOUR);
-   siteNumber.add(SITE_FIVE);
-   siteNumber.add(SITE_SIX);
-   siteNumber.add(SITE_SEVEN);
-
-   StringParameter availableSites = new StringParameter(this.SITE_NUMBER_PARAM,
-                                         siteNumber,(String)siteNumber.get(0));
-   availableSites.addParameterChangeListener(this);
-   testCasesParamList.addParameter(availableSites);
-   // now make the editor based on the paramter list
-   testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
-   testCasesEditor.setTitle( "Select Test" );
-
-  }
 
 
   /**
@@ -530,7 +457,6 @@ public class PEER_TestsGuiBean implements
       erfClasses.add( PEER_LISTRIC_FAULT_FORECAST_CLASS_NAME );
       erfClasses.add( PEER_MULTI_SOURCE_FORECAST_CLASS_NAME );
 
-
       Iterator it= erfClasses.iterator();
 
       while(it.hasNext()){
@@ -550,6 +476,7 @@ public class PEER_TestsGuiBean implements
       // now make the editor based on the paramter list
       erf_Editor = new ParameterListEditor( erf_IndParamList, searchPaths);
       erf_Editor.setTitle( this.ERF_EDITOR_TITLE );
+
 
       // forecast 1  is selected initially
       setParamsInForecast((String)erfNamesVector.get(0));
@@ -688,18 +615,7 @@ public class PEER_TestsGuiBean implements
         applet.updateChoosenEqkSource();
       }
 
-      // set the default values if the test cases are chosen
-      if(name1.equals(this.TEST_PARAM_NAME)) {
-        String value = event.getNewValue().toString();
-        peerTestParameterClass.setSiteNumberParams(value);
-        applet.updateChoosenTestCase();
-      }
 
-      // update the params when a site is selected
-      if(name1.equals(this.SITE_NUMBER_PARAM)) {
-        String value = event.getNewValue().toString();
-        peerTestParameterClass.setParams(value);
-      }
   }
 
 
@@ -737,6 +653,17 @@ public class PEER_TestsGuiBean implements
     // now make the editor based on the paramter list
     erf_Editor = new ParameterListEditor( erf_IndParamList, searchPaths);
     erf_Editor.setTitle( this.ERF_EDITOR_TITLE );
+
+
+    //gets the lists of all the parameters that exists in the ERF parameter Editor
+    //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
+    //calls the method to make the update MagDist button invisible
+    ListIterator lit = erf_IndParamList.getParametersIterator();
+    while(lit.hasNext()){
+      ParameterAPI param=(ParameterAPI)lit.next();
+      if(param instanceof MagFreqDistParameter)
+        ((MagFreqDistParameterEditor)erf_Editor.getParameterEditor(param.getName())).setUpdateButtonVisible(false);
+    }
   }
 
 
@@ -1102,12 +1029,11 @@ public class PEER_TestsGuiBean implements
      * @param siteNumber
      */
 
-    public void setParams(String siteNumber) {
+    public void setParams() {
       String S = C + ":setParams()";
       if(D) System.out.println(S+"::entering");
-      String value = (String)testCasesParamList.getParameter(TEST_PARAM_NAME).getValue();
 
-      if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN))
+      if(!selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN))
           // it is fault test case
         erf_IndParamList.getParameter(ERF_PARAM_NAME).setValue(peer_Fault_ERF.getName());
       else // if it area case
@@ -1115,14 +1041,14 @@ public class PEER_TestsGuiBean implements
 
 
       // set the mag dist params based on test case
-      setMagDistParams(value);
+      setMagDistParams(selectedTest);
 
 
       String selectedFault= new String(FAULT_ONE);
       ParameterList siteParams = siteParamEditor.getParameterList();
 
       //if selected test case is number 1
-      if(value.equals(TEST_CASE_ONE)){
+      if(selectedTest.equals(applet.TEST_CASE_ONE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1133,7 +1059,7 @@ public class PEER_TestsGuiBean implements
 
 
       //if selected test case is number 2
-      if(value.equals(TEST_CASE_TWO)){
+      if(selectedTest.equals(applet.TEST_CASE_TWO)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1143,7 +1069,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if selected test case is number 3
-      if(value.equals(TEST_CASE_THREE)){
+      if(selectedTest.equals(applet.TEST_CASE_THREE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1153,7 +1079,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if selected test case is number 4
-      if(value.equals(TEST_CASE_FOUR)){
+      if(selectedTest.equals(applet.TEST_CASE_FOUR)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1163,7 +1089,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if selected test case is number 5
-      if(value.equals(TEST_CASE_FIVE)){
+      if(selectedTest.equals(applet.TEST_CASE_FIVE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1173,7 +1099,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if selected test case is number 6
-      if(value.equals(TEST_CASE_SIX)){
+      if(selectedTest.equals(applet.TEST_CASE_SIX)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1183,7 +1109,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if selected test case is number 7
-      if(value.equals(TEST_CASE_SEVEN)){
+      if(selectedTest.equals(applet.TEST_CASE_SEVEN)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1193,7 +1119,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 8_1
-      if(value.equals(TEST_CASE_EIGHT_ONE)){
+      if(selectedTest.equals(applet.TEST_CASE_EIGHT_ONE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_TOTAL);
@@ -1203,7 +1129,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 8_2
-      if(value.equals(TEST_CASE_EIGHT_TWO)){
+      if(selectedTest.equals(applet.TEST_CASE_EIGHT_TWO)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(2.0));
@@ -1214,7 +1140,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 8_3
-      if(value.equals(TEST_CASE_EIGHT_THREE)){
+      if(selectedTest.equals(applet.TEST_CASE_EIGHT_THREE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_2SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
@@ -1225,7 +1151,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 9_1
-      if(value.equals(TEST_CASE_NINE_ONE)){
+      if(selectedTest.equals(applet.TEST_CASE_NINE_ONE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
@@ -1236,7 +1162,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 9_2
-      if(value.equals(TEST_CASE_NINE_TWO)){
+      if(selectedTest.equals(applet.TEST_CASE_NINE_TWO)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(AS_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
@@ -1247,7 +1173,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 9_3
-      if(value.equals(TEST_CASE_NINE_THREE)){
+      if(selectedTest.equals(applet.TEST_CASE_NINE_THREE)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(Campbell_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_1SIDED);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_LEVEL_NAME).setValue(new Double(3.0));
@@ -1259,7 +1185,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 10
-      if(value.equals(TEST_CASE_TEN)){
+      if(selectedTest.equals(applet.TEST_CASE_TEN)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1281,7 +1207,7 @@ public class PEER_TestsGuiBean implements
       }
 
       //if the selected test case is number 11
-      if(value.equals(TEST_CASE_ELEVEN)){
+      if(selectedTest.equals(applet.TEST_CASE_ELEVEN)){
         imrParamList.getParameter(IMR_PARAM_NAME).setValue(SCEMY_1997_AttenRel.NAME);
         imrParamList.getParameter(AttenuationRelationship.SIGMA_TRUNC_TYPE_NAME).setValue(AttenuationRelationship.SIGMA_TRUNC_TYPE_NONE);
         imrParamList.getParameter(AttenuationRelationship.STD_DEV_TYPE_NAME).setValue(AttenuationRelationship.STD_DEV_TYPE_NONE);
@@ -1305,48 +1231,48 @@ public class PEER_TestsGuiBean implements
 
       // set the latitude and longitude and selected forecast is area or fault
       //if selected site number is not 10 or 11 i.e for fault sites
-      if(!value.equalsIgnoreCase(TEST_CASE_TEN) && !value.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
+      if(!selectedTest.equalsIgnoreCase(applet.TEST_CASE_TEN) && !selectedTest.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
 
         // it is fault test case
-        setForecastParams(selectedFault,value);
+        setForecastParams(selectedFault,selectedTest);
 
         // for fault site 1
-        if(siteNumber.equals(SITE_ONE)) {
+        if(selectedSite.equals(applet.SITE_ONE)) {
           siteParamEditor.getParameterList().getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.113));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
         }
         // for fault site 2
-        if(siteNumber.equals(SITE_TWO)) {
+        if(selectedSite.equals(applet.SITE_TWO)) {
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.113));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.114));
 
         }
         // for fault site 3
-        if(siteNumber.equals(SITE_THREE)) {
+        if(selectedSite.equals(applet.SITE_THREE)) {
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.111));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.570));
 
         }
         // for fault site 4
-        if(siteNumber.equals(SITE_FOUR)) {
+        if(selectedSite.equals(applet.SITE_FOUR)) {
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.000));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 5
-        if(siteNumber.equals(SITE_FIVE)) {
+        if(selectedSite.equals(applet.SITE_FIVE)) {
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.910));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 6
-        if(siteNumber.equals(SITE_SIX)) {
+        if(selectedSite.equals(applet.SITE_SIX)) {
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.225));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
 
         }
         // for fault site 7
-        if(siteNumber.equals(SITE_SEVEN)) {
+        if(selectedSite.equals(applet.SITE_SEVEN)) {
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.113));
           siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-121.886));
         }
@@ -1357,19 +1283,19 @@ public class PEER_TestsGuiBean implements
 
         siteParams.getParameter(siteParamEditor.LONGITUDE).setValue(new Double(-122.0));
         // for area site 1
-        if(siteNumber.equals(SITE_ONE))
+        if(selectedSite.equals(applet.SITE_ONE))
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(38.0));
 
         // for area site 2
-        if(siteNumber.equals(SITE_TWO))
+        if(selectedSite.equals(applet.SITE_TWO))
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.550));
 
         // for area site 3
-        if(siteNumber.equals(SITE_THREE))
+        if(selectedSite.equals(applet.SITE_THREE))
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(37.099));
 
         // for area site 4
-        if(siteNumber.equals(SITE_FOUR))
+        if(selectedSite.equals(applet.SITE_FOUR))
           siteParams.getParameter(siteParamEditor.LATITUDE).setValue(new Double(36.874));
       }
 
@@ -1380,46 +1306,6 @@ public class PEER_TestsGuiBean implements
       erf_Editor.synchToModel();
     }
 
-     /**
-      * This function generates the combo box for the sites supported by the test case
-      * It helps the user in selection for the site number for the particular test case
-      * @param testCase
-      */
-     public void setSiteNumberParams(String testCase) {
-
-       Vector siteNumber =new Vector();
-
-       if(testCase.equals(TEST_CASE_TEN) || testCase.equals(TEST_CASE_ELEVEN)) {
-         siteNumber.add(SITE_ONE);
-         siteNumber.add(SITE_TWO);
-         siteNumber.add(SITE_THREE);
-         siteNumber.add(SITE_FOUR);
-       }
-      else {
-         siteNumber.add(SITE_ONE);
-         siteNumber.add(SITE_TWO);
-         siteNumber.add(SITE_THREE);
-         siteNumber.add(SITE_FOUR);
-         siteNumber.add(SITE_FIVE);
-         siteNumber.add(SITE_SIX);
-         siteNumber.add(SITE_SEVEN);
-      }
-
-      // add the available parameters
-       if(testCasesParamList.containsParameter(SITE_NUMBER_PARAM)){
-         testCasesParamList.removeParameter(SITE_NUMBER_PARAM);
-       }
-
-       StringParameter availableSites = new StringParameter(SITE_NUMBER_PARAM,
-                                  siteNumber,(String)siteNumber.get(0));
-       availableSites.addParameterChangeListener(peerTestGuiBean);
-       testCasesParamList.addParameter(availableSites);
-
-       // now make the editor based on the paramter list
-       testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
-       testCasesEditor.setTitle( "Select Test" );
-       availableSites.setValue(siteNumber.get(0));
-     }
 
      /**
        * set the mag dist params according to test case
@@ -1437,7 +1323,7 @@ public class PEER_TestsGuiBean implements
         magEditor.getParameter(MagFreqDistParameterEditor.MAX).setValue(new Double(10.0));
         magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(101));
         // mag dist parameters for test case 1
-        if(testCase.equalsIgnoreCase(TEST_CASE_ONE)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_ONE)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.MAG).setValue(new Double(6.5));
@@ -1445,7 +1331,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters  for test case 2
-        if(testCase.equalsIgnoreCase(TEST_CASE_TWO)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_TWO)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1454,7 +1340,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters  for test case 3
-        if(testCase.equalsIgnoreCase(TEST_CASE_THREE)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_THREE)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1463,7 +1349,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters for test case 4
-        if(testCase.equalsIgnoreCase(TEST_CASE_FOUR)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_FOUR)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1472,7 +1358,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters for test case 5
-        if(testCase.equalsIgnoreCase(TEST_CASE_FIVE)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_FIVE)) {
           magEditor.getParameter(MagFreqDistParameterEditor.NUM).setValue(new Integer(1001));
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_CUM_RATE);
@@ -1484,7 +1370,7 @@ public class PEER_TestsGuiBean implements
 
 
         // mag dist parameters for test case 6
-        if(testCase.equalsIgnoreCase(TEST_CASE_SIX)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_SIX)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GaussianMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.TOT_MO_RATE).setValue(new Double(1.8e16));
           magEditor.getParameter(MagFreqDistParameterEditor.STD_DEV).setValue(new Double(0.25));
@@ -1493,7 +1379,7 @@ public class PEER_TestsGuiBean implements
           magEditor.getParameter(MagFreqDistParameterEditor.TRUNCATE_NUM_OF_STD_DEV).setValue(new Double(1.2));
         }
         // mag dist parameters for test case 7
-        if(testCase.equalsIgnoreCase(TEST_CASE_SEVEN)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_SEVEN)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(YC_1985_CharMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.GR_BVALUE).setValue(new Double(0.9));
           magEditor.getParameter(MagFreqDistParameterEditor.YC_DELTA_MAG_CHAR).setValue(new Double(0.5));
@@ -1505,7 +1391,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 8_1
-        if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_ONE)) {
+        if(testCase.equalsIgnoreCase(applet.TEST_CASE_EIGHT_ONE)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1514,7 +1400,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 8_2
-       if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_TWO)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_EIGHT_TWO)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1523,7 +1409,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 8_3
-       if(testCase.equalsIgnoreCase(TEST_CASE_EIGHT_THREE)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_EIGHT_THREE)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1532,7 +1418,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 9_1
-       if(testCase.equalsIgnoreCase(TEST_CASE_NINE_ONE)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_NINE_ONE)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1541,7 +1427,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 9_2
-       if(testCase.equalsIgnoreCase(TEST_CASE_NINE_TWO)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_NINE_TWO)) {
 
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1550,7 +1436,7 @@ public class PEER_TestsGuiBean implements
         }
 
         //mag dist parameters for the test case 9_1
-       if(testCase.equalsIgnoreCase(TEST_CASE_NINE_THREE)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_NINE_THREE)) {
 
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(SingleMagFreqDist.NAME);
          magEditor.getParameter(MagFreqDistParameterEditor.SINGLE_PARAMS_TO_SET).setValue(MagFreqDistParameterEditor.MAG_AND_MO_RATE);
@@ -1559,7 +1445,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters for test case 10
-       if(testCase.equalsIgnoreCase(TEST_CASE_TEN)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_TEN)) {
          magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
          magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
          magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
@@ -1569,7 +1455,7 @@ public class PEER_TestsGuiBean implements
         }
 
         // mag dist parameters for test case 11
-       if(testCase.equalsIgnoreCase(TEST_CASE_ELEVEN)) {
+       if(testCase.equalsIgnoreCase(applet.TEST_CASE_ELEVEN)) {
           magEditor.getParameter(MagFreqDistParameterEditor.DISTRIBUTION_NAME).setValue(GutenbergRichterMagFreqDist.NAME);
           magEditor.getParameter(MagFreqDistParameterEditor.SET_ALL_PARAMS_BUT).setValue(MagFreqDistParameterEditor.TOT_MO_RATE);
           magEditor.getParameter(MagFreqDistParameterEditor.GR_MAG_LOWER).setValue(new Double(5.0));
@@ -1599,7 +1485,7 @@ public class PEER_TestsGuiBean implements
         erf_IndParamList.getParameter(peer_Fault_ERF.OFFSET_PARAM_NAME).setValue(new Double(1.0));
 
         // magLengthSigma parameter is changed if the test case chosen is 3
-        if(testCaseVal.equalsIgnoreCase(TEST_CASE_THREE))
+        if(testCaseVal.equalsIgnoreCase(applet.TEST_CASE_THREE))
           erf_IndParamList.getParameter(peer_Fault_ERF.SIGMA_PARAM_NAME).setValue(new Double(0.2));
         // set the parameters for fault1
         if(faultType.equals(FAULT_ONE)) {
