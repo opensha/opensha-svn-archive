@@ -487,7 +487,7 @@ public class LogPlotTesterApp extends JApplet  {
       plot.setDomainCrosshairVisible(false);
       plot.setRangeCrosshairLockedOnData(false);
       plot.setRangeCrosshairVisible(false);
-      plot.setInsets(new Insets(0, 0, 0, 15));
+      plot.setInsets(new Insets(0, 0, 0, 20));
 
       JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot,false);
       chart.setBackgroundPaint( lightBlue );

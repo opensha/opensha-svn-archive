@@ -889,7 +889,7 @@ public class LogarithmicAxis extends NumberAxis {
           else {
             g2.drawString("10", tick.getX()+6, tick.getY());
             g2.setFont(new Font(this.getTickLabelFont().getName(),this.getTickLabelFont().getStyle(),this.getTickLabelFont().getSize()-2));
-            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+20,tick.getY()-4);
+            g2.drawString(tick.getText().substring(eIndex+1),tick.getX()+22,tick.getY()-4);
           }
         }
       }
