@@ -185,7 +185,9 @@ public class USGS_CGS_1996_ForecastServlet extends HttpServlet implements ERF_We
   */
  public ERF_API getERF_API(TimeSpan time, ParameterList param){
    String backSiesOption = (String)param.getParameter(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_NAME).getValue();
-   if(backSiesOption.equals(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_INCLUDE)){
+   //checks when to read the BackSies File
+   if(backSiesOption.equals(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_INCLUDE)||
+      backSiesOption.equals(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_ONLY)){
      try{ inputBackSeisFileLines = FileUtils.loadFile( INPUT_BACK_SEIS_FILE_NAME ); }
      catch( FileNotFoundException e){ System.out.println(e.toString()); }
      catch( IOException e){ System.out.println(e.toString());}

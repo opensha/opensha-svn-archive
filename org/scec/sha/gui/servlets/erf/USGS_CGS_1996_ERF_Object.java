@@ -67,6 +67,11 @@ public class USGS_CGS_1996_ERF_Object implements ERF_API,java.io.Serializable{
   public USGS_CGS_1996_ERF_Object(ParameterList param,ArrayList backSeisFileLines,ArrayList faultFileLines, TimeSpan time) {
 
     parameterList =param;
+    //to make sure that we are not reading the BackSies File everytime
+    if(backSeisFileLines ==null)
+      System.out.println("File for BackSiesLines not read");
+    else
+      System.out.println("File for BackSiesLines Read");
 
     // get value of background seismicity paramter
     String backSeis = (String) parameterList.getParameter(USGS_CGS_1996_ERF_AdjustableParamsClass.BACK_SEIS_NAME).getValue();
