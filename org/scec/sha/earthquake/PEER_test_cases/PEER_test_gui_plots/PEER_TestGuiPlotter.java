@@ -43,7 +43,7 @@ import org.scec.calc.*;
 
 public class PEER_TestGuiPlotter extends JApplet implements
                                           NamedObjectAPI,
-                                          ParameterChangeListener,LogPlotAPI,
+                                          LogPlotAPI,
                                           ActionListener{
   private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
@@ -114,6 +114,7 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
   // light blue color
   Color lightBlue = new Color( 200, 200, 230 );
+  Color AVERAGE_COLOR = Color.red;
 
   /**
    * for Y-log, 0 values will be converted to this small value
@@ -132,37 +133,33 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private final static String TITLE = new String("PEER Test Plots");
 
   private JPanel buttonPanel = new JPanel();
-  private JPanel plotPanel = new JPanel();
+  private JPanel topPlotPanel = new JPanel();
   private Border border1;
   private Border border2;
   private Border border3;
   private JButton toggleButton = new JButton();
   private JCheckBox xLogCheckBox = new JCheckBox();
   private JCheckBox yLogCheckBox = new JCheckBox();
-  private JCheckBox BGColorCheckBox = new JCheckBox();
   private JLabel rangeLabel = new JLabel();
   private JComboBox rangeComboBox = new JComboBox();
   private Border border4;
   private Border border5;
 
 
-  //  TestCases ParameterList & its editor
-  private ParameterList testCasesParamList = new ParameterList();
-  private ParameterListEditor testCasesEditor = null;
-
-  //Vector that stores all the testCasesFiles for selected set of test cases
-  Vector testCasesFiles = new Vector();
-
   // reads the full file names of all the stored files in the directory
   Vector testFiles = new Vector();
 
   //Vector to store all the checkboxes for the selected test file
   Vector checkBoxVector = new Vector();
+  // vector of check boxes for calculating the average
+  Vector avgCheckBoxVector = new Vector();
 
   /*setting the colors for the different plots so that legends checkboxes
    *can be shown with the same color
+
+   * Here we do not see RED color as we will use it only for average
    */
-  Color[] legendColor ={Color.red,Color.blue,Color.green,Color.orange,Color.magenta,
+  Color[] legendColor ={Color.blue,Color.green,Color.orange,Color.magenta,
                        Color.cyan,Color.pink,Color.yellow,Color.gray,new Color(137,114,40),
                        new Color(137,199,205),new Color(255,199,205),new Color(255,228,188),
                        new Color(125,108,142),new Color(125,108,23), new Color(255,182,23),
@@ -171,13 +168,23 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
   // search path needed for making editors
   private String[] searchPaths;
-  private JScrollPane jScrollPane1 = new JScrollPane();
-  private JPanel testCasesPanel = new JPanel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private JCheckBox averageCheck = new JCheckBox();
   private BorderLayout borderLayout1 = new BorderLayout();
   private BorderLayout borderLayout2 = new BorderLayout();
+  private JSplitPane avgSplitPane = new JSplitPane();
+  private JPanel avgCasesPanel = new JPanel();
+  private JScrollPane avgScrollPane = new JScrollPane();
+  private JPanel testCasesPanel = new JPanel();
+  private JScrollPane plotScrollPane = new JScrollPane();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private JLabel avgLabel = new JLabel();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private JComboBox testCaseCombo = new JComboBox();
+  private JLabel testCaseLabel = new JLabel();
+  private JPanel plotPanel = new JPanel();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout6 = new GridBagLayout();
+  private JLabel testPanelLabel = new JLabel();
+  private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
   //Construct the applet
@@ -187,13 +194,14 @@ public class PEER_TestGuiPlotter extends JApplet implements
     // for Y-log, convert 0 values in Y axis to this small value
     data.setConvertZeroToMin(true,Y_MIN_VAL);
     data.setFunctions(functions);
-    searchTestFiles();
   }
 
   //Initialize the applet
   public void init() {
     try {
       jbInit();
+      //shows the selection for the different Test Cases files
+      initTestParamList();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -213,11 +221,11 @@ public class PEER_TestGuiPlotter extends JApplet implements
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     mainSplitPane.setDividerSize(5);
     buttonPanel.setLayout(gridBagLayout3);
-    plotPanel.setLayout(gridBagLayout2);
+    topPlotPanel.setLayout(gridBagLayout6);
     plotSplitPane.setDividerSize(5);
     plotSplitPane.setLastDividerLocation(500);
     buttonPanel.setBorder(border1);
-    plotPanel.setBorder(border3);
+    topPlotPanel.setBorder(border3);
     // for showing the data on click of "show data" button
     pointsTextArea.setBorder( BorderFactory.createEtchedBorder() );
     pointsTextArea.setText( NO_PLOT_MSG );
@@ -238,14 +246,30 @@ public class PEER_TestGuiPlotter extends JApplet implements
         toggleButton_actionPerformed(e);
       }
     });
-    averageCheck.setText("Average");
-    averageCheck.setBounds(new Rectangle(9, 12, 90, 25));
+    avgSplitPane.setDividerSize(1);
+    avgSplitPane.setOneTouchExpandable(true);
+    testCasesPanel.setLayout(gridBagLayout5);
+    avgLabel.setForeground(Color.red);
+    avgLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    avgLabel.setText("Average");
+    testCaseCombo.setFont(new java.awt.Font("Lucida Grande", 1, 14));
+    testCaseCombo.setForeground(new Color(80, 80, 133));
+    testCaseLabel.setFont(new java.awt.Font("Lucida Grande", 1, 14));
+    testCaseLabel.setForeground(new Color(80, 80, 133));
+    testCaseLabel.setText("Select Test Case:");
+    plotPanel.setLayout(gridBagLayout2);
+    testPanelLabel.setForeground(new Color(80, 80, 133));
+    testPanelLabel.setMaximumSize(new Dimension(63, 18));
+    testPanelLabel.setMinimumSize(new Dimension(63, 18));
+    testPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    testPanelLabel.setText("Plot Data Files");
     dataScrollPane.getViewport().add( pointsTextArea, null );
     toggleButton.setText("Show Data");
     xLogCheckBox.setText("XLog");
     yLogCheckBox.setText("YLog");
-    BGColorCheckBox.setText("BlackBG");
     rangeLabel.setText("SetAxisRange:");
+    rangeComboBox.addItem(new String(AUTO_SCALE));
+    rangeComboBox.addItem(new String(CUSTOM_SCALE));
     rangeComboBox.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         rangeComboBox_actionPerformed(e);
@@ -253,36 +277,41 @@ public class PEER_TestGuiPlotter extends JApplet implements
     });
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
-    plotSplitPane.add(plotPanel, JSplitPane.LEFT);
-    plotSplitPane.add(jScrollPane1, JSplitPane.RIGHT);
-    jScrollPane1.getViewport().add(testCasesPanel, null);
+    plotSplitPane.add(topPlotPanel, JSplitPane.LEFT);
+
+    topPlotPanel.add(testCaseLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(1, 1, 0, 0), 22, 7));
+
+
+    plotSplitPane.add(avgSplitPane, JSplitPane.RIGHT);
+    avgSplitPane.add(avgScrollPane, JSplitPane.RIGHT);
+    avgSplitPane.add(plotScrollPane, JSplitPane.LEFT);
+    plotScrollPane.getViewport().add(testCasesPanel, null);
+    testCasesPanel.add(testPanelLabel,     new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(7, 9, 10, 0), 12, 3));
+    avgScrollPane.getViewport().add(avgCasesPanel, null);
+    avgCasesPanel.add(avgLabel,    new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(7, 9, 10, 7), 12, 3));
     mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
-    buttonPanel.add(averageCheck,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 7, 15, 0), 14, 0));
-    buttonPanel.add(rangeLabel,  new GridBagConstraints(5, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(7, 0, 15, 107), 22, 6));
-    buttonPanel.add(rangeComboBox,  new GridBagConstraints(5, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(7, 102, 15, 19), -32, 1));
-    buttonPanel.add(BGColorCheckBox,   new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 10, 15, 0), 17, 0));
-    buttonPanel.add(yLogCheckBox,   new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 8, 15, 0), 14, 0));
-    buttonPanel.add(xLogCheckBox,     new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 21, 15, 0), 21, 0));
-    buttonPanel.add(toggleButton,   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 22, 15, 0), 26, 0));
+    buttonPanel.add(toggleButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 9, 19, 0), 26, 0));
+    buttonPanel.add(rangeComboBox,  new GridBagConstraints(3, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(11, 102, 19, 214), -32, 1));
+    buttonPanel.add(xLogCheckBox,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 14, 19, 0), 21, 0));
+    buttonPanel.add(yLogCheckBox,  new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 8, 19, 0), 14, 0));
+    buttonPanel.add(rangeLabel,  new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(11, 0, 19, 318), 22, 6));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(540);
-    plotSplitPane.setDividerLocation(575);
-    //shows the selection for the different Test Cases files
-    initTestParamList();
-    rangeComboBox.addItem(new String(AUTO_SCALE));
-    rangeComboBox.addItem(new String(CUSTOM_SCALE));
-    averageCheck.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        averageCheck_actionPerformed(e);
-      }
-    });
+    plotSplitPane.setDividerLocation(475);
+    avgSplitPane.setDividerLocation(140);
+    avgCasesPanel.setLayout(gridBagLayout1);
+    topPlotPanel.add(plotPanel,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 1, 2, 0), 462, 490));
+    topPlotPanel.add(testCaseCombo,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(1, 0, 0, 0), 176, 0));
 
   }
   //Start the applet
@@ -305,20 +334,9 @@ public class PEER_TestGuiPlotter extends JApplet implements
    * in a common directory.
    */
   void initTestParamList(){
-
-    StringParameter availableTestFiles= new StringParameter(TEST_CASE_FILES,
-        testCasesFiles,(String)testCasesFiles.get(0));
-
-    availableTestFiles.addParameterChangeListener(this);
-    testCasesParamList.addParameter(availableTestFiles);
-    testCasesEditor = new ParameterListEditor( testCasesParamList, searchPaths);
-    testCasesEditor.setTitle(PEER_TEST_TITLE);
-    testCasesPanel.setLayout(gridBagLayout1);
-    testCasesPanel.add(testCasesEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 46, 456, 46), 0, 0));
-    testCasesPanel.validate();
-    testCasesPanel.repaint();
-
+    // search for the test files
+    searchTestFiles();
+    testCaseCombo.addActionListener(this);
     addButton();
 
   }
@@ -352,13 +370,13 @@ public class PEER_TestGuiPlotter extends JApplet implements
   }
 
   /**
-   * Reads the selected test case file
+   * Reads the selected test case file. returns the function conatining x,y values
+   * as contained in the file
    * @param fileName
    */
-  void readFile(String fileName){
+  private ArbitrarilyDiscretizedFunc readFile(String fileName){
     ArbitrarilyDiscretizedFunc function= new ArbitrarilyDiscretizedFunc();
     try{
-    System.out.println("file Reading:"+fileName);
     Iterator it = FileUtils.loadInCharFile(fileName).iterator();
     while(it.hasNext()){
       StringTokenizer st= new StringTokenizer(it.next().toString());
@@ -368,10 +386,10 @@ public class PEER_TestGuiPlotter extends JApplet implements
         function.setInfo(fileName);
     }
 
-    functions.add(function);
     }catch(IOException e) {
       e.printStackTrace();
     }
+     return function;
   }
 
 
@@ -381,19 +399,20 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
   public void addButton(){
     int colorIndex=0;
-    int displayIndex =0;
+    int displayIndex =1;
     //checking which test case is selected
-    String testSet= testCasesParamList.getParameter(TEST_CASE_FILES).getValue().toString();
+    String testSet= this.testCaseCombo.getSelectedItem().toString();
     testCasesPanel.removeAll();
-    testCasesPanel.add(testCasesEditor,
-                    new GridBagConstraints( 0, displayIndex, 1, 1, 1.0, 1.0,
-                    GridBagConstraints.NORTH,
-                    GridBagConstraints.HORIZONTAL, defaultInsets, 0, 0 ));
-    ++displayIndex;
+    avgCasesPanel.removeAll();
+    testCasesPanel.add(testPanelLabel,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 3, 0, 0), 12, 3));
+    avgCasesPanel.add(avgLabel,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(5, 3, 0, 0), 12, 3));
     //gets the iterator for the files, so that we can extract the string as the test for the check boxes
     //for the selected test case
     Iterator it=testFiles.iterator();
     checkBoxVector= new Vector();
+    avgCheckBoxVector = new Vector();
     while(it.hasNext()) {
       String tempName=it.next().toString();
       int index=tempName.indexOf("_");
@@ -404,10 +423,18 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
         //adding the checkBoxes for the selceted test case
         JCheckBox testFilesCheck= new JCheckBox(testSubmitterName);
+        JCheckBox avgTestFilesCheck= new JCheckBox(testSubmitterName);
         checkBoxVector.add(testFilesCheck);
+        avgCheckBoxVector.add(avgTestFilesCheck);
         testFilesCheck.setSelected(true);
+        avgTestFilesCheck.setSelected(true);
         testFilesCheck.addActionListener(this);
+        avgTestFilesCheck.addActionListener(this);
         testCasesPanel.add(testFilesCheck,
+                           new GridBagConstraints( 0, displayIndex, 1, 1, 1.0, 1.0,
+                           GridBagConstraints.NORTH,
+                           GridBagConstraints.HORIZONTAL, defaultInsets, 0, 0 ));
+        avgCasesPanel.add(avgTestFilesCheck,
                            new GridBagConstraints( 0, displayIndex, 1, 1, 1.0, 1.0,
                            GridBagConstraints.NORTH,
                            GridBagConstraints.HORIZONTAL, defaultInsets, 0, 0 ));
@@ -420,12 +447,12 @@ public class PEER_TestGuiPlotter extends JApplet implements
     for(int j=0;j<count;j++) {
       JCheckBox checkBox=(JCheckBox)checkBoxVector.get(j);
       checkBox.setForeground(legendColor[j%numColor]);
+      checkBox = (JCheckBox)avgCheckBoxVector.get(j);
+      checkBox.setForeground(AVERAGE_COLOR);
     }
-    averageCheck.setForeground(legendColor[count%numColor]);
-    averageCheck.setSelected(true);
-    testCasesPanel.validate();
-    testCasesPanel.repaint();
+
     addGraphPanel();
+
   }
 
 
@@ -436,7 +463,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
       // Starting
       String S = C + ": addGraphPanel(): ";
-
+      int k;
+      DiscretizedFuncList avgFunctions = new DiscretizedFuncList();
       // clearing all the plots before adding them to the functionList
       clearPlot(true);
 
@@ -454,14 +482,15 @@ public class PEER_TestGuiPlotter extends JApplet implements
       legendPaint= new Paint[size+1];
 
       //checking which test case is selected at the time of adding of the plot
-      String testSelected = testCasesParamList.getParameter(TEST_CASE_FILES).getValue().toString();
-      for(int i=0,k=0;i<size;i++){
+      String testSelected = this.testCaseCombo.getSelectedItem().toString();
+      k=0;
+      for(int i=0;i<size;i++){
 
         JCheckBox checkBox=(JCheckBox)checkBoxVector.get(i);
+        JCheckBox avgCheckBox=(JCheckBox)avgCheckBoxVector.get(i);
         //checking if the check box is selected for the selected test case
-        if(checkBox.isSelected()) {
-          legendPaint[k]=checkBox.getForeground();
-          ++k;
+        if(checkBox.isSelected() || avgCheckBox.isSelected()) {
+          legendPaint[k++]=checkBox.getForeground();
           String checkText =checkBox.getText();
           Iterator it= testFiles.iterator();
 
@@ -471,21 +500,28 @@ public class PEER_TestGuiPlotter extends JApplet implements
           String fileName=testSelected +"_"+checkText;
           String fname=(String)it.next();
           String tempString = fname.substring(0,fname.indexOf("."));
-          if(fileName.equalsIgnoreCase(tempString))
-            readFile(DIR+fname);
+          if(fileName.equalsIgnoreCase(tempString)) {
+            ArbitrarilyDiscretizedFunc func = readFile(DIR+fname);
+            if(checkBox.isSelected())  functions.add(func);
+            if(avgCheckBox.isSelected())  avgFunctions.add(func);
+          }
           }
         }
       }
 
       //adding the color in the legendPaint for the Average checkBox
-      legendPaint[size]=averageCheck.getForeground();
+      //legendPaint[size]=averageCheck.getForeground();
 
 
       //see if the average checkBox is selected to calculate the average for all plotted prob's
-      if(averageCheck.isSelected() && functions.size()>0)
-        calcAvgFunc();
-      else
-        averageCheck.setSelected(false);
+      if(avgFunctions.size()>0)  {
+        DiscretizedFunc avgFunc = FunctionListCalc.getMean(avgFunctions);
+        avgFunc.setInfo("Average");
+        avgFunc.setName("Average");
+        functions.add(avgFunc);
+        legendPaint[k++] = AVERAGE_COLOR;
+      }
+
 
       /// check if x log is selected or not
       if(xLog) xAxis = new HorizontalLogarithmicAxis(xAxisLabel);
@@ -524,13 +560,11 @@ public class PEER_TestGuiPlotter extends JApplet implements
 
 
       plot.setBackgroundAlpha( .8f );
-
       plot.setSeriesPaint(legendPaint);
-
       plot.setRenderer( renderer );
 
 
-      JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
+      JFreeChart chart = new JFreeChart(null,JFreeChart.DEFAULT_TITLE_FONT, plot, false );
 
       chart.setBackgroundPaint( lightBlue );
 
@@ -602,47 +636,26 @@ public class PEER_TestGuiPlotter extends JApplet implements
   private  void searchTestFiles(){
 
     File thedir = new File(DIR);
+    int i;
+    boolean flag;
     String[] files = thedir.list();
-    boolean flag=true;
     int numFiles=0;
     for(int f=0;f<files.length;f++) {
-      if(files[f].endsWith(FILE_EXTENSION))
-        testFiles.add(files[f]);
-      else
-        continue;
-      for(int i=0;i<testCasesFiles.size();++i)
-        if(testCasesFiles.get(i).toString().equalsIgnoreCase(files[f])){
-           flag=false;
-           break;
-        }
-      if(flag){
-        int index=files[f].indexOf("_");
-        String testCases = files[f].substring(0,index);
-        testCasesFiles.add(testCases);
-      }
+      int index=0;
+      if(files[f].endsWith(FILE_EXTENSION)) testFiles.add(files[f]);
+      else continue;
+      // find whether this test already exists in the test combo box options
+      index=files[f].indexOf("_");
+      String testCases = files[f].substring(0,index);
+      int count = testCaseCombo.getItemCount();
+      flag = false;
+      for(i=0; i<count; ++i)
+         if(testCaseCombo.getItemAt(i).toString().equalsIgnoreCase(testCases)) {
+            flag = true;
+            break;
+         }
+      if(!flag) testCaseCombo.addItem(testCases);
     }
-  }
-
-
-  /**
-   *  This is the main function of this interface. Any time a control
-   *  paramater or independent paramater is changed by the user in a GUI this
-   *  function is called, and a paramater change event is passed in. This
-   *  function then determines what to do with the information ie. show some
-   *  paramaters, set some as invisible, basically control the paramater
-   *  lists.
-   *
-   * @param  event
-   */
-  public void parameterChange( ParameterChangeEvent event ) {
-
-      String S = C + ": parameterChange(): ";
-      if ( D )
-          System.out.println( "\n" + S + "starting: " );
-
-      String name1 = event.getParameterName();
-      if(name1.equalsIgnoreCase(TEST_CASE_FILES))
-        addButton();
   }
 
   /**
@@ -788,17 +801,8 @@ public class PEER_TestGuiPlotter extends JApplet implements
   }
 
   public void actionPerformed(ActionEvent e){
-    if(e.getSource() instanceof JCheckBox)
-      addGraphPanel();
+    if(e.getSource() instanceof JCheckBox) addGraphPanel();
+    if(e.getSource() instanceof JComboBox) addButton();
   }
 
-  void averageCheck_actionPerformed(ActionEvent e) {
-    if(averageCheck.isSelected())
-     calcAvgFunc();
-    addGraphPanel();
-  }
-
-  private void calcAvgFunc(){
-    functions.add(FunctionListCalc.getMean(functions));
-  }
 }
