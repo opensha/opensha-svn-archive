@@ -1005,7 +1005,8 @@ public class HazardCurveApplet extends JApplet
    // add the function to the function list
    totalProbFuncs.add(hazFunction);
    // set the X-axis label
-   totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
+   String imt = imtGuiBean.getSelectedIMT();
+   totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
    totalProbFuncs.setYAxisName("Probability of Exceedance");
 
    disaggregationString=null;
