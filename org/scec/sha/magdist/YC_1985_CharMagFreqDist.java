@@ -345,6 +345,19 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
+   * this function returns String for info about the parameters in this Mag Freq dist
+   * @return : returns the String for info about the parameters in this Mag Freq dist
+   */
+  public String toString() {
+    return ("minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; magLower="+magLower+"; magUpper="+
+            magUpper+"; deltaMagChar="+this.getDeltaMagChar()+
+            "; magPrime="+this.getMagPrime()+"; deltaMagPrime="+getDeltaMagPrime()+
+            " bValue="+bValue+"; totMoRate="+(float)this.getTotalMomentRate()+
+            "; totCumRate="+(float)getCumRate(magLower));
+
+  }
+
+  /**
    * this method (defined in parent) is deactivated here (name is finalized)
    **/
 

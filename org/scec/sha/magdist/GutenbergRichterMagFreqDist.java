@@ -341,6 +341,16 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
         "; totMoRate="+ (float) this.getTotalMomentRate()+"; totCumRate="+ (float) getCumRate(magLower));
   }
 
+
+  /**
+   * this function returns String for drawing Legen in JFreechart
+   * @return : returns the String which is needed for Legend in graph
+   */
+  public String toString() throws DataPoint2DException{
+    return ("minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; bValue="+bValue+"; magLower="+magLower+"; magUpper="+(float)magUpper +
+            "; totMoRate="+ (float) this.getTotalMomentRate()+"; totCumRate="+ (float) getCumRate(magLower));
+  }
+
   /** Returns a rcopy of this and all points in this GutenbergRichter */
 public DiscretizedFuncAPI deepClone() throws DataPoint2DException{
 

@@ -730,8 +730,6 @@ public class HazardCurveGuiBean implements
     // get the selected forecast model
     String selectedForecast = (String)this.erf_IndParamList.getValue(this.ERF_PARAM_NAME);
 
-
-
     //then checks if the magFreqDistParameter exists inside it , if so then gets its Editor and
     //calls the method to update the magDistParams.
     MagFreqDistParameterEditor magEditor=getMagDistEditor();
