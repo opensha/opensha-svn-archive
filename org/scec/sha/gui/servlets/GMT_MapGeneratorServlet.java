@@ -37,7 +37,7 @@ public class GMT_MapGeneratorServlet extends HttpServlet {
      ArrayList fileLines = (ArrayList)inputFromApplet.readObject();
 
      //name of the XYZ file that user had wanted to create
-     String fileName = (String)inputFromApplet.readObject();
+     String fileName = request.getRemoteHost();
 
      //creating the xyz file from the contents in the ArrayList
      FileWriter fileWriter = new FileWriter(fileName);

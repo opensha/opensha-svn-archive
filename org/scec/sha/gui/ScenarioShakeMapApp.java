@@ -50,6 +50,8 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   // default insets
   private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
+  private static final String DEFAULT_FILE_NAME ="test.txt";
+
 
 
   /**
@@ -120,16 +122,13 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private JPanel imrSelectionPanel = new JPanel();
-  JLabel jLabel4 = new JLabel();
-  JTextField fileNameTextField = new JTextField();
-  JLabel jLabel3 = new JLabel();
   JComboBox controlComboBox = new JComboBox();
-  GridBagLayout gridBagLayout4 = new GridBagLayout();
   GridBagLayout gridBagLayout6 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
   private CalcProgressBar calcProgress;
   private int step;
   private javax.swing.Timer timer;
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -184,13 +183,6 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     buttonPanel.setMinimumSize(new Dimension(391, 50));
     gridRegionSitePanel.setLayout(gridLayout1);
     imrSelectionPanel.setLayout(gridBagLayout5);
-    jLabel4.setForeground(new Color(80, 80, 133));
-    jLabel4.setText("(This is filename used for generating xyz, ps and jpg file)");
-    fileNameTextField.setBackground(new Color(200, 200, 230));
-    fileNameTextField.setForeground(new Color(80, 80, 133));
-    fileNameTextField.setText("test");
-    jLabel3.setForeground(new Color(80, 80, 133));
-    jLabel3.setText("Choose File Name:");
     controlComboBox.setBackground(new Color(200, 200, 230));
     controlComboBox.setForeground(new Color(80, 80, 133));
     controlComboBox.addActionListener(new java.awt.event.ActionListener() {
@@ -202,16 +194,10 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 2, 3), 0, 431));
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(jLabel4,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 3, 41, 0), 38, 5));
-    buttonPanel.add(addButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 39, 7, 23), 69, 9));
-    buttonPanel.add(jLabel3,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(21, 3, 0, 0), 11, 9));
-    buttonPanel.add(fileNameTextField,  new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(21, 10, 0, 30), 163, 4));
-    buttonPanel.add(controlComboBox,  new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(21, 17, 0, 23), 38, 2));
+    buttonPanel.add(controlComboBox,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(48, 41, 47, 0), 5, 2));
+    buttonPanel.add(addButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(48, 88, 39, 139), 26, 9));
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
 
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
@@ -495,11 +481,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         siteValue.add(new Double(imr.getIML_AtExceedProb()));
       }
     }
-    // check that user has entered a valid filename
-    if(fileNameTextField.getText().trim().equalsIgnoreCase("")) {
-      JOptionPane.showMessageDialog(this, "Please enter the file name");
-      return;
-    }
+
     try {
       makeFile(siteLat,siteLon,siteValue);
     }catch(Exception e) {
@@ -526,7 +508,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
   private void makeFile(Vector lat,Vector lon,Vector siteValue){
     try{
 
-      FileWriter fr = new FileWriter(this.fileNameTextField.getText().trim()+".txt");
+      FileWriter fr = new FileWriter(this.DEFAULT_FILE_NAME);
       int size=0;
       if(this.mapGuiBean.isGMT_FromServer()){
         size=lon.size();
@@ -559,7 +541,7 @@ public class ScenarioShakeMapApp extends JApplet implements Runnable,
         if(step==1)
           calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
         if(step==2) {
-          mapGuiBean.makeMap(fileNameTextField.getText().trim()+".txt",getMapParametersInfo());
+          mapGuiBean.makeMap(ScenarioShakeMapApp.DEFAULT_FILE_NAME,getMapParametersInfo());
           calcProgress.dispose();
           timer.stop();
         }
