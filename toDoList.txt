@@ -4,6 +4,14 @@
 For OpenSHA:
 ------------
 
+HazardCurveApplet:
+
+	-fix format of disaggregation results window 
+
+	-put parameter editors at the top in the ParameterListEditor 
+	 (rather than centered in the vertical direction)
+
+
 Split the HazardCurveGuiBean into the following GuiBeans (so they can be used by our ShakeMap and HazardMap Applets):
 	
 	MapGuiBean  (Nitin does this)
@@ -11,13 +19,7 @@ Split the HazardCurveGuiBean into the following GuiBeans (so they can be used by
 		takes a given XYZ file and uses settings in GMT_SettingsControlPanel to 
 		construct and display a map
 
-    For the ShakeMap and HazardMap Applets we'll also need the following GuiBeans
 
-	GriddedRegionSitesGuiBean	(bounds on region, grid spacing, and elements for setting site params)
-
-		For 1st version, just list the site parameter for the chosen IMR, 
-		and apply the one value to all sites
- 
     For the ShakeMap Applet we'll also need the following GuiBean
 	
 	EqkRupSelectorGuiBean
@@ -38,7 +40,7 @@ Create the following control panels for our Applets (these will be put in a JCom
 	X_ValuesInCurveControlPanel
 	setMinSourceSiteDistanceControlPanel
 
-Move progress bar in HazardCurveCalculator (and Disagg calculator) to a separate and general class; put in 
+Finish moving progress bar in HazardCurveCalculator (and Disagg calculator) to a separate and general class; put in 
 
 	sha/gui/infoTools/calcProgressBar.java
 
@@ -46,13 +48,11 @@ Define TimeSpan object.
 
 HazardMapCalculator - move iteration over sites inside, add progress bar for sites, and turn off progress bar in HazardCurveCalculator.
 
-Frankel96_ERF - make it update only if an adjustable parameter has changed.  Add background seismicity.
+Frankel96_ERF - Add background seismicity.
 
 Add getApplicableRegion and isLocWithinApplicableRegion methods to EqkRupForecastAPI.
 
-Update GriddedFaultApplet with new Frankel file; remove un-need Frankel input files.
-
-Evaluate ERF_List and its subclasses ERF_EpistemicList and ERF_AleatoryList, and then the PEER_LogicTreeERF_List
+Implement ERF_List objects in the HazardCurveApplet.
 
 Create an object that will compute fractiles from a list of hazard curves - Ned will provide a detailed description.
 
@@ -60,7 +60,7 @@ Cross hairs don't work for log-log plots in our modification of JFreeChart (e.g.
 
 Mail JFreechart to include our log-log implementation into the official JFreeChart framework.
 
-GriddedFaultApplet - fix plotting symbols (make all circles)
+GriddedFaultApplet - fix plotting symbols (make all circles), and have it read the new, single Frankel fault file (Frankel96_CAL_all.txt).
 
 AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 
@@ -68,19 +68,7 @@ AttenRelApp - make "Set Axes" button (rather than JcomoBox)
 For the SCEC-ITR CME:
 ---------------------
 
-(0.0) Refine Hazard curve data storage so that each dataset resides in its own directory. Deliverable: Run MapGenerationApplet, and produce GMT map from datasets organized in their own directories.
-
-(0.1) Update MappGenerationApplet so that it dynamically determines what dataset directories exists, and it can produce a map from any dataset as soon as one is created. It's ok to make the user re-load the page to see a new dataset. Deliverable: Run MapGeneratorApplet, show the available datasets. Create a new dataset/directory using other apps. Show the MapGeneratorApplet (without modification) can map the new dataset.
-
-(1) Calculate the number of grid points in a map using the Dimensions of the Earthquake Ground-Motion Application in SC. map with 0.05 grid spacing. Deliverable: Email with dimensions, grid spacing, and total grip points.
-
-(2) Create a dummy dataset directory (of hazard curves) with the step (1) number of datapoints. Use a real hazard curve file (for realistic numbers) and duplicate it, changing the file name as needed. Deliverable: Dataset in a datadirectory that the mapGeneratorApplet can process.  NOTE: probably easier to butcher existing code to create a real dataset.
-
-(3) Create 8 PSHA Hazard Maps from the dummy dataset. We have 3 color schemes, create a IMT-lo and Prob-lo map for each color scheme. For one of the color schemes, create a IMT-high and Prob-high version of the maps. Deliverable: 8 PSHA maps showing our 3 color schemes, the ability to select IMT or Prob, and the effect of changing different Prob or IMT levels.
-
-(4) Create Applet to Configure a HazardMap Dataset. This is derivative of the Hazard curve data Applet. The user should specify Lat/Long Boundaries, Spacing, IMT, ERF, IMR, and one site type. Deliverable: Applet that constructs the DataSetDescription.
-
-(5) Implement solver to createDataSet. Deliverable: Set of datafiles created by solver that matches dataset specified by user. Dataset is visible to MapGeneratorApplet.
+Think about porting our stand-alone applications to server mode.
 
 Think about meta data structure for haz map calcs.
 

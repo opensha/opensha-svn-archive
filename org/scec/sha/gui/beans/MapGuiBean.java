@@ -11,12 +11,12 @@ import org.scec.param.*;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
- * <p>Description: This class takes the GMT parameters and generates the image file
- * from the GMT script. It returns that image file in Panel to the Applet
+ * <p>Description: This class generates and displays a GMT map for an XYZ dataset using
+ * the settings in the GMT_SettingsControlPanel. It displays the image file in a JPanel.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author: Ned field, Nitin Gupta & Vipin Gupta
+ * @author: Ned Field, Nitin Gupta & Vipin Gupta
  * @version 1.0
  */
 
@@ -57,8 +57,9 @@ public class MapGuiBean extends JPanel {
 
 
   /**
-   * this function generates GMT map
-   * It is a wrapper function around GMT tool
+   * this function generates and displays a GMT map for an XYZ dataset using
+   * the settings in the GMT_SettingsControlPanel.
+   *
    * @param fileName: name of the XYZ file
    */
   public void makeMap(String fileName){

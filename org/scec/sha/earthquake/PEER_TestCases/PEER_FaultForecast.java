@@ -206,7 +206,7 @@ public class PEER_FaultForecast extends EqkRupForecast
 
        // check if magDist is null
        if(this.magDistParam.getValue()==null)
-          throw new RuntimeException("Click on update MagDist button and then choose Add Plot");
+          throw new RuntimeException("Mag Dist is null");
 
        // dip param value
        double dipValue = ((Double)dipParam.getValue()).doubleValue();

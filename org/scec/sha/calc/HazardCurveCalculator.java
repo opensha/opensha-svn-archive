@@ -64,13 +64,9 @@ public class HazardCurveCalculator {
   public void getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast) {
 
-
-    progressClass = new CalcProgressBar("HazardCurve Calc status", "Updating Forecast");
+    progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
     // initiliaze the progress bar frame in which to show progress bar
     progressClass.initProgressFrame();
-
-    // update the forecast. any constraint exception is caught by the GuiBean
-    eqkRupForecast.updateForecast();
 
     // now show the progress bar
     progressClass.displayProgressBar();
@@ -111,7 +107,11 @@ public class HazardCurveCalculator {
       double distance = source.getMinDistance(site);
 
       // if source is greater than the MAX_DISTANCE, ignore the source
-      if(distance > MAX_DISTANCE)  continue;
+      if(distance > MAX_DISTANCE) {
+        currRuptures += source.getNumRuptures();
+        updateProgress(currRuptures, totRuptures);
+        continue;
+      }
 
       // to indicate that a source has been used
       sourceUsed = true;

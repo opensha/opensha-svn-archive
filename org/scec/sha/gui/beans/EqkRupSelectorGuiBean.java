@@ -53,7 +53,7 @@ public class EqkRupSelectorGuiBean extends ERF_GuiBean  {
 
 
    // get the selected forecast
-   EqkRupForecastAPI erf = this.getSelectedERF_Instance();
+   EqkRupForecastAPI erf = this.getSelectedERF();
 
    if(!first) {
      // update the Forecast to get the sources and ruptures

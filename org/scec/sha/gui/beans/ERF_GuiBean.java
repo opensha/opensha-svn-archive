@@ -76,7 +76,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
     * class beforehand.
     *
     */
-   public Object createERFClassInstance( String className){
+   private Object createERFClassInstance( String className){
      String S = C + ": createERFClassInstance(): ";
      try {
        Object[] paramObjects = new Object[]{};
@@ -182,7 +182,8 @@ public class ERF_GuiBean extends ParameterListEditor implements
    /**
     * gets the lists of all the parameters that exists in the ERF parameter Editor
     * then checks if the magFreqDistParameter exists inside it , if so then returns the MagEditor
-    * else return null.
+    * else return null.  The only reason this is public is because at least one control panel
+    * (for the PEER test cases) needs access.
     * @returns MagFreDistParameterEditor
     */
    public MagFreqDistParameterEditor getMagDistEditor(){
@@ -211,7 +212,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
     * get the selected ERF instance
     * @return
     */
-   public EqkRupForecastAPI getSelectedERF_Instance() {
+   private EqkRupForecastAPI getSelectedERF_Instance() {
      EqkRupForecastAPI eqkRupForecast = null;
      // get the selected forecast model
      String selectedForecast = getSelectedERF_Name();
@@ -226,6 +227,17 @@ public class ERF_GuiBean extends ParameterListEditor implements
          break;
        }
      }
+     // update the mag dist param
+     if(this.getMagDistEditor()!=null)
+       this.updateMagDistParam();
+ //    eqkRupForecast.updateForecast();
+     return eqkRupForecast;
+   }
+
+
+   public EqkRupForecastAPI getSelectedERF() {
+     EqkRupForecastAPI eqkRupForecast = getSelectedERF_Instance();;
+     eqkRupForecast.updateForecast();
      return eqkRupForecast;
    }
 
@@ -233,7 +245,7 @@ public class ERF_GuiBean extends ParameterListEditor implements
    /**checks if the magFreqDistParameter exists inside it ,
     * if so then gets its Editor and calls the method to update the magDistParams.
     */
-   public void updateMagDistParam() {
+   protected void updateMagDistParam() {
      MagFreqDistParameterEditor magEditor=getMagDistEditor();
      if(magEditor!=null)  magEditor.setMagDistFromParams();
    }
