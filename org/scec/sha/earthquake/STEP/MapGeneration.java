@@ -13,6 +13,20 @@ import java.util.*;
 
 public class MapGeneration {
 
+  /**
+   * PATH where the gmt commands exist. This path is used for following commands:
+   *    xyz2grd, grdsample, grdcut, grdgradient, grdmath, gmtset, grdimage,
+   *    pscoast, psscale, psbasemap, gs
+   *
+   * Note: Same path is used for gs
+   */
+  private static String GMT_PATH = "/sw/bin/";
+
+
+  /**
+   * this is the path to find the "cat" command
+   */
+  private static String COMMAND_PATH = "/bin/";
 
   /**
    * main function to test this class
@@ -66,43 +80,43 @@ public class MapGeneration {
        oBuf.close();
 
        //command to be executed during the runtime.
-       String[] command ={"sh","-c","xyz2grd LatLonAmpData.txt -Gdata.grd -I0.05 "+ region +" -D/degree/degree/amp/=/=/= -V -:"};
+       String[] command ={"sh","-c",GMT_PATH+"xyz2grd LatLonAmpData.txt -Gdata.grd -I0.05 "+ region +" -D/degree/degree/amp/=/=/= -V -:"};
        RunScript.runScript(command);
 
-       command[2] ="grdsample data.grd -Gdata.hiRes.grd -I0.3m -Q";
+       command[2] =GMT_PATH+"grdsample data.grd -Gdata.hiRes.grd -I0.3m -Q";
        RunScript.runScript(command);
 
-       command[2]="grdcut 18.grd -Gtopo.grd "+region;
+       command[2]=GMT_PATH+"grdcut 18.grd -Gtopo.grd "+region;
        RunScript.runScript(command);
 
-       command[2]="grdgradient topo.grd -A330 -Ginten.grd -Nt -V";
+       command[2]=GMT_PATH+"grdgradient topo.grd -A330 -Ginten.grd -Nt -V";
        RunScript.runScript(command);
 
-       command[2] ="grdmath inten.grd -1 ADD 2 DIV  = inten2.grd";
+       command[2] =GMT_PATH+"grdmath inten.grd -1 ADD 2 DIV  = inten2.grd";
        RunScript.runScript(command);
 
-       command[2]="gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0";
+       command[2]=GMT_PATH+"gmtset ANOT_FONT_SIZE 14p LABEL_FONT_SIZE 18p PAGE_COLOR 0/0/0";
        RunScript.runScript(command);
 
-       command[2]="grdimage data.hiRes.grd -X1.5i -Y2i -JM8i -Iinten2.grd -C"+colorFile1+" -K -E250 "+ region + " > " +filename;
+       command[2]=GMT_PATH+"grdimage data.hiRes.grd -X1.5i -Y2i -JM8i -Iinten2.grd -C"+colorFile1+" -K -E250 "+ region + " > " +filename;
        RunScript.runScript(command);
 
        //# this will be added later
        //# psxy   ${region} -JM8i -O -K  -W5/0/0/0 -: -Ms ca_hiwys.main.asc >> $filename
 
-       command[2]="pscoast  "+region+" -JM8i -K -O -W1/17/73/71 -P -S17/73/71 -Di >> "+filename;
+       command[2]=GMT_PATH+"pscoast  "+region+" -JM8i -K -O -W1/17/73/71 -P -S17/73/71 -Di >> "+filename;
        RunScript.runScript(command);
 
-       command[2]="gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
+       command[2]=GMT_PATH+"gmtset BASEMAP_FRAME_RGB 255/255/255 DEGREE_FORMAT 4 FRAME_WIDTH 0.1i COLOR_FOREGROUND 255/255/255";
        RunScript.runScript(command);
 
-       command[2]="psscale -B1:Log_Prob: -D4i/-0.5i/8i/0.3ih -C"+colorFile2+" -K -O -N200 >> " +filename;
+       command[2]=GMT_PATH+"psscale -B1:Log_Prob: -D4i/-0.5i/8i/0.3ih -C"+colorFile2+" -K -O -N200 >> " +filename;
        RunScript.runScript(command);
 
-       command[2]="psbasemap -B1/1eWNs -JM8i "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> "+filename;
+       command[2]=GMT_PATH+"psbasemap -B1/1eWNs -JM8i "+region+" -Lfx1.25i/0.6i/33.0/100 -O >> "+filename;
        RunScript.runScript(command);
 
-       command[2] ="cat "+ filename +" |gs -sDEVICE=jpeg -sOutputFile=temp.jpg -";
+       command[2] =COMMAND_PATH+"cat "+ filename + " | "+GMT_PATH+"gs -sDEVICE=jpeg -sOutputFile=temp.jpg -";
        RunScript.runScript(command);
 
     } catch (Exception e) {
