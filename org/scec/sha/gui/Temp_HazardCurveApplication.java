@@ -326,6 +326,10 @@ public class Temp_HazardCurveApplication extends JApplet
   private String prevSelectedERF_List = null;
   //saves how many ERF's were there in the ERF_List
   private int prevNumERFinList = 0;
+  //saves the total number of fractile and averge curves in the ERF list.
+  private int numFractileCurvesinList =0;
+  //array that keeps how many curves are to be plotted with same color.
+  private ArrayList curveColorsArray = new ArrayList();
 
   /**this boolean keeps track when to plot the new data on top of other and when to
   *add to the existing data.
@@ -573,36 +577,56 @@ public class Temp_HazardCurveApplication extends JApplet
       String S = C + ": addGraphPanel(): ";
 
       // draw all plots in black color for Eqk List
-      if(isEqkList) {
-        int num = totalProbFuncs.size();
-        int numFractiles;
-        if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
-          numFractiles = 1;
-        else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
-          numFractiles = 3;
-        else numFractiles = 0;
-        int diff ;
-        if(this.avgSelected && !isIndividualCurves) num= num - 1;
-        diff = num - numFractiles ;
-        int i;
-        Color [] color = new Color[num+1];
-        for(i=0; i<diff; ++i)
+      //if(isEqkList) {
+        //int num = totalProbFuncs.size();
+        //int numFractiles;
+        //if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE) && !isIndividualCurves )
+         // numFractiles = 1;
+        //else if(percentileOption.equalsIgnoreCase(ERF_EpistemicListControlPanel.FIVE_50_95_PERCENTILE) && !isIndividualCurves)
+         // numFractiles = 3;
+        //else numFractiles = 0;
+        //int diff ;
+        //if(this.avgSelected && !isIndividualCurves) num= num - 1;
+        //diff = num - numFractiles ;
+        //int i;
+        //Color [] color = new Color[num+1];
+        //for(i=0; i<diff; ++i)
           // set black color for curves
-          color[i] = new Color(Color.black.getRGB());
+          //color[i] = new Color(Color.black.getRGB());
 
 
         //checks if the individual curves for each erf in the list are being drawn, if so then don't
         //try to draw the average and fractiles curves
-        if(!isIndividualCurves){
-          for(i=diff;i<num;++i) // set red color for fractiles
-            color[i] = new Color(Color.red.getRGB());
+        //if(!isIndividualCurves){
+          //for(i=diff;i<num;++i) // set red color for fractiles
+            //color[i] = new Color(Color.red.getRGB());
           // draw average in green color
-          if(this.avgSelected) color[i] = new Color(Color.green.getRGB());
+          //if(this.avgSelected) color[i] = new Color(Color.green.getRGB());
+        //}
+        //graphPanel.setSeriesColor(color);
+      //}
+      //else //sets the default series color for the curves
+        //graphPanel.setDefaultSeriesColor();
+
+      //different number of colors that we have to create
+      int size = curveColorsArray.size();
+      //size of the color array that will contain different color, it is different from
+      //above as it judges 2 same colors as 2 colors whereas the above number take into
+      //consideration different types of colors.
+      int colorArraySize =0;
+      for(int i=0;i<size;++i)
+        colorArraySize += ((Integer)curveColorsArray.get(i)).doubleValue();
+      Color[] color = new Color[colorArraySize];
+
+      //creating the color array
+      for(int i=0;i<size;++i){
+        int val = ((Integer)curveColorsArray.get(i)).intValue();
+        for(int j=1;j<=val;++j){
+          color[i+j] = new Color(255-i,0+i,125+i);
         }
-        graphPanel.setSeriesColor(color);
       }
-      else //sets the default series color for the curves
-        graphPanel.setDefaultSeriesColor();
+      //setting the color series
+      graphPanel.setSeriesColor(color);
 
       graphPanel.drawGraphPanel(totalProbFuncs,data,xLog,yLog,customAxis,TITLE,buttonControlPanel);
       togglePlot();
@@ -811,6 +835,7 @@ public class Temp_HazardCurveApplication extends JApplet
     }
     customAxis = false;
     chartSplit.setDividerLocation( newLoc );
+    curveColorsArray.clear();
   }
 
   /**
@@ -984,8 +1009,10 @@ public class Temp_HazardCurveApplication extends JApplet
 
     //making the previuos selected ERF List to be null
     prevSelectedERF_List = null;
+    //num of previous selected ERF in List to be zero
     prevNumERFinList = 0;
-
+    //num of previous selected fractiles in ERF_list to be zero.
+    numFractileCurvesinList =0;
     try{
         calc.setNumForecasts(1);
       }catch(RemoteException e){
@@ -1030,6 +1057,8 @@ public class Temp_HazardCurveApplication extends JApplet
    String imt = imtGuiBean.getSelectedIMT();
    totalProbFuncs.setXAxisName(imt + " ("+imr.getParameter(imt).getUnits()+")");
    totalProbFuncs.setYAxisName("Probability of Exceedance");
+   //set only this curve with the same color
+   curveColorsArray.add(new Integer(1));
 
   // disaggregationString=null;
    //checking the disAggregation flag
@@ -1079,28 +1108,16 @@ public class Temp_HazardCurveApplication extends JApplet
   private void handleForecastList(Site site,
                                   AttenuationRelationshipAPI imr,
                                   EqkRupForecastAPI eqkRupForecast) {
-   ERF_List erfList  = (ERF_List)eqkRupForecast;
-   DiscretizedFuncList functionList =null;
 
+    ERF_List erfList  = (ERF_List)eqkRupForecast;
 
-   //color array for ERF's
-   Color [] color;
-
-   //total number of curves in list
-   int totalNumOfCurves = totalProbFuncs.size();
-   //total number of individual curves in list
-   int totalIndividualCurves = totalNumOfCurves - prevNumERFinList;
-
-   //checking if the number of curves in the list are not 0, ie. if ERF List curves are not the
-  // first curves being added
-   /*if(totalIndividualCurves !=0){
-     color = new Color[
-   }*/
 
    int numERFs = erfList.getNumERFs(); // get the num of ERFs in the list
 
-   if(prevNumERFinList ==0)
+   if(prevNumERFinList ==0) //if first time adding the ERF List
      prevNumERFinList = numERFs;
+   else //adding consecutinve ERF List
+     prevNumERFinList +=numERFs;
 
    //if this is the first ERF_List being added the remove thne clear the function list
    //if(prevNumERFinList ==0){
@@ -1110,13 +1127,27 @@ public class Temp_HazardCurveApplication extends JApplet
      //prevNumERFinList = numERFs;
    //}
 
-     //if(addData){ //add new data on top of the existing data
+     if(addData) //add new data on top of the existing data
+       curveColorsArray.add(new Integer(numERFs));
 
-     //}
-     if(!addData && prevNumERFinList !=0){ // add new data to the existing data
-       functionList = new DiscretizedFuncList();
-       functionList.addAll(totalProbFuncs);
-       totalProbFuncs.clear();
+     else if(!addData && prevNumERFinList !=0){ // add new data to the existing data
+       //functionList = new DiscretizedFuncList();
+       //functionList.addAll(totalProbFuncs);
+       //clearPlot(true);
+       int numCurves = totalProbFuncs.size();
+       //number to saves inside the functionlist without recomputation
+       int numCurvesToAdd = numCurves - numFractileCurvesinList;
+       for(int i=numCurvesToAdd-1;i<numCurves;++i)
+         totalProbFuncs.remove(i);
+       //removing the Average curve color from the ERF List, if we have add to the existing
+       curveColorsArray.remove(curveColorsArray.size()-1);
+       //removing the fractiles curve color from the ERF List, if we have add to the existing
+       curveColorsArray.remove(curveColorsArray.size()-2);
+       //removing the ERF List curves color from the ERF List, if we have add to the existing
+       curveColorsArray.remove(curveColorsArray.size()-3);
+       //adding the ERF_List curves colors in the list
+       curveColorsArray.add(new Integer(prevNumERFinList));
+       addGraphPanel();
      }
      else if(!addData && prevNumERFinList ==0){
        JOptionPane.showMessageDialog(this,"No ERF List Exists","Wrong selection",JOptionPane.OK_OPTION);
@@ -1177,15 +1208,39 @@ public class Temp_HazardCurveApplication extends JApplet
    // if fractile or average needs to be calculated
    if(!this.percentileOption.equalsIgnoreCase
       (ERF_EpistemicListControlPanel.NO_PERCENTILE) || this.avgSelected) {
+
+     //creating a temporary functionlist to calculate the number of fractiles
+     DiscretizedFuncList functionList = new DiscretizedFuncList();
+     int listSize = totalProbFuncs.size();
+     if(addData){ //as curves are added on top so just get the current curves to get the fractile
+       for(int i = numERFs-1;i<listSize;++i)
+         functionList.add(totalProbFuncs.get(i));
+     }
+     else if(!addData){ //as curves are added to existing so calculate the fractile al over again.
+       for(int i= listSize-prevNumERFinList;i<listSize;++i)
+         functionList.add(totalProbFuncs.get(i));
+     }
+
      // set the function list and weights in the calculator
      if (fractileCalc==null)
-       fractileCalc = new FractileCurveCalculator(totalProbFuncs,
+       fractileCalc = new FractileCurveCalculator(functionList,
            erfList.getRelativeWeightsList());
-     else  fractileCalc.set(totalProbFuncs, erfList.getRelativeWeightsList());
-       prevNumERFinList += 1;
+     else  fractileCalc.set(functionList, erfList.getRelativeWeightsList());
    }
 
-   if(!isAllCurves) totalProbFuncs.clear(); //if all curves are not needed to be drawn
+   if(!isAllCurves){
+     int listSize = totalProbFuncs.size();
+     if(addData){ //as curves are aded on top so just remove the last one added
+       for(int i = numERFs-1;i<listSize;++i)
+         totalProbFuncs.remove(i); //if all curves are not needed to be drawn
+     }
+     else if(!addData){ //as curves are added to existing so remove the earlier set too
+       for(int i= listSize-prevNumERFinList;i<listSize;++i)
+         totalProbFuncs.remove(i);
+     }
+     curveColorsArray.remove(curveColorsArray.size()-1);
+     addGraphPanel();
+   }
 
    // if 5th, 50 and 95th percetile need to be plotted
    if(this.percentileOption.equalsIgnoreCase
@@ -1193,15 +1248,25 @@ public class Temp_HazardCurveApplication extends JApplet
      totalProbFuncs.add(fractileCalc.getFractile(.05)); // 5th fractile
      totalProbFuncs.add(fractileCalc.getFractile(.5)); // 50th fractile
      totalProbFuncs.add(fractileCalc.getFractile(.95)); // 95th fractile
-     prevNumERFinList += 3;
+     numFractileCurvesinList =3;
+     curveColorsArray.add(new Integer(3));
    } else if(this.percentileOption.equalsIgnoreCase // for custom percentile
       (ERF_EpistemicListControlPanel.CUSTOM_PERCENTILE )) {
      double percentile = this.epistemicControlPanel.getCustomPercentileValue();
      totalProbFuncs.add(fractileCalc.getFractile(percentile/100));
-     prevNumERFinList += 1;
+     numFractileCurvesinList =1;
+     curveColorsArray.add(new Integer(1));
    }
+   else
+     curveColorsArray.add(new Integer(0));
    // calculate average
-   if(this.avgSelected) totalProbFuncs.add(fractileCalc.getMeanCurve());
+   if(this.avgSelected) { //if average is selected then add it to the color array
+     totalProbFuncs.add(fractileCalc.getMeanCurve());
+     numFractileCurvesinList += 1;
+     curveColorsArray.add(new Integer(1));
+   }
+   else //if average is not selected then add it then just add 0 to the color array.
+     curveColorsArray.add(new Integer(0));
    // set the X-axis label
    totalProbFuncs.setXAxisName(imtGuiBean.getSelectedIMT());
    totalProbFuncs.setYAxisName("Probability of Exceedance");

@@ -9,6 +9,8 @@ Compare JBuilder-2005 with Jbuilder-7 that we currently have on our Mac's
 
 Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
 
+Do we really all the API's in org.scec.sha.earthquake package  or can we just use the Abstract classes rather then defining these API's. Also have to take care that we these classes are not used in RMI based interfaces.
+
 In the case of our HazardCurve Calculator applications, if ERF List is choosen and we select 1 or more realizations and average is selected, then it throws an exception. --Nitin knows about this problems and will look into it.
 
 Nitin has to add the some more functionality to the Remote_ERFClients ( some functions needs to be added). Once that is done and have tested the application to a good extent then swap it with the HazardCurverServerModeApp .
