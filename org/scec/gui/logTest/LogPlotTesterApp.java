@@ -395,6 +395,7 @@ public class LogPlotTesterApp extends JApplet  {
     if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
       clearPlot();
       functions = (XYSeriesCollection)dataWindow.getXYDataSet();
+      autoScale = true;
     }
     else
       fillValues(new XYSeries("Default Data"));
@@ -543,6 +544,7 @@ public class LogPlotTesterApp extends JApplet  {
   }
 
   void clearPlot(){
+    //functions = new XYSeriesCollection();
     functions.removeAllSeries();
     innerPlotPanel.removeAll();
     panel = null;
