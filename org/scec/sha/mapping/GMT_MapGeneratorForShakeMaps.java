@@ -88,9 +88,9 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
   private void setFileNames(String prefix) {
     if(prefix != null) {
-      GMT_SCRIPT_NAME = prefix+"_"+DEFAULT_GMT_SCRIPT_NAME;
+      //GMT_SCRIPT_NAME = prefix+"_"+DEFAULT_GMT_SCRIPT_NAME;
       XYZ_FILE_NAME = prefix+"_"+DEFAULT_XYZ_FILE_NAME;
-      METADATA_FILE_NAME = prefix+"_"+DEFAULT_METADATA_FILE_NAME;
+      //METADATA_FILE_NAME = prefix+"_"+DEFAULT_METADATA_FILE_NAME;
       PS_FILE_NAME = prefix+"_"+DEFAULT_PS_FILE_NAME;
       JPG_FILE_NAME = prefix+"_"+DEFAULT_JPG_FILE_NAME;
       HAZUS_FILE_PREFIX = prefix+"_"+DEFAULT_HAZUS_FILE_PREFIX;
@@ -129,7 +129,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="SA";
     SCALE_LABEL = SA_03;
     setFileNames(SCALE_LABEL);
-    this.xyzDataSet = sa03DataSet;
+    xyzDataSet = sa03DataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
 
@@ -137,7 +137,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="SA";
     SCALE_LABEL = SA_10;
     setFileNames(SCALE_LABEL);
-    this.xyzDataSet = sa10DataSet;
+    xyzDataSet = sa10DataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
 
@@ -145,7 +145,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="PGA";
     SCALE_LABEL = PGA;
     setFileNames(SCALE_LABEL);
-    this.xyzDataSet = pgaDataSet;
+    xyzDataSet = pgaDataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
 
@@ -153,7 +153,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     imt="PGV";
     SCALE_LABEL = PGV;
     setFileNames(SCALE_LABEL);
-    this.xyzDataSet = pgvDataSet;
+    xyzDataSet = pgvDataSet;
     makeXYZ_File(XYZ_FILE_NAME);
     gmtLines.addAll(getGMT_ScriptLines());
 
@@ -193,24 +193,28 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     // Do 0.3-sec SA first
     imt="SA";
     SCALE_LABEL = SA_03;
+    xyzDataSet = sa03DataSet;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
     // Do 1.0-sec SA
     imt="SA";
     SCALE_LABEL = SA_10;
+    xyzDataSet = sa10DataSet;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
     // PGA
     imt="PGA";
     SCALE_LABEL = PGA;
+    xyzDataSet = pgaDataSet;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 
     // Do 0.3-sec SA first
     imt="PGV";
     SCALE_LABEL = PGV;
+    xyzDataSet = pgvDataSet;
     setFileNames(SCALE_LABEL);
     gmtLines.addAll(getGMT_ScriptLines());
 

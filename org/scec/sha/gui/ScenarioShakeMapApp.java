@@ -61,7 +61,11 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   //reference to the  XYZ dataSet
-  XYZ_DataSetAPI xyzDataSet;
+  private XYZ_DataSetAPI xyzDataSet;
+
+
+  //store the site values for each site in the griddded region
+  private SitesInGriddedRegion griddedRegionSites;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -454,6 +458,20 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
   }
 
+  /**
+   *
+   * @returns the Sites Values for each site in the region chosen by the user
+   */
+  private void getGriddedRegionSites(){
+    try {
+      griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
+    }catch(ParameterException e) {
+      throw  new ParameterException(e.getMessage());
+    }
+    catch(Exception e){
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 
   /**
    * This method calculates the probablity or the IML for the selected Gridded Region
@@ -464,15 +482,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
     boolean probAtIML=false;
     double imlProbValue=imlProbGuiBean.getIML_Prob();
-    SitesInGriddedRegion griddedRegionSites;
-    try {
-      griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
-    }catch(ParameterException e) {
-      throw  new ParameterException(e.getMessage());
-    }
-    catch(Exception e){
-      throw new RuntimeException(e.getMessage());
-    }
     String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
       probAtIML=true;
@@ -520,6 +529,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     calcProgress = new CalcProgressBar("ShakeMapApp","Starting ShakeMap Calculation");
     step = 1;
     try{
+      //get the site values for each site in the gridded region
+      getGriddedRegionSites();
       calcProgress.setProgressMessage("  Calculating ShakeMap Data ...");
       if(hazusControl !=null && hazusControl.isHazusShapeFilesControlSelected())
         hazusControl.generateHazusFiles(this.imtGuiBean,(AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance());
@@ -533,6 +544,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       return;
     }
     catch(Exception ee){
+      //ee.printStackTrace();
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
       calcProgress.showProgress(false);
       calcProgress.dispose();

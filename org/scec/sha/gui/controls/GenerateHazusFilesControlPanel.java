@@ -71,9 +71,11 @@ public class GenerateHazusFilesControlPanel extends JFrame {
     infoPanel.setPreferredSize(new Dimension(812, 16));
     infoPanel.setEditable(false);
     infoPanel.setText(info);
+    jPanel1.setMinimumSize(new Dimension(350, 70));
+    jPanel1.setPreferredSize(new Dimension(350, 125));
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
-    jPanel1.add(infoPanel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(16, 42, 19, 41), 306, 69));
+    jPanel1.add(infoPanel,   new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(16, 42, 19, 41), -557, 3));
     jPanel1.add(hazusFilesCheck,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(18, 42, 0, 83), 52, 5));
   }
