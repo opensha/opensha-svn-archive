@@ -89,6 +89,7 @@ public class HazardCurveApplet extends JApplet
   public final static String STEP_FORECAST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
   public final static String WG02_ERF_LIST_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.WG02.WG02_ERF_Epistemic_List";
   public final static String STEP_ALASKA_ERF_CLASS_NAME = "org.scec.sha.earthquake.rupForecastImpl.step.STEP_AlaskanPipeForecast";
+  public final static String POISSON_FAULT_ERF_CLASS_NAME = "org.scec.sha.earthquake.SimplePoissonFaultERF";
 
   // instances of the GUI Beans which will be shown in this applet
   private ERF_GuiBean erfGuiBean;
@@ -1274,6 +1275,7 @@ public class HazardCurveApplet extends JApplet
    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+   erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){

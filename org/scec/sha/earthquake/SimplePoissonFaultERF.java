@@ -61,7 +61,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast
   public final static String ASPECT_RATIO_PARAM_INFO = "The ratio of rupture length to rupture width";
   private Double ASPECT_RATIO_PARAM_MIN = new Double(Double.MIN_VALUE);
   private Double ASPECT_RATIO_PARAM_MAX = new Double(Double.MAX_VALUE);
-  public Double ASPECT_RATIO_PARAM_DEFAULT = new Double(0.0);
+  public Double ASPECT_RATIO_PARAM_DEFAULT = new Double(1.0);
 
   // rake parameter stuff
   public final static String RAKE_PARAM_NAME = "Rake";
@@ -97,6 +97,7 @@ public class SimplePoissonFaultERF extends EqkRupForecast
     timeSpan = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
     timeSpan.addParameterChangeListener(this);
 
+System.out.println("magDistParam");
     // make the magFreqDistParameter
     Vector supportedMagDists=new Vector();
     supportedMagDists.add(GaussianMagFreqDist.NAME);
@@ -117,24 +118,26 @@ public class SimplePoissonFaultERF extends EqkRupForecast
         SIGMA_PARAM_MIN, SIGMA_PARAM_MAX, SIGMA_PARAM_DEFAULT);
     sigmaParam.setInfo(SIGMA_PARAM_INFO);
 
-    // create the rake param
+// create the rake param
     rakeParam = new DoubleParameter(RAKE_PARAM_NAME,RAKE_PARAM_MIN,
         RAKE_PARAM_MAX,RAKE_PARAM_UNITS,RAKE_PARAM_DEFAULT);
     rakeParam.setInfo(RAKE_PARAM_INFO);
 
-    // create the aspect ratio param
+System.out.println("aspectRatioParam");
+// create the aspect ratio param
     aspectRatioParam = new DoubleParameter(ASPECT_RATIO_PARAM_NAME,ASPECT_RATIO_PARAM_MIN,
         ASPECT_RATIO_PARAM_MAX,ASPECT_RATIO_PARAM_DEFAULT);
     aspectRatioParam.setInfo(ASPECT_RATIO_PARAM_INFO);
 
 
-    // create the min mag param
+System.out.println("minMagParam");
+// create the min mag param
     minMagParam = new DoubleParameter(MIN_MAG_PARAM_NAME,MIN_MAG_PARAM_MIN,
         MIN_MAG_PARAM_MAX,MIN_MAG_PARAM_DEFAULT);
     minMagParam.setInfo(MIN_MAG_PARAM_INFO);
 
 
-    // add the adjustable parameters to the list
+// add the adjustable parameters to the list
     adjustableParams.addParameter(rupOffsetParam);
     adjustableParams.addParameter(sigmaParam);
     adjustableParams.addParameter(rakeParam);
