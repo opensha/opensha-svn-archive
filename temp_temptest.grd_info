@@ -1,0 +1,9 @@
+temptest.grd: Title: 
+temptest.grd: Command: /sw/bin/grdcut test.grd -Gtemptest.grd -R-123.0/-121.0/37.0/39.0
+temptest.grd: Remark: 
+temptest.grd: Normal node registration used
+temptest.grd: grdfile format # 0
+temptest.grd: x_min: -123 x_max: -121 x_inc: 0.2 units: degree nx: 11
+temptest.grd: y_min: 37 y_max: 39 y_inc: 0.2 units: degree ny: 11
+temptest.grd: z_min: -2.48106 z_max: -0.201 units: amp
+temptest.grd: scale_factor: 1 add_offset: 0
