@@ -181,8 +181,8 @@ public class GraphPanel extends JPanel {
 
 
     // set the log flag in the XY dataset
-    data.setXLog(xLog);
-    data.setYLog(yLog);
+    //data.setXLog(xLog);
+    //data.setYLog(yLog);
 
 
     //flags to check if the exception was thrown on selection of the x-log or y-log.
@@ -242,7 +242,7 @@ public class GraphPanel extends JPanel {
     }catch(Exception e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
       graphOn=false;
-      yLog = true;
+      yLog = false;
       buttonControlPanel.setYLog(yLog);
       yAxis = yAxis1;
       logErrorFlag = false;
@@ -273,6 +273,9 @@ public class GraphPanel extends JPanel {
       int numCurves = plotCharacterstics[j].getNumContinuousCurvesWithSameCharacterstics();
       DiscretizedFuncList dataFunctions = new DiscretizedFuncList();
       DiscretizedFunctionXYDataSet dataset = new DiscretizedFunctionXYDataSet();
+      dataset.setXLog(xLog);
+      dataset.setYLog(yLog);
+      dataset.setConvertZeroToMin(true,Y_MIN_VAL);
       dataset.setFunctions(dataFunctions);
       Color color = plotCharacterstics[j].getCurveColor();
       double lineWidth = plotCharacterstics[j].getCurveWidth();
@@ -755,7 +758,7 @@ public class GraphPanel extends JPanel {
     }catch(Exception e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Y-Plot Error",JOptionPane.OK_OPTION);
       graphOn=false;
-      yLog = true;
+      yLog = false;
       buttonControlPanel.setYLog(yLog);
       yAxis = yAxis1;
       logErrorFlag = false;
