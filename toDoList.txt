@@ -6,6 +6,8 @@ Implement following ERFs as web services: WG02 (wrapped), USGS/CGS1996, and STEP
 
 Implement STEP-map maker (adds USGS/CGS1995 hazard map dataset to the STEP hazard map dataset).  This will use Shakemap IMR w/ IMT=PGA; will use site type from CVM, and will plot prob@IML=0.126 g.  Duration is 1 day (0.002738 years).
 
+Should we create an AjustableParametersAPI for all objects that have a list of adjustable parameters?
+
 
 Update the makeMapUsingServer() method of the GMT_MapGenerator:
 
