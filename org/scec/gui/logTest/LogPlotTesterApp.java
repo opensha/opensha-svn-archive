@@ -467,20 +467,14 @@ public class LogPlotTesterApp extends JApplet  {
     //xAxis.setStandardTickUnits(units);
     xAxis.setTickMarksVisible(false);
 
-
-
-
     yAxis.setAutoRangeIncludesZero( false );
     //yAxis.setStandardTickUnits(units);
     yAxis.setTickMarksVisible(false);
-    //yAxis.setS
-
 
 
     int type = org.jfree.chart.renderer.StandardXYItemRenderer.LINES;
 
-
-    StandardXYItemRenderer renderer = new StandardXYItemRenderer( type, new StandardXYToolTipGenerator() );
+    StandardXYItemRenderer renderer = new StandardXYItemRenderer(type, new StandardXYToolTipGenerator() );
 
     try{
       //If the first test case is not chosen then plot the graph acording to the default x and y axis values
@@ -523,6 +517,14 @@ public class LogPlotTesterApp extends JApplet  {
       return;
     }
 
+    //setting the range to reflect in the range Text fields.
+    if(dataSetCombo.getItemCount()>0){
+      if(((String)dataSetCombo.getSelectedItem()).equals(this.NEW_DATASET)){
+        setXRange(xAxis.getLowerBound(),xAxis.getUpperBound());
+        setYRange(yAxis.getLowerBound(),yAxis.getUpperBound());
+      }
+    }
+
     innerPlotPanel.validate();
     innerPlotPanel.repaint();
     if ( D ) System.out.println( S + "Done" );
@@ -549,7 +551,7 @@ public class LogPlotTesterApp extends JApplet  {
   public void setYRange(double yMin,double yMax) {
      minYText.setText(""+yMin);
      maxYText.setText(""+yMax);
-     addGraphPanel();
+     //addGraphPanel();
   }
 
   void clearButton_actionPerformed(ActionEvent e) {
@@ -717,10 +719,8 @@ public class LogPlotTesterApp extends JApplet  {
       addButton();
       Range rX = xAxis.getRange();
       Range rY= yAxis.getRange();
-      this.minXText.setText(""+rX.getLowerBound());
-      this.maxXText.setText(""+rX.getUpperBound());
-      this.minYText.setText(""+rY.getLowerBound());
-      this.maxYText.setText(""+rY.getUpperBound());
+      setXRange(rX.getLowerBound(),rX.getUpperBound());
+      setYRange(rY.getLowerBound(),rY.getUpperBound());
     }
     else {
       autoScale=false;
@@ -785,6 +785,8 @@ public class LogPlotTesterApp extends JApplet  {
         setYRange(2,8);
       }
     }
+    this.addGraphPanel();
+
   }
 
   void dataSetCombo_actionPerformed(ActionEvent e) {
