@@ -60,7 +60,7 @@ class GMT_GuiBean {
    * @return
    */
   public String generateMap(){
-    gmtMap.makeMap();
+    //gmtMap.makeMap();
     return gmtParamList.getParameter(GMT_MapGenerator.OUTPUT_FILE_PREFIX_PARAM_NAME).getValue().toString()+
         (GMT_MapGenerator.i-1);
   }

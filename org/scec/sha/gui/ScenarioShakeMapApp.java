@@ -78,7 +78,6 @@ public class ScenarioShakeMapApp extends JApplet {
   private JPanel buttonPanel = new JPanel();
   private JComboBox controlPanelCombo = new JComboBox();
   private JButton addButton = new JButton();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
@@ -93,6 +92,9 @@ public class ScenarioShakeMapApp extends JApplet {
   private JPanel imtPanel = new JPanel();
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private JPanel GMTPanel = new JPanel();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout9 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -134,6 +136,7 @@ public class ScenarioShakeMapApp extends JApplet {
     imrSelectionPanel.setLayout(gridBagLayout5);
     siteRegionPanel.setLayout(gridBagLayout7);
     imtPanel.setLayout(gridBagLayout8);
+    GMTPanel.setLayout(gridBagLayout9);
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 1, 5, 2), 0, 492));
@@ -149,12 +152,13 @@ public class ScenarioShakeMapApp extends JApplet {
     parameterTabbedPanel.add(eqkRupPanel,  "Forecast Model");
     parameterTabbedPanel.add(timespanPanel,  "Time Span");
     parameterTabbedPanel.add(prob_IMLPanel,  "MapType");
+    parameterTabbedPanel.add(GMTPanel,  "GMT Parameters");
     imr_IMTSplit.add(imr_RegionSplit, JSplitPane.TOP);
     imr_RegionSplit.add(imrSelectionPanel, JSplitPane.TOP);
     imr_RegionSplit.add(siteRegionPanel, JSplitPane.BOTTOM);
     imr_IMTSplit.add(imtPanel, JSplitPane.BOTTOM);
     mainSplitPane.setDividerLocation(585);
-    chartSplitPane.setDividerLocation(650);
+    chartSplitPane.setDividerLocation(580);
     imr_IMTSplit.setDividerLocation(400);
     imr_RegionSplit.setDividerLocation(100);
   }

@@ -29,21 +29,22 @@ public class GMT_MapGenerator {
   public final static String MAX_LAT_PARAM_NAME = "Max Latitude";
   public final static String MIN_LON_PARAM_NAME = "Min Longitude";
   public final static String MAX_LON_PARAM_NAME = "Max Longitude";
+  public final static String GRID_SPACING_PARAM_NAME = "Grid Spacing";
   private final static String LAT_LON_PARAM_UNITS = "Degrees";
   private final static String LAT_LON_PARAM_INFO = "Corner point of mapped region";
+  private final static String GRID_SPACING_PARAM_INFO = "Grid interval in the Region";
   private final static Double MIN_LAT_PARAM_DEFAULT = new Double(32.5);
   private final static Double MAX_LAT_PARAM_DEFAULT = new Double(35.5);
   private final static Double MIN_LON_PARAM_DEFAULT = new Double(-121);
   private final static Double MAX_LON_PARAM_DEFAULT = new Double(-115);
+  private final static Double GRID_SPACING_PARAM_DEFAULT = new Double(.05);
   DoubleParameter minLatParam;
   DoubleParameter maxLatParam;
   DoubleParameter minLonParam;
   DoubleParameter maxLonParam;
+  DoubleParameter gridSpacingParam;
 
-  public final static String GRD_INPUT_FILE_PARAM_NAME = "Input GRD file name";
-  private final static String GRD_INPUT_FILE_PARAM_DEFAULT = "testData.grd";
-  private final static String GRD_INPUT_FILE_PARAM_INFO = "Name of data file to use for making the map.";
-  private StringParameter grdInputFileParam;
+
 
   public final static String OUTPUT_FILE_PREFIX_PARAM_NAME = "Output file prefix";
   private final static String OUTPUT_FILE_PREFIX_PARAM_DEFAULT = "test";
@@ -114,6 +115,8 @@ public class GMT_MapGenerator {
     minLatParam.setInfo(LAT_LON_PARAM_INFO);
     maxLonParam = new DoubleParameter(MAX_LON_PARAM_NAME,-360,360,LAT_LON_PARAM_UNITS,MAX_LON_PARAM_DEFAULT);
     minLatParam.setInfo(LAT_LON_PARAM_INFO);
+    gridSpacingParam = new DoubleParameter(GRID_SPACING_PARAM_NAME,.01,100,LAT_LON_PARAM_UNITS,GRID_SPACING_PARAM_DEFAULT);
+    minLatParam.setInfo(GRID_SPACING_PARAM_INFO);
 
     StringConstraint cptFileConstraint = new StringConstraint();
     cptFileConstraint.addString( CPT_FILE_MAX_SPECTRUM );
@@ -128,10 +131,7 @@ public class GMT_MapGenerator {
     colorScaleModeParam = new StringParameter( COLOR_SCALE_MODE_NAME, colorScaleModeConstraint, COLOR_SCALE_MODE_DEFAULT );
     colorScaleModeParam.setInfo( COLOR_SCALE_MODE_INFO );
 
-    StringConstraint inputFileConstraint = new StringConstraint();
-    inputFileConstraint.addString( GRD_INPUT_FILE_PARAM_DEFAULT );
-    grdInputFileParam = new StringParameter( GRD_INPUT_FILE_PARAM_NAME, inputFileConstraint, GRD_INPUT_FILE_PARAM_DEFAULT );
-    grdInputFileParam.setInfo( GRD_INPUT_FILE_PARAM_INFO );
+
 
     StringConstraint outputFilePrefixConstraint = new StringConstraint();
     outputFilePrefixConstraint.addString( OUTPUT_FILE_PREFIX_PARAM_DEFAULT );
@@ -165,12 +165,12 @@ public class GMT_MapGenerator {
 
     // create adjustable parameter list
     adjustableParams = new ParameterList();
-    adjustableParams.addParameter(grdInputFileParam);
     adjustableParams.addParameter(outputFilePrefixParam);
     adjustableParams.addParameter(minLatParam);
     adjustableParams.addParameter(maxLatParam);
     adjustableParams.addParameter(minLonParam);
     adjustableParams.addParameter(maxLonParam);
+    adjustableParams.addParameter(gridSpacingParam);
     adjustableParams.addParameter(cptFileParam);
     adjustableParams.addParameter(colorScaleModeParam);
     adjustableParams.addParameter(colorScaleMinParam);
@@ -189,16 +189,16 @@ public class GMT_MapGenerator {
   public static void main(String[] args) {
     // to test this class, it should create a temp.jpg
     GMT_MapGenerator mapGen = new GMT_MapGenerator();
-    mapGen.makeMap();
+   // mapGen.makeMap();
   }
 
   /**
    * this function generates GMT map
    * It is a wrapper function around GMT tool
    */
-  public void makeMap(){
+  public void makeMap(String grdFileName){
 
-    String grdInputDataFileName = (String) grdInputFileParam.getValue();
+    String grdInputDataFileName = grdFileName;
 
     String outputFilePrefix = (String) outputFilePrefixParam.getValue();
 
@@ -322,10 +322,6 @@ public class GMT_MapGenerator {
   */
   public ListIterator getAdjustableParamsList() {
     return adjustableParams.getParametersIterator();
-  }
-
-  public ParameterList getParameterList (){
-    return this.adjustableParams;
   }
 
 }
