@@ -22,7 +22,17 @@ public class SpectrumCalculator {
   ArbitrarilyDiscretizedFunc saTfunction;
 
   private DecimalFormat tFormat = new DecimalFormat("0.0");
-  private DiscretizedFuncList approxSaSd(ArbitrarilyDiscretizedFunc saVals,
+
+  /**
+   *
+   * @param periodVal double
+   * @param sPGA double
+   * @param sAccerlation double
+   * @param fa float
+   * @param fv float
+   * @return DiscretizedFuncList
+   */
+  protected DiscretizedFuncList approxSaSd(double periodVal,double sAccerlation,double sVelocity,
                                          float fa, float fv) {
     DiscretizedFuncList funcList = new DiscretizedFuncList();
     saSdfunction = new ArbitrarilyDiscretizedFunc();
@@ -30,11 +40,13 @@ public class SpectrumCalculator {
     funcList.add(saSdfunction);
     funcList.add(saTfunction);
 
-    double tAcc = saVals.getX(0);
-    double sAcc = fa * saVals.getY(0);
-    double tVel = saVals.getX(0);
-    double sVel = fv * saVals.getY(1);
-    double spga = 0.4 * fa * saVals.getY(0);
+    double tAcc = periodVal;
+    double sAcc = fa * sAccerlation;
+    double sVel = fv * sVelocity;
+
+    //double tVel = saVals.getX(0);
+
+    double spga = 0.4 * sAcc;
     tPga = 0;
     double tMaxVel = 2;
     double tInc = 0.1;
@@ -57,11 +69,8 @@ public class SpectrumCalculator {
       String nextTString = tFormat.format(nextT);
       nextT = Double.parseDouble(nextTString);
     }
-
-    for (int i = 0; i < saTfunction.getNum(); ++i)
-      saSdfunction.set(saTfunction.getX(i),
-                       9.77 * saTfunction.getY(i) *
-                       Math.pow(saTfunction.getX(i), 2));
+    StdDisplacementCalc calc = new StdDisplacementCalc();
+    saSdfunction = calc.getStdDisplacement(saTfunction);
 
     return funcList;
   }
@@ -74,15 +83,17 @@ public class SpectrumCalculator {
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList calculateMapSpectrum(ArbitrarilyDiscretizedFunc saVals){
-    DiscretizedFuncList funcList = approxSaSd(saVals,1,1);
+
+    double tAcc = saVals.getX(0);
+    double sAcc = saVals.getY(0);
+    double sVel = saVals.getY(1);
+
+    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,1,1);
 
     saTfunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.MCE_SPECTRUM_SD_Vs_T_GRAPH);
     String title = "MCE Response Spectra for Site Class B";
     String subTitle = "Ss and S1 = Mapped Spectral Acceleration Values";
-
-    double tShort = saVals.getX(0);
-    double t1sec = saVals.getX(1);
 
     String info="";
     info +=title+"\n";
@@ -106,7 +117,12 @@ public class SpectrumCalculator {
    */
   public DiscretizedFuncList calculateSMSpectrum(ArbitrarilyDiscretizedFunc saVals,
                                                  float fa, float fv,String siteClass){
-    DiscretizedFuncList funcList = approxSaSd(saVals,fa,fv);
+
+    double tAcc = saVals.getX(0);
+    double sAcc = saVals.getY(0);
+    double sVel = saVals.getY(1);
+
+    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,fa,fv);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
@@ -140,7 +156,11 @@ public class SpectrumCalculator {
     float faVal = (2.0f / 3.0f) * fa;
     float fvVal = (2.0f / 3.0f) * fv;
 
-    DiscretizedFuncList funcList = approxSaSd(saVals, faVal, fvVal);
+    double tAcc = saVals.getX(0);
+    double sAcc = saVals.getY(0);
+    double sVel = saVals.getY(1);
+
+    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,faVal, fvVal);
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);

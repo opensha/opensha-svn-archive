@@ -193,7 +193,7 @@ public class DataGenerator_UHS
     createMetadataForPlots(location);
     addDataInfo(funcList.getInfo());
     getFunctionsForSDT(funcList);
-
+    createPGAValues();
   }
 
   /**
@@ -213,7 +213,44 @@ public class DataGenerator_UHS
     createMetadataForPlots(location);
     addDataInfo(funcList.getInfo());
     getFunctionsForSDT(funcList);
+    createPGAValues();
   }
+
+  private void createPGAValues() {
+    pgaFunction = new ArbitrarilyDiscretizedFunc();
+    if (geographicRegion.equals(GlobalConstants.CONTER_48_STATES) &&
+        dataEdition.equals(GlobalConstants.data_1996) &&
+        dataEdition.equals(GlobalConstants.data_2003)) {
+
+      //number of Periods in this case is 7
+      //T0,PGA
+      pgaFunction.set(saFunction.get(0));
+      //Ts,Ss
+      pgaFunction.set(saFunction.get(2));
+      //T1,S1
+      pgaFunction.set(saFunction.get(5));
+    }
+    else if (dataEdition.equals(GlobalConstants.data_1998)) {
+      //number of periods in this are 4
+      //T0,PGA
+      pgaFunction.set(saFunction.get(0));
+      //Ts,Ss
+      pgaFunction.set(saFunction.get(1));
+      //T1,S1
+      pgaFunction.set(saFunction.get(3));
+
+    }
+    else {
+      //number of periods in this are 3
+      //T0,PGA
+      pgaFunction.set(saFunction.get(0));
+      //Ts,Ss
+      pgaFunction.set(saFunction.get(1));
+      //T1,S1
+      pgaFunction.set(saFunction.get(2));
+    }
+  }
+
 
   protected void createMetadataForPlots(String location) {
     metadataForPlots = GlobalConstants.SA_DAMPING + "\n";
