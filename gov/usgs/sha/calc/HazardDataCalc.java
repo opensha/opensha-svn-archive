@@ -266,4 +266,47 @@ public class HazardDataCalc {
     return calc.calculateSDSpectrum(function, fa, fv, siteClass);
   }
 
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList computeApproxUHSpectrum(ArbitrarilyDiscretizedFunc
+                                                function) {
+
+    UHS_SpectrumCalculator calc = new UHS_SpectrumCalculator();
+    return calc.calculateApproxUHSSpectrum(function);
+  }
+
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList computeSM_UHSpectrum(ArbitrarilyDiscretizedFunc
+                                               function, float fa, float fv,
+                                               String siteClass) {
+
+    UHS_SpectrumCalculator calc = new UHS_SpectrumCalculator();
+    return calc.calculateSMS_UHSpectrum(function, fa, fv, siteClass);
+  }
+
+  /**
+   *
+   * @param function ArbitrarilyDiscretizedFunc
+   * @param fa float
+   * @param fv float
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList computeSD_UHSpectrum(ArbitrarilyDiscretizedFunc
+                                               function, float fa, float fv,
+                                               String siteClass) {
+
+    UHS_SpectrumCalculator calc = new UHS_SpectrumCalculator();
+    return calc.calculateSD_UHSpectrum(function, fa, fv, siteClass);
+  }
+
+
 }

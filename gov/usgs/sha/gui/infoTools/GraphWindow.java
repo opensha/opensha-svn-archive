@@ -115,7 +115,7 @@ public class GraphWindow
         String function1XName = function1.getXAxisName();
         String function1YName = function1.getYAxisName();
         if(functionXName.equals(function1XName) && functionYName.equals(function1YName)){
-          name = functionXName +" Vs "+functionYName;
+          name = functionYName+" Vs "+functionXName;
           if(!map.containsKey(name)){
             plottingFunctions.add(function1);
             containsSameName = true;

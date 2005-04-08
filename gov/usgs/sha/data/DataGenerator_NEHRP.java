@@ -144,8 +144,6 @@ public class DataGenerator_NEHRP
     metadataForPlots += geographicRegion + "\n";
     metadataForPlots += dataEdition + "\n";
     metadataForPlots += location +"\n";
-    metadataForPlots += "Site Class -"+siteClass+"\n";
-    metadataForPlots += "Fa = "+faVal+" Fv = "+fvVal+"\n";
   }
 
 
@@ -208,8 +206,12 @@ public class DataGenerator_NEHRP
 
     mapSpectrumSaSdFunction= tempSDFunction.getYY_Function(mapSpectrumSaTFunction);
     mapSpectrumSaSdFunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_SD_GRAPH);
-    mapSpectrumSaSdFunction.setInfo(metadataForPlots);
-    mapSpectrumSaTFunction.setInfo(metadataForPlots);
+    String info =metadataForPlots;
+    info += "Site Class -" + siteClass + "\n";
+    info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+
+    mapSpectrumSaSdFunction.setInfo(info);
+    mapSpectrumSaTFunction.setInfo(info);
     mapSpectrumSaSdFunction.setYAxisName(GlobalConstants.SA);
     mapSpectrumSaSdFunction.setXAxisName(GlobalConstants.SD);
     mapSpectrumSaTFunction.setYAxisName(GlobalConstants.SA);
@@ -236,8 +238,12 @@ public class DataGenerator_NEHRP
     ArbitrarilyDiscretizedFunc tempSDFunction =(ArbitrarilyDiscretizedFunc)smSpectrumFunctions.get(1-i);
     smSpectrumSaSdFunction = tempSDFunction.getYY_Function(smSpectrumSaTFunction);
     smSpectrumSaSdFunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_SD_GRAPH);
-    smSpectrumSaSdFunction.setInfo(metadataForPlots);
-    smSpectrumSaTFunction.setInfo(metadataForPlots);
+    String info =metadataForPlots;
+    info += "Site Class -" + siteClass + "\n";
+    info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+
+    smSpectrumSaSdFunction.setInfo(info);
+    smSpectrumSaTFunction.setInfo(info);
     smSpectrumSaSdFunction.setYAxisName(GlobalConstants.SA);
     smSpectrumSaSdFunction.setXAxisName(GlobalConstants.SD);
     smSpectrumSaTFunction.setYAxisName(GlobalConstants.SA);
@@ -264,8 +270,11 @@ public class DataGenerator_NEHRP
     ArbitrarilyDiscretizedFunc tempSMFunction =(ArbitrarilyDiscretizedFunc)sdSpectrumFunctions.get(1-i);
     sdSpectrumSaSdFunction = tempSMFunction.getYY_Function(sdSpectrumSaTFunction);
     sdSpectrumSaSdFunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_SD_GRAPH);
-    sdSpectrumSaSdFunction.setInfo(metadataForPlots);
-    sdSpectrumSaTFunction.setInfo(metadataForPlots);
+    String info =metadataForPlots;
+    info += "Site Class -" + siteClass + "\n";
+    info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
+    sdSpectrumSaSdFunction.setInfo(info);
+    sdSpectrumSaTFunction.setInfo(info);
     sdSpectrumSaSdFunction.setYAxisName(GlobalConstants.SA);
     sdSpectrumSaSdFunction.setXAxisName(GlobalConstants.SD);
     sdSpectrumSaTFunction.setYAxisName(GlobalConstants.SA);
@@ -288,42 +297,15 @@ public class DataGenerator_NEHRP
 
     ArrayList functions = new ArrayList();
 
-    if(isMapSpectrumFunctionNeeded && isSDSpectrumFunctionNeeded &&
-       isSMSpectrumFunctionNeeded){
-      functions.add(mapSpectrumSaTFunction);
-      functions.add(mapSpectrumSaSdFunction);
-      functions.add(smSpectrumSaTFunction);
-      functions.add(smSpectrumSaSdFunction);
-      functions.add(sdSpectrumSaTFunction);
-      functions.add(sdSpectrumSaSdFunction);
-    }
-    else if(isMapSpectrumFunctionNeeded && isSDSpectrumFunctionNeeded){
-      functions.add(mapSpectrumSaTFunction);
-      functions.add(mapSpectrumSaSdFunction);
-      functions.add(sdSpectrumSaTFunction);
-      functions.add(sdSpectrumSaSdFunction);
-    }
-    else if(isSDSpectrumFunctionNeeded && isSMSpectrumFunctionNeeded){
-      functions.add(smSpectrumSaTFunction);
-      functions.add(smSpectrumSaSdFunction);
-      functions.add(sdSpectrumSaTFunction);
-      functions.add(sdSpectrumSaSdFunction);
-    }
-    else if(isMapSpectrumFunctionNeeded && isSMSpectrumFunctionNeeded){
-      functions.add(mapSpectrumSaTFunction);
-      functions.add(mapSpectrumSaSdFunction);
-      functions.add(smSpectrumSaSdFunction);
-      functions.add(smSpectrumSaTFunction);
-    }
-    else if(isMapSpectrumFunctionNeeded){
+    if(isMapSpectrumFunctionNeeded){
       functions.add(mapSpectrumSaTFunction);
       functions.add(mapSpectrumSaSdFunction);
     }
-    else if(isSDSpectrumFunctionNeeded){
+    if(isSDSpectrumFunctionNeeded){
       functions.add(sdSpectrumSaTFunction);
       functions.add(sdSpectrumSaSdFunction);
     }
-    else if(isSMSpectrumFunctionNeeded){
+    if(isSMSpectrumFunctionNeeded){
       functions.add(smSpectrumSaTFunction);
       functions.add(smSpectrumSaSdFunction);
     }

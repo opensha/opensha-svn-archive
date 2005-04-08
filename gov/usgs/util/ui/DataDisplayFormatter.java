@@ -82,7 +82,7 @@ public final class DataDisplayFormatter {
                                                  String text) {
     String dataInfo = "";
     dataInfo += text+"\n"+xAxisString+"\t " + yAxisString + "\n";
-    dataInfo += xAxisUnits+"\t  "+yAxisUnits +"\n";
+    dataInfo += "("+xAxisUnits+")\t  ("+yAxisUnits +")\n";
 
     for(int i=0;i<function.getNum();++i)
       dataInfo += saValFormat.format(function.getX(i)) + "\t" + annualExceedanceFormat.format(function.getY(i))+ "\n";
@@ -107,10 +107,9 @@ public final class DataDisplayFormatter {
 
       ArbitrarilyDiscretizedFunc function1 = (ArbitrarilyDiscretizedFunc)functionList.get(1);
       ArbitrarilyDiscretizedFunc function2 = (ArbitrarilyDiscretizedFunc)functionList.get(0);
-      for(int i=0;i<function1.getNum();++i) {
+      for(int i=0;i<function1.getNum();++i)
         dataInfo +=saValFormat.format(function1.getX(i))+"\t"+
             saValFormat.format(function1.getY(i))+"\t"+saValFormat.format(function2.getY(i))+"\n";
-      }
 
     return dataInfo;
   }

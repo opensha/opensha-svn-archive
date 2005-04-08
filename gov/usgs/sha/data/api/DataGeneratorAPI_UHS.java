@@ -54,24 +54,33 @@ public interface DataGeneratorAPI_UHS {
   public String getSelectedSiteClass();
 
 
+
+
   /**
    * Returns the list of functions for plotting.
-   * @param isSDSpectrumFunctionNeeded boolean true if user has clicked the SD spectrum button
-   * @param isSMSpectrumFunctionNeeded boolean true if user has clicked the SM spectrum button
-   * @return ArrayList
-   */
-  public ArrayList getFunctionsToPlotForSA(boolean isSDSpectrumFunctionNeeded,
-                                           boolean isSMSpectrumFunctionNeeded);
-
-
-  /**
-   * Plots the Periods Vs SA and SD when UHS and approx UHS button are clicked
    * @param isUHSFunctionNeeded boolean
    * @param isApproxUHSFunctionNeeded boolean
+   * @param isSDSpectrumFunctionNeeded boolean
+   * @param isSMSpectrumFunctionNeeded boolean
    * @return ArrayList
    */
-  public ArrayList getFunctionsToPlotForUHS(boolean isUHSFunctionNeeded,
-                                            boolean isApproxUHSFunctionNeeded);
+  public ArrayList getFunctionsToPlotForSA(boolean isUHSFunctionNeeded,
+                                            boolean isApproxUHSFunctionNeeded,
+                                            boolean isSDSpectrumFunctionNeeded,
+                                            boolean isSMSpectrumFunctionNeeded);
+
+  /**
+   * Returns the SA at .2sec
+   * @return double
+   */
+  public double getSs();
+
+  /**
+   * Returns the SA at 1 sec
+   * @return double
+   */
+  public double getSa();
+
 
 
   /**

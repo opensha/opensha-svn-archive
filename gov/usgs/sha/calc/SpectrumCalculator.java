@@ -18,8 +18,8 @@ public class SpectrumCalculator {
 
   private double tPga, tPgaTransition, tVelTransition;
 
-  ArbitrarilyDiscretizedFunc saSdfunction;
-  ArbitrarilyDiscretizedFunc saTfunction;
+  protected ArbitrarilyDiscretizedFunc saSdfunction;
+  protected ArbitrarilyDiscretizedFunc saTfunction;
 
   private DecimalFormat tFormat = new DecimalFormat("0.0");
 
@@ -32,39 +32,31 @@ public class SpectrumCalculator {
    * @param fv float
    * @return DiscretizedFuncList
    */
-  protected DiscretizedFuncList approxSaSd(double periodVal,double sAccerlation,double sVelocity,
-                                         float fa, float fv) {
+  protected DiscretizedFuncList approxSaSd(double periodVal,
+                                           double sAccerlation,
+                                           double sVelocity, double sPGA) {
     DiscretizedFuncList funcList = new DiscretizedFuncList();
-    saSdfunction = new ArbitrarilyDiscretizedFunc();
     saTfunction = new ArbitrarilyDiscretizedFunc();
-    funcList.add(saSdfunction);
-    funcList.add(saTfunction);
 
     double tAcc = periodVal;
-    double sAcc = fa * sAccerlation;
-    double sVel = fv * sVelocity;
-
-    //double tVel = saVals.getX(0);
-
-    double spga = 0.4 * sAcc;
     tPga = 0;
     double tMaxVel = 2;
     double tInc = 0.1;
-    tVelTransition = sVel / sAcc;
+    tVelTransition = sVelocity / sAccerlation;
     tPgaTransition = 0.2 * tVelTransition;
 
-    saTfunction.set(tPga, spga);
-    saTfunction.set(tPgaTransition, sAcc);
+    saTfunction.set(tPga, sPGA);
+    saTfunction.set(tPgaTransition, sAccerlation);
 
     if (tPgaTransition <= tAcc) {
-      saTfunction.set(tAcc, sAcc);
+      saTfunction.set(tAcc, sAccerlation);
     }
-    saTfunction.set(tVelTransition, sAcc);
+    saTfunction.set(tVelTransition, sAccerlation);
     double lastT = ( (int) (tVelTransition * 10.0)) / 10.0;
     double nextT = lastT + tInc;
 
     while (nextT <= tMaxVel) {
-      saTfunction.set(nextT, sVel / nextT);
+      saTfunction.set(nextT, sVelocity / nextT);
       nextT += tInc;
       String nextTString = tFormat.format(nextT);
       nextT = Double.parseDouble(nextTString);
@@ -72,6 +64,8 @@ public class SpectrumCalculator {
     StdDisplacementCalc calc = new StdDisplacementCalc();
     saSdfunction = calc.getStdDisplacement(saTfunction);
 
+    funcList.add(saSdfunction);
+    funcList.add(saTfunction);
     return funcList;
   }
 
@@ -84,11 +78,15 @@ public class SpectrumCalculator {
    */
   public DiscretizedFuncList calculateMapSpectrum(ArbitrarilyDiscretizedFunc saVals){
 
-    double tAcc = saVals.getX(0);
-    double sAcc = saVals.getY(0);
-    double sVel = saVals.getY(1);
+    float fa = 1.0f;
+    float fv = 1.0f;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,1,1);
+    double tAcc = saVals.getX(0);
+    double sAcc = fa *saVals.getY(0);
+    double sVel = fv *saVals.getY(1);
+    double sPGA = 0.4*sAcc;
+
+    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,sPGA);
 
     saTfunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.MCE_SPECTRUM_SD_Vs_T_GRAPH);
@@ -119,10 +117,11 @@ public class SpectrumCalculator {
                                                  float fa, float fv,String siteClass){
 
     double tAcc = saVals.getX(0);
-    double sAcc = saVals.getY(0);
-    double sVel = saVals.getY(1);
+    double sAcc = fa * saVals.getY(0);
+    double sVel = fv * saVals.getY(1);
+    double sPGA = 0.4 * sAcc;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,fa,fv);
+    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,sPGA);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
@@ -157,10 +156,12 @@ public class SpectrumCalculator {
     float fvVal = (2.0f / 3.0f) * fv;
 
     double tAcc = saVals.getX(0);
-    double sAcc = saVals.getY(0);
-    double sVel = saVals.getY(1);
+    double sAcc = faVal * saVals.getY(0);
+    double sVel = fvVal * saVals.getY(1);
+    double sPGA = 0.4 * sAcc;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,faVal, fvVal);
+    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,sPGA);
+
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);

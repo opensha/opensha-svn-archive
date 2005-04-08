@@ -13,7 +13,7 @@ import org.scec.data.Location;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import org.scec.data.function.DiscretizedFuncList;
 import gov.usgs.util.ui.DataDisplayFormatter;
-
+import gov.usgs.util.ui.DataDisplayFormatter;
 
 import java.text.DecimalFormat;
 
@@ -42,6 +42,9 @@ public class UHS_SACalculator {
 
   protected DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
+  private static final String PGA_Metadata_String = "UHS values of PGA, Ss, and S1 for ";
+
+
   /*
    * Computes the Std Displacement function using the SA function.
    */
@@ -50,6 +53,53 @@ public class UHS_SACalculator {
     ArbitrarilyDiscretizedFunc sdTFunction = calc.getStdDisplacement(saFunction);
     return sdTFunction;
   }
+
+  /*
+   *
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param saFunction ArbitrarilyDiscretizedFunc
+   * @return ArbitrarilyDiscretizedFunc
+   */
+  private ArbitrarilyDiscretizedFunc createPGAValues(String geographicRegion,
+      String dataEdition,
+      ArbitrarilyDiscretizedFunc saFunction) {
+    ArbitrarilyDiscretizedFunc pgaFunction = new ArbitrarilyDiscretizedFunc();
+    if (dataEdition.equals(GlobalConstants.data_1996) ||
+        dataEdition.equals(GlobalConstants.data_2002)) {
+
+      //number of Periods in this case is 7
+      //T0,PGA
+      pgaFunction.set(saFunction.get(0));
+      //Ts,Ss
+      pgaFunction.set(saFunction.get(2));
+      //T1,S1
+      pgaFunction.set(saFunction.get(5));
+    }
+    else if (dataEdition.equals(GlobalConstants.data_1998)) {
+      //number of periods in this are 4
+      //T0,PGA
+      pgaFunction.set(saFunction.get(0));
+      //Ts,Ss
+      pgaFunction.set(saFunction.get(1));
+      //T1,S1
+      pgaFunction.set(saFunction.get(3));
+
+    }
+    else {
+      //number of periods in this are 3
+      //T0,PGA
+      pgaFunction.set(saFunction.get(0));
+      //Ts,Ss
+      pgaFunction.set(saFunction.get(1));
+      //T1,S1
+      pgaFunction.set(saFunction.get(2));
+    }
+    pgaFunction.setName(GlobalConstants.UHS_PGA_FUNC_NAME);
+    return pgaFunction;
+  }
+
+
 
 
   /**
@@ -82,6 +132,7 @@ public class UHS_SACalculator {
     DiscretizedFuncList funcList = new DiscretizedFuncList();
     funcList.add(sdTFunction);
     funcList.add(function);
+    funcList.add(createPGAValues(selectedRegion,selectedEdition,function));
     funcList.setInfo(setInfo(funcList,latitude,longitude,spectraType));
     return funcList;
   }
@@ -99,7 +150,27 @@ public class UHS_SACalculator {
     info += "Data are based on a " + gridSpacing + " deg grid spacing";
     info +=
         DataDisplayFormatter.createFunctionInfoString(funcList,GlobalConstants.SITE_CLASS_B);
+    //adding the info for the PGA function
+    info +=getPGAInfo((ArbitrarilyDiscretizedFunc)funcList.get(2),spectraType);
 
+    return info;
+  }
+
+
+  /*
+   * Ading the PGA info to the Metadata
+   * @param pgaFunction ArbitrarilyDiscretizedFunc
+   * @param spectraType String
+   * @return String
+   */
+  private String getPGAInfo(ArbitrarilyDiscretizedFunc pgaFunction,String spectraType){
+    String info = "\n";
+    info += PGA_Metadata_String + spectraType+"\n";
+    info +=  BC_BOUNDARY_STRING+"\n";
+    info += "Data are based on a " + gridSpacing + " deg grid spacing";
+    info +=DataDisplayFormatter.createFunctionInfoString_HazardCurves(pgaFunction,
+          "Period","Sa",GlobalConstants.PERIOD_UNITS,
+          GlobalConstants.SA_UNITS,"");
     return info;
   }
 
@@ -120,6 +191,8 @@ public class UHS_SACalculator {
     info +=
         DataDisplayFormatter.createFunctionInfoString(funcList,
         GlobalConstants.SITE_CLASS_B);
+    //adding the info for the PGA function
+    info +=getPGAInfo((ArbitrarilyDiscretizedFunc)funcList.get(2),spectraType);
     return info;
 
   }

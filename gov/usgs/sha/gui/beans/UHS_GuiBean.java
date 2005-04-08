@@ -284,7 +284,7 @@ public class UHS_GuiBean
     siteCoeffButton.setEnabled(disableButtons);
     smSpecButton.setEnabled(disableButtons);
     sdSpecButton.setEnabled(disableButtons);
-    viewButton.setEnabled(false);
+    viewButton.setEnabled(disableButtons);
   }
 
   /**
@@ -469,34 +469,37 @@ public class UHS_GuiBean
     return dataGenerator.getDataInfo();
   }
 
+
+  /**
+   *
+   * @param actionEvent ActionEvent
+   */
   protected void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    /*if (siteCoefficientWindow == null) {
+    if (siteCoefficientWindow == null) {
       siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
           dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
-    }*/
+    }
     siteCoefficientWindow.pack();
     siteCoefficientWindow.show();
 
     dataGenerator.setFa(siteCoefficientWindow.getFa());
     dataGenerator.setFv(siteCoefficientWindow.getFv());
     dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-
-    setButtonsEnabled(true);
+    smSpecButton.setEnabled(true);
+    sdSpecButton.setEnabled(true);
   }
 
+  /**
+   *
+   * @param actionEvent ActionEvent
+   */
   protected void viewUHSButton_actionPerformed(ActionEvent actionEvent) {
-    ArrayList functions = dataGenerator.getFunctionsToPlotForUHS(uhsCalculated,approxUHS_Calculated);
-
-   GraphWindow window = new GraphWindow(functions);
-   window.show();
+    viewCurves();
   }
 
   protected void approxUHSButton_actionPerformed(ActionEvent actionEvent) {
     dataGenerator.calculateApproxUHS();
     application.setDataInWindow(getData());
-    if (!viewButton.isEnabled()) {
-      viewButton.setEnabled(true);
-    }
     approxUHS_Calculated = true;
   }
 
@@ -518,11 +521,16 @@ public class UHS_GuiBean
     sdSpectrumCalculated = true;
   }
 
+  private void viewCurves() {
+    ArrayList functions = dataGenerator.getFunctionsToPlotForSA(uhsCalculated,
+        approxUHS_Calculated, sdSpectrumCalculated, smSpectrumCalculated);
+    GraphWindow window = new GraphWindow(functions);
+    window.show();
+
+  }
+
   protected void viewButton_actionPerformed(ActionEvent actionEvent) {
-    // ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
-    //    mapSpectrumCalculated, sdSpectrumCalculated,smSpectrumCalculated);
-    //GraphWindow window = new GraphWindow(functions);
-    //window.show();
+    viewCurves();
   }
 
 }

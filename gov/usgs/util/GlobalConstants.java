@@ -161,7 +161,7 @@ public final class GlobalConstants {
   public final static String MCE_SPECTRUM = "MCE Spectrum";
   public final static String SD_SPECTRUM = "Design Spectrum";
   public final static String SM_SPECTRUM = "Site Modified Spectrum";
-  public final static String PERIOD_UNITS = "Sec";
+  public final static String PERIOD_UNITS = "sec";
   public final static String SA_UNITS = "g";
   public final static String SD_UNITS = "inches";
   public final static String SA_Vs_SD_GRAPH_NAME = "Sa Vs Sd";
@@ -186,11 +186,14 @@ public final class GlobalConstants {
       "Design Spectrum Sd Vs T";
 
   public final static String UNIFORM_HAZARD_SPECTRUM_NAME = "Uniform Hazard Spectrum";
+  public final static String APPROX_UNIFORM_HAZARD_SPECTRUM_NAME = "Approx. Uniform Hazard Spectrum";
 
   public final static String ANNUAL_FREQ_EXCEED_UNITS = "per year";
   public final static String BASIC_HAZARD_CURVE = "Basic Hazard Curve";
   public final static String HAZARD_CURVE_X_AXIS_NAME = "Accelaration";
   public final static String HAZARD_CURVE_Y_AXIS_NAME = "Annual Frequency of Exceedance";
+
+  public static final String UHS_PGA_FUNC_NAME = "UHS PGA Values";
 
 
   //some SA constants

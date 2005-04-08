@@ -273,4 +273,40 @@ public class HazardDataMiner {
  }
 
 
+ /**
+  *
+  * @param func ArbitrarilyDiscretizedFunc
+  * @param fa double
+  * @param fv double
+  * @return DiscretizedFuncList
+  */
+ public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+                                          float fa, float fv, String siteClass) {
+   HazardDataCalc calc = new HazardDataCalc();
+   return calc.computeSM_UHSpectrum(func, fa, fv, siteClass);
+ }
+
+ /**
+  *
+  * @param func ArbitrarilyDiscretizedFunc
+  * @param fa double
+  * @param fv double
+  * @return DiscretizedFuncList
+  */
+ public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+                                          float fa, float fv, String siteClass) {
+   HazardDataCalc calc = new HazardDataCalc();
+   return calc.computeSD_UHSpectrum(func, fa, fv, siteClass);
+ }
+
+ /**
+  *
+  * @param func ArbitrarilyDiscretizedFunc
+  * @return DiscretizedFuncList
+  */
+ public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc func) {
+   HazardDataCalc calc = new HazardDataCalc();
+   return calc.computeApproxUHSpectrum(func);
+ }
+
 }
