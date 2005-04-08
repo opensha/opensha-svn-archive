@@ -3,6 +3,7 @@ package gov.usgs.sha.data.api;
 import gov.usgs.exceptions.*;
 import java.util.ArrayList;
 
+import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGeneratorAPI_HazardCurves</p>
@@ -31,13 +32,13 @@ public interface DataGeneratorAPI_HazardCurves {
    * Gets the data for Hazard Curve in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public void calculateHazardCurve(double lat, double lon,String selectedHazCurveType);
+  public void calculateHazardCurve(double lat, double lon,String selectedHazCurveType) throws RemoteException;
 
   /**
    * Gets the data for Hazard Curve in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateHazardCurve(String zipCode,String selectedHazCurveType) throws ZipCodeErrorException;
+  public void calculateHazardCurve(String zipCode,String selectedHazCurveType) throws ZipCodeErrorException,RemoteException;
 
   /**
    * Sets the selected geographic region.
@@ -56,7 +57,7 @@ public interface DataGeneratorAPI_HazardCurves {
    * @param returnPeriod double
    */
   public void calcSingleValueHazardCurveUsingReturnPeriod(double returnPeriod,
-      boolean logInterpolation);
+      boolean logInterpolation)throws RemoteException;
 
   /**
    * Returns the Calculated Hazard curve function
@@ -71,5 +72,5 @@ public interface DataGeneratorAPI_HazardCurves {
    * @param expTime double
    */
   public void calcSingleValueHazardCurveUsingPEandExptime(double probExceedProb,
-      double expTime, boolean logInterpolation);
+      double expTime, boolean logInterpolation) throws RemoteException;
 }

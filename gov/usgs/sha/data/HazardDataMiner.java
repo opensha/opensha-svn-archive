@@ -1,11 +1,15 @@
 package gov.usgs.sha.data;
 
-import org.scec.data.function.DiscretizedFuncList;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import gov.usgs.exceptions.ZipCodeErrorException;
-import gov.usgs.sha.calc.HazardDataCalc;
+import java.rmi.*;
 
-
+import org.scec.data.function.*;
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.calc.*;
+import gov.usgs.sha.calc.remote.*;
+import java.net.MalformedURLException;
+import gov.usgs.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI;
+import gov.usgs.util.GlobalConstants;
+import gov.usgs.sha.calc.api.HazardDataCalcAPI;
 
 /**
  * <p>Title: HazardDataMiner</p>
@@ -25,6 +29,20 @@ public class HazardDataMiner {
   }
 
 
+  private HazardDataCalcAPI getHazardDataCalcObject() throws RemoteException{
+    try{
+      RemoteHazardDataCalcFactoryAPI remoteDataCalc = (
+          RemoteHazardDataCalcFactoryAPI)
+          Naming.lookup(GlobalConstants.registrationName);
+      HazardDataCalcAPI calc = remoteDataCalc.getRemoteHazardDataCalc();
+      return calc;
+    }catch(MalformedURLException e){
+      e.printStackTrace();
+    }catch(NotBoundException ee){
+      ee.printStackTrace();
+    }
+    return null;
+  }
 
   /**
    *
@@ -34,9 +52,10 @@ public class HazardDataMiner {
    * @return double
    */
   public double getExceedProb(
-      double fex, double expTime) {
-      HazardDataCalc calc = new HazardDataCalc();
-      return calc.computeExceedProb(fex,expTime);
+      double fex, double expTime) throws RemoteException {
+
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeExceedProb(fex, expTime);
   }
 
   /**
@@ -45,13 +64,11 @@ public class HazardDataMiner {
    * @param expTime double
    * @return double
    */
-  public double getReturnPeriod(double exceedProb, double expTime) {
-      HazardDataCalc calc = new HazardDataCalc();
-      return calc.computeReturnPeriod(exceedProb,expTime);
+  public double getReturnPeriod(double exceedProb, double expTime) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeReturnPeriod(exceedProb, expTime);
   }
-
-
-
 
   /**
    * Gets the Basic Hazard Curve using the Lat and Lon
@@ -62,13 +79,13 @@ public class HazardDataMiner {
    * @return ArbitrarilyDiscretizedFunc
    */
   public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
-                                     String dataEdition, double lat, double lon,
-                                     String hazCurveType) {
+      String dataEdition, double lat, double lon,
+      String hazCurveType) throws RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeHazardCurve(geographicRegion, dataEdition, lat, lon,hazCurveType);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeHazardCurve(geographicRegion, dataEdition, lat, lon,
+                                   hazCurveType);
   }
-
 
   /**
    * Gets the Basic Hazard Curve using the Lat and Lon
@@ -79,15 +96,14 @@ public class HazardDataMiner {
    * @throws ZipCodeErrorException
    */
   public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
-                                     String dataEdition, String zipCode,
-                                     String hazCurveType) throws
-      ZipCodeErrorException {
+      String dataEdition, String zipCode,
+      String hazCurveType) throws
+      ZipCodeErrorException, RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeHazardCurve(geographicRegion, dataEdition, zipCode,hazCurveType);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeHazardCurve(geographicRegion, dataEdition, zipCode,
+                                   hazCurveType);
   }
-
-
 
   /**
    * Gets the Ss and S1 when location is provided using the Lat and Lon
@@ -98,13 +114,12 @@ public class HazardDataMiner {
    * @return ArbitrarilyDiscretizedFunc
    */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
-                                     String dataEdition, double lat, double lon) {
+                                            String dataEdition, double lat,
+                                            double lon) throws RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion, dataEdition, lat, lon);
   }
-
-
 
   /**
    *
@@ -117,10 +132,13 @@ public class HazardDataMiner {
    */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                             String dataEdition, double lat,
-                                            double lon,String selectedSpectraType) {
+                                            double lon,
+                                            String selectedSpectraType) throws
+      RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeSsS1(geographicRegion, dataEdition, lat, lon,selectedSpectraType);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSsS1(geographicRegion, dataEdition, lat, lon,
+                            selectedSpectraType);
   }
 
   /**
@@ -133,11 +151,13 @@ public class HazardDataMiner {
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList getSA(String geographicRegion,
-                                            String dataEdition, double lat,
-                                            double lon,String selectedSpectraType) {
+                                   String dataEdition, double lat,
+                                   double lon, String selectedSpectraType) throws
+      RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeSA(geographicRegion, dataEdition, lat, lon,selectedSpectraType);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSA(geographicRegion, dataEdition, lat, lon,
+                          selectedSpectraType);
   }
 
   /**
@@ -149,13 +169,13 @@ public class HazardDataMiner {
    * @throws ZipCodeErrorException
    */
   public DiscretizedFuncList getSA(String geographicRegion,
-                                     String dataEdition, String zipCode,String spectraType) throws
-      ZipCodeErrorException {
+                                   String dataEdition, String zipCode,
+                                   String spectraType) throws
+      ZipCodeErrorException, RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeSA(geographicRegion, dataEdition, zipCode,spectraType);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSA(geographicRegion, dataEdition, zipCode, spectraType);
   }
-
 
   /**
    * Gets the Ss and S1 when location is provided using the zipCode
@@ -166,45 +186,41 @@ public class HazardDataMiner {
    * @throws ZipCodeErrorException
    */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
-                                     String dataEdition, String zipCode,String spectraType) throws
-      ZipCodeErrorException {
+                                            String dataEdition, String zipCode,
+                                            String spectraType) throws
+      ZipCodeErrorException, RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeSsS1(geographicRegion, dataEdition, zipCode,spectraType);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSsS1(geographicRegion, dataEdition, zipCode, spectraType);
   }
-
 
   /**
-    * Gets the Ss and S1 when location is provided using the zipCode
-    * @param geographicRegion String
-    * @param dataEdition String
-    * @param zipCode String
-    * @return DiscretizedFuncList
-    * @throws ZipCodeErrorException
-    */
-   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
-                                      String dataEdition, String zipCode) throws
-       ZipCodeErrorException {
+   * Gets the Ss and S1 when location is provided using the zipCode
+   * @param geographicRegion String
+   * @param dataEdition String
+   * @param zipCode String
+   * @return DiscretizedFuncList
+   * @throws ZipCodeErrorException
+   */
+  public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
+                                            String dataEdition, String zipCode) throws
+      ZipCodeErrorException, RemoteException {
 
-     HazardDataCalc calc = new HazardDataCalc();
-     return calc.computeSsS1(geographicRegion, dataEdition, zipCode);
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSsS1(geographicRegion, dataEdition, zipCode);
   }
-
-
-
 
   /**
    * Gets the Ss and S1 when geographic region provided is  a territory.
    * @param geographicRegion String
    * @return ArbitrarilyDiscretizedFunc
    */
-  public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion) {
+  public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion) throws
+      RemoteException {
 
-    HazardDataCalc calc = new HazardDataCalc();
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion);
   }
-
-
 
   /**
    *
@@ -214,11 +230,12 @@ public class HazardDataMiner {
    * @return ArbitrarilyDiscretizedFunc
    */
   public ArbitrarilyDiscretizedFunc getSDSsS1(ArbitrarilyDiscretizedFunc func,
-                                              float fa,float fv,String siteClass){
-     HazardDataCalc calc = new HazardDataCalc();
-     return calc.computeSDSsS1(func,fa,fv,siteClass);
+                                              float fa, float fv,
+                                              String siteClass) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSDSsS1(func, fa, fv, siteClass);
   }
-
 
   /**
    *
@@ -228,85 +245,91 @@ public class HazardDataMiner {
    * @return ArbitrarilyDiscretizedFunc
    */
   public ArbitrarilyDiscretizedFunc getSMSsS1(ArbitrarilyDiscretizedFunc func,
-                                             float fa,float fv,String siteClass){
-    HazardDataCalc calc = new HazardDataCalc();
-    return calc.computeSMSsS1(func,fa,fv,siteClass);
- }
+                                              float fa, float fv,
+                                              String siteClass) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSMSsS1(func, fa, fv, siteClass);
+  }
 
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @param fa double
+   * @param fv double
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
+                                           float fa, float fv, String siteClass) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSMSpectrum(func, fa, fv, siteClass);
+  }
 
- /**
-  *
-  * @param func ArbitrarilyDiscretizedFunc
-  * @param fa double
-  * @param fv double
-  * @return DiscretizedFuncList
-  */
- public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
-                                                 float fa, float fv,String siteClass) {
-   HazardDataCalc calc = new HazardDataCalc();
-   return calc.computeSMSpectrum(func, fa, fv,siteClass);
- }
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @param fa double
+   * @param fv double
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
+                                           float fa, float fv, String siteClass) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSDSpectrum(func, fa, fv, siteClass);
+  }
 
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeMapSpectrum(func);
+  }
 
- /**
-  *
-  * @param func ArbitrarilyDiscretizedFunc
-  * @param fa double
-  * @param fv double
-  * @return DiscretizedFuncList
-  */
- public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
-                                                 float fa, float fv,String siteClass) {
-   HazardDataCalc calc = new HazardDataCalc();
-   return calc.computeSDSpectrum(func, fa, fv,siteClass);
- }
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @param fa double
+   * @param fv double
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+                                              float fa, float fv,
+                                              String siteClass) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSM_UHSpectrum(func, fa, fv, siteClass);
+  }
 
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @param fa double
+   * @param fv double
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
+                                              float fa, float fv,
+                                              String siteClass) throws
+      RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeSD_UHSpectrum(func, fa, fv, siteClass);
+  }
 
- /**
-  *
-  * @param func ArbitrarilyDiscretizedFunc
-  * @return DiscretizedFuncList
-  */
- public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) {
-   HazardDataCalc calc = new HazardDataCalc();
-   return calc.computeMapSpectrum(func);
- }
-
-
- /**
-  *
-  * @param func ArbitrarilyDiscretizedFunc
-  * @param fa double
-  * @param fv double
-  * @return DiscretizedFuncList
-  */
- public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
-                                          float fa, float fv, String siteClass) {
-   HazardDataCalc calc = new HazardDataCalc();
-   return calc.computeSM_UHSpectrum(func, fa, fv, siteClass);
- }
-
- /**
-  *
-  * @param func ArbitrarilyDiscretizedFunc
-  * @param fa double
-  * @param fv double
-  * @return DiscretizedFuncList
-  */
- public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
-                                          float fa, float fv, String siteClass) {
-   HazardDataCalc calc = new HazardDataCalc();
-   return calc.computeSD_UHSpectrum(func, fa, fv, siteClass);
- }
-
- /**
-  *
-  * @param func ArbitrarilyDiscretizedFunc
-  * @return DiscretizedFuncList
-  */
- public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc func) {
-   HazardDataCalc calc = new HazardDataCalc();
-   return calc.computeApproxUHSpectrum(func);
- }
+  /**
+   *
+   * @param func ArbitrarilyDiscretizedFunc
+   * @return DiscretizedFuncList
+   */
+  public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
+                                                  func) throws RemoteException {
+    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    return calc.computeApproxUHSpectrum(func);
+  }
 
 }

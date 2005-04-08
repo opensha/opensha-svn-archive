@@ -3,7 +3,7 @@ package gov.usgs.sha.data.api;
 import java.util.*;
 
 import gov.usgs.exceptions.*;
-
+import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGeneratorAPI_UHS</p>
@@ -32,13 +32,13 @@ public interface DataGeneratorAPI_UHS {
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public void calculateUHS(double lat, double lon);
+  public void calculateUHS(double lat, double lon) throws RemoteException;
 
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateUHS(String zipCode) throws ZipCodeErrorException;
+  public void calculateUHS(String zipCode) throws ZipCodeErrorException, RemoteException;
 
 
   /**
@@ -86,19 +86,19 @@ public interface DataGeneratorAPI_UHS {
   /**
    *
    */
-  public void calculateApproxUHS();
+  public void calculateApproxUHS() throws RemoteException;
 
 
   /**
    *
    */
-  public void calculateSMSpectrum();
+  public void calculateSMSpectrum() throws RemoteException;
 
 
   /**
    *
    */
-  public void calculateSDSpectrum();
+  public void calculateSDSpectrum() throws RemoteException;
 
 
   /**

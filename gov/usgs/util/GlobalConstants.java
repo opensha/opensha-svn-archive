@@ -15,7 +15,8 @@ import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 public final class GlobalConstants {
 
   //data files path
-  public final static String DATA_FILE_PATH ="/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
+  public final static String DATA_FILE_PATH ="/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
+  public final static String registrationName = "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
   //static declaration for the supported geographic regions
   public static final String CONTER_48_STATES = "Conterminous 48 States";
@@ -129,7 +130,7 @@ public final class GlobalConstants {
   // Fa table data for site coefficient window
   public final static String[] faColumnNames = {
       "Site Class", "Ss<=0.25", "Ss=0.50",
-      "Ss=0.75", "Ss=1.00", "Ss=1.25"};
+      "Ss=0.75", "Ss=1.00", "Ss>=1.25"};
   public final static Object[][] faData = {
       {
       "A", "0.8", "0.8", "0.8", "0.8", "0.8"}, {
@@ -143,7 +144,7 @@ public final class GlobalConstants {
   // Fv table data for site coefficient window
   public final static String[] fvColumnNames = {
       "Site Class", "S1<=0.10", "S1=0.20",
-      "S1=0.30", "S1=0.40", "S1=0.50"};
+      "S1=0.30", "S1=0.40", "S1>=0.50"};
   public final static Object[][] fvData = {
       {
       "A", "0.8", "0.8", "0.8", "0.8", "0.8"}, {

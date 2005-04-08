@@ -46,8 +46,8 @@ public class ProbabilisticHazardApplication
   JMenuItem fileSaveMenu = new JMenuItem();
 
   // height and width of the applet
-  private final static int W = 1100;
-  private final static int H = 850;
+  private final static int W = 1000;
+  private final static int H = 870;
   JPanel jPanel1 = new JPanel();
   JSplitPane mainSplitPane = new JSplitPane();
   JLabel analysisOptionLabel = new JLabel();
@@ -95,6 +95,17 @@ public class ProbabilisticHazardApplication
     }
   }
 
+
+  //static initializer for setting look & feel
+  static {
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+    catch (Exception e) {
+    }
+  }
+
+
   /**
    * Component initialization.
    *
@@ -134,12 +145,12 @@ public class ProbabilisticHazardApplication
     jPanel1.setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     mainSplitPane.setForeground(Color.black);
-    analysisOptionLabel.setFont(new java.awt.Font("Arial", Font.BOLD, 20));
+    analysisOptionLabel.setFont(new java.awt.Font("Arial", Font.PLAIN, 17));
     analysisOptionLabel.setForeground(Color.red);
     analysisOptionLabel.setText("Select Analysis Option:");
-    analysisOptionSelectionCombo.setFont(new java.awt.Font("Arial", Font.BOLD,
-        20));
-    analysisOptionSelectionCombo.setForeground(new Color(200, 200, 240));
+    analysisOptionSelectionCombo.setFont(new java.awt.Font("Arial", Font.PLAIN,
+        17));
+    analysisOptionSelectionCombo.setForeground(Color.BLACK);
 
     //adding the supported Analysis option to the combo selection
     ArrayList supportAnalysisOptions = GlobalConstants.
@@ -206,12 +217,12 @@ public class ProbabilisticHazardApplication
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
                                        , GridBagConstraints.WEST,
                                        GridBagConstraints.NONE,
-                                       new Insets(14, 8, 0, 0), 21, 16));
+                                       new Insets(14, 8, 0, 0), 21, 13));
     jPanel1.add(analysisOptionSelectionCombo,
                 new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
                                        , GridBagConstraints.CENTER,
                                        GridBagConstraints.HORIZONTAL,
-                                       new Insets(14, 0, 0, 0), 385, 21));
+                                       new Insets(14, 0, 0, 0), 385, 13));
     jPanel1.add(ExplainButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(14, 11, 0, 303), 44, 11));
@@ -220,10 +231,10 @@ public class ProbabilisticHazardApplication
         new Insets(10, 8, 5, 10), 777, 597));
     setJMenuBar(applicationMenu);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setLocation( (d.width - this.getSize().width) / 2,
-                     (d.height - this.getSize().height) / 2);
-    mainSplitPane.setDividerLocation(550);
+    this.setLocation( (d.width - this.getSize().width) / 2,0);
+    mainSplitPane.setDividerLocation(530);
     dataSplitPane.setDividerLocation(600);
+    viewMapsButton.setVisible(false);
   }
 
   /**
@@ -407,7 +418,7 @@ public class ProbabilisticHazardApplication
                                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
-    frame.setLocation(getSize().width / 2, this.getSize().height / 2);
+    frame.setLocation(getSize().width / 2, getSize().height / 2);
   }
 
   /**

@@ -45,6 +45,18 @@ public class ProbabilisticHazardGui
     }
   }
 
+
+  //static initializer for setting look & feel
+  static {
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+    catch (Exception e) {
+    }
+  }
+
+
+
   private void jbInit() throws Exception {
     getContentPane().setLayout(borderLayout1);
     screenPanel.setLayout(gridBagLayout2);
@@ -84,7 +96,7 @@ public class ProbabilisticHazardGui
     screenPanel.add(applicationInfoText,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 14, 0, 3), -1354, 28));
     screenPanel.add(exitButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 34, 67, 38), 63, 3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 28, 67, 38), 65, 4));
     screenPanel.add(okButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 291, 67, 0), 50, 4));
     this.getContentPane().add(screenPanel, BorderLayout.CENTER);
@@ -93,8 +105,8 @@ public class ProbabilisticHazardGui
                                 "and design parameters for the design documents.\n\n"+
                                 "Maps are also included for obtaining values of "+
                                 "spectral acceleration at selected periods."+
-        "Data for uniform hazard response spectra and hazard curves may be obtained by use of"+
-      "latitude and longitude or zip code to locate a site. Correct application of the"+
+        "Data for uniform hazard response spectra and hazard curves may be obtained by use of "+
+      "latitude and longitude or zip code to locate a site. Correct application of the "+
       "data obtained from the use of this program and/or maps is the responsibility of the user.");
   this.setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
   this.setSize(new Dimension(576, 345));

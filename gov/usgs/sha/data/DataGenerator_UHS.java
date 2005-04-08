@@ -7,6 +7,8 @@ import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.api.*;
 import gov.usgs.util.*;
 import java.text.DecimalFormat;
+import java.rmi.RemoteException;
+
 /**
  * <p>Title: DataGenerator_UHS</p>
  *
@@ -87,7 +89,7 @@ public class DataGenerator_UHS
    *
    * @default class constructor
    */
-  public void calculateApproxUHS() {
+  public void calculateApproxUHS() throws RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getApprox_UHSpectrum(pgaFunction);
     addDataInfo(functions.getInfo());
@@ -209,7 +211,7 @@ public class DataGenerator_UHS
    *
    *
    */
-  public void calculateSMSpectrum() {
+  public void calculateSMSpectrum() throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSM_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
@@ -220,7 +222,7 @@ public class DataGenerator_UHS
   /**
    *
    */
-  public void calculateSDSpectrum() {
+  public void calculateSDSpectrum() throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSD_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
@@ -270,7 +272,7 @@ public class DataGenerator_UHS
    * @throws ZipCodeErrorException
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
    */
-  public void calculateUHS(String zipCode) throws ZipCodeErrorException {
+  public void calculateUHS(String zipCode) throws ZipCodeErrorException, RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
                                                zipCode, selectedSpectraType);
@@ -289,7 +291,7 @@ public class DataGenerator_UHS
    * @param lon double
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
    */
-  public void calculateUHS(double lat, double lon) {
+  public void calculateUHS(double lat, double lon) throws RemoteException{
 
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,

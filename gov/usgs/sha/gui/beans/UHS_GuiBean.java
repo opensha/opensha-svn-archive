@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.rmi.RemoteException;
 
 import org.scec.data.*;
 import org.scec.data.region.*;
@@ -164,22 +165,22 @@ public class UHS_GuiBean
 
   protected void jbInit() throws Exception {
     this.setLayout(borderLayout1);
-    this.setMinimumSize(new Dimension(540, 740));
-    this.setPreferredSize(new Dimension(540, 740));
+    this.setMinimumSize(new Dimension(500, 680));
+    this.setPreferredSize(new Dimension(500, 680));
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     basicParamsPanel.setLayout(gridBagLayout4);
     basicParamsPanel.setBorder(basicParamBorder);
     basicParamBorder.setTitleColor(Color.RED);
-    uhsButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+
     uhsButton.setText("<html>Calculate<br>UHS</br></html>");
     uhsButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         uhsButton_actionPerformed(actionEvent);
       }
     });
-    approxUHSButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+
     approxUHSButton.setActionCommand("approxUHSButton");
     approxUHSButton.setText("<html>Calculate<br>Approx. UHS</br></html>");
     approxUHSButton.addActionListener(new ActionListener() {
@@ -187,7 +188,7 @@ public class UHS_GuiBean
         approxUHSButton_actionPerformed(actionEvent);
       }
     });
-    viewUHSButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+
     viewUHSButton.setActionCommand("viewUHSButton");
     viewUHSButton.setText("<html>View <br>UHS</br></html>");
     viewUHSButton.addActionListener(new ActionListener() {
@@ -205,14 +206,14 @@ public class UHS_GuiBean
         siteCoeffButton_actionPerformed(actionEvent);
       }
     });
-    smSpecButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+
     smSpecButton.setText("<html>Calculate <br>SM Spectrum</br></html>");
     smSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         smSpecButton_actionPerformed(actionEvent);
       }
     });
-    sdSpecButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+
     sdSpecButton.setActionCommand("sdSpecButton");
     sdSpecButton.setText("<html>View<br>SD Spectrum");
     sdSpecButton.addActionListener(new ActionListener() {
@@ -220,7 +221,7 @@ public class UHS_GuiBean
         sdSpecButton_actionPerformed(actionEvent);
       }
     });
-    viewButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+
     viewButton.setActionCommand("viewButton");
     viewButton.setText("<html>View <br>Spectrum</br></html>");
     viewButton.addActionListener(new ActionListener() {
@@ -243,33 +244,33 @@ public class UHS_GuiBean
     responseSpectraButtonPanel.add(viewButton,
                                    new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 8, 6));
+        new Insets(2, 2, 2, 2), 10, 6));
     responseSpectraButtonPanel.add(siteCoeffButton,
                                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 42, 0, 0), 8, 6));
+        new Insets( -1, 42, 0, 0), 10, 6));
     responseSpectraButtonPanel.add(smSpecButton,
                                    new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 27, 0, 0), 13, 6));
+        new Insets( -1, 27, 0, 0), 10, 6));
 
     responseSpectraButtonPanel.add(sdSpecButton,
                                    new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 34, 0, 39), 15, 6));
+        new Insets( -1, 34, 0, 39), 10, 6));
     basicParamsPanel.add(uhsButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(10, 13, 7, 0), 52, 8));
+        new Insets(10, 13, 7, 0), 10, 8));
     basicParamsPanel.add(viewUHSButton,
                          new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(10, 27, 7, 18), 1, 8));
+                                                new Insets(10, 27, 7, 18), 10, 8));
     basicParamsPanel.add(approxUHSButton,
                          new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(10, 27, 7, 0), 22, 8));
+                                                new Insets(10, 27, 7, 0), 10, 8));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(380);
     locationSplitPane.setDividerLocation(170);
@@ -378,8 +379,8 @@ public class UHS_GuiBean
     ArrayList supportedEditionList = new ArrayList();
 
     if(selectedRegion.equals(GlobalConstants.CONTER_48_STATES)){
-      supportedEditionList.add(GlobalConstants.data_1996);
       supportedEditionList.add(GlobalConstants.data_2002);
+      supportedEditionList.add(GlobalConstants.data_1996);
     }
     else if(selectedRegion.equals(GlobalConstants.ALASKA) ||
             selectedRegion.equals(GlobalConstants.HAWAII))
@@ -432,12 +433,26 @@ public class UHS_GuiBean
                                       JOptionPane.OK_OPTION);
         return;
       }
+      catch (RemoteException e) {
+        JOptionPane.showMessageDialog(this,
+                                      e.getMessage() + "\n" + "Please check your network connection",
+                                      "Server Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
+      }
 
     }
     else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
       try {
         String zipCode = locGuiBean.getZipCode();
         dataGenerator.calculateUHS(zipCode);
+      }
+      catch (RemoteException e) {
+        JOptionPane.showMessageDialog(this,
+                                      e.getMessage() + "\n" + "Please check your network connection",
+                                      "Server Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
       }
       catch (ZipCodeErrorException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
@@ -498,13 +513,33 @@ public class UHS_GuiBean
   }
 
   protected void approxUHSButton_actionPerformed(ActionEvent actionEvent) {
-    dataGenerator.calculateApproxUHS();
+    try {
+      dataGenerator.calculateApproxUHS();
+    }
+    catch (RemoteException e) {
+      JOptionPane.showMessageDialog(this,
+                                    e.getMessage() + "\n" +
+                                    "Please check your network connection",
+                                    "Server Connection Error",
+                                    JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     application.setDataInWindow(getData());
     approxUHS_Calculated = true;
   }
 
   protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
-    dataGenerator.calculateSMSpectrum();
+    try{
+      dataGenerator.calculateSMSpectrum();
+    }catch (RemoteException e) {
+      JOptionPane.showMessageDialog(this,
+                                    e.getMessage() + "\n" +
+                                    "Please check your network connection",
+                                    "Server Connection Error",
+                                    JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
     application.setDataInWindow(getData());
     if (!viewButton.isEnabled()) {
       viewButton.setEnabled(true);
@@ -513,7 +548,16 @@ public class UHS_GuiBean
   }
 
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
-    dataGenerator.calculateSDSpectrum();
+    try{
+      dataGenerator.calculateSDSpectrum();
+    }catch (RemoteException e) {
+      JOptionPane.showMessageDialog(this,
+                                    e.getMessage() + "\n" +
+                                    "Please check your network connection",
+                                    "Server Connection Error",
+                                    JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     application.setDataInWindow(getData());
     if (!viewButton.isEnabled()) {
       viewButton.setEnabled(true);

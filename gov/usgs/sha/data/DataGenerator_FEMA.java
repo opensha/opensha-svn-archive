@@ -4,6 +4,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 
 import gov.usgs.util.GlobalConstants;
+import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGenerator_FEMA</p>
@@ -36,7 +37,7 @@ public class DataGenerator_FEMA
      * Gets the data for SsS1 in case region specified is not a Territory and user
      * specifies Lat-Lon for the location.
      */
-    public void calculateSsS1(double lat, double lon) {
+    public void calculateSsS1(double lat, double lon) throws RemoteException{
 
       HazardDataMiner miner = new HazardDataMiner();
       ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
@@ -51,7 +52,7 @@ public class DataGenerator_FEMA
      * Gets the data for SsS1 in case region specified is not a Territory and user
      * specifies zip code for the location.
      */
-    public void calculateSsS1(String zipCode) throws ZipCodeErrorException {
+    public void calculateSsS1(String zipCode) throws ZipCodeErrorException,RemoteException {
 
       HazardDataMiner miner = new HazardDataMiner();
       ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,

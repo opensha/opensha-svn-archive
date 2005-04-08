@@ -7,6 +7,7 @@ import gov.usgs.sha.data.api.*;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import gov.usgs.util.GlobalConstants;
 import java.text.DecimalFormat;
+import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGenerator_HazardCurves</p>
@@ -57,7 +58,7 @@ public class DataGenerator_HazardCurves
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
-  public void calculateHazardCurve(double lat, double lon,String hazCurveType) {
+  public void calculateHazardCurve(double lat, double lon,String hazCurveType) throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getBasicHazardcurve(geographicRegion,dataEdition,
         lat,lon,hazCurveType);
@@ -82,7 +83,7 @@ public class DataGenerator_HazardCurves
    *   method
    */
   public void calculateHazardCurve(String zipCode,String hazCurveType) throws
-      ZipCodeErrorException {
+      ZipCodeErrorException, RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getBasicHazardcurve(geographicRegion,dataEdition,
         zipCode,hazCurveType);
@@ -115,7 +116,7 @@ public class DataGenerator_HazardCurves
 
 
   public void calcSingleValueHazardCurveUsingReturnPeriod(double returnPeriod,
-      boolean logInterpolation) {
+      boolean logInterpolation) throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     double fex = 1/returnPeriod;
     double exceedProb = miner.getExceedProb(fex,EXP_TIME);
@@ -128,7 +129,7 @@ public class DataGenerator_HazardCurves
   }
 
   public void calcSingleValueHazardCurveUsingPEandExptime(double probExceed,
-      double expTime, boolean logInterpolation) {
+      double expTime, boolean logInterpolation) throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     double returnPd = miner.getReturnPeriod(probExceed, expTime);
     double fex = 1/returnPd;

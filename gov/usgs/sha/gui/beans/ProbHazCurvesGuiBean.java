@@ -30,6 +30,7 @@ import java.awt.event.*;
 import gov.usgs.exceptions.LocationErrorException;
 import java.util.ListIterator;
 import org.scec.param.ParameterAPI;
+import java.rmi.RemoteException;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -237,8 +238,8 @@ public class ProbHazCurvesGuiBean
 
   private void jbInit() throws Exception {
     this.setLayout(borderLayout1);
-    this.setMinimumSize(new Dimension(540, 740));
-    this.setPreferredSize(new Dimension(540, 740));
+    this.setMinimumSize(new Dimension(500, 680));
+    this.setPreferredSize(new Dimension(500, 680));
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -283,9 +284,9 @@ public class ProbHazCurvesGuiBean
 
     this.add(mainSplitPane, BorderLayout.CENTER);
     basicParamsPanel.add(hazCurveCalcButton,        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 48, 4, 0), -6, -3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 48, 4, 0), 10, 6));
     basicParamsPanel.add(viewCurveButton,     new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 9, 4, 87), -6, -3));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 9, 4, 87), 10, 6));
     singleHazardValPanel.add(singleHazardValListEditor,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 3, 0, 4), 329, 87));
     singleHazardValPanel.add(linearInterRadioButton,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -293,7 +294,7 @@ public class ProbHazCurvesGuiBean
     singleHazardValPanel.add(logInterpolationRadioButton,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(-3, 14, 0, 30), 23, 7));
     singleHazardValPanel.add(singleHazardCurveValButton,  new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 108, 0, 134), 0, 0));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 108, 0, 134), 10, 6));
 
     buttonGroup.add(linearInterRadioButton);
     buttonGroup.add(logInterpolationRadioButton);
@@ -471,6 +472,14 @@ public class ProbHazCurvesGuiBean
                                         JOptionPane.OK_OPTION);
           return;
         }
+        catch (RemoteException e) {
+          JOptionPane.showMessageDialog(this,
+                                        e.getMessage() + "\n" +
+                                        "Please check your network connection",
+                                        "Server Connection Error",
+                                        JOptionPane.ERROR_MESSAGE);
+          return;
+        }
 
       }
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
@@ -489,6 +498,15 @@ public class ProbHazCurvesGuiBean
                                         JOptionPane.OK_OPTION);
           return;
         }
+        catch (RemoteException e) {
+          JOptionPane.showMessageDialog(this,
+                                        e.getMessage() + "\n" +
+                                        "Please check your network connection",
+                                        "Server Connection Error",
+                                        JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+
       }
     }
   }
@@ -522,12 +540,36 @@ public class ProbHazCurvesGuiBean
   void singleHazardCurveValButton_actionPerformed(ActionEvent e) {
 
     boolean isLogInterpolation = logInterpolationRadioButton.isSelected();
-    if(singleHazardCalcMethod.equals(USING_EXCEED_PROB_AND_EXP_TIME))
-      dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(Double.parseDouble(exceedProbVal),
-          Double.parseDouble(expTimeVal),isLogInterpolation);
-    else
-      dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(Double.parseDouble(returnPeriod),
-          isLogInterpolation);
+    if(singleHazardCalcMethod.equals(USING_EXCEED_PROB_AND_EXP_TIME)){
+      try{
+        dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(Double.
+            parseDouble(exceedProbVal),
+            Double.parseDouble(expTimeVal), isLogInterpolation);
+      }
+      catch (RemoteException ee) {
+        JOptionPane.showMessageDialog(this,
+                                      ee.getMessage() + "\n" +
+                                      "Please check your network connection",
+                                      "Server Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+    }
+    else{
+      try{
+        dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(Double.
+            parseDouble(returnPeriod),
+            isLogInterpolation);
+      }catch (RemoteException ee) {
+        JOptionPane.showMessageDialog(this,
+                                      ee.getMessage() + "\n" +
+                                      "Please check your network connection",
+                                      "Server Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
+      }
+
+    }
     application.setDataInWindow(getData());
   }
 }

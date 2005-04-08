@@ -150,7 +150,7 @@ public class DataFileNameSelector {
         selectedEdition.equals(GlobalConstants.ASCE_2005) ||
         selectedEdition.equals(GlobalConstants.IRC_2006)) {
       if (lon >= -125 && lon <= -115 && lat <= 42 && lat >= 32) {
-        String fileName = "2003-CANV-MCE-r1a.rnd";
+        String fileName = "2003-CANV-MCE-R1a.rnd";
         return filePath + fileName;
       }
       else if (lon >= -125 && lon <= -123 && lat <= 49 && lat >= 41) {

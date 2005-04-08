@@ -6,6 +6,7 @@ import gov.usgs.exceptions.ZipCodeErrorException;
 import org.scec.data.function.DiscretizedFuncList;
 import gov.usgs.util.GlobalConstants;
 import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGenerator_NEHRP</p>
@@ -97,7 +98,7 @@ public class DataGenerator_NEHRP
    * Territory is when user is not allowed to enter any zip code or Lat-Lon
    * for the location or if it is GAUM and TAUTILLA.
    */
-  public void calculateSsS1() {
+  public void calculateSsS1() throws RemoteException{
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
@@ -112,7 +113,7 @@ public class DataGenerator_NEHRP
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public void calculateSsS1(double lat, double lon) {
+  public void calculateSsS1(double lat, double lon) throws RemoteException{
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
@@ -128,7 +129,7 @@ public class DataGenerator_NEHRP
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateSsS1(String zipCode) throws ZipCodeErrorException {
+  public void calculateSsS1(String zipCode) throws ZipCodeErrorException,RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
@@ -150,7 +151,7 @@ public class DataGenerator_NEHRP
   /**
    *
    */
-  public void calculateSMSsS1() {
+  public void calculateSMSsS1() throws RemoteException{
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction,faVal,fvVal,siteClass);
@@ -162,7 +163,7 @@ public class DataGenerator_NEHRP
    *
    *
    */
-  public void calculatedSDSsS1() {
+  public void calculatedSDSsS1() throws RemoteException{
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
@@ -175,7 +176,7 @@ public class DataGenerator_NEHRP
    *
    *
    */
-  public void calculateMapSpectrum(){
+  public void calculateMapSpectrum() throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
@@ -316,7 +317,7 @@ public class DataGenerator_NEHRP
    *
    *
    */
-  public void calculateSMSpectrum(){
+  public void calculateSMSpectrum() throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
         fvVal,siteClass);
@@ -327,7 +328,7 @@ public class DataGenerator_NEHRP
   /**
    *
    */
-  public void calculateSDSpectrum(){
+  public void calculateSDSpectrum() throws RemoteException{
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
         fvVal,siteClass);

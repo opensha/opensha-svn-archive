@@ -27,6 +27,7 @@ import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
 import gov.usgs.sha.data.DataGenerator_IRC;
 import gov.usgs.exceptions.LocationErrorException;
+import java.rmi.RemoteException;
 
 
 /**
@@ -151,8 +152,8 @@ public class IRC_GuiBean
 
   protected void jbInit() throws Exception {
     this.setLayout(borderLayout1);
-    this.setMinimumSize(new Dimension(540, 680));
-    this.setPreferredSize(new Dimension(540, 680));
+    this.setMinimumSize(new Dimension(500, 680));
+    this.setPreferredSize(new Dimension(500, 680));
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
@@ -336,6 +337,14 @@ public class IRC_GuiBean
           JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
           return;
         }
+        catch (RemoteException e) {
+          JOptionPane.showMessageDialog(this,
+                                        e.getMessage() + "\n" +
+                                        "Please check your network connection",
+                                        "Server Connection Error",
+                                        JOptionPane.ERROR_MESSAGE);
+          return;
+        }
 
       }
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
@@ -351,10 +360,28 @@ public class IRC_GuiBean
           JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
           return;
         }
+        catch (RemoteException e) {
+          JOptionPane.showMessageDialog(this,
+                                        e.getMessage() + "\n" +
+                                        "Please check your network connection",
+                                        "Server Connection Error",
+                                        JOptionPane.ERROR_MESSAGE);
+          return;
+        }
       }
     }
     else { // if territory and location Gui is not visible
-      dataGenerator.calculateSsS1();
+      try{
+        dataGenerator.calculateSsS1();
+      }
+      catch (RemoteException e) {
+        JOptionPane.showMessageDialog(this,
+                                      e.getMessage() + "\n" +
+                                      "Please check your network connection",
+                                      "Server Connection Error",
+                                      JOptionPane.ERROR_MESSAGE);
+        return;
+      }
     }
   }
 

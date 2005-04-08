@@ -3,9 +3,12 @@ package gov.usgs.sha.data;
 import gov.usgs.exceptions.ZipCodeErrorException;
 import gov.usgs.sha.data.calc.FaFvCalc;
 import gov.usgs.sha.data.calc.ResidentialSiteCalc;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
 import gov.usgs.util.GlobalConstants;
 import java.text.DecimalFormat;
+import java.rmi.RemoteException;
+
+
+
 
 /**
  * <p>Title: DataGenerator_IRC</p>
@@ -79,7 +82,7 @@ public class DataGenerator_IRC
    * Territory is when user is not allowed to enter any zip code or Lat-Lon
    * for the location or if it is GAUM and TAUTILLA.
    */
-  public void calculateSsS1() {
+  public void calculateSsS1() throws RemoteException{
     super.calculateSsS1();
     clearData();
     setFaFv();
@@ -91,7 +94,7 @@ public class DataGenerator_IRC
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public void calculateSsS1(double lat, double lon) {
+  public void calculateSsS1(double lat, double lon) throws RemoteException{
     super.calculateSsS1(lat,lon);
     clearData();
     setFaFv();
@@ -103,7 +106,7 @@ public class DataGenerator_IRC
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateSsS1(String zipCode) throws ZipCodeErrorException {
+  public void calculateSsS1(String zipCode) throws ZipCodeErrorException, RemoteException {
     super.calculateSsS1(zipCode);
     clearData();
     setFaFv();

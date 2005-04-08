@@ -3,6 +3,7 @@ package gov.usgs.sha.data.api;
 import java.util.*;
 
 import gov.usgs.exceptions.*;
+import java.rmi.RemoteException;
 
 
 /**
@@ -32,19 +33,19 @@ public interface DataGeneratorAPI_NEHRP {
    * Territory is when user is not allowed to enter any zip code or Lat-Lon
    * for the location or if it is GAUM and TAUTILLA.
    */
-  public void calculateSsS1();
+  public void calculateSsS1() throws RemoteException;
 
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public void calculateSsS1(double lat, double lon);
+  public void calculateSsS1(double lat, double lon) throws RemoteException;
 
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateSsS1(String zipCode) throws ZipCodeErrorException;
+  public void calculateSsS1(String zipCode) throws ZipCodeErrorException,RemoteException;
 
 
   /**
@@ -89,27 +90,27 @@ public interface DataGeneratorAPI_NEHRP {
   /**
    *
    */
-  public void calculateSMSsS1();
+  public void calculateSMSsS1() throws RemoteException;
 
   /**
    *
    */
-  public void calculatedSDSsS1();
+  public void calculatedSDSsS1() throws RemoteException;
 
   /**
    *
    */
-  public void calculateMapSpectrum();
+  public void calculateMapSpectrum() throws RemoteException;
 
   /**
    *
    */
-  public void calculateSMSpectrum();
+  public void calculateSMSpectrum() throws RemoteException;
 
   /**
    *
    */
-  public void calculateSDSpectrum();
+  public void calculateSDSpectrum() throws RemoteException;
 
   /**
    * Sets the selected geographic region.
