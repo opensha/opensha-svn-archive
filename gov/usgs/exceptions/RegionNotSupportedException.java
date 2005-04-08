@@ -11,7 +11,6 @@ package gov.usgs.exceptions;
 public class RegionNotSupportedException
     extends Exception {
 
-
   /**
    * Constructs a new RegionNotSupportedException with null as its detail message.
    * he cause is not initialized, and may subsequently be initialized by a

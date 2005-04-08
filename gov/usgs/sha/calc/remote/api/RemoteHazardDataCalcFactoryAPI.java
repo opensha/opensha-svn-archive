@@ -2,7 +2,7 @@ package gov.usgs.sha.calc.remote.api;
 
 import java.rmi.*;
 
-import gov.usgs.sha.calc.api.HazardDataCalcAPI;
+import gov.usgs.sha.calc.api.*;
 
 /**
  * <p>Title: RemoteHazardDataCalcFactoryAPI</p>
@@ -13,14 +13,15 @@ import gov.usgs.sha.calc.api.HazardDataCalcAPI;
  * @author Ned Field, Nitin Gupta , E.V.Leyendecker
  * @version 1.0
  */
-public interface RemoteHazardDataCalcFactoryAPI extends Remote{
+public interface RemoteHazardDataCalcFactoryAPI
+    extends Remote {
 
-
-    /**
-     * Get the reference to the instance of the HazardDataCalc
-     * @return
-     * @throws java.rmi.RemoteException
-     */
-    public  HazardDataCalcAPI getRemoteHazardDataCalc() throws java.rmi.RemoteException;
+  /**
+   * Get the reference to the instance of the HazardDataCalc
+   * @return
+   * @throws java.rmi.RemoteException
+   */
+  public HazardDataCalcAPI getRemoteHazardDataCalc() throws java.rmi.
+      RemoteException;
 
 }

@@ -1,8 +1,8 @@
 package gov.usgs.sha.data.region;
 
+import java.text.*;
 
 import gov.usgs.sha.io.*;
-import java.text.DecimalFormat;
 
 /**
  * <p>Title: RegionBounds</p>
@@ -13,7 +13,6 @@ import java.text.DecimalFormat;
  * @version 1.0
  */
 public class RegionBounds {
-
 
   private int gridPointsPerLatitude;
   private float[] saPeriods;
@@ -26,16 +25,14 @@ public class RegionBounds {
 
   private DecimalFormat gridSpacingFormat = new DecimalFormat("0.0#");
 
-
   /**
    * Class constructor takes the binary file to read the region bounds.
    * @param dataFileName String takes in the binary filename which has a fix file format
    * and conforms to the NEHRP Record.
    */
-  public RegionBounds(DataRecord record,String dataFileName) {
-    getRegionEndPoints(record,dataFileName);
+  public RegionBounds(DataRecord record, String dataFileName) {
+    getRegionEndPoints(record, dataFileName);
   }
-
 
   /**
    * Gets the end points for the region for the selected region and edition
@@ -43,8 +40,7 @@ public class RegionBounds {
    * and conforms to the NEHRP Record.
    *
    */
-  private void getRegionEndPoints(DataRecord record,String fileName) {
-
+  private void getRegionEndPoints(DataRecord record, String fileName) {
 
     record.getRecord(fileName, 1);
     maxLat = record.getLatitude();
@@ -62,12 +58,10 @@ public class RegionBounds {
     gridSpacing = Float.parseFloat(gridSpacingFormat.format(gridSpacing));
     gridPointsPerLatitude = (int) ( (maxLon - minLon) / gridSpacing) + 1;
 
-
     record.getRecord(fileName, 3);
     numPeriods = record.getNumPeriods();
     saPeriods = record.getPeriods();
   }
-
 
   public float getMinLat() {
     return minLat;
@@ -89,21 +83,16 @@ public class RegionBounds {
     return gridSpacing;
   }
 
-  public int getNumPeriods(){
+  public int getNumPeriods() {
     return numPeriods;
   }
 
-  public int getNumPointsPerLatitude(){
+  public int getNumPointsPerLatitude() {
     return gridPointsPerLatitude;
   }
 
-
-  public float[] getSA_Periods(){
+  public float[] getSA_Periods() {
     return saPeriods;
   }
-
-
-
-
 
 }

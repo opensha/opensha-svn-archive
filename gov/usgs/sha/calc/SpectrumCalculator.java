@@ -1,11 +1,10 @@
 package gov.usgs.sha.calc;
 
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import org.scec.data.function.DiscretizedFuncList;
-import gov.usgs.util.ui.DataDisplayFormatter;
-import gov.usgs.util.GlobalConstants;
+import java.text.*;
 
-import java.text.DecimalFormat;
+import org.scec.data.function.*;
+import gov.usgs.util.*;
+import gov.usgs.util.ui.*;
 
 /**
  * <p>Title: SpectrumCalculator</p>
@@ -69,39 +68,39 @@ public class SpectrumCalculator {
     return funcList;
   }
 
-
-
   /**
    *
    * @param saVals ArbitrarilyDiscretizedFunc
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateMapSpectrum(ArbitrarilyDiscretizedFunc saVals){
+  public DiscretizedFuncList calculateMapSpectrum(ArbitrarilyDiscretizedFunc
+                                                  saVals) {
 
     float fa = 1.0f;
     float fv = 1.0f;
 
     double tAcc = saVals.getX(0);
-    double sAcc = fa *saVals.getY(0);
-    double sVel = fv *saVals.getY(1);
-    double sPGA = 0.4*sAcc;
+    double sAcc = fa * saVals.getY(0);
+    double sVel = fv * saVals.getY(1);
+    double sPGA = 0.4 * sAcc;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,sPGA);
+    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.MCE_SPECTRUM_SD_Vs_T_GRAPH);
     String title = "MCE Response Spectra for Site Class B";
     String subTitle = "Ss and S1 = Mapped Spectral Acceleration Values";
 
-    String info="";
-    info +=title+"\n";
+    String info = "";
+    info += title + "\n";
 
     info +=
-        DataDisplayFormatter.createSubTitleString(subTitle, GlobalConstants.SITE_CLASS_B,
+        DataDisplayFormatter.createSubTitleString(subTitle,
+                                                  GlobalConstants.SITE_CLASS_B,
                                                   1, 1);
-      info +=
-          DataDisplayFormatter.createFunctionInfoString(funcList,
-          GlobalConstants.SITE_CLASS_B);
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(funcList,
+        GlobalConstants.SITE_CLASS_B);
     funcList.setInfo(info);
     return funcList;
   }
@@ -113,30 +112,32 @@ public class SpectrumCalculator {
    * @param fv float
    * @return DiscretizedFuncList
    */
-  public DiscretizedFuncList calculateSMSpectrum(ArbitrarilyDiscretizedFunc saVals,
-                                                 float fa, float fv,String siteClass){
+  public DiscretizedFuncList calculateSMSpectrum(ArbitrarilyDiscretizedFunc
+                                                 saVals,
+                                                 float fa, float fv,
+                                                 String siteClass) {
 
     double tAcc = saVals.getX(0);
     double sAcc = fa * saVals.getY(0);
     double sVel = fv * saVals.getY(1);
     double sPGA = 0.4 * sAcc;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,sPGA);
+    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
 
-    String title = "Site Modified Response Spectra for Site Class "+siteClass;
+    String title = "Site Modified Response Spectra for Site Class " + siteClass;
     String subTitle = "SMs = FaSs and SM1 = FvS1";
 
-    String info="";
-    info +=title+"\n";
+    String info = "";
+    info += title + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
                                                   fa, fv);
 
-          info +=
-              DataDisplayFormatter.createFunctionInfoString(funcList,siteClass);
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
     funcList.setInfo(info);
     return funcList;
   }
@@ -160,23 +161,22 @@ public class SpectrumCalculator {
     double sVel = fvVal * saVals.getY(1);
     double sPGA = 0.4 * sAcc;
 
-    DiscretizedFuncList funcList = approxSaSd(tAcc,sAcc,sVel,sPGA);
-
+    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);
 
-    String title = "Design Response Spectra for Site Class "+siteClass;
+    String title = "Design Response Spectra for Site Class " + siteClass;
     String subTitle = "SDs = 2/3 x SMs and SD1 = 2/3 x SM1";
 
     String info = "";
-    info += title+"\n";
+    info += title + "\n";
     info +=
         DataDisplayFormatter.createSubTitleString(subTitle, siteClass,
                                                   faVal, fvVal);
 
-      info +=
-          DataDisplayFormatter.createFunctionInfoString(funcList,siteClass);
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(funcList, siteClass);
     funcList.setInfo(info);
 
     return funcList;

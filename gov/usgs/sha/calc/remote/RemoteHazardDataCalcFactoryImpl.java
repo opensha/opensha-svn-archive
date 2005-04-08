@@ -1,11 +1,11 @@
 package gov.usgs.sha.calc.remote;
 
 import java.rmi.*;
+import java.rmi.server.*;
 
-import gov.usgs.sha.calc.api.*;
 import gov.usgs.sha.calc.*;
+import gov.usgs.sha.calc.api.*;
 import gov.usgs.sha.calc.remote.api.*;
-import java.rmi.server.UnicastRemoteObject;
 
 /**
  * <p>Title: </p>
@@ -19,10 +19,10 @@ import java.rmi.server.UnicastRemoteObject;
  * @author not attributable
  * @version 1.0
  */
-public class RemoteHazardDataCalcFactoryImpl extends UnicastRemoteObject
-    implements RemoteHazardDataCalcFactoryAPI {
+public class RemoteHazardDataCalcFactoryImpl
+    extends UnicastRemoteObject implements RemoteHazardDataCalcFactoryAPI {
 
-  public RemoteHazardDataCalcFactoryImpl() throws RemoteException{
+  public RemoteHazardDataCalcFactoryImpl() throws RemoteException {
   }
 
   /**

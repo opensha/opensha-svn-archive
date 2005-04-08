@@ -1,7 +1,6 @@
 package gov.usgs.util;
 
-import gov.usgs.exceptions.InterpolationException;
-
+import gov.usgs.exceptions.*;
 
 /**
  * <p>Title: Interpolation</p>
@@ -42,7 +41,6 @@ public final class Interpolation {
     return (y2 - y1) / (x2 - x1) * (x - x1) + y1;
   }
 
-
   /**
    *
    * @param x1 double
@@ -61,11 +59,9 @@ public final class Interpolation {
     x2 = Math.log(x2);
     y = Math.log(y);
 
-    double x = getInterpolatedX(x1,x2,y1,y2,y);
+    double x = getInterpolatedX(x1, x2, y1, y2, y);
     return Math.exp(x);
   }
-
-
 
   /**
    *
@@ -85,10 +81,9 @@ public final class Interpolation {
     x2 = Math.log(x2);
     x = Math.log(x);
 
-    double y = getInterpolatedY(x1,x2,y1,y2,x);
+    double y = getInterpolatedY(x1, x2, y1, y2, x);
     return Math.exp(y);
   }
-
 
   /**
    * Returns the interpolated value at a given point.
@@ -109,30 +104,31 @@ public final class Interpolation {
    * @return double
    * @throws InterpolationException
    */
-  public static double getBilinearInterpolatedY(double x1,double y1,double x2,double y2,double[] z1,
-                                                double x,double y) throws InterpolationException{
+  public static double getBilinearInterpolatedY(double x1, double y1, double x2,
+                                                double y2, double[] z1,
+                                                double x, double y) throws
+      InterpolationException {
 
     int zLength = z1.length;
 
-
-    if(zLength != 4){
-      throw new InterpolationException("Must provide correct inputs for Z for Bilinear interpolation.\n"+
+    if (zLength != 4) {
+      throw new InterpolationException(
+          "Must provide correct inputs for Z for Bilinear interpolation.\n" +
           "It takes 4 elements");
     }
 
+    double interpolatedX = (x - x1) / (x2 - x1);
+    double interpolatedY = (y - y1) / (y2 - y1);
 
+    double interpolatedZ1 = getValForBilinearInterpolation(z1[0], z1[1],
+        interpolatedY);
+    double interpolatedZ2 = getValForBilinearInterpolation(z1[2], z1[3],
+        interpolatedY);
 
-
-    double interpolatedX = (x - x1) / (x2-x1);
-    double interpolatedY = (y - y1) / (y2-y1);
-
-    double interpolatedZ1 = getValForBilinearInterpolation(z1[0],z1[1],interpolatedY);
-    double interpolatedZ2 = getValForBilinearInterpolation(z1[2],z1[3],interpolatedY);
-
-    double interpolatedZ = getValForBilinearInterpolation(interpolatedZ1,interpolatedZ2,interpolatedX);
+    double interpolatedZ = getValForBilinearInterpolation(interpolatedZ1,
+        interpolatedZ2, interpolatedX);
     return interpolatedZ;
   }
-
 
   /*
    *
@@ -141,11 +137,9 @@ public final class Interpolation {
    * @param y double
    * @return double
    */
-  private static double getValForBilinearInterpolation(double z1,double z2,double y){
-    return z1+y*(z2-z1);
+  private static double getValForBilinearInterpolation(double z1, double z2,
+      double y) {
+    return z1 + y * (z2 - z1);
   }
-
-
-
 
 }

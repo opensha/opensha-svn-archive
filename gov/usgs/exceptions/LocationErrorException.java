@@ -11,7 +11,6 @@ package gov.usgs.exceptions;
 public class LocationErrorException
     extends Exception {
 
-
   /**
    * Constructs a new LocationErrorException with null as its detail message.
    * he cause is not initialized, and may subsequently be initialized by a

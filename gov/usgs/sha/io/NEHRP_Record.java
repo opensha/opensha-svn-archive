@@ -1,9 +1,8 @@
 package gov.usgs.sha.io;
 
-import java.io.IOException;
-import gov.usgs.util.ByteSwapUtil;
-import java.io.RandomAccessFile;
-import gov.usgs.util.GlobalConstants;
+import java.io.*;
+
+import gov.usgs.util.*;
 
 /**
  * <p>Title: NEHRP_Record </p>
@@ -13,13 +12,11 @@ import gov.usgs.util.GlobalConstants;
  * @version 1.0
  */
 
-public class NEHRP_Record extends DataRecord{
-
-
+public class NEHRP_Record
+    extends DataRecord {
 
   //Record Length
   public static final int recordLength = 4 + 4 + 4 + 4 + 4 + 4;
-
 
   public void getRecord(String fileName, long recordNum) {
     //SA values
@@ -32,7 +29,7 @@ public class NEHRP_Record extends DataRecord{
       latitude = ByteSwapUtil.swap(fin.readFloat());
       longitude = ByteSwapUtil.swap(fin.readFloat());
       numValues = ByteSwapUtil.swap(fin.readShort());
-      for (int i = 0; i < numValues; ++i){
+      for (int i = 0; i < numValues; ++i) {
         values[i] = ByteSwapUtil.swap(fin.readFloat());
         values[i] /= GlobalConstants.DIVIDING_FACTOR_HUNDRED;
       }

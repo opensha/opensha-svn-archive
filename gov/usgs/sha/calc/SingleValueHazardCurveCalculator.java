@@ -10,7 +10,6 @@ package gov.usgs.sha.calc;
  */
 public class SingleValueHazardCurveCalculator {
 
-
   /**
    * Calculates the Return Period for the given exceed probability and
    * exposure time.
@@ -19,8 +18,8 @@ public class SingleValueHazardCurveCalculator {
    * @return double
    */
   public double calculateReturnPeriod(double probExceed, double expTime) {
-    probExceed /=100.0;
-    double returnPd = Math.round(-expTime/Math.log(1-probExceed));
+    probExceed /= 100.0;
+    double returnPd = Math.round( -expTime / Math.log(1 - probExceed));
     return returnPd;
   }
 
@@ -32,7 +31,7 @@ public class SingleValueHazardCurveCalculator {
    * @return double prob of exceedance in %(percentage) or out of 100
    */
   public double calculateProbExceed(double fex, double expTime) {
-    double probExceed = (1.0 - Math.exp(-expTime*fex))*100;
+    double probExceed = (1.0 - Math.exp( -expTime * fex)) * 100;
     return probExceed;
   }
 

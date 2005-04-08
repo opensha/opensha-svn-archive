@@ -1,7 +1,6 @@
 package gov.usgs.sha.calc;
 
-
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
+import org.scec.data.function.*;
 
 /**
  * <p>Title: StdDisplacementCalc</p>
@@ -11,8 +10,6 @@ import org.scec.data.function.ArbitrarilyDiscretizedFunc;
  * @version 1.0
  */
 public class StdDisplacementCalc {
-
-
 
   /**
    * Calculates the Std Displacement function Vs Period using the Sa Values.

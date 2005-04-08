@@ -1,11 +1,10 @@
 package gov.usgs.util;
 
-
-import gov.usgs.sha.io.DataFileNameSelector;
-import org.scec.data.Location;
 import java.io.*;
-import gov.usgs.exceptions.ZipCodeErrorException;
-import java.util.StringTokenizer;
+import java.util.*;
+
+import org.scec.data.*;
+import gov.usgs.exceptions.*;
 
 /**
  * <p>Title: ZipCodeToLatLonConvertor</p>
@@ -17,7 +16,8 @@ import java.util.StringTokenizer;
  */
 public final class ZipCodeToLatLonConvertor {
 
- private static final String ZIP_CODE_TO_LAT_LON_FILE =GlobalConstants.DATA_FILE_PATH+"2003-ZipCodes.txt";
+  private static final String ZIP_CODE_TO_LAT_LON_FILE = GlobalConstants.
+      DATA_FILE_PATH + "2003-ZipCodes.txt";
 
   /**
    * Returns the location for the selected zip code
@@ -48,9 +48,10 @@ public final class ZipCodeToLatLonConvertor {
         }
         str = bin.readLine();
       }
-      if (zipCodeFound == false)
+      if (zipCodeFound == false) {
         throw new ZipCodeErrorException(
             "The Zip Code is not in the data file. Try another or use Lat-Lon for the location.");
+      }
       bin.close();
       fin.close();
     }

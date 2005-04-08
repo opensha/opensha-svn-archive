@@ -1,7 +1,6 @@
 package gov.usgs.sha.data.calc;
 
-import gov.usgs.util.Interpolation;
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: FaFvCalc</p>
@@ -12,7 +11,6 @@ import gov.usgs.util.GlobalConstants;
  * @version 1.0
  */
 public class FaFvCalc {
-
 
   /**
    * Calculates Fa based on site class and SA at 0.1sec value (Ss Value)
@@ -36,7 +34,6 @@ public class FaFvCalc {
                    GlobalConstants.fvColumnNames, s1Value);
   }
 
-
   /*
    * Calculate the Fa and Fv based on what user has requested
    * @param siteClassVal String
@@ -45,15 +42,16 @@ public class FaFvCalc {
    * @param sValue double
    * @return double
    */
-  private double getFaFv(String siteClassVal, Object[][]data, String[] columnNames, double sValue) {
-    char siteClass = siteClassVal.charAt(siteClassVal.length()-1);
+  private double getFaFv(String siteClassVal, Object[][] data,
+                         String[] columnNames, double sValue) {
+    char siteClass = siteClassVal.charAt(siteClassVal.length() - 1);
     int rowNumber;
 
     int length = data.length;
     // get the row number
     rowNumber = -1;
     //iterating over all the rows to get the row number which is based on the site class
-    for(int i=0; i < length; ++i) {
+    for (int i = 0; i < length; ++i) {
       char val = ( (String) data[i][0]).charAt(0);
       if (val == siteClass) {
         rowNumber = i;
@@ -72,28 +70,34 @@ public class FaFvCalc {
      * starting the index from 1 as first element in the columns names array is
      * constant "Site Class".
      */
-    for(int j=1; j<columnNames.length; ++j) {
+    for (int j = 1; j < columnNames.length; ++j) {
       String columnName = columnNames[j];
       double colVal = getValueFromString(columnName);
-      if(Double.isNaN(colVal)) continue;
+      if (Double.isNaN(colVal)) {
+        continue;
+      }
       // found the columnNumber
-      if(sValue<=colVal) {
+      if (sValue <= colVal) {
         columnNumber = j;
         break;
       }
     }
-    if(columnNumber==-1)
-      return Double.parseDouble((String)data[rowNumber][columnNames.length-1]);
-    else if(columnNumber==1) return Double.parseDouble((String)data[rowNumber][columnNumber]);
+    if (columnNumber == -1) {
+      return Double.parseDouble( (String) data[rowNumber][columnNames.length -
+                                1]);
+    }
+    else if (columnNumber == 1) {
+      return Double.parseDouble( (String) data[rowNumber][columnNumber]);
+    }
     else {
-      String y2String = (String)data[rowNumber][columnNumber];
-      String y1String = (String)data[rowNumber][columnNumber-1];
+      String y2String = (String) data[rowNumber][columnNumber];
+      String y1String = (String) data[rowNumber][columnNumber - 1];
       double y2 = Double.parseDouble(y2String);
 
-      double x2  = getValueFromString(columnNames[columnNumber]);
+      double x2 = getValueFromString(columnNames[columnNumber]);
       double y1 = Double.parseDouble(y1String);
-      double x1  = getValueFromString(columnNames[columnNumber-1]);
-      return Interpolation.getInterpolatedY(x1,x2,y1,y2, sValue);
+      double x1 = getValueFromString(columnNames[columnNumber - 1]);
+      return Interpolation.getInterpolatedY(x1, x2, y1, y2, sValue);
     }
   }
 
@@ -103,20 +107,22 @@ public class FaFvCalc {
    * @return double
    */
   private double getValueFromString(String columnName) {
-     int index=-1;
-     int indexForEqual = columnName.indexOf("=");
-     for(int k=indexForEqual;k<columnName.length();++k)
-       if((columnName.charAt(k)>='0' && columnName.charAt(k)<='9') ||
-          columnName.charAt(k)=='.') {
-         index = k;
-         break;
-       }
-     if(index>=columnName.length() || index<0) return Double.NaN;
-     else return Double.parseDouble(columnName.substring(index));
+    int index = -1;
+    int indexForEqual = columnName.indexOf("=");
+    for (int k = indexForEqual; k < columnName.length(); ++k) {
+      if ( (columnName.charAt(k) >= '0' && columnName.charAt(k) <= '9') ||
+          columnName.charAt(k) == '.') {
+        index = k;
+        break;
+      }
+    }
+    if (index >= columnName.length() || index < 0) {
+      return Double.NaN;
+    }
+    else {
+      return Double.parseDouble(columnName.substring(index));
+    }
 
   }
-
-
-
 
 }

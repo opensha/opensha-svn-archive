@@ -1,15 +1,13 @@
 package gov.usgs.sha.data;
 
+import java.net.*;
 import java.rmi.*;
 
 import org.scec.data.function.*;
 import gov.usgs.exceptions.*;
-import gov.usgs.sha.calc.*;
-import gov.usgs.sha.calc.remote.*;
-import java.net.MalformedURLException;
-import gov.usgs.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI;
-import gov.usgs.util.GlobalConstants;
-import gov.usgs.sha.calc.api.HazardDataCalcAPI;
+import gov.usgs.sha.calc.api.*;
+import gov.usgs.sha.calc.remote.api.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: HazardDataMiner</p>
@@ -28,17 +26,18 @@ public class HazardDataMiner {
   public HazardDataMiner() {
   }
 
-
-  private HazardDataCalcAPI getHazardDataCalcObject() throws RemoteException{
-    try{
+  private HazardDataCalcAPI getHazardDataCalcObject() throws RemoteException {
+    try {
       RemoteHazardDataCalcFactoryAPI remoteDataCalc = (
           RemoteHazardDataCalcFactoryAPI)
           Naming.lookup(GlobalConstants.registrationName);
       HazardDataCalcAPI calc = remoteDataCalc.getRemoteHazardDataCalc();
       return calc;
-    }catch(MalformedURLException e){
+    }
+    catch (MalformedURLException e) {
       e.printStackTrace();
-    }catch(NotBoundException ee){
+    }
+    catch (NotBoundException ee) {
       ee.printStackTrace();
     }
     return null;
@@ -54,7 +53,7 @@ public class HazardDataMiner {
   public double getExceedProb(
       double fex, double expTime) throws RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeExceedProb(fex, expTime);
   }
 
@@ -66,7 +65,7 @@ public class HazardDataMiner {
    */
   public double getReturnPeriod(double exceedProb, double expTime) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeReturnPeriod(exceedProb, expTime);
   }
 
@@ -82,7 +81,7 @@ public class HazardDataMiner {
       String dataEdition, double lat, double lon,
       String hazCurveType) throws RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeHazardCurve(geographicRegion, dataEdition, lat, lon,
                                    hazCurveType);
   }
@@ -100,7 +99,7 @@ public class HazardDataMiner {
       String hazCurveType) throws
       ZipCodeErrorException, RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeHazardCurve(geographicRegion, dataEdition, zipCode,
                                    hazCurveType);
   }
@@ -117,7 +116,7 @@ public class HazardDataMiner {
                                             String dataEdition, double lat,
                                             double lon) throws RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion, dataEdition, lat, lon);
   }
 
@@ -136,7 +135,7 @@ public class HazardDataMiner {
                                             String selectedSpectraType) throws
       RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion, dataEdition, lat, lon,
                             selectedSpectraType);
   }
@@ -155,7 +154,7 @@ public class HazardDataMiner {
                                    double lon, String selectedSpectraType) throws
       RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSA(geographicRegion, dataEdition, lat, lon,
                           selectedSpectraType);
   }
@@ -173,7 +172,7 @@ public class HazardDataMiner {
                                    String spectraType) throws
       ZipCodeErrorException, RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSA(geographicRegion, dataEdition, zipCode, spectraType);
   }
 
@@ -190,7 +189,7 @@ public class HazardDataMiner {
                                             String spectraType) throws
       ZipCodeErrorException, RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion, dataEdition, zipCode, spectraType);
   }
 
@@ -206,7 +205,7 @@ public class HazardDataMiner {
                                             String dataEdition, String zipCode) throws
       ZipCodeErrorException, RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion, dataEdition, zipCode);
   }
 
@@ -218,7 +217,7 @@ public class HazardDataMiner {
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion) throws
       RemoteException {
 
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSsS1(geographicRegion);
   }
 
@@ -233,7 +232,7 @@ public class HazardDataMiner {
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSDSsS1(func, fa, fv, siteClass);
   }
 
@@ -248,7 +247,7 @@ public class HazardDataMiner {
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSMSsS1(func, fa, fv, siteClass);
   }
 
@@ -262,7 +261,7 @@ public class HazardDataMiner {
   public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSMSpectrum(func, fa, fv, siteClass);
   }
 
@@ -276,7 +275,7 @@ public class HazardDataMiner {
   public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSDSpectrum(func, fa, fv, siteClass);
   }
 
@@ -287,7 +286,7 @@ public class HazardDataMiner {
    */
   public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeMapSpectrum(func);
   }
 
@@ -302,7 +301,7 @@ public class HazardDataMiner {
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSM_UHSpectrum(func, fa, fv, siteClass);
   }
 
@@ -317,7 +316,7 @@ public class HazardDataMiner {
                                               float fa, float fv,
                                               String siteClass) throws
       RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeSD_UHSpectrum(func, fa, fv, siteClass);
   }
 
@@ -328,7 +327,7 @@ public class HazardDataMiner {
    */
   public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
                                                   func) throws RemoteException {
-    HazardDataCalcAPI calc =  getHazardDataCalcObject();
+    HazardDataCalcAPI calc = getHazardDataCalcObject();
     return calc.computeApproxUHSpectrum(func);
   }
 

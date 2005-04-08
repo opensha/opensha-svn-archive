@@ -1,6 +1,7 @@
 package gov.usgs.sha.io;
 
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.*;
+
 /**
  * <p>Title: DataFileNameSelectorForFEMA</p>
  *
@@ -12,12 +13,9 @@ import gov.usgs.util.GlobalConstants;
  */
 public class DataFileNameSelectorForFEMA {
 
-
   public DataFileNameSelectorForFEMA() {}
 
   private final static String filePath = GlobalConstants.DATA_FILE_PATH;
-
-
 
   /**
    *
@@ -28,25 +26,27 @@ public class DataFileNameSelectorForFEMA {
    * @return String
    */
   public String getFileName(String selectedRegion, String selectedEdition,
-      double lat, double lon,String spectraType){
-    if(selectedRegion.equals(GlobalConstants.CONTER_48_STATES))
-      return getFileNameFor48States(selectedEdition,lat,lon,spectraType);
-    else if(selectedRegion.equals(GlobalConstants.ALASKA))
-      return getFileNameForAlaska(selectedEdition,spectraType);
-    else if(selectedRegion.equals(GlobalConstants.HAWAII))
-      return getFileNameForHawaii(selectedEdition,spectraType);
+                            double lat, double lon, String spectraType) {
+    if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
+      return getFileNameFor48States(selectedEdition, lat, lon, spectraType);
+    }
+    else if (selectedRegion.equals(GlobalConstants.ALASKA)) {
+      return getFileNameForAlaska(selectedEdition, spectraType);
+    }
+    else if (selectedRegion.equals(GlobalConstants.HAWAII)) {
+      return getFileNameForHawaii(selectedEdition, spectraType);
+    }
 
     return null;
   }
-
-
 
   /**
    *
    * @param selectedEdition String
    * @return String
    */
-  private String getFileNameForAlaska(String selectedEdition, String spectraType){
+  private String getFileNameForAlaska(String selectedEdition,
+                                      String spectraType) {
 
     if (selectedEdition.equals(GlobalConstants.FEMA_273_DATA) ||
         selectedEdition.equals(GlobalConstants.FEMA_356_DATA) ||
@@ -63,7 +63,6 @@ public class DataFileNameSelectorForFEMA {
     }
     return null;
   }
-
 
   private String getFileNameForHawaii(String selectedEdition,
                                       String spectraType) {
@@ -83,28 +82,27 @@ public class DataFileNameSelectorForFEMA {
     return null;
   }
 
-
   private String getFileNameFor48States(String selectedEdition, double lat,
-                             double lon,String spectraType) {
+                                        double lon, String spectraType) {
     if (selectedEdition.equals(GlobalConstants.FEMA_273_DATA) ||
         selectedEdition.equals(GlobalConstants.FEMA_356_DATA) ||
         selectedEdition.equals(GlobalConstants.IEBC_2003)) {
       if (lon >= -125 && lon <= -111 && lat >= 32 && lat <= 43) {
-        if(spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)){
+        if (spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)) {
           String fileName = "1997-CANV-MCE-R2.rnd";
           return filePath + fileName;
         }
-        else if(spectraType.equals(GlobalConstants.PE_10)){
+        else if (spectraType.equals(GlobalConstants.PE_10)) {
           String fileName = "1996-CANV-Retrofit-10-050-a.rnd";
           return filePath + fileName;
         }
       }
       else {
-        if(spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)){
+        if (spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)) {
           String fileName = "1997-US-MCE-R1a.rnd";
           return filePath + fileName;
         }
-        else if(spectraType.equals(GlobalConstants.PE_10)){
+        else if (spectraType.equals(GlobalConstants.PE_10)) {
           String fileName = "1996-US-Retrofit-10-050-a.rnd";
           return filePath + fileName;
         }
@@ -114,7 +112,4 @@ public class DataFileNameSelectorForFEMA {
     return null;
   }
 
-
 }
-
-

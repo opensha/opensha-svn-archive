@@ -1,6 +1,6 @@
 package gov.usgs.sha.io;
 
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: DataFileNameSelectorForUHS</p>
@@ -25,14 +25,18 @@ public class DataFileNameSelectorForUHS {
    */
   public String getFileName(String selectedRegion, String selectedEdition,
                             double lat, double lon, String spectraType) {
-    if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES))
+    if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       return getFileNameFor48States(selectedEdition, lat, lon, spectraType);
-    else if (selectedRegion.equals(GlobalConstants.ALASKA))
+    }
+    else if (selectedRegion.equals(GlobalConstants.ALASKA)) {
       return getFileNameForAlaska(selectedEdition, spectraType);
-    else if (selectedRegion.equals(GlobalConstants.HAWAII))
+    }
+    else if (selectedRegion.equals(GlobalConstants.HAWAII)) {
       return getFileNameForHawaii(selectedEdition, spectraType);
-    else
+    }
+    else {
       return getFileNameForPRVI(selectedEdition, spectraType);
+    }
   }
 
   /**

@@ -1,6 +1,7 @@
 package gov.usgs.sha.gui.beans;
 
-import javax.swing.JPanel;
+import javax.swing.*;
+
 /**
  * <p>Title: AnalysisOptionsGuiBeanAPI</p>
  *
@@ -17,21 +18,21 @@ import javax.swing.JPanel;
  */
 public interface AnalysisOptionsGuiBeanAPI {
 
-    /**
-     * Gets the panel for the Gui Bean for the selected analysis option in the
-     * application.
-     */
-    public JPanel getGuiBean();
+  /**
+   * Gets the panel for the Gui Bean for the selected analysis option in the
+   * application.
+   */
+  public JPanel getGuiBean();
 
-    /**
-     * Clears the Data window
-     */
-    public void clearData();
+  /**
+   * Clears the Data window
+   */
+  public void clearData();
 
-    /**
-     *
-     * @return String
-     */
-    public String getData();
+  /**
+   *
+   * @return String
+   */
+  public String getData();
 
 }

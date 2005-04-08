@@ -1,7 +1,6 @@
 package gov.usgs.util;
 
 import java.util.*;
-import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 
 /**
  * <p>Title: GlobalConstants</p>
@@ -15,8 +14,9 @@ import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 public final class GlobalConstants {
 
   //data files path
-  public final static String DATA_FILE_PATH ="/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
-  public final static String registrationName = "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
+  public final static String DATA_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
+  public final static String registrationName =
+      "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 
   //static declaration for the supported geographic regions
   public static final String CONTER_48_STATES = "Conterminous 48 States";
@@ -68,21 +68,23 @@ public final class GlobalConstants {
       "Probabilistic Uniform Hazard Response Spectra";
   public static final String NEHRP = "NEHRP Recommended Provisions for Seismic Regulations for New Buildings and Other Structure";
   //public static final String FEMA_273 =
-    //  "FEMA 273,MCE Guidelines for the Seismic Rehabilitation of Buildings";
+  //  "FEMA 273,MCE Guidelines for the Seismic Rehabilitation of Buildings";
   //public static final String FEMA_356 = "FEMA 356,Prestandard and Commentary for the Seismic Rehabilitation of Buildings";
   public static final String INTL_BUILDING_CODE = "International Building Code";
   public static final String INTL_RESIDENTIAL_CODE =
       "International Residential Code";
   //public static final String INTL_EXIST_CODE =
-    //  "International Existing Building Code";
+  //  "International Existing Building Code";
   //public static final String NFPA_5000 =
-    //  "NFPA 5000 Building construction and safety code";
+  //  "NFPA 5000 Building construction and safety code";
   //public static final String ASCE_7 =
-    //  "ASCE 7 standard , Minimum Design Loads for Building and other structures";
+  //  "ASCE 7 standard , Minimum Design Loads for Building and other structures";
 
-  public static final String ASCE_NFPA = "ASCE 7 and NFPA 5000 building construction and safety codes";
+  public static final String ASCE_NFPA =
+      "ASCE 7 and NFPA 5000 building construction and safety codes";
 
-  public static final String FEMA_IEBC_2003 = "Fema(273 and 356) and Intl. existing building code";
+  public static final String FEMA_IEBC_2003 =
+      "Fema(273 and 356) and Intl. existing building code";
 
   private static final String analysis_choices_info =
       "The User may perform an " +
@@ -186,16 +188,18 @@ public final class GlobalConstants {
   public final static String DESIGN_SPECTRUM_SD_Vs_T_GRAPH =
       "Design Spectrum Sd Vs T";
 
-  public final static String UNIFORM_HAZARD_SPECTRUM_NAME = "Uniform Hazard Spectrum";
-  public final static String APPROX_UNIFORM_HAZARD_SPECTRUM_NAME = "Approx. Uniform Hazard Spectrum";
+  public final static String UNIFORM_HAZARD_SPECTRUM_NAME =
+      "Uniform Hazard Spectrum";
+  public final static String APPROX_UNIFORM_HAZARD_SPECTRUM_NAME =
+      "Approx. Uniform Hazard Spectrum";
 
   public final static String ANNUAL_FREQ_EXCEED_UNITS = "per year";
   public final static String BASIC_HAZARD_CURVE = "Basic Hazard Curve";
   public final static String HAZARD_CURVE_X_AXIS_NAME = "Accelaration";
-  public final static String HAZARD_CURVE_Y_AXIS_NAME = "Annual Frequency of Exceedance";
+  public final static String HAZARD_CURVE_Y_AXIS_NAME =
+      "Annual Frequency of Exceedance";
 
   public static final String UHS_PGA_FUNC_NAME = "UHS PGA Values";
-
 
   //some SA constants
   public final static String SA_DAMPING = "5% Damping";
@@ -248,17 +252,11 @@ public final class GlobalConstants {
   public final static String EXP_TIME_100 = "100";
   public final static String EXP_TIME_250 = "250";
 
-
-
   //supported Spectra types
   public static final String MCE_GROUND_MOTION = "MCE Ground Motion";
   public static final String PE_10 = "10 % PE in 50 years";
   public static final String PE_5 = "5 % PE in 50 years";
   public static final String PE_2 = "2 % PE in 50 years";
-
-
-
-
 
   /**
    * Supported Return Periods.

@@ -1,34 +1,23 @@
 package gov.usgs.sha.gui.beans;
 
+import java.rmi.*;
+import java.util.*;
+
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
-import java.util.ArrayList;
+import javax.swing.border.*;
 
-import gov.usgs.util.*;
+import org.scec.data.*;
+import org.scec.data.region.*;
+import org.scec.param.*;
+import org.scec.param.editor.*;
 import org.scec.param.event.*;
-
-import org.scec.data.region.RectangularGeographicRegion;
-import org.scec.param.StringParameter;
-import org.scec.param.editor.ConstrainedStringParameterEditor;
-import org.scec.data.Location;
-import org.scec.param.ParameterList;
-import org.scec.param.ParameterAPI;
-
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import java.util.ListIterator;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import gov.usgs.exceptions.ZipCodeErrorException ;
-import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
-import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
-import gov.usgs.sha.data.DataGenerator_IRC;
-import gov.usgs.exceptions.LocationErrorException;
-import java.rmi.RemoteException;
-
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.data.*;
+import gov.usgs.sha.data.api.*;
+import gov.usgs.sha.gui.api.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: IRC_GuiBean</p>
@@ -41,7 +30,8 @@ import java.rmi.RemoteException;
 
 
 public class IRC_GuiBean
-    extends JPanel implements ParameterChangeListener,AnalysisOptionsGuiBeanAPI {
+    extends JPanel implements ParameterChangeListener,
+    AnalysisOptionsGuiBeanAPI {
 
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
@@ -53,38 +43,33 @@ public class IRC_GuiBean
 
   JButton residentialSiteCategoryButton = new JButton();
 
-
   Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
       Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
-  TitledBorder basicParamBorder = new TitledBorder(border9, "Calculate IRC site Values");
-  TitledBorder regionBorder = new TitledBorder(border9, "Region and DataSet Selection");
+  TitledBorder basicParamBorder = new TitledBorder(border9,
+      "Calculate IRC site Values");
+  TitledBorder regionBorder = new TitledBorder(border9,
+                                               "Region and DataSet Selection");
 
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   GridBagLayout gridBagLayout2 = new GridBagLayout();
   GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
-
   protected boolean locationVisible;
-
 
   //creating the Ground Motion selection parameter
   protected StringParameter groundMotionParam;
   protected ConstrainedStringParameterEditor groundMotionParamEditor;
   protected static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
 
-
   protected DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_IRC();
-
 
   //instance of the application using this GUI bean
   protected ProbabilisticHazardApplicationAPI application;
 
-
-  protected String selectedRegion,selectedEdition,spectraType;
+  protected String selectedRegion, selectedEdition, spectraType;
 
   public IRC_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -113,7 +98,6 @@ public class IRC_GuiBean
       exception.printStackTrace();
     }
 
-
     basicParamsPanel.add(groundMotionParamEditor,
                          new GridBagConstraints(0, 0, 3, 1, 1.0, 1.2
                                                 , GridBagConstraints.CENTER,
@@ -130,17 +114,16 @@ public class IRC_GuiBean
 
   }
 
-
-
   protected void createGroundMotionParameter() {
-
 
     ArrayList supportedGroundMotion = getSupportedSpectraTypes();
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
                                             supportedGroundMotion,
-                                            (String) supportedGroundMotion.get(0));
-    groundMotionParamEditor = new ConstrainedStringParameterEditor(groundMotionParam);
-    spectraType = (String)groundMotionParam.getValue();
+                                            (String) supportedGroundMotion.get(
+        0));
+    groundMotionParamEditor = new ConstrainedStringParameterEditor(
+        groundMotionParam);
+    spectraType = (String) groundMotionParam.getValue();
   }
 
   protected ArrayList getSupportedSpectraTypes() {
@@ -148,7 +131,6 @@ public class IRC_GuiBean
     supportedSpectraTypes.add(GlobalConstants.MCE_GROUND_MOTION);
     return supportedSpectraTypes;
   }
-
 
   protected void jbInit() throws Exception {
     this.setLayout(borderLayout1);
@@ -161,23 +143,20 @@ public class IRC_GuiBean
     basicParamsPanel.setBorder(basicParamBorder);
     basicParamBorder.setTitleColor(Color.RED);
 
-    residentialSiteCategoryButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
+    residentialSiteCategoryButton.setFont(new java.awt.Font("Arial", Font.BOLD,
+        13));
     residentialSiteCategoryButton.setActionCommand("siteCoeffButton");
-    residentialSiteCategoryButton.setText("<html>Calculate<br>Site Coefficient</br></html>");
+    residentialSiteCategoryButton.setText(
+        "<html>Calculate<br>Site Coefficient</br></html>");
     residentialSiteCategoryButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         residentialSiteCategoryButton_actionPerformed(actionEvent);
       }
     });
 
-
-
-
-
     regionPanel.setBorder(regionBorder);
     regionBorder.setTitleColor(Color.RED);
     regionPanel.setLayout(gridBagLayout2);
-
 
     mainSplitPane.add(locationSplitPane, JSplitPane.TOP);
     mainSplitPane.add(basicParamsPanel, JSplitPane.BOTTOM);
@@ -194,15 +173,10 @@ public class IRC_GuiBean
 
   }
 
-
-
-
-
-
   /**
    * Removes all the output from the window
    */
-  public void clearData(){
+  public void clearData() {
     dataGenerator.clearData();
 
   }
@@ -225,12 +199,11 @@ public class IRC_GuiBean
     }
   }
 
-
   /**
    * Returns the instance of itself
    * @return JPanel
    */
-  public JPanel getGuiBean(){
+  public JPanel getGuiBean() {
     return this;
   }
 
@@ -240,26 +213,29 @@ public class IRC_GuiBean
   protected void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
     Component comp = locationSplitPane.getBottomComponent();
-    if(comp != null)
+    if (comp != null) {
       locationSplitPane.remove(locationSplitPane.getBottomComponent());
+    }
     if (region != null) {
       locationVisible = true;
       //checking if Zip code is supported by the selected choice
-      boolean zipCodeSupported = LocationUtil.isZipCodeSupportedBySelectedEdition(selectedRegion);
+      boolean zipCodeSupported = LocationUtil.
+          isZipCodeSupportedBySelectedEdition(selectedRegion);
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
       ParameterList paramList = locGuiBean.getLocationParameters();
       ListIterator it = paramList.getParametersIterator();
-      while(it.hasNext()){
-        ParameterAPI param = (ParameterAPI)it.next();
+      while (it.hasNext()) {
+        ParameterAPI param = (ParameterAPI) it.next();
         param.addParameterChangeListener(this);
       }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(170);
     }
-    else if(region == null)
+    else if (region == null) {
       locationVisible = false;
+    }
 
   }
 
@@ -271,13 +247,13 @@ public class IRC_GuiBean
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
-        selectedRegion.equals(GlobalConstants.HAWAII))
+        selectedRegion.equals(GlobalConstants.HAWAII)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
+    }
 
     return null;
   }
-
 
   /**
    * Creates the Parameter that allows user to select  the Editions based on the
@@ -289,8 +265,8 @@ public class IRC_GuiBean
 
     supportedEditionList.add(GlobalConstants.IRC_2003);
     supportedEditionList.add(GlobalConstants.IRC_2000);
-    if(!selectedRegion.equals(GlobalConstants.ALASKA) &&
-       !selectedRegion.equals(GlobalConstants.HAWAII)){
+    if (!selectedRegion.equals(GlobalConstants.ALASKA) &&
+        !selectedRegion.equals(GlobalConstants.HAWAII)) {
       supportedEditionList.add(GlobalConstants.IRC_2004);
       supportedEditionList.add(GlobalConstants.IRC_2006);
     }
@@ -305,10 +281,11 @@ public class IRC_GuiBean
    * if selected Analysis option is NEHRP.
    *
    */
-  protected void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGeographicRegionSelectionParameter() throws
+      AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.INTL_RESIDENTIAL_CODE) ;
+        getSupportedGeographicalRegions(GlobalConstants.INTL_RESIDENTIAL_CODE);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);
@@ -328,13 +305,15 @@ public class IRC_GuiBean
     if (locationVisible) {
       String locationMode = locGuiBean.getLocationMode();
       if (locationMode.equals(locGuiBean.LAT_LON)) {
-        try{
+        try {
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
           double lon = loc.getLongitude();
-          dataGenerator.calculateSsS1(lat,lon);
-        }catch(LocationErrorException e){
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
+          dataGenerator.calculateSsS1(lat, lon);
+        }
+        catch (LocationErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
+                                        JOptionPane.OK_OPTION);
           return;
         }
         catch (RemoteException e) {
@@ -356,8 +335,10 @@ public class IRC_GuiBean
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
                                         JOptionPane.OK_OPTION);
           return;
-        }catch(LocationErrorException e){
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
+        }
+        catch (LocationErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
+                                        JOptionPane.OK_OPTION);
           return;
         }
         catch (RemoteException e) {
@@ -371,7 +352,7 @@ public class IRC_GuiBean
       }
     }
     else { // if territory and location Gui is not visible
-      try{
+      try {
         dataGenerator.calculateSsS1();
       }
       catch (RemoteException e) {
@@ -385,18 +366,16 @@ public class IRC_GuiBean
     }
   }
 
-
-
   /**
    *
    * @return String
    */
-  public String  getData(){
+  public String getData() {
     return dataGenerator.getDataInfo();
   }
 
-
-  protected void residentialSiteCategoryButton_actionPerformed(ActionEvent actionEvent) {
+  protected void residentialSiteCategoryButton_actionPerformed(ActionEvent
+      actionEvent) {
     getDataForSA_Period();
     application.setDataInWindow(getData());
   }

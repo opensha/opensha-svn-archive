@@ -34,7 +34,7 @@ public abstract class DataRecord {
    * Returns the Latitude of the record
    * @return float
    */
-  public float getLatitude(){
+  public float getLatitude() {
     return latitude;
   }
 
@@ -42,7 +42,7 @@ public abstract class DataRecord {
    * Returns the Longitude of the record
    * @return float
    */
-  public float getLongitude(){
+  public float getLongitude() {
     return longitude;
   }
 
@@ -50,7 +50,7 @@ public abstract class DataRecord {
    * Returns the number of periods
    * @return short
    */
-  public short getNumPeriods(){
+  public short getNumPeriods() {
     return numValues;
   }
 
@@ -58,7 +58,7 @@ public abstract class DataRecord {
    * Returns the Periods
    * @return float[]
    */
-  public float[] getPeriods(){
+  public float[] getPeriods() {
     return values;
   }
 }

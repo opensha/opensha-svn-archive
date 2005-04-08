@@ -15,15 +15,15 @@ public abstract class Estimate {
   private String comments;
 
 
-  public double getMean();
+  public abstract double getMean();
 
-  public double getMedian();
+  public abstract double getMedian();
 
-  public double getStdDev();
+  public abstract double getStdDev();
 
-  public double getFractile(double prob);
+  public abstract double getFractile(double prob);
 
-   public double getMode();
+   public abstract double getMode();
 
 
   /**
@@ -40,14 +40,14 @@ public abstract class Estimate {
    *
    * @return
    */
-  public double getMinXValue();
+  public abstract double getMinXValue();
 
   /**
    * Get the maximum among the list of X values in this list
    *
    * @return
    */
-  public double getMaxXValue();
+  public abstract double getMaxXValue();
 
    /**
     * Get the comments associated with this object

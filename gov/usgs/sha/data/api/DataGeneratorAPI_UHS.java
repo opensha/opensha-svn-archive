@@ -1,9 +1,9 @@
 package gov.usgs.sha.data.api;
 
+import java.rmi.*;
 import java.util.*;
 
 import gov.usgs.exceptions.*;
-import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGeneratorAPI_UHS</p>
@@ -14,7 +14,6 @@ import java.rmi.RemoteException;
  * @version 1.0
  */
 public interface DataGeneratorAPI_UHS {
-
 
   /**
    * Removes all the calculated data.
@@ -27,7 +26,6 @@ public interface DataGeneratorAPI_UHS {
    */
   public String getDataInfo();
 
-
   /**
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
@@ -38,8 +36,8 @@ public interface DataGeneratorAPI_UHS {
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateUHS(String zipCode) throws ZipCodeErrorException, RemoteException;
-
+  public void calculateUHS(String zipCode) throws ZipCodeErrorException,
+      RemoteException;
 
   /**
    * Sets the selected site class
@@ -53,9 +51,6 @@ public interface DataGeneratorAPI_UHS {
    */
   public String getSelectedSiteClass();
 
-
-
-
   /**
    * Returns the list of functions for plotting.
    * @param isUHSFunctionNeeded boolean
@@ -65,9 +60,9 @@ public interface DataGeneratorAPI_UHS {
    * @return ArrayList
    */
   public ArrayList getFunctionsToPlotForSA(boolean isUHSFunctionNeeded,
-                                            boolean isApproxUHSFunctionNeeded,
-                                            boolean isSDSpectrumFunctionNeeded,
-                                            boolean isSMSpectrumFunctionNeeded);
+                                           boolean isApproxUHSFunctionNeeded,
+                                           boolean isSDSpectrumFunctionNeeded,
+                                           boolean isSMSpectrumFunctionNeeded);
 
   /**
    * Returns the SA at .2sec
@@ -81,25 +76,20 @@ public interface DataGeneratorAPI_UHS {
    */
   public double getSa();
 
-
-
   /**
    *
    */
   public void calculateApproxUHS() throws RemoteException;
-
 
   /**
    *
    */
   public void calculateSMSpectrum() throws RemoteException;
 
-
   /**
    *
    */
   public void calculateSDSpectrum() throws RemoteException;
-
 
   /**
    * Sets the selected geographic region.
@@ -107,13 +97,11 @@ public interface DataGeneratorAPI_UHS {
    */
   public void setRegion(String region);
 
-
   /**
    * Sets the selected data edition.
    * @param edition String
    */
   public void setEdition(String edition);
-
 
   /**
    * Sets the Fa value.

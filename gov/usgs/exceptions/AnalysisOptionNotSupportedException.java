@@ -11,7 +11,6 @@ package gov.usgs.exceptions;
 public class AnalysisOptionNotSupportedException
     extends Exception {
 
-
   /**
    * Constructs a new AnalysisOptionNotSupportedException with null as its detail message.
    * he cause is not initialized, and may subsequently be initialized by a

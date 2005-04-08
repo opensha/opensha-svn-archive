@@ -1,13 +1,13 @@
 package gov.usgs.sha.data;
 
+import java.rmi.*;
+import java.text.*;
 import java.util.*;
 
 import org.scec.data.function.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.api.*;
 import gov.usgs.util.*;
-import java.text.DecimalFormat;
-import java.rmi.RemoteException;
 
 /**
  * <p>Title: DataGenerator_UHS</p>
@@ -51,28 +51,29 @@ public class DataGenerator_UHS
   //sets the selected spectra type
   protected String selectedSpectraType;
 
-  private double sa,ss;
+  private double sa, ss;
 
   private DecimalFormat saFormat = new DecimalFormat("0.0");
 
-  private void getSASsVals(){
+  private void getSASsVals() {
     int numPoints = saFunction.getNum();
-    for(int i=0;i<numPoints;++i){
+    for (int i = 0; i < numPoints; ++i) {
       String periodVal = saFormat.format(saFunction.getX(i));
       double period = Double.parseDouble(periodVal);
-      if( period == 0.2)
+      if (period == 0.2) {
         ss = saFunction.getY(i);
-      else if(period == 1.0)
+      }
+      else if (period == 1.0) {
         sa = saFunction.getY(i);
+      }
     }
   }
-
 
   /**
    * Returns the SA at .2sec
    * @return double
    */
-  public double getSs(){
+  public double getSs() {
     return ss;
   }
 
@@ -80,10 +81,9 @@ public class DataGenerator_UHS
    * Returns the SA at 1 sec
    * @return double
    */
-  public double getSa(){
+  public double getSa() {
     return sa;
   }
-
 
   /**
    *
@@ -101,7 +101,7 @@ public class DataGenerator_UHS
    * @param mapSpectrumFunctions DiscretizedFuncList
    */
   protected void getFunctionsForApprox_UHSpectrum(DiscretizedFuncList
-                                            mapSpectrumFunctions) {
+                                                  mapSpectrumFunctions) {
 
     int numFunctions = mapSpectrumFunctions.size();
 
@@ -109,8 +109,10 @@ public class DataGenerator_UHS
     for (; i < numFunctions; ++i) {
       ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
           mapSpectrumFunctions.get(i);
-      if (tempFunction.getName().equals(GlobalConstants.APPROX_UNIFORM_HAZARD_SPECTRUM_NAME+ " of "+
-          GlobalConstants.SA_Vs_T_GRAPH_NAME)) {
+      if (tempFunction.getName().equals(GlobalConstants.
+                                        APPROX_UNIFORM_HAZARD_SPECTRUM_NAME +
+                                        " of " +
+                                        GlobalConstants.SA_Vs_T_GRAPH_NAME)) {
         approxUHSpectrumSaTFunction = tempFunction;
         break;
       }
@@ -119,8 +121,11 @@ public class DataGenerator_UHS
     ArbitrarilyDiscretizedFunc tempSDFunction = (ArbitrarilyDiscretizedFunc)
         mapSpectrumFunctions.get(1 - i);
 
-    approxUHSpectrumSaSdFunction = tempSDFunction.getYY_Function(approxUHSpectrumSaTFunction);
-    approxUHSpectrumSaSdFunction.setName(GlobalConstants.APPROX_UNIFORM_HAZARD_SPECTRUM_NAME+" of "+
+    approxUHSpectrumSaSdFunction = tempSDFunction.getYY_Function(
+        approxUHSpectrumSaTFunction);
+    approxUHSpectrumSaSdFunction.setName(GlobalConstants.
+                                         APPROX_UNIFORM_HAZARD_SPECTRUM_NAME +
+                                         " of " +
                                          GlobalConstants.SA_Vs_SD_GRAPH_NAME);
     String info = metadataForPlots;
     info += "Site Class -" + siteClass + "\n";
@@ -158,7 +163,7 @@ public class DataGenerator_UHS
     smSpectrumSaSdFunction = tempSDFunction.getYY_Function(
         smSpectrumSaTFunction);
     smSpectrumSaSdFunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_SD_GRAPH);
-    String info =metadataForPlots;
+    String info = metadataForPlots;
     info += "Site Class -" + siteClass + "\n";
     info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
 
@@ -196,7 +201,7 @@ public class DataGenerator_UHS
         sdSpectrumSaTFunction);
     sdSpectrumSaSdFunction.setName(GlobalConstants.
                                    DESIGN_SPECTRUM_SA_Vs_SD_GRAPH);
-    String info =metadataForPlots;
+    String info = metadataForPlots;
     info += "Site Class -" + siteClass + "\n";
     info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
     sdSpectrumSaSdFunction.setInfo(info);
@@ -211,7 +216,7 @@ public class DataGenerator_UHS
    *
    *
    */
-  public void calculateSMSpectrum() throws RemoteException{
+  public void calculateSMSpectrum() throws RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSM_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
@@ -222,7 +227,7 @@ public class DataGenerator_UHS
   /**
    *
    */
-  public void calculateSDSpectrum() throws RemoteException{
+  public void calculateSDSpectrum() throws RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSD_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
@@ -243,13 +248,16 @@ public class DataGenerator_UHS
           functions.get(i);
       if (tempFunction.getName().equals(GlobalConstants.
                                         UNIFORM_HAZARD_SPECTRUM_NAME + " of " +
-                                        GlobalConstants.SA_Vs_T_GRAPH_NAME))
+                                        GlobalConstants.SA_Vs_T_GRAPH_NAME)) {
         saFunction = tempFunction;
+      }
 
-      else if(tempFunction.getName().equals(GlobalConstants.UHS_PGA_FUNC_NAME))
+      else if (tempFunction.getName().equals(GlobalConstants.UHS_PGA_FUNC_NAME)) {
         pgaFunction = tempFunction;
-      else
+      }
+      else {
         sdTFunction = tempFunction;
+      }
     }
 
     saSdFunction = sdTFunction.getYY_Function(
@@ -272,7 +280,8 @@ public class DataGenerator_UHS
    * @throws ZipCodeErrorException
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
    */
-  public void calculateUHS(String zipCode) throws ZipCodeErrorException, RemoteException {
+  public void calculateUHS(String zipCode) throws ZipCodeErrorException,
+      RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
                                                zipCode, selectedSpectraType);
@@ -291,7 +300,7 @@ public class DataGenerator_UHS
    * @param lon double
    * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
    */
-  public void calculateUHS(double lat, double lon) throws RemoteException{
+  public void calculateUHS(double lat, double lon) throws RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
@@ -302,7 +311,6 @@ public class DataGenerator_UHS
     getFunctionsForSDT(funcList);
     getSASsVals();
   }
-
 
   protected void createMetadataForPlots(String location) {
     metadataForPlots = GlobalConstants.SA_DAMPING + "\n";
@@ -332,10 +340,6 @@ public class DataGenerator_UHS
     dataInfo += data + "\n\n";
   }
 
-
-
-
-
   /**
    * Returns the list of functions for plotting.
    * @param isUHSFunctionNeeded boolean
@@ -345,23 +349,23 @@ public class DataGenerator_UHS
    * @return ArrayList
    */
   public ArrayList getFunctionsToPlotForSA(boolean isUHSFunctionNeeded,
-                                            boolean isApproxUHSFunctionNeeded,
-                                            boolean isSDSpectrumFunctionNeeded,
-                                            boolean isSMSpectrumFunctionNeeded) {
+                                           boolean isApproxUHSFunctionNeeded,
+                                           boolean isSDSpectrumFunctionNeeded,
+                                           boolean isSMSpectrumFunctionNeeded) {
     ArrayList functions = new ArrayList();
-    if(isUHSFunctionNeeded){
+    if (isUHSFunctionNeeded) {
       functions.add(saFunction);
       functions.add(saSdFunction);
     }
-    if(isApproxUHSFunctionNeeded){
+    if (isApproxUHSFunctionNeeded) {
       functions.add(approxUHSpectrumSaTFunction);
       functions.add(approxUHSpectrumSaSdFunction);
     }
-    if(isSMSpectrumFunctionNeeded){
+    if (isSMSpectrumFunctionNeeded) {
       functions.add(smSpectrumSaTFunction);
       functions.add(smSpectrumSaSdFunction);
     }
-    if(isSDSpectrumFunctionNeeded){
+    if (isSDSpectrumFunctionNeeded) {
       functions.add(sdSpectrumSaTFunction);
       functions.add(sdSpectrumSaSdFunction);
     }

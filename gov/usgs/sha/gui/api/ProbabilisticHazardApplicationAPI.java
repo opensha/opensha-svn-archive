@@ -12,9 +12,9 @@ package gov.usgs.sha.gui.api;
  */
 public interface ProbabilisticHazardApplicationAPI {
 
-    /**
-     * Sets the information from the Gui beans in Data window
-     * @param dataInfo String
-     */
-    public void setDataInWindow(String dataInfo);
+  /**
+   * Sets the information from the Gui beans in Data window
+   * @param dataInfo String
+   */
+  public void setDataInWindow(String dataInfo);
 }

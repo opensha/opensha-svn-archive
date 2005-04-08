@@ -1,7 +1,7 @@
 package gov.usgs.sha.calc;
 
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import gov.usgs.util.ui.DataDisplayFormatter;
+import org.scec.data.function.*;
+import gov.usgs.util.ui.*;
 
 /**
  * <p>Title: SDSsS1Calculator </p>
@@ -13,7 +13,7 @@ import gov.usgs.util.ui.DataDisplayFormatter;
 public class SDSsS1Calculator {
 
   public ArbitrarilyDiscretizedFunc calculateSDSsS1(ArbitrarilyDiscretizedFunc
-      saVals, float fa, float fv,String siteClass) {
+      saVals, float fa, float fv, String siteClass) {
     ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
     function.set(saVals.getX(0), fa * saVals.getY(0) * 2.0 / 3.0);
     function.set(saVals.getX(1), fv * saVals.getY(1) * 2.0 / 3.0);
@@ -22,9 +22,12 @@ public class SDSsS1Calculator {
     String SA = "Sa";
     String text1 = "SDs";
     String text2 = "SD1";
-    String info ="";
-    info += DataDisplayFormatter.createSubTitleString(subTitle,siteClass,fa,fv);
-    info += DataDisplayFormatter.createFunctionInfoString(function,SA,text1,text2,siteClass);
+    String info = "";
+    info +=
+        DataDisplayFormatter.createSubTitleString(subTitle, siteClass, fa, fv);
+    info +=
+        DataDisplayFormatter.createFunctionInfoString(function, SA, text1, text2,
+        siteClass);
     function.setInfo(info);
     return function;
   }

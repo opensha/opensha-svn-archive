@@ -1,16 +1,14 @@
 package gov.usgs.sha.calc;
 
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import gov.usgs.sha.data.SiteInterpolation;
-import gov.usgs.sha.io.HazardCurves_Record;
-import gov.usgs.util.ZipCodeToLatLonConvertor;
-import gov.usgs.util.LocationUtil;
-import org.scec.data.Location;
-import gov.usgs.exceptions.ZipCodeErrorException;
-import java.text.DecimalFormat;
-import gov.usgs.util.ui.DataDisplayFormatter;
-import gov.usgs.util.GlobalConstants;
-import gov.usgs.sha.io.DataFileNameSelectorForHazardCurves;
+import java.text.*;
+
+import org.scec.data.*;
+import org.scec.data.function.*;
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.data.*;
+import gov.usgs.sha.io.*;
+import gov.usgs.util.*;
+import gov.usgs.util.ui.*;
 
 /**
  * <p>Title: HazardCurveCalculator</p>
@@ -22,14 +20,14 @@ import gov.usgs.sha.io.DataFileNameSelectorForHazardCurves;
  */
 public class HazardCurveCalculator {
 
-
   private static final String Hazard_Curve_Title = "Hazard Curve for PGA";
 
   private float gridSpacing;
 
   private DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
-  private final static String EXCEED_PROB_TEXT = "Frequency of exceedance values "+
+  private final static String EXCEED_PROB_TEXT =
+      "Frequency of exceedance values " +
       "less than 10E-4 should be used with caution";
   private final static String PGA_TEXT = "Ground Motion";
   private final static String PROB_TEXT = "Frequency of Exceedance";
@@ -64,7 +62,7 @@ public class HazardCurveCalculator {
     info += "Latitude = " + latLonFormat.format(latitude) + "\n";
     info += "Longitude = " + latLonFormat.format(longitude) + "\n";
 
-    info += "Data are based on a " + gridSpacing + " deg grid spacing"+"\n";
+    info += "Data are based on a " + gridSpacing + " deg grid spacing" + "\n";
     info +=
         DataDisplayFormatter.createFunctionInfoString_HazardCurves(function,
         PGA_TEXT, PROB_TEXT, GlobalConstants.SA_UNITS,
@@ -102,7 +100,7 @@ public class HazardCurveCalculator {
     info += "Zip Code - " + zipCode + "\n";
     info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
     info += "Zip Code Longitude = " + latLonFormat.format(lon) + "\n";
-    info += "Data are based on a " + gridSpacing + " deg grid spacing"+"\n";
+    info += "Data are based on a " + gridSpacing + " deg grid spacing" + "\n";
     info +=
         DataDisplayFormatter.createFunctionInfoString_HazardCurves(function,
         PGA_TEXT, PROB_TEXT, GlobalConstants.SA_UNITS,
@@ -113,6 +111,5 @@ public class HazardCurveCalculator {
     return function;
 
   }
-
 
 }

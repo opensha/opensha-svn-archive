@@ -1,6 +1,5 @@
 package gov.usgs.sha.gui.beans;
 
-
 import java.util.*;
 
 import java.awt.*;
@@ -11,7 +10,7 @@ import org.scec.data.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
-import gov.usgs.exceptions.LocationErrorException;
+import gov.usgs.exceptions.*;
 
 /**
  * <p>Title: LocationGuiBean</p>
@@ -22,11 +21,13 @@ import gov.usgs.exceptions.LocationErrorException;
  * @version 1.0
  */
 public class LocationGuiBean
-    extends  JPanel implements ParameterChangeListener,ParameterChangeFailListener{
+    extends JPanel implements ParameterChangeListener,
+    ParameterChangeFailListener {
 
-
-  public static final String LOCATION_SELECTION_MODE_PARAM_NAME = "Set Location";
-  private static final String LOCATION_SELECTION_MODE_INFO = "Provides user with modes for "+
+  public static final String LOCATION_SELECTION_MODE_PARAM_NAME =
+      "Set Location";
+  private static final String LOCATION_SELECTION_MODE_INFO =
+      "Provides user with modes for " +
       "setting the location";
   public static final String ZIP_CODE = "Using Zip Code";
   public static final String LAT_LON = "Using Location Lat-Lon";
@@ -39,8 +40,8 @@ public class LocationGuiBean
 
   Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
       Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
-  TitledBorder locationBorder = new TitledBorder(border9, "Select Site Location");
-
+  TitledBorder locationBorder = new TitledBorder(border9,
+                                                 "Select Site Location");
 
   private static final String DEFAULT_ZIP_CODE = "91104";
   private static final double DEFAULT_LAT = 34.1670;
@@ -60,56 +61,55 @@ public class LocationGuiBean
     }
   }
 
-
   /**
    * Returns the Location object
    * @return Location
    */
-  public Location getSelectedLocation() throws LocationErrorException{
-    Double latObj  = (Double)parameterList.getParameter(LAT_PARAM_NAME).getValue();
-    Double lonObj = (Double)parameterList.getParameter(LON_PARAM_NAME).getValue();
+  public Location getSelectedLocation() throws LocationErrorException {
+    Double latObj = (Double) parameterList.getParameter(LAT_PARAM_NAME).
+        getValue();
+    Double lonObj = (Double) parameterList.getParameter(LON_PARAM_NAME).
+        getValue();
 
-
-    if(latObj == null || lonObj == null){
-      throw new LocationErrorException("Location not specified!\nPlease fill in the location parameter.");
+    if (latObj == null || lonObj == null) {
+      throw new LocationErrorException(
+          "Location not specified!\nPlease fill in the location parameter.");
     }
-    else{
+    else {
       double lat = latObj.doubleValue();
       double lon = lonObj.doubleValue();
       return new Location(lat, lon);
     }
   }
 
-
-
   /**
    * Returns the parameters constituting the location gui bean.
    * @return ParameterList
    */
-  public ParameterList getLocationParameters(){
+  public ParameterList getLocationParameters() {
     return parameterList;
   }
-
-
 
   /**
    * Returns what how user has chosen to set the location
    * @return String
    */
-  public String getLocationMode(){
-    return (String)locationSelectionModeParam.getValue();
+  public String getLocationMode() {
+    return (String) locationSelectionModeParam.getValue();
   }
 
   /**
    * Returns zip code
    * @return String
    */
-  public String getZipCode() throws LocationErrorException{
+  public String getZipCode() throws LocationErrorException {
 
-    String zipCode = (String)parameterList.getParameter(ZIP_CODE_PARAM_NAME).getValue();
+    String zipCode = (String) parameterList.getParameter(ZIP_CODE_PARAM_NAME).
+        getValue();
 
-    if(zipCode == null){
-      throw new LocationErrorException("Zip Code not specified!\nPlease fill in the valid location.");
+    if (zipCode == null) {
+      throw new LocationErrorException(
+          "Zip Code not specified!\nPlease fill in the valid location.");
     }
 
     return zipCode;
@@ -137,7 +137,7 @@ public class LocationGuiBean
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
-      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME,"");
+      zipParam = new StringParameter(ZIP_CODE_PARAM_NAME, "");
       zipParam.addParameterChangeListener(this);
       parameterList.addParameter(zipParam);
     }
@@ -153,24 +153,22 @@ public class LocationGuiBean
                                     new Insets(4, 4, 4, 4), 0, 0));
   }
 
-
-
   /**
    * Creates the LocationMode selection parameter by checking if
    * Zip code is supported by selected geographic region for the selected data edition.
    */
-  private void createLocationModeParam(boolean showZipCodeOption){
+  private void createLocationModeParam(boolean showZipCodeOption) {
     ArrayList locationModeChoices = new ArrayList();
     locationModeChoices.add(LAT_LON);
-    if(showZipCodeOption)
+    if (showZipCodeOption) {
       locationModeChoices.add(ZIP_CODE);
+    }
 
-    locationSelectionModeParam = new StringParameter(LOCATION_SELECTION_MODE_PARAM_NAME,
-        locationModeChoices,(String)locationModeChoices.get(0));
+    locationSelectionModeParam = new StringParameter(
+        LOCATION_SELECTION_MODE_PARAM_NAME,
+        locationModeChoices, (String) locationModeChoices.get(0));
     locationSelectionModeParam.addParameterChangeListener(this);
   }
-
-
 
   /**
    * If user changes the location selection mode.
@@ -179,41 +177,48 @@ public class LocationGuiBean
   public void parameterChange(ParameterChangeEvent event) {
     String paramName = event.getParameterName();
 
-    if(paramName.equals(LOCATION_SELECTION_MODE_PARAM_NAME))
+    if (paramName.equals(LOCATION_SELECTION_MODE_PARAM_NAME)) {
       setVisibleParameters();
-    else if(paramName.equals(ZIP_CODE_PARAM_NAME)){
-      try{
+    }
+    else if (paramName.equals(ZIP_CODE_PARAM_NAME)) {
+      try {
         String zip = (String) parameterList.getParameter(ZIP_CODE_PARAM_NAME).
             getValue();
-        if(zip.length() !=5)
-          throw new RuntimeException("Please enter valid 5 digit numeric zip code");
+        if (zip.length() != 5) {
+          throw new RuntimeException(
+              "Please enter valid 5 digit numeric zip code");
+        }
         long zipCode = Long.parseLong(zip);
-      }catch(NumberFormatException e){
-        JOptionPane.showMessageDialog(this,"Please enter valid 5 digit numeric zip code","Zip Code Error",JOptionPane.ERROR_MESSAGE);
-      }catch(RuntimeException e){
-        JOptionPane.showMessageDialog(this,e.getMessage(),"Zip Code Error",JOptionPane.ERROR_MESSAGE);
+      }
+      catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this,
+            "Please enter valid 5 digit numeric zip code", "Zip Code Error",
+                                      JOptionPane.ERROR_MESSAGE);
+      }
+      catch (RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
+                                      JOptionPane.ERROR_MESSAGE);
       }
     }
     this.updateUI();
   }
 
-
-  public void parameterChangeFailed(ParameterChangeFailEvent event){
-
+  public void parameterChangeFailed(ParameterChangeFailEvent event) {
 
     StringBuffer b = new StringBuffer();
 
-    ParameterAPI param = ( ParameterAPI ) event.getSource();
+    ParameterAPI param = (ParameterAPI) event.getSource();
     Object oldValue = event.getOldValue();
     String oldValueStr = null;
-    if(oldValue !=null)
+    if (oldValue != null) {
       oldValueStr = oldValue.toString();
+    }
 
     String badValueStr = event.getBadValue().toString();
     String name = param.getName();
 
     //if Lat and Lon parameter constraints are violated
-    if(!name.equals(ZIP_CODE)){
+    if (!name.equals(ZIP_CODE)) {
       ParameterConstraintAPI constraint = param.getConstraint();
       b.append("The value ");
       b.append(badValueStr);
@@ -221,10 +226,12 @@ public class LocationGuiBean
       b.append(name);
       b.append("'.\n");
       b.append("Resetting to ");
-      if(oldValueStr !=null)
+      if (oldValueStr != null) {
         b.append(oldValueStr);
-      else
+      }
+      else {
         b.append("Null");
+      }
       b.append(". The constraints are: \n");
       b.append(constraint.toString());
 
@@ -238,25 +245,25 @@ public class LocationGuiBean
   /*
    * Makes the parameter visible based on the choice of location selection made by the user
    */
-  private void setVisibleParameters(){
-    String locationMode = (String)locationSelectionModeParam.getValue();
+  private void setVisibleParameters() {
+    String locationMode = (String) locationSelectionModeParam.getValue();
 
-    if(locationMode.equals(ZIP_CODE)){
-      if(parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
-         editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(true);
+    if (locationMode.equals(ZIP_CODE)) {
+      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME)) {
+        editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(true);
+      }
       editor.getParameterEditor(LAT_PARAM_NAME).setVisible(false);
       editor.getParameterEditor(LON_PARAM_NAME).setVisible(false);
     }
-    else{
-      if(parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
+    else {
+      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME)) {
         editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(false);
+      }
       editor.getParameterEditor(LAT_PARAM_NAME).setVisible(true);
       editor.getParameterEditor(LON_PARAM_NAME).setVisible(true);
     }
     editor.refreshParamEditor();
   }
-
-
 
   private void jbInit() throws Exception {
     this.setLayout(gridBagLayout1);

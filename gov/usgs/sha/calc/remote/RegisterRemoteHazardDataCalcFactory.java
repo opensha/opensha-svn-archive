@@ -1,10 +1,9 @@
 package gov.usgs.sha.calc.remote;
 
-import gov.usgs.sha.calc.remote.RemoteHazardDataCalcFactoryImpl;
-import gov.usgs.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI;
-import java.rmi.Naming;
+import java.rmi.*;
 
-import gov.usgs.util.GlobalConstants;
+import gov.usgs.sha.calc.remote.api.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: RegisterRemoteHazardDataCalcFactory</p>
@@ -16,21 +15,21 @@ import gov.usgs.util.GlobalConstants;
 
 public class RegisterRemoteHazardDataCalcFactory {
 
+  public static void main(String[] args) {
+    try {
+      // register the Hazard Curve Calculator with the naming service
+      RemoteHazardDataCalcFactoryAPI hazardDataServer = new
+          RemoteHazardDataCalcFactoryImpl();
+      Naming.rebind(GlobalConstants.registrationName, hazardDataServer);
+      System.out.println("Registered USGS Hazard Data Calc Factory Server as " +
+                         GlobalConstants.registrationName);
+    }
+    catch (Exception e) {
+      System.out.println("exception in starting server");
+      e.printStackTrace();
+      e.getMessage();
+      return;
+    }
 
-
-   public static void main(String[] args) {
-     try {
-       // register the Hazard Curve Calculator with the naming service
-       RemoteHazardDataCalcFactoryAPI hazardDataServer = new RemoteHazardDataCalcFactoryImpl();
-       Naming.rebind(GlobalConstants.registrationName, hazardDataServer);
-       System.out.println("Registered USGS Hazard Data Calc Factory Server as " + GlobalConstants.registrationName);
-     }
-     catch (Exception e) {
-       System.out.println("exception in starting server");
-       e.printStackTrace();
-       e.getMessage();
-       return;
-     }
-
- }
+  }
 }

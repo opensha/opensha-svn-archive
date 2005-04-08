@@ -1,12 +1,12 @@
 package gov.usgs.sha.gui.beans;
 
-import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import java.util.ArrayList;
-import gov.usgs.util.GlobalConstants;
-import org.scec.param.event.ParameterChangeEvent;
-import gov.usgs.util.RegionUtil;
-import org.scec.data.region.RectangularGeographicRegion;
-import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
+import java.util.*;
+
+import org.scec.data.region.*;
+import org.scec.param.event.*;
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.gui.api.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: IBC_GuiBean</p>
@@ -17,12 +17,12 @@ import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
  *
  * @version 1.0
  */
-public class IBC_GuiBean extends NEHRP_GuiBean{
+public class IBC_GuiBean
+    extends NEHRP_GuiBean {
 
   public IBC_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
   }
-
 
   /**
    * Creates the Parameter that allows user to select  the Editions based on the
@@ -34,9 +34,9 @@ public class IBC_GuiBean extends NEHRP_GuiBean{
 
     supportedEditionList.add(GlobalConstants.IBC_2000);
     supportedEditionList.add(GlobalConstants.IBC_2003);
-    if(!selectedRegion.equals(GlobalConstants.CONTER_48_STATES) &&
-       !selectedRegion.equals(GlobalConstants.ALASKA) &&
-       !selectedRegion.equals(GlobalConstants.HAWAII)){
+    if (!selectedRegion.equals(GlobalConstants.CONTER_48_STATES) &&
+        !selectedRegion.equals(GlobalConstants.ALASKA) &&
+        !selectedRegion.equals(GlobalConstants.HAWAII)) {
       supportedEditionList.add(GlobalConstants.IBC_2004);
       supportedEditionList.add(GlobalConstants.IBC_2006);
     }
@@ -44,7 +44,6 @@ public class IBC_GuiBean extends NEHRP_GuiBean{
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
     selectedEdition = datasetGui.getSelectedDataSetEdition();
   }
-
 
   /**
    * If GuiBean parameter is changed.
@@ -54,14 +53,13 @@ public class IBC_GuiBean extends NEHRP_GuiBean{
 
     String paramName = event.getParameterName();
 
-    if(paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)){
+    if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
       createEditionSelectionParameter();
     }
     super.parameterChange(event);
 
   }
-
 
   /**
    *
@@ -71,9 +69,10 @@ public class IBC_GuiBean extends NEHRP_GuiBean{
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
-        selectedRegion.equals(GlobalConstants.HAWAII))
+        selectedRegion.equals(GlobalConstants.HAWAII)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
+    }
 
     return null;
   }
@@ -84,10 +83,11 @@ public class IBC_GuiBean extends NEHRP_GuiBean{
    * if selected Analysis option is NEHRP.
    *
    */
-  protected void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGeographicRegionSelectionParameter() throws
+      AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.INTL_BUILDING_CODE) ;
+        getSupportedGeographicalRegions(GlobalConstants.INTL_BUILDING_CODE);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);

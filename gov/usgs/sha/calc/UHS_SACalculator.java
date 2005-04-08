@@ -1,22 +1,14 @@
 package gov.usgs.sha.calc;
 
+import java.text.*;
 
-import gov.usgs.sha.io.DataFileNameSelectorForUHS;
-
-import gov.usgs.sha.io.UHS_Record;
+import org.scec.data.*;
+import org.scec.data.function.*;
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.data.*;
+import gov.usgs.sha.io.*;
 import gov.usgs.util.*;
-import gov.usgs.sha.data.SiteInterpolation;
-import gov.usgs.exceptions.ZipCodeErrorException;
-
-
-import org.scec.data.Location;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import org.scec.data.function.DiscretizedFuncList;
-import gov.usgs.util.ui.DataDisplayFormatter;
-import gov.usgs.util.ui.DataDisplayFormatter;
-
-import java.text.DecimalFormat;
-
+import gov.usgs.util.ui.*;
 
 /**
  * <p>Title: UHS_SACalculator</p>
@@ -31,7 +23,6 @@ public class UHS_SACalculator {
   //grid spacing in file
   protected float gridSpacing;
 
-
   /**
    * Some static String for the data printing
    */
@@ -42,13 +33,14 @@ public class UHS_SACalculator {
 
   protected DecimalFormat latLonFormat = new DecimalFormat("0.0000##");
 
-  private static final String PGA_Metadata_String = "UHS values of PGA, Ss, and S1 for ";
-
+  private static final String PGA_Metadata_String =
+      "UHS values of PGA, Ss, and S1 for ";
 
   /*
    * Computes the Std Displacement function using the SA function.
    */
-  private ArbitrarilyDiscretizedFunc calcSDTFunction(ArbitrarilyDiscretizedFunc saFunction){
+  private ArbitrarilyDiscretizedFunc calcSDTFunction(ArbitrarilyDiscretizedFunc
+      saFunction) {
     StdDisplacementCalc calc = new StdDisplacementCalc();
     ArbitrarilyDiscretizedFunc sdTFunction = calc.getStdDisplacement(saFunction);
     return sdTFunction;
@@ -99,9 +91,6 @@ public class UHS_SACalculator {
     return pgaFunction;
   }
 
-
-
-
   /**
    *
    * @param latitude double
@@ -109,9 +98,9 @@ public class UHS_SACalculator {
    * @return ArbitrarilyDiscretizedFunc
    */
   public DiscretizedFuncList getSA(String selectedRegion,
-                                          String selectedEdition,
-                                          double latitude, double longitude,
-                                          String spectraType) {
+                                   String selectedEdition,
+                                   double latitude, double longitude,
+                                   String spectraType) {
 
     UHS_Record record = new UHS_Record();
     DataFileNameSelectorForUHS dataFileSelector = new
@@ -128,34 +117,34 @@ public class UHS_SACalculator {
     ArbitrarilyDiscretizedFunc sdTFunction = calcSDTFunction(function);
     gridSpacing = siteSaVals.getGridSpacing();
 
-
     DiscretizedFuncList funcList = new DiscretizedFuncList();
     funcList.add(sdTFunction);
     funcList.add(function);
-    funcList.add(createPGAValues(selectedRegion,selectedEdition,function));
-    funcList.setInfo(setInfo(funcList,latitude,longitude,spectraType));
+    funcList.add(createPGAValues(selectedRegion, selectedEdition, function));
+    funcList.setInfo(setInfo(funcList, latitude, longitude, spectraType));
     return funcList;
   }
 
   private String setInfo(DiscretizedFuncList funcList,
-      double latitude,double longitude, String spectraType){
+                         double latitude, double longitude, String spectraType) {
     //set the info for the function being added
     String info = "";
-    info += SA_TITLE+spectraType+ "\n\n";
+    info += SA_TITLE + spectraType + "\n\n";
 
     info += "Latitude = " + latLonFormat.format(latitude) + "\n";
     info += "Longitude = " + latLonFormat.format(longitude) + "\n";
-    info +=  BC_BOUNDARY_STRING+"\n";
+    info += BC_BOUNDARY_STRING + "\n";
 
     info += "Data are based on a " + gridSpacing + " deg grid spacing";
     info +=
-        DataDisplayFormatter.createFunctionInfoString(funcList,GlobalConstants.SITE_CLASS_B);
+        DataDisplayFormatter.createFunctionInfoString(funcList,
+        GlobalConstants.SITE_CLASS_B);
     //adding the info for the PGA function
-    info +=getPGAInfo((ArbitrarilyDiscretizedFunc)funcList.get(2),spectraType);
+    info +=
+        getPGAInfo( (ArbitrarilyDiscretizedFunc) funcList.get(2), spectraType);
 
     return info;
   }
-
 
   /*
    * Ading the PGA info to the Metadata
@@ -163,17 +152,18 @@ public class UHS_SACalculator {
    * @param spectraType String
    * @return String
    */
-  private String getPGAInfo(ArbitrarilyDiscretizedFunc pgaFunction,String spectraType){
+  private String getPGAInfo(ArbitrarilyDiscretizedFunc pgaFunction,
+                            String spectraType) {
     String info = "\n";
-    info += PGA_Metadata_String + spectraType+"\n";
-    info +=  BC_BOUNDARY_STRING+"\n";
+    info += PGA_Metadata_String + spectraType + "\n";
+    info += BC_BOUNDARY_STRING + "\n";
     info += "Data are based on a " + gridSpacing + " deg grid spacing";
-    info +=DataDisplayFormatter.createFunctionInfoString_HazardCurves(pgaFunction,
-          "Period","Sa",GlobalConstants.PERIOD_UNITS,
-          GlobalConstants.SA_UNITS,"");
+    info +=
+        DataDisplayFormatter.createFunctionInfoString_HazardCurves(pgaFunction,
+        "Period", "Sa", GlobalConstants.PERIOD_UNITS,
+        GlobalConstants.SA_UNITS, "");
     return info;
   }
-
 
   private String setInfoForZipCode(DiscretizedFuncList funcList, String zipCode,
                                    double lat, double lon, String spectraType) {
@@ -192,7 +182,8 @@ public class UHS_SACalculator {
         DataDisplayFormatter.createFunctionInfoString(funcList,
         GlobalConstants.SITE_CLASS_B);
     //adding the info for the PGA function
-    info +=getPGAInfo((ArbitrarilyDiscretizedFunc)funcList.get(2),spectraType);
+    info +=
+        getPGAInfo( (ArbitrarilyDiscretizedFunc) funcList.get(2), spectraType);
     return info;
 
   }
@@ -203,8 +194,8 @@ public class UHS_SACalculator {
    * @return
    */
   public DiscretizedFuncList getSA(String selectedRegion,
-                                            String selectedEdition,
-                                            String zipCode,String spectraType) throws
+                                   String selectedEdition,
+                                   String zipCode, String spectraType) throws
       ZipCodeErrorException {
     Location loc = ZipCodeToLatLonConvertor.getLocationForZipCode(zipCode);
     LocationUtil.checkZipCodeValidity(loc, selectedRegion);
@@ -212,8 +203,8 @@ public class UHS_SACalculator {
     double lon = loc.getLongitude();
     //getting the SA Period values for the lat lon for the selected Zip code.
     DiscretizedFuncList funcList = getSA(selectedRegion,
-                                                  selectedEdition, lat, lon,spectraType);
-    funcList.setInfo(setInfoForZipCode(funcList,zipCode,lat, lon,spectraType));
+                                         selectedEdition, lat, lon, spectraType);
+    funcList.setInfo(setInfoForZipCode(funcList, zipCode, lat, lon, spectraType));
     return funcList;
   }
 

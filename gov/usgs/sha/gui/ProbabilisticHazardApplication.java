@@ -95,7 +95,6 @@ public class ProbabilisticHazardApplication
     }
   }
 
-
   //static initializer for setting look & feel
   static {
     try {
@@ -104,7 +103,6 @@ public class ProbabilisticHazardApplication
     catch (Exception e) {
     }
   }
-
 
   /**
    * Component initialization.
@@ -231,8 +229,8 @@ public class ProbabilisticHazardApplication
         new Insets(10, 8, 5, 10), 777, 597));
     setJMenuBar(applicationMenu);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setLocation( (d.width - this.getSize().width) / 2,0);
-    mainSplitPane.setDividerLocation(530);
+    this.setLocation( (d.width - this.getSize().width) / 2, 0);
+    mainSplitPane.setDividerLocation(515);
     dataSplitPane.setDividerLocation(600);
     viewMapsButton.setVisible(false);
   }
@@ -513,14 +511,14 @@ public class ProbabilisticHazardApplication
                                     "Categories for the default Site Class D.");
     }
     /*else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
-      this.explainationText.setText("International Existing Building Code  - " +
-                                    "This option may be used for the 1997, 2000, " +
-                                    "and 2003 editions of the  International Existing " +
-                                    "Building Code.  The user may calculate seismic " +
+     this.explainationText.setText("International Existing Building Code  - " +
+     "This option may be used for the 1997, 2000, " +
+     "and 2003 editions of the  International Existing " +
+     "Building Code.  The user may calculate seismic " +
                                     "design parameters and response spectra " +
                                     "(both for period and displacement), " +
                                     "for Site Class A through E.");
-    }*/
+         }*/
     else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
       this.explainationText.setText(
           "NFPA 5000 Building Construction and Safety Code " +
@@ -528,7 +526,7 @@ public class ProbabilisticHazardApplication
           "of the  NFPA 5000 Building Construction and " +
           "Safety Code.  The user may calculate seismic " +
           "design parameters and response spectra (both " +
-          "for period and displacement), for Site Class A through E.\n"+
+          "for period and displacement), for Site Class A through E.\n" +
           "ASCE 7 Standard, Minimum Design Loads for " +
           "Buildings and Other Structures  - This option " +
           "may be used for the 1998 and 2002 editions " +
@@ -548,7 +546,7 @@ public class ProbabilisticHazardApplication
           "The user may calculate seismic design " +
           "parameters and response spectra (both for " +
           "period and displacement), for Site Class A through E.");
-    }*/
+         }*/
   }
 
   void this_windowClosing(WindowEvent e) {

@@ -5,12 +5,11 @@ import java.util.*;
 import org.scec.data.region.*;
 import org.scec.param.*;
 import org.scec.param.editor.*;
+import org.scec.param.event.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.*;
-import gov.usgs.sha.data.api.*;
 import gov.usgs.sha.gui.api.*;
 import gov.usgs.util.*;
-import org.scec.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: FEMA_GuiBean</p>
@@ -22,14 +21,12 @@ import org.scec.param.event.ParameterChangeEvent;
 public class FEMA_GuiBean
     extends NEHRP_GuiBean {
 
-
-
   public FEMA_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
     dataGenerator = new DataGenerator_FEMA();
   }
 
-  protected void createGroundMotionParameter(){
+  protected void createGroundMotionParameter() {
 
     ArrayList supportedGroundMotion = getSupportedSpectraTypes();
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
@@ -42,7 +39,6 @@ public class FEMA_GuiBean
     groundMotionParam.addParameterChangeListener(this);
     spectraType = (String) groundMotionParam.getValue();
   }
-
 
   protected ArrayList getSupportedSpectraTypes() {
     ArrayList supportedSpectraTypes = new ArrayList();
@@ -69,7 +65,6 @@ public class FEMA_GuiBean
     selectedEdition = datasetGui.getSelectedDataSetEdition();
   }
 
-
   /**
    * If GuiBean parameter is changed.
    * @param event ParameterChangeEvent
@@ -77,12 +72,13 @@ public class FEMA_GuiBean
   public void parameterChange(ParameterChangeEvent event) {
 
     String paramName = event.getParameterName();
-    if(paramName.equals(GROUND_MOTION_PARAM_NAME)){
+    if (paramName.equals(GROUND_MOTION_PARAM_NAME)) {
       spectraType = (String) groundMotionParam.getValue();
       groundMotionParamEditor.refreshParamEditor();
     }
-    else
+    else {
       super.parameterChange(event);
+    }
 
   }
 
@@ -107,10 +103,11 @@ public class FEMA_GuiBean
    * if selected Analysis option is NEHRP.
    *
    */
-  protected void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGeographicRegionSelectionParameter() throws
+      AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.FEMA_IEBC_2003) ;
+        getSupportedGeographicalRegions(GlobalConstants.FEMA_IEBC_2003);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);

@@ -1,36 +1,24 @@
 package gov.usgs.sha.gui.beans;
 
+import java.rmi.*;
+import java.util.*;
+
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
-import java.util.ArrayList;
+import javax.swing.border.*;
 
-import gov.usgs.util.*;
+import org.scec.data.*;
+import org.scec.data.region.*;
+import org.scec.param.*;
+import org.scec.param.editor.*;
 import org.scec.param.event.*;
-
-import org.scec.data.region.RectangularGeographicRegion;
-import org.scec.param.StringParameter;
-import org.scec.param.editor.ConstrainedStringParameterEditor;
-import org.scec.data.Location;
-import org.scec.param.ParameterList;
-import org.scec.param.ParameterAPI;
-
-import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import java.util.ListIterator;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import gov.usgs.exceptions.ZipCodeErrorException ;
-import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
-import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
-import gov.usgs.sha.data.DataGenerator_NEHRP;
-import gov.usgs.sha.gui.infoTools.SiteCoefficientInfoWindow;
-import gov.usgs.sha.gui.infoTools.GraphWindow;
-import gov.usgs.exceptions.LocationErrorException;
-import java.rmi.RemoteException;
-
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.data.*;
+import gov.usgs.sha.data.api.*;
+import gov.usgs.sha.gui.api.*;
+import gov.usgs.sha.gui.infoTools.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -40,7 +28,8 @@ import java.rmi.RemoteException;
  * @version 1.0
  */
 public class NEHRP_GuiBean
-    extends JPanel implements ParameterChangeListener,AnalysisOptionsGuiBeanAPI {
+    extends JPanel implements ParameterChangeListener,
+    AnalysisOptionsGuiBeanAPI {
 
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
@@ -56,10 +45,12 @@ public class NEHRP_GuiBean
   JButton smSDButton = new JButton();
   Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
       Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
-  TitledBorder responseSpecBorder = new TitledBorder(border9, "Response Spectra");
+  TitledBorder responseSpecBorder = new TitledBorder(border9,
+      "Response Spectra");
 
   TitledBorder basicParamBorder = new TitledBorder(border9, "Basic Parameters");
-  TitledBorder regionBorder = new TitledBorder(border9, "Region and DataSet Selection");
+  TitledBorder regionBorder = new TitledBorder(border9,
+                                               "Region and DataSet Selection");
   JButton mapSpecButton = new JButton();
   JButton smSpecButton = new JButton();
   JButton sdSpecButton = new JButton();
@@ -69,19 +60,15 @@ public class NEHRP_GuiBean
   GridBagLayout gridBagLayout2 = new GridBagLayout();
   GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
-
   protected boolean locationVisible;
-
 
   //creating the Ground Motion selection parameter
   protected StringParameter groundMotionParam;
   protected ConstrainedStringParameterEditor groundMotionParamEditor;
   protected static final String GROUND_MOTION_PARAM_NAME = "Ground Motion";
-
 
   protected DataGeneratorAPI_NEHRP dataGenerator = new DataGenerator_NEHRP();
 
@@ -91,9 +78,10 @@ public class NEHRP_GuiBean
   //instance of the application using this GUI bean
   protected ProbabilisticHazardApplicationAPI application;
 
-  protected boolean mapSpectrumCalculated,smSpectrumCalculated,sdSpectrumCalculated ;
+  protected boolean mapSpectrumCalculated, smSpectrumCalculated,
+      sdSpectrumCalculated;
 
-  protected String selectedRegion,selectedEdition,spectraType;
+  protected String selectedRegion, selectedEdition, spectraType;
 
   public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -127,7 +115,6 @@ public class NEHRP_GuiBean
                                                 GridBagConstraints.BOTH,
                                                 new Insets(4, 4, 4, 4), 0, 0));
 
-
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.CENTER,
@@ -137,19 +124,17 @@ public class NEHRP_GuiBean
 
   }
 
-
-
-  protected void createGroundMotionParameter(){
-
+  protected void createGroundMotionParameter() {
 
     ArrayList supportedGroundMotion = getSupportedSpectraTypes();
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
                                             supportedGroundMotion,
-                                            (String) supportedGroundMotion.get(0));
-    groundMotionParamEditor = new ConstrainedStringParameterEditor(groundMotionParam);
-    spectraType = (String)groundMotionParam.getValue();
+                                            (String) supportedGroundMotion.get(
+        0));
+    groundMotionParamEditor = new ConstrainedStringParameterEditor(
+        groundMotionParam);
+    spectraType = (String) groundMotionParam.getValue();
   }
-
 
   protected ArrayList getSupportedSpectraTypes() {
     ArrayList supportedSpectraTypes = new ArrayList();
@@ -225,7 +210,6 @@ public class NEHRP_GuiBean
     regionBorder.setTitleColor(Color.RED);
     regionPanel.setLayout(gridBagLayout2);
 
-
     mainSplitPane.add(locationSplitPane, JSplitPane.TOP);
     mainSplitPane.add(buttonsSplitPane, JSplitPane.BOTTOM);
     locationSplitPane.add(regionPanel, JSplitPane.TOP);
@@ -250,14 +234,15 @@ public class NEHRP_GuiBean
                                    new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( -1, 34, 0, 39), 10, 6));
-    basicParamsPanel.add(ssButton, new GridBagConstraints(0,1, 1, 1, 1.0, 1.0
+    basicParamsPanel.add(ssButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(10, 10, 4, 0), 30, 6));
+        new Insets(7, 10, 4, 0), 30, 6));
     basicParamsPanel.add(smSDButton,
                          new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(10, 27, 7, 18), 10, 8));
+                                                new Insets(10, 27, 7, 18), 10,
+                                                8));
     basicParamsPanel.add(siteCoeffButton,
                          new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
@@ -270,25 +255,22 @@ public class NEHRP_GuiBean
     setButtonsEnabled(false);
   }
 
-
-  protected void setButtonsEnabled(boolean disableButtons){
+  protected void setButtonsEnabled(boolean disableButtons) {
     siteCoeffButton.setEnabled(disableButtons);
     smSDButton.setEnabled(disableButtons);
     mapSpecButton.setEnabled(disableButtons);
     smSpecButton.setEnabled(disableButtons);
     sdSpecButton.setEnabled(disableButtons);
     viewButton.setEnabled(false);
-    if(disableButtons == false)
-      mapSpectrumCalculated=smSpectrumCalculated=sdSpectrumCalculated=false;
+    if (disableButtons == false) {
+      mapSpectrumCalculated = smSpectrumCalculated = sdSpectrumCalculated = false;
+    }
   }
-
-
-
 
   /**
    * Removes all the output from the window
    */
-  public void clearData(){
+  public void clearData() {
     dataGenerator.clearData();
     setButtonsEnabled(false);
   }
@@ -310,19 +292,19 @@ public class NEHRP_GuiBean
       selectedEdition = datasetGui.getSelectedDataSetEdition();
       setButtonsEnabled(false);
     }
-    else if(paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
-            paramName.equals(locGuiBean.LON_PARAM_NAME) ||
-            paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME))
+    else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
+             paramName.equals(locGuiBean.LON_PARAM_NAME) ||
+             paramName.equals(locGuiBean.ZIP_CODE_PARAM_NAME)) {
       setButtonsEnabled(false);
+    }
 
   }
-
 
   /**
    * Returns the instance of itself
    * @return JPanel
    */
-  public JPanel getGuiBean(){
+  public JPanel getGuiBean() {
     return this;
   }
 
@@ -332,26 +314,29 @@ public class NEHRP_GuiBean
   protected void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
     Component comp = locationSplitPane.getBottomComponent();
-    if(comp != null)
+    if (comp != null) {
       locationSplitPane.remove(locationSplitPane.getBottomComponent());
+    }
     if (region != null) {
       locationVisible = true;
       //checking if Zip code is supported by the selected choice
-      boolean zipCodeSupported = LocationUtil.isZipCodeSupportedBySelectedEdition(selectedRegion);
+      boolean zipCodeSupported = LocationUtil.
+          isZipCodeSupportedBySelectedEdition(selectedRegion);
       locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
                                    region.getMinLon(), region.getMaxLon(),
                                    zipCodeSupported);
       ParameterList paramList = locGuiBean.getLocationParameters();
       ListIterator it = paramList.getParametersIterator();
-      while(it.hasNext()){
-        ParameterAPI param = (ParameterAPI)it.next();
+      while (it.hasNext()) {
+        ParameterAPI param = (ParameterAPI) it.next();
         param.addParameterChangeListener(this);
       }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(170);
     }
-    else if(region == null)
+    else if (region == null) {
       locationVisible = false;
+    }
 
   }
 
@@ -364,13 +349,13 @@ public class NEHRP_GuiBean
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
         selectedRegion.equals(GlobalConstants.HAWAII) ||
-        selectedEdition.equals(GlobalConstants.NEHRP_2003))
+        selectedEdition.equals(GlobalConstants.NEHRP_2003)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
+    }
 
     return null;
   }
-
 
   /**
    * Creates the Parameter that allows user to select  the Editions based on the
@@ -394,10 +379,11 @@ public class NEHRP_GuiBean
    * if selected Analysis option is NEHRP.
    *
    */
-  protected void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGeographicRegionSelectionParameter() throws
+      AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.NEHRP) ;
+        getSupportedGeographicalRegions(GlobalConstants.NEHRP);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);
@@ -417,13 +403,15 @@ public class NEHRP_GuiBean
     if (locationVisible) {
       String locationMode = locGuiBean.getLocationMode();
       if (locationMode.equals(locGuiBean.LAT_LON)) {
-        try{
+        try {
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
           double lon = loc.getLongitude();
-          dataGenerator.calculateSsS1(lat,lon);
-        }catch(LocationErrorException e){
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
+          dataGenerator.calculateSsS1(lat, lon);
+        }
+        catch (LocationErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
+                                        JOptionPane.OK_OPTION);
           return;
         }
         catch (RemoteException e) {
@@ -445,8 +433,10 @@ public class NEHRP_GuiBean
           JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
                                         JOptionPane.OK_OPTION);
           return;
-        }catch(LocationErrorException e){
-          JOptionPane.showMessageDialog(this,e.getMessage(),"Location Error",JOptionPane.OK_OPTION);
+        }
+        catch (LocationErrorException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
+                                        JOptionPane.OK_OPTION);
           return;
         }
         catch (RemoteException e) {
@@ -461,7 +451,7 @@ public class NEHRP_GuiBean
       }
     }
     else { // if territory and location Gui is not visible
-      try{
+      try {
         dataGenerator.calculateSsS1();
       }
       catch (RemoteException e) {
@@ -476,7 +466,6 @@ public class NEHRP_GuiBean
     }
   }
 
-
   protected void ssButton_actionPerformed(ActionEvent actionEvent) {
     getDataForSA_Period();
     application.setDataInWindow(getData());
@@ -488,16 +477,15 @@ public class NEHRP_GuiBean
    *
    * @return String
    */
-  public String  getData(){
+  public String getData() {
     return dataGenerator.getDataInfo();
   }
 
-
   protected void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    if(siteCoefficientWindow == null)
+    if (siteCoefficientWindow == null) {
       siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
-          dataGenerator.getSa(),dataGenerator.getSelectedSiteClass());
-    siteCoefficientWindow.pack();
+          dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
+    }
     siteCoefficientWindow.show();
 
     dataGenerator.setFa(siteCoefficientWindow.getFa());
@@ -508,10 +496,11 @@ public class NEHRP_GuiBean
   }
 
   protected void smSDButton_actionPerformed(ActionEvent actionEvent) {
-    try{
+    try {
       dataGenerator.calculateSMSsS1();
       dataGenerator.calculatedSDSsS1();
-    }catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",
@@ -523,9 +512,10 @@ public class NEHRP_GuiBean
   }
 
   protected void mapSpecButton_actionPerformed(ActionEvent actionEvent) {
-    try{
+    try {
       dataGenerator.calculateMapSpectrum();
-    }catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",
@@ -535,15 +525,17 @@ public class NEHRP_GuiBean
     }
 
     application.setDataInWindow(getData());
-    if(!viewButton.isEnabled())
+    if (!viewButton.isEnabled()) {
       viewButton.setEnabled(true);
+    }
     mapSpectrumCalculated = true;
   }
 
   protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
-    try{
+    try {
       dataGenerator.calculateSMSpectrum();
-    }catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",
@@ -553,15 +545,17 @@ public class NEHRP_GuiBean
     }
 
     application.setDataInWindow(getData());
-    if(!viewButton.isEnabled())
+    if (!viewButton.isEnabled()) {
       viewButton.setEnabled(true);
+    }
     smSpectrumCalculated = true;
   }
 
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
-    try{
+    try {
       dataGenerator.calculateSDSpectrum();
-    }catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",
@@ -571,14 +565,15 @@ public class NEHRP_GuiBean
     }
 
     application.setDataInWindow(getData());
-    if(!viewButton.isEnabled())
+    if (!viewButton.isEnabled()) {
       viewButton.setEnabled(true);
-   sdSpectrumCalculated = true;
+    }
+    sdSpectrumCalculated = true;
   }
 
   protected void viewButton_actionPerformed(ActionEvent actionEvent) {
-   ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
-        mapSpectrumCalculated, sdSpectrumCalculated,smSpectrumCalculated);
+    ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
+        mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
     GraphWindow window = new GraphWindow(functions);
     window.show();
   }

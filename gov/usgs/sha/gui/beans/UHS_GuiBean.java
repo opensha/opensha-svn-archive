@@ -1,12 +1,12 @@
 package gov.usgs.sha.gui.beans;
 
+import java.rmi.*;
 import java.util.*;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import java.rmi.RemoteException;
 
 import org.scec.data.*;
 import org.scec.data.region.*;
@@ -64,7 +64,6 @@ public class UHS_GuiBean
   GridBagLayout gridBagLayout4 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
-
   //creating the Ground Motion selection parameter
   protected StringParameter groundMotionParam;
   protected ConstrainedStringParameterEditor groundMotionParamEditor;
@@ -109,8 +108,6 @@ public class UHS_GuiBean
       exception.printStackTrace();
     }
 
-
-
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.CENTER,
@@ -121,17 +118,17 @@ public class UHS_GuiBean
 
   }
 
-  protected void createGroundMotionParameter(){
+  protected void createGroundMotionParameter() {
 
-    if(groundMotionParamEditor !=null)
+    if (groundMotionParamEditor != null) {
       basicParamsPanel.remove(groundMotionParamEditor);
+    }
 
     ArrayList supportedGroundMotion = getSupportedSpectraTypes();
     groundMotionParam = new StringParameter(GROUND_MOTION_PARAM_NAME,
                                             supportedGroundMotion,
                                             (String) supportedGroundMotion.get(
-        0));
-
+                                                0));
 
     groundMotionParam.addParameterChangeListener(this);
     groundMotionParamEditor = new ConstrainedStringParameterEditor(
@@ -148,15 +145,14 @@ public class UHS_GuiBean
     basicParamsPanel.updateUI();
   }
 
-
   protected ArrayList getSupportedSpectraTypes() {
     ArrayList supportedSpectraTypes = new ArrayList();
-    if(selectedEdition.equals(GlobalConstants.data_1996)){
+    if (selectedEdition.equals(GlobalConstants.data_1996)) {
       supportedSpectraTypes.add(GlobalConstants.PE_2);
       supportedSpectraTypes.add(GlobalConstants.PE_5);
       supportedSpectraTypes.add(GlobalConstants.PE_10);
     }
-    else{
+    else {
       supportedSpectraTypes.add(GlobalConstants.PE_2);
       supportedSpectraTypes.add(GlobalConstants.PE_10);
     }
@@ -199,7 +195,6 @@ public class UHS_GuiBean
     responseSpectraButtonPanel.setBorder(responseSpecBorder);
     responseSpecBorder.setTitleColor(Color.RED);
     responseSpectraButtonPanel.setLayout(gridBagLayout3);
-    siteCoeffButton.setFont(new java.awt.Font("Arial", Font.BOLD, 13));
     siteCoeffButton.setText("<html>Calculate Site<br> Coefficients</br></html>");
     siteCoeffButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -244,11 +239,11 @@ public class UHS_GuiBean
     responseSpectraButtonPanel.add(viewButton,
                                    new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 10, 6));
+        new Insets(2, 27, 0, 0), 20, 13));
     responseSpectraButtonPanel.add(siteCoeffButton,
                                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 42, 0, 0), 10, 6));
+        new Insets( -1, 42, 0, 0), 10, 20));
     responseSpectraButtonPanel.add(smSpecButton,
                                    new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
@@ -265,7 +260,8 @@ public class UHS_GuiBean
                          new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(10, 27, 7, 18), 10, 8));
+                                                new Insets(10, 27, 7, 18), 30,
+                                                8));
     basicParamsPanel.add(approxUHSButton,
                          new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
@@ -315,8 +311,9 @@ public class UHS_GuiBean
       createGroundMotionParameter();
       setButtonsEnabled(false);
     }
-    else if(paramName.equals(GROUND_MOTION_PARAM_NAME))
-      spectraType = (String)groundMotionParam.getValue();
+    else if (paramName.equals(GROUND_MOTION_PARAM_NAME)) {
+      spectraType = (String) groundMotionParam.getValue();
+    }
 
     else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
              paramName.equals(locGuiBean.LON_PARAM_NAME) ||
@@ -369,7 +366,6 @@ public class UHS_GuiBean
     return RegionUtil.getRegionConstraint(selectedRegion);
   }
 
-
   /**
    * Creates the Parameter that allows user to select  the Editions based on the
    * selected Analysis and choosen geographic region.
@@ -378,15 +374,17 @@ public class UHS_GuiBean
 
     ArrayList supportedEditionList = new ArrayList();
 
-    if(selectedRegion.equals(GlobalConstants.CONTER_48_STATES)){
+    if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       supportedEditionList.add(GlobalConstants.data_2002);
       supportedEditionList.add(GlobalConstants.data_1996);
     }
-    else if(selectedRegion.equals(GlobalConstants.ALASKA) ||
-            selectedRegion.equals(GlobalConstants.HAWAII))
+    else if (selectedRegion.equals(GlobalConstants.ALASKA) ||
+             selectedRegion.equals(GlobalConstants.HAWAII)) {
       supportedEditionList.add(GlobalConstants.data_1998);
-    else
+    }
+    else {
       supportedEditionList.add(GlobalConstants.data_2003);
+    }
 
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
@@ -435,7 +433,8 @@ public class UHS_GuiBean
       }
       catch (RemoteException e) {
         JOptionPane.showMessageDialog(this,
-                                      e.getMessage() + "\n" + "Please check your network connection",
+                                      e.getMessage() + "\n" +
+                                      "Please check your network connection",
                                       "Server Connection Error",
                                       JOptionPane.ERROR_MESSAGE);
         return;
@@ -449,7 +448,8 @@ public class UHS_GuiBean
       }
       catch (RemoteException e) {
         JOptionPane.showMessageDialog(this,
-                                      e.getMessage() + "\n" + "Please check your network connection",
+                                      e.getMessage() + "\n" +
+                                      "Please check your network connection",
                                       "Server Connection Error",
                                       JOptionPane.ERROR_MESSAGE);
         return;
@@ -484,7 +484,6 @@ public class UHS_GuiBean
     return dataGenerator.getDataInfo();
   }
 
-
   /**
    *
    * @param actionEvent ActionEvent
@@ -494,7 +493,6 @@ public class UHS_GuiBean
       siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
           dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
     }
-    siteCoefficientWindow.pack();
     siteCoefficientWindow.show();
 
     dataGenerator.setFa(siteCoefficientWindow.getFa());
@@ -529,9 +527,10 @@ public class UHS_GuiBean
   }
 
   protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
-    try{
+    try {
       dataGenerator.calculateSMSpectrum();
-    }catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",
@@ -548,9 +547,10 @@ public class UHS_GuiBean
   }
 
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
-    try{
+    try {
       dataGenerator.calculateSDSpectrum();
-    }catch (RemoteException e) {
+    }
+    catch (RemoteException e) {
       JOptionPane.showMessageDialog(this,
                                     e.getMessage() + "\n" +
                                     "Please check your network connection",

@@ -1,11 +1,11 @@
 package gov.usgs.sha.gui.beans;
 
-import gov.usgs.sha.gui.api.ProbabilisticHazardApplicationAPI;
-import gov.usgs.util.RegionUtil;
-import org.scec.data.region.RectangularGeographicRegion;
-import gov.usgs.util.GlobalConstants;
-import java.util.ArrayList;
-import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
+import java.util.*;
+
+import org.scec.data.region.*;
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.gui.api.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: ASCE7_NFPA_GuiBean</p>
@@ -17,11 +17,9 @@ import gov.usgs.exceptions.AnalysisOptionNotSupportedException;
 public class ASCE7_NFPA_GuiBean
     extends NEHRP_GuiBean {
 
-
   public ASCE7_NFPA_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
   }
-
 
   /**
    *
@@ -31,9 +29,10 @@ public class ASCE7_NFPA_GuiBean
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||
-        selectedRegion.equals(GlobalConstants.HAWAII))
+        selectedRegion.equals(GlobalConstants.HAWAII)) {
 
       return RegionUtil.getRegionConstraint(selectedRegion);
+    }
 
     return null;
   }
@@ -60,10 +59,11 @@ public class ASCE7_NFPA_GuiBean
    * if selected Analysis option is NEHRP.
    *
    */
-  protected void createGeographicRegionSelectionParameter() throws AnalysisOptionNotSupportedException{
+  protected void createGeographicRegionSelectionParameter() throws
+      AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.ASCE_NFPA) ;
+        getSupportedGeographicalRegions(GlobalConstants.ASCE_NFPA);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);

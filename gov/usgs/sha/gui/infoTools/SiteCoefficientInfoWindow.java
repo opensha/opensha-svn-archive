@@ -7,11 +7,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import gov.usgs.sha.data.calc.FaFvCalc;
-
 import org.scec.param.*;
 import org.scec.param.editor.*;
 import org.scec.param.event.*;
+import gov.usgs.sha.data.calc.*;
 import gov.usgs.util.*;
 
 /**
@@ -79,23 +78,24 @@ public class SiteCoefficientInfoWindow
                                       GlobalConstants.faColumnNames);
   private JTable fvTable = new JTable(GlobalConstants.fvData,
                                       GlobalConstants.fvColumnNames);
+
+  private JSplitPane mainSplitPane = new JSplitPane();
   private JScrollPane jScrollPane1 = new JScrollPane();
   private JScrollPane jScrollPane2 = new JScrollPane();
   private JLabel faLabel = new JLabel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
   private BorderLayout borderLayout2 = new BorderLayout();
   private BorderLayout borderLayout3 = new BorderLayout();
+  private double ss = 0.75, s1 = 0.23;
+  private StringParameter siteClassParam;
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
   private GridBagLayout gridBagLayout6 = new GridBagLayout();
-  private BorderLayout borderLayout4 = new BorderLayout();
-
-  private double ss=0.75, s1=0.23;
-  private StringParameter siteClassParam;
-
+  private GridBagLayout gridBagLayout7 = new GridBagLayout();
+  private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
   private SiteCoefficientInfoWindow(Frame frame, boolean _boolean) {
     super(frame, _boolean);
     try {
@@ -134,16 +134,20 @@ public class SiteCoefficientInfoWindow
   }
 
   private void jbInit() throws Exception {
-    mainPanel.setLayout(gridBagLayout6);
-    this.getContentPane().setLayout(borderLayout4);
-    fafvPanel.setLayout(gridBagLayout5);
+    this.setSize(new Dimension(850, 575));
+    mainPanel.setLayout(gridBagLayout8);
+    this.getContentPane().setLayout(borderLayout1);
+    fafvPanel.setLayout(gridBagLayout7);
     fafvPanel.setBorder(fafvBorder);
+    fafvPanel.setMinimumSize(new Dimension(459, 311));
+    faPanel.setFont(new java.awt.Font("Lucida Grande", Font.PLAIN, 10));
     faPanel.setBorder(faBorder);
     faPanel.setLayout(borderLayout3);
     fvPanel.setBorder(fvBorder);
     fvPanel.setLayout(borderLayout2);
     notesPanel.setBorder(notesBorder);
-    notesPanel.setLayout(borderLayout1);
+    notesPanel.setPreferredSize(new Dimension(444, 80));
+    notesPanel.setLayout(gridBagLayout6);
     infoText.setBackground(UIManager.getColor("ProgressBar.background"));
     infoText.setEnabled(false);
 
@@ -153,13 +157,15 @@ public class SiteCoefficientInfoWindow
         "site response analyses shall be performed.");
 
     siteCoefficientPanel.setBorder(calcSiteCoeffBorder);
-    siteCoefficientPanel.setLayout(gridBagLayout4);
+    siteCoefficientPanel.setMinimumSize(new Dimension(240, 506));
+    siteCoefficientPanel.setPreferredSize(new Dimension(240, 506));
+    siteCoefficientPanel.setLayout(gridBagLayout5);
     saPanel.setBorder(saBorder);
-    saPanel.setLayout(gridBagLayout3);
+    saPanel.setLayout(gridBagLayout4);
     siteClassPanel.setBorder(siteClassBorder);
-    siteClassPanel.setLayout(gridBagLayout1);
+    siteClassPanel.setLayout(gridBagLayout2);
     coeffValPanel.setBorder(border11);
-    coeffValPanel.setLayout(gridBagLayout2);
+    coeffValPanel.setLayout(gridBagLayout3);
     discussionButton.setText("Discussion");
 
     discussionButton.addActionListener(new ActionListener() {
@@ -197,97 +203,103 @@ public class SiteCoefficientInfoWindow
     fvLabel.setText("Fv :");
     fvLabel.setLabelFor(fvText);
     fvText.setText("");
-
     faLabel.setFont(new java.awt.Font("Dialog", 1, 12));
     faLabel.setHorizontalAlignment(SwingConstants.LEFT);
     faLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     faLabel.setText("Fa :");
     faLabel.setLabelFor(faText);
-    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
-    saPanel.add(ssLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.WEST,
-                                                GridBagConstraints.NONE,
-                                                new Insets( -9, 4, 0, 9), 32, 5));
-    saPanel.add(s1Label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.WEST,
-                                                GridBagConstraints.NONE,
-                                                new Insets( -9, 38, 0, 15), 14,
-                                                7));
-    saPanel.add(ssText, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
-                                               , GridBagConstraints.WEST,
-                                               GridBagConstraints.HORIZONTAL,
-                                               new Insets(0, 4, 26, 0), 68, 1));
-    saPanel.add(s1Text, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-                                               , GridBagConstraints.WEST,
-                                               GridBagConstraints.HORIZONTAL,
-                                               new Insets(0, 16, 26, 5), 68, 1));
-    siteCoefficientPanel.add(coeffValPanel,
-                             new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(25, 10, 11, 5), -2, -2));
-    mainPanel.add(fafvPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(0, 1, 14, 0), 0, 2));
     createParameters();
     siteClassPanel.add(this.siteClassEditor,
                        new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.BOTH,
-                                              new Insets(5, 5, 5, 5), 5, 5));
-    coeffValPanel.add(coeffValText, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+                                              new Insets(4, 4, 4, 4), 5, 5));
+    mainPanel.add(mainSplitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets( -7, 4, 0, 0), -270, 3));
-    coeffValPanel.add(okButton, new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(9, 29, 8, 34), 54, -2));
-    coeffValPanel.add(fvText, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-        new Insets(10, 0, 0, 36), 85, -1));
+        new Insets(4, 4, 4, 4), 0, 0));
+    mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+    mainSplitPane.setDividerLocation(500);
+    mainSplitPane.add(siteCoefficientPanel, JSplitPane.RIGHT);
+    mainSplitPane.add(fafvPanel, JSplitPane.LEFT);
+    siteCoefficientPanel.add(saPanel,
+                             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets( -5, 3, 0, 5), -4, -62));
+
+    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     coeffValPanel.add(fvLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(11, 4, 0, 0), 17, 6));
-    coeffValPanel.add(faText, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-        new Insets(0, 0, 0, 37), 86, -1));
+        new Insets(11, 2, 0, 0), 17, 6));
     coeffValPanel.add(faLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(0, 4, 0, 0), 13, 7));
+        new Insets(29, 2, 0, 0), 13, 7));
+    coeffValPanel.add(faText, new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0
+        , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+        new Insets(30, 30, 0, 70), 119, 5));
+    coeffValPanel.add(coeffValText, new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 2, 0, 0), -367, 12));
+    coeffValPanel.add(fvText, new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0
+        , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+        new Insets(12, 30, 0, 70), 120, 4));
+    coeffValPanel.add(okButton, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(13, 0, 2, 75), 20, 0));
+
     siteCoefficientPanel.add(siteClassPanel,
                              new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(33, 3, 0, 5), 4, 0));
+        new Insets(0, 3, 0, 5), 0, 0));
     siteClassPanel.add(discussionButton,
                        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
-                                              new Insets(5, 5, 5, 5), 5, 5));
-    siteCoefficientPanel.add(saPanel,
-                             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                              new Insets(107, 57, 5, 64), 16,
+                                              -1));
+    siteCoefficientPanel.add(coeffValPanel,
+                             new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets( -5, 3, 0, 5), 0, -1));
+        new Insets(0, 3, 3, 5), -7, -6));
+    saPanel.add(ssText, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+                                               , GridBagConstraints.WEST,
+                                               GridBagConstraints.HORIZONTAL,
+                                               new Insets(0, 4, 65, 0), 88, 1));
+    saPanel.add(ssLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+                                                , GridBagConstraints.WEST,
+                                                GridBagConstraints.NONE,
+                                                new Insets(36, 4, 0, 30), 20, 0));
+    saPanel.add(s1Text, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+                                               , GridBagConstraints.WEST,
+                                               GridBagConstraints.HORIZONTAL,
+                                               new Insets(0, 25, 65, 18), 97, 1));
+    saPanel.add(s1Label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+                                                , GridBagConstraints.WEST,
+                                                GridBagConstraints.NONE,
+                                                new Insets(36, 26, 0, 30), 12,
+                                                1));
     fafvPanel.add(faPanel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                                   , GridBagConstraints.CENTER,
                                                   GridBagConstraints.BOTH,
-                                                  new Insets( -6, 3, 0, 3), 2,
-                                                  -251));
+                                                  new Insets( -5, 3, 0, 0), -31,
+                                                  -299));
     faPanel.add(jScrollPane1, BorderLayout.CENTER);
+    fafvPanel.add(notesPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 3, 1, 0), 0, 0));
+    notesPanel.add(infoText, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), -289, 190));
     fafvPanel.add(fvPanel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
                                                   , GridBagConstraints.CENTER,
                                                   GridBagConstraints.BOTH,
-                                                  new Insets(0, 3, 0, 3), -3,
-                                                  -239));
+                                                  new Insets(6, 3, 0, 0), -28,
+                                                  -301));
     fvPanel.add(jScrollPane2, BorderLayout.CENTER);
-    fafvPanel.add(notesPanel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(0, 3, 2, 3), -56, 7));
-    notesPanel.add(infoText, BorderLayout.CENTER);
-    mainPanel.add(siteCoefficientPanel,
-                  new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-                                         , GridBagConstraints.CENTER,
-                                         GridBagConstraints.BOTH,
-                                         new Insets(0, 0, 14, 11), 0, 0));
     jScrollPane2.getViewport().add(fvTable, null);
     jScrollPane1.getViewport().add(faTable, null);
+    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+    this.setLocation( (d.width - this.getSize().width) / 2,
+                     (d.height - this.getSize().height) / 2);
 
   }
 
@@ -301,38 +313,38 @@ public class SiteCoefficientInfoWindow
   }
 
   /**
-  *  Any time a control paramater or independent paramater is changed
-  *  by the user in a GUI this function is called, and a paramater change
-  *  event is passed in. This function then determines what to do with the
-  *  information ie. show some paramaters, set some as invisible,
-  *  basically control the paramater lists.
-  *
-  * @param  event
-  */
- public void parameterChange(ParameterChangeEvent event){
-   String name1 = event.getParameterName();
-   if(name1.equalsIgnoreCase(SiteClassParamName))  {
-     String value = (String)siteClassParam.getValue();
-     //System.out.println("value="+value);
-     FaFvCalc calc = new FaFvCalc();
-     try {
-       String faString = "" +calc.getFa(value,ss);
-       this.faText.setText(faString);
-       String fvString = "" +calc.getFv(value,s1);
-       this.fvText.setText(fvString);
-       fa  = Float.parseFloat(faText.getText());
-       fv  = Float.parseFloat(fvText.getText());
-       siteClass = value;
-     }catch(NumberFormatException e) {
-       JOptionPane.showMessageDialog(this, GlobalConstants.SITE_ERROR);
-       this.siteClassParam.setValue(siteClass);
-       this.siteClassEditor.refreshParamEditor();
-     }
-   }
- }
+   *  Any time a control paramater or independent paramater is changed
+   *  by the user in a GUI this function is called, and a paramater change
+   *  event is passed in. This function then determines what to do with the
+   *  information ie. show some paramaters, set some as invisible,
+   *  basically control the paramater lists.
+   *
+   * @param  event
+   */
+  public void parameterChange(ParameterChangeEvent event) {
+    String name1 = event.getParameterName();
+    if (name1.equalsIgnoreCase(SiteClassParamName)) {
+      String value = (String) siteClassParam.getValue();
+      //System.out.println("value="+value);
+      FaFvCalc calc = new FaFvCalc();
+      try {
+        String faString = "" + calc.getFa(value, ss);
+        this.faText.setText(faString);
+        String fvString = "" + calc.getFv(value, s1);
+        this.fvText.setText(fvString);
+        fa = Float.parseFloat(faText.getText());
+        fv = Float.parseFloat(fvText.getText());
+        siteClass = value;
+      }
+      catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, GlobalConstants.SITE_ERROR);
+        this.siteClassParam.setValue(siteClass);
+        this.siteClassEditor.refreshParamEditor();
+      }
+    }
+  }
 
-
- public float getFa() {
+  public float getFa() {
     return fa;
   }
 
@@ -340,7 +352,7 @@ public class SiteCoefficientInfoWindow
     return fv;
   }
 
-  public String getSelectedSiteClass(){
+  public String getSelectedSiteClass() {
     return siteClass;
   }
 
@@ -353,7 +365,7 @@ public class SiteCoefficientInfoWindow
     String fvVal = fvText.getText().trim();
     fa = Float.parseFloat(faVal);
     fv = Float.parseFloat(fvVal);
-    siteClass = (String)siteClassParam.getValue();
+    siteClass = (String) siteClassParam.getValue();
     this.dispose();
   }
 }

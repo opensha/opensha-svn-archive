@@ -25,10 +25,10 @@ public class UHS_SpectrumCalculator
     float fv = 1.0f;
 
     double tAcc = pgaVals.getX(1);
-    double sAcc = fa*pgaVals.getY(1);
-    double sVel = fv*pgaVals.getY(2);
-    double sPGA = fa*pgaVals.getY(0);
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel,sPGA);
+    double sAcc = fa * pgaVals.getY(1);
+    double sVel = fv * pgaVals.getY(2);
+    double sPGA = fa * pgaVals.getY(0);
+    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPGA);
 
     saTfunction.setName(GlobalConstants.APPROX_UNIFORM_HAZARD_SPECTRUM_NAME +
                         " of " +
@@ -65,10 +65,10 @@ public class UHS_SpectrumCalculator
       float fa, float fv, String siteClass) {
 
     double tAcc = pgaVals.getX(1);
-    double sAcc = fa*pgaVals.getY(1);
-    double sVel = fv*pgaVals.getY(2);
-    double sPga = fa*pgaVals.getY(0);
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel,sPga);
+    double sAcc = fa * pgaVals.getY(1);
+    double sVel = fv * pgaVals.getY(2);
+    double sPga = fa * pgaVals.getY(0);
+    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPga);
 
     saTfunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.SITE_MODIFIED_SD_Vs_T_GRAPH);
@@ -102,12 +102,12 @@ public class UHS_SpectrumCalculator
     float fvVal = (2.0f / 3.0f) * fv;
 
     double tAcc = pgaVals.getX(1);
-    double sAcc = faVal*pgaVals.getY(1);
-    double sVel = fvVal*pgaVals.getY(2);
+    double sAcc = faVal * pgaVals.getY(1);
+    double sVel = fvVal * pgaVals.getY(2);
     //Have to ask E.V about its formula
     //double sPga = faVal*pgaVals.getY(0);
-    double sPga = (2.0f / 3.0f)*sAcc;
-    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel,sPga);
+    double sPga = (2.0f / 3.0f) * sAcc;
+    DiscretizedFuncList funcList = approxSaSd(tAcc, sAcc, sVel, sPga);
 
     saTfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH);
     saSdfunction.setName(GlobalConstants.DESIGN_SPECTRUM_SD_Vs_T_GRAPH);

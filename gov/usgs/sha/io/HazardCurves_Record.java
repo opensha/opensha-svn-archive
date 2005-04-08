@@ -1,8 +1,8 @@
 package gov.usgs.sha.io;
 
-import gov.usgs.util.ByteSwapUtil;
-import java.io.RandomAccessFile;
-import java.io.IOException;
+import java.io.*;
+
+import gov.usgs.util.*;
 
 /**
  * <p>Title: HazardCurves_Record </p>
@@ -12,15 +12,14 @@ import java.io.IOException;
  * @version 1.0
  */
 
-public class HazardCurves_Record extends DataRecord{
+public class HazardCurves_Record
+    extends DataRecord {
 
   //Hazard Period
   public float hazPeriod;
 
-
   //Record Length
-  public static final int recordLength = 4 + 4 + 4 + 4 + 4 + (20*4);
-
+  public static final int recordLength = 4 + 4 + 4 + 4 + 4 + (20 * 4);
 
   public void getRecord(String fileName, long recordNum) {
     values = new float[20];
@@ -33,14 +32,15 @@ public class HazardCurves_Record extends DataRecord{
       longitude = ByteSwapUtil.swap(fin.readFloat());
       hazPeriod = ByteSwapUtil.swap(fin.readFloat());
       numValues = ByteSwapUtil.swap(fin.readShort());
-      for(int i=0;i<numValues;++i)
+      for (int i = 0; i < numValues; ++i) {
         values[i] = ByteSwapUtil.swap(fin.readFloat());
+      }
 
       fin.close();
-    }    catch (IOException ex) {
+    }
+    catch (IOException ex) {
       ex.printStackTrace();
     }
   }
-
 
 }

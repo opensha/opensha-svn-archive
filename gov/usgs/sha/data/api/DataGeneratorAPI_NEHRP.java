@@ -1,10 +1,9 @@
 package gov.usgs.sha.data.api;
 
+import java.rmi.*;
 import java.util.*;
 
 import gov.usgs.exceptions.*;
-import java.rmi.RemoteException;
-
 
 /**
  * <p>Title: DataGeneratorAPI_NEHRP</p>
@@ -15,7 +14,6 @@ import java.rmi.RemoteException;
  * @version 1.0
  */
 public interface DataGeneratorAPI_NEHRP {
-
 
   /**
    * Removes all the calculated data.
@@ -45,8 +43,8 @@ public interface DataGeneratorAPI_NEHRP {
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateSsS1(String zipCode) throws ZipCodeErrorException,RemoteException;
-
+  public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
+      RemoteException;
 
   /**
    * Sets the selected site class
@@ -60,7 +58,6 @@ public interface DataGeneratorAPI_NEHRP {
    */
   public String getSelectedSiteClass();
 
-
   /**
    * Returns the list of functions for plotting.
    * @param isMapSpectrumFunctionNeeded boolean true if user has clicked the map spectrum button
@@ -69,9 +66,9 @@ public interface DataGeneratorAPI_NEHRP {
    * @return ArrayList
    */
   public ArrayList getFunctionsToPlotForSA(boolean
-                                        isMapSpectrumFunctionNeeded,
-                                        boolean isSDSpectrumFunctionNeeded,
-                                        boolean isSMSpectrumFunctionNeeded);
+                                           isMapSpectrumFunctionNeeded,
+                                           boolean isSDSpectrumFunctionNeeded,
+                                           boolean isSMSpectrumFunctionNeeded);
 
   /**
    * Returns the SA at .2sec
@@ -84,8 +81,6 @@ public interface DataGeneratorAPI_NEHRP {
    * @return double
    */
   public double getSa();
-
-
 
   /**
    *

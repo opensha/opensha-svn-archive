@@ -1,12 +1,12 @@
 package gov.usgs.sha.data;
 
-import gov.usgs.sha.data.api.DataGeneratorAPI_NEHRP;
-import java.util.ArrayList;
-import gov.usgs.exceptions.ZipCodeErrorException;
-import org.scec.data.function.DiscretizedFuncList;
-import gov.usgs.util.GlobalConstants;
-import org.scec.data.function.ArbitrarilyDiscretizedFunc;
-import java.rmi.RemoteException;
+import java.rmi.*;
+import java.util.*;
+
+import org.scec.data.function.*;
+import gov.usgs.exceptions.*;
+import gov.usgs.sha.data.api.*;
+import gov.usgs.util.*;
 
 /**
  * <p>Title: DataGenerator_NEHRP</p>
@@ -25,8 +25,7 @@ public class DataGenerator_NEHRP
 
   protected ArbitrarilyDiscretizedFunc saFunction;
 
-
-  protected float faVal =1.0f;
+  protected float faVal = 1.0f;
   protected float fvVal = 1.0f;
   protected String siteClass = GlobalConstants.SITE_CLASS_B;
   protected ArbitrarilyDiscretizedFunc sdSpectrumSaSdFunction;
@@ -35,7 +34,6 @@ public class DataGenerator_NEHRP
   protected ArbitrarilyDiscretizedFunc sdSpectrumSaTFunction;
   protected ArbitrarilyDiscretizedFunc smSpectrumSaTFunction;
   protected ArbitrarilyDiscretizedFunc mapSpectrumSaTFunction;
-
 
   //holds all the data and its info in a String format.
   protected String dataInfo = "";
@@ -50,8 +48,6 @@ public class DataGenerator_NEHRP
    * Default class constructor
    */
   public DataGenerator_NEHRP() {}
-
-
 
   /**
    * Removes all the calculated data.
@@ -68,19 +64,17 @@ public class DataGenerator_NEHRP
     return dataInfo;
   }
 
-
-  protected void addDataInfo(String data){
+  protected void addDataInfo(String data) {
     dataInfo += geographicRegion + "\n";
     dataInfo += dataEdition + "\n";
-    dataInfo +=data+"\n\n";
+    dataInfo += data + "\n\n";
   }
-
 
   /**
    * Returns the SA at .2sec
    * @return double
    */
-  public double getSs(){
+  public double getSs() {
     return saFunction.getY(0);
   }
 
@@ -88,24 +82,23 @@ public class DataGenerator_NEHRP
    * Returns the SA at 1 sec
    * @return double
    */
-  public double getSa(){
+  public double getSa() {
     return saFunction.getY(1);
   }
-
 
   /**
    * Gets the data for SsS1 in case Territory.
    * Territory is when user is not allowed to enter any zip code or Lat-Lon
    * for the location or if it is GAUM and TAUTILLA.
    */
-  public void calculateSsS1() throws RemoteException{
+  public void calculateSsS1() throws RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
     String location = "Spectral values are constant for the region";
     createMetadataForPlots(location);
     addDataInfo(function.getInfo());
-    saFunction =function;
+    saFunction = function;
 
   }
 
@@ -113,12 +106,13 @@ public class DataGenerator_NEHRP
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies Lat-Lon for the location.
    */
-  public void calculateSsS1(double lat, double lon) throws RemoteException{
+  public void calculateSsS1(double lat, double lon) throws RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
-    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
-                                                 lat, lon);
-    String location = "Lat - "+lat+"  Lon - "+lon;
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
+        dataEdition,
+        lat, lon);
+    String location = "Lat - " + lat + "  Lon - " + lon;
     createMetadataForPlots(location);
     addDataInfo(function.getInfo());
     saFunction = function;
@@ -129,85 +123,87 @@ public class DataGenerator_NEHRP
    * Gets the data for SsS1 in case region specified is not a Territory and user
    * specifies zip code for the location.
    */
-  public void calculateSsS1(String zipCode) throws ZipCodeErrorException,RemoteException {
+  public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
+      RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
-    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion, dataEdition,
-                                                 zipCode);
-    String location = "Zipcode - "+zipCode;
+    ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
+        dataEdition,
+        zipCode);
+    String location = "Zipcode - " + zipCode;
     createMetadataForPlots(location);
     addDataInfo(function.getInfo());
     saFunction = function;
   }
 
-  protected void createMetadataForPlots(String location){
-    metadataForPlots = GlobalConstants.SA_DAMPING +"\n";
+  protected void createMetadataForPlots(String location) {
+    metadataForPlots = GlobalConstants.SA_DAMPING + "\n";
     metadataForPlots += geographicRegion + "\n";
     metadataForPlots += dataEdition + "\n";
-    metadataForPlots += location +"\n";
+    metadataForPlots += location + "\n";
   }
-
 
   /**
    *
    */
-  public void calculateSMSsS1() throws RemoteException{
+  public void calculateSMSsS1() throws RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
-    ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction,faVal,fvVal,siteClass);
+    ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction, faVal,
+        fvVal, siteClass);
     addDataInfo(function.getInfo());
   }
 
-
   /**
    *
    *
    */
-  public void calculatedSDSsS1() throws RemoteException{
+  public void calculatedSDSsS1() throws RemoteException {
 
     HazardDataMiner miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
-        fvVal,siteClass);
+        fvVal, siteClass);
     addDataInfo(function.getInfo());
   }
-
 
   /**
    *
    *
    */
-  public void calculateMapSpectrum() throws RemoteException{
+  public void calculateMapSpectrum() throws RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
     getFunctionsForMapSpectrum(functions);
   }
 
-
-
   /**
    *
    * @param mapSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForMapSpectrum(DiscretizedFuncList mapSpectrumFunctions){
-
+  protected void getFunctionsForMapSpectrum(DiscretizedFuncList
+                                            mapSpectrumFunctions) {
 
     int numFunctions = mapSpectrumFunctions.size();
 
-    int i=0;
-    for(;i<numFunctions;++i){
-      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)mapSpectrumFunctions.get(i);
-      if(tempFunction.getName().equals(GlobalConstants.MCE_SPECTRUM_SA_Vs_T_GRAPH)){
+    int i = 0;
+    for (; i < numFunctions; ++i) {
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
+          mapSpectrumFunctions.get(i);
+      if (tempFunction.getName().equals(GlobalConstants.
+                                        MCE_SPECTRUM_SA_Vs_T_GRAPH)) {
         mapSpectrumSaTFunction = tempFunction;
         break;
       }
     }
 
-    ArbitrarilyDiscretizedFunc tempSDFunction =(ArbitrarilyDiscretizedFunc)mapSpectrumFunctions.get(1-i);
+    ArbitrarilyDiscretizedFunc tempSDFunction = (ArbitrarilyDiscretizedFunc)
+        mapSpectrumFunctions.get(1 - i);
 
-    mapSpectrumSaSdFunction= tempSDFunction.getYY_Function(mapSpectrumSaTFunction);
+    mapSpectrumSaSdFunction = tempSDFunction.getYY_Function(
+        mapSpectrumSaTFunction);
     mapSpectrumSaSdFunction.setName(GlobalConstants.MCE_SPECTRUM_SA_Vs_SD_GRAPH);
-    String info =metadataForPlots;
+    String info = metadataForPlots;
     info += "Site Class -" + siteClass + "\n";
     info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
 
@@ -219,27 +215,31 @@ public class DataGenerator_NEHRP
     mapSpectrumSaTFunction.setXAxisName(GlobalConstants.PERIOD_NAME);
   }
 
-
   /**
    *
    * @param smSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForSMSpectrum(DiscretizedFuncList smSpectrumFunctions){
+  protected void getFunctionsForSMSpectrum(DiscretizedFuncList
+                                           smSpectrumFunctions) {
 
     int numFunctions = smSpectrumFunctions.size();
-    int i=0;
-    for(;i<numFunctions;++i){
-      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)smSpectrumFunctions.get(i);
-      if(tempFunction.getName().equals(GlobalConstants.SITE_MODIFIED_SA_Vs_T_GRAPH)){
+    int i = 0;
+    for (; i < numFunctions; ++i) {
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
+          smSpectrumFunctions.get(i);
+      if (tempFunction.getName().equals(GlobalConstants.
+                                        SITE_MODIFIED_SA_Vs_T_GRAPH)) {
         smSpectrumSaTFunction = tempFunction;
         break;
       }
     }
 
-    ArbitrarilyDiscretizedFunc tempSDFunction =(ArbitrarilyDiscretizedFunc)smSpectrumFunctions.get(1-i);
-    smSpectrumSaSdFunction = tempSDFunction.getYY_Function(smSpectrumSaTFunction);
+    ArbitrarilyDiscretizedFunc tempSDFunction = (ArbitrarilyDiscretizedFunc)
+        smSpectrumFunctions.get(1 - i);
+    smSpectrumSaSdFunction = tempSDFunction.getYY_Function(
+        smSpectrumSaTFunction);
     smSpectrumSaSdFunction.setName(GlobalConstants.SITE_MODIFIED_SA_Vs_SD_GRAPH);
-    String info =metadataForPlots;
+    String info = metadataForPlots;
     info += "Site Class -" + siteClass + "\n";
     info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
 
@@ -256,22 +256,28 @@ public class DataGenerator_NEHRP
    *
    * @param sdSpectrumFunctions DiscretizedFuncList
    */
-  protected void getFunctionsForSDSpectrum(DiscretizedFuncList sdSpectrumFunctions){
+  protected void getFunctionsForSDSpectrum(DiscretizedFuncList
+                                           sdSpectrumFunctions) {
 
     int numFunctions = sdSpectrumFunctions.size();
-    int i=0;
-    for(;i<numFunctions;++i){
-      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)sdSpectrumFunctions.get(i);
-      if(tempFunction.getName().equals(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_T_GRAPH)){
+    int i = 0;
+    for (; i < numFunctions; ++i) {
+      ArbitrarilyDiscretizedFunc tempFunction = (ArbitrarilyDiscretizedFunc)
+          sdSpectrumFunctions.get(i);
+      if (tempFunction.getName().equals(GlobalConstants.
+                                        DESIGN_SPECTRUM_SA_Vs_T_GRAPH)) {
         sdSpectrumSaTFunction = tempFunction;
         break;
       }
     }
 
-    ArbitrarilyDiscretizedFunc tempSMFunction =(ArbitrarilyDiscretizedFunc)sdSpectrumFunctions.get(1-i);
-    sdSpectrumSaSdFunction = tempSMFunction.getYY_Function(sdSpectrumSaTFunction);
-    sdSpectrumSaSdFunction.setName(GlobalConstants.DESIGN_SPECTRUM_SA_Vs_SD_GRAPH);
-    String info =metadataForPlots;
+    ArbitrarilyDiscretizedFunc tempSMFunction = (ArbitrarilyDiscretizedFunc)
+        sdSpectrumFunctions.get(1 - i);
+    sdSpectrumSaSdFunction = tempSMFunction.getYY_Function(
+        sdSpectrumSaTFunction);
+    sdSpectrumSaSdFunction.setName(GlobalConstants.
+                                   DESIGN_SPECTRUM_SA_Vs_SD_GRAPH);
+    String info = metadataForPlots;
     info += "Site Class -" + siteClass + "\n";
     info += "Fa = " + faVal + " Fv = " + fvVal + "\n";
     sdSpectrumSaSdFunction.setInfo(info);
@@ -282,8 +288,6 @@ public class DataGenerator_NEHRP
     sdSpectrumSaTFunction.setXAxisName(GlobalConstants.PERIOD_NAME);
   }
 
-
-
   /**
    * Returns the list of functions for plotting.
    * @param isMapSpectrumFunctionNeeded boolean true if user has clicked the map spectrum button
@@ -292,21 +296,21 @@ public class DataGenerator_NEHRP
    * @return ArrayList
    */
   public ArrayList getFunctionsToPlotForSA(boolean
-                                        isMapSpectrumFunctionNeeded,
-                                        boolean isSDSpectrumFunctionNeeded,
-                                        boolean isSMSpectrumFunctionNeeded) {
+                                           isMapSpectrumFunctionNeeded,
+                                           boolean isSDSpectrumFunctionNeeded,
+                                           boolean isSMSpectrumFunctionNeeded) {
 
     ArrayList functions = new ArrayList();
 
-    if(isMapSpectrumFunctionNeeded){
+    if (isMapSpectrumFunctionNeeded) {
       functions.add(mapSpectrumSaTFunction);
       functions.add(mapSpectrumSaSdFunction);
     }
-    if(isSDSpectrumFunctionNeeded){
+    if (isSDSpectrumFunctionNeeded) {
       functions.add(sdSpectrumSaTFunction);
       functions.add(sdSpectrumSaSdFunction);
     }
-    if(isSMSpectrumFunctionNeeded){
+    if (isSMSpectrumFunctionNeeded) {
       functions.add(smSpectrumSaTFunction);
       functions.add(smSpectrumSaSdFunction);
     }
@@ -317,10 +321,10 @@ public class DataGenerator_NEHRP
    *
    *
    */
-  public void calculateSMSpectrum() throws RemoteException{
+  public void calculateSMSpectrum() throws RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
-        fvVal,siteClass);
+        fvVal, siteClass);
     addDataInfo(functions.getInfo());
     getFunctionsForSMSpectrum(functions);
   }
@@ -328,10 +332,10 @@ public class DataGenerator_NEHRP
   /**
    *
    */
-  public void calculateSDSpectrum() throws RemoteException{
+  public void calculateSDSpectrum() throws RemoteException {
     HazardDataMiner miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
-        fvVal,siteClass);
+        fvVal, siteClass);
     addDataInfo(functions.getInfo());
     getFunctionsForSDSpectrum(functions);
   }
@@ -368,12 +372,11 @@ public class DataGenerator_NEHRP
     fvVal = fv;
   }
 
-
   /**
    * Sets the selected site class
    * @param siteClass String
    */
-  public void setSiteClass(String siteClass){
+  public void setSiteClass(String siteClass) {
     this.siteClass = siteClass;
   }
 
@@ -381,7 +384,7 @@ public class DataGenerator_NEHRP
    * Returns the site class
    * @return String
    */
-  public String getSelectedSiteClass(){
+  public String getSelectedSiteClass() {
     return siteClass;
   }
 
@@ -389,7 +392,7 @@ public class DataGenerator_NEHRP
    * Sets the Spectra type
    * @param spectraType String
    */
-  public void setSpectraType(String spectraType){
+  public void setSpectraType(String spectraType) {
     selectedSpectraType = spectraType;
   }
 
