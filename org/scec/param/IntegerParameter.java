@@ -328,7 +328,7 @@ public class IntegerParameter
      * @return      True if the value is allowed
      */
     public boolean isAllowed(Object d){
-      if (d instanceof Integer)
+      if (d instanceof Integer || (d == null))
         return super.isAllowed(d);
 
       return false;

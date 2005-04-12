@@ -410,7 +410,7 @@ public class DoubleParameter
      * @return      True if the value is allowed
      */
     public boolean isAllowed(Object d){
-      if (d instanceof Double)
+      if (d instanceof Double || (d==null))
         return super.isAllowed(d);
 
       return false;
