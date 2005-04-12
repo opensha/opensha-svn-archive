@@ -1,7 +1,6 @@
 package org.scec.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.server.UnicastRemoteObject;
-import java.rmi.Naming;
 import java.util.ArrayList;
 
 
