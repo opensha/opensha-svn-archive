@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import java.text.DecimalFormat;
 
 import org.scec.param.*;
 import org.scec.param.editor.*;
@@ -87,8 +88,8 @@ public class SiteCoefficientInfoWindow
   private BorderLayout borderLayout3 = new BorderLayout();
   private double ss = 0.75, s1 = 0.23;
   private StringParameter siteClassParam;
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
-  GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
   private GridBagLayout gridBagLayout5 = new GridBagLayout();
@@ -96,6 +97,10 @@ public class SiteCoefficientInfoWindow
   private GridBagLayout gridBagLayout7 = new GridBagLayout();
   private GridBagLayout gridBagLayout8 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+
+
+  private DecimalFormat saFormat = new DecimalFormat("0.00#");
+
   private SiteCoefficientInfoWindow(Frame frame, boolean _boolean) {
     super(frame, _boolean);
     try {
@@ -126,10 +131,10 @@ public class SiteCoefficientInfoWindow
     this.ss = ss;
     this.s1 = s1;
     s1Text.setEditable(true);
-    s1Text.setText("" + s1);
+    s1Text.setText("" + saFormat.format(s1));
     s1Text.setEditable(false);
     ssText.setEditable(true);
-    ssText.setText("" + ss);
+    ssText.setText("" + saFormat.format(ss));
     ssText.setEditable(false);
   }
 
@@ -218,7 +223,7 @@ public class SiteCoefficientInfoWindow
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    mainSplitPane.setDividerLocation(500);
+    mainSplitPane.setDividerLocation(550);
     mainSplitPane.add(siteCoefficientPanel, JSplitPane.RIGHT);
     mainSplitPane.add(fafvPanel, JSplitPane.LEFT);
     siteCoefficientPanel.add(saPanel,
@@ -254,7 +259,7 @@ public class SiteCoefficientInfoWindow
                        new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.NONE,
-                                              new Insets(107, 57, 5, 64), 16,
+                                              new Insets(50, 57, 5, 64), 16,
                                               -1));
     siteCoefficientPanel.add(coeffValPanel,
                              new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
@@ -300,7 +305,7 @@ public class SiteCoefficientInfoWindow
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     this.setLocation( (d.width - this.getSize().width) / 2,
                      (d.height - this.getSize().height) / 2);
-
+   this.setTitle("Site Coefficients Window");
   }
 
   private void createParameters() {

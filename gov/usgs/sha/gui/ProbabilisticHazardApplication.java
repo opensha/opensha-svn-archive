@@ -112,8 +112,8 @@ public class ProbabilisticHazardApplication
   private void jbInit() throws Exception {
     contentPane = (JPanel) getContentPane();
     contentPane.setLayout(borderLayout1);
-    setSize(new Dimension(W, H));
     setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
+    this.setDefaultCloseOperation(this.DO_NOTHING_ON_CLOSE);
     this.addWindowListener(new java.awt.event.WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         this_windowClosing(e);
@@ -143,12 +143,12 @@ public class ProbabilisticHazardApplication
     jPanel1.setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     mainSplitPane.setForeground(Color.black);
-    analysisOptionLabel.setFont(new java.awt.Font("Arial", Font.PLAIN, 17));
+    analysisOptionLabel.setFont(new java.awt.Font("Arial", Font.PLAIN, 15));
     analysisOptionLabel.setForeground(Color.red);
     analysisOptionLabel.setText("Select Analysis Option:");
     analysisOptionSelectionCombo.setFont(new java.awt.Font("Arial", Font.PLAIN,
-        17));
-    analysisOptionSelectionCombo.setForeground(Color.BLACK);
+        15));
+    analysisOptionSelectionCombo.setForeground(Color.BLUE);
 
     //adding the supported Analysis option to the combo selection
     ArrayList supportAnalysisOptions = GlobalConstants.
@@ -213,25 +213,26 @@ public class ProbabilisticHazardApplication
     buttonPanel.add(viewMapsButton, null);
     jPanel1.add(analysisOptionLabel,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-                                       , GridBagConstraints.WEST,
+                                       , GridBagConstraints.EAST,
                                        GridBagConstraints.NONE,
-                                       new Insets(14, 8, 0, 0), 21, 13));
+                                       new Insets(9, 4, 0, 0), 21, 13));
     jPanel1.add(analysisOptionSelectionCombo,
                 new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
                                        , GridBagConstraints.CENTER,
                                        GridBagConstraints.HORIZONTAL,
-                                       new Insets(14, 0, 0, 0), 385, 13));
+                                       new Insets(9, 0, 0, 0), 0, 13));
     jPanel1.add(ExplainButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(14, 11, 0, 303), 44, 11));
+        , GridBagConstraints.EAST, GridBagConstraints.NONE,
+        new Insets(4, 4, 4, 60), 44, 11));
     jPanel1.add(mainSplitPane, new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(10, 8, 5, 10), 777, 597));
     setJMenuBar(applicationMenu);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+    setSize((int)(0.9*d.getSize().width),(int)(0.95*d.getSize().height));
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
-    mainSplitPane.setDividerLocation(515);
-    dataSplitPane.setDividerLocation(600);
+    mainSplitPane.setDividerLocation((int)(0.55*getWidth()));
+    dataSplitPane.setDividerLocation((int)(0.7*getHeight()));
     viewMapsButton.setVisible(false);
   }
 
@@ -416,7 +417,7 @@ public class ProbabilisticHazardApplication
                                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
-    frame.setLocation(getSize().width / 2, getSize().height / 2);
+    frame.setLocation((getSize().width - frame.getWidth())/2 , (getSize().height - frame.getHeight())/ 2);
   }
 
   /**
