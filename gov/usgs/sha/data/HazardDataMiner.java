@@ -3,7 +3,7 @@ package gov.usgs.sha.data;
 import java.net.*;
 import java.rmi.*;
 
-import org.scec.data.function.*;
+import org.opensha.data.function.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.calc.api.*;
 import gov.usgs.sha.calc.remote.api.*;

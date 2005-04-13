@@ -3,7 +3,7 @@ package gov.usgs.sha.calc;
 import java.rmi.*;
 import java.rmi.server.*;
 
-import org.scec.data.function.*;
+import org.opensha.data.function.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.calc.api.*;
 
@@ -328,3 +328,4 @@ public class HazardDataCalc
   }
 
 }
+

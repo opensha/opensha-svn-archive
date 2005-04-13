@@ -1,7 +1,7 @@
 package javaDevelopers.matt.calc;
 
-import org.scec.util.*;
-import org.scec.data.*;
+import org.opensha.util.*;
+import org.opensha.data.*;
 import java.util.*;
 import java.io.*;
 import java.util.GregorianCalendar;

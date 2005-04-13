@@ -1,6 +1,6 @@
 package javaDevelopers.matt;
 
-import org.scec.util.FileUtils;
+import org.opensha.util.FileUtils;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 

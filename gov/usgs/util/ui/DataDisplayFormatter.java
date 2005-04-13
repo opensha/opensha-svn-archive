@@ -2,7 +2,7 @@ package gov.usgs.util.ui;
 
 import java.text.*;
 
-import org.scec.data.function.*;
+import org.opensha.data.function.*;
 
 /**
  * <p>Title: DataDisplayFormatter</p>

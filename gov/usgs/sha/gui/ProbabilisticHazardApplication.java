@@ -7,7 +7,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import org.scec.util.*;
+import org.opensha.util.*;
 import gov.usgs.sha.gui.api.*;
 import gov.usgs.sha.gui.beans.*;
 import gov.usgs.util.*;

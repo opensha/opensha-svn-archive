@@ -8,9 +8,9 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import org.jfree.data.*;
-import org.scec.data.function.*;
-import org.scec.sha.gui.infoTools.*;
-import org.scec.util.*;
+import org.opensha.data.function.*;
+import org.opensha.sha.gui.infoTools.*;
+import org.opensha.util.*;
 
 /**
  * <p>Title: GraphWindow</p>

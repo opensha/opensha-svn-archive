@@ -1,6 +1,6 @@
 package gov.usgs.sha.calc;
 
-import org.scec.data.function.*;
+import org.opensha.data.function.*;
 import gov.usgs.util.ui.*;
 
 /**

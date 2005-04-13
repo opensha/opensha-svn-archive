@@ -6,10 +6,10 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import org.scec.data.*;
-import org.scec.param.*;
-import org.scec.param.editor.*;
-import org.scec.param.event.*;
+import org.opensha.data.*;
+import org.opensha.param.*;
+import org.opensha.param.editor.*;
+import org.opensha.param.event.*;
 import gov.usgs.exceptions.*;
 
 /**

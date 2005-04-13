@@ -3,7 +3,7 @@ package javaDevelopers.matt.calc;
 import java.util.ArrayList;
 //import javaDevelopers.matt.calc.ListSortingTools;
 import java.lang.Object;
-import org.scec.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 
 /**
  * <p>Title: CompletenessMagCalc</p>

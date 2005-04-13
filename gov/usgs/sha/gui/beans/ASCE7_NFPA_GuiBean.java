@@ -2,7 +2,7 @@ package gov.usgs.sha.gui.beans;
 
 import java.util.*;
 
-import org.scec.data.region.*;
+import org.opensha.data.region.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.gui.api.*;
 import gov.usgs.util.*;

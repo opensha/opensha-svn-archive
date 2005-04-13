@@ -2,7 +2,7 @@ package gov.usgs.sha.data;
 
 import java.rmi.*;
 
-import org.scec.data.function.*;
+import org.opensha.data.function.*;
 import gov.usgs.exceptions.*;
 
 /**

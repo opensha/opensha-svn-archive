@@ -3,7 +3,7 @@ package gov.usgs.util;
 import java.io.*;
 import java.util.*;
 
-import org.scec.data.*;
+import org.opensha.data.*;
 import gov.usgs.exceptions.*;
 
 /**

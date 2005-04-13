@@ -1,6 +1,6 @@
 package gov.usgs.util;
 
-import org.scec.data.*;
+import org.opensha.data.*;
 import gov.usgs.exceptions.*;
 
 /**

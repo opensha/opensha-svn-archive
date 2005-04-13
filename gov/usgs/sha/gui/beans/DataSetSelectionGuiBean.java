@@ -2,8 +2,8 @@ package gov.usgs.sha.gui.beans;
 
 import java.util.*;
 
-import org.scec.param.*;
-import org.scec.param.editor.*;
+import org.opensha.param.*;
+import org.opensha.param.editor.*;
 
 /**
  * <p>Title: DataSetSelectionGuiBean</p>

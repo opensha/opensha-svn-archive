@@ -8,11 +8,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import org.scec.data.*;
-import org.scec.data.region.*;
-import org.scec.param.*;
-import org.scec.param.editor.*;
-import org.scec.param.event.*;
+import org.opensha.data.*;
+import org.opensha.data.region.*;
+import org.opensha.param.*;
+import org.opensha.param.editor.*;
+import org.opensha.param.event.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.*;
 import gov.usgs.sha.data.api.*;

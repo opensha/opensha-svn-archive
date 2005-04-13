@@ -2,7 +2,7 @@ package gov.usgs.util;
 
 import java.util.*;
 
-import org.scec.data.region.*;
+import org.opensha.data.region.*;
 import gov.usgs.exceptions.*;
 
 /**

@@ -2,8 +2,8 @@ package gov.usgs.sha.calc;
 
 import java.text.*;
 
-import org.scec.data.*;
-import org.scec.data.function.*;
+import org.opensha.data.*;
+import org.opensha.data.function.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.*;
 import gov.usgs.sha.io.*;

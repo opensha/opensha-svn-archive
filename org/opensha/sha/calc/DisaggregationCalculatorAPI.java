@@ -1,0 +1,71 @@
+package org.opensha.sha.calc;
+
+import java.rmi.Remote;
+
+import org.opensha.data.Site;
+import org.opensha.sha.earthquake.EqkRupForecast;
+import org.opensha.sha.imr.AttenuationRelationshipAPI;
+
+/**
+ * <p>Title: DisaggregationCalculatorAPI</p>
+ * <p>Description: This class defines interface for Disaggregation calculator.
+ * Implementation of this interface disaggregates a hazard curve based on the
+ * input parameters imr, site and eqkRupforecast.  See Bazzurro and Cornell
+ * (1999, Bull. Seism. Soc. Am., 89, pp. 501-520) for a complete discussion
+ * of disaggregation.  The Dbar computed here is for rupture distance.</p>
+ * @author : Nitin Gupta
+ * @created Oct 01,2004
+ * @version 1.0
+ */
+public interface DisaggregationCalculatorAPI extends Remote{
+
+  /**
+   * this function performs the disaggregation
+   *
+   * @param iml: the intensity measure level to disaggregate
+   * @param site: site parameter
+   * @param imr: selected IMR object
+   * @param eqkRupForecast: selected Earthquake rup forecast
+   * @return
+   */
+  public void disaggregate(double iml, Site site,
+        AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) throws java.rmi.RemoteException;
+
+
+  /**
+   * This sets the maximum distance of sources to be considered in the calculation
+   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
+   * Sources more than this distance away are ignored.
+   * Default value is 250 km.
+   *
+   * @param distance: the maximum distance in km
+   */
+  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
+
+  /**
+   * gets the number of current rupture being processed
+   * @return
+   */
+  public int getCurrRuptures() throws java.rmi.RemoteException;
+
+
+  /**
+   * gets the total number of ruptures
+   * @return
+   */
+  public int getTotRuptures() throws java.rmi.RemoteException;
+
+  /**
+   * Checks to see if disaggregation calculation for the selected site
+   * have been completed.
+   * @return
+   */
+  public boolean done() throws java.rmi.RemoteException;
+
+  /**
+   *
+   * @returns resultant disaggregation in a String format.
+   * @throws java.rmi.RemoteException
+   */
+  public String getResultsString() throws java.rmi.RemoteException;
+}

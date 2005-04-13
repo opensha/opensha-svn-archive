@@ -2,7 +2,7 @@ package gov.usgs.sha.calc;
 
 import java.text.*;
 
-import org.scec.data.function.*;
+import org.opensha.data.function.*;
 import gov.usgs.util.*;
 import gov.usgs.util.ui.*;
 
