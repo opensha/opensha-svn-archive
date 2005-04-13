@@ -109,14 +109,14 @@
       <arg value="-d"/>
       <arg value="${dest}"/>
       <arg line="-v1.2"/>
-      <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListFactoryImpl"/>
-      <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecast_Impl"/>
-      <arg value="org.scec.sha.calc.remoteCalc.RemoteHazardCurveFactoryImpl"/>
-      <arg value="org.scec.sha.calc.HazardCurveCalculator"/>
-      <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListImpl"/>
-      <arg value="org.scec.sha.calc.DisaggregationCalculator"/>
-      <arg value="org.scec.sha.calc.remoteCalc.RemoteDisaggregationCalcFactoryImpl"/>
-      <arg value="org.scec.sha.earthquake.rupForecastImpl.remote.RemoteERF_FactoryImpl"/>
+      <arg value="org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListFactoryImpl"/>
+      <arg value="org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecast_Impl"/>
+      <arg value="org.opensha.sha.calc.remoteCalc.RemoteHazardCurveFactoryImpl"/>
+      <arg value="org.opensha.sha.calc.HazardCurveCalculator"/>
+      <arg value="org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListImpl"/>
+      <arg value="org.opensha.sha.calc.DisaggregationCalculator"/>
+      <arg value="org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcFactoryImpl"/>
+      <arg value="org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_FactoryImpl"/>
     </exec>
   </target>
   <target name="resource">

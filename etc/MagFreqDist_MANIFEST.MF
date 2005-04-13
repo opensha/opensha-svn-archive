@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: org.scec.sha.magdist.gui.MagFreqDistTesterApplet
+Main-Class: org.opensha.sha.magdist.gui.MagFreqDistTesterApplet

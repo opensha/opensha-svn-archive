@@ -85,8 +85,8 @@
       classpath="${dest}">
       <src path="${src}"/>
       <include name="ch/**" />
-      <include name="org/scec/sha/gui/PlotMapFromHazardDataSetApp.java"/>
-      <include name="org/scec/param/**"/>
+      <include name="org/opensha/sha/gui/PlotMapFromHazardDataSetApp.java"/>
+      <include name="org/opensha/param/**"/>
     </javac>
   </target>
   <target name="resource">

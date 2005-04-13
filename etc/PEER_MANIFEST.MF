@@ -1,2 +1,2 @@
 Manifest-Version: 1.0
-Main-Class: org.scec.sha.earthquake.PEER_TestCases.PEER_TestGuiPlots.PEER_TestResultsPlotterApplet
+Main-Class: org.opensha.sha.earthquake.PEER_TestCases.PEER_TestGuiPlots.PEER_TestResultsPlotterApplet

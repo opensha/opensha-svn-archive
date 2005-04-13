@@ -85,8 +85,8 @@
       classpath="${dest}">
       <src path="${src}"/>
       <include name="ch/**" />
-      <include name="org/scec/sha/gui/PlotCurvesFromHazardDataSetApp.java"/>
-      <include name="org/scec/param/**"/>
+      <include name="org/opensha/sha/gui/PlotCurvesFromHazardDataSetApp.java"/>
+      <include name="org/opensha/param/**"/>
       <include name="org/jfree/resources/**"/>
       <include name="org/jfree/chart/resources/**"/>
       <include name="org/jfree/chart/*.java"/>

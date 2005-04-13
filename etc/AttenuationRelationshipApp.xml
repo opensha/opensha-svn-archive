@@ -61,10 +61,10 @@
       failonerror="yes"
       verbose="no">
       <src path="${src}"/>
-      <include name="org/scec/sha/imr/attenRelImpl/**"/>
-      <exclude name="org/scec/sha/imr/attenRelImpl/gui/AttenuationRelationshipWebBasedApplet.java" />
-      <exclude name="org/scec/sha/imr/attenRelImpl/test/**"/>
-      <include name="org/scec/param/**"/>
+      <include name="org/opensha/sha/imr/attenRelImpl/**"/>
+      <exclude name="org/opensha/sha/imr/attenRelImpl/gui/AttenuationRelationshipWebBasedApplet.java" />
+      <exclude name="org/opensha/sha/imr/attenRelImpl/test/**"/>
+      <include name="org/opensha/param/**"/>
       <include name="org/jfree/resources/**"/>
       <include name="org/jfree/chart/resources/**"/>
       <include name="org/jfree/chart/*.java"/>
