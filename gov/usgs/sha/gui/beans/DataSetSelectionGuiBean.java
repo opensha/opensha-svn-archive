@@ -3,7 +3,11 @@ package gov.usgs.sha.gui.beans;
 import java.util.*;
 
 import org.opensha.param.*;
-import org.opensha.param.editor.*;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import javax.swing.JPanel;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.GridBagLayout;
 
 /**
  * <p>Title: DataSetSelectionGuiBean</p>
@@ -16,16 +20,17 @@ public class DataSetSelectionGuiBean {
 
   //Parameters that allows for the selection for the choices of edition.
   private StringParameter editionChoicesParam;
-  public static final String EDITION_PARAM_NAME = "Select Edition";
+  public static final String EDITION_PARAM_NAME = "Data Edition";
 
   //Parameters that allows for the selection for the choices of geographic region.
   private StringParameter geographicRegionSelectionParam;
   public final static String GEOGRAPHIC_REGION_SELECTION_PARAM_NAME =
-      "Select Geographic Region";
+      "Geographic Region";
 
-  //parameter list that holds the parameters to be shown to the user in the application.
-  private ParameterList paramList;
-  private ParameterListEditor editor;
+  private JPanel editorPanel;
+
+  private ConstrainedStringParameterEditor regionEditor;
+  private ConstrainedStringParameterEditor editionEditor;
 
   public DataSetSelectionGuiBean() {
   }
@@ -34,20 +39,23 @@ public class DataSetSelectionGuiBean {
    * Creating the Editor for user to choose the Geographic Region and Data edition
    */
   public void createDataSetEditor() {
-    paramList = new ParameterList();
-    paramList.addParameter(geographicRegionSelectionParam);
-    paramList.addParameter(editionChoicesParam);
 
-    editor = new ParameterListEditor(paramList);
-    editor.setTitle("");
+    editorPanel = new JPanel();
+    editorPanel.setLayout(new GridBagLayout());
+    editorPanel.add(regionEditor, new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
+        , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+        new Insets(2, 2, 2, 2), 0, 0));
+    editorPanel.add(editionEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
+        , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+        new Insets(2, 2, 2, 2), 0, 0));
   }
 
   /**
    * Returns the parameter list editor that holds the Parameter List
-   * @return ParameterListEditor
+   * @return JPanel
    */
-  public ParameterListEditor getDatasetSelectionEditor() {
-    return editor;
+  public JPanel getDatasetSelectionEditor() {
+    return editorPanel;
   }
 
   /**
@@ -77,6 +85,12 @@ public class DataSetSelectionGuiBean {
         GEOGRAPHIC_REGION_SELECTION_PARAM_NAME,
         supportedRegionList, (String) supportedRegionList.get(0));
 
+      try{
+        regionEditor = new ConstrainedStringParameterEditor(
+            geographicRegionSelectionParam);
+      }catch(Exception e){
+        e.printStackTrace();
+      }
   }
 
   /**
@@ -100,14 +114,23 @@ public class DataSetSelectionGuiBean {
    * selected Analysis and choosen geographic region.
    */
   public void createEditionSelectionParameter(ArrayList supportedEditionList) {
+    if(editorPanel !=null)
+      editorPanel.remove(editionEditor);
+
     editionChoicesParam = new StringParameter(EDITION_PARAM_NAME,
                                               supportedEditionList,
                                               (String) supportedEditionList.get(
-        0));
-    if (editor != null) {
-      editor.replaceParameterForEditor(this.EDITION_PARAM_NAME,
-                                       this.editionChoicesParam);
-      editor.refreshParamEditor();
+                                                  0));
+    try{
+      editionEditor = new ConstrainedStringParameterEditor(editionChoicesParam);
+    }catch(Exception e){
+      e.printStackTrace();
+    }
+    if (editorPanel != null) {
+      editorPanel.add(editionEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+      editorPanel.updateUI();
     }
 
   }

@@ -32,9 +32,9 @@ public class LocationGuiBean
   public static final String ZIP_CODE = "Using Zip Code";
   public static final String LAT_LON = "Using Location Lat-Lon";
 
-  public static final String ZIP_CODE_PARAM_NAME = "Enter 5-digit Zip Code";
-  public static final String LAT_PARAM_NAME = "Enter Latitude";
-  public static final String LON_PARAM_NAME = "Enter Longitude";
+  public static final String ZIP_CODE_PARAM_NAME = "5-digit Zip Code";
+  public static final String LAT_PARAM_NAME = "Latitude";
+  public static final String LON_PARAM_NAME = "Longitude";
 
   private StringParameter locationSelectionModeParam;
 
@@ -48,8 +48,16 @@ public class LocationGuiBean
   private static final double DEFAULT_LON = -118.27;
 
   private ParameterList parameterList;
-  private ParameterListEditor editor;
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+
+  //ZipCode, Lat, Lon editor
+  private StringParameterEditor zipCodeEditor;
+  private ConstrainedStringParameterEditor locationModeEditor;
+  private ConstrainedDoubleParameterEditor latEditor;
+  private ConstrainedDoubleParameterEditor lonEditor;
+
+  private JPanel locationPanel = new JPanel();
 
   public LocationGuiBean() {
 
@@ -120,11 +128,14 @@ public class LocationGuiBean
    */
   public void createLocationGUI(double minLat, double maxLat, double minLon,
                                 double maxLon, boolean isZipCodeSupported) {
+
+
     DoubleParameter latParam = new DoubleParameter(LAT_PARAM_NAME, minLat,
         maxLat, "Degrees");
     DoubleParameter lonParam = new DoubleParameter(LON_PARAM_NAME, minLon,
         maxLon, "Degrees");
 
+    this.locationPanel.removeAll();
     //add the zip code in the location mode selection only if it is supported.
     createLocationModeParam(isZipCodeSupported);
 
@@ -134,23 +145,47 @@ public class LocationGuiBean
     parameterList.addParameter(lonParam);
     latParam.addParameterChangeFailListener(this);
     lonParam.addParameterChangeFailListener(this);
+    try {
+      locationModeEditor = new ConstrainedStringParameterEditor(
+          locationSelectionModeParam);
+      latEditor = new ConstrainedDoubleParameterEditor(latParam);
+      lonEditor = new ConstrainedDoubleParameterEditor(lonParam);
+      locationPanel.add(locationModeEditor,
+                        new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
+                                               , GridBagConstraints.NORTH,
+                                               GridBagConstraints.HORIZONTAL,
+                                               new Insets(2, 2, 2, 2), 0, 0));
+      locationPanel.add(latEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+      locationPanel.add(lonEditor, new GridBagConstraints(0, 2, 0, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+
+
+
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
       zipParam = new StringParameter(ZIP_CODE_PARAM_NAME, "");
       zipParam.addParameterChangeListener(this);
       parameterList.addParameter(zipParam);
+      try{
+        zipCodeEditor = new StringParameterEditor(zipParam);
+        locationPanel.add(zipCodeEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+      }catch(Exception e){
+        e.printStackTrace();
+      }
     }
 
-    editor = new ParameterListEditor(parameterList);
-    editor.setTitle("");
     setVisibleParameters();
-    this.removeAll();
-    this.add(editor,
-             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.BOTH,
-                                    new Insets(4, 4, 4, 4), 0, 0));
+    locationPanel.updateUI();
   }
 
   /**
@@ -249,26 +284,31 @@ public class LocationGuiBean
     String locationMode = (String) locationSelectionModeParam.getValue();
 
     if (locationMode.equals(ZIP_CODE)) {
-      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME)) {
-        editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(true);
-      }
-      editor.getParameterEditor(LAT_PARAM_NAME).setVisible(false);
-      editor.getParameterEditor(LON_PARAM_NAME).setVisible(false);
+      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
+        zipCodeEditor.setVisible(true);
+
+      lonEditor.setVisible(false);
+      latEditor.setVisible(false);
     }
     else {
-      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME)) {
-        editor.getParameterEditor(ZIP_CODE_PARAM_NAME).setVisible(false);
-      }
-      editor.getParameterEditor(LAT_PARAM_NAME).setVisible(true);
-      editor.getParameterEditor(LON_PARAM_NAME).setVisible(true);
+      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
+        zipCodeEditor.setVisible(false);
+      lonEditor.setVisible(true);
+      latEditor.setVisible(true);
     }
-    editor.refreshParamEditor();
   }
 
   private void jbInit() throws Exception {
     this.setLayout(gridBagLayout1);
     this.setBorder(locationBorder);
     locationBorder.setTitleColor(Color.RED);
+    locationPanel.setLayout(gridBagLayout1);
+    this.add(locationPanel,
+         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                , GridBagConstraints.CENTER,
+                                GridBagConstraints.BOTH,
+                                new Insets(4, 4, 4, 4), 0, 0));
+
   }
 
 }
