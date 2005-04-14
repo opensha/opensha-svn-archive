@@ -269,8 +269,6 @@ public class HazardCurveServerModeApplication extends JApplet
 
 
 
-  //images for the OpenSHA
-  private final static String FRAME_ICON_NAME = "openSHA_Aqua_sm.gif";
   private final static String POWERED_BY_IMAGE = "PoweredBy.gif";
 
   //static string for the OPENSHA website

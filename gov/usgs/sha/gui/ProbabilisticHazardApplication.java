@@ -69,6 +69,9 @@ public class ProbabilisticHazardApplication
   private JDialog frame;
   private JTextPane explainationText;
 
+  private final static String USGS_LOGO = "usgslogo.JPG";
+  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(USGS_LOGO)));
+
   Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
       Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
   TitledBorder outputBorder = new TitledBorder(border9,
@@ -82,6 +85,7 @@ public class ProbabilisticHazardApplication
   //saves which was the last selected analysis option
   private String previousSelectedAnalysisOption;
   BorderLayout borderLayout4 = new BorderLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   public ProbabilisticHazardApplication() {
     try {
@@ -173,9 +177,13 @@ public class ProbabilisticHazardApplication
     dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
     parametersScrollPane.setBounds(new Rectangle(2, 2, 530, 720));
     parametersPanel.setLayout(borderLayout4);
-    buttonPanel.setLayout(flowLayout1);
+    buttonPanel.setLayout(gridBagLayout2);
     clearDataButton.setText("Clear Data");
     viewMapsButton.setText("View Maps");
+    imgLabel.setMaximumSize(new Dimension(200, 75));
+    imgLabel.setMinimumSize(new Dimension(200, 75));
+    imgLabel.setPreferredSize(new Dimension(200, 75));
+
     ExplainButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         ExplainButton_actionPerformed(actionEvent);
@@ -209,8 +217,19 @@ public class ProbabilisticHazardApplication
     dataScrollPane.getViewport().add(dataTextArea, java.awt.BorderLayout.CENTER);
     parametersScrollPane.getViewport().add(parametersPanel,
                                            java.awt.BorderLayout.CENTER);
-    buttonPanel.add(clearDataButton, null);
-    buttonPanel.add(viewMapsButton, null);
+
+    buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+        new Insets(16, 70, 3, 59), 200, 75));
+    buttonPanel.add(viewMapsButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(3, 154, 0, 0), 14, -2));
+    buttonPanel.add(clearDataButton,
+                    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+                                           , GridBagConstraints.CENTER,
+                                           GridBagConstraints.NONE,
+                                           new Insets(3, 12, 0, 153), 14, -2));
+
     jPanel1.add(analysisOptionLabel,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
                                        , GridBagConstraints.EAST,
@@ -233,7 +252,9 @@ public class ProbabilisticHazardApplication
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
     mainSplitPane.setDividerLocation((int)(0.55*getWidth()));
     dataSplitPane.setDividerLocation((int)(0.7*getHeight()));
-    viewMapsButton.setVisible(false);
+
+    viewMapsButton.setEnabled(false);
+
   }
 
   /**
