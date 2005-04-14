@@ -69,8 +69,7 @@ public class ProbabilisticHazardApplication
   private JDialog frame;
   private JTextPane explainationText;
 
-  private final static String USGS_LOGO = "usgslogo.JPG";
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(USGS_LOGO)));
+  private JLabel imgLabel = new JLabel(GlobalConstants.USGS_LOGO_ICON);
 
   Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
       Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
@@ -254,7 +253,7 @@ public class ProbabilisticHazardApplication
     dataSplitPane.setDividerLocation((int)(0.7*getHeight()));
 
     viewMapsButton.setEnabled(false);
-
+    this.setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
   }
 
   /**

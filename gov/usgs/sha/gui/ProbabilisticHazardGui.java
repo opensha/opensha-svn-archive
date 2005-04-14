@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import org.opensha.util.ImageUtils;
+import gov.usgs.util.GlobalConstants;
 
 /**
  * <p>Title: ProbabilisticHazardGui</p>
@@ -32,8 +33,7 @@ public class ProbabilisticHazardGui
 
 
 
-  private final static String USGS_LOGO = "usgslogo.JPG";
-  private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(USGS_LOGO)));
+  private JLabel imgLabel = new JLabel(GlobalConstants.USGS_LOGO_ICON);
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
 

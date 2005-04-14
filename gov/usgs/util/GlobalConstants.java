@@ -1,6 +1,8 @@
 package gov.usgs.util;
 
 import java.util.*;
+import javax.swing.ImageIcon;
+import org.opensha.util.ImageUtils;
 
 /**
  * <p>Title: GlobalConstants</p>
@@ -17,6 +19,10 @@ public final class GlobalConstants {
   public final static String DATA_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
   public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
+
+  private final static String USGS_LOGO = "usgslogo.JPG";
+  public final static ImageIcon USGS_LOGO_ICON = new ImageIcon(ImageUtils.loadImage(USGS_LOGO));
+
 
   //static declaration for the supported geographic regions
   public static final String CONTER_48_STATES = "Conterminous 48 States";
