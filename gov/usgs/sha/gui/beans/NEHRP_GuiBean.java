@@ -144,29 +144,27 @@ public class NEHRP_GuiBean
 
   protected void jbInit() throws Exception {
     this.setLayout(borderLayout1);
-    this.setMinimumSize(new Dimension(500, 680));
-    this.setPreferredSize(new Dimension(500, 680));
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     basicParamsPanel.setLayout(gridBagLayout4);
     basicParamsPanel.setBorder(basicParamBorder);
     basicParamBorder.setTitleColor(Color.RED);
-    ssButton.setText("<html>Calculate<br>Ss and S1</br></html>");
+    ssButton.setText("Calc Ss & S1");
     ssButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         ssButton_actionPerformed(actionEvent);
       }
     });
-    siteCoeffButton.setActionCommand("siteCoeffButton");
-    siteCoeffButton.setText("<html>Calculate<br>Site Coefficient</br></html>");
+
+    siteCoeffButton.setText("Set site coeff");
     siteCoeffButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         siteCoeffButton_actionPerformed(actionEvent);
       }
     });
-    smSDButton.setActionCommand("smSDButton");
-    smSDButton.setText("<html>Calculate <br>SM and SD Values</br></html>");
+
+    smSDButton.setText("Calc SM & SD");
     smSDButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         smSDButton_actionPerformed(actionEvent);
@@ -176,30 +174,30 @@ public class NEHRP_GuiBean
     responseSpecBorder.setTitleColor(Color.RED);
     responseSpectraButtonPanel.setLayout(gridBagLayout3);
 
-    mapSpecButton.setText("<html>Calculate <br>Map Spectrum</br></html>");
+    mapSpecButton.setText("Calc Map spec.");
     mapSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         mapSpecButton_actionPerformed(actionEvent);
       }
     });
 
-    smSpecButton.setText("<html>Calculate <br>SM Spectrum</br></html>");
+    smSpecButton.setText("Calc SM spec.");
     smSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         smSpecButton_actionPerformed(actionEvent);
       }
     });
 
-    sdSpecButton.setActionCommand("sdSpecButton");
-    sdSpecButton.setText("<html>View<br>SD Spectrum");
+
+    sdSpecButton.setText("Calc SD spec.");
     sdSpecButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         sdSpecButton_actionPerformed(actionEvent);
       }
     });
 
-    viewButton.setActionCommand("viewButton");
-    viewButton.setText("<html>View <br>Spectrum</br></html>");
+
+    viewButton.setText("View Data");
     viewButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewButton_actionPerformed(actionEvent);
@@ -220,38 +218,38 @@ public class NEHRP_GuiBean
     responseSpectraButtonPanel.add(viewButton,
                                    new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 27, 2, 2), 10, 6));
+        new Insets(2, 2, 25, 8), 25, 6));
     responseSpectraButtonPanel.add(mapSpecButton,
                                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 42, 0, 0), 10, 6));
+        new Insets( 2, 2, 2, 2), 10, 6));
     responseSpectraButtonPanel.add(smSpecButton,
                                    new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 27, 0, 0), 10, 6));
+        new Insets( 2, 2, 2, 2), 10, 6));
 
     responseSpectraButtonPanel.add(sdSpecButton,
                                    new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -1, 34, 0, 39), 10, 6));
+        new Insets( 2, 2, 2, 2), 10, 6));
     basicParamsPanel.add(ssButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(7, 10, 4, 0), 30, 6));
+        new Insets(2, 2, 2, 2), 10, 6));
     basicParamsPanel.add(smSDButton,
                          new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(10, 27, 7, 18), 10,
-                                                8));
+                                                new Insets(2, 2, 2, 2), 10,
+                                                6));
     basicParamsPanel.add(siteCoeffButton,
                          new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(10, 27, 7, 0), 10, 8));
+                                                new Insets(2, 2, 2, 2), 10, 6));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(380);
-    locationSplitPane.setDividerLocation(170);
-    buttonsSplitPane.setDividerLocation(180);
+    mainSplitPane.setDividerLocation(400);
+    locationSplitPane.setDividerLocation(160);
+    buttonsSplitPane.setDividerLocation(200);
     setButtonsEnabled(false);
   }
 

@@ -11,7 +11,7 @@ import javax.swing.border.*;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.param.*;
-import org.opensha.param.editor.*;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.param.event.*;
 import gov.usgs.exceptions.*;
 import gov.usgs.sha.data.*;
@@ -81,8 +81,11 @@ public class ProbHazCurvesGuiBean
   private static final String PROB_EXCEED_PARAM_NAME = "Prob. of Exceedance";
   private static final String EXP_TIME_PARAM_NAME = "Exposure Time";
 
-  private ParameterListEditor singleHazardValListEditor;
-  private ParameterList singleHazardValParameterList;
+  private JPanel singleHazardValEditorPanel;
+  private ConstrainedStringParameterEditor singleHazValCalcModeEditor;
+  private ConstrainedStringParameterEditor returnPdEditor;
+  private ConstrainedStringParameterEditor exceedProbEditor;
+  private ConstrainedStringParameterEditor expTimeEditor;
 
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
@@ -189,21 +192,50 @@ public class ProbHazCurvesGuiBean
     exceedProbVal = (String) exceedProbParam.getValue();
     expTimeVal = (String) expTimeParam.getValue();
 
-    singleHazardValParameterList = new ParameterList();
-    singleHazardValParameterList.addParameter(singleHazardCalcMethodParam);
-    singleHazardValParameterList.addParameter(returnPeriodParam);
-    singleHazardValParameterList.addParameter(exceedProbParam);
-    singleHazardValParameterList.addParameter(expTimeParam);
+
 
     singleHazardCalcMethodParam.addParameterChangeListener(this);
     returnPeriodParam.addParameterChangeListener(this);
     exceedProbParam.addParameterChangeListener(this);
     expTimeParam.addParameterChangeListener(this);
-    singleHazardValListEditor = new ParameterListEditor(
-        singleHazardValParameterList);
+    try{
+      singleHazValCalcModeEditor = new ConstrainedStringParameterEditor(
+          singleHazardCalcMethodParam);
+      returnPdEditor = new ConstrainedStringParameterEditor(returnPeriodParam);
+      exceedProbEditor = new ConstrainedStringParameterEditor(exceedProbParam);
+      expTimeEditor = new ConstrainedStringParameterEditor(expTimeParam);
 
+      singleHazardValEditorPanel = new JPanel();
+      singleHazardValEditorPanel.setLayout(new GridBagLayout());
+      singleHazardValEditorPanel.add(singleHazValCalcModeEditor,
+                                     new GridBagConstraints(0, 0, 0, 1, 1.0,
+          1.0
+          , GridBagConstraints.NORTH,
+          GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+
+      singleHazardValEditorPanel.add(returnPdEditor,
+                                     new GridBagConstraints(0, 1, 0, 1, 1.0,
+          1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+
+      singleHazardValEditorPanel.add(exceedProbEditor,
+                                     new GridBagConstraints(0, 1, 0, 1, 1.0,
+          1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+
+      singleHazardValEditorPanel.add(expTimeEditor,
+                                     new GridBagConstraints(0, 2, 0, 1, 1.0,
+          1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+          new Insets(2, 2, 2, 2), 0, 0));
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
     setParametersForSingleHazardValueVisible();
-    singleHazardValListEditor.setTitle("");
   }
 
   /**
@@ -214,59 +246,55 @@ public class ProbHazCurvesGuiBean
 
     //if the selected parameter is the Return Period
     if (singleHazardCalcMethod.equals(USING_RETURN_PERIOD)) {
-      singleHazardValListEditor.setParameterVisible(PROB_EXCEED_PARAM_NAME, false);
-      singleHazardValListEditor.setParameterVisible(EXP_TIME_PARAM_NAME, false);
-      singleHazardValListEditor.setParameterVisible(RETURN_PERIOD_PARAM_NAME, true);
+      exceedProbEditor.setVisible(false);
+      expTimeEditor.setVisible(false);
+      returnPdEditor.setVisible(true);
     }
     //if the selected parameter is the Exceed Prob and Exp time
     else if (singleHazardCalcMethod.equals(USING_EXCEED_PROB_AND_EXP_TIME)) {
-      singleHazardValListEditor.setParameterVisible(RETURN_PERIOD_PARAM_NAME, false);
-      singleHazardValListEditor.setParameterVisible(PROB_EXCEED_PARAM_NAME, true);
-      singleHazardValListEditor.setParameterVisible(EXP_TIME_PARAM_NAME, true);
+      exceedProbEditor.setVisible(true);
+      expTimeEditor.setVisible(true);
+      returnPdEditor.setVisible(false);
+
     }
   }
 
   private void jbInit() throws Exception {
     this.setLayout(borderLayout1);
-    this.setMinimumSize(new Dimension(500, 680));
-    this.setPreferredSize(new Dimension(500, 680));
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     basicParamsPanel.setLayout(gridBagLayout3);
     basicParamsPanel.setBorder(basicParamBorder);
-    basicParamsPanel.setMinimumSize(new Dimension(20, 20));
-    basicParamsPanel.setPreferredSize(new Dimension(370, 140));
     basicParamBorder.setTitleColor(Color.RED);
     singleHazardValPanel.setBorder(responseSpecBorder);
-    singleHazardValPanel.setMinimumSize(new Dimension(30, 30));
     responseSpecBorder.setTitleColor(Color.RED);
     singleHazardValPanel.setLayout(gridBagLayout4);
     regionPanel.setBorder(regionBorder);
     regionBorder.setTitleColor(Color.RED);
     regionPanel.setLayout(gridBagLayout2);
-    hazCurveCalcButton.setText("<html>Calculate<br>Hazard Curve</br></html>");
+    hazCurveCalcButton.setText("Calculate");
     hazCurveCalcButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         hazCurveCalcButton_actionPerformed(e);
       }
     });
-    viewCurveButton.setText("<html>View<br>Hazard Curve</br></html>");
+    viewCurveButton.setText("View");
     viewCurveButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         viewCurveButton_actionPerformed(e);
       }
     });
     singleHazardCurveValButton.setText(
-        "<html>Calculate Single<br>Hazard Values</br></html>");
+        "Calculate");
     singleHazardCurveValButton.addActionListener(new java.awt.event.
                                                  ActionListener() {
       public void actionPerformed(ActionEvent e) {
         singleHazardCurveValButton_actionPerformed(e);
       }
     });
-    linearInterRadioButton.setText("Linear Interpolation");
-    logInterpolationRadioButton.setText("Log Interpolation");
+    linearInterRadioButton.setText("Linear Interp.");
+    logInterpolationRadioButton.setText("Log Interp.");
     mainSplitPane.add(locationSplitPane, JSplitPane.TOP);
     mainSplitPane.add(buttonsSplitPane, JSplitPane.BOTTOM);
     locationSplitPane.add(regionPanel, JSplitPane.TOP);
@@ -279,35 +307,35 @@ public class ProbHazCurvesGuiBean
                          new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 48, 4, 0), 10, 6));
+                                                new Insets(4, 70, 4, 0), 8, 5));
     basicParamsPanel.add(viewCurveButton,
                          new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 9, 4, 87), 10, 6));
-    singleHazardValPanel.add(singleHazardValListEditor,
+                                                new Insets(4, 9, 4, 110), 10, 5));
+    singleHazardValPanel.add(singleHazardValEditorPanel,
                              new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(0, 3, 0, 4), 329, 87));
+        new Insets(10, 2, 2, 2), 0,0 ));
     singleHazardValPanel.add(linearInterRadioButton,
                              new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -3, 3, 0, 0), 23, 6));
+        new Insets(2, 2, 2, 2), 10, 6));
     singleHazardValPanel.add(logInterpolationRadioButton,
                              new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( -3, 14, 0, 30), 23, 7));
+        new Insets(2, 2, 2, 2), 10, 6));
     singleHazardValPanel.add(singleHazardCurveValButton,
-                             new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
+                             new GridBagConstraints(0, 2, 2, 4, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(0, 108, 0, 134), 10, 0));
+        new Insets(2, 2, 40, 2), 8, 5));
 
     buttonGroup.add(linearInterRadioButton);
     buttonGroup.add(logInterpolationRadioButton);
     buttonGroup.setSelected(linearInterRadioButton.getModel(), true);
-    mainSplitPane.setDividerLocation(350);
-    locationSplitPane.setDividerLocation(155);
-    buttonsSplitPane.setDividerLocation(150);
+    mainSplitPane.setDividerLocation(400);
+    locationSplitPane.setDividerLocation(160);
+    buttonsSplitPane.setDividerLocation(140);
     singleHazardCurveValButton.setEnabled(false);
     viewCurveButton.setEnabled(false);
   }
@@ -344,9 +372,7 @@ public class ProbHazCurvesGuiBean
       singleHazardCurveValButton.setEnabled(false);
     }
     else if (paramName.equals(SINGLE_HAZARD_CURVE_PARAM_NAME)) {
-      singleHazardCalcMethod = (String) singleHazardValListEditor.
-          getParameterEditor(
-              SINGLE_HAZARD_CURVE_PARAM_NAME).getValue();
+      singleHazardCalcMethod = (String)singleHazValCalcModeEditor.getValue();
       setParametersForSingleHazardValueVisible();
     }
     else if (paramName.equals(HAZ_CURVE_IMT_PERIOD_PARAM_NAME)) {
@@ -355,16 +381,13 @@ public class ProbHazCurvesGuiBean
       singleHazardCurveValButton.setEnabled(false);
     }
     else if (paramName.equals(RETURN_PERIOD_PARAM_NAME)) {
-      returnPeriod = (String) singleHazardValListEditor.getParameterEditor(this.
-          RETURN_PERIOD_PARAM_NAME).getValue();
+      returnPeriod = (String)returnPdEditor.getValue();
     }
     else if (paramName.equals(PROB_EXCEED_PARAM_NAME)) {
-      exceedProbVal = (String) singleHazardValListEditor.getParameterEditor(
-          PROB_EXCEED_PARAM_NAME).getValue();
+      exceedProbVal = (String) exceedProbEditor.getValue();
     }
     else if (paramName.equals(EXP_TIME_PARAM_NAME)) {
-      expTimeVal = (String) singleHazardValListEditor.getParameterEditor(
-          EXP_TIME_PARAM_NAME).getValue();
+      expTimeVal = (String) expTimeEditor.getValue();
     }
     else if (paramName.equals(locGuiBean.LAT_PARAM_NAME) ||
              paramName.equals(locGuiBean.LON_PARAM_NAME) ||

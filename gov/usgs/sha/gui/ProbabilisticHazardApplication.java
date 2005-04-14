@@ -173,8 +173,8 @@ public class ProbabilisticHazardApplication
     dataSplitPane.setBorder(outputBorder);
     outputBorder.setTitleColor(Color.RED);
     dataTextArea.setText("");
-    dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
-    parametersScrollPane.setBounds(new Rectangle(2, 2, 530, 720));
+    //dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
+    //parametersScrollPane.setBounds(new Rectangle(2, 2, 530, 720));
     parametersPanel.setLayout(borderLayout4);
     buttonPanel.setLayout(gridBagLayout2);
     clearDataButton.setText("Clear Data");
@@ -249,7 +249,7 @@ public class ProbabilisticHazardApplication
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     setSize((int)(0.9*d.getSize().width),(int)(0.95*d.getSize().height));
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
-    mainSplitPane.setDividerLocation((int)(0.55*getWidth()));
+    mainSplitPane.setDividerLocation((int)(0.45*getWidth()));
     dataSplitPane.setDividerLocation((int)(0.7*getHeight()));
 
     viewMapsButton.setEnabled(false);
