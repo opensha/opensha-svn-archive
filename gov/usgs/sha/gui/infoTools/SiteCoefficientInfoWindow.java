@@ -101,8 +101,9 @@ public class SiteCoefficientInfoWindow
 
   private DecimalFormat saFormat = new DecimalFormat("0.00#");
 
-  private SiteCoefficientInfoWindow(Frame frame, boolean _boolean) {
+  private SiteCoefficientInfoWindow(JFrame frame, boolean _boolean) {
     super(frame, _boolean);
+    frame.setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
     try {
       setDefaultCloseOperation(DISPOSE_ON_CLOSE);
       jbInit();

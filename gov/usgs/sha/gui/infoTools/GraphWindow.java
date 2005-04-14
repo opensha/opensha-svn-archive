@@ -11,6 +11,7 @@ import org.jfree.data.*;
 import org.opensha.data.function.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.util.*;
+import gov.usgs.util.GlobalConstants;
 
 /**
  * <p>Title: GraphWindow</p>
@@ -236,7 +237,7 @@ public class GraphWindow
     Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
     setLocation( (dm.width - this.getSize().width) / 2,
                  (dm.height - this.getSize().height) / 2);
-
+    this.setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
   }
 
   /**

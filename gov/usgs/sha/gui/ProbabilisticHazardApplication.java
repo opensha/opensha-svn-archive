@@ -253,7 +253,6 @@ public class ProbabilisticHazardApplication
     dataSplitPane.setDividerLocation((int)(0.7*getHeight()));
 
     viewMapsButton.setEnabled(false);
-    this.setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
   }
 
   /**
