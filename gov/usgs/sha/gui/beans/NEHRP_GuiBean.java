@@ -111,8 +111,8 @@ public class NEHRP_GuiBean
 
     basicParamsPanel.add(groundMotionParamEditor,
                          new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.BOTH,
+                                                , GridBagConstraints.NORTH,
+                                                GridBagConstraints.HORIZONTAL,
                                                 new Insets(4, 4, 4, 4), 0, 0));
 
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
@@ -248,7 +248,7 @@ public class NEHRP_GuiBean
                                                 new Insets(2, 2, 2, 2), 10, 6));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(400);
-    locationSplitPane.setDividerLocation(160);
+    locationSplitPane.setDividerLocation(170);
     buttonsSplitPane.setDividerLocation(200);
     setButtonsEnabled(false);
   }

@@ -99,9 +99,9 @@ public class IRC_GuiBean
     }
 
     basicParamsPanel.add(groundMotionParamEditor,
-                         new GridBagConstraints(0, 0, 3, 1, 1.0, 1.2
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.BOTH,
+                         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.NORTH,
+                                                GridBagConstraints.HORIZONTAL,
                                                 new Insets(4, 4, 4, 4), 0, 0));
 
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
@@ -109,9 +109,7 @@ public class IRC_GuiBean
                                            , GridBagConstraints.CENTER,
                                            GridBagConstraints.BOTH,
                                            new Insets(4, 4, 4, 4), 0, 0));
-
     this.updateUI();
-
   }
 
   protected void createGroundMotionParameter() {
@@ -134,8 +132,6 @@ public class IRC_GuiBean
 
   protected void jbInit() throws Exception {
     this.setLayout(borderLayout1);
-    this.setMinimumSize(new Dimension(500, 680));
-    this.setPreferredSize(new Dimension(500, 680));
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
@@ -143,11 +139,8 @@ public class IRC_GuiBean
     basicParamsPanel.setBorder(basicParamBorder);
     basicParamBorder.setTitleColor(Color.RED);
 
-    residentialSiteCategoryButton.setFont(new java.awt.Font("Arial", Font.BOLD,
-        13));
-    residentialSiteCategoryButton.setActionCommand("siteCoeffButton");
     residentialSiteCategoryButton.setText(
-        "<html>Calculate<br>Site Coefficient</br></html>");
+        "Calc site coeff.");
     residentialSiteCategoryButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         residentialSiteCategoryButton_actionPerformed(actionEvent);
@@ -163,13 +156,13 @@ public class IRC_GuiBean
     locationSplitPane.add(regionPanel, JSplitPane.TOP);
 
     basicParamsPanel.add(residentialSiteCategoryButton,
-                         new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.CENTER,
+                         new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+                                                , GridBagConstraints.NORTH,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 4, 4, 4), 22, 8));
+                                                new Insets(-50, 130, 200,120), 22, 8));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(450);
-    locationSplitPane.setDividerLocation(220);
+    mainSplitPane.setDividerLocation(470);
+    locationSplitPane.setDividerLocation(200);
 
   }
 
@@ -231,7 +224,7 @@ public class IRC_GuiBean
         param.addParameterChangeListener(this);
       }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
-      locationSplitPane.setDividerLocation(170);
+      locationSplitPane.setDividerLocation(200);
     }
     else if (region == null) {
       locationVisible = false;

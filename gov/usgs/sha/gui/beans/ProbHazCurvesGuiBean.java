@@ -152,7 +152,7 @@ public class ProbHazCurvesGuiBean
     basicParamsPanel.add(hazardCurveIMTPeriodSelectionParamEditor,
                          new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
-                                                GridBagConstraints.BOTH,
+                                                GridBagConstraints.HORIZONTAL,
                                                 new Insets(4, 4, 4, 4), 0, 0));
 
   }
@@ -334,7 +334,7 @@ public class ProbHazCurvesGuiBean
     buttonGroup.add(logInterpolationRadioButton);
     buttonGroup.setSelected(linearInterRadioButton.getModel(), true);
     mainSplitPane.setDividerLocation(400);
-    locationSplitPane.setDividerLocation(160);
+    locationSplitPane.setDividerLocation(170);
     buttonsSplitPane.setDividerLocation(140);
     singleHazardCurveValButton.setEnabled(false);
     viewCurveButton.setEnabled(false);
