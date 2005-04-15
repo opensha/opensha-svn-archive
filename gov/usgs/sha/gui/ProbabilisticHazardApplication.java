@@ -55,7 +55,6 @@ public class ProbabilisticHazardApplication
   JSplitPane dataSplitPane = new JSplitPane();
   JScrollPane dataScrollPane = new JScrollPane();
   JScrollPane parametersScrollPane = new JScrollPane();
-  JPanel parametersPanel = new JPanel();
   JPanel buttonPanel = new JPanel();
   JTextArea dataTextArea = new JTextArea();
   BorderLayout borderLayout1 = new BorderLayout();
@@ -171,17 +170,13 @@ public class ProbabilisticHazardApplication
 
     dataSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     dataSplitPane.setBorder(outputBorder);
+    dataSplitPane.setMinimumSize(new Dimension(10,10));
     outputBorder.setTitleColor(Color.RED);
     dataTextArea.setText("");
-    //dataScrollPane.setBounds(new Rectangle(10, 10, 484, 548));
-    //parametersScrollPane.setBounds(new Rectangle(2, 2, 530, 720));
-    parametersPanel.setLayout(borderLayout4);
+
     buttonPanel.setLayout(gridBagLayout2);
     clearDataButton.setText("Clear Data");
     viewMapsButton.setText("View Maps");
-    imgLabel.setMaximumSize(new Dimension(200, 75));
-    imgLabel.setMinimumSize(new Dimension(200, 75));
-    imgLabel.setPreferredSize(new Dimension(200, 75));
 
     ExplainButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
@@ -205,6 +200,7 @@ public class ProbabilisticHazardApplication
     fileMenu.add(filePrintMenu);
     fileMenu.add(fileExitMenu);
     mainSplitPane.add(dataSplitPane, JSplitPane.RIGHT);
+    parametersScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     mainSplitPane.add(parametersScrollPane, JSplitPane.LEFT);
     dataSplitPane.add(dataScrollPane, JSplitPane.TOP);
     dataSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
@@ -212,47 +208,48 @@ public class ProbabilisticHazardApplication
     ExplainButton.setText("Explain");
     explainationText = new JTextPane();
     explainationText.setEditable(false);
+    buttonPanel.setMinimumSize(new Dimension(0,0));
+    dataScrollPane.getViewport().add(dataTextArea, null);
 
-    dataScrollPane.getViewport().add(dataTextArea, java.awt.BorderLayout.CENTER);
-    parametersScrollPane.getViewport().add(parametersPanel,
-                                           java.awt.BorderLayout.CENTER);
 
-    buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
+    buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 2, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(16, 70, 3, 59), 200, 75));
+        new Insets(16, 160, 3, 59), 0, 0));
     buttonPanel.add(viewMapsButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(3, 154, 0, 0), 14, -2));
+        new Insets(6, 154, 0, 0), 0, 0));
     buttonPanel.add(clearDataButton,
                     new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
                                            , GridBagConstraints.CENTER,
                                            GridBagConstraints.NONE,
-                                           new Insets(3, 12, 0, 153), 14, -2));
+                                           new Insets(6, 12, 0, 153), 0, 0));
 
     jPanel1.add(analysisOptionLabel,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
                                        , GridBagConstraints.EAST,
                                        GridBagConstraints.NONE,
-                                       new Insets(9, 4, 0, 0), 21, 13));
+                                       new Insets(9, 4, 0, 0), 0, 0));
     jPanel1.add(analysisOptionSelectionCombo,
                 new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0
                                        , GridBagConstraints.CENTER,
                                        GridBagConstraints.HORIZONTAL,
-                                       new Insets(9, 0, 0, 0), 0, 13));
+                                       new Insets(9, 0, 0, 0), 0, 0));
     jPanel1.add(ExplainButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.EAST, GridBagConstraints.NONE,
-        new Insets(4, 4, 4, 60), 44, 11));
+        new Insets(4, 4, 4, 60), 0, 0));
     jPanel1.add(mainSplitPane, new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(10, 8, 5, 10), 777, 597));
+        new Insets(10, 8, 5, 10), 0, 0));
+    parametersScrollPane.getViewport().setLayout(new BorderLayout());
     setJMenuBar(applicationMenu);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    setSize((int)(0.9*d.getSize().width),(int)(0.95*d.getSize().height));
+    setSize(900,850);
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
-    mainSplitPane.setDividerLocation((int)(0.45*getWidth()));
-    dataSplitPane.setDividerLocation((int)(0.7*getHeight()));
-
+    mainSplitPane.setDividerLocation(400);
+    dataSplitPane.setDividerLocation(600);
+    dataSplitPane.updateUI();
     viewMapsButton.setEnabled(false);
+    contentPane.updateUI();
   }
 
   /**
@@ -324,13 +321,13 @@ public class ProbabilisticHazardApplication
         getSelectedItem();
     guiBeanAPI = (AnalysisOptionsGuiBeanAPI) analysisOptionHash.get(
         selectedAnalysisOption);
-    parametersPanel.removeAll();
+    parametersScrollPane.getViewport().removeAll();
     if (guiBeanAPI == null) {
       createGuiBeanInstance();
     }
     else {
-      parametersPanel.add(guiBeanAPI.getGuiBean(), java.awt.BorderLayout.CENTER);
-      parametersPanel.updateUI();
+      parametersScrollPane.getViewport().add(guiBeanAPI.getGuiBean(),BorderLayout.CENTER);
+      parametersScrollPane.updateUI();
     }
     setDataInWindow(guiBeanAPI.getData());
     previousSelectedAnalysisOption = selectedAnalysisOption;
@@ -362,10 +359,10 @@ public class ProbabilisticHazardApplication
       guiBeanAPI = new ASCE7_NFPA_GuiBean(this);
     }
     if (guiBeanAPI != null) {
-      parametersPanel.add(guiBeanAPI.getGuiBean(), java.awt.BorderLayout.CENTER);
+      parametersScrollPane.getViewport().add(guiBeanAPI.getGuiBean(),BorderLayout.CENTER);
     }
 
-    parametersPanel.updateUI();
+    parametersScrollPane.updateUI();
   }
 
   private void showAnalysisOptionInWindow() {

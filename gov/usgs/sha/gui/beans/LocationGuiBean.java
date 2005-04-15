@@ -183,7 +183,7 @@ public class LocationGuiBean
         e.printStackTrace();
       }
     }
-
+    locationPanel.setMinimumSize(new Dimension(0,0));
     setVisibleParameters();
     locationPanel.updateUI();
   }

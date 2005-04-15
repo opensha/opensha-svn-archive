@@ -102,13 +102,13 @@ public class IRC_GuiBean
                          new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.NORTH,
                                                 GridBagConstraints.HORIZONTAL,
-                                                new Insets(4, 4, 4, 4), 0, 0));
+                                                new Insets(2, 2, 2, 2), 0, 0));
 
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.CENTER,
                                            GridBagConstraints.BOTH,
-                                           new Insets(4, 4, 4, 4), 0, 0));
+                                           new Insets(0, 0, 0, 0), 0, 0));
     this.updateUI();
   }
 
@@ -159,7 +159,7 @@ public class IRC_GuiBean
                          new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
                                                 , GridBagConstraints.NORTH,
                                                 GridBagConstraints.NONE,
-                                                new Insets(-50, 130, 200,120), 22, 8));
+                                                new Insets(2, 25, 100,120), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(470);
     locationSplitPane.setDividerLocation(200);

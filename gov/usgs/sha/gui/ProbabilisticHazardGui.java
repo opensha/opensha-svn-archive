@@ -91,17 +91,17 @@ public class ProbabilisticHazardGui
     imgLabel.setMinimumSize(new Dimension(200, 75));
     imgLabel.setPreferredSize(new Dimension(200, 75));
     screenPanel.add(applicationInfoText,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(6, 12, 0, 6), -1591, 37));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(6, 12, 0, 6), 0, 0));
     screenPanel.add(jLabel1,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 38, 0, 25), 77, 13));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(13, 38, 0, 25), 0,0));
     screenPanel.add(jLabel2,  new GridBagConstraints(0, 1, 2, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 123, 0, 101), 65, 1));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 123, 0, 101), 0, 0));
     screenPanel.add(imgLabel,  new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(18, 166, 2, 41), 0, 0));
     screenPanel.add(okButton,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 327, 0, 0), -4, 6));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 327, 0, 0), 0, 0));
     screenPanel.add(exitButton,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 17, 0, 72), -4, 6));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 17, 0, 72), 0, 0));
     this.getContentPane().add(screenPanel, BorderLayout.CENTER);
 
     applicationInfoText.setText(

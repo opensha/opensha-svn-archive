@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.GridBagLayout;
+import java.awt.Dimension;
 
 /**
  * <p>Title: DataSetSelectionGuiBean</p>
@@ -48,6 +49,7 @@ public class DataSetSelectionGuiBean {
     editorPanel.add(editionEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
         , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
         new Insets(2, 2, 2, 2), 0, 0));
+    editorPanel.setMinimumSize(new Dimension(0,0));
   }
 
   /**

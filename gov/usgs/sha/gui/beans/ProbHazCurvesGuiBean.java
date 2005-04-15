@@ -125,11 +125,11 @@ public class ProbHazCurvesGuiBean
                     new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.CENTER,
                                            GridBagConstraints.BOTH,
-                                           new Insets(4, 4, 4, 4), 0, 0));
+                                           new Insets(0, 0, 0, 0), 0, 0));
 
-    mainSplitPane.setDividerLocation(350);
-    locationSplitPane.setDividerLocation(145);
-    buttonsSplitPane.setDividerLocation(150);
+    mainSplitPane.setDividerLocation(320);
+    locationSplitPane.setDividerLocation(130);
+    buttonsSplitPane.setDividerLocation(135);
     this.updateUI();
   }
 
@@ -212,25 +212,25 @@ public class ProbHazCurvesGuiBean
           1.0
           , GridBagConstraints.NORTH,
           GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
+          new Insets(1,1,1,1), 0, 0));
 
       singleHazardValEditorPanel.add(returnPdEditor,
                                      new GridBagConstraints(0, 1, 0, 1, 1.0,
           1.0
           , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
+          new Insets(1,1,1,1), 0, 0));
 
       singleHazardValEditorPanel.add(exceedProbEditor,
                                      new GridBagConstraints(0, 1, 0, 1, 1.0,
           1.0
           , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
+          new Insets(1,1,1,1), 0, 0));
 
       singleHazardValEditorPanel.add(expTimeEditor,
                                      new GridBagConstraints(0, 2, 0, 1, 1.0,
           1.0
           , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
+          new Insets(1,1,1,1), 0, 0));
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -305,14 +305,14 @@ public class ProbHazCurvesGuiBean
     this.add(mainSplitPane, BorderLayout.CENTER);
     basicParamsPanel.add(hazCurveCalcButton,
                          new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.CENTER,
+                                                , GridBagConstraints.NORTH,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 70, 4, 0), 8, 5));
+                                                new Insets(4, 70, 4, 0), 0, 0));
     basicParamsPanel.add(viewCurveButton,
                          new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-                                                , GridBagConstraints.CENTER,
+                                                , GridBagConstraints.NORTH,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 9, 4, 110), 10, 5));
+                                                new Insets(4, 9, 4, 110), 0,0));
     singleHazardValPanel.add(singleHazardValEditorPanel,
                              new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -320,24 +320,27 @@ public class ProbHazCurvesGuiBean
     singleHazardValPanel.add(linearInterRadioButton,
                              new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 10, 6));
+        new Insets(2, 2, 2, 2), 0,0));
     singleHazardValPanel.add(logInterpolationRadioButton,
                              new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 10, 6));
+        new Insets(2, 2, 2, 2), 0, 0));
     singleHazardValPanel.add(singleHazardCurveValButton,
                              new GridBagConstraints(0, 2, 2, 4, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 40, 2), 8, 5));
+        new Insets(2, 2, 40, 2), 0, 0));
 
     buttonGroup.add(linearInterRadioButton);
     buttonGroup.add(logInterpolationRadioButton);
     buttonGroup.setSelected(linearInterRadioButton.getModel(), true);
-    mainSplitPane.setDividerLocation(400);
-    locationSplitPane.setDividerLocation(170);
-    buttonsSplitPane.setDividerLocation(140);
+    mainSplitPane.setDividerLocation(380);
+    locationSplitPane.setDividerLocation(150);
+    buttonsSplitPane.setDividerLocation(100);
     singleHazardCurveValButton.setEnabled(false);
     viewCurveButton.setEnabled(false);
+    singleHazardValPanel.setMinimumSize(new Dimension(0,0));
+    basicParamsPanel.setMinimumSize(new Dimension(0,0));
+    regionPanel.setMinimumSize(new Dimension(0,0));
   }
 
   /**
