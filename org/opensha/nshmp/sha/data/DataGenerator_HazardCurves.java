@@ -54,7 +54,7 @@ public class DataGenerator_HazardCurves
    * @param lat double
    * @param lon double
    * @return ArrayList
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
   public void calculateHazardCurve(double lat, double lon, String hazCurveType) throws
@@ -81,7 +81,7 @@ public class DataGenerator_HazardCurves
    * @param zipCode String
    * @throws ZipCodeErrorException
    * @return ArrayList
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
   public void calculateHazardCurve(String zipCode, String hazCurveType) throws
@@ -162,7 +162,7 @@ public class DataGenerator_HazardCurves
   /**
    * Removes all the calculated data.
    *
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
   public void clearData() {
@@ -179,7 +179,7 @@ public class DataGenerator_HazardCurves
    * Returns the Data and all the metadata associated with it in a String.
    *
    * @return String
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
   public String getDataInfo() {
@@ -190,7 +190,7 @@ public class DataGenerator_HazardCurves
    * Sets the selected data edition.
    *
    * @param edition String
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
   public void setEdition(String edition) {
@@ -201,7 +201,7 @@ public class DataGenerator_HazardCurves
    * Sets the selected geographic region.
    *
    * @param region String
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_HazardCurves
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_HazardCurves
    *   method
    */
   public void setRegion(String region) {

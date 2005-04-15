@@ -27,10 +27,10 @@ public class RemoteHazardDataCalcFactoryImpl
 
   /**
    *
-   * @return gov.usgs.sha.calc.api.HazardDataCalcAPI
+   * @return org.opensha.nshmp.sha.calc.api.HazardDataCalcAPI
    * @throws RemoteException
    * @todo Implement this
-   *   gov.usgs.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI method
+   *   org.opensha.nshmp.sha.calc.remote.api.RemoteHazardDataCalcFactoryAPI method
    */
   public HazardDataCalcAPI getRemoteHazardDataCalc() throws RemoteException {
     HazardDataCalcAPI hazardDataCalc = new HazardDataCalc();

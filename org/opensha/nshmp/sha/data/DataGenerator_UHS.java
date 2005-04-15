@@ -278,7 +278,7 @@ public class DataGenerator_UHS
    *
    * @param zipCode String
    * @throws ZipCodeErrorException
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS method
    */
   public void calculateUHS(String zipCode) throws ZipCodeErrorException,
       RemoteException {
@@ -298,7 +298,7 @@ public class DataGenerator_UHS
    *
    * @param lat double
    * @param lon double
-   * @todo Implement this gov.usgs.sha.data.api.DataGeneratorAPI_UHS method
+   * @todo Implement this org.opensha.nshmp.sha.data.api.DataGeneratorAPI_UHS method
    */
   public void calculateUHS(double lat, double lon) throws RemoteException {
 
