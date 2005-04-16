@@ -1,6 +1,13 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Things to do: (Added by Nitin)
+---------------
+1) Bug reporting window should also show the parameters selected by user.
+2) In the HazardData viewer application if user has selected Min Lat and Min Lon to be greater then Max Lat and Max Lat respectively, then message should be shown to the user telling him "Wrong Parameters added".
+3)Create a database structure for Golden that can help them with the E.V's application to read the data from the database. 
+
+
 ScenarioShakeMap Application:
  
  When Abrahamson-2000 is selected, then in Eqk rupture select the Custom Eqk Rupture , then select the rupture type to be "point source rupture", set the hypocenter location, then click on the "Make Map". It will throw the exception saying that "setValue():Value is not allowed:NaN". 

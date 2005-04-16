@@ -413,7 +413,8 @@ public class UHS_GuiBean
   /**
    * Gets the SA Period and Values from datafiles
    */
-  protected void getDataForSA_Period() {
+  protected void getDataForSA_Period() throws ZipCodeErrorException,
+      LocationErrorException,RemoteException{
 
     dataGenerator.setSpectraType(spectraType);
     dataGenerator.setRegion(selectedRegion);
@@ -421,55 +422,42 @@ public class UHS_GuiBean
 
     String locationMode = locGuiBean.getLocationMode();
     if (locationMode.equals(locGuiBean.LAT_LON)) {
-      try {
-        Location loc = locGuiBean.getSelectedLocation();
-        double lat = loc.getLatitude();
-        double lon = loc.getLongitude();
-        dataGenerator.calculateUHS(lat, lon);
-      }
-      catch (LocationErrorException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
-                                      JOptionPane.OK_OPTION);
-        return;
-      }
-      catch (RemoteException e) {
-        JOptionPane.showMessageDialog(this,
-                                      e.getMessage() + "\n" +
-                                      "Please check your network connection",
-                                      "Server Connection Error",
-                                      JOptionPane.ERROR_MESSAGE);
-        return;
-      }
-
+      Location loc = locGuiBean.getSelectedLocation();
+      double lat = loc.getLatitude();
+      double lon = loc.getLongitude();
+      dataGenerator.calculateUHS(lat, lon);
     }
     else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
-      try {
-        String zipCode = locGuiBean.getZipCode();
-        dataGenerator.calculateUHS(zipCode);
-      }
-      catch (RemoteException e) {
-        JOptionPane.showMessageDialog(this,
-                                      e.getMessage() + "\n" +
-                                      "Please check your network connection",
-                                      "Server Connection Error",
-                                      JOptionPane.ERROR_MESSAGE);
-        return;
-      }
-      catch (ZipCodeErrorException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
-                                      JOptionPane.OK_OPTION);
-        return;
-      }
-      catch (LocationErrorException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
-                                      JOptionPane.OK_OPTION);
-        return;
-      }
+      String zipCode = locGuiBean.getZipCode();
+      dataGenerator.calculateUHS(zipCode);
     }
   }
 
+
+
   protected void uhsButton_actionPerformed(ActionEvent actionEvent) {
-    getDataForSA_Period();
+    try {
+      getDataForSA_Period();
+    }
+    catch (ZipCodeErrorException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Zip Code Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+    catch (LocationErrorException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Location Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+    catch (RemoteException ee) {
+      JOptionPane.showMessageDialog(this,
+                                    ee.getMessage() + "\n" +
+                                    "Please check your network connection",
+                                    "Server Connection Error",
+                                    JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
     application.setDataInWindow(getData());
     approxUHSButton.setEnabled(true);
     viewUHSButton.setEnabled(true);

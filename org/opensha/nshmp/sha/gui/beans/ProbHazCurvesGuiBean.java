@@ -488,7 +488,9 @@ public class ProbHazCurvesGuiBean
   /**
    * Gets the SA Period and Values from datafiles
    */
-  private void getDataForSA_Period() {
+  private void getDataForSA_Period() throws ZipCodeErrorException,
+      LocationErrorException,
+      RemoteException {
 
     dataGenerator.setRegion(selectedRegion);
     dataGenerator.setEdition(selectedEdition);
@@ -498,55 +500,20 @@ public class ProbHazCurvesGuiBean
       String locationMode = locGuiBean.getLocationMode();
 
       if (locationMode.equals(locGuiBean.LAT_LON)) {
-        try {
-          Location loc = locGuiBean.getSelectedLocation();
-          double lat = loc.getLatitude();
-          double lon = loc.getLongitude();
-          dataGenerator.calculateHazardCurve(lat, lon, imt);
-        }
-        catch (LocationErrorException e) {
-          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
-                                        JOptionPane.OK_OPTION);
-          return;
-        }
-        catch (RemoteException e) {
-          JOptionPane.showMessageDialog(this,
-                                        e.getMessage() + "\n" +
-                                        "Please check your network connection",
-                                        "Server Connection Error",
-                                        JOptionPane.ERROR_MESSAGE);
-          return;
-        }
+        Location loc = locGuiBean.getSelectedLocation();
+        double lat = loc.getLatitude();
+        double lon = loc.getLongitude();
+        dataGenerator.calculateHazardCurve(lat, lon, imt);
 
       }
       else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
-        try {
-          String zipCode = locGuiBean.getZipCode();
-          dataGenerator.calculateHazardCurve(zipCode, imt);
-        }
-        catch (ZipCodeErrorException e) {
-          JOptionPane.showMessageDialog(this, e.getMessage(), "Zip Code Error",
-                                        JOptionPane.OK_OPTION);
-          e.printStackTrace();
-          return;
-        }
-        catch (LocationErrorException e) {
-          JOptionPane.showMessageDialog(this, e.getMessage(), "Location Error",
-                                        JOptionPane.OK_OPTION);
-          return;
-        }
-        catch (RemoteException e) {
-          JOptionPane.showMessageDialog(this,
-                                        e.getMessage() + "\n" +
-                                        "Please check your network connection",
-                                        "Server Connection Error",
-                                        JOptionPane.ERROR_MESSAGE);
-          return;
-        }
+        String zipCode = locGuiBean.getZipCode();
+        dataGenerator.calculateHazardCurve(zipCode, imt);
 
       }
     }
   }
+
 
   /**
    *
@@ -562,7 +529,28 @@ public class ProbHazCurvesGuiBean
   }
 
   void hazCurveCalcButton_actionPerformed(ActionEvent e) {
-    getDataForSA_Period();
+    try{
+      getDataForSA_Period();
+    }
+    catch (ZipCodeErrorException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Zip Code Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+    catch (LocationErrorException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Location Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+    catch (RemoteException ee) {
+      JOptionPane.showMessageDialog(this,
+                                    ee.getMessage() + "\n" +
+                                    "Please check your network connection",
+                                    "Server Connection Error",
+                                    JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+
     application.setDataInWindow(getData());
     viewCurveButton.setEnabled(true);
     singleHazardCurveValButton.setEnabled(true);
