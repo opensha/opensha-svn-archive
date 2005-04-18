@@ -1316,6 +1316,7 @@ public class HazardCurveServerModeApplication extends JApplet
     this.controlComboBox.addItem(RUN_ALL_PEER_TESTS);
     //this.controlComboBox.addItem(MAP_CALC_CONTROL);
     this.controlComboBox.addItem(PLOTTING_OPTION);
+    controlComboBox.addItem(XY_Values_Control);
   }
 
   /**
@@ -1356,6 +1357,7 @@ public class HazardCurveServerModeApplication extends JApplet
   private void initPlotSelectionControl(){
     if(plotOptionControl ==  null)
       plotOptionControl = new PlottingOptionControl(this);
+    plotOptionControl.pack();
     plotOptionControl.show();
 
   }
@@ -1366,7 +1368,7 @@ public class HazardCurveServerModeApplication extends JApplet
    * plot.
    */
   private void initXYPlotSelectionControl(){
-    if(xyPlotControl!=null){
+    if(xyPlotControl==null){
       xyPlotControl = new XY_ValuesControlPanel(this,this);
     }
     xyPlotControl.show();
