@@ -476,7 +476,17 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
     double minLon = Double.parseDouble((String)sitesParamList.getParameter(this.MIN_LON_PARAM_NAME).getValue());
     double maxLon = Double.parseDouble((String)sitesParamList.getParameter(this.MAX_LON_PARAM_NAME).getValue());
     double gridSpacing = Double.parseDouble((String)sitesParamList.getParameter(this.GRIDSPACING_PARAM_NAME).getValue());
-    String selectedSet = this.dataSetCombo.getSelectedItem().toString();
+
+    if(minLat >= maxLat){
+      JOptionPane.showMessageDialog(this, "Min. Lat must be less than Max Lat.",
+                                    "Input Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
+    if(minLon >= maxLon){
+      JOptionPane.showMessageDialog(this, "Min. Lon must be less than Max Lon.",
+                                    "Input Error", JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     // set the lat and lon limits in mao gui bean
     mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon, gridSpacing);
     //establishes the connection with the servlet
