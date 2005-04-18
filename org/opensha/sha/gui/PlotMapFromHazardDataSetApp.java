@@ -131,7 +131,8 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
       fillLatLonAndGridSpacing();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"Problem occured "+
+          "while initializing the application");
       bugWindow.show();
       bugWindow.pack();
       e.printStackTrace();
@@ -209,23 +210,14 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
     mainSplitPane.setDividerLocation(375);
 
   }
-  //Start the applet
-  public void start() {
-  }
-  //Stop the applet
-  public void stop() {
-  }
-  //Destroy the applet
-  public void destroy() {
-  }
+
+
+
   //Get Applet information
   public String getAppletInfo() {
     return "Applet Information";
   }
-  //Get parameter info
-  public String[][] getParameterInfo() {
-    return null;
-  }
+
   //Main method
   public static void main(String[] args) {
     PlotMapFromHazardDataSetApp application = new PlotMapFromHazardDataSetApp();
@@ -309,7 +301,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
       inputToServlet.close();
 
     }catch (Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(), getParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       System.out.println("Exception in connection with servlet:" +e);
@@ -325,6 +317,27 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
 
     dataSetCombo.removeAllItems();
     while(it.hasNext()) this.dataSetCombo.addItem(it.next());
+  }
+
+
+  private String getParametersInfo(){
+
+    String metadata = "";
+
+    metadata = "Selected Dataset Name : " +(String)this.dataSetCombo.getSelectedItem()+"\n\n"+
+
+        "Region Param List: "+"\n"+
+        "----------------"+"\n"+
+        sitesEditor.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        "\n"+"Map Type Param List: "+"\n"+
+        "---------------"+"\n"+
+        imlProbGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"\n"+
+        "\n"+"GMT Param List: "+"\n"+
+        "--------------------"+"\n"+
+        mapGuiBean.getVisibleParametersCloned().getParameterListMetadataString() ;
+
+    return  metadata;
+
   }
 
 
@@ -533,7 +546,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
        ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata, true);
 
      }catch (Exception e) {
-       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+       ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
        bugWindow.show();
        bugWindow.pack();
        System.out.println("Exception in connection with servlet:" +e);

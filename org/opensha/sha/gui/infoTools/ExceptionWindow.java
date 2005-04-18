@@ -44,13 +44,16 @@ public class ExceptionWindow extends JFrame {
   private static final boolean D = false;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  public ExceptionWindow(Component parent,String exceptionText) {
+  public ExceptionWindow(Component parent,String exceptionText,String selectedParametersInfo) {
     try {
       // show the window at center of the parent component
       this.setLocation(parent.getX()+parent.getWidth()/2,
                        parent.getY()+parent.getHeight()/2);
       jbInit();
-      exceptionTextPane.setText(exceptionText);
+      exceptionTextPane.setText(exceptionText+"\n\n");
+      exceptionTextPane.setText("Selected Parameters Info :\n");
+      exceptionTextPane.setText("--------------------------");
+      exceptionTextPane.setText(selectedParametersInfo);
     }
     catch(Exception e) {
       e.printStackTrace();

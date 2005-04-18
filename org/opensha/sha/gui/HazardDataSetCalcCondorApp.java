@@ -175,7 +175,8 @@ public class HazardDataSetCalcCondorApp extends JApplet
       jbInit();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"Exception occured while initializing the application"+
+          "Parameters values have not been set yet.");
       bugWindow.show();
       bugWindow.pack();
 
@@ -652,7 +653,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      return obj;
 
    }catch (Exception e) {
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
      bugWindow.show();
      bugWindow.pack();
 
@@ -723,7 +724,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      fromServlet.close();
 
    }catch (Exception e) {
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
      bugWindow.show();
      bugWindow.pack();
    }

@@ -370,7 +370,8 @@ public class HazardCurveServerModeApplication extends JApplet
       }
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"Exception occured while creating the GUI.\n"+
+          "No Parameters have been set");
       bugWindow.show();
       bugWindow.pack();
       //e.printStackTrace();
@@ -632,7 +633,7 @@ public class HazardCurveServerModeApplication extends JApplet
             System.exit(101);
             //peerResultsFile.close();
           }catch(Exception ee){
-            ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+            ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
             bugWindow.show();
             bugWindow.pack();
           }
@@ -657,7 +658,7 @@ public class HazardCurveServerModeApplication extends JApplet
         disaggCalc = null;
         calcThread = null;
       }catch(Exception e){
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
       }
@@ -696,7 +697,7 @@ public class HazardCurveServerModeApplication extends JApplet
           createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
@@ -727,7 +728,7 @@ public class HazardCurveServerModeApplication extends JApplet
               //e.printStackTrace();
               timer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString(),getParametersInfo());
               bugWindow.show();
               bugWindow.pack();
             }
@@ -749,7 +750,7 @@ public class HazardCurveServerModeApplication extends JApplet
             }catch(Exception e){
               disaggTimer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.toString(),getParametersInfo());
               bugWindow.show();
               bugWindow.pack();
             }
@@ -981,7 +982,7 @@ public class HazardCurveServerModeApplication extends JApplet
       // this function will get the selected IMT parameter and set it in IMT
       imtGuiBean.setIMT();
     } catch (Exception ex) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.toString(),getParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       if(D) System.out.println(C + ":Param warning caught"+ex);
@@ -1021,7 +1022,7 @@ public class HazardCurveServerModeApplication extends JApplet
       if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(Exception e){
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       e.printStackTrace();
@@ -1038,7 +1039,7 @@ public class HazardCurveServerModeApplication extends JApplet
         hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
@@ -1074,7 +1075,7 @@ public class HazardCurveServerModeApplication extends JApplet
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
@@ -1097,7 +1098,7 @@ public class HazardCurveServerModeApplication extends JApplet
           disaggregationString=disaggCalc.getResultsString();
         }catch(Exception e){
           setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
           bugWindow.show();
           bugWindow.pack();
           e.printStackTrace();
@@ -1143,7 +1144,7 @@ public class HazardCurveServerModeApplication extends JApplet
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(Exception e){
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       e.printStackTrace();
@@ -1164,7 +1165,7 @@ public class HazardCurveServerModeApplication extends JApplet
           //System.out.println("Num points:" +hazFunction.toString());
         }catch(Exception e){
           setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
           bugWindow.show();
           bugWindow.pack();
           e.printStackTrace();
@@ -1288,7 +1289,7 @@ public class HazardCurveServerModeApplication extends JApplet
    try{
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"ERF's Initialization problem. Rest all parameters are default");
      bugWindow.show();
      bugWindow.pack();
      //e.printStackTrace();
@@ -1847,7 +1848,7 @@ public class HazardCurveServerModeApplication extends JApplet
         calc.stopCalc();
         calc = null;
       }catch(RemoteException ee){
-        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.toString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.toString(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
       }

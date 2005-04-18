@@ -208,7 +208,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }
     catch(Exception e) {
       step =0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"Exception during initializing the application.\n"+
+          "Parameters values not yet set.");
       bugWindow.show();
       bugWindow.pack();
     }
@@ -218,7 +219,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }catch(RuntimeException e){
       //e.printStackTrace();
       step =0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(), "Exception occured initializing the IMR with "+
+          "default parameters value");
       bugWindow.show();
       bugWindow.pack();
       //JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
@@ -673,7 +675,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     try{
       getGriddedSitesMapTypeAndSelectedAttenRels();
     }catch(RuntimeException ee){
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getMapParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       addButton.setEnabled(true);
