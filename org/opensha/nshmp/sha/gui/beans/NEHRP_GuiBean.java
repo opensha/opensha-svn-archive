@@ -216,40 +216,39 @@ public class NEHRP_GuiBean
     buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
 
     responseSpectraButtonPanel.add(viewButton,
-                                   new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(2, 2, 20, 8), 0, 0));
+        new Insets(10, 2, 20, 8), 0, 0));
     responseSpectraButtonPanel.add(mapSpecButton,
-                                   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
     responseSpectraButtonPanel.add(smSpecButton,
-                                   new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
 
     responseSpectraButtonPanel.add(sdSpecButton,
-                                   new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(ssButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(smSDButton,
                          new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.NORTH,
+                                                , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0,
                                                 0));
     basicParamsPanel.add(siteCoeffButton,
                          new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.NORTH,
+                                                , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(370);
-    locationSplitPane.setDividerLocation(160);
-    buttonsSplitPane.setDividerLocation(170);
+    buttonsSplitPane.setDividerLocation(120);
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
     regionPanel.setMinimumSize(new Dimension(0,0));
     responseSpectraButtonPanel.setMinimumSize(new Dimension(0,0));

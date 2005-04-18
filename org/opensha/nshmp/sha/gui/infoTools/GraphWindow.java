@@ -41,7 +41,7 @@ public class GraphWindow
   ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
 
   private final static int W = 650;
-  private final static int H = 760;
+  private final static int H = 730;
   private JSplitPane chartSplitPane = new JSplitPane();
   private JPanel chartPane = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();

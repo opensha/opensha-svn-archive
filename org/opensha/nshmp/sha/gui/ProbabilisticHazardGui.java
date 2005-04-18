@@ -119,6 +119,7 @@ public class ProbabilisticHazardGui
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     this.setLocation( (d.width - this.getSize().width) / 2,
                      (d.height - this.getSize().height) / 2);
+   setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
   }
 
   public static void main(String[] args) {

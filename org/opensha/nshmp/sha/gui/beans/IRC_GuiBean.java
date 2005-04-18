@@ -156,10 +156,10 @@ public class IRC_GuiBean
     locationSplitPane.add(regionPanel, JSplitPane.TOP);
 
     basicParamsPanel.add(residentialSiteCategoryButton,
-                         new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+                         new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.NORTH,
                                                 GridBagConstraints.NONE,
-                                                new Insets(2, 30, 75,110), 0, 0));
+                                                new Insets(4, 30, 4,110), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(470);
     locationSplitPane.setDividerLocation(200);

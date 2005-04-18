@@ -46,8 +46,8 @@ public class ProbabilisticHazardApplication
   JMenuItem fileSaveMenu = new JMenuItem();
 
   // height and width of the applet
-  private final static int W = 900;
-  private final static int H = 800;
+  private final static int W = 1000;
+  private final static int H = 770;
   JPanel jPanel1 = new JPanel();
   JSplitPane mainSplitPane = new JSplitPane();
   JLabel analysisOptionLabel = new JLabel();
@@ -89,6 +89,7 @@ public class ProbabilisticHazardApplication
     try {
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       jbInit();
+      setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
       setExplainationForSelectedAnalysisOption(previousSelectedAnalysisOption);
       createGuiBeanInstance();
     }
@@ -215,15 +216,15 @@ public class ProbabilisticHazardApplication
 
     buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 2, 0.0, 0.0
         , GridBagConstraints.SOUTH, GridBagConstraints.NONE,
-        new Insets(7, 80, 0, 80), 0, 0));
+        new Insets(50, 80, 0, 80), 0, 0));
     buttonPanel.add(viewMapsButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(4, 154, 0, 0), 0, 0));
+        new Insets(2, 154, 0, 0), 0, 0));
     buttonPanel.add(clearDataButton,
                     new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.NONE,
-                                           new Insets(4, 12, 0, 153), 0, 0));
+                                           new Insets(2, 12, 0, 153), 0, 0));
 
     jPanel1.add(analysisOptionLabel,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -246,8 +247,8 @@ public class ProbabilisticHazardApplication
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     setSize(W,H);
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
-    mainSplitPane.setDividerLocation(400);
-    dataSplitPane.setDividerLocation(550);
+    mainSplitPane.setDividerLocation(450);
+    dataSplitPane.setDividerLocation(500);
     buttonPanel.updateUI();
     viewMapsButton.setEnabled(false);
     contentPane.updateUI();

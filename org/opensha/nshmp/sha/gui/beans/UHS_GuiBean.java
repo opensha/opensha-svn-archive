@@ -234,40 +234,39 @@ public class UHS_GuiBean
     buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
 
     responseSpectraButtonPanel.add(viewButton,
-                                   new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(2, 2, 25, 2), 0, 0));
+        new Insets(10, 2, 20, 2), 0, 0));
     responseSpectraButtonPanel.add(siteCoeffButton,
-                                   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
     responseSpectraButtonPanel.add(smSpecButton,
-                                   new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
 
     responseSpectraButtonPanel.add(sdSpecButton,
-                                   new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
+                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(uhsButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(viewUHSButton,
                          new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.NORTH,
+                                                , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0,
                                                 0));
     basicParamsPanel.add(approxUHSButton,
                          new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.NORTH,
+                                                , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(350);
-    locationSplitPane.setDividerLocation(155);
-    buttonsSplitPane.setDividerLocation(150);
+    buttonsSplitPane.setDividerLocation(120);
     setButtonsEnabled(false);
     createGroundMotionParameter();
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
@@ -356,7 +355,6 @@ public class UHS_GuiBean
     }
     locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
     locationSplitPane.setDividerLocation(155);
-
   }
 
   /**

@@ -127,9 +127,7 @@ public class ProbHazCurvesGuiBean
                                            GridBagConstraints.BOTH,
                                            new Insets(0, 0, 0, 0), 0, 0));
 
-    mainSplitPane.setDividerLocation(320);
-    locationSplitPane.setDividerLocation(130);
-    buttonsSplitPane.setDividerLocation(135);
+
     this.updateUI();
   }
 
@@ -317,26 +315,25 @@ public class ProbHazCurvesGuiBean
     singleHazardValPanel.add(singleHazardValEditorPanel,
                              new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(2, 2, 2, 2), 0,0 ));
+        new Insets(1, 1, 1, 1), 0,0 ));
     singleHazardValPanel.add(linearInterRadioButton,
                              new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 0,0));
+        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+        new Insets(1, 10, 1, 1), 0,0));
     singleHazardValPanel.add(logInterpolationRadioButton,
                              new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 0, 0));
+        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+        new Insets(1, 10, 1, 30), 0, 0));
     singleHazardValPanel.add(singleHazardCurveValButton,
-                             new GridBagConstraints(0, 2, 2, 4, 0.0, 0.0
+                             new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(2, 2,2,2), 0, 0));
+        new Insets(1, 150,1,1), 0, 0));
 
     buttonGroup.add(linearInterRadioButton);
     buttonGroup.add(logInterpolationRadioButton);
     buttonGroup.setSelected(linearInterRadioButton.getModel(), true);
-    mainSplitPane.setDividerLocation(345);
-    locationSplitPane.setDividerLocation(130);
-    buttonsSplitPane.setDividerLocation(70);
+    mainSplitPane.setDividerLocation(310);
+    buttonsSplitPane.setDividerLocation(117);
     singleHazardCurveValButton.setEnabled(false);
     viewCurveButton.setEnabled(false);
     singleHazardValPanel.setMinimumSize(new Dimension(0,0));
@@ -437,7 +434,7 @@ public class ProbHazCurvesGuiBean
       }
 
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
-      locationSplitPane.setDividerLocation(135);
+      locationSplitPane.setDividerLocation(120);
     }
     else if (region == null) {
       locationVisible = false;

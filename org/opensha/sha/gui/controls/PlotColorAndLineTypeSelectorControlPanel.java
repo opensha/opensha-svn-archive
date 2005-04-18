@@ -243,18 +243,18 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     });
     this.getContentPane().add(jPanel1, BorderLayout.CENTER);
     jPanel1.add(jLabel1,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 248, 12));
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(5, 6, 0, 11), 0, 0));
     jPanel1.add(colorAndLineTypeSelectorPanel,  new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 557, 200));
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 6, 0, 11), 0, 0));
     colorAndLineTypeSelectorPanel.getViewport().add(curveFeaturePanel, null);
     jPanel1.add(cancelButton,  new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 108), 2, 5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 108), 0, 0));
     jPanel1.add(RevertButton,  new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 21, 2, 0), 0, 5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 21, 2, 0), 0, 0));
     jPanel1.add(doneButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 0), -6, 5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 2, 0), 0, 0));
     jPanel1.add(applyButton,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 99, 2, 0), -4, 5));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 99, 2, 0), 0, 0));
     jPanel1.setSize(600,500);
     //colorAndLineTypeSelectorPanel.setSize(500,250);
     setSize(600,500);
