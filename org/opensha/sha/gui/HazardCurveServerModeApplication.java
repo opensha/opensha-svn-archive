@@ -68,9 +68,12 @@ import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
 import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
+import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -96,7 +99,7 @@ public class HazardCurveServerModeApplication extends JApplet
     implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
-    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI{
+    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI{
 
   /**
    * Name of the class
@@ -158,6 +161,7 @@ public class HazardCurveServerModeApplication extends JApplet
   private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
   //private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   private final static String PLOTTING_OPTION = "Set new dataset plotting option";
+  private final static String XY_Values_Control = "Set new XY dataset";
 
 
   // objects for control panels
@@ -170,7 +174,7 @@ public class HazardCurveServerModeApplication extends JApplet
   private X_ValuesInCurveControlPanel xValuesPanel;
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
   private PlottingOptionControl plotOptionControl;
-
+  private XY_ValuesControlPanel xyPlotControl;
 
 
 
@@ -1339,6 +1343,8 @@ public class HazardCurveServerModeApplication extends JApplet
       initRunALL_PEER_TestCases();
     else if(selectedControl.equalsIgnoreCase(PLOTTING_OPTION))
       initPlotSelectionControl();
+    else if(selectedControl.equalsIgnoreCase(XY_Values_Control))
+      this.initXYPlotSelectionControl();
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -1351,10 +1357,20 @@ public class HazardCurveServerModeApplication extends JApplet
     if(plotOptionControl ==  null)
       plotOptionControl = new PlottingOptionControl(this);
     plotOptionControl.show();
-    plotOptionControl.pack();
+
   }
 
 
+  /*
+   * This function allows user to specify the XY values to be added to the existing
+   * plot.
+   */
+  private void initXYPlotSelectionControl(){
+    if(xyPlotControl!=null){
+      xyPlotControl = new XY_ValuesControlPanel(this,this);
+    }
+    xyPlotControl.show();
+  }
 
 
   /**
@@ -1508,6 +1524,19 @@ public class HazardCurveServerModeApplication extends JApplet
     useCustomX_Values = true;
     function =func;
   }
+
+  /**
+   * Sets ArbitraryDiscretizedFunc inside list containing all the functions.
+   * @param function ArbitrarilyDiscretizedFunc
+   */
+  public void setArbitraryDiscretizedFuncInList(ArbitrarilyDiscretizedFunc function){
+      functionList.add(function);
+      ArrayList plotFeaturesList = getPlottingFeatures();
+      plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+          Color.BLACK,4.0,1));
+      addGraphPanel();
+  }
+
 
   /**
    * set x values in log space for Hazard Function to be passed to IMR
