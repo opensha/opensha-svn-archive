@@ -38,8 +38,7 @@ public class LocationGuiBean
 
   private StringParameter locationSelectionModeParam;
 
-  Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-      Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
+  Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
   TitledBorder locationBorder = new TitledBorder(border9,
                                                  "Select Site Location");
 

@@ -39,8 +39,7 @@ public class ProbHazCurvesGuiBean
   JPanel regionPanel = new JPanel();
   JPanel basicParamsPanel = new JPanel();
   JPanel singleHazardValPanel = new JPanel();
-  Border border9 = BorderFactory.createBevelBorder(BevelBorder.LOWERED,
-      Color.white, Color.white, new Color(98, 98, 98), new Color(140, 140, 140));
+  Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
   TitledBorder responseSpecBorder = new TitledBorder(border9,
       "Single Hazard curve");
 
