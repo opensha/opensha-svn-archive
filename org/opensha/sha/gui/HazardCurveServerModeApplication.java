@@ -95,7 +95,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  * @version 1.0
  */
 
-public class HazardCurveServerModeApplication extends JApplet
+public class HazardCurveServerModeApplication extends JFrame
     implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
@@ -180,7 +180,6 @@ public class HazardCurveServerModeApplication extends JApplet
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
-  protected boolean isStandalone = false;
   private Border border1;
 
 
@@ -193,7 +192,7 @@ public class HazardCurveServerModeApplication extends JApplet
 
   // height and width of the applet
   protected final static int W = 1100;
-  protected final static int H = 750;
+  protected final static int H = 770;
 
   /**
    * List of ArbitrarilyDiscretized functions and Weighted funstions
@@ -316,6 +315,24 @@ public class HazardCurveServerModeApplication extends JApplet
   //checks to see if HazardCurveCalculations are done
   boolean isHazardCalcDone= false;
   private JButton peelOffButton = new JButton();
+  JMenuBar menuBar = new JMenuBar();
+  JMenu fileMenu = new JMenu();
+
+  JMenuItem fileExitMenu = new JMenuItem();
+  JMenuItem fileSaveMenu = new JMenuItem();
+  JMenuItem filePrintMenu = new JCheckBoxMenuItem();
+  JToolBar jToolBar = new JToolBar();
+
+  JButton closeButton = new JButton();
+  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+
+  JButton printButton = new JButton();
+  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+
+  JButton saveButton = new JButton();
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+
+
   private JLabel imgLabel = new JLabel(new ImageIcon(ImageUtils.loadImage(this.POWERED_BY_IMAGE)));
 
 
@@ -336,11 +353,7 @@ public class HazardCurveServerModeApplication extends JApplet
   private JButton cancelCalcButton = new JButton();
   private FlowLayout flowLayout1 = new FlowLayout();
 
-  //Get command-line parameter value
-  public String getParameter(String key, String def) {
-    return isStandalone ? System.getProperty(key, def) :
-        (getParameter(key) != null ? getParameter(key) : def);
-  }
+
 
   //Construct the applet
   public HazardCurveServerModeApplication() {
@@ -376,6 +389,8 @@ public class HazardCurveServerModeApplication extends JApplet
       bugWindow.pack();
       //e.printStackTrace();
     }
+
+    ((JPanel)getContentPane()).updateUI();
   }
 
   //Component initialization
@@ -389,9 +404,71 @@ public class HazardCurveServerModeApplication extends JApplet
     border7 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
     border8 = BorderFactory.createBevelBorder(BevelBorder.RAISED,Color.white,Color.white,new Color(98, 98, 112),new Color(140, 140, 161));
 
-    this.setSize(new Dimension(1060, 670));
     this.getContentPane().setLayout(borderLayout1);
 
+
+
+    fileMenu.setText("File");
+    fileExitMenu.setText("Exit");
+    fileSaveMenu.setText("Save");
+    filePrintMenu.setText("Print");
+
+    fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        fileExitMenu_actionPerformed(e);
+      }
+    });
+
+    fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        fileSaveMenu_actionPerformed(e);
+      }
+    });
+
+    filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        filePrintMenu_actionPerformed(e);
+      }
+    });
+
+    closeButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        closeButton_actionPerformed(actionEvent);
+      }
+    });
+    printButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        printButton_actionPerformed(actionEvent);
+      }
+    });
+    saveButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        saveButton_actionPerformed(actionEvent);
+      }
+    });
+
+
+    menuBar.add(fileMenu);
+    fileMenu.add(fileSaveMenu);
+    fileMenu.add(filePrintMenu);
+    fileMenu.add(fileExitMenu);
+
+    setJMenuBar(menuBar);
+    closeButton.setIcon(closeFileImage);
+    closeButton.setToolTipText("Exit Application");
+    Dimension d = closeButton.getSize();
+    jToolBar.add(closeButton);
+    printButton.setIcon(printFileImage);
+    printButton.setToolTipText("Print Graph");
+    printButton.setSize(d);
+    jToolBar.add(printButton);
+    saveButton.setIcon(saveFileImage);
+    saveButton.setToolTipText("Save Graph as image");
+    saveButton.setSize(d);
+    jToolBar.add(saveButton);
+    jToolBar.setFloatable(false);
+
+    this.getContentPane().add(jToolBar, BorderLayout.NORTH);
 
     jPanel1.setLayout(gridBagLayout10);
 
@@ -470,11 +547,11 @@ public class HazardCurveServerModeApplication extends JApplet
     });
 
 
-    imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+    /*imgLabel.addMouseListener(new java.awt.event.MouseAdapter() {
       public void mouseClicked(MouseEvent e) {
         imgLabel_mouseClicked(e);
       }
-    });
+    });*/
     cancelCalcButton.setText("Cancel");
     cancelCalcButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -511,13 +588,19 @@ public class HazardCurveServerModeApplication extends JApplet
     controlsSplit.add(sitePanel, JSplitPane.RIGHT);
     paramsTabbedPane.add(erfPanel, "ERF & Time Span");
     topSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    topSplitPane.setDividerLocation(600);
+    topSplitPane.setDividerLocation(590);
     imrSplitPane.setDividerLocation(300);
 
     controlsSplit.setDividerLocation(230);
     erfPanel.validate();
     erfPanel.repaint();
-    chartSplit.setDividerLocation(600);
+    chartSplit.setDividerLocation(590);
+    this.setSize(W,H);
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    this.setLocation((dim.width - this.getSize().width) / 2, 0);
+    //EXIT_ON_CLOSE == 3
+    this.setDefaultCloseOperation(3);
+    this.setTitle("Hazard Curve Calculator");
 
   }
 
@@ -530,18 +613,8 @@ public class HazardCurveServerModeApplication extends JApplet
   //Main method
   public static void main(String[] args) {
     HazardCurveServerModeApplication applet = new HazardCurveServerModeApplication();
-    applet.isStandalone = true;
-    JFrame frame = new JFrame();
-    //EXIT_ON_CLOSE == 3
-    frame.setDefaultCloseOperation(3);
-    frame.setTitle("Hazard Curve Calculator");
-    frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
-    applet.start();
-    frame.setSize(W,H);
-    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
-    frame.setVisible(true);
+    applet.setVisible(true);
   }
 
   //static initializer for setting look & feel
@@ -867,7 +940,7 @@ public class HazardCurveServerModeApplication extends JApplet
 
 
 
-  void imgLabel_mouseClicked(MouseEvent e) {
+  /*void imgLabel_mouseClicked(MouseEvent e) {
     try{
       this.getAppletContext().showDocument(new URL(OPENSHA_WEBSITE), "new_peer_win");
     }catch(java.net.MalformedURLException ee){
@@ -875,7 +948,7 @@ public class HazardCurveServerModeApplication extends JApplet
                                     "Error Connecting to Internet",JOptionPane.OK_OPTION);
       return;
     }
-  }
+  }*/
 
 
   /**
@@ -1230,6 +1303,7 @@ public class HazardCurveServerModeApplication extends JApplet
      // show this gui bean the JPanel
      imrPanel.add(this.imrGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
          GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+     imrPanel.updateUI();
   }
 
   /**
@@ -1242,8 +1316,11 @@ public class HazardCurveServerModeApplication extends JApplet
      // create the IMT Gui Bean object
      imtGuiBean = new IMT_GuiBean(imr);
      imtPanel.setLayout(gridBagLayout8);
-     imtPanel.add(imtGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-               GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+     imtPanel.add(imtGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+                                                     GridBagConstraints.CENTER,
+                                                     GridBagConstraints.BOTH,
+                                                     defaultInsets, 0, 0));
+     imtPanel.updateUI();
 
   }
 
@@ -1258,8 +1335,9 @@ public class HazardCurveServerModeApplication extends JApplet
      siteGuiBean = new Site_GuiBean();
      siteGuiBean.addSiteParams(imr.getSiteParamsIterator());
      // show the sitebean in JPanel
-     sitePanel.add(this.siteGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-             GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+     sitePanel.add(this.siteGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0));
+     sitePanel.updateUI();
 
   }
 
@@ -1299,6 +1377,7 @@ public class HazardCurveServerModeApplication extends JApplet
    erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
    erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
+   erfPanel.updateUI();
 
   }
 
@@ -1790,18 +1869,6 @@ public class HazardCurveServerModeApplication extends JApplet
   }
 
 
-  void imgLabel_mousePressed(MouseEvent e) {
-
-  }
-  void imgLabel_mouseReleased(MouseEvent e) {
-
-  }
-  void imgLabel_mouseEntered(MouseEvent e) {
-
-  }
-  void imgLabel_mouseExited(MouseEvent e) {
-
-  }
 
   /**
    * Action method to "Peel-Off" the curves graph window in a seperate window.
@@ -1820,6 +1887,91 @@ public class HazardCurveServerModeApplication extends JApplet
   public ArrayList getPlottingFeatures(){
     return graphPanel.getCurvePlottingCharacterstic();
   }
+
+
+  /**
+   * File | Exit action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+    close();
+  }
+
+  /**
+   *
+   */
+  private void close() {
+    int option = JOptionPane.showConfirmDialog(this,
+        "Do you really want to exit the application?\n" +
+                                               "You will loose all unsaved data.",
+                                               "Exit App",
+                                               JOptionPane.OK_CANCEL_OPTION);
+    if (option == JOptionPane.OK_OPTION)
+      System.exit(0);
+  }
+
+  /**
+   * File | Exit action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+    try {
+      save();
+    }
+    catch (IOException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+  }
+
+  /**
+   * File | Exit action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
+    print();
+  }
+
+  /**
+   * Opens a file chooser and gives the user an opportunity to save the chart
+   * in PNG format.
+   *
+   * @throws IOException if there is an I/O error.
+   */
+  public void save() throws IOException {
+    graphPanel.save();
+  }
+
+  /**
+   * Creates a print job for the chart.
+   */
+  public void print() {
+    graphPanel.print(this);
+  }
+
+  public void closeButton_actionPerformed(ActionEvent actionEvent) {
+    close();
+  }
+
+  public void printButton_actionPerformed(ActionEvent actionEvent) {
+    print();
+  }
+
+  public void saveButton_actionPerformed(ActionEvent actionEvent) {
+    try {
+      save();
+    }
+    catch (IOException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+  }
+
 
   /**
    * This function stops the hazard curve calculation if started, so that user does not
