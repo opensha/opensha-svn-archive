@@ -82,7 +82,7 @@
       target="1.2"
       failonerror="yes"
       verbose="no"
-      classpath="${dest}">
+      classpath="${dest}:${Required.Libraries.home}/SRBDrop.jar">
       <src path="${src}"/>
       <include name="ch/**" />
       <include name="org/opensha/sha/gui/PlotMapFromHazardDataSetApp.java"/>
@@ -112,7 +112,7 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,package">
-    <jar destfile="PlotMapFromHazardDataSet_Test.jar" basedir="${dest}" manifest="PlotMapFromHazardDataSetApp_MANIFEST.MF">
+    <jar destfile="PlotMapFromHazardDataSetApp.jar" basedir="${dest}" manifest="PlotMapFromHazardDataSetApp_MANIFEST.MF">
       <include name="org/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>

@@ -1,14 +1,14 @@
-package org.opensha.nshmp.util;
+package org.opensha.util;
 
 /**
  * <p>Title: ByteSwapUtil</p>
  *
- * <p>Description: </p>
- *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
+ * <p>Description: This program swaps the byte ordering and read the data value.
+ * This progarm can be used when a binary data file created with "Little Endian" byte
+ * ordering technique is being read by a java program . </p>
+ * <p>Note: Java always reads binary files in "Big Endian" format.</p>
+ * <p>This program will swap the byte ordering of the bytes read by java program,
+ * so as to get the correct value data.</p>
  * @author not attributable
  * @version 1.0
  */

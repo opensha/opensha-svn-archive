@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.Thread;
 import ch.randelshofer.quaqua.QuaquaManager;
 import javax.swing.Timer;
+//import javax.help.*;
 
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
@@ -31,6 +32,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -161,6 +163,13 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   private IMLorProbSelectorGuiBean imlProbGuiBean;
   private MapGuiBean mapGuiBean;
 
+
+  //Adding the Menu to the application
+  JMenuBar menuBar = new JMenuBar();
+  JMenu helpMenu = new JMenu();
+  JMenuItem helpLaunchMenu = new JMenuItem();
+
+
   private boolean isStandalone = false;
   private JPanel mainPanel = new JPanel();
   private Border border1;
@@ -242,6 +251,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     this.initImlProb_GuiBean();
     this.initMapGuiBean();
   }
+
+
+
   //Component initialization
   private void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
@@ -291,8 +303,22 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     parameterTabbedPanel.addTab( "Exceedance Level/Probability", prob_IMLPanel);
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
     mainSplitPane.setDividerLocation(630);
+
+    //adding the Menu to the application
+    /*helpMenu.setText("Help");
+    helpLaunchMenu.setText("Help Application");
+    menuBar.add(helpMenu);
+    helpMenu.add(helpLaunchMenu);
+    setJMenuBar(menuBar);*/
+    //createHelpMenu();
   }
 
+
+  /*private void createHelpMenu(){
+    LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
+    HelpBroker hb = helpMenu.createHelpMenu("/Users/nitingupta/projects/sha/OpenSHA_docs/ScenarioShakeMap_UserManual/shaHelp.hs");
+    helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
+  }*/
 
   //Main method
   public static void main(String[] args) {
@@ -304,6 +330,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     frame.setTitle("ScenarioShakeMap App");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
+    //applet.createHelpMenu();
     applet.start();
     frame.setSize(W,H);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();

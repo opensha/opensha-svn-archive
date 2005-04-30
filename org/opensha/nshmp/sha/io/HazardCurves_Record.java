@@ -2,7 +2,7 @@ package org.opensha.nshmp.sha.io;
 
 import java.io.*;
 
-import org.opensha.nshmp.util.*;
+import org.opensha.util.*;
 
 /**
  * <p>Title: HazardCurves_Record </p>

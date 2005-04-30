@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+	<mapID target="ApplicationIntro" url ="htmls/ScenarioShakeMapApp_intro.html" />
+        <mapID target="ApplicationAttenuationPanel" url ="htmls/AttenRelGui_ShakeMapApp.html" />
+        <mapID target="RegionPanel" url ="htmls/RegionGui_ShakeMapApp.html" />
+        <mapID target="EqkRupturePanel" url ="htmls/EqkRuptureGui.html" />
+        <mapID target="RegionOfInterestPanel" url ="htmls/RegionOfIntt.html" />
+        <mapID target="HazusFilesGenerationPanel" url ="htmls/GenHazusShapesFilesGui.html" />
+        <mapID target="CustomRuptureCreationPanel" url ="htmls/CustomEqkRuptureGui.html" />
+        <mapID target="ControlPanelsIntro" url ="htmls/controlPanels_intro.html" />
+        <mapID target="RuptureFromERFPanel" url ="htmls/RuptureFromERF_Gui.html" />
+        <mapID target="CalculationSettingParamsControl" url ="htmls/CalcSettingsControlGui.html" />
+        <mapID target="MapTypePanel" url ="htmls/mapTypeProbIML.html" />
+        <mapID target="MapAttributesPanel" url ="htmls/MapPlotGui.html" />
+        <mapID target="CalculationModeControlPanel" url ="htmls/ShakeMapCalcMode.html" />
+        <mapID target="PHS_ControlPanel" url ="htmls/PuenteHillsScenarioCont.html />
+        <mapID target="OpenSHA_Source_Class_Docs" url ="http://www.opensha.org/java_code/doc/index.html" />
+</map>

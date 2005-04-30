@@ -144,7 +144,7 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
-    <jar destfile="scenarioshakemap_test.jar" basedir="${dest}" manifest="ScenarioShakeMap_MANIFEST.MF">
+    <jar destfile="ScenarioShakeMapApp.jar" basedir="${dest}" manifest="ScenarioShakeMap_MANIFEST.MF">
       <include name="org/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>

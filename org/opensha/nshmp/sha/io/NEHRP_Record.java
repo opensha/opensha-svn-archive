@@ -2,7 +2,8 @@ package org.opensha.nshmp.sha.io;
 
 import java.io.*;
 
-import org.opensha.nshmp.util.*;
+import org.opensha.util.*;
+import org.opensha.nshmp.util.GlobalConstants;
 
 /**
  * <p>Title: NEHRP_Record </p>

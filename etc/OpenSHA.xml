@@ -83,7 +83,7 @@
       target="1.2"
       failonerror="yes"
       verbose="no"
-      classpath="${dest}:${Required.Libraries.home}/SRBDrop.jar">
+      classpath="${dest}:${Required.Libraries.home}">
       <src path="${src}"/>
       <include name="ch/**" />
       <include name="org/**"/>
@@ -152,7 +152,7 @@
     <mkdir dir="${dest}"/>
   </target>
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
-    <jar destfile="ERF_test.jar" basedir="${dest}">
+    <jar destfile="ERF.jar" basedir="${dest}">
       <include name="org/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
