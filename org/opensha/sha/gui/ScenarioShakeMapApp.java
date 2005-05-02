@@ -316,7 +316,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
   private void createHelpMenu(){
     LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
-    HelpBroker hb = helpMenu.createHelpMenu("file:///Users/field/jbproject/sha/OpenSHA_docs/ScenarioShakeMap_UserManual/shaHelp.xml");
+    HelpBroker hb = helpMenu.createHelpMenu("file:///Users/nitingupta/projects/sha/OpenSHA_docs/ScenarioShakeMap_UserManual/shaHelp.xml");
     helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
   }
 
