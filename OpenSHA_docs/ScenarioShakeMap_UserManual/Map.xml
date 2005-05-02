@@ -14,6 +14,6 @@
         <mapID target="MapTypePanel" url ="OpenSHA_docs/ScenarioShakeMap_UserManual/htmls/mapTypeProbIML.html" />
         <mapID target="MapAttributesPanel" url ="OpenSHA_docs/ScenarioShakeMap_UserManual/htmls/MapPlotGui.html" />
         <mapID target="CalculationModeControlPanel" url ="OpenSHA_docs/ScenarioShakeMap_UserManual/htmls/ShakeMapCalcMode.html" />
-        <mapID target="PHS_ControlPanel" url ="OpenSHA_docs/ScenarioShakeMap_UserManual/htmls/PuenteHillsScenarioCont.html />
+        <mapID target="PHS_ControlPanel" url ="OpenSHA_docs/ScenarioShakeMap_UserManual/htmls/PuenteHillsScenarioCont.html" />
         <mapID target="OpenSHA_Source_Class_Docs" url ="http://www.opensha.org/java_code/doc/index.html" />
 </map>

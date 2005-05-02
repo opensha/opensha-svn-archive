@@ -21,11 +21,10 @@ public class LaunchHelpFromMenu {
      */
     public HelpBroker createHelpMenu(String helpSetFileName){
 
-       ClassLoader cl = this.getClass().getClassLoader();
+       //ClassLoader cl = this.getClass().getClassLoader();
        HelpSet hs = null;
        try {
-         URL hsURL = HelpSet.findHelpSet(cl, helpSetFileName);
-         hs = new HelpSet(cl, hsURL);
+         hs = new HelpSet(null, new URL(helpSetFileName));
        }
        catch (Exception ee) {
          ee.printStackTrace();
@@ -35,6 +34,10 @@ public class LaunchHelpFromMenu {
       return hs.createHelpBroker();
   }
 
-
+public static void main(String args[]){
+  LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
+  HelpBroker hb = helpMenu.createHelpMenu("file:///Users/field/jbproject/sha/OpenSHA_docs/ScenarioShakeMap_UserManual/shaHelp.xml");
+  //helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
+}
 
 }

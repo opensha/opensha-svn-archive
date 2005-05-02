@@ -1,7 +1,5 @@
-<?xml version='1.0' encoding='ISO-8859-1'  ?>
-<!DOCTYPE toc
-  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN"
-         "../dtd/toc_2_0.dtd">
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
 <toc version="2.0">
  <tocitem text="Introduction to Scenario ShakeMap Online Help" target="ApplicationIntro"/>
  <tocitem text="Selecting Attenuation Relationship(s) and its parameters" target="ApplicationAttenuationPanel" />
@@ -22,6 +20,4 @@
  <tocitem text="Javadoc - The Java API Documentation for OpenSHA" target="OpenSHA_Source_Class_Docs"/>
 
 
-
-</tocitem>
 </toc>
