@@ -766,6 +766,13 @@ public class GMT_MapGenerator implements Serializable{
     String resolution = (String) topoResolutionParam.getValue();
     String topoIntenFile = SCEC_GMT_DATA_PATH + "calTopoInten" + resolution+".grd";
 
+    // hard-code check that lat & lon bounds are in the region where we have topography:
+    // this is only temporary until we have worldwide topo data
+    if( !resolution.equals(TOPO_RESOLUTION_NONE) &&
+        ( maxLat > 43 || minLat < 32 || minLon < -126 || maxLon > -115 ))
+      throw new RuntimeException("Topography not available for the chosen region; please select \"" +
+          TOPO_RESOLUTION_NONE + "\" for the " + TOPO_RESOLUTION_PARAM_NAME + " parameter");
+
     // Set highways String
     String showHiwys = (String) showHiwysParam.getValue();
 
@@ -781,7 +788,7 @@ public class GMT_MapGenerator implements Serializable{
     xOff = " -X1.0i ";
 
     // command line to convert xyz file to grd file
-    commandLine =GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
+    commandLine = GMT_PATH+"xyz2grd "+ XYZ_FILE_NAME+" -G"+ grdFileName+ " -I"+gridSpacing+ region +" -D/degree/degree/amp/=/=/=  -: -H0";
     gmtCommandLines.add(commandLine+"\n");
 
     // get color scale limits
