@@ -204,12 +204,13 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
             if(eqkRupture.getRuptureSurface().getNumCols() == 1 &&
                  eqkRupture.getRuptureSurface().getNumRows() == 1) {
               if(POINT_SRC_CORR) {
-                // Wells and Coppersmith L(M) for "all" focal mechanisms
-                double halfRupLen =  0.5 * Math.pow(10.0,-3.22+0.69*eqkRupture.getMag());
-                if(halfRupLen >= horzDist*0.7071)
-                  horzDist *= 0.7071; // /= 2^-0.5
-                else
-                  horzDist *= Math.sqrt(1 + (halfRupLen/horzDist)*(halfRupLen/horzDist) - 1.4142*halfRupLen/horzDist);
+                  // Wells and Coppersmith L(M) for "all" focal mechanisms
+                  // this correction comes from work by Ned Field and Bruce Worden
+                  // it assumes a vertically dipping straight fault with random
+                  // hypocenter and strike
+                  double rupLen =  Math.pow(10.0,-3.22+0.69*eqkRupture.getMag());
+                  double corr = 0.7071 + (1.0-0.7071)/(1 + Math.pow(rupLen/(horzDist*0.87),1.1));
+                  horzDist *=corr;
               }
             }
 
