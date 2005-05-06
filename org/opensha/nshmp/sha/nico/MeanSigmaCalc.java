@@ -22,17 +22,23 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.util.*;
 import java.rmi.RemoteException;
 import org.opensha.calc.RelativeLocation;
+import java.text.DecimalFormat;
 
 /**
- * <p>Title: </p>
+ * <p>Title: MeanSigmaCalc</p>
  *
- * <p>Description: </p>
+ * <p>Description: This class computes the Mean and Sigma for 4 attenuation
+ * relationships and 3 IMTs.
+ * AttenautionRelationships used are:
+ * 1)AS_1997_AttenRel as1997 ;
+ * 2)CB_2003_AttenRel cb2003 ;
+ * 3)SCEMY_1997_AttenRel scemy1997;
+ * 4)BJF_1997_AttenRel
+ * IMTs used in the code are :PGA,SA-1sec, SA-0.3sec
+ * Sites information is read from a input file.
+ * </p>
  *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
- * @author not attributable
+ * @author Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
 public class MeanSigmaCalc
@@ -63,6 +69,8 @@ public class MeanSigmaCalc
 
   // site translator
   private SiteTranslator siteTranslator = new SiteTranslator();
+
+  private DecimalFormat format = new DecimalFormat("0.000##");
 
   public MeanSigmaCalc() {
   }
@@ -164,6 +172,7 @@ public class MeanSigmaCalc
       //sets the site with whatever site Parameter Value user has choosen in the application
       boolean flag = siteTranslator.setParameterValue(tempParam, willsClass,
           Double.NaN);
+
       if (!flag) {
         String message = "cannot set the site parameter \"" + tempParam.getName() +
             "\" from Wills class \"" + willsClass + "\"" +
@@ -223,7 +232,11 @@ public class MeanSigmaCalc
   }
 
 
-
+  /**
+   * Genee=rates the Mean and Sigma files for selected Attenuation Relationship application
+   * @param imr AttenuationRelationshipAPI
+   * @param dirName String
+   */
   public void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,String dirName) {
 
     // get total number of sources
@@ -277,7 +290,7 @@ public class MeanSigmaCalc
           int numSites = locList.size();
 
           //adding the Site Parameters to the Attenuation
-          Site site = new Site();
+          Site site = new Site(locList.getLocationAt(0));
           Iterator it  = imr.getSiteParamsIterator();
 
           while(it.hasNext())
@@ -285,27 +298,27 @@ public class MeanSigmaCalc
           imr.setSite(site);
 
           //looping over all the sites for the selected Attenuation Relationship
-          for (int j = 0; j < 2; ++j) {
+          for (int j = 0; j < numSites; ++j) {
             setSiteParamsInIMR(imr, willsClass[j]);
             site.setLocation(locList.getLocationAt(j));
             //setting different intensity measures for each site and writing those to the file.
             imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 
-            fwPGAMean.write(imr.getMean() + " ");
-            fwPGASigma.write(imr.getStdDev() + " ");
+            fwPGAMean.write(format.format(imr.getMean()) + " ");
+            fwPGASigma.write(format.format(imr.getStdDev()) + " ");
 
             imr.setIntensityMeasure(AttenuationRelationship.SA_NAME);
             imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
                 Double(1.0));
 
-            fwSA_10_Mean.write(imr.getMean() + " ");
-            fwSA_10_Sigma.write(imr.getStdDev() + " ");
+            fwSA_10_Mean.write(format.format(imr.getMean()) + " ");
+            fwSA_10_Sigma.write(format.format(imr.getStdDev()) + " ");
 
             imr.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
                 Double(0.3));
 
-            fwSA_03_Mean.write(imr.getMean() + " ");
-            fwSA_03_Sigma.write(imr.getStdDev() + " ");
+            fwSA_03_Mean.write(format.format(imr.getMean()) + " ");
+            fwSA_03_Sigma.write(format.format(imr.getStdDev()) + " ");
 
           }
 
@@ -336,7 +349,12 @@ public class MeanSigmaCalc
       }
     }
 
-  public void generateRuptureFile(EqkRupForecastAPI eqkRupForecast,
+    /**
+     * generate the Rupture Probability file
+     * @param eqkRupForecast EqkRupForecastAPI
+     * @param outFileName String
+     */
+    public void generateRuptureFile(EqkRupForecastAPI eqkRupForecast,
                                   String outFileName) {
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
