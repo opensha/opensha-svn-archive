@@ -2,19 +2,28 @@ package org.opensha.nshmp.sha.pager;
 
 
 import java.util.*;
+import java.lang.reflect.*;
+import java.io.*;
 
 import org.opensha.data.Location;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.*;
-import org.opensha.sha.surface.*;
 import org.opensha.util.*;
 import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
-import java.lang.reflect.*;
+import org.opensha.param.*;
+
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;
+import org.opensha.data.XYZ_DataSetAPI;
+import org.opensha.sha.param.PropagationEffect;
+import org.opensha.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.data.Site;
+import org.opensha.exceptions.ParameterException;
+import org.opensha.sha.calc.ScenarioShakeMapCalculator;
+
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
@@ -237,10 +246,58 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     region.setDefaultSiteParams(defaultSiteParams);
   }
 
+  /**
+   *
+   * @return XYZ_DataSetAPI
+   */
+  private XYZ_DataSetAPI pagerShakeMapCalc() {
+    int numSites = region.getNumGridLocs();
 
-  private void pagerShakeMapCalc(){
+
+    PropagationEffect propagationEffect = new PropagationEffect();
+
+    ParameterList paramList = propagationEffect.getAdjustableParameterList();
+    paramList.getParameter(propagationEffect.APPROX_DIST_PARAM_NAME).setValue(new
+        Boolean(true));
+
+    if (pointSourceCorrection)
+      paramList.getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).
+          setValue(new Boolean(true));
+    else
+      paramList.getParameter(propagationEffect.POINT_SRC_CORR_PARAM_NAME).
+          setValue(new Boolean(false));
+
+    //Calls the ScenarioShakeMap Calculator to generate Median File
+    ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(propagationEffect);
+    ArrayList attenRelsSupported = new ArrayList();
+    attenRelsSupported.add(attenRel);
+    ArrayList attenRelWts = new ArrayList();
+    attenRelWts.add(new Double(1.0));
+    return calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,region,rupture,!imlAtProb,imlProbVal);
+  }
+
+
+  private void createMedianFile(XYZ_DataSetAPI xyzData){
+
+    ArrayList xVals = xyzData.getX_DataSet();
+    ArrayList yVals = xyzData.getY_DataSet();
+    ArrayList zVals = xyzData.getZ_DataSet();
+    try {
+      FileWriter fw = new FileWriter(this.outputFilePrefix + "_median.txt");
+      int size = xVals.size();
+      for(int i=0;i<size;++i)
+        fw.write(xVals.get(i)+"  "+yVals.get(i)+"  "+zVals.get(i)+"\n");
+      fw.close();
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+  }
+
+  private void createMap(){
 
   }
+
 
 
   /**

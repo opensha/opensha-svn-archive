@@ -275,14 +275,19 @@ public class MeanSigmaCalc
           fwSA_10_Sigma.write(currRuptures + " ");
 
           int numSites = locList.size();
+
+          //adding the Site Parameters to the Attenuation
+          Site site = new Site();
+          Iterator it  = imr.getSiteParamsIterator();
+
+          while(it.hasNext())
+            site.addParameter((ParameterAPI)it.next());
+          imr.setSite(site);
+
           //looping over all the sites for the selected Attenuation Relationship
-          for (int j = 0; j < numSites; ++j) {
+          for (int j = 0; j < 2; ++j) {
             setSiteParamsInIMR(imr, willsClass[j]);
-            Site site = new Site(locList.getLocationAt(j));
-            Iterator it = imr.getSiteParamsIterator();
-            while (it.hasNext())
-              site.addParameter( (ParameterAPI) it.next());
-            imr.setSite(site);
+            site.setLocation(locList.getLocationAt(j));
             //setting different intensity measures for each site and writing those to the file.
             imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 
