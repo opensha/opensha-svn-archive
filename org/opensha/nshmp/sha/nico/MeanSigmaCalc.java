@@ -407,9 +407,9 @@ public class MeanSigmaCalc
   public static void main(String[] args) {
     if(args.length != 2){
       System.out.println("Usage :\n\t"+"java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
-      System.out.println("jarfileName : Name of the executable jar file, by default ot is MeanSigmaCalc.jar");
+      System.out.println("jarfileName : Name of the executable jar file, by default it is MeanSigmaCalc.jar");
       System.out.println("inputFileName :Name of the input file, this input file should contain only 3 columns"+
-                         " SiteTrackNumber Lon Lat, see \"trackSiteInfo.txt\" for example");
+                         " \"SiteTrackNumber Lon Lat\", For eg: see \"trackSiteInfo.txt\". ");
       System.out.println("output directory name : Name of the output directory where all the output files will be generated");
       System.exit(0);
     }
