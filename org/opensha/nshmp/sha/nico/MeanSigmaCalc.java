@@ -72,7 +72,12 @@ public class MeanSigmaCalc
 
   private DecimalFormat format = new DecimalFormat("0.000##");
 
-  public MeanSigmaCalc() {
+  private String inputFileName = "trackSiteInfo.txt";
+  private String dirName = "MeanSigma";
+
+  public MeanSigmaCalc(String inpFile,String outDir) {
+    inputFileName = inpFile;
+    dirName = outDir ;
   }
 
   /**
@@ -129,10 +134,8 @@ public class MeanSigmaCalc
   private void getMeanSigma() {
 
     int numIMRs = supportedAttenuationsList.size();
-
-    String dirName = "MeanSigma";
     File file = new File(dirName);
-    file.mkdir();
+    file.mkdirs();
     this.generateRuptureFile(frankelForecast,
                              dirName +
                              SystemPropertiesUtils.getSystemFileSeparator() +
@@ -183,7 +186,7 @@ public class MeanSigmaCalc
     locList = new LocationList();
     locNameList = new ArrayList();
     try {
-      ArrayList fileLines = FileUtils.loadFile("trackSiteInfo.txt");
+      ArrayList fileLines = FileUtils.loadFile(inputFileName);
 
       //gets the min lat, lon and max lat, lon from given set of locations.
       double minLon = Double.MAX_VALUE;
@@ -402,7 +405,16 @@ public class MeanSigmaCalc
   }
 
   public static void main(String[] args) {
-    MeanSigmaCalc calc = new MeanSigmaCalc();
+    if(args.length != 2){
+      System.out.println("Usage :\n\t"+"java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
+      System.out.println("jarfileName : Name of the executable jar file, by default ot is MeanSigmaCalc.jar");
+      System.out.println("inputFileName :Name of the input file, this input file should contain only 3 columns"+
+                         " SiteTrackNumber Lon Lat, see \"trackSiteInfo.txt\" for example");
+      System.out.println("output directory name : Name of the output directory where all the output files will be generated");
+      System.exit(0);
+    }
+
+    MeanSigmaCalc calc = new MeanSigmaCalc(args[0],args[1]);
     calc.createSiteList();
 
     try {
