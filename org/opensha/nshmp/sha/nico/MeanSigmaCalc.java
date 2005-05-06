@@ -44,7 +44,7 @@ import java.text.DecimalFormat;
 public class MeanSigmaCalc
     implements ParameterChangeWarningListener {
 
-  private String[] willsClass;
+  private ArrayList willsClass;
   private LocationList locList;
   private ArrayList locNameList;
 
@@ -112,21 +112,14 @@ public class MeanSigmaCalc
   public void getSiteParamsForRegion() {
     int numSites = locList.size();
     // get the vs 30 and basin depth from cvm
-    willsClass = new String[numSites];
+    willsClass = new ArrayList();
     try {
+      willsClass = ConnectToCVM.getWillsSiteTypeFromCVM(locList);
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
 
-      for (int i = 0; i < numSites; ++i) {
-        double lat = ( (Location) locList.getLocationAt(i)).getLatitude();
-        double lon = ( (Location) locList.getLocationAt(i)).getLongitude();
-        willsClass[i] = (String) (ConnectToCVM.getWillsSiteTypeFromCVM(lon,
-            lon, lat, lat,
-            0.5)).get(0);
-      }
-    }
-    catch (Exception ee) {
-      ee.printStackTrace();
-      return;
-    }
   }
 
   /**
@@ -299,7 +292,7 @@ public class MeanSigmaCalc
 
           //looping over all the sites for the selected Attenuation Relationship
           for (int j = 0; j < numSites; ++j) {
-            setSiteParamsInIMR(imr, willsClass[j]);
+            setSiteParamsInIMR(imr, (String)willsClass.get(j));
             site.setLocation(locList.getLocationAt(j));
             //setting different intensity measures for each site and writing those to the file.
             imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
