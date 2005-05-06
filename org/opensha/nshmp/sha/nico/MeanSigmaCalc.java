@@ -185,9 +185,9 @@ public class MeanSigmaCalc
 
       //gets the min lat, lon and max lat, lon from given set of locations.
       double minLon = Double.MAX_VALUE;
-      double maxLon = Double.MIN_VALUE;
+      double maxLon = Double.NEGATIVE_INFINITY;
       double minLat = Double.MAX_VALUE;
-      double maxLat = Double.MIN_VALUE;
+      double maxLat = Double.NEGATIVE_INFINITY;
       int numSites= fileLines.size();
       for (int i = 0; i < numSites; ++i) {
         String firstLine = (String) fileLines.get(i);
@@ -206,8 +206,8 @@ public class MeanSigmaCalc
         if(lat < minLat)
           minLat = lat;
       }
-      double middleLat = (minLon + maxLon)/2;
-      double middleLon = (minLat + maxLat)/2;
+      double middleLon = (minLon + maxLon)/2;
+      double middleLat = (minLat + maxLat)/2;
 
       //getting the source-site cuttoff distance
       sourceCutOffDistance = RelativeLocation.getHorzDistance(middleLat,middleLon,minLat,minLon) + MIN_DIST;

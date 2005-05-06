@@ -61,7 +61,12 @@ public class FileUtils {
             while(ok){
                 try{
                     str = lin.readLine();
+
                     if(str != null) {
+                      //omit the blank line
+                      if(str.trim().equals(""))
+                        continue;
+
                         list.add(str);
                         if(D){
                             System.out.println(S + counter + ": " + str);
