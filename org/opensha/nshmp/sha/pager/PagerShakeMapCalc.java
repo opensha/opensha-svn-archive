@@ -19,11 +19,10 @@ import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.sha.param.PropagationEffect;
-import org.opensha.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.data.Site;
-import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.calc.ScenarioShakeMapCalculator;
+import org.opensha.sha.gui.beans.MapGuiBean;
 
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
@@ -45,10 +44,21 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   private boolean imlAtProb; //checks what to plot IML_At_Prob or Prob_At_IML
   private double imlProbVal; //if IML@Prob needs to be calculated the Prob val
   //will be given,else IML val will be given
+  private String imt;
   private boolean pointSourceCorrection; //if point source corrcetion needs to be applied
   private boolean gmtMapToGenerate; // if GMT map needs to be geberated
   private String defaultSiteType; //in case we are not able to get the site type for any site
   //in the region.
+
+  //instance to the Scenario ShakeMap Calc
+  private ScenarioShakeMapCalculator calc;
+
+
+  private DecimalFormat latLonFormat  = new DecimalFormat("0.000##");
+  private DecimalFormat meanSigmaFormat = new DecimalFormat("0.000##");
+
+  //Map Making Gui Bean
+  private MapGuiBean mapGuiBean;
 
   private String outputFilePrefix;
 
@@ -57,15 +67,18 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   }
 
 
-  public void parseFile(String fileName) {
-    try {
-      ArrayList fileLines = FileUtils.loadFile(fileName);
+  public void parseFile(String fileName) throws FileNotFoundException,IOException{
+
+      ArrayList fileLines = null;
+
+      fileLines = FileUtils.loadFile(fileName);
+
       int j = 0;
       for(int i=0; i<fileLines.size(); ++i) {
         String line = ((String)fileLines.get(i)).trim();
         // if it is comment skip to next line
         if(line.startsWith("#") || line.equals("")) continue;
-        ++j;
+
         //
         if(j==0) setRegionParams(line); // first line sets the region Params
         else if(j==1) setRupture(line) ; // set the rupture params
@@ -76,10 +89,9 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
         else if(j==6) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
         else if(j==7) setMapRequested(line) ; // whether to generate GMT map
         else if(j==8) setOutputFileName(line); // set the output file name
+        ++j;
       }
-    }catch(Exception e ) {
-      e.printStackTrace();
-    }
+
   }
 
   private void setRegionParams(String str) {
@@ -107,7 +119,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   }
 
   private void setIMR(String str) {
-    String imrName =  str;
+    createIMRClassInstance(str.trim());
   }
 
 
@@ -128,7 +140,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   *
   */
 
-  public void createIMRClassInstance(String AttenRelClassName){
+  private void createIMRClassInstance(String AttenRelClassName){
     String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
       try {
         Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
@@ -161,11 +173,12 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    */
   private void setIMT(String str) {
     StringTokenizer tokenizer = new StringTokenizer(str);
-    String imt = tokenizer.nextToken().trim();
+    imt = tokenizer.nextToken().trim();
     attenRel.setIntensityMeasure(imt);
     if(imt.equalsIgnoreCase("SA")){
       double period = Double.parseDouble(tokenizer.nextToken());
       attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
+      imt += "-"+period;
     }
   }
 
@@ -268,7 +281,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
           setValue(new Boolean(false));
 
     //Calls the ScenarioShakeMap Calculator to generate Median File
-    ScenarioShakeMapCalculator calc = new ScenarioShakeMapCalculator(propagationEffect);
+    calc = new ScenarioShakeMapCalculator(propagationEffect);
     ArrayList attenRelsSupported = new ArrayList();
     attenRelsSupported.add(attenRel);
     ArrayList attenRelWts = new ArrayList();
@@ -286,7 +299,8 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       FileWriter fw = new FileWriter(this.outputFilePrefix + "_median.txt");
       int size = xVals.size();
       for(int i=0;i<size;++i)
-        fw.write(xVals.get(i)+"  "+yVals.get(i)+"  "+zVals.get(i)+"\n");
+        fw.write(latLonFormat.format(xVals.get(i))+"  "+latLonFormat.format(yVals.get(i))+"  "+
+                 meanSigmaFormat.format(zVals.get(i))+"\n");
       fw.close();
     }
     catch (IOException ex) {
@@ -294,8 +308,23 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     }
   }
 
-  private void createMap(){
-
+  /**
+   * This method creates the Scenario ShakeMap
+   * @param xyzDataSet XYZ_DataSetAPI
+   */
+  private void createMap(XYZ_DataSetAPI xyzDataSet){
+    if(gmtMapToGenerate){
+     MapGuiBean mapGuiBean = new MapGuiBean();
+     mapGuiBean.setVisible(false);
+     mapGuiBean.setRegionParams(region.getMinLat(),region.getMaxLat(),
+                                region.getMinLon(),region.getMaxLon(),region.getGridSpacing());
+      String label = "";
+      if (imlAtProb)
+        label = imt;
+      else
+        label = "prob";
+      mapGuiBean.makeMap(xyzDataSet, rupture, label, getMapParametersInfo());
+    }
   }
 
 
@@ -317,8 +346,87 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
   }
 
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
+  private String getMapParametersInfo() {
+
+    String imrMetadata = "Selected Attenuation Relationship:<br>\n " +
+        "---------------<br>\n";
+
+    imrMetadata += attenRel.getName() + "\n";
+
+    String imtMetadata = "Selected IMT :<br>\n "+
+        "---------------<br>\n";
+    imtMetadata += imt+"\n";
+
+    //getting the metadata for the Calculation setting Params
+    String calculationSettingsParamsMetadata =
+        "<br><br>Calculation Param List:<br>\n " +
+        "------------------<br>\n" + getCalcParamMetadataString() + "\n";
+
+    return imrMetadata +
+        "<br><br>Region Info: <br>\n" +
+        "----------------<br>\n" +
+        "Min Lat = "+region.getMinLat()+"<br>\n"+
+        "Max Lat = "+region.getMaxLat()+"<br>\n"+
+        "Min Lon = "+region.getMinLon()+"<br>\n"+
+        "Max Lon = "+region.getMaxLon()+"<br>\n"+
+        "Default Wills Site Class Value = "+defaultSiteType+"<br>"+
+        "\n" +
+        "<br> Rupture Info: <br>\n"+
+        rupture.getInfo()+ "\n" +
+        "<br><br>GMT Param List: <br>\n" +
+        "--------------------<br>\n" +
+        mapGuiBean.getParameterList().getParameterListMetadataString() + "\n" +
+        calculationSettingsParamsMetadata;
+  }
+  /**
+   *
+   * @returns the Adjustable parameters for the ScenarioShakeMap calculator
+   */
+  private ParameterList getCalcAdjustableParams(){
+    return calc.getAdjustableParams();
+  }
+
+
+  /**
+   *
+   * @returns the Metadata string for the Calculation Settings Adjustable Params
+   */
+  private String getCalcParamMetadataString(){
+    return getCalcAdjustableParams().getParameterListMetadataString();
+  }
 
   public static void main(String[] args) {
+    if (args.length != 1) {
+      System.out.println("Must provide the input file name");
+      System.out.println("Usage :\n\t" +
+          "java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
+      System.out.println("jarfileName : Name of the executable jar file, by default it is PagerShakeMapCalc.jar");
+      System.out.println(
+          "inputFileName :Name of the input file,For eg: see \"inputFile.txt\". ");
+      System.exit(0);
+    }
+
     PagerShakeMapCalc pagershakemapcalc = new PagerShakeMapCalc();
+    try {
+      pagershakemapcalc.parseFile(args[0]);
+    }
+    catch (FileNotFoundException ex) {
+      System.out.println("Input File "+ args[0] +" not found");
+      System.exit(0);
+    }
+    catch (Exception ex) {
+      System.out.println("Unable to parse the input file"+ args[0]);
+      System.out.println("Please provide correct input file.");
+      System.exit(0);
+    }
+
+    pagershakemapcalc.getSiteParamsForRegion();
+    XYZ_DataSetAPI xyzDataSet =pagershakemapcalc.pagerShakeMapCalc();
+    pagershakemapcalc.createMedianFile(xyzDataSet);
+    pagershakemapcalc.createMap(xyzDataSet);
   }
 }
