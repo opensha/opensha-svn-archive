@@ -23,6 +23,7 @@ import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 import org.opensha.sha.gui.beans.MapGuiBean;
 
 import java.text.DecimalFormat;
+import org.opensha.sha.gui.infoTools.IMT_Info;
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
@@ -94,6 +95,10 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
   }
 
+  /**
+   * Setting the Region parameters
+   * @param str String
+   */
   private void setRegionParams(String str) {
     StringTokenizer tokenizer = new StringTokenizer(str);
     double minLat = Double.parseDouble(tokenizer.nextToken());
@@ -101,6 +106,15 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     double minLon = Double.parseDouble(tokenizer.nextToken());
     double maxLon = Double.parseDouble(tokenizer.nextToken());
     double gridSpacing = Double.parseDouble(tokenizer.nextToken());
+    if(minLat >= maxLat){
+      System.out.println("MinLat must be less than MaxLat");
+      System.exit(0);
+    }
+    if(minLon >= maxLon){
+      System.out.println("MinLon must be less than MaxLon");
+      System.exit(0);
+    }
+
     region = new SitesInGriddedRectangularRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 
@@ -266,8 +280,6 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    * @return XYZ_DataSetAPI
    */
   private XYZ_DataSetAPI pagerShakeMapCalc() {
-    int numSites = region.getNumGridLocs();
-
 
     PropagationEffect propagationEffect = new PropagationEffect();
 
@@ -288,7 +300,17 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     attenRelsSupported.add(attenRel);
     ArrayList attenRelWts = new ArrayList();
     attenRelWts.add(new Double(1.0));
-    return calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,region,rupture,!imlAtProb,imlProbVal);
+    XYZ_DataSetAPI xyzDataSet = calc.getScenarioShakeMapData(attenRelsSupported,attenRelWts,region,rupture,!imlAtProb,imlProbVal);
+    //if the IMT is log supported then take the exponential of the Value if IML @ Prob
+    if (IMT_Info.isIMT_LogNormalDist(attenRel.getIntensityMeasure().getName()) && imlAtProb) {
+      ArrayList zVals = xyzDataSet.getZ_DataSet();
+      int size = zVals.size();
+      for (int i = 0; i < size; ++i) {
+        double tempVal = Math.exp( ( (Double) (zVals.get(i))).doubleValue());
+        zVals.set(i, new Double(tempVal));
+      }
+    }
+    return xyzDataSet;
   }
 
 
@@ -325,6 +347,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
         label = imt;
       else
         label = "prob";
+
       mapGuiBean.makeMap(xyzDataSet, rupture, label, getMapParametersInfo());
     }
   }
@@ -403,9 +426,9 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
   public static void main(String[] args) {
     if (args.length != 1) {
-      System.out.println("Must provide the input file name");
+      System.out.println("Must provide the input file name\n");
       System.out.println("Usage :\n\t" +
-          "java -jar [jarfileName] [inputFileName] [output directory name]\n\n");
+          "java -jar [jarfileName] [inputFileName]\n\n");
       System.out.println("jarfileName : Name of the executable jar file, by default it is PagerShakeMapCalc.jar");
       System.out.println(
           "inputFileName :Name of the input file,For eg: see \"inputFile.txt\". ");
