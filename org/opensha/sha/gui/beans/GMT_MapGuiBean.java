@@ -18,6 +18,7 @@ import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.data.*;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.exceptions.GMT_MapException;
 
 /**
  * <p>Title: GMT_MapGuiBean</p>
@@ -174,34 +175,53 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    * @param xyzVals : Object for the XYZ values
    * @param metadata : Associated Metadata for the values.
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,String metadata){
+  public void makeMap(XYZ_DataSetAPI xyzVals, String metadata) {
 
-   // boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
+    // boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     boolean gmtServerCheck = true;
-    if(gmtServerCheck){
+    if (gmtServerCheck) {
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
-      try{
-        imgName =gmtMap.makeMapUsingServlet(xyzVals," ",metadata,dirName);
-        metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
-      }catch(RuntimeException e){
+      try {
+        imgName = gmtMap.makeMapUsingServlet(xyzVals, " ", metadata, dirName);
+        metadata += "<br><p>Click:  " + "<a href=\"" +
+            gmtMap.getGMTFilesWebAddress() + "\">" +
+            gmtMap.getGMTFilesWebAddress() + "</a>" +
+            "  to download files.</p>";
+      }
+      catch (GMT_MapException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(),
+                                      "Incorrect GMT params ",
+                                      JOptionPane.INFORMATION_MESSAGE);
+        return;
+      }
+      catch (RuntimeException e) {
         e.printStackTrace();
-        JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
-       return;
+        JOptionPane.showMessageDialog(this, e.getMessage(), "Server Problem",
+                                      JOptionPane.INFORMATION_MESSAGE);
+        return;
       }
     }
-    else{
-      try{
-        imgName = gmtMap.makeMapLocally(xyzVals," ",metadata,dirName);
-      }catch(RuntimeException e){
-        JOptionPane.showMessageDialog(this,e.getMessage());
+    else {
+      try {
+        imgName = gmtMap.makeMapLocally(xyzVals, " ", metadata, dirName);
+      }
+      catch (GMT_MapException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage(),
+                                      "Incorrect GMT params ",
+                                      JOptionPane.INFORMATION_MESSAGE);
+        return;
+      }
+      catch (RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
         return;
       }
     }
 
     //checks to see if the user wants to see the Map in a seperate window or not
-    if(this.showMapInSeperateWindow){
+    if (this.showMapInSeperateWindow) {
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata,
+          gmtServerCheck);
     }
     dirName = null;
   }

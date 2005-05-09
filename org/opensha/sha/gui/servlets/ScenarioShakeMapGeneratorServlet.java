@@ -63,9 +63,11 @@ public class ScenarioShakeMapGeneratorServlet
           xyzDataFileName);
 
       //creates and run the GMT Script on the server
-      String webaddr = gmtMap.makeMapUsingServlet(xyzData, rupture, imt,
+      Object webaddr = gmtMap.makeMapUsingServlet(xyzData, rupture, imt,
                                                   metadata,
                                                   dirName);
+
+
 
       //name of the image file as the URL
       outputToApplet.writeObject(webaddr);

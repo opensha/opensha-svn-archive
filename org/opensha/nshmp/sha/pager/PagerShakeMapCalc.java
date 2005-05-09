@@ -314,7 +314,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    */
   private void createMap(XYZ_DataSetAPI xyzDataSet){
     if(gmtMapToGenerate){
-     MapGuiBean mapGuiBean = new MapGuiBean();
+     mapGuiBean = new MapGuiBean();
      mapGuiBean.setVisible(false);
      mapGuiBean.setRegionParams(region.getMinLat(),region.getMaxLat(),
                                 region.getMinLon(),region.getMaxLon(),region.getGridSpacing());
@@ -359,14 +359,14 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
     String imtMetadata = "Selected IMT :<br>\n "+
         "---------------<br>\n";
-    imtMetadata += imt+"\n";
+    imtMetadata += imt+"<br>\n";
 
     //getting the metadata for the Calculation setting Params
     String calculationSettingsParamsMetadata =
         "<br><br>Calculation Param List:<br>\n " +
         "------------------<br>\n" + getCalcParamMetadataString() + "\n";
 
-    return imrMetadata +
+    return imrMetadata +imtMetadata+
         "<br><br>Region Info: <br>\n" +
         "----------------<br>\n" +
         "Min Lat = "+region.getMinLat()+"<br>\n"+

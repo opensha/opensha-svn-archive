@@ -72,7 +72,7 @@ public class ScenarioShakeMapForHazusGeneratorServlet extends HttpServlet {
 
 
       //creates and run the GMT Script on the server and return back the URL to all the images
-      String[] webaddr = gmtMap.makeHazusFileSetUsingServlet(sa_03xyzData,sa_10xyzData,
+      Object webaddr = gmtMap.makeHazusFileSetUsingServlet(sa_03xyzData,sa_10xyzData,
           pga_xyzData,pgvxyzData,rupture,metadata,dirName);
 
       //making the XYZ dataset objects to be null.

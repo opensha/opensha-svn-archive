@@ -17,6 +17,7 @@ import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.data.*;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.exceptions.GMT_MapException;
 
 /**
  * <p>Title: MapGuiBean</p>
@@ -70,7 +71,14 @@ public class MapGuiBean extends GMT_MapGuiBean {
     try{
       // this creates a conection with the server to generate the map on the server
       //after reading the xyz vals file from the server
-      imgName = openConnectionToServerToGenerateShakeMap(xyzVals,eqkRupture,imt,metadata);
+      try {
+        imgName = openConnectionToServerToGenerateShakeMap(xyzVals, eqkRupture,
+            imt, metadata);
+      }
+      catch (GMT_MapException ex) {
+        JOptionPane.showMessageDialog(this,ex.getMessage(),"Incorrect GMT params ",JOptionPane.INFORMATION_MESSAGE);
+        return;
+      }
       //webaddr where all the GMT related file for this map resides on server
       String webaddr = imgName.substring(0,imgName.lastIndexOf("/")+1);
       metadata +="<br><p>Click:  "+"<a href=\""+webaddr+"\">"+webaddr+"</a>"+"  to download files.</p>";
@@ -104,7 +112,11 @@ public class MapGuiBean extends GMT_MapGuiBean {
       try{
         imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt,metadata,dirName);
         metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
-      }catch(RuntimeException e){
+      }catch(GMT_MapException e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect GMT params ",JOptionPane.INFORMATION_MESSAGE);
+        return;
+      }
+      catch(RuntimeException e){
         e.printStackTrace();
         JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
         return;
@@ -113,8 +125,12 @@ public class MapGuiBean extends GMT_MapGuiBean {
     else{
       try{
         imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt,metadata,dirName);
-      }catch(RuntimeException e){
-        JOptionPane.showMessageDialog(this,e.getMessage());
+      }catch(GMT_MapException e){
+        JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect GMT params ",JOptionPane.INFORMATION_MESSAGE);
+        return;
+      }
+      catch (RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
         return;
       }
     }
@@ -144,13 +160,23 @@ public class MapGuiBean extends GMT_MapGuiBean {
      // gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(true));
 
     //if(gmtServerCheck){
-    try{
-      imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
-          pgv_xyzVals,eqkRupture,metadata, dirName);
-      metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
-    }catch(RuntimeException e){
+    try {
+      imgNames = ( (GMT_MapGeneratorForShakeMaps) gmtMap).
+          makeHazusFileSetUsingServlet(sa03_xyzVals, sa10_xyzVals, pga_xyzVals,
+                                       pgv_xyzVals, eqkRupture, metadata, dirName);
+      metadata += "<br><p>Click:  " + "<a href=\"" + gmtMap.getGMTFilesWebAddress() +
+          "\">" + gmtMap.getGMTFilesWebAddress() + "</a>" +
+          "  to download files.</p>";
+    }
+    catch (GMT_MapException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Incorrect GMT params ",
+                                    JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    catch (RuntimeException e) {
       e.printStackTrace();
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Server Problem",
+                                    JOptionPane.INFORMATION_MESSAGE);
       return;
     }
    // }
@@ -185,8 +211,15 @@ public class MapGuiBean extends GMT_MapGuiBean {
                       EqkRupture eqkRupture,String metadata){
     String[] imgNames = null;
     try{
-      imgNames = openConnectionToServerToGenerateShakeMapForHazus(sa03_xyzVals, sa10_xyzVals,
-          pga_xyzVals, pgv_xyzVals,eqkRupture,metadata);
+      try {
+        imgNames = openConnectionToServerToGenerateShakeMapForHazus(
+            sa03_xyzVals, sa10_xyzVals,
+            pga_xyzVals, pgv_xyzVals, eqkRupture, metadata);
+      }
+      catch (GMT_MapException ex) {
+        JOptionPane.showMessageDialog(this,ex.getMessage(),"Incorrect GMT params",JOptionPane.INFORMATION_MESSAGE);
+        return;
+      }
       //webaddr where all the GMT related file for this map resides on server
       String webaddr = imgNames[0].substring(0,imgNames[0].lastIndexOf("/")+1);
       /*imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
@@ -276,7 +309,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
    * @return
    */
   private String openConnectionToServerToGenerateShakeMap(String xyzVals,
-      EqkRupture eqkRupture,String imt,String metadata){
+      EqkRupture eqkRupture,String imt,String metadata) throws GMT_MapException{
     String webaddr=null;
     try{
       if(D) System.out.println("starting to make connection with servlet");
@@ -333,9 +366,14 @@ public class MapGuiBean extends GMT_MapGuiBean {
         webaddr = (String) messageFromServlet;
         if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       }
+      else if(messageFromServlet instanceof GMT_MapException)
+        throw (GMT_MapException)messageFromServlet;
+
       else if(messageFromServlet instanceof RuntimeException)
         throw (RuntimeException)messageFromServlet;
 
+    }catch(GMT_MapException e){
+            throw new GMT_MapException(e.getMessage());
     }catch (RuntimeException e){
       throw new RuntimeException(e.getMessage());
     }
@@ -357,8 +395,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
    * @return
    */
   private String[] openConnectionToServerToGenerateShakeMapForHazus(String sa_03xyzVals,
-      String sa_10xyzVals,String pga_xyzVals,String pgv_xyzVals,EqkRupture eqkRupture,String metadata){
-    String webaddr[]=null;
+      String sa_10xyzVals,String pga_xyzVals,String pgv_xyzVals,EqkRupture eqkRupture,String metadata)
+  throws GMT_MapException{
+    Object webaddr=null;
     try{
       if(D) System.out.println("starting to make connection with servlet");
       URL gmtMapServlet = new
@@ -415,15 +454,24 @@ public class MapGuiBean extends GMT_MapGuiBean {
       ObjectInputStream inputToServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      webaddr=(String[])inputToServlet.readObject();
+      webaddr=(Object)inputToServlet.readObject();
       if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       inputToServlet.close();
 
-    }catch (Exception e) {
+      if(webaddr instanceof GMT_MapException)
+        throw (GMT_MapException)webaddr;
+      else
+        return (String[])webaddr;
+
+
+    }
+    catch(GMT_MapException e){
+      throw new GMT_MapException(e.getMessage());
+    }
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
-    return webaddr;
   }
 
 

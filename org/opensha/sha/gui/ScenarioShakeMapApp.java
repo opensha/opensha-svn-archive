@@ -11,7 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.Thread;
 import ch.randelshofer.quaqua.QuaquaManager;
 import javax.swing.Timer;
-import javax.help.*;
+//import javax.help.*;
 
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
@@ -165,9 +165,9 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   //Adding the Menu to the application
-  JMenuBar menuBar = new JMenuBar();
-  JMenu helpMenu = new JMenu();
-  JMenuItem helpLaunchMenu = new JMenuItem();
+  //JMenuBar menuBar = new JMenuBar();
+  //JMenu helpMenu = new JMenu();
+  //JMenuItem helpLaunchMenu = new JMenuItem();
 
 
   private boolean isStandalone = false;
@@ -305,20 +305,20 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     mainSplitPane.setDividerLocation(630);
 
     //adding the Menu to the application
-    helpMenu.setText("Help");
+    /*helpMenu.setText("Help");
     helpLaunchMenu.setText("Help Application");
     menuBar.add(helpMenu);
     helpMenu.add(helpLaunchMenu);
-    setJMenuBar(menuBar);
+    setJMenuBar(menuBar);*/
     //createHelpMenu();
   }
 
 
-  private void createHelpMenu(){
+  /*private void createHelpMenu(){
     LaunchHelpFromMenu helpMenu = new LaunchHelpFromMenu();
     HelpBroker hb = helpMenu.createHelpMenu("file:///Users/nitingupta/projects/sha/OpenSHA_docs/ScenarioShakeMap_UserManual/shaHelp.xml");
     helpLaunchMenu.addActionListener(new CSH.DisplayHelpFromSource(hb));
-  }
+  }*/
 
   //Main method
   public static void main(String[] args) {
@@ -330,7 +330,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     frame.setTitle("ScenarioShakeMap App");
     frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
-    applet.createHelpMenu();
+    //applet.createHelpMenu();
     applet.start();
     frame.setSize(W,H);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();

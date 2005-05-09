@@ -10,6 +10,7 @@ import org.opensha.param.*;
 import org.opensha.data.XYZ_DataSetAPI;
 //import org.opensha.webservices.client.*;
 import org.opensha.util.RunScript;
+import org.opensha.exceptions.GMT_MapException;
 
 /**
  * <p>Title: GMT_MapGenerator</p>
@@ -261,7 +262,7 @@ public class GMT_MapGenerator implements Serializable{
    * @return - the name of the jpg file
    */
   public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, String scaleLabel,
-                               String metadata, String dirName){
+                               String metadata, String dirName) throws GMT_MapException{
 
     //creates the metadata file
     createMapInfoFile(metadata);
@@ -307,7 +308,8 @@ public class GMT_MapGenerator implements Serializable{
    * @return - the name of the jpg file
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
-                                    String scaleLabel, String metadata, String dirName) throws RuntimeException{
+                                    String scaleLabel, String metadata, String dirName)
+      throws GMT_MapException,RuntimeException{
 
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
@@ -326,14 +328,10 @@ public class GMT_MapGenerator implements Serializable{
     if(!xyzDataSet.checkXYZ_NumVals())
       throw new RuntimeException("X, Y and Z dataset does not have equal size");
 
-    try{
     // get the GMT script lines
     ArrayList gmtLines = getGMT_ScriptLines();
     imgWebAddr = this.openServletConnection(xyzDataSet,gmtLines,metadata, dirName);
-    }catch(RuntimeException e){
-      e.printStackTrace();
-      throw new RuntimeException(e.getMessage());
-    }
+
 
     return imgWebAddr+JPG_FILE_NAME;
   }
@@ -347,7 +345,8 @@ public class GMT_MapGenerator implements Serializable{
    * @param scaleLabel - a string for the label (with no spaces!)
    * @return - the name of the jpg file
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel, String metadata){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, String scaleLabel, String metadata)
+  throws GMT_MapException{
     //creates the metadata file
     createMapInfoFile(metadata);
     // Set paths for the SCEC server (where the Servlet is)
@@ -616,7 +615,8 @@ public class GMT_MapGenerator implements Serializable{
    * @param scaleLabel - a string for the label (with no spaces!)
    * @return - the name of the jpg file
    */
-  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName, String scaleLabel) {
+  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName, String scaleLabel) throws
+      GMT_MapException{
 
     XYZ_FILE_NAME = xyzFileName;
     PS_FILE_NAME = psFileName;
@@ -731,7 +731,7 @@ public class GMT_MapGenerator implements Serializable{
   /**
    * This method generates a list of strings needed for the GMT script
    */
-  protected ArrayList getGMT_ScriptLines() {
+  protected ArrayList getGMT_ScriptLines() throws GMT_MapException{
 
     String commandLine;
 
@@ -770,7 +770,7 @@ public class GMT_MapGenerator implements Serializable{
     // this is only temporary until we have worldwide topo data
     if( !resolution.equals(TOPO_RESOLUTION_NONE) &&
         ( maxLat > 43 || minLat < 32 || minLon < -126 || maxLon > -115 ))
-      throw new RuntimeException("Topography not available for the chosen region; please select \"" +
+      throw new GMT_MapException("Topography not available for the chosen region; please select \"" +
           TOPO_RESOLUTION_NONE + "\" for the " + TOPO_RESOLUTION_PARAM_NAME + " parameter");
 
     // Set highways String

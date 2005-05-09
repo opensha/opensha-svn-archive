@@ -15,6 +15,7 @@ import org.opensha.sha.surface.*;
 import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.util.RunScript;
+import org.opensha.exceptions.GMT_MapException;
 
 /**
  * <p>Title: GMT_MapGeneratorForShakeMaps</p>
@@ -117,7 +118,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String[] makeHazusFileSetLocally(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
-                                       EqkRupture eqkRupture, String metadata, String dirName) {
+                                       EqkRupture eqkRupture, String metadata, String dirName)
+   throws GMT_MapException{
 
     //creating the Metadata file in the GMT_MapGenerator
     createMapInfoFile(metadata);
@@ -198,7 +200,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String[] makeHazusFileSetUsingServlet(XYZ_DataSetAPI sa03DataSet,XYZ_DataSetAPI sa10DataSet,
                                        XYZ_DataSetAPI pgaDataSet,XYZ_DataSetAPI pgvDataSet,
-                                       EqkRupture eqkRupture,String metadata,String dirName) {
+                                       EqkRupture eqkRupture,String metadata,String dirName)
+      throws GMT_MapException{
     eqkRup = eqkRupture;
 
     GMT_PATH="/opt/install/gmt/bin/";
@@ -385,7 +388,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @return
    */
   public String makeMapLocally(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,
-                               String imtString, String metadata,String directoryName){
+                               String imtString, String metadata,String directoryName)
+  throws GMT_MapException{
     eqkRup = eqkRupture;
     imt = imtString;
 
@@ -444,7 +448,8 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    */
   public String makeMapUsingServlet(XYZ_DataSetAPI xyzDataSet,
                                     EqkRupture eqkRupture,
-                                    String imtString,String metadata, String dirName) throws RuntimeException{
+                                    String imtString,String metadata, String dirName) throws
+      GMT_MapException,RuntimeException{
     eqkRup = eqkRupture;
     imt = imtString;
     return super.makeMapUsingServlet(xyzDataSet, imtString, metadata, dirName);
@@ -459,8 +464,10 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
    * @param imtString - the IMT string for labeling and filenames
    * @return: URL to the image
    */
-  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet, EqkRupture eqkRupture,
-                                      String imtString, String metadata){
+  public String makeMapUsingWebServer(XYZ_DataSetAPI xyzDataSet,
+                                      EqkRupture eqkRupture,
+                                      String imtString, String metadata) throws
+      GMT_MapException {
     eqkRup = eqkRupture;
     imt = imtString;
     return super.makeMapUsingWebServer(xyzDataSet, imtString, metadata);
