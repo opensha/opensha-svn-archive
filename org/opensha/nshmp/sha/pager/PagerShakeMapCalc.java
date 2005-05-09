@@ -113,7 +113,9 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     double rupRake = Double.parseDouble(tokenizer.nextToken());
     double rupDip = Double.parseDouble(tokenizer.nextToken());
     rupture = new EqkRupture();
-    rupture.setPointSurface(new Location(rupLat,rupLon,rupDepth),rupDip);
+    Location rupLoc = new Location(rupLat,rupLon,rupDepth);
+    rupture.setPointSurface(rupLoc,rupDip);
+    rupture.setHypocenterLocation(rupLoc);
     rupture.setMag(rupMag);
     rupture.setAveRake(rupRake);
   }
