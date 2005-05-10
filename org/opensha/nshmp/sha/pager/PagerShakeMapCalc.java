@@ -129,7 +129,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     rupture = new EqkRupture();
     Location rupLoc = new Location(rupLat,rupLon,rupDepth);
     rupture.setPointSurface(rupLoc,rupDip);
-    rupture.setHypocenterLocation(rupLoc);
+    //    rupture.setHypocenterLocation(rupLoc);    // this will put a star at the hypocenter
     rupture.setMag(rupMag);
     rupture.setAveRake(rupRake);
   }
