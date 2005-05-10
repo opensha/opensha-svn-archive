@@ -118,7 +118,6 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     }
 
     region = new SitesInGriddedRectangularRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
-
   }
 
   private void setRupture(String str) {
@@ -375,13 +374,25 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    * This method creates the Scenario ShakeMap
    * @param xyzDataSet XYZ_DataSetAPI
    */
-  private void createMap(XYZ_DataSetAPI xyzDataSet){
-    if(gmtMapToGenerate){
-     mapGuiBean = new MapGuiBean();
-     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
-     mapGuiBean.setVisible(false);
-     mapGuiBean.setRegionParams(region.getMinLat(),region.getMaxLat(),
-                                region.getMinLon(),region.getMaxLon(),region.getGridSpacing());
+  private void createMap(XYZ_DataSetAPI xyzDataSet) {
+    if (gmtMapToGenerate) {
+      mapGuiBean = new MapGuiBean();
+      mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).
+          setValue(new Boolean(false));
+      mapGuiBean.setVisible(false);
+      double minLat = region.getMinLat();
+      double maxLat = region.getMaxLat();
+      double minLon = region.getMinLon();
+      double maxLon = region.getMaxLon();
+      //checking if region bounds are within the range of the topographic file
+      //else don't show any topography in the Scenario shakemaps
+      if (maxLat > 43 || minLat < 32 || minLon < -126 || maxLon > -115) {
+        mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.
+            TOPO_RESOLUTION_PARAM_NAME).setValue(
+                GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+      }
+      mapGuiBean.setRegionParams(minLat, maxLat, minLon, maxLon,
+                                 region.getGridSpacing());
       String label = "";
       if (imlAtProb)
         label = imt;
