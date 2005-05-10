@@ -225,8 +225,14 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     int mapType = Integer.parseInt(tokenizer.nextToken());
     if (mapType == 0)
       this.imlAtProb = true;
-    else
+    else if(mapType ==1)
       this.imlAtProb = false;
+    else{
+      System.out.println("Incorrect input for the MapType, please enter:");
+      System.out.println("0: IML @ Prob Map ");
+      System.out.println("1: Prob @ IML map ");
+      System.exit(0);
+    }
     imlProbVal = Double.parseDouble(tokenizer.nextToken());
   }
 
@@ -239,7 +245,14 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     StringTokenizer tokenizer = new StringTokenizer(str);
     int intVal = Integer.parseInt(tokenizer.nextToken());
     if(intVal==0) pointSourceCorrection = false;
-    else pointSourceCorrection = true;
+    else if(intVal ==1)
+      pointSourceCorrection = true;
+    else{
+      System.out.println("Incorrect input for Point Source Correction, please enter:");
+      System.out.println("0: No Point Source Correction");
+      System.out.println("1: Apply Point Source Correction");
+      System.exit(0);
+    }
   }
 
   /**
@@ -258,7 +271,14 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     StringTokenizer tokenizer = new StringTokenizer(str);
     int intVal = Integer.parseInt(tokenizer.nextToken());
     if(intVal==0) gmtMapToGenerate = false;
-    else gmtMapToGenerate = true;
+    else if(intVal == 1)gmtMapToGenerate = true;
+    else{
+      System.out.println("Incorrect input to see if map needs to be generated using GMT");
+      System.out.println("0: No Map to be generated");
+      System.out.println("1: Map to be generated using GMT");
+      System.exit(0);
+
+    }
   }
 
   /**
