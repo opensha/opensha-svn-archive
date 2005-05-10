@@ -24,6 +24,8 @@ import org.opensha.sha.gui.beans.MapGuiBean;
 
 import java.text.DecimalFormat;
 import org.opensha.sha.gui.infoTools.IMT_Info;
+import org.opensha.exceptions.ParameterException;
+import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
@@ -68,7 +70,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   }
 
 
-  public void parseFile(String fileName) throws FileNotFoundException,IOException{
+  private void parseFile(String fileName) throws FileNotFoundException,IOException{
 
       ArrayList fileLines = null;
 
@@ -116,6 +118,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     }
 
     region = new SitesInGriddedRectangularRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+
   }
 
   private void setRupture(String str) {
@@ -190,10 +193,23 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   private void setIMT(String str) {
     StringTokenizer tokenizer = new StringTokenizer(str);
     imt = tokenizer.nextToken().trim();
-    attenRel.setIntensityMeasure(imt);
+    try{
+      attenRel.setIntensityMeasure(imt);
+    }catch(Exception e){
+      System.out.println(imt+" not supported by attenuation relationship "+attenRel.getName());
+      System.exit(0);
+    }
     if(imt.equalsIgnoreCase("SA")){
       double period = Double.parseDouble(tokenizer.nextToken());
-      attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new Double(period));
+      try{
+        attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
+            Double(period));
+      }
+      catch (Exception e) {
+        System.out.println("SA Period = "+period + " not supported by attenuation relationship " +
+                           attenRel.getName());
+        System.exit(0);
+      }
       imt += "-"+period;
     }
   }
@@ -259,6 +275,8 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    */
   private void getSiteParamsForRegion() {
     region.addSiteParams(attenRel.getSiteParamsIterator());
+    //getting Wills Site Class
+    region.setSiteParamsForRegionFromServlet(false);
     //getting the Attenuation Site Parameters Liat
     ListIterator it = attenRel.getSiteParamsIterator();
     //creating the list of default Site Parameters, so that site parameter values can be filled in
@@ -268,8 +286,9 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     while (it.hasNext()) {
       //adding the clone of the site parameters to the list
       ParameterAPI tempParam = (ParameterAPI) ( (ParameterAPI) it.next()).clone();
-      //getting the Site Param Value corresponding to the Will Site Class "DE" for the seleted IMR  from the SiteTranslator
-      siteTrans.setParameterValue(tempParam, siteTrans.WILLS_DE, Double.NaN);
+      //getting the Site Param Value corresponding to the default Wills site class selected by the user
+      // for the seleted IMR  from the SiteTranslator
+      siteTrans.setParameterValue(tempParam, defaultSiteType, Double.NaN);
       defaultSiteParams.add(tempParam);
     }
     region.setDefaultSiteParams(defaultSiteParams);
@@ -339,6 +358,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
   private void createMap(XYZ_DataSetAPI xyzDataSet){
     if(gmtMapToGenerate){
      mapGuiBean = new MapGuiBean();
+     mapGuiBean.getParameterList().getParameter(GMT_MapGenerator.LOG_PLOT_NAME).setValue(new Boolean(false));
      mapGuiBean.setVisible(false);
      mapGuiBean.setRegionParams(region.getMinLat(),region.getMaxLat(),
                                 region.getMinLon(),region.getMaxLon(),region.getGridSpacing());
@@ -424,6 +444,10 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     return getCalcAdjustableParams().getParameterListMetadataString();
   }
 
+  /**
+   * Main Methid to run the application
+   * @param args String[]
+   */
   public static void main(String[] args) {
     if (args.length != 1) {
       System.out.println("Must provide the input file name\n");
