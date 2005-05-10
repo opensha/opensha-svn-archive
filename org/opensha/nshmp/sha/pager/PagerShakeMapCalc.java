@@ -30,7 +30,7 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
  *
  * <p>Description: </p>
  *
- * @author Ned Field, Nitin Gupta and Vipin Gupta
+ * @author Nitin Gupta, Vipin Gupta, and Ned Field
  * @version 1.0
  */
 public class PagerShakeMapCalc implements ParameterChangeWarningListener{
@@ -255,7 +255,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
 
 
   /**
-   * Gets the wills  site class for the given sites
+   * Gets the wills site class for the given sites
    */
   private void getSiteParamsForRegion() {
     region.addSiteParams(attenRel.getSiteParamsIterator());
@@ -320,7 +320,7 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     ArrayList yVals = xyzData.getY_DataSet();
     ArrayList zVals = xyzData.getZ_DataSet();
     try {
-      FileWriter fw = new FileWriter(this.outputFilePrefix + "_median.txt");
+      FileWriter fw = new FileWriter(this.outputFilePrefix + "_data.txt");
       int size = xVals.size();
       for(int i=0;i<size;++i)
         fw.write(latLonFormat.format(xVals.get(i))+"  "+latLonFormat.format(yVals.get(i))+"  "+
