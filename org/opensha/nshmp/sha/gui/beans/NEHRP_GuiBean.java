@@ -100,9 +100,11 @@ public class NEHRP_GuiBean
       //creating the datasetEditor to show the geographic region and edition dataset.
       datasetGui.createDataSetEditor();
       createLocation();
-
+      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
+      locationSplitPane.setDividerLocation(160);
       createGroundMotionParameter();
       jbInit();
+
     }
     catch (Exception exception) {
       exception.printStackTrace();
@@ -246,7 +248,7 @@ public class NEHRP_GuiBean
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(370);
+    mainSplitPane.setDividerLocation(290);
     buttonsSplitPane.setDividerLocation(120);
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
     regionPanel.setMinimumSize(new Dimension(0,0));
@@ -312,12 +314,8 @@ public class NEHRP_GuiBean
    */
   protected void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
-    Component comp = locationSplitPane.getBottomComponent();
-    if (comp != null) {
-      locationSplitPane.remove(locationSplitPane.getBottomComponent());
-    }
+
     if (region != null) {
-      locationVisible = true;
       //checking if Zip code is supported by the selected choice
       boolean zipCodeSupported = LocationUtil.
           isZipCodeSupportedBySelectedEdition(selectedRegion);
@@ -330,10 +328,11 @@ public class NEHRP_GuiBean
         ParameterAPI param = (ParameterAPI) it.next();
         param.addParameterChangeListener(this);
       }
-      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
-      locationSplitPane.setDividerLocation(160);
+
+      locationVisible = true;
     }
     else if (region == null) {
+      locGuiBean.createNoLocationGUI();
       locationVisible = false;
     }
 
@@ -401,15 +400,14 @@ public class NEHRP_GuiBean
 
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
-      String locationMode = locGuiBean.getLocationMode();
-      if (locationMode.equals(locGuiBean.LAT_LON)) {
+      if (locGuiBean.getLocationMode()) {
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
           double lon = loc.getLongitude();
           dataGenerator.calculateSsS1(lat, lon);
 
       }
-      else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
+      else {
           String zipCode = locGuiBean.getZipCode();
           dataGenerator.calculateSsS1(zipCode);
       }

@@ -89,7 +89,7 @@ public class IRC_GuiBean
       //creating the datasetEditor to show the geographic region and edition dataset.
       datasetGui.createDataSetEditor();
       createLocation();
-
+      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       createGroundMotionParameter();
       jbInit();
     }
@@ -160,9 +160,8 @@ public class IRC_GuiBean
                                                 GridBagConstraints.NONE,
                                                 new Insets(4, 30, 4,110), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(470);
-    locationSplitPane.setDividerLocation(200);
-
+    mainSplitPane.setDividerLocation(340);
+    locationSplitPane.setDividerLocation(180);
   }
 
   /**
@@ -204,10 +203,6 @@ public class IRC_GuiBean
    */
   protected void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
-    Component comp = locationSplitPane.getBottomComponent();
-    if (comp != null) {
-      locationSplitPane.remove(locationSplitPane.getBottomComponent());
-    }
     if (region != null) {
       locationVisible = true;
       //checking if Zip code is supported by the selected choice
@@ -222,13 +217,12 @@ public class IRC_GuiBean
         ParameterAPI param = (ParameterAPI) it.next();
         param.addParameterChangeListener(this);
       }
-      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
-      locationSplitPane.setDividerLocation(200);
+
     }
     else if (region == null) {
       locationVisible = false;
+      locGuiBean.createNoLocationGUI();
     }
-
   }
 
   /**
@@ -295,8 +289,7 @@ public class IRC_GuiBean
 
     //doing the calculation if not territory and Location GUI is visible
     if (locationVisible) {
-      String locationMode = locGuiBean.getLocationMode();
-      if (locationMode.equals(locGuiBean.LAT_LON)) {
+      if (locGuiBean.getLocationMode()) {
         try {
           Location loc = locGuiBean.getSelectedLocation();
           double lat = loc.getLatitude();
@@ -318,7 +311,7 @@ public class IRC_GuiBean
         }
 
       }
-      else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
+      else {
         try {
           String zipCode = locGuiBean.getZipCode();
           dataGenerator.calculateSsS1(zipCode);

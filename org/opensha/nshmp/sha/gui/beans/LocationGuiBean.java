@@ -11,6 +11,8 @@ import org.opensha.param.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.event.*;
 import org.opensha.nshmp.exceptions.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: LocationGuiBean</p>
@@ -24,19 +26,12 @@ public class LocationGuiBean
     extends JPanel implements ParameterChangeListener,
     ParameterChangeFailListener {
 
-  public static final String LOCATION_SELECTION_MODE_PARAM_NAME =
-      "Set Location";
-  private static final String LOCATION_SELECTION_MODE_INFO =
-      "Provides user with modes for " +
-      "setting the location";
-  public static final String ZIP_CODE = "Using Zip Code";
-  public static final String LAT_LON = "Using Location Lat-Lon";
 
   public static final String ZIP_CODE_PARAM_NAME = "5-digit Zip Code";
   public static final String LAT_PARAM_NAME = "Latitude";
   public static final String LON_PARAM_NAME = "Longitude";
 
-  private StringParameter locationSelectionModeParam;
+
 
   Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
   TitledBorder locationBorder = new TitledBorder(border9,
@@ -52,11 +47,23 @@ public class LocationGuiBean
 
   //ZipCode, Lat, Lon editor
   private StringParameterEditor zipCodeEditor;
-  private ConstrainedStringParameterEditor locationModeEditor;
   private ConstrainedDoubleParameterEditor latEditor;
   private ConstrainedDoubleParameterEditor lonEditor;
+  private JLabel noLocationSupportedLabel = new JLabel("Location not supported") ;
 
   private JPanel locationPanel = new JPanel();
+  private JPanel noLocationPanel = new JPanel();
+
+  private JRadioButton latLonButton = new JRadioButton("Lat-Lon(Recommended)");
+  private JRadioButton zipCodeButton = new JRadioButton("Zip-Code");
+
+  //Label to show the Lat and Lon Constraints
+  private JLabel latConstraintsLabel;
+  private JLabel lonConstraintsLabel;
+
+  private boolean latLonSelected = true;
+
+  private ButtonGroup buttonGroup = new ButtonGroup();
 
   public LocationGuiBean() {
 
@@ -98,11 +105,11 @@ public class LocationGuiBean
   }
 
   /**
-   * Returns what how user has chosen to set the location
-   * @return String
+   * Returns true if user has choosen to set the location using the Lat-Lon.
+   * @return boolean
    */
-  public String getLocationMode() {
-    return (String) locationSelectionModeParam.getValue();
+  public boolean getLocationMode() {
+    return latLonSelected;
   }
 
   /**
@@ -122,6 +129,23 @@ public class LocationGuiBean
     return zipCode;
   }
 
+
+
+  /**
+   * This function is called whenever location setting are not supported by the
+   * selected Region.
+   */
+  public  void createNoLocationGUI(){
+    this.removeAll();
+    this.add(noLocationPanel,
+             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(2, 2, 2, 2), 0, 0));
+    this.updateUI();
+  }
+
+
   /**
    *
    */
@@ -134,39 +158,59 @@ public class LocationGuiBean
     DoubleParameter lonParam = new DoubleParameter(LON_PARAM_NAME, minLon,
         maxLon, "Degrees");
 
-    this.locationPanel.removeAll();
+
+  //removing the existing panel from the gui.
+    this.removeAll();
+    //remove the lat,lon and Zip code editors from the parameters, as we will be
+    //creating new editors with new constraints,whenever this function is called.
+    if(parameterList !=null){
+      locationPanel.remove(latEditor);
+      locationPanel.remove(lonEditor);
+      locationPanel.remove(latConstraintsLabel);
+      locationPanel.remove(lonConstraintsLabel);
+      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME)) {
+        locationPanel.remove(zipCodeEditor);
+      }
+    }
+
     //add the zip code in the location mode selection only if it is supported.
     createLocationModeParam(isZipCodeSupported);
 
     parameterList = new ParameterList();
-    parameterList.addParameter(locationSelectionModeParam);
     parameterList.addParameter(latParam);
     parameterList.addParameter(lonParam);
     latParam.addParameterChangeFailListener(this);
     lonParam.addParameterChangeFailListener(this);
     try {
-      locationModeEditor = new ConstrainedStringParameterEditor(
-          locationSelectionModeParam);
+
       latEditor = new ConstrainedDoubleParameterEditor(latParam);
       lonEditor = new ConstrainedDoubleParameterEditor(lonParam);
-      locationPanel.add(locationModeEditor,
-                        new GridBagConstraints(0, 0, 0, 1, 1.0, 1.0
+
+      locationPanel.add(latEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.WEST,
+          new Insets(1, -5, 1, 40), 0, 0));
+      latConstraintsLabel = new JLabel("("+minLat+","+maxLat+")");
+      latConstraintsLabel.setForeground(new Color(80,80,133));
+      locationPanel.add(latConstraintsLabel, new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.WEST,
+          new Insets(1, -5, 1, 40), 0, 0));
+
+      locationPanel.add(lonEditor, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.WEST,
+          new Insets(1, -5, 1, 40), 0, 0));
+
+      lonConstraintsLabel = new JLabel("(" + minLon + "," + maxLon + ")");
+      lonConstraintsLabel.setForeground(new Color(80,80,133));
+      locationPanel.add(lonConstraintsLabel,
+                        new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0
                                                , GridBagConstraints.NORTH,
-                                               GridBagConstraints.HORIZONTAL,
-                                               new Insets(2, 2, 2, 2), 0, 0));
-      locationPanel.add(latEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
-          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
-      locationPanel.add(lonEditor, new GridBagConstraints(0, 2, 0, 1, 1.0, 1.0
-          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
+                                               GridBagConstraints.WEST,
+                                               new Insets(1, -5, 1, 40), 0, 0));
+
     }
     catch (Exception e) {
       e.printStackTrace();
     }
-
-
-
 
     StringParameter zipParam = null;
     if (isZipCodeSupported) {
@@ -175,16 +219,24 @@ public class LocationGuiBean
       parameterList.addParameter(zipParam);
       try{
         zipCodeEditor = new StringParameterEditor(zipParam);
-        locationPanel.add(zipCodeEditor, new GridBagConstraints(0, 1, 0, 1, 1.0, 1.0
-          , GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-          new Insets(2, 2, 2, 2), 0, 0));
+        locationPanel.add(zipCodeEditor, new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+          , GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+          new Insets(1, 1, 1, 1), 0, 0));
       }catch(Exception e){
         e.printStackTrace();
       }
     }
+    buttonGroup.setSelected(latLonButton.getModel(), true);
+    latLonSelected = true;
+    this.add(locationPanel,
+             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(2, 2, 2, 2), 0, 0));
+
     locationPanel.setMinimumSize(new Dimension(0,0));
     setVisibleParameters();
-    locationPanel.updateUI();
+    this.updateUI();
   }
 
   /**
@@ -192,16 +244,10 @@ public class LocationGuiBean
    * Zip code is supported by selected geographic region for the selected data edition.
    */
   private void createLocationModeParam(boolean showZipCodeOption) {
-    ArrayList locationModeChoices = new ArrayList();
-    locationModeChoices.add(LAT_LON);
-    if (showZipCodeOption) {
-      locationModeChoices.add(ZIP_CODE);
-    }
-
-    locationSelectionModeParam = new StringParameter(
-        LOCATION_SELECTION_MODE_PARAM_NAME,
-        locationModeChoices, (String) locationModeChoices.get(0));
-    locationSelectionModeParam.addParameterChangeListener(this);
+    if (showZipCodeOption)
+      zipCodeButton.setEnabled(true);
+    else
+      zipCodeButton.setEnabled(false);
   }
 
   /**
@@ -211,10 +257,7 @@ public class LocationGuiBean
   public void parameterChange(ParameterChangeEvent event) {
     String paramName = event.getParameterName();
 
-    if (paramName.equals(LOCATION_SELECTION_MODE_PARAM_NAME)) {
-      setVisibleParameters();
-    }
-    else if (paramName.equals(ZIP_CODE_PARAM_NAME)) {
+    if (paramName.equals(ZIP_CODE_PARAM_NAME)) {
       try {
         String zip = (String) parameterList.getParameter(ZIP_CODE_PARAM_NAME).
             getValue();
@@ -252,7 +295,7 @@ public class LocationGuiBean
     String name = param.getName();
 
     //if Lat and Lon parameter constraints are violated
-    if (!name.equals(ZIP_CODE)) {
+    if (!name.equals(ZIP_CODE_PARAM_NAME)) {
       ParameterConstraintAPI constraint = param.getConstraint();
       b.append("The value ");
       b.append(badValueStr);
@@ -280,21 +323,15 @@ public class LocationGuiBean
    * Makes the parameter visible based on the choice of location selection made by the user
    */
   private void setVisibleParameters() {
-    String locationMode = (String) locationSelectionModeParam.getValue();
 
-    if (locationMode.equals(ZIP_CODE)) {
-      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
-        zipCodeEditor.setVisible(true);
 
-      lonEditor.setVisible(false);
-      latEditor.setVisible(false);
-    }
-    else {
-      if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
-        zipCodeEditor.setVisible(false);
-      lonEditor.setVisible(true);
-      latEditor.setVisible(true);
-    }
+    if (parameterList.containsParameter(ZIP_CODE_PARAM_NAME))
+      zipCodeEditor.setVisible(!latLonSelected);
+
+    lonEditor.setVisible(latLonSelected);
+    latEditor.setVisible(latLonSelected);
+    latConstraintsLabel.setVisible(latLonSelected);
+    lonConstraintsLabel.setVisible(latLonSelected);
   }
 
   private void jbInit() throws Exception {
@@ -303,11 +340,52 @@ public class LocationGuiBean
     locationBorder.setTitleColor(Color.RED);
     locationPanel.setLayout(gridBagLayout1);
     this.add(locationPanel,
-         new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                , GridBagConstraints.CENTER,
-                                GridBagConstraints.BOTH,
-                                new Insets(4, 4, 4, 4), 0, 0));
+             new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(4, 4, 4, 4), 0, 0));
+    noLocationPanel.setLayout(gridBagLayout1);
+    noLocationPanel.add(noLocationSupportedLabel,
+                        new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+                                               , GridBagConstraints.CENTER,
+                                               GridBagConstraints.BOTH,
+                                               new Insets(4, 80, 4, 80), 0, 0));
 
+    locationPanel.add(latLonButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.NORTH, GridBagConstraints.WEST,
+        new Insets(1, -20, 1, 50), 0, 0));
+    locationPanel.add(zipCodeButton,
+                      new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
+                                             , GridBagConstraints.NORTH, GridBagConstraints.WEST,
+                                             new Insets(1, -20, 1, 50), 0, 0));
+
+    latLonButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        latLonButton_actionPerformed(actionEvent);
+      }
+    });
+
+    zipCodeButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        zipCodeButton_actionPerformed(actionEvent);
+      }
+    });
+
+    buttonGroup.add(latLonButton);
+    buttonGroup.add(zipCodeButton);
+    buttonGroup.setSelected(latLonButton.getModel(), true);
+
+  }
+
+
+  private void latLonButton_actionPerformed(ActionEvent e){
+    latLonSelected = true;
+    this.setVisibleParameters();
+  }
+
+  private void zipCodeButton_actionPerformed(ActionEvent e){
+    latLonSelected = false;
+    this.setVisibleParameters();
   }
 
 }

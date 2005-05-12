@@ -46,8 +46,8 @@ public class ProbabilisticHazardApplication
   JMenuItem fileSaveMenu = new JMenuItem();
 
   // height and width of the applet
-  private final static int W = 1000;
-  private final static int H = 770;
+  private final static int W = 900;
+  private final static int H = 660;
   JPanel jPanel1 = new JPanel();
   JSplitPane mainSplitPane = new JSplitPane();
   JLabel analysisOptionLabel = new JLabel();
@@ -214,17 +214,17 @@ public class ProbabilisticHazardApplication
     dataScrollPane.getViewport().add(dataTextArea, null);
 
 
-    buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 2, 0.0, 0.0
-        , GridBagConstraints.SOUTH, GridBagConstraints.NONE,
-        new Insets(50, 80, 0, 80), 0, 0));
-    buttonPanel.add(viewMapsButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+    buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 2, 1.0, 1.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(2, 154, 0, 0), 0, 0));
+        new Insets(2, 60, 0, 60), 0, 0));
+    buttonPanel.add(viewMapsButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.NORTH, GridBagConstraints.EAST,
+        new Insets(4, 120, 0, 0), 0, 0));
     buttonPanel.add(clearDataButton,
-                    new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+                    new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
-                                           GridBagConstraints.NONE,
-                                           new Insets(2, 12, 0, 153), 0, 0));
+                                           GridBagConstraints.WEST,
+                                           new Insets(4, 12, 0, 120), 0, 0));
 
     jPanel1.add(analysisOptionLabel,
                 new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
@@ -247,8 +247,8 @@ public class ProbabilisticHazardApplication
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     setSize(W,H);
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
-    mainSplitPane.setDividerLocation(450);
-    dataSplitPane.setDividerLocation(500);
+    mainSplitPane.setDividerLocation(410);
+    dataSplitPane.setDividerLocation(414);
     buttonPanel.updateUI();
     viewMapsButton.setEnabled(false);
     contentPane.updateUI();
@@ -571,5 +571,4 @@ public class ProbabilisticHazardApplication
   void this_windowClosing(WindowEvent e) {
     closeWindow();
   }
-
 }

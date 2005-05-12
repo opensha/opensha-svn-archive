@@ -100,6 +100,8 @@ public class UHS_GuiBean
       //creating the datasetEditor to show the geographic region and edition dataset.
       datasetGui.createDataSetEditor();
       createLocation();
+      locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
+      locationSplitPane.setDividerLocation(155);
       jbInit();
 
     }
@@ -264,7 +266,7 @@ public class UHS_GuiBean
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(350);
+    mainSplitPane.setDividerLocation(300);
     buttonsSplitPane.setDividerLocation(120);
     setButtonsEnabled(false);
     createGroundMotionParameter();
@@ -335,25 +337,24 @@ public class UHS_GuiBean
    */
   protected void createLocation() {
     RectangularGeographicRegion region = getRegionConstraint();
-    Component comp = locationSplitPane.getBottomComponent();
-    if (comp != null) {
-      locationSplitPane.remove(locationSplitPane.getBottomComponent());
-    }
 
-    //checking if Zip code is supported by the selected choice
-    boolean zipCodeSupported = LocationUtil.
-        isZipCodeSupportedBySelectedEdition(selectedRegion);
-    locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
-                                 region.getMinLon(), region.getMaxLon(),
-                                 zipCodeSupported);
-    ParameterList paramList = locGuiBean.getLocationParameters();
-    ListIterator it = paramList.getParametersIterator();
-    while (it.hasNext()) {
-      ParameterAPI param = (ParameterAPI) it.next();
-      param.addParameterChangeListener(this);
+    if (region != null) {
+      //checking if Zip code is supported by the selected choice
+      boolean zipCodeSupported = LocationUtil.
+          isZipCodeSupportedBySelectedEdition(selectedRegion);
+      locGuiBean.createLocationGUI(region.getMinLat(), region.getMaxLat(),
+                                   region.getMinLon(), region.getMaxLon(),
+                                   zipCodeSupported);
+      ParameterList paramList = locGuiBean.getLocationParameters();
+      ListIterator it = paramList.getParametersIterator();
+      while (it.hasNext()) {
+        ParameterAPI param = (ParameterAPI) it.next();
+        param.addParameterChangeListener(this);
+      }
     }
-    locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
-    locationSplitPane.setDividerLocation(155);
+    else
+      locGuiBean.createNoLocationGUI();
+
   }
 
   /**
@@ -417,14 +418,13 @@ public class UHS_GuiBean
     dataGenerator.setRegion(selectedRegion);
     dataGenerator.setEdition(selectedEdition);
 
-    String locationMode = locGuiBean.getLocationMode();
-    if (locationMode.equals(locGuiBean.LAT_LON)) {
+    if (locGuiBean.getLocationMode()) {
       Location loc = locGuiBean.getSelectedLocation();
       double lat = loc.getLatitude();
       double lon = loc.getLongitude();
       dataGenerator.calculateUHS(lat, lon);
     }
-    else if (locationMode.equals(locGuiBean.ZIP_CODE)) {
+    else {
       String zipCode = locGuiBean.getZipCode();
       dataGenerator.calculateUHS(zipCode);
     }
