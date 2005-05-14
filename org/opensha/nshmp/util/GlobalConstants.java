@@ -86,11 +86,99 @@ public final class GlobalConstants {
   //public static final String ASCE_7 =
   //  "ASCE 7 standard , Minimum Design Loads for Building and other structures";
 
+
+
   public static final String ASCE_NFPA =
       "ASCE 7 and NFPA 5000 building construction and safety codes";
 
   public static final String FEMA_IEBC_2003 =
       "Fema(273 and 356) and Intl. existing building code";
+
+
+  public static final String PROB_HAZ_CURVES_INFO =
+      "Probabilistic Hazard Curves  - " +
+      "This option allows the user to obtain " +
+      "hazard curves for a number of acceleration " +
+      "parameters, such as peak ground acceleration " +
+      "or response spectral accleration.    " +
+      "Data sets include the following: 48 conterminous states " +
+      "- 1996 and 2002, Alaska - 1998, Hawaii - 1998, " +
+      "Puerto Rico and the Virgin Islands - 2003.";
+
+  public static final String PROB_UNIFORM_HAZ_RES_INFO =
+      "Probabilistic Uniform Hazard Response Spectra  - " +
+      "This option allows the user to obtain uniform hazard " +
+      "response spectra for 2% probabililty of " +
+      "exceedance in 50 years, 10% probability of " +
+      "exceedance in 50 years, and in a few cases " +
+      "for 5% probability of exceedance in 50 years.   " +
+      "Data sets include the following: 48 conterminous " +
+      "states - 1996 and 2002, Alaska - 1998, Hawaii - 1998, " +
+      "Puerto Rico and the Virgin Islands - 2003. ";
+  public static final String NEHRP_INFO =
+      "NEHRP Recommended Provisions for Seismic " +
+      "Regulations for New Buildings and Other " +
+      "Structures  - This option may be used for " +
+      "the 1997, 2000, and 2003 editions of the  " +
+      "NEHRP Recommended Provisions for Seismic " +
+      "Regulations for New Buildings and Other Structures.  " +
+      "The user may calculate seismic design parameters " +
+      "and response spectra (both for period and displacement), " +
+      "for Site Class A through E.";
+  public static final String INTL_BUILDING_CODE_INFO =
+      "International Building Code  - This " +
+      "option may be used for the 2000 and 2003 " +
+      "editions of the  International Building Code.  " +
+      "The user may calculate seismic design parameters " +
+      "and response spectra (both for period and displacement), " +
+      "for Site Class A through E.";
+  public static final String FEMA_IEBC_2003_INFO =
+      "FEMA 273, MCE Guidelines for the Seismic " +
+      "Rehabilitation of Buildings  - " +
+      "This option may be used for FEMA 273,  " +
+      "MCE Guidelines for the Seismic Rehabilitation of Buildings " +
+      "(1997).  The user may calculate seismic " +
+      "design parameters and response spectra " +
+      "(both for period and displacement), for " +
+      "Site Class A through E.\n" +
+      "FEMA 356, Prestandard and Commentary for " +
+      "the Seismic Rehabilitation of Buildings  - " +
+      "This option may be used for FEMA 356,  " +
+      "Prestandard and Commentary for the Seismic " +
+      "Rehabilitation of Buildings (2000).  The " +
+      "user may calculate seismic design parameters " +
+      "and response spectra (both for period and " +
+      "displacement), for Site Class A through E.\n" +
+      "International Existing Building Code  - " +
+      "This option may be used for the 1997, 2000, " +
+      "and 2003 editions of the  International Existing " +
+      "Building Code.  The user may calculate seismic " +
+      "design parameters and response spectra " +
+      "(both for period and displacement), " +
+      "for Site Class A through E.";
+
+  public static final String INTL_RESIDENTIAL_CODE_INFO =
+      "International Residential Code  - " +
+      "This option may be used for the 2000, " +
+      "2003, and 2004 editions of the  " +
+      "International Residential Code.  The " +
+      "user may determine the Seismic Design " +
+      "Categories for the default Site Class D.";
+  public static final String ASCE_NFPA_INFO = "NFPA 5000 Building Construction and Safety Code " +
+          "- This option may be used for the 2000 edition " +
+          "of the  NFPA 5000 Building Construction and " +
+          "Safety Code.  The user may calculate seismic " +
+          "design parameters and response spectra (both " +
+          "for period and displacement), for Site Class A through E.\n" +
+          "ASCE 7 Standard, Minimum Design Loads for " +
+          "Buildings and Other Structures  - This option " +
+          "may be used for the 1998 and 2002 editions " +
+          "of the ASCE 7 Standard,  Minimum Design Loads " +
+          "for Buildings and Other Structures.  " +
+          "The user may calculate seismic design " +
+          "parameters and response spectra (both for " +
+          "period and displacement), for Site Class A through E.";
+
 
   private static final String analysis_choices_info =
       "The User may perform an " +
@@ -354,4 +442,78 @@ public final class GlobalConstants {
     supportedAnalysisOption.add(ASCE_NFPA);
     return supportedAnalysisOption;
   }
+
+  /**
+   * Returns the selected Analysis option
+   * @param selectedAnalysisOption String : Selected Analysis Option
+   * @return String
+   */
+  public static String getExplainationForSelectedAnalysisOption(String
+      selectedAnalysisOption) {
+    if (selectedAnalysisOption.equals(PROB_HAZ_CURVES)) {
+      return PROB_HAZ_CURVES_INFO;
+    }
+    else if (selectedAnalysisOption.equals(PROB_UNIFORM_HAZ_RES)) {
+      return PROB_UNIFORM_HAZ_RES_INFO;
+    }
+    else if (selectedAnalysisOption.equals(NEHRP)) {
+      return NEHRP_INFO;
+    }
+    else if (selectedAnalysisOption.equals(FEMA_IEBC_2003)) {
+      return FEMA_IEBC_2003_INFO;
+    }
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
+     this.explainationText.setText("FEMA 356, Prestandard and Commentary for " +
+     "the Seismic Rehabilitation of Buildings  - " +
+                                    "This option may be used for FEMA 356,  " +
+     "Prestandard and Commentary for the Seismic " +
+     "Rehabilitation of Buildings (2000).  The " +
+     "user may calculate seismic design parameters " +
+     "and response spectra (both for period and " +
+     "displacement), for Site Class A through E.");
+         }*/
+    else if (selectedAnalysisOption.equals(INTL_BUILDING_CODE)) {
+      return INTL_BUILDING_CODE_INFO;
+    }
+    else if (selectedAnalysisOption.equals(INTL_RESIDENTIAL_CODE)) {
+      return INTL_RESIDENTIAL_CODE_INFO;
+    }
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
+     this.explainationText.setText("International Existing Building Code  - " +
+     "This option may be used for the 1997, 2000, " +
+     "and 2003 editions of the  International Existing " +
+     "Building Code.  The user may calculate seismic " +
+                                    "design parameters and response spectra " +
+                                    "(both for period and displacement), " +
+                                    "for Site Class A through E.");
+         }*/
+    else if (selectedAnalysisOption.equals(ASCE_NFPA)) {
+      return ASCE_NFPA_INFO;
+    }
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
+      this.explainationText.setText(
+          "ASCE 7 Standard, Minimum Design Loads for " +
+          "Buildings and Other Structures  - This option " +
+          "may be used for the 1998 and 2002 editions " +
+          "of the ASCE 7 Standard,  Minimum Design Loads " +
+          "for Buildings and Other Structures.  " +
+          "The user may calculate seismic design " +
+          "parameters and response spectra (both for " +
+          "period and displacement), for Site Class A through E.");
+         }*/
+    return null;
+  }
+
+  /**
+   * Returns the Explaination for all Anaysis option supported in our framework.
+   * @return String
+   */
+  public static String getAllExplainationsForAnalysisOption(){
+   return PROB_HAZ_CURVES_INFO+"\n\n"+PROB_UNIFORM_HAZ_RES_INFO+"\n\n"+
+       NEHRP_INFO+"\n\n"+FEMA_IEBC_2003_INFO+"\n\n"+INTL_BUILDING_CODE_INFO+"\n\n"+
+       INTL_RESIDENTIAL_CODE_INFO+"\n\n"+ASCE_NFPA_INFO;
+
+  }
+
 }
+

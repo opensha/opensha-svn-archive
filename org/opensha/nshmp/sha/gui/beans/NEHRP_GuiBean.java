@@ -41,7 +41,6 @@ public class NEHRP_GuiBean
   JPanel basicParamsPanel = new JPanel();
   JPanel responseSpectraButtonPanel = new JPanel();
   JButton ssButton = new JButton();
-  JButton siteCoeffButton = new JButton();
   JButton smSDButton = new JButton();
   Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
   TitledBorder responseSpecBorder = new TitledBorder(border9,
@@ -82,6 +81,8 @@ public class NEHRP_GuiBean
 
   protected String selectedRegion, selectedEdition, spectraType;
 
+  protected boolean siteCoeffWindowShow = false;
+
   public NEHRP_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
     try {
@@ -111,7 +112,7 @@ public class NEHRP_GuiBean
     }
 
     basicParamsPanel.add(groundMotionParamEditor,
-                         new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
+                         new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
                                                 , GridBagConstraints.NORTH,
                                                 GridBagConstraints.HORIZONTAL,
                                                 new Insets(4, 4, 4, 4), 0, 0));
@@ -158,12 +159,6 @@ public class NEHRP_GuiBean
       }
     });
 
-    siteCoeffButton.setText("Set site coeff");
-    siteCoeffButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        siteCoeffButton_actionPerformed(actionEvent);
-      }
-    });
 
     smSDButton.setText("Calc SM & SD");
     smSDButton.addActionListener(new ActionListener() {
@@ -198,7 +193,7 @@ public class NEHRP_GuiBean
     });
 
 
-    viewButton.setText("View Data");
+    viewButton.setText("View Spec.");
     viewButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewButton_actionPerformed(actionEvent);
@@ -234,19 +229,15 @@ public class NEHRP_GuiBean
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(ssButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        , GridBagConstraints.EAST, GridBagConstraints.NONE,
         new Insets(2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(smSDButton,
-                         new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.CENTER,
+                         new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.WEST,
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0,
                                                 0));
-    basicParamsPanel.add(siteCoeffButton,
-                         new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.NONE,
-                                                new Insets(2, 2, 2, 2), 0, 0));
+
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(290);
     buttonsSplitPane.setDividerLocation(120);
@@ -256,15 +247,15 @@ public class NEHRP_GuiBean
     setButtonsEnabled(false);
   }
 
-  protected void setButtonsEnabled(boolean disableButtons) {
-    siteCoeffButton.setEnabled(disableButtons);
-    smSDButton.setEnabled(disableButtons);
-    mapSpecButton.setEnabled(disableButtons);
-    smSpecButton.setEnabled(disableButtons);
-    sdSpecButton.setEnabled(disableButtons);
+  protected void setButtonsEnabled(boolean enableButtons) {
+    smSDButton.setEnabled(enableButtons);
+    mapSpecButton.setEnabled(enableButtons);
+    smSpecButton.setEnabled(enableButtons);
+    sdSpecButton.setEnabled(enableButtons);
     viewButton.setEnabled(false);
-    if (disableButtons == false) {
+    if (enableButtons == false) {
       mapSpectrumCalculated = smSpectrumCalculated = sdSpectrumCalculated = false;
+      siteCoeffWindowShow = false;
     }
   }
 
@@ -451,8 +442,7 @@ public class NEHRP_GuiBean
       return;
     }
     application.setDataInWindow(getData());
-    siteCoeffButton.setEnabled(true);
-    mapSpecButton.setEnabled(true);
+    setButtonsEnabled(true);
   }
 
   /**
@@ -463,21 +453,31 @@ public class NEHRP_GuiBean
     return dataGenerator.getDataInfo();
   }
 
-  protected void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    if (siteCoefficientWindow == null) {
-      siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
-          dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
+
+  /**
+   * This function pops up the site coefficient window and allows user to set
+   * Site coefficient for the calculation.
+   */
+  protected void setSiteCoeff(){
+    if(!siteCoeffWindowShow){
+      //pops up the window that allows the user to set the Site Coefficient
+      if (siteCoefficientWindow == null) {
+        siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.
+            getSs(),
+            dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
+      }
+      siteCoefficientWindow.show();
+
+      dataGenerator.setFa(siteCoefficientWindow.getFa());
+      dataGenerator.setFv(siteCoefficientWindow.getFv());
+      dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
+      siteCoeffWindowShow = true;
     }
-    siteCoefficientWindow.show();
-
-    dataGenerator.setFa(siteCoefficientWindow.getFa());
-    dataGenerator.setFv(siteCoefficientWindow.getFv());
-    dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-
-    setButtonsEnabled(true);
   }
 
+
   protected void smSDButton_actionPerformed(ActionEvent actionEvent) {
+    setSiteCoeff();
     try {
       dataGenerator.calculateSMSsS1();
       dataGenerator.calculatedSDSsS1();
@@ -514,6 +514,7 @@ public class NEHRP_GuiBean
   }
 
   protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
+    setSiteCoeff();
     try {
       dataGenerator.calculateSMSpectrum();
     }
@@ -534,6 +535,7 @@ public class NEHRP_GuiBean
   }
 
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
+    setSiteCoeff();
     try {
       dataGenerator.calculateSDSpectrum();
     }

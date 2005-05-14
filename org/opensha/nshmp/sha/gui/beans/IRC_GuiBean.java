@@ -158,7 +158,7 @@ public class IRC_GuiBean
                          new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.NORTH,
                                                 GridBagConstraints.NONE,
-                                                new Insets(4, 30, 4,110), 0, 0));
+                                                new Insets(4, 60, 4,90), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
     mainSplitPane.setDividerLocation(340);
     locationSplitPane.setDividerLocation(180);

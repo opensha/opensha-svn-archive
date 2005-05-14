@@ -51,7 +51,6 @@ public class UHS_GuiBean
       "Uniform Hazard Spectra (UHS)");
   TitledBorder regionBorder = new TitledBorder(border9,
                                                "Region and DataSet Selection");
-  JButton siteCoeffButton = new JButton();
   JButton smSpecButton = new JButton();
   JButton sdSpecButton = new JButton();
   JButton viewButton = new JButton();
@@ -80,6 +79,9 @@ public class UHS_GuiBean
       approxUHS_Calculated;
 
   protected String selectedRegion, selectedEdition, spectraType;
+
+  //checks if site coefficient has been set.
+  private boolean siteCoeffWindowShow = false;
 
   public UHS_GuiBean(ProbabilisticHazardApplicationAPI api) {
     application = api;
@@ -184,7 +186,7 @@ public class UHS_GuiBean
     });
 
 
-    viewUHSButton.setText("View  ");
+    viewUHSButton.setText("View UHS");
     viewUHSButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewUHSButton_actionPerformed(actionEvent);
@@ -193,12 +195,7 @@ public class UHS_GuiBean
     responseSpectraButtonPanel.setBorder(responseSpecBorder);
     responseSpecBorder.setTitleColor(Color.RED);
     responseSpectraButtonPanel.setLayout(gridBagLayout3);
-    siteCoeffButton.setText("Set site coeff.");
-    siteCoeffButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        siteCoeffButton_actionPerformed(actionEvent);
-      }
-    });
+
 
     smSpecButton.setText("Calc SM spec.");
     smSpecButton.addActionListener(new ActionListener() {
@@ -235,21 +232,18 @@ public class UHS_GuiBean
     buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
 
     responseSpectraButtonPanel.add(viewButton,
-                                   new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(10, 2, 20, 2), 0, 0));
-    responseSpectraButtonPanel.add(siteCoeffButton,
-                                   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets( 2, 2, 2, 2), 0, 0));
+        new Insets(2, 2, 2, 2), 0, 0));
+
     responseSpectraButtonPanel.add(smSpecButton,
-                                   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
 
     responseSpectraButtonPanel.add(sdSpecButton,
-                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                                   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
+        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
         new Insets( 2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(uhsButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
@@ -276,13 +270,14 @@ public class UHS_GuiBean
     this.updateUI();
   }
 
-  protected void setButtonsEnabled(boolean disableButtons) {
-    approxUHSButton.setEnabled(disableButtons);
-    viewUHSButton.setEnabled(disableButtons);
-    siteCoeffButton.setEnabled(disableButtons);
-    smSpecButton.setEnabled(disableButtons);
-    sdSpecButton.setEnabled(disableButtons);
-    viewButton.setEnabled(disableButtons);
+  protected void setButtonsEnabled(boolean enableButtons) {
+    approxUHSButton.setEnabled(enableButtons);
+    viewUHSButton.setEnabled(enableButtons);
+    smSpecButton.setEnabled(enableButtons);
+    sdSpecButton.setEnabled(enableButtons);
+    viewButton.setEnabled(enableButtons);
+    if(enableButtons == false)
+      siteCoeffWindowShow= false;
   }
 
   /**
@@ -456,9 +451,8 @@ public class UHS_GuiBean
     }
 
     application.setDataInWindow(getData());
-    approxUHSButton.setEnabled(true);
+    setButtonsEnabled(true);
     viewUHSButton.setEnabled(true);
-    siteCoeffButton.setEnabled(true);
     uhsCalculated = true;
   }
 
@@ -471,21 +465,25 @@ public class UHS_GuiBean
   }
 
   /**
-   *
-   * @param actionEvent ActionEvent
+   * This function pops up the site coefficient window and allows user to set
+   * Site coefficient for the calculation.
    */
-  protected void siteCoeffButton_actionPerformed(ActionEvent actionEvent) {
-    if (siteCoefficientWindow == null) {
-      siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
-          dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
-    }
-    siteCoefficientWindow.show();
+  protected void setSiteCoeff() {
 
-    dataGenerator.setFa(siteCoefficientWindow.getFa());
-    dataGenerator.setFv(siteCoefficientWindow.getFv());
-    dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-    smSpecButton.setEnabled(true);
-    sdSpecButton.setEnabled(true);
+    if(!siteCoeffWindowShow){
+      if (siteCoefficientWindow == null) {
+        siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
+            dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
+      }
+      siteCoefficientWindow.show();
+
+      dataGenerator.setFa(siteCoefficientWindow.getFa());
+      dataGenerator.setFv(siteCoefficientWindow.getFv());
+      dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
+      smSpecButton.setEnabled(true);
+      sdSpecButton.setEnabled(true);
+      siteCoeffWindowShow = true;
+    }
   }
 
   /**
@@ -513,6 +511,7 @@ public class UHS_GuiBean
   }
 
   protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
+    setSiteCoeff();
     try {
       dataGenerator.calculateSMSpectrum();
     }
@@ -533,6 +532,7 @@ public class UHS_GuiBean
   }
 
   protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
+    setSiteCoeff();
     try {
       dataGenerator.calculateSDSpectrum();
     }
@@ -551,14 +551,20 @@ public class UHS_GuiBean
     sdSpectrumCalculated = true;
   }
 
+  /**
+   *
+   */
   private void viewCurves() {
     ArrayList functions = dataGenerator.getFunctionsToPlotForSA(uhsCalculated,
         approxUHS_Calculated, sdSpectrumCalculated, smSpectrumCalculated);
     GraphWindow window = new GraphWindow(functions);
     window.show();
-
   }
 
+  /**
+   *
+   * @param actionEvent ActionEvent
+   */
   protected void viewButton_actionPerformed(ActionEvent actionEvent) {
     viewCurves();
   }

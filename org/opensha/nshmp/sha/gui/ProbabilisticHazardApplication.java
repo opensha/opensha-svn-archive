@@ -11,6 +11,7 @@ import org.opensha.util.*;
 import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.beans.*;
 import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.sha.gui.infoTools.AddProjectNameDateWindow;
 
 /**
  * <p>Title:ProbabilisticHazardApplication </p>
@@ -41,9 +42,12 @@ public class ProbabilisticHazardApplication
 
   JMenuBar applicationMenu = new JMenuBar();
   JMenu fileMenu = new JMenu();
+  JMenu helpMenu = new JMenu();
   JMenuItem fileExitMenu = new JMenuItem();
   JMenuItem filePrintMenu = new JMenuItem();
   JMenuItem fileSaveMenu = new JMenuItem();
+  JMenuItem fileAddProjNameMenu = new JMenuItem();
+  JMenuItem helpAnalysisOptionExplainationMenu = new JMenuItem();
 
   // height and width of the applet
   private final static int W = 900;
@@ -63,10 +67,13 @@ public class ProbabilisticHazardApplication
   JButton clearDataButton = new JButton();
   JButton viewMapsButton = new JButton();
   FlowLayout flowLayout1 = new FlowLayout();
-  private JButton ExplainButton = new JButton();
+  private JButton explainButton = new JButton();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   private JDialog frame;
   private JTextPane explainationText;
+  private JDialog analysisOptionExpFrame;
+  private JTextPane analysisText;
+  private JScrollPane analysisScrollPane;
 
   private JLabel imgLabel = new JLabel(GlobalConstants.USGS_LOGO_ICON);
 
@@ -85,12 +92,14 @@ public class ProbabilisticHazardApplication
   BorderLayout borderLayout4 = new BorderLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
+  private AddProjectNameDateWindow projectNameWindow;
+
   public ProbabilisticHazardApplication() {
     try {
       setDefaultCloseOperation(EXIT_ON_CLOSE);
       jbInit();
       setIconImage(GlobalConstants.USGS_LOGO_ICON.getImage());
-      setExplainationForSelectedAnalysisOption(previousSelectedAnalysisOption);
+      //setExplainationForSelectedAnalysisOption(previousSelectedAnalysisOption);
       createGuiBeanInstance();
     }
     catch (Exception exception) {
@@ -123,9 +132,13 @@ public class ProbabilisticHazardApplication
       }
     });
     fileMenu.setText("File");
+    helpMenu.setText("Help");
     fileExitMenu.setText("Exit");
     fileSaveMenu.setText("Save");
     filePrintMenu.setText("Print");
+    fileAddProjNameMenu.setText("Add Name & Date");
+    helpAnalysisOptionExplainationMenu.setText("Analysis Option Explaination");
+
     fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fileExitMenu_actionPerformed(e);
@@ -137,10 +150,23 @@ public class ProbabilisticHazardApplication
       }
     });
 
+    fileAddProjNameMenu.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        fileAddProjNameMenu_actionPerformed(e);
+      }
+    });
+
+
     filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         filePrintMenu_actionPerformed(e);
       }
+    });
+
+    helpAnalysisOptionExplainationMenu.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            helpAnalysisOptionExplainationMenu_actionPerformed(e);
+          }
     });
 
     jPanel1.setLayout(gridBagLayout1);
@@ -179,9 +205,9 @@ public class ProbabilisticHazardApplication
     clearDataButton.setText("Clear Data");
     viewMapsButton.setText("View Maps");
 
-    ExplainButton.addActionListener(new ActionListener() {
+    explainButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
-        ExplainButton_actionPerformed(actionEvent);
+        explainButton_actionPerformed(actionEvent);
       }
     });
     clearDataButton.addActionListener(new ActionListener() {
@@ -197,9 +223,12 @@ public class ProbabilisticHazardApplication
     });
 
     applicationMenu.add(fileMenu);
+    applicationMenu.add(helpMenu);
     fileMenu.add(fileSaveMenu);
+    fileMenu.add(fileAddProjNameMenu);
     fileMenu.add(filePrintMenu);
     fileMenu.add(fileExitMenu);
+    helpMenu.add(helpAnalysisOptionExplainationMenu);
     mainSplitPane.add(dataSplitPane, JSplitPane.RIGHT);
     parametersScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     parametersScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -207,13 +236,11 @@ public class ProbabilisticHazardApplication
     dataSplitPane.add(dataScrollPane, JSplitPane.TOP);
     dataSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
     contentPane.add(jPanel1, java.awt.BorderLayout.CENTER);
-    ExplainButton.setText("Explain");
-    explainationText = new JTextPane();
-    explainationText.setEditable(false);
+
     buttonPanel.setMinimumSize(new Dimension(0,0));
     dataScrollPane.getViewport().add(dataTextArea, null);
 
-
+    explainButton.setText("Explain");
     buttonPanel.add(imgLabel, new GridBagConstraints(0, 1, 2, 2, 1.0, 1.0
         , GridBagConstraints.NORTH, GridBagConstraints.NONE,
         new Insets(2, 60, 0, 60), 0, 0));
@@ -236,7 +263,7 @@ public class ProbabilisticHazardApplication
                                        , GridBagConstraints.CENTER,
                                        GridBagConstraints.HORIZONTAL,
                                        new Insets(9, 0, 0, 0), 0, 0));
-    jPanel1.add(ExplainButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
+    jPanel1.add(explainButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.EAST, GridBagConstraints.NONE,
         new Insets(6, 4, 2, 60), 0, 0));
     jPanel1.add(mainSplitPane, new GridBagConstraints(0, 1, 3, 1, 1.0, 1.0
@@ -287,6 +314,59 @@ public class ProbabilisticHazardApplication
   }
 
   /**
+   * File | Add Name and Date to the Data action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  void fileAddProjNameMenu_actionPerformed(ActionEvent actionEvent) {
+    if(projectNameWindow ==null){
+      projectNameWindow = new AddProjectNameDateWindow();
+    }
+    projectNameWindow.show();
+  }
+
+  /**
+   * Help | Explaination to all the Analysis Options
+   *
+   * @param actionEvent ActionEvent
+   */
+  void helpAnalysisOptionExplainationMenu_actionPerformed(ActionEvent
+      actionEvent) {
+
+    if(analysisOptionExpFrame == null){
+      //Panel Parent
+      Container parent = this;
+      /*
+       This loops over all the parent of this class until the parent is Frame(applet)
+            this is required for the passing in the JDialog to keep the focus on the adjustable params
+            frame
+       */
+      while (! (parent instanceof JFrame) && parent != null) {
+        parent = parent.getParent();
+      }
+
+      analysisOptionExpFrame = new JDialog( (JFrame) parent);
+      analysisOptionExpFrame.setModal(true);
+      analysisOptionExpFrame.setSize(500, 350);
+      analysisOptionExpFrame.getContentPane().setLayout(new GridBagLayout());
+      analysisText = new JTextPane();
+      analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
+      analysisText.setEditable(false);
+      analysisScrollPane = new JScrollPane();
+      analysisScrollPane.getViewport().add(analysisText, null);
+
+      analysisOptionExpFrame.getContentPane().add(analysisScrollPane,
+                                                  new GridBagConstraints(0, 0, 1, 1,
+          1.0, 1.0
+          , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+          new Insets(4, 4, 4, 4), 0, 0));
+      analysisOptionExpFrame.setLocation( (getSize().width - analysisOptionExpFrame.getWidth()) / 3,
+                                         (getSize().height - analysisOptionExpFrame.getHeight()) / 3);
+     analysisOptionExpFrame.setTitle("Analysis Options Explaination");
+    }
+    analysisOptionExpFrame.show();
+  }
+  /**
    * File | Print action performed.
    *
    * @param actionEvent ActionEvent
@@ -317,7 +397,6 @@ public class ProbabilisticHazardApplication
 
   private void analysisOptionSelectionCombo_itemStateChanged(ItemEvent
       itemEvent) {
-    showAnalysisOptionInWindow();
     analysisOptionHash.put(previousSelectedAnalysisOption, guiBeanAPI);
     String selectedAnalysisOption = (String) analysisOptionSelectionCombo.
         getSelectedItem();
@@ -367,32 +446,36 @@ public class ProbabilisticHazardApplication
     parametersScrollPane.updateUI();
   }
 
-  private void showAnalysisOptionInWindow() {
-    String frameTitle = (String) analysisOptionSelectionCombo.getSelectedItem();
-    if (frame != null) {
-      frame.setTitle(frameTitle);
-      setExplainationForSelectedAnalysisOption(frameTitle);
-    }
-
-  }
 
   /**
    * Sets the information from the Gui beans in Data window
    * @param dataInfo String
    */
   public void setDataInWindow(String dataInfo) {
-    dataTextArea.setText(dataInfo);
+    String data="";
+    if(projectNameWindow !=null){
+      String name = projectNameWindow.getProjectName();
+      String date = projectNameWindow.getDate();
+      if(name !=null && !name.trim().equals(""))
+        data +="Project Name = "+name+"\n";
+      if(date !=null)
+        data +="Date = "+date +"\n\n";
+    }
+    dataTextArea.setText(data+dataInfo);
   }
 
   /**
    *
    * @param actionEvent ActionEvent
    */
-  private void ExplainButton_actionPerformed(ActionEvent actionEvent) {
-    if (frame == null) {
+  private void explainButton_actionPerformed(ActionEvent actionEvent) {
+    String analysisOption = (String) analysisOptionSelectionCombo.getSelectedItem();
+    setExplainationForSelectedAnalysisOption(analysisOption);
+    //if frame is null the create the frame
+    if (frame == null)
       showSelectedAnalysisExplaination();
-    }
 
+    frame.setTitle(analysisOption);
     frame.show();
   }
 
@@ -427,145 +510,33 @@ public class ProbabilisticHazardApplication
     while (! (parent instanceof JFrame) && parent != null) {
       parent = parent.getParent();
     }
+
     frame = new JDialog( (JFrame) parent);
     frame.setModal(true);
     frame.setSize(400, 200);
     frame.getContentPane().setLayout(new GridBagLayout());
+
     frame.getContentPane().add(explainationText,
                                new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
-    frame.setLocation((getSize().width - frame.getWidth())/2 , (getSize().height - frame.getHeight())/ 2);
+    frame.setLocation((getSize().width - frame.getWidth())/3 , (getSize().height - frame.getHeight())/ 3);
   }
 
   /**
    *
-   * @param frameTitle String
+   * @param selectedAnalysisOption String : Selected Analysis option
    */
   private void setExplainationForSelectedAnalysisOption(String
       selectedAnalysisOption) {
-    if (selectedAnalysisOption.equals(GlobalConstants.PROB_HAZ_CURVES)) {
-      this.explainationText.setText("Probabilistic Hazard Curves  - " +
-                                    "This option allows the user to obtain " +
-                                    "hazard curves for a number of acceleration " +
-                                    "parameters, such as peak ground acceleration " +
-                                    "or response spectral accleration.    " +
-                                    "Data sets include the following: 48 conterminous states " +
-                                    "- 1996 and 2002, Alaska - 1998, Hawaii - 1998, " +
-                                    "Puerto Rico and the Virgin Islands - 2003.");
+
+    if(explainationText == null){
+      explainationText = new JTextPane();
+      explainationText.setEditable(false);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.PROB_UNIFORM_HAZ_RES)) {
-      this.explainationText.setText(
-          "Probabilistic Uniform Hazard Response Spectra  - " +
-          "This option allows the user to obtain uniform hazard " +
-          "response spectra for 2% probabililty of " +
-          "exceedance in 50 years, 10% probability of " +
-          "exceedance in 50 years, and in a few cases " +
-          "for 5% probability of exceedance in 50 years.   " +
-          "Data sets include the following: 48 conterminous " +
-          "states - 1996 and 2002, Alaska - 1998, Hawaii - 1998, " +
-          "Puerto Rico and the Virgin Islands - 2003. ");
-    }
-    else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
-      this.explainationText.setText("NEHRP Recommended Provisions for Seismic " +
-                                    "Regulations for New Buildings and Other " +
-                                    "Structures  - This option may be used for " +
-                                    "the 1997, 2000, and 2003 editions of the  " +
-                                    "NEHRP Recommended Provisions for Seismic " +
-                                    "Regulations for New Buildings and Other Structures.  " +
-                                    "The user may calculate seismic design parameters " +
-                                    "and response spectra (both for period and displacement), " +
-                                    "for Site Class A through E.");
-    }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
-      this.explainationText.setText("FEMA 273, MCE Guidelines for the Seismic " +
-                                    "Rehabilitation of Buildings  - " +
-                                    "This option may be used for FEMA 273,  " +
-                                    "MCE Guidelines for the Seismic Rehabilitation of Buildings " +
-                                    "(1997).  The user may calculate seismic " +
-                                    "design parameters and response spectra " +
-                                    "(both for period and displacement), for " +
-                                    "Site Class A through E.\n" +
-                                    "FEMA 356, Prestandard and Commentary for " +
-                                    "the Seismic Rehabilitation of Buildings  - " +
-                                    "This option may be used for FEMA 356,  " +
-                                    "Prestandard and Commentary for the Seismic " +
-                                    "Rehabilitation of Buildings (2000).  The " +
-                                    "user may calculate seismic design parameters " +
-                                    "and response spectra (both for period and " +
-                                    "displacement), for Site Class A through E.\n" +
-                                    "International Existing Building Code  - " +
-                                    "This option may be used for the 1997, 2000, " +
-                                    "and 2003 editions of the  International Existing " +
-                                    "Building Code.  The user may calculate seismic " +
-                                    "design parameters and response spectra " +
-                                    "(both for period and displacement), " +
-                                    "for Site Class A through E.");
-    }
-    /*else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
-     this.explainationText.setText("FEMA 356, Prestandard and Commentary for " +
-     "the Seismic Rehabilitation of Buildings  - " +
-                                    "This option may be used for FEMA 356,  " +
-     "Prestandard and Commentary for the Seismic " +
-     "Rehabilitation of Buildings (2000).  The " +
-     "user may calculate seismic design parameters " +
-     "and response spectra (both for period and " +
-     "displacement), for Site Class A through E.");
-         }*/
-    else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
-      this.explainationText.setText("International Building Code  - This " +
-                                    "option may be used for the 2000 and 2003 " +
-                                    "editions of the  International Building Code.  " +
-                                    "The user may calculate seismic design parameters " +
-                                    "and response spectra (both for period and displacement), " +
-                                    "for Site Class A through E.");
-    }
-    else if (selectedAnalysisOption.equals(GlobalConstants.
-                                           INTL_RESIDENTIAL_CODE)) {
-      this.explainationText.setText("International Residential Code  - " +
-                                    "This option may be used for the 2000, " +
-                                    "2003, and 2004 editions of the  " +
-                                    "International Residential Code.  The " +
-                                    "user may determine the Seismic Design " +
-                                    "Categories for the default Site Class D.");
-    }
-    /*else if (selectedAnalysisOption.equals(GlobalConstants.INTL_EXIST_CODE)) {
-     this.explainationText.setText("International Existing Building Code  - " +
-     "This option may be used for the 1997, 2000, " +
-     "and 2003 editions of the  International Existing " +
-     "Building Code.  The user may calculate seismic " +
-                                    "design parameters and response spectra " +
-                                    "(both for period and displacement), " +
-                                    "for Site Class A through E.");
-         }*/
-    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
-      this.explainationText.setText(
-          "NFPA 5000 Building Construction and Safety Code " +
-          "- This option may be used for the 2000 edition " +
-          "of the  NFPA 5000 Building Construction and " +
-          "Safety Code.  The user may calculate seismic " +
-          "design parameters and response spectra (both " +
-          "for period and displacement), for Site Class A through E.\n" +
-          "ASCE 7 Standard, Minimum Design Loads for " +
-          "Buildings and Other Structures  - This option " +
-          "may be used for the 1998 and 2002 editions " +
-          "of the ASCE 7 Standard,  Minimum Design Loads " +
-          "for Buildings and Other Structures.  " +
-          "The user may calculate seismic design " +
-          "parameters and response spectra (both for " +
-          "period and displacement), for Site Class A through E.");
-    }
-    /*else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
-      this.explainationText.setText(
-          "ASCE 7 Standard, Minimum Design Loads for " +
-          "Buildings and Other Structures  - This option " +
-          "may be used for the 1998 and 2002 editions " +
-          "of the ASCE 7 Standard,  Minimum Design Loads " +
-          "for Buildings and Other Structures.  " +
-          "The user may calculate seismic design " +
-          "parameters and response spectra (both for " +
-          "period and displacement), for Site Class A through E.");
-         }*/
+    explainationText.setText(GlobalConstants.
+                             getExplainationForSelectedAnalysisOption(
+        selectedAnalysisOption));
   }
 
   void this_windowClosing(WindowEvent e) {
