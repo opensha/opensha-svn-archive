@@ -17,4 +17,5 @@ public interface ProbabilisticHazardApplicationAPI {
    * @param dataInfo String
    */
   public void setDataInWindow(String dataInfo);
+
 }

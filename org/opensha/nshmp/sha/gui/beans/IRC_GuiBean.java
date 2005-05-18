@@ -172,6 +172,24 @@ public class IRC_GuiBean
 
   }
 
+
+  /**
+   * Returns the selected Region
+   * @return String
+   */
+  public String getSelectedRegion(){
+    return selectedRegion;
+  }
+
+  /**
+   * Returns the selected data edition
+   * @return String
+   */
+  public String getSelectedDataEdition(){
+    return selectedEdition;
+  }
+
+
   /**
    * If GuiBean parameter is changed.
    * @param event ParameterChangeEvent

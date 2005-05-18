@@ -4,6 +4,9 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * <p>Title: NSHMP_MapViewFrame</p>
@@ -61,34 +64,56 @@ public class NSHMP_MapViewFrame
     mapButtonsSplitPane.add(mapListPanel, JSplitPane.TOP);
     buttonPanel.add(viewMapButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(12, 250, 20, 254), 23, 0));
+        new Insets(4, 4, 4, 4), 0, 0));
     mapListPanel.add(dataScrollPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(2, 3, 6, 4), 607, 410));
+        new Insets(0, 0, 0,0), 0, 0));
     dataScrollPane.getViewport().add(mapList, null);
     this.getContentPane().add(mapButtonsSplitPane, java.awt.BorderLayout.CENTER);
-    mapButtonsSplitPane.setDividerLocation(420);
+    mapButtonsSplitPane.setDividerLocation(400);
+    buttonPanel.setMinimumSize(new Dimension(4,4));
+    mapListPanel.setMinimumSize(new Dimension(4,4));
     viewMapButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewMapButton_actionPerformed(actionEvent);
       }
     });
 
+    MouseListener mouseListener = new MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          viewMaps();
+        }
+      }
+    };
+    mapList.addMouseListener(mouseListener);
+    mapList.setForeground(Color.BLUE);
+    mapList.setFont(new Font("Arial",Font.BOLD,14));
     this.setTitle("PGA and SA Maps");
+    this.setLocation( 150,40);
+    this.setSize(600,500);
   }
 
+  /**
+   * This function displays the list of the maps that user can view
+   */
+  private void viewMaps(){
+    int selectedIndex = mapList.getSelectedIndex();
+    String fileToRead = mapFiles[selectedIndex];
+    try {
+      org.opensha.util.BrowserLauncher.openURL(fileToRead);
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
 
   /*
    *
    * @param actionEvent ActionEvent
    */
   private void viewMapButton_actionPerformed(ActionEvent actionEvent) {
-
-    int selectedIndex = mapList.getSelectedIndex();
-    String fileToRead = mapFiles[selectedIndex];
-    try{
-       org.opensha.util.BrowserLauncher.openURL(fileToRead);
-      }catch(Exception ex) { ex.printStackTrace(); }
+    viewMaps();
   }
 
   /*
@@ -96,13 +121,11 @@ public class NSHMP_MapViewFrame
    * @param availableMapsList String[]
    * @param mapFiles String[]
    */
-  private void createListofAvailableMaps(String[] availableMapsList,
+  public void createListofAvailableMaps(String[] availableMapsList,
                                          String[] mapFiles
       ) {
     this.mapFiles = mapFiles;
     mapList.setListData(availableMapsList);
-    mapList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-    mapList.setSelectedIndex(0);
   }
 }
 

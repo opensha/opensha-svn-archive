@@ -13,6 +13,7 @@ import org.opensha.nshmp.sha.gui.beans.*;
 import org.opensha.nshmp.util.*;
 import org.opensha.nshmp.sha.gui.infoTools.AddProjectNameDateWindow;
 
+
 /**
  * <p>Title:ProbabilisticHazardApplication </p>
  *
@@ -93,6 +94,9 @@ public class ProbabilisticHazardApplication
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
   private AddProjectNameDateWindow projectNameWindow;
+
+  //Map Viewing Capability
+  private NSHMP_MapViewFrame mapViewFrame;
 
   public ProbabilisticHazardApplication() {
     try {
@@ -277,7 +281,6 @@ public class ProbabilisticHazardApplication
     mainSplitPane.setDividerLocation(410);
     dataSplitPane.setDividerLocation(414);
     buttonPanel.updateUI();
-    viewMapsButton.setEnabled(false);
     contentPane.updateUI();
   }
 
@@ -493,7 +496,24 @@ public class ProbabilisticHazardApplication
    * @param actionEvent ActionEvent
    */
   private void viewMapsButton_actionPerformed(ActionEvent actionEvent) {
-
+    String selectedRegion = guiBeanAPI.getSelectedRegion();
+    String selectedEdition = guiBeanAPI.getSelectedDataEdition();
+    MapUtil.createMapList(selectedRegion,selectedEdition);
+    String[] mapInfo = MapUtil.getSupportedMapInfo();
+    String[] mapDataFiles = MapUtil.getSupportedMapFiles();
+    if(mapDataFiles.length ==0){
+     JOptionPane.showMessageDialog(this,"No Maps available for for the selected choice.\n"+
+         "Please select some other region or edition to view the Maps.","Map Display Message",
+          JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    else{
+      if (mapViewFrame == null)
+        mapViewFrame = new NSHMP_MapViewFrame(mapInfo, mapDataFiles);
+      else
+        mapViewFrame.createListofAvailableMaps(mapInfo, mapDataFiles);
+      mapViewFrame.show();
+    }
   }
 
   /**

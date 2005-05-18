@@ -21,13 +21,14 @@ public final class MapUtil {
   //link to the directory where all the map files are located
   public static final String mapURL_Path = "http://gravity.usc.edu/USGS/NSHMP_mapfiles/";
 
+
   /**
    * This will create list of maps that user can view, based on Region and
    * data-edition selected by the user.
    * @param selectedRegion String
    * @param selectedDataEdition String
    */
-  public final static void createMapList(String selectedRegion,
+  public static void createMapList(String selectedRegion,
                                          String selectedDataEdition) {
 
     mapInfo = new ArrayList();

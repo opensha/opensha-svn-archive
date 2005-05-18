@@ -259,6 +259,25 @@ public class NEHRP_GuiBean
     }
   }
 
+
+
+  /**
+   * Returns the selected Region
+   * @return String
+   */
+  public String getSelectedRegion(){
+    return selectedRegion;
+  }
+
+  /**
+   * Returns the selected data edition
+   * @return String
+   */
+  public String getSelectedDataEdition(){
+    return selectedEdition;
+  }
+
+
   /**
    * Removes all the output from the window
    */

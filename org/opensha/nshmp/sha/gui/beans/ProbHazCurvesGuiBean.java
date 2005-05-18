@@ -420,6 +420,24 @@ public class ProbHazCurvesGuiBean
 
   }
 
+
+  /**
+   * Returns the selected Region
+   * @return String
+   */
+  public String getSelectedRegion(){
+    return selectedRegion;
+  }
+
+  /**
+   * Returns the selected data edition
+   * @return String
+   */
+  public String getSelectedDataEdition(){
+    return selectedEdition;
+  }
+
+
   /**
    * Creates the Parameter that allows user to select  the Editions based on the
    * selected Analysis and choosen geographic region.

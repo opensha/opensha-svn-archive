@@ -35,4 +35,17 @@ public interface AnalysisOptionsGuiBeanAPI {
    */
   public String getData();
 
+  /**
+   * Returns the selected Region
+   * @return String
+   */
+  public String getSelectedRegion();
+
+  /**
+   * Returns the selected data edition
+   * @return String
+   */
+  public String getSelectedDataEdition();
+
+
 }
