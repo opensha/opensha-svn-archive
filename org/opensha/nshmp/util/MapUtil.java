@@ -80,31 +80,31 @@ public final class MapUtil {
       mapInfo.add("MAP 130L (Calif.,Nevada, Western US)- Horizontal Spectral Response Acceleration for 1.0sec period(5% Damping) " +
                   "with 2% Prob. of Exceedance in 50 years.");
       //adding the actual map files name with their path
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131A-US-pga-10-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131B-US-pga-05-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131C-US-pga-02-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131D-US-0_2sec-10-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131E-US-0_2sec-05-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131F-US-0_2sec-02-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131G-US-0_3sec-10-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131H-US-0_3sec-05-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131I-US-0_3sec-02-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131J-US-1_0sec-10-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131K-US-1_0sec-05-050.pdf");
-      mapFiles.add(mapURL_Path+"USGS-1196-Map131L-US-1_0sec-02-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131A-US-pga-10-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131B-US-pga-05-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131C-US-pga-02-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131D-US-0_2sec-10-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131E-US-0_2sec-05-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131F-US-0_2sec-02-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131G-US-0_3sec-10-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131H-US-0_3sec-05-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131I-US-0_3sec-02-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131J-US-1_0sec-10-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131K-US-1_0sec-05-050.pdf");
+      mapFiles.add(mapURL_Path+"USGS-1996-Map131L-US-1_0sec-02-050.pdf");
 
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130A-WUS-pga-10-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130B-WUS-pga-05-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130C-WUS-pga-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130D-WUS-0_2sec-10-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130E-WUS-0_2sec-05-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130F-WUS-0_2sec-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130G-WUS-0_3sec-10-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130H-WUS-0_3sec-05-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130I-WUS-0_3sec-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130J-WUS-1_0sec-10-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130K-WUS-1_0sec-05-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1196-Map130L-WUS-1_0sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130A-WUS-pga-10-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130B-WUS-pga-05-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130C-WUS-pga-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130D-WUS-0_2sec-10-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130E-WUS-0_2sec-05-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130F-WUS-0_2sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130G-WUS-0_3sec-10-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130H-WUS-0_3sec-05-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130I-WUS-0_3sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130J-WUS-1_0sec-10-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130K-WUS-1_0sec-05-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1996-Map130L-WUS-1_0sec-02-050.pdf");
     }
     else if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) &&
              selectedDataEdition.equals(GlobalConstants.data_2002)) {
