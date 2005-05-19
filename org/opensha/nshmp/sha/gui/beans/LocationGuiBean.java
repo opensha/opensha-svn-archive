@@ -54,7 +54,7 @@ public class LocationGuiBean
   private JPanel locationPanel = new JPanel();
   private JPanel noLocationPanel = new JPanel();
 
-  private JRadioButton latLonButton = new JRadioButton("Lat-Lon(Recommended)");
+  private JRadioButton latLonButton = new JRadioButton("Lat-Lon (Recommended)");
   private JRadioButton zipCodeButton = new JRadioButton("Zip-Code");
 
   //Label to show the Lat and Lon Constraints

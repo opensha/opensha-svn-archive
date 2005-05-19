@@ -269,9 +269,17 @@ public class Abrahamson_2000_AttenRel
           GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
           Location siteLoc = site.getLocation();
           Location hypLoc = eqkRupture.getHypocenterLocation();
-          if(hypLoc == null)
-            throw new RuntimeException("The hypocenter has not been set for the earthquake rupture!");
+          if (hypLoc == null)
+            throw new RuntimeException(
+                "The hypocenter has not been set for the earthquake rupture!");
+
           int numTrPts = surface.getNumCols();
+
+          if (numTrPts == 1)
+            throw new RuntimeException(
+                "Abrahamson 2000 attenuation cannot compute directivity for " +
+                "point source.");
+
 
           // find the closest point on rupture trace
           double dist, closestDist = Double.MAX_VALUE;

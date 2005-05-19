@@ -3,8 +3,6 @@
 
 ScenarioShakeMap Application:
  
- When Abrahamson-2000 is selected, then in Eqk rupture select the Custom Eqk Rupture , then select the rupture type to be "point source rupture", set the hypocenter location, then click on the "Make Map". It will throw the exception saying that "setValue():Value is not allowed:NaN". 
-
 Create LocationParameter:
 
 	where we get/set a Loction object
