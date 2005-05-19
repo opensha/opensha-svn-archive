@@ -197,7 +197,7 @@ public class LocationGuiBean
 
       locationPanel.add(lonEditor, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
           , GridBagConstraints.NORTH, GridBagConstraints.WEST,
-          new Insets(1, -5, 1, 40), 0, 0));
+          new Insets(1, 10, 1, 20), 0, 0));
 
       lonConstraintsLabel = new JLabel("(" + minLon + "," + maxLon + ")");
       lonConstraintsLabel.setForeground(new Color(80,80,133));
@@ -205,7 +205,7 @@ public class LocationGuiBean
                         new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0
                                                , GridBagConstraints.NORTH,
                                                GridBagConstraints.WEST,
-                                               new Insets(1, -5, 1, 40), 0, 0));
+                                               new Insets(1, 10, 1, 20), 0, 0));
 
     }
     catch (Exception e) {
@@ -353,11 +353,11 @@ public class LocationGuiBean
 
     locationPanel.add(latLonButton, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.NORTH, GridBagConstraints.WEST,
-        new Insets(1, -20, 1, 50), 0, 0));
+        new Insets(1, -10, 1, 20), 0, 0));
     locationPanel.add(zipCodeButton,
                       new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
                                              , GridBagConstraints.NORTH, GridBagConstraints.WEST,
-                                             new Insets(1, -20, 1, 50), 0, 0));
+                                             new Insets(1, -10, 1, 25), 0, 0));
 
     latLonButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {

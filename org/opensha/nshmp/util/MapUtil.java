@@ -131,10 +131,10 @@ public final class MapUtil {
       mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-0_2sec-10-050.pdf");
       mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-0_3sec-10-050.pdf");
       mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-1_0sec-10-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-pga-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-0_2sec-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-0_3sec-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh1-AK-1_0sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh2-AK-pga-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh2-AK-0_2sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh2-AK-0_3sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2679I-sh2-AK-1_0sec-02-050.pdf");
 
     }
     else if(selectedRegion.equals(GlobalConstants.HAWAII) &&
@@ -159,10 +159,10 @@ public final class MapUtil {
       mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-0_2sec-10-050.pdf");
       mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-0_3sec-10-050.pdf");
       mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-1_0sec-10-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-pga-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-0_2sec-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-0_3sec-02-050.pdf");
-      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh1-HI-1_0sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh2-HI-pga-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh2-HI-0_2sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh2-HI-0_3sec-02-050.pdf");
+      mapFiles.add(mapURL_Path + "USGS-1998-Map2724I-sh2-HI-1_0sec-02-050.pdf");
 
     }
     else if(selectedDataEdition.equals(GlobalConstants.ASCE_1998) ||

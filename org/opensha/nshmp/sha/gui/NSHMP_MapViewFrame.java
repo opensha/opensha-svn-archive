@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import org.opensha.util.BrowserLauncher;
 
 /**
  * <p>Title: NSHMP_MapViewFrame</p>
