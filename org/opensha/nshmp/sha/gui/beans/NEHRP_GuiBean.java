@@ -19,6 +19,8 @@ import org.opensha.nshmp.sha.data.api.*;
 import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
+import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**
  * <p>Title:NEHRP_GuiBean</p>
@@ -100,7 +102,17 @@ public class NEHRP_GuiBean
       createEditionSelectionParameter();
       //creating the datasetEditor to show the geographic region and edition dataset.
       datasetGui.createDataSetEditor();
-      createLocation();
+      try {
+        createLocation();
+      }
+      catch (RegionConstraintException ex) {
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace().toString(),
+            "Exception occured while initializing the  region parameters in NSHMP application." +
+            "Parameters values have not been set yet.");
+        bugWindow.show();
+        bugWindow.pack();
+
+      }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
       locationSplitPane.setDividerLocation(160);
       createGroundMotionParameter();
@@ -296,7 +308,17 @@ public class NEHRP_GuiBean
 
     if (paramName.equals(datasetGui.GEOGRAPHIC_REGION_SELECTION_PARAM_NAME)) {
       selectedRegion = datasetGui.getSelectedGeographicRegion();
-      createLocation();
+      try {
+        createLocation();
+      }
+      catch (RegionConstraintException ex) {
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace().toString(),
+            "Exception occured while initializing the  region parameters in NSHMP application." +
+            "Parameters values have not been set yet.");
+        bugWindow.show();
+        bugWindow.pack();
+
+      }
       setButtonsEnabled(false);
     }
     else if (paramName.equals(datasetGui.EDITION_PARAM_NAME)) {
@@ -322,7 +344,7 @@ public class NEHRP_GuiBean
   /**
    * Creating the location gui bean
    */
-  protected void createLocation() {
+  protected void createLocation() throws RegionConstraintException {
     RectangularGeographicRegion region = getRegionConstraint();
 
     if (region != null) {
@@ -352,7 +374,8 @@ public class NEHRP_GuiBean
    *
    * @return RectangularGeographicRegion
    */
-  protected RectangularGeographicRegion getRegionConstraint() {
+  protected RectangularGeographicRegion getRegionConstraint() throws
+      RegionConstraintException {
 
     if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) ||
         selectedRegion.equals(GlobalConstants.ALASKA) ||

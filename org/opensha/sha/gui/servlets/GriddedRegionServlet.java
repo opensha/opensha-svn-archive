@@ -12,8 +12,7 @@ import org.opensha.sha.gui.beans.SitesInGriddedRectangularRegionGuiBean;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.param.ParameterAPI;
 import org.opensha.util.FileUtils;
-
-
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: GriddedRegionServlet </p>
@@ -38,6 +37,8 @@ public class GriddedRegionServlet extends HttpServlet {
     String regionFileName ="";
     regionFileName += System.currentTimeMillis()+".obj";
 
+    // get an ouput stream from the applet
+    ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
     try{
       //all the user gmt stuff will be stored in this directory
       File mainDir = new File(FILE_PATH+REGION_DATA_DIR);
@@ -62,16 +63,16 @@ public class GriddedRegionServlet extends HttpServlet {
       //writes the gridded region object to the file
       createGriddedRegionFile(griddedRegion,regionFileWithAbsolutePath);
 
-      // get an ouput stream from the applet
-      ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
+
 
       //name of the image file as the URL
       outputToApplet.writeObject(regionFileWithAbsolutePath);
       outputToApplet.close();
 
     } catch (Exception e) {
-      // report to the user whether the operation was successful or not
       e.printStackTrace();
+      outputToApplet.writeObject(e.getMessage());
+      outputToApplet.close();
     }
   }
 
@@ -92,7 +93,7 @@ public class GriddedRegionServlet extends HttpServlet {
    * @param siteParams : Site related parameters
    * return the GriddedRegion Object.
    */
-  private SitesInGriddedRectangularRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams){
+  private SitesInGriddedRectangularRegion setRegionFromParamList(ParameterList paramList,ArrayList siteParams) throws RegionConstraintException {
     double minLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MAX_LATITUDE).getValue()).doubleValue();
     double minLon = ((Double)paramList.getParameter(SitesInGriddedRectangularRegionGuiBean.MIN_LONGITUDE).getValue()).doubleValue();

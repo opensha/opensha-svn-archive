@@ -19,9 +19,11 @@ import org.opensha.nshmp.sha.data.api.*;
 import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
+import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**
- * <p>Title:NEHRP_GuiBean</p>
+ * <p>Title:ProbHazCurvesGuiBean</p>
  *
  * <p>Description: This option sets the parameter for the NEHRP analysis option.</p>
  * @author Ned Field, Nitin Gupta and E.V.Leyendecker
@@ -115,7 +117,17 @@ public class ProbHazCurvesGuiBean
     createEditionSelectionParameter();
     //creating the datasetEditor to show the geographic region and edition dataset.
     datasetGui.createDataSetEditor();
-    createLocation();
+    try {
+      createLocation();
+    }
+    catch (RegionConstraintException ex1) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex1.getStackTrace().toString(),
+          "Exception occured while initializing the  region parameters in NSHMP application." +
+          "Parameters values have not been set yet.");
+      bugWindow.show();
+      bugWindow.pack();
+
+    }
     locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
     locationSplitPane.setDividerLocation(120);
     regionPanel.add(datasetGui.getDatasetSelectionEditor(),
@@ -346,7 +358,16 @@ public class ProbHazCurvesGuiBean
       //creating the edition parameter when user changes the region
       createEditionSelectionParameter();
       selectedEdition = datasetGui.getSelectedDataSetEdition();
-      createLocation();
+      try {
+        createLocation();
+      }
+      catch (RegionConstraintException ex) {
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace().toString(),
+            "Exception occured while initializing the  region parameters in NSHMP application." +
+            "Parameters values have not been set yet.");
+        bugWindow.show();
+        bugWindow.pack();
+      }
       createIMT_PeriodsParameter();
       viewCurveButton.setEnabled(false);
       singleHazardCurveValButton.setEnabled(false);
@@ -392,7 +413,7 @@ public class ProbHazCurvesGuiBean
   /**
    * Creating the location gui bean
    */
-  private void createLocation() {
+  private void createLocation() throws RegionConstraintException {
     RectangularGeographicRegion region = RegionUtil.getRegionConstraint(
         selectedRegion);
     if (region != null) {

@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
+import org.opensha.exceptions.*;
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
@@ -117,7 +118,14 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
       System.exit(0);
     }
 
-    region = new SitesInGriddedRectangularRegion(minLat,maxLat,minLon,maxLon,gridSpacing);
+    try {
+      region = new SitesInGriddedRectangularRegion(minLat, maxLat, minLon,
+          maxLon, gridSpacing);
+    }
+    catch (RegionConstraintException ex) {
+      System.out.println(ex.getMessage());
+      System.exit(0);
+    }
   }
 
   private void setRupture(String str) {

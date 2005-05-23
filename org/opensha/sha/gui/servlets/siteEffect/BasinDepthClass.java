@@ -5,6 +5,7 @@ import java.io.*;
 
 import org.opensha.data.region.*;
 import org.opensha.data.*;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: BasinDepthClass</p>
@@ -33,7 +34,8 @@ public final class BasinDepthClass {
    * @param fileName : Name of the Basin Depth file
    */
   public BasinDepthClass(double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing,String fileName){
+                                      double maxLat, double gridSpacing,String fileName) throws
+      RegionConstraintException {
 
     prepareSitesInput(minLon,maxLon,minLat,maxLat,gridSpacing);
     basinDepthFile = fileName;
@@ -64,7 +66,8 @@ public final class BasinDepthClass {
    * @return
    */
   private void prepareSitesInput(double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing) {
+                                      double maxLat, double gridSpacing) throws
+      RegionConstraintException {
 
     locations = new ArrayList();
     EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);

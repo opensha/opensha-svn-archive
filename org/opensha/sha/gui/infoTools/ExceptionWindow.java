@@ -22,7 +22,7 @@ import org.opensha.util.MailUtil;
  * @version 1.0
  */
 
-public class ExceptionWindow extends JFrame {
+public class ExceptionWindow extends JDialog {
   private JPanel jPanel1 = new JPanel();
   private JLabel exceptionLabel = new JLabel();
   private JScrollPane exceptionScrollPane = new JScrollPane();
@@ -45,15 +45,22 @@ public class ExceptionWindow extends JFrame {
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   public ExceptionWindow(Component parent,String exceptionText,String selectedParametersInfo) {
+
     try {
+      //making the exception window be the most active window
+      setModal(true);
+      //user is forced to use the "button" operations.
+      setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
       // show the window at center of the parent component
       this.setLocation(parent.getX()+parent.getWidth()/2,
                        parent.getY()+parent.getHeight()/2);
       jbInit();
-      exceptionTextPane.setText(exceptionText+"\n\n");
-      exceptionTextPane.setText("Selected Parameters Info :\n");
-      exceptionTextPane.setText("--------------------------");
-      exceptionTextPane.setText(selectedParametersInfo);
+      String exceptionMessage = exceptionText+"\n\n"+
+          "Selected Parameters Info :\n"+
+          "--------------------------"+selectedParametersInfo;
+
+
+      exceptionTextPane.setText(exceptionMessage);
     }
     catch(Exception e) {
       e.printStackTrace();

@@ -73,7 +73,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
     try{
       erfGuiBean = new ERF_GuiBean(erf_Classes);
     }catch(InvocationTargetException e){
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(), "Problem occured "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(), "Problem occured "+
           "during initialization the ERF's. All parameters are set to default.");
       bugWindow.show();
       bugWindow.pack();
@@ -101,7 +101,8 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
         if(disaggCalc == null)
           disaggCalc = new DisaggregationCalculator();
     }catch(Exception e){
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),getParametersInfo());
       bugWindow.show();
       bugWindow.pack();
  //     e.printStackTrace();

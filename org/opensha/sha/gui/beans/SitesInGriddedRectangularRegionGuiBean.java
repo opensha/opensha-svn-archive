@@ -19,7 +19,8 @@ import org.opensha.data.Location;
 import org.opensha.data.region.*;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.util.SiteTranslator;
-import org.opensha.exceptions.ParameterException;
+
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title:SitesInGriddedRectangularRegionGuiBean </p>
@@ -97,7 +98,7 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
   /**
    * constuctor which builds up mapping between IMRs and their related sites
    */
-  public SitesInGriddedRectangularRegionGuiBean() throws ParameterException{
+  public SitesInGriddedRectangularRegionGuiBean() throws RegionConstraintException {
 
 
     //defaultVs30.setInfo(this.VS30_DEFAULT_INFO);
@@ -250,7 +251,8 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
    * So, we update the site object as well
    *
    */
-  private void updateGriddedSiteParams() throws ParameterException{
+  private void updateGriddedSiteParams() throws
+      RegionConstraintException {
 
     ArrayList v= new ArrayList();
     createAndUpdateSites();
@@ -319,13 +321,13 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
     * Max Lat is Less than Min Lonb then it throws an exception.
     * @return
     */
-   private void createAndUpdateSites() throws ParameterException{
+   private void createAndUpdateSites() throws RegionConstraintException {
 
      double minLatitude= ((Double)minLat.getValue()).doubleValue();
      double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
      double minLongitude=((Double)minLon.getValue()).doubleValue();
      double maxLongitude=((Double)maxLon.getValue()).doubleValue();
-     checkLatLonParamValues();
+     //checkLatLonParamValues();
      gridRectRegion= new SitesInGriddedRectangularRegion(minLatitude,
                                       maxLatitude,minLongitude,maxLongitude,
                                       ((Double)gridSpacing.getValue()).doubleValue());
@@ -336,7 +338,7 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
    *
    * @return the object for the SitesInGriddedRectangularRegion class
    */
-  public SitesInGriddedRectangularRegion getGriddedRegionSite() throws ParameterException,RuntimeException{
+  public SitesInGriddedRectangularRegion getGriddedRegionSite() throws RuntimeException, RegionConstraintException {
 
     updateGriddedSiteParams();
     if(((String)siteParam.getValue()).equals(SET_ALL_SITES))
@@ -467,7 +469,7 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
    * range and min values are not greater than max values, ie. checks
    * if the user has filled in the correct values.
    */
-  private void checkLatLonParamValues() throws ParameterException{
+  /*private void checkLatLonParamValues() throws ParameterException{
 
     double minLatitude= ((Double)minLat.getValue()).doubleValue();
     double maxLatitude= ((Double)maxLat.getValue()).doubleValue();
@@ -482,7 +484,7 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
       throw new ParameterException("Max Lon. must be greater than Min Lon");
     }
 
-  }
+  }*/
 
 
 
@@ -491,10 +493,10 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
    * returns the path to the file where that gridded object is stored.
    * @return
    */
-  public String openConnectionToServer() throws ParameterException, RuntimeException{
+  public String openConnectionToServer() throws RegionConstraintException, RuntimeException{
 
     //checks the values of the Lat and Lon to see if user has filled in the values correctly.
-    checkLatLonParamValues();
+    //checkLatLonParamValues();
 
     try{
 
@@ -534,11 +536,18 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
           ObjectInputStream(servletConnection.getInputStream());
 
       //absolute path of the file where we have stored the file for the region object
-      String regionFilePath =(String)inputToServlet.readObject();
+      Object regionFilePath =(Object)inputToServlet.readObject();
       //if(D) System.out.println("Receiving the Input from the Servlet:"+webaddr);
       inputToServlet.close();
-      return regionFilePath;
-    }catch (Exception e) {
+
+      if(regionFilePath instanceof RegionConstraintException)
+        throw (RegionConstraintException)regionFilePath;
+      else  return (String)regionFilePath;
+    }
+    catch(RegionConstraintException e){
+      throw new RegionConstraintException(e.getMessage());
+    }
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }

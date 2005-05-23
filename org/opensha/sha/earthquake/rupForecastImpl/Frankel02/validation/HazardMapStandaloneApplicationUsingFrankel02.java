@@ -19,6 +19,7 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.calc.HazardMapCalculator;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: HazardMapStandaloneApplicationUsingFrankel02</p>
@@ -67,20 +68,22 @@ public class HazardMapStandaloneApplicationUsingFrankel02
 
 
   //Construct the application
-  public HazardMapStandaloneApplicationUsingFrankel02() {
+  public HazardMapStandaloneApplicationUsingFrankel02() throws
+      RegionConstraintException {
     init();
     run();
   }
 
   //Initialize the application
-  public void init() {
+  public void init() throws RegionConstraintException {
     try{
       initIMRGuiBean();
     }catch(RuntimeException e){
       e.printStackTrace();
       return;
     }
-    this.initGriddedRegionGuiBean();
+
+      this.initGriddedRegionGuiBean();
     this.initIMTGuiBean();
     try{
         this.initERFSelector_GuiBean();
@@ -97,8 +100,11 @@ public class HazardMapStandaloneApplicationUsingFrankel02
   public static void main(String[] args) {
     try{
       HazardMapStandaloneApplicationUsingFrankel02 app = new HazardMapStandaloneApplicationUsingFrankel02();
-    }catch(Exception e){
+    }
+    catch(Exception e){
+      System.out.println(e.getMessage());
       e.printStackTrace();
+      System.exit(0);
     }
   }
 
@@ -109,7 +115,7 @@ public class HazardMapStandaloneApplicationUsingFrankel02
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean(){
+  private void initGriddedRegionGuiBean() throws RegionConstraintException {
 
     //make the Gridded Region object
     griddedRegionSites = new SitesInGriddedRectangularRegion(MIN_LAT, MAX_LAT, MIN_LON,

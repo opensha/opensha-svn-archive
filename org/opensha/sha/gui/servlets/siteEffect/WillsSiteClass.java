@@ -5,6 +5,7 @@ import java.io.*;
 
 import org.opensha.data.region.*;
 import org.opensha.data.*;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: WillsSiteClass</p>
@@ -33,7 +34,8 @@ public final class WillsSiteClass {
    * @param fileName : Name of the Wills Site Class file
    */
   public WillsSiteClass(double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing,String fileName){
+                                      double maxLat, double gridSpacing,String fileName) throws
+      RegionConstraintException {
 
     prepareSitesInput(minLon,maxLon,minLat,maxLat,gridSpacing);
     willsSiteClassFile = fileName;
@@ -65,7 +67,8 @@ public final class WillsSiteClass {
    * @return
    */
   private void prepareSitesInput(double minLon, double maxLon, double minLat,
-                                      double maxLat, double gridSpacing) {
+                                      double maxLat, double gridSpacing) throws
+      RegionConstraintException {
 
     locations = new ArrayList();
     EvenlyGriddedRectangularGeographicRegion region = new EvenlyGriddedRectangularGeographicRegion(minLat,maxLat,minLon,maxLon,gridSpacing);

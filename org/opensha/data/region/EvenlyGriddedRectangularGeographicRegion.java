@@ -5,6 +5,7 @@ import java.text.DecimalFormat;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: EvenlyGriddedRectangularGrographicRegion</p>
@@ -39,7 +40,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @param maxLon
    */
   public EvenlyGriddedRectangularGeographicRegion(double minLat,double maxLat,
-      double minLon,double maxLon, double gridSpacing) {
+      double minLon,double maxLon, double gridSpacing) throws
+      RegionConstraintException {
     super(minLat,maxLat,minLon,maxLon);
     this.gridSpacing=gridSpacing;
 
@@ -170,7 +172,13 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
   public static void main(String[] args) {
 
-    EvenlyGriddedRectangularGeographicRegion geoReg = new EvenlyGriddedRectangularGeographicRegion(33.,33.9,120.,121.9,.05);
+    EvenlyGriddedRectangularGeographicRegion geoReg = null;
+    try {
+      geoReg = new EvenlyGriddedRectangularGeographicRegion(33., 33.9, 120.,
+          121.9, .05);
+    }
+    catch (RegionConstraintException ex) {
+    }
 
     System.out.println(C+": numLocations="+ geoReg.getNumRegionOutlineLocations());
 

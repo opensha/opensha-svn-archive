@@ -29,7 +29,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.util.ImageUtils;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: HazardDataSetCalcCondorApp</p>
@@ -175,7 +175,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
       jbInit();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"Exception occured while initializing the application"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),"Exception occured while initializing the application"+
           "Parameters values have not been set yet.");
       bugWindow.show();
       bugWindow.pack();
@@ -187,7 +187,17 @@ public class HazardDataSetCalcCondorApp extends JApplet
       JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
       return;
     }
-    this.initGriddedRegionGuiBean();
+    try {
+      this.initGriddedRegionGuiBean();
+    }
+    catch (RegionConstraintException ex) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace().toString(),
+          "Exception occured while initializing the  region parameters in Hazard Dataset Calc App"+
+          "Parameters values have not been set yet.");
+      bugWindow.show();
+      bugWindow.pack();
+
+    }
     this.initIMTGuiBean();
     try{
         this.initERFSelector_GuiBean();
@@ -307,7 +317,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean(){
+  private void initGriddedRegionGuiBean() throws RegionConstraintException {
     // get the selected IMR
      attenRel = (AttenuationRelationship)imrGuiBean.getSelectedIMR_Instance();
      // create the Site Gui Bean object
@@ -653,7 +663,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      return obj;
 
    }catch (Exception e) {
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),getParametersInfo());
      bugWindow.show();
      bugWindow.pack();
 
@@ -724,7 +734,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      fromServlet.close();
 
    }catch (Exception e) {
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getParametersInfo());
+     ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),getParametersInfo());
      bugWindow.show();
      bugWindow.pack();
    }

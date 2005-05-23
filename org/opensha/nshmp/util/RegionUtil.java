@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.opensha.data.region.*;
 import org.opensha.nshmp.exceptions.*;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: RegionUtil</p>
@@ -70,7 +71,7 @@ public final class RegionUtil {
    * @return RectangularGeographicRegion
    */
   public static RectangularGeographicRegion getRegionConstraint(String
-      selectedGeographicRegion) {
+      selectedGeographicRegion) throws RegionConstraintException {
 
     if (selectedGeographicRegion.equals(GlobalConstants.CONTER_48_STATES)) {
       return new RectangularGeographicRegion(24.6, 50, -125, -65);

@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.opensha.data.region.*;
 import org.opensha.data.*;
+import org.opensha.exceptions.*;
 /**
  * <b>Title:</b> GeographicRegionTests<p>
  *
@@ -44,7 +45,13 @@ public class RectangularGeoRegionTests extends TestCase
      double z = 120.0;
      double za = 122.0;
 
-     RectangularGeographicRegion geoReg = new RectangularGeographicRegion(x,y,z,za);
+    RectangularGeographicRegion geoReg = null;
+    try {
+      geoReg = new RectangularGeographicRegion(x, y, z, za);
+    }
+    catch (RegionConstraintException ex) {
+      ex.printStackTrace();
+    }
      int numLocs = 4; // Each corner in the grid is a location.
      assertEquals("Unexpected Number of Locations",numLocs,geoReg.getNumRegionOutlineLocations());
 

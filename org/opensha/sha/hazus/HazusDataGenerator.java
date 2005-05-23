@@ -10,6 +10,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.util.*;
 import org.opensha.sha.gui.infoTools.*;
 import org.opensha.data.function.*;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: HazusDataGenerator</p>
@@ -34,7 +35,7 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
 
   private IMT_Info defaultXVals = new IMT_Info();
 
-  public HazusDataGenerator() {
+  public HazusDataGenerator() throws RegionConstraintException {
 
     Campbell_1997_AttenRel attenRel = new Campbell_1997_AttenRel(this);
     Frankel96_EqkRupForecast forecast = new Frankel96_EqkRupForecast();
@@ -84,7 +85,13 @@ public class HazusDataGenerator implements ParameterChangeWarningListener{
     calc.getHazardMapCurves(PGV_DIR_NAME,true,xValues,region,attenRel,forecast,metaData);
   }
   public static void main(String[] args) {
-    HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
+    try {
+      HazusDataGenerator hazusDataGenerator1 = new HazusDataGenerator();
+    }
+    catch (RegionConstraintException ex) {
+      System.out.println(ex.getMessage());
+      System.exit(0);
+    }
   }
 
 

@@ -8,7 +8,7 @@ import org.opensha.data.*;
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: SitesInGriddedRectangularRegion</p>
@@ -58,7 +58,8 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
    * @param gridSpacing
    */
   public SitesInGriddedRectangularRegion(double minLat,double maxLat,double minLon,double maxLon,
-                              double gridSpacing) {
+                              double gridSpacing) throws
+      RegionConstraintException {
     super(minLat,maxLat,minLon,maxLon,gridSpacing);
   }
 

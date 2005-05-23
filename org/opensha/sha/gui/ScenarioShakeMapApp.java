@@ -32,7 +32,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -217,7 +217,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }
     catch(Exception e) {
       step =0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),"Exception during initializing the application.\n"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),"Exception during initializing the application.\n"+
           "Parameters values not yet set.");
       bugWindow.show();
       bugWindow.pack();
@@ -228,14 +228,24 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }catch(RuntimeException e){
       //e.printStackTrace();
       step =0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(), "Exception occured initializing the IMR with "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(), "Exception occured initializing the IMR with "+
           "default parameters value");
       bugWindow.show();
       bugWindow.pack();
       //JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
       //return;
     }
-    this.initGriddedRegionGuiBean();
+    try {
+      this.initGriddedRegionGuiBean();
+    }
+    catch (RegionConstraintException ex) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace().toString(),
+          "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
+          "Parameters values have not been set yet.");
+      bugWindow.show();
+      bugWindow.pack();
+
+    }
     try{
         this.initERFSelector_GuiBean();
 
@@ -356,7 +366,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean(){
+  private void initGriddedRegionGuiBean() throws RegionConstraintException {
 
     // create the Site Gui Bean object
     sitesGuiBean = new SitesInGriddedRectangularRegionGuiBean();
@@ -502,7 +512,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Updates the Sites Values for each site in the region chosen by the user
    *
    */
-  private void getGriddedRegionSites() throws ParameterException,RuntimeException{
+  private void getGriddedRegionSites() throws RuntimeException, RegionConstraintException {
     //if calculation have to be done on the local system
     if(!calculationFromServer)
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
@@ -670,7 +680,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       }
       //get the site values for each site in the gridded region
       getGriddedRegionSites();
-    }catch(ParameterException ee){
+    }catch(RegionConstraintException ee){
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.ERROR_MESSAGE);
       step =0;
       throw new RuntimeException(ee.getMessage());
@@ -702,7 +712,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     try{
       getGriddedSitesMapTypeAndSelectedAttenRels();
     }catch(RuntimeException ee){
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.toString(),getMapParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace().toString(),getMapParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       addButton.setEnabled(true);
