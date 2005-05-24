@@ -44,36 +44,36 @@ import java.text.DecimalFormat;
 public class MeanSigmaCalc
     implements ParameterChangeWarningListener {
 
-  private ArrayList willsClass;
-  private LocationList locList;
+  protected ArrayList willsClass;
+  protected LocationList locList;
   private ArrayList locNameList;
 
-  private Frankel02_AdjustableEqkRupForecastClient frankelForecast;
+  protected Frankel02_AdjustableEqkRupForecastClient frankelForecast;
 
   //supported Attenuations
-  private ArrayList supportedAttenuationsList;
+  protected ArrayList supportedAttenuationsList;
 
-  private final static String MEAN = "mean";
-  private final static String SIGMA = "sigma";
+  protected final static String MEAN = "mean";
+  protected final static String SIGMA = "sigma";
 
   //some static IMT names
 
-  private final static String PGA ="PGA";
-  private final static String SA_10 = "SA_10";
-  private final static String SA_03 = "SA_03";
+  protected final static String PGA ="PGA";
+  protected final static String SA_10 = "SA_10";
+  protected final static String SA_03 = "SA_03";
 
 
-  private double sourceCutOffDistance;
-  private final static double MIN_DIST = 200;
-  private Site siteForSourceCutOff;
+  protected double sourceCutOffDistance;
+  protected final static double MIN_DIST = 200;
+  protected Site siteForSourceCutOff;
 
   // site translator
   private SiteTranslator siteTranslator = new SiteTranslator();
 
   private DecimalFormat format = new DecimalFormat("0.000##");
 
-  private String inputFileName = "trackSiteInfo.txt";
-  private String dirName = "MeanSigma";
+  protected String inputFileName = "trackSiteInfo.txt";
+  protected String dirName = "MeanSigma";
 
   public MeanSigmaCalc(String inpFile,String outDir) {
     inputFileName = inpFile;
@@ -83,7 +83,7 @@ public class MeanSigmaCalc
   /**
    * Creating the instance of the Frankel02 forecast
    */
-  public void createFrankel02Forecast() throws RemoteException{
+  protected void createFrankel02Forecast() throws RemoteException{
     frankelForecast = new Frankel02_AdjustableEqkRupForecastClient();
     frankelForecast.getAdjustableParameterList().getParameter(Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
@@ -98,7 +98,7 @@ public class MeanSigmaCalc
   /**
    * Creating the instances of the Attenuation Relationhships
    */
-  public void createAttenuationRelationObjects() {
+  protected void createAttenuationRelationObjects() {
     AS_1997_AttenRel as1997 = new AS_1997_AttenRel(this);
     CB_2003_AttenRel cb2003 = new CB_2003_AttenRel(this);
     SCEMY_1997_AttenRel scemy1997 = new SCEMY_1997_AttenRel(this);
@@ -114,8 +114,7 @@ public class MeanSigmaCalc
    * Gets the wills  site class for the given sites
    */
 
-  public void getSiteParamsForRegion() {
-    int numSites = locList.size();
+  private void getSiteParamsForRegion() {
     // get the vs 30 and basin depth from cvm
     willsClass = new ArrayList();
     try {
@@ -131,7 +130,7 @@ public class MeanSigmaCalc
    * Starting with the Mean and Sigma calculation.
    * Creates the directory to put the mean and sigma files.
    */
-  private void getMeanSigma() {
+  protected void getMeanSigma() {
 
     int numIMRs = supportedAttenuationsList.size();
     File file = new File(dirName);
@@ -158,7 +157,7 @@ public class MeanSigmaCalc
    * @param willsClass
    * @param basinDepth
    */
-  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
+  protected void setSiteParamsInIMR(AttenuationRelationshipAPI imr,
                                   String willsClass) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
@@ -182,7 +181,7 @@ public class MeanSigmaCalc
    * Creates a location using the given locations to find source cut-off disance.
    * @return
    */
-  private void createSiteList() {
+  protected void createSiteList() {
     locList = new LocationList();
     locNameList = new ArrayList();
     try {
@@ -233,7 +232,7 @@ public class MeanSigmaCalc
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
-  public void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,String dirName) {
+  protected void generateMeanAndSigmaFile(AttenuationRelationshipAPI imr,String dirName) {
 
     // get total number of sources
     int numSources = frankelForecast.getNumSources();
@@ -350,7 +349,7 @@ public class MeanSigmaCalc
      * @param eqkRupForecast EqkRupForecastAPI
      * @param outFileName String
      */
-    public void generateRuptureFile(EqkRupForecastAPI eqkRupForecast,
+    protected void generateRuptureFile(EqkRupForecastAPI eqkRupForecast,
                                   String outFileName) {
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
