@@ -17,13 +17,14 @@ import org.jfree.util.ShapeUtils;
 
 import org.opensha.data.function.*;
 import org.opensha.gui.plot.jfreechart.*;
-import org.opensha.gui.*;
+
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.util.*;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import java.io.IOException;
 import java.util.Properties;
+import java.io.File;
 
 
 

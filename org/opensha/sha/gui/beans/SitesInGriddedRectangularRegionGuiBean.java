@@ -542,7 +542,10 @@ public class SitesInGriddedRectangularRegionGuiBean extends ParameterListEditor 
 
       if(regionFilePath instanceof RegionConstraintException)
         throw (RegionConstraintException)regionFilePath;
-      else  return (String)regionFilePath;
+      else if(regionFilePath instanceof String)
+        return (String)regionFilePath;
+      else
+        throw (Exception)regionFilePath;
     }
     catch(RegionConstraintException e){
       throw new RegionConstraintException(e.getMessage());

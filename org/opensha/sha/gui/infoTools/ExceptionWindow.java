@@ -44,7 +44,7 @@ public class ExceptionWindow extends JDialog {
   private static final boolean D = false;
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-  public ExceptionWindow(Component parent,String exceptionText,String selectedParametersInfo) {
+  public ExceptionWindow(Component parent,StackTraceElement[] exceptionText,String selectedParametersInfo) {
 
     try {
       //making the exception window be the most active window
@@ -55,9 +55,15 @@ public class ExceptionWindow extends JDialog {
       this.setLocation(parent.getX()+parent.getWidth()/2,
                        parent.getY()+parent.getHeight()/2);
       jbInit();
-      String exceptionMessage = exceptionText+"\n\n"+
+
+      String expMessage = "";
+
+      for(int i=0;i<exceptionText.length;++i)
+        expMessage +=exceptionText[i]+"\n";
+
+      String exceptionMessage = expMessage+"\n\n"+
           "Selected Parameters Info :\n"+
-          "--------------------------"+selectedParametersInfo;
+          "---------------------\n\n"+selectedParametersInfo;
 
 
       exceptionTextPane.setText(exceptionMessage);
@@ -116,6 +122,7 @@ public class ExceptionWindow extends JDialog {
     jPanel1.add(cancelButton,  new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(23, 25, 17, 56), 0, 10));
     emailText.setText("");
+    this.setSize(500,600);
   }
 
   void cancelButton_actionPerformed(ActionEvent e) {

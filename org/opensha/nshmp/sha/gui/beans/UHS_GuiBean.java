@@ -106,7 +106,7 @@ public class UHS_GuiBean
       try{
         createLocation();
       }catch(RegionConstraintException ex){
-        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace().toString(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
         bugWindow.show();
@@ -330,7 +330,7 @@ public class UHS_GuiBean
         createLocation();
       }
       catch (RegionConstraintException ex) {
-        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace().toString(),
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
         bugWindow.show();

@@ -214,7 +214,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
       initSiteGuiBean();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),
           "Exception occured while launching the application, not parameter value has been set yet");
       bugWindow.show();
       bugWindow.pack();

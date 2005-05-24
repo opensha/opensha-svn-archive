@@ -131,7 +131,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
       fillLatLonAndGridSpacing();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),"Problem occured "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Problem occured "+
           "while initializing the application");
       bugWindow.show();
       bugWindow.pack();
@@ -301,7 +301,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
       inputToServlet.close();
 
     }catch (Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(), getParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), getParametersInfo());
       bugWindow.show();
       bugWindow.pack();
       System.out.println("Exception in connection with servlet:" +e);
@@ -556,7 +556,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
        ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata, true);
 
      }catch (Exception e) {
-       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),getParametersInfo());
+       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
        bugWindow.show();
        bugWindow.pack();
        System.out.println("Exception in connection with servlet:" +e);

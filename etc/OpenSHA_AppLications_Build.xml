@@ -68,7 +68,7 @@
     <!--ant antfile="HazardCurveLocalApp.xml" inheritall="true" inheritrefs="true" target="jarfile">    </ant-->
     <ant antfile="HazardCurveServerApp.xml" inheritall="true" inheritrefs="true" target="jarfile">    </ant>
     <ant antfile="HazardDataSetCalcCondor.xml" inheritall="true" inheritrefs="true" target="jarfile">    </ant>
-    <ant antfile="OpenSHA.xml" inheritall="true" inheritrefs="true" target="jarfile">    </ant>
+    <!--ant antfile="OpenSHA.xml" inheritall="true" inheritrefs="true" target="jarfile">    </ant-->
     <ant antfile="PlotCurvesFromHazardDataSet.xml" inheritall="true" inheritrefs="true" target="jarfile">    </ant>
     <ant antfile="PlotMapFromHazardDataSet.xml" inheritall="true" inheritrefs="true" target="jarfile">  </ant>
     <ant antfile="ScenarioShakemapApp.xml" inheritall="true" inheritrefs="true" target="jarfile">   </ant>

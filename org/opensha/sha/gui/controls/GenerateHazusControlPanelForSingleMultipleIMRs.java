@@ -15,6 +15,7 @@ import org.opensha.data.ArbDiscretizedXYZ_DataSet;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.param.*;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: GenerateHazusControlPanelForSingleMultipleIMRs</p>
@@ -451,8 +452,22 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   /**
    * thread method
    */
-  public void run(){
-    runToGenerateShapeFilesAndMaps();
+  public void run() {
+    try {
+      runToGenerateShapeFilesAndMaps();
+    }
+    catch (RegionConstraintException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
+                                    JOptionPane.ERROR_MESSAGE);
+      step = 0;
+    }
+    catch (RuntimeException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Server Problem",
+                                    JOptionPane.INFORMATION_MESSAGE);
+      step = 0;
+    }
+    if(calcProgress != null)
+      calcProgress.dispose();
   }
 
 
@@ -460,7 +475,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * This method creates the shapefiles data for Hazus and scenario shake maps
    * for the same data.
    */
-  public void runToGenerateShapeFilesAndMaps(){
+  public void runToGenerateShapeFilesAndMaps() throws RegionConstraintException,
+      RuntimeException {
     getRegionAndMapType();
     //checks if the calculation are to be done on the server
     calcOnServer = application.doCalculationOnServer();
@@ -491,10 +507,10 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
         else if(step == 6)
           calcProgress.setProgressMessage("Generating the Map images for Hazus ...");
         else if(step ==0){
-          timer.stop();
           calcProgress.showProgress(false);
           calcProgress.dispose();
           calcProgress = null;
+          timer.stop();
         }
       }
     });
@@ -532,7 +548,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * This function sets the Gridded region Sites and the type of plot user wants to see
    * IML@Prob or Prob@IML and it value.
    */
-  public void getRegionAndMapType(){
+  public void getRegionAndMapType() throws RuntimeException,
+      RegionConstraintException {
     application.getGriddedSitesMapTypeAndSelectedAttenRels();
     step =1;
     if(timer !=null)

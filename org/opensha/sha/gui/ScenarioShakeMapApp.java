@@ -217,7 +217,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }
     catch(Exception e) {
       step =0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(),"Exception during initializing the application.\n"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception during initializing the application.\n"+
           "Parameters values not yet set.");
       bugWindow.show();
       bugWindow.pack();
@@ -228,7 +228,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     }catch(RuntimeException e){
       //e.printStackTrace();
       step =0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace().toString(), "Exception occured initializing the IMR with "+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), "Exception occured initializing the IMR with "+
           "default parameters value");
       bugWindow.show();
       bugWindow.pack();
@@ -239,7 +239,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       this.initGriddedRegionGuiBean();
     }
     catch (RegionConstraintException ex) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace().toString(),
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
           "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
           "Parameters values have not been set yet.");
       bugWindow.show();
@@ -664,36 +664,27 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * corresponding relative wts.
    * This function also gets the mode of map calculation ( on server or on local machine)
    */
-  public void getGriddedSitesMapTypeAndSelectedAttenRels() throws RuntimeException{
+  public void getGriddedSitesMapTypeAndSelectedAttenRels() throws
+      RegionConstraintException, RuntimeException {
     //gets the IML or Prob selected value
     getIMLorProb();
-    try{
 
-      //gets the map data calc option
-      if(calcControl != null){
-        String mapCalcOption = calcControl.getMapCalculationOption();
-        //checks if the user wants to do the calc. on his local system or on the server.
-        if(mapCalcOption.equals(CalcOptionControl.USE_LOCAL))
-          calculationFromServer = false;
-        else
-          calculationFromServer = true;
-      }
-      //get the site values for each site in the gridded region
-      getGriddedRegionSites();
-    }catch(RegionConstraintException ee){
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.ERROR_MESSAGE);
-      step =0;
-      throw new RuntimeException(ee.getMessage());
+    //gets the map data calc option
+    if (calcControl != null) {
+      String mapCalcOption = calcControl.getMapCalculationOption();
+      //checks if the user wants to do the calc. on his local system or on the server.
+      if (mapCalcOption.equals(CalcOptionControl.USE_LOCAL))
+        calculationFromServer = false;
+      else
+        calculationFromServer = true;
     }
-    catch(RuntimeException e){
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
-      step =0;
-      throw new RuntimeException(e.getMessage());
-    }
+    //get the site values for each site in the gridded region
+    getGriddedRegionSites();
+
     //selected IMRs Wts
     attenRelWts = imrGuiBean.getSelectedIMR_Weights();
     //selected IMR's
-    attenRel= imrGuiBean.getSelectedIMRs();
+    attenRel = imrGuiBean.getSelectedIMRs();
   }
 
   void addButton_actionPerformed(ActionEvent e) {
@@ -709,15 +700,25 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     //sets the Gridded region Sites and the type of plot user wants to see
     //IML@Prob or Prob@IML and it value.
 
-    try{
+
+    try {
       getGriddedSitesMapTypeAndSelectedAttenRels();
-    }catch(RuntimeException ee){
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace().toString(),getMapParametersInfo());
-      bugWindow.show();
-      bugWindow.pack();
+    }
+    catch (RegionConstraintException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
+                                    JOptionPane.ERROR_MESSAGE);
       addButton.setEnabled(true);
       return;
     }
+    catch (RuntimeException ee) {
+      JOptionPane.showMessageDialog(this, ee.getMessage(), "Server Problem",
+                                    JOptionPane.INFORMATION_MESSAGE);
+      addButton.setEnabled(true);
+      return;
+    }
+
+
+
 
     // this function will get the selected IMT parameter and set it in IMT
     imrGuiBean.setIMT();

@@ -69,9 +69,14 @@ public class GriddedRegionServlet extends HttpServlet {
       outputToApplet.writeObject(regionFileWithAbsolutePath);
       outputToApplet.close();
 
-    } catch (Exception e) {
+    }catch(RegionConstraintException e){
       e.printStackTrace();
-      outputToApplet.writeObject(e.getMessage());
+      outputToApplet.writeObject(e);
+      outputToApplet.close();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      outputToApplet.writeObject(e);
       outputToApplet.close();
     }
   }

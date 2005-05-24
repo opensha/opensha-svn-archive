@@ -91,6 +91,7 @@
       <include name="org/jfree/chart/resources/**"/>
       <include name="org/jfree/chart/*.java"/>
       <include name="org/jfree/chart/plot/*.java"/>
+      <include name="com/keypoint/PngEncoder.java" />
     </javac>
   </target>
   <target name="resource">
