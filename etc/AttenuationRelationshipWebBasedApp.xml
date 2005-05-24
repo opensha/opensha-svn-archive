@@ -99,6 +99,7 @@
   <target name="jarfile" depends="precompilecleanup,init,make,package">
     <jar destfile="AttenRelApp.jar" basedir="${dest}" manifest="AttenRelWebBased_MANIFEST.MF">
       <include name="org/**"/>
+      <include name="com/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
     </jar>

@@ -165,6 +165,7 @@
   <target name="jarfile" depends="precompilecleanup,init,make,rmi,package">
     <jar destfile="HazardCurveServerModeApp.jar" basedir="${dest}" manifest="HazCurveServerMode_MANIFEST.MF">
       <include name="org/**"/>
+      <include name="com/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
     </jar>

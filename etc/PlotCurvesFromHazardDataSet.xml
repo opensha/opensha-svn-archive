@@ -129,6 +129,7 @@
   <target name="jarfile" depends="precompilecleanup,init,make,package">
     <jar destfile="PlotCurvesFromHazardDataSet.jar" basedir="${dest}" manifest="PlotCurvesFromHazardDataSetApp_MANIFEST.MF">
       <include name="org/**"/>
+      <include name="com/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
     </jar>

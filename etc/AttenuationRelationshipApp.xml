@@ -97,6 +97,7 @@
   <target name="jarfile" depends="precompilecleanup,init,make,package">
     <jar destfile="AttenRelApp_Standalone.jar" basedir="${dest}" manifest="AttenRel_MANIFEST.MF">
       <include name="org/**"/>
+      <include name="com/**"/>
       <include name="img/**"/>
       <include name="ch/**"/>
     </jar>
