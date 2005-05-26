@@ -1,49 +1,28 @@
     **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-ScenarioShakeMap Application:
- 
-Create LocationParameter:
-
-	where we get/set a Loction object
-	
-	If constraint = null, editor contains lat, lon, and depth DoubleParameters (which might be constrained)
-
-	If constraint = LocationList, editor makes JCombo with lat,lon,depth options listed
-
-EarthquakeRuptureGuiBean:
-
-	Custrom Eqk Rupture
-
-		Change hypocenter picking to an additionion parameter (LocationParameter 
-		with a ParameterList constraint), and have this listen and update with any 
-		changes to the point-source or finite-fault surface.
-
-	EqkRup from ERF:
-
-		Have metadata show hypocenter from EqkRup rather than ERF params (add it to the 
-		EqkRupture.getInfo() method and remove from the ERF parameter-list values)
-
-
-AttenautionRelationshipApp:
-
-	The "Plot Label" is not visible if used in the "Plot Prefs" button
-
-	Custom data points:
-
-		Throw exception if more than two numbers on a line (e.g., 3 goes through right now).
-
-		If only one number on the line the exception massage is blank
- 
-Change app names as follows (on our web site):
-
-	HazardDataSetPlotter --> PlotCurveFromHazardDataSetApp
-	HazardMapApplet --> HazardDataSetCalcCondorApp
-	HazardMapViewerApp --> PlotMapFromHazardDataSetApp
-
-	
 Set up registration for HazMapDataGenerator - Phil has good ideas about this.
-	
+
+Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
+
+Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
+
+Scenario ShakeMapApp - generate a pdf for viewing too
+
+GMT_MapGenerator:
+
+	force use of GMT Web Service (Nitin)
+
+The Log Plot tester App does not work for the Linear Scale.
+
+Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).  Talk to Sue about this.
+
+Revisit PEER results plotter & data submission tool.
+
+Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
+
+Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
+
 
 
 
@@ -57,35 +36,9 @@ Add faults to GMT plotting options.
 
 add site translation for SEA_1999_AttenRel
 
-Make sure that averages over probabilities are not log averages (Nitin will change ScenarioShakeMapCalculator & Ned will change USGS_Combined Atten. Rel. accordingly).
-
-Do we really all the API's in org.scec.sha.earthquake package  or can we just use the Abstract classes rather then defining these API's. Also have to take care that we these classes are not used in RMI based interfaces.
-
-In the case of our HazardCurve Calculator applications, if ERF List is choosen and we select 1 or more realizations and average is selected, then it throws an exception. --Nitin knows about this problems and will look into it.
-
-Nitin has to add the some more functionality to the Remote_ERFClients ( some functions needs to be added). Once that is done and have tested the application to a good extent then swap it with the HazardCurverServerModeApp .
-
-Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
-
-Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
-
-Create a CVS setup document that anyone can download from our website. It should also includes the libraries
-that the person needs to include and classes that needs to be compiled as RMI.
-
-HazardCurveApps:
-
-	1) 1 version where everything is on the user's computer.
-
-	2) another version where everything (ERFs and calcs) are distributed.  This app is an extension of that above.
-	   IMRs will remain on local machine for now (until we need otherwise).
+Revise CVS setup document. It should includes the libraries that the person needs to include and classes that needs to be compiled as RMI.
 
 Implement point source correction option in PropagationEffect.
-
-GMT_MapGenerator:
-
-	If gmt in not in /sw/bin or nothing is in usr/scec/data/gmt - force use of GMT Web Service (Nitin)
-
-The Log Plot tester App does not work for the Linear Scale.
 
 Make email lists for the following (with on-line archives):
 
@@ -95,8 +48,6 @@ Make email lists for the following (with on-line archives):
 	advisors@OpenSHA.org
 
 Figure out how to add the OpenSHA logo to shakeMaps.
-
-Go over exception throwing in entire package to make sure it looks appropriate.
 
 Standardize source definition with pathway 2?
 
@@ -117,17 +68,11 @@ Create capability to associate IMRs to specific source types in the calculations
 
 Make a library to represent t-surfaces (or look on internet to see if someone else has come up with a good object-oriented design).
 
-Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).
-
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
 Look into how to save an application in its current state (and to an abitrary file name) so that a user can double click later to come back.
 
-Finish PEER results plotter & data submission tool (when they give us the final files).
-
 Find a database we can reference for lat/lon values of cities in California.  Add some of these to the control panel.  Nitin has one.  Make a web service?
-
-Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
 Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the user what they are looking at in a plot (this is done); 2) save the state of a stand-alone app on the user's computer so they can relaunch later and begin where they left off; and 3) save enough information to the SRB (or equivalent) so we can tell at runtime whether a calculation has already been done, or so other's browsing the SRB will see what's available. This raises issues with respect to allowed characters in a parameter name.  Why don't we reserve the following special characters for writing the string-representation of metadata (meaning these can't be used in parameter names):
 
@@ -153,8 +98,6 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 
 
 HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
-
-Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
 
 Finish STEP map making capability according to feedback from Matt and Lucy (and solve the Vs30 on water issue).
 
