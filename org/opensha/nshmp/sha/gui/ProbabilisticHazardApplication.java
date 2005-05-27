@@ -12,6 +12,7 @@ import org.opensha.nshmp.sha.gui.api.*;
 import org.opensha.nshmp.sha.gui.beans.*;
 import org.opensha.nshmp.util.*;
 import org.opensha.nshmp.sha.gui.infoTools.AddProjectNameDateWindow;
+import org.opensha.nshmp.sha.gui.infoTools.NSHMP_MapViewFrame;
 
 
 /**

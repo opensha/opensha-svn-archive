@@ -1,4 +1,4 @@
-package org.opensha.nshmp.sha.gui;
+package org.opensha.nshmp.sha.gui.infoTools;
 
 import java.awt.*;
 import javax.swing.*;

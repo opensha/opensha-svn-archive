@@ -6,6 +6,8 @@ import java.io.*;
 import java.net.*;
 import java.awt.event.*;
 import javax.swing.border.*;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 /**
  * <p>Title: UserAuthorizationCheckWindow</p>
@@ -45,7 +47,6 @@ public class UserAuthorizationCheckWindow extends JDialog {
 
   public void init() {
     try {
-      setModal(true);
       jbInit();
     }
     catch(Exception e) {
@@ -54,6 +55,7 @@ public class UserAuthorizationCheckWindow extends JDialog {
   }
 
   private void jbInit() throws Exception {
+    this.setModal(true);
     setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     usernameText.setForeground(new Color(80, 80, 133));
     usernameText.setBackground(Color.white);
@@ -137,21 +139,26 @@ public class UserAuthorizationCheckWindow extends JDialog {
     String username = new String(usernameText.getText());
     String password = new String(passwordText.getPassword());
     if(username == null || username.trim().equals("") || password == null || username.trim().equals("")){
-      JOptionPane.showMessageDialog(this,
-                                    new String(
-          "Must Enter User Name and Password."),
-                                    "Check Login",
-                                    JOptionPane.OK_OPTION);
+      this.setModal(false);
+      String message = "<html><body><b>Must Enter User Name and Password.</b>"+
+                                               "<p>Not registered, "+
+                                               "<a href =\"http://gravity.usc.edu:8080/usermanagement\">"+
+                                               "Click Here </a>.</body></html>";
+
+      MessageDialog messageWindow = new MessageDialog(message,"Check Login", this);
+      messageWindow.show();
+      this.setModal(true);
       return;
     }
     if(!isUserAuthorized(username,password)){
-      JOptionPane.showMessageDialog(this,
-                                    new String("<html><body><b>Incorrect Username or Password.</b>"+
-                                               "<br>Not registered or forgot password, go to the URL below: </br>"+
-                                               "<br>http://gravity.usc.edu:8080/usermanagement"+
-                                               ".</br></boby></html>"),
-                                    "Incorrect login information",
-                                    JOptionPane.ERROR_MESSAGE);
+      this.setModal(false);
+      String message = "<html><body><b>Incorrect Username or Password.</b>"+
+                                               "<p>Not registered or forgot password, "+
+                                               "<a href =\"http://gravity.usc.edu:8080/usermanagement\">"+
+                                               "Click Here </a>.</body></html>";
+      MessageDialog messageWindow = new MessageDialog(message,"Incorrect login information", this);
+      messageWindow.show();
+      this.setModal(true);
       passwordText.setText("");
       return;
     }
@@ -160,6 +167,9 @@ public class UserAuthorizationCheckWindow extends JDialog {
       loginSuccess = true;
     }
   }
+
+
+
 
 
   /**

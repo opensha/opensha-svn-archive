@@ -165,10 +165,10 @@ public class HazardDataSetCalcCondorApp extends JApplet
   //Initialize the applet
   public void init() {
     UserAuthorizationCheckWindow loginWin = new UserAuthorizationCheckWindow();
-    while(!loginWin.isLoginSuccess())
-      loginWin.show();
-    loginWin.dispose();
-
+    while(!loginWin.isLoginSuccess()){
+      if(!loginWin.isVisible())
+        loginWin.setVisible(true);
+    }
     try {
       // initialize the control pick list
       initControlList();
