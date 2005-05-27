@@ -2,7 +2,6 @@ package org.opensha.sha.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import java.util.*;
@@ -15,14 +14,10 @@ import ch.randelshofer.quaqua.QuaquaManager;
 
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
-import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.param.event.*;
 import org.opensha.data.region.SitesInGriddedRectangularRegion;
-import org.opensha.data.Site;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.gui.controls.X_ValuesInCurveControlPanelAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -169,6 +164,11 @@ public class HazardDataSetCalcCondorApp extends JApplet
   }
   //Initialize the applet
   public void init() {
+    UserAuthorizationCheckWindow loginWin = new UserAuthorizationCheckWindow();
+    while(!loginWin.isLoginSuccess())
+      loginWin.show();
+    loginWin.dispose();
+
     try {
       // initialize the control pick list
       initControlList();

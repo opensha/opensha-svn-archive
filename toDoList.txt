@@ -8,6 +8,12 @@ Prepare a brief documentation on the how and why I did HazardCurveServer Mode in
 Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
 
 Scenario ShakeMapApp - generate a pdf for viewing too
+(Can be done using the following commands:
+ convert map.ps map.pdf
+  or
+ ps2pdf map.ps map.pdf
+  or
+gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=your.pdf -c save pop -f file1.ps file2.ps ) -- conversion from multiple ps files to one pdf file. 
 
 GMT_MapGenerator:
 
