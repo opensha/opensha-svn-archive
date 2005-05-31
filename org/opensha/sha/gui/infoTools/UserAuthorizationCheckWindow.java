@@ -5,9 +5,6 @@ import java.net.*;
 import java.io.*;
 import java.net.*;
 import java.awt.event.*;
-import javax.swing.border.*;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 
 /**
  * <p>Title: UserAuthorizationCheckWindow</p>
@@ -29,7 +26,6 @@ public class UserAuthorizationCheckWindow extends JDialog {
   private JLabel jLabel2 = new JLabel();
   JTextField usernameText = new JTextField();
   JLabel jLabel1 = new JLabel();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
   //checks if user did successful login
@@ -38,8 +34,8 @@ public class UserAuthorizationCheckWindow extends JDialog {
 
   //Servlet address
   private final static String SERVLET_ADDRESS = "https://wave.usc.edu/cmedb/CheckAuthorizationServlet";
-
-
+  JButton newUserButton = new JButton();
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
   public UserAuthorizationCheckWindow(){
     init();
   }
@@ -60,8 +56,15 @@ public class UserAuthorizationCheckWindow extends JDialog {
     usernameText.setForeground(new Color(80, 80, 133));
     usernameText.setBackground(Color.white);
     passwordText.setBackground(Color.white);
-
     this.getContentPane().setLayout(borderLayout1);
+    newUserButton.setFont(new java.awt.Font("Dialog", Font.BOLD, 12));
+    newUserButton.setForeground(new Color(80, 80, 133));
+    newUserButton.setText("New User");
+    newUserButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        newUserButton_actionPerformed(actionEvent);
+      }
+    });
     this.getContentPane().add(passwordPanel, java.awt.BorderLayout.CENTER);
     passwordPanel.setLayout(gridBagLayout1);
     continueButton.setFont(new java.awt.Font("Dialog", 1, 12));
@@ -94,31 +97,37 @@ public class UserAuthorizationCheckWindow extends JDialog {
     jLabel1.setFont(new java.awt.Font("Dialog", Font.BOLD, 12));
     jLabel1.setForeground(new Color(80, 80, 133));
     jLabel1.setText("Enter Username:");
-    passwordPanel.add(jLabel5, null);
-    passwordPanel.add(cancelButton, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(30, 25, 44, 38), 16, 13));
-    passwordPanel.add(continueButton,
-                      new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-                                             , GridBagConstraints.CENTER,
-                                             GridBagConstraints.NONE,
-                                             new Insets(30, 9, 44, 0), 4, 13));
-    passwordPanel.add(passwordText, new GridBagConstraints(1, 2, 2, 1, 1.0, 0.0
+    passwordPanel.add(jLabel5, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
+        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+        new Insets(24, 10, 0, 11), 0, 0));
+    passwordPanel.add(jLabel5, new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
+        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+        new Insets(12, 6, 0, 8), 257, 0));
+    passwordPanel.add(passwordText, new GridBagConstraints(1, 2, 3, 1, 1.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-        new Insets(13, 0, 0, 27), 206, 12));
+        new Insets(13, 0, 0, 27), 215, 12));
     passwordPanel.add(jLabel2, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(19, 31, 0, 0), 24, 10));
-    passwordPanel.add(usernameText, new GridBagConstraints(1, 1, 2, 1, 1.0, 0.0
+        new Insets(20, 31, 0, 0), 24, 10));
+    passwordPanel.add(usernameText, new GridBagConstraints(1, 1, 3, 1, 1.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-        new Insets(40, 0, 0, 27), 206, 10));
+        new Insets(40, 0, 0, 27), 215, 10));
     passwordPanel.add(jLabel1, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(45, 31, 0, 0), 21, 10));
-    passwordPanel.add(jLabel5, new GridBagConstraints(0, 0, 3, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(28, 13, 0, 14), 240, 16));
-
+        new Insets(47, 31, 0, 0), 21, 10));
+    passwordPanel.add(continueButton,
+                      new GridBagConstraints(0, 3, 2, 1, 0.0, 0.0
+                                             , GridBagConstraints.CENTER,
+                                             GridBagConstraints.NONE,
+                                             new Insets(43, 84, 80, 0), 14, 0));
+    passwordPanel.add(cancelButton, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(43, 7, 80, 0), 18, 0));
+    passwordPanel.add(newUserButton,
+                      new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0
+                                             , GridBagConstraints.CENTER,
+                                             GridBagConstraints.NONE,
+                                             new Insets(43, 13, 80, 17), 9, 0));
 
     this.setSize(400,260);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
@@ -263,6 +272,17 @@ public class UserAuthorizationCheckWindow extends JDialog {
       e.printStackTrace();
     }
     return false;
+  }
+
+  /**
+   * Button for user to register as a new user.
+   * @param actionEvent ActionEvent
+   */
+  public void newUserButton_actionPerformed(ActionEvent actionEvent) {
+    try{
+           org.opensha.util.BrowserLauncher.openURL("http://gravity.usc.edu:8080/usermanagement/AccountRequest.do");
+          }catch(Exception ex) { ex.printStackTrace(); }
+          //displayPage(e.getURL());   // Follow the link; display new page
   }
 
 }
