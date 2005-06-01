@@ -106,20 +106,17 @@ public class HazardDataSetCalcCondorApp extends JApplet
   private JSplitPane mainSplitPane = new JSplitPane();
   private JPanel buttonPanel = new JPanel();
   private JPanel eqkRupPanel = new JPanel();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private JSplitPane imr_IMTSplit = new JSplitPane();
   private JTabbedPane parameterTabbedPanel = new JTabbedPane();
   private JPanel imrPanel = new JPanel();
   private JPanel imtPanel = new JPanel();
   private BorderLayout borderLayout2 = new BorderLayout();
-  private GridBagLayout gridBagLayout8 = new GridBagLayout();
+  private GridBagLayout gridBagLayout = new GridBagLayout();
   private JPanel gridRegionSitePanel = new JPanel();
-  private GridLayout gridLayout1 = new GridLayout();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
+
+
   private JPanel imrSelectionPanel = new JPanel();
-  GridBagLayout gridBagLayout6 = new GridBagLayout();
+
   BorderLayout borderLayout1 = new BorderLayout();
 
   //holds the ArbitrarilyDiscretizedFunc
@@ -213,16 +210,16 @@ public class HazardDataSetCalcCondorApp extends JApplet
     this.setSize(new Dimension(564, 834));
     this.getContentPane().setLayout(borderLayout1);
     mainPanel.setBorder(border1);
-    mainPanel.setLayout(gridBagLayout6);
+    mainPanel.setLayout(gridBagLayout);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     buttonPanel.setLayout(borderLayout3);
-    eqkRupPanel.setLayout(gridBagLayout1);
+    eqkRupPanel.setLayout(gridBagLayout);
     imr_IMTSplit.setOrientation(JSplitPane.VERTICAL_SPLIT);
     imrPanel.setLayout(borderLayout2);
-    imtPanel.setLayout(gridBagLayout8);
+    imtPanel.setLayout(gridBagLayout);
     buttonPanel.setMinimumSize(new Dimension(391, 50));
-    gridRegionSitePanel.setLayout(gridLayout1);
-    imrSelectionPanel.setLayout(gridBagLayout5);
+    gridRegionSitePanel.setLayout(gridBagLayout);
+    imrSelectionPanel.setLayout(gridBagLayout);
     //controlComboBox.setBackground(Color.white);
     dataPanel.setLayout(gridBagLayout4);
     imgPanel.setLayout(gridBagLayout7);
