@@ -478,20 +478,36 @@ public final class RelativeLocation {
     public static void main( String argv[] ) {
 
       System.out.println("test1:");
-      Location loc = new Location(34.5,-121,0);
-      Location pt1 = new Location(34,-122,0);
-      Location pt2 = new Location(35,-122,0);
+      Location loc1 = new Location(34.5,-128,0);
+      Location loc2 = new Location (33.3,-125,0);
+      Location pt1 = new Location(35,-122,0);
+      Location pt2 = new Location(35,238,0);
+      //Location pt1 = new Location(34,-122,0);
+      //Location pt2 = new Location(35,-122,0);
 
-      long t1, t2;
-      double junk;
-      t1 = System.currentTimeMillis();
-      for(int i=0; i < 1000000; i++) junk = getApproxHorzDistance(pt1,pt2);
-      t2 = t1 - System.currentTimeMillis();
-      System.out.println("approx time = "+ t2);
-      t1 = System.currentTimeMillis();
-      for(int i=0; i < 1000000; i++) junk = getHorzDistance(pt1,pt2);
-      t2 = t1 - System.currentTimeMillis();
-      System.out.println("time = "+ t2);
+      //long t1, t2;
+      //double junk;
+      //t1 = System.currentTimeMillis();
+      //for(int i=0; i < 1000000; i++) //junk = getApproxHorzDistance(pt1,pt2);
+      //t2 = t1 - System.currentTimeMillis();
+      //System.out.println("approx time = "+ t2);
+      System.out.println("Horizontal distance1 = "+ getHorzDistance(loc1,pt1));
+      System.out.println("Horizontal distance2 = "+ getHorzDistance(loc1,pt2));
+      System.out.println("Approx. Horizontal distance1 = "+ getApproxHorzDistance(loc1,pt1));
+      System.out.println("Approx. Horizontal distance2 = "+ getApproxHorzDistance(loc1,pt2));
+
+
+      System.out.println("Approx. Horizontal distance Calc from loc1 to Line = "+ getApproxHorzDistToLine_2(pt1,loc1,loc2));
+      System.out.println("Approx. Horizontal distance Calc from loc2 to Line = "+ getApproxHorzDistToLine_2(pt2,loc1,loc2));
+
+      System.out.println("Approx. Horizontal distance from loc1 to Line = "+ getApproxHorzDistToLine(pt1,loc1,loc2));
+      System.out.println("Approx. Horizontal distance from loc2 to Line = "+ getApproxHorzDistToLine(pt2,loc1,loc2));
+
+
+      //t1 = System.currentTimeMillis();
+      //for(int i=0; i < 1000000; i++) //junk = getHorzDistance(pt1,pt2);
+      //t2 = t1 - System.currentTimeMillis();
+      //System.out.println("time = "+ t2);
 
 /*
       System.out.println(getApproxHorzDistToLine(loc,pt1,pt2));
