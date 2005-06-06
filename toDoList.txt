@@ -1,9 +1,9 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Check do we really need to call it AttenuationRelationship for the GUI bean s used in the Scenarioshake map or can we just call it IMR. We need Attenuation only if Median and Std. deviation needs to be calculated.
+Check do we really need to call it AttenuationRelationship for the GUI bean s used in the Scenarioshake map or can we just call it IMR. We need Attenuation only if Median and Std. deviation needs to be calculated. -- No it not customized or hard-coded for the AttenuationRelationships (Nitin).
 
-Set up registration for HazMapDataGenerator - Phil has good ideas about this.
+Set up registration for HazMapDataGenerator - Phil has good ideas about this. -- done (Nitin)
 
 Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
 
