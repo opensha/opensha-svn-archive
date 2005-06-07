@@ -16,6 +16,7 @@ import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 
 import org.opensha.gui.*;
+import org.opensha.gui.plot.jfreechart.MyTickUnits;
 
 /**
 
@@ -449,7 +450,7 @@ public class LogPlotTesterApp extends JApplet  {
     }
 
     //create the standard ticks so that smaller values too can plotted on the chart
-    //TickUnits units = MyTickUnits.createStandardTickUnits();
+    TickUnits units = MyTickUnits.createStandardTickUnits();
     this.setAxis();
 
 
@@ -466,14 +467,14 @@ public class LogPlotTesterApp extends JApplet  {
 
     try{
       xAxis.setAutoRangeIncludesZero( false );
-      //xAxis.setStandardTickUnits(units);
+      xAxis.setStandardTickUnits(units);
       xAxis.setTickMarksVisible(false);
 
       yAxis.setAutoRangeIncludesZero( false );
-      //yAxis.setStandardTickUnits(units);
+      yAxis.setStandardTickUnits(units);
       yAxis.setTickMarksVisible(false);
 
-
+      yAxis.setStandardTickUnits(units);
       //If the first test case is not chosen then plot the graph acording to the default x and y axis values
       if(!autoScale){
         xAxis.setRange(minXValue,maxXValue);

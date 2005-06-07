@@ -56,7 +56,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
     gmtMap= new GMT_MapGeneratorForShakeMaps();
     //initialise the param list and editor for the GMT Map Params and Editors
     initParamListAndEditor();
-
+    //making the map using GMT service ( making this param false, as not allowing
+    //the user to set its value)
+    getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
   }
 
 

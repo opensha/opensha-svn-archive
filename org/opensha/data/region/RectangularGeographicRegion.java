@@ -32,7 +32,7 @@ public class RectangularGeographicRegion extends GeographicRegion {
     super.minLon=minLon;
     super.maxLon=maxLon;
 
-    if(minLat > maxLat){
+    /*if(minLat > maxLat){
 
         if (minLat < 0 && maxLat < 0) {
           throw new RegionConstraintException(
@@ -75,7 +75,16 @@ public class RectangularGeographicRegion extends GeographicRegion {
          throw new RegionConstraintException(
              "Min. Lon must be less then Max. Lon.\n");
       }
-    }
+    }*/
+
+  if(minLat > maxLat)
+    throw new RegionConstraintException(
+        "Min. Lat must be less then Max. Lat.\n");
+  if(minLon > maxLon)
+    throw new RegionConstraintException(
+        "Min. Lon must be less then Max. Lon.\n");
+
+
 
     //creates the Location List for this rectangular region.
     locList=new LocationList();
