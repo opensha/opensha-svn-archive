@@ -252,18 +252,6 @@ public class MeanSigmaCalc
       FileWriter fwSA_10_Mean = new FileWriter(fileNamePrefixCommon +"_"+SA_10+ "_"+MEAN+".txt");
       FileWriter fwSA_10_Sigma = new FileWriter(fileNamePrefixCommon +"_"+SA_10+ "_"+SIGMA+".txt");
 
-
-
-      //Site site = new Site(locList.getLocationAt(0));
-      //Adding the Site related Parameters for the IMR to the Site Object
-      Site site = new Site();
-      Iterator it  = imr.getSiteParamsIterator();
-
-      while(it.hasNext())
-        site.addParameter((ParameterAPI)it.next());
-          //imr.setSite(site);
-
-
       // loop over sources
       for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
 
@@ -293,8 +281,6 @@ public class MeanSigmaCalc
           fwSA_10_Sigma.write(currRuptures + " ");
 
           int numSites = locList.size();
-
-
 
           //looping over all the sites for the selected Attenuation Relationship
           for (int j = 0; j < numSites; ++j) {

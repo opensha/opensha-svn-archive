@@ -171,7 +171,7 @@ public interface AttenuationRelationshipAPI
      * After setting the location within the site, it calls the method
      * setPropagationEffectsParams().
      */
-   public void setSiteLocation(Location loc) throws NullObjectException;
+   public void setSiteLocation(Location loc);
 
 
 }

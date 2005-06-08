@@ -486,15 +486,13 @@ public abstract class AttenuationRelationship
      * of setting the site once and changing the location of the site to do the
      * calculations.
      */
-    public void setSiteLocation(Location loc) throws NullObjectException {
-      if(site !=null){
-        site.setLocation(loc);
-        setPropagationEffectParams();
+    public void setSiteLocation(Location loc) {
+      //if site is null create a new Site
+      if(site == null){
+        site = new Site();
       }
-      else{
-        throw new NullObjectException("Cannot set location for a null site. First "+
-                                      "create site for the Attenuation Relationship");
-      }
+      site.setLocation(loc);
+      setPropagationEffectParams();
     }
 
     /**
