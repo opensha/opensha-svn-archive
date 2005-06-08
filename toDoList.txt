@@ -18,8 +18,7 @@ Scenario ShakeMapApp - generate a pdf for viewing too
 gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=your.pdf -c save pop -f file1.ps file2.ps ) -- conversion from multiple ps files to one pdf file. 
 
 GMT_MapGenerator:
-
-	force use of GMT Web Service (Nitin)
+	force use of GMT Web Service - done(Nitin)
 
 The Log Plot tester App does not work for the Linear Scale- Its working(Nitin). 
 
@@ -28,6 +27,10 @@ Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be p
 Revisit PEER results plotter & data submission tool.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
+
+
+Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But 
+Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
 

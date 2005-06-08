@@ -157,26 +157,29 @@ public class HazardDataSetCalcCondorApp extends JApplet
   private GridBagLayout gridBagLayout4 = new GridBagLayout();
 
   //Construct the applet
-  public HazardDataSetCalcCondorApp() {
-  }
+  public HazardDataSetCalcCondorApp() {}
   //Initialize the applet
   public void init() {
+
+    //Checking for the Authentic user
+    //This pops up a user login window and only authentic user will be able
+    //to use HazardMap Calculation application.
     UserAuthorizationCheckWindow loginWin = new UserAuthorizationCheckWindow();
-    while(!loginWin.isLoginSuccess()){
-      if(!loginWin.isVisible())
-        loginWin.setVisible(true);
+    while (!loginWin.isLoginSuccess()) {
+      if (!loginWin.isVisible())
+        loginWin.show();
     }
+    loginWin.dispose();
     try {
       // initialize the control pick list
       initControlList();
       jbInit();
     }
     catch(Exception e) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while initializing the application"+
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while initializing the application "+
           "Parameters values have not been set yet.");
       bugWindow.show();
       bugWindow.pack();
-
     }
     try{
       initIMRGuiBean();
@@ -190,7 +193,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
     catch (RegionConstraintException ex) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
           "Exception occured while initializing the  region parameters in Hazard Dataset Calc App"+
-          "Parameters values have not been set yet.");
+          " Parameters values have not been set yet.");
       bugWindow.show();
       bugWindow.pack();
 
@@ -287,7 +290,6 @@ public class HazardDataSetCalcCondorApp extends JApplet
     frame.setTitle("HazardMap App");
     frame.getContentPane().add(application, BorderLayout.CENTER);
     application.init();
-    application.start();
     frame.setSize(W,H);
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);

@@ -14,7 +14,7 @@ import java.awt.event.*;
  * @version 1.0
  */
 
-public class UserAuthorizationCheckWindow extends JDialog {
+public class UserAuthorizationCheckWindow extends JFrame {
 
   private static final boolean D= false;
 
@@ -52,7 +52,7 @@ public class UserAuthorizationCheckWindow extends JDialog {
   }
 
   private void jbInit() throws Exception {
-    this.setModal(true);
+    this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
     usernameText.setForeground(new Color(80, 80, 133));
     usernameText.setBackground(Color.white);
     passwordText.setBackground(Color.white);
@@ -160,7 +160,7 @@ public class UserAuthorizationCheckWindow extends JDialog {
     String username = new String(usernameText.getText());
     String password = new String(passwordText.getPassword());
     if(username == null || username.trim().equals("") || password == null || username.trim().equals("")){
-      this.setModal(false);
+
       String message = "<html><body><b>Must Enter User Name and Password.</b>"+
                                                "<p>Not registered, "+
                                                "<a href =\"http://gravity.usc.edu:8080/usermanagement\">"+
@@ -168,25 +168,21 @@ public class UserAuthorizationCheckWindow extends JDialog {
 
       MessageDialog messageWindow = new MessageDialog(message,"Check Login", this);
       messageWindow.show();
-      this.setModal(true);
       return;
     }
     if(!isUserAuthorized(username,password)){
-      this.setModal(false);
       String message = "<html><body><b>Incorrect Username or Password.</b>"+
                                                "<p>Not registered or forgot password, "+
                                                "<a href =\"http://gravity.usc.edu:8080/usermanagement\">"+
                                                "Click Here </a>.</body></html>";
       MessageDialog messageWindow = new MessageDialog(message,"Incorrect login information", this);
       messageWindow.show();
-      this.setModal(true);
       passwordText.setText("");
       return;
     }
-    else{
-      this.dispose();
+    else
       loginSuccess = true;
-    }
+
   }
 
 
@@ -258,7 +254,7 @@ public class UserAuthorizationCheckWindow extends JDialog {
       } //X509TrustManager
       } ; //TrustManager[]
 
-//Install the all-trusting trust manager:
+      //Install the all-trusting trust manager:
       com.sun.net.ssl.SSLContext sc = com.sun.net.ssl.SSLContext.getInstance(
           "SSL");
       sc.init(null, trustAllCerts, new java.security.SecureRandom());
