@@ -497,11 +497,11 @@ public final class RelativeLocation {
       System.out.println("Approx. Horizontal distance2 = "+ getApproxHorzDistance(loc1,pt2));
 
 
-      System.out.println("Approx. Horizontal distance Calc from loc1 to Line = "+ getApproxHorzDistToLine_2(pt1,loc1,loc2));
-      System.out.println("Approx. Horizontal distance Calc from loc2 to Line = "+ getApproxHorzDistToLine_2(pt2,loc1,loc2));
+      System.out.println("Approx. Horizontal distance Calc from loc1 to Line = "+ getApproxHorzDistToLine(pt1,loc1,loc2));
+      System.out.println("Approx. Horizontal distance Calc from loc2 to Line = "+ getApproxHorzDistToLine(pt2,loc1,loc2));
 
-      System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc1 to Line = "+ getApproxHorzDistToLine(pt1,loc1,loc2));
-      System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc2 to Line = "+ getApproxHorzDistToLine(pt2,loc1,loc2));
+      System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc1 to Line = "+ getApproxHorzDistToLine_2(pt1,loc1,loc2));
+      System.out.println("Approx. Horizontal distance(considering line is evenly discretized by 0.1km) from loc2 to Line = "+ getApproxHorzDistToLine_2(pt2,loc1,loc2));
 
 
       //t1 = System.currentTimeMillis();
