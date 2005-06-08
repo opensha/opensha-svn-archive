@@ -252,6 +252,18 @@ public class MeanSigmaCalc
       FileWriter fwSA_10_Mean = new FileWriter(fileNamePrefixCommon +"_"+SA_10+ "_"+MEAN+".txt");
       FileWriter fwSA_10_Sigma = new FileWriter(fileNamePrefixCommon +"_"+SA_10+ "_"+SIGMA+".txt");
 
+
+
+      //Site site = new Site(locList.getLocationAt(0));
+      //Adding the Site related Parameters for the IMR to the Site Object
+      Site site = new Site();
+      Iterator it  = imr.getSiteParamsIterator();
+
+      while(it.hasNext())
+        site.addParameter((ParameterAPI)it.next());
+          //imr.setSite(site);
+
+
       // loop over sources
       for (int sourceIndex = 0; sourceIndex < numSources; sourceIndex++) {
 
@@ -263,8 +275,6 @@ public class MeanSigmaCalc
 
         // get the number of ruptures for the current source
         int numRuptures = source.getNumRuptures();
-
-
 
         // loop over these ruptures
         for (int n = 0; n < numRuptures; n++, ++currRuptures) {
@@ -284,18 +294,14 @@ public class MeanSigmaCalc
 
           int numSites = locList.size();
 
-          //adding the Site Parameters to the Attenuation
-          Site site = new Site(locList.getLocationAt(0));
-          Iterator it  = imr.getSiteParamsIterator();
 
-          while(it.hasNext())
-            site.addParameter((ParameterAPI)it.next());
-          imr.setSite(site);
 
           //looping over all the sites for the selected Attenuation Relationship
           for (int j = 0; j < numSites; ++j) {
             setSiteParamsInIMR(imr, (String)willsClass.get(j));
-            site.setLocation(locList.getLocationAt(j));
+            //this method added to the Attenuation Relationship allows to set the
+            //Location in the site of the attenuation relationship
+            imr.setSiteLocation(locList.getLocationAt(j));
             //setting different intensity measures for each site and writing those to the file.
             imr.setIntensityMeasure(AttenuationRelationship.PGA_NAME);
 

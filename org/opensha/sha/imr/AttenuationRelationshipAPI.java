@@ -6,6 +6,7 @@ import org.opensha.param.*;
 import org.opensha.sha.fault.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.function.*;
+import org.opensha.data.Location;
 
 
 /**
@@ -160,5 +161,17 @@ public interface AttenuationRelationshipAPI
      * @return    The Independent Params Iterator
      */
     public ListIterator getIML_AtExceedProbIndependentParamsIterator();
+
+    /**
+     * This method sets the location in the site.
+     * This is helpful because it allows to  set the location within the
+     * site without setting the Site Parameters. Thus allowing the capability
+     * of setting the site once and changing the location of the site to do the
+     * calculations.
+     * After setting the location within the site, it calls the method
+     * setPropagationEffectsParams().
+     */
+   public void setSiteLocation(Location loc) throws NullObjectException;
+
 
 }

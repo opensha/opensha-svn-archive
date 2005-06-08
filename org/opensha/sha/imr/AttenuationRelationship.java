@@ -480,6 +480,24 @@ public abstract class AttenuationRelationship
 
 
     /**
+     * This method sets the location in the site.
+     * This is helpful because it allows to  set the location within the
+     * site without setting the Site Parameters. Thus allowing the capability
+     * of setting the site once and changing the location of the site to do the
+     * calculations.
+     */
+    public void setSiteLocation(Location loc) throws NullObjectException {
+      if(site !=null){
+        site.setLocation(loc);
+        setPropagationEffectParams();
+      }
+      else{
+        throw new NullObjectException("Cannot set location for a null site. First "+
+                                      "create site for the Attenuation Relationship");
+      }
+    }
+
+    /**
      *  Calculates the value of each propagation effect parameter from the
      *  current Site and ProbEqkRupture objects. <P>
      */
