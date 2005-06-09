@@ -325,6 +325,25 @@ public class USGS_Combined_2004_AttenRel
   }
 
 
+  /**
+   * This override is needed to deal with the site_BC and propEffect
+   */
+  public void setSiteLocation(Location loc) {
+    //if site is null create a new Site
+    if(site == null){
+      site = new Site();
+    }
+    site.setLocation(loc);
+    site_BC.setLocation(loc);
+    this.propEffect.setSite(site_BC);
+    if(this.eqkRupture != null) {
+      as_1997_attenRel.setPropagationEffect(propEffect);
+      bjf_1997_attenRel.setPropagationEffect(propEffect);
+      scemy_1997_attenRel.setPropagationEffect(propEffect);
+      cb_2003_attenRel.setPropagationEffect(propEffect);
+    }
+  }
+
 
    /**
     * Note that for MMI this returns the natural log of MMI (this should be changed later)
