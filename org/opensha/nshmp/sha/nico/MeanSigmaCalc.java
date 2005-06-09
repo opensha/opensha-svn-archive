@@ -228,7 +228,7 @@ public class MeanSigmaCalc
 
 
   /**
-   * Genee=rates the Mean and Sigma files for selected Attenuation Relationship application
+   * Generates the Mean and Sigma files for selected Attenuation Relationship application
    * @param imr AttenuationRelationshipAPI
    * @param dirName String
    */
