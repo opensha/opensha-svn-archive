@@ -19,7 +19,7 @@ import org.opensha.util.*;
  * <b>Description:</b> This implements the Attenuation Relationship
  * developed by Abrahamson (2000, <i>Proc. of 6th Int. Conf. on Seismic Zonation,
  * Palm Springs</i>, Earthq. Eng. Res. Inst.).  NOTE:  This is only for strike-slip
- * earthquakes (even though Somerville et al. (1007) handles all types), and is implemented
+ * earthquakes (even though Somerville et al. (1997) handles all types), and is implemented
  * only for the average horizontal component.  One can easily add fault normal and fault
  * parallel components too, but the specs would have to be obtained from Norm (the necessary
  * info is not contained in the paper).  SA periods down to 0 are included even though the
