@@ -38,7 +38,7 @@
 
   <presentation default="true" displayviewimages="false">
      <name>main window</name>
-     <size width="700" height="400" />
+     <size width="800" height="600" />
      <location x="200" y="200" />
      <title>Scenario ShakeMap Application - Online Help</title>
      <image>toplevelfolder</image>
@@ -50,12 +50,11 @@
 	<helpaction>javax.help.ReloadAction</helpaction>
 	<helpaction>javax.help.SeparatorAction</helpaction>
 	<helpaction>javax.help.PrintAction</helpaction>
-	<helpaction>javax.help.PrintSetupAction</helpaction>
      </toolbar>
   </presentation>
   <presentation>
      <name>main</name>
-     <size width="400" height="400" />
+     <size width="800" height="600" />
      <location x="200" y="200" />
      <title>Scenario ShakeMap Application - Online Help</title>
   </presentation>
