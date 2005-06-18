@@ -14,18 +14,21 @@
 
   <!-- views -->
   <view>
+    <name>Index</name>
+    <label>Index</label>
+    <type>javax.help.IndexView</type>
+    <data>IdeHelpIndex.xml</data>
+  </view>
+
+
+  <view>
     <name>TOC</name>
     <label>Table Of Contents</label>
     <type>javax.help.TOCView</type>
     <data>IdeHelpTOC.xml</data>
   </view>
 
-  <view>
-    <name>Index</name>
-    <label>Index</label>
-    <type>javax.help.IndexView</type>
-    <data>IdeHelpIndex.xml</data>
-  </view>
+
 
   <view>
     <name>Search</name>
