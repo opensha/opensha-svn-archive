@@ -52,7 +52,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
   }
 
   private void jbInit() throws Exception {
-    this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
+    //this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
     usernameText.setForeground(new Color(80, 80, 133));
     usernameText.setBackground(Color.white);
     passwordText.setBackground(Color.white);
