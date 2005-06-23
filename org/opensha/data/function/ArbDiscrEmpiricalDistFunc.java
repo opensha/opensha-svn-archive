@@ -137,16 +137,27 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
      * @return
      */
     public ArbitrarilyDiscretizedFunc getNormalizedCumDist() {
-      ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc(0.0);
-      DataPoint2D dp;
 
       // get the total sum
       double totSum = 0;
       Iterator it = getPointsIterator();
       while (it.hasNext()) { totSum += ((DataPoint2D) it.next()).getY(); }
 
+      return getCumDist(totSum);
+    }
+
+
+    /**
+     * This returns an ArbitrarilyDiscretizedFunc representing the cumulative
+     * distribution normalized by the value (totSum) passed in
+     * @return
+     */
+    private ArbitrarilyDiscretizedFunc getCumDist(double totSum) throws DataPoint2DException {
+
+      ArbitrarilyDiscretizedFunc cumDist = new ArbitrarilyDiscretizedFunc(0.0);
+      DataPoint2D dp;
       double sum = 0;
-      it = getPointsIterator();
+      Iterator it = getPointsIterator();
       while (it.hasNext()) {
         dp = (DataPoint2D) it.next();
         sum += dp.getY();
@@ -156,6 +167,16 @@ public class ArbDiscrEmpiricalDistFunc extends ArbitrarilyDiscretizedFunc
       return cumDist;
     }
 
+
+    /**
+     * This returns an ArbitrarilyDiscretizedFunc representing the cumulative
+     * distribution.
+     * @return
+     */
+    public ArbitrarilyDiscretizedFunc getCumDist() {
+
+      return getCumDist(1.0);
+    }
 
 
 
