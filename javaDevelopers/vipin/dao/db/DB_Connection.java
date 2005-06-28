@@ -50,12 +50,28 @@ public class DB_Connection
     return;
   }
 
-  public static void main(String args[]) {
-    try {
-      DB_Connection connection = new DB_Connection();
-      connection.connect("", "");
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
+  /**
+  * Inserts  the data into the database
+  * @param query
+  */
+ public void insertUpdateOrDeleteData(String sql) throws java.sql.SQLException {
+   Statement stat = conn.createStatement();
+   stat.executeUpdate(sql);
+   stat.close();
+ }
+
+ /**
+   * Runs the select query on the database
+   * @param query
+   * @return
+   */
+  public ResultSet queryData(String sql) throws java.sql.SQLException {
+    Statement stat = conn.createStatement();
+    //gets the resultSet after running the query
+    ResultSet result = stat.executeQuery(sql);
+    return result;
   }
+
+
+
 }
