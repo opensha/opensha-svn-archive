@@ -15,11 +15,25 @@ import java.util.*;
 public class Read_VC_FaultActivity_SAF {
 
 
-  private String[] segmentAreas;
+  //gets the Segment area
+  private double[] segmentAreas;
 
-  private String inputFile = "javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt";
 
-  public void getSegmentSlipTimeInfo() throws FileNotFoundException,
+  //Name of the input file to read
+  private final static String inputFile = "javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt";
+
+  //Name of the output file that saves all Segments Numbers that have Slip histories at same time period
+  private final static String outSegmentSlipFile = "javaDevelopers/ned/RundleVC_data/ned_out.txt";
+
+  //list consisting of SegmentSlipTimeInfo Object
+  private ArrayList segmentSlipInfoList;
+
+  //Treemap to store which segments have same Time Pds.
+  //Key for this mapping is TimePd and Value is the Arraylist of all the segments
+  //that have same Time Pd
+  private TreeMap timeSegmentMapping;
+
+  public void getSegmentSlipTimeInfoFromFile() throws FileNotFoundException,
       IOException {
 
     //reading the file to extract Slip time infor for each segment
@@ -30,24 +44,162 @@ public class Read_VC_FaultActivity_SAF {
     //reading the next line in the file that tells how many segments are there in the file
     String numSegmentsLine = br.readLine();
     StringTokenizer st = new StringTokenizer(numSegmentsLine);
-    int numSegments = Integer.parseInt(st.nextToken().trim());
-    segmentAreas = new String[numSegments];
+    int numSegments = (int)Double.parseDouble(st.nextToken().trim());
+    segmentAreas = new double[numSegments];
     //skipping the next line as it just provide with String " SEGMENT Area" String
     br.readLine();
-    for(int i=0;i<numSegments;++i)
-      segmentAreas[i] = br.readLine();
+    //counter for number of segment Areas.
+    int i=0;
+    //counter to see how many lines taken by Segment Area block
+    int numSegmentLines = 0;
+
+    //looping over whole of "Segment Area" block to get all the segment areas
+    while(i < numSegments){
+      ++numSegmentLines;
+      String segmentLine = br.readLine();
+      st = new StringTokenizer(segmentLine);
+      while(st.hasMoreTokens()){
+        segmentAreas[i] = Double.parseDouble(st.nextToken());
+        ++i;
+      }
+    }
+
 
     //Skipping the lines for Segment Velocity
-    for(int i=0;i<=numSegments;++i)
+    for(i=0;i<=numSegmentLines;++i)
       br.readLine();
 
+    //initialising the List to store the Segment Slip time histories info
+    segmentSlipInfoList = new ArrayList();
+    //initialing the treemap to get all the Segments that have slip info for same time pd.
+    timeSegmentMapping = new TreeMap();
 
+    //looping over all the segments to get all the slip time histories .
+    for(int j=0;j<numSegments-1;++j){
+      //reading a null line
+       br.readLine();
+      //reading a line that is to be skipped
+      br.readLine();
+      String numEventsInSegment = br.readLine();
+      st = new StringTokenizer(numEventsInSegment);
+      int segmentNum = Integer.parseInt(st.nextToken());
+      String token = st.nextToken();
+      //System.out.println("Token :"+token);
+      int numEvents = Integer.parseInt(token);
+      //reading a line that needs to be skipped
+      br.readLine();
 
+      //List for storing the Slip time histories for each segment
+      ArrayList timeHistories = new ArrayList();
+      ArrayList slipHistories = new ArrayList();
+
+      //reading the slip time histories for each segment
+      for(int k=0;k<numEvents;++k){
+        String segmentSlipTimeLine = br.readLine();
+        StringTokenizer st1 = new StringTokenizer(segmentSlipTimeLine);
+        //skipping the event number
+        st1.nextToken();
+        //Reading the time Pd for the segment
+        Integer timePd = new Integer((int)Double.parseDouble(st1.nextToken().trim()));
+
+        //Looking in the Treemap if the Time Pd already exists, if it does,
+        //then extract the corresponding ArrayList of the Segments have
+        //same Time Pd and add the new segment to this list.
+        //If the mapping does not contain the time pd. then add this time pd to the
+        //Treemap.
+        Object timeSegList = timeSegmentMapping.get(timePd);
+        if(timeSegList !=null)
+          ((ArrayList)timeSegList).add(new Integer(segmentNum));
+        else{
+          ArrayList segList = new ArrayList();
+          segList.add(new Integer(segmentNum));
+          timeSegmentMapping.put(timePd,segList);
+        }
+        //getting the time histories and storing it in the Array List
+        timeHistories.add(timePd);
+        //getting the slip histories and storing it in the Array List
+        slipHistories.add(new Double(st1.nextToken().trim()));
+      }
+      //creating the SegmentSlipTimeInfo object
+      SegmentSlipTimeInfo  segmentSlipTime = new SegmentSlipTimeInfo(segmentNum,timeHistories,slipHistories);
+      //adding this object to the list
+      segmentSlipInfoList.add(segmentSlipTime);
+    }
   }
 
+
+  /**
+   * This function sorts the Segment list that have slip at the same Time Pd.
+   */
+  public void sortSegmentListForTimePd(){
+    Set keySet = timeSegmentMapping.keySet();
+    Iterator it = keySet.iterator();
+    while(it.hasNext())
+      Collections.sort((ArrayList)timeSegmentMapping.get(it.next()));
+  }
+
+
+  /**
+   * Returns the ArrayList for the SegmentSlipTimeInfo Object.
+   * This object contains all slip time Histories info for each segment
+   * @return ArrayList
+   */
+  public ArrayList getSegmentsSlipTimeHistories(){
+    return segmentSlipInfoList;
+  }
+
+
+  /**
+   * Writes the output file for all segments having the same TimePd for slip histories.
+   * Writes the output file in the following format:
+   * Time-Pd-1 segmentNum-1,segmentNum-2,.....
+   * Time-Pd-2 segmentNum-2,segmentNum-3
+   * .
+   * .
+   * .
+   * @param fileName String Output filename
+   * Output file is a sorted file.
+   */
+  public void writeTimeSegmentFile(String fileName) throws IOException {
+    FileWriter fw = new FileWriter(fileName);
+    Set keySet = timeSegmentMapping.keySet();
+    Iterator it = keySet.iterator();
+    fw.write("Time-Pd.  Segment-Number(Comma seperated)\n\n");
+    while(it.hasNext()){
+     Integer timePd = (Integer)it.next();
+     ArrayList segmentList = (ArrayList)timeSegmentMapping.get(timePd);
+     int size = segmentList.size();
+     fw.write(timePd.intValue()+"  ");
+     for(int i=0;i<size-1;++i)
+       fw.write(((Integer)segmentList.get(i)).intValue()+",");
+     fw.write(""+((Integer)segmentList.get(size-1)).intValue());
+     fw.write("\n");
+    }
+    fw.close();
+  }
 
   public static void main(String[] args) {
     Read_VC_FaultActivity_SAF read_vc_faultactivity_saf = new
         Read_VC_FaultActivity_SAF();
+    try {
+      read_vc_faultactivity_saf.getSegmentSlipTimeInfoFromFile();
+    }
+    catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+      System.exit(0);
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+      System.exit(0);
+    }
+
+    read_vc_faultactivity_saf.sortSegmentListForTimePd();
+    try {
+      read_vc_faultactivity_saf.writeTimeSegmentFile(outSegmentSlipFile);
+    }
+    catch (IOException ex1) {
+      ex1.printStackTrace();
+      System.exit(0);
+    }
   }
 }

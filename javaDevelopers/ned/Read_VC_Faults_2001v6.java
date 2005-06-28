@@ -103,9 +103,11 @@ public class Read_VC_Faults_2001v6 {
     }
     catch (FileNotFoundException ex) {
       ex.printStackTrace();
+      System.exit(0);
     }
     catch (IOException ex) {
       ex.printStackTrace();
+      System.exit(0);
     }
 
     //getting the segments info
