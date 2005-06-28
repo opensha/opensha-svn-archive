@@ -53,7 +53,7 @@ public class DB_Connection
   public static void main(String args[]) {
     try {
       DB_Connection connection = new DB_Connection();
-      connection.connect("fault_sandbox", "perry");
+      connection.connect("", "");
     }catch(Exception e) {
       e.printStackTrace();
     }
