@@ -5,7 +5,6 @@ import java.util.*;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
 import org.opensha.sha.earthquake.*;
 
 /**
