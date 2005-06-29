@@ -17,6 +17,11 @@ public class Contributor {
   public Contributor() {
   }
 
+  public Contributor(int id, String name) {
+    setId(id);
+    setName(name);
+  }
+
   public int getId() { return id; }
   public String getName() { return this.name; }
 
