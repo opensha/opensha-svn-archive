@@ -12,7 +12,7 @@ import java.util.*;
  * @author Edward (Ned) Field
  * @version 1.0
  */
-public class Read_VC_FaultActivity_SAF {
+public class Read_VC_FaultActivity {
 
 
   //gets the Segment area
@@ -20,7 +20,7 @@ public class Read_VC_FaultActivity_SAF {
 
 
   //Name of the input file to read
-  private final static String inputFile = "javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt";
+  private  String inputFile;
 
   //Name of the output file that saves all Segments Numbers that have Slip histories at same time period
   private final static String outSegmentSlipFile = "javaDevelopers/ned/RundleVC_data/ned_out.txt";
@@ -33,7 +33,26 @@ public class Read_VC_FaultActivity_SAF {
   //that have same Time Pd
   private TreeMap timeSegmentMapping;
 
-  public void getSegmentSlipTimeInfoFromFile() throws FileNotFoundException,
+  public Read_VC_FaultActivity(String fileName) {
+    inputFile = fileName;
+
+    try {
+      getSegmentSlipTimeInfoFromFile();
+    }
+    catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+      System.exit(0);
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+      System.exit(0);
+    }
+
+    sortSegmentListForTimePd();
+
+  }
+
+  private void getSegmentSlipTimeInfoFromFile() throws FileNotFoundException,
       IOException {
 
     //reading the file to extract Slip time infor for each segment
@@ -131,7 +150,7 @@ public class Read_VC_FaultActivity_SAF {
   /**
    * This function sorts the Segment list that have slip at the same Time Pd.
    */
-  public void sortSegmentListForTimePd(){
+  private void sortSegmentListForTimePd(){
     Set keySet = timeSegmentMapping.keySet();
     Iterator it = keySet.iterator();
     while(it.hasNext())
@@ -149,6 +168,22 @@ public class Read_VC_FaultActivity_SAF {
   }
 
 
+  /**
+   * This returns the segment areas
+   * @return double[]
+   */
+  public double[] getSegmentAreas() {
+    return segmentAreas;
+  }
+
+
+  /**
+   * This returns timeSegmentMapping
+   * @return double[]
+   */
+  public TreeMap getTimeSegmentMapping() {
+    return timeSegmentMapping;
+  }
 
   /**
    * Writes the output file for all segments having the same TimePd for slip histories.
@@ -165,14 +200,14 @@ public class Read_VC_FaultActivity_SAF {
     FileWriter fw = new FileWriter(fileName);
     Set keySet = timeSegmentMapping.keySet();
     Iterator it = keySet.iterator();
-    fw.write("Time-Pd.  Segment-Number(Comma seperated)\n\n");
+    fw.write("Year  Segment-Numbers\n");
     while(it.hasNext()){
      Integer timePd = (Integer)it.next();
      ArrayList segmentList = (ArrayList)timeSegmentMapping.get(timePd);
      int size = segmentList.size();
-     fw.write(timePd.intValue()+"  ");
+     fw.write(timePd.intValue()+" ");
      for(int i=0;i<size-1;++i)
-       fw.write(((Integer)segmentList.get(i)).intValue()+",");
+       fw.write(((Integer)segmentList.get(i)).intValue()+" ");
      fw.write(""+((Integer)segmentList.get(size-1)).intValue());
      fw.write("\n");
     }
@@ -180,21 +215,8 @@ public class Read_VC_FaultActivity_SAF {
   }
 
   public static void main(String[] args) {
-    Read_VC_FaultActivity_SAF read_vc_faultactivity_saf = new
-        Read_VC_FaultActivity_SAF();
-    try {
-      read_vc_faultactivity_saf.getSegmentSlipTimeInfoFromFile();
-    }
-    catch (FileNotFoundException ex) {
-      ex.printStackTrace();
-      System.exit(0);
-    }
-    catch (IOException ex) {
-      ex.printStackTrace();
-      System.exit(0);
-    }
-
-    read_vc_faultactivity_saf.sortSegmentListForTimePd();
+    Read_VC_FaultActivity read_vc_faultactivity_saf = new
+        Read_VC_FaultActivity("javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt");
     try {
       read_vc_faultactivity_saf.writeTimeSegmentFile(outSegmentSlipFile);
     }
