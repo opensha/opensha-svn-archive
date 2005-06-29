@@ -15,7 +15,9 @@ public class DB_Connection
 {
 
   private Connection conn = null;
+  private Statement stat = null;
   private final static String HOSTNAME="iron.gps.caltech.edu";
+  //private final static String DB_NAME="(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = iron.gps.caltech.edu)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = irondb.iron.gps.caltech.edu)(SERVER = DEDICATED)))";
   private final static String DB_NAME="irondb";
   private final static int PORT = 1521;
   private String hostName, dbName;
@@ -34,7 +36,10 @@ public class DB_Connection
   }
 
   public void disconnect() throws SQLException{
-    if(conn!=null && !conn.isClosed()) conn.close();
+    if(conn!=null && !conn.isClosed()) {
+      stat.close();
+      conn.close();
+    }
   }
 
 
@@ -62,6 +67,7 @@ public class DB_Connection
     try {
       conn = DriverManager.getConnection(url,userName,password);
       conn.setAutoCommit(true);
+      stat = conn.createStatement();
     }
     catch (SQLException e) { e.printStackTrace();}
 
@@ -72,11 +78,9 @@ public class DB_Connection
   * Inserts  the data into the database
   * @param query
   */
- public void insertUpdateOrDeleteData(String sql) throws java.sql.SQLException {
-   //if(!sql.endsWith(";")) sql = sql+";";
-   Statement stat = conn.createStatement();
-   stat.executeUpdate(sql);
-   stat.close();
+ public int insertUpdateOrDeleteData(String sql) throws java.sql.SQLException {
+   int rows = stat.executeUpdate(sql);
+   return rows;
  }
 
  /**
@@ -85,8 +89,6 @@ public class DB_Connection
    * @return
    */
   public ResultSet queryData(String sql) throws java.sql.SQLException {
-    //if(!sql.endsWith(";")) sql = sql+";";
-    Statement stat = conn.createStatement();
     //gets the resultSet after running the query
     ResultSet result = stat.executeQuery(sql);
     return result;

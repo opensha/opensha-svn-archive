@@ -72,31 +72,30 @@ public class TestContributorDB_DAO extends TestCase {
     Contributor actualReturn = contributorDB_DAO.getContributor(2);
     assertEquals("No contributor exists with id 2", null, actualReturn);
     actualReturn = contributorDB_DAO.getContributor(1);
+    assertNotNull("should not be null as contributor exists with id = 1",actualReturn);
     assertEquals("contributor id 1 has name test 1", "Test1", actualReturn.getName());
   }
 
   public void testUpdateContributor() throws UpdateException {
     Contributor contributor = new Contributor(2,"Test2");
-    try {
-      contributorDB_DAO.updateContributor(2, contributor);
-      fail("should not update contributor with id=2 as it does not exist");
-    }catch(UpdateException e) { }
+    boolean status  = contributorDB_DAO.updateContributor(2, contributor);
+    this.assertFalse("cannot update contributor with 2 as it does not exist", status);
     contributor = new Contributor(1,"TestTest1");
-    contributorDB_DAO.updateContributor(1, contributor);
+    status = contributorDB_DAO.updateContributor(1, contributor);
+    assertTrue("contributor with id=1 should be updated in the database",status);
     Contributor actualReturn = contributorDB_DAO.getContributor(1);
+    assertNotNull("should not be null as contributor exists with id = 1",actualReturn);
     assertEquals("contributor id 1 has name test 1", "TestTest1", actualReturn.getName());
   }
 
   public void testRemoveContributor() throws UpdateException {
-    int contributorId = 0;
-    try {
-      contributorDB_DAO.removeContributor(2);
-      fail("Cannot remove the contributor with id 2");
-    }
-    catch(UpdateException e) { }
-    contributorDB_DAO.removeContributor(3);
+    boolean status = contributorDB_DAO.removeContributor(2);
+    this.assertFalse("cannot remove contributor with 2 as it does not exist", status);
+    status = contributorDB_DAO.removeContributor(3);
+    assertTrue("contributor with id=3 should be removed from the database",status);
     assertEquals("should now contain only 1 contributor",1, contributorDB_DAO.getAllContributors().size());
-    contributorDB_DAO.removeContributor(1);
+    status=contributorDB_DAO.removeContributor(1);
+    assertTrue("contributor with id=1 should be removed from the database",status);
     assertEquals("should now contain only 0 contributor",0, contributorDB_DAO.getAllContributors().size());
   }
 }

@@ -29,7 +29,7 @@ public interface ContributorDAO_API {
    * @param contributorId  Id of the contributor which need to be updated
    * @param contributor updated info about the contributor
    */
-  public void updateContributor(int contributorId, Contributor contributor) throws UpdateException;
+  public boolean updateContributor(int contributorId, Contributor contributor) throws UpdateException;
 
   /**
    * Get the contributor info for a particular contributor Id
@@ -42,7 +42,7 @@ public interface ContributorDAO_API {
    * Remove this contributor from the list
    * @param contributorId
    */
-  public void removeContributor(int contributorId) throws UpdateException;
+  public boolean removeContributor(int contributorId) throws UpdateException;
 
   /**
    * Returns a list of all Contributors.

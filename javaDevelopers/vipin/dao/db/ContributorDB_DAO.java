@@ -45,11 +45,9 @@ public class ContributorDB_DAO implements ContributorDAO_API {
   public void addContributor(Contributor contributor) throws InsertException {
     String sql = "insert into "+TABLE_NAME+"("+ CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+")"+
         " values ("+contributor.getId()+",'"+contributor.getName()+"')";
-    //String sql = "insert into Contributors(Contributor_Id,Contributor_Name) values (1,'Test 1')";
-    System.out.println(sql);
     try { dbConnection.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
-      e.printStackTrace();
+      //e.printStackTrace();
       throw new InsertException(e.getMessage());
     }
   }
@@ -60,11 +58,15 @@ public class ContributorDB_DAO implements ContributorDAO_API {
    * @param contributor
    * @throws UpdateException
    */
-  public void updateContributor(int contributorId, Contributor contributor) throws UpdateException {
+  public boolean updateContributor(int contributorId, Contributor contributor) throws UpdateException {
     String sql = "update "+TABLE_NAME+" set "+CONTRIBUTOR_NAME+"= '"+
         contributor.getName()+"' where "+CONTRIBUTOR_ID+"="+contributorId;
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try {
+      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      if(numRows==1) return true;
+    }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+    return false;
   }
 
 
@@ -80,9 +82,8 @@ public class ContributorDB_DAO implements ContributorDAO_API {
         " where "+CONTRIBUTOR_ID+"="+contributorId;
     try {
       ResultSet rs  = dbConnection.queryData(sql);
-      while(rs.next()) contributor = new Contributor(rs.getInt(0), rs.getString(1));
-      //rs.close();
-      //rs.getStatement().close();
+      while(rs.next()) contributor = new Contributor(rs.getInt(CONTRIBUTOR_ID), rs.getString(CONTRIBUTOR_NAME));
+      rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return contributor;
   }
@@ -93,10 +94,14 @@ public class ContributorDB_DAO implements ContributorDAO_API {
    * @param contributorId
    * @throws UpdateException
    */
-  public void removeContributor(int contributorId) throws UpdateException {
+  public boolean removeContributor(int contributorId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+CONTRIBUTOR_ID+"="+contributorId;
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try {
+      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      if(numRows==1) return true;
+    }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+    return false;
   }
 
   /**
@@ -110,9 +115,8 @@ public class ContributorDB_DAO implements ContributorDAO_API {
     String sql = "select "+CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+" from "+TABLE_NAME;
     try {
       ResultSet rs  = dbConnection.queryData(sql);
-      while(rs.next()) contributorList.add(new Contributor(rs.getInt(0), rs.getString(1)));
-      //rs.close();
-      //rs.getStatement().close();
+      while(rs.next()) contributorList.add(new Contributor(rs.getInt(CONTRIBUTOR_ID), rs.getString(CONTRIBUTOR_NAME)));
+      rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return contributorList;
   }
