@@ -149,6 +149,7 @@ public class Read_VC_FaultActivity_SAF {
   }
 
 
+
   /**
    * Writes the output file for all segments having the same TimePd for slip histories.
    * Writes the output file in the following format:

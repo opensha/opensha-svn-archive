@@ -5,7 +5,8 @@ import java.util.*;
 /**
  * <p>Title: SegmentSlipTimeInfo</p>
  *
- * <p>Description: This class stores the Segment Slip time histories.</p>
+ * <p>Description: This class stores the Segment Slip time histories, sorting the list of
+ * times/slips in order of time.</p>
  *
  * @author Edward (NEd) Field
  * @version 1.0
