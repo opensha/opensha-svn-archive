@@ -18,6 +18,12 @@ public class SiteType {
   public SiteType() {
   }
 
+  public SiteType(int siteTypeId, String siteTypeName, Contributor contributor) {
+    setSiteTypeId(siteTypeId);
+    setContributor(contributor);
+    setSiteType(siteTypeName);
+  }
+
   public void setSiteTypeId(int siteTypeId) {
     this.siteTypeId = siteTypeId;
   }
@@ -29,7 +35,7 @@ public class SiteType {
   }
 
   public int getSiteTypeId() { return this.siteTypeId; }
-  public Contributor getContributors() { return this.contributor; }
+  public Contributor getContributor() { return this.contributor; }
   public String getSiteType() { return this.siteType; }
 
 }
