@@ -74,19 +74,23 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
 
   }
 
-
+  /**
+   * Get a site type based on site type ID
+   * @param siteTypeId
+   * @return
+   * @throws QueryException
+   */
   public SiteType getSiteType(int siteTypeId) throws QueryException {
     SiteType siteType=null;
     String sql = "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+
         " where "+SITE_TYPE_ID+"="+siteTypeId;
     try {
       ResultSet rs  = dbConnection.queryData(sql);
-      siteType = new SiteType();
       ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);
       while(rs.next()) {
-        siteType.setSiteType(rs.getString(SITE_TYPE_NAME));
-        siteType.setSiteTypeId(rs.getInt(SITE_TYPE_ID));
-        siteType.setContributor(contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
+        siteType = new SiteType(rs.getInt(SITE_TYPE_ID),
+            rs.getString(SITE_TYPE_NAME),
+            contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
       }
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
@@ -94,16 +98,40 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
 
   }
 
-
+  /**
+   * remove a site type from the database
+   * @param siteTypeId
+   * @return
+   * @throws UpdateException
+   */
   public boolean removeSiteType(int siteTypeId) throws UpdateException {
-    /**@todo Implement this javaDevelopers.vipin.dao.SiteTypeDAO_API method*/
-    throw new java.lang.UnsupportedOperationException("Method removeSiteType() not yet implemented.");
+    String sql = "delete from "+TABLE_NAME+"  where "+SITE_TYPE_ID+"="+siteTypeId;
+    try {
+      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      if(numRows==1) return true;
+    }
+    catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+    return false;
   }
 
 
+  /**
+   * Get all the site types from the database
+   * @return
+   * @throws QueryException
+   */
   public ArrayList getAllSiteTypes() throws QueryException {
-    /**@todo Implement this javaDevelopers.vipin.dao.SiteTypeDAO_API method*/
-    throw new java.lang.UnsupportedOperationException("Method getAllSiteTypes() not yet implemented.");
+    ArrayList siteTypeList = new ArrayList();
+    String sql =  "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME;
+    try {
+      ResultSet rs  = dbConnection.queryData(sql);
+      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);
+      while(rs.next()) siteTypeList.add(new SiteType(rs.getInt(SITE_TYPE_ID),
+            rs.getString(SITE_TYPE_NAME),
+            contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID))));
+      rs.close();
+    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    return siteTypeList;
   }
 
 }
