@@ -18,7 +18,7 @@ import java.sql.SQLException;
  */
 public class TestContributorDB_DAO extends TestCase {
   private DB_Connection dbConnection = new DB_Connection();
-  ContributorDB_DAO contributorDB_DAO = null;
+  private ContributorDB_DAO contributorDB_DAO = null;
 
   public TestContributorDB_DAO(String name) {
     super(name);
@@ -63,9 +63,9 @@ public class TestContributorDB_DAO extends TestCase {
     ArrayList actualReturn = contributorDB_DAO.getAllContributors();
     assertEquals("Should have 2 contributors in the table", 2, actualReturn.size());
     Contributor contributor = (Contributor)actualReturn.get(0);
-    assertEquals("contributor id expected is 1",contributor.getId(),1);
+    assertEquals("contributor id expected is 1",1,contributor.getId());
     contributor = (Contributor)actualReturn.get(1);
-    assertEquals("contributor id expected is 3",contributor.getId(),3);
+    assertEquals("contributor id expected is 3",3,contributor.getId());
   }
 
   public void testGetContributor() throws QueryException {

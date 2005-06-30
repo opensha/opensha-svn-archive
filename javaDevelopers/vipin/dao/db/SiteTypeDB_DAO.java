@@ -93,6 +93,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
             contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
       }
       rs.close();
+      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return siteType;
 
@@ -130,6 +131,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
             rs.getString(SITE_TYPE_NAME),
             contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID))));
       rs.close();
+      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return siteTypeList;
   }
