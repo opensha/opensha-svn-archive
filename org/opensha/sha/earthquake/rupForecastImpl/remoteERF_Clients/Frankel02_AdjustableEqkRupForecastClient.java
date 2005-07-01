@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: Frankel02_AdjustableEqkRupForecast.java </p>
@@ -16,7 +17,8 @@ public class Frankel02_AdjustableEqkRupForecastClient extends RemoteERF_Client {
 
   public Frankel02_AdjustableEqkRupForecastClient() throws java.rmi.RemoteException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast";
-    getRemoteERF(className);
+    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+    getRemoteERF(className,remoteRegistrationName);
   }
 
 }

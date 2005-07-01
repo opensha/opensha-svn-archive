@@ -22,7 +22,7 @@ GMT_MapGenerator:
 
 The Log Plot tester App does not work for the Linear Scale- Its working(Nitin). 
 
-Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).  Talk to Sue about this.
+Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).  Talk to Sue about this- Done (Nitin)
 
 Revisit PEER results plotter & data submission tool.
 

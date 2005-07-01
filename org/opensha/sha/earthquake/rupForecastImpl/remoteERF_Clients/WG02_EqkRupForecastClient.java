@@ -5,6 +5,7 @@ import java.rmi.RemoteException;
 
 import org.opensha.data.TimeSpan;
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: WG02_EqkRupForecastClient </p>
@@ -19,12 +20,13 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 public class WG02_EqkRupForecastClient extends RemoteERF_Client {
 
   public final static String className = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
+  private final static  String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
   /**
    * Class default constructor
    * @throws java.rmi.RemoteException
    */
   public WG02_EqkRupForecastClient() throws java.rmi.RemoteException{
-    getRemoteERF(className);
+    getRemoteERF(className,remoteRegistrationName);
   }
 
 
@@ -67,7 +69,7 @@ public class WG02_EqkRupForecastClient extends RemoteERF_Client {
     params.add(timespan);
 
     try{
-      getRemoteERF(params,paramTypes,className);
+      getRemoteERF(params,paramTypes,className,remoteRegistrationName);
     }catch(Exception e){
       e.printStackTrace();
     }

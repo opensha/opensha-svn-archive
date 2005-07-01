@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: STEP_EqkRupForecastClient.java </p>
@@ -16,7 +17,8 @@ public class STEP_EqkRupForecastClient extends RemoteERF_Client{
 
   public STEP_EqkRupForecastClient() throws java.rmi.RemoteException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.step.STEP_EqkRupForecast";
-    getRemoteERF(className);
+    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+    getRemoteERF(className,remoteRegistrationName);
   }
 
 }

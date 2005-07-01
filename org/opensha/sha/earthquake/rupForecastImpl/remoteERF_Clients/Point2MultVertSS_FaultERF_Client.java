@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: Point2MultVertSS_FaultERF_Client.java </p>
@@ -16,7 +17,8 @@ public class Point2MultVertSS_FaultERF_Client extends RemoteERF_Client {
 
   public Point2MultVertSS_FaultERF_Client() throws java.rmi.RemoteException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
-    getRemoteERF(className);
+    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+    getRemoteERF(className,remoteRegistrationName);
   }
 
 }

@@ -30,9 +30,9 @@ public class RemoteERF_ListClient extends ERF_List {
   /**
    * Get the reference to the remote ERF
    */
-  protected void getRemoteERF_List(String className) throws RemoteException{
+  protected void getRemoteERF_List(String className, String rmiRemoteRegistrationName) throws RemoteException{
     try {
-      RemoteERF_ListFactoryAPI remoteERF_ListFactory= (RemoteERF_ListFactoryAPI) Naming.lookup(RegisterRemoteERF_ListFactory.registrationName);
+      RemoteERF_ListFactoryAPI remoteERF_ListFactory= (RemoteERF_ListFactoryAPI) Naming.lookup(rmiRemoteRegistrationName);
       erfListServer = remoteERF_ListFactory.getRemoteERF_List(className);
       adjustableParams = erfListServer.getAdjustableParameterList();
       ListIterator it = adjustableParams.getParametersIterator();

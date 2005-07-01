@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: SingleFaultRuptureERF_Client </p>
@@ -16,10 +17,11 @@ import org.opensha.sha.earthquake.EqkRupture;
 public class SingleFaultRuptureERF_Client extends RemoteERF_Client{
 
   private final static  String className = "org.opensha.sha.earthquake.rupForecastImpl.SingleFaultRuptureERF";
-
+  private final static  String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
 
   public SingleFaultRuptureERF_Client() throws java.rmi.RemoteException{
-    getRemoteERF(className);
+
+    getRemoteERF(className,remoteRegistrationName);
   }
 
   /**
@@ -38,7 +40,7 @@ public class SingleFaultRuptureERF_Client extends RemoteERF_Client{
     params.add(new Double(prob));
 
     try{
-      getRemoteERF(params,paramTypes,className);
+      getRemoteERF(params,paramTypes,className,remoteRegistrationName);
     }catch(Exception e){
       e.printStackTrace();
     }

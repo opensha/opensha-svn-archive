@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: PEER_AreaForecastClient </p>
@@ -16,7 +17,8 @@ public class PEER_AreaForecastClient extends RemoteERF_Client {
 
   public PEER_AreaForecastClient() throws java.rmi.RemoteException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.PEER_TestCases.PEER_AreaForecast";
-    getRemoteERF(className);
+    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+    getRemoteERF(className,remoteRegistrationName);
   }
 
 }

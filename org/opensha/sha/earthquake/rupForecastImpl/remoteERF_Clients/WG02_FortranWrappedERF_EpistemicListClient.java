@@ -1,6 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_ListClient;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_ListFactory;
 
 
 /**
@@ -16,7 +17,8 @@ public class WG02_FortranWrappedERF_EpistemicListClient extends RemoteERF_ListCl
 
   public WG02_FortranWrappedERF_EpistemicListClient() throws java.rmi.RemoteException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_FortranWrappedERF_EpistemicList";
-    getRemoteERF_List(className);
+    String remoteRegistrationName = RegisterRemoteERF_ListFactory.registrationName;
+    getRemoteERF_List(className,remoteRegistrationName);
   }
 
 }

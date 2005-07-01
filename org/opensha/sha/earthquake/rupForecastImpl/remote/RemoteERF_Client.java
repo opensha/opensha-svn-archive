@@ -34,9 +34,9 @@ public class RemoteERF_Client extends EqkRupForecast implements
   /**
    * Get the reference to the remote ERF
    */
-  protected void getRemoteERF(String className) throws RemoteException{
+  protected void getRemoteERF(String className, String rmiRemoteRegistrationName) throws RemoteException{
     try {
-      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
+      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(rmiRemoteRegistrationName);
       erfServer = remoteERF_Factory.getRemoteERF(className);
       adjustableParams = erfServer.getAdjustableParameterList();
       ListIterator it = adjustableParams.getParametersIterator();
@@ -73,9 +73,9 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * @param className
    * @throws RemoteException
    */
-  protected void getRemoteERF(ArrayList paramArrays,ArrayList paramTypes,String className) throws RemoteException{
+  protected void getRemoteERF(ArrayList paramArrays,ArrayList paramTypes,String className,String rmiRemoteRegistrationName) throws RemoteException{
     try {
-      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(RegisterRemoteERF_Factory.registrationName);
+      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(rmiRemoteRegistrationName);
       erfServer = remoteERF_Factory.getRemoteERF(paramArrays,paramTypes,className);
       adjustableParams = erfServer.getAdjustableParameterList();
       ListIterator it = adjustableParams.getParametersIterator();

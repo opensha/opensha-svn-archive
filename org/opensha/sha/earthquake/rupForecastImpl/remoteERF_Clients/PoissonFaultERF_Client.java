@@ -2,6 +2,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients;
 
 import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteERF_Client;
 import org.opensha.param.event.*;
+import org.opensha.sha.earthquake.rupForecastImpl.remote.RegisterRemoteERF_Factory;
 
 /**
  * <p>Title: PoissonFaultERF_Client</p>
@@ -15,7 +16,8 @@ public class PoissonFaultERF_Client extends RemoteERF_Client {
 
   public PoissonFaultERF_Client() throws java.rmi.RemoteException{
     String className = "org.opensha.sha.earthquake.rupForecastImpl.PoissonFaultERF";
-    getRemoteERF(className);
+    String remoteRegistrationName = RegisterRemoteERF_Factory.registrationName;
+    getRemoteERF(className,remoteRegistrationName);
   }
 
 
