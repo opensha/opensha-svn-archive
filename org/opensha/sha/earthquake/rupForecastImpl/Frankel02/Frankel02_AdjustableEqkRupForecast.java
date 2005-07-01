@@ -812,6 +812,13 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   }
 
 
+  /**
+   * Returns the Characterstic Fault Sources from the Frankel-02 ERF
+   * @return ArrayList
+   */
+  public ArrayList getAllCharFaultSources(){
+    return charFaultSources;
+  }
 
   /**
    *  This assumes the second file differs only in the max mag (third column)

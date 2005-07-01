@@ -86,6 +86,17 @@ public class FaultRuptureSource extends ProbEqkSource {
   }
 
   /**
+   * Returns the Source Surface.
+   * As all ruptures of this source have the same dimensions, so Source Surface
+   * is similar to Rupture Surface.
+   * @return GriddedSurfaceAPI
+   */
+  public GriddedSurfaceAPI getSourceSurface() {
+    return ( (ProbEqkRupture) ruptureList.get(0)).getRuptureSurface();
+  }
+
+
+  /**
    * Constructor - this produces a separate rupture for each mag in the mag-freq-dist.
    * This source is set as Poissonian.
    * @param magnitude-frequency distribution

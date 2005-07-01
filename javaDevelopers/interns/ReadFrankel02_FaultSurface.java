@@ -1,11 +1,13 @@
 package javaDevelopers.interns;
 
-import java.rmi.RemoteException;
 import java.util.*;
+import java.io.*;
 
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Frankel02_AdjustableEqkRupForecastClient;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.data.Location;
+
 
 /**
  * <p>Title: ReadFrankel02_FaultSurface</p>
@@ -21,13 +23,13 @@ import org.opensha.sha.earthquake.*;
 public class ReadFrankel02_FaultSurface {
 
 
-  private Frankel02_AdjustableEqkRupForecastClient frankelForecast;
+  private Frankel02_AdjustableEqkRupForecast frankelForecast;
 
   /**
    * Creating the instance of the Frankel02 forecast
    */
-  private void createFrankel02Forecast() throws RemoteException {
-    frankelForecast = new Frankel02_AdjustableEqkRupForecastClient();
+  private void createFrankel02Forecast(){
+    frankelForecast = new Frankel02_AdjustableEqkRupForecast();
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
@@ -39,35 +41,49 @@ public class ReadFrankel02_FaultSurface {
     frankelForecast.updateForecast();
   }
 
-
   /**
    * ArrayList containing GridddedSurfaceAPI object.
    * Using these object user can iterate over the getLocationIterator method
    * and extract the location to be plotted.
    * @return ArrayList
    */
-  public ArrayList getSourceList(){
-    // get total number of sources
-    int numSources = frankelForecast.getNumSources();
-    ArrayList sourceSurfaceList = new ArrayList();
+  public void createNSHMP_CharSourcesFile() throws IOException {
+
+    ArrayList sourceSurfaceList = frankelForecast.getAllCharFaultSources();
+
+    int size = sourceSurfaceList.size();
+    FileWriter fw = new FileWriter("NSHMP_CharSourceGridFile.txt");
+
+    fw.write("# Total number of Characterstic fault Sources\n");
+    fw.write(""+size+"\n");
 
     /**
-     * Loops over all the Sources and EqkRuptures for Frankel-02 and add their
+     * Loop over all the Char Sources  for Frankel-02 and add their
      * surface as GriddedSurfaceAPI object to the ArrayList.
      */
-    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex){
-      ProbEqkSource eqkSource= frankelForecast.getSource(sourceIndex);
-      int numRuptures = eqkSource.getNumRuptures();
-      for(int i=0;i<numRuptures;++i){
-        ProbEqkRupture rupture = eqkSource.getRupture(i);
-        sourceSurfaceList.add(rupture.getRuptureSurface());
-      }
+    for (int sourceIndex = 0; sourceIndex < size; ++sourceIndex){
+      FaultRuptureSource source = (FaultRuptureSource)sourceSurfaceList.get(sourceIndex);
+      GriddedSurfaceAPI surface = source.getSourceSurface();
+      fw.write(source.getName()+"\n");
+      fw.write(""+surface.getNumRows()*surface.getNumCols()+"\n");
+      ListIterator it = surface.getLocationsIterator();
+      while(it.hasNext())
+        fw.write(((Location)it.next()).toString()+"\n");
+      fw.write("\n");
     }
-
-    return sourceSurfaceList;
+    fw.close();
   }
 
 
-
+  public static void main(String[] args) {
+    ReadFrankel02_FaultSurface nshmpSources = new ReadFrankel02_FaultSurface();
+    nshmpSources.createFrankel02Forecast();
+    try {
+      nshmpSources.createNSHMP_CharSourcesFile();
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+  }
 
 }

@@ -2,6 +2,7 @@ package org.opensha.data;
 import org.opensha.exceptions.InvalidRangeException;
 
 import org.opensha.param.*;
+import java.text.DecimalFormat;
 
 
 /**
@@ -177,13 +178,14 @@ public class Location implements java.io.Serializable {
     public String toString() {
 
       StringBuffer b = new StringBuffer();
+      DecimalFormat latlonFormat = new DecimalFormat("0.00##") ;
       //b.append(C);
       //b.append('\n');
       //b.append(" : ");
 
 
       //b.append("latitude = ");
-        b.append(latitude+","+longitude+","+depth);
+        b.append(latlonFormat.format(latitude)+","+latlonFormat.format(longitude)+","+latlonFormat.format(depth));
       //b.append('\n');
 
       /*
