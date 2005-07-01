@@ -82,19 +82,9 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
    */
   public SiteType getSiteType(int siteTypeId) throws QueryException {
     SiteType siteType=null;
-    String sql = "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+
-        " where "+SITE_TYPE_ID+"="+siteTypeId;
-    try {
-      ResultSet rs  = dbConnection.queryData(sql);
-      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);
-      while(rs.next()) {
-        siteType = new SiteType(rs.getInt(SITE_TYPE_ID),
-            rs.getString(SITE_TYPE_NAME),
-            contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
-      }
-      rs.close();
-      rs.getStatement().close();
-    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    String condition = " where "+SITE_TYPE_ID+"="+siteTypeId;
+    ArrayList siteTypeList=query(condition);
+    if(siteTypeList.size()>0) siteType = (SiteType)siteTypeList.get(0);
     return siteType;
 
   }
@@ -122,8 +112,12 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
    * @throws QueryException
    */
   public ArrayList getAllSiteTypes() throws QueryException {
+   return query(" ");
+  }
+
+  private ArrayList query(String condition) throws QueryException {
     ArrayList siteTypeList = new ArrayList();
-    String sql =  "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME;
+    String sql =  "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbConnection.queryData(sql);
       ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);

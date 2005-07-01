@@ -13,7 +13,7 @@ import java.io.*;
  */
 
 public class QFault2002B{
-  private int sectionId;
+  private String sectionId;
   private String sectionName;
   private Date effectiveDate;
   private String comments;
@@ -81,7 +81,7 @@ public class QFault2002B{
   public String getRakeComments() {
     return rakeComments;
   }
-  public int getSectionId() {
+  public String getSectionId() {
     return sectionId;
   }
   public String getSectionName() {
@@ -111,7 +111,7 @@ public class QFault2002B{
   public void setSectionName(String sectionName) {
     this.sectionName = sectionName;
   }
-  public void setSectionId(int sectionId) {
+  public void setSectionId(String sectionId) {
     this.sectionId = sectionId;
   }
   public void setRakeComments(String rakeComments) {

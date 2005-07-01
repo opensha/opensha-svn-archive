@@ -78,14 +78,9 @@ public class ContributorDB_DAO implements ContributorDAO_API {
    */
   public Contributor getContributor(int contributorId) throws QueryException {
     Contributor contributor=null;
-    String sql = "select "+CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+" from "+TABLE_NAME+
-        " where "+CONTRIBUTOR_ID+"="+contributorId;
-    try {
-      ResultSet rs  = dbConnection.queryData(sql);
-      while(rs.next()) contributor = new Contributor(rs.getInt(CONTRIBUTOR_ID), rs.getString(CONTRIBUTOR_NAME));
-      rs.close();
-      rs.getStatement().close();
-    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    String condition  =  " where "+CONTRIBUTOR_ID+"="+contributorId;
+    ArrayList contributorList = query(condition);
+    if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
     return contributor;
   }
 
@@ -112,8 +107,12 @@ public class ContributorDB_DAO implements ContributorDAO_API {
    * @throws QueryException
    */
   public ArrayList getAllContributors() throws QueryException {
+    return query(" ");
+  }
+
+  private ArrayList query(String condition) throws QueryException {
     ArrayList contributorList = new ArrayList();
-    String sql = "select "+CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+" from "+TABLE_NAME;
+    String sql = "select "+CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+" from "+TABLE_NAME+" "+condition;
     try {
       ResultSet rs  = dbConnection.queryData(sql);
       while(rs.next()) contributorList.add(new Contributor(rs.getInt(CONTRIBUTOR_ID), rs.getString(CONTRIBUTOR_NAME)));
@@ -122,5 +121,4 @@ public class ContributorDB_DAO implements ContributorDAO_API {
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return contributorList;
   }
-
 }
