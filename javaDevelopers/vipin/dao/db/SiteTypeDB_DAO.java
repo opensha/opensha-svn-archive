@@ -63,7 +63,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
    */
   public boolean updateSiteType(int siteTypeId, SiteType siteType) throws UpdateException {
     String sql = "update "+TABLE_NAME+" set "+SITE_TYPE_NAME+"= '"+
-        siteType.getSiteType()+"',"+"CONTRIBUTOR_ID="+siteType.getContributor().getId()+
+        siteType.getSiteType()+"',"+CONTRIBUTOR_ID+"="+siteType.getContributor().getId()+
        " where "+SITE_TYPE_ID+"="+siteType.getSiteTypeId();
     try {
       int numRows = dbConnection.insertUpdateOrDeleteData(sql);

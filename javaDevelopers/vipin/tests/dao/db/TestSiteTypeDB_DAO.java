@@ -24,7 +24,7 @@ public class TestSiteTypeDB_DAO extends TestCase {
   public TestSiteTypeDB_DAO(String name) {
     super(name);
     try{
-      dbConnection.connect("fault_sandbox", "perry");
+      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
     }catch(SQLException e) {
       e.printStackTrace();
     }
@@ -71,10 +71,6 @@ public class TestSiteTypeDB_DAO extends TestCase {
   public void testGetAllSiteTypes() throws QueryException {
     ArrayList actualReturn = siteTypeDB_DAO.getAllSiteTypes();
     assertEquals("Should have 2 sitetypes in the table", 2, actualReturn.size());
-    SiteType siteType = (SiteType)actualReturn.get(0);
-    assertEquals("sitetype id expected is 1",1, siteType.getSiteTypeId());
-    siteType = (SiteType)actualReturn.get(1);
-    assertEquals("sitetype id expected is 3",siteType.getSiteTypeId(),3);
   }
 
   public void testGetSiteType() throws QueryException {

@@ -23,7 +23,7 @@ public class TestContributorDB_DAO extends TestCase {
   public TestContributorDB_DAO(String name) {
     super(name);
     try{
-      dbConnection.connect("fault_sandbox", "perry");
+      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
     }catch(SQLException e) {
       e.printStackTrace();
     }
@@ -62,10 +62,6 @@ public class TestContributorDB_DAO extends TestCase {
   public void testGetAllContributors() throws QueryException {
     ArrayList actualReturn = contributorDB_DAO.getAllContributors();
     assertEquals("Should have 2 contributors in the table", 2, actualReturn.size());
-    Contributor contributor = (Contributor)actualReturn.get(0);
-    assertEquals("contributor id expected is 1",1,contributor.getId());
-    contributor = (Contributor)actualReturn.get(1);
-    assertEquals("contributor id expected is 3",3,contributor.getId());
   }
 
   public void testGetContributor() throws QueryException {

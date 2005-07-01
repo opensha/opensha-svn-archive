@@ -23,7 +23,7 @@ public class Test_QFault2002B_DB_DAO extends TestCase {
   public Test_QFault2002B_DB_DAO(String name) {
     super(name);
     try{
-      dbConnection.connect("fault_sandbox", "perry");
+      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
     }catch(SQLException e) {
       e.printStackTrace();
     }

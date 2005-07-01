@@ -20,6 +20,8 @@ public class DB_Connection
   //private final static String DB_NAME="(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = iron.gps.caltech.edu)(PORT = 1521)))(CONNECT_DATA = (SERVICE_NAME = irondb.iron.gps.caltech.edu)(SERVER = DEDICATED)))";
   private final static String DB_NAME="irondb";
   private final static int PORT = 1521;
+  public final static String USERNAME="fault_sandbox";
+  public final static String PASSWORD="perry";
   private String hostName, dbName;
   private int port;
 
