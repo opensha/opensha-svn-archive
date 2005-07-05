@@ -27,7 +27,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
 
 
   public SiteTypeDB_DAO(DB_Connection dbConnection) {
-    this.dbConnection = dbConnection;
+   setDB_Connection(dbConnection);
   }
 
   public void setDB_Connection(DB_Connection connection) {

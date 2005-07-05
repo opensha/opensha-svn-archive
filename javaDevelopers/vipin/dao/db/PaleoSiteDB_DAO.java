@@ -39,7 +39,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
 
 
   public PaleoSiteDB_DAO(DB_Connection dbConnection) {
-    this.dbConnection = dbConnection;
+    setDB_Connection(dbConnection);
   }
 
   public void setDB_Connection(DB_Connection connection) {

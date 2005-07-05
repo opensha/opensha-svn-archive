@@ -29,7 +29,7 @@ public class EstimateTypeDB_DAO implements EstimateTypeDAO_API {
   * @param dbConnection
   */
  public EstimateTypeDB_DAO(DB_Connection dbConnection) {
-   this.dbConnection = dbConnection;
+   setDB_Connection(dbConnection);
  }
 
 

@@ -66,4 +66,5 @@ public abstract class Estimate {
    public void setComments(String comments) {
      this.comments = comments;
    }
+
 }

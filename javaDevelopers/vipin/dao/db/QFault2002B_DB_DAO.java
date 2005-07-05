@@ -44,7 +44,7 @@ public class QFault2002B_DB_DAO implements QFault2002B_DAO_API {
   * @param dbConnection
   */
  public QFault2002B_DB_DAO(DB_Connection dbConnection) {
-   this.dbConnection = dbConnection;
+   setDB_Connection(dbConnection);
  }
 
 

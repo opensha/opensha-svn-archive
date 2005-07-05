@@ -28,7 +28,7 @@ public class ContributorDB_DAO implements ContributorDAO_API {
    * @param dbConnection
    */
   public ContributorDB_DAO(DB_Connection dbConnection) {
-    this.dbConnection = dbConnection;
+   setDB_Connection(dbConnection);
   }
 
 

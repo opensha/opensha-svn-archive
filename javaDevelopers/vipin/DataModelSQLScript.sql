@@ -1,5 +1,5 @@
-drop trigger Est_Id_Type_Trigger;
-drop sequence Est_Id_Type_Sequence;
+drop trigger Est_Instances_Trigger;
+drop sequence Est_Instances_Sequence;
 drop table PDF_Y_Vals;
 drop table site_Event_Sequence_Info;
 drop table Event_Sequence;
@@ -16,7 +16,7 @@ drop table Log_Normal_Est;
 drop table XY_Est;
 drop table Fault_Model;
 drop table Site_Type;
-drop table Est_Id_Type;
+drop table Est_Instances;
 drop table Contributors;
 drop table Aseismic_Slip_Factor;
 drop table Log_Type;
@@ -71,7 +71,7 @@ CREATE TABLE Contributors (
 );
 
 
-CREATE TABLE Est_Id_Type (
+CREATE TABLE Est_Instances (
   Est_Id INTEGER NOT NULL,
   Est_Type_Id INTEGER  NOT NULL,
   Est_Units VARCHAR(45) NULL,
@@ -81,16 +81,16 @@ CREATE TABLE Est_Id_Type (
     REFERENCES Est_Type(Est_Type_Id)
 );
 
-create sequence Est_Id_Type_Sequence
+create sequence Est_Instances_Sequence
 start with 1
 increment by 1
 nomaxvalue;
 
-create trigger Est_Id_Type_Trigger
-before insert on Est_Id_Type 
+create trigger Est_Instances_Trigger
+before insert on Est_Instances 
 for each row
 begin
-select Est_Id_Type_Sequence.nextval into :new.Est_Id from dual;
+select Est_Instances_Sequence.nextval into :new.Est_Id from dual;
 end;
 /
 
@@ -121,7 +121,7 @@ CREATE TABLE XY_Est (
   Y FLOAT NOT NULL,
   PRIMARY KEY(X, Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Id_Type(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE Log_Normal_Est (
@@ -131,7 +131,7 @@ CREATE TABLE Log_Normal_Est (
   Std_Dev FLOAT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Id_Type(Est_Id),
+    REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY(Log_Type_Id)
      REFERENCES Log_Type(Log_Type_Id)
 );
@@ -170,9 +170,9 @@ CREATE TABLE Events_Sequence_Info (
  FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id),
  FOREIGN KEY(Start_Time_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE Paleo_Event (
@@ -190,9 +190,9 @@ CREATE TABLE Paleo_Event (
   FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id),
  FOREIGN KEY(Event_Date_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Displacement_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 
@@ -217,15 +217,15 @@ CREATE TABLE Fault_Section (
  FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
  FOREIGN KEY(Pref_Slip_Rate)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Pref_Dip)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Pref_Rake)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Pref_Upper_Depth)
-     REFERENCES Est_Id_Type(Est_Id), 
+     REFERENCES Est_Instances(Est_Id), 
  FOREIGN KEY(Pref_Lower_Depth)
-     REFERENCES Est_Id_Type(Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE Combined_Events_Info (
@@ -255,15 +255,15 @@ CREATE TABLE Combined_Events_Info (
  FOREIGN KEY(Aseismic_Slip_Type_Id)
    REFERENCES Aseismic_Slip_Factor(Aseismic_Slip_Type_Id),
  FOREIGN KEY(Start_Time_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Total_Slip_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Slip_Rate_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id),
+     REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Num_Events_Est_Id)
-     REFERENCES Est_Id_Type(Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE PDF_Est (
@@ -273,7 +273,7 @@ CREATE TABLE PDF_Est (
   Num INTEGER  NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Id_Type(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE Normal_Est (
@@ -282,7 +282,7 @@ CREATE TABLE Normal_Est (
   Std_Dev FLOAT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Id_Type(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE Paleo_Site_Event (
