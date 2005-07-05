@@ -15,6 +15,7 @@ public class AllTests
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestSiteTypeDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.Test_QFault2002B_DB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestPaleoSiteDB_DAO.class);
+    suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestEstimateTypeDB_DAO.class);
     return suite;
   }
 }

@@ -41,7 +41,7 @@ public class Test_QFault2002B_DB_DAO extends TestCase {
   }
 
 
-  public void testContributorDB_DAO() {
+  public void testQFault2002B_DB_DAO() {
     qFaultDB_DAO = new QFault2002B_DB_DAO(dbConnection);
     this.assertNotNull("QFault2002B_DB_DAO object should not be null",qFaultDB_DAO);
   }
@@ -52,9 +52,9 @@ public class Test_QFault2002B_DB_DAO extends TestCase {
     assertEquals("Should have 57 fault sections in the table", 57, actualReturn.size());
   }
 
-  public void testGetContributor() throws QueryException {
+  public void testGetFaultSection() throws QueryException {
     QFault2002B actualReturn = qFaultDB_DAO.getFaultSection("69a");
-    assertNotNull("should not be null as contributor exists with id = 69a",actualReturn);
+    assertNotNull("should not be null as fault section exists with id = 69a",actualReturn);
   }
 
 }

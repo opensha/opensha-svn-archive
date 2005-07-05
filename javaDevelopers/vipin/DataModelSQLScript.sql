@@ -1,3 +1,5 @@
+drop trigger Est_Id_Type_Trigger;
+drop sequence Est_Id_Type_Sequence;
 drop table PDF_Y_Vals;
 drop table site_Event_Sequence_Info;
 drop table Event_Sequence;
@@ -21,12 +23,21 @@ drop table Log_Type;
 drop table Reference;
 drop table Est_Type;
 
+
 CREATE TABLE Est_Type (
   Est_Type_Id INTEGER NOT NULL,
-  Est_Name VARCHAR(45) NULL,
+  Est_Name VARCHAR(45) NULL UNIQUE,
   Effective_Date date NULL,
   PRIMARY KEY(Est_Type_Id)
 );
+
+insert into Est_Type values(1,'Normal',sysdate);
+insert into Est_Type values(2,'LogNormal',sysdate);
+insert into Est_Type values(3,'PDF',sysdate);
+insert into Est_Type values(4,'Fractile_List',sysdate);
+insert into Est_Type values(5,'Integer',sysdate);
+insert into Est_Type values(6,'Discrete_Value',sysdate);
+
 
 CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
@@ -34,23 +45,31 @@ CREATE TABLE Reference (
   PRIMARY KEY(Reference_Id)
 );
 
+
 CREATE TABLE Log_Type (
   Log_Type_Id INTEGER NOT NULL,
-  Log_Base VARCHAR(20) NULL,
+  Log_Base VARCHAR(20) NOT NULL UNIQUE,
   PRIMARY KEY(Log_Type_Id)
 );
 
+insert into Log_Type values(1, '10');
+insert into Log_Type values(2, 'E');
+
 CREATE TABLE Aseismic_Slip_Factor (
   Aseismic_Slip_Type_Id INTEGER NOT NULL,
-  Aseismic_Slip_Type VARCHAR(255) NOT NULL,
+  Aseismic_Slip_Type VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Aseismic_Slip_Type_Id)
 );
 
+insert into Aseismic_Slip_Factor values(1, 'Aseismic');
+insert into Aseismic_Slip_Factor values(0, 'Seismic');
+
 CREATE TABLE Contributors (
   Contributor_Id INTEGER NOT NULL,
-  Contributor_Name VARCHAR(45) NULL,
+  Contributor_Name VARCHAR(45) NOT NULL UNIQUE,
   PRIMARY KEY(Contributor_Id)
 );
+
 
 CREATE TABLE Est_Id_Type (
   Est_Id INTEGER NOT NULL,
@@ -62,19 +81,35 @@ CREATE TABLE Est_Id_Type (
     REFERENCES Est_Type(Est_Type_Id)
 );
 
+create sequence Est_Id_Type_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Est_Id_Type_Trigger
+before insert on Est_Id_Type 
+for each row
+begin
+select Est_Id_Type_Sequence.nextval into :new.Est_Id from dual;
+end;
+/
+
+
+
 CREATE TABLE Site_Type (
   Site_Type_Id INTEGER NOT NULL ,
   Contributor_Id INTEGER NOT NULL,
-  Site_Type VARCHAR(255) NULL,
+  Site_Type VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Site_Type_Id),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id)
 );
 
+
 CREATE TABLE Fault_Model (
   Fault_Model_Id INTEGER NOT NULL,
   Contributor_Id INTEGER NOT NULL,
-  Fault_Model_Name VARCHAR(255) NOT NULL,
+  Fault_Model_Name VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Fault_Model_Id),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id) 
