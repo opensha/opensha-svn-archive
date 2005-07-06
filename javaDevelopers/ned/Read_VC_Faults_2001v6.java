@@ -36,7 +36,25 @@ public class Read_VC_Faults_2001v6 {
   private String inputFileName = "javaDevelopers/ned/RundleVC_data/VC_FAULTS_2001v6.d";
 
 
-  public void getSegmentInfoFromFile() throws FileNotFoundException,
+
+  public Read_VC_Faults_2001v6() {
+    try {
+      //reading the file
+      getSegmentInfoFromFile();
+    }
+    catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+      System.exit(0);
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+      System.exit(0);
+    }
+  }
+
+
+
+  private void getSegmentInfoFromFile() throws FileNotFoundException,
       IOException {
     //reading the all lines in the file seperately as strings
     ArrayList fileLines = FileUtils.loadFile(inputFileName);
@@ -92,23 +110,17 @@ public class Read_VC_Faults_2001v6 {
     return segmentList;
   }
 
+  public double[] getSeg_x_west() { return seg_x_west;}
+  public double[] getSeg_y_west() { return seg_y_west;}
+  public double[] getSeg_x_east() { return seg_x_east;}
+  public double[] getSeg_y_east() { return seg_y_east;}
+  public double[] getSeg_slipRate() { return seg_slipRate;}
 
 
 
+  // this tests the file
   public static void main(String[] args) {
     Read_VC_Faults_2001v6 read_vc_faults_2001v6 = new Read_VC_Faults_2001v6();
-    try {
-      //reading the file
-      read_vc_faults_2001v6.getSegmentInfoFromFile();
-    }
-    catch (FileNotFoundException ex) {
-      ex.printStackTrace();
-      System.exit(0);
-    }
-    catch (IOException ex) {
-      ex.printStackTrace();
-      System.exit(0);
-    }
 
     //getting the segments info
     //returns ArrayList that contain the double arrays ( please refer the function

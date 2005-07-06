@@ -9,8 +9,8 @@ import java.io.IOException;
 /**
  * <p>Title: Read_VC_FaultNamesSegs</p>
  *
- * <p>Description: This class reads the faultNames-Segments.txt and gives an ArrayList
- * of fault names and theindex of the first and last segments on the fault
+ * <p>Description: This class reads the faultNames-Segments.txt and gives arrays
+ * of fault names and the index of the first and last segments on the fault
  * </p>
  *
  * @author Edward (Ned) Field

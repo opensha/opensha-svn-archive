@@ -94,7 +94,7 @@ public class Read_VC_FaultActivity {
     timeSegmentMapping = new TreeMap();
 
     //looping over all the segments to get all the slip time histories .
-    for(int j=0;j<numSegments-1;++j){
+    for(int j=0;j<numSegments;++j){
       //reading a null line
        br.readLine();
       //reading a line that is to be skipped
