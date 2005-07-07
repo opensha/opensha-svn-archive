@@ -59,8 +59,7 @@ public class TestEstimateInstancesDB_DAO extends TestCase {
     estimateInstance.setEstimate(estimate2);
     primaryKey2 = estimateInstancesDB_DAO.addEstimateInstance(estimateInstance);
     assertTrue(primaryKey1!=primaryKey2);
-
-
+    assertEquals("there should be 2 estimate instances", 2, estimateInstancesDB_DAO.getAllEstimateInstances().size());
   }
 
 
@@ -74,7 +73,6 @@ public class TestEstimateInstancesDB_DAO extends TestCase {
     assertEquals(5, estimate.getMean(),0.000001);
     assertEquals(2, estimate.getStdDev(),0.000001);
     assertEquals("meters", actualReturn.getUnits());
-    assertNull(estimate.getComments());
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey2);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey2,actualReturn);
@@ -82,7 +80,6 @@ public class TestEstimateInstancesDB_DAO extends TestCase {
     assertEquals(3, estimate.getMean(),0.000001);
     assertEquals(5, estimate.getStdDev(),0.000001);
     assertEquals("meters", actualReturn.getUnits());
-    assertNull(estimate.getComments());
 
   }
 
@@ -90,9 +87,13 @@ public class TestEstimateInstancesDB_DAO extends TestCase {
   public void testRemoveEstimateInstance() throws UpdateException {
     boolean status = estimateInstancesDB_DAO.removeEstimateInstance(5225);
     this.assertFalse("cannot remove estimate with 5225 as it does not exist", status);
+    assertEquals("there should be 2 estimate instances", 2, estimateInstancesDB_DAO.getAllEstimateInstances().size());
     status = estimateInstancesDB_DAO.removeEstimateInstance(primaryKey1);
     assertTrue(status);
+    assertEquals("there should be 1 estimate instance", 1, estimateInstancesDB_DAO.getAllEstimateInstances().size());
     status = estimateInstancesDB_DAO.removeEstimateInstance(primaryKey2);
     assertTrue(status);
+    assertEquals("there should be 0 estimate instances", 0, estimateInstancesDB_DAO.getAllEstimateInstances().size());
+
   }
 }

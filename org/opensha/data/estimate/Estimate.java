@@ -12,7 +12,7 @@ package org.opensha.data.estimate;
 public abstract class Estimate {
 
   // comments associated with this object
-  private String comments;
+  private String comments="";
 
 
   public abstract double getMean();

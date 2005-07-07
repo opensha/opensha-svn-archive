@@ -54,31 +54,31 @@ public class TestEstimateTypeDB_DAO extends TestCase {
 
   public void testGetEstimateTypeById() throws QueryException {
     EstimateType actualReturn = estimateTypeDB_DAO.getEstimateType(1);
-    assertEquals("Normal",actualReturn.getEstimateName());
+    assertEquals("NormalEstimate",actualReturn.getEstimateName());
     actualReturn = estimateTypeDB_DAO.getEstimateType(2);
-    assertEquals("LogNormal",actualReturn.getEstimateName());
+    assertEquals("LogNormalEstimate",actualReturn.getEstimateName());
     actualReturn = estimateTypeDB_DAO.getEstimateType(3);
-    assertEquals("PDF",actualReturn.getEstimateName());
+    assertEquals("PDF_Estimate",actualReturn.getEstimateName());
     actualReturn = estimateTypeDB_DAO.getEstimateType(4);
-    assertEquals("Fractile_List",actualReturn.getEstimateName());
+    assertEquals("FractileListEstimate",actualReturn.getEstimateName());
     actualReturn = estimateTypeDB_DAO.getEstimateType(5);
-    assertEquals("Integer",actualReturn.getEstimateName());
+    assertEquals("IntegerEstimate",actualReturn.getEstimateName());
     actualReturn = estimateTypeDB_DAO.getEstimateType(6);
-    assertEquals("Discrete_Value",actualReturn.getEstimateName());
+    assertEquals("DiscreteValueEstimate",actualReturn.getEstimateName());
   }
 
   public void testGetEstimateTypeByName() throws QueryException {
-    EstimateType actualReturn = estimateTypeDB_DAO.getEstimateType("Normal");
+    EstimateType actualReturn = estimateTypeDB_DAO.getEstimateType("NormalEstimate");
     assertEquals(1,actualReturn.getEstimateTypeId());
-    actualReturn = estimateTypeDB_DAO.getEstimateType("LogNormal");
+    actualReturn = estimateTypeDB_DAO.getEstimateType("LogNormalEstimate");
     assertEquals(2,actualReturn.getEstimateTypeId());
-    actualReturn = estimateTypeDB_DAO.getEstimateType("PDF");
+    actualReturn = estimateTypeDB_DAO.getEstimateType("PDF_Estimate");
     assertEquals(3,actualReturn.getEstimateTypeId());
-    actualReturn = estimateTypeDB_DAO.getEstimateType("Fractile_List");
+    actualReturn = estimateTypeDB_DAO.getEstimateType("FractileListEstimate");
     assertEquals(4,actualReturn.getEstimateTypeId());
-    actualReturn = estimateTypeDB_DAO.getEstimateType("Integer");
+    actualReturn = estimateTypeDB_DAO.getEstimateType("IntegerEstimate");
     assertEquals(5,actualReturn.getEstimateTypeId());
-    actualReturn = estimateTypeDB_DAO.getEstimateType("Discrete_Value");
+    actualReturn = estimateTypeDB_DAO.getEstimateType("DiscreteValueEstimate");
     assertEquals(6,actualReturn.getEstimateTypeId());
  }
 

@@ -28,6 +28,8 @@ public interface EstimateInstancesDAO_API {
   */
  public EstimateInstances getEstimateInstance(int estimateInstanceId) throws QueryException;
 
+ public ArrayList getAllEstimateInstances() throws QueryException;
+
 
  /**
   * Remove the Estimate from the list

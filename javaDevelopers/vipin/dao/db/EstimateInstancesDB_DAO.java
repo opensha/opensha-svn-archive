@@ -127,9 +127,14 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
 
 
   private EstimateDAO_API getEstimateDAO_API(String estimateTypeName) {
-    return (EstimateDAO_API)ClassUtils.createNoArgConstructorClassInstance(ESTIMATES_DB_DAO_PACKAGE+estimateTypeName+ESTIMATES_DB_DAO_SUFFIX);
+    EstimateDAO_API estimateDAO_API = (EstimateDAO_API)ClassUtils.createNoArgConstructorClassInstance(ESTIMATES_DB_DAO_PACKAGE+estimateTypeName+ESTIMATES_DB_DAO_SUFFIX);
+    estimateDAO_API.setDB_Connection(this.dbConnection);
+    return estimateDAO_API;
   }
 
+ public ArrayList getAllEstimateInstances() throws QueryException {
+   return query(" ");
+ }
 
   private ArrayList query(String condition) throws QueryException {
   ArrayList estimateInstancesList = new ArrayList();

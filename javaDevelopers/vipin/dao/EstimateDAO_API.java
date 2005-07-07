@@ -2,6 +2,7 @@ package javaDevelopers.vipin.dao;
 
 import org.opensha.data.estimate.Estimate;
 import javaDevelopers.vipin.dao.exception.*;
+import javaDevelopers.vipin.dao.db.DB_Connection;
 /**
  * <p>Title: NormalEstimateDAO_API.java </p>
  * <p>Description: Inserts/gets/delete normal estimates from the tables</p>
@@ -32,4 +33,6 @@ public interface EstimateDAO_API {
   public boolean removeEstimate(int estimateInstanceId) throws UpdateException;
 
   public String getEstimateTypeName();
+
+  public void setDB_Connection(DB_Connection dbConnection);
 }
