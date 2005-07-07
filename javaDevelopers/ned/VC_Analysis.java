@@ -1,9 +1,9 @@
 package javaDevelopers.ned;
 
-
 import org.opensha.util.FileUtils;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
+import org.opensha.calc.*;
 import java.util.*;
 import java.io.*;
 
@@ -18,7 +18,7 @@ import java.io.*;
  */
 public class VC_Analysis {
 
-  final static boolean D = true; // debugging flag
+  final static boolean D = false; // debugging flag
 
   private String faultNames[];
   private int firstIndex[], lastIndex[];
@@ -26,6 +26,8 @@ public class VC_Analysis {
   private ArrayList segSlipInfoList;
   private TreeMap timeSegMapping;
   private ArrayList faultList;
+  private ArrayList eventYears, eventSegs;
+  private double eventMags[], eventAveSlips[], eventAreas[];
 
   /* these are the lat & lon of the first point on the first segment (Bartlett Strings fault),
      used for converting the x & y values to lat & lon.  These were determined by looking at the
@@ -54,13 +56,33 @@ public class VC_Analysis {
     segSlipInfoList = read_vc_faultactivity_saf.getSegmentsSlipTimeHistories();
     timeSegMapping = read_vc_faultactivity_saf.getTimeSegmentMapping();
 
+//SegmentSlipTimeInfo firstSegmentSlipTime = (SegmentSlipTimeInfo) segSlipInfoList.get(0);
+//System.out.println("first segment number = "+firstSegmentSlipTime.getSegmentNumber());
+
     if(D) {
       System.out.println(seg_x_west.length + "  " + seg_y_west.length + "  " +
                          seg_x_east.length + "  " + seg_y_east.length + "  " +
                          seg_slipRate.length + "  " + seg_area.length + "  " +
                          segSlipInfoList.size());
     }
+
     makeSeparateEventsList();
+
+
+    eventMags = new double[eventYears.size()];
+    eventAveSlips = new double[eventYears.size()];
+    eventAreas = new double[eventYears.size()];
+
+
+    getEventStats();
+
+    try {
+      writeEventData();
+    }
+    catch (IOException ex1) {
+      ex1.printStackTrace();
+      System.exit(0);
+    }
 
 /*
     makeFaultTraces();
@@ -86,42 +108,137 @@ public class VC_Analysis {
   }
 
 
-
-  private void makeSeparateEventsList() {
-//    FileWriter fw = new FileWriter(fileName);
-    ArrayList eventsList;
-    Set keySet = timeSegMapping.keySet();
-    Iterator it = keySet.iterator();
-//    fw.write("Year  Segment-Numbers\n");
-    //while (it.hasNext()) {
-      Integer timePd = (Integer) it.next();
-      ArrayList segmentList = (ArrayList) timeSegMapping.get(timePd);
-      int size = segmentList.size();
-      eventsList = separateEvents(segmentList);
-//      fw.write(timePd.intValue() + " ");
-//      for (int i = 0; i < size - 1; ++i)
-//        fw.write( ( (Integer) segmentList.get(i)).intValue() + " ");
-//      fw.write("" + ( (Integer) segmentList.get(size - 1)).intValue());
-//      fw.write("\n");
-    //}
-//    fw.close();
+  private void getEventStats() {
+    Integer year;
+    double totArea, totPot;
+    int seg;
+    ArrayList segs;
+    for(int i=0;i<eventYears.size();i++) {
+      year = (Integer) eventYears.get(i);
+      segs = (ArrayList) eventSegs.get(i);
+      totArea = 0.0;
+      totPot  = 0.0;
+      for(int j=0;j<segs.size();j++) {
+        seg = ((Integer) segs.get(j)).intValue();
+        SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) segSlipInfoList.get(seg);
+        if(seg != info.getSegmentNumber())
+          throw new RuntimeException("problem");
+        totArea += seg_area[seg]*1e6;                    // converted from km to m-squared
+        totPot += seg_area[seg]*Math.abs(info.getSlip(year))*1e4;  // converted to meters
+//        if(i==0) {
+//          System.out.println(year+"\t"+seg+"\t"+seg_area[seg]+"\t"+info.getSlip(year));
+//        }
+      }
+      eventAveSlips[i]=(totPot/totArea);   //meters
+      eventAreas[i]=totArea;             //meters-sq
+      eventMags[i]= MomentMagCalc.getMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
+    }
   }
 
-  private ArrayList separateEvents(ArrayList segments) {
+
+
+  private void writeEventData() throws IOException  {
+    String filename1 = "javaDevelopers/ned/RundleVC_data/VC_EventTimesNumSegs.txt";
+    String filename2 = "javaDevelopers/ned/RundleVC_data/VC_EventSegs.txt";
+    String evName;
+    ArrayList tempSegs;
+    Integer year;
+    int lastYear=-1, counter=-1;
+
+    FileWriter fw1 = new FileWriter(filename1);
+    fw1.write("evTimes\tevNumSegs\tevMags\tevAreas\tevSlips\n");
+    FileWriter fw2 = new FileWriter(filename2);
+    fw2.write("evSegs\n");
+    for(int i=0; i < eventYears.size(); i++) {
+      year = (Integer) eventYears.get(i);
+      if(year.intValue() != lastYear)
+        counter = 0;
+      else
+        counter += 1;
+      evName = year.toString()+"_"+Integer.toString(counter);
+      lastYear = year.intValue();
+      tempSegs = (ArrayList) eventSegs.get(i);
+      fw1.write(year+"\t"+tempSegs.size()+"\t"+(float)eventMags[i]+"\t"+(float)eventAreas[i]+"\t"+(float)eventAveSlips[i]+"\n");
+      fw2.write(evName+"\n");
+      for(int j=0; j < tempSegs.size(); j++)
+        fw2.write((Integer) tempSegs.get(j)+"\n");
+    }
+    fw1.close();
+    fw2.close();
+  }
+
+  private void makeSeparateEventsList() {
+    eventYears = new ArrayList();
+    eventSegs = new ArrayList();
+    ArrayList tempEventList, tempSegList;
+    Set keySet = timeSegMapping.keySet();
+    Iterator it = keySet.iterator();
+    while (it.hasNext()) {
+      Integer timePd = (Integer) it.next();
+      tempSegList = (ArrayList) timeSegMapping.get(timePd);
+      tempEventList = separateEvents(tempSegList, 8.0);
+      eventSegs.addAll(tempEventList);
+      for(int i=0; i<tempEventList.size();i++) eventYears.add(timePd);
+    }
+  }
+
+
+  private ArrayList separateEvents(ArrayList segments, double distThresh) {
+
+      // this is the list of events (segments list) that will be returned:
     ArrayList eventsList = new ArrayList();
     ArrayList availSegs = (ArrayList) segments.clone();
+    ArrayList newEvent;
+    ArrayList tempList;
+    int int1, int2;
+    int cf; // current focus
 
-    ArrayList segs = new ArrayList();
-    segs.add(availSegs.get(0));
-    availSegs.remove(0);
-    Iterator it = availSegs.iterator();
-//    while(it.hasNext())
+    while(availSegs.size() > 0) {
+      newEvent = new ArrayList();
+      newEvent.add(availSegs.get(0));
+      availSegs.remove(0);
+      cf = 0;
+      while(cf < newEvent.size()){
+        int1 = ((Integer) newEvent.get(cf)).intValue();
+        // find avail segs close to int1
+        tempList = (ArrayList) availSegs.clone();
+        for(int i=tempList.size()-1; i >= 0 ; i--) {
+          int2 = ((Integer) tempList.get(i)).intValue();
+          if(getMinDist(int1,int2) < distThresh) {
+            newEvent.add(tempList.get(i));
+            availSegs.remove(i);
+          }
+        }
+        cf += 1;
+      }
+      if(creepingNotInvolved(newEvent)) eventsList.add(newEvent);
+    }
 
+    if(D) {
+      int num = 0;
+      for(int i = 0; i < eventsList.size(); i++){
+        tempList = (ArrayList) eventsList.get(i);
+        num += tempList.size();
+        for(int j = 0; j < tempList.size(); j++) System.out.print(tempList.get(j)+"  ");
+        System.out.print("\n");
+      }
+      System.out.println(segments.size()+"  "+ num);
+    }
 
-//  System.out.println(segments.size()+"  "+ availSegs.size());
-//  for(int j = 0; j < availSegs.size(); j++)
-//    System.out.println(segments.get(j)+"  "+ availSegs.get(j));
     return eventsList;
+  }
+
+
+
+  private boolean creepingNotInvolved(ArrayList newEvent) {
+    boolean crNotInv = true;
+    Iterator it = newEvent.iterator();
+    int seg;
+    while(it.hasNext()) {
+      seg = ((Integer) it.next()).intValue();
+      if (seg >= 264 && seg <= 273) crNotInv = false;
+    }
+    return crNotInv;
   }
 
 

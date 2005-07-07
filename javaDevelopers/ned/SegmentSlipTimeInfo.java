@@ -92,4 +92,11 @@ public class SegmentSlipTimeInfo {
 
   }
 
+  /**
+   * This returns the slip corresponding the given year
+   */
+  public double getSlip(Integer year){
+    return ((Double) slipTimeHistoriesMap.get(year)).doubleValue();
+  }
+
 }
