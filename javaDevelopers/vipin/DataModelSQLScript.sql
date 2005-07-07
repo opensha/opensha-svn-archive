@@ -31,12 +31,12 @@ CREATE TABLE Est_Type (
   PRIMARY KEY(Est_Type_Id)
 );
 
-insert into Est_Type values(1,'Normal',sysdate);
-insert into Est_Type values(2,'LogNormal',sysdate);
-insert into Est_Type values(3,'PDF',sysdate);
-insert into Est_Type values(4,'Fractile_List',sysdate);
-insert into Est_Type values(5,'Integer',sysdate);
-insert into Est_Type values(6,'Discrete_Value',sysdate);
+insert into Est_Type values(1,'NormalEstimate',sysdate);
+insert into Est_Type values(2,'LogNormalEstimate',sysdate);
+insert into Est_Type values(3,'PDF_Estimate',sysdate);
+insert into Est_Type values(4,'FractileListEstimate',sysdate);
+insert into Est_Type values(5,'IntegerEstimate',sysdate);
+insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
 
 
 CREATE TABLE Reference (
@@ -90,7 +90,9 @@ create trigger Est_Instances_Trigger
 before insert on Est_Instances 
 for each row
 begin
+if :new.Est_Id is null then
 select Est_Instances_Sequence.nextval into :new.Est_Id from dual;
+end if;
 end;
 /
 

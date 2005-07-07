@@ -23,7 +23,7 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
   private final static String MEAN="MEAN";
   private final static String STD_DEV="STD_DEV";
   private DB_Connection dbConnection;
-  public final static String EST_TYPE_NAME="Normal";
+  public final static String EST_TYPE_NAME="NormalEstimate";
   private final static String ERR_MSG = "This class just deals with Normal Estimates";
 
  /**
@@ -33,6 +33,8 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
  public NormalEstimateDB_DAO(DB_Connection dbConnection) {
    setDB_Connection(dbConnection);
  }
+
+ public NormalEstimateDB_DAO() { }
 
 
  public void setDB_Connection(DB_Connection connection) {

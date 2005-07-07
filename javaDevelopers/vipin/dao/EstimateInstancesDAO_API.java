@@ -20,7 +20,7 @@ public interface EstimateInstancesDAO_API {
    * @param estimate
    *
    */
-  public void addEstimateInstance(EstimateInstances estimate) throws InsertException;
+  public int addEstimateInstance(EstimateInstances estimate) throws InsertException;
 
 
  /**
