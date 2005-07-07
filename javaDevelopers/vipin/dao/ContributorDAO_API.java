@@ -21,7 +21,7 @@ public interface ContributorDAO_API {
    * @return int primary key of the added contributor.
    *
    */
-  public void addContributor(Contributor contributor) throws InsertException;
+  public int addContributor(Contributor contributor) throws InsertException;
 
   /**
    * Update the contributor info

@@ -20,6 +20,8 @@ public class TestSiteTypeDB_DAO extends TestCase {
   private DB_Connection dbConnection = new DB_Connection();
   private ContributorDB_DAO contributorDB_DAO = null;
   private SiteTypeDB_DAO siteTypeDB_DAO = null;
+  private static int contributorKey1, contributorKey2;
+  private static int siteTypeKey1, siteTypeKey2;
 
   public TestSiteTypeDB_DAO(String name) {
     super(name);
@@ -51,21 +53,21 @@ public class TestSiteTypeDB_DAO extends TestCase {
 
 
   public void testAddSiteType() throws InsertException {
-    Contributor contributor1 = new Contributor(1,"Test1");
-    Contributor contributor2 = new Contributor(2,"Test2");
+    Contributor contributor1 = new Contributor("Test1");
+    Contributor contributor2 = new Contributor("Test2");
+    contributorKey1 = contributorDB_DAO.addContributor(contributor1);
+    contributor1.setId(contributorKey1);
 
-    SiteType siteType1 = new SiteType(1,"geologic",contributor1);
-    SiteType siteType2 = new SiteType(2,"trench",contributor2);
-    SiteType siteType3 = new SiteType(3,"paleosite",contributor1);
+    SiteType siteType1 = new SiteType("geologic",contributor1);
+    SiteType siteType2 = new SiteType("trench",contributor2);
+    SiteType siteType3 = new SiteType("paleosite",contributor1);
 
-
-    contributorDB_DAO.addContributor(contributor1);
-    siteTypeDB_DAO.addSiteType(siteType1);
+    siteTypeKey1= siteTypeDB_DAO.addSiteType(siteType1);
     try {
       siteTypeDB_DAO.addSiteType(siteType2);
       fail("should not insert this site type as contributor id 2 does not exist in contributor table");
     }catch(InsertException e) {}
-    siteTypeDB_DAO.addSiteType(siteType3);
+    siteTypeKey2 = siteTypeDB_DAO.addSiteType(siteType3);
   }
 
   public void testGetAllSiteTypes() throws QueryException {
@@ -74,40 +76,41 @@ public class TestSiteTypeDB_DAO extends TestCase {
   }
 
   public void testGetSiteType() throws QueryException {
-    SiteType actualReturn = siteTypeDB_DAO.getSiteType(2);
-    assertEquals("No sitetype exists with id 2", null, actualReturn);
-    actualReturn = siteTypeDB_DAO.getSiteType(1);
-    assertNotNull("should not be null as sitetype exists with id = 1",actualReturn);
-    assertEquals("sitetype id 1 has name geologic", "geologic", actualReturn.getSiteType());
-    assertEquals("sitetype id 1 has id 1", 1, actualReturn.getSiteTypeId());
-    assertEquals("sitetype id 1 has contributor name Test1", "Test1", actualReturn.getContributor().getName());
+    SiteType actualReturn = siteTypeDB_DAO.getSiteType(98989);
+    assertEquals("No sitetype exists with id 98989", null, actualReturn);
+    actualReturn = siteTypeDB_DAO.getSiteType(siteTypeKey1);
+    assertNotNull("should not be null as sitetype exists with id = "+siteTypeKey1,actualReturn);
+    assertEquals("sitetype id "+siteTypeKey1+" has name geologic", "geologic", actualReturn.getSiteType());
+    assertEquals("sitetype id "+siteTypeKey1+" has id "+siteTypeKey1, siteTypeKey1, actualReturn.getSiteTypeId());
+    assertEquals("sitetype id "+siteTypeKey1 +" has contributor name Test1", "Test1", actualReturn.getContributor().getName());
   }
 
   public void testUpdateSiteType() throws UpdateException {
-    Contributor contributor2 = new Contributor(2,"Test2");
-    contributorDB_DAO.addContributor(contributor2);
-    SiteType siteType = new SiteType(2,"SiteTest2",contributor2);
-    boolean status  = siteTypeDB_DAO.updateSiteType(2, siteType);
-    this.assertFalse("cannot update contributor with 2 as it does not exist", status);
-    siteType = new SiteType(1,"UpdateSiteTest1",contributor2);
-    status = siteTypeDB_DAO.updateSiteType(1, siteType);
-    assertTrue("contributor with id=1 should be updated in the database",status);
-    SiteType actualReturn = siteTypeDB_DAO.getSiteType(1);
-    assertNotNull("should not be null as siteType exists with id = 1",actualReturn);
-    assertEquals("sitetype id 1 has name UpdateSiteTest1", "UpdateSiteTest1", actualReturn.getSiteType());
-    assertEquals("sitetype id 1 has contributor id 2", 2, actualReturn.getContributor().getId());
+    Contributor contributor2 = new Contributor("Test2");
+    contributorKey2 = contributorDB_DAO.addContributor(contributor2);
+    contributor2.setId(contributorKey2);
+    SiteType siteType = new SiteType("SiteTest2",contributor2);
+    boolean status  = siteTypeDB_DAO.updateSiteType(7878, siteType);
+    this.assertFalse("cannot update contributor with 7878 as it does not exist", status);
+    siteType = new SiteType("UpdateSiteTest1",contributor2);
+    status = siteTypeDB_DAO.updateSiteType(siteTypeKey1, siteType);
+    assertTrue("sitetype with id="+siteTypeKey1+" should be updated in the database",status);
+    SiteType actualReturn = siteTypeDB_DAO.getSiteType(siteTypeKey1);
+    assertNotNull("should not be null as siteType exists with id = "+siteTypeKey1,actualReturn);
+    assertEquals("sitetype id "+siteTypeKey1+" has name UpdateSiteTest1", "UpdateSiteTest1", actualReturn.getSiteType());
+    assertEquals("sitetype id "+siteTypeKey1+" has contributor id "+contributorKey2, contributorKey2, actualReturn.getContributor().getId());
   }
 
   public void testRemoveSiteType() throws UpdateException {
-    boolean status = siteTypeDB_DAO.removeSiteType(2);
-    this.assertFalse("cannot remove contributor with 2 as it does not exist", status);
-    status = siteTypeDB_DAO.removeSiteType(3);
-    assertTrue("sitetype with id=3 should be removed from the database",status);
+    boolean status = siteTypeDB_DAO.removeSiteType(8989);
+    this.assertFalse("cannot remove contributor with 8989 as it does not exist", status);
+    status = siteTypeDB_DAO.removeSiteType(siteTypeKey2);
+    assertTrue("sitetype with id="+siteTypeKey1+" should be removed from the database",status);
     assertEquals("should now contain only 1 sitetype",1, siteTypeDB_DAO.getAllSiteTypes().size());
-    status=siteTypeDB_DAO.removeSiteType(1);
-    assertTrue("sitetype with id=1 should be removed from the database",status);
-    assertEquals("should now contain only 0 contributor",0, siteTypeDB_DAO.getAllSiteTypes().size());
-    contributorDB_DAO.removeContributor(1);
-    contributorDB_DAO.removeContributor(2);
+    status=siteTypeDB_DAO.removeSiteType(siteTypeKey1);
+    assertTrue("sitetype with id="+siteTypeKey1+" should be removed from the database",status);
+    assertEquals("should now contain only 0 site types",0, siteTypeDB_DAO.getAllSiteTypes().size());
+    contributorDB_DAO.removeContributor(contributorKey1);
+    contributorDB_DAO.removeContributor(contributorKey2);
   }
 }

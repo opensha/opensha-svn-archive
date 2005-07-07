@@ -18,6 +18,7 @@ import javaDevelopers.vipin.vo.Contributor;
  */
 
 public class ContributorDB_DAO implements ContributorDAO_API {
+  private final static String SEQUENCE_NAME="Contributors_Sequence";
   private final static String TABLE_NAME="Contributors";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String CONTRIBUTOR_NAME="Contributor_Name";
@@ -42,14 +43,22 @@ public class ContributorDB_DAO implements ContributorDAO_API {
    * @return
    * @throws InsertException
    */
-  public void addContributor(Contributor contributor) throws InsertException {
+  public int addContributor(Contributor contributor) throws InsertException {
+    int contributorId = -1;
+    try {
+      contributorId = dbConnection.getNextSequenceNumber(SEQUENCE_NAME);
+   }catch(SQLException e) {
+     throw new InsertException(e.getMessage());
+   }
+
     String sql = "insert into "+TABLE_NAME+"("+ CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+")"+
-        " values ("+contributor.getId()+",'"+contributor.getName()+"')";
+        " values ("+contributorId+",'"+contributor.getName()+"')";
     try { dbConnection.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
     }
+    return contributorId;
   }
 
   /**

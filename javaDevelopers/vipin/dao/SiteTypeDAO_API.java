@@ -21,7 +21,7 @@ public interface SiteTypeDAO_API {
    * @param siteType
    *
    */
-  public void addSiteType(SiteType siteType) throws InsertException;
+  public int addSiteType(SiteType siteType) throws InsertException;
 
  /**
   * Update the site type info

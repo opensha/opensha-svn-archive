@@ -21,6 +21,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
   private ContributorDB_DAO contributorDB_DAO = null;
   private SiteTypeDB_DAO siteTypeDB_DAO = null;
   private PaleoSiteDB_DAO paleoSiteDB_DAO = null;
+  private static int contributorKey1, siteTypeKey1, siteTypeKey2;
 
   public TestPaleoSiteDB_DAO(String name) {
     super(name);
@@ -54,12 +55,16 @@ public class TestPaleoSiteDB_DAO extends TestCase {
 
 
   public void testAddPaleoSite() throws InsertException {
-    Contributor contributor1 = new Contributor(1,"Test1");
-    SiteType siteType1 = new SiteType(1,"geologic",contributor1);
-    SiteType siteType3 = new SiteType(3,"paleosite",contributor1);
-    contributorDB_DAO.addContributor(contributor1);
-    siteTypeDB_DAO.addSiteType(siteType1);
-    siteTypeDB_DAO.addSiteType(siteType3);
+    Contributor contributor1 = new Contributor("Test1");
+    contributorKey1 = contributorDB_DAO.addContributor(contributor1);
+    contributor1.setId(contributorKey1);
+    SiteType siteType1 = new SiteType("geologic",contributor1);
+    SiteType siteType3 = new SiteType("paleosite",contributor1);
+
+    siteTypeKey1 = siteTypeDB_DAO.addSiteType(siteType1);
+    siteType1.setSiteTypeId(siteTypeKey1);
+    siteTypeKey2 = siteTypeDB_DAO.addSiteType(siteType3);
+    siteType3.setSiteTypeId(siteTypeKey2);
 
     // paleo site 1
     PaleoSite paleoSite = new PaleoSite();
@@ -111,8 +116,8 @@ public class TestPaleoSiteDB_DAO extends TestCase {
 
     //paleoSite.setEffectiveDate(new java.util.Date());
     assertEquals(1, actualReturn.getSiteId());
-    assertEquals(1, actualReturn.getSiteContributor().getId());
-    assertEquals(1, actualReturn.getSiteType().getSiteTypeId());
+    assertEquals(contributorKey1, actualReturn.getSiteContributor().getId());
+    assertEquals(siteTypeKey1, actualReturn.getSiteType().getSiteTypeId());
     assertEquals("Test1",actualReturn.getSiteName());
     assertEquals(32.1,actualReturn.getSiteLat(),.0001);
     assertEquals(-117.0,actualReturn.getSiteLon(),.0001);
@@ -151,9 +156,9 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     status=paleoSiteDB_DAO.removePaleoSite(1);
     assertTrue("paleosite with id=1 should be removed from the database",status);
     assertEquals("should now contain only 0 paleosite",0, paleoSiteDB_DAO.getAllPaleoSites().size());
-    siteTypeDB_DAO.removeSiteType(1);
-    siteTypeDB_DAO.removeSiteType(3);
-    contributorDB_DAO.removeContributor(1);
+    siteTypeDB_DAO.removeSiteType(siteTypeKey1);
+    siteTypeDB_DAO.removeSiteType(siteTypeKey2);
+    contributorDB_DAO.removeContributor(contributorKey1);
 
   }
 }

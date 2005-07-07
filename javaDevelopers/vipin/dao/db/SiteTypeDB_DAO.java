@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 
 public class SiteTypeDB_DAO implements SiteTypeDAO_API {
-
+  private final static String SEQUENCE_NAME="Site_Type_Sequence";
   private final static String TABLE_NAME="Site_Type";
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
@@ -40,16 +40,23 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   * @param siteType
   * @throws InsertException
   */
-  public void addSiteType(SiteType siteType) throws InsertException {
+  public int addSiteType(SiteType siteType) throws InsertException {
+    int siteTypeId = -1;
+    try {
+      siteTypeId = dbConnection.getNextSequenceNumber(SEQUENCE_NAME);
+    }catch(SQLException e) {
+      throw new InsertException(e.getMessage());
+    }
     String sql = "insert into "+TABLE_NAME+"("+ SITE_TYPE_ID+","+CONTRIBUTOR_ID+
         ","+SITE_TYPE_NAME+") "+
-        " values ("+siteType.getSiteTypeId()+","+siteType.getContributor().getId()+
+        " values ("+siteTypeId+","+siteType.getContributor().getId()+
         ",'"+siteType.getSiteType()+"')";
     try { dbConnection.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
     }
+    return siteTypeId;
   }
 
 
@@ -64,7 +71,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   public boolean updateSiteType(int siteTypeId, SiteType siteType) throws UpdateException {
     String sql = "update "+TABLE_NAME+" set "+SITE_TYPE_NAME+"= '"+
         siteType.getSiteType()+"',"+CONTRIBUTOR_ID+"="+siteType.getContributor().getId()+
-       " where "+SITE_TYPE_ID+"="+siteType.getSiteTypeId();
+       " where "+SITE_TYPE_ID+"="+siteTypeId;
     try {
       int numRows = dbConnection.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;

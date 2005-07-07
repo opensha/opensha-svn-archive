@@ -24,6 +24,12 @@ public class SiteType {
     setSiteType(siteTypeName);
   }
 
+  public SiteType(String siteTypeName, Contributor contributor) {
+   setContributor(contributor);
+   setSiteType(siteTypeName);
+ }
+
+
   public void setSiteTypeId(int siteTypeId) {
     this.siteTypeId = siteTypeId;
   }

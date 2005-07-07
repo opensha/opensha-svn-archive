@@ -15,8 +15,12 @@ drop table Paleo_Site;
 drop table Log_Normal_Est;
 drop table XY_Est;
 drop table Fault_Model;
+drop trigger Site_Type_Trigger;
+drop sequence Site_Type_Sequence;
 drop table Site_Type;
 drop table Est_Instances;
+drop trigger Contributors_Trigger;
+drop sequence Contributors_Sequence;
 drop table Contributors;
 drop table Aseismic_Slip_Factor;
 drop table Log_Type;
@@ -64,11 +68,28 @@ CREATE TABLE Aseismic_Slip_Factor (
 insert into Aseismic_Slip_Factor values(1, 'Aseismic');
 insert into Aseismic_Slip_Factor values(0, 'Seismic');
 
+
 CREATE TABLE Contributors (
   Contributor_Id INTEGER NOT NULL,
   Contributor_Name VARCHAR(45) NOT NULL UNIQUE,
   PRIMARY KEY(Contributor_Id)
 );
+
+
+create sequence Contributors_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Contributors_Trigger
+before insert on Contributors 
+for each row
+begin
+if :new.Contributor_Id  is null then
+select  Contributors_Sequence.nextval into :new.Contributor_Id  from dual;
+end if;
+end;
+/
 
 
 CREATE TABLE Est_Instances (
@@ -106,6 +127,21 @@ CREATE TABLE Site_Type (
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id)
 );
+
+create sequence Site_Type_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Site_Type_Trigger
+before insert on Site_Type 
+for each row
+begin
+if :new.Site_Type_Id  is null then
+select  Site_Type_Sequence.nextval into :new.Site_Type_Id  from dual;
+end if;
+end;
+/
 
 
 CREATE TABLE Fault_Model (
