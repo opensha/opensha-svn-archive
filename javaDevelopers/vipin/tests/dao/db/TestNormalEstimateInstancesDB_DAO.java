@@ -17,12 +17,12 @@ import org.opensha.data.estimate.NormalEstimate;
  * @author not attributable
  * @version 1.0
  */
-public class TestEstimateInstancesDB_DAO extends TestCase {
+public class TestNormalEstimateInstancesDB_DAO extends TestCase {
   private DB_Connection dbConnection = new DB_Connection();
   private EstimateInstancesDB_DAO estimateInstancesDB_DAO = null;
   static int primaryKey1, primaryKey2;
 
-  public TestEstimateInstancesDB_DAO(String name) {
+  public TestNormalEstimateInstancesDB_DAO(String name) {
     super(name);
     try{
       dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
