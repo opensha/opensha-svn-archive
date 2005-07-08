@@ -2,6 +2,7 @@ package org.opensha.data.estimate;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
 /**
  * <p>Title: DiscreteValueEstimate.java </p>
  * <p>Description:  This can be used where specifies discrete values and
@@ -117,5 +118,10 @@ public class DiscreteValueEstimate extends Estimate {
   public double getMean() {
    throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
  }
+
+ public DiscretizedFuncAPI getValues() {
+   return this.func;
+ }
+
 
 }

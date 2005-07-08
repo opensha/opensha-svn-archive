@@ -1,6 +1,7 @@
 package org.opensha.data.estimate;
 
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
@@ -141,5 +142,10 @@ public class FractileListEstimate extends Estimate {
   public double getMode() {
      throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
   }
+
+  public DiscretizedFuncAPI getValues() {
+    return this.func;
+  }
+
 
 }

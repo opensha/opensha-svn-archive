@@ -171,7 +171,6 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         paleoSiteList.add(paleoSite);
       }
       rs.close();
-      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return paleoSiteList;
   }

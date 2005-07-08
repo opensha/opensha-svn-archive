@@ -51,7 +51,6 @@ public class LogTypeDB_DAO implements LogTypeDAO_API {
       ResultSet rs  = dbConnection.queryData(sql);
       if(rs.next()) logTypeId = rs.getInt(LOG_TYPE_ID);
       rs.close();
-      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return logTypeId;
   }
@@ -65,7 +64,6 @@ public class LogTypeDB_DAO implements LogTypeDAO_API {
       ResultSet rs  = dbConnection.queryData(sql);
       if(rs.next()) logBase = rs.getString(LOG_BASE);
       rs.close();
-      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return logBase;
   }

@@ -84,7 +84,6 @@ public class EstimateTypeDB_DAO implements EstimateTypeDAO_API {
      while(rs.next()) estimateTypeList.add(new EstimateType(rs.getInt(EST_TYPE_ID),
            rs.getString(EST_NAME),rs.getDate(EFFECTIVE_DATE)));
      rs.close();
-     rs.getStatement().close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
    return estimateTypeList;
  }

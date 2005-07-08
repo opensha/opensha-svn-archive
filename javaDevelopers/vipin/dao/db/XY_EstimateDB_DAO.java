@@ -77,7 +77,6 @@ public class XY_EstimateDB_DAO  {
        func.set(rs.getFloat("X"),rs.getFloat("Y"));
      }
      rs.close();
-     rs.getStatement().close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
   }
 

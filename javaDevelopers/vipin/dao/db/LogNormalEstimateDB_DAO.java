@@ -119,7 +119,6 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
        estimateList.add(estimate);
      }
      rs.close();
-     rs.getStatement().close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
    return estimateList;
  }

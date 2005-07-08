@@ -99,7 +99,6 @@ public class QFault2002B_DB_DAO implements QFault2002B_DAO_API {
         faultSectionList.add(faultSection);
       }
       rs.close();
-      rs.getStatement().close();
     }
     catch (SQLException e) {
       throw new QueryException(e.getMessage());

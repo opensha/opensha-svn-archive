@@ -79,9 +79,8 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
     if(estimate instanceof NormalEstimate) estimateDAO_API = new NormalEstimateDB_DAO(dbConnection);
     else if(estimate instanceof LogNormalEstimate) estimateDAO_API = new LogNormalEstimateDB_DAO(dbConnection);
     else if(estimate instanceof IntegerEstimate) estimateDAO_API = new IntegerEstimateDB_DAO(dbConnection);
- //  if(estimate instanceof FractileListEstimate) estimateTypeName = NormalEstimateDB_DAO.EST_TYPE_NAME;
+    else if(estimate instanceof FractileListEstimate) estimateDAO_API = new FractileListEstimateDB_DAO(dbConnection);
  //  if(estimate instanceof PDF_Estimate) estimateTypeName = NormalEstimateDB_DAO.EST_TYPE_NAME;
-
  //  if(estimate instanceof DiscreteValueEstimate) estimateTypeName = NormalEstimateDB_DAO.EST_TYPE_NAME;
     return estimateDAO_API;
 
@@ -120,7 +119,6 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
         if(numRows==1) return true;
       }
       rs.close();
-      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return false;
   }
@@ -156,7 +154,6 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
       estimateInstancesList.add(estimateInstances);
     }
     rs.close();
-    rs.getStatement().close();
   } catch(SQLException e) { throw new QueryException(e.getMessage()); }
   return estimateInstancesList;
 }

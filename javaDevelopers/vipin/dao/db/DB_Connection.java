@@ -2,9 +2,7 @@
 package javaDevelopers.vipin.dao.db;
 
 import java.sql.*;
-import java.io.*;
-import java.util.*;
-
+import com.sun.rowset.CachedRowSetImpl;
 /**
  *
  * <p>Title:DB_Connection </p>
@@ -72,7 +70,6 @@ public class DB_Connection
       //stat = conn.createStatement();
     }
     catch (SQLException e) { e.printStackTrace();}
-
     return;
   }
 
@@ -111,17 +108,23 @@ public class DB_Connection
 
 
 
- /**
+  /**
    * Runs the select query on the database
    * @param query
    * @return
    */
-  public ResultSet queryData(String sql) throws java.sql.SQLException {
+  public CachedRowSetImpl queryData(String sql) throws java.sql.SQLException {
     Statement stat  = conn.createStatement();
     //gets the resultSet after running the query
     ResultSet result = stat.executeQuery(sql);
-    return result;
+    // create CachedRowSet and populate
+    CachedRowSetImpl crs = new CachedRowSetImpl();
+    crs.populate(result);
+    result.close();
+    stat.close();
+    return crs;
   }
+
 
 
 

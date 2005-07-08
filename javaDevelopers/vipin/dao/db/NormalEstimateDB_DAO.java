@@ -102,7 +102,6 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
      ResultSet rs  = dbConnection.queryData(sql);
      while(rs.next()) estimateList.add(new NormalEstimate(rs.getFloat(MEAN), rs.getFloat(STD_DEV)));
      rs.close();
-     rs.getStatement().close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
    return estimateList;
  }

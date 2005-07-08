@@ -126,7 +126,6 @@ public class ContributorDB_DAO implements ContributorDAO_API {
       ResultSet rs  = dbConnection.queryData(sql);
       while(rs.next()) contributorList.add(new Contributor(rs.getInt(CONTRIBUTOR_ID), rs.getString(CONTRIBUTOR_NAME)));
       rs.close();
-      rs.getStatement().close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return contributorList;
   }

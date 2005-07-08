@@ -1,0 +1,80 @@
+package javaDevelopers.vipin.dao.db;
+
+import javaDevelopers.vipin.dao.EstimateDAO_API;
+import org.opensha.data.estimate.FractileListEstimate;
+import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.estimate.Estimate;
+import javaDevelopers.vipin.dao.exception.*;
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+/**
+ * <p>Title: FractileListEstimateDB_DAO.java </p>
+ * <p>Description: </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+
+public class FractileListEstimateDB_DAO implements EstimateDAO_API {
+
+  public final static String EST_TYPE_NAME="FractileListEstimate";
+  private final static String ERR_MSG = "This class just deals with Fractile List Estimates";
+  private XY_EstimateDB_DAO xyEstimateDB_DAO  = new XY_EstimateDB_DAO();
+
+ /**
+  * Constructor.
+  * @param dbConnection
+  */
+ public FractileListEstimateDB_DAO(DB_Connection dbConnection) {
+   setDB_Connection(dbConnection);
+ }
+
+ public FractileListEstimateDB_DAO() { }
+
+
+ public void setDB_Connection(DB_Connection connection) {
+   xyEstimateDB_DAO.setDB_Connection(connection);
+ }
+
+ /**
+  * Add the normal estimate into the database table
+  * @param estimateInstanceId
+  * @param estimate
+  * @throws InsertException
+  */
+  public void addEstimate(int estimateInstanceId, Estimate estimate) throws InsertException {
+    if(!(estimate instanceof FractileListEstimate)) throw new InsertException(ERR_MSG);
+    FractileListEstimate integerEstimate = (FractileListEstimate)estimate;
+    xyEstimateDB_DAO.addEstimate(estimateInstanceId, integerEstimate.getValues());
+  }
+
+  /**
+   *
+   * @param estimateInstanceId
+   * @return
+   * @throws QueryException
+   */
+  public Estimate getEstimate(int estimateInstanceId) throws QueryException {
+    ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
+    xyEstimateDB_DAO.getEstimate(estimateInstanceId,func);
+    FractileListEstimate estimate=new FractileListEstimate(func);
+    return estimate;
+  }
+
+  /**
+   *
+   * @param estimateInstanceId
+   * @return
+   * @throws UpdateException
+   */
+  public boolean removeEstimate(int estimateInstanceId) throws UpdateException {
+    return xyEstimateDB_DAO.removeEstimate(estimateInstanceId);
+  }
+
+  public String getEstimateTypeName() {
+    return EST_TYPE_NAME;
+  }
+
+}
