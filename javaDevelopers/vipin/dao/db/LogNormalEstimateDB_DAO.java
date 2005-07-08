@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 /**
- * <p>Title: NormalEstimateDB_DAO.java </p>
+ * <p>Title: LogNormalEstimateDB_DAO.java </p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
