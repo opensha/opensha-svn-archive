@@ -80,8 +80,9 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
     else if(estimate instanceof LogNormalEstimate) estimateDAO_API = new LogNormalEstimateDB_DAO(dbConnection);
     else if(estimate instanceof IntegerEstimate) estimateDAO_API = new IntegerEstimateDB_DAO(dbConnection);
     else if(estimate instanceof FractileListEstimate) estimateDAO_API = new FractileListEstimateDB_DAO(dbConnection);
+    else if(estimate instanceof DiscreteValueEstimate) estimateDAO_API = new DiscreteValueEstimateDB_DAO(dbConnection);
  //  if(estimate instanceof PDF_Estimate) estimateTypeName = NormalEstimateDB_DAO.EST_TYPE_NAME;
- //  if(estimate instanceof DiscreteValueEstimate) estimateTypeName = NormalEstimateDB_DAO.EST_TYPE_NAME;
+
     return estimateDAO_API;
 
   }

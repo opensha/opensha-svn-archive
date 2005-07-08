@@ -6,25 +6,25 @@ import javaDevelopers.vipin.dao.exception.*;
 import javaDevelopers.vipin.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-import org.opensha.data.estimate.IntegerEstimate;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.estimate.FractileListEstimate;
+import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  *
- * <p>Title: TestIntegerEstimateInstancesDB_DAO.java </p>
+ * <p>Title: TestFractileListEstimateInstancesDB_DAO.java </p>
  * <p>Description: Test the Estimate Instances DB DAO</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
  * @version 1.0
  */
-public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
+public class TestFractileListEstimateInstancesDB_DAO extends TestCase {
   private DB_Connection dbConnection = new DB_Connection();
   private EstimateInstancesDB_DAO estimateInstancesDB_DAO = null;
   static int primaryKey1, primaryKey2;
 
-  public TestIntegerEstimateInstancesDB_DAO(String name) {
+  public TestFractileListEstimateInstancesDB_DAO(String name) {
     super(name);
     try{
       dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
@@ -45,24 +45,24 @@ public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
   }
 
 
-  public void testIntegerEstimateInstancesDB_DAO() {
+  public void testFractileListEstimateInstancesDB_DAO() {
     estimateInstancesDB_DAO = new EstimateInstancesDB_DAO(dbConnection);
     this.assertNotNull("estimateInstancesDB_DAO object should not be null",estimateInstancesDB_DAO);
   }
 
 
   public void testAddIntegerEstimateInstance() throws InsertException {
-    ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
+    ArbDiscrEmpiricalDistFunc func1 = new ArbDiscrEmpiricalDistFunc();
 
-    func1.set(2.0,0.0);
-    func1.set(1.0,0.0);
-    ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
-    func2.set(1.0,0.0);
-    func2.set(4.0,9.0);
-    func2.set(8.0,0.0);
+    func1.set(2.0,0.9);
+    func1.set(1.0,0.1);
+    ArbDiscrEmpiricalDistFunc func2 = new ArbDiscrEmpiricalDistFunc();
+    func2.set(1.0,0.4);
+    func2.set(4.0,0.7);
+    func2.set(8.0,0.8);
 
-    IntegerEstimate estimate1 = new IntegerEstimate(func1);
-    IntegerEstimate estimate2 = new IntegerEstimate(func2);
+    FractileListEstimate estimate1 = new FractileListEstimate(func1);
+    FractileListEstimate estimate2 = new FractileListEstimate(func2);
     EstimateInstances estimateInstance = new EstimateInstances();
     estimateInstance.setEstimate(estimate1);
     estimateInstance.setUnits("meters");
@@ -80,24 +80,25 @@ public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey1);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey1,actualReturn);
-    IntegerEstimate estimate  = (IntegerEstimate)actualReturn.getEstimate();
+    FractileListEstimate estimate  = (FractileListEstimate)actualReturn.getEstimate();
     DiscretizedFuncAPI func1 =  estimate.getValues();
-    assertEquals(1, (int)func1.getX(0));
-    assertEquals(0, (int)func1.getY(0));
-    assertEquals(2, (int)func1.getX(1));
-    assertEquals(0, (int)func1.getY(1));
+    double tolerance = 0.00001;
+    assertEquals(1, func1.getX(0),tolerance);
+    assertEquals(0.1, func1.getY(0),tolerance);
+    assertEquals(2, func1.getX(1), tolerance);
+    assertEquals(0.9, func1.getY(1), tolerance);
     assertEquals("meters", actualReturn.getUnits());
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey2);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey2,actualReturn);
-    estimate  = (IntegerEstimate)actualReturn.getEstimate();
+    estimate  = (FractileListEstimate)actualReturn.getEstimate();
     DiscretizedFuncAPI func2 =  estimate.getValues();
-    assertEquals(1, (int)func2.getX(0));
-    assertEquals(0, (int)func2.getY(0));
-    assertEquals(4, (int)func2.getX(1));
-    assertEquals(9, (int)func2.getY(1));
-    assertEquals(8, (int)func2.getX(2));
-    assertEquals(0, (int)func2.getY(2));
+    assertEquals(1, func2.getX(0),tolerance);
+    assertEquals(0.4, func2.getY(0), tolerance);
+    assertEquals(4, func2.getX(1), tolerance);
+    assertEquals(0.7, func2.getY(1), tolerance);
+    assertEquals(8, func2.getX(2), tolerance);
+    assertEquals(0.8, func2.getY(2), tolerance);
     assertEquals("meters", actualReturn.getUnits());
 
 

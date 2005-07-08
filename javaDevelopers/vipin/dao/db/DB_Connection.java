@@ -40,6 +40,7 @@ public class DB_Connection
       //stat.close();
       conn.close();
     }
+    conn=null;
   }
 
 

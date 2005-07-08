@@ -1,15 +1,15 @@
 package javaDevelopers.vipin.dao.db;
 
 import javaDevelopers.vipin.dao.EstimateDAO_API;
-import org.opensha.data.estimate.FractileListEstimate;
-import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.estimate.DiscreteValueEstimate;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.estimate.Estimate;
 import javaDevelopers.vipin.dao.exception.*;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 /**
- * <p>Title: FractileListEstimateDB_DAO.java </p>
+ * <p>Title: DiscreteValueEstimateDB_DAO.java </p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -17,21 +17,21 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class FractileListEstimateDB_DAO implements EstimateDAO_API {
+public class DiscreteValueEstimateDB_DAO implements EstimateDAO_API {
 
-  public final static String EST_TYPE_NAME="FractileListEstimate";
-  private final static String ERR_MSG = "This class just deals with Fractile List Estimates";
+  public final static String EST_TYPE_NAME="DiscreteValueEstimate";
+  private final static String ERR_MSG = "This class just deals with Discrete Estimates";
   private XY_EstimateDB_DAO xyEstimateDB_DAO  = new XY_EstimateDB_DAO();
 
  /**
   * Constructor.
   * @param dbConnection
   */
- public FractileListEstimateDB_DAO(DB_Connection dbConnection) {
+ public DiscreteValueEstimateDB_DAO(DB_Connection dbConnection) {
    setDB_Connection(dbConnection);
  }
 
- public FractileListEstimateDB_DAO() { }
+ public DiscreteValueEstimateDB_DAO() { }
 
 
  public void setDB_Connection(DB_Connection connection) {
@@ -45,9 +45,9 @@ public class FractileListEstimateDB_DAO implements EstimateDAO_API {
   * @throws InsertException
   */
   public void addEstimate(int estimateInstanceId, Estimate estimate) throws InsertException {
-    if(!(estimate instanceof FractileListEstimate)) throw new InsertException(ERR_MSG);
-    FractileListEstimate fractileListEstimate = (FractileListEstimate)estimate;
-    xyEstimateDB_DAO.addEstimate(estimateInstanceId, fractileListEstimate.getValues());
+    if(!(estimate instanceof DiscreteValueEstimate)) throw new InsertException(ERR_MSG);
+    DiscreteValueEstimate discreteValueEstimate = (DiscreteValueEstimate)estimate;
+    xyEstimateDB_DAO.addEstimate(estimateInstanceId, discreteValueEstimate.getValues());
   }
 
   /**
@@ -57,9 +57,9 @@ public class FractileListEstimateDB_DAO implements EstimateDAO_API {
    * @throws QueryException
    */
   public Estimate getEstimate(int estimateInstanceId) throws QueryException {
-    ArbDiscrEmpiricalDistFunc func = new ArbDiscrEmpiricalDistFunc();
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
     xyEstimateDB_DAO.getEstimate(estimateInstanceId,func);
-    FractileListEstimate estimate=new FractileListEstimate(func);
+    DiscreteValueEstimate estimate=new DiscreteValueEstimate(func);
     return estimate;
   }
 

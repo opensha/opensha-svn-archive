@@ -20,6 +20,8 @@ public class AllTests
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestLogTypeDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestLogNormalEstimateInstancesDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestIntegerEstimateInstancesDB_DAO.class);
+    suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestFractileListEstimateInstancesDB_DAO.class);
+    suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestDiscreteValueEstimateInstancesDB_DAO.class);
     return suite;
   }
 }

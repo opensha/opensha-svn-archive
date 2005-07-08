@@ -6,25 +6,25 @@ import javaDevelopers.vipin.dao.exception.*;
 import javaDevelopers.vipin.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-import org.opensha.data.estimate.IntegerEstimate;
+import org.opensha.data.estimate.DiscreteValueEstimate;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  *
- * <p>Title: TestIntegerEstimateInstancesDB_DAO.java </p>
+ * <p>Title: TestDiscreteValueEstimateInstancesDB_DAO.java </p>
  * <p>Description: Test the Estimate Instances DB DAO</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
  * @version 1.0
  */
-public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
+public class TestDiscreteValueEstimateInstancesDB_DAO extends TestCase {
   private DB_Connection dbConnection = new DB_Connection();
   private EstimateInstancesDB_DAO estimateInstancesDB_DAO = null;
   static int primaryKey1, primaryKey2;
 
-  public TestIntegerEstimateInstancesDB_DAO(String name) {
+  public TestDiscreteValueEstimateInstancesDB_DAO(String name) {
     super(name);
     try{
       dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
@@ -45,66 +45,66 @@ public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
   }
 
 
-  public void testIntegerEstimateInstancesDB_DAO() {
+  public void testDiscreteValueEstimateInstancesDB_DAO() {
     estimateInstancesDB_DAO = new EstimateInstancesDB_DAO(dbConnection);
     this.assertNotNull("estimateInstancesDB_DAO object should not be null",estimateInstancesDB_DAO);
   }
 
 
-  public void testAddIntegerEstimateInstance() throws InsertException {
+  public void testAddDiscreteValueEstimateInstance() throws InsertException {
     ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
 
-    func1.set(2.0,0.0);
-    func1.set(1.0,0.0);
+    func1.set(2.0,0.1);
+    func1.set(1.0,0.4);
     ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
-    func2.set(1.0,0.0);
-    func2.set(4.0,9.0);
-    func2.set(8.0,0.0);
+    func2.set(0.9,0.3);
+    func2.set(4.0,0.2);
+    func2.set(8.0,0.5);
 
-    IntegerEstimate estimate1 = new IntegerEstimate(func1);
-    IntegerEstimate estimate2 = new IntegerEstimate(func2);
+    DiscreteValueEstimate estimate1 = new DiscreteValueEstimate(func1);
+    DiscreteValueEstimate estimate2 = new DiscreteValueEstimate(func2);
     EstimateInstances estimateInstance = new EstimateInstances();
     estimateInstance.setEstimate(estimate1);
     estimateInstance.setUnits("meters");
     primaryKey1 = estimateInstancesDB_DAO.addEstimateInstance(estimateInstance);
     estimateInstance.setEstimate(estimate2);
+    estimateInstance.setUnits("cm");
     primaryKey2 = estimateInstancesDB_DAO.addEstimateInstance(estimateInstance);
     assertTrue(primaryKey1!=primaryKey2);
     assertEquals("there should be 2 estimate instances", 2, estimateInstancesDB_DAO.getAllEstimateInstances().size());
   }
 
 
-  public void testGetIntegerEstimateInstance() throws QueryException {
+  public void testGetDiscreteValueEstimateInstance() throws QueryException {
     EstimateInstances actualReturn = estimateInstancesDB_DAO.getEstimateInstance(4546);
     assertEquals("No estimate exists with id 4546", null, actualReturn);
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey1);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey1,actualReturn);
-    IntegerEstimate estimate  = (IntegerEstimate)actualReturn.getEstimate();
+    DiscreteValueEstimate estimate  = (DiscreteValueEstimate)actualReturn.getEstimate();
     DiscretizedFuncAPI func1 =  estimate.getValues();
-    assertEquals(1, (int)func1.getX(0));
-    assertEquals(0, (int)func1.getY(0));
-    assertEquals(2, (int)func1.getX(1));
-    assertEquals(0, (int)func1.getY(1));
+    double tolerance = 0.000001;
+    assertEquals(1, func1.getX(0), tolerance);
+    assertEquals(0.4, func1.getY(0), tolerance);
+    assertEquals(2, func1.getX(1), tolerance);
+    assertEquals(0.1, func1.getY(1), tolerance);
     assertEquals("meters", actualReturn.getUnits());
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey2);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey2,actualReturn);
-    estimate  = (IntegerEstimate)actualReturn.getEstimate();
+    estimate  = (DiscreteValueEstimate)actualReturn.getEstimate();
+    assertEquals("cm", actualReturn.getUnits());
     DiscretizedFuncAPI func2 =  estimate.getValues();
-    assertEquals(1, (int)func2.getX(0));
-    assertEquals(0, (int)func2.getY(0));
-    assertEquals(4, (int)func2.getX(1));
-    assertEquals(9, (int)func2.getY(1));
-    assertEquals(8, (int)func2.getX(2));
-    assertEquals(0, (int)func2.getY(2));
-    assertEquals("meters", actualReturn.getUnits());
-
-
+    assertEquals(0.9, func2.getX(0), tolerance);
+    assertEquals(0.3, func2.getY(0), tolerance);
+    assertEquals(4, func2.getX(1), tolerance);
+    assertEquals(0.2, func2.getY(1), tolerance);
+    assertEquals(8, func2.getX(2), tolerance);
+    assertEquals(0.5, func2.getY(2), tolerance);
   }
 
 
-  public void testRemoveIntegerEstimateInstance() throws UpdateException {
+  public void testRemoveDiscreteValueEstimateInstance() throws UpdateException {
     boolean status = estimateInstancesDB_DAO.removeEstimateInstance(5225);
     this.assertFalse("cannot remove estimate with 5225 as it does not exist", status);
     assertEquals("there should be 2 estimate instances", 2, estimateInstancesDB_DAO.getAllEstimateInstances().size());

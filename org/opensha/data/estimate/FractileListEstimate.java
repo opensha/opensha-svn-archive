@@ -65,6 +65,7 @@ public class FractileListEstimate extends Estimate {
      else if(numValues>1 && (func.getY(0)>0.5 || func.getY(numValues-1)<0.5))
        throw new InvalidParamValException(MEDIAN_UNDEFINED);
      for(int i = 0; i<numValues;++i) {
+       y = func.getY(i);
        if(y<MIN_Y_VAL || y>MAX_Y_VAL) throw new InvalidParamValException(MSG_Y_RANGE);
      }
      this.func = func;
