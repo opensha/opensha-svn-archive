@@ -51,15 +51,16 @@ public class VC_Analysis {
     lastIndex = read_VC_FaultNamesSegs.getLastIndex();
 
     Read_VC_FaultActivity read_vc_faultactivity_saf = new
-        Read_VC_FaultActivity("javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt");
+        Read_VC_FaultActivity(
+        "javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt");
     seg_area = read_vc_faultactivity_saf.getSegmentAreas();
     segSlipInfoList = read_vc_faultactivity_saf.getSegmentsSlipTimeHistories();
     timeSegMapping = read_vc_faultactivity_saf.getTimeSegmentMapping();
 
-//SegmentSlipTimeInfo firstSegmentSlipTime = (SegmentSlipTimeInfo) segSlipInfoList.get(0);
-//System.out.println("first segment number = "+firstSegmentSlipTime.getSegmentNumber());
+  //SegmentSlipTimeInfo firstSegmentSlipTime = (SegmentSlipTimeInfo) segSlipInfoList.get(0);
+  //System.out.println("first segment number = "+firstSegmentSlipTime.getSegmentNumber());
 
-    if(D) {
+    if (D) {
       System.out.println(seg_x_west.length + "  " + seg_y_west.length + "  " +
                          seg_x_east.length + "  " + seg_y_east.length + "  " +
                          seg_slipRate.length + "  " + seg_area.length + "  " +
@@ -68,12 +69,22 @@ public class VC_Analysis {
 
     makeSeparateEventsList();
 
-
     eventMags = new double[eventYears.size()];
     eventAveSlips = new double[eventYears.size()];
     eventAreas = new double[eventYears.size()];
 
+    SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) segSlipInfoList.get(0);
+    ArrayList times = info.getTimeHistories();
+    Iterator it = times.iterator();
+    Integer tempInt;
+    while(it.hasNext()) {
+      tempInt = (Integer) it.next();
+      System.out.println(tempInt+"\t"+info.getPreviousSlipTime(tempInt));
+    }
+    System.out.println(info.getPreviousSlipTime(new Integer(12000000)));
 
+
+/*
     getEventStats();
 
     try {
@@ -83,6 +94,10 @@ public class VC_Analysis {
       ex1.printStackTrace();
       System.exit(0);
     }
+*/
+
+
+
 
 /*
     makeFaultTraces();
