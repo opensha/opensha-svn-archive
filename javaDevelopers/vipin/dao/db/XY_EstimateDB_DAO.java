@@ -68,29 +68,18 @@ public class XY_EstimateDB_DAO  {
    * @return
    * @throws QueryException
    */
-  /*public Estimate getEstimate(int estimateInstanceId) throws QueryException {
-    LogNormalEstimate estimate = null;
+  public void getEstimate(int estimateInstanceId, DiscretizedFuncAPI func) throws QueryException {
     String condition = " where " + EST_ID + "=" + estimateInstanceId;
-    ArrayList estimateList = query(condition);
-    if (estimateList.size() > 0)
-      estimate = (LogNormalEstimate) estimateList.get(0);
-    return estimate;
-  } String sql = "select "+EST_ID+","+MEDIAN+","+STD_DEV+","+LOG_TYPE_ID+" from "+TABLE_NAME+" "+condition;
+    String sql = "select "+EST_ID+","+X+","+Y+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbConnection.queryData(sql);
      while(rs.next()) {
-       LogNormalEstimate estimate = new LogNormalEstimate(rs.getFloat(MEDIAN),
-                                              rs.getFloat(STD_DEV));
-       String logBase = this.logTypeDB_DAO.getLogBase(rs.getInt(LOG_TYPE_ID));
-       if(logBase.equalsIgnoreCase(LogTypeDB_DAO.LOG_BASE_10)) estimate.setIsBase10(true);
-       else estimate.setIsBase10(false);
-       estimateList.add(estimate);
+       func.set(rs.getFloat("X"),rs.getFloat("Y"));
      }
      rs.close();
      rs.getStatement().close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
-
-  }*/
+  }
 
   /**
    *
@@ -102,7 +91,7 @@ public class XY_EstimateDB_DAO  {
     String sql = "delete from "+TABLE_NAME+"  where "+EST_ID+"="+estimateInstanceId;
      try {
        int numRows = dbConnection.insertUpdateOrDeleteData(sql);
-       if(numRows==1) return true;
+       if(numRows>=1) return true;
      }
      catch(SQLException e) { throw new UpdateException(e.getMessage()); }
      return false;

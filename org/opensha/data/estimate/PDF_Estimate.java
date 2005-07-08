@@ -2,6 +2,8 @@ package org.opensha.data.estimate;
 
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
+
 /**
  * <p>Title: PDF_Estimate.java </p>
  * <p>Description:  This is probability distribution function.
@@ -107,6 +109,10 @@ public class PDF_Estimate extends Estimate {
 
  public double getMode() {
     throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
+ }
+
+ public DiscretizedFuncAPI getValues() {
+   return func;
  }
 
 }

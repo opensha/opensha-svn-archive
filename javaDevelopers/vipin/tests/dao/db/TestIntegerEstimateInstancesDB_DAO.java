@@ -6,23 +6,25 @@ import javaDevelopers.vipin.dao.exception.*;
 import javaDevelopers.vipin.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-import org.opensha.data.estimate.NormalEstimate;
+import org.opensha.data.estimate.IntegerEstimate;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  *
- * <p>Title: TestNormalEstimateInstancesDB_DAO.java </p>
+ * <p>Title: TestIntegerEstimateInstancesDB_DAO.java </p>
  * <p>Description: Test the Estimate Instances DB DAO</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
  * @version 1.0
  */
-public class TestNormalEstimateInstancesDB_DAO extends TestCase {
+public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
   private DB_Connection dbConnection = new DB_Connection();
   private EstimateInstancesDB_DAO estimateInstancesDB_DAO = null;
   static int primaryKey1, primaryKey2;
 
-  public TestNormalEstimateInstancesDB_DAO(String name) {
+  public TestIntegerEstimateInstancesDB_DAO(String name) {
     super(name);
     try{
       dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
@@ -49,9 +51,18 @@ public class TestNormalEstimateInstancesDB_DAO extends TestCase {
   }
 
 
-  public void testAddNormalEstimateInstance() throws InsertException {
-    NormalEstimate estimate1 = new NormalEstimate(5, 2);
-    NormalEstimate estimate2 = new NormalEstimate(3, 5);
+  public void testAddIntegerEstimateInstance() throws InsertException {
+    ArbitrarilyDiscretizedFunc func1 = new ArbitrarilyDiscretizedFunc();
+
+    func1.set(2.0,0.0);
+    func1.set(1.0,0.0);
+    ArbitrarilyDiscretizedFunc func2 = new ArbitrarilyDiscretizedFunc();
+    func2.set(1.0,0.0);
+    func2.set(4.0,9.0);
+    func2.set(8.0,0.0);
+
+    IntegerEstimate estimate1 = new IntegerEstimate(func1);
+    IntegerEstimate estimate2 = new IntegerEstimate(func2);
     EstimateInstances estimateInstance = new EstimateInstances();
     estimateInstance.setEstimate(estimate1);
     estimateInstance.setUnits("meters");
@@ -63,28 +74,37 @@ public class TestNormalEstimateInstancesDB_DAO extends TestCase {
   }
 
 
-  public void testGetNormalEstimateInstance() throws QueryException {
+  public void testGetIntegerEstimateInstance() throws QueryException {
     EstimateInstances actualReturn = estimateInstancesDB_DAO.getEstimateInstance(4546);
     assertEquals("No estimate exists with id 4546", null, actualReturn);
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey1);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey1,actualReturn);
-    NormalEstimate estimate  = (NormalEstimate)actualReturn.getEstimate();
-    assertEquals(5, estimate.getMean(),0.000001);
-    assertEquals(2, estimate.getStdDev(),0.000001);
+    IntegerEstimate estimate  = (IntegerEstimate)actualReturn.getEstimate();
+    DiscretizedFuncAPI func1 =  estimate.getValues();
+    assertEquals(1, (int)func1.getX(0));
+    assertEquals(0, (int)func1.getY(0));
+    assertEquals(2, (int)func1.getX(1));
+    assertEquals(0, (int)func1.getY(1));
     assertEquals("meters", actualReturn.getUnits());
 
     actualReturn = estimateInstancesDB_DAO.getEstimateInstance(primaryKey2);
     assertNotNull("should not be null as estimate exists with id ="+primaryKey2,actualReturn);
-    estimate  = (NormalEstimate)actualReturn.getEstimate();
-    assertEquals(3, estimate.getMean(),0.000001);
-    assertEquals(5, estimate.getStdDev(),0.000001);
+    estimate  = (IntegerEstimate)actualReturn.getEstimate();
+    DiscretizedFuncAPI func2 =  estimate.getValues();
+    assertEquals(1, (int)func2.getX(0));
+    assertEquals(0, (int)func2.getY(0));
+    assertEquals(4, (int)func2.getX(1));
+    assertEquals(9, (int)func2.getY(1));
+    assertEquals(8, (int)func2.getX(2));
+    assertEquals(0, (int)func2.getY(2));
     assertEquals("meters", actualReturn.getUnits());
+
 
   }
 
 
-  public void testRemoveNormalEstimateInstance() throws UpdateException {
+  public void testRemoveIntegerEstimateInstance() throws UpdateException {
     boolean status = estimateInstancesDB_DAO.removeEstimateInstance(5225);
     this.assertFalse("cannot remove estimate with 5225 as it does not exist", status);
     assertEquals("there should be 2 estimate instances", 2, estimateInstancesDB_DAO.getAllEstimateInstances().size());
