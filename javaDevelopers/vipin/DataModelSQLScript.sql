@@ -14,6 +14,8 @@ drop table Events_Sequence_Info;
 drop table Paleo_Site;
 drop table Log_Normal_Est;
 drop table XY_Est;
+drop trigger Fault_Model_Trigger;
+drop sequence Fault_Model_Sequence;
 drop table Fault_Model;
 drop trigger Site_Type_Trigger;
 drop sequence Site_Type_Sequence;
@@ -24,14 +26,16 @@ drop sequence Contributors_Sequence;
 drop table Contributors;
 drop table Aseismic_Slip_Factor;
 drop table Log_Type;
+drop trigger Reference_Trigger;
+drop sequence Reference_Sequence;
 drop table Reference;
 drop table Est_Type;
 
 
 CREATE TABLE Est_Type (
   Est_Type_Id INTEGER NOT NULL,
-  Est_Name VARCHAR(45) NULL UNIQUE,
-  Effective_Date date NULL,
+  Est_Name VARCHAR(45) NOT NULL UNIQUE,
+  Effective_Date date NOT NULL,
   PRIMARY KEY(Est_Type_Id)
 );
 
@@ -45,7 +49,7 @@ insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
 
 CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
-  Reference_Name VARCHAR(255) NULL UNIQUE,
+  Reference_Name VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Reference_Id)
 );
 
@@ -169,6 +173,23 @@ CREATE TABLE Fault_Model (
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id) 
 );
+
+
+create sequence Fault_Model_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Fault_Model_Trigger
+before insert on Fault_Model 
+for each row
+begin
+if :new.Fault_Model_Id  is null then
+select  Fault_Model_Sequence.nextval into :new.Fault_Model_Id  from dual;
+end if;
+end;
+/
+
 
 CREATE TABLE XY_Est (
   X FLOAT NOT NULL,
