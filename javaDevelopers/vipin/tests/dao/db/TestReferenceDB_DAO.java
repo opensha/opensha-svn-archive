@@ -6,7 +6,7 @@ import javaDevelopers.vipin.dao.exception.*;
 import javaDevelopers.vipin.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-
+import javaDevelopers.vipin.tests.AllTests;
 /**
  *
  * <p>Title: TestReferenceDB_DAO.java </p>
@@ -17,17 +17,13 @@ import java.sql.SQLException;
  * @version 1.0
  */
 public class TestReferenceDB_DAO extends TestCase {
-  private DB_Connection dbConnection = new DB_Connection();
+  private DB_Connection dbConnection;
   private ReferenceDB_DAO referenceDB_DAO = null;
   private static int primaryKey1, primaryKey2;
 
   public TestReferenceDB_DAO(String name) {
     super(name);
-    try{
-      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
-    }catch(SQLException e) {
-      e.printStackTrace();
-    }
+    dbConnection = AllTests.dbConnection;
   }
 
   protected void setUp() throws Exception {
@@ -38,7 +34,6 @@ public class TestReferenceDB_DAO extends TestCase {
   protected void tearDown() throws Exception {
     referenceDB_DAO = null;
     super.tearDown();
-    dbConnection.disconnect();
   }
 
 

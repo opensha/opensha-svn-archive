@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import org.opensha.data.estimate.DiscreteValueEstimate;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
-
+import javaDevelopers.vipin.tests.AllTests;
 /**
  *
  * <p>Title: TestDiscreteValueEstimateInstancesDB_DAO.java </p>
@@ -20,17 +20,13 @@ import org.opensha.data.function.DiscretizedFuncAPI;
  * @version 1.0
  */
 public class TestDiscreteValueEstimateInstancesDB_DAO extends TestCase {
-  private DB_Connection dbConnection = new DB_Connection();
+  private DB_Connection dbConnection;
   private EstimateInstancesDB_DAO estimateInstancesDB_DAO = null;
   static int primaryKey1, primaryKey2;
 
   public TestDiscreteValueEstimateInstancesDB_DAO(String name) {
     super(name);
-    try{
-      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
-    }catch(SQLException e) {
-      e.printStackTrace();
-    }
+    dbConnection = AllTests.dbConnection;
   }
 
   protected void setUp() throws Exception {
@@ -41,7 +37,6 @@ public class TestDiscreteValueEstimateInstancesDB_DAO extends TestCase {
   protected void tearDown() throws Exception {
     estimateInstancesDB_DAO = null;
     super.tearDown();
-    dbConnection.disconnect();
   }
 
 

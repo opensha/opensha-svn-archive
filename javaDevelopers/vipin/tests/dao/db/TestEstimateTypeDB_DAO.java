@@ -6,7 +6,7 @@ import javaDevelopers.vipin.dao.exception.*;
 import javaDevelopers.vipin.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-
+import javaDevelopers.vipin.tests.AllTests;
 /**
  *
  * <p>Title: Test_EstimateTypeDB_DAO.java </p>
@@ -17,16 +17,12 @@ import java.sql.SQLException;
  * @version 1.0
  */
 public class TestEstimateTypeDB_DAO extends TestCase {
-  private DB_Connection dbConnection = new DB_Connection();
+  private DB_Connection dbConnection ;
   private EstimateTypeDB_DAO estimateTypeDB_DAO = null;
 
   public TestEstimateTypeDB_DAO(String name) {
     super(name);
-    try{
-      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
-    }catch(SQLException e) {
-      e.printStackTrace();
-    }
+    dbConnection = AllTests.dbConnection;
   }
 
   protected void setUp() throws Exception {
@@ -37,7 +33,6 @@ public class TestEstimateTypeDB_DAO extends TestCase {
   protected void tearDown() throws Exception {
     estimateTypeDB_DAO = null;
     super.tearDown();
-    dbConnection.disconnect();
   }
 
 

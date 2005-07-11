@@ -6,7 +6,7 @@ import javaDevelopers.vipin.dao.exception.*;
 import javaDevelopers.vipin.vo.*;
 import java.util.*;
 import java.sql.SQLException;
-
+import javaDevelopers.vipin.tests.AllTests;
 /**
  *
  * <p>Title: TestSiteTypeDB_DAO.java </p>
@@ -17,7 +17,7 @@ import java.sql.SQLException;
  * @version 1.0
  */
 public class TestSiteTypeDB_DAO extends TestCase {
-  private DB_Connection dbConnection = new DB_Connection();
+  private DB_Connection dbConnection;
   private ContributorDB_DAO contributorDB_DAO = null;
   private SiteTypeDB_DAO siteTypeDB_DAO = null;
   private static int contributorKey1, contributorKey2;
@@ -25,11 +25,7 @@ public class TestSiteTypeDB_DAO extends TestCase {
 
   public TestSiteTypeDB_DAO(String name) {
     super(name);
-    try{
-      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
-    }catch(SQLException e) {
-      e.printStackTrace();
-    }
+    dbConnection = AllTests.dbConnection;
   }
 
   protected void setUp() throws Exception {
@@ -42,7 +38,6 @@ public class TestSiteTypeDB_DAO extends TestCase {
     contributorDB_DAO = null;
     siteTypeDB_DAO=null;
     super.tearDown();
-    dbConnection.disconnect();
   }
 
 
