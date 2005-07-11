@@ -22,6 +22,7 @@ public class AllTests
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestIntegerEstimateInstancesDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestFractileListEstimateInstancesDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestDiscreteValueEstimateInstancesDB_DAO.class);
+    suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestReferenceDB_DAO.class);
     return suite;
   }
 }

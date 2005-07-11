@@ -45,9 +45,26 @@ insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
 
 CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
-  Reference_Name VARCHAR(255) NULL,
+  Reference_Name VARCHAR(255) NULL UNIQUE,
   PRIMARY KEY(Reference_Id)
 );
+
+create sequence Reference_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Reference_Trigger
+before insert on Reference 
+for each row
+begin
+if :new.Reference_Id  is null then
+select  Reference_Sequence.nextval into :new.Reference_Id  from dual;
+end if;
+end;
+/
+
+
 
 
 CREATE TABLE Log_Type (
