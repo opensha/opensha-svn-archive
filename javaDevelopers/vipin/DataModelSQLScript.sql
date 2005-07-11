@@ -1,50 +1,36 @@
-drop trigger Est_Instances_Trigger;
-drop sequence Est_Instances_Sequence;
-drop table PDF_Y_Vals;
-drop table site_Event_Sequence_Info;
+drop table Site_Event_Sequence_Info;
 drop table Event_Sequence;
-drop table Fault_Section_Site;
-drop table Paleo_Site_Event;
-drop table Normal_Est;
-drop table PDF_Est;
-drop table Combined_Events_Info;
-drop table Fault_Section;
-drop table Paleo_Event;
 drop table Events_Sequence_Info;
+drop table Paleo_Site_Event;
+drop table Paleo_Event;
+drop table Combined_Events_Info;
+drop table Fault_Section_Site;
 drop table Paleo_Site;
-drop table Log_Normal_Est;
-drop table XY_Est;
-drop trigger Fault_Model_Trigger;
-drop sequence Fault_Model_Sequence;
-drop table Fault_Model;
 drop trigger Site_Type_Trigger;
 drop sequence Site_Type_Sequence;
 drop table Site_Type;
+drop table Fault_Section;
+drop trigger Fault_Model_Trigger;
+drop sequence Fault_Model_Sequence;
+drop table Fault_Model;
+drop table Aseismic_Slip_Factor;
+drop table PDF_Y_Vals;
+drop table PDF_Est;
+drop table Log_Normal_Est;
+drop table Log_type;
+drop table XY_Est;
+drop table Normal_Est;
+drop trigger Est_Instances_Trigger;
+drop sequence Est_Instances_Sequence;
 drop table Est_Instances;
+drop table Est_Type;
 drop trigger Contributors_Trigger;
 drop sequence Contributors_Sequence;
 drop table Contributors;
-drop table Aseismic_Slip_Factor;
-drop table Log_Type;
 drop trigger Reference_Trigger;
 drop sequence Reference_Sequence;
 drop table Reference;
-drop table Est_Type;
 
-
-CREATE TABLE Est_Type (
-  Est_Type_Id INTEGER NOT NULL,
-  Est_Name VARCHAR(45) NOT NULL UNIQUE,
-  Effective_Date date NOT NULL,
-  PRIMARY KEY(Est_Type_Id)
-);
-
-insert into Est_Type values(1,'NormalEstimate',sysdate);
-insert into Est_Type values(2,'LogNormalEstimate',sysdate);
-insert into Est_Type values(3,'PDF_Estimate',sysdate);
-insert into Est_Type values(4,'FractileListEstimate',sysdate);
-insert into Est_Type values(5,'IntegerEstimate',sysdate);
-insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
 
 
 CREATE TABLE Reference (
@@ -70,26 +56,6 @@ end;
 
 
 
-
-CREATE TABLE Log_Type (
-  Log_Type_Id INTEGER NOT NULL,
-  Log_Base VARCHAR(20) NOT NULL UNIQUE,
-  PRIMARY KEY(Log_Type_Id)
-);
-
-insert into Log_Type values(1, '10');
-insert into Log_Type values(2, 'E');
-
-CREATE TABLE Aseismic_Slip_Factor (
-  Aseismic_Slip_Type_Id INTEGER NOT NULL,
-  Aseismic_Slip_Type VARCHAR(255) NOT NULL UNIQUE,
-  PRIMARY KEY(Aseismic_Slip_Type_Id)
-);
-
-insert into Aseismic_Slip_Factor values(1, 'Aseismic');
-insert into Aseismic_Slip_Factor values(0, 'Seismic');
-
-
 CREATE TABLE Contributors (
   Contributor_Id INTEGER NOT NULL,
   Contributor_Name VARCHAR(45) NOT NULL UNIQUE,
@@ -111,6 +77,22 @@ select  Contributors_Sequence.nextval into :new.Contributor_Id  from dual;
 end if;
 end;
 /
+
+
+CREATE TABLE Est_Type (
+  Est_Type_Id INTEGER NOT NULL,
+  Est_Name VARCHAR(45) NOT NULL UNIQUE,
+  Effective_Date date NOT NULL,
+  PRIMARY KEY(Est_Type_Id)
+);
+
+insert into Est_Type values(1,'NormalEstimate',sysdate);
+insert into Est_Type values(2,'LogNormalEstimate',sysdate);
+insert into Est_Type values(3,'PDF_Estimate',sysdate);
+insert into Est_Type values(4,'FractileListEstimate',sysdate);
+insert into Est_Type values(5,'IntegerEstimate',sysdate);
+insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
+
 
 
 CREATE TABLE Est_Instances (
@@ -139,30 +121,75 @@ end;
 /
 
 
-
-CREATE TABLE Site_Type (
-  Site_Type_Id INTEGER NOT NULL ,
-  Contributor_Id INTEGER NOT NULL,
-  Site_Type VARCHAR(255) NOT NULL UNIQUE,
-  PRIMARY KEY(Site_Type_Id),
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id)
+CREATE TABLE Normal_Est (
+  Est_Id INTEGER  NOT NULL,
+  Mean FLOAT NULL,
+  Std_Dev FLOAT NULL,
+  PRIMARY KEY(Est_Id),
+  FOREIGN KEY(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
 );
 
-create sequence Site_Type_Sequence
-start with 1
-increment by 1
-nomaxvalue;
+CREATE TABLE XY_Est (
+  X FLOAT NOT NULL,
+  Est_Id INTEGER NOT NULL,
+  Y FLOAT NOT NULL,
+  PRIMARY KEY(X, Est_Id),
+  FOREIGN KEY(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
+);
 
-create trigger Site_Type_Trigger
-before insert on Site_Type 
-for each row
-begin
-if :new.Site_Type_Id  is null then
-select  Site_Type_Sequence.nextval into :new.Site_Type_Id  from dual;
-end if;
-end;
-/
+CREATE TABLE Log_Type (
+  Log_Type_Id INTEGER NOT NULL,
+  Log_Base VARCHAR(20) NOT NULL UNIQUE,
+  PRIMARY KEY(Log_Type_Id)
+);
+
+
+insert into Log_Type values(1, '10');
+insert into Log_Type values(2, 'E');
+
+CREATE TABLE Log_Normal_Est (
+  Est_Id INTEGER NOT NULL,
+  Log_Type_Id INTEGER NOT NULL,
+  Median FLOAT NOT NULL,
+  Std_Dev FLOAT NULL,
+  PRIMARY KEY(Est_Id),
+  FOREIGN KEY(Est_Id)
+    REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Log_Type_Id)
+     REFERENCES Log_Type(Log_Type_Id)
+);
+
+CREATE TABLE PDF_Est (
+  Est_Id INTEGER  NOT NULL,
+  Min_X FLOAT NULL,
+  Delta_X FLOAT NULL,
+  Num INTEGER  NULL,
+  PRIMARY KEY(Est_Id),
+  FOREIGN KEY(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
+);
+
+CREATE TABLE PDF_Y_Vals (
+  Y_Vals_Id INTEGER  NOT NULL,
+  Est_Id INTEGER  NOT NULL,
+  Y_Val FLOAT NULL,
+  PRIMARY KEY(Y_Vals_Id, Est_Id),
+  FOREIGN KEY(Est_Id)
+    REFERENCES PDF_Est(Est_Id) 
+);
+
+
+
+CREATE TABLE Aseismic_Slip_Factor (
+  Aseismic_Slip_Type_Id INTEGER NOT NULL,
+  Aseismic_Slip_Type VARCHAR(255) NOT NULL UNIQUE,
+  PRIMARY KEY(Aseismic_Slip_Type_Id)
+);
+
+insert into Aseismic_Slip_Factor values(1, 'Aseismic');
+insert into Aseismic_Slip_Factor values(0, 'Seismic');
 
 
 CREATE TABLE Fault_Model (
@@ -190,86 +217,6 @@ end if;
 end;
 /
 
-
-CREATE TABLE XY_Est (
-  X FLOAT NOT NULL,
-  Est_Id INTEGER NOT NULL,
-  Y FLOAT NOT NULL,
-  PRIMARY KEY(X, Est_Id),
-  FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
-);
-
-CREATE TABLE Log_Normal_Est (
-  Est_Id INTEGER NOT NULL,
-  Log_Type_Id INTEGER NOT NULL,
-  Median FLOAT NOT NULL,
-  Std_Dev FLOAT NULL,
-  PRIMARY KEY(Est_Id),
-  FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id),
-  FOREIGN KEY(Log_Type_Id)
-     REFERENCES Log_Type(Log_Type_Id)
-);
-
-CREATE TABLE Paleo_Site (
-  Site_Id INTEGER NOT NULL,
-  Effective_Date date NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
-  Site_Type_Id INTEGER NOT NULL,
-  Site_Name VARCHAR(255) NOT NULL,
-  Site_Lat FLOAT NOT NULL,
-  Site_Lon FLOAT NOT NULL,
-  Site_Elevation FLOAT NOT NULL,
-  Representative_Strand_Index INTEGER NOT NULL,
-  Comments VARCHAR(255) NULL,
-  Old_Site_Id INTEGER NULL,
-  PRIMARY KEY(Site_Id, Effective_Date, Contributor_Id),
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
-  FOREIGN KEY(Site_Type_Id)
-     REFERENCES Site_Type(Site_Type_Id)
-);
-
-CREATE TABLE Events_Sequence_Info (
-  Sequence_Id INTEGER NOT NULL,
-  Reference_Id INTEGER NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
-  Start_Time_Est_Id INTEGER NOT NULL,
-  End_Time_Est_Id INTEGER  NOT NULL,
-  Sequence_Name VARCHAR(255) NOT NULL,
-  Effective_Date date NOT NULL,
-  Comments VARCHAR(255) NOT NULL,
-  PRIMARY KEY(Sequence_Id, Contributor_Id, Effective_Date),  
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
- FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
- FOREIGN KEY(Start_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
-);
-
-CREATE TABLE Paleo_Event (
-  Event_Id INTEGER NOT NULL ,
-  Reference_Id INTEGER NOT NULL,
-  Contributor_Id INTEGER  NOT NULL,
-  Event_Date_Est_Id INTEGER  NOT NULL,
-  Displacement_Est_Id INTEGER NOT NULL,
-  Event_Name VARCHAR(255) NOT NULL,
-  Effective_Date date NOT NULL,
-  Comments VARCHAR(255) NULL,
-  PRIMARY KEY(Event_Id, Contributor_Id, Effective_Date),
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
-  FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
- FOREIGN KEY(Event_Date_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Displacement_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
-);
 
 
 CREATE TABLE Fault_Section (
@@ -303,6 +250,68 @@ CREATE TABLE Fault_Section (
  FOREIGN KEY(Pref_Lower_Depth)
      REFERENCES Est_Instances(Est_Id)
 );
+
+
+CREATE TABLE Site_Type (
+  Site_Type_Id INTEGER NOT NULL ,
+  Contributor_Id INTEGER NOT NULL,
+  Site_Type VARCHAR(255) NOT NULL UNIQUE,
+  PRIMARY KEY(Site_Type_Id),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id)
+);
+
+create sequence Site_Type_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Site_Type_Trigger
+before insert on Site_Type 
+for each row
+begin
+if :new.Site_Type_Id  is null then
+select  Site_Type_Sequence.nextval into :new.Site_Type_Id  from dual;
+end if;
+end;
+/
+
+
+CREATE TABLE Paleo_Site (
+  Site_Id INTEGER NOT NULL,
+  Effective_Date date NOT NULL,
+  Contributor_Id INTEGER NOT NULL,
+  Site_Type_Id INTEGER NOT NULL,
+  Site_Name VARCHAR(255) NOT NULL,
+  Site_Lat FLOAT NOT NULL,
+  Site_Lon FLOAT NOT NULL,
+  Site_Elevation FLOAT NOT NULL,
+  Representative_Strand_Index INTEGER NOT NULL,
+  Comments VARCHAR(255) NULL,
+  Old_Site_Id INTEGER NULL,
+  PRIMARY KEY(Site_Id, Effective_Date, Contributor_Id),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id),
+  FOREIGN KEY(Site_Type_Id)
+     REFERENCES Site_Type(Site_Type_Id)
+);
+
+CREATE TABLE Fault_Section_Site (
+  Fault_Id INTEGER  NOT NULL,
+  Section_Id INTEGER  NOT NULL,
+  Fault_Section_Effective_Date date NOT NULL,
+  Fault_Model_Id INTEGER  NOT NULL,  
+  Site_Contributor_Id INTEGER  NOT NULL,
+  Site_Id INTEGER  NOT NULL,
+  Site_Effective_Date date NOT NULL,  
+  PRIMARY KEY(Site_Id, Fault_Id, Section_Id, Fault_Section_Effective_Date, Site_Contributor_Id, Fault_Model_Id, Site_Effective_Date),
+  FOREIGN KEY(Site_Id, Site_Contributor_Id, Site_Effective_Date)
+   REFERENCES Paleo_Site(Site_Id, Contributor_Id, Effective_Date),
+  FOREIGN KEY(Fault_Id, Section_Id, Fault_Model_Id, Fault_Section_Effective_Date)
+   REFERENCES Fault_Section(Fault_Id, Section_Id, Fault_Model_Id, Effective_Date)
+);
+
+
 
 CREATE TABLE Combined_Events_Info (
   Info_Id INTEGER  NOT NULL,
@@ -342,23 +351,25 @@ CREATE TABLE Combined_Events_Info (
      REFERENCES Est_Instances(Est_Id)
 );
 
-CREATE TABLE PDF_Est (
-  Est_Id INTEGER  NOT NULL,
-  Min_X FLOAT NULL,
-  Delta_X FLOAT NULL,
-  Num INTEGER  NULL,
-  PRIMARY KEY(Est_Id),
-  FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
-);
 
-CREATE TABLE Normal_Est (
-  Est_Id INTEGER  NOT NULL,
-  Mean FLOAT NULL,
-  Std_Dev FLOAT NULL,
-  PRIMARY KEY(Est_Id),
-  FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
+CREATE TABLE Paleo_Event (
+  Event_Id INTEGER NOT NULL ,
+  Reference_Id INTEGER NOT NULL,
+  Contributor_Id INTEGER  NOT NULL,
+  Event_Date_Est_Id INTEGER  NOT NULL,
+  Displacement_Est_Id INTEGER NOT NULL,
+  Event_Name VARCHAR(255) NOT NULL,
+  Effective_Date date NOT NULL,
+  Comments VARCHAR(255) NULL,
+  PRIMARY KEY(Event_Id, Contributor_Id, Effective_Date),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id),
+  FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id),
+ FOREIGN KEY(Event_Date_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+ FOREIGN KEY(Displacement_Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE Paleo_Site_Event (
@@ -376,19 +387,25 @@ CREATE TABLE Paleo_Site_Event (
 );
 
 
-CREATE TABLE Fault_Section_Site (
-  Fault_Id INTEGER  NOT NULL,
-  Section_Id INTEGER  NOT NULL,
-  Fault_Section_Effective_Date date NOT NULL,
-  Fault_Model_Id INTEGER  NOT NULL,  
-  Site_Contributor_Id INTEGER  NOT NULL,
-  Site_Id INTEGER  NOT NULL,
-  Site_Effective_Date date NOT NULL,  
-  PRIMARY KEY(Site_Id, Fault_Id, Section_Id, Fault_Section_Effective_Date, Site_Contributor_Id, Fault_Model_Id, Site_Effective_Date),
-  FOREIGN KEY(Site_Id, Site_Contributor_Id, Site_Effective_Date)
-   REFERENCES Paleo_Site(Site_Id, Contributor_Id, Effective_Date),
-  FOREIGN KEY(Fault_Id, Section_Id, Fault_Model_Id, Fault_Section_Effective_Date)
-   REFERENCES Fault_Section(Fault_Id, Section_Id, Fault_Model_Id, Effective_Date)
+
+CREATE TABLE Events_Sequence_Info (
+  Sequence_Id INTEGER NOT NULL,
+  Reference_Id INTEGER NOT NULL,
+  Contributor_Id INTEGER NOT NULL,
+  Start_Time_Est_Id INTEGER NOT NULL,
+  End_Time_Est_Id INTEGER  NOT NULL,
+  Sequence_Name VARCHAR(255) NOT NULL,
+  Effective_Date date NOT NULL,
+  Comments VARCHAR(255) NOT NULL,
+  PRIMARY KEY(Sequence_Id, Contributor_Id, Effective_Date),  
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id),
+ FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id),
+ FOREIGN KEY(Start_Time_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+ FOREIGN KEY(End_Time_Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 
@@ -426,11 +443,3 @@ CREATE TABLE Site_Event_Sequence_Info (
      REFERENCES Contributors(Contributor_Id)  
 );
 
-CREATE TABLE PDF_Y_Vals (
-  Y_Vals_Id INTEGER  NOT NULL,
-  Est_Id INTEGER  NOT NULL,
-  Y_Val FLOAT NULL,
-  PRIMARY KEY(Y_Vals_Id, Est_Id),
-  FOREIGN KEY(Est_Id)
-    REFERENCES PDF_Est(Est_Id) 
-);
