@@ -10,6 +10,9 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.surface.GriddedSurfaceAPI;
 import org.opensha.data.Location;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+
+
 /**
  * <p>Title: ERF2GriddedSeisRatesCalc</p>
  *
@@ -74,8 +77,18 @@ public class ERF2GriddedSeisRatesCalc {
       int numEmpDistElemnents = ((ArbDiscrEmpiricalDistFunc)regionMagRatesEmpDistList.get(i)).getNum();
 
       if(numEmpDistElemnents ==0)continue;
-      else
-        map.put(region.getGridLocation(i),regionMagRatesEmpDistList.get(i));
+      else{
+        ArbitrarilyDiscretizedFunc func = ((ArbDiscrEmpiricalDistFunc)regionMagRatesEmpDistList.get(i)).getCumDist();
+        int numFuncs = func.getNum();
+        ArbitrarilyDiscretizedFunc magRateFunction = new ArbitrarilyDiscretizedFunc();
+        int magIndex = func.getYIndex(mag);
+        for(int j=magIndex;j<numFuncs;++j,++magIndex){
+          double rates = func.getY(func.getNum()-1) - func.getY(magIndex) ;
+          magRateFunction.set(func.getX(magIndex),rates);
+        }
+
+        map.put(region.getGridLocation(i),magRateFunction);
+      }
     }
 
     return map;
@@ -226,7 +239,7 @@ public class ERF2GriddedSeisRatesCalc {
      * @param args String[]
      */
     public static void main(String[] args) {
-      //ERF2GriddedSeisRatesCalc erf2griddedseisratescalc = new
-        //  ERF2GriddedSeisRatesCalc();
+      ERF2GriddedSeisRatesCalc erf2griddedseisratescalc = new
+          ERF2GriddedSeisRatesCalc();
     }
 }
