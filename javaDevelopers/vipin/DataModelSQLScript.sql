@@ -1,20 +1,22 @@
-drop table Site_Event_Sequence_Info;
+drop table Event_Sequence_Event_List;
+drop table Event_Sequence_References;
 drop table Event_Sequence;
-drop table Events_Sequence_Info;
-drop table Paleo_Site_Event;
+drop table Paleo_Event_References;
 drop table Paleo_Event;
+drop table Combined_Events_References;
 drop table Combined_Events_Info;
-drop table Fault_Section_Site;
 drop table Paleo_Site;
-drop trigger Site_Type_Trigger;
-drop sequence Site_Type_Sequence;
-drop table Site_Type;
-drop table Fault_Section;
+drop trigger Site_type_Trigger;
+drop sequence Site_type_Sequence;
+drop table site_type;
+drop table Fault_Model_Section;
 drop trigger Fault_Model_Trigger;
 drop sequence Fault_Model_Sequence;
 drop table Fault_Model;
-drop table Aseismic_Slip_Factor;
-drop table PDF_Y_Vals;
+drop table Fault_Section;
+drop trigger Section_Source_Trigger;
+drop sequence Section_Source_Sequence;
+drop table Section_Source;
 drop table PDF_Est;
 drop table Log_Normal_Est;
 drop table Log_type;
@@ -82,7 +84,7 @@ end;
 CREATE TABLE Est_Type (
   Est_Type_Id INTEGER NOT NULL,
   Est_Name VARCHAR(45) NOT NULL UNIQUE,
-  Effective_Date date NOT NULL,
+  Entry_Date date NOT NULL,
   PRIMARY KEY(Est_Type_Id)
 );
 
@@ -123,8 +125,8 @@ end;
 
 CREATE TABLE Normal_Est (
   Est_Id INTEGER  NOT NULL,
-  Mean FLOAT NULL,
-  Std_Dev FLOAT NULL,
+  Mean FLOAT NOT NULL,
+  Std_Dev FLOAT NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
@@ -133,7 +135,7 @@ CREATE TABLE Normal_Est (
 CREATE TABLE XY_Est (
   X FLOAT NOT NULL,
   Est_Id INTEGER NOT NULL,
-  Y FLOAT NOT NULL,
+  Y FLOAT NULL,
   PRIMARY KEY(X, Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
@@ -153,7 +155,7 @@ CREATE TABLE Log_Normal_Est (
   Est_Id INTEGER NOT NULL,
   Log_Type_Id INTEGER NOT NULL,
   Median FLOAT NOT NULL,
-  Std_Dev FLOAT NULL,
+  Std_Dev FLOAT NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id),
@@ -163,33 +165,76 @@ CREATE TABLE Log_Normal_Est (
 
 CREATE TABLE PDF_Est (
   Est_Id INTEGER  NOT NULL,
-  Min_X FLOAT NULL,
-  Delta_X FLOAT NULL,
-  Num INTEGER  NULL,
+  Min_X FLOAT NOT NULL,
+  Delta_X FLOAT NOT NULL,
+  Num INTEGER  NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
 );
 
-CREATE TABLE PDF_Y_Vals (
-  Y_Vals_Id INTEGER  NOT NULL,
-  Est_Id INTEGER  NOT NULL,
-  Y_Val FLOAT NULL,
-  PRIMARY KEY(Y_Vals_Id, Est_Id),
-  FOREIGN KEY(Est_Id)
-    REFERENCES PDF_Est(Est_Id) 
+
+
+CREATE TABLE Section_Source (
+  Section_Source_Id INTEGER NOT NULL,
+  Contributor_Id INTEGER NOT NULL,
+  Section_Source_Name VARCHAR(255) NOT NULL UNIQUE,
+  PRIMARY KEY(Section_Source_Id),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id) 
 );
 
 
+create sequence Section_Source_Sequence
+start with 1
+increment by 1
+nomaxvalue;
 
-CREATE TABLE Aseismic_Slip_Factor (
-  Aseismic_Slip_Type_Id INTEGER NOT NULL,
-  Aseismic_Slip_Type VARCHAR(255) NOT NULL UNIQUE,
-  PRIMARY KEY(Aseismic_Slip_Type_Id)
+create trigger Section_Source_Trigger
+before insert on Section_Source 
+for each row
+begin
+if :new.Section_Source_Id  is null then
+select  Section_Source_Sequence.nextval into :new.Section_Source_Id  from dual;
+end if;
+end;
+/
+
+
+
+CREATE TABLE Fault_Section (
+  Section_Id INTEGER  NOT NULL,
+  Fault_Id INTEGER  NOT NULL,
+  Section_Source_Id INTEGER  NOT NULL,
+  Ave_Long_Term_Slip_Rate_Est INTEGER  NOT NULL,
+  Ave_Dip_Est INTEGER  NOT NULL,
+  Ave_Rake_Est INTEGER  NOT NULL,
+  Ave_Upper_Depth_Est INTEGER  NOT NULL,
+  Ave_Lower_Depth_Est INTEGER  NOT NULL,
+  Contributor_Id INTEGER NOT NULL,
+  Name VARCHAR(255) NOT NULL,
+  Entry_Date date NOT NULL,
+  Comments VARCHAR(255) NULL,
+  Fault_Trace VARCHAR(255) NOT NULL,
+  Aseismic_Slip_Factor_Est INTEGER  NOT NULL,
+  PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
+  FOREIGN KEY(Section_Source_Id)
+    REFERENCES Section_Source(Section_Source_Id),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id),
+  FOREIGN KEY(Ave_Long_Term_Slip_Rate_Est)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Ave_Dip_Est)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Ave_Rake_Est)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Ave_Upper_Depth_Est)
+     REFERENCES Est_Instances(Est_Id), 
+  FOREIGN KEY(Ave_Lower_Depth_Est)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Aseismic_Slip_Factor_Est)
+     REFERENCES Est_Instances(Est_Id)
 );
-
-insert into Aseismic_Slip_Factor values(1, 'Aseismic');
-insert into Aseismic_Slip_Factor values(0, 'Seismic');
 
 
 CREATE TABLE Fault_Model (
@@ -217,38 +262,17 @@ end if;
 end;
 /
 
-
-
-CREATE TABLE Fault_Section (
+CREATE TABLE Fault_Model_Section (
+  Fault_Model_Id INTEGER NOT NULL,
   Section_Id INTEGER  NOT NULL,
   Fault_Id INTEGER  NOT NULL,
-  Fault_Model_Id INTEGER  NOT NULL,
-  Pref_Slip_Rate INTEGER  NOT NULL,
-  Pref_Dip INTEGER  NOT NULL,
-  Pref_Rake INTEGER  NOT NULL,
-  Pref_Upper_Depth INTEGER  NOT NULL,
-  Pref_Lower_Depth INTEGER  NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
-  Name VARCHAR(255) NOT NULL,
-  Effective_Date date NOT NULL,
-  Comments VARCHAR(255) NULL,
-  Fault_Trace VARCHAR(255) NOT NULL,
-  Aseismic_Slip_Factor_Index INTEGER  NOT NULL,
-  PRIMARY KEY(Section_Id, Fault_Id, Fault_Model_Id, Effective_Date),
+  Section_Source_Id INTEGER  NOT NULL,
+  Section_Entry_Date date NOT NULL,
+  PRIMARY KEY(Fault_Model_Id, Section_Id, Fault_Id, Section_Source_Id, Section_Entry_Date),
   FOREIGN KEY(Fault_Model_Id)
-    REFERENCES Fault_Model(Fault_Model_Id),
- FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
- FOREIGN KEY(Pref_Slip_Rate)
-     REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Pref_Dip)
-     REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Pref_Rake)
-     REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Pref_Upper_Depth)
-     REFERENCES Est_Instances(Est_Id), 
- FOREIGN KEY(Pref_Lower_Depth)
-     REFERENCES Est_Instances(Est_Id)
+     REFERENCES  Fault_Model(Fault_Model_Id),
+  FOREIGN KEY(Section_Id, Fault_Id, Section_Source_Id, Section_Entry_Date)
+     REFERENCES Fault_Section(Section_Id, Fault_Id, Section_Source_Id, Entry_Date)
 );
 
 
@@ -279,36 +303,26 @@ end;
 
 CREATE TABLE Paleo_Site (
   Site_Id INTEGER NOT NULL,
-  Effective_Date date NOT NULL,
+  Fault_Id INTEGER NOT NULL,
+  Entry_Date date NOT NULL,
+  Entry_Comments VARCHAR(255) NOT NULL,
   Contributor_Id INTEGER NOT NULL,
   Site_Type_Id INTEGER NOT NULL,
   Site_Name VARCHAR(255) NOT NULL,
-  Site_Lat FLOAT NOT NULL,
-  Site_Lon FLOAT NOT NULL,
-  Site_Elevation FLOAT NOT NULL,
+  Site_Lat1 FLOAT NOT NULL,
+  Site_Lon1 FLOAT NOT NULL,
+  Site_Elevation1 FLOAT NOT NULL,
+  Site_Lat2 FLOAT NOT NULL,
+  Site_Lon2 FLOAT NOT NULL,
+  Site_Elevation2 FLOAT NOT NULL, 
   Representative_Strand_Index INTEGER NOT NULL,
-  Comments VARCHAR(255) NULL,
+  General_Comments VARCHAR(255) NULL,
   Old_Site_Id INTEGER NULL,
-  PRIMARY KEY(Site_Id, Effective_Date, Contributor_Id),
+  PRIMARY KEY(Site_Id, Site_Type_Id, Entry_Date, Contributor_Id),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Site_Type_Id)
      REFERENCES Site_Type(Site_Type_Id)
-);
-
-CREATE TABLE Fault_Section_Site (
-  Fault_Id INTEGER  NOT NULL,
-  Section_Id INTEGER  NOT NULL,
-  Fault_Section_Effective_Date date NOT NULL,
-  Fault_Model_Id INTEGER  NOT NULL,  
-  Site_Contributor_Id INTEGER  NOT NULL,
-  Site_Id INTEGER  NOT NULL,
-  Site_Effective_Date date NOT NULL,  
-  PRIMARY KEY(Site_Id, Fault_Id, Section_Id, Fault_Section_Effective_Date, Site_Contributor_Id, Fault_Model_Id, Site_Effective_Date),
-  FOREIGN KEY(Site_Id, Site_Contributor_Id, Site_Effective_Date)
-   REFERENCES Paleo_Site(Site_Id, Contributor_Id, Effective_Date),
-  FOREIGN KEY(Fault_Id, Section_Id, Fault_Model_Id, Fault_Section_Effective_Date)
-   REFERENCES Fault_Section(Fault_Id, Section_Id, Fault_Model_Id, Effective_Date)
 );
 
 
@@ -316,130 +330,146 @@ CREATE TABLE Fault_Section_Site (
 CREATE TABLE Combined_Events_Info (
   Info_Id INTEGER  NOT NULL,
   Site_Id INTEGER  NOT NULL,
-  Site_Contributor_Id INTEGER  NOT NULL,
-  Site_Effective_Date date NOT NULL,  
-  Effective_Date date NOT NULL,
-  Reference_Id INTEGER  NOT NULL,
+  Site_Type_Id INTEGER NOT NULL,
+  Site_Contributor_Id INTEGER  NOT NULL,  
+  Site_Entry_Date date NOT NULL,  
+  Entry_Date date NOT NULL,
+  Entry_Comments VARCHAR(255) NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
   Start_Time_Est_Id INTEGER  NOT NULL,
   End_Time_Est_Id INTEGER  NOT NULL,
   Total_Slip_Est_Id INTEGER  NOT NULL,
   Slip_Rate_Est_Id INTEGER  NOT NULL,
   Num_Events_Est_Id INTEGER  NOT NULL,
-  Aseismic_Slip_Type_Id INTEGER  NOT NULL,
+  Aseismic_Slip_Factor_Est_Id INTEGER  NOT NULL,
   Info_Name VARCHAR(255) NOT NULL,
-  Comments VARCHAR(255) NULL,
+  General_Comments VARCHAR(255) NULL,
   Dated_Feature_Comments VARCHAR(255) NULL,
-  PRIMARY KEY(Info_Id, Site_Id, Effective_Date, Contributor_Id),
-  FOREIGN KEY (Site_Id, Site_Contributor_Id, Site_Effective_Date) 
-    REFERENCES Paleo_Site(Site_Id, Contributor_Id, Effective_Date),
- FOREIGN KEY(Contributor_Id)
+  PRIMARY KEY(Info_Id, Entry_Date, Contributor_Id),
+  FOREIGN KEY (Site_Id, Site_Type_Id, Site_Contributor_Id, Site_Entry_Date) 
+    REFERENCES Paleo_Site(Site_Id, Site_Type_Id, Contributor_Id, Entry_Date),
+  FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
- FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
- FOREIGN KEY(Aseismic_Slip_Type_Id)
-   REFERENCES Aseismic_Slip_Factor(Aseismic_Slip_Type_Id),
- FOREIGN KEY(Start_Time_Est_Id)
+  FOREIGN KEY(Start_Time_Est_Id)
      REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(End_Time_Est_Id)
+  FOREIGN KEY(End_Time_Est_Id)
      REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Total_Slip_Est_Id)
+  FOREIGN KEY(Total_Slip_Est_Id)
      REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Slip_Rate_Est_Id)
+  FOREIGN KEY(Slip_Rate_Est_Id)
      REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Num_Events_Est_Id)
+  FOREIGN KEY(Num_Events_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Aseismic_Slip_Factor_Est_Id)
      REFERENCES Est_Instances(Est_Id)
 );
 
 
+CREATE TABLE Combined_Events_References (
+ combined_Events_Id INTEGER  NOT NULL,
+ combined_Events_Contributor_Id INTEGER  NOT NULL,
+ combined_Events_Entry_Date date NOT NULL,
+ Reference_Id INTEGER  NOT NULL,
+ PRIMARY KEY (combined_Events_Id, combined_Events_Contributor_Id, combined_Events_Entry_Date, Reference_Id),
+ FOREIGN KEY (combined_Events_Id, combined_Events_Contributor_Id, combined_Events_Entry_Date)
+   REFERENCES Combined_Events_Info(Info_Id, Contributor_Id, Entry_Date),
+ FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id)
+);
+ 
+  	
+ 
+
 CREATE TABLE Paleo_Event (
   Event_Id INTEGER NOT NULL ,
-  Reference_Id INTEGER NOT NULL,
+  Site_Id INTEGER  NOT NULL,
+  Site_Type_Id INTEGER NOT NULL,
+  Site_Contributor_Id INTEGER  NOT NULL,  
+  Site_Entry_Date date NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
   Event_Date_Est_Id INTEGER  NOT NULL,
   Displacement_Est_Id INTEGER NOT NULL,
   Event_Name VARCHAR(255) NOT NULL,
-  Effective_Date date NOT NULL,
-  Comments VARCHAR(255) NULL,
-  PRIMARY KEY(Event_Id, Contributor_Id, Effective_Date),
+  Entry_Date date NOT NULL,
+  Entry_Comments VARCHAR(255) NOT NULL,
+  General_Comments VARCHAR(255) NULL,
+  PRIMARY KEY(Event_Id, Contributor_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
-  FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
- FOREIGN KEY(Event_Date_Est_Id)
+  FOREIGN KEY(Event_Date_Est_Id)
      REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(Displacement_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
-);
-
-CREATE TABLE Paleo_Site_Event (
-  Site_Id INTEGER  NOT NULL,
-  Site_Effective_Date date NOT NULL,
-  Site_Contributor_Id INTEGER  NOT NULL,
-  Event_Id INTEGER  NOT NULL,
-  Event_Effective_Date date NOT NULL,
-  Event_Contributor_Id INTEGER  NOT NULL,
-  PRIMARY KEY(Site_Id, Event_Id, Site_Effective_Date, Site_Contributor_Id, Event_Effective_Date, Event_Contributor_Id),  
-  FOREIGN KEY(Site_Id, Site_Effective_Date, Site_Contributor_Id)
-    REFERENCES Paleo_Site(Site_Id, Effective_Date, Contributor_Id),
-  FOREIGN KEY(Event_Id, Event_Effective_Date, Event_Contributor_Id)
-    REFERENCES Paleo_Event(Event_Id, Effective_Date, Contributor_Id)
+  FOREIGN KEY(Displacement_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY (Site_Id, Site_Type_Id, Site_Contributor_Id, Site_Entry_Date) 
+    REFERENCES Paleo_Site(Site_Id, Site_Type_Id, Contributor_Id, Entry_Date)
 );
 
 
+CREATE TABLE Paleo_Event_References (
+ Paleo_Event_Id INTEGER  NOT NULL,
+ Paleo_Event_Contributor_Id INTEGER  NOT NULL,
+ Paleo_Event_Entry_Date DATE NOT NULL,
+ Reference_Id INTEGER  NOT NULL,
+ PRIMARY KEY (Paleo_Event_Id, Paleo_Event_Contributor_Id, Paleo_Event_Entry_Date, Reference_Id),
+ FOREIGN KEY (Paleo_Event_Id, Paleo_Event_Contributor_Id, Paleo_Event_Entry_Date)
+   REFERENCES Paleo_Event(Event_Id, Contributor_Id, Entry_Date),
+ FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id)
+);
 
-CREATE TABLE Events_Sequence_Info (
+
+
+
+CREATE TABLE Event_Sequence (
   Sequence_Id INTEGER NOT NULL,
-  Reference_Id INTEGER NOT NULL,
+  Site_Id INTEGER  NOT NULL,
+  Site_Type_Id INTEGER NOT NULL,
+  Site_Contributor_Id INTEGER  NOT NULL,  
+  Site_Entry_Date date NOT NULL,
   Contributor_Id INTEGER NOT NULL,
   Start_Time_Est_Id INTEGER NOT NULL,
   End_Time_Est_Id INTEGER  NOT NULL,
   Sequence_Name VARCHAR(255) NOT NULL,
-  Effective_Date date NOT NULL,
-  Comments VARCHAR(255) NOT NULL,
-  PRIMARY KEY(Sequence_Id, Contributor_Id, Effective_Date),  
+  Entry_Date date NOT NULL,
+  Entry_Comments VARCHAR(255) NOT NULL, 
+  General_Comments VARCHAR(255) NOT NULL,
+  PRIMARY KEY(Sequence_Id, Contributor_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
- FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
- FOREIGN KEY(Start_Time_Est_Id)
+  FOREIGN KEY(Start_Time_Est_Id)
      REFERENCES Est_Instances(Est_Id),
- FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
+  FOREIGN KEY(End_Time_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY (Site_Id, Site_Type_Id, Site_Contributor_Id, Site_Entry_Date) 
+    REFERENCES Paleo_Site(Site_Id, Site_Type_Id, Contributor_Id, Entry_Date)
 );
 
+CREATE TABLE Event_Sequence_References (
+  Event_Sequence_Id INTEGER  NOT NULL,
+  Event_Sequence_Contributor_Id INTEGER  NOT NULL,
+  Event_Sequence_Entry_Date DATE NOT NULL,
+  Reference_Id INTEGER  NOT NULL,
+  PRIMARY KEY (Event_Sequence_Id, Event_Sequence_Contributor_Id, Event_Sequence_Entry_Date, Reference_Id),
+  FOREIGN KEY (Event_Sequence_Id, Event_Sequence_Contributor_Id, Event_Sequence_Entry_Date)
+    REFERENCES Event_Sequence(Sequence_Id, Contributor_Id, Entry_Date),
+  FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id)
+); 
 
-CREATE TABLE Event_Sequence (
+
+CREATE TABLE Event_Sequence_Event_List (
   Event_Id INTEGER  NOT NULL,
   Event_Contributor_Id  INTEGER  NOT NULL, 
-  Event_Effective_Date date NOT NULL,
+  Event_Entry_Date DATE NOT NULL,
   Sequence_Id INTEGER  NOT NULL,
   Sequence_Contributor_Id  INTEGER  NOT NULL, 
-  Sequence_Effective_Date date NOT NULL,
+  Sequence_Entry_Date date NOT NULL,
   Missed_Prob FLOAT NOT NULL,
   Event_Index_In_Sequence INTEGER  NOT NULL,
-  PRIMARY KEY(Event_Id, Event_Contributor_Id, Event_Effective_Date, Sequence_Id, Sequence_Contributor_Id, Sequence_Effective_Date),
-  FOREIGN KEY(Event_Id, Event_Contributor_Id, Event_Effective_Date)
-   REFERENCES Paleo_Event(Event_Id, Contributor_Id, Effective_Date),
-  FOREIGN KEY(Sequence_Id, Sequence_Contributor_Id, Sequence_Effective_Date)
-   REFERENCES Events_Sequence_Info(Sequence_Id, Contributor_Id, Effective_Date)  
-);
-
-CREATE TABLE Site_Event_Sequence_Info (
-  Sequence_Id INTEGER  NOT NULL,
-  Sequence_Contributor_Id  INTEGER  NOT NULL, 
-  Sequence_Effective_Date date NOT NULL,
-  Site_Contributor_Id INTEGER  NOT NULL,
-  Site_Id INTEGER  NOT NULL,
-  Site_Effective_Date date NOT NULL,  
-  Contributor_Id INTEGER  NOT NULL,
-  Sequence_Wt FLOAT NOT NULL,
-  PRIMARY KEY(Sequence_Id, Site_Id, Contributor_Id),
-  FOREIGN KEY(Site_Id, Site_Contributor_Id, Site_Effective_Date)
-   REFERENCES Paleo_Site(Site_Id, Contributor_Id, Effective_Date),
-  FOREIGN KEY(Sequence_Id, Sequence_Contributor_Id, Sequence_Effective_Date)
-   REFERENCES Events_Sequence_Info(Sequence_Id, Contributor_Id, Effective_Date),
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id)  
+  PRIMARY KEY(Event_Id, Event_Contributor_Id, Event_Entry_Date, Sequence_Id, Sequence_Contributor_Id, Sequence_Entry_Date),
+  FOREIGN KEY(Event_Id, Event_Contributor_Id, Event_Entry_Date)
+   REFERENCES Paleo_Event(Event_Id, Contributor_Id, Entry_Date),
+  FOREIGN KEY(Sequence_Id, Sequence_Contributor_Id, Sequence_Entry_Date)
+   REFERENCES Event_Sequence(Sequence_Id, Contributor_Id, Entry_Date)  
 );
 
