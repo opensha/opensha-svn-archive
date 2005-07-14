@@ -104,8 +104,8 @@ public class TestPaleoSiteDB_DAO extends TestCase {
   }
 
   public void testGetPaleoSite() throws QueryException {
-    PaleoSite actualReturn = (PaleoSite)paleoSiteDB_DAO.getPaleoSite(2).get(0);
-    assertEquals("No paleoSite exists with id 2", null, actualReturn);
+    PaleoSite actualReturn ;
+    assertEquals("No paleoSite exists with id 2", 0, paleoSiteDB_DAO.getPaleoSite(2).size());
     actualReturn = (PaleoSite)paleoSiteDB_DAO.getPaleoSite(1).get(0);
     assertNotNull("should not be null as paloeSite exists with id = 1",actualReturn);
 
