@@ -36,7 +36,7 @@ public interface PaleoSiteDAO_API {
   * @param paleoSiteId
   * @return
   */
- public PaleoSite getPaleoSite(int paleoSiteId) throws QueryException;
+ public ArrayList getPaleoSite(int paleoSiteId) throws QueryException;
 
 
  /**

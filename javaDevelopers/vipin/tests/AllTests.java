@@ -8,19 +8,23 @@ public class AllTests
     extends TestCase {
   public static DB_Connection dbConnection;
 
+ static {
+   dbConnection = new DB_Connection();
+   try {
+     dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
+   }
+   catch (SQLException ex) {
+     ex.printStackTrace();
+   }
+ }
+
   public AllTests(String s) {
     super(s);
   }
 
 
   public static Test suite() {
-    dbConnection = new DB_Connection();
-    try {
-      dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
-    }
-    catch (SQLException ex) {
-      ex.printStackTrace();
-    }
+
     TestSuite suite = new TestSuite();
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestContributorDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestSiteTypeDB_DAO.class);
