@@ -104,11 +104,23 @@ public class ERF2GriddedSeisRatesCalc {
 
     int numSources = eqkRupForecast.getNumSources();
 
-
+    //Initializing the Region Mag-Rate List with empty Empirical DistFunc.
     regionMagRatesEmpDistList = new ArrayList();
     int numLocations = region.getNumGridLocs();
     for (int i = 0; i < numLocations; ++i)
       regionMagRatesEmpDistList.add(new ArbDiscrEmpiricalDistFunc());
+
+
+    //gets the mi minimum Lat and Lon for the gridded region
+    double minLat = ( (EvenlyGriddedRectangularGeographicRegion) region).
+        getMinLat();
+    double maxLat = ( (EvenlyGriddedRectangularGeographicRegion) region).
+        getMaxLat();
+    double minLon = ( (EvenlyGriddedRectangularGeographicRegion) region).
+        getMinLon();
+    double maxLon = ( (EvenlyGriddedRectangularGeographicRegion) region).
+        getMaxLon();
+    double gridSpacing = region.getGridSpacing();
 
 
     //Going over each and every source in the forecast
@@ -141,16 +153,7 @@ public class ERF2GriddedSeisRatesCalc {
          //going over all the locations in the ruptures and mapping those to nearest
          //location on the gridded region
          if (region instanceof EvenlyGriddedRectangularGeographicRegion) {
-           //gets the mi minimum Lat and Lon for the gridded region
-           double minLat = ( (EvenlyGriddedRectangularGeographicRegion) region).
-               getMinLat();
-           double maxLat = ( (EvenlyGriddedRectangularGeographicRegion) region).
-               getMaxLat();
-           double minLon = ( (EvenlyGriddedRectangularGeographicRegion) region).
-               getMinLon();
-           double maxLon = ( (EvenlyGriddedRectangularGeographicRegion) region).
-               getMaxLon();
-           double gridSpacing = region.getGridSpacing();
+
            //gets the rows and cols for the gridded region, considering if it would have
            //stored as a Container2D object.
            numCols = (int) ( (maxLon - minLon) / gridSpacing);
@@ -196,10 +199,10 @@ public class ERF2GriddedSeisRatesCalc {
 
 
     /**
-     * This function returns the nearest location from the Geographic Region for
+     * This function returns the nearest location from the EvenlyGridded Geographic Region for
      * point on the rupture.
-     * It compares each location on the rupture with the location in the Geographic region,
-     * to get the nearest location.
+     * It compares each location on the rupture with the location in the EvenlyGridded
+     * Geographic region,to get the nearest location.
      * The comparison is done by calculation of distance between the 2 locations.
      * @param rupPointLoc Location
      * @return int
