@@ -24,15 +24,20 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private final static String TABLE_NAME="Paleo_Site";
 
   private final static String SITE_ID="Site_Id";
-  private final static String EFFECTIVE_DATE="Effective_Date";
+  private final static String FAULT_ID="Fault_Id";
+  private final static String ENTRY_DATE="Entry_Date";
+  private final static String ENTRY_COMMENTS="Entry_Comments";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String SITE_NAME="Site_Name";
-  private final static String SITE_LAT="Site_Lat";
-  private final static String SITE_LON="Site_Lon";
-  private final static String SITE_ELEVATION="Site_Elevation";
+  private final static String SITE_LAT1="Site_Lat1";
+  private final static String SITE_LON1="Site_Lon1";
+  private final static String SITE_ELEVATION1="Site_Elevation1";
+  private final static String SITE_LAT2="Site_Lat2";
+  private final static String SITE_LON2="Site_Lon2";
+  private final static String SITE_ELEVATION2="Site_Elevation2";
   private final static String REPRESENTATIVE_STRAND_INDEX="Representative_Strand_Index";
-  private final static String COMMENTS="Comments";
+  private final static String GENERAL_COMMENTS="General_Comments";
   private final static String OLD_SITE_ID="Old_Site_Id";
 
   private DB_Connection dbConnection;
@@ -54,16 +59,16 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   */
   public void addPaleoSite(PaleoSite paleoSite) throws InsertException {
 
-    String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+EFFECTIVE_DATE+
-        ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT+","+
-        SITE_LON+","+SITE_ELEVATION+","+REPRESENTATIVE_STRAND_INDEX+","+
-        COMMENTS+","+OLD_SITE_ID+") "+
+    String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+ENTRY_DATE+
+        ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
+        SITE_LON1+","+SITE_ELEVATION1+","+REPRESENTATIVE_STRAND_INDEX+","+
+        GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSite.getSiteId()+",sysdate"+
         ","+paleoSite.getSiteContributor().getId()+","+
         paleoSite.getSiteType().getSiteTypeId()+",'"+paleoSite.getSiteName()+"',"+
-        paleoSite.getSiteLat()+","+paleoSite.getSiteLon()+","+
-        paleoSite.getSiteElevation()+","+paleoSite.getRepresentativeStrandIndex()+
-        ",'"+paleoSite.getComments()+"',"+paleoSite.getOldSiteId()+")";
+        paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+","+
+        paleoSite.getSiteElevation1()+","+paleoSite.getRepresentativeStrandIndex()+
+        ",'"+paleoSite.getGeneralComments()+"',"+paleoSite.getOldSiteId()+")";
 
     try { dbConnection.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
@@ -82,15 +87,15 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
    * @throws UpdateException
    */
   public boolean updatePaleoSite(int paleoSiteId, PaleoSite paleoSite) throws UpdateException {
-    String sql = "update "+TABLE_NAME+" set "+EFFECTIVE_DATE+"='"+
-        paleoSite.getEffectiveDate()+"',"+CONTRIBUTOR_ID+"="+
+    String sql = "update "+TABLE_NAME+" set "+ENTRY_DATE+"='"+
+        paleoSite.getEntryDate()+"',"+CONTRIBUTOR_ID+"="+
         paleoSite.getSiteContributor().getId()+","+SITE_TYPE_ID+"="+
         paleoSite.getSiteType().getSiteTypeId()+","+SITE_NAME+"='"+
-        paleoSite.getSiteName()+"',"+SITE_LAT+"="+paleoSite.getSiteLat()+","+
-        SITE_LON+"="+paleoSite.getSiteLon()+","+SITE_ELEVATION+"="+
-        paleoSite.getSiteElevation()+","+REPRESENTATIVE_STRAND_INDEX+"="+
-        paleoSite.getRepresentativeStrandIndex()+","+COMMENTS+"='"+
-        paleoSite.getComments()+"',"+OLD_SITE_ID+"="+paleoSite.getOldSiteId()+
+        paleoSite.getSiteName()+"',"+SITE_LAT1+"="+paleoSite.getSiteLat1()+","+
+        SITE_LON1+"="+paleoSite.getSiteLon1()+","+SITE_ELEVATION1+"="+
+        paleoSite.getSiteElevation1()+","+REPRESENTATIVE_STRAND_INDEX+"="+
+        paleoSite.getRepresentativeStrandIndex()+","+GENERAL_COMMENTS+"='"+
+        paleoSite.getGeneralComments()+"',"+OLD_SITE_ID+"="+paleoSite.getOldSiteId()+
        " where "+SITE_ID+"="+paleoSiteId;
     try {
       int numRows = dbConnection.insertUpdateOrDeleteData(sql);
@@ -146,10 +151,10 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
-    String sql =  "select "+SITE_ID+","+EFFECTIVE_DATE+
-        ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT+","+
-        SITE_LON+","+SITE_ELEVATION+","+REPRESENTATIVE_STRAND_INDEX+","+
-        COMMENTS+","+OLD_SITE_ID+
+    String sql =  "select "+SITE_ID+","+ENTRY_DATE+
+        ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
+        SITE_LON1+","+SITE_ELEVATION1+","+REPRESENTATIVE_STRAND_INDEX+","+
+        GENERAL_COMMENTS+","+OLD_SITE_ID+
         " from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbConnection.queryData(sql);
@@ -158,15 +163,15 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
       while(rs.next())  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
-        paleoSite.setEffectiveDate(rs.getDate(EFFECTIVE_DATE));
-        paleoSite.setContributor(contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
+        paleoSite.setEntryDate(rs.getDate(ENTRY_DATE));
+        paleoSite.setSiteContributor(contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
         paleoSite.setSiteType(siteTypeDAO.getSiteType(rs.getInt(SITE_TYPE_ID)));
         paleoSite.setSiteName(rs.getString(SITE_NAME));
-        paleoSite.setSiteLat(rs.getFloat(SITE_LAT));
-        paleoSite.setSiteLon(rs.getFloat(SITE_LON));
-        paleoSite.setSiteElevation(rs.getFloat(SITE_ELEVATION));
+        paleoSite.setSiteLat1(rs.getFloat(SITE_LAT1));
+        paleoSite.setSiteLon1(rs.getFloat(SITE_LON1));
+        paleoSite.setSiteElevation1(rs.getFloat(SITE_ELEVATION1));
         paleoSite.setRepresentativeStrandIndex(rs.getInt(REPRESENTATIVE_STRAND_INDEX));
-        paleoSite.setComments(rs.getString(COMMENTS));
+        paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getInt(OLD_SITE_ID));
         paleoSiteList.add(paleoSite);
       }

@@ -21,7 +21,7 @@ public class EstimateTypeDB_DAO implements EstimateTypeDAO_API {
   private final static String TABLE_NAME="Est_Type";
   private final static String EST_TYPE_ID="Est_Type_Id";
   private final static String EST_NAME="Est_Name";
-  private final static String EFFECTIVE_DATE="Effective_Date";
+  private final static String EFFECTIVE_DATE="Entry_Date";
   private DB_Connection dbConnection;
 
  /**

@@ -12,15 +12,20 @@ import java.util.Date;
 
 public class PaleoSite {
   private int siteId=-1;
-  private Date effectiveDate;
+  private int  faultId;
+  private Date entryDate;
   private Contributor siteContributor;
   private SiteType siteType;
   private String siteName;
-  private float siteLat;
-  private float siteLon;
-  private float siteElevation;
+  private float siteLat1;
+  private float siteLon1;
+  private float siteElevation1;
+  private float siteLat2;
+  private float siteLon2;
+  private float siteElevation2;
   private int representativeStrandIndex;
-  private String comments;
+  private String generalComments;
+  private String entryComments;
   private int oldSiteId;
 
   public PaleoSite() {
@@ -29,33 +34,81 @@ public class PaleoSite {
   public void setSiteId(int siteId) { this.siteId = siteId; }
   public int getSiteId() { return this.siteId; }
 
-  public Date getEffectiveDate() { return this.effectiveDate; }
-  public void setEffectiveDate(Date effectDate) { this.effectiveDate = effectDate; }
 
   public Contributor getSiteContributor() { return this.siteContributor; }
-  public void setContributor(Contributor siteContributor) { this.siteContributor = siteContributor; }
+  public void setSiteContributor(Contributor siteContributor) { this.siteContributor = siteContributor; }
 
   public void setSiteType(SiteType siteType) { this.siteType = siteType; }
   public SiteType getSiteType() { return this.siteType; }
 
- public void setSiteName(String siteName) { this.siteName = siteName;}
- public String getSiteName() { return this.siteName; }
+  public void setSiteName(String siteName) { this.siteName = siteName;}
+  public String getSiteName() { return this.siteName; }
 
- public float getSiteLat() { return this.siteLat; }
- public void setSiteLat(float siteLatitude) { this.siteLat = siteLatitude; }
 
- public float getSiteLon() { return this.siteLon; }
- public void setSiteLon(float siteLongitude) { this.siteLon = siteLongitude; }
 
- public float getSiteElevation() { return this.siteElevation; }
- public void setSiteElevation(float elevation) { this.siteElevation = elevation; }
+  public int getRepresentativeStrandIndex() { return this.representativeStrandIndex; }
+  public void setRepresentativeStrandIndex(int repStrandIndex) { this.representativeStrandIndex = repStrandIndex; }
 
- public int getRepresentativeStrandIndex() { return this.representativeStrandIndex; }
- public void setRepresentativeStrandIndex(int repStrandIndex) { this.representativeStrandIndex = repStrandIndex; }
-
- public String getComments() { return this.comments; }
- public void setComments(String comments) { this.comments = comments; }
-
- public void setOldSiteId(int oldSiteId) { this.oldSiteId = oldSiteId; }
- public int getOldSiteId() { return this.oldSiteId; }
+  public void setOldSiteId(int oldSiteId) { this.oldSiteId = oldSiteId; }
+  public int getOldSiteId() { return this.oldSiteId; }
+  public float getSiteLon2() {
+    return siteLon2;
+  }
+  public float getSiteLon1() {
+    return siteLon1;
+  }
+  public float getSiteLat2() {
+    return siteLat2;
+  }
+  public float getSiteLat1() {
+    return siteLat1;
+  }
+  public void setSiteLat1(float siteLat1) {
+    this.siteLat1 = siteLat1;
+  }
+  public void setSiteLat2(float siteLat2) {
+    this.siteLat2 = siteLat2;
+  }
+  public void setSiteLon1(float siteLon1) {
+    this.siteLon1 = siteLon1;
+  }
+  public void setSiteLon2(float siteLon2) {
+    this.siteLon2 = siteLon2;
+  }
+  public float getSiteElevation2() {
+    return siteElevation2;
+  }
+  public float getSiteElevation1() {
+    return siteElevation1;
+  }
+  public void setSiteElevation1(float siteElevation1) {
+    this.siteElevation1 = siteElevation1;
+  }
+  public void setSiteElevation2(float siteElevation2) {
+    this.siteElevation2 = siteElevation2;
+  }
+  public String getEntryComments() {
+    return entryComments;
+  }
+  public void setEntryComments(String entryComments) {
+    this.entryComments = entryComments;
+  }
+  public Date getEntryDate() {
+    return entryDate;
+  }
+  public void setEntryDate(Date entryDate) {
+    this.entryDate = entryDate;
+  }
+  public int getFaultId() {
+    return faultId;
+  }
+  public void setFaultId(int faultId) {
+    this.faultId = faultId;
+  }
+  public void setGeneralComments(String generalComments) {
+    this.generalComments = generalComments;
+  }
+  public String getGeneralComments() {
+    return generalComments;
+  }
 }

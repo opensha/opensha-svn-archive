@@ -64,14 +64,14 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     // paleo site 1
     PaleoSite paleoSite = new PaleoSite();
     paleoSite.setSiteId(1);
-    paleoSite.setContributor(contributor1);
+    paleoSite.setSiteContributor(contributor1);
     paleoSite.setSiteType(siteType1);
     paleoSite.setSiteName("Test1");
-    paleoSite.setSiteLat(32.1f);
-    paleoSite.setSiteLon(-117.0f);
-    paleoSite.setSiteElevation(0.5f);
+    paleoSite.setSiteLat1(32.1f);
+    paleoSite.setSiteLon1(-117.0f);
+    paleoSite.setSiteElevation1(0.5f);
     paleoSite.setRepresentativeStrandIndex(1);
-    paleoSite.setComments("Test comments");
+    paleoSite.setGeneralComments("Test comments");
     paleoSite.setOldSiteId(1);
 
     paleoSiteDB_DAO.addPaleoSite(paleoSite);
@@ -79,13 +79,13 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     try {
       paleoSite.setSiteId(2);
       Contributor contributor2 = new Contributor(2,"Test1");
-      paleoSite.setContributor(contributor2);
+      paleoSite.setSiteContributor(contributor2);
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
       fail("should not insert this paleosite as contributor id 2 does not exist in contributor table");
     }catch(InsertException e) {}
 
     try {
-      paleoSite.setContributor(contributor1);
+      paleoSite.setSiteContributor(contributor1);
       SiteType siteType2 = new SiteType(2,"paleosite",contributor1);
       paleoSite.setSiteType(siteType2);
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
@@ -93,7 +93,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     }catch(InsertException e) {}
 
     paleoSite.setSiteId(3);
-    paleoSite.setContributor(contributor1);
+    paleoSite.setSiteContributor(contributor1);
     paleoSite.setSiteType(siteType3);
     paleoSiteDB_DAO.addPaleoSite(paleoSite);
   }
@@ -114,11 +114,11 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     assertEquals(contributorKey1, actualReturn.getSiteContributor().getId());
     assertEquals(siteTypeKey1, actualReturn.getSiteType().getSiteTypeId());
     assertEquals("Test1",actualReturn.getSiteName());
-    assertEquals(32.1,actualReturn.getSiteLat(),.0001);
-    assertEquals(-117.0,actualReturn.getSiteLon(),.0001);
-    assertEquals(0.5,actualReturn.getSiteElevation(),.0001);
+    assertEquals(32.1,actualReturn.getSiteLat1(),.0001);
+    assertEquals(-117.0,actualReturn.getSiteLon1(),.0001);
+    assertEquals(0.5,actualReturn.getSiteElevation1(),.0001);
     assertEquals(1, actualReturn.getRepresentativeStrandIndex());
-    assertEquals("Test comments", actualReturn.getComments());
+    assertEquals("Test comments", actualReturn.getGeneralComments());
     assertEquals(1, actualReturn.getOldSiteId());
   }
 
@@ -126,7 +126,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     Contributor contributor2 = new Contributor(2,"Test2");
 
     PaleoSite paleoSite = paleoSiteDB_DAO.getPaleoSite(1);
-    paleoSite.setContributor(contributor2);
+    paleoSite.setSiteContributor(contributor2);
     try {
       boolean status  = paleoSiteDB_DAO.updatePaleoSite(1,paleoSite);
       this.assertFalse("cannot update paleosite as contributor id 2  does not exist", status);
