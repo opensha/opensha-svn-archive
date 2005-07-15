@@ -33,6 +33,9 @@ public class Read_VC_FaultActivity {
   //that have same Time Pd
   private TreeMap timeSegmentMapping;
 
+  private ArrayList randomSegmentSlipInfoList;
+  private TreeMap randomTimeSegmentMapping;
+
   public Read_VC_FaultActivity(String fileName) {
     inputFile = fileName;
 
@@ -101,7 +104,7 @@ public class Read_VC_FaultActivity {
       br.readLine();
       String numEventsInSegment = br.readLine();
       st = new StringTokenizer(numEventsInSegment);
-      int segmentNum = Integer.parseInt(st.nextToken());
+      int segmentNum = Integer.parseInt(st.nextToken()) - 1;  // minus 1!
       String token = st.nextToken();
       //System.out.println("Token :"+token);
       int numEvents = Integer.parseInt(token);
@@ -186,6 +189,28 @@ public class Read_VC_FaultActivity {
   }
 
   /**
+   * Returns the ArrayList for a randomized SegmentSlipTimeInfo Object.
+   * This object contains all slip time Histories info for each segment
+   * @return ArrayList
+   */
+  public ArrayList getRandomizedSegmentsSlipTimeHistories(){
+    if(randomSegmentSlipInfoList == null)
+      randomizeYears();
+    return randomSegmentSlipInfoList;
+  }
+
+
+  /**
+   * This returns a randomized timeSegmentMapping
+   * @return double[]
+   */
+  public TreeMap getRandomizedTimeSegmentMapping() {
+    if(randomTimeSegmentMapping == null)
+      randomizeYears();
+    return randomTimeSegmentMapping;
+  }
+
+  /**
    * Writes the output file for all segments having the same TimePd for slip histories.
    * Writes the output file in the following format:
    * Time-Pd-1 segmentNum-1,segmentNum-2,.....
@@ -214,9 +239,59 @@ public class Read_VC_FaultActivity {
     fw.close();
   }
 
+
+  /**
+   * this randomizes the rupture times, by swapping each year in timeSegentMapping with
+   * a randmly chosen year, and then replacing occurrences of that year in each appropriate
+   * setSlipTimeInfo object.  Everything is put in new objects.
+   */
+  private void randomizeYears() {
+    randomTimeSegmentMapping = new TreeMap();
+    TreeMap oldToNewYearMap = new TreeMap();
+    SegmentSlipTimeInfo tempOldSegmentSlipTimeInfo, tempNewSegmentSlipTimeInfo;
+    Integer lastYear = (Integer) timeSegmentMapping.lastKey();
+    Integer oldYear;
+    int seg;
+    Double newYear;
+    ArrayList tempSegList, tempOldYearList, tempNewYearList, tempSlipList;
+//    System.out.println("Last year = "+lastYear);
+    int numYears = timeSegmentMapping.size();
+    Set keySet = timeSegmentMapping.keySet();
+    Iterator it = keySet.iterator();
+    while(it.hasNext()){
+      oldYear = (Integer) it.next();
+      tempSegList = (ArrayList) timeSegmentMapping.get(oldYear);
+      // get a unique, random year
+      newYear = new Double(lastYear.doubleValue() * Math.random());
+      while (randomTimeSegmentMapping.get(newYear) != null) { // check that it's unique
+        newYear = new Double(lastYear.doubleValue() * Math.random());
+      }
+      randomTimeSegmentMapping.put(newYear, tempSegList);
+      oldToNewYearMap.put(oldYear, newYear);
+    }
+
+    // now creat the randomSegmentSlipInfoList
+    randomSegmentSlipInfoList = new ArrayList();
+    for(int i=0; i<segmentSlipInfoList.size();i++) {
+      tempOldSegmentSlipTimeInfo = (SegmentSlipTimeInfo) segmentSlipInfoList.get(i);
+      tempOldYearList = tempOldSegmentSlipTimeInfo.getTimeHistories();
+      tempNewYearList = new ArrayList();
+      tempSlipList = tempOldSegmentSlipTimeInfo.getSlipHistories();
+      for(int j=0;j<tempOldYearList.size();j++)
+        tempNewYearList.add(oldToNewYearMap.get(tempOldYearList.get(j)));
+      tempNewSegmentSlipTimeInfo = new SegmentSlipTimeInfo(i,tempNewYearList,tempSlipList);
+      randomSegmentSlipInfoList.add(tempNewSegmentSlipTimeInfo);
+    }
+}
+
+
   public static void main(String[] args) {
     Read_VC_FaultActivity read_vc_faultactivity_saf = new
         Read_VC_FaultActivity("javaDevelopers/ned/RundleVC_data/VC_Fault_Activity_SAF.txt");
+    System.out.println("starting");
+    read_vc_faultactivity_saf.randomizeYears();
+    System.out.println("finished");
+/*
     try {
       read_vc_faultactivity_saf.writeTimeSegmentFile(outSegmentSlipFile);
     }
@@ -224,5 +299,7 @@ public class Read_VC_FaultActivity {
       ex1.printStackTrace();
       System.exit(0);
     }
+*/
   }
+
 }
