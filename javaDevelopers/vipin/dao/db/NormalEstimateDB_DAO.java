@@ -22,7 +22,7 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
   private final static String EST_ID="Est_Id";
   private final static String MEAN="MEAN";
   private final static String STD_DEV="STD_DEV";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
   public final static String EST_TYPE_NAME="NormalEstimate";
   private final static String ERR_MSG = "This class just deals with Normal Estimates";
 
@@ -30,15 +30,15 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
   * Constructor.
   * @param dbConnection
   */
- public NormalEstimateDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+ public NormalEstimateDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
  }
 
  public NormalEstimateDB_DAO() { }
 
 
- public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+ public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   this.dbAccessAPI = dbAccessAPI;
  }
 
  /**
@@ -53,7 +53,7 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
         STD_DEV+")"+
         " values ("+estimateInstanceId+","+estimate.getMean()+","+
         estimate.getStdDev()+")";
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
@@ -83,7 +83,7 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
   public boolean removeEstimate(int estimateInstanceId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+EST_ID+"="+estimateInstanceId;
      try {
-       int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
        if(numRows==1) return true;
      }
      catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -99,7 +99,7 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
    ArrayList estimateList = new ArrayList();
    String sql = "select "+EST_ID+","+MEAN+","+STD_DEV+" from "+TABLE_NAME+" "+condition;
    try {
-     ResultSet rs  = dbConnection.queryData(sql);
+     ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) estimateList.add(new NormalEstimate(rs.getFloat(MEAN), rs.getFloat(STD_DEV)));
      rs.close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }

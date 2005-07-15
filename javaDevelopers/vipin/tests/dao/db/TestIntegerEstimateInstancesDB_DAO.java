@@ -20,7 +20,7 @@ import javaDevelopers.vipin.tests.AllTests;
  * @version 1.0
  */
 public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbConnection;
   private EstimateInstancesDB_DAO estimateInstancesDB_DAO = null;
   static int primaryKey1, primaryKey2;
 

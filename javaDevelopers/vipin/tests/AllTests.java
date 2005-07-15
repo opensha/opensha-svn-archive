@@ -2,29 +2,18 @@ package javaDevelopers.vipin.tests;
 
 import junit.framework.*;
 import java.sql.SQLException;
-import javaDevelopers.vipin.dao.db.DB_Connection;
+import javaDevelopers.vipin.dao.db.DB_ConnectionPool;
+import javaDevelopers.vipin.dao.db.DB_AccessAPI;
 
 public class AllTests
     extends TestCase {
-  public static DB_Connection dbConnection;
-
- static {
-   dbConnection = new DB_Connection();
-   try {
-     dbConnection.connect(DB_Connection.USERNAME, DB_Connection.PASSWORD);
-   }
-   catch (SQLException ex) {
-     ex.printStackTrace();
-   }
- }
+  public static DB_AccessAPI dbConnection = new DB_ConnectionPool();
 
   public AllTests(String s) {
     super(s);
   }
 
-
   public static Test suite() {
-
     TestSuite suite = new TestSuite();
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestContributorDB_DAO.class);
     suite.addTestSuite(javaDevelopers.vipin.tests.dao.db.TestSiteTypeDB_DAO.class);

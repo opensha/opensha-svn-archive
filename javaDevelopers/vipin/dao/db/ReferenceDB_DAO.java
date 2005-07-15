@@ -21,19 +21,19 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   private final static String TABLE_NAME="Reference";
   private final static String REFERENCE_ID="Reference_Id";
   private final static String REFERENCE_NAME="Reference_Name";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
   /**
    * Constructor.
    * @param dbConnection
    */
-  public ReferenceDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+  public ReferenceDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
   }
 
 
-  public void setDB_Connection(DB_Connection connection) {
-    this.dbConnection = connection;
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+    this.dbAccessAPI = dbAccessAPI;
   }
 
   /**
@@ -45,14 +45,14 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   public int addReference(Reference reference) throws InsertException {
     int referenceId = -1;
     try {
-      referenceId = dbConnection.getNextSequenceNumber(SEQUENCE_NAME);
+      referenceId = dbAccessAPI.getNextSequenceNumber(SEQUENCE_NAME);
    }catch(SQLException e) {
      throw new InsertException(e.getMessage());
    }
 
     String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+REFERENCE_NAME+")"+
         " values ("+referenceId+",'"+reference.getReferenceName()+"')";
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
@@ -70,7 +70,7 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
     String sql = "update "+TABLE_NAME+" set "+REFERENCE_NAME+"= '"+
         reference.getReferenceName()+"' where "+REFERENCE_ID+"="+referenceId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -101,7 +101,7 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   public boolean removeReference(int referenceId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+REFERENCE_ID+"="+referenceId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -122,7 +122,7 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
     ArrayList referenceList = new ArrayList();
     String sql = "select "+REFERENCE_ID+","+REFERENCE_NAME+" from "+TABLE_NAME+" "+condition;
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
+      ResultSet rs  = dbAccessAPI.queryData(sql);
       while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID), rs.getString(REFERENCE_NAME)));
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }

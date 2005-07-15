@@ -26,16 +26,17 @@ public class FractileListEstimateDB_DAO implements EstimateDAO_API {
  /**
   * Constructor.
   * @param dbConnection
+  *
   */
- public FractileListEstimateDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+ public FractileListEstimateDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
  }
 
  public FractileListEstimateDB_DAO() { }
 
 
- public void setDB_Connection(DB_Connection connection) {
-   xyEstimateDB_DAO.setDB_Connection(connection);
+ public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   xyEstimateDB_DAO.setDB_Connection(dbAccessAPI);
  }
 
  /**

@@ -16,7 +16,7 @@ import java.util.Properties;
  * @author Marc A. Mnich
  * modified by Vipin Gupta , Nitin Gupta
  */
-public class DB_Connection implements Runnable, DB_AccessAPI {
+public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
     private Thread runner;
 
     private Connection[] connPool;
@@ -45,10 +45,12 @@ public class DB_Connection implements Runnable, DB_AccessAPI {
      * Creates a new Connection Broker after reading the JDBC info from the
      * data file.
      */
-    public DB_Connection(){
+    public DB_ConnectionPool(){
       Properties p = new Properties();
       try {
-        FileInputStream  inpStream =  new FileInputStream("javaDevelopers/vipin/dao/db/DB_AccessProp.dat");
+        String fileSeparator = org.opensha.util.SystemPropertiesUtils.getSystemFileSeparator();
+        FileInputStream  inpStream =  new FileInputStream("javaDevelopers"+fileSeparator+
+            "vipin"+fileSeparator+"dao"+fileSeparator+"db"+fileSeparator+"DB_AccessProp.dat");
         p.load(inpStream);
         inpStream.close();
         String dbDriver = (String) p.get("dbDriver");
@@ -85,7 +87,7 @@ public class DB_Connection implements Runnable, DB_AccessAPI {
      * maxCheckoutSeconds:       Max time a connection can be checked out before being recycled. Zero value turns option off, default is 60 seconds.
      * debugLevel:      Level of debug messages output to the log file.  0 -> no messages, 1 -> Errors, 2 -> Warnings, 3 -> Information
      */
-    public DB_Connection(String dbDriver, String dbServer, String dbLogin,
+    public DB_ConnectionPool(String dbDriver, String dbServer, String dbLogin,
         String dbPassword, int minConns, int maxConns,
             String logFileString, double maxConnTime) throws IOException {
 
@@ -97,7 +99,7 @@ public class DB_Connection implements Runnable, DB_AccessAPI {
     /*
      * Special constructor to handle logfile append
      */
-    public DB_Connection(String dbDriver, String dbServer, String dbLogin,
+    public DB_ConnectionPool(String dbDriver, String dbServer, String dbLogin,
         String dbPassword, int minConns, int maxConns,
             String logFileString, double maxConnTime, boolean logAppend)
         throws IOException {
@@ -110,7 +112,7 @@ public class DB_Connection implements Runnable, DB_AccessAPI {
     /*
      * Special constructor to handle connection checkout expiration
      */
-    public DB_Connection(String dbDriver, String dbServer, String dbLogin,
+    public DB_ConnectionPool(String dbDriver, String dbServer, String dbLogin,
         String dbPassword, int minConns, int maxConns,
             String logFileString, double maxConnTime, boolean logAppend,
                               int maxCheckoutSeconds, int debugLevel)

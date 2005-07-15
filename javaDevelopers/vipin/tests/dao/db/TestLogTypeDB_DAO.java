@@ -17,7 +17,7 @@ import javaDevelopers.vipin.tests.AllTests;
  * @version 1.0
  */
 public class TestLogTypeDB_DAO extends TestCase {
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbConnection;
   private LogTypeDB_DAO logTypeDB_DAO = null;
 
   public TestLogTypeDB_DAO(String name) {

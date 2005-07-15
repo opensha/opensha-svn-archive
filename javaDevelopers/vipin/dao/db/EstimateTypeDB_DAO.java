@@ -22,19 +22,19 @@ public class EstimateTypeDB_DAO implements EstimateTypeDAO_API {
   private final static String EST_TYPE_ID="Est_Type_Id";
   private final static String EST_NAME="Est_Name";
   private final static String EFFECTIVE_DATE="Entry_Date";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
  /**
   * Constructor.
   * @param dbConnection
   */
- public EstimateTypeDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+ public EstimateTypeDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
  }
 
 
- public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+ public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   this.dbAccessAPI = dbAccessAPI;
  }
 
  /**
@@ -80,7 +80,7 @@ public class EstimateTypeDB_DAO implements EstimateTypeDAO_API {
    ArrayList estimateTypeList = new ArrayList();
    String sql =  "select "+EST_TYPE_ID+","+EST_NAME+","+EFFECTIVE_DATE+" from "+TABLE_NAME+condition;
    try {
-     ResultSet rs  = dbConnection.queryData(sql);
+     ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) estimateTypeList.add(new EstimateType(rs.getInt(EST_TYPE_ID),
            rs.getString(EST_NAME),rs.getDate(EFFECTIVE_DATE)));
      rs.close();

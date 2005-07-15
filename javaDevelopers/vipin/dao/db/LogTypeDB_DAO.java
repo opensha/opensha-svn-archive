@@ -21,19 +21,19 @@ public class LogTypeDB_DAO implements LogTypeDAO_API {
   private final static String LOG_BASE="Log_Base";
   public final static String LOG_BASE_E = "E";
   public final static String LOG_BASE_10="10";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
   /**
    * Constructor.
    * @param dbConnection
    */
-  public LogTypeDB_DAO(DB_Connection dbConnection) {
-    setDB_Connection(dbConnection);
+  public LogTypeDB_DAO(DB_AccessAPI dbAccessAPI) {
+    setDB_Connection(dbAccessAPI);
   }
 
 
-  public void setDB_Connection(DB_Connection connection) {
-    this.dbConnection = connection;
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+    this.dbAccessAPI = dbAccessAPI;
   }
 
   /**
@@ -48,7 +48,7 @@ public class LogTypeDB_DAO implements LogTypeDAO_API {
     String sql =  "select "+LOG_TYPE_ID+","+LOG_BASE+" from "+TABLE_NAME+
         " where "+LOG_BASE+"='"+logBase+"'";
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
+      ResultSet rs  = dbAccessAPI.queryData(sql);
       if(rs.next()) logTypeId = rs.getInt(LOG_TYPE_ID);
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
@@ -61,7 +61,7 @@ public class LogTypeDB_DAO implements LogTypeDAO_API {
     String sql =  "select "+LOG_TYPE_ID+","+LOG_BASE+" from "+TABLE_NAME+
         " where "+LOG_TYPE_ID+"="+logTypeId+"";
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
+      ResultSet rs  = dbAccessAPI.queryData(sql);
       if(rs.next()) logBase = rs.getString(LOG_BASE);
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }

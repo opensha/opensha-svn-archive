@@ -40,15 +40,15 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private final static String GENERAL_COMMENTS="General_Comments";
   private final static String OLD_SITE_ID="Old_Site_Id";
 
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccess;
 
 
-  public PaleoSiteDB_DAO(DB_Connection dbConnection) {
-    setDB_Connection(dbConnection);
+  public PaleoSiteDB_DAO(DB_AccessAPI dbAccess) {
+    setDB_Connection(dbAccess);
   }
 
-  public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+  public void setDB_Connection(DB_AccessAPI dbAccess) {
+   this.dbAccess = dbAccess;
  }
 
  /**
@@ -73,7 +73,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         paleoSite.getSiteElevation2()+","+paleoSite.getRepresentativeStrandIndex()+
         ",'"+paleoSite.getGeneralComments()+"',"+paleoSite.getOldSiteId()+")";
 
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try { dbAccess.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
@@ -101,7 +101,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         paleoSite.getGeneralComments()+"',"+OLD_SITE_ID+"="+paleoSite.getOldSiteId()+
        " where "+SITE_ID+"="+paleoSiteId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccess.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -129,7 +129,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   public boolean removePaleoSite(int paleoSiteId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+SITE_ID+"="+paleoSiteId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccess.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -157,9 +157,9 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         GENERAL_COMMENTS+","+OLD_SITE_ID+
         " from "+TABLE_NAME+condition;
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
-      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);
-      SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(dbConnection);
+      ResultSet rs  = dbAccess.queryData(sql);
+      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccess);
+      SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(dbAccess);
       while(rs.next())  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));

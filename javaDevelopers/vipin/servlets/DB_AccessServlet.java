@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ObjectInputStream;
 
 import javaDevelopers.vipin.dao.db.DB_AccessAPI;
-import javaDevelopers.vipin.dao.db.DB_Connection;
+import javaDevelopers.vipin.dao.db.DB_ConnectionPool;
 import java.sql.SQLException;
 import com.sun.rowset.CachedRowSetImpl;
 import java.io.ObjectOutputStream;
@@ -50,7 +50,7 @@ public class DB_AccessServlet extends HttpServlet{
             (new Double( (String) p.get("maxConnTime"))).doubleValue();
 
         myBroker = new
-            DB_Connection(dbDriver, dbServer, dbLogin, dbPassword,
+            DB_ConnectionPool(dbDriver, dbServer, dbLogin, dbPassword,
                                minConns, maxConns, logFileString, maxConnTime);
       }
       catch (FileNotFoundException f) {}

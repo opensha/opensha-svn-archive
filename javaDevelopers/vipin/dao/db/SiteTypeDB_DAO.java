@@ -23,15 +23,15 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String SITE_TYPE_NAME="Site_Type";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
 
-  public SiteTypeDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+  public SiteTypeDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
   }
 
-  public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   this.dbAccessAPI = dbAccessAPI;
  }
 
  /**
@@ -43,7 +43,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   public int addSiteType(SiteType siteType) throws InsertException {
     int siteTypeId = -1;
     try {
-      siteTypeId = dbConnection.getNextSequenceNumber(SEQUENCE_NAME);
+      siteTypeId = dbAccessAPI.getNextSequenceNumber(SEQUENCE_NAME);
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
@@ -51,7 +51,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
         ","+SITE_TYPE_NAME+") "+
         " values ("+siteTypeId+","+siteType.getContributor().getId()+
         ",'"+siteType.getSiteType()+"')";
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
@@ -73,7 +73,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
         siteType.getSiteType()+"',"+CONTRIBUTOR_ID+"="+siteType.getContributor().getId()+
        " where "+SITE_TYPE_ID+"="+siteTypeId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -105,7 +105,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   public boolean removeSiteType(int siteTypeId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+SITE_TYPE_ID+"="+siteTypeId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -126,8 +126,8 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
     ArrayList siteTypeList = new ArrayList();
     String sql =  "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+condition;
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
-      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);
+      ResultSet rs  = dbAccessAPI.queryData(sql);
+      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccessAPI);
       while(rs.next()) siteTypeList.add(new SiteType(rs.getInt(SITE_TYPE_ID),
             rs.getString(SITE_TYPE_NAME),
             contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID))));

@@ -18,7 +18,7 @@ import javaDevelopers.vipin.tests.AllTests;
  * @version 1.0
  */
 public class Test_QFault2002B_DB_DAO extends TestCase {
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbConnection;
   private QFault2002B_DB_DAO qFaultDB_DAO = null;
 
   public Test_QFault2002B_DB_DAO(String name) {

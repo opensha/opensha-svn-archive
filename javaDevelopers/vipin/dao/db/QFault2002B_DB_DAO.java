@@ -37,19 +37,19 @@ public class QFault2002B_DB_DAO implements QFault2002B_DAO_API {
   private final static String AVG_RAKE="Avg_Rake";
   private final static String RAKE_COMMENTS="Rake_Comments";
 
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
  /**
   * Constructor.
   * @param dbConnection
   */
- public QFault2002B_DB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+ public QFault2002B_DB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
  }
 
 
- public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+ public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   this.dbAccessAPI = dbAccessAPI;
  }
 
   public QFault2002B getFaultSection(String sectionId) throws QueryException {
@@ -77,7 +77,7 @@ public class QFault2002B_DB_DAO implements QFault2002B_DAO_API {
         " from " + TABLE_NAME + condition;
 
     try {
-      ResultSet rs = dbConnection.queryData(sql);
+      ResultSet rs = dbAccessAPI.queryData(sql);
       while (rs.next()) {
         QFault2002B faultSection = new QFault2002B();
         faultSection.setSectionId(rs.getString(SECTION_ID));

@@ -29,19 +29,19 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
   private final static String COMMENTS="Comments";
   private final static String ESTIMATES_DB_DAO_PACKAGE="javaDevelopers.vipin.dao.db.";
   private final static String ESTIMATES_DB_DAO_SUFFIX = "DB_DAO";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
   /**
    * Constructor.
    * @param dbConnection
    */
-  public EstimateInstancesDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+  public EstimateInstancesDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
   }
 
 
-  public void setDB_Connection(DB_Connection connection) {
-    this.dbConnection = connection;
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+    this.dbAccessAPI = dbAccessAPI;
   }
 
   /**
@@ -52,11 +52,11 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
   public int addEstimateInstance(EstimateInstances estimateInstance) throws InsertException {
     Estimate estimate = estimateInstance.getEstimate();
     EstimateDAO_API estimateDAO = getEstimateDAO(estimate);
-    EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbConnection);
+    EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbAccessAPI);
     int estimateTypeId = estimateTypeDB_DAO.getEstimateType(estimateDAO.getEstimateTypeName()).getEstimateTypeId();
     int estimateInstanceId = -1;
     try {
-       estimateInstanceId = dbConnection.getNextSequenceNumber(SEQUENCE_NAME);
+       estimateInstanceId = dbAccessAPI.getNextSequenceNumber(SEQUENCE_NAME);
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
@@ -65,7 +65,7 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
         " values("+estimateInstanceId+","+estimateTypeId+",'"+estimateInstance.getUnits()+"','"+
         estimate.getComments()+"')";
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       estimateDAO.addEstimate(estimateInstanceId, estimate);
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
@@ -76,11 +76,11 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
   // get the correct DAO according to estimate type
   private EstimateDAO_API getEstimateDAO(Estimate estimate) {
     EstimateDAO_API estimateDAO_API = null;
-    if(estimate instanceof NormalEstimate) estimateDAO_API = new NormalEstimateDB_DAO(dbConnection);
-    else if(estimate instanceof LogNormalEstimate) estimateDAO_API = new LogNormalEstimateDB_DAO(dbConnection);
-    else if(estimate instanceof IntegerEstimate) estimateDAO_API = new IntegerEstimateDB_DAO(dbConnection);
-    else if(estimate instanceof FractileListEstimate) estimateDAO_API = new FractileListEstimateDB_DAO(dbConnection);
-    else if(estimate instanceof DiscreteValueEstimate) estimateDAO_API = new DiscreteValueEstimateDB_DAO(dbConnection);
+    if(estimate instanceof NormalEstimate) estimateDAO_API = new NormalEstimateDB_DAO(dbAccessAPI);
+    else if(estimate instanceof LogNormalEstimate) estimateDAO_API = new LogNormalEstimateDB_DAO(dbAccessAPI);
+    else if(estimate instanceof IntegerEstimate) estimateDAO_API = new IntegerEstimateDB_DAO(dbAccessAPI);
+    else if(estimate instanceof FractileListEstimate) estimateDAO_API = new FractileListEstimateDB_DAO(dbAccessAPI);
+    else if(estimate instanceof DiscreteValueEstimate) estimateDAO_API = new DiscreteValueEstimateDB_DAO(dbAccessAPI);
  //  if(estimate instanceof PDF_Estimate) estimateTypeName = NormalEstimateDB_DAO.EST_TYPE_NAME;
 
     return estimateDAO_API;
@@ -107,8 +107,8 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
     String sql = "select "+EST_ID+","+EST_TYPE_ID+","+UNITS+","+COMMENTS+" from "+
         TABLE_NAME+" where "+EST_ID+"="+estimateInstanceId;
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
-      EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbConnection);
+      ResultSet rs  = dbAccessAPI.queryData(sql);
+      EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbAccessAPI);
       while(rs.next())  {
         String estimateTypeName = estimateTypeDB_DAO.getEstimateType(rs.getInt(EST_TYPE_ID)).getEstimateName();
         // delete from specific table for each estimate
@@ -116,7 +116,7 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
         estimateDAO_API.removeEstimate(estimateInstanceId);
         //remove from master table of estimates
         String delSql = "delete from "+TABLE_NAME+" where "+EST_ID+"="+estimateInstanceId;
-        int numRows = dbConnection.insertUpdateOrDeleteData(delSql);
+        int numRows = dbAccessAPI.insertUpdateOrDeleteData(delSql);
         if(numRows==1) return true;
       }
       rs.close();
@@ -128,7 +128,7 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
 
   private EstimateDAO_API getEstimateDAO_API(String estimateTypeName) {
     EstimateDAO_API estimateDAO_API = (EstimateDAO_API)ClassUtils.createNoArgConstructorClassInstance(ESTIMATES_DB_DAO_PACKAGE+estimateTypeName+ESTIMATES_DB_DAO_SUFFIX);
-    estimateDAO_API.setDB_Connection(this.dbConnection);
+    estimateDAO_API.setDB_Connection(this.dbAccessAPI);
     return estimateDAO_API;
   }
 
@@ -141,8 +141,8 @@ public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
   String sql = "select "+EST_ID+","+EST_TYPE_ID+","+UNITS+","+COMMENTS+" from "+
       TABLE_NAME+" "+condition;
   try {
-    ResultSet rs  = dbConnection.queryData(sql);
-    EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbConnection);
+    ResultSet rs  = dbAccessAPI.queryData(sql);
+    EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbAccessAPI);
     while(rs.next())  {
       EstimateInstances estimateInstances = new EstimateInstances();
       estimateInstances.setUnits(rs.getString(UNITS));

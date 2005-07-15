@@ -21,21 +21,21 @@ public class XY_EstimateDB_DAO  {
   private final static String EST_ID="Est_Id";
   private final static String X="X";
   private final static String Y="Y";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
  /**
   * Constructor.
   * @param dbConnection
   */
- public XY_EstimateDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+ public XY_EstimateDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
  }
 
  public XY_EstimateDB_DAO() { }
 
 
- public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+ public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   this.dbAccessAPI = dbAccessAPI;
  }
 
  /**
@@ -53,7 +53,7 @@ public class XY_EstimateDB_DAO  {
             Y + ")" +
             " values (" + estimateInstanceId + "," + func.getX(i) + "," +
             func.getY(i) + ")";
-        dbConnection.insertUpdateOrDeleteData(sql);
+        dbAccessAPI.insertUpdateOrDeleteData(sql);
       }
     }
     catch (SQLException e) {
@@ -72,7 +72,7 @@ public class XY_EstimateDB_DAO  {
     String condition = " where " + EST_ID + "=" + estimateInstanceId;
     String sql = "select "+EST_ID+","+X+","+Y+" from "+TABLE_NAME+" "+condition;
    try {
-     ResultSet rs  = dbConnection.queryData(sql);
+     ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {
        func.set(rs.getFloat("X"),rs.getFloat("Y"));
      }
@@ -89,7 +89,7 @@ public class XY_EstimateDB_DAO  {
   public boolean removeEstimate(int estimateInstanceId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+EST_ID+"="+estimateInstanceId;
      try {
-       int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
        if(numRows>=1) return true;
      }
      catch(SQLException e) { throw new UpdateException(e.getMessage()); }

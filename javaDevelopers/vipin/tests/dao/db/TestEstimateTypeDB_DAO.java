@@ -17,7 +17,7 @@ import javaDevelopers.vipin.tests.AllTests;
  * @version 1.0
  */
 public class TestEstimateTypeDB_DAO extends TestCase {
-  private DB_Connection dbConnection ;
+  private DB_AccessAPI dbConnection ;
   private EstimateTypeDB_DAO estimateTypeDB_DAO = null;
 
   public TestEstimateTypeDB_DAO(String name) {

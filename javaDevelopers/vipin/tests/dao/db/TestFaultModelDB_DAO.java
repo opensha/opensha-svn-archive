@@ -18,7 +18,7 @@ import javaDevelopers.vipin.tests.AllTests;
  * @version 1.0
  */
 public class TestFaultModelDB_DAO extends TestCase {
-  private DB_Connection dbConnection ;
+  private DB_AccessAPI dbConnection ;
   private ContributorDB_DAO contributorDB_DAO = null;
   private FaultModelDB_DAO faultModelDB_DAO = null;
   private static int contributorKey1, contributorKey2;

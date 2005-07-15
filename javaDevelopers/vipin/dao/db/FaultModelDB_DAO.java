@@ -23,15 +23,15 @@ public class FaultModelDB_DAO implements FaultModelDAO_API {
   private final static String FAULT_MODEL_ID="Fault_Model_Id";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String FAULT_MODEL_NAME="Fault_Model_Name";
-  private DB_Connection dbConnection;
+  private DB_AccessAPI dbAccessAPI;
 
 
-  public FaultModelDB_DAO(DB_Connection dbConnection) {
-   setDB_Connection(dbConnection);
+  public FaultModelDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
   }
 
-  public void setDB_Connection(DB_Connection connection) {
-   this.dbConnection = connection;
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+   this.dbAccessAPI = dbAccessAPI;
  }
 
  /**
@@ -43,7 +43,7 @@ public class FaultModelDB_DAO implements FaultModelDAO_API {
   public int addFaultModel(FaultModel faultModel) throws InsertException {
     int faultModelId = -1;
     try {
-      faultModelId = dbConnection.getNextSequenceNumber(SEQUENCE_NAME);
+      faultModelId = dbAccessAPI.getNextSequenceNumber(SEQUENCE_NAME);
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
@@ -51,7 +51,7 @@ public class FaultModelDB_DAO implements FaultModelDAO_API {
         ","+FAULT_MODEL_NAME+") "+
         " values ("+faultModelId+","+faultModel.getContributor().getId()+
         ",'"+faultModel.getFaultModelName()+"')";
-    try { dbConnection.insertUpdateOrDeleteData(sql); }
+    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
@@ -73,7 +73,7 @@ public class FaultModelDB_DAO implements FaultModelDAO_API {
         faultModel.getFaultModelName()+"',"+CONTRIBUTOR_ID+"="+faultModel.getContributor().getId()+
        " where "+FAULT_MODEL_ID+"="+faultModelId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -105,7 +105,7 @@ public class FaultModelDB_DAO implements FaultModelDAO_API {
   public boolean removeFaultModel(int faultModelId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+FAULT_MODEL_ID+"="+faultModelId;
     try {
-      int numRows = dbConnection.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
@@ -126,8 +126,8 @@ public class FaultModelDB_DAO implements FaultModelDAO_API {
     ArrayList faultModelList = new ArrayList();
     String sql =  "select "+FAULT_MODEL_ID+","+FAULT_MODEL_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+condition;
     try {
-      ResultSet rs  = dbConnection.queryData(sql);
-      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnection);
+      ResultSet rs  = dbAccessAPI.queryData(sql);
+      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccessAPI);
       while(rs.next()) faultModelList.add(new FaultModel(rs.getInt(FAULT_MODEL_ID),
             rs.getString(FAULT_MODEL_NAME),
             contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID))));
