@@ -12,7 +12,17 @@ package org.opensha.data.estimate;
 public abstract class Estimate {
 
   // comments associated with this object
-  private String comments="";
+  protected final static String EST_MSG_MAX_LT_MIN = "Error: Minimum must be less than Maximum";
+  protected final static String EST_MSG_NOT_NORMALIZED = "Error: Function is not normalized";
+  protected final static String EST_MSG_Y_POSITIVE = "Error: All Y values must be positive";
+  protected final static String EST_MSG_INVLID_RANGE = "Error: All Y values must be >= 0 and <=1";
+  protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";
+  protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
+
+
+
+  protected String comments="";
+  protected double minX, maxX;
 
 
   public abstract double getMean();
@@ -23,7 +33,7 @@ public abstract class Estimate {
 
   public abstract double getFractile(double prob);
 
-   public abstract double getMode();
+  public abstract double getMode();
 
 
   /**
@@ -32,22 +42,35 @@ public abstract class Estimate {
    * @return It returns true if any x<0. If all x>=0, it returns false
    */
   public boolean isNegativeValuePresent() {
-    return (getMinXValue()<0);
+    return (minX<0.0);
   }
 
   /**
-   * Get the minimum among the list of X values in this list
+   * Get the maximum X value
    *
-   * @return
+   * @return maximum value (on X axis)
    */
-  public abstract double getMinXValue();
+  public double getMaxX() {return maxX;};
 
   /**
-   * Get the maximum among the list of X values in this list
+   * Get the minimum X value
    *
-   * @return
+   * @return minimum value (on X axis)
    */
-  public abstract double getMaxXValue();
+  public double getMinX() {return minX;}
+
+  /**
+   * Set the minimum and maximum X-axis value
+   *
+   * @param minX double
+   * @param maxX double
+   */
+  public void setMinMaxX(double minX, double maxX) {
+    if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+    this.maxX = maxX;
+    this.minX = minX;
+  }
+
 
    /**
     * Get the comments associated with this object

@@ -2,10 +2,11 @@ package org.opensha.data.estimate;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
- * <p>Description:  This represents the mathematical Normal Distribution which
- * can be defined using mean and standard deviation
- * Rules followed are:
- * 1. StdDev should be >=0
+ * <p>Description:  This represents a Normal Distribution defined by a
+ * mean and standard deviation (the latter must be positive).
+ * The minimum and maximum X values serve to truncate the distribution, such that
+ * probabilities are zero below and above these values, respectively (the defaults
+ * are +/- infinity).
  *
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
@@ -16,16 +17,11 @@ package org.opensha.data.estimate;
 
 public class NormalEstimate extends Estimate {
   public final static String NAME = "org.opensha.data.estimate.NormalEstimate";
-  private double mean;
-  private double stdDev;
-  private final static String MSG_INVALID_STDDEV =
-      "Invalid value for std dev. in Normal Estimate. It should be >=0";
+  private double mean=Double.NaN;
+  private double stdDev=Double.NaN;
 
   /**
    * Default constructor - accepts mean and standard deviation.
-   * Mean does not have any constraints.
-   * Standard deviation should fullfil the constraints as specified in setStdDev
-   * function
    *
    * @param mean
    * @param stdDev
@@ -33,6 +29,21 @@ public class NormalEstimate extends Estimate {
   public NormalEstimate(double mean, double stdDev) {
     setMean(mean);
     setStdDev(stdDev);
+    this.minX=Double.NEGATIVE_INFINITY;
+    this.maxX=Double.POSITIVE_INFINITY;
+  }
+
+
+  /**
+   * This accepts minimum and maximum x-axis values that will be used as trunctions.
+   *
+   * @param mean
+   * @param stdDev
+   */
+  public NormalEstimate(double mean, double stdDev, double minX, double maxX) {
+    setMean(mean);
+    setStdDev(stdDev);
+    this.setMinMaxX(minX,maxX);
   }
 
   /**
@@ -95,35 +106,16 @@ public class NormalEstimate extends Estimate {
    return getMean();
   }
 
-  /**
-   * Get the minimum among the list of X values in this list. Always returns
-   * Double.NEGATIVE_INFINITY for this case.
-   *
-   * @return
-   */
-  public double getMinXValue() {
-    return Double.NEGATIVE_INFINITY;
-  }
-
-  /**
-   * Get the maximum among the list of X values in this list. Always returns
-   * Double.POSITIVE_INFINITY for this case
-   *
-   * @return
-   */
-  public double getMaxXValue() {
-    return Double.POSITIVE_INFINITY;
-  }
 
 
   /**
-   * This method is not supported in this distribution
+   * This method remains to be implemented
    *
-   * @param prob
-   * @return Always throws UnsupportedOperationException.
+   * @param prob - probability value
+   * @todo implement this
    */
  public double getFractile(double prob) {
-   throw new java.lang.UnsupportedOperationException("Method getFractile() not supported.");
+   throw new java.lang.UnsupportedOperationException("Not yet implemented.");
  }
 
 }

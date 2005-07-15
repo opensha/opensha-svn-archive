@@ -2,9 +2,10 @@ package org.opensha.data.estimate;
 
 /**
  * <p>Title: LogNormalEstimate.java  </p>
- * <p>Description: The rules followed for this estimate are :
- *  1. Std Dev should be >=0
- *  2. LinearMedian should be >=0
+ * <p>Description: This exstimate assumes a log-normal distribution.  The linear-median,
+ * and standard deviation must be positive, and minX and maxX can only be 0.0 and Infinity,
+ * respectively (at least for now.  One must also specify
+ * whether natural or base-10 log is assumed.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -12,17 +13,16 @@ package org.opensha.data.estimate;
  * @version 1.0
  */
 
-public class LogNormalEstimate
-    extends Estimate {
+public class LogNormalEstimate extends Estimate {
+
   public final static String NAME = "org.opensha.data.estimate.LogNormalEstimate";
   private double linearMedian;
   private double stdDev;
   // flag to specify whether it will be base10 or natural log
   private boolean isBase10 = true;
-  private final static String MSG_INVALID_STDDEV =
-      "Invalid value for std dev. in Log Normal Estimate. It should be >=0";
-  private final static String MSG_INVALID_MEDIAN =
-      "Invalid value for median in Log Normal Estimate. It should be >=0";
+  private final static String MSG_INVALID_MEDIAN = "Error: linear-median must be positive.";
+  private final static String MSG_INVALID_MINMAX =
+      "Error: the minimum and maximum X-axis values can only be 0.0 and  Infinity, respectively.";
 
   /**
    * Constructor - set the linear median and standard deviation.
@@ -33,8 +33,23 @@ public class LogNormalEstimate
    * @param stdDev
    */
   public LogNormalEstimate(double linearMedian, double stdDev) {
-    setMedian(linearMedian);
+    setLinearMedian(linearMedian);
     setStdDev(stdDev);
+    minX = 0.0;
+    maxX = Double.POSITIVE_INFINITY;
+  }
+
+
+  /**
+   * Override parent method so that only 0.0 and Inifinity allowed
+   *
+   * @param minX double
+   * @param maxX double
+   */
+  public void setMinMaxX(double minX, double maxX) {
+    if(minX != 0.0 && maxX != Double.POSITIVE_INFINITY)
+      throw new InvalidParamValException(MSG_INVALID_MINMAX);
+    // no need to set anything
   }
 
   /**
@@ -43,7 +58,7 @@ public class LogNormalEstimate
    *
    * @param median linear median for this estimate
    */
-  public void setMedian(double median) {
+  public void setLinearMedian(double median) {
     if (median < 0)
       throw new InvalidParamValException(MSG_INVALID_MEDIAN);
     this.linearMedian = median;
@@ -54,7 +69,7 @@ public class LogNormalEstimate
    *
    * @return
    */
-  public double getMedian() {
+  public double getLinearMedian() {
     return linearMedian;
   }
 
@@ -100,28 +115,6 @@ public class LogNormalEstimate
   }
 
 
-  /**
-  * Get the minimum among the list of X values in this list. Always returns
-  * Double.NEGATIVE_INFINITY for this case.
-  *
-  * @return
-  */
- public double getMinXValue() {
-   return Double.NEGATIVE_INFINITY;
- }
-
- /**
-  * Get the maximum among the list of X values in this list. Always returns
-  * Double.POSITIVE_INFINITY for this case
-  *
-  * @return
-  */
- public double getMaxXValue() {
-   return Double.POSITIVE_INFINITY;
- }
-
-
-
   public double getMean() {
     throw new java.lang.UnsupportedOperationException(
         "Method getMean() not yet implemented.");
@@ -136,6 +129,10 @@ public class LogNormalEstimate
   public double getMode() {
     throw new java.lang.UnsupportedOperationException(
         "Method getMode() not yet implemented.");
+  }
+
+  public double getMedian() {
+    return 0.0;
   }
 
 }

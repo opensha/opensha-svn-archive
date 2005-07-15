@@ -5,9 +5,9 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 /**
  * <p>Title: DiscreteValueEstimate.java </p>
- * <p>Description:  This can be used where specifies discrete values and
- * probabilites associated with them. For example user may say that dip can have
- *  value of 45,60,90 with probabilities of 0.2,0.3,0.5 respectively.
+ * <p>Description:  This can be used to specify probabilities associated with
+ * discrete values (with zero probabilities in between values). For example user
+ * may say that dip can have value of 45,60,90 with probabilities of 0.2,0.3,0.5 respectively.
  *
  *
  * Rules followed in this case are:
@@ -23,29 +23,56 @@ public class DiscreteValueEstimate extends Estimate {
   protected ArbitrarilyDiscretizedFunc func=null;
   public final static String NAME = "org.opensha.data.estimate.DiscreteValueEstimate";
 
-  private final static String MSG_Y_POSITIVE = "All the Y values should be >= 0 and <=1 "+
-      "for DiscreteValueEstimate";
+  private double tol = 1e-6;
 
   /**
    * Constructor - Accepts ArbitrarilyDiscretizedFunc which is  list of X and Y
-   * values. The X and Y values have some constraints which can be seen in
-   * setValues function documentation
-   *
+   * values. Note that the function passed in is not cloned, and will change if it
+   * is not normalized.  MaxX and MinX are set by those in the function passed in.
    * @param func
    */
-  public DiscreteValueEstimate(ArbitrarilyDiscretizedFunc func) {
-    setValues(func);
+  public DiscreteValueEstimate(ArbitrarilyDiscretizedFunc func, boolean isNormalized) {
+    setValues(func, isNormalized);
   }
 
   /**
-   * for All Y,  0<=Y<=1
+   * As implemented, the function passed in is not cloned, and will therefor be
+   * changed if normalization occurs.  MaxX and MinX are set by those in the function passed in.
    *
    * @param func
    */
-  public void setValues(ArbitrarilyDiscretizedFunc func) {
-    for(int i = 0; i<func.getNum();++i)
-      if(func.getY(i)<0 || func.getY(i)>1) throw new InvalidParamValException(MSG_Y_POSITIVE);
-    this.func = func;
+  public void setValues(ArbitrarilyDiscretizedFunc newFunc, boolean isNormalized) {
+
+    this.func = newFunc; // or should it be a clone???
+
+    minX = func.getMinX();
+    maxX = func.getMaxX();
+
+    // Check normalization and value range
+    double sum=0, val;
+    if(isNormalized) { // check values
+      for (int i = 0; i < func.getNum(); ++i) {
+        val = func.getY(i);
+        if (val < 0 || val > 1)throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
+        sum += val;
+      }
+      // make sure sum is close to 1.0
+      if ( (sum-tol) > 1.0 || (sum+tol) < 1.0)
+        throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
+    }
+    else { // sum y vals and check positivity
+      for (int i = 0; i < func.getNum(); ++i) {
+        val = func.getY(i);
+        if (val < 0)throw new InvalidParamValException(EST_MSG_Y_POSITIVE);
+        sum += val;
+      }
+      // normalize the function
+      for (int i = 0; i < func.getNum(); ++i) {
+        val = func.getY(i);
+        func.set( i, val/sum );
+      }
+    }
+
   }
 
 
@@ -66,7 +93,7 @@ public class DiscreteValueEstimate extends Estimate {
   *
   * @return
   */
- private ArbDiscrEmpiricalDistFunc getEmpiricalDistFunc() {
+ public ArbDiscrEmpiricalDistFunc getEmpiricalDistFunc() {
    ArbDiscrEmpiricalDistFunc empiricalDistFunc = new ArbDiscrEmpiricalDistFunc();
    for(int i=0; i<func.getNum(); ++i)
       empiricalDistFunc.set(func.getX(i), func.getY(i));
@@ -80,7 +107,7 @@ public class DiscreteValueEstimate extends Estimate {
    * @return
    */
   public double getMode() {
-    return getMedian();
+    return func.getX(func.getXIndex(func.getMaxY()));
  }
 
  /**

@@ -1,6 +1,6 @@
 package org.opensha.data.estimate;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 
@@ -20,36 +20,58 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 
 public class PDF_Estimate extends Estimate {
   public final static String NAME = "org.opensha.data.estimate.PDF_Estimate";
-  protected ArbitrarilyDiscretizedFunc func=null;
-
-  private final static String MSG_FIRST_LAST_Y_ZERO = "First and Last Y values "+
-      "should be 0 for PDF_Estimate";
-  private final static String MSG_Y_POSITIVE = "All the Y values should be >= 0 "+
-      "for PDF Estimate";
+  protected EvenlyDiscretizedFunc func=null;
+  private double tol = 1e-6;
 
   /**
-   * Constructor - Accepts ArbitrarilyDiscretizedFunc which is  list of X and Y
+   * Constructor - Accepts EvenlyDiscretizedFunc which is  list of X and Y
    * values. The X and Y values have some constraints which can be seen in
    * setValues function documentation
    *
    * @param func
    */
-  public PDF_Estimate(ArbitrarilyDiscretizedFunc func) {
-    setValues(func);
+  public PDF_Estimate(EvenlyDiscretizedFunc func, boolean isNormalized) {
+    setValues(func, isNormalized);
   }
 
   /**
    * First and Last Y  should be equal to 0
-   * All Y >=0
+   * All Y >=0 & <= 1 (if not normalized)
    *
    * @param func
    */
-  public void setValues(ArbitrarilyDiscretizedFunc func) {
-    if(func.getY(0)!=0 || func.getY(func.getNum()-1)!=0)
-      throw new InvalidParamValException(MSG_FIRST_LAST_Y_ZERO);
-    for(int i = 0; i<func.getNum();++i)
-      if(func.getY(i)<0) throw new InvalidParamValException(MSG_Y_POSITIVE);
-    this.func = func;
+  public void setValues(EvenlyDiscretizedFunc newFunc, boolean isNormalized) {
+
+    this.func = newFunc; // or should it be a clone???
+
+    minX = func.getMinX();
+    maxX = func.getMaxX();
+
+
+    // Check normalization and value range
+    double sum=0, val;
+    if(isNormalized) { // check values
+      for (int i = 0; i < func.getNum(); ++i) {
+        val = func.getY(i);
+        if (val < 0 || val > 1)throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
+        sum += val;
+      }
+      // make sure sum is close to 1.0
+      if ( (sum-tol) > 1.0 || (sum+tol) < 1.0)
+        throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
+    }
+    else { // sum y vals and check positivity
+      for (int i = 0; i < func.getNum(); ++i) {
+        val = func.getY(i);
+        if (val < 0)throw new InvalidParamValException(EST_MSG_Y_POSITIVE);
+        sum += val;
+      }
+      // normalize the function
+      for (int i = 0; i < func.getNum(); ++i) {
+        val = func.getY(i);
+        func.set( i, val/sum );
+      }
+    }
   }
 
   /**
@@ -76,39 +98,21 @@ public class PDF_Estimate extends Estimate {
    return empiricalDistFunc;
  }
 
- /**
-   * Get the minimum among the list of X values in this list
-   *
-   * @return
-   */
-  public double getMinXValue() {
-    return func.getX(0);
-  }
-
-  /**
-   * Get the maximum among the list of X values in this list
-   *
-   * @return
-   */
-  public double getMaxXValue() {
-    return func.getX(func.getNum() - 1);
-  }
-
 
   public double getMean() {
-    throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
+    throw new java.lang.UnsupportedOperationException("Method getMean() yet implemented");
   }
 
   public double getMedian() {
-    throw new java.lang.UnsupportedOperationException("Method getMedian() not supported");
+    throw new java.lang.UnsupportedOperationException("Method getMedian() yet implemented");
   }
 
   public double getStdDev() {
-    throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");
+    throw new java.lang.UnsupportedOperationException("Method getStdDev() yet implemented");
   }
 
  public double getMode() {
-    throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
+    return func.getX(func.getXIndex(func.getMaxY()));
  }
 
  public DiscretizedFuncAPI getValues() {
