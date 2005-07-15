@@ -1,0 +1,131 @@
+package org.opensha.refFaultParamDb.dao.db;
+
+import java.sql.SQLException;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import org.opensha.refFaultParamDb.vo.Contributor;
+import org.opensha.refFaultParamDb.dao.exception.*;
+import org.opensha.refFaultParamDb.dao.ContributorDAO_API;
+
+/**
+ * <p>Title:ContributorDB_DAO.java</p>
+ * <p>Description: This class connects with database to access the Contributor table </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+
+public class ContributorDB_DAO implements ContributorDAO_API {
+  private final static String SEQUENCE_NAME="Contributors_Sequence";
+  private final static String TABLE_NAME="Contributors";
+  private final static String CONTRIBUTOR_ID="Contributor_Id";
+  private final static String CONTRIBUTOR_NAME="Contributor_Name";
+  private DB_AccessAPI dbAccessAPI;
+
+  /**
+   * Constructor.
+   * @param dbConnection
+   */
+  public ContributorDB_DAO(DB_AccessAPI dbAccessAPI) {
+   setDB_Connection(dbAccessAPI);
+  }
+
+
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI) {
+    this.dbAccessAPI = dbAccessAPI;
+  }
+
+  /**
+   * Add a contributor to the contributor table
+   * @param contributor
+   * @return
+   * @throws InsertException
+   */
+  public int addContributor(Contributor contributor) throws InsertException {
+    int contributorId = -1;
+    try {
+      contributorId = dbAccessAPI.getNextSequenceNumber(SEQUENCE_NAME);
+   }catch(SQLException e) {
+     throw new InsertException(e.getMessage());
+   }
+
+    String sql = "insert into "+TABLE_NAME+"("+ CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+")"+
+        " values ("+contributorId+",'"+contributor.getName()+"')";
+    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
+    catch(SQLException e) {
+      //e.printStackTrace();
+      throw new InsertException(e.getMessage());
+    }
+    return contributorId;
+  }
+
+  /**
+   * Update a contributor in the table
+   * @param contributorId
+   * @param contributor
+   * @throws UpdateException
+   */
+  public boolean updateContributor(int contributorId, Contributor contributor) throws UpdateException {
+    String sql = "update "+TABLE_NAME+" set "+CONTRIBUTOR_NAME+"= '"+
+        contributor.getName()+"' where "+CONTRIBUTOR_ID+"="+contributorId;
+    try {
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
+      if(numRows==1) return true;
+    }
+    catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+    return false;
+  }
+
+
+  /**
+   * Get contributor corresponding to an Id
+   * @param contributorId
+   * @return
+   * @throws QueryException
+   */
+  public Contributor getContributor(int contributorId) throws QueryException {
+    Contributor contributor=null;
+    String condition  =  " where "+CONTRIBUTOR_ID+"="+contributorId;
+    ArrayList contributorList = query(condition);
+    if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
+    return contributor;
+  }
+
+  /**
+   * Remove a contributor from the table
+   *
+   * @param contributorId
+   * @throws UpdateException
+   */
+  public boolean removeContributor(int contributorId) throws UpdateException {
+    String sql = "delete from "+TABLE_NAME+"  where "+CONTRIBUTOR_ID+"="+contributorId;
+    try {
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
+      if(numRows==1) return true;
+    }
+    catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+    return false;
+  }
+
+  /**
+   * Get a list of all the contributors
+   *
+   * @return
+   * @throws QueryException
+   */
+  public ArrayList getAllContributors() throws QueryException {
+    return query(" ");
+  }
+
+  private ArrayList query(String condition) throws QueryException {
+    ArrayList contributorList = new ArrayList();
+    String sql = "select "+CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+" from "+TABLE_NAME+" "+condition;
+    try {
+      ResultSet rs  = dbAccessAPI.queryData(sql);
+      while(rs.next()) contributorList.add(new Contributor(rs.getInt(CONTRIBUTOR_ID), rs.getString(CONTRIBUTOR_NAME)));
+      rs.close();
+    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    return contributorList;
+  }
+}
