@@ -1,17 +1,15 @@
 package org.opensha.data.estimate;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 /**
  * <p>Title: DiscreteValueEstimate.java </p>
  * <p>Description:  This can be used to specify probabilities associated with
- * discrete values (with zero probabilities in between values). For example user
- * may say that dip can have value of 45,60,90 with probabilities of 0.2,0.3,0.5 respectively.
- *
- *
- * Rules followed in this case are:
- * 2. 0<=y<=1 for all y
+ * discrete values from a DiscretizedFunction. Use an EvenlyDiscretizedFunction for
+ * a continuous PDF (where it is asssumed that the first and last values are the
+ * first and last non-zero values, respectively), or use an ArbitrarilyDiscretizedFunction
+ * if the nonzero values are not evenly discretized.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -20,18 +18,20 @@ import org.opensha.data.function.DiscretizedFuncAPI;
  */
 
 public class DiscreteValueEstimate extends Estimate {
-  protected ArbitrarilyDiscretizedFunc func=null;
+  protected DiscretizedFunc func=null;
   public final static String NAME = "org.opensha.data.estimate.DiscreteValueEstimate";
 
-  private double tol = 1e-6;
+  // tolerance for checking normalization
+  protected double tol = 1e-6;
 
   /**
-   * Constructor - Accepts ArbitrarilyDiscretizedFunc which is  list of X and Y
-   * values. Note that the function passed in is not cloned, and will change if it
-   * is not normalized.  MaxX and MinX are set by those in the function passed in.
+   * Constructor - Accepts a DiscretizedFunc and an indication of whether it is
+   * normalized. Note that the function passed in is not cloned, and will therefor
+   * change if it is not normalized.  MaxX and MinX are set according to those of the function
+   * passed in.
    * @param func
    */
-  public DiscreteValueEstimate(ArbitrarilyDiscretizedFunc func, boolean isNormalized) {
+  public DiscreteValueEstimate(DiscretizedFunc func, boolean isNormalized) {
     setValues(func, isNormalized);
   }
 
@@ -41,7 +41,7 @@ public class DiscreteValueEstimate extends Estimate {
    *
    * @param func
    */
-  public void setValues(ArbitrarilyDiscretizedFunc newFunc, boolean isNormalized) {
+  public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
 
     this.func = newFunc; // or should it be a clone???
 
@@ -100,9 +100,8 @@ public class DiscreteValueEstimate extends Estimate {
    return empiricalDistFunc;
  }
 
-
   /**
-   * Get the mode for this distribution. It is same as median for this case
+   * Get the mode (X value where Y is maximum)
    *
    * @return
    */
@@ -119,36 +118,23 @@ public class DiscreteValueEstimate extends Estimate {
     return getFractile(0.5);
   }
 
-  /**
-  * Get the minimum among the list of X values in this list
-  *
-  * @return
-  */
- public double getMinXValue() {
-   return func.getX(0);
- }
-
- /**
-  * Get the maximum among the list of X values in this list
-  *
-  * @return
-  */
- public double getMaxXValue() {
-   return func.getX(func.getNum()-1);
- }
-
 
   public double getStdDev() {
-    throw new java.lang.UnsupportedOperationException("Method getStdDev() not supported.");
+    throw new java.lang.UnsupportedOperationException("Method getStdDev() not yet implement.");
   }
 
   public double getMean() {
-   throw new java.lang.UnsupportedOperationException("Method getMean() not supported");
+   throw new java.lang.UnsupportedOperationException("Method getMean() not yet implement");
  }
 
  public DiscretizedFuncAPI getValues() {
    return this.func;
  }
 
-
+ /**
+  * This allows the user to set the tolerance used for checking normalization (and
+  * perhaps other things in subclasses).
+  * @param tol double
+  */
+ public void setTolerance(double tol) {this.tol = tol;}
 }

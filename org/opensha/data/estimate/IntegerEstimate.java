@@ -1,6 +1,6 @@
 package org.opensha.data.estimate;
 
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: IntegerEstimate.java </p>
@@ -15,42 +15,36 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  * @version 1.0
  */
 
-public class IntegerEstimate extends PDF_Estimate{
+public class IntegerEstimate extends DiscreteValueEstimate{
   public final static String NAME = "org.opensha.data.estimate.IntegerEstimate";
-  private final static String MSG_X_INCREASING = "X values should be increasing "+
+
+  private final static String EST_MSG_X_INTEGER = "All X values should be an integer "+
      " for Integer Estimate";
-  private final static String MSG_X_INTEGER = "All X values should be an integer "+
-     " for Integer Estimate";
-  private final static String MSG_Y_POSITIVE = "All the Y values should be >= 0 "+
-     "for Integer Estimate";
 
  /**
-  * Constructor - Accepts ArbitrarilyDiscretizedFunc. It checks that the values
-  * provided are valid by calling the checkValues function.
+  * Constructor - Accepts DiscretizedFunc & an indication of whether it's
+  * already normized. It checks that the X values in the function are integers
+  * (or withing tolerance of integers)
   *
-  * @param func ArbitrarilyDiscretizedFunc containing the X and Y values
+  * @param func DiscretizedFunc containing the X and Y values
   */
- public IntegerEstimate(ArbitrarilyDiscretizedFunc func) {
-   super(func);
-   checkValues(this.func);
+ public IntegerEstimate(DiscretizedFunc func, boolean isNormalized) {
+   super(func, isNormalized);
+   checkValues();
 
  }
 
  /**
-  * It checks that user has provided the correct X and Y values according to
-  * following constraints:
-  *
-  * 1. All Y >=0
-  * 2. X(i) is integer value.
+  * It checks whether x values are indeed integers:
   *
   * @param func ArbitrarilyDiscretizedFunc containing the X and Y values
   */
- public void checkValues(ArbitrarilyDiscretizedFunc func) {
-   double x= 0;
+ public void checkValues() {
+   double diff= 0, x;
    for(int i = 0; i<func.getNum();++i) {
-     x  = func.getX(i);
-     if(Math.floor(x)!=x) throw new InvalidParamValException(MSG_X_INTEGER);
-     if(func.getY(i)<0) throw new InvalidParamValException(MSG_Y_POSITIVE);
+     x = func.getX(i);
+     diff  = Math.abs(x-Math.rint(x));
+     if(diff > tol) throw new InvalidParamValException(EST_MSG_X_INTEGER);
    }
  }
 
