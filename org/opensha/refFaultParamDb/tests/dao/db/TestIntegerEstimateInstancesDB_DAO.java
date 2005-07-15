@@ -56,8 +56,8 @@ public class TestIntegerEstimateInstancesDB_DAO extends TestCase {
     func2.set(4.0,9.0);
     func2.set(8.0,0.0);
 
-    IntegerEstimate estimate1 = new IntegerEstimate(func1);
-    IntegerEstimate estimate2 = new IntegerEstimate(func2);
+    IntegerEstimate estimate1 = new IntegerEstimate(func1,false);
+    IntegerEstimate estimate2 = new IntegerEstimate(func2,false);
     EstimateInstances estimateInstance = new EstimateInstances();
     estimateInstance.setEstimate(estimate1);
     estimateInstance.setUnits("meters");

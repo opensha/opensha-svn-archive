@@ -56,8 +56,8 @@ public class TestDiscreteValueEstimateInstancesDB_DAO extends TestCase {
     func2.set(4.0,0.2);
     func2.set(8.0,0.5);
 
-    DiscreteValueEstimate estimate1 = new DiscreteValueEstimate(func1);
-    DiscreteValueEstimate estimate2 = new DiscreteValueEstimate(func2);
+    DiscreteValueEstimate estimate1 = new DiscreteValueEstimate(func1,false);
+    DiscreteValueEstimate estimate2 = new DiscreteValueEstimate(func2,false);
     EstimateInstances estimateInstance = new EstimateInstances();
     estimateInstance.setEstimate(estimate1);
     estimateInstance.setUnits("meters");

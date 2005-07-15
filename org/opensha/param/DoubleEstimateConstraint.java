@@ -157,8 +157,8 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
           // if this object is among list of allowed estimates, check min/max value
           double allowedMinValue = this.min.doubleValue();
           double allowedMaxValue = this.max.doubleValue();
-          if(estimate.getMinXValue()>=allowedMinValue &&
-            estimate.getMaxXValue()<=allowedMaxValue)
+          if(estimate.getMinX()>=allowedMinValue &&
+            estimate.getMaxX()<=allowedMaxValue)
            return true;
          break;
         }

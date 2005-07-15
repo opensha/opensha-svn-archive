@@ -59,7 +59,7 @@ public class DiscreteValueEstimateDB_DAO implements EstimateDAO_API {
   public Estimate getEstimate(int estimateInstanceId) throws QueryException {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
     xyEstimateDB_DAO.getEstimate(estimateInstanceId,func);
-    DiscreteValueEstimate estimate=new DiscreteValueEstimate(func);
+    DiscreteValueEstimate estimate=new DiscreteValueEstimate(func,false);
     return estimate;
   }
 

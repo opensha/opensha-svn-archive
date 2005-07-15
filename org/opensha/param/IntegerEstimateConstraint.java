@@ -93,8 +93,8 @@ public class IntegerEstimateConstraint extends IntegerConstraint {
       // if this object is among list of allowed estimates, check min/max value
       double allowedMinValue = this.min.intValue();
       double allowedMaxValue = this.max.intValue();
-      if (estimate.getMinXValue() >= allowedMinValue &&
-          estimate.getMaxXValue() <= allowedMaxValue)
+      if (estimate.getMinX() >= allowedMinValue &&
+          estimate.getMaxX() <= allowedMaxValue)
         return true;
       return false;
     }

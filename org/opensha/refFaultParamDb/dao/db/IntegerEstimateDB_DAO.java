@@ -59,7 +59,7 @@ public class IntegerEstimateDB_DAO implements EstimateDAO_API {
   public Estimate getEstimate(int estimateInstanceId) throws QueryException {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
     xyEstimateDB_DAO.getEstimate(estimateInstanceId,func);
-    IntegerEstimate estimate=new IntegerEstimate(func);
+    IntegerEstimate estimate=new IntegerEstimate(func,false);
     return estimate;
   }
 
