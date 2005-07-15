@@ -101,25 +101,105 @@ public class SegmentSlipTimeInfo {
 
 
   /**
-   * This returns the year of the last rupture before the given year.
-   * null is return if the year is the first year or the year is not found
-   * @param year Integer
-   * @return Integer
+   * This returns the slip corresponding the given year
    */
-  public Integer getPreviousSlipTime(Integer year) {
-    Integer lastYear = null, newYear;
-    Set keySet = slipTimeHistoriesMap.keySet();
-    Iterator it = keySet.iterator();
-    while(it.hasNext()) {
-      newYear = (Integer) it.next();
-      if(newYear.intValue() == year.intValue())
-        return lastYear;
-      else
-        lastYear = newYear;
-    }
-    // if we get to here return null (year not found)
-    return null;
+  public double getSlip(Double year){
+    return ((Double) slipTimeHistoriesMap.get(year)).doubleValue();
   }
 
-}
 
+  /**
+    * This returns the year of the last rupture before the given year.
+    * null is return if the year is the first year or the year is not found
+    * @param year Integer
+    * @return Integer
+    */
+   public Integer getPreviousSlipTime(Integer year) {
+     Integer lastYear = null, newYear;
+     Set keySet = slipTimeHistoriesMap.keySet();
+     Iterator it = keySet.iterator();
+     while(it.hasNext()) {
+       newYear = (Integer) it.next();
+       if(newYear.intValue() == year.intValue())
+         return lastYear;
+       else
+         lastYear = newYear;
+     }
+     // if we get to here return null (year not found)
+     return null;
+   }
+
+
+   /**
+     * This returns the year of the last rupture before the given year.
+     * null is return if the year is the first year or the year is not found
+     * @param year Integer
+     * @return Integer
+     */
+    public Double getPreviousSlipTime(Double year) {
+      Double lastYear = null, newYear;
+      Set keySet = slipTimeHistoriesMap.keySet();
+      Iterator it = keySet.iterator();
+      while(it.hasNext()) {
+        newYear = (Double) it.next();
+        if(newYear.doubleValue() == year.doubleValue())
+          return lastYear;
+        else
+          lastYear = newYear;
+      }
+      // if we get to here return null (year not found)
+      return null;
+    }
+
+   /**
+     * This returns the the amount of slip (cm) in the event that occurred before the given year.
+     * NaN is return if the year is the first year or the year is not found
+     * @param year Integer
+     * @return slip (cm)
+     */
+    public double getPreviousSlip(Integer year) {
+      Integer lastYear = null, newYear;
+      Set keySet = slipTimeHistoriesMap.keySet();
+      Iterator it = keySet.iterator();
+      while(it.hasNext()) {
+        newYear = (Integer) it.next();
+        if(newYear.intValue() == year.intValue() && lastYear != null)
+          return getSlip(lastYear);
+        else
+          lastYear = newYear;
+      }
+      // if we get to here return NaN (year not found or is the first year)
+      return Double.NaN;
+    }
+
+
+
+    /**
+  * This returns the the amount of slip (cm) in the event that occurred before the given year.
+  * NaN is return if the year is the first year or the year is not found
+  * @param year Integer
+  * @return slip (cm)
+  */
+ public double getPreviousSlip(Double year) {
+   Double lastYear = null, newYear;
+   Set keySet = slipTimeHistoriesMap.keySet();
+   Iterator it = keySet.iterator();
+   while(it.hasNext()) {
+     newYear = (Double) it.next();
+     if(newYear.doubleValue() == year.doubleValue() && lastYear != null)
+       return getSlip(lastYear);
+     else
+       lastYear = newYear;
+   }
+   // if we get to here return NaN (year not found or is the first year)
+   return Double.NaN;
+ }
+
+
+    public Object clone() {
+      return new SegmentSlipTimeInfo(getSegmentNumber(), getTimeHistories(),  getSlipHistories());
+    }
+
+
+
+}

@@ -23,11 +23,12 @@ public class VC_Analysis {
   private String faultNames[];
   private int firstIndex[], lastIndex[];
   private double seg_x_west[],seg_y_west[],seg_x_east[],seg_y_east[],seg_slipRate[], seg_area[];
-  private ArrayList segSlipInfoList;
-  private TreeMap timeSegMapping;
+  private ArrayList segSlipInfoList, randomSegSlipInfoList;
+  private TreeMap timeSegMapping, randomTimeSegMapping;
   private ArrayList faultList;
   private ArrayList eventYears, eventSegs;
   private double eventMags[], eventAveSlips[], eventAreas[];
+  private double eventYearPred1[], aveLastEvTime1[], eventYearPred2[], aveLastEvTime2[];
 
   /* these are the lat & lon of the first point on the first segment (Bartlett Strings fault),
      used for converting the x & y values to lat & lon.  These were determined by looking at the
@@ -72,19 +73,12 @@ public class VC_Analysis {
     eventMags = new double[eventYears.size()];
     eventAveSlips = new double[eventYears.size()];
     eventAreas = new double[eventYears.size()];
-
-    SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) segSlipInfoList.get(0);
-    ArrayList times = info.getTimeHistories();
-    Iterator it = times.iterator();
-    Integer tempInt;
-    while(it.hasNext()) {
-      tempInt = (Integer) it.next();
-      System.out.println(tempInt+"\t"+info.getPreviousSlipTime(tempInt));
-    }
-    System.out.println(info.getPreviousSlipTime(new Integer(12000000)));
+    eventYearPred1 = new double[eventYears.size()];
+    eventYearPred2 = new double[eventYears.size()];
+    aveLastEvTime1 = new double[eventYears.size()];
+    aveLastEvTime2 = new double[eventYears.size()];
 
 
-/*
     getEventStats();
 
     try {
@@ -94,11 +88,22 @@ public class VC_Analysis {
       ex1.printStackTrace();
       System.exit(0);
     }
+
+
+/*
+
+        // test
+        SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) segSlipInfoList.get(0);
+        ArrayList times = info.getTimeHistories();
+        Iterator it = times.iterator();
+        Integer tempInt;
+        while(it.hasNext()) {
+          tempInt = (Integer) it.next();
+          System.out.println(tempInt+"\t"+info.getPreviousSlipTime(tempInt));
+        }
+        System.out.println(info.getPreviousSlipTime(new Integer(12000000)));
+
 */
-
-
-
-
 /*
     makeFaultTraces();
     if(D) {
@@ -120,12 +125,14 @@ public class VC_Analysis {
       System.exit(0);
     }
 */
+
+
   }
 
 
   private void getEventStats() {
-    Integer year;
-    double totArea, totPot;
+    Integer year, yearLastInt;
+    double totArea, totPot, sum1, sum2, totPotRate, yearLast, slipLast, sumForT_last1, sumForT_last2;
     int seg;
     ArrayList segs;
     for(int i=0;i<eventYears.size();i++) {
@@ -133,6 +140,11 @@ public class VC_Analysis {
       segs = (ArrayList) eventSegs.get(i);
       totArea = 0.0;
       totPot  = 0.0;
+      sumForT_last1 = 0.0;
+      sumForT_last2 = 0.0;
+      sum1 = 0.0;
+      sum2 = 0;
+      totPotRate = 0.;
       for(int j=0;j<segs.size();j++) {
         seg = ((Integer) segs.get(j)).intValue();
         SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) segSlipInfoList.get(seg);
@@ -140,6 +152,17 @@ public class VC_Analysis {
           throw new RuntimeException("problem");
         totArea += seg_area[seg]*1e6;                    // converted from km to m-squared
         totPot += seg_area[seg]*Math.abs(info.getSlip(year))*1e4;  // converted to meters
+        yearLastInt = info.getPreviousSlipTime(year);
+        if (yearLastInt != null)
+          yearLast = yearLastInt.doubleValue();
+        else
+          yearLast = Double.NaN;
+        slipLast = info.getPreviousSlip(year); // will be NaN is not available
+        sum1 += yearLast*Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4;
+        sum2 += seg_area[seg]*1e6*(Math.abs(slipLast)/Math.abs(seg_slipRate[seg])+yearLast);
+        totPotRate += Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4;
+        sumForT_last1 = Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4*yearLast;
+        sumForT_last2 = seg_area[seg]*1e6*yearLast;
 //        if(i==0) {
 //          System.out.println(year+"\t"+seg+"\t"+seg_area[seg]+"\t"+info.getSlip(year));
 //        }
@@ -147,6 +170,11 @@ public class VC_Analysis {
       eventAveSlips[i]=(totPot/totArea);   //meters
       eventAreas[i]=totArea;             //meters-sq
       eventMags[i]= MomentMagCalc.getMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
+      eventYearPred1[i] = (totPot+sum1)/totPotRate;
+      eventYearPred2[i] = sum2/totArea;
+      aveLastEvTime1[i] = sumForT_last1/totPotRate;
+      aveLastEvTime2[i] = sumForT_last2/totArea;
+
     }
   }
 
@@ -161,7 +189,7 @@ public class VC_Analysis {
     int lastYear=-1, counter=-1;
 
     FileWriter fw1 = new FileWriter(filename1);
-    fw1.write("evTimes\tevNumSegs\tevMags\tevAreas\tevSlips\n");
+    fw1.write("evTimes\tevNumSegs\tevMags\tevAreas\tevSlips\tevYearPred1\taveLastEvTime1\tevYearPred2\taveLastEvTime2\n");
     FileWriter fw2 = new FileWriter(filename2);
     fw2.write("evSegs\n");
     for(int i=0; i < eventYears.size(); i++) {
@@ -173,7 +201,9 @@ public class VC_Analysis {
       evName = year.toString()+"_"+Integer.toString(counter);
       lastYear = year.intValue();
       tempSegs = (ArrayList) eventSegs.get(i);
-      fw1.write(year+"\t"+tempSegs.size()+"\t"+(float)eventMags[i]+"\t"+(float)eventAreas[i]+"\t"+(float)eventAveSlips[i]+"\n");
+      fw1.write(year+"\t"+tempSegs.size()+"\t"+(float)eventMags[i]+"\t"+(float)eventAreas[i]+"\t"+
+                (float)eventAveSlips[i]+"\t"+eventYearPred1[i]+"\t"+aveLastEvTime1[i]+
+                "\t"+eventYearPred2[i]+"\t"+aveLastEvTime2[i]+"\n");
       fw2.write(evName+"\n");
       for(int j=0; j < tempSegs.size(); j++)
         fw2.write((Integer) tempSegs.get(j)+"\n");
