@@ -159,8 +159,8 @@ public class VC_RandomizedAnalysis {
         sum1 += yearLast*Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4;
         sum2 += seg_area[seg]*1e6*(Math.abs(slipLast)/Math.abs(seg_slipRate[seg])+yearLast);
         totPotRate += Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4;
-        sumForT_last1 = Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4*yearLast;
-        sumForT_last2 = seg_area[seg]*1e6*yearLast;
+        sumForT_last1 += Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4*yearLast;
+        sumForT_last2 += seg_area[seg]*1e6*yearLast;
 //        if(i==0) {
 //          System.out.println(year+"\t"+seg+"\t"+seg_area[seg]+"\t"+info.getSlip(year));
 //        }

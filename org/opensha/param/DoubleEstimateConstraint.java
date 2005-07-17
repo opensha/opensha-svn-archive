@@ -224,7 +224,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
       ArrayList allowedEstimateTypes = new ArrayList();
       allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
       allowedEstimateTypes.add(FractileListEstimate.NAME);
-      allowedEstimateTypes.add(PDF_Estimate.NAME);
+//      allowedEstimateTypes.add(PDF_Estimate.NAME);
       return constraint;
     }
 }
