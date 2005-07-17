@@ -131,12 +131,14 @@ public class VC_Analysis {
 
 
   private void getEventStats() {
+    boolean show = false;
     Integer year, yearLastInt;
     double totArea, totPot, sum1, sum2, totPotRate, yearLast, slipLast, sumForT_last1, sumForT_last2;
     int seg;
     ArrayList segs;
     for(int i=0;i<eventYears.size();i++) {
       year = (Integer) eventYears.get(i);
+      if(year.intValue() == 25726) show = true;
       segs = (ArrayList) eventSegs.get(i);
       totArea = 0.0;
       totPot  = 0.0;
@@ -145,7 +147,7 @@ public class VC_Analysis {
       sum1 = 0.0;
       sum2 = 0;
       totPotRate = 0.;
-      for(int j=0;j<segs.size();j++) {
+      for(int j=0;j<segs.size();j++) { // loop over segments
         seg = ((Integer) segs.get(j)).intValue();
         SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) segSlipInfoList.get(seg);
         if(seg != info.getSegmentNumber())
@@ -163,9 +165,9 @@ public class VC_Analysis {
         totPotRate += Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4;
         sumForT_last1 = Math.abs(seg_slipRate[seg])*seg_area[seg]*1e4*yearLast;
         sumForT_last2 = seg_area[seg]*1e6*yearLast;
-//        if(i==0) {
-//          System.out.println(year+"\t"+seg+"\t"+seg_area[seg]+"\t"+info.getSlip(year));
-//        }
+        if(show) {
+          System.out.println(seg+"\t"+seg_area[seg]+"\t"+info.getSlip(year)+"\t"+yearLast+"\t"+slipLast);
+        }
       }
       eventAveSlips[i]=(totPot/totArea);   //meters
       eventAreas[i]=totArea;             //meters-sq
@@ -174,7 +176,10 @@ public class VC_Analysis {
       eventYearPred2[i] = sum2/totArea;
       aveLastEvTime1[i] = sumForT_last1/totPotRate;
       aveLastEvTime2[i] = sumForT_last2/totArea;
-
+      if(show) {
+        System.out.println(year+"\t"+eventAveSlips[i]+"\t"+eventAreas[i]+"\t"+eventMags[i]+
+            "\t"+eventYearPred1[i]+"\t"+eventYearPred2[i]+"\t"+aveLastEvTime1[i]+"\t"+aveLastEvTime2[i]);
+      }
     }
   }
 
