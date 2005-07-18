@@ -1,7 +1,8 @@
-package org.opensha.param;
+package org.opensha.param.estimate;
 import org.opensha.data.estimate.IntegerEstimate;
 import org.opensha.exceptions.EditableException;
 import java.util.ArrayList;
+import org.opensha.param.*;
 
 /**
  * <p>Title: InetgerEstimateConstraint.java </p>

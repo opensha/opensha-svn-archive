@@ -1,12 +1,12 @@
 package org.opensha.data.estimate;
 
-import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: IntegerEstimate.java </p>
- * <p>Description: the rules followed here:
- * 1. X(i) is integer value.
- * 2. Y(i)>=0.
+ * <p>Description:  This can be used to specify probabilities associated with
+ * discrete values from an ArbitrarilyDiscretizedFunction. the discrete Values
+ * should be integer values.
  *
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
@@ -16,7 +16,6 @@ import org.opensha.data.function.DiscretizedFunc;
  */
 
 public class IntegerEstimate extends DiscreteValueEstimate{
-  public final static String NAME = "org.opensha.data.estimate.IntegerEstimate";
 
   private final static String EST_MSG_X_INTEGER = "All X values should be an integer "+
      " for Integer Estimate";
@@ -28,7 +27,7 @@ public class IntegerEstimate extends DiscreteValueEstimate{
   *
   * @param func DiscretizedFunc containing the X and Y values
   */
- public IntegerEstimate(DiscretizedFunc func, boolean isNormalized) {
+ public IntegerEstimate(ArbitrarilyDiscretizedFunc func, boolean isNormalized) {
    super(func, isNormalized);
    checkValues();
 
@@ -41,11 +40,7 @@ public class IntegerEstimate extends DiscreteValueEstimate{
   */
  public void checkValues() {
    double diff= 0, x;
-   for(int i = 0; i<func.getNum();++i) {
-     x = func.getX(i);
-     diff  = Math.abs(x-Math.rint(x));
-     if(diff > tol) throw new InvalidParamValException(EST_MSG_X_INTEGER);
-   }
+   if(!func.areAllXValuesInteger(this.tol)) throw new InvalidParamValException(EST_MSG_X_INTEGER);
  }
 
 }

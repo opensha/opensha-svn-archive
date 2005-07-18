@@ -16,7 +16,7 @@ package org.opensha.data.estimate;
  */
 
 public class NormalEstimate extends Estimate {
-  public final static String NAME = "org.opensha.data.estimate.NormalEstimate";
+
   private double mean=Double.NaN;
   private double stdDev=Double.NaN;
 
@@ -117,5 +117,18 @@ public class NormalEstimate extends Estimate {
  public double getFractile(double prob) {
    throw new java.lang.UnsupportedOperationException("Not yet implemented.");
  }
+
+ /**
+  * Set the minimum and maximum X-axis value
+  *
+  * @param minX double
+  * @param maxX double
+  */
+ public void setMinMaxX(double minX, double maxX) {
+   if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+   this.maxX = maxX;
+   this.minX = minX;
+ }
+
 
 }

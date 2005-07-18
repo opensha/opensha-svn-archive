@@ -24,7 +24,6 @@ import org.opensha.data.function.DiscretizedFuncAPI;
  */
 
 public class FractileListEstimate extends Estimate {
-  public final static String NAME = "org.opensha.data.estimate.FractileListEstimate";
   private ArbDiscrEmpiricalDistFunc func=null;
   private final static String MEDIAN_UNDEFINED = "Invalid Y values as median is undefined"+
        " for these set of Y values. ";
@@ -54,20 +53,13 @@ public class FractileListEstimate extends Estimate {
      maxX = func.getMaxX();
      minX = func.getMinX();
      int numValues = func.getNum();
-
-     // check that median is defined
-     if(numValues==1 && func.getY(0)!=0.5)
-       throw new InvalidParamValException(MEDIAN_UNDEFINED);
-     else if(numValues>1 && (func.getY(0)>0.5 || func.getY(numValues-1)<0.5))
-       throw new InvalidParamValException(MEDIAN_UNDEFINED);
-
      // check that 0²Y²1
      double y;
      for(int i = 0; i<numValues;++i) {
        y = func.getY(i);
        if(y<0 || y>1) throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
      }
-     this.func = func;
+     this.func = (ArbDiscrEmpiricalDistFunc)func.deepClone();
    }
 
 
@@ -89,6 +81,12 @@ public class FractileListEstimate extends Estimate {
     * @return median value for this set of X and Y values
     */
    public double getMedian() {
+     // check that median is defined
+     int numValues = func.getNum();
+     if(numValues==1 && func.getY(0)!=0.5)
+       throw new InvalidParamValException(MEDIAN_UNDEFINED);
+     else if(numValues>1 && (func.getY(0)>0.5 || func.getY(numValues-1)<0.5))
+       throw new InvalidParamValException(MEDIAN_UNDEFINED);
      return func.getDiscreteFractile(0.5);
   }
 

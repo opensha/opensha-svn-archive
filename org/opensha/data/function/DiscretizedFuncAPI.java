@@ -265,4 +265,13 @@ public interface DiscretizedFuncAPI extends java.io.Serializable, NamedObjectAPI
      */
     public String getMetadataString();
 
+    /**
+     * It finds out whether the X values are within tolerance of an integer value
+     * @param tolerance tolerance value to consider  rounding errors
+     *
+     * @return true if all X values are within the tolerance of an integer value
+     * else returns false
+     */
+    public boolean areAllXValuesInteger(double tolerance);
+
 }

@@ -1,7 +1,8 @@
-package org.opensha.param;
+package org.opensha.param.estimate;
 import org.opensha.data.estimate.*;
 import org.opensha.exceptions.EditableException;
 import java.util.ArrayList;
+import org.opensha.param.*;
 
 /**
  * <p>Title: DoubleEstimateConstraint.java </p>
@@ -214,17 +215,18 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
 
     /**
      * create  constraint so that only postive values are allowed. This function
-     * will automatically exclude normal and lognormal
+     * will automatically exclude normal
      *
      * @return
      */
     public static DoubleEstimateConstraint createConstraintForPositiveAllowedValues() {
-      // negative values are not allowed. so, normal and lognormal are not allowed
+      // negative values are not allowed. so, normal is not allowed
       DoubleEstimateConstraint constraint = new DoubleEstimateConstraint(0, Double.MAX_VALUE);
       ArrayList allowedEstimateTypes = new ArrayList();
-      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
-      allowedEstimateTypes.add(FractileListEstimate.NAME);
-//      allowedEstimateTypes.add(PDF_Estimate.NAME);
+      allowedEstimateTypes.add("org.opensha.data.estimate.DiscreteValueEstimate");
+      allowedEstimateTypes.add("org.opensha.data.estimate.FractileListEstimate");
+      allowedEstimateTypes.add("org.opensha.data.estimate.LogNormalEstimate");
+      allowedEstimateTypes.add("org.opensha.data.estimate.PDF_Estimate");
       return constraint;
     }
 }

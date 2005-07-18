@@ -1,6 +1,6 @@
 package org.opensha.param.estimate;
 
-import org.opensha.param.IntegerEstimateConstraint;
+
 import org.opensha.param.estimate.IntegerEstimateParameter;
 import org.opensha.data.estimate.*;
 import java.util.ArrayList;

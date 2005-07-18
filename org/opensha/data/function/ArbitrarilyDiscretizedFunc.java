@@ -613,7 +613,25 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     }
 
 
-/*  temp main method to investige numerical precision issues
+    /**
+     * It finds out whether the X values are within tolerance of an integer value
+     * @param tol tolerance value to consider  rounding errors
+     *
+     * @return true if all X values are within the tolerance of an integer value
+     * else returns false
+     */
+    public boolean areAllXValuesInteger(double tolerance) {
+      int num = getNum();
+      double x, diff;
+      for (int i = 0; i < num; ++i) {
+        x = getX(i);
+        diff = Math.abs(x - Math.rint(x));
+        if (diff > tolerance) return false;
+      }
+      return true;
+    }
+
+    /*  temp main method to investige numerical precision issues
 public static void main( String[] args ) {
 
   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();

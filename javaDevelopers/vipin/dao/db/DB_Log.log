@@ -12,13 +12,5 @@ logAppend = false
 maxCheckoutSeconds = 60
 debugLevel = 2
 -----------------------------------------
-Fri Jul 15 11:06:17 PDT 2005  Opening connection 0 oracle.jdbc.driver.OracleConnection@186768e:
-Fri Jul 15 11:06:18 PDT 2005  Opening connection 1 oracle.jdbc.driver.OracleConnection@1551f60:
-Fri Jul 15 11:06:20 PDT 2005  Opening connection 2 oracle.jdbc.driver.OracleConnection@bf7190:
------> Connections Exhausted!  Will wait and try again in loop 1
-Fri Jul 15 11:06:22 PDT 2005  Opening connection 3 oracle.jdbc.driver.OracleConnection@dc6a77:
------> Connections Exhausted!  Will wait and try again in loop 1
-Fri Jul 15 11:06:25 PDT 2005  Opening connection 4 oracle.jdbc.driver.OracleConnection@18d9850:
------> Connections Exhausted!  Will wait and try again in loop 1
-Fri Jul 15 11:06:30 PDT 2005  Opening connection 5 oracle.jdbc.driver.OracleConnection@1950198:
------> Connections Exhausted!  Will wait and try again in loop 1
+Mon Jul 18 15:15:23 PDT 2005  Opening connection 0 oracle.jdbc.driver.OracleConnection@5f2db0:
+Mon Jul 18 15:15:25 PDT 2005  Opening connection 1 oracle.jdbc.driver.OracleConnection@4d76b4:

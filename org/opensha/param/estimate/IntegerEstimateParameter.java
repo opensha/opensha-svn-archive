@@ -1,6 +1,6 @@
 package org.opensha.param.estimate;
 import java.util.ArrayList;
-import org.opensha.param.IntegerEstimateConstraint;
+
 import org.opensha.exceptions.ConstraintException;
 /**
  * <p>Title: DoubleEstimateParameter.java </p>

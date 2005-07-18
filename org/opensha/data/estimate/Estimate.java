@@ -19,8 +19,6 @@ public abstract class Estimate {
   protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";
   protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
 
-
-
   protected String comments="";
   protected double minX, maxX;
 
@@ -58,18 +56,6 @@ public abstract class Estimate {
    * @return minimum value (on X axis)
    */
   public double getMinX() {return minX;}
-
-  /**
-   * Set the minimum and maximum X-axis value
-   *
-   * @param minX double
-   * @param maxX double
-   */
-  public void setMinMaxX(double minX, double maxX) {
-    if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
-    this.maxX = maxX;
-    this.minX = minX;
-  }
 
 
    /**

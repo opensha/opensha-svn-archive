@@ -503,6 +503,27 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
     }
 
     /**
+    * It finds out whether the X values are within tolerance of an integer value
+    * @param tol tolerance value to consider  rounding errors
+    *
+    * @return true if all X values are within the tolerance of an integer value
+    * else returns false
+    */
+   public boolean areAllXValuesInteger(double tolerance) {
+
+     double diff;
+     // check that min X and delta are integer values
+     diff = Math.abs(minX - Math.rint(minX));
+     if (diff > tolerance) return false;
+     diff = Math.abs(delta - Math.rint(delta));
+     if (diff > tolerance) return false;
+     return true;
+
+   }
+
+
+
+    /**
      * Determines if two functions are the same by comparing
      * that each point x value is the same, within tolerance,
      * and that each y value is the same, including nulls.
