@@ -112,10 +112,7 @@ public final class GaussianDistCalc {
 
       double val;
       double result;
-
-      if( standRandVariable >= 0 )  val = standRandVariable;
-      else                          val = -standRandVariable;
-
+      val = Math.abs(standRandVariable);
       result = 0.5 * Math.pow( (((((d6*val+d5)*val+d4)*val+d3)*val+d2)*val+d1)*val+1, -16);
       if(standRandVariable < 0) return result;
       else                      return 1.0-result;

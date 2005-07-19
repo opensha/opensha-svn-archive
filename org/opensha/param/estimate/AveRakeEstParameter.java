@@ -11,7 +11,7 @@ import org.opensha.data.estimate.*;
  * @version 1.0
  */
 
-public class AveRakeEstParameter extends DoubleEstimateParameter {
+public class AveRakeEstParameter extends EstimateParameter {
 
    /** Class name for debugging. */
    protected final static String C = "AveRakeEstParameter";

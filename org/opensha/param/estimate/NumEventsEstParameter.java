@@ -1,7 +1,6 @@
 package org.opensha.param.estimate;
 
 
-import org.opensha.param.estimate.IntegerEstimateParameter;
 import org.opensha.data.estimate.*;
 import java.util.ArrayList;
 
@@ -14,7 +13,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class NumEventsEstParameter extends IntegerEstimateParameter {
+public class NumEventsEstParameter extends EstimateParameter {
    /** Class name for debugging. */
    protected final static String C = "NumEventsEstParameter";
 
@@ -24,6 +23,7 @@ public class NumEventsEstParameter extends IntegerEstimateParameter {
 
     public NumEventsEstParameter( String name, IntegerEstimate value) {
         super(name, "", 0, Integer.MAX_VALUE);
+        setConstraint(EstimateConstraint.createConstraintForPositiveIntValues());
         setValue(value);
    }
 }

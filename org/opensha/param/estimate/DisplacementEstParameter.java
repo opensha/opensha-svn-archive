@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class DisplacementEstParameter extends DoubleEstimateParameter {
+public class DisplacementEstParameter extends EstimateParameter {
 
    /** Class name for debugging. */
    protected final static String C = "DisplacementEstParameter";
@@ -25,7 +25,7 @@ public class DisplacementEstParameter extends DoubleEstimateParameter {
      super(name, 0, Double.MAX_VALUE);
      setUnits("cm/yr");
      // negative values are not allowed. so, normal and lognormal are not allowed
-     setConstraint(DoubleEstimateConstraint.createConstraintForPositiveAllowedValues());
+     setConstraint(EstimateConstraint.createConstraintForPositiveDoubleValues());
      setValue(value);
    }
 

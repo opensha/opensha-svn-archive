@@ -24,6 +24,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
  */
 
 public class FractileListEstimate extends Estimate {
+  public final static String NAME  =  "Min, Max and Preferred";
   private ArbDiscrEmpiricalDistFunc func=null;
   private final static String MEDIAN_UNDEFINED = "Invalid Y values as median is undefined"+
        " for these set of Y values. ";
@@ -123,6 +124,11 @@ public class FractileListEstimate extends Estimate {
   public DiscretizedFuncAPI getValues() {
     return this.func;
   }
+
+  public String getName() {
+   return NAME;
+ }
+
 
 
 }

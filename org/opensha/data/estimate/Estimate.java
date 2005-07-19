@@ -76,4 +76,7 @@ public abstract class Estimate {
      this.comments = comments;
    }
 
+   public abstract String getName() ;
+
+
 }

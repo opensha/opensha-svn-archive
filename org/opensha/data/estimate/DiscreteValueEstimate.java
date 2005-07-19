@@ -13,6 +13,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  */
 
 public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
+  public final static String NAME  =  "Discrete Values";
 
   /**
    * Constructor - Accepts a ArbitrarilyDiscretizedFunc and an indication of whether it is
@@ -23,6 +24,10 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
    */
   public DiscreteValueEstimate(ArbitrarilyDiscretizedFunc func, boolean isNormalized) {
     super(func, isNormalized);
+  }
+
+  public String getName() {
+    return NAME;
   }
 
 }

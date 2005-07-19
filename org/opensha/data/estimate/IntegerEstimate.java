@@ -16,6 +16,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  */
 
 public class IntegerEstimate extends DiscreteValueEstimate{
+  public final static String NAME  =  "Integer";
 
   private final static String EST_MSG_X_INTEGER = "All X values should be an integer "+
      " for Integer Estimate";
@@ -42,5 +43,10 @@ public class IntegerEstimate extends DiscreteValueEstimate{
    double diff= 0, x;
    if(!func.areAllXValuesInteger(this.tol)) throw new InvalidParamValException(EST_MSG_X_INTEGER);
  }
+
+ public String getName() {
+   return NAME;
+ }
+
 
 }

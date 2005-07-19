@@ -24,7 +24,7 @@ import org.opensha.sha.magdist.*;
  *  b>Description:</b> This is a MagFreqDistParameter editor. All parameters listed
  * in the constraint of the MagFreqDistParameter are listed as choices, and below
  * are shown the associated independent parameters than need to be filled in to
- * make the dedired distribution.<p>
+ * make the desired distribution.<p>
  *
  * @author     Nitin & Vipin Gupta, and Ned Field
  * @created    Oct 18, 2002

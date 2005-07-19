@@ -11,7 +11,7 @@ import org.opensha.data.estimate.Estimate;
  * @version 1.0
  */
 
-public class DateEstParameter extends DoubleEstimateParameter {
+public class DateEstParameter extends EstimateParameter {
   public final static int BC = 1;
   public final static int AD = 2;
 

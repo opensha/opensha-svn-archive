@@ -14,7 +14,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  */
 
 public class PDF_Estimate extends DiscretizedFuncEstimate {
-
+  public final static String NAME  =  "PDF";
 
 
   /**
@@ -28,4 +28,9 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   public PDF_Estimate(EvenlyDiscretizedFunc func, boolean isNormalized) {
     super(func, isNormalized);
   }
+
+  public String getName() {
+   return NAME;
+ }
+
 }

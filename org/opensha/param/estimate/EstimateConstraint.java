@@ -20,7 +20,7 @@ import org.opensha.param.*;
  * @version 1.0
  */
 
-public class DoubleEstimateConstraint extends DoubleConstraint {
+public class EstimateConstraint extends DoubleConstraint {
     /** Class name for debugging. */
     protected final static String C = "DoubleEstimateConstraint";
     /** If true print out debug statements. */
@@ -32,7 +32,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
     /** No-Arg Constructor, constraints are null so all values allowed and
      * all estimate objects are allowed
      */
-    public DoubleEstimateConstraint() {}
+    public EstimateConstraint() {}
 
 
     /**
@@ -41,7 +41,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
      *
      * @param allowedEstimateList List of classnames of allowed Estimate objects
      */
-    public DoubleEstimateConstraint(ArrayList allowedEstimateList) {
+    public EstimateConstraint(ArrayList allowedEstimateList) {
       super();
       setAllowedEstimateList(allowedEstimateList);
     }
@@ -53,7 +53,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
      * @param min
      * @param max
      */
-    public DoubleEstimateConstraint(double min, double max) {
+    public EstimateConstraint(double min, double max) {
       this(min,max,null);
     }
 
@@ -69,7 +69,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
      * @param  max  The max value allowed
      * @param allowedEstimateList List of classnames of allowed Estimate objects
      */
-    public DoubleEstimateConstraint( double min, double max, ArrayList allowedEstimateList) {
+    public EstimateConstraint( double min, double max, ArrayList allowedEstimateList) {
         this(new Double(min), new Double(max), allowedEstimateList);
     }
 
@@ -83,7 +83,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
      * @param  max  The max value allowed
      * @param allowedEstimateList List of classnames of allowed Estimate objects
      */
-    public DoubleEstimateConstraint( Double min, Double max, ArrayList allowedEstimateList ) {
+    public EstimateConstraint( Double min, Double max, ArrayList allowedEstimateList ) {
         super(min,max);
         setAllowedEstimateList(allowedEstimateList);
     }
@@ -153,8 +153,8 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
       // get list of class names for allowed estimate values
       ArrayList list = allowedEstimateList.getAllowedStrings();
       for(int i=0;i<list.size();++i) {
-        String classname = (String)list.get(i);
-        if(estimate.getClass().getName().equalsIgnoreCase(classname)) {
+        String name = (String)list.get(i);
+        if(estimate.getName().equalsIgnoreCase(name)) {
           // if this object is among list of allowed estimates, check min/max value
           double allowedMinValue = this.min.doubleValue();
           double allowedMaxValue = this.max.doubleValue();
@@ -205,7 +205,7 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
 
     /** Creates a copy of this object instance so the original cannot be altered. */
     public Object clone() {
-        DoubleEstimateConstraint c1 = new DoubleEstimateConstraint( min, max,
+        EstimateConstraint c1 = new EstimateConstraint( min, max,
             (ArrayList)this.allowedEstimateList.getAllowedStrings().clone());
         c1.setName( name );
         c1.setNullAllowed( nullAllowed );
@@ -214,19 +214,37 @@ public class DoubleEstimateConstraint extends DoubleConstraint {
     }
 
     /**
-     * create  constraint so that only postive values are allowed. This function
-     * will automatically exclude normal
+     * create  constraint so that only postive double values are allowed.
+     * This function will automatically exclude normal
      *
      * @return
      */
-    public static DoubleEstimateConstraint createConstraintForPositiveAllowedValues() {
+    public static EstimateConstraint createConstraintForPositiveDoubleValues() {
       // negative values are not allowed. so, normal is not allowed
-      DoubleEstimateConstraint constraint = new DoubleEstimateConstraint(0, Double.MAX_VALUE);
+      EstimateConstraint constraint = new EstimateConstraint(0, Double.MAX_VALUE);
       ArrayList allowedEstimateTypes = new ArrayList();
-      allowedEstimateTypes.add("org.opensha.data.estimate.DiscreteValueEstimate");
-      allowedEstimateTypes.add("org.opensha.data.estimate.FractileListEstimate");
-      allowedEstimateTypes.add("org.opensha.data.estimate.LogNormalEstimate");
-      allowedEstimateTypes.add("org.opensha.data.estimate.PDF_Estimate");
+      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
+      allowedEstimateTypes.add(FractileListEstimate.NAME);
+      allowedEstimateTypes.add(LogNormalEstimate.NAME);
+      allowedEstimateTypes.add(PDF_Estimate.NAME);
       return constraint;
     }
+
+    /**
+   * create  constraint so that only postive double values are allowed.
+   * This function will automatically exclude normal
+   *
+   * @return
+   */
+  public static EstimateConstraint createConstraintForPositiveIntValues() {
+    // negative values are not allowed. so, normal is not allowed
+    EstimateConstraint constraint = new EstimateConstraint(0, Integer.MAX_VALUE);
+    ArrayList allowedEstimateTypes = new ArrayList();
+    allowedEstimateTypes.add(IntegerEstimate.NAME);
+    return constraint;
+  }
+
+
+
+
 }

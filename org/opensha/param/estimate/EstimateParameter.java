@@ -3,6 +3,7 @@ package org.opensha.param.estimate;
 import org.opensha.param.*;
 import org.opensha.exceptions.*;
 import org.opensha.data.estimate.Estimate;
+import java.util.ArrayList;
 
 
 
@@ -65,24 +66,12 @@ public class EstimateParameter extends DependentParameter
     * @exception  ConstraintException  thrown if the value is not allowed
     * @throws  ConstraintException     Is thrown if the value is not allowed
     */
-   public EstimateParameter( String name, DoubleEstimateConstraint constraint,
+   public EstimateParameter( String name, EstimateConstraint constraint,
                              String units, Estimate value ) throws ConstraintException {
        super( name, null, units, value );
    }
 
-   /**
-   *  Sets the name, units and value.
-   *
-   * @param  name                     Name of the parametet
-   * @param  value                    Integer value of this parameter
-   * @param  units                    Units of this parameter
-   * @exception  ConstraintException  thrown if the value is not allowed
-   * @throws  ConstraintException     Is thrown if the value is not allowed
-   */
-  public EstimateParameter( String name, IntegerEstimateConstraint constraint,
-                            String units, Estimate value ) throws ConstraintException {
-      super( name, null, units, value );
-  }
+
 
 
    /**
@@ -98,6 +87,44 @@ public class EstimateParameter extends DependentParameter
    public EstimateParameter( String name, String units, Estimate value ) throws ConstraintException {
        super( name, null, units, value );
    }
+
+   /**
+    * Constructor with min/max specified. All types of Estimates classes
+    * are allowed
+    * Also Sets the name of this parameter.
+    */
+   public EstimateParameter(String name, double min, double max) {
+     this(name, min, max, null);
+   }
+
+   /**
+    * Constructor with min/max specified.
+    * It also accepts an arraylist of String which are classnames of allowed
+    * estimate types
+    * Also Sets the name of this parameter.
+    */
+   public EstimateParameter(String name, double min, double max,
+                            ArrayList allowedEstimateTypes) {
+     super(name, new EstimateConstraint(min, max, allowedEstimateTypes), null, null);
+   }
+
+   /**
+    * Constructor with min/max specified.
+    * Sets the name and units of this parameter.
+    */
+   public EstimateParameter(String name, String units, double min, double max) throws
+       ConstraintException {
+     this(name, units, min, max, null);
+   }
+
+/**
+ * Constructor with min/max and list of allowed Estimate types specified
+ * Sets the name and units of this parameter.
+ */
+public EstimateParameter( String name, String units, double min, double max, ArrayList allowedEstimateTypes) throws ConstraintException {
+    super(name, new EstimateConstraint(min,max,allowedEstimateTypes), null, null);
+}
+
 
 
   /**
@@ -139,6 +166,8 @@ public class EstimateParameter extends DependentParameter
     throw new java.lang.UnsupportedOperationException(
         "Method clone() not yet implemented.");
   }
+
+
 
 
 }

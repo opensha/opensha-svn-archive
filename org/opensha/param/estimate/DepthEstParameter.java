@@ -11,7 +11,7 @@ import org.opensha.data.estimate.*;
  * @version 1.0
  */
 
-public class DepthEstParameter extends DoubleEstimateParameter {
+public class DepthEstParameter extends EstimateParameter {
 
    /** Class name for debugging. */
    protected final static String C = "DepthEstParameter";
@@ -24,7 +24,7 @@ public class DepthEstParameter extends DoubleEstimateParameter {
      super(name, 0, Double.MAX_VALUE);
      setUnits("km");
      // negative values are not allowed. so, normal and lognormal are not allowed
-     setConstraint(DoubleEstimateConstraint.createConstraintForPositiveAllowedValues());
+     setConstraint(EstimateConstraint.createConstraintForPositiveDoubleValues());
      setValue(value);
    }
 

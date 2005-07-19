@@ -17,7 +17,7 @@ import org.opensha.calc.GaussianDistCalc;
  */
 
 public class NormalEstimate extends Estimate {
-
+  public final static String NAME  =  "Normal";
   private double mean=Double.NaN;
   private double stdDev=Double.NaN;
 
@@ -130,6 +130,11 @@ public class NormalEstimate extends Estimate {
    this.maxX = maxX;
    this.minX = minX;
  }
+
+ public String getName() {
+   return NAME;
+ }
+
 
 
 }

@@ -15,7 +15,7 @@ import org.opensha.calc.GaussianDistCalc;
  */
 
 public class LogNormalEstimate extends Estimate {
-
+  public final static String NAME  =  "Log Normal";
 
   private double linearMedian;
   private double stdDev;
@@ -117,8 +117,9 @@ public class LogNormalEstimate extends Estimate {
    */
  public double getFractile(double prob) {
    double stdRndVar = GaussianDistCalc.getStandRandVar(prob, 0, 0, 1e-6);
-   if(this.isBase10) return Math.log(linearMedian)/Math.log(10) + stdRndVar*stdDev;
-   else return Math.log(linearMedian) + stdRndVar*stdDev;
+   double logMedian = Math.log(linearMedian);
+   if(this.isBase10) return Math.pow(10, logMedian/Math.log(10) + stdRndVar*stdDev);
+   else return Math.exp( logMedian + stdRndVar*stdDev);
  }
 
 
@@ -131,5 +132,10 @@ public class LogNormalEstimate extends Estimate {
   public double getMedian() {
     return 0.0;
   }
+
+  public String getName() {
+   return NAME;
+ }
+
 
 }
