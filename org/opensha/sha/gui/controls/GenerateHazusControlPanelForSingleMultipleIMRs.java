@@ -106,7 +106,7 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
                              "\"Average-Horizontal\" component, and note that PGV "+
                              "is in units of inches/sec in these files (as assumed by Hazus)." +
                              "  Note also that the following Map Attributes are temporarliy set for the calculation:"+
-                             " \"Plot Log\" is deselected); \"Color Scale Limits\" is \"Manually\"; and "+
+                             " \"Plot Log\" is deselected); \"Color Scale Limits\" is \"From Data\"; and "+
                              "\"Generate Hazus Shape Files\" is selected.");
     infoPanel.setPreferredSize(new Dimension(812, 24));
     infoPanel.setEditable(false);

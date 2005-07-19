@@ -68,6 +68,8 @@ public class VC_Analysis {
                          segSlipInfoList.size());
     }
 
+    writeSegmentStats();
+/*
     makeSeparateEventsList();
 
     eventMags = new double[eventYears.size()];
@@ -88,7 +90,7 @@ public class VC_Analysis {
       ex1.printStackTrace();
       System.exit(0);
     }
-
+*/
 
 /*
 
@@ -125,9 +127,24 @@ public class VC_Analysis {
       System.exit(0);
     }
 */
-
-
   }
+
+  /**
+   * This writes out the normalized recurrence intervals and the average recurrence interval
+   * for each segment
+   */
+  private void writeSegmentStats() {
+    SegmentSlipTimeInfo segInfo;
+//    for(int j=0;j<1;j++) { // loop over segments
+    int numSegs = segSlipInfoList.size();
+    for(int j=0;j<numSegs;j++) { // loop over segments
+      segInfo = (SegmentSlipTimeInfo) segSlipInfoList.get(j);
+      System.out.println(j+"\t"+segInfo.getSlipHistories().size()+"\t"+
+                         segInfo.getRecurrenceIntervals().size()+"\t"+segInfo.getAveRecurrenceInterval());
+
+    }
+  }
+
 
 
   private void getEventStats() {

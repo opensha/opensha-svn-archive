@@ -78,6 +78,46 @@ public class SegmentSlipTimeInfo {
 
 
   /**
+   * Return a list of recurrence intervals
+   * @return ArrayList
+   */
+  public ArrayList getRecurrenceIntervals(){
+    Set timeHistSet = slipTimeHistoriesMap.keySet();
+    Iterator it = timeHistSet.iterator();
+    ArrayList intervalList = new ArrayList();
+    Integer nextYear, interval;
+    Integer lastYear= (Integer)it.next();
+    while(it.hasNext()) {
+      nextYear = (Integer)it.next();
+      interval = new Integer(nextYear.intValue()-lastYear.intValue());
+      intervalList.add(interval);
+      lastYear = nextYear;
+    }
+    return intervalList;
+  }
+
+
+  /**
+   * Return the average recurrence interval
+   * @return ArrayList
+   */
+  public double getAveRecurrenceInterval(){
+    Set timeHistSet = slipTimeHistoriesMap.keySet();
+    Iterator it = timeHistSet.iterator();
+    double ave=0, num=0;
+    Integer nextYear;
+    Integer lastYear= (Integer)it.next();
+    while(it.hasNext()) {
+      nextYear = (Integer)it.next();
+      ave += nextYear.doubleValue()-lastYear.doubleValue();
+      lastYear = nextYear;
+      num+=1.0;
+    }
+    return ave/num;
+  }
+
+
+  /**
    * Return Slip histories occured during the given time pds on the segment.
    * @return ArrayList
    */
