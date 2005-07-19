@@ -79,7 +79,15 @@ public class VC_RandomizedAnalysis {
     aveLastEvTime1 = new double[eventYears.size()];
     aveLastEvTime2 = new double[eventYears.size()];
 
+    try {
+      writeSegmentStats();
+    }
+    catch (IOException ex1) {
+      ex1.printStackTrace();
+      System.exit(0);
+    }
 
+/*
     getEventStats();
 
     try {
@@ -89,7 +97,7 @@ public class VC_RandomizedAnalysis {
       ex1.printStackTrace();
       System.exit(0);
     }
-
+*/
 /*
 
         // test
@@ -126,6 +134,37 @@ public class VC_RandomizedAnalysis {
     }
 */
   }
+
+
+
+  /**
+   * This writes out the normalized recurrence intervals and the average recurrence interval
+   * for each segment
+   */
+  private void writeSegmentStats() throws IOException {
+    FileWriter fw = new FileWriter("javaDevelopers/ned/RundleVC_data/VC_segRandRecurIntervals.txt");
+    SegmentSlipTimeInfo segInfo;
+    ArrayList intervals;
+    double aveRecur, normInt;
+    int segNum;
+//    for(int j=0;j<1;j++) { // loop over segments
+    int numSegs = segSlipInfoList.size();
+    fw.write("segNumForInterval\tSegNormInterval\taveSegInterval\n");
+    for(int j=0;j<numSegs;j++) { // loop over segments
+      segInfo = (SegmentSlipTimeInfo) segSlipInfoList.get(j);
+      aveRecur = segInfo.getAveRecurrenceIntervalRand();
+      segNum = segInfo.getSegmentNumber();
+      intervals = segInfo.getRecurrenceIntervalsRand();
+      if (!(segNum >= 264 && segNum <= 273)) // exclude creaping sections
+        for (int i = 0; i < intervals.size(); i++) {
+          normInt = ( (Double) intervals.get(i)).doubleValue() / aveRecur;
+          fw.write(segNum + "\t" + normInt + "\t" + aveRecur + "\n");
+        }
+    }
+    fw.close();
+  }
+
+
 
 
   private void getEventStats() {

@@ -68,7 +68,13 @@ public class VC_Analysis {
                          segSlipInfoList.size());
     }
 
-    writeSegmentStats();
+    try {
+      writeSegmentStats();
+    }
+    catch (IOException ex1) {
+      ex1.printStackTrace();
+      System.exit(0);
+    }
 /*
     makeSeparateEventsList();
 
@@ -133,17 +139,30 @@ public class VC_Analysis {
    * This writes out the normalized recurrence intervals and the average recurrence interval
    * for each segment
    */
-  private void writeSegmentStats() {
+  private void writeSegmentStats() throws IOException {
+    FileWriter fw = new FileWriter("javaDevelopers/ned/RundleVC_data/VC_segRecurIntervals.txt");
     SegmentSlipTimeInfo segInfo;
+    ArrayList intervals;
+    double aveRecur, normInt;
+    int segNum;
 //    for(int j=0;j<1;j++) { // loop over segments
     int numSegs = segSlipInfoList.size();
+    fw.write("segNumForInterval\tSegNormInterval\taveSegInterval\n");
     for(int j=0;j<numSegs;j++) { // loop over segments
       segInfo = (SegmentSlipTimeInfo) segSlipInfoList.get(j);
-      System.out.println(j+"\t"+segInfo.getSlipHistories().size()+"\t"+
-                         segInfo.getRecurrenceIntervals().size()+"\t"+segInfo.getAveRecurrenceInterval());
-
+      aveRecur = segInfo.getAveRecurrenceInterval();
+      segNum = segInfo.getSegmentNumber();
+      intervals = segInfo.getRecurrenceIntervals();
+      if (!(segNum >= 264 && segNum <= 273)) // exclude creaping sections
+        for (int i = 0; i < intervals.size(); i++) {
+          normInt = ( (Integer) intervals.get(i)).doubleValue() / aveRecur;
+          fw.write(segNum + "\t" + normInt + "\t" + aveRecur + "\n");
+        }
     }
+    fw.close();
   }
+
+
 
 
 
