@@ -1,4 +1,5 @@
 package org.opensha.data.estimate;
+import org.opensha.calc.GaussianDistCalc;
 
 /**
  * <p>Title: LogNormalEstimate.java  </p>
@@ -40,17 +41,6 @@ public class LogNormalEstimate extends Estimate {
   }
 
 
-  /**
-   * Override parent method so that only 0.0 and Inifinity allowed
-   *
-   * @param minX double
-   * @param maxX double
-   */
-  public void setMinMaxX(double minX, double maxX) {
-    if(minX != 0.0 && maxX != Double.POSITIVE_INFINITY)
-      throw new InvalidParamValException(MSG_INVALID_MINMAX);
-    // no need to set anything
-  }
 
   /**
    * Set the linear median . Median should be > 0 else InvalidParamValException
@@ -120,10 +110,17 @@ public class LogNormalEstimate extends Estimate {
         "Method getMean() not yet implemented.");
   }
 
-  public double getFractile(double prob) {
-    throw new java.lang.UnsupportedOperationException(
-        "Method getFractile() not yet implemented.");
-  }
+  /**
+   * NED NEEDS TO CHECK THIS TO MAKE SURE THIS IS IMPLEMENTED CORRECTLY
+   *
+   * @param prob - probability value
+   */
+ public double getFractile(double prob) {
+   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, 0, 0, 1e-6);
+   if(this.isBase10) return Math.log(linearMedian)/Math.log(10) + stdRndVar*stdDev;
+   else return Math.log(linearMedian) + stdRndVar*stdDev;
+ }
+
 
 
   public double getMode() {

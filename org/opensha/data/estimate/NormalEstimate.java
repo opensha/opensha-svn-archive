@@ -1,4 +1,5 @@
 package org.opensha.data.estimate;
+import org.opensha.calc.GaussianDistCalc;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
@@ -109,13 +110,13 @@ public class NormalEstimate extends Estimate {
 
 
   /**
-   * This method remains to be implemented
+   * NED NEEDS TO CHECK THIS TO MAKE SURE THIS IS IMPLEMENTED CORRECTLY
    *
    * @param prob - probability value
-   * @todo implement this
    */
  public double getFractile(double prob) {
-   throw new java.lang.UnsupportedOperationException("Not yet implemented.");
+   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, 0, 0, 1e-6);
+   return getMean() + stdRndVar*getStdDev();
  }
 
  /**
