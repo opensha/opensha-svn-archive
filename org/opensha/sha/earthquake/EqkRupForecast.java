@@ -13,6 +13,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.event.TimeSpanChangeListener;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
 
 /**
  * <p>Title: </p>
@@ -35,17 +36,16 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   // if it is true it means that forecast needs to be updated
   protected boolean parameterChangeFlag = true;
 
-
   /**
    * get the adjustable parameters for this forecast
    *
    * @return
    */
-   public ListIterator getAdjustableParamsIterator() {
-     return adjustableParams.getParametersIterator();
-   }
+  public ListIterator getAdjustableParamsIterator() {
+    return adjustableParams.getParametersIterator();
+  }
 
-   /**
+  /**
    * This function finds whether a particular location lies in applicable
    * region of the forecast
    *
@@ -56,68 +56,66 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
     return true;
   }
 
-
   /**
    * Get the region for which this forecast is applicable
    * @return : Geographic region object specifying the applicable region of forecast
    */
-   public GeographicRegion getApplicableRegion() {
-     return null;
-   }
+  public GeographicRegion getApplicableRegion() {
+    return null;
+  }
 
-   /**
-    * This function returns the parameter with specified name from adjustable param list
-    * @param paramName : Name of the parameter needed from adjustable param list
-    * @return : ParamterAPI instance
-    */
-   public ParameterAPI getParameter(String paramName) {
-     return adjustableParams.getParameter(paramName);
-   }
+  /**
+   * This function returns the parameter with specified name from adjustable param list
+   * @param paramName : Name of the parameter needed from adjustable param list
+   * @return : ParamterAPI instance
+   */
+  public ParameterAPI getParameter(String paramName) {
+    return adjustableParams.getParameter(paramName);
+  }
 
-   /**
-    * set the TimeSpan in the ERF
-    * @param timeSpan : TimeSpan object
-    */
-   public void setTimeSpan(TimeSpan time) {
-     // set the start time
-     if(!time.getStartTimePrecision().equalsIgnoreCase(TimeSpan.NONE))
-       this.timeSpan.setStartTime( time.getStartTimeCalendar());
-     //set the duration as well
-     this.timeSpan.setDuration(time.getDuration(), time.getDurationUnits());
-   }
+  /**
+   * set the TimeSpan in the ERF
+   * @param timeSpan : TimeSpan object
+   */
+  public void setTimeSpan(TimeSpan time) {
+    // set the start time
+    if (!time.getStartTimePrecision().equalsIgnoreCase(TimeSpan.NONE))
+      this.timeSpan.setStartTime(time.getStartTimeCalendar());
+    //set the duration as well
+    this.timeSpan.setDuration(time.getDuration(), time.getDurationUnits());
+  }
 
-   /**
-    * return the time span object
-    *
-    * @return : time span object is returned which contains start time and duration
-    */
-   public TimeSpan getTimeSpan() {
-     return this.timeSpan;
-   }
+  /**
+   * return the time span object
+   *
+   * @return : time span object is returned which contains start time and duration
+   */
+  public TimeSpan getTimeSpan() {
+    return this.timeSpan;
+  }
 
-   /**
-    *  Function that must be implemented by all Timespan Listeners for
-    *  ParameterChangeEvents.
-    *
-    * @param  event  The Event which triggered this function call
-    */
-   public void parameterChange( EventObject event ) {
-     this.parameterChangeFlag = true;
-   }
+  /**
+   *  Function that must be implemented by all Timespan Listeners for
+   *  ParameterChangeEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void parameterChange(EventObject event) {
+    this.parameterChangeFlag = true;
+  }
 
-   /**
-    *  This is the main function of this interface. Any time a control
-    *  paramater or independent paramater is changed by the user in a GUI this
-    *  function is called, and a paramater change event is passed in.
-    *
-    *  This sets the flag to indicate that the sources need to be updated
-    *
-    * @param  event
-    */
-   public void parameterChange( ParameterChangeEvent event ) {
-     parameterChangeFlag=true;
-   }
-
+  /**
+   *  This is the main function of this interface. Any time a control
+   *  paramater or independent paramater is changed by the user in a GUI this
+   *  function is called, and a paramater change event is passed in.
+   *
+   *  This sets the flag to indicate that the sources need to be updated
+   *
+   * @param  event
+   */
+  public void parameterChange(ParameterChangeEvent event) {
+    parameterChangeFlag = true;
+  }
 
   /**
    * Get the number of earthquake sources
@@ -125,7 +123,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @return integer value spcifying the number of earthquake sources
    */
   public abstract int getNumSources();
-
 
   /**
    * Return the earhthquake source at index i. This methos returns the reference to
@@ -138,8 +135,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @return Returns the ProbEqkSource at index i
    *
    */
-  public abstract ProbEqkSource getSource(int iSource) ;
-
+  public abstract ProbEqkSource getSource(int iSource);
 
   /**
    * Get the list of all earthquake sources. Clone is returned.
@@ -147,58 +143,57 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    *
    * @return ArrayList of Prob Earthquake sources
    */
-  public abstract ArrayList  getSourceList();
-
+  public abstract ArrayList getSourceList();
 
   /**
-  * Get number of ruptures for source at index iSource
-  * This method iterates through the list of 3 vectors for charA , charB and grB
-  * to find the the element in the vector to which the source corresponds
-  * @param iSource index of source whose ruptures need to be found
-  */
- public int getNumRuptures(int iSource){
-   return getSource(iSource).getNumRuptures();
- }
+   * Get number of ruptures for source at index iSource
+   * This method iterates through the list of 3 vectors for charA , charB and grB
+   * to find the the element in the vector to which the source corresponds
+   * @param iSource index of source whose ruptures need to be found
+   */
+  public int getNumRuptures(int iSource) {
+    return getSource(iSource).getNumRuptures();
+  }
 
- /**
-  * Get the ith rupture of the source. this method DOES NOT return reference
-  * to the object. So, when you call this method again, result from previous
-  * method call is valid. This behavior is in contrast with
-  * getRupture(int source, int i) method
-  *
-  * @param source
-  * @param i
-  * @return
-  */
- public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
-   return getSource(iSource).getRuptureClone(nRupture);
- }
+  /**
+   * Get the ith rupture of the source. this method DOES NOT return reference
+   * to the object. So, when you call this method again, result from previous
+   * method call is valid. This behavior is in contrast with
+   * getRupture(int source, int i) method
+   *
+   * @param source
+   * @param i
+   * @return
+   */
+  public ProbEqkRupture getRuptureClone(int iSource, int nRupture) {
+    return getSource(iSource).getRuptureClone(nRupture);
+  }
 
- /**
-  * Get the ith rupture of the source. this method DOES NOT return reference
-  * to the object. So, when you call this method again, result from previous
-  * method call is valid. This behavior is in contrast with
-  * getRupture(int source, int i) method
-  *
-  * @param source
-  * @param i
-  * @return
-  */
- public ProbEqkRupture getRupture(int iSource, int nRupture) {
-   return getSource(iSource).getRupture(nRupture);
- }
+  /**
+   * Get the ith rupture of the source. this method DOES NOT return reference
+   * to the object. So, when you call this method again, result from previous
+   * method call is valid. This behavior is in contrast with
+   * getRupture(int source, int i) method
+   *
+   * @param source
+   * @param i
+   * @return
+   */
+  public ProbEqkRupture getRupture(int iSource, int nRupture) {
+    return getSource(iSource).getRupture(nRupture);
+  }
 
- /**
-  * Return  iterator over all the earthquake sources
-  *
-  * @return Iterator over all earhtquake sources
-  */
- public Iterator getSourcesIterator() {
-   Iterator i = getSourceList().iterator();
-   return i;
- }
+  /**
+   * Return  iterator over all the earthquake sources
+   *
+   * @return Iterator over all earhtquake sources
+   */
+  public Iterator getSourcesIterator() {
+    Iterator i = getSourceList().iterator();
+    return i;
+  }
 
- /**
+  /**
    * Return the earthquake source at index i. This methos DOES NOT return the
    * reference to the class variable. So, when you call this method again,
    * result from previous method call is still valid. This behavior is in contrast
@@ -213,34 +208,85 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public ProbEqkSource getSourceClone(int iSource) {
     return null;
-   }
+  }
+
+  /**
+   *
+   * @returns the adjustable ParameterList for the ERF
+   */
+  public ParameterList getAdjustableParameterList() {
+    return this.adjustableParams;
+  }
+
+  /**
+   * sets the value for the parameter change flag
+   * @param flag
+   */
+  public void setParameterChangeFlag(boolean flag) {
+    this.parameterChangeFlag = flag;
+  }
+
+  /**
+   * Update the forecast and save it in serialized mode into a file
+   * @return
+   */
+  public String updateAndSaveForecast() {
+    throw new UnsupportedOperationException(
+        "updateAndSaveForecast() not supported");
+  }
 
 
+  /**
+   * This function returns the total Rate above a given magnitude ,
+   * for the given geographic region.
+   * Calcuated Rates depend on the ERF model instantiated by the user.
+   * @param magnitude double  : Amgnitude above which rate needs to be returned
+   *
+   * @param region GeographicRegion : Region whose rates need to be returned
+   * @return double : Total Rate for the region
+   */
+  public double getTotalRateAbove(double magnitude, GeographicRegion region) {
+
+    int numSources = getNumSources();
+
+    double totalRate = 0;
+    //Going over each and every source in the forecast
+    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
+      // get the ith source
+      ProbEqkSource source = this.getSource(sourceIndex);
+      int numRuptures = source.getNumRuptures();
+
+      //going over all the ruptures in the source
+      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
+        ProbEqkRupture rupture = source.getRupture(rupIndex);
+
+        double mag = rupture.getMag();
+        //if rupture magnitude is less then given magnitude then skip those ruptures
+        if (mag < magnitude)
+          continue;
+
+        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        long numPts = rupSurface.size();
+
+        //getting the rate at each Point on the rupture( calculated by first
+        //getting the rate of the rupture and then dividing by number of points
+        //on that rupture.
+        double ptRate = ( -Math.log(1 - rupture.getProbability()) /
+                         getTimeSpan().getDuration()) / numPts;
+
+        //getting the iterator for all points on the rupture
+        ListIterator it = rupSurface.getAllByRowsIterator();
+
+        while (it.hasNext()) {
+          Location ptLoc = (Location) it.next();
+          if (!region.isLocationInside(ptLoc))
+            continue;
+          totalRate +=ptRate;
+        }
+      }
+    }
+    return totalRate;
+  }
 
 
-   /**
-    *
-    * @returns the adjustable ParameterList for the ERF
-    */
-   public ParameterList getAdjustableParameterList(){
-     return this.adjustableParams;
-   }
-
-
-   /**
-    * sets the value for the parameter change flag
-    * @param flag
-    */
-   public void setParameterChangeFlag(boolean flag){
-     this.parameterChangeFlag = flag;
-   }
-
-
-   /**
-    * Update the forecast and save it in serialized mode into a file
-    * @return
-    */
-   public String updateAndSaveForecast() {
-     throw new UnsupportedOperationException("updateAndSaveForecast() not supported");
-   }
 }

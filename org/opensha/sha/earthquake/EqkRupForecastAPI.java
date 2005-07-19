@@ -4,6 +4,7 @@ package org.opensha.sha.earthquake;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.ListIterator;
+import org.opensha.data.region.GeographicRegion;
 
 /**
  * <b>Title:</b> EqkRupForecast<br>
@@ -58,7 +59,16 @@ public interface EqkRupForecastAPI extends ERF_API{
       * @returns the ProbEqkRupture object for the ithSource and nth rupture
       */
      public ProbEqkRupture getRupture(int iSource,int nRupture);
-
+     /**
+      * This function returns the total Rate above a given magnitude ,
+      * for the given geographic region.
+      * Calcuated Rates depend on the ERF model instantiated by the user.
+      * @param magnitude double  : Amgnitude above which rate needs to be returned
+      *
+      * @param region GeographicRegion : Region whose rates need to be returned
+      * @return double : Total Rate for the region
+      */
+  public double getTotalRateAbove(double magnitude, GeographicRegion region);
 
 }
 

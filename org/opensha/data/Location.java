@@ -186,6 +186,7 @@ public class Location implements java.io.Serializable {
 
       //b.append("latitude = ");
         b.append(latlonFormat.format(latitude)+","+latlonFormat.format(longitude)+","+latlonFormat.format(depth));
+        //b.append(latitude+","+longitude+","+depth);
       //b.append('\n');
 
       /*
@@ -235,6 +236,17 @@ public class Location implements java.io.Serializable {
     public boolean equals(Object obj){
         if(obj instanceof Location) return equalsLocation( (Location)obj );
         else return false;
+    }
+
+
+    /**
+     * This method has been implemented to override the Object's implementation
+     * of hashcode. So 2 location objects are equal only if equals() method return
+     * true and int value returned from hashcode method are equal.
+     * @return int
+     */
+    public int hashCode() {
+      return (int)(latitude+longitude+depth);
     }
 
 }
