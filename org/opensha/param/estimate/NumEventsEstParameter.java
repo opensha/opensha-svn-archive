@@ -22,8 +22,7 @@ public class NumEventsEstParameter extends EstimateParameter {
    }
 
     public NumEventsEstParameter( String name, IntegerEstimate value) {
-        super(name, "", 0, Integer.MAX_VALUE);
-        setConstraint(EstimateConstraint.createConstraintForPositiveIntValues());
+        super(name, "", 0, Integer.MAX_VALUE, EstimateConstraint.createConstraintForPositiveIntValues());
         setValue(value);
    }
 }

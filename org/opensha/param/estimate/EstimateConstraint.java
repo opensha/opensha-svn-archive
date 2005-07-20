@@ -219,29 +219,24 @@ public class EstimateConstraint extends DoubleConstraint {
      *
      * @return
      */
-    public static EstimateConstraint createConstraintForPositiveDoubleValues() {
-      // negative values are not allowed. so, normal is not allowed
-      EstimateConstraint constraint = new EstimateConstraint(0, Double.MAX_VALUE);
+    public static ArrayList createConstraintForPositiveDoubleValues() {
       ArrayList allowedEstimateTypes = new ArrayList();
       allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
       allowedEstimateTypes.add(FractileListEstimate.NAME);
       allowedEstimateTypes.add(LogNormalEstimate.NAME);
       allowedEstimateTypes.add(PDF_Estimate.NAME);
-      return constraint;
+      return allowedEstimateTypes;
     }
 
     /**
-   * create  constraint so that only postive double values are allowed.
-   * This function will automatically exclude normal
+   * create  constraint so that only postive int values are allowed.
    *
    * @return
    */
-  public static EstimateConstraint createConstraintForPositiveIntValues() {
-    // negative values are not allowed. so, normal is not allowed
-    EstimateConstraint constraint = new EstimateConstraint(0, Integer.MAX_VALUE);
+  public static ArrayList createConstraintForPositiveIntValues() {
     ArrayList allowedEstimateTypes = new ArrayList();
     allowedEstimateTypes.add(IntegerEstimate.NAME);
-    return constraint;
+    return allowedEstimateTypes;
   }
 
 

@@ -21,10 +21,8 @@ public class DepthEstParameter extends EstimateParameter {
    }
 
    public DepthEstParameter( String name, Estimate value ) {
-     super(name, 0, Double.MAX_VALUE);
+     super(name, 0, Double.MAX_VALUE, EstimateConstraint.createConstraintForPositiveDoubleValues());
      setUnits("km");
-     // negative values are not allowed. so, normal and lognormal are not allowed
-     setConstraint(EstimateConstraint.createConstraintForPositiveDoubleValues());
      setValue(value);
    }
 

@@ -137,5 +137,17 @@ public class LogNormalEstimate extends Estimate {
    return NAME;
  }
 
+ /**
+  * Set the minimum and maximum X-axis value
+  *
+  * @param minX double
+  * @param maxX double
+  */
+ public void setMinMaxX(double minX, double maxX) {
+   if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+   if(minX<0 || maxX<0) throw new InvalidParamValException(MSG_INVALID_MINMAX);
+   this.maxX = maxX;
+   this.minX = minX;
+ }
 
 }
