@@ -114,6 +114,8 @@ public class EstimateParameterEditor  extends ParameterEditor
     this.setLayout(GBL);
     add(this.editor,new GridBagConstraints( 0, 0, 0, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(new JButton("View Estimate"),new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     setEstimateParams((String)chooseEstimateParam.getValue());
     this.refreshParamEditor();
     // All done

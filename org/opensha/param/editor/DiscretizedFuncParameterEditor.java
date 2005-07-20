@@ -10,6 +10,11 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
+import javax.swing.BorderFactory;
+import javax.swing.SwingConstants;
+import java.awt.GridBagConstraints;
+import java.awt.Dimension;
+import java.awt.Insets;
 
 /**
  * <b>Title:</b> IntegerParameterEditor<p>
@@ -30,7 +35,11 @@ public class DiscretizedFuncParameterEditor extends ParameterEditor
     private final static String  ONE_XY_VAL_MSG = "Each line should have just one X and " +
                                           "one Y value, which are space seperated";
      private final static String XY_VALID_MSG = "X and Y Values entered must be valid numbers" ;
-
+     protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 230 );
+     protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
+            0, 0, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 );
+    protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
+            0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
 
     /** No-Arg constructor calls parent constructor */
     public DiscretizedFuncParameterEditor() { super(); }
@@ -61,19 +70,66 @@ public class DiscretizedFuncParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Starting");
 
         valueEditor = new JTextArea();
-        valueEditor.setMinimumSize( LABEL_DIM );
-        valueEditor.setPreferredSize( LABEL_DIM );
+        valueEditor.setMinimumSize( WIGET_PANEL_DIM );
+        valueEditor.setPreferredSize( WIGET_PANEL_DIM );
         valueEditor.setBorder(ETCHED);
         valueEditor.setFont(this.DEFAULT_FONT);
 
         valueEditor.addFocusListener( this );
+        JScrollPane scrollPane = new JScrollPane(valueEditor);
+        scrollPane.setMinimumSize( WIGET_PANEL_DIM );
+        scrollPane.setPreferredSize( WIGET_PANEL_DIM );
 
-        widgetPanel.add(new JScrollPane(valueEditor), ParameterEditor.WIDGET_GBC);
+        widgetPanel.add(scrollPane, ParameterEditor.WIDGET_GBC);
         widgetPanel.setBackground(null);
         widgetPanel.validate();
         widgetPanel.repaint();
         if(D) System.out.println(S + "Ending");
     }
+
+
+    /**
+        * Main GUI Initialization point. This block of code is updated by JBuilder
+        * when using it's GUI Editor.
+        */
+       protected void jbInit() throws Exception {
+
+           // Main component
+           titledBorder1 = new TitledBorder(BorderFactory.createLineBorder(FORE_COLOR,1),"");
+           titledBorder1.setTitleColor(FORE_COLOR);
+           titledBorder1.setTitleFont(DEFAULT_LABEL_FONT);
+           titledBorder1.setTitle("Parameter Name");
+           border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
+           this.setLayout( GBL );
+
+
+           // Outermost panel
+           outerPanel.setLayout( GBL );
+           outerPanel.setBorder(border1);
+
+           // widgetPanel panel init
+           //widgetPanel.setBackground( BACK_COLOR );
+           widgetPanel.setLayout( GBL );
+           widgetPanel.setMinimumSize( WIGET_PANEL_DIM );
+           widgetPanel.setPreferredSize( WIGET_PANEL_DIM );
+
+
+           // nameLabel panel init
+           //nameLabel.setBackground( BACK_COLOR );
+           nameLabel.setMaximumSize( LABEL_DIM );
+           nameLabel.setMinimumSize( LABEL_DIM );
+           nameLabel.setPreferredSize( LABEL_DIM );
+           nameLabel.setHorizontalAlignment( SwingConstants.LEFT );
+           nameLabel.setHorizontalTextPosition( SwingConstants.LEFT );
+           nameLabel.setText( LABEL_TEXT );
+           nameLabel.setFont( DEFAULT_LABEL_FONT );
+           outerPanel.add( widgetPanel, WIDGET_PANEL_GBC );
+
+           this.add( outerPanel, OUTER_PANEL_GBC );
+
+       }
+
+
 
 
 
