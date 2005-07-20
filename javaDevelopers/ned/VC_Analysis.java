@@ -69,13 +69,22 @@ public class VC_Analysis {
     }
 
     try {
+      writeSegNumYearSlip();
+    }
+    catch (IOException ex1) {
+      ex1.printStackTrace();
+      System.exit(0);
+    }
+
+    /*
+    try {
       writeSegmentStats();
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
       System.exit(0);
     }
-/*
+
     makeSeparateEventsList();
 
     eventMags = new double[eventYears.size()];
@@ -135,9 +144,35 @@ public class VC_Analysis {
 */
   }
 
+
+  /**
+   * This writes out the date and amount of slip for each section (so the slips can
+   * be plotted as segment number versus year)
+   */
+  private void writeSegNumYearSlip() throws IOException {
+    FileWriter fw = new FileWriter("javaDevelopers/ned/RundleVC_data/VC_segNumYearSlip.txt");
+    SegmentSlipTimeInfo segInfo;
+    ArrayList years, slips;
+    int segNum;
+    int numSegs = segSlipInfoList.size();
+    fw.write("segNum\tSegYear\tsegSlip\n");
+    for(int j=0;j<numSegs;j++) { // loop over segments
+      segInfo = (SegmentSlipTimeInfo) segSlipInfoList.get(j);
+      years = segInfo.getTimeHistories();
+      slips = segInfo.getSlipHistories();
+      segNum = segInfo.getSegmentNumber();
+      for (int i = 0; i < years.size(); i++) {
+          fw.write(segNum + "\t" + years.get(i) + "\t" + slips.get(i) + "\n");
+      }
+    }
+    fw.close();
+  }
+
+
+
   /**
    * This writes out the normalized recurrence intervals and the average recurrence interval
-   * for each segment
+   * for each segment (excluding creeping section)
    */
   private void writeSegmentStats() throws IOException {
     FileWriter fw = new FileWriter("javaDevelopers/ned/RundleVC_data/VC_segRecurIntervals.txt");
