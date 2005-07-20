@@ -22,6 +22,7 @@ public class DepthEstParameter extends EstimateParameter {
 
    public DepthEstParameter( String name, Estimate value ) {
      super(name, 0, Double.MAX_VALUE, EstimateConstraint.createConstraintForPositiveDoubleValues());
+     this.constraint.setNullAllowed(true);
      setUnits("km");
      setValue(value);
    }

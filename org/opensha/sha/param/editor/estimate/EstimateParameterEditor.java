@@ -17,6 +17,7 @@ import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.estimate.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -53,20 +54,24 @@ public class EstimateParameterEditor  extends ParameterEditor
    public static final String ESTIMATE_TITLE = new String("Estimates");
 
    private StringParameter chooseEstimateParam;
-   private final static String CHOOSE_ESTIMATE = "Choose Estimate";
+   private final static String CHOOSE_ESTIMATE_PARAM_NAME = "Choose Estimate";
 
    /**
-    * Mean parameter for Normal distributioon
+    * Mean parameter for Normal distribution
     */
-   private DoubleParameter meanParam = new DoubleParameter("Mean");
+   private DoubleParameter meanParam;
+   private final static String MEAN_PARAM_NAME="Mean";
    /**
     * Std Dev parameter for normal/lognormal distribution
     */
-   private DoubleParameter stdDevParam = new DoubleParameter("Std Dev");
+   private DoubleParameter stdDevParam;
+   private final static String STD_DEV_PARAM_NAME="Std Dev";
+
    /**
     * Linear Median parameter for lognormal distribution
     */
-   private DoubleParameter linearMedianParam = new DoubleParameter("Linear Median");
+   private DoubleParameter linearMedianParam;
+   private final static String LINEAR_MEDIAN_PARAM_NAME="Linear Median";
 
    /**
     * Log Base param for log normal distribution
@@ -79,23 +84,26 @@ public class EstimateParameterEditor  extends ParameterEditor
    /**
     * Min,max, num for PDF
     */
-   private DoubleParameter minParam = new DoubleParameter("Min");
-   private DoubleParameter maxParam = new DoubleParameter("Max");
-   private DoubleParameter numParam = new DoubleParameter("Num");
-   private JTextArea xyVals = new JTextArea();
+   private DoubleParameter minParam ;
+   private final static String MIN_PARAM_NAME="Min";
+   private DoubleParameter maxParam ;
+   private final static String MAX_PARAM_NAME="Max";
+   private DoubleParameter numParam;
+   private final static String NUM_PARAM_NAME="Num";
+   private DiscretizedFuncParameter xyValsParam;
+   private final static String XY_PARAM_NAME = "XY Values";
 
 
+   public EstimateParameterEditor() {
+   }
 
-  public EstimateParameterEditor() {
-  }
-
-  //constructor taking the Parameter as the input argument
+   //constructor taking the Parameter as the input argument
    public EstimateParameterEditor(ParameterAPI model){
      super(model);
-     setParameter(model);
-  }
+   }
 
   public void setParameter(ParameterAPI param)  {
+
     String S = C + ": Constructor(): ";
     if ( D ) System.out.println( S + "Starting:" );
       // remove the previous editor
@@ -103,16 +111,31 @@ public class EstimateParameterEditor  extends ParameterEditor
     estimateParam = (EstimateParameter) param;
     // make the params editor
     initParamListAndEditor();
+    this.setLayout(GBL);
     add(this.editor,new GridBagConstraints( 0, 0, 0, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(this.xyVals,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    editor = new ParameterListEditor(parameterList);
-    editor.setTitle(ESTIMATE_TITLE);
-
+    setEstimateParams((String)chooseEstimateParam.getValue());
+    this.refreshParamEditor();
     // All done
     if ( D ) System.out.println( S + "Ending:" );
   }
+
+  protected void jbInit() {
+     this.setLayout(GBL);
+  }
+
+  /**
+   * Called when the parameter has changed independently from
+   * the editor, such as with the ParameterWarningListener.
+   * This function needs to be called to to update
+   * the GUI component ( text field, picklist, etc. ) with
+   * the new parameter value.
+   */
+  public void refreshParamEditor() {
+    editor.refreshParamEditor();
+    this.repaint();
+  }
+
 
   /**
    *
@@ -123,28 +146,43 @@ public class EstimateParameterEditor  extends ParameterEditor
     String S = C + ": initControlsParamListAndEditor(): ";
     if ( D ) System.out.println( S + "Starting:" );
 
-      // list of available estimates
-    chooseEstimateParam = new StringParameter(CHOOSE_ESTIMATE,
-                                              ((EstimateConstraint)estimateParam.getConstraint()).getAllowedEstimateList());
 
-    chooseEstimateParam.addParameterChangeListener(this);
-    // log choices for log normal distribution
-    ArrayList logBases = new ArrayList();
-    logBases.add(this.LOG_BASE_10_NAME);
-    logBases.add(this.NATURAL_LOG_NAME);
-    logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases);
+    meanParam = new DoubleParameter(MEAN_PARAM_NAME);
+    stdDevParam = new DoubleParameter(STD_DEV_PARAM_NAME);
+    linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME);
 
-    // put all the parameters in the parameter list
-    parameterList = new ParameterList();
-    parameterList.addParameter(chooseEstimateParam);
-    parameterList.addParameter(this.meanParam);
-    parameterList.addParameter(this.stdDevParam);
-    parameterList.addParameter(this.linearMedianParam);
-    parameterList.addParameter(this.logBaseParam);
-    parameterList.addParameter(this.minParam);
-    parameterList.addParameter(this.maxParam);
-    parameterList.addParameter(this.numParam);
-    this.editor = new ParameterListEditor(parameterList);
+    minParam = new DoubleParameter(MIN_PARAM_NAME);
+    maxParam = new DoubleParameter(MAX_PARAM_NAME);
+    numParam = new DoubleParameter(NUM_PARAM_NAME);
+    xyValsParam = new DiscretizedFuncParameter(XY_PARAM_NAME);
+
+
+   // list of available estimates
+   ArrayList allowedEstimatesList = ((EstimateConstraint)estimateParam.getConstraint()).getAllowedEstimateList();
+   chooseEstimateParam = new StringParameter(CHOOSE_ESTIMATE_PARAM_NAME,
+                                             allowedEstimatesList,
+                                            (String) allowedEstimatesList.get(0));
+
+   chooseEstimateParam.addParameterChangeListener(this);
+   // log choices for log normal distribution
+   ArrayList logBases = new ArrayList();
+   logBases.add(this.LOG_BASE_10_NAME);
+   logBases.add(this.NATURAL_LOG_NAME);
+   logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases);
+
+   // put all the parameters in the parameter list
+   parameterList = new ParameterList();
+   parameterList.addParameter(chooseEstimateParam);
+   parameterList.addParameter(this.meanParam);
+   parameterList.addParameter(this.stdDevParam);
+   parameterList.addParameter(this.linearMedianParam);
+   parameterList.addParameter(this.logBaseParam);
+   parameterList.addParameter(this.minParam);
+   parameterList.addParameter(this.maxParam);
+   parameterList.addParameter(this.numParam);
+   parameterList.addParameter(this.xyValsParam);
+   this.editor = new ParameterListEditor(parameterList);
+   editor.setTitle(ESTIMATE_TITLE);
   }
 
   public void parameterChangeFailed(ParameterChangeFailEvent event) {
@@ -158,8 +196,9 @@ public class EstimateParameterEditor  extends ParameterEditor
    */
   public void parameterChange(ParameterChangeEvent event) {
     // based on user selection of estimates, make the parameters visible/invisible
-    if(event.getParameterName().equalsIgnoreCase(CHOOSE_ESTIMATE))
+    if(event.getParameterName().equalsIgnoreCase(CHOOSE_ESTIMATE_PARAM_NAME))
       setEstimateParams((String)chooseEstimateParam.getValue());
+    this.refreshParamEditor();
   }
 
   // make the params visible/invisible based on selected estimate type
@@ -180,63 +219,68 @@ public class EstimateParameterEditor  extends ParameterEditor
    * Set the params visible for normal estimate
    */
   private void setParamsForNormalEstimate() {
-   editor.setParameterVisible(chooseEstimateParam.getName(), true);
-   editor.setParameterVisible(meanParam.getName(), true);
-   editor.setParameterVisible(stdDevParam.getName(), true);
-   editor.setParameterVisible(linearMedianParam.getName(), false);
-   editor.setParameterVisible(logBaseParam.getName(), false);
-   editor.setParameterVisible(minParam.getName(), false);
-   editor.setParameterVisible(maxParam.getName(), false);
-   editor.setParameterVisible(numParam.getName(), false);
-   this.xyVals.setVisible(false);
+   editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
+   editor.setParameterVisible(MEAN_PARAM_NAME, true);
+   editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
+   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+   editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+   editor.setParameterVisible(MIN_PARAM_NAME, false);
+   editor.setParameterVisible(MAX_PARAM_NAME, false);
+   editor.setParameterVisible(NUM_PARAM_NAME, false);
+   editor.setParameterVisible(XY_PARAM_NAME, false);
   }
 
   /**
    * Set the params visible for lognormal estimate
    */
   private void setParamsForLogNormalEstimate() {
-    editor.setParameterVisible(chooseEstimateParam.getName(), true);
-    editor.setParameterVisible(meanParam.getName(), false);
-    editor.setParameterVisible(stdDevParam.getName(), true);
-    editor.setParameterVisible(linearMedianParam.getName(), true);
-    editor.setParameterVisible(logBaseParam.getName(), false);
-    editor.setParameterVisible(minParam.getName(), false);
-    editor.setParameterVisible(maxParam.getName(), false);
-    editor.setParameterVisible(numParam.getName(), false);
-    this.xyVals.setVisible(false);
+    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
+    editor.setParameterVisible(MEAN_PARAM_NAME, false);
+    editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
+    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, true);
+    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+    editor.setParameterVisible(MIN_PARAM_NAME, false);
+    editor.setParameterVisible(MAX_PARAM_NAME, false);
+    editor.setParameterVisible(NUM_PARAM_NAME, false);
+    editor.setParameterVisible(XY_PARAM_NAME, false);
+
   }
 
   /**
   * Set the params visible for PDF  estimate
   */
  private void setParamsForPDF_Estimate() {
-   editor.setParameterVisible(chooseEstimateParam.getName(), true);
-   editor.setParameterVisible(meanParam.getName(), false);
-   editor.setParameterVisible(stdDevParam.getName(), false);
-   editor.setParameterVisible(linearMedianParam.getName(), false);
-   editor.setParameterVisible(logBaseParam.getName(), false);
-   editor.setParameterVisible(minParam.getName(), true);
-   editor.setParameterVisible(maxParam.getName(), true);
-   editor.setParameterVisible(numParam.getName(), true);
-   this.xyVals.setVisible(true);
+   editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
+   editor.setParameterVisible(MEAN_PARAM_NAME, false);
+   editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
+   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+   editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+   editor.setParameterVisible(MIN_PARAM_NAME, true);
+   editor.setParameterVisible(MAX_PARAM_NAME, true);
+   editor.setParameterVisible(NUM_PARAM_NAME, true);
+   editor.setParameterVisible(XY_PARAM_NAME, true);
  }
 
  /**
   * Set the params visible for FractileList, DiscreteValue and Integer  estimate
   */
  private void setParamsForXY_Estimate() {
-   editor.setParameterVisible(chooseEstimateParam.getName(), true);
-   editor.setParameterVisible(meanParam.getName(), false);
-   editor.setParameterVisible(stdDevParam.getName(), false);
-   editor.setParameterVisible(linearMedianParam.getName(), false);
-   editor.setParameterVisible(logBaseParam.getName(), false);
-   editor.setParameterVisible(minParam.getName(), false);
-   editor.setParameterVisible(maxParam.getName(), false);
-   editor.setParameterVisible(numParam.getName(), false);
-   this.xyVals.setVisible(true);
+   editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
+   editor.setParameterVisible(MEAN_PARAM_NAME, false);
+   editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
+   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+   editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+   editor.setParameterVisible(MIN_PARAM_NAME, false);
+   editor.setParameterVisible(MAX_PARAM_NAME, false);
+   editor.setParameterVisible(NUM_PARAM_NAME, false);
+   editor.setParameterVisible(XY_PARAM_NAME, true);
  }
 
 
+ /**
+  * test the parameter editor
+  * @param args
+  */
   public static void main(String args[]) {
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
