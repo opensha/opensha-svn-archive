@@ -63,13 +63,15 @@ public class ERF2GriddedSeisRatesCalc {
    * @return HashMap with ruptures location being the keys and Mag-Rate distribution
    * being the values.
    */
-  public HashMap getRatesAbove(double mag, EqkRupForecastAPI eqkRupForecast,
+  public HashMap getMagRateDistForEachLocationInRegion(double mag, EqkRupForecastAPI eqkRupForecast,
                                EvenlyGriddedGeographicRegionAPI region) {
     magnitude = mag;
 
     this.eqkRupForecast = eqkRupForecast;
     this.region = region;
     gridSpacing = region.getGridSpacing();
+    //Initializing the Region Mag-Rate List with empty Empirical DistFunc.
+    regionMagRatesEmpDistList = new HashMap();
     //computing the rates for magnitudes for each location on rupture in the ERF.
     calcSeisRatesForGriddedRegion();
 
@@ -94,22 +96,45 @@ public class ERF2GriddedSeisRatesCalc {
       else {
         ArbitrarilyDiscretizedFunc func = empDist.getCumDist();
 
-        double maxRate = func.getY(func.getNum() - 1);
-        /*int numFuncs = func.getNum();
-         ArbitrarilyDiscretizedFunc magRateFunction = new ArbitrarilyDiscretizedFunc();
-                 int magIndex = 0;
-                 for(int j=magIndex;j<numFuncs;++j,++magIndex){
-          double rates = func.getY(func.getNum()-1) - func.getY(magIndex) ;
-          magRateFunction.set(func.getX(magIndex),rates);*/
-        //}
-
-        //map.put(region.getGridLocation(i),magRateFunction);
-        map.put(loc, new Double(maxRate));
+        int numFuncs = func.getNum();
+        ArbitrarilyDiscretizedFunc magRateFunction = new
+            ArbitrarilyDiscretizedFunc();
+        int magIndex = 0;
+        for (int j = magIndex; j < numFuncs; ++j, ++magIndex) {
+          double rates = func.getY(func.getNum() - 1) - func.getY(magIndex);
+          magRateFunction.set(func.getX(magIndex), rates);
+        }
+        map.put(loc,magRateFunction);
       }
     }
-
     return map;
   }
+
+
+  /**
+   *
+   * @param mag double
+   * @param eqkRupForecast EqkRupForecastAPI
+   * @param region EvenlyGriddedGeographicRegionAPI
+   * @return HashMap
+   */
+  public HashMap getTotalSeisRateAtEachLocationInRegion(double mag, EqkRupForecastAPI eqkRupForecast,
+                              EvenlyGriddedGeographicRegionAPI region) {
+   magnitude = mag;
+
+   this.eqkRupForecast = eqkRupForecast;
+   this.region = region;
+   gridSpacing = region.getGridSpacing();
+   //Initializing the Region Mag-Rate List with empty Empirical DistFunc.
+    regionMagRatesEmpDistList = new HashMap();
+   //computing the rates for magnitudes for each location on rupture in the ERF.
+   calcTotalSeisRatesForGriddedRegion();
+
+
+   return this.regionMagRatesEmpDistList;
+ }
+
+
 
   /**
    * This function returns the total Rate above a given magnitude ,
@@ -121,15 +146,23 @@ public class ERF2GriddedSeisRatesCalc {
    * @return double : Total Rate for the region
    */
 
-  public double getTotalRateAbove(double mag, EqkRupForecastAPI eqkRupForecast,
+  public double getTotalSeisRateInRegion(double mag, EqkRupForecastAPI eqkRupForecast,
                                   GeographicRegion region) {
 
     return eqkRupForecast.getTotalRateAbove(mag, region);
   }
 
 
-
-  private void getMagRateFuncForGriddedRegion() {
+  /**
+   *
+   * @param magnitude double
+   * @param eqkRupForecast EqkRupForecastAPI
+   * @param region GeographicRegion
+   * @return ArbDiscrEmpiricalDistFunc
+   */
+  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double magnitude, EqkRupForecastAPI eqkRupForecast,
+                                  GeographicRegion region) {
+    ArbDiscrEmpiricalDistFunc magRateDist = new ArbDiscrEmpiricalDistFunc();
     int numSources = eqkRupForecast.getNumSources();
     //Going over each and every source in the forecast
     for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
@@ -152,8 +185,7 @@ public class ERF2GriddedSeisRatesCalc {
         //getting the rate at each Point on the rupture( calculated by first
         //getting the rate of the rupture and then dividing by number of points
         //on that rupture.
-        double ptRate = ( -Math.log(1 - rupture.getProbability()) /
-                         eqkRupForecast.getTimeSpan().getDuration()) / numPts;
+        double ptRate = getRupturePtRate(eqkRupForecast, rupture,numPts);
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -162,37 +194,92 @@ public class ERF2GriddedSeisRatesCalc {
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
           //discard the pt location on the rupture if outside the region polygon
-          if (! ( (GeographicRegion) region).isLocationInside(ptLoc))
+          if (!region.isLocationInside(ptLoc))
             continue;
-          Location loc = getNearestLocationForGriddedRegion(ptLoc);
-          createMagRateEmpDist(mag, ptRate, loc);
+          String ruptureMag = magFormat.format(mag);
+          magRateDist.set(Double.parseDouble(ruptureMag), ptRate);
         }
       }
     }
+    return magRateDist;
   }
+
+
+
+  private double getRupturePtRate(EqkRupForecastAPI eqkRupForecast,
+                                ProbEqkRupture rupture, long numPts) {
+    return (-Math.log(1 - rupture.getProbability()) /
+        eqkRupForecast.getTimeSpan().getDuration())/numPts;
+  }
+
+
 
 
   /**
    *
-   * @param eqkRupForecast EqkRupForecastAPI
-   * @param region EvenlyGriddedGeographicRegionAPI
    */
+  private void calcTotalSeisRatesForGriddedRegion() {
+
+     int numSources = eqkRupForecast.getNumSources();
+
+     int numLocations = region.getNumGridLocs();
+     for (int i = 0; i < numLocations; ++i)
+       regionMagRatesEmpDistList.put(region.getGridLocation(i),
+                                     new Double(0.0));
+
+     //Going over each and every source in the forecast
+     for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
+       // get the ith source
+       ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
+       int numRuptures = source.getNumRuptures();
+
+       //going over all the ruptures in the source
+       for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
+         ProbEqkRupture rupture = source.getRupture(rupIndex);
+
+         double mag = rupture.getMag();
+         //if rupture magnitude is less then given magnitude then skip those ruptures
+         if (mag < magnitude)
+           continue;
+
+         GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+         long numPts = rupSurface.size();
+
+         //getting the rate at each Point on the rupture( calculated by first
+         //getting the rate of the rupture and then dividing by number of points
+         //on that rupture.
+         double ptRate = getRupturePtRate(eqkRupForecast, rupture,numPts);
+
+         //getting the iterator for all points on the rupture
+         ListIterator it = rupSurface.getAllByRowsIterator();
+         //looping over all the rupture pt location and finding the nearest location
+         //to them in the Geographical Region.
+         while (it.hasNext()) {
+           Location ptLoc = (Location) it.next();
+           //discard the pt location on the rupture if outside the region polygon
+           if (!((GeographicRegion) region).isLocationInside(ptLoc))
+             continue;
+           Location loc = getNearestLocationForGriddedRegion(ptLoc);
+           double rate = ((Double)regionMagRatesEmpDistList.get(loc)).doubleValue();
+           rate += ptRate;
+           regionMagRatesEmpDistList.put(loc,new Double(rate));
+         }
+       }
+     }
+   }
+
+
+
+
   private void calcSeisRatesForGriddedRegion() {
 
     int numSources = eqkRupForecast.getNumSources();
 
-    //Initializing the Region Mag-Rate List with empty Empirical DistFunc.
-    regionMagRatesEmpDistList = new HashMap();
+
     int numLocations = region.getNumGridLocs();
     for (int i = 0; i < numLocations; ++i)
       regionMagRatesEmpDistList.put(region.getGridLocation(i),
                                     new ArbDiscrEmpiricalDistFunc());
-
-
-
-
-    //System.out.println("MinLat :" + minLat + " MaxLat:" + maxLat + " MinLon:" +
-    //                 minLon + " MaxLon:" + maxLon);
 
     //Going over each and every source in the forecast
     for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
@@ -215,8 +302,7 @@ public class ERF2GriddedSeisRatesCalc {
         //getting the rate at each Point on the rupture( calculated by first
         //getting the rate of the rupture and then dividing by number of points
         //on that rupture.
-        double ptRate = ( -Math.log(1 - rupture.getProbability()) /
-                         eqkRupForecast.getTimeSpan().getDuration()) / numPts;
+        double ptRate = getRupturePtRate(eqkRupForecast, rupture,numPts);
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -234,12 +320,6 @@ public class ERF2GriddedSeisRatesCalc {
     }
   }
 
-  /**
-   *
-   */
-  private void getMagFreqDist() {
-
-  }
 
   /**
    * This function , for a given location index in the region adds data to Mag-Rate
@@ -317,7 +397,7 @@ public class ERF2GriddedSeisRatesCalc {
       EvenlyGriddedRectangularGeographicRegion region =
           new EvenlyGriddedRectangularGeographicRegion(33, 38.3, -120,
           -115, 0.1);
-      HashMap map = erf2griddedseisratescalc.getRatesAbove(5.0, frankelForecast,
+      /*HashMap map = erf2griddedseisratescalc.getRatesAbove(5.0, frankelForecast,
           region);
       Set set = map.keySet();
       Iterator it = set.iterator();
@@ -331,11 +411,17 @@ public class ERF2GriddedSeisRatesCalc {
         fw.close();
       }
       catch (IOException ex2) {
-      }
-
+      }*/
+  /*ArbDiscrEmpiricalDistFunc func = erf2griddedseisratescalc.getMagRateDistForRegion(5.0, frankelForecast,
+          region);
+  try {
+          FileWriter fw = new FileWriter("magRates.txt");
+            fw.write(func.toString()+ "\n");
+          fw.close();
+  } catch (IOException ex2) {
+      }*/
     }
     catch (RegionConstraintException ex1) {
     }
-
   }
 }
