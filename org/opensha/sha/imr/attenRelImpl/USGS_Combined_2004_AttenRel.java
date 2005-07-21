@@ -150,7 +150,7 @@ public class USGS_Combined_2004_AttenRel
    protected final static Double VS30_WARN_MAX = new Double(3500.0);
 
    /**
-    * Thier maximum horizontal component option.
+    * Their maximum horizontal component option.
     */
    public final static String COMPONENT_GREATER_OF_TWO_HORZ = "Greater of Two Horz.";
 
@@ -267,13 +267,6 @@ public class USGS_Combined_2004_AttenRel
 
        // Set the eqkRupture
        this.eqkRupture = eqkRupture;
-/*
-       // set the EqkRup in the atten relations
-       as_1997_attenRel.setEqkRupture(eqkRupture);
-       bjf_1997_attenRel.setEqkRupture(eqkRupture);
-       scemy_1997_attenRel.setEqkRupture(eqkRupture);
-       cb_2003_attenRel.setEqkRupture(eqkRupture);
-*/
 
        this.propEffect.setEqkRupture(eqkRupture);
        if(propEffect.getSite() != null) {
@@ -282,8 +275,6 @@ public class USGS_Combined_2004_AttenRel
          scemy_1997_attenRel.setPropagationEffect(propEffect);
          cb_2003_attenRel.setPropagationEffect(propEffect);
        }
-
-
    }
 
 
@@ -306,13 +297,6 @@ public class USGS_Combined_2004_AttenRel
        // set the location of the BC bounday site object
        site_BC.setLocation(site.getLocation());
 
-/*
-       // set the  BC Site in the attenuation relations
-       as_1997_attenRel.setSite(site_BC);
-       bjf_1997_attenRel.setSite(site_BC);
-       scemy_1997_attenRel.setSite(site_BC);
-       cb_2003_attenRel.setSite(site_BC);
-*/
        this.propEffect.setSite(site_BC);
        if(this.eqkRupture != null) {
          as_1997_attenRel.setPropagationEffect(propEffect);
@@ -320,8 +304,6 @@ public class USGS_Combined_2004_AttenRel
          scemy_1997_attenRel.setPropagationEffect(propEffect);
          cb_2003_attenRel.setPropagationEffect(propEffect);
        }
-
-
   }
 
 
