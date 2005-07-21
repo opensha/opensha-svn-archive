@@ -18,6 +18,10 @@ import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.sha.magdist.*;
 import org.opensha.data.estimate.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.sha.gui.infoTools.EstimateViewer;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -93,9 +97,9 @@ public class EstimateParameterEditor  extends ParameterEditor
    private DoubleParameter maxParam ;
    private final static String MAX_PARAM_NAME="Max";
    private final static Double DEFAULT_MAX_PARAM_VAL=new Double(10);
-   private DoubleParameter numParam;
+   private IntegerParameter numParam;
    private final static String NUM_PARAM_NAME="Num";
-   private final static Double DEFAULT_NUM_PARAM_VAL=new Double(10);
+   private final static Integer DEFAULT_NUM_PARAM_VAL=new Integer(10);
    private DiscretizedFuncParameter xyValsParam;
    private final static String XY_PARAM_NAME = "XY Values";
    private JButton setEstimateButton ;
@@ -164,7 +168,7 @@ public class EstimateParameterEditor  extends ParameterEditor
 
     minParam = new DoubleParameter(MIN_PARAM_NAME, DEFAULT_MIN_PARAM_VAL);
     maxParam = new DoubleParameter(MAX_PARAM_NAME, DEFAULT_MAX_PARAM_VAL);
-    numParam = new DoubleParameter(NUM_PARAM_NAME, DEFAULT_NUM_PARAM_VAL);
+    numParam = new IntegerParameter(NUM_PARAM_NAME, DEFAULT_NUM_PARAM_VAL);
     xyValsParam = new DiscretizedFuncParameter(XY_PARAM_NAME);
 
 
@@ -293,8 +297,81 @@ public class EstimateParameterEditor  extends ParameterEditor
  }
 
  public void actionPerformed(ActionEvent e) {
+   if(e.getSource()==setEstimateButton) setEstimateInParameter();
+   else if  (e.getSource()==viewEstimateButton) viewEstimate();
+ }
+
+
+ private void viewEstimate() {
+   EstimateViewer estimateViewer = new EstimateViewer((Estimate)this.estimateParam.getValue());
+ }
+
+
+ private void setEstimateInParameter() {
+   String estimateName=(String)this.chooseEstimateParam.getValue();
+   if(estimateName.equalsIgnoreCase(NormalEstimate.NAME))
+     setNormalEstimate();
+   else if(estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
+     setLogNormalEstimate();
+   else if(estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
+      setFractileListEstimate();
+  else if(estimateName.equalsIgnoreCase(IntegerEstimate.NAME))
+      setIntegerEstimate();
+  else if(estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME))
+     setDiscreteValueEstimate();
+   else if(estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
+     setPDF_Estimate();
 
  }
+
+ private void setNormalEstimate() {
+   double mean = ((Double)meanParam.getValue()).doubleValue();
+   double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   NormalEstimate estimate = new NormalEstimate(mean, stdDev);
+   this.estimateParam.setValue(estimate);
+ }
+
+ private void setLogNormalEstimate() {
+   double linearMedian = ((Double)linearMedianParam.getValue()).doubleValue();
+   double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   LogNormalEstimate estimate = new LogNormalEstimate(linearMedian, stdDev);
+   this.estimateParam.setValue(estimate);
+ }
+
+ private void setDiscreteValueEstimate() {
+   DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue(), false);
+   this.estimateParam.setValue(estimate);
+ }
+
+ private void setIntegerEstimate() {
+   IntegerEstimate estimate = new IntegerEstimate((ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue(), false);
+   this.estimateParam.setValue(estimate);
+ }
+
+ private void setPDF_Estimate() {
+   double min = ((Double)minParam.getValue()).doubleValue();
+   double max = ((Double)maxParam.getValue()).doubleValue();
+   int num = ((Integer)numParam.getValue()).intValue();
+   ArbitrarilyDiscretizedFunc func =(ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue();
+   EvenlyDiscretizedFunc evelyDiscretizedFunc = new EvenlyDiscretizedFunc(min,max,num);
+   copyFunction(func, evelyDiscretizedFunc);
+   PDF_Estimate estimate = new PDF_Estimate(evelyDiscretizedFunc, false);
+   estimateParam.setValue(estimate);
+
+ }
+
+ private void setFractileListEstimate() {
+   ArbitrarilyDiscretizedFunc func =(ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue();
+   ArbDiscrEmpiricalDistFunc empiricalFunc = new ArbDiscrEmpiricalDistFunc();
+   copyFunction(func, empiricalFunc);
+   FractileListEstimate estimate = new FractileListEstimate(empiricalFunc);
+   estimateParam.setValue(estimate);
+ }
+
+  private void copyFunction(DiscretizedFunc funcFrom, DiscretizedFunc funcTo) {
+    int numVals = funcFrom.getNum();
+    for(int i=0; i < numVals; ++i) funcTo.set(funcFrom.getX(i), funcFrom.getY(i));
+  }
 
 
  /**
