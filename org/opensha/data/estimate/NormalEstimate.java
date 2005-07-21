@@ -1,5 +1,7 @@
 package org.opensha.data.estimate;
 import org.opensha.calc.GaussianDistCalc;
+import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
@@ -135,6 +137,25 @@ public class NormalEstimate extends Estimate {
    return NAME;
  }
 
+
+  public DiscretizedFunc getXY_ValsForPlotting() {
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    int numSamples = 100;
+    double xGridSpacing = 0.01;
+    double x, y;
+    for(int i=0; i<numSamples; ++i) {
+       x = mean - i*stdDev;
+       func.set(x,getY(x));
+       x= mean + i*stdDev;
+       func.set(x,getY(x));
+    }
+    return func;
+  }
+
+
+  private double getY(double x) {
+    return Math.exp(-Math.pow(x-mean,2)/2*stdDev*stdDev)/stdDev*Math.sqrt(2*Math.PI);
+  }
 
 
 }

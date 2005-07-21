@@ -141,4 +141,8 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   * @param tol double
   */
  public void setTolerance(double tol) {this.tol = tol;}
+
+  public  DiscretizedFunc getXY_ValsForPlotting() {
+    return this.func;
+  }
 }

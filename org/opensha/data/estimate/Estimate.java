@@ -1,4 +1,5 @@
 package org.opensha.data.estimate;
+import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: Estimate.java </p>
@@ -77,6 +78,8 @@ public abstract class Estimate {
    }
 
    public abstract String getName() ;
+
+   public abstract DiscretizedFunc getXY_ValsForPlotting();
 
 
 }

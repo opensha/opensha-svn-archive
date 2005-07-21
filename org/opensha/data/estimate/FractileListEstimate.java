@@ -2,6 +2,7 @@ package org.opensha.data.estimate;
 
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
@@ -129,6 +130,8 @@ public class FractileListEstimate extends Estimate {
    return NAME;
  }
 
-
+ public DiscretizedFunc getXY_ValsForPlotting() {
+   return this.func;
+ }
 
 }

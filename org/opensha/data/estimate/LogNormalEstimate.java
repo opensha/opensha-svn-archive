@@ -1,5 +1,7 @@
 package org.opensha.data.estimate;
 import org.opensha.calc.GaussianDistCalc;
+import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: LogNormalEstimate.java  </p>
@@ -149,5 +151,10 @@ public class LogNormalEstimate extends Estimate {
    this.maxX = maxX;
    this.minX = minX;
  }
+
+ public DiscretizedFunc getXY_ValsForPlotting() {
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    return func;
+  }
 
 }

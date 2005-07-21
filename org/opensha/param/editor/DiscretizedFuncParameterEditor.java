@@ -70,8 +70,7 @@ public class DiscretizedFuncParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Starting");
 
         valueEditor = new JTextArea();
-        valueEditor.setMinimumSize( WIGET_PANEL_DIM );
-        valueEditor.setPreferredSize( WIGET_PANEL_DIM );
+
         valueEditor.setBorder(ETCHED);
         valueEditor.setFont(this.DEFAULT_FONT);
 

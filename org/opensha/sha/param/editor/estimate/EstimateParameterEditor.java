@@ -35,7 +35,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 public class EstimateParameterEditor  extends ParameterEditor
     implements ParameterChangeListener,
-    ParameterChangeFailListener {
+    ParameterChangeFailListener, ActionListener{
 
   private EstimateParameter estimateParam;
   // name of the estimate
@@ -61,17 +61,20 @@ public class EstimateParameterEditor  extends ParameterEditor
     */
    private DoubleParameter meanParam;
    private final static String MEAN_PARAM_NAME="Mean";
+   private final static Double DEFAULT_MEAN_PARAM_VAL=new Double(5);
    /**
     * Std Dev parameter for normal/lognormal distribution
     */
    private DoubleParameter stdDevParam;
    private final static String STD_DEV_PARAM_NAME="Std Dev";
+   private final static Double DEFAULT_STD_DEV_PARAM_VAL=new Double(1);
 
    /**
     * Linear Median parameter for lognormal distribution
     */
    private DoubleParameter linearMedianParam;
    private final static String LINEAR_MEDIAN_PARAM_NAME="Linear Median";
+   private final static Double DEFAULT_LINEAR_MEDIAN_PARAM_VAL=new Double(5);
 
    /**
     * Log Base param for log normal distribution
@@ -86,13 +89,17 @@ public class EstimateParameterEditor  extends ParameterEditor
     */
    private DoubleParameter minParam ;
    private final static String MIN_PARAM_NAME="Min";
+   private final static Double DEFAULT_MIN_PARAM_VAL=new Double(1);
    private DoubleParameter maxParam ;
    private final static String MAX_PARAM_NAME="Max";
+   private final static Double DEFAULT_MAX_PARAM_VAL=new Double(10);
    private DoubleParameter numParam;
    private final static String NUM_PARAM_NAME="Num";
+   private final static Double DEFAULT_NUM_PARAM_VAL=new Double(10);
    private DiscretizedFuncParameter xyValsParam;
    private final static String XY_PARAM_NAME = "XY Values";
-
+   private JButton setEstimateButton ;
+   private JButton viewEstimateButton;
 
    public EstimateParameterEditor() {
    }
@@ -114,7 +121,9 @@ public class EstimateParameterEditor  extends ParameterEditor
     this.setLayout(GBL);
     add(this.editor,new GridBagConstraints( 0, 0, 0, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(new JButton("View Estimate"),new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
+    add(setEstimateButton,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
+    add(viewEstimateButton,new GridBagConstraints( 0, 2, 0, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     setEstimateParams((String)chooseEstimateParam.getValue());
     this.refreshParamEditor();
@@ -149,13 +158,13 @@ public class EstimateParameterEditor  extends ParameterEditor
     if ( D ) System.out.println( S + "Starting:" );
 
 
-    meanParam = new DoubleParameter(MEAN_PARAM_NAME);
-    stdDevParam = new DoubleParameter(STD_DEV_PARAM_NAME);
-    linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME);
+    meanParam = new DoubleParameter(MEAN_PARAM_NAME, DEFAULT_MEAN_PARAM_VAL);
+    stdDevParam = new DoubleParameter(STD_DEV_PARAM_NAME, DEFAULT_STD_DEV_PARAM_VAL);
+    linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME, DEFAULT_LINEAR_MEDIAN_PARAM_VAL);
 
-    minParam = new DoubleParameter(MIN_PARAM_NAME);
-    maxParam = new DoubleParameter(MAX_PARAM_NAME);
-    numParam = new DoubleParameter(NUM_PARAM_NAME);
+    minParam = new DoubleParameter(MIN_PARAM_NAME, DEFAULT_MIN_PARAM_VAL);
+    maxParam = new DoubleParameter(MAX_PARAM_NAME, DEFAULT_MAX_PARAM_VAL);
+    numParam = new DoubleParameter(NUM_PARAM_NAME, DEFAULT_NUM_PARAM_VAL);
     xyValsParam = new DiscretizedFuncParameter(XY_PARAM_NAME);
 
 
@@ -185,6 +194,11 @@ public class EstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(this.xyValsParam);
    this.editor = new ParameterListEditor(parameterList);
    editor.setTitle(ESTIMATE_TITLE);
+
+   setEstimateButton = new JButton("Set Estimate");
+   viewEstimateButton = new JButton("View Estimate");
+   setEstimateButton.addActionListener(this);
+   viewEstimateButton.addActionListener(this);
   }
 
   public void parameterChangeFailed(ParameterChangeFailEvent event) {
@@ -276,6 +290,10 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(MAX_PARAM_NAME, false);
    editor.setParameterVisible(NUM_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, true);
+ }
+
+ public void actionPerformed(ActionEvent e) {
+
  }
 
 
