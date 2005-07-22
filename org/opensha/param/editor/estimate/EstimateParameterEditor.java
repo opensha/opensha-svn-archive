@@ -1,4 +1,4 @@
-package org.opensha.sha.param.editor.estimate;
+package org.opensha.param.editor.estimate;
 
 import java.awt.*;
 import java.awt.event.*;

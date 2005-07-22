@@ -158,7 +158,7 @@ public class LogNormalEstimate extends Estimate {
     double x, y;
     for(int i=0; i<numSamples; ++i) {
        x = linearMedian - i*stdDev;
-       if(x>=0) func.set(x,getY(x));
+       if(x>0) func.set(x,getY(x));
        x= linearMedian + i*stdDev;
        func.set(x,getY(x));
     }

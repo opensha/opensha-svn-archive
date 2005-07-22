@@ -95,6 +95,33 @@ public final class GaussianDistCalc {
           throw new RuntimeException("GaussianDistCalc.getExceedProb(): truncType must be 0, 1, or 2");
     }
 
+
+    /**
+    * This function calculates the exceedance probability for a truncated Gaussian
+    * distribution. The distribution is non-symmetrically truncated on both sides
+    *
+    * @param standRandVariable
+    * @param lowerTruncLevel, must be positive
+    * @param upperTruncLevel in units of SRV, must be positive
+    * @return the exceedance probability
+    */
+    public static double getExceedProb(double standRandVariable, double lowerTruncLevel, double upperTruncLevel) {
+      if(lowerTruncLevel < 0.0 || upperTruncLevel<0)
+          throw new RuntimeException("GaussianDistCalc.getExceedProb(): lowerTruncLevel or upperTruncLevel cannot be negative");
+
+      double prob = getCDF(standRandVariable);
+      if (standRandVariable > upperTruncLevel)
+        return (0.0);
+      else if (standRandVariable < -lowerTruncLevel)
+        return (1.0);
+      else {
+        double pUp = getCDF(upperTruncLevel);
+        double pLow = getCDF( -lowerTruncLevel);
+        return ( (pUp - prob) / (pUp - pLow));
+      }
+    }
+
+
   /**
     * This function calculates the cumulative density function for a Gaussian
     * distribution (the area under the curve up to standRandVariable).  This
@@ -220,6 +247,99 @@ public final class GaussianDistCalc {
         }
         else
           throw new RuntimeException("invalid exceed probability (prob="+exceedProb+")");
+    }
+
+
+    /**
+     * This returns the standardized random variable (SRV) associated with the
+     * given exceedance probability.  The tolerance specifies the accuracy of the
+     * result such that:<br><br>
+     *
+     * <i>(prob_target-getExceedProb(SRV_found,trTyp, trLev))/prob_target < tolerance</i><br><br>
+     *
+     * There is another potential ambiguity in that there may be a wide range
+     * of SRVs that satisfy the above.  For example, if the target probability is 1e-5,
+     * and the tolerance is 1e-3, then all SRVs greater than 4.26 satisfy
+     * the above.  We solve this ambiguity by giving the first occurrence (generally
+     * the value closest to zero).  Specifically, if the target probability is less
+     * than 0.5, we find an SRV such that the probability for (SRV_found-tolerance) <i>does
+     * not</i> satisfy the above condition (is not within tolerance of the target
+     * probability).  For target probabilities greater than 0.5 we give the SRV such that
+     * the probability for (SRV_found+toloerance) will not be within tolerance of the
+     * target probability.<br><br>
+     *
+     * The cases where exceedProb = 0.0 or 1.0 are treated explicity (e.g.,
+     * Double.POSITIVE_INFINITY or Double.NEGATIVE_INFINITY are returned
+     * if no truncation is applied).<br><br>
+     *
+     * Note that the result is not necessarily symmetric in that getStandRandVar(prob,*) may
+     * not exactly equal the negative of getStandRandVar((1-prob),*).  This simply represents
+     * the lack of numerical precision under some conditions, with the problem worsening for
+     * greater tolerances and as the input probability approaches zero or one.  For example,<br><br>
+     *
+     * getStandRandVar(0.0001,0,2,1e-6) =  3.72<br>
+     * getStandRandVar(0.9999,0,2,1e-6) = -3.72<br><br>
+     *
+     * getStandRandVar(0.000001,0,2,1e-6) =  4.76<br>
+     * getStandRandVar(0.999999,0,2,1e-6) = -4.62
+     *
+     *
+     * @param exceedProb  The target exceedance probability
+     * @param lowerTruncLevel   The lower truncation level, must be positive
+     * @param upperTruncLevel  The upper truncation level (num SRVs), must be positive
+     * @param tolerance   The tolerance
+     * @return  The SRV found for the target exceedProb
+     */
+    public static double getStandRandVar(double exceedProb, double lowerTruncLevel, double upperTruncLevel, double tolerance) {
+
+        float delta = 1;
+        double testNum = 100;
+        double oldNum = 0;
+        double prob = 100;
+
+        // check that tolerance is within the allowed range
+        if(tolerance < 1e-6 || tolerance > 0.1)
+          throw new RuntimeException("GaussianDistCalc.getStandRandVar(): tolerance is not within the allowed range");
+
+        if( exceedProb <= 0.5 && exceedProb > 0.0 ) {
+
+                oldNum = -3;    // less than zero in case one sided with trunc-level=0
+                do {
+                        testNum = oldNum;
+                        do {
+                                testNum += delta;
+                                prob = getExceedProb(testNum, lowerTruncLevel, upperTruncLevel);
+
+//                                System.out.println("testNum="+testNum+",  prob="+prob+", test:  "+ (prob-exceedProb-tolerance*exceedProb));
+                        }
+                        while ( prob >= (exceedProb+tolerance*exceedProb) );
+                        oldNum = testNum - delta;
+                        delta /= 10;
+//                        System.out.println("new OldNum="+oldNum+"; new delta="+delta+"; test:  "+(testNum-oldNum-tolerance));
+                }
+                while (testNum-oldNum > tolerance);
+//                System.out.println("final testNum (returned) = "+ testNum+"; oldNum: "+oldNum);
+                return testNum;
+        }
+        else if ( exceedProb > 0.5 && exceedProb < 1.0 ) {
+
+                oldNum=1;
+                do {
+                        testNum = oldNum;
+                        do {
+                                testNum -= delta;
+                                prob = getExceedProb(testNum, lowerTruncLevel, upperTruncLevel);
+                        }
+                        while (prob <= (exceedProb-tolerance*exceedProb) );
+                        oldNum = testNum  + delta;
+                        delta /= 10;
+                }
+                while ( oldNum-testNum > tolerance);
+                return testNum;
+        }
+        else if (exceedProb == 0.0)  return upperTruncLevel;
+        else if (exceedProb == 1.0) return -lowerTruncLevel;
+        else throw new RuntimeException("invalid exceed probability (prob="+exceedProb+")");
     }
 
 
@@ -679,7 +799,7 @@ public final class GaussianDistCalc {
 //     test_getCDF();
 //     test_symmetry_getStandRandVar();
 //     testSpeed_getStandRandVar();
-     test2_getStandRandVar() ;
+//     test2_getStandRandVar() ;
    }
 
 
