@@ -43,9 +43,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   // if it is true it means that forecast needs to be updated
   protected boolean parameterChangeFlag = true;
 
-  private DecimalFormat magFormat = new DecimalFormat("0.00");
-  private DecimalFormat latLonFormat = new DecimalFormat("0.00##");
-
 
   /**
    * get the adjustable parameters for this forecast
@@ -247,10 +244,76 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   }
 
 
+
   /**
-   * This function returns the total Rate above a given magnitude ,
-   * for the given geographic region.
-   * Calcuated Rates depend on the ERF model instantiated by the user.
+   * This function returns the total probability of events above a given magnitude
+   * within the given geographic region.  The calcuated Rates depend on the  ERF
+   * subclass.  Note that it is assumed that the forecast has been updated.
+   * @param magnitude double  : magnitude above which rate needs to be returned
+   *
+   * @param region GeographicRegion : Region whose rates need to be returned
+   * @return double : Total Rate for the region
+   */
+  public double getTotalProbAbove(double magnitude, GeographicRegion region) {
+
+    int numSources = getNumSources();
+    int numRuptures;
+    double totalProb = 1.0;  // intialize as probability of none
+    double srcProb;
+
+    //Going over every source in the forecast
+    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
+      // get the ith source
+      ProbEqkSource source = this.getSource(sourceIndex);
+      numRuptures = source.getNumRuptures();
+
+      // initialize the source probability
+      if(source.isPoissonian)
+        srcProb = 1;        // initial probability of no events
+      else
+        srcProb = 0;        // initial probability of an event
+
+      //going over all the ruptures in the source
+      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
+        ProbEqkRupture rupture = source.getRupture(rupIndex);
+
+        //if rupture magnitude is less then given magnitude then skip those ruptures
+        if (rupture.getMag() < magnitude)
+          continue;
+
+        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        double ptProb = rupture.getProbability()/rupSurface.size();
+
+        //getting the iterator for all points on the rupture
+        ListIterator it = rupSurface.getAllByRowsIterator();
+
+        while (it.hasNext()) {
+          Location ptLoc = (Location) it.next();
+          // jump out if not inside region
+          if (!region.isLocationInside(ptLoc))
+            continue;
+
+          if(source.isPoissonian)
+            srcProb *= (1-ptProb);     // the probability of none
+          else
+            srcProb += ptProb;         // the probability of an event
+        }
+      }
+      // convert back to prob of one or more if Poissonian
+      if(source.isPoissonian)
+        srcProb = 1.0-srcProb;
+      totalProb *= (1.0-srcProb);        // the total probability of none
+    }
+    return 1-totalProb;    // return the probability of one or more
+  }
+
+
+
+  /**
+   * This function returns the total equivalent Poissonian rate above a given magnitude
+   * for the given geographic region.  The result should be exact for ERFs where all
+   * sources are Poissonian, or for ERFs with non-Poisson sources but low probabilities.
+   *  The calcuated Rates depend on the  ERF subclass.
    * @param magnitude double  : magnitude above which rate needs to be returned
    *
    * @param region GeographicRegion : Region whose rates need to be returned
@@ -286,6 +349,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
 
 
     return null;
+
   }
 
 
@@ -327,7 +391,9 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double magnitude,
                                   GeographicRegion region) {
-
       return null;
   }
+
+
+
 }
