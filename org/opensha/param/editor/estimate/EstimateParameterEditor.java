@@ -23,6 +23,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import org.opensha.param.estimate.*;
+import ch.randelshofer.quaqua.QuaquaManager;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -259,7 +260,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(MEAN_PARAM_NAME, false);
     editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
     editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, true);
-    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+    editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
     editor.setParameterVisible(MIN_PARAM_NAME, false);
     editor.setParameterVisible(MAX_PARAM_NAME, false);
     editor.setParameterVisible(NUM_PARAM_NAME, false);
@@ -373,6 +374,19 @@ public class EstimateParameterEditor  extends ParameterEditor
     int numVals = funcFrom.getNum();
     for(int i=0; i < numVals; ++i) funcTo.set(funcFrom.getX(i), funcFrom.getY(i));
   }
+
+  //static initializer for setting look & feel
+   static {
+     String osName = System.getProperty("os.name");
+     try {
+       if(osName.startsWith("Mac OS"))
+         UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
+       else
+         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+     }
+     catch(Exception e) {
+     }
+   }
 
 
  /**

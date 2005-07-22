@@ -28,7 +28,7 @@ public class EstimateViewer implements GraphWindowAPI {
     setXAxisLabel(X_AXIS_LABEL);
     setYAxisLabel(Y_AXIS_LABEL);
     graphWindow = new GraphWindow(this);
-    graphWindow.pack();
+    //graphWindow.pack();
     graphWindow.show();
   }
 

@@ -31,7 +31,7 @@ public class TestGaussianDistCalc extends TestCase {
      * we can check that the values we get is same as we get from (1)
      */
     double upperTruncLevel = 0.5;
-    double lowerTruncLevel = 0.5;
+    double lowerTruncLevel = -0.5;
     int truncType = 2;
     double truncLevel = 0.5;
     double stdRandVar;
@@ -71,7 +71,7 @@ public class TestGaussianDistCalc extends TestCase {
     * we can check that the values we get is same as we get from (1)
     */
    double upperTruncLevel = 0.5;
-   double lowerTruncLevel = 0.5;
+   double lowerTruncLevel = -0.5;
    int truncType = 2;
    double truncLevel = 0.5;
    double prob;

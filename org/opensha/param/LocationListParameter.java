@@ -146,6 +146,16 @@ public class LocationListParameter extends DependentParameter
     }
   }
 
+  /*  This function just checks that we only allow an object of LocationList.
+   *
+   * @param  obj  Object to check if allowed via constraints
+   * @return      True if the value is allowed
+   */
+  public boolean isAllowed(Object obj) {
+    if(obj instanceof LocationList) return true;
+    else return false;
+  }
+
   /**
    *  Returns a copy so you can't edit or damage the origial.
    *

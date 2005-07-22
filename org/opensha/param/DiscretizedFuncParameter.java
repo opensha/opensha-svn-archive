@@ -88,10 +88,20 @@ public class DiscretizedFuncParameter extends DependentParameter
    *      editable
    */
   public void setValue( DiscretizedFuncAPI value ) throws ParameterException {
-
     setValue( (Object) value );
-
   }
+
+
+  /*  This function just checks that we only allow an object of DiscretizedFuncAPI.
+   *
+   * @param  obj  Object to check if allowed via constraints
+   * @return      True if the value is allowed
+   */
+  public boolean isAllowed(Object obj) {
+    if(obj instanceof DiscretizedFuncAPI) return true;
+    else return false;
+  }
+
 
   /**
    * Compares value to see if equal.
