@@ -21,7 +21,7 @@ public class DataPoint2D implements Comparable,java.io.Serializable {
 
 
     /* The name of this class, used for debug statements */
-    protected final static String C = "IntegerConstraint";
+    protected final static String C = "DataPoint2D";
 
     /** Static boolean whether to print out debugging statements  */
     protected final static boolean D = false;
