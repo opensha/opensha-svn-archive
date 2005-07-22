@@ -150,6 +150,35 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
   }
 
 
+
+
+  /**
+   * Returns the index of the nearest location in the given gridded region, to
+   * the provided Location.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return int index of the nearest location. User can use this index to
+   * retrive the location from the locationlist.
+   */
+  public int getNearestLocationIndex(Location loc){
+    //getting the Location lat and Lon
+    double lat = loc.getLatitude();
+    double lon = loc.getLongitude();
+
+    //get the region's minLat and minLon
+    double minLat = getMinLat();
+    double minLon = getMinLon();
+
+    int rowIndex = (int)Math.rint((lat - minLat)/gridSpacing);
+    int colIndex = (int)Math.rint((lon - minLon)/gridSpacing);
+
+
+    int numCols = getNumGridLons();
+    int index = rowIndex*numCols+colIndex;
+    return index;
+  }
+
+
+
   /**
    * Private method to create the Location List for the gridded Rectangular Geog. Region
    * @returns the LocationList

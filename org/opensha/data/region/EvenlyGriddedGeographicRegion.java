@@ -90,6 +90,25 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
     return gridLocsList.getLocationAt(index);
   }
 
+  /**
+   *
+   * @param rupPointLoc Location
+   * @return Location
+   */
+  public int getNearestLocationIndex(Location rupPointLoc) {
+
+    //Getting the nearest Location to the rupture point location
+    double lat = Math.rint(rupPointLoc.getLatitude() / gridSpacing) *
+        gridSpacing;
+    double lon = Math.rint(rupPointLoc.getLongitude() / gridSpacing) *
+        gridSpacing;
+    //lat = Double.parseDouble(latLonFormat.format(lat));
+    //lon = Double.parseDouble(latLonFormat.format(lon));
+    return 0;
+  }
+
+
+
 
   private void createGriddedLocationList(){
     double minLat=getMinLat();
