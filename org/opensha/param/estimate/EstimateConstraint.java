@@ -156,12 +156,11 @@ public class EstimateConstraint extends DoubleConstraint {
         String name = (String)list.get(i);
         if(estimate.getName().equalsIgnoreCase(name)) {
           // if this object is among list of allowed estimates, check min/max value
-          double allowedMinValue = this.min.doubleValue();
-          double allowedMaxValue = this.max.doubleValue();
-          if(estimate.getMinX()>=allowedMinValue &&
-            estimate.getMaxX()<=allowedMaxValue)
-           return true;
-         break;
+          Double estimateMinValue = new Double(estimate.getMinX());
+          Double estimateMaxValue = new Double(estimate.getMaxX());
+          if(min!=null && max!=null && estimateMinValue.compareTo(min)>=0 &&  estimateMaxValue.compareTo(max)<=0)
+            return true;
+          break;
         }
       }
       // return false if this object is not among list of allowed estimate classes
@@ -238,6 +237,22 @@ public class EstimateConstraint extends DoubleConstraint {
     allowedEstimateTypes.add(IntegerEstimate.NAME);
     return allowedEstimateTypes;
   }
+
+  /**
+    * create  constraint so that all estimates are allowed.
+    *
+    * @return
+    */
+   public static ArrayList createConstraintForAllEstimates() {
+     ArrayList allowedEstimateTypes = new ArrayList();
+     allowedEstimateTypes.add(NormalEstimate.NAME);
+     allowedEstimateTypes.add(LogNormalEstimate.NAME);
+     allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
+     allowedEstimateTypes.add(FractileListEstimate.NAME);
+     allowedEstimateTypes.add(PDF_Estimate.NAME);
+     return allowedEstimateTypes;
+   }
+
 
 
 

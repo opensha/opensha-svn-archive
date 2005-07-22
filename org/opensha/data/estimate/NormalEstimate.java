@@ -141,7 +141,6 @@ public class NormalEstimate extends Estimate {
   public DiscretizedFunc getXY_ValsForPlotting() {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
     int numSamples = 100;
-    double xGridSpacing = 0.01;
     double x, y;
     for(int i=0; i<numSamples; ++i) {
        x = mean - i*stdDev;

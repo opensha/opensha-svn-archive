@@ -22,6 +22,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
+import org.opensha.param.estimate.*;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -381,7 +382,7 @@ public class EstimateParameterEditor  extends ParameterEditor
   public static void main(String args[]) {
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
-    EstimateParameter estimateParam = new org.opensha.param.estimate.DepthEstParameter("Depth");
+    EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
     EstimateParameterEditor estimateParameterEditor = new EstimateParameterEditor(estimateParam);
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 0, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
