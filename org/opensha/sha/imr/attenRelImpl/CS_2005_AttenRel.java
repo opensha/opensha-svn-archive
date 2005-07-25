@@ -94,22 +94,17 @@ public class CS_2005_AttenRel extends AttenuationRelationship
         initOtherParams( );
 
         initIndependentParamLists(); // Do this after the above
-
+/*
         TreeSet set = new TreeSet();
         Enumeration keys = horzCoeffs.keys(); // same as for vertCoeffs
         while ( keys.hasMoreElements() ) {
           CS_2005_AttenRelCoefficients c = ( CS_2005_AttenRelCoefficients ) horzCoeffs.get( keys.nextElement() );
           System.out.println(c.period+"\t"+c.b1+"\t"+c.vRef+"\t"+c.c+"\t"+c.b2+"\t"+c.tau+"\t"+c.e1+"\t"+c.e3);
         }
-
-    }
-
-/*
-    public void setIntensityMeasure( ParameterAPI intensityMeasure )
-        throws ParameterException, ConstraintException {
-      as_1997_attenRel.setIntensityMeasure(intensityMeasure);
-    }
 */
+    }
+
+
     /**
      * This does nothing, but is needed.
      */
