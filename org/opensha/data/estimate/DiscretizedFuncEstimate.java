@@ -142,7 +142,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   */
  public void setTolerance(double tol) {this.tol = tol;}
 
-  public  DiscretizedFunc getXY_ValsForPlotting() {
+  public  DiscretizedFunc getPDF() {
     return this.func;
   }
 }

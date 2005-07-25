@@ -3,6 +3,7 @@ package org.opensha.data.estimate;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: FractileListEstimate.java </p>
@@ -130,8 +131,18 @@ public class FractileListEstimate extends Estimate {
    return NAME;
  }
 
- public DiscretizedFunc getXY_ValsForPlotting() {
+ public DiscretizedFunc getPDF() {
    return this.func;
  }
+
+ /**
+  * Get the cumulative distribution function
+  * @return
+  */
+ public DiscretizedFunc getCDF() {
+   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+   return func;
+ }
+
 
 }

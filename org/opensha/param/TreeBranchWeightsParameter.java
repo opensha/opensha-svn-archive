@@ -80,6 +80,20 @@ public class TreeBranchWeightsParameter extends ParameterListParameter
     setValue( (Object) value );
   }
 
+  /*  This function just checks that we only allow an object of ParameterList.
+   *
+   * @param  obj  Object to check if allowed via constraints
+   * @return      True if the value is allowed
+   */
+  public boolean isAllowed(Object obj) {
+    if(obj == null && this.isNullAllowed()) return true;
+    if (obj instanceof ParameterList)
+      return true;
+    else
+      return false;
+  }
+
+
   /**
    *
    * @returns true if the Branch Weight Values sum to One, inside the parameterList

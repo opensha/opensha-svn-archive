@@ -7,7 +7,6 @@ import org.opensha.param.*;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
@@ -151,7 +150,7 @@ public class DiscretizedFuncParameterEditor extends ParameterEditor
         String str = ((JTextArea) valueEditor).getText();
 
         // set the value in ArbitrarilyDiscretizedFunc
-        ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+        DiscretizedFuncAPI function = (DiscretizedFuncAPI)model.getValue();
         StringTokenizer st = new StringTokenizer(str,"\n");
         while(st.hasMoreTokens()){
           StringTokenizer st1 = new StringTokenizer(st.nextToken());
@@ -171,7 +170,6 @@ public class DiscretizedFuncParameterEditor extends ParameterEditor
           }
           function.set(tempX_Val,tempY_Val);
         }
-        setValue(function);
         refreshParamEditor();
         valueEditor.validate();
         valueEditor.repaint();

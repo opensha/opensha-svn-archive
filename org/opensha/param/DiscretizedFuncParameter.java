@@ -98,6 +98,7 @@ public class DiscretizedFuncParameter extends DependentParameter
    * @return      True if the value is allowed
    */
   public boolean isAllowed(Object obj) {
+    if(obj == null && this.isNullAllowed()) return true;
     if(obj instanceof DiscretizedFuncAPI) return true;
     else return false;
   }

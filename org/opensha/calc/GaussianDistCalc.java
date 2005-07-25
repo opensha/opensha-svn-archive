@@ -106,17 +106,17 @@ public final class GaussianDistCalc {
     * @return the exceedance probability
     */
     public static double getExceedProb(double standRandVariable, double lowerTruncLevel, double upperTruncLevel) {
-      if(lowerTruncLevel < 0.0 || upperTruncLevel<0)
-          throw new RuntimeException("GaussianDistCalc.getExceedProb(): lowerTruncLevel or upperTruncLevel cannot be negative");
+      if(lowerTruncLevel >= upperTruncLevel)
+          throw new RuntimeException("GaussianDistCalc.getExceedProb(): lowerTruncLevel should be less than upperTruncLevel");
 
       double prob = getCDF(standRandVariable);
       if (standRandVariable > upperTruncLevel)
         return (0.0);
-      else if (standRandVariable < -lowerTruncLevel)
+      else if (standRandVariable < lowerTruncLevel)
         return (1.0);
       else {
         double pUp = getCDF(upperTruncLevel);
-        double pLow = getCDF( -lowerTruncLevel);
+        double pLow = getCDF( lowerTruncLevel);
         return ( (pUp - prob) / (pUp - pLow));
       }
     }
@@ -292,6 +292,10 @@ public final class GaussianDistCalc {
      */
     public static double getStandRandVar(double exceedProb, double lowerTruncLevel, double upperTruncLevel, double tolerance) {
 
+      if(lowerTruncLevel >= upperTruncLevel)
+        throw new RuntimeException("GaussianDistCalc.getStandRandVar(): lowerTruncLevel should be less than upperTruncLevel");
+
+
         float delta = 1;
         double testNum = 100;
         double oldNum = 0;
@@ -338,7 +342,7 @@ public final class GaussianDistCalc {
                 return testNum;
         }
         else if (exceedProb == 0.0)  return upperTruncLevel;
-        else if (exceedProb == 1.0) return -lowerTruncLevel;
+        else if (exceedProb == 1.0) return lowerTruncLevel;
         else throw new RuntimeException("invalid exceed probability (prob="+exceedProb+")");
     }
 

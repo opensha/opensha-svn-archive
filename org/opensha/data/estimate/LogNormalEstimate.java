@@ -152,23 +152,35 @@ public class LogNormalEstimate extends Estimate {
    this.minX = minX;
  }
 
- public DiscretizedFunc getXY_ValsForPlotting() {
+ public DiscretizedFunc getPDF() {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    int numSamples = 100;
-    double x, y;
-    for(int i=0; i<numSamples; ++i) {
-       x = linearMedian - i*stdDev;
-       if(x>0) func.set(x,getY(x));
-       x= linearMedian + i*stdDev;
+    double x, y, deltaX=stdDev/4;
+    double limit = 1e-12;
+    for(int i=0; ; ++i) {
+       x = linearMedian * Math.exp(-i*deltaX);
        func.set(x,getY(x));
+       x= linearMedian * Math.exp(i*deltaX);
+       y = getY(x);
+       func.set(x,getY(x));
+       if(y<=limit) break;
     }
     return func;
   }
 
 
   private double getY(double x) {
-    return Math.exp(-Math.pow(Math.log(x)-linearMedian,2)/2*stdDev*stdDev)/x*stdDev*Math.sqrt(2*Math.PI);
+    return Math.exp(-Math.pow(Math.log(x)-Math.log(linearMedian),2)/2*stdDev*stdDev)/x*stdDev*Math.sqrt(2*Math.PI);
   }
+
+  /**
+  * Get the cumulative distribution function
+  * @return
+  */
+ public DiscretizedFunc getCDF() {
+   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+   return func;
+ }
+
 
 
 }

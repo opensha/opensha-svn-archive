@@ -1,6 +1,8 @@
 package org.opensha.data.estimate;
 
 import org.opensha.data.function.EvenlyDiscretizedFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.DiscretizedFunc;
 /**
  * <p>Title: PDF_Estimate.java </p>
  * <p>Description:  This can be used to specify probabilities associated with
@@ -32,5 +34,15 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
   public String getName() {
    return NAME;
  }
+
+ /**
+   * Get the cumulative distribution function
+   * @return
+   */
+  public DiscretizedFunc getCDF() {
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    return func;
+  }
+
 
 }

@@ -79,7 +79,9 @@ public abstract class Estimate {
 
    public abstract String getName() ;
 
-   public abstract DiscretizedFunc getXY_ValsForPlotting();
+   public abstract DiscretizedFunc getPDF();
+   public abstract DiscretizedFunc getCDF();
+
 
 
 }

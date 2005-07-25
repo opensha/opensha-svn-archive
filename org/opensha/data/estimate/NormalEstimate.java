@@ -137,16 +137,26 @@ public class NormalEstimate extends Estimate {
    return NAME;
  }
 
-
-  public DiscretizedFunc getXY_ValsForPlotting() {
+ /**
+  * Get the probability density function.
+  * It calculates the PDF for x values. X values discretization interval is stdDev/20
+  * @return
+  */
+  public DiscretizedFunc getPDF() {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    int numSamples = 100;
-    double x, y;
-    for(int i=0; i<numSamples; ++i) {
-       x = mean - i*stdDev;
-       func.set(x,getY(x));
-       x= mean + i*stdDev;
-       func.set(x,getY(x));
+    //int numSamples = 40;
+    //double cutOffVal = 4*stdDev;
+    double x, y, deltaX=stdDev/20;
+    double limit = 1e-12;
+    for(int i=0; ; ++i) {
+       //deltaX = (i*cutOffVal)/numSamples;
+       x = mean - i*deltaX;
+       y=getY(x);
+       func.set(x,y);
+       x= mean + i*deltaX;
+       y=getY(x);
+       func.set(x,y);
+       if(y<=limit) break;
     }
     return func;
   }
@@ -154,6 +164,15 @@ public class NormalEstimate extends Estimate {
 
   private double getY(double x) {
     return Math.exp(-Math.pow(x-mean,2)/2*stdDev*stdDev)/stdDev*Math.sqrt(2*Math.PI);
+  }
+
+  /**
+   * Get the cumulative distribution function
+   * @return
+   */
+  public DiscretizedFunc getCDF() {
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    return func;
   }
 
 
