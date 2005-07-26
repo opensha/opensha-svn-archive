@@ -30,7 +30,17 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
   private final static String C = "EvenlyGriddedRectangularGeographicRegion";
   private final static boolean D = false;
-  DecimalFormat format = new DecimalFormat(".000#");
+  private final static DecimalFormat format = new DecimalFormat(".000#");
+  private LocationList gridLocsList;
+
+  // this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
+  // is and integer and the point is within the polygon
+  private double niceMinLat ;
+  private double niceMinLon ;
+  // this makes the last lat and lon grid points nice in that niceMaxLat/gridSpacing
+  // is and integer and the point is within the polygon.
+  private double niceMaxLat ;
+  private double niceMaxLon ;
 
   /**
    * class constructor
@@ -43,14 +53,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
       double minLon,double maxLon, double gridSpacing) throws
       RegionConstraintException {
     super(minLat,maxLat,minLon,maxLon);
-    this.gridSpacing=gridSpacing;
 
-    //set the number of grid points for lat and lon
-    double latGridDiff= Double.parseDouble(format.format((getMaxLat()-getMinLat())/gridSpacing));
-    double lonGridDiff= Double.parseDouble(format.format((getMaxLon()-getMinLon())/gridSpacing));
-    if (D) System.out.println("latGridDiff="+latGridDiff+"; lonGridDiff="+lonGridDiff);
-    numLatGridPoints = (int)Math.ceil(latGridDiff)+1;
-    numLonGridPoints = (int)Math.ceil(lonGridDiff)+1;
 
     if (D) System.out.println("numLatGridPoints="+numLatGridPoints+"; numLonGridPoints="+numLonGridPoints);
   }
@@ -62,11 +65,18 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @param degrees: sets the grid spacing
    */
   public void setGridSpacing(double degrees){
-    gridSpacing = degrees;
+    this.gridSpacing=gridSpacing;
 
-    //set the number of grid points for lat and lon
-    numLatGridPoints=(int)Math.ceil(getMaxLat()-getMinLat()/gridSpacing)+1;
-    numLonGridPoints=(int)Math.ceil(getMaxLon()-getMinLon()/gridSpacing)+1;
+    //getting the nice Min Lat and Lon , so that each Lat-Lon is a perfect
+    //multiple of gridSpacing
+    niceMinLat = Math.ceil(minLat/gridSpacing)*gridSpacing;
+    niceMinLon = Math.ceil(minLon/gridSpacing)*gridSpacing;
+    niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
+    niceMaxLon = Math.floor(maxLat/gridSpacing)*gridSpacing;
+
+    numLatGridPoints = (int)Math.ceil((niceMaxLat - niceMinLat)/gridSpacing)+1;
+    numLonGridPoints = (int)Math.ceil((niceMaxLon - niceMinLon)/gridSpacing)+1;
+
   }
 
   /**
@@ -91,9 +101,10 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns the Grid Locations Iterator.
    */
   public ListIterator getGridLocationsIterator(){
-
-    //creating the instance of the locationList
-    LocationList gridLocsList=createGriddedLocationList();
+    //only create the location list if null
+    if(gridLocsList == null)
+      //creating the instance of the locationList
+      gridLocsList=createGriddedLocationList();
     //return the ListIterator for the locationList
     return gridLocsList.listIterator();
   }
@@ -103,8 +114,11 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns a list of grid-site locations
    */
   public LocationList getGridLocationsList(){
-    //creating the instance of the locationList
-    LocationList gridLocsList=createGriddedLocationList();
+    //only create the location list if null
+    if(gridLocsList == null)
+      //creating the instance of the locationList
+      gridLocsList=createGriddedLocationList();
+
     return gridLocsList;
   }
 
@@ -168,10 +182,14 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     double minLat = getMinLat();
     double minLon = getMinLon();
 
+    //Considering the Locations to be store in a 2D container where lats are rows
+    //and lons are the Cols.
+    //getting the Row index
     int rowIndex = (int)Math.rint((lat - minLat)/gridSpacing);
+    //getting the Col index
     int colIndex = (int)Math.rint((lon - minLon)/gridSpacing);
 
-
+    //getting the number of Lons(columns per row) per Lat.
     int numCols = getNumGridLons();
     int index = rowIndex*numCols+colIndex;
     return index;
@@ -189,9 +207,9 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     //creates a instance of new locationList
     LocationList gridLocsList=new LocationList();
     for(int iLat=0;iLat < numLatGridPoints; iLat++){
-      lat = getMinLat() + gridSpacing*(double)iLat;
+      lat = niceMinLat + gridSpacing*(double)iLat;
       for(int iLon=0; iLon < this.numLonGridPoints; iLon++){
-        lon=getMinLon()+gridSpacing*(double)iLon;
+        lon=niceMinLon+gridSpacing*(double)iLon;
         gridLocsList.addLocation(new Location(lat,lon));
       }
     }
@@ -229,5 +247,42 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     }
   }
 
+
+
+  /**
+   * Returns the nearest location in the gridded region to the provided Location.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return Location Nearest Location
+   */
+  public Location getNearestLocation(Location loc) {
+    //Getting the nearest Location to the rupture point location
+
+
+    //getting the nearest Latitude. If this Lon is greater then MaxLat, then
+    //niceMaxLat will be the nearest Lon. If it is less then the MinLat, then
+    //niceMinLat will be the nearest Lat.
+    double lat = Math.rint(loc.getLatitude() / gridSpacing) *
+        gridSpacing;
+    if (lat > getMaxLat())
+      lat = niceMaxLat;
+    else if (lat < getMinLat())
+      lat = niceMinLat;
+
+    //getting the nearest Longitude. If this Lon is greater then MaxLon, then
+    //niceMaxLon will be the nearest Lon. If it is less then the MinLon, then
+    //niceMinLon will be the nearest Lon
+    double lon = Math.rint(loc.getLongitude() / gridSpacing) *
+        gridSpacing;
+    if (lon > getMaxLon())
+      lat = niceMaxLon;
+    else if (lon < getMinLon())
+      lat = niceMinLon;
+
+    lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.format(
+        lat));
+    lon = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.format(
+        lon));
+    return new Location(lat, lon);
+  }
 
 }

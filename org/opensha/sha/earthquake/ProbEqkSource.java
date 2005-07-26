@@ -62,6 +62,14 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 
 
   /**
+   * Checks if the source is Poission.
+   * @return boolean
+   */
+  public boolean isPoissonianSource(){
+    return isPoissonian;
+  }
+
+  /**
    * This computes some measure of the minimum distance between the source and
    * the site passed in.  This is useful for ignoring sources that are at great
    * distanced from a site of interest.  Actual implementation depend on subclass.

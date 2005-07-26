@@ -3,7 +3,7 @@ package org.opensha.sha.earthquake.rupForecastImpl.remote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.ListIterator;
 
 import org.opensha.data.Location;
@@ -100,6 +100,18 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
    */
   public ProbEqkRupture getRuptureClone(int iSource, int nRupture) throws RemoteException;
 
+  /**
+   * This function returns the total probability of events above a given magnitude
+   * within the given geographic region.  The calcuated Rates depend on the  ERF
+   * subclass.  Note that it is assumed that the forecast has been updated.
+   * @param magnitude double  : magnitude above which rate needs to be returned
+   *
+   * @param region GeographicRegion : Region whose rates need to be returned
+   * @return double : Total Rate for the region
+   */
+  public double getTotalProbAbove(double magnitude, GeographicRegion region) throws
+      RemoteException;
+
 
   /**
    * This function returns the total Rate above a given magnitude ,
@@ -118,37 +130,36 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
    * location on all ruptures in Eqk Rupture forecast model, if that lies within the
    * provided EvenlyGriddedGeographicRegion.
    * Once all Mag-Rate distribution has been computed for each location within the
-   * ERF, this function returns list of DataObject2D object that constitutes of
-   * 2 objects, with X object being Location and Y object being
+   * ERF, this function returns Hashmap that constitutes of
+   * 2 objects, with key being Location and value being
    * ArbitrarilyDiscretizedFunc. This ArbitrarilyDiscretizedFunc for each location
    * is the Mag-Rate distribution with X values being Mag and Y values being Rate.
    * @param mag double : Magnitude above which Mag-Rate distribution is to be computed.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Ruptureforecast model
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
-   * @return ArrayList of DataObject2D with X object being Location and Y object
-   * being ArbitrarilyDiscretizedFunc
+   * @return Hashmap with key being Location and value being ArbitrarilyDiscretizedFunc
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
+  public HashMap getMagRateDistForEachLocationInRegion(double mag,
       EvenlyGriddedGeographicRegionAPI region)throws RemoteException;
 
   /**
    * This function computes the total SiesRate for each location on all the ruptures,
    * if they are within the provided Geographical Region.
-   * It returns a list of DataObject2D that store location as X-Object and its
-   * corresponding total seis rate(Double Object) as Y-Object.
+   * It returns a HashMap with key being location and value being
+   * total seis rate(Double Object) .
    * @param mag double : Only those ruptures above this magnitude are considered
    * for calculation of the total seis rates in the region.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture forecast model
    * @param region EvenlyGriddedGeographicRegionAPI
-   * @return ArrayList of DataObject2D with X object being Location and Y object
-   * being Double Object respresenating the TotalSeisRate
+   * @return Hashmap with key being Location and value being Double Object
+   * respresenating the TotalSeisRate.
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public ArrayList getTotalSeisRateAtEachLocationInRegion(double mag,
+  public HashMap getTotalSeisRateAtEachLocationInRegion(double mag,
       EvenlyGriddedGeographicRegionAPI region)throws RemoteException;
 
 

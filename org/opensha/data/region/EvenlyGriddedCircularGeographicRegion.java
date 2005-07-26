@@ -17,7 +17,7 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
                         implements EvenlyGriddedGeographicRegionAPI {
 
   private final static String C = "EvenlyGriddedCircularGeographicRegion";
-  private final static boolean D = true;
+  private final static boolean D = false;
 
   /**
    * class variables
@@ -25,6 +25,17 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
   private double gridSpacing;
 
   private LocationList gridLocsList;
+
+
+  // this makes the first lat and long grid points nice in that niceMinLat/gridSpacing
+  // is and integer and the point is within the polygon
+  private double niceMinLat;
+  private double niceMinLon ;
+  //this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
+  // is an integer
+  private double niceMaxLat;
+  private double niceMaxLon;
+
 
   /**
    * default constructor
@@ -35,11 +46,7 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    */
   public EvenlyGriddedCircularGeographicRegion(Location centerLoc, double radius, double gridSpacing) {
     super(centerLoc, radius);
-    this.gridSpacing=gridSpacing;
-    System.out.println("gridSpacing="+gridSpacing);
-
-    //create the LocationList
-    this.createGriddedLocationList();
+    this.setGridSpacing(gridSpacing);
   }
 
   /**
@@ -48,8 +55,17 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    * @param degrees: sets the grid spacing
    */
   public void setGridSpacing(double degrees){
-    gridSpacing = degrees;
-    createGriddedLocationList();
+    this.gridSpacing=gridSpacing;
+    if(D)
+      System.out.println("gridSpacing="+gridSpacing);
+    niceMinLat = Math.ceil(minLat/gridSpacing)*gridSpacing;
+    niceMinLon = Math.ceil(minLon/gridSpacing)*gridSpacing;
+    niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
+    niceMaxLon = Math.floor(maxLon/gridSpacing)*gridSpacing;
+
+    //create the LocationList
+    this.createGriddedLocationList();
+
   }
 
   /**
@@ -88,6 +104,47 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
 
 
   /**
+   * Returns the nearest location in the gridded region to the provided Location.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return Location Nearest Location
+   */
+  public Location getNearestLocation(Location loc) {
+    //Getting the nearest Location to the rupture point location
+    double lat = Math.rint(loc.getLatitude() / gridSpacing) *
+        gridSpacing;
+    if(lat > getMaxLat())
+      lat = niceMaxLat;
+    else if(lat < getMinLat())
+      lat = niceMinLat;
+
+
+    double lon = Math.rint(loc.getLongitude() / gridSpacing) *
+        gridSpacing;
+    if(lon > getMaxLon())
+      lat = niceMaxLon;
+    else if(lon < getMinLon())
+      lat = niceMinLon;
+
+    lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lat));
+    lon = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon));
+    return new Location(lat, lon);
+  }
+
+  /**
+   * Returns the index of the nearest location in the given gridded region, to
+   * the provided Location.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return int
+   */
+  public int getNearestLocationIndex(Location rupPointLoc) throws RuntimeException{
+    Location loc = getNearestLocation(rupPointLoc);
+    return gridLocsList.getLocationIndex(loc);
+  }
+
+
+
+
+  /**
    *
    * @param index
    * @returns the Grid Location at that index.
@@ -105,10 +162,7 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     double minLon=getMinLon();
     double maxLon=getMaxLon();
 
-    // this rounds the min lat (and lon) to an integer number of gridSpacing increments above the next
-    // lower integer lat (or lon)
-    double niceMinLat = (Math.floor(minLat - Math.floor(minLat))/gridSpacing)*gridSpacing + Math.floor(minLat);
-    double niceMinLon  = (Math.floor(minLon - Math.floor(minLon))/gridSpacing)*gridSpacing + Math.floor(minLon);
+
 
     if(D) {
       System.out.println("niceMinLat="+niceMinLat+";  niceMinLon="+niceMinLon);

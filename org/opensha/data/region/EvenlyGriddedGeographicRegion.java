@@ -4,6 +4,7 @@ import java.util.ListIterator;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegion</p>
@@ -21,17 +22,26 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
 
   private double gridSpacing;
 
+  // this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
+  // is an integer and the point is within the polygon
+  private double niceMinLat;
+  private double niceMinLon ;
+
+  //this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
+  // is an integer
+  private double niceMaxLat;
+  private double niceMaxLon;
+
   private LocationList gridLocsList;
+
+
 
   /**
    * default class constructor
    */
   public EvenlyGriddedGeographicRegion(LocationList locList,double gridSpacing) {
     super(locList);
-    this.gridSpacing=gridSpacing;
-
-    //create the LocationList
-    this.createGriddedLocationList();
+    setGridSpacing(gridSpacing);
   }
 
   /**
@@ -41,6 +51,10 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
    */
   public void setGridSpacing(double degrees){
     gridSpacing = degrees;
+    niceMinLat = Math.ceil(minLat/gridSpacing)*gridSpacing;
+    niceMinLon = Math.ceil(minLon/gridSpacing)*gridSpacing;
+    niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
+    niceMaxLon = Math.floor(maxLon/gridSpacing)*gridSpacing;
     createGriddedLocationList();
   }
 
@@ -90,36 +104,63 @@ public class EvenlyGriddedGeographicRegion extends GeographicRegion
     return gridLocsList.getLocationAt(index);
   }
 
-  /**
-   *
-   * @param rupPointLoc Location
-   * @return Location
-   */
-  public int getNearestLocationIndex(Location rupPointLoc) {
 
+  /**
+   * Returns the nearest location in the gridded region to the provided Location.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return Location Nearest Location
+   */
+  public Location getNearestLocation(Location loc) {
     //Getting the nearest Location to the rupture point location
-    double lat = Math.rint(rupPointLoc.getLatitude() / gridSpacing) *
+
+
+    //getting the nearest Latitude. If this Lon is greater then MaxLat, then
+    //niceMaxLat will be the nearest Lon. If it is less then the MinLat, then
+    //niceMinLat will be the nearest Lat.
+    double lat = Math.rint(loc.getLatitude() / gridSpacing) *
         gridSpacing;
-    double lon = Math.rint(rupPointLoc.getLongitude() / gridSpacing) *
+    if(lat > getMaxLat())
+      lat = niceMaxLat;
+    else if(lat < getMinLat())
+      lat = niceMinLat;
+
+    //getting the nearest Longitude. If this Lon is greater then MaxLon, then
+    //niceMaxLon will be the nearest Lon. If it is less then the MinLon, then
+    //niceMinLon will be the nearest Lon
+    double lon = Math.rint(loc.getLongitude() / gridSpacing) *
         gridSpacing;
-    //lat = Double.parseDouble(latLonFormat.format(lat));
-    //lon = Double.parseDouble(latLonFormat.format(lon));
-    return 0;
+    if(lon > getMaxLon())
+      lat = niceMaxLon;
+    else if(lon < getMinLon())
+      lat = niceMinLon;
+
+    lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lat));
+    lon = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon));
+    return new Location(lat, lon);
+  }
+
+  /**
+   * Returns the index of the nearest location in the given gridded region, to
+   * the provided Location.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return int
+   */
+  public int getNearestLocationIndex(Location rupPointLoc) throws RuntimeException{
+    Location loc = getNearestLocation(rupPointLoc);
+    return gridLocsList.getLocationIndex(loc);
   }
 
 
 
-
+  /*
+   * Creates tha list of the location for the Gridded Geographic Region.
+   */
   private void createGriddedLocationList(){
     double minLat=getMinLat();
     double maxLat=getMaxLat();
     double minLon=getMinLon();
     double maxLon=getMaxLon();
 
-    // this rounds the min lat (and lon) to an integer number of gridSpacing increments above the next
-    // lower integer lat (or lon)
-    double niceMinLat = (Math.floor(minLat - Math.floor(minLat))/gridSpacing)*gridSpacing + Math.floor(minLat);
-    double niceMinLon  = (Math.floor(minLon - Math.floor(minLon))/gridSpacing)*gridSpacing + Math.floor(minLon);
 
     Location tempLoc;
 

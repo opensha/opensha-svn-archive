@@ -196,6 +196,16 @@ public class LocationList implements java.io.Serializable{
 
 
     /**
+     * Returns the index of location with the given location list.
+     * @param loc Location finds index of this location
+     * @return int index in the List.
+     */
+    public int getLocationIndex(Location loc){
+      return locations.indexOf(loc);
+    }
+
+
+    /**
      * This computes the shortest horizontal distance (in km) from the given loc
      * to any point on the line defined by connecting the points in this location list.
      * @param loc

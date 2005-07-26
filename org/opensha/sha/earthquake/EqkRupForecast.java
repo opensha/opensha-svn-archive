@@ -17,10 +17,10 @@ import org.opensha.sha.surface.GriddedSurfaceAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.data.DataObject2D;
 import java.util.HashMap;
 import java.util.Set;
 import java.text.DecimalFormat;
+import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 
 /**
  * <p>Title: </p>
@@ -256,55 +256,8 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public double getTotalProbAbove(double magnitude, GeographicRegion region) {
 
-    int numSources = getNumSources();
-    int numRuptures;
-    double totalProb = 1.0;  // intialize as probability of none
-    double srcProb;
-
-    //Going over every source in the forecast
-    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
-      // get the ith source
-      ProbEqkSource source = this.getSource(sourceIndex);
-      numRuptures = source.getNumRuptures();
-
-      // initialize the source probability
-      if(source.isPoissonian)
-        srcProb = 1;        // initial probability of no events
-      else
-        srcProb = 0;        // initial probability of an event
-
-      //going over all the ruptures in the source
-      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
-        ProbEqkRupture rupture = source.getRupture(rupIndex);
-
-        //if rupture magnitude is less then given magnitude then skip those ruptures
-        if (rupture.getMag() < magnitude)
-          continue;
-
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
-        double ptProb = rupture.getProbability()/rupSurface.size();
-
-        //getting the iterator for all points on the rupture
-        ListIterator it = rupSurface.getAllByRowsIterator();
-
-        while (it.hasNext()) {
-          Location ptLoc = (Location) it.next();
-          // jump out if not inside region
-          if (!region.isLocationInside(ptLoc))
-            continue;
-
-          if(source.isPoissonian)
-            srcProb *= (1-ptProb);     // the probability of none
-          else
-            srcProb += ptProb;         // the probability of an event
-        }
-      }
-      // convert back to prob of one or more if Poissonian
-      if(source.isPoissonian)
-        srcProb = 1.0-srcProb;
-      totalProb *= (1.0-srcProb);        // the total probability of none
-    }
-    return 1-totalProb;    // return the probability of one or more
+    ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
+    return seisRates.getTotalProbAbove(this,magnitude,region);
   }
 
 
@@ -321,7 +274,8 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public double getTotalRateAbove(double magnitude, GeographicRegion region) {
 
-    return 0.0;
+    ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
+    return seisRates.getTotalSeisRateInRegion(magnitude,this,region);
   }
 
 
@@ -331,49 +285,46 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * location on all ruptures in Eqk Rupture forecast model, if that lies within the
    * provided EvenlyGriddedGeographicRegion.
    * Once all Mag-Rate distribution has been computed for each location within the
-   * ERF, this function returns list of DataObject2D object that constitutes of
-   * 2 objects, with X object being Location and Y object being
+   * ERF, this function returns Hashmap that constitutes of
+   * 2 objects, with key being Location and value being
    * ArbitrarilyDiscretizedFunc. This ArbitrarilyDiscretizedFunc for each location
    * is the Mag-Rate distribution with X values being Mag and Y values being Rate.
    * @param mag double : Magnitude above which Mag-Rate distribution is to be computed.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Ruptureforecast model
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
-   * @return ArrayList of DataObject2D with X object being Location and Y object
-   * being ArbitrarilyDiscretizedFunc
+   * @return Hashmap with key being Location and value being ArbitrarilyDiscretizedFunc
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
-                               EvenlyGriddedGeographicRegionAPI region) {
+  public HashMap getMagRateDistForEachLocationInRegion(double mag,
+      EvenlyGriddedGeographicRegionAPI region) {
 
-
-    return null;
-
+    ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
+    return seisRates.getMagRateDistForEachLocationInRegion(mag,this,region);
   }
 
 
   /**
    * This function computes the total SiesRate for each location on all the ruptures,
    * if they are within the provided Geographical Region.
-   * It returns a list of DataObject2D that store location as X-Object and its
-   * corresponding total seis rate(Double Object) as Y-Object.
+   * It returns a HashMap with key being location and value being
+   * total seis rate(Double Object) .
    * @param mag double : Only those ruptures above this magnitude are considered
    * for calculation of the total seis rates in the region.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture forecast model
    * @param region EvenlyGriddedGeographicRegionAPI
-   * @return ArrayList of DataObject2D with X object being Location and Y object
-   * being Double Object respresenating the TotalSeisRate
+   * @return Hashmap with key being Location and value being Double Object
+   * respresenating the TotalSeisRate.
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
-
    */
-  public ArrayList getTotalSeisRateAtEachLocationInRegion(double mag,
-                              EvenlyGriddedGeographicRegionAPI region) {
+  public HashMap getTotalSeisRateAtEachLocationInRegion(double mag,
+      EvenlyGriddedGeographicRegionAPI region) {
 
-
-   return null;
- }
+    ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
+    return seisRates.getTotalSeisRateAtEachLocationInRegion(mag,this,region);
+  }
 
 
   /**
@@ -390,10 +341,10 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * the region.
    */
   public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double magnitude,
-                                  GeographicRegion region) {
-      return null;
+      GeographicRegion region) {
+    ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
+    return seisRates.getMagRateDistForRegion(magnitude,this,region);
   }
-
 
 
 }
