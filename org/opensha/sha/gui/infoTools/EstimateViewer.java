@@ -53,6 +53,7 @@ public class EstimateViewer implements GraphWindowAPI {
   public ArrayList getCurveFunctionList() {
    ArrayList list = new ArrayList();
    list.add(estimate.getPDF());
+   list.add(estimate.getCDF());
    return list;
  }
 
