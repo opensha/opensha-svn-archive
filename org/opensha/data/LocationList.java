@@ -208,6 +208,7 @@ public class LocationList implements java.io.Serializable{
     /**
      * This computes the shortest horizontal distance (in km) from the given loc
      * to any point on the line defined by connecting the points in this location list.
+     * This is approximate in that iy uses the RelativeLocation.getApproxHorzDistToLine(*) method
      * @param loc
      * @return
      */

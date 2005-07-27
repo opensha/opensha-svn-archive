@@ -17,6 +17,10 @@ EvenlyGriddedRegion Stuff:
 		Add method that will take a list of locations (or gridded region) and return the list
 		of those corresponding to the locations in the present gridded region.????
 
+		Implement the efficient schemes we discussed for getting index of loc or loc 
+		of index.  Make sure docs are explicit about whether pointers or clones are returned
+		under the various conditions.
+
 Create a SausageGeographicRegion that takes a locListLine and radius as input and constructs a polygon such that each point on the polygon is ~radius from the line defined by locListLine.  Note that LocationList has the method getMinHorzDistToLine(loc) which could be useful here.  Note also that some of the presently private attributes in the parent class (GeographicRegion) could be useful if made protected.
 
 Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations simultaneously with the polygon in the parent class, SausageGeographicRegion, for efficiency).

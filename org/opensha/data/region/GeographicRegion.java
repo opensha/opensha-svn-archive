@@ -12,7 +12,7 @@ import org.opensha.calc.RelativeLocation;
  * <p>Title: GeographicRegion </p>
  *
  * <p>Description: This class represents a geographical region using a polygon
- * specified with a LocationList  </p>
+ * specified with a LocationList.    </p>
  *
  * @author : Nitin Gupta, Vipin Gupta, and Edward field
  * @created : March 5, 2003
@@ -58,8 +58,10 @@ public class GeographicRegion implements java.io.Serializable{
   }
 
   /**
-   * This method checks whether the given location is inside the region using the
-   * definition of insidedness given in the java.awt Shape interface:<p>
+   * This method checks whether the given location is inside the region by
+   * converting the region outline into a cartesion-coordinate-system polygon, with
+   * straight-line segment, and using the definition of insidedness given in the
+   * java.awt Shape interface:<p>
    * A point is considered inside if an only if:
    * <UL>
    * <LI>it lies completely inside the boundary or
@@ -192,9 +194,10 @@ public class GeographicRegion implements java.io.Serializable{
 
 
   /**
-   * This computes the minimum horizonatal distance (km) from the location to polygon, or line, defined
-   * by the region.  Zero is returned if the given location is inside the polygon.
-   * @param loc
+   * This computes the minimum horizonatal distance (km) from the location the
+   * region outline.  Zero is returned if the given location is inside the polygon.
+   * This distance is approximate in that it uses the RelativeLocation.getApproxHorzDistToLine(*)
+   * method to compute the distance to each line segment in the region outline.
    * @return
    */
   public double getMinHorzDistToRegion(Location loc) {
@@ -202,7 +205,7 @@ public class GeographicRegion implements java.io.Serializable{
       return 0.0;
     else {
       double min = locList.getMinHorzDistToLine(loc);
-      // now check the segiment defined by the last and first points
+      // now check the segment defined by the last and first points
       double temp = RelativeLocation.getApproxHorzDistToLine(loc,locList.getLocationAt(locList.size()-1),
                                                          locList.getLocationAt(0));
       if (temp < min) return temp;
