@@ -438,7 +438,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public HashMap getMagRateDistForEachLocationInRegion(double mag,
+  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
       EvenlyGriddedGeographicRegionAPI region) {
     try {
       return erfServer.getMagRateDistForEachLocationInRegion(mag, region);
@@ -463,7 +463,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public HashMap getTotalSeisRateAtEachLocationInRegion(double mag,
+  public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
       EvenlyGriddedGeographicRegionAPI region){
     try {
       return erfServer.getTotalSeisRateAtEachLocationInRegion(mag, region);

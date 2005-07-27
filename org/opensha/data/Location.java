@@ -55,6 +55,9 @@ public class Location implements java.io.Serializable {
     public static final double MIN_DEPTH =0.0;
 
 
+    private DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
+
+
     /** No-Arg Constructor for the Location object. Currently does nothing. */
     public Location() { }
 

@@ -16,8 +16,6 @@ import org.opensha.param.StringConstraint;
  * <p>Description: This class creates the instance of the Frankel-02 and
  * then loop over all the sources for the ERF and return the gridded surface of these
  * sources to be plotted.</p>
- *
- *
  * @author Nitin Gupta
  * @version 1.0
  */
@@ -42,8 +40,7 @@ public class ReadFrankel02_FaultSurface {
         Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(10.0));
     frankelForecast.getTimeSpan().setDuration(50.0);
-    setFaultModelInFrankelForecast(frankelForecast.FAULT_MODEL_FRANKEL);
-    frankelForecast.updateForecast();
+    setFaultModelInFrankelForecast(frankelForecast.FAULT_MODEL_STIRLING);
   }
 
 
@@ -86,6 +83,7 @@ public class ReadFrankel02_FaultSurface {
    */
   public FaultRuptureSource[] getNSHMP_CharSourceFile(){
 
+   frankelForecast.updateForecast();
    ArrayList faultsources =  frankelForecast.getAllCharFaultSources();
 
    int size = faultsources.size();

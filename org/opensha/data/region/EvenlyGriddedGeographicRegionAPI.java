@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 public interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
 
 
-  public final static DecimalFormat latLonFormat = new DecimalFormat("0.00##");
+  public final static DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
 
   /**
    * This method sets the grid spacing in degrees.

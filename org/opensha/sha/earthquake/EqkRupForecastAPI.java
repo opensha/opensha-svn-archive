@@ -103,7 +103,7 @@ public interface EqkRupForecastAPI extends ERF_API{
       * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
       * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
       */
-     public HashMap getMagRateDistForEachLocationInRegion(double mag,
+     public ArrayList getMagRateDistForEachLocationInRegion(double mag,
          EvenlyGriddedGeographicRegionAPI region);
 
      /**
@@ -120,7 +120,7 @@ public interface EqkRupForecastAPI extends ERF_API{
       * @see Double, Location, EvenlyGriddedGeographicRegion,
       * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
       */
-     public HashMap getTotalSeisRateAtEachLocationInRegion(double mag,
+     public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
          EvenlyGriddedGeographicRegionAPI region);
 
 

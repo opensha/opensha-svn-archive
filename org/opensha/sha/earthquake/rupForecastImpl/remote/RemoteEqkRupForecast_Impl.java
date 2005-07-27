@@ -281,7 +281,7 @@ public class RemoteEqkRupForecast_Impl
     * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
     * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
     */
-   public HashMap getMagRateDistForEachLocationInRegion(double mag,
+   public ArrayList getMagRateDistForEachLocationInRegion(double mag,
        EvenlyGriddedGeographicRegionAPI region) throws RemoteException {
      return eqkRupForecast.getMagRateDistForEachLocationInRegion(mag, region);
    }
@@ -300,7 +300,7 @@ public class RemoteEqkRupForecast_Impl
     * @see Double, Location, EvenlyGriddedGeographicRegion,
     * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
     */
-   public HashMap getTotalSeisRateAtEachLocationInRegion(double mag,
+   public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
        EvenlyGriddedGeographicRegionAPI region) throws RemoteException {
      return eqkRupForecast.getTotalSeisRateAtEachLocationInRegion(mag, region);
    }

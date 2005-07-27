@@ -297,7 +297,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public HashMap getMagRateDistForEachLocationInRegion(double mag,
+  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
       EvenlyGriddedGeographicRegionAPI region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
@@ -319,7 +319,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public HashMap getTotalSeisRateAtEachLocationInRegion(double mag,
+  public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
       EvenlyGriddedGeographicRegionAPI region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
