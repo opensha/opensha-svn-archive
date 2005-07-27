@@ -2,6 +2,7 @@ package org.opensha.param;
 
 import org.opensha.exceptions.*;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: ArbitrarilyDiscretizedFuncParameter.java </p>
@@ -26,23 +27,12 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
 
 
   /**
-   *  No constraints specified for this parameter. Sets the name of this
-   *  parameter.
-   *
-   * @param  name  Name of the parameter
-   */
-  public ArbitrarilyDiscretizedFuncParameter(String name) {
-    super(name,null,null,null);
-  }
-
-
-  /**
    * No constraints specified, all values allowed. Sets the name and value.
    *
    * @param  name   Name of the parameter
    * @param  discretizedFunc  DiscretizedFunc  object
    */
-  public ArbitrarilyDiscretizedFuncParameter(String name, DiscretizedFuncAPI discretizedFunc){
+  public ArbitrarilyDiscretizedFuncParameter(String name, ArbitrarilyDiscretizedFunc discretizedFunc){
     super(name,null,null,discretizedFunc);
 
   }
@@ -62,7 +52,7 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
   public int compareTo( Object obj ) {
     String S = C + ":compareTo(): ";
 
-    if ( !( obj instanceof DiscretizedFuncAPI ) ) {
+    if ( !( obj instanceof ArbitrarilyDiscretizedFunc ) ) {
       throw new ClassCastException( S + "Object not a DiscretizedFuncAPI, unable to compare" );
     }
 
@@ -71,8 +61,8 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
     if( ( this.value == null ) && ( param.value == null ) ) return 0;
     int result = 0;
 
-    DiscretizedFuncAPI n1 = ( DiscretizedFuncAPI) this.getValue();
-    DiscretizedFuncAPI n2 = ( DiscretizedFuncAPI ) param.getValue();
+    ArbitrarilyDiscretizedFunc n1 = ( ArbitrarilyDiscretizedFunc) this.getValue();
+    ArbitrarilyDiscretizedFunc n2 = ( ArbitrarilyDiscretizedFunc ) param.getValue();
 
    if(n1.equals(n2)) return 0;
    else return -1;
@@ -81,25 +71,25 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
 
 
   /**
-   * Set's the parameter's value, which is basically a DiscretizedFunction.
+   * Set's the parameter's value, which is basically a ArbitrarilyDiscretizedFunc.
    *
    * @param  value                 The new value for this Parameter
    * @throws  ParameterException   Thrown if the object is currenlty not
    *      editable
    */
-  public void setValue( DiscretizedFuncAPI value ) throws ParameterException {
+  public void setValue( ArbitrarilyDiscretizedFunc value ) throws ParameterException {
     setValue( (Object) value );
   }
 
 
-  /*  This function just checks that we only allow an object of DiscretizedFuncAPI.
+  /*  This function just checks that we only allow an object of ArbitrarilyDiscretizedFunc.
    *
    * @param  obj  Object to check if allowed via constraints
    * @return      True if the value is allowed
    */
   public boolean isAllowed(Object obj) {
     if(obj == null && this.isNullAllowed()) return true;
-    if(obj instanceof DiscretizedFuncAPI) return true;
+    if(obj instanceof ArbitrarilyDiscretizedFunc) return true;
     else return false;
   }
 
@@ -119,7 +109,7 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
       throw new ClassCastException(S +
           "Object not a DiscretizedFuncAPI, unable to compare");
     }
-    return ((DiscretizedFuncAPI)value).equals(((ArbitrarilyDiscretizedFuncParameter)obj).value);
+    return ((ArbitrarilyDiscretizedFunc)value).equals(((ArbitrarilyDiscretizedFuncParameter)obj).value);
   }
 
   /**
@@ -130,8 +120,7 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
   public Object clone(){
 
       ArbitrarilyDiscretizedFuncParameter param = null;
-      if( value == null ) param = new ArbitrarilyDiscretizedFuncParameter( name);
-      else param = new ArbitrarilyDiscretizedFuncParameter(name,((DiscretizedFuncAPI)value).deepClone());
+      param = new ArbitrarilyDiscretizedFuncParameter(name,(ArbitrarilyDiscretizedFunc)((ArbitrarilyDiscretizedFunc)value).deepClone());
       if( param == null ) return null;
       param.editable = true;
       return param;
@@ -140,10 +129,10 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
 
   /**
    *
-   * @returns the DiscretizedFuncAPI contained in this parameter
+   * @returns the ArbitrarilyDiscretizedFunc contained in this parameter
    */
-  public DiscretizedFuncAPI getParameter(){
-    return (DiscretizedFuncAPI)getValue();
+  public ArbitrarilyDiscretizedFunc getParameter(){
+    return (ArbitrarilyDiscretizedFunc)getValue();
   }
 
   /**

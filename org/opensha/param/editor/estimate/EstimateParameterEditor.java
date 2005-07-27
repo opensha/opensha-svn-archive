@@ -212,7 +212,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     minParam = new DoubleParameter(MIN_PARAM_NAME, DEFAULT_MIN_PARAM_VAL);
     maxParam = new DoubleParameter(MAX_PARAM_NAME, DEFAULT_MAX_PARAM_VAL);
     numParam = new IntegerParameter(NUM_PARAM_NAME, DEFAULT_NUM_PARAM_VAL);
-    xyValsParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME);
+    xyValsParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
 
 
    // list of available estimates
