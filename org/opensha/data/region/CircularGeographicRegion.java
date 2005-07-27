@@ -81,13 +81,14 @@ public class CircularGeographicRegion extends GeographicRegion {
 
   public static void main(String[] args) {
     CircularGeographicRegion reg = new CircularGeographicRegion(new Location(34,-122,0),111);
+    System.out.println(reg.getNumRegionOutlineLocations());
   }
 
   // this make the locList for the region outline
   /**
    * This creates the region outline for the circle, where there are 360/degreeIncrement
    * equally spaced points (the last two may be closer than this).  The constructore (default)
-   * uses 5 degrees (72 points)
+   * uses 10 degrees (36 points)
    *
    * @param degreeIncrement - difference in azimuth (from the center) between neighboring points
    */

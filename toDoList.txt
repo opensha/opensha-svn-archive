@@ -2,6 +2,32 @@
 -------------------------------------------------------------
 
 
+EvenlyGriddedRegion Stuff:
+
+	Impose & document the following rules for all classes:
+
+		 min discrete lat and lon are inside the region & such that division by 
+		 gridSpacing is exactly an int (same for max discrete lat and lon)
+
+		add getMinGridLat() & getMaxGridLat() methods (likewise for Lon) to API
+
+		Impose and document rules for ordering of indexed locations (increasing lat 
+		and lons, sweeping over lons)
+
+		Add method that will take a list of locations (or gridded region) and return the list
+		of those corresponding to the locations in the present gridded region.????
+
+Create a SausageGeographicRegion that takes a locListLine and radius as input and constructs a polygon such that each point on the polygon is ~radius from the line defined by locListLine.  Note that LocationList has the method getMinHorzDistToLine(loc) which could be useful here.  Note also that some of the presently private attributes in the parent class (GeographicRegion) could be useful if made protected.
+
+Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations simultaneously with the polygon in the parent class, SausageGeographicRegion, for efficiency).
+
+Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
+
+
+
+
+		 
+
 Check do we really need to call it AttenuationRelationship for the GUI bean s used in the Scenarioshake map or can we just call it IMR. We need Attenuation only if Median and Std. deviation needs to be calculated. -- No it not customized or hard-coded for the AttenuationRelationships (Nitin).
 
 Set up registration for HazMapDataGenerator - Phil has good ideas about this. -- done (Nitin)
