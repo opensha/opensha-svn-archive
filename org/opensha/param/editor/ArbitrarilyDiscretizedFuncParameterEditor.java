@@ -16,7 +16,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 /**
- * <b>Title:</b> IntegerParameterEditor<p>
+ * <b>Title:</b> ArbitrarilyDiscretizedFuncParameterEditor<p>
  *
  * <b>Description:</b> Subclass of ParameterEditor for editing DiscretizedFuncParameters.
  * The widget is a JTextArea which allows X and Y values to be filled in.  <p>

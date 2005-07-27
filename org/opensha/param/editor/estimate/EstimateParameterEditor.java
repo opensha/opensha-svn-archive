@@ -43,7 +43,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     implements ParameterChangeListener,
     ParameterChangeFailListener, ActionListener{
 
-  private EstimateParameter estimateParam;
+   private EstimateParameter estimateParam;
   // name of the estimate
    private String name;
    /**
@@ -90,20 +90,13 @@ public class EstimateParameterEditor  extends ParameterEditor
    private final static String LOG_BASE_10_NAME="10";
    private final static String NATURAL_LOG_NAME="E";
 
-   /**
-    * Min,max, num for PDF
-    */
-   private DoubleParameter minParam ;
-   private final static String MIN_PARAM_NAME="Min";
-   private final static Double DEFAULT_MIN_PARAM_VAL=new Double(1);
-   private DoubleParameter maxParam ;
-   private final static String MAX_PARAM_NAME="Max";
-   private final static Double DEFAULT_MAX_PARAM_VAL=new Double(10);
-   private IntegerParameter numParam;
-   private final static String NUM_PARAM_NAME="Num";
-   private final static Integer DEFAULT_NUM_PARAM_VAL=new Integer(10);
-   private ArbitrarilyDiscretizedFuncParameter xyValsParam;
+ // for X and Y vlaues for Discrete Value estimate and Min/Max/Preferred Estimate
+   private ArbitrarilyDiscretizedFuncParameter arbitrarilyDiscFuncParam;
    private final static String XY_PARAM_NAME = "XY Values";
+
+   private EvenlyDiscretizedFuncParameter evenlyDiscFuncParam;
+   private final static String PDF_PARAM_NAME = "PDF Vals";
+
    //private JButton setEstimateButton ;
    private JButton viewEstimateButton;
 
@@ -209,12 +202,8 @@ public class EstimateParameterEditor  extends ParameterEditor
     stdDevParam = new DoubleParameter(STD_DEV_PARAM_NAME, DEFAULT_STD_DEV_PARAM_VAL);
     linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME, DEFAULT_LINEAR_MEDIAN_PARAM_VAL);
 
-    minParam = new DoubleParameter(MIN_PARAM_NAME, DEFAULT_MIN_PARAM_VAL);
-    maxParam = new DoubleParameter(MAX_PARAM_NAME, DEFAULT_MAX_PARAM_VAL);
-    numParam = new IntegerParameter(NUM_PARAM_NAME, DEFAULT_NUM_PARAM_VAL);
-    xyValsParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
-
-
+    arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
+    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, new EvenlyDiscretizedFunc(1.0,2.0,2));
    // list of available estimates
    ArrayList allowedEstimatesList = ((EstimateConstraint)estimateParam.getConstraint()).getAllowedEstimateList();
    chooseEstimateParam = new StringParameter(CHOOSE_ESTIMATE_PARAM_NAME,
@@ -260,10 +249,8 @@ public class EstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(this.stdDevParam);
    parameterList.addParameter(this.linearMedianParam);
    parameterList.addParameter(this.logBaseParam);
-   parameterList.addParameter(this.minParam);
-   parameterList.addParameter(this.maxParam);
-   parameterList.addParameter(this.numParam);
-   parameterList.addParameter(this.xyValsParam);
+   parameterList.addParameter(this.arbitrarilyDiscFuncParam);
+   parameterList.addParameter(evenlyDiscFuncParam);
    this.editor = new ParameterListEditor(parameterList);
    editor.setTitle(ESTIMATE_TITLE);
 
@@ -316,9 +303,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(MIN_PARAM_NAME, false);
-   editor.setParameterVisible(MAX_PARAM_NAME, false);
-   editor.setParameterVisible(NUM_PARAM_NAME, false);
+   editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, false);
    xValsParamListEditor.setVisible(true);
    probValsParamListEditor.setVisible(true);
@@ -334,9 +319,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(MIN_PARAM_NAME, false);
-   editor.setParameterVisible(MAX_PARAM_NAME, false);
-   editor.setParameterVisible(NUM_PARAM_NAME, false);
+   editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
@@ -351,9 +334,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
     editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, true);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
-    editor.setParameterVisible(MIN_PARAM_NAME, false);
-    editor.setParameterVisible(MAX_PARAM_NAME, false);
-    editor.setParameterVisible(NUM_PARAM_NAME, false);
+    editor.setParameterVisible(PDF_PARAM_NAME, false);
     editor.setParameterVisible(XY_PARAM_NAME, false);
     xValsParamListEditor.setVisible(false);
     probValsParamListEditor.setVisible(false);
@@ -368,10 +349,8 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(MIN_PARAM_NAME, true);
-   editor.setParameterVisible(MAX_PARAM_NAME, true);
-   editor.setParameterVisible(NUM_PARAM_NAME, true);
-   editor.setParameterVisible(XY_PARAM_NAME, true);
+   editor.setParameterVisible(PDF_PARAM_NAME, true);
+   editor.setParameterVisible(XY_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
  }
@@ -385,9 +364,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(MIN_PARAM_NAME, false);
-   editor.setParameterVisible(MAX_PARAM_NAME, false);
-   editor.setParameterVisible(NUM_PARAM_NAME, false);
+   editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, true);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
@@ -441,25 +418,18 @@ public class EstimateParameterEditor  extends ParameterEditor
  }
 
  private void setDiscreteValueEstimate() {
-   DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue(), false);
+   DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
    this.estimateParam.setValue(estimate);
  }
 
  private void setIntegerEstimate() {
-   IntegerEstimate estimate = new IntegerEstimate((ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue(), false);
+   IntegerEstimate estimate = new IntegerEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
    this.estimateParam.setValue(estimate);
  }
 
  private void setPDF_Estimate() {
-   double min = ((Double)minParam.getValue()).doubleValue();
-   double max = ((Double)maxParam.getValue()).doubleValue();
-   int num = ((Integer)numParam.getValue()).intValue();
-   ArbitrarilyDiscretizedFunc func =(ArbitrarilyDiscretizedFunc)this.xyValsParam.getValue();
-   EvenlyDiscretizedFunc evelyDiscretizedFunc = new EvenlyDiscretizedFunc(min,max,num);
-   copyFunction(func, evelyDiscretizedFunc);
-   PDF_Estimate estimate = new PDF_Estimate(evelyDiscretizedFunc, false);
+   PDF_Estimate estimate = new PDF_Estimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), false);
    estimateParam.setValue(estimate);
-
  }
 
  private void setFractileListEstimate() {
