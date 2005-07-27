@@ -136,7 +136,6 @@ public class ERF2GriddedSeisRatesCalc {
 
     this.eqkRupForecast = eqkRupForecast;
     this.region = region;
-    gridSpacing = region.getGridSpacing();
 
     //computing the rates for magnitudes for each location on rupture in the ERF.
     double[] rates = calcTotalSeisRatesForGriddedRegion();
