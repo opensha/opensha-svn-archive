@@ -24,7 +24,7 @@ import java.awt.Insets;
  * @author Vipin Gupta, Nitin Gupta
  * @version 1.0
  */
-public class DiscretizedFuncParameterEditor extends ParameterEditor
+public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
 {
 
     /** Class name for debugging. */
@@ -41,20 +41,20 @@ public class DiscretizedFuncParameterEditor extends ParameterEditor
             0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
 
     /** No-Arg constructor calls parent constructor */
-    public DiscretizedFuncParameterEditor() { super(); }
+    public ArbitrarilyDiscretizedFuncParameterEditor() { super(); }
 
     /**
      * Constructor that sets the parameter that it edits. An
      * Exception is thrown if the model is not an DiscretizedFuncParameter <p>
      */
-     public DiscretizedFuncParameterEditor(ParameterAPI model) throws Exception {
+     public ArbitrarilyDiscretizedFuncParameterEditor(ParameterAPI model) throws Exception {
 
         super(model);
 
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
-        if ( (model != null ) && !(model instanceof DiscretizedFuncParameter))
+        if ( (model != null ) && !(model instanceof ArbitrarilyDiscretizedFuncParameter))
             throw new Exception( S + "Input model parameter must be a DiscretizedFuncParameter.");
 
         this.setParameter(model);

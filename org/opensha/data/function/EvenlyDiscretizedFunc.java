@@ -74,7 +74,22 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      */
     public EvenlyDiscretizedFunc(double min, int num, double delta) {
 
-        this(min, min + (num-1)*delta, num);
+        set(min, num, delta);
+    }
+
+
+    /**
+     * Fully quantify the domain of this list, i.e.
+     * the x-axis. This function clears the list of points
+      * previously in this function
+     *
+     * @param min   - Starting x value
+     * @param num   - number of points in list
+     * @param delta - distance between x values
+     */
+
+    public void set(double min, int num, double delta) {
+      set(min, min + (num-1)*delta, num);
     }
 
 
@@ -87,28 +102,42 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
      * @param max - Ending x value
      */
     public EvenlyDiscretizedFunc(double min, double max, int num) {
+      this.set(min, max, num);
+    }
 
-        if (num <= 0) throw new DiscretizedFuncException("num points must be >= 0");
+    /**
+      * Three input options to fully quantify the domain
+      * of this list, i.e. the x-axis. This function clears the list of points
+      * previously in this function
+      *
+      * @param min   - Starting x value
+      * @param num   - number of points in list
+      * @param max - Ending x value
+      */
 
-        if (num == 1 && min != max)
-            throw new DiscretizedFuncException("min must equal max if num points = 1");
+    public void set(double min, double max, int num) {
+      if (num <= 0)
+        throw new DiscretizedFuncException("num points must be >= 0");
 
-        if (min > max) throw new DiscretizedFuncException("min must be less than max");
-        else if (min < max)
-            delta = (max-min)/(num-1);
-        else { // max == min
-            if (num == 1)
-                delta = 0;
-            else
-                throw new DiscretizedFuncException("num must = 1 if min = max");
-        }
+      if (num == 1 && min != max)
+        throw new DiscretizedFuncException("min must equal max if num points = 1");
 
-        this.minX = min;
-        this.maxX = max;
-        this.num = num;
+      if (min > max)
+        throw new DiscretizedFuncException("min must be less than max");
+      else if (min < max)
+        delta = (max - min) / (num - 1);
+      else { // max == min
+        if (num == 1)
+          delta = 0;
+        else
+          throw new DiscretizedFuncException("num must = 1 if min = max");
+      }
 
-        points = new double[num];
+      this.minX = min;
+      this.maxX = max;
+      this.num = num;
 
+      points = new double[num];
     }
 
     /** Sets all y values to NaN */

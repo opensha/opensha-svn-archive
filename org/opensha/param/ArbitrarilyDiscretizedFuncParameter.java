@@ -4,23 +4,23 @@ import org.opensha.exceptions.*;
 import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
- * <p>Title: DiscretizedFuncParameter.java </p>
+ * <p>Title: ArbitrarilyDiscretizedFuncParameter.java </p>
  * <p>Description: Makes a textfield to enter X and Y values</p>
  * @author : Nitin Gupta and Vipin Gupta
  * @created : April 01,2004
  * @version 1.0
  */
 
-public class DiscretizedFuncParameter extends DependentParameter
+public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
     implements java.io.Serializable{
 
 
   /** Class name for debugging. */
-  protected final static String C = "DiscretizedFuncParameter";
+  protected final static String C = "ArbitrarilyDiscretizedFuncParameter";
   /** If true print out debug statements. */
   protected final static boolean D = false;
 
-  protected final static String PARAM_TYPE ="DiscretizedFuncParameter";
+  protected final static String PARAM_TYPE ="ArbitrarilyDiscretizedFuncParameter";
 
 
 
@@ -31,7 +31,7 @@ public class DiscretizedFuncParameter extends DependentParameter
    *
    * @param  name  Name of the parameter
    */
-  public DiscretizedFuncParameter(String name) {
+  public ArbitrarilyDiscretizedFuncParameter(String name) {
     super(name,null,null,null);
   }
 
@@ -42,7 +42,7 @@ public class DiscretizedFuncParameter extends DependentParameter
    * @param  name   Name of the parameter
    * @param  discretizedFunc  DiscretizedFunc  object
    */
-  public DiscretizedFuncParameter(String name, DiscretizedFuncAPI discretizedFunc){
+  public ArbitrarilyDiscretizedFuncParameter(String name, DiscretizedFuncAPI discretizedFunc){
     super(name,null,null,discretizedFunc);
 
   }
@@ -66,7 +66,7 @@ public class DiscretizedFuncParameter extends DependentParameter
       throw new ClassCastException( S + "Object not a DiscretizedFuncAPI, unable to compare" );
     }
 
-    DiscretizedFuncParameter param = ( DiscretizedFuncParameter ) obj;
+    ArbitrarilyDiscretizedFuncParameter param = ( ArbitrarilyDiscretizedFuncParameter ) obj;
 
     if( ( this.value == null ) && ( param.value == null ) ) return 0;
     int result = 0;
@@ -115,11 +115,11 @@ public class DiscretizedFuncParameter extends DependentParameter
   public boolean equals(Object obj) {
     String S = C + ":equals(): ";
 
-    if (! (obj instanceof DiscretizedFuncParameter)) {
+    if (! (obj instanceof ArbitrarilyDiscretizedFuncParameter)) {
       throw new ClassCastException(S +
           "Object not a DiscretizedFuncAPI, unable to compare");
     }
-    return ((DiscretizedFuncAPI)value).equals(((DiscretizedFuncParameter)obj).value);
+    return ((DiscretizedFuncAPI)value).equals(((ArbitrarilyDiscretizedFuncParameter)obj).value);
   }
 
   /**
@@ -129,9 +129,9 @@ public class DiscretizedFuncParameter extends DependentParameter
    */
   public Object clone(){
 
-      DiscretizedFuncParameter param = null;
-      if( value == null ) param = new DiscretizedFuncParameter( name);
-      else param = new DiscretizedFuncParameter(name,((DiscretizedFuncAPI)value).deepClone());
+      ArbitrarilyDiscretizedFuncParameter param = null;
+      if( value == null ) param = new ArbitrarilyDiscretizedFuncParameter( name);
+      else param = new ArbitrarilyDiscretizedFuncParameter(name,((DiscretizedFuncAPI)value).deepClone());
       if( param == null ) return null;
       param.editable = true;
       return param;

@@ -102,7 +102,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    private IntegerParameter numParam;
    private final static String NUM_PARAM_NAME="Num";
    private final static Integer DEFAULT_NUM_PARAM_VAL=new Integer(10);
-   private DiscretizedFuncParameter xyValsParam;
+   private ArbitrarilyDiscretizedFuncParameter xyValsParam;
    private final static String XY_PARAM_NAME = "XY Values";
    //private JButton setEstimateButton ;
    private JButton viewEstimateButton;
@@ -212,7 +212,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     minParam = new DoubleParameter(MIN_PARAM_NAME, DEFAULT_MIN_PARAM_VAL);
     maxParam = new DoubleParameter(MAX_PARAM_NAME, DEFAULT_MAX_PARAM_VAL);
     numParam = new IntegerParameter(NUM_PARAM_NAME, DEFAULT_NUM_PARAM_VAL);
-    xyValsParam = new DiscretizedFuncParameter(XY_PARAM_NAME);
+    xyValsParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME);
 
 
    // list of available estimates
