@@ -181,7 +181,6 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       double min = ((Double)minParam.getValue()).doubleValue();
       double max = ((Double)maxParam.getValue()).doubleValue();
       int num = ((Integer)numParam.getValue()).intValue();
-      EvenlyDiscretizedFunc function = (EvenlyDiscretizedFunc)model.getValue();
       function.set(min, max, num);
       String str = "";
       for(int i=0; i<num; ++i) str=str+function.getX(i)+"\n";
