@@ -5,7 +5,12 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: ArbitrarilyDiscretizedFuncParameter.java </p>
- * <p>Description: Makes a textfield to enter X and Y values</p>
+ * <p>Description: Makes a textfield to enter X and Y values.
+ *  This class  has 2 methods for setting the units :
+ * 1. setUnits() : This method sets the units for Y values
+ * 2. setXUnits(): This method sets the units for X values.
+ * Similarly, we have 2 different methods for getting the units.
+ * </p>
  * @author : Nitin Gupta and Vipin Gupta
  * @created : April 01,2004
  * @version 1.0
@@ -21,7 +26,7 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
   protected final static boolean D = false;
 
   protected final static String PARAM_TYPE ="ArbitrarilyDiscretizedFuncParameter";
-
+  private String xUnits="";
 
 
 
@@ -35,6 +40,30 @@ public class ArbitrarilyDiscretizedFuncParameter extends DependentParameter
     super(name,null,null,discretizedFunc);
 
   }
+
+
+
+   /**
+    * Sets the units for X Values. To set the units for Y values, use
+    * the setUnits() method
+    *
+    **/
+   public void setXUnits(String units) throws EditableException {
+     checkEditable(C + ": setUnits(): ");
+     this.xUnits = units;
+   }
+
+
+   /**
+    * Returns the units of X values for  this parameter. To get the units for
+    * Y values, use getUnits() method
+    * represented as a String.
+    * */
+   public String getXUnits() {
+     return xUnits;
+   }
+
+
 
 
 

@@ -150,8 +150,10 @@ public class EstimateParameterEditor  extends ParameterEditor
    private JTextArea estimateInfo;
 
    private final static String PDF_DISCRETE_ESTIMATE_INFO = "PDF and Discrete Values will be normalized";
-
-
+   //private JLabel minConstraintLabel;
+   private final static String MIN_CONSTRAINT_LABEL="Min Value:";
+  // private JLabel maxConstraintLabel;
+   private final static String MAX_CONSTRAINT_LABEL="Max Value:";
 
    public EstimateParameterEditor() {
    }
@@ -173,17 +175,15 @@ public class EstimateParameterEditor  extends ParameterEditor
     this.setLayout(GBL);
     add(this.editor,new GridBagConstraints( 0, 0, 2, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    //add(setEstimateButton,new GridBagConstraints( 0, 1, 0, 1, 1.0, 0.0
-     //   , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-     add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+    add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     add(probValsParamListEditor,new GridBagConstraints( 1, 1, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-     add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+    add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    this.setEstimateInfo(PDF_DISCRETE_ESTIMATE_INFO);
+                                                  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
+    this.setEstimateInfo(editor.getToolTipText()+"\n"+PDF_DISCRETE_ESTIMATE_INFO);
     setEstimateParams((String)chooseEstimateParam.getValue());
     this.refreshParamEditor();
     // All done
@@ -223,19 +223,20 @@ public class EstimateParameterEditor  extends ParameterEditor
 
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
     evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, new EvenlyDiscretizedFunc(1.0,2.0,2));
-   // list of available estimates
-   ArrayList allowedEstimatesList = ((EstimateConstraint)estimateParam.getConstraint()).getAllowedEstimateList();
-   chooseEstimateParam = new StringParameter(CHOOSE_ESTIMATE_PARAM_NAME,
-                                             allowedEstimatesList,
-                                            (String) allowedEstimatesList.get(0));
+    // list of available estimates
+    EstimateConstraint estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
+    ArrayList allowedEstimatesList = estimateConstraint.getAllowedEstimateList();
+    chooseEstimateParam = new StringParameter(CHOOSE_ESTIMATE_PARAM_NAME,
+                                              allowedEstimatesList,
+                                              (String) allowedEstimatesList.get(0));
 
-   chooseEstimateParam.addParameterChangeListener(this);
+    chooseEstimateParam.addParameterChangeListener(this);
 
-   // log choices for log normal distribution
-   ArrayList logBases = new ArrayList();
-   logBases.add(this.LOG_BASE_10_NAME);
-   logBases.add(this.NATURAL_LOG_NAME);
-   logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
+    // log choices for log normal distribution
+    ArrayList logBases = new ArrayList();
+    logBases.add(this.LOG_BASE_10_NAME);
+    logBases.add(this.NATURAL_LOG_NAME);
+    logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
 
 
 
@@ -264,7 +265,13 @@ public class EstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(minLogNormalEstimateParam);
    parameterList.addParameter(maxEstimateParam);
    this.editor = new ParameterListEditor(parameterList);
-   editor.setTitle(estimateParam.getName());
+
+   // show the units and estimate param name as the editor title
+   String units = estimateParam.getUnits();
+   String title;
+   if(units!=null && !units.equalsIgnoreCase("")) title = estimateParam.getName()+"("+units+")";
+   else title = estimateParam.getName();
+   editor.setTitle(title);
 
    // parameters for min/max/preferred user choice
   minX_Param = new DoubleParameter(MIN_X_PARAM_NAME, DEFAULT_MIN_X_PARAM_VAL);
@@ -300,7 +307,16 @@ public class EstimateParameterEditor  extends ParameterEditor
    viewEstimateButton = new JButton("View Estimate");
    //setEstimateButton.addActionListener(this);
    viewEstimateButton.addActionListener(this);
-  }
+
+   double constraintMin = estimateConstraint.getMin().doubleValue();
+   double constraintMax = estimateConstraint.getMax().doubleValue();
+   String constraintMinText = this.MIN_CONSTRAINT_LABEL+constraintMin;
+   String constraintMaxText = this.MAX_CONSTRAINT_LABEL+constraintMax;
+   //minConstraintLabel= new JLabel(this.MIN_CONSTRAINT_LABEL+constraintMin);
+   //maxConstraintLabel= new JLabel(this.MAX_CONSTRAINT_LABEL+constraintMax);
+   //editor.setToolTipText(minConstraintLabel.getText()+","+maxConstraintLabel.getText());
+   editor.setToolTipText(constraintMinText+","+constraintMaxText);
+ }
 
   public void parameterChangeFailed(ParameterChangeFailEvent event) {
     throw new RuntimeException("Unsupported method");

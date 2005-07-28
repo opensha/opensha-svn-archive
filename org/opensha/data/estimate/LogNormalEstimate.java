@@ -118,11 +118,23 @@ public class LogNormalEstimate extends Estimate {
    * @param prob - probability value
    */
  public double getFractile(double prob) {
-   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, 0, 0, 1e-6);
+   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, getTruncLevel(minX),
+       getTruncLevel(maxX), 1e-6);
    double logMedian = Math.log(linearMedian);
    if(this.isBase10) return Math.pow(10, logMedian/Math.log(10) + stdRndVar*stdDev);
    else return Math.exp( logMedian + stdRndVar*stdDev);
  }
+
+  /**
+   * get the truncation level
+   * @param val
+   * @return
+   */
+  private double getTruncLevel(double val) {
+    if(Double.isInfinite(val)) return 0;
+    else return (val-linearMedian)/stdDev;
+  }
+
 
 
 
@@ -157,9 +169,9 @@ public class LogNormalEstimate extends Estimate {
     double x, y, deltaX=stdDev/4;
     double limit = 1e-12;
     for(int i=0; ; ++i) {
-       x = linearMedian * Math.exp(-i*deltaX);
-       func.set(x,getY(x));
-       x= linearMedian * Math.exp(i*deltaX);
+       x = linearMedian - i*deltaX;
+       if(x>0) func.set(x,getY(x));
+       x= linearMedian + i*deltaX;
        y = getY(x);
        func.set(x,getY(x));
        if(y<=limit) break;
@@ -169,7 +181,7 @@ public class LogNormalEstimate extends Estimate {
 
 
   private double getY(double x) {
-    return Math.exp(-Math.pow(Math.log(x)-Math.log(linearMedian),2)/2*stdDev*stdDev)/x*stdDev*Math.sqrt(2*Math.PI);
+    return Math.exp(-Math.pow(Math.log(x)-linearMedian,2)/2*stdDev*stdDev)/x*stdDev*Math.sqrt(2*Math.PI);
   }
 
   /**

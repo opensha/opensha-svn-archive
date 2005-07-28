@@ -117,8 +117,19 @@ public class NormalEstimate extends Estimate {
    * @param prob - probability value
    */
  public double getFractile(double prob) {
-   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, 0, 0, 1e-6);
+   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, getTruncLevel(minX),
+       getTruncLevel(maxX), 1e-6);
    return getMean() + stdRndVar*getStdDev();
+ }
+
+ /**
+  * get the truncation level
+  * @param val
+  * @return
+  */
+ private double getTruncLevel(double val) {
+   if(Double.isInfinite(val)) return 0;
+   else return (val-mean)/stdDev;
  }
 
  /**

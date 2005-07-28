@@ -22,6 +22,9 @@ public class EstimateViewer implements GraphWindowAPI {
   private GraphWindow graphWindow;
   private final PlotCurveCharacterstics DEFAULT_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
       Color.RED, 2);
+  private final PlotCurveCharacterstics DISCRETE_VAL_PLOT_CHAR =
+      new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+      Color.RED, 5);
 
   public EstimateViewer(Estimate estimate) {
     setEstimate(estimate);
@@ -53,13 +56,15 @@ public class EstimateViewer implements GraphWindowAPI {
   public ArrayList getCurveFunctionList() {
    ArrayList list = new ArrayList();
    list.add(estimate.getPDF());
-   list.add(estimate.getCDF());
+   //list.add(estimate.getCDF());
    return list;
  }
 
   public ArrayList getPlottingFeatures() {
     ArrayList list = new ArrayList();
-    list.add(DEFAULT_PLOT_CHAR);
+    if(estimate instanceof DiscreteValueEstimate)
+      list.add(DISCRETE_VAL_PLOT_CHAR);
+    else list.add(DEFAULT_PLOT_CHAR);
     return list;
   }
 
