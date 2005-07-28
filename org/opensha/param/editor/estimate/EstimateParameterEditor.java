@@ -83,6 +83,25 @@ public class EstimateParameterEditor  extends ParameterEditor
    private final static Double DEFAULT_LINEAR_MEDIAN_PARAM_VAL=new Double(5);
 
    /**
+    * Min/Max  values that can be set into Normal/LogNormal estimate
+    * These are used for testing purposes. These  parameters may be removed
+    * when we deploy this.
+    */
+   private DoubleParameter minNormalEstimateParam;
+   private final static String NORMAL_MIN_X_PARAM_NAME="Normal Estimate MinX";
+   private final static Double DEFAULT_NORMAL_MIN_X_PARAM_VAL=new Double(Double.NEGATIVE_INFINITY);
+   private DoubleParameter minLogNormalEstimateParam;
+   private final static String LOGNORMAL_MIN_X_PARAM_NAME="LogNormal Estimate MinX";
+   private final static Double DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL=new Double(0);
+   private final static DoubleConstraint LOGNORMAL_MIN_X_PARAM_CONSTRAINT = new DoubleConstraint(0, Double.POSITIVE_INFINITY);
+   private DoubleParameter maxEstimateParam ;
+   private final static String ESTIMATE_MAX_X_PARAM_NAME="Estimate MaxX";
+   private final static Double DEFAULT_MAX_ESTIMATE_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
+
+
+
+
+   /**
     * Log Base param for log normal distribution
     */
    private StringParameter logBaseParam;
@@ -218,29 +237,19 @@ public class EstimateParameterEditor  extends ParameterEditor
    logBases.add(this.NATURAL_LOG_NAME);
    logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
 
-   // parameters for min/max/preferred user choice
-   minX_Param = new DoubleParameter(MIN_X_PARAM_NAME, DEFAULT_MIN_X_PARAM_VAL);
-   maxX_Param = new DoubleParameter(MAX_X_PARAM_NAME, DEFAULT_MAX_X_PARAM_VAL);
-   prefferedX_Param = new DoubleParameter(PREF_X_PARAM_NAME, DEFAULT_PREFERRED_X_PARAM_VAL);
-
-   ParameterList xValsParamList = new ParameterList();
-   xValsParamList.addParameter(minX_Param);
-   xValsParamList.addParameter(maxX_Param);
-   xValsParamList.addParameter(prefferedX_Param);
-   xValsParamListEditor = new ParameterListEditor(xValsParamList);
-   xValsParamListEditor.setTitle(this.X_TITLE);
 
 
-   minProbParam = new DoubleParameter(MIN_PROB_PARAM_NAME,DEFAULT_MIN_PROB_PARAM_VAL);
-   maxProbParam = new DoubleParameter(MAX_PROB_PARAM_NAME,DEFAULT_MAX_PROB_PARAM_VAL);
-   prefferedProbParam = new DoubleParameter(PREF_PROB_PARAM_NAME,DEFAULT_PREFERRED_PROB_PARAM_VAL);
-   ParameterList probParamList = new ParameterList();
-   probParamList.addParameter(minProbParam);
-   probParamList.addParameter(maxProbParam);
-   probParamList.addParameter(prefferedProbParam);
-   probValsParamListEditor = new ParameterListEditor(probParamList);
-   probValsParamListEditor.setTitle(this.PROB_TITLE);
-
+   /**
+    * Min/Max  values that can be set into Normal/LogNormal estimate
+    * These are used for testing purposes. These  parameters may be removed
+    * when we deploy this.
+    */
+   minNormalEstimateParam = new DoubleParameter(NORMAL_MIN_X_PARAM_NAME,
+                                                DEFAULT_NORMAL_MIN_X_PARAM_VAL);
+   minLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MIN_X_PARAM_NAME,
+       LOGNORMAL_MIN_X_PARAM_CONSTRAINT, DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL);
+   maxEstimateParam = new DoubleParameter(ESTIMATE_MAX_X_PARAM_NAME,
+                                          DEFAULT_MAX_ESTIMATE_X_PARAM_VAL);
 
    // put all the parameters in the parameter list
    parameterList = new ParameterList();
@@ -251,8 +260,35 @@ public class EstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(this.logBaseParam);
    parameterList.addParameter(this.arbitrarilyDiscFuncParam);
    parameterList.addParameter(evenlyDiscFuncParam);
+   parameterList.addParameter(minNormalEstimateParam);
+   parameterList.addParameter(minLogNormalEstimateParam);
+   parameterList.addParameter(maxEstimateParam);
    this.editor = new ParameterListEditor(parameterList);
-   editor.setTitle(ESTIMATE_TITLE);
+   editor.setTitle(estimateParam.getName());
+
+   // parameters for min/max/preferred user choice
+  minX_Param = new DoubleParameter(MIN_X_PARAM_NAME, DEFAULT_MIN_X_PARAM_VAL);
+  maxX_Param = new DoubleParameter(MAX_X_PARAM_NAME, DEFAULT_MAX_X_PARAM_VAL);
+  prefferedX_Param = new DoubleParameter(PREF_X_PARAM_NAME, DEFAULT_PREFERRED_X_PARAM_VAL);
+
+  ParameterList xValsParamList = new ParameterList();
+  xValsParamList.addParameter(minX_Param);
+  xValsParamList.addParameter(maxX_Param);
+  xValsParamList.addParameter(prefferedX_Param);
+  xValsParamListEditor = new ParameterListEditor(xValsParamList);
+  xValsParamListEditor.setTitle(this.X_TITLE);
+
+
+  minProbParam = new DoubleParameter(MIN_PROB_PARAM_NAME,DEFAULT_MIN_PROB_PARAM_VAL);
+  maxProbParam = new DoubleParameter(MAX_PROB_PARAM_NAME,DEFAULT_MAX_PROB_PARAM_VAL);
+  prefferedProbParam = new DoubleParameter(PREF_PROB_PARAM_NAME,DEFAULT_PREFERRED_PROB_PARAM_VAL);
+  ParameterList probParamList = new ParameterList();
+  probParamList.addParameter(minProbParam);
+  probParamList.addParameter(maxProbParam);
+  probParamList.addParameter(prefferedProbParam);
+  probValsParamListEditor = new ParameterListEditor(probParamList);
+  probValsParamListEditor.setTitle(this.PROB_TITLE);
+
 
    // to view the info for various estimates
    estimateInfo = new JTextArea();
@@ -299,14 +335,17 @@ public class EstimateParameterEditor  extends ParameterEditor
 
   private void setParamsForFractileListEstimate() {
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-   editor.setParameterVisible(MEAN_PARAM_NAME, false);
-   editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
-   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
-   editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(PDF_PARAM_NAME, false);
-   editor.setParameterVisible(XY_PARAM_NAME, false);
-   xValsParamListEditor.setVisible(true);
-   probValsParamListEditor.setVisible(true);
+    editor.setParameterVisible(MEAN_PARAM_NAME, false);
+    editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
+    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
+    editor.setParameterVisible(PDF_PARAM_NAME, false);
+    editor.setParameterVisible(XY_PARAM_NAME, false);
+    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
+    xValsParamListEditor.setVisible(true);
+    probValsParamListEditor.setVisible(true);
 
   }
 
@@ -321,6 +360,9 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, false);
+   editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, true);
+   editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+   editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, true);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
   }
@@ -336,6 +378,9 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
     editor.setParameterVisible(PDF_PARAM_NAME, false);
     editor.setParameterVisible(XY_PARAM_NAME, false);
+    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, true);
+    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, true);
     xValsParamListEditor.setVisible(false);
     probValsParamListEditor.setVisible(false);
   }
@@ -351,6 +396,9 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(PDF_PARAM_NAME, true);
    editor.setParameterVisible(XY_PARAM_NAME, false);
+   editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+   editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+   editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
  }
@@ -366,6 +414,9 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, true);
+   editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+   editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+   editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
  }
@@ -403,8 +454,11 @@ public class EstimateParameterEditor  extends ParameterEditor
  private void setNormalEstimate() {
    double mean = ((Double)meanParam.getValue()).doubleValue();
    double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   double minX = ((Double)this.minNormalEstimateParam.getValue()).doubleValue();
+   double maxX = ((Double)this.maxEstimateParam.getValue()).doubleValue();
    NormalEstimate estimate = new NormalEstimate(mean, stdDev);
    this.estimateParam.setValue(estimate);
+   estimate.setMinMaxX(minX, maxX);
  }
 
  private void setLogNormalEstimate() {
@@ -415,6 +469,9 @@ public class EstimateParameterEditor  extends ParameterEditor
      estimate.setIsBase10(true);
    else   estimate.setIsBase10(false);
    this.estimateParam.setValue(estimate);
+   double minX = ((Double)this.minLogNormalEstimateParam.getValue()).doubleValue();
+   double maxX = ((Double)this.maxEstimateParam.getValue()).doubleValue();
+   estimate.setMinMaxX(minX, maxX);
  }
 
  private void setDiscreteValueEstimate() {
@@ -477,7 +534,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
     EstimateParameterEditor estimateParameterEditor = new EstimateParameterEditor(estimateParam);
-    frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 0, 1, 1.0, 0.0
+    frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();
     frame.show();

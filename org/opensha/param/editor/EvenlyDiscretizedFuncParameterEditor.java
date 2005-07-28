@@ -162,6 +162,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       editor.setTitle(EDITOR_TITLE);
 
       xTextArea = new JTextArea();
+      xTextArea.setEditable(false);
       xScrollPane = new JScrollPane(xTextArea);
       xScrollPane.setMinimumSize( SCROLLPANE_DIM );
       xScrollPane.setPreferredSize( SCROLLPANE_DIM );
@@ -226,24 +227,25 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
           JOptionPane.showMessageDialog(this, this.ONE_Y_VAL_MSG);
           return;
         }
-        ++yIndex;
         double tempY_Val=0;
         // check that y value is a valid number
         try{
           tempY_Val = Double.parseDouble(st1.nextToken());
+          // set the Y value in the function
+          function.set(yIndex, tempY_Val);
+          ++yIndex;
         }catch(NumberFormatException ex){
           JOptionPane.showMessageDialog(this, Y_VALID_MSG);
           return;
+        }catch(DataPoint2DException ex) {
+           JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
+           return;
         }
-        // set the Y value in the function
-        function.set(yIndex, tempY_Val);
       }
       // check that user has entered correct number of Y values
       if(yIndex!=function.getNum())
         JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
       refreshParamEditor();
-      valueEditor.validate();
-      valueEditor.repaint();
       focusLostProcessing = false;
       if(D) System.out.println(S + "Ending");
     }
@@ -260,6 +262,5 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       editor.refreshParamEditor();
       this.repaint();
     }
-
 
   }
