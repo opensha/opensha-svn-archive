@@ -2,6 +2,25 @@
 -------------------------------------------------------------
 
 
+Implement:
+
+	CubeObsEqkRuptureGeneratior - makes ObsEqkRupture(s) from a String (of list of Strings)
+
+	ObsEqkRuptureList - w/ all the sorting, subset selection methods
+
+	ObsEqkRuptureListCalc - various general calcs with respect to an ObsEqkRuptureList
+
+	MagCompletenessCalc
+
+	GR_fitParamsCalc
+
+	OmoriLawFitParamsCalc  
+
+		(These last three should be able to take an ObsEqkRuptureList or input data 
+		 as double[] objects for maximum efficiency and flexibility)
+
+	Other classes .................. (once done tell ned and he'll update STEP doc)
+
 EvenlyGriddedRegion Stuff:
 
 	Impose & document the following rules for all classes:
@@ -21,7 +40,7 @@ EvenlyGriddedRegion Stuff:
 		of index.  Make sure docs are explicit about whether pointers or clones are returned
 		under the various conditions.
 
-Create a SausageGeographicRegion that takes a locListLine and radius as input and constructs a polygon such that each point on the polygon is ~radius from the line defined by locListLine.  Note that LocationList has the method getMinHorzDistToLine(loc) which could be useful here.  Note also that some of the presently private attributes in the parent class (GeographicRegion) could be useful if made protected.
+Create a SausageGeographicRegion that takes a locListLine and radius as input and constructs a polygon such that each point on the polygon is ~radius from the line defined by locListLine.  Note that LocationList has the method getMinHorzDistToLine(loc) which could be useful here.  Note also that some of the presently private attributes in the parent class (GeographicRegion) could be useful if made protected.  Note also that the polygon does not need to be created until asked for.
 
 Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations simultaneously with the polygon in the parent class, SausageGeographicRegion, for efficiency).
 
