@@ -49,6 +49,15 @@ public class CS_2005_AttenRel extends AttenuationRelationship
     protected final static Double VS30_WARN_MIN = new Double(50.0);
     protected final static Double VS30_WARN_MAX = new Double(3500.0);
 
+    // the Soft Soil Parameter
+    private BooleanParameter softSoilParam = null;
+    public final static String SOFT_SOIL_NAME = "Soft Soil Case";
+    public final static String SOFT_SOIL_INFO = "Indicates that site is considered NEHRP E regardless of Vs30.\n\n"+
+                                                "Conditions required are undrained shear strength < 24 kPa, "+
+                                                "PI > 20, water content > 40%, and thickness of clay exceeds 3 m.";
+    public final static Boolean SOFT_SOIL_DEFAULT =  new Boolean(false);
+
+
 
     private AS_1997_AttenRel as_1997_attenRel;
     /**
@@ -86,6 +95,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship
         this.exceedProbParam = (DoubleParameter) as_1997_attenRel.getParameter(as_1997_attenRel.EXCEED_PROB_NAME);
         this.stdDevTypeParam = (StringParameter) as_1997_attenRel.getParameter(as_1997_attenRel.STD_DEV_TYPE_NAME);
         this.periodParam = (DoubleDiscreteParameter) as_1997_attenRel.getParameter(PERIOD_NAME);
+
         initCoefficients( );
         initSupportedIntensityMeasureParams( );
         initEqkRuptureParams(  );
@@ -136,6 +146,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship
     public void setSite( Site site ) throws ParameterException{
 
       vs30Param.setValueIgnoreWarning( site.getParameter( VS30_NAME ).getValue() );
+      softSoilParam.setValue(site.getParameter(SOFT_SOIL_NAME).getValue());
       this.site = site;
       // set the location in as_1997_attenRel
       as_1997_attenRel.setSiteLocation(site.getLocation());
@@ -170,12 +181,16 @@ public class CS_2005_AttenRel extends AttenuationRelationship
 
         double vs30, asRockPGA, lnAF;
 
-        // set vs30 from the parameter
-        try{
-            vs30 = ((Double)vs30Param.getValue()).doubleValue();
-        }
-        catch(NullPointerException e){
+        // set vs30 from the parameters
+        if(((Boolean)softSoilParam.getValue()).booleanValue())
+          vs30 = 179;
+        else {
+          try {
+            vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+          }
+          catch (NullPointerException e) {
             throw new IMRException(C + ": getMean(): " + ERR);
+          }
         }
 
         // get AS-1997 PGA for rock
@@ -238,12 +253,16 @@ public class CS_2005_AttenRel extends AttenuationRelationship
         as_1997_attenRel.setIntensityMeasure(im);
         sigmaAS = as_1997_attenRel.getStdDev();
 
-      // set vs30 from the parameter
-        try {
-          vs30 = ( (Double) vs30Param.getValue()).doubleValue();
-        }
-        catch (NullPointerException e) {
-          throw new IMRException(C + ": getMean(): " + ERR);
+        // set vs30 from the parameters
+        if(((Boolean)softSoilParam.getValue()).booleanValue())
+          vs30 = 179;
+        else {
+          try {
+            vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+          }
+          catch (NullPointerException e) {
+            throw new IMRException(C + ": getMean(): " + ERR);
+          }
         }
 
         // this is inefficient if the im has not been changed in any way
@@ -261,10 +280,12 @@ public class CS_2005_AttenRel extends AttenuationRelationship
       }
     }
 
+
     public void setParamDefaults(){
 
         //((ParameterAPI)this.iml).setValue( IML_DEFAULT );
         vs30Param.setValue( VS30_DEFAULT );
+        softSoilParam.setValue(new Boolean(false));
         as_1997_attenRel.setParamDefaults();
         // re-set the site type to rock and component to ave horz
         as_1997_attenRel.getParameter(as_1997_attenRel.SITE_TYPE_NAME).setValue(as_1997_attenRel.SITE_TYPE_ROCK);
@@ -292,11 +313,13 @@ public class CS_2005_AttenRel extends AttenuationRelationship
             meanIndependentParams.addParameter(param);
         }
         meanIndependentParams.addParameter( vs30Param );
+        meanIndependentParams.addParameter( softSoilParam );
         meanIndependentParams.addParameter( componentParam );
 
         // params that the stdDev depends upon
         stdDevIndependentParams.clear();
         stdDevIndependentParams.addParameter( vs30Param );
+        stdDevIndependentParams.addParameter( softSoilParam );
         stdDevIndependentParams.addParameter( componentParam );
         it = as_1997_attenRel.getStdDevIndependentParamsIterator();
         while(it.hasNext()) {
@@ -308,6 +331,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship
         // params that the exceed. prob. depends upon
         exceedProbIndependentParams.clear();
         exceedProbIndependentParams.addParameter( vs30Param );
+        exceedProbIndependentParams.addParameter( softSoilParam );
         exceedProbIndependentParams.addParameter( componentParam );
         it = as_1997_attenRel.getExceedProbIndependentParamsIterator();
         while(it.hasNext()) {
@@ -339,9 +363,16 @@ public class CS_2005_AttenRel extends AttenuationRelationship
         vs30Param.addParameterChangeWarningListener( warningListener );
         vs30Param.setNonEditable();
 
+        // make the Soft Soil parameter
+        softSoilParam = new BooleanParameter(SOFT_SOIL_NAME,SOFT_SOIL_DEFAULT);
+        softSoilParam.setInfo(SOFT_SOIL_INFO);
+
+
+
         // add it to the siteParams list:
         siteParams.clear();
         siteParams.addParameter( vs30Param );
+        siteParams.addParameter( softSoilParam );
 
     }
 
