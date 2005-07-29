@@ -1,7 +1,7 @@
 package org.opensha.data.region;
 
 import java.util.ListIterator;
-import java.text.DecimalFormat;
+
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
@@ -284,4 +284,40 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     return new Location(lat, lon);
   }
 
+  /**
+   * Returns the minimum Lat so that this gridLat/gridSpacing is an int,
+   * and this min Lat is within the polygon;
+   * @return double
+   */
+  public double getMinGridLat(){
+    return niceMinLat;
+  }
+
+
+  /**
+   * Returns the maximum Lat so that this gridLat/gridSpacing is an int,
+   * and this max Lat is within the polygon;
+   * @return double
+   */
+  public double getMaxGridLat(){
+    return niceMaxLat;
+  }
+
+  /**
+   * Returns the minimum Lon so that this gridLon/gridSpacing is an int,
+   * and this min Lon is within the polygon;
+   * @return double
+   */
+  public double getMinGridLon(){
+    return niceMinLon;
+  }
+
+  /**
+   * Returns the maximum Lon so that this gridLon/gridSpacing is an int,
+   * and this max Lon is within the polygon;
+   * @return double
+   */
+  public double getMaxGridLon(){
+    return niceMaxLon ;
+  }
 }

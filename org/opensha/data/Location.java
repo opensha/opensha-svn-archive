@@ -55,7 +55,7 @@ public class Location implements java.io.Serializable {
     public static final double MIN_DEPTH =0.0;
 
 
-    private DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
+    private final static DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
 
 
     /** No-Arg Constructor for the Location object. Currently does nothing. */
@@ -181,14 +181,13 @@ public class Location implements java.io.Serializable {
     public String toString() {
 
       StringBuffer b = new StringBuffer();
-      DecimalFormat latlonFormat = new DecimalFormat("0.00##") ;
       //b.append(C);
       //b.append('\n');
       //b.append(" : ");
 
 
       //b.append("latitude = ");
-        b.append(latlonFormat.format(latitude)+","+latlonFormat.format(longitude)+","+latlonFormat.format(depth));
+        b.append(latLonFormat.format(latitude)+","+latLonFormat.format(longitude)+","+latLonFormat.format(depth));
         //b.append(latitude+","+longitude+","+depth);
       //b.append('\n');
 

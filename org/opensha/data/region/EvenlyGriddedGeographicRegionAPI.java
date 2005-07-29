@@ -54,6 +54,36 @@ public interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
    */
   public LocationList getGridLocationsList();
 
+
+  /**
+   * Returns the minimum Lat so that this gridLat/gridSpacing is an int,
+   * and this min Lat is within the polygon;
+   * @return double
+   */
+  public double getMinGridLat();
+
+
+  /**
+   * Returns the maximum Lat so that this gridLat/gridSpacing is an int,
+   * and this max Lat is within the polygon;
+   * @return double
+   */
+  public double getMaxGridLat();
+
+  /**
+   * Returns the minimum Lon so that this gridLon/gridSpacing is an int,
+   * and this min Lon is within the polygon;
+   * @return double
+   */
+  public double getMinGridLon();
+
+  /**
+   * Returns the maximum Lon so that this gridLon/gridSpacing is an int,
+   * and this max Lon is within the polygon;
+   * @return double
+   */
+  public double getMaxGridLon();
+
   /**
    *
    * @param index

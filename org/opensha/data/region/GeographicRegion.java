@@ -1,8 +1,6 @@
 package org.opensha.data.region;
 
 import java.util.ListIterator;
-import java.util.Collections;
-import java.lang.Integer;
 import java.awt.Polygon;
 
 import org.opensha.data.*;
