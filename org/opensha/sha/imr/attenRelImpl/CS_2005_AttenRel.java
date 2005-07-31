@@ -15,16 +15,19 @@ import org.opensha.util.*;
  * <b>Title:</b> CS_2005_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Choi and Stewart, 2005. <p>
+ * developed by Choi and Stewart (2005).  This applies and alternative site-
+ * response correction to the Abrahamson & Silva (1997) relationship. <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
  * <LI>saParam - Response Spectral Acceleration
+ * <LI>pgaParam - Peak Ground Acceleration
  * </UL><p>
  * Other Independent Parameters:<p>
  * <UL>
  * <LI>distanceRupParam - closest distance to surface projection of fault
  * <LI>vs30Param - Average 30-meter shear-wave velocity at the site
+ * <LI>softSoilParam - To overide Vs30 and apply NEHPR E (see INFO for details)
  * <LI>fltTypeParam - Style of faulting
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
  * <LI>componentParam - Component of shaking (only one)
@@ -183,7 +186,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship
 
         // set vs30 from the parameters
         if(((Boolean)softSoilParam.getValue()).booleanValue())
-          vs30 = 179;
+          vs30 = 174;
         else {
           try {
             vs30 = ( (Double) vs30Param.getValue()).doubleValue();
@@ -255,7 +258,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship
 
         // set vs30 from the parameters
         if(((Boolean)softSoilParam.getValue()).booleanValue())
-          vs30 = 179;
+          vs30 = 174;
         else {
           try {
             vs30 = ( (Double) vs30Param.getValue()).doubleValue();
