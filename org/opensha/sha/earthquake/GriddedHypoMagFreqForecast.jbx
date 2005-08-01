@@ -1,0 +1,8 @@
+[PropertyInfo]
+numHypoLocation,int,false,false, , ,true,<default>
+timeSpan,org.opensha.data.TimeSpan,false,false, , ,false,<default>
+[IconNames]
+
+
+
+

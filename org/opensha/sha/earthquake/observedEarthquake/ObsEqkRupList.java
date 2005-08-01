@@ -5,15 +5,15 @@ import java.util.GregorianCalendar;
 import org.opensha.data.region.GeographicRegion;
 
 /**
- * <p>Title: ObservedEqkRupList</p>
+ * <p>Title: ObsEqkRupList</p>
  *
  * <p>Description: </p>
  *
  * @author not attributable
  * @version 1.0
  */
-public class ObservedEqkRupList extends ArrayList{
-  public ObservedEqkRupList() {
+public class ObsEqkRupList extends ArrayList{
+  public ObsEqkRupList() {
   }
 
 
