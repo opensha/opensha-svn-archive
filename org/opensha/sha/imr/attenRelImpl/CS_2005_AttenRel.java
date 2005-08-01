@@ -15,8 +15,9 @@ import org.opensha.util.*;
  * <b>Title:</b> CS_2005_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Choi and Stewart (2005).  This applies and alternative site-
- * response correction to the Abrahamson & Silva (1997) relationship. <p>
+ * developed by Choi and Stewart (2005, "Nonlinear Site Amplification as a Function
+ * of 30 m Shear Wave Velocity", Earthquake Spectre, v. 21, pp. 1-30).  This applies
+ * an alternative site-response correction to the Abrahamson & Silva (1997) relationship. <p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>
