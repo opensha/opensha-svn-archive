@@ -112,13 +112,18 @@ public class NormalEstimate extends Estimate {
 
   /**
    *
-   * Returns the x value
+   * Returns the max x value such that probability of occurrence of this x value
+   * is <=prob
    *
    * @param prob - probability value
    */
  public double getFractile(double prob) {
-   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, getTruncLevel(minX),
-       getTruncLevel(maxX), 1e-6);
+   /**
+    * NOTE: In the statement below, we have to use (1-prob) because GaussianDistCalc
+    * accepts the probability of exceedance as the parameter
+    */
+   double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(minX),
+       getStandRandVar(maxX), 1e-6);
    return getMean() + stdRndVar*getStdDev();
  }
 
@@ -128,7 +133,7 @@ public class NormalEstimate extends Estimate {
   * @param val
   * @return
   */
- private double getTruncLevel(double val) {
+ private double getStandRandVar(double val) {
    /* if min is negative infinity, return negative infinity.
      If max is positive infinity, return positive infinity
     */
@@ -186,8 +191,8 @@ public class NormalEstimate extends Estimate {
    * @return
    */
   public double getProbLessThanEqual(double x) {
-    return (1-GaussianDistCalc.getExceedProb(x, getTruncLevel(minX),
-       getTruncLevel(maxX)));
+    return (1-GaussianDistCalc.getExceedProb(getStandRandVar(x), getStandRandVar(minX),
+       getStandRandVar(maxX)));
   }
 
   /**
@@ -207,7 +212,7 @@ public class NormalEstimate extends Estimate {
     double deltaY = (maxY-minY)/(numPoints-1);
     // find the X values correpsoding to Y values
     for(double y=minY; y<=maxY;y=y+deltaY)
-      func.set(getFractile(1-y),y);
+      func.set(getFractile(y),y);
     func.setInfo("CDF from Normal Distribution using getFractile() method");
     return func;
   }
