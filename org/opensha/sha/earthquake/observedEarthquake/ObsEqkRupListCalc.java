@@ -16,9 +16,9 @@ import org.opensha.sha.magdist.IncrementalMagFreqDist;
  */
 public class ObsEqkRupListCalc {
 
-  private ObservedEqkRupList obsEqkRupList;
+  private ObsEqkRupList obsEqkRupList;
 
-  public ObsEqkRupListCalc(ObservedEqkRupList obsEqkRupList) {
+  public ObsEqkRupListCalc(ObsEqkRupList obsEqkRupList) {
     this.obsEqkRupList = obsEqkRupList;
   }
 
