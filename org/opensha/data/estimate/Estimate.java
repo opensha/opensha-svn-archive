@@ -1,5 +1,6 @@
 package org.opensha.data.estimate;
 import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: Estimate.java </p>
@@ -134,12 +135,25 @@ public abstract class Estimate {
    public abstract double getProbLessThanEqual(double x);
 
    /**
-    * Test function to get the CDF for this estimate. It uses the
-    * getFractile() function internally. It discretizes the Y values and then
-    * calls the getFractile() method to get corresponding x values and then
-    * plot them.
-    *
-    * @return
-    */
-   public abstract DiscretizedFunc getCDF_TestUsingFractile();
+   * Test function to get the CDF for this estimate. It uses the
+   * getFractile() function internally. It discretizes the Y values and then
+   * calls the getFractile() method to get corresponding x values and then
+   * plot them.
+   *
+   * @return
+   */
+  public  DiscretizedFunc getCDF_TestUsingFractile() {
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    //discretize the Y values
+    double minY = 0.00001;
+    double maxY = 0.99999;
+    int numPoints = 100;
+    double deltaY = (maxY-minY)/(numPoints-1);
+    // find the X values correpsoding to Y values
+    for(double y=minY; y<=maxY;y=y+deltaY)
+      func.set(getFractile(y),y);
+    func.setInfo("CDF using getFractile() method");
+    return func;
+  }
+
 }

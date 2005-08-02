@@ -195,28 +195,6 @@ public class NormalEstimate extends Estimate {
        getStandRandVar(maxX)));
   }
 
-  /**
-   * Test function to get the CDF for this estimate. It uses the
-   * getFractile() function internally. It discretizes the Y values and then
-   * calls the getFractile() method to get corresponding x values and then
-   * plot them.
-   *
-   * @return
-   */
-  public  DiscretizedFunc getCDF_TestUsingFractile() {
-    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    //discretize the Y values
-    double minY = 0.00001;
-    double maxY = 0.99999;
-    int numPoints = 100;
-    double deltaY = (maxY-minY)/(numPoints-1);
-    // find the X values correpsoding to Y values
-    for(double y=minY; y<=maxY;y=y+deltaY)
-      func.set(getFractile(y),y);
-    func.setInfo("CDF from Normal Distribution using getFractile() method");
-    return func;
-  }
-
 
   /**
    * Get the cumulative distribution function

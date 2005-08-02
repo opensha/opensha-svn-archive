@@ -2,6 +2,7 @@ package org.opensha.data.estimate;
 import org.opensha.calc.GaussianDistCalc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 
 /**
  * <p>Title: LogNormalEstimate.java  </p>
@@ -107,20 +108,29 @@ public class LogNormalEstimate extends Estimate {
     this.isBase10 = isBase10;
   }
 
-
+  /**
+   * Return the mean
+   * @return
+   */
   public double getMean() {
     throw new java.lang.UnsupportedOperationException(
         "Method getMean() not yet implemented.");
   }
 
   /**
-   * NED NEEDS TO CHECK THIS TO MAKE SURE THIS IS IMPLEMENTED CORRECTLY
-   *
-   * @param prob - probability value
+  *
+  * Returns the max x value such that probability of occurrence of this x value
+  * is <=prob
+  *
+  * @param prob - probability value
+  */
+public double getFractile(double prob) {
+  /**
+   * NOTE: In the statement below, we have to use (1-prob) because GaussianDistCalc
+   * accepts the probability of exceedance as the parameter
    */
- public double getFractile(double prob) {
-   double stdRndVar = GaussianDistCalc.getStandRandVar(prob, getTruncLevel(minX),
-       getTruncLevel(maxX), 1e-6);
+   double stdRndVar = GaussianDistCalc.getStandRandVar(1-prob, getStandRandVar(minX),
+       getStandRandVar(maxX), 1e-6);
    return getUnLogVal(getLogVal(linearMedian) + stdRndVar*stdDev);
  }
 
@@ -150,28 +160,39 @@ public class LogNormalEstimate extends Estimate {
  }
 
   /**
-   * get the truncation level
+   * get the standard random variable
+   *
    * @param val
    * @return
    */
-  private double getTruncLevel(double val) {
+  private double getStandRandVar(double val) {
     if(val==Double.NEGATIVE_INFINITY) return 0;
     else if(val==Double.POSITIVE_INFINITY) return Double.POSITIVE_INFINITY;
     else return getLogVal(val/linearMedian)/stdDev;
   }
 
 
-
-
+  /**
+   * Get the mode
+   * @return
+   */
   public double getMode() {
     throw new java.lang.UnsupportedOperationException(
         "Method getMode() not yet implemented.");
   }
 
+  /**
+   * Get the median
+   * @return
+   */
   public double getMedian() {
     return 0.0;
   }
 
+  /**
+   * Get the name of this estimate. This is the name displayed to the user
+   * @return
+   */
   public String getName() {
    return NAME;
  }
@@ -193,39 +214,56 @@ public class LogNormalEstimate extends Estimate {
   * Get the probability density function.
   * It calculates the PDF for x values.
   * The PDF is calculated for evenly discretized X values with minX=0,
-  * maxX=linearMedian*Math.exp(4*stdDev), numX=80
+  * maxX=linearMedian*Math.exp(4*stdDev), numX=160
   *
   * @return
   */
 
  public DiscretizedFunc getPDF_Test() {
-    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    double minX = 0;
-    double maxX = linearMedian*getUnLogVal(4*stdDev);
-    int numPoints = 80;
-    double deltaX = (getLogVal(maxX)-minX)/numPoints;
-    for(double x=minX; x<=maxX;) {
-      func.set(x, getY(x));
-      if(x!=0) x = getUnLogVal(getLogVal(x)+deltaX);
-      else x = getUnLogVal(deltaX);
-    }
-    return func;
+   EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
+   double deltaX = func.getDelta();
+   int numPoints = func.getNum();
+   double x;
+   for(int i=0; i<numPoints; ++i) {
+     x = func.getX(i);
+     if((x - deltaX / 2)<=0) // log values does not exist for negative values
+       func.set(i, getProbLessThanEqual(x + deltaX / 2));
+     else func.set(i, getProbLessThanEqual(x + deltaX / 2) - getProbLessThanEqual(x - deltaX / 2));
+   }
+   func.setInfo("PDF from LogNormal Distribution");
+   return func;
   }
 
 
-  private double getY(double x) {
-    if(x==0) return 0;
-    return getUnLogVal(-Math.pow(getLogVal(x/linearMedian),2)/(2*stdDev*stdDev))/(x*stdDev*Math.sqrt(2*Math.PI));
-  }
 
-  /**
+ /**
   * Get the cumulative distribution function
   * @return
   */
  public DiscretizedFunc getCDF_Test() {
-   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+   EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
+   double deltaX = func.getDelta();
+   int numPoints = func.getNum();
+   double x;
+   for(int i=0; i<numPoints; ++i)
+     func.set(i, getProbLessThanEqual(func.getX(i)));
+   func.setInfo("CDF from LogNormal Distribution using getProbLessThanEqual() method");
    return func;
  }
+
+
+ /**
+  * Make the Evenly discretized function for use in getPDF_Test() and getCDF_Test()
+  * @return
+  */
+ private EvenlyDiscretizedFunc getEvenlyDiscretizedFunc() {
+   double minX = 0;
+   double maxX = linearMedian*getUnLogVal(4*stdDev);
+   int numPoints = 160;
+   EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, maxX, numPoints);
+   return func;
+ }
+
 
  /**
    * Get the probability for that the true value is less than or equal to provided
@@ -235,19 +273,8 @@ public class LogNormalEstimate extends Estimate {
    * @return
    */
   public  double getProbLessThanEqual(double x) {
-     throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
-  }
-
-  /**
-   * Test function to get the CDF for this estimate. It uses the
-   * getFractile() function internally. It discretizes the Y values and then
-   * calls the getFractile() method to get corresponding x values and then
-   * plot them.
-   *
-   * @return
-   */
-  public  DiscretizedFunc getCDF_TestUsingFractile() {
-     throw new java.lang.UnsupportedOperationException("Method getCDF_TestUsingFractile() not supported.");
+    return (1-GaussianDistCalc.getExceedProb(getStandRandVar(x), getStandRandVar(minX),
+       getStandRandVar(maxX)));
   }
 
 
