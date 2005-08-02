@@ -28,6 +28,21 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
     super(func, isNormalized);
   }
 
+  /**
+  * As implemented, the function passed in is cloned.
+  * MaxX and MinX are set by those in the function passed in.
+  *
+  * @param func
+  */
+ public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
+   super.setValues(newFunc, isNormalized);
+
+ }
+
+ /**
+  * Return the name of the estimate. This is the name viisble to the user
+  * @return
+  */
   public String getName() {
     return NAME;
   }
@@ -37,8 +52,57 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
   * @return
   */
  public DiscretizedFunc getCDF_Test() {
-   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-   return func;
+   ArbitrarilyDiscretizedFunc cdfFunc = new ArbitrarilyDiscretizedFunc();
+   System.out.println(cumDistFunc);
+   int num = func.getNum();
+   double delta = 1e-3;
+   double x ;
+   for(int i=0; i<num; ++i) {
+     x = func.getX(i);
+     cdfFunc.set(x, getProbLessThanEqual(x));
+     if(i<(num-1)) {
+       x = func.getX(i + 1) - delta; // get the value to make staircase function
+       cdfFunc.set(x, getProbLessThanEqual(x));
+     }
+   }
+   cdfFunc.setInfo("CDF from Discrete Distribution");
+   return cdfFunc;
+ }
+
+ /**
+  * Get the probability for that the true value is less than or equal to provided
+  * x value
+  *
+  * @param x
+  * @return
+  */
+ public double getProbLessThanEqual(double x) {
+   if(x<this.cumDistFunc.getX(0)) return 0;// return 0 if it less than 1st X value in this estimate
+   int num = cumDistFunc.getNum();
+   for(int i=1; i<num; ++i)
+     if(cumDistFunc.getX(i)>x)
+       return cumDistFunc.getY(i-1);
+   return 1;
+ }
+
+ /**
+ * Return the discrete fractile for this probability value.
+ *
+ * @param prob Probability for which fractile is desired
+ * @return
+ */
+ public double getFractile(double prob) {
+   if(prob<this.cumDistFunc.getY(0)) return 0;// return 0 if it less than 1st X value in this estimate
+   int num = cumDistFunc.getNum();
+   for(int i=1; i<num; ++i)
+     if(cumDistFunc.getY(i)>prob)
+       return cumDistFunc.getX(i-1);
+   return 1;
+ }
+
+
+ public  DiscretizedFunc getPDF_Test() {
+   return this.func;
  }
 
 }

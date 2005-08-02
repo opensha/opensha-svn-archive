@@ -19,7 +19,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 
 public abstract class DiscretizedFuncEstimate extends Estimate {
   protected DiscretizedFunc func=null;
-  private ArbDiscrEmpiricalDistFunc empiricalDistFunc = null;
+  protected DiscretizedFunc cumDistFunc = null;
 
   // tolerance for checking normalization
   protected double tol = 1e-6;
@@ -38,22 +38,22 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
 
   /**
    * As implemented, the function passed in is cloned.
-   *   MaxX and MinX are set by those in the function passed in.
+   *  MaxX and MinX are set by those in the function passed in.
    *
    * @param func
    */
   public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
 
     this.func = (DiscretizedFunc) newFunc.deepClone();
-    empiricalDistFunc = null;
 
     minX = func.getMinX();
     maxX = func.getMaxX();
 
     // Check normalization and value range
     double sum=0, val;
+    int num = func.getNum();
     if(isNormalized) { // check values
-      for (int i = 0; i < func.getNum(); ++i) {
+      for (int i = 0; i < num; ++i) {
         val = func.getY(i);
         if (val < 0 || val > 1)throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
         sum += val;
@@ -63,45 +63,33 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
         throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
     }
     else { // sum y vals and check positivity
-      for (int i = 0; i < func.getNum(); ++i) {
+      for (int i = 0; i < num; ++i) {
         val = func.getY(i);
         if (val < 0)throw new InvalidParamValException(EST_MSG_Y_POSITIVE);
         sum += val;
       }
       // normalize the function
-      for (int i = 0; i < func.getNum(); ++i) {
+      for (int i = 0; i < num; ++i) {
         val = func.getY(i);
         func.set( i, val/sum );
       }
     }
-
+    this.cumDistFunc = (DiscretizedFunc) newFunc.deepClone();
+    double runningSum=0;
+    for(int i=0; i<num; ++i) {
+      runningSum+=func.getY(i);
+      cumDistFunc.set(i, runningSum);
+    }
   }
 
-
   /**
-   * Return the discrete fractile for this probability value.
-   *
-   * @param prob Probability for which fractile is desired
+   * get the X Y values for this estimate
    * @return
    */
-  public double getFractile(double prob) {
-    ArbDiscrEmpiricalDistFunc empiricalDistFunc = getEmpiricalDistFunc();
-    return empiricalDistFunc.getDiscreteFractile(prob);
- }
+  public DiscretizedFunc getValues() {
+    return func;
+  }
 
- /**
-  * Construct the ArbDiscrEmpiricalDistFunc function so that it can be used
-  * to calculate fractile
-  *
-  * @return
-  */
- public ArbDiscrEmpiricalDistFunc getEmpiricalDistFunc() {
-   if(empiricalDistFunc!=null) return empiricalDistFunc;
-   empiricalDistFunc = new ArbDiscrEmpiricalDistFunc();
-   for(int i=0; i<func.getNum(); ++i)
-      empiricalDistFunc.set(func.getX(i), func.getY(i));
-   return empiricalDistFunc;
- }
 
   /**
    * Get the mode (X value where Y is maximum).
@@ -122,17 +110,21 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
     return getFractile(0.5);
   }
 
-
+  /**
+   * Get standard deviation
+   * @return
+   */
   public double getStdDev() {
     throw new java.lang.UnsupportedOperationException("Method getStdDev() not yet implement.");
   }
 
+
+  /**
+   * Get mean
+   * @return
+   */
   public double getMean() {
    throw new java.lang.UnsupportedOperationException("Method getMean() not yet implement");
- }
-
- public DiscretizedFuncAPI getValues() {
-   return this.func;
  }
 
  /**
@@ -141,21 +133,5 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   * @param tol double
   */
  public void setTolerance(double tol) {this.tol = tol;}
-
-  public  DiscretizedFunc getPDF_Test() {
-    return this.func;
-  }
-
-  /**
-   * Get the probability for that the true value is less than or equal to provided
-   * x value
-   *
-   * @param x
-   * @return
-   */
-  public double getProbLessThanEqual(double x) {
-    throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
-  }
-
 
 }
