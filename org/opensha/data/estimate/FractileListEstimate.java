@@ -131,7 +131,7 @@ public class FractileListEstimate extends Estimate {
    return NAME;
  }
 
- public DiscretizedFunc getPDF() {
+ public DiscretizedFunc getPDF_Test() {
    return this.func;
  }
 
@@ -139,10 +139,33 @@ public class FractileListEstimate extends Estimate {
   * Get the cumulative distribution function
   * @return
   */
- public DiscretizedFunc getCDF() {
+ public DiscretizedFunc getCDF_Test() {
    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
    return func;
  }
+
+ /**
+    * Get the probability for that the true value is less than or equal to provided
+    * x value
+    *
+    * @param x
+    * @return
+    */
+   public  double getProbLessThanEqual(double x) {
+      throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
+   }
+
+   /**
+    * Test function to get the CDF for this estimate. It uses the
+    * getFractile() function internally. It discretizes the Y values and then
+    * calls the getFractile() method to get corresponding x values and then
+    * plot them.
+    *
+    * @return
+    */
+   public  DiscretizedFunc getCDF_TestUsingFractile() {
+      throw new java.lang.UnsupportedOperationException("Method getCDF_TestUsingFractile() not supported.");
+   }
 
 
 }

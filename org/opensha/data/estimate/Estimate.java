@@ -19,19 +19,43 @@ public abstract class Estimate {
   protected final static String EST_MSG_INVLID_RANGE = "Error: All Y values must be >= 0 and <=1";
   protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";
   protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
-
   protected String comments="";
   protected double minX, maxX;
 
-
+  /**
+   * Get the mean for this estimate
+   *
+   * @return
+   */
   public abstract double getMean();
 
+  /**
+   * Get median for this estimate
+   *
+   * @return
+   */
   public abstract double getMedian();
 
+  /**
+   * Get Std Dev for this estimate
+   *
+   * @return
+   */
   public abstract double getStdDev();
 
+  /**
+   * Get fractile for a given probability.
+   *
+   * @param prob
+   * @return
+   */
   public abstract double getFractile(double prob);
 
+  /**
+   * Get mode for this estimate
+   *
+   * @return
+   */
   public abstract double getMode();
 
 
@@ -77,11 +101,45 @@ public abstract class Estimate {
      this.comments = comments;
    }
 
+   /**
+    * Get the name. this is the name displayed to the user in the estimate
+    * type chooser.
+    * @return
+    */
    public abstract String getName() ;
 
-   public abstract DiscretizedFunc getPDF();
-   public abstract DiscretizedFunc getCDF();
+   /**
+    * Test function to find the PDF for this estimate. It uses the
+    * getProbLessThanEqual() function internally.
+    *
+    * @return
+    */
+   public abstract DiscretizedFunc getPDF_Test();
 
+   /**
+    * Test function to get the CDF for this estimate. It uses the
+    * getProbLessThanEqual() function internally.
+    *
+    * @return
+    */
+   public abstract DiscretizedFunc getCDF_Test();
 
+   /**
+    * Get the probability for that the true value is less than or equal to provided
+    * x value
+    *
+    * @param x
+    * @return
+    */
+   public abstract double getProbLessThanEqual(double x);
 
+   /**
+    * Test function to get the CDF for this estimate. It uses the
+    * getFractile() function internally. It discretizes the Y values and then
+    * calls the getFractile() method to get corresponding x values and then
+    * plot them.
+    *
+    * @return
+    */
+   public abstract DiscretizedFunc getCDF_TestUsingFractile();
 }

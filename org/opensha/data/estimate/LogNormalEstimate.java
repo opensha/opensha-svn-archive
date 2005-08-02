@@ -26,6 +26,7 @@ public class LogNormalEstimate extends Estimate {
   private final static String MSG_INVALID_MEDIAN = "Error: linear-median must be positive.";
   private final static String MSG_INVALID_MINMAX =
       "Error: the minimum and maximum X-axis values can only be 0.0 and  Infinity, respectively.";
+  private final static double LOG10_VAL = Math.log(10.0);
 
   /**
    * Constructor - set the linear median and standard deviation.
@@ -120,9 +121,32 @@ public class LogNormalEstimate extends Estimate {
  public double getFractile(double prob) {
    double stdRndVar = GaussianDistCalc.getStandRandVar(prob, getTruncLevel(minX),
        getTruncLevel(maxX), 1e-6);
-   double logMedian = Math.log(linearMedian);
-   if(this.isBase10) return Math.pow(10, logMedian/Math.log(10) + stdRndVar*stdDev);
-   else return Math.exp( logMedian + stdRndVar*stdDev);
+   return getUnLogVal(getLogVal(linearMedian) + stdRndVar*stdDev);
+ }
+
+ /**
+  * It gets the log value for passed in "val". This checks whether the log normal estimate
+  * is for base 10 or for base E and then returns the log value based on it.
+  *
+  * @param val
+  * @return
+  */
+ private double getLogVal(double val) {
+   double logVal = Math.log(val);
+   if(this.isBase10) return logVal/LOG10_VAL;
+   else return logVal;
+ }
+
+ /**
+  * It unlogs the value. It checks whether this estimate is based on base 10 or
+  * base E and unlogs the value depending on that.
+  *
+  * @param val Value in log domain
+  * @return
+  */
+ private double getUnLogVal(double logVal) {
+   if(this.isBase10) return Math.pow(10, logVal);
+   else return Math.exp(logVal);
  }
 
   /**
@@ -131,8 +155,9 @@ public class LogNormalEstimate extends Estimate {
    * @return
    */
   private double getTruncLevel(double val) {
-    if(Double.isInfinite(val)) return 0;
-    else return (val-linearMedian)/stdDev;
+    if(val==Double.NEGATIVE_INFINITY) return 0;
+    else if(val==Double.POSITIVE_INFINITY) return Double.POSITIVE_INFINITY;
+    else return getLogVal(val/linearMedian)/stdDev;
   }
 
 
@@ -164,35 +189,66 @@ public class LogNormalEstimate extends Estimate {
    this.minX = minX;
  }
 
- public DiscretizedFunc getPDF() {
+ /**
+  * Get the probability density function.
+  * It calculates the PDF for x values.
+  * The PDF is calculated for evenly discretized X values with minX=0,
+  * maxX=linearMedian*Math.exp(4*stdDev), numX=80
+  *
+  * @return
+  */
+
+ public DiscretizedFunc getPDF_Test() {
     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    double x, y, deltaX=stdDev/4;
-    double limit = 1e-12;
-    for(int i=0; ; ++i) {
-       x = linearMedian - i*deltaX;
-       if(x>0) func.set(x,getY(x));
-       x= linearMedian + i*deltaX;
-       y = getY(x);
-       func.set(x,getY(x));
-       if(y<=limit) break;
+    double minX = 0;
+    double maxX = linearMedian*getUnLogVal(4*stdDev);
+    int numPoints = 80;
+    double deltaX = (getLogVal(maxX)-minX)/numPoints;
+    for(double x=minX; x<=maxX;) {
+      func.set(x, getY(x));
+      if(x!=0) x = getUnLogVal(getLogVal(x)+deltaX);
+      else x = getUnLogVal(deltaX);
     }
     return func;
   }
 
 
   private double getY(double x) {
-    return Math.exp(-Math.pow(Math.log(x)-linearMedian,2)/2*stdDev*stdDev)/x*stdDev*Math.sqrt(2*Math.PI);
+    if(x==0) return 0;
+    return getUnLogVal(-Math.pow(getLogVal(x/linearMedian),2)/(2*stdDev*stdDev))/(x*stdDev*Math.sqrt(2*Math.PI));
   }
 
   /**
   * Get the cumulative distribution function
   * @return
   */
- public DiscretizedFunc getCDF() {
+ public DiscretizedFunc getCDF_Test() {
    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
    return func;
  }
 
+ /**
+   * Get the probability for that the true value is less than or equal to provided
+   * x value
+   *
+   * @param x
+   * @return
+   */
+  public  double getProbLessThanEqual(double x) {
+     throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
+  }
+
+  /**
+   * Test function to get the CDF for this estimate. It uses the
+   * getFractile() function internally. It discretizes the Y values and then
+   * calls the getFractile() method to get corresponding x values and then
+   * plot them.
+   *
+   * @return
+   */
+  public  DiscretizedFunc getCDF_TestUsingFractile() {
+     throw new java.lang.UnsupportedOperationException("Method getCDF_TestUsingFractile() not supported.");
+  }
 
 
 }

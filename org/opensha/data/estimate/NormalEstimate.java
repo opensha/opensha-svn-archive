@@ -2,6 +2,7 @@ package org.opensha.data.estimate;
 import org.opensha.calc.GaussianDistCalc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 
 /**
  * <p>Title: NormalEstimate.java  </p>
@@ -109,10 +110,9 @@ public class NormalEstimate extends Estimate {
    return getMean();
   }
 
-
-
   /**
-   * NED NEEDS TO CHECK THIS TO MAKE SURE THIS IS IMPLEMENTED CORRECTLY
+   *
+   * Returns the x value
    *
    * @param prob - probability value
    */
@@ -122,13 +122,17 @@ public class NormalEstimate extends Estimate {
    return getMean() + stdRndVar*getStdDev();
  }
 
+
  /**
   * get the truncation level
   * @param val
   * @return
   */
  private double getTruncLevel(double val) {
-   if(Double.isInfinite(val)) return 0;
+   /* if min is negative infinity, return negative infinity.
+     If max is positive infinity, return positive infinity
+    */
+   if(Double.isInfinite(val)) return val;
    else return (val-mean)/stdDev;
  }
 
@@ -144,45 +148,95 @@ public class NormalEstimate extends Estimate {
    this.minX = minX;
  }
 
+ /**
+  * Get the name displayed to the user
+  * @return
+  */
  public String getName() {
    return NAME;
  }
 
+
  /**
   * Get the probability density function.
-  * It calculates the PDF for x values. X values discretization interval is stdDev/20
+  * It calculates the PDF for x values.
+  * The PDF is calculated for evenly discretized X values with minX=(mean-4*stdDev),
+  * maxX=(mean+4*stdDev), numX=80
+  *
   * @return
   */
-  public DiscretizedFunc getPDF() {
-    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    //int numSamples = 40;
-    //double cutOffVal = 4*stdDev;
-    double x, y, deltaX=stdDev/20;
-    double limit = 1e-12;
-    for(int i=0; ; ++i) {
-       //deltaX = (i*cutOffVal)/numSamples;
-       x = mean - i*deltaX;
-       y=getY(x);
-       func.set(x,y);
-       x= mean + i*deltaX;
-       y=getY(x);
-       func.set(x,y);
-       if(y<=limit) break;
+  public DiscretizedFunc getPDF_Test() {
+    EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
+    double deltaX = func.getDelta();
+    int numPoints = func.getNum();
+    double x;
+    for(int i=0; i<numPoints; ++i) {
+      x = func.getX(i);
+      func.set(i, getProbLessThanEqual(x + deltaX / 2) - getProbLessThanEqual(x - deltaX / 2));
     }
+    func.setInfo("PDF from Normal Distribution");
     return func;
   }
 
-
-  private double getY(double x) {
-    return Math.exp(-Math.pow(x-mean,2)/2*stdDev*stdDev)/stdDev*Math.sqrt(2*Math.PI);
+  /**
+   * Get the probability for that the true value is less than or equal to provided
+   * x value
+   *
+   * @param x
+   * @return
+   */
+  public double getProbLessThanEqual(double x) {
+    return (1-GaussianDistCalc.getExceedProb(x, getTruncLevel(minX),
+       getTruncLevel(maxX)));
   }
+
+  /**
+   * Test function to get the CDF for this estimate. It uses the
+   * getFractile() function internally. It discretizes the Y values and then
+   * calls the getFractile() method to get corresponding x values and then
+   * plot them.
+   *
+   * @return
+   */
+  public  DiscretizedFunc getCDF_TestUsingFractile() {
+    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+    //discretize the Y values
+    double minY = 0.00001;
+    double maxY = 0.99999;
+    int numPoints = 100;
+    double deltaY = (maxY-minY)/(numPoints-1);
+    // find the X values correpsoding to Y values
+    for(double y=minY; y<=maxY;y=y+deltaY)
+      func.set(getFractile(1-y),y);
+    func.setInfo("CDF from Normal Distribution using getFractile() method");
+    return func;
+  }
+
 
   /**
    * Get the cumulative distribution function
    * @return
    */
-  public DiscretizedFunc getCDF() {
-    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+  public DiscretizedFunc getCDF_Test() {
+    EvenlyDiscretizedFunc func = getEvenlyDiscretizedFunc();
+    double deltaX = func.getDelta();
+    int numPoints = func.getNum();
+    double x;
+    for(int i=0; i<numPoints; ++i)
+      func.set(i, getProbLessThanEqual(func.getX(i)));
+    func.setInfo("CDF from Normal Distribution using getProbLessThanEqual() method");
+    return func;
+  }
+
+  /**
+   * Make the Evenly discretized function for use in getPDF_Test() and getCDF_Test()
+   * @return
+   */
+  private EvenlyDiscretizedFunc getEvenlyDiscretizedFunc() {
+    double minX = mean-4*stdDev;
+    double maxX = mean+4*stdDev;
+    int numPoints = 80;
+    EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, maxX, numPoints);
     return func;
   }
 

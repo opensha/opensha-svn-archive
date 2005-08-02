@@ -101,7 +101,7 @@ public final class GaussianDistCalc {
     * distribution. The distribution is non-symmetrically truncated on both sides
     *
     * @param standRandVariable
-    * @param lowerTruncLevel, must be positive
+    * @param lowerTruncLevel, must be negative
     * @param upperTruncLevel in units of SRV, must be positive
     * @return the exceedance probability
     */
@@ -285,7 +285,7 @@ public final class GaussianDistCalc {
      *
      *
      * @param exceedProb  The target exceedance probability
-     * @param lowerTruncLevel   The lower truncation level, must be positive
+     * @param lowerTruncLevel   The lower truncation level, must be negative
      * @param upperTruncLevel  The upper truncation level (num SRVs), must be positive
      * @param tolerance   The tolerance
      * @return  The SRV found for the target exceedProb

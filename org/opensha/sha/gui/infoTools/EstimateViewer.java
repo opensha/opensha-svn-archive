@@ -20,9 +20,14 @@ public class EstimateViewer implements GraphWindowAPI {
   private Estimate estimate;
   private String xAxisLabel, yAxisLabel;
   private GraphWindow graphWindow;
-  private final PlotCurveCharacterstics DEFAULT_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+  private final PlotCurveCharacterstics PDF_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
       Color.RED, 2);
-  private final PlotCurveCharacterstics DISCRETE_VAL_PLOT_CHAR =
+  private final PlotCurveCharacterstics CDF_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+      Color.BLUE, 2);
+  private final PlotCurveCharacterstics CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
+      Color.BLACK, 2);
+
+  private final PlotCurveCharacterstics DISCRETE_VAL_PDF_PLOT_CHAR =
       new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
       Color.RED, 5);
 
@@ -55,7 +60,9 @@ public class EstimateViewer implements GraphWindowAPI {
 
   public ArrayList getCurveFunctionList() {
    ArrayList list = new ArrayList();
-   list.add(estimate.getPDF());
+   list.add(estimate.getPDF_Test());
+   list.add(estimate.getCDF_Test());
+   list.add(estimate.getCDF_TestUsingFractile());
    //list.add(estimate.getCDF());
    return list;
  }
@@ -63,8 +70,10 @@ public class EstimateViewer implements GraphWindowAPI {
   public ArrayList getPlottingFeatures() {
     ArrayList list = new ArrayList();
     if(estimate instanceof DiscreteValueEstimate)
-      list.add(DISCRETE_VAL_PLOT_CHAR);
-    else list.add(DEFAULT_PLOT_CHAR);
+      list.add(DISCRETE_VAL_PDF_PLOT_CHAR);
+    else list.add(PDF_PLOT_CHAR);
+    list.add(CDF_PLOT_CHAR);
+    list.add(CDF_USING_FRACTILE_PLOT_CHAR);
     return list;
   }
 

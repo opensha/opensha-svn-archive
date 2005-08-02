@@ -206,9 +206,8 @@ public class EstimateParameterEditor  extends ParameterEditor
     this.repaint();
   }
 
-
   /**
-   *
+   * Initialize the parameters and editors
    */
   protected void initParamListAndEditor()  {
 
@@ -234,8 +233,8 @@ public class EstimateParameterEditor  extends ParameterEditor
 
     // log choices for log normal distribution
     ArrayList logBases = new ArrayList();
-    logBases.add(this.LOG_BASE_10_NAME);
     logBases.add(this.NATURAL_LOG_NAME);
+    logBases.add(this.LOG_BASE_10_NAME);
     logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
 
 
@@ -349,6 +348,9 @@ public class EstimateParameterEditor  extends ParameterEditor
       setParamsForPDF_Estimate();
   }
 
+  /**
+   * make the parameters visible/invisible for min/max/preferred estimate
+   */
   private void setParamsForFractileListEstimate() {
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
     editor.setParameterVisible(MEAN_PARAM_NAME, false);
@@ -362,11 +364,11 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
     xValsParamListEditor.setVisible(true);
     probValsParamListEditor.setVisible(true);
-
+    viewEstimateButton.setVisible(false);
   }
 
   /**
-   * Set the params visible for normal estimate
+   * Set the params visible/invisible for normal estimate
    */
   private void setParamsForNormalEstimate() {
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
@@ -381,6 +383,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, true);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
+   viewEstimateButton.setVisible(true);
   }
 
   /**
@@ -399,6 +402,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, true);
     xValsParamListEditor.setVisible(false);
     probValsParamListEditor.setVisible(false);
+    viewEstimateButton.setVisible(true);
   }
 
   /**
@@ -417,10 +421,11 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
+   viewEstimateButton.setVisible(true);
  }
 
  /**
-  * Set the params visible for FractileList, DiscreteValue and Integer  estimate
+  * Set the params visible for DiscreteValue and Integer  estimate
   */
  private void setParamsForXY_Estimate() {
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
@@ -435,6 +440,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
+   viewEstimateButton.setVisible(true);
  }
 
  public void actionPerformed(ActionEvent e) {
@@ -444,13 +450,18 @@ public class EstimateParameterEditor  extends ParameterEditor
    }
  }
 
-
+ /**
+  * Open a Jfreechart window to view the estimate
+  */
  private void viewEstimate() {
    EstimateViewer estimateViewer = new EstimateViewer((Estimate)this.estimateParam.getValue());
  }
 
 
- private void setEstimateInParameter() {
+ /**
+  * Set the estimate value inside the estimateParameter
+  */
+ public void setEstimateInParameter() {
    String estimateName=(String)this.chooseEstimateParam.getValue();
    if(estimateName.equalsIgnoreCase(NormalEstimate.NAME))
      setNormalEstimate();
@@ -467,6 +478,9 @@ public class EstimateParameterEditor  extends ParameterEditor
 
  }
 
+ /**
+  * Set the estimate paramter value to be normal estimate
+  */
  private void setNormalEstimate() {
    double mean = ((Double)meanParam.getValue()).doubleValue();
    double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
@@ -477,6 +491,9 @@ public class EstimateParameterEditor  extends ParameterEditor
    estimate.setMinMaxX(minX, maxX);
  }
 
+ /**
+  * Set the estimate paramter value to be lognormal estimate
+  */
  private void setLogNormalEstimate() {
    double linearMedian = ((Double)linearMedianParam.getValue()).doubleValue();
    double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
@@ -490,21 +507,33 @@ public class EstimateParameterEditor  extends ParameterEditor
    estimate.setMinMaxX(minX, maxX);
  }
 
+ /**
+  * Set the estimate paramter value to be discrete vlaue estimate
+  */
  private void setDiscreteValueEstimate() {
    DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
    this.estimateParam.setValue(estimate);
  }
 
+ /**
+  * Set the estimate paramter value to be integer estimate
+  */
  private void setIntegerEstimate() {
    IntegerEstimate estimate = new IntegerEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
    this.estimateParam.setValue(estimate);
  }
 
+ /**
+  * Set the estimate paramter value to be Pdf estimate
+  */
  private void setPDF_Estimate() {
    PDF_Estimate estimate = new PDF_Estimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), false);
    estimateParam.setValue(estimate);
  }
 
+ /**
+   * Set the estimate paramter value to be min/max/preferred estimate
+   */
  private void setFractileListEstimate() {
    ArbDiscrEmpiricalDistFunc empiricalFunc = new ArbDiscrEmpiricalDistFunc();
    empiricalFunc.set(((Double)this.minX_Param.getValue()).doubleValue(), ((Double)this.minProbParam.getValue()).doubleValue());
@@ -533,7 +562,10 @@ public class EstimateParameterEditor  extends ParameterEditor
      }
    }
 
-
+   /**
+    * Show the general info about the estimates to the user
+    * @param info
+    */
  private void setEstimateInfo(String info) {
    this.estimateInfo.setEditable(true);
    estimateInfo.setText(info);

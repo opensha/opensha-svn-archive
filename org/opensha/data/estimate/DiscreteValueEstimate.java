@@ -36,7 +36,7 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
   * Get the cumulative distribution function
   * @return
   */
- public DiscretizedFunc getCDF() {
+ public DiscretizedFunc getCDF_Test() {
    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
    return func;
  }

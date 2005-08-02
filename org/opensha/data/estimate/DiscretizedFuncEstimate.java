@@ -142,7 +142,32 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   */
  public void setTolerance(double tol) {this.tol = tol;}
 
-  public  DiscretizedFunc getPDF() {
+  public  DiscretizedFunc getPDF_Test() {
     return this.func;
   }
+
+  /**
+   * Get the probability for that the true value is less than or equal to provided
+   * x value
+   *
+   * @param x
+   * @return
+   */
+  public double getProbLessThanEqual(double x) {
+    throw new java.lang.UnsupportedOperationException("Method getProbLessThanEqual() not supported.");
+  }
+
+  /**
+   * Test function to get the CDF for this estimate. It uses the
+   * getFractile() function internally. It discretizes the Y values and then
+   * calls the getFractile() method to get corresponding x values and then
+   * plot them.
+   *
+   * @return
+   */
+  public  DiscretizedFunc getCDF_TestUsingFractile() {
+     throw new java.lang.UnsupportedOperationException("Method getCDF_TestUsingFractile() not supported.");
+  }
+
+
 }

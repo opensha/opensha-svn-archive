@@ -39,9 +39,8 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
    * Get the cumulative distribution function
    * @return
    */
-  public DiscretizedFunc getCDF() {
-    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    return func;
+  public DiscretizedFunc getCDF_Test() {
+     throw new java.lang.UnsupportedOperationException("Method getCDF_Test() not supported.");
   }
 
 
