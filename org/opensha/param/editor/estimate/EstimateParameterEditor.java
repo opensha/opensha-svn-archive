@@ -221,7 +221,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME, DEFAULT_LINEAR_MEDIAN_PARAM_VAL);
 
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
-    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, new EvenlyDiscretizedFunc(1.0,2.0,2));
+    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, new EvenlyDiscretizedFunc(1.0,4.0,7));
     // list of available estimates
     EstimateConstraint estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
     ArrayList allowedEstimatesList = estimateConstraint.getAllowedEstimateList();
@@ -314,7 +314,7 @@ public class EstimateParameterEditor  extends ParameterEditor
    //minConstraintLabel= new JLabel(this.MIN_CONSTRAINT_LABEL+constraintMin);
    //maxConstraintLabel= new JLabel(this.MAX_CONSTRAINT_LABEL+constraintMax);
    //editor.setToolTipText(minConstraintLabel.getText()+","+maxConstraintLabel.getText());
-   editor.setToolTipText(constraintMinText+","+constraintMaxText);
+   editor.setToolTipText(this.estimateParam.getInfo()+"::"+constraintMinText+","+constraintMaxText);
  }
 
   public void parameterChangeFailed(ParameterChangeFailEvent event) {
