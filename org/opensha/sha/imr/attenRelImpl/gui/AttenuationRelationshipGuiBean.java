@@ -1290,7 +1290,7 @@ public class AttenuationRelationshipGuiBean
             add = true;
 
             ParameterAPI param = ( ParameterAPI ) it.next();
-            if ( !( param instanceof StringParameter ) ) {
+            if ( !( param instanceof StringParameter ) && !( param instanceof BooleanParameter)) {
 
                 // If DoubleDiscreteConstraint check that it has more than one value to plot on xaxis
                 ParameterConstraintAPI constraint = param.getConstraint();
