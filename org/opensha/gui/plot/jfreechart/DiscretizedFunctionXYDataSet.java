@@ -5,6 +5,7 @@ import java.util.*;
 import org.jfree.data.*;
 import org.opensha.data.*;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncList;
 
 
@@ -17,7 +18,9 @@ import org.opensha.data.function.DiscretizedFuncList;
  * This class contains a pointer to a DiscretizedFuncList. It also implements
  * an XYDataset which is JFreChart's interface that all datasets must implement
  * so they can be passed to the graphing routines. This class transforms the
- * DiscretizedFuncList data into the format as required by this interface.<p>
+ * DiscretizedFuncList data into the format as required by this interface.
+ * This also implements IntervalXYDataset to allow for Histograms plotting
+ * <p>
  *
  * Please consult the JFreeChart documentation for further information
  * on XYDataSets. <p>
@@ -43,7 +46,7 @@ import org.opensha.data.function.DiscretizedFuncList;
  * @version    1.2
  */
 
-public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
+public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI, IntervalXYDataset {
 
     /** Class name used for debug statements */
     protected final static String C = "DiscretizedFunctionXYDataSet";
@@ -69,8 +72,6 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     /** list of listeners for data changes */
     protected ArrayList listeners = new ArrayList();
 
-    /** SWR: Not sure what this is used for - Gupta code */
-    protected LinkedList xLogs = new LinkedList();
 
     /** closet possible value to zero */
     private double minVal = Double.MIN_VALUE;
@@ -314,6 +315,69 @@ public class DiscretizedFunctionXYDataSet implements XYDataset, NamedObjectAPI {
     public void setGroup(DatasetGroup group) {
       this.group = group;
     }
+
+
+    /**
+    * Returns the starting X value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the starting X value for the specified series and item.
+    */
+   public Number getStartXValue(int series, int item) {
+     double x = ((Double)getXValue(series,item)).doubleValue();
+     Object obj = functions.get( series );
+     if( obj != null && obj instanceof EvenlyDiscretizedFunc)
+       x = x - ((EvenlyDiscretizedFunc)obj).getDelta()/2;
+     return new Double(x);
+
+   }
+
+   /**
+    * Returns the ending X value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the ending X value for the specified series and item.
+    */
+   public Number getEndXValue(int series, int item) {
+     double x = ((Double)getXValue(series,item)).doubleValue();
+     Object obj = functions.get( series );
+     if( obj != null && obj instanceof EvenlyDiscretizedFunc)
+       x = x + ((EvenlyDiscretizedFunc)obj).getDelta()/2;
+     return new Double(x);
+   }
+
+   /**
+    * Returns the starting Y value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return starting Y value for the specified series and item.
+    */
+   public Number getStartYValue(int series, int item) {
+     return getYValue(series, item);
+   }
+
+   /**
+    * Returns the ending Y value for the specified series and item.
+    * This is needed for drawing histograms
+    *
+    * @param series  the series (zero-based index).
+    * @param item  the item within a series (zero-based index).
+    *
+    * @return the ending Y value for the specified series and item.
+    */
+   public Number getEndYValue(int series, int item) {
+     return getYValue(series, item);
+   }
+
 
 }
 

@@ -40,7 +40,9 @@ import org.opensha.param.event.ParameterChangeEvent;
  * FILLED_DIAMONDS
  * DIAMONDS
  * LINE_AND_CIRCLES
- * LINE_AND_TRIANGLES</p>
+ * LINE_AND_TRIANGLES
+ * HISTOGRAMS
+ * </p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
@@ -98,6 +100,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   public final static String DIAMONDS = "Diamond";
   public final static String LINE_AND_CIRCLES = "Line and Circles";
   public final static String LINE_AND_TRIANGLES = "Line and Triangles";
+  public final static String HISTOGRAM = "Histograms";
 
   //parameter for tick label font size
   private  StringParameter tickFontSizeParam;
@@ -313,6 +316,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
       lineTypeSelector[i].addItem(DIAMONDS);
       lineTypeSelector[i].addItem(LINE_AND_CIRCLES);
       lineTypeSelector[i].addItem(LINE_AND_TRIANGLES);
+      lineTypeSelector[i].addItem(HISTOGRAM);
       //setting the selected plot type to be one currently selected.
       lineTypeSelector[i].setSelectedItem(curvePlotPref.getCurveType());
       lineTypeSelector[i].addActionListener(this);
@@ -423,7 +427,8 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
   private void setStyleSizeBasedOnSelectedShape(int index,String selectedStyle){
 
     if(selectedStyle.equals(this.SOLID_LINE) || selectedStyle.equals(this.DASHED_LINE) ||
-       selectedStyle.equals(this.DOTTED_LINE) || selectedStyle.equals(this.DOT_DASH_LINE))
+       selectedStyle.equals(this.DOTTED_LINE) || selectedStyle.equals(this.DOT_DASH_LINE)||
+       selectedStyle.equals(HISTOGRAM))
       lineWidthParameterEditor[index].setValue(new Double(1.0));
     else if(selectedStyle.equals(this.LINE_AND_CIRCLES) || selectedStyle.equals(this.LINE_AND_TRIANGLES))
       lineWidthParameterEditor[index].setValue(new Double(1.0));

@@ -362,11 +362,17 @@ public class GraphPanel extends JPanel {
           -DELTA-curveWidth/2, SIZE+curveWidth, SIZE+curveWidth));
       setRendererInPlot(color, functionIndex, FILLED_SQUARE_SHAPE_RENDERER);
     }
+    //histograms
+    else if(lineType.equals(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM)){
+      XYBarRenderer HISTOGRAM_RENDERER = new XYBarRenderer();
+      setRendererInPlot(color, functionIndex, HISTOGRAM_RENDERER);
+    }
+
   }
 
 
   private void setRendererInPlot(Color color, int functionIndex,
-                                 StandardXYItemRenderer xyItemRenderer) {
+                                 AbstractXYItemRenderer xyItemRenderer) {
     if(functionIndex==0) plot.setRenderer(xyItemRenderer);
     else  plot.setSecondaryRenderer(functionIndex-1,xyItemRenderer);
     xyItemRenderer.setPaint(color);
