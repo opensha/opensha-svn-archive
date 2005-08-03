@@ -5,6 +5,7 @@ import java.util.ListIterator;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import java.text.DecimalFormat;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegionAPI</p>
@@ -89,7 +90,7 @@ public interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
    * @param index
    * @returns the Grid Location at that index.
    */
-  public Location getGridLocation(int index);
+  public Location getGridLocation(int index) throws RegionConstraintException;
 
 
   /**
@@ -98,13 +99,13 @@ public interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
    * @param loc Location Location to which we have to find the nearest location.
    * @return int Nearest Location index
    */
-  public int getNearestLocationIndex(Location loc);
+  public int getNearestLocationIndex(Location loc) throws RegionConstraintException;
 
   /**
    * Returns the nearest location in the gridded region to the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
    * @return Location Nearest Location
    */
-  public Location getNearestLocation(Location loc);
+  public Location getNearestLocation(Location loc) throws RegionConstraintException;
 }
 

@@ -486,6 +486,12 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       return;
     }
+    catch(RegionConstraintException ee){
+      ee.printStackTrace();
+      step =0;
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Site",JOptionPane.ERROR_MESSAGE);
+      return;
+    }
     catch(Exception ee){
       ee.printStackTrace();
       step =0;
@@ -551,7 +557,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * @param attenRel : Selected AttenuationRelationships
    * @param imt : Selected IMT
    */
-  public Object generateShakeMap(ArrayList attenRel, ArrayList attenRelWts, String imt) throws ParameterException,RuntimeException{
+  public Object generateShakeMap(ArrayList attenRel, ArrayList attenRelWts, String imt) throws ParameterException,RuntimeException, RegionConstraintException {
     try {
       double value=imlProbValue;
       //if the IMT selected is Log supported then take the log if Prob @ IML
@@ -746,7 +752,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * when the generate Map button is pressed
    */
-  private void addButton(){
+  private void addButton() throws RegionConstraintException, ParameterException,
+      RuntimeException {
     timer.start();
     step = 1;
     generateShakeMap(attenRel,attenRelWts,imrGuiBean.getSelectedIMT());

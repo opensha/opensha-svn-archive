@@ -161,7 +161,7 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
    * @param index
    * @returns site at the index
    */
-  public Site getSite(int index){
+  public Site getSite(int index) throws RegionConstraintException {
      site.setLocation(getGridLocation(index));
      String siteInfo=null;
      if(!setSameSiteParams){

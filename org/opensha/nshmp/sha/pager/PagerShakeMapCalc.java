@@ -325,7 +325,8 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
    *
    * @return XYZ_DataSetAPI
    */
-  private XYZ_DataSetAPI pagerShakeMapCalc() {
+  private XYZ_DataSetAPI pagerShakeMapCalc() throws RegionConstraintException,
+      ParameterException {
 
     PropagationEffect propagationEffect = new PropagationEffect();
 
@@ -513,7 +514,16 @@ public class PagerShakeMapCalc implements ParameterChangeWarningListener{
     }
 
     pagershakemapcalc.getSiteParamsForRegion();
-    XYZ_DataSetAPI xyzDataSet =pagershakemapcalc.pagerShakeMapCalc();
+    XYZ_DataSetAPI xyzDataSet = null;
+    try {
+      xyzDataSet = pagershakemapcalc.pagerShakeMapCalc();
+    }
+    catch (ParameterException ex1) {
+      System.out.println(ex1.getMessage());
+    }
+    catch (RegionConstraintException ex1) {
+      System.out.println(ex1.getMessage());
+    }
     pagershakemapcalc.createMedianFile(xyzDataSet);
     pagershakemapcalc.createMap(xyzDataSet);
   }

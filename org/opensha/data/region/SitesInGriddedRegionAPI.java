@@ -8,6 +8,9 @@ import org.opensha.data.*;
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
+import org.opensha.exceptions.RegionConstraintException;
+
+
 /**
  * <p>Title: SitesInGriddedRegion</p>
  * <p>Description: This Class adds and replace the site params to each site for a gridded
@@ -37,7 +40,7 @@ public interface SitesInGriddedRegionAPI extends EvenlyGriddedGeographicRegionAP
    * @param index
    * @returns site at the index
    */
-  public Site getSite(int index);
+  public Site getSite(int index) throws RegionConstraintException;
 
   /**
    * Add this site-type parameter to all the sites in the gridded region

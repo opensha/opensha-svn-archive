@@ -9,6 +9,7 @@ import org.opensha.sha.earthquake.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.opensha.exceptions.*;
 
 /**
  * <p>Title: GriddedRegionPoissonEqkSource </p>
@@ -129,7 +130,11 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
     probEqkRupture.setMag(((Double)mags.get(ithMag)).doubleValue());
 
     // set the location & aveDip
-    probEqkRupture.setPointSurface(region.getGridLocation(ithLoc), aveDip);
+    try {
+      probEqkRupture.setPointSurface(region.getGridLocation(ithLoc), aveDip);
+    }
+    catch (RegionConstraintException ex) {
+    }
 
     // compute and set the probability
     double prob = 1.0 - Math.exp(-duration*((Double)rates.get(ithMag)).doubleValue());

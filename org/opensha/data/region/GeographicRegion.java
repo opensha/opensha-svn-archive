@@ -55,6 +55,8 @@ public class GeographicRegion implements java.io.Serializable{
     createPoly();
   }
 
+
+
   /**
    * This method checks whether the given location is inside the region by
    * converting the region outline into a cartesion-coordinate-system polygon, with
@@ -168,7 +170,7 @@ public class GeographicRegion implements java.io.Serializable{
   /**
    * this method finds the minLat,maxLat,minLon and maxLon.
    */
-  private void setMinMaxLatLon(){
+  protected void setMinMaxLatLon(){
     ListIterator it=getRegionOutlineIterator();
     Location l = (Location) it.next();
     minLat=l.getLatitude();

@@ -16,6 +16,8 @@ import org.opensha.sha.gui.infoTools.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
 import org.opensha.util.*;
+import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: ScenarioShakeMapCalcServlet  </p>
@@ -178,7 +180,8 @@ public class ScenarioShakeMapCalcServlet
                                           SitesInGriddedRectangularRegion
                                           region, EqkRupture rupture,
                                           boolean isProbAtIML, double value,
-                                          ScenarioShakeMapCalculator calc) {
+                                          ScenarioShakeMapCalculator calc) throws
+      RegionConstraintException, ParameterException {
 
     //ArrayList for the Attenuations supporting and not supporting PGV
     ArrayList attenRelsSupportingPGV = new ArrayList();

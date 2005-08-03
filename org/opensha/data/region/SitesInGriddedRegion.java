@@ -8,7 +8,7 @@ import org.opensha.data.*;
 import org.opensha.param.*;
 import org.opensha.sha.util.*;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
-
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: SitesInGriddedRegion</p>
@@ -157,7 +157,7 @@ public class SitesInGriddedRegion extends EvenlyGriddedGeographicRegion
    * @param index
    * @returns site at the index
    */
-  public Site getSite(int index){
+  public Site getSite(int index) throws RegionConstraintException {
      site.setLocation(getGridLocation(index));
      String siteInfo=null;
      if(!setSameSiteParams){

@@ -285,15 +285,14 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * location on all ruptures in Eqk Rupture forecast model, if that lies within the
    * provided EvenlyGriddedGeographicRegion.
    * Once all Mag-Rate distribution has been computed for each location within the
-   * ERF, this function returns Hashmap that constitutes of
-   * 2 objects, with key being Location and value being
-   * ArbitrarilyDiscretizedFunc. This ArbitrarilyDiscretizedFunc for each location
+   * ERF, this function returns ArrayList that constitutes of
+   * ArbitrarilyDiscretizedFunc object. This ArbitrarilyDiscretizedFunc for each location
    * is the Mag-Rate distribution with X values being Mag and Y values being Rate.
    * @param mag double : Magnitude above which Mag-Rate distribution is to be computed.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Ruptureforecast model
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
-   * @return Hashmap with key being Location and value being ArbitrarilyDiscretizedFunc
+   * @return ArrayList with values being ArbitrarilyDiscretizedFunc
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
@@ -308,14 +307,13 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   /**
    * This function computes the total SiesRate for each location on all the ruptures,
    * if they are within the provided Geographical Region.
-   * It returns a HashMap with key being location and value being
-   * total seis rate(Double Object) .
+   * It returns a double[] value being total seis rate for each location in region.
    * @param mag double : Only those ruptures above this magnitude are considered
    * for calculation of the total seis rates in the region.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture forecast model
    * @param region EvenlyGriddedGeographicRegionAPI
-   * @return Hashmap with key being Location and value being Double Object
-   * respresenating the TotalSeisRate.
+   * @return double[] with each element in the array being totalSeisRate for each
+   * location in the region.
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */

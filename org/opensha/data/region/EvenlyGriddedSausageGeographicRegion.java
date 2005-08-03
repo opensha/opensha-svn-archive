@@ -6,6 +6,8 @@ import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import java.util.ArrayList;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.data.Direction;
+import org.opensha.calc.RelativeLocation;
 
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
@@ -15,7 +17,7 @@ import org.opensha.exceptions.RegionConstraintException;
  * @version 1.0
  */
 
-public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicRegion
+public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
                         implements EvenlyGriddedGeographicRegionAPI {
 
   private final static String C = "EvenlyGriddedCircularGeographicRegion";
@@ -42,20 +44,106 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
   //This array store number of locations below a given latitude
   private int[] locsBelowLat;
 
-  //List for storing starting lon for each lat
-  private double[] firstLonPerLat;
+  //List for storing each for a given latitude
+  private ArrayList lonsPerLatList;
+
+
+  //gets the locations where min/max lat lons are found in the case of sausage region.
+  //these are the corresponding locaiton lat/lon for the locations provided by the
+  //user in which we found the min/max lat/lon.
+  private double minLatLon, maxLatLon, minLonLat, maxLonLat;
+
+  //Sausage Region Min/Max lat/lon
+  private double regionMinLat, regionMaxLat,regionMinLon,regionMaxLon;
+
+
+  //Radius of the Sausage region
+  private double radius;
+
 
 
   /**
-   * default constructor
    *
-   * @param centerLoc - the location of the circle center
-   * @param radius - radius of the region (km)
-   * @param gridSpacing - grid spacing (degree)
+   * @param locList LocationList : Locations of the end points on the lines
+   * @param radius double
+   * @param gridSpacing double
    */
-  public EvenlyGriddedCircularGeographicRegion(Location centerLoc, double radius, double gridSpacing) {
-    super(centerLoc, radius);
+  public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
+    this.locList = locList;
+    setMinMaxLatLon();
+    this.radius = radius;
     setGridSpacing(gridSpacing);
+  }
+
+
+
+  /**
+   * this method finds the minLat,maxLat,minLon and maxLon.
+   */
+  protected void setMinMaxLatLon(){
+    ListIterator it=locList.listIterator();
+    Location l = (Location) it.next();
+    minLat=l.getLatitude();
+    minLon=l.getLongitude();
+    maxLat=l.getLatitude();
+    maxLon=l.getLongitude();
+    //in addition to getting the min/max lat/Lon it gets the locations for these.
+    while(it.hasNext()){
+      l=(Location)it.next();
+      if(l.getLatitude()< minLat){
+        minLat = l.getLatitude();
+        minLatLon = l.getLongitude();
+      }
+      if(l.getLatitude()> maxLat){
+        maxLat = l.getLatitude();
+        maxLatLon = l.getLongitude();
+      }
+      if(l.getLongitude()<minLon){
+        minLon = l.getLongitude();
+        minLonLat = l.getLatitude();
+      }
+      if(l.getLongitude()>maxLon){
+        maxLon = l.getLongitude();
+        maxLonLat = l.getLatitude();
+      }
+    }
+
+    if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
+  }
+
+
+
+
+  /*
+   * This function creates the Gridded Rectangular Region Outline
+   */
+  private void createEvenlyGriddedRectangularRegionOutline(){
+    //location that finds the min lat for the rectangular region
+    Location minLatLoc = new Location(niceMinLat,minLatLon);
+    //set min and max lat and lons
+    Direction dir = new Direction(0, radius, 180, 0);
+    Location tempLoc = RelativeLocation.getLocation(minLatLoc, dir);
+    regionMinLat = tempLoc.getLatitude();
+
+    //location that finds the max lat for the rectangular region
+    Location maxLatLoc = new Location(niceMaxLat,maxLatLon);
+    dir = new Direction(0, radius,0, 180);
+    tempLoc = RelativeLocation.getLocation(maxLatLoc, dir);
+    regionMaxLat = tempLoc.getLatitude();
+
+    //location that finds the min lon for the rectangular region
+    Location minLonLoc = new Location(minLonLat, niceMinLon);
+    dir = new Direction(0, radius,270,90);
+    tempLoc = RelativeLocation.getLocation(minLonLoc, dir);
+    regionMinLon = tempLoc.getLatitude();
+
+    //location that finds the max lon for the rectangular region
+    Location maxLonLoc = new Location(maxLonLat, niceMinLon);
+    dir = new Direction(0, radius,90, 270);
+    tempLoc = RelativeLocation.getLocation(maxLonLoc, dir);
+    regionMaxLon = tempLoc.getLatitude();
+
+    initLatLonArray();
   }
 
   /**
@@ -63,7 +151,7 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    * chosen.
    * @param degrees: sets the grid spacing
    */
-  public void setGridSpacing(double degrees){
+  public void setGridSpacing(double gridSpacing){
     this.gridSpacing=gridSpacing;
     if(D)
       System.out.println("gridSpacing="+gridSpacing);
@@ -71,7 +159,13 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     niceMinLon = Math.ceil(minLon/gridSpacing)*gridSpacing;
     niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
     niceMaxLon = Math.floor(maxLon/gridSpacing)*gridSpacing;
-    initLatLonArray();
+
+    //getting the nice Lat/Lon for the locations at min/max lat/lon.
+    minLatLon = Math.ceil(minLatLon/gridSpacing)*gridSpacing;
+    maxLatLon = Math.floor(maxLatLon/gridSpacing)*gridSpacing;
+    minLonLat = Math.ceil(minLonLat/gridSpacing)*gridSpacing;
+    maxLonLat = Math.floor(maxLonLat/gridSpacing)*gridSpacing;
+    createEvenlyGriddedRectangularRegionOutline();
   }
 
 
@@ -80,49 +174,68 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    * int array which tells how many locations are there below a given lat.
    */
   protected void initLatLonArray() {
-    //getting the number of grid lats in the given region
-    int numLats = (int) ( (niceMaxLat - niceMinLat) / gridSpacing) + 1;
+    //number of Grid Lat/Lons that can be in the Gridded Rectangular Region
+    int numLatGridPoints = (int) Math.ceil( (regionMaxLat - regionMinLat) /
+                                           gridSpacing) + 1;
+    int numLonGridPoints = (int) Math.ceil( (regionMaxLon - regionMinLon) /
+                                           gridSpacing) + 1;
+
     //initialising the array for storing number of location below a given lat
     //first element is 0 as first lat has 0 locations below it and last num is the
     //total number of locations.
-    locsBelowLat = new int[numLats+1];
-    double lat = niceMinLat;
+    locsBelowLat = new int[numLatGridPoints + 1];
+    //ArrayList for storing all the lons per grid Lat
+    lonsPerLatList = new ArrayList();
+    int locsBelowLatIndex = 0;
 
-    firstLonPerLat = new double[numLats];
-
-    int locBelowIndex = 0;
     //initializing the first element of number of locations to be 0 location for
     //min lat.
     //For each lat the number of locations keeps increasing.
-    locsBelowLat[locBelowIndex++] = 0;
+    locsBelowLat[locsBelowLatIndex++] = 0;
+
+    //using this location for setting the Lon/Lat at each index in the rectangular region.
+    Location loc = new Location();
     //looping over all grid lats in the region to get longitudes at each lat and
     // and number of locations below each starting lat.
-
-    while (lat <= niceMaxLat) {
-      double lon = minLon;
-      //List for temporarily storing all the Lons for a given lat
-      ArrayList lonList  = new ArrayList();
-      while (lon <= niceMaxLon) {
-        //creating the location object for the lat and lon that we got
-        Location loc = new Location(lat, lon);
-        //checking if this location lies in the given gridded region
-        //once found the first lon on the lat that lies within the region
-        //save it and jump to find first lon on the next lat.
-        if (this.isLocationInside(loc))
+    for (int iLat = 0; iLat < numLatGridPoints; iLat++) {
+      double lat = regionMinLat + gridSpacing * (double) iLat;
+      loc.setLatitude(lat);
+      ArrayList lonList = new ArrayList();
+      for (int iLon = 0; iLon < numLonGridPoints; iLon++) {
+        double lon = regionMinLon + gridSpacing * (double) iLon;
+        loc.setLongitude(lon);
+        boolean isLocInside = this.isLocationInside(loc);
+        if(isLocInside)
           lonList.add(new Double(lon));
-        lon += gridSpacing;
       }
-      locsBelowLat[locBelowIndex] += lonList.size();
-      //just storing the first Lon for all the given grid Lats in the region.
-      firstLonPerLat[locBelowIndex -1] = ((Double)lonList.get(0)).doubleValue();
-      //incrementing the index counter for number of locations below a given latitude
-      ++locBelowIndex;
-      lat += gridSpacing;
-      //assigning number of locations below a grid lat to the grid Lat above this lat.
-      locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
+      locsBelowLat[locsBelowLatIndex++] += lonList.size();
+      lonsPerLatList.add(lonList);
+      locsBelowLat[locsBelowLatIndex] = locsBelowLat[locsBelowLatIndex - 1];
     }
   }
 
+
+
+  /**
+   * Returns boolean if location is within the radius range of the sausage region.
+   * This function goes over all the lines in the sausage region and calculate the
+   * distance of location from each line. If this distance is less then or equal to
+   * the radius, only then this locaiton is within the region.
+   * @param location Location
+   * @return boolean
+   */
+  public boolean isLocationInside(Location location){
+     int numLines = locList.size() -1;
+     for (int i = 0; i < numLines; ++i) {
+       Location loc1 = locList.getLocationAt(i);
+       Location loc2 = locList.getLocationAt(i + 1);
+       double distance = RelativeLocation.getApproxHorzDistToLine(location, loc1, loc2);
+       if (distance <= radius) {
+         return true;
+       }
+     }
+     return false;
+   }
 
 
 
@@ -134,16 +247,20 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     return gridSpacing;
   }
 
+
+
   /**
    *
    * @returns the number of GridLocation points
    */
-  public int getNumGridLocs(){
+  public int getNumGridLocs() {
     if(gridLocsList !=null)
       return gridLocsList.size();
     else
-      return locsBelowLat[locsBelowLat.length];
+      return locsBelowLat[locsBelowLat.length - 1];
   }
+
+
 
   /**
    *
@@ -194,6 +311,9 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     return new Location(lat, lon);
   }
 
+
+
+
   /**
    * Returns the index of the nearest location in the given gridded region, to
    * the provided Location.
@@ -215,29 +335,24 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     int latIndex = (int)Math.rint((lat - niceMinLat)/gridSpacing);
     //number of locations below this latitude
     int locIndex = locsBelowLat[latIndex];
-    //getting the first Longitude on this Latitude
-    double latFirstLon = firstLonPerLat[latIndex];
+    ArrayList lonList = (ArrayList)lonsPerLatList.get(latIndex);
 
-    //finding the nearest longitude to a given location longitude in the region
-    //As we have checked earlier that this location is within the region bounds
-    //so there must a longitude nearest to given location longitude. This
-    //loop will go until location index is found. Once found it breaks out of
-    //the loop.
-    while(true){
-      if (Math.abs(latFirstLon - lon) <= gridSpacing/2)
+    int size = lonList.size();
+    //iterating over all the lons for a given lat and finding the lon to the given lon.
+    for(int i=0;i<size;++i){
+      double latLon = ((Double)lonList.get(i)).doubleValue();
+      if (Math.abs(latLon - lon) <= gridSpacing/2) {
+        locIndex += i;
         break;
-      latFirstLon +=gridSpacing;
-      ++locIndex;
+      }
     }
 
     return locIndex;
   }
 
 
-
-
   /**
-   * Returns the Gridded Location at a given index. If user already has the gridded
+   * Returns the Gridded Location at a given index. If user has already the gridded
    * location list then it returns the location from this gridded location list,
    * else creates a new location object whenever user request for a location a
    * given index.
@@ -247,19 +362,19 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
   public Location getGridLocation(int index) throws RegionConstraintException {
 
     //returns  the location at the specified index in the location list
-    if (gridLocsList != null)
+    if(gridLocsList !=null)
       return gridLocsList.getLocationAt(index);
-    else { // if location list has not been initialised
+    else{// if location list has not been initialised
       //getting the size of array that maintains number of locations at each lat
       int size = locsBelowLat.length;
       int locIndex = 0;
       //iterating over all the lonsPerLat array to get the Lat index where given
       //index lies.
-      int latIndex = 0;
+      int latIndex =0;
       boolean locationFound = false;
-      for (int i = 0; i < size - 1; ++i) {
+      for(int i=0;i<size-1;++i){
         int locsIndex2 = locsBelowLat[i + 1];
-        if (index < locsIndex2) {
+        if(index < locsIndex2){
           locIndex = locsBelowLat[i];
           latIndex = i;
           locationFound = true;
@@ -267,18 +382,13 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
         }
       }
 
-      if (!locationFound)throw new RegionConstraintException(
-          "Not a valid index in the region");
-      double firstLonForLat = firstLonPerLat[latIndex];
-      //this defines the position whichlocation has to be retrieved for the lat
-      int lonIndex = index - locIndex;
-      //getting the lon on the given location index, this is retrieved by using
-      //first Lon on a given Lat and then getting the lon at given index on that lat index.
-      double lon = firstLonForLat+ lonIndex * gridSpacing;
-      //getting the lat for the given location index
-      double lat = niceMinLat + latIndex * gridSpacing;
-      return new Location(lat, lon);
+      if(!locationFound) throw new RegionConstraintException("Not a valid index in the region");
+      ArrayList lonList = (ArrayList)lonsPerLatList.get(latIndex);
+      double lon = ((Double)lonList.get(index - locIndex)).doubleValue();
+      double lat = niceMinLat+latIndex*gridSpacing;
+      return new Location(lat,lon);
     }
+
   }
 
 
@@ -289,18 +399,16 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
 
     //creates a instance of new locationList
     gridLocsList = new LocationList();
-    //Length of Array that stores the locations below a given gridLat
-    int locBelowLatSize = locsBelowLat.length;
+    //number of gridLats
+    int lonsPerLatSize = lonsPerLatList.size();
     //initialising the lat with the nice min lat
     double lat = niceMinLat;
     //iterating over all lons for each lat, and creating a Location list from it.
-    for (int i = 0; i < locBelowLatSize-1; ++i) {
-      double firstLonForLat =  firstLonPerLat[i];
-      //number of grid Lons for a given Lat
-      int numLonsForLat = locsBelowLat[i+1] - locsBelowLat[i];
-      for (int j = 0; j < numLonsForLat; ++j) {
-        //getting each longitude for a given lat
-        double lon = firstLonForLat + j*gridSpacing;
+    for (int i = 0; i < lonsPerLatSize; ++i) {
+      ArrayList lonList = (ArrayList) lonsPerLatList.get(i);
+      int numLons = lonList.size();
+      for (int j = 0; j < numLons; ++j) {
+        double lon = ( (Double) lonList.get(j)).doubleValue();
         //creating a new location
         Location loc = new Location(lat, lon);
         gridLocsList.addLocation(loc);
@@ -310,8 +418,9 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     }
   }
 
+
   public static void main(String[] args) {
-    EvenlyGriddedCircularGeographicRegion gridReg = new EvenlyGriddedCircularGeographicRegion(new Location(34,-122,0),111,0.02);
+   // EvenlyGriddedSausageGeographicRegion gridReg = new EvenlyGriddedSausageGeographicRegion(new Location(34,-122,0),111,0.02);
   }
 
   /**

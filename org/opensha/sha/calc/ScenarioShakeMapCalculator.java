@@ -21,6 +21,7 @@ import org.opensha.sha.param.DistanceRupParameter;
 import org.opensha.sha.param.DistanceSeisParameter;
 import org.opensha.sha.param.DistanceJBParameter;
 import org.opensha.sha.imr.attenRelImpl.*;
+import org.opensha.exceptions.RegionConstraintException;
 
 /**
  * <p>Title: ScenarioShakeMapCalculator</p>
@@ -77,7 +78,7 @@ public class ScenarioShakeMapCalculator {
    */
   public XYZ_DataSetAPI getScenarioShakeMapData(ArrayList selectedAttenRels, ArrayList attenRelWts,
       SitesInGriddedRectangularRegion griddedRegionSites,EqkRupture rupture,
-      boolean isProbAtIML,double value) throws ParameterException {
+      boolean isProbAtIML,double value) throws ParameterException, RegionConstraintException {
 
     numSites = griddedRegionSites.getNumGridLocs();
 

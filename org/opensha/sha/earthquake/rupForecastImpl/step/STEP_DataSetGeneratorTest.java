@@ -23,6 +23,8 @@ import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.util.SiteTranslator;
+import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: STEP_DataSetGenerator</p>
@@ -1332,7 +1334,8 @@ public class STEP_DataSetGeneratorTest implements ParameterChangeWarningListener
    * @returns the ArrayList of Probability values for the given region
    */
   private ArrayList getProbVals(ShakeMap_2003_AttenRel imr,SitesInGriddedRectangularRegion region,
-                                     EqkRupForecast eqkRupForecast){
+                                     EqkRupForecast eqkRupForecast) throws
+      RegionConstraintException, ParameterException {
 
     ArrayList probVals = new ArrayList();
     double MAX_DISTANCE = 200;

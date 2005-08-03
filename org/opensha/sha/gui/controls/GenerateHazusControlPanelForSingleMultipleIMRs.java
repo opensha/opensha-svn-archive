@@ -16,6 +16,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.param.*;
 import org.opensha.sha.gui.ScenarioShakeMapApp;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.exceptions.ParameterException;
 
 /**
  * <p>Title: GenerateHazusControlPanelForSingleMultipleIMRs</p>
@@ -134,7 +135,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @param selectedAttenRels : List of the selected AttenuationRelationships selected
    * @param selectedAttenRelsWts : List of teh wts of the selected AttenRels
    */
-  private void generateHazusFiles(ArrayList selectedAttenRels,ArrayList selectedAttenRelWts){
+  private void generateHazusFiles(ArrayList selectedAttenRels,ArrayList selectedAttenRelWts) throws
+      ParameterException, RuntimeException, RegionConstraintException {
 
     //metadata String
     metadata="<br>Hazus Metadata: \n<br>"+
@@ -165,7 +167,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * Does the Hazus Calc for the IMT being PGV for all the selected AttenRels
    * @param selectedAttenRels
    */
-  private void doCalcForPGV(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWts){
+  private void doCalcForPGV(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWts) throws
+      ParameterException, RuntimeException, RegionConstraintException {
 
     step =4;
     metadata += "IMT = PGV"+"<br>\n";
@@ -257,7 +260,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   private void doCalcForPGV_OnServer(ArrayList attenRelsSupportingPGV,
                                      ArrayList attenRelsNotSupportingPGV,
                                      ArrayList attenRelListPGV_Wts,
-                                     ArrayList attenRelListNot_PGV_Wts){
+                                     ArrayList attenRelListNot_PGV_Wts) throws
+      RegionConstraintException, ParameterException, RuntimeException {
 
     //contains the list of all the selected AttenuationRelationship models
     ArrayList attenRelList = new ArrayList();
@@ -296,7 +300,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * Hazus Calculation for PGA
    * @param selectedAttenRels: List of AttenuationRelation models
    */
-  private void hazusCalcForPGA(ArrayList selectedAttenRels,ArrayList selectedAttenRelsWt){
+  private void hazusCalcForPGA(ArrayList selectedAttenRels,ArrayList selectedAttenRelsWt) throws
+      RegionConstraintException, ParameterException, RuntimeException {
     step =5;
     int size = selectedAttenRels.size();
     for(int i=0;i<size;++i)
@@ -314,7 +319,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * Hazus Calculation for SA at 1sec and 0.3 sec
    * @param selectedAttenRels: List of AttenuationRelation models
    */
-  private void hazusCalcForSA(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWt){
+  private void hazusCalcForSA(ArrayList selectedAttenRels, ArrayList selectedAttenRelsWt) throws
+      RegionConstraintException, ParameterException, RuntimeException {
     //Doing for SA
     step =2;
     int size = selectedAttenRels.size();
@@ -349,7 +355,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
    * @param pgvSupported : Checks if the list of the AttenRels support PGV
    * @return
    */
-  private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported){
+  private XYZ_DataSetAPI hazusCalcForPGV(ArrayList attenRelList, ArrayList attenRelWtList,boolean pgvSupported) throws
+      RegionConstraintException, ParameterException, RuntimeException {
     //if the PGV is supportd by the AttenuationRelationships
     XYZ_DataSetAPI pgvDataSet = null;
     int size = attenRelList.size();
@@ -521,7 +528,8 @@ public class GenerateHazusControlPanelForSingleMultipleIMRs extends JFrame
   /**
    * Creates the dataset to generate the shape files that goes as input to Hazus.
    */
-  public void generateShapeFilesForHazus(){
+  public void generateShapeFilesForHazus() throws RegionConstraintException,
+      ParameterException, RuntimeException {
 
     //keeps tracks if the user has pressed the button to generate the xyz dataset
     //for prodcing the shapefiles for Hazus.
