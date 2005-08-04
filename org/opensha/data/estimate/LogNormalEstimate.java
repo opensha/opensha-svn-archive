@@ -258,8 +258,8 @@ public double getFractile(double prob) {
   */
  private EvenlyDiscretizedFunc getEvenlyDiscretizedFunc() {
    double minX = 0;
-   double maxX = linearMedian*getUnLogVal(4*stdDev);
-   int numPoints = 160;
+   double maxX = linearMedian*getUnLogVal(3*stdDev);
+   int numPoints = 320;
    EvenlyDiscretizedFunc func = new EvenlyDiscretizedFunc(minX, maxX, numPoints);
    return func;
  }

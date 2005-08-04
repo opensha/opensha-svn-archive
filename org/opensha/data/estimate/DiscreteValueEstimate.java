@@ -92,11 +92,10 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
  * @return
  */
  public double getFractile(double prob) {
-   if(prob<this.cumDistFunc.getY(0)) return 0;// return 0 if it less than 1st X value in this estimate
    int num = cumDistFunc.getNum();
-   for(int i=1; i<num; ++i)
+   for(int i=0; i<num; ++i)
      if(cumDistFunc.getY(i)>prob)
-       return cumDistFunc.getX(i-1);
+       return cumDistFunc.getX(i);
    return 1;
  }
 

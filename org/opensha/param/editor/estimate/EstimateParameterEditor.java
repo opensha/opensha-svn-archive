@@ -94,9 +94,12 @@ public class EstimateParameterEditor  extends ParameterEditor
    private final static String LOGNORMAL_MIN_X_PARAM_NAME="LogNormal Estimate MinX";
    private final static Double DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL=new Double(0);
    private final static DoubleConstraint LOGNORMAL_MIN_X_PARAM_CONSTRAINT = new DoubleConstraint(0, Double.POSITIVE_INFINITY);
-   private DoubleParameter maxEstimateParam ;
-   private final static String ESTIMATE_MAX_X_PARAM_NAME="Estimate MaxX";
-   private final static Double DEFAULT_MAX_ESTIMATE_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
+   private DoubleParameter maxNormalEstimateParam ;
+   private final static String NORMAL_MAX_X_PARAM_NAME="Normal Estimate MaxX";
+   private final static Double DEFAULT_NORMAL_MAX_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
+   private DoubleParameter maxLogNormalEstimateParam ;
+   private final static String LOGNORMAL_MAX_X_PARAM_NAME="LogNormal Estimate MaxX";
+   private final static Double DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
 
 
 
@@ -248,8 +251,10 @@ public class EstimateParameterEditor  extends ParameterEditor
                                                 DEFAULT_NORMAL_MIN_X_PARAM_VAL);
    minLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MIN_X_PARAM_NAME,
        LOGNORMAL_MIN_X_PARAM_CONSTRAINT, DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL);
-   maxEstimateParam = new DoubleParameter(ESTIMATE_MAX_X_PARAM_NAME,
-                                          DEFAULT_MAX_ESTIMATE_X_PARAM_VAL);
+   maxNormalEstimateParam = new DoubleParameter(NORMAL_MAX_X_PARAM_NAME,
+                                          DEFAULT_NORMAL_MAX_X_PARAM_VAL);
+  maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
+                                                 DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL);
 
    // put all the parameters in the parameter list
    parameterList = new ParameterList();
@@ -262,7 +267,8 @@ public class EstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(evenlyDiscFuncParam);
    parameterList.addParameter(minNormalEstimateParam);
    parameterList.addParameter(minLogNormalEstimateParam);
-   parameterList.addParameter(maxEstimateParam);
+   parameterList.addParameter(maxNormalEstimateParam);
+   parameterList.addParameter(maxLogNormalEstimateParam);
    this.editor = new ParameterListEditor(parameterList);
 
    // show the units and estimate param name as the editor title
@@ -361,7 +367,8 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(XY_PARAM_NAME, false);
     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
+    editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
     xValsParamListEditor.setVisible(true);
     probValsParamListEditor.setVisible(true);
     viewEstimateButton.setVisible(false);
@@ -380,7 +387,8 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(XY_PARAM_NAME, false);
    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, true);
    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, true);
+   editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, true);
+    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -399,7 +407,8 @@ public class EstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(XY_PARAM_NAME, false);
     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, true);
-    editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, true);
+    editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, true);
     xValsParamListEditor.setVisible(false);
     probValsParamListEditor.setVisible(false);
     viewEstimateButton.setVisible(true);
@@ -418,7 +427,8 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(XY_PARAM_NAME, false);
    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
+   editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -437,7 +447,8 @@ public class EstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(XY_PARAM_NAME, true);
    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(ESTIMATE_MAX_X_PARAM_NAME, false);
+   editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -445,8 +456,12 @@ public class EstimateParameterEditor  extends ParameterEditor
 
  public void actionPerformed(ActionEvent e) {
    if  (e.getSource()==viewEstimateButton) {
-     setEstimateInParameter();
-     viewEstimate();
+     try {
+       setEstimateInParameter();
+       viewEstimate();
+     }catch(Exception ex) {
+       JOptionPane.showMessageDialog(this,ex.getMessage());
+     }
    }
  }
 
@@ -454,7 +469,10 @@ public class EstimateParameterEditor  extends ParameterEditor
   * Open a Jfreechart window to view the estimate
   */
  private void viewEstimate() {
-   EstimateViewer estimateViewer = new EstimateViewer((Estimate)this.estimateParam.getValue());
+   Estimate estimate = (Estimate)this.estimateParam.getValue();
+   if(estimate!=null) {
+     EstimateViewer estimateViewer = new EstimateViewer(estimate);
+   }
  }
 
 
@@ -462,85 +480,88 @@ public class EstimateParameterEditor  extends ParameterEditor
   * Set the estimate value inside the estimateParameter
   */
  public void setEstimateInParameter() {
+   Estimate estimate = null;
    String estimateName=(String)this.chooseEstimateParam.getValue();
-   if(estimateName.equalsIgnoreCase(NormalEstimate.NAME))
-     setNormalEstimate();
-   else if(estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
-     setLogNormalEstimate();
-   else if(estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
-      setFractileListEstimate();
-  else if(estimateName.equalsIgnoreCase(IntegerEstimate.NAME))
-      setIntegerEstimate();
-  else if(estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME))
-     setDiscreteValueEstimate();
-   else if(estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
-     setPDF_Estimate();
 
+   if (estimateName.equalsIgnoreCase(NormalEstimate.NAME))
+     estimate = setNormalEstimate();
+   else if (estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
+     estimate = setLogNormalEstimate();
+   else if (estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
+     estimate = setFractileListEstimate();
+   else if (estimateName.equalsIgnoreCase(IntegerEstimate.NAME))
+     estimate = setIntegerEstimate();
+   else if (estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME))
+     estimate = setDiscreteValueEstimate();
+   else if (estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
+     estimate = setPDF_Estimate();
+   estimate.setUnits(estimateParam.getUnits());
+   this.estimateParam.setValue(estimate);
  }
 
  /**
   * Set the estimate paramter value to be normal estimate
   */
- private void setNormalEstimate() {
+ private Estimate setNormalEstimate() {
    double mean = ((Double)meanParam.getValue()).doubleValue();
    double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
    double minX = ((Double)this.minNormalEstimateParam.getValue()).doubleValue();
-   double maxX = ((Double)this.maxEstimateParam.getValue()).doubleValue();
+   double maxX = ((Double)this.maxNormalEstimateParam.getValue()).doubleValue();
    NormalEstimate estimate = new NormalEstimate(mean, stdDev);
-   this.estimateParam.setValue(estimate);
    estimate.setMinMaxX(minX, maxX);
+   return estimate;
  }
 
  /**
   * Set the estimate paramter value to be lognormal estimate
   */
- private void setLogNormalEstimate() {
+ private Estimate setLogNormalEstimate() {
    double linearMedian = ((Double)linearMedianParam.getValue()).doubleValue();
    double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
    LogNormalEstimate estimate = new LogNormalEstimate(linearMedian, stdDev);
    if(this.logBaseParam.getValue().equals(this.LOG_BASE_10_NAME))
      estimate.setIsBase10(true);
    else   estimate.setIsBase10(false);
-   this.estimateParam.setValue(estimate);
    double minX = ((Double)this.minLogNormalEstimateParam.getValue()).doubleValue();
-   double maxX = ((Double)this.maxEstimateParam.getValue()).doubleValue();
+   double maxX = ((Double)this.maxLogNormalEstimateParam.getValue()).doubleValue();
    estimate.setMinMaxX(minX, maxX);
+   return estimate;
  }
 
  /**
   * Set the estimate paramter value to be discrete vlaue estimate
   */
- private void setDiscreteValueEstimate() {
+ private Estimate setDiscreteValueEstimate() {
    DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
-   this.estimateParam.setValue(estimate);
+   return estimate;
  }
 
  /**
   * Set the estimate paramter value to be integer estimate
   */
- private void setIntegerEstimate() {
+ private Estimate setIntegerEstimate() {
    IntegerEstimate estimate = new IntegerEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
-   this.estimateParam.setValue(estimate);
+   return estimate;
  }
 
  /**
   * Set the estimate paramter value to be Pdf estimate
   */
- private void setPDF_Estimate() {
+ private Estimate setPDF_Estimate() {
    PDF_Estimate estimate = new PDF_Estimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), false);
-   estimateParam.setValue(estimate);
+   return estimate;
  }
 
  /**
    * Set the estimate paramter value to be min/max/preferred estimate
    */
- private void setFractileListEstimate() {
+ private Estimate setFractileListEstimate() {
    ArbDiscrEmpiricalDistFunc empiricalFunc = new ArbDiscrEmpiricalDistFunc();
    empiricalFunc.set(((Double)this.minX_Param.getValue()).doubleValue(), ((Double)this.minProbParam.getValue()).doubleValue());
    empiricalFunc.set(((Double)this.maxX_Param.getValue()).doubleValue(), ((Double)this.maxProbParam.getValue()).doubleValue());
    empiricalFunc.set(((Double)this.prefferedX_Param.getValue()).doubleValue(), ((Double)this.prefferedProbParam.getValue()).doubleValue());
    FractileListEstimate estimate = new FractileListEstimate(empiricalFunc);
-   estimateParam.setValue(estimate);
+   return estimate;
  }
 
 

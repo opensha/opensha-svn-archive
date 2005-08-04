@@ -23,12 +23,12 @@ public class EstimateViewer implements GraphWindowAPI {
   private GraphWindow graphWindow;
   private final PlotCurveCharacterstics PDF_PLOT_CHAR_HISTOGRAM = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.HISTOGRAM,
       Color.RED, 2);
-  private final PlotCurveCharacterstics PDF_PLOT_CHAR= new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
-      Color.GREEN, 2);
   private final PlotCurveCharacterstics CDF_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
       Color.BLUE, 2);
   private final PlotCurveCharacterstics CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
       Color.BLACK, 2);
+  private final PlotCurveCharacterstics DISCRETE_VAL_CDF_USING_FRACTILE_PLOT_CHAR = new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.CROSS_SYMBOLS,
+      Color.BLACK, 6.0);
 
 
   public EstimateViewer(Estimate estimate) {
@@ -36,6 +36,8 @@ public class EstimateViewer implements GraphWindowAPI {
     setXAxisLabel(X_AXIS_LABEL);
     setYAxisLabel(Y_AXIS_LABEL);
     graphWindow = new GraphWindow(this);
+    graphWindow.setPlotLabel(estimate.getName());
+    graphWindow.plotGraphUsingPlotPreferences();
     //graphWindow.pack();
     graphWindow.show();
   }
@@ -62,8 +64,6 @@ public class EstimateViewer implements GraphWindowAPI {
    ArrayList list = new ArrayList();
    DiscretizedFunc func = estimate.getPDF_Test();
    list.add(func); // draw the histogram for PDF
-   if(!(estimate instanceof DiscreteValueEstimate))
-    list.add(func); // draw the continuous line with PDF if not a discrete distribution
    list.add(estimate.getCDF_Test());
    list.add(estimate.getCDF_TestUsingFractile());
    //list.add(estimate.getCDF());
@@ -73,10 +73,10 @@ public class EstimateViewer implements GraphWindowAPI {
   public ArrayList getPlottingFeatures() {
     ArrayList list = new ArrayList();
     list.add(PDF_PLOT_CHAR_HISTOGRAM);
-    if(!(estimate instanceof DiscreteValueEstimate))
-      list.add(PDF_PLOT_CHAR);
     list.add(CDF_PLOT_CHAR);
-    list.add(CDF_USING_FRACTILE_PLOT_CHAR);
+    if(estimate instanceof DiscreteValueEstimate)
+      list.add(DISCRETE_VAL_CDF_USING_FRACTILE_PLOT_CHAR);
+    else list.add(CDF_USING_FRACTILE_PLOT_CHAR);
     return list;
   }
 

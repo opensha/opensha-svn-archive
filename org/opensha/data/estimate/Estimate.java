@@ -22,6 +22,23 @@ public abstract class Estimate {
   protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
   protected String comments="";
   protected double minX, maxX;
+  protected String units;
+
+  /**
+   * Get units for this estimate
+   * @return
+   */
+  public String getUnits() {
+    return units;
+  }
+
+  /**
+   * Set the units in this estimate
+   * @param units
+   */
+  public void setUnits(String units) {
+    this.units = units;
+  }
 
   /**
    * Get the mean for this estimate

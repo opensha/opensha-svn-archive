@@ -150,7 +150,16 @@ public EstimateParameter( String name, String units, double min, double max, Arr
     */
    public boolean isAllowed( Object val ){
        if(val!=null && !(val instanceof Estimate)) return false;
-       return super.isAllowed(val);
+       // check that estimate object and parameter have same units
+       Estimate estimate = (Estimate)val;
+       if (estimate.getUnits() == null && this.units != null)
+         return false;
+       else if (this.units == null && estimate.getUnits() != null)
+         return false;
+       else if (this.units != null && estimate.getUnits() != null &&
+                !units.equalsIgnoreCase(estimate.getUnits()))
+         return false;
+     return super.isAllowed(val);
    }
 
 

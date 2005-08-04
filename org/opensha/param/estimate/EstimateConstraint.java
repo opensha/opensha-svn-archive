@@ -143,7 +143,8 @@ public class EstimateConstraint extends DoubleConstraint {
      *
      * This function checks first checks that estimate object is one of the
      * allowed estimates. Then it compares the min and max value of constraint
-     * with the min and max value from the estimate.
+     * with the min and max value from the estimate. It also makes sure that both,
+     * Estimate object and EstimateParameter have same units
      *
      * @param estimate
      * @return
@@ -166,30 +167,6 @@ public class EstimateConstraint extends DoubleConstraint {
       // return false if this object is not among list of allowed estimate classes
       return false;
     }
-
-
-    /**
-     *
-     * This function always returns false because this constraint only accepts
-     * Estimate objects. Any other type of objects are not allowed
-     *
-     * @param  d  The object to check if allowed.
-     * @return   Always return false as Double values are not allowed
-     */
-    public boolean isAllowed( Double d ) {
-        return isAllowed((Object)d);
-    }
-
-
-    /**
-     *
-     * This function always returns false because this constraint only accepts
-     * Estimate objects. Any other type of objects are not allowed
-     *
-     * @param  d  The value to check if allowed.
-     * @return   Always return false as double values are not allowed
-     */
-    public boolean isAllowed( double d ) { return isAllowed( new Double( d ) ); }
 
 
     /** returns the classname of the constraint, and the min & max as a debug string */
@@ -248,6 +225,7 @@ public class EstimateConstraint extends DoubleConstraint {
      allowedEstimateTypes.add(NormalEstimate.NAME);
      allowedEstimateTypes.add(LogNormalEstimate.NAME);
      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
+     allowedEstimateTypes.add(IntegerEstimate.NAME);
      allowedEstimateTypes.add(FractileListEstimate.NAME);
      allowedEstimateTypes.add(PDF_Estimate.NAME);
      return allowedEstimateTypes;

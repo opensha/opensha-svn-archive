@@ -472,6 +472,6 @@ public class GraphWindow
    * sets plot Title
    */
   public void setPlotLabel(String plotTitle) {
-    plotTitle = plotTitle;
+    this.plotTitle = plotTitle;
   }
 }
