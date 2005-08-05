@@ -11,9 +11,6 @@ import org.opensha.sha.surface.GriddedSurfaceAPI;
 import org.opensha.data.Location;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
-import org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.
-    Frankel02_AdjustableEqkRupForecastClient;
-import java.rmi.*;
 import org.opensha.exceptions.*;
 import java.io.FileWriter;
 import java.io.*;
@@ -24,12 +21,28 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 /**
  * <p>Title: ERF2GriddedSeisRatesCalc</p>
  *
- * <p>Description: This class calculates the rates of the Ekq Rupture for the given magnitude.
+ * <p>Description: This class calculates the rates of the Ekq Rupture above a
+ * given magnitude.
  * </p>
  * <p>
  * This class provides the functionality of computing Mag-Rate distribution or
  * total seismic rates using the Earthquake Ruptures from the provided Earthquake
  * Rupture Forecast with a given Geographic Region.
+ * </p>
+ * <p>
+ * This class has not been fully tested to see if the rates for each location that
+ * we are getting is correct. This class has a main method that will iterate over all
+ * the ruptures in the Frankel-2002 model and maps these locations on the ruptures
+ * to the nearest location in the region. It includes the Frankel background model
+ * for computation. This main generates a file "magRates.txt", which contains
+ * each location in the region along with the total rate at that location. One way
+ * of testing we discussed was to test it with a main method in the Frankel-02
+ * ERF , but then that will utilizing this method too.
+ * </p>
+ * <p>
+ * As this model includes the background so user will need to increase the memory
+ * by specifying the in the Runtime configuration as "-Xmx500M", or turn-off the
+ * background.
  * </p>
  * @author Nitin Gupta , Vipin Gupta
  * @version 1.0
@@ -37,7 +50,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 public class ERF2GriddedSeisRatesCalc {
 
   //Magnitude above which rates need to be calculated
-  private double magnitude;
+  private double minMagnitude;
 
 
   private DecimalFormat magFormat = new DecimalFormat("0.00");
@@ -60,7 +73,7 @@ public class ERF2GriddedSeisRatesCalc {
    * ERF, this function returns ArrayList that constitutes of
    * ArbitrarilyDiscretizedFunc object. This ArbitrarilyDiscretizedFunc for each location
    * is the Mag-Rate distribution with X values being Mag and Y values being Rate.
-   * @param mag double : Magnitude above which Mag-Rate distribution is to be computed.
+   * @param minMag double : Magnitude above which Mag-Rate distribution is to be computed.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Ruptureforecast model
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
@@ -68,10 +81,10 @@ public class ERF2GriddedSeisRatesCalc {
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
+  public ArrayList getMagRateDistForEachLocationInRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
       EvenlyGriddedGeographicRegionAPI region) {
-    magnitude = mag;
+    minMagnitude = minMag;
 
     this.eqkRupForecast = eqkRupForecast;
     this.region = region;
@@ -116,7 +129,7 @@ public class ERF2GriddedSeisRatesCalc {
    * This function computes the total SiesRate for each location on all the ruptures,
    * if they are within the provided Geographical Region.
    * It returns a double[] value being total seis rate for each location in region.
-   * @param mag double : Only those ruptures above this magnitude are considered
+   * @param minMag double : Only those ruptures above this magnitude are considered
    * for calculation of the total seis rates in the region.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture forecast model
    * @param region EvenlyGriddedGeographicRegionAPI
@@ -125,10 +138,10 @@ public class ERF2GriddedSeisRatesCalc {
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
+  public double[] getTotalSeisRateAtEachLocationInRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
       EvenlyGriddedGeographicRegionAPI region) {
-    magnitude = mag;
+    minMagnitude = minMag;
 
     this.eqkRupForecast = eqkRupForecast;
     this.region = region;
@@ -143,13 +156,13 @@ public class ERF2GriddedSeisRatesCalc {
    * This function returns the total Rate above a given magnitude ,
    * for the given geographic region.
    * Calcuated Rates depend on the ERF model instantiated by the user.
-   * @param magnitude double  : A magnitude above which rate needs to be returned
+   * @param minMag double  : A magnitude above which rate needs to be returned
    * @param eqkRupForecast Earthquake Rupture Forecast Model
    * @param region GeographicRegion : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
 
-  public double getTotalSeisRateInRegion(double magnitude,
+  public double getTotalSeisRateInRegion(double minMag,
                                          EqkRupForecastAPI eqkRupForecast,
                                          GeographicRegion region) {
     int numSources = eqkRupForecast.getNumSources();
@@ -167,7 +180,7 @@ public class ERF2GriddedSeisRatesCalc {
 
         double mag = rupture.getMag();
         //if rupture magnitude is less then given magnitude then skip those ruptures
-        if (mag < magnitude)
+        if (mag < minMag)
           continue;
 
         GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
@@ -196,7 +209,7 @@ public class ERF2GriddedSeisRatesCalc {
   /**
    * This function returns the ArbDiscrEmpirical object that holds the
    * Mag-Rate of the entire region.
-   * @param magnitude double  Ruptures above this magnitude will be the ones that
+   * @param minMag double  Ruptures above this magnitude will be the ones that
    * will considered within the provided region  for computing the Mag-Rate Dist.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture Forecast from which
    * ruptures will computed.
@@ -206,7 +219,7 @@ public class ERF2GriddedSeisRatesCalc {
    * as the magnitude and Y values as the sies rate for corresponding magnitude within
    * the region.
    */
-  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double magnitude,
+  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
       GeographicRegion region) {
     ArbDiscrEmpiricalDistFunc magRateDist = new ArbDiscrEmpiricalDistFunc();
@@ -223,7 +236,7 @@ public class ERF2GriddedSeisRatesCalc {
 
         double mag = rupture.getMag();
         //if rupture magnitude is less then given magnitude then skip those ruptures
-        if (mag < magnitude)
+        if (mag < minMag)
           continue;
 
         GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
@@ -286,7 +299,7 @@ public class ERF2GriddedSeisRatesCalc {
 
         double mag = rupture.getMag();
         //if rupture magnitude is less then given magnitude then skip those ruptures
-        if (mag < magnitude)
+        if (mag < minMagnitude)
           continue;
 
         GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
@@ -340,7 +353,7 @@ public class ERF2GriddedSeisRatesCalc {
 
         double mag = rupture.getMag();
         //if rupture magnitude is less then given magnitude then skip those ruptures
-        if (mag < magnitude)
+        if (mag < minMagnitude)
           continue;
 
         GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
@@ -365,7 +378,7 @@ public class ERF2GriddedSeisRatesCalc {
           catch (RegionConstraintException ex) {
             continue;
           }
-          String magString = magFormat.format(magnitude);
+          String magString = magFormat.format(minMagnitude);
           funcs[locIndex].set(Double.parseDouble(magString), ptRate);        }
       }
     }
@@ -379,13 +392,13 @@ public class ERF2GriddedSeisRatesCalc {
    * This function returns the total probability of events above a given magnitude
    * within the given geographic region.  The calcuated Rates depend on the  ERF
    * subclass.  Note that it is assumed that the forecast has been updated.
-   * @param magnitude double  : magnitude above which rate needs to be returned
+   * @param minMag double  : magnitude above which rate needs to be returned
    *
    * @param region GeographicRegion : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
   public double getTotalProbAbove(EqkRupForecastAPI eqkRupForecast,
-                                  double magnitude, GeographicRegion region) {
+                                  double minMag, GeographicRegion region) {
 
     int numSources = eqkRupForecast.getNumSources();
     int numRuptures;
@@ -410,7 +423,7 @@ public class ERF2GriddedSeisRatesCalc {
         ProbEqkRupture rupture = source.getRupture(rupIndex);
 
         //if rupture magnitude is less then given magnitude then skip those ruptures
-        if (rupture.getMag() < magnitude)
+        if (rupture.getMag() < minMag)
           continue;
 
         GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
@@ -481,10 +494,10 @@ public class ERF2GriddedSeisRatesCalc {
                FileWriter fw = new FileWriter("magRates.txt");
                for(int i=0;i<size;++i){
                  Location loc = region.getGridLocation(i);
-                 if(rates[i] !=0)
+                 //if(rates[i] !=0)
                    fw.write(loc + "\t" + rates[i] + "" + "\n");
-                 else
-                   System.out.println(loc + "\t" + rates[i] + "" + "\n");
+                 //else
+                   //System.out.println(loc + "\t" + rates[i] + "" + "\n");
                }
                fw.close();
              }

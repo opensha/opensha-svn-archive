@@ -386,14 +386,14 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * This function returns the total probability of events above a given magnitude
    * within the given geographic region.  The calcuated Rates depend on the  ERF
    * subclass.  Note that it is assumed that the forecast has been updated.
-   * @param magnitude double  : magnitude above which rate needs to be returned
+   * @param minMag double  : magnitude above which rate needs to be returned
    *
    * @param region GeographicRegion : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
-  public double getTotalProbAbove(double magnitude, GeographicRegion region) {
+  public double getTotalProbAbove(double minMag, GeographicRegion region) {
     try {
-      return erfServer.getTotalProbAbove(magnitude, region);
+      return erfServer.getTotalProbAbove(minMag, region);
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -405,14 +405,14 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * This function returns the total Rate above a given magnitude ,
    * for the given geographic region.
    * Calcuated Rates depend on the ERF model instantiated by the user.
-   * @param magnitude double  : Amgnitude above which rate needs to be returned
+   * @param minMag double  : Amgnitude above which rate needs to be returned
    *
    * @param region GeographicRegion : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
-  public double getTotalRateAbove(double magnitude, GeographicRegion region) {
+  public double getTotalRateAbove(double minMag, GeographicRegion region) {
     try {
-      return erfServer.getTotalRateAbove(magnitude, region);
+      return erfServer.getTotalRateAbove(minMag, region);
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -429,7 +429,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * ERF, this function returns ArrayList that constitutes of
    * ArbitrarilyDiscretizedFunc object. This ArbitrarilyDiscretizedFunc for each location
    * is the Mag-Rate distribution with X values being Mag and Y values being Rate.
-   * @param mag double : Magnitude above which Mag-Rate distribution is to be computed.
+   * @param minMag double : Magnitude above which Mag-Rate distribution is to be computed.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Ruptureforecast model
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
@@ -437,10 +437,10 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
+  public ArrayList getMagRateDistForEachLocationInRegion(double minMag,
       EvenlyGriddedGeographicRegionAPI region) {
     try {
-      return erfServer.getMagRateDistForEachLocationInRegion(mag, region);
+      return erfServer.getMagRateDistForEachLocationInRegion(minMag, region);
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -452,7 +452,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * This function computes the total SiesRate for each location on all the ruptures,
    * if they are within the provided Geographical Region.
    * It returns a double[] value being total seis rate for each location in region.
-   * @param mag double : Only those ruptures above this magnitude are considered
+   * @param minMag double : Only those ruptures above this magnitude are considered
    * for calculation of the total seis rates in the region.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture forecast model
    * @param region EvenlyGriddedGeographicRegionAPI
@@ -461,10 +461,10 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
+  public double[] getTotalSeisRateAtEachLocationInRegion(double minMag,
       EvenlyGriddedGeographicRegionAPI region){
     try {
-      return erfServer.getTotalSeisRateAtEachLocationInRegion(mag, region);
+      return erfServer.getTotalSeisRateAtEachLocationInRegion(minMag, region);
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -477,7 +477,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
   /**
    * This function returns the ArbDiscrEmpirical object that holds the
    * Mag-Rate of the entire region.
-   * @param magnitude double  Ruptures above this magnitude will be the ones that
+   * @param minMag double  Ruptures above this magnitude will be the ones that
    * will considered within the provided region  for computing the Mag-Rate Dist.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture Forecast from which
    * ruptures will computed.
@@ -487,10 +487,10 @@ public class RemoteERF_Client extends EqkRupForecast implements
    * as the magnitude and Y values as the sies rate for corresponding magnitude within
    * the region.
    */
-  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double magnitude,
+  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double minMag,
       GeographicRegion region){
     try {
-      return erfServer.getMagRateDistForRegion(magnitude, region);
+      return erfServer.getMagRateDistForRegion(minMag, region);
     }
     catch (Exception ex) {
       ex.printStackTrace();

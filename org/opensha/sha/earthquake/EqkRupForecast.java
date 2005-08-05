@@ -249,15 +249,15 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * This function returns the total probability of events above a given magnitude
    * within the given geographic region.  The calcuated Rates depend on the  ERF
    * subclass.  Note that it is assumed that the forecast has been updated.
-   * @param magnitude double  : magnitude above which rate needs to be returned
+   * @param minMag double  : magnitude above which rate needs to be returned
    *
    * @param region GeographicRegion : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
-  public double getTotalProbAbove(double magnitude, GeographicRegion region) {
+  public double getTotalProbAbove(double minMag, GeographicRegion region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
-    return seisRates.getTotalProbAbove(this,magnitude,region);
+    return seisRates.getTotalProbAbove(this,minMag,region);
   }
 
 
@@ -267,15 +267,15 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * for the given geographic region.  The result should be exact for ERFs where all
    * sources are Poissonian, or for ERFs with non-Poisson sources but low probabilities.
    *  The calcuated Rates depend on the  ERF subclass.
-   * @param magnitude double  : magnitude above which rate needs to be returned
+   * @param minMag double  : magnitude above which rate needs to be returned
    *
    * @param region GeographicRegion : Region whose rates need to be returned
    * @return double : Total Rate for the region
    */
-  public double getTotalRateAbove(double magnitude, GeographicRegion region) {
+  public double getTotalRateAbove(double minMag, GeographicRegion region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
-    return seisRates.getTotalSeisRateInRegion(magnitude,this,region);
+    return seisRates.getTotalSeisRateInRegion(minMag,this,region);
   }
 
 
@@ -288,7 +288,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * ERF, this function returns ArrayList that constitutes of
    * ArbitrarilyDiscretizedFunc object. This ArbitrarilyDiscretizedFunc for each location
    * is the Mag-Rate distribution with X values being Mag and Y values being Rate.
-   * @param mag double : Magnitude above which Mag-Rate distribution is to be computed.
+   * @param minMag double : Magnitude above which Mag-Rate distribution is to be computed.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Ruptureforecast model
    * @param region EvenlyGriddedGeographicRegionAPI Region within which ruptures
    * are to be considered.
@@ -296,11 +296,11 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public ArrayList getMagRateDistForEachLocationInRegion(double mag,
+  public ArrayList getMagRateDistForEachLocationInRegion(double minMag,
       EvenlyGriddedGeographicRegionAPI region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
-    return seisRates.getMagRateDistForEachLocationInRegion(mag,this,region);
+    return seisRates.getMagRateDistForEachLocationInRegion(minMag,this,region);
   }
 
 
@@ -308,7 +308,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * This function computes the total SiesRate for each location on all the ruptures,
    * if they are within the provided Geographical Region.
    * It returns a double[] value being total seis rate for each location in region.
-   * @param mag double : Only those ruptures above this magnitude are considered
+   * @param minMag double : Only those ruptures above this magnitude are considered
    * for calculation of the total seis rates in the region.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture forecast model
    * @param region EvenlyGriddedGeographicRegionAPI
@@ -317,18 +317,18 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @see Double, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
    */
-  public double[] getTotalSeisRateAtEachLocationInRegion(double mag,
+  public double[] getTotalSeisRateAtEachLocationInRegion(double minMag,
       EvenlyGriddedGeographicRegionAPI region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
-    return seisRates.getTotalSeisRateAtEachLocationInRegion(mag,this,region);
+    return seisRates.getTotalSeisRateAtEachLocationInRegion(minMag,this,region);
   }
 
 
   /**
    * This function returns the ArbDiscrEmpirical object that holds the
    * Mag-Rate of the entire region.
-   * @param magnitude double  Ruptures above this magnitude will be the ones that
+   * @param minMag double  Ruptures above this magnitude will be the ones that
    * will considered within the provided region  for computing the Mag-Rate Dist.
    * @param eqkRupForecast EqkRupForecastAPI Earthquake Rupture Forecast from which
    * ruptures will computed.
@@ -338,10 +338,10 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * as the magnitude and Y values as the sies rate for corresponding magnitude within
    * the region.
    */
-  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double magnitude,
+  public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double minMag,
       GeographicRegion region) {
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
-    return seisRates.getMagRateDistForRegion(magnitude,this,region);
+    return seisRates.getMagRateDistForRegion(minMag,this,region);
   }
 
 
