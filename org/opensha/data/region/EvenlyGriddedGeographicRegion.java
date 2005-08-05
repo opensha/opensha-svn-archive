@@ -10,7 +10,21 @@ import java.io.FileWriter;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegion</p>
- * <p>Description:   </p>
+ * <p>Description: This class creates a EvenlyGridded Geographical region.
+ * </p>
+ * <p>
+ * It accepts list of locations that will constitute the boundary around this
+ * geographical region.
+ * </p>
+ * <p>
+ * This class has been tested by having a main method that creates all the
+ * locations within EvenlyGridded Geographical region. It dumps out all
+ * these locations in a file called  "SausageRegionFile.txt",
+ * in the sha project home directory. File format is "lat,lon,depth" on each line
+ * of file. One can take this file and plot it in some kind plotting tool to see
+ * if region looks like a EvenlyGridded Geographical region for the locations
+ * provided by the user.
+ * </p>
  * @author : Nitin Gupta & Vipin Gupta
  * @created: March 5,2003
  * @version 1.0

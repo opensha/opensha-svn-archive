@@ -13,16 +13,29 @@ import java.io.*;
 
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
- * <p>Description: </p>
- * @author : Edward Field
- * @created: March 5,2003
+ * <p>Description: This class creates a EvenlyGridded Sausage Geographical region.
+ * </p>
+ * <p>
+ * It accepts the end locations of the line, around which sausage region is to
+ * be created.
+ * </p>
+ * <p>
+ * This class has been tested by having a main method that creates all the
+ * locations within EvenlyGridded Sausage Geographical region. It dumps out all
+ * these locations in a file called  "SausageRegionFile.txt",
+ * in the sha project home directory. File format is "lat,lon,depth" on each line
+ * of file. One can take this file and plot it in some kind plotting tool to see
+ * if region looks like a EvenlyGriddedSaugage Geographical region.
+ * </p>
+ * @author : Nitin Gupta
+ * @created: July 30,2005
  * @version 1.0
  */
 
 public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
                         implements EvenlyGriddedGeographicRegionAPI {
 
-  private final static String C = "EvenlyGriddedCircularGeographicRegion";
+  private final static String C = "EvenlyGriddedSausageGeographicRegion";
   private final static boolean D = false;
 
   /**
@@ -67,8 +80,9 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
   /**
    *
    * @param locList LocationList : Locations of the end points on the lines
-   * @param radius double
-   * @param gridSpacing double
+   * @param radius double Maximum distance for which locations in this sausage
+   * region are to be considered.
+   * @param gridSpacing double Grid Spacing in degrees
    */
   public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
     this.locList = locList;

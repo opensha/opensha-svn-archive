@@ -11,7 +11,16 @@ import java.io.FileWriter;
 
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
- * <p>Description: </p>
+ * <p>Description: This class creates a EvenlyGridded circular Geographical region.
+ * </p>
+ * <p>
+ * This class has been testde by having a main method that creates all the
+ * locations within EvenlyGridded Circular Geographical region. It dumps out all
+ * these locations in a file called  "CircularRegionFile.txt",
+ * in the sha project home directory. File format is "lat,lon,depth" on each line
+ * of file. One can take this file and plot it in some kind plotting tool to see
+ * if region looks like a EvenlyGriddedCircular Geographical region.
+ * </p>
  * @author : Edward Field
  * @created: March 5,2003
  * @version 1.0
