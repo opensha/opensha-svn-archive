@@ -34,10 +34,11 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
  * we are getting is correct. This class has a main method that will iterate over all
  * the ruptures in the Frankel-2002 model and maps these locations on the ruptures
  * to the nearest location in the region. It includes the Frankel background model
- * for computation. This main generates a file "magRates.txt", which contains
- * each location in the region along with the total rate at that location. One way
- * of testing we discussed was to test it with a main method in the Frankel-02
- * ERF , but then that will utilizing this method too.
+ * for computation. This main generates a file "magRates.txt" in sha project
+ * home directory, which contains each location in the region along with the
+ * total rate at that location. One way of testing we discussed was to test it
+ * with a main method in the Frankel-02 ERF , but then that will utilizing this
+ * method too.
  * </p>
  * <p>
  * As this model includes the background so user will need to increase the memory
