@@ -17,6 +17,7 @@ import org.opensha.data.function.DiscretizedFunc;
 
 public class PDF_Estimate extends DiscretizedFuncEstimate {
   public final static String NAME  =  "PDF";
+  public final static String MSG_EVENLY_DISCRETIZED_ALLOWED="Only evenly discretized function is allowed for PDF estimate";
 
 
   /**
@@ -24,12 +25,40 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
    * normalized. Note that the function passed in is cloned..
    * MaxX and MinX are set according to those of the function
    * passed in. (it is asssumed that the first and last values are the
-   * first and last non-zero values, respectively)
+   * first and last non-zero values, respectively).
+   * It normalizes so that PDF has unit area
    * @param func
    */
   public PDF_Estimate(EvenlyDiscretizedFunc func, boolean isNormalized) {
     super(func, isNormalized);
   }
+
+
+  /**
+  * As implemented, the function passed in is cloned.
+  *  MaxX and MinX are set by those in the function passed in.
+  *
+  * @param func
+  */
+ public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
+   if(!(newFunc instanceof EvenlyDiscretizedFunc))
+     throw new InvalidParamValException(MSG_EVENLY_DISCRETIZED_ALLOWED);
+   super.setValues(newFunc, isNormalized);
+   //normalizeForUnitArea(); // normalize so that PDF has unit area
+ }
+
+ /**
+  * normalize the function so that we have unit area for PDF
+  */
+/* private void normalizeForUnitArea() {
+   int num = func.getNum();
+   double delta = ((EvenlyDiscretizedFunc)func).getDelta();
+   for(int i=0; i<num; ++i) {
+     func.set(i, func.getY(i)/delta);
+     //cumDistFunc.set(i, cumDistFunc.getY(i)/delta);
+   }
+ }*/
+
 
   public String getName() {
    return NAME;
