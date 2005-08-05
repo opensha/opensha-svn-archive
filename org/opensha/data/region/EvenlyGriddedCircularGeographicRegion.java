@@ -6,6 +6,8 @@ import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import java.util.ArrayList;
 import org.opensha.exceptions.RegionConstraintException;
+import java.io.IOException;
+import java.io.FileWriter;
 
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
@@ -64,7 +66,7 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    * @param degrees: sets the grid spacing
    */
   public void setGridSpacing(double degrees){
-    this.gridSpacing=gridSpacing;
+    this.gridSpacing=degrees;
     if(D)
       System.out.println("gridSpacing="+gridSpacing);
     niceMinLat = Math.ceil(minLat/gridSpacing)*gridSpacing;
@@ -81,12 +83,12 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    */
   protected void initLatLonArray() {
     //getting the number of grid lats in the given region
-    int numLats = (int) ( (niceMaxLat - niceMinLat) / gridSpacing) + 1;
+    int numLats = (int)Math.rint((niceMaxLat - niceMinLat)/gridSpacing) + 1;
     //initialising the array for storing number of location below a given lat
     //first element is 0 as first lat has 0 locations below it and last num is the
     //total number of locations.
     locsBelowLat = new int[numLats+1];
-    double lat = niceMinLat;
+
 
     firstLonPerLat = new double[numLats];
 
@@ -95,11 +97,12 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     //min lat.
     //For each lat the number of locations keeps increasing.
     locsBelowLat[locBelowIndex++] = 0;
+
     //looping over all grid lats in the region to get longitudes at each lat and
     // and number of locations below each starting lat.
-
-    while (lat <= niceMaxLat) {
-      double lon = minLon;
+    for(int iLat =0;iLat <numLats;++iLat) {
+      double lat = niceMinLat +iLat*gridSpacing ;
+      double lon = niceMinLon;
       //List for temporarily storing all the Lons for a given lat
       ArrayList lonList  = new ArrayList();
       while (lon <= niceMaxLon) {
@@ -112,14 +115,14 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
           lonList.add(new Double(lon));
         lon += gridSpacing;
       }
+      //assigning number of locations below a grid lat to the grid Lat above this lat.
+      locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
       locsBelowLat[locBelowIndex] += lonList.size();
+
       //just storing the first Lon for all the given grid Lats in the region.
       firstLonPerLat[locBelowIndex -1] = ((Double)lonList.get(0)).doubleValue();
       //incrementing the index counter for number of locations below a given latitude
       ++locBelowIndex;
-      lat += gridSpacing;
-      //assigning number of locations below a grid lat to the grid Lat above this lat.
-      locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
     }
   }
 
@@ -312,6 +315,19 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
 
   public static void main(String[] args) {
     EvenlyGriddedCircularGeographicRegion gridReg = new EvenlyGriddedCircularGeographicRegion(new Location(34,-122,0),111,0.02);
+    try {
+      FileWriter fw = new FileWriter("CircularRegionFile.txt");
+      ListIterator it = gridReg.getGridLocationsIterator();
+      while(it.hasNext()){
+        Location loc = (Location)it.next();
+        fw.write(loc.toString()+"\n");
+      }
+      fw.close();
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
   }
 
   /**

@@ -5,6 +5,8 @@ import java.util.*;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import org.opensha.exceptions.RegionConstraintException;
+import java.io.IOException;
+import java.io.FileWriter;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegion</p>
@@ -59,12 +61,11 @@ public class EvenlyGriddedGeographicRegion
    */
   protected void initLatLonArray() {
     //getting the number of grid lats in the given region
-    int numLats = (int) ( (niceMaxLat - niceMinLat) / gridSpacing) + 1;
+    int numLats = (int) Math.rint((niceMaxLat - niceMinLat) / gridSpacing) + 1;
     //initialising the array for storing number of location below a given lat
     //first element is 0 as first lat has 0 locations below it and last num is the
     //total number of locations.
     locsBelowLat = new int[numLats+1];
-    double lat = niceMinLat;
 
     lonsPerLatList = new ArrayList();
 
@@ -75,7 +76,8 @@ public class EvenlyGriddedGeographicRegion
     locsBelowLat[locBelowIndex++] = 0;
     //looping over all grid lats in the region to get longitudes at each lat and
     // and number of locations below each starting lat.
-    while (lat <= niceMaxLat) {
+    for(int iLat = 0;iLat<numLats;++iLat) {
+      double lat = niceMinLat + iLat*gridSpacing;
       double lon = minLon;
       ArrayList lonList = new ArrayList();
       while (lon <= niceMaxLon) {
@@ -86,13 +88,12 @@ public class EvenlyGriddedGeographicRegion
           lonList.add(new Double(lon));
         lon += gridSpacing;
       }
+      //assigning number of locations below a grid lat to the grid Lat above this lat.
+      locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
       locsBelowLat[locBelowIndex] += lonList.size();
       lonsPerLatList.add(lonList);
       //incrementing the index counter for number of locations below a given latitude
       ++locBelowIndex;
-      lat += gridSpacing;
-      //assigning number of locations below a grid lat to the grid Lat above this lat.
-      locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
     }
   }
 
@@ -358,7 +359,19 @@ public class EvenlyGriddedGeographicRegion
     locList.addLocation(new Location(39.02, -122.08, 0.0));
     EvenlyGriddedGeographicRegion gridReg = new EvenlyGriddedGeographicRegion(
         locList, 0.05);
-    System.out.println("num = " + gridReg.getNumGridLocs());
+      try {
+        FileWriter fw = new FileWriter("GeoRegionFile.txt");
+        ListIterator it = gridReg.getGridLocationsIterator();
+        while (it.hasNext()) {
+          Location loc = (Location) it.next();
+          fw.write(loc.toString() +"\n");
+        }
+        fw.close();
+      }
+      catch (IOException ex) {
+        ex.printStackTrace();
+      }
+
   }
 
 }

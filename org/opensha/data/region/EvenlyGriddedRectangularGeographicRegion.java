@@ -74,8 +74,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     niceMaxLat = Math.floor(maxLat/gridSpacing)*gridSpacing;
     niceMaxLon = Math.floor(maxLon/gridSpacing)*gridSpacing;
 
-    numLatGridPoints = (int)Math.ceil((niceMaxLat - niceMinLat)/gridSpacing)+1;
-    numLonGridPoints = (int)Math.ceil((niceMaxLon - niceMinLon)/gridSpacing)+1;
+    numLatGridPoints = (int)Math.rint((niceMaxLat - niceMinLat)/gridSpacing)+1;
+    numLonGridPoints = (int)Math.rint((niceMaxLon - niceMinLon)/gridSpacing)+1;
 
   }
 
@@ -214,9 +214,9 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     //creates a instance of new locationList
     LocationList gridLocsList=new LocationList();
     for(int iLat=0;iLat < numLatGridPoints; iLat++){
-      lat = niceMinLat + gridSpacing*(double)iLat;
+      lat = niceMinLat + gridSpacing*iLat;
       for(int iLon=0; iLon < this.numLonGridPoints; iLon++){
-        lon=niceMinLon+gridSpacing*(double)iLon;
+        lon=niceMinLon+gridSpacing*iLon;
         gridLocsList.addLocation(new Location(lat,lon));
       }
     }

@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.data.Direction;
 import org.opensha.calc.RelativeLocation;
+import java.io.FileWriter;
+import java.io.*;
 
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
@@ -135,13 +137,13 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
     Location minLonLoc = new Location(minLonLat, niceMinLon);
     dir = new Direction(0, radius,270,90);
     tempLoc = RelativeLocation.getLocation(minLonLoc, dir);
-    regionMinLon = tempLoc.getLatitude();
+    regionMinLon = tempLoc.getLongitude();
 
     //location that finds the max lon for the rectangular region
-    Location maxLonLoc = new Location(maxLonLat, niceMinLon);
+    Location maxLonLoc = new Location(maxLonLat, niceMaxLon);
     dir = new Direction(0, radius,90, 270);
     tempLoc = RelativeLocation.getLocation(maxLonLoc, dir);
-    regionMaxLon = tempLoc.getLatitude();
+    regionMaxLon = tempLoc.getLongitude();
 
     initLatLonArray();
   }
@@ -183,7 +185,7 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
     //initialising the array for storing number of location below a given lat
     //first element is 0 as first lat has 0 locations below it and last num is the
     //total number of locations.
-    locsBelowLat = new int[numLatGridPoints + 1];
+    locsBelowLat = new int[numLatGridPoints+1];
     //ArrayList for storing all the lons per grid Lat
     lonsPerLatList = new ArrayList();
     int locsBelowLatIndex = 0;
@@ -198,6 +200,7 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
     //looping over all grid lats in the region to get longitudes at each lat and
     // and number of locations below each starting lat.
     for (int iLat = 0; iLat < numLatGridPoints; iLat++) {
+
       double lat = regionMinLat + gridSpacing * (double) iLat;
       loc.setLatitude(lat);
       ArrayList lonList = new ArrayList();
@@ -208,9 +211,11 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
         if(isLocInside)
           lonList.add(new Double(lon));
       }
+      //assigning number of locations below a grid lat to the grid Lat above this lat.
+      locsBelowLat[locsBelowLatIndex] = locsBelowLat[locsBelowLatIndex - 1];
+      //adding the list of locations on this lat to the next lat index
       locsBelowLat[locsBelowLatIndex++] += lonList.size();
       lonsPerLatList.add(lonList);
-      locsBelowLat[locsBelowLatIndex] = locsBelowLat[locsBelowLatIndex - 1];
     }
   }
 
@@ -402,7 +407,7 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
     //number of gridLats
     int lonsPerLatSize = lonsPerLatList.size();
     //initialising the lat with the nice min lat
-    double lat = niceMinLat;
+    double lat = regionMinLat;
     //iterating over all lons for each lat, and creating a Location list from it.
     for (int i = 0; i < lonsPerLatSize; ++i) {
       ArrayList lonList = (ArrayList) lonsPerLatList.get(i);
@@ -420,7 +425,26 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
 
 
   public static void main(String[] args) {
-   // EvenlyGriddedSausageGeographicRegion gridReg = new EvenlyGriddedSausageGeographicRegion(new Location(34,-122,0),111,0.02);
+    LocationList locList = new LocationList();
+    locList.addLocation(new Location(32.0,-118.0));
+    locList.addLocation(new Location(32.3,-118.2));
+    locList.addLocation(new Location(33.0,-119.0));
+    locList.addLocation(new Location(32.7,-119.4));
+    locList.addLocation(new Location(33.5,-120.0));
+    EvenlyGriddedSausageGeographicRegion gridReg = new EvenlyGriddedSausageGeographicRegion(locList,111,0.02);
+
+    try {
+      FileWriter fw = new FileWriter("SausageRegionFile.txt");
+      ListIterator it = gridReg.getGridLocationsIterator();
+      while(it.hasNext()){
+        Location loc = (Location)it.next();
+        fw.write(loc.toString()+"\n");
+      }
+      fw.close();
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
   }
 
   /**
