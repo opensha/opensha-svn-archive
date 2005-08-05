@@ -80,6 +80,9 @@ public class ERF2GriddedSeisRatesCalc {
    * @return ArrayList with values being ArbitrarilyDiscretizedFunc
    * @see ArbitrarilyDiscretizedFunc, Location, EvenlyGriddedGeographicRegion,
    * EvenlyGriddedGeographicRegionAPI, EvenlyGriddedRectangularGeographicRegion
+   *
+   * Note : We will have to think of returning the actual Mag-Freq dist. , which
+   * can done, but just have to get the user input for discretization.
    */
   public ArrayList getMagRateDistForEachLocationInRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
@@ -218,6 +221,9 @@ public class ERF2GriddedSeisRatesCalc {
    * @return ArbDiscrEmpiricalDistFunc : Distribution function that holds X values
    * as the magnitude and Y values as the sies rate for corresponding magnitude within
    * the region.
+   *
+   * Note : We will have to think of returning the actual Mag-Freq dist. , which
+   * can done, but just have to get the user input for discretization
    */
   public ArbDiscrEmpiricalDistFunc getMagRateDistForRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
