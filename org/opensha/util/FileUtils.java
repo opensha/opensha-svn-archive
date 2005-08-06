@@ -5,6 +5,8 @@ import java.io.*;
 import java.util.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.zip.ZipOutputStream;
+import java.util.zip.ZipEntry;
 
 
 /**
@@ -166,6 +168,55 @@ public class FileUtils {
      return null;
    }
 
+
+
+
+   /**
+    * This function creates a Zip file called "allFiles.zip" for all the
+    * files that exist in filesPath.
+    * @param filesPath String Folder with absolute path in zip file will be created.
+    * This function searches for all the files in the folder "filesPath" and adds
+    * those to a single zip file "allFiles.zip".
+    */
+   public static void createZipFile(String filesPath){
+     int BUFFER = 8192;
+     String zipFileName = "allFiles.zip";
+     if(!filesPath.endsWith(SystemPropertiesUtils.getSystemFileSeparator()))
+       filesPath = filesPath+SystemPropertiesUtils.getSystemFileSeparator();
+     try {
+       BufferedInputStream origin = null;
+       FileOutputStream dest = new
+           FileOutputStream(filesPath+zipFileName);
+       ZipOutputStream out = new ZipOutputStream(new
+                                                 BufferedOutputStream(dest));
+       out.setMethod(ZipOutputStream.DEFLATED);
+       byte data[] = new byte[BUFFER];
+       // get a list of files from current directory
+       File f = new File(filesPath);
+       String files[] = f.list();
+       for (int i = 0; i < files.length; i++) {
+         if(files[i].equals(zipFileName))
+           continue;
+         System.out.println("Adding: " + files[i]);
+         FileInputStream fi = new
+             FileInputStream(filesPath+files[i]);
+         origin = new
+             BufferedInputStream(fi, BUFFER);
+         ZipEntry entry = new ZipEntry(files[i]);
+         out.putNextEntry(entry);
+         int count;
+         while ( (count = origin.read(data, 0,
+                                      BUFFER)) != -1) {
+           out.write(data, 0, count);
+         }
+         origin.close();
+       }
+       out.close();
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
+   }
 
    /**
     * @param fileName File from where object needs to be read

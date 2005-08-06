@@ -8,6 +8,8 @@ import java.util.*;
 
 import org.opensha.util.RunScript;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
+import org.opensha.util.FileUtils;
+import org.opensha.util.SystemPropertiesUtils;
 
 
 /**
@@ -147,11 +149,18 @@ public class HazusAndGMT_MapsGeneratorServlet extends HttpServlet {
       String[] command ={"sh","-c","sh "+gmtScriptFile};
       RunScript.runScript(command);
 
+      //create the Zip file for all the files generated
+      FileUtils.createZipFile(newDir);
       // get an ouput stream from the applet
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
 
-      //name of the image file as the URL
-      outputToApplet.writeObject(this.GMT_URL_PATH+this.GMT_DATA_DIR+dirName+"/");
+      //URL path to folder where all GMT related files and map data file for this
+      //calculations reside.
+      String mapImagePath = this.GMT_URL_PATH + this.GMT_DATA_DIR +
+                                 dirName + SystemPropertiesUtils.getSystemFileSeparator();
+      //returns the URL to the folder where map image resides
+      outputToApplet.writeObject(mapImagePath);
+
       outputToApplet.close();
 
     } catch (Exception e) {

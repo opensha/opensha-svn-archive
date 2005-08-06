@@ -142,9 +142,14 @@ public class GMT_MapGeneratorServlet
           "sh", "-c", "sh " + gmtScriptFile};
       RunScript.runScript(command);
 
-      //name of the image file as the URL
-      outputToApplet.writeObject(this.GMT_URL_PATH + this.GMT_DATA_DIR +
-                                 dirName + "/");
+      //create the Zip file for all the files generated
+      FileUtils.createZipFile(newDir);
+      //URL path to folder where all GMT related files and map data file for this
+      //calculations reside.
+      String mapImagePath = this.GMT_URL_PATH + this.GMT_DATA_DIR +
+                                 dirName + SystemPropertiesUtils.getSystemFileSeparator();
+      //returns the URL to the folder where map image resides
+      outputToApplet.writeObject(mapImagePath);
       outputToApplet.close();
 
     }catch (Exception e) {
