@@ -69,10 +69,16 @@ public class ParameterListEditor extends LabeledBoxPanel {
     public ParameterListEditor() {
         super();
         // Build package names search path
-        searchPaths = new String[2];
-        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-        searchPaths[1] = "org.opensha.sha.param.editor";
+        makeSearchPaths();
         this.setLayout( new GridBagLayout());
+    }
+
+    // make search paths
+    private void makeSearchPaths() {
+      searchPaths = new String[3];
+      searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
+      searchPaths[1] = "org.opensha.sha.param.editor";
+      searchPaths[2] = "org.opensha.param.editor.estimate";
     }
 
     /**
@@ -87,9 +93,7 @@ public class ParameterListEditor extends LabeledBoxPanel {
         super();
         parameterList = paramList;
         // Build package names search path
-        searchPaths = new String[2];
-        searchPaths[0] = ParameterListEditor.getDefaultSearchPath();
-        searchPaths[1] = "org.opensha.sha.param.editor";
+        makeSearchPaths();
         addParameters();
 
     }

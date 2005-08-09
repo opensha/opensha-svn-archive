@@ -122,7 +122,7 @@ public class EstimateParameter extends DependentParameter
  * Sets the name and units of this parameter.
  */
 public EstimateParameter( String name, String units, double min, double max, ArrayList allowedEstimateTypes) throws ConstraintException {
-    super(name, new EstimateConstraint(min,max,allowedEstimateTypes), null, null);
+    super(name, new EstimateConstraint(min,max,allowedEstimateTypes), units, null);
 }
 
 
@@ -175,8 +175,5 @@ public EstimateParameter( String name, String units, double min, double max, Arr
     throw new java.lang.UnsupportedOperationException(
         "Method clone() not yet implemented.");
   }
-
-
-
 
 }

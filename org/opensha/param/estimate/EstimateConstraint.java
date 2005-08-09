@@ -197,6 +197,7 @@ public class EstimateConstraint extends DoubleConstraint {
      */
     public static ArrayList createConstraintForPositiveDoubleValues() {
       ArrayList allowedEstimateTypes = new ArrayList();
+      allowedEstimateTypes.add(NormalEstimate.NAME);
       allowedEstimateTypes.add(LogNormalEstimate.NAME);
       allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
       allowedEstimateTypes.add(FractileListEstimate.NAME);

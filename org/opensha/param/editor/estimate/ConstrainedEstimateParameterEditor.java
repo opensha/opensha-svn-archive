@@ -39,7 +39,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
  * @version 1.0
  */
 
-public class EstimateParameterEditor  extends ParameterEditor
+public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     implements ParameterChangeListener,
     ParameterChangeFailListener, ActionListener{
 
@@ -158,11 +158,11 @@ public class EstimateParameterEditor  extends ParameterEditor
   // private JLabel maxConstraintLabel;
    private final static String MAX_CONSTRAINT_LABEL="Max Value:";
 
-   public EstimateParameterEditor() {
+   public ConstrainedEstimateParameterEditor() {
    }
 
    //constructor taking the Parameter as the input argument
-   public EstimateParameterEditor(ParameterAPI model){
+   public ConstrainedEstimateParameterEditor(ParameterAPI model){
      super(model);
    }
 
@@ -602,7 +602,7 @@ public class EstimateParameterEditor  extends ParameterEditor
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
-    EstimateParameterEditor estimateParameterEditor = new EstimateParameterEditor(estimateParam);
+    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam);
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();
