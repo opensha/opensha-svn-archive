@@ -101,9 +101,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private final static String LOGNORMAL_MAX_X_PARAM_NAME="LogNormal Estimate MaxX";
    private final static Double DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
 
-
-
-
    /**
     * Log Base param for log normal distribution
     */
@@ -158,6 +155,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   // private JLabel maxConstraintLabel;
    private final static String MAX_CONSTRAINT_LABEL="Max Value:";
 
+   /* this editor will be shown only as a button. On button click, a new window
+    appears showing all the parameters */
+   private JButton button;
+
+   private JFrame frame;
+
+
    public ConstrainedEstimateParameterEditor() {
    }
 
@@ -176,15 +180,24 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     // make the params editor
     initParamListAndEditor();
     this.setLayout(GBL);
-    add(this.editor,new GridBagConstraints( 0, 0, 2, 1, 1.0, 0.0
+    button = new JButton(this.estimateParam.getName());
+    button.addActionListener(this);
+    this.add(this.button,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+
+    // add editor to the frame. This frame is visible when user clicks on button created above
+    frame = new JFrame();
+    frame.setTitle(this.estimateParam.getName());
+    frame.getContentPane().setLayout(GBL);
+    frame.getContentPane().add(this.editor,new GridBagConstraints( 0, 0, 2, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    frame.getContentPane().add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    add(probValsParamListEditor,new GridBagConstraints( 1, 1, 1, 1, 1.0, 0.0
+    frame.getContentPane().add(probValsParamListEditor,new GridBagConstraints( 1, 1, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+    frame.getContentPane().add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
+    frame.getContentPane().add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
                                                   , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     this.setEstimateInfo(editor.getToolTipText()+"\n"+PDF_DISCRETE_ESTIMATE_INFO);
     setEstimateParams((String)chooseEstimateParam.getValue());
@@ -206,7 +219,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    */
   public void refreshParamEditor() {
     editor.refreshParamEditor();
-    this.repaint();
+    frame.repaint();
   }
 
   /**
@@ -462,6 +475,9 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      }catch(Exception ex) {
        JOptionPane.showMessageDialog(this,ex.getMessage());
      }
+   } else if (e.getSource()==this.button) {
+     frame.pack();
+     this.frame.show();
    }
  }
 

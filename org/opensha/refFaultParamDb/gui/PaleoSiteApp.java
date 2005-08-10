@@ -44,19 +44,19 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
 
 
   // SLIP RATE
-  private final static String SLIP_RATE_PARAM_NAME="Slip Rate";
+  private final static String SLIP_RATE_PARAM_NAME="Slip Rate Estimate";
   private final static String SLIP_RATE_COMMENTS_PARAM_NAME="Slip Rate Comments";
   private final static String SLIP_RATE_UNITS = "mm/yr";
   private final static double SLIP_RATE_MIN = 0;
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 
   // ASEISMICE SLIP FACTOR
-  private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor";
+  private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
 
    // CUMULATIVE DISPLACEMENT
-  private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Total Displacement at this Site in this Time Span";
+  private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Total Displacement at this Site in this Time Span Estimate";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
   private final static String CUMULATIVE_DISPLACEMENT_UNITS = "mm/yr";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
@@ -74,6 +74,9 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
   private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Events";
   private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement & Events";
 
+
+  // Title of this window
+  private final static String FRAME_TITLE="Cal. Ref. Fault Database Entry GUI";
 
   private StringParameter siteNameParam;
   private LocationParameter locationParameter;
@@ -103,6 +106,7 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
     initParamListAndEditor();
     try {
       jbInit();
+      this.setTitle(FRAME_TITLE);
     }
     catch(Exception e) {
       e.printStackTrace();
