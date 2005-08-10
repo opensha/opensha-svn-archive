@@ -13,7 +13,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
  */
 
 public class FractileListDateEstimate extends FractileListEstimate implements DateEstimateAPI {
-
+  public final static String NAME  =  "Date Min, Max and Preferred";
   private boolean isDateCorrected=false;
 
   public FractileListDateEstimate(ArbDiscrEmpiricalDistFunc func) {
@@ -21,15 +21,15 @@ public class FractileListDateEstimate extends FractileListEstimate implements Da
   }
 
   /**
-  * This method allows to set whether date has been corrected
-  * @param isDateCorrected
-  */
- public void setIsDateCorrected(boolean isDateCorrected) {
-   this.isDateCorrected = isDateCorrected;
- }
+   * This method allows to set whether date has been corrected
+   * @param isDateCorrected
+   */
+  public void setIsDateCorrected(boolean isDateCorrected) {
+    this.isDateCorrected = isDateCorrected;
+  }
 
- public boolean isDateCorrected() {
-   return isDateCorrected;
- }
+  public boolean isDateCorrected() {
+    return isDateCorrected;
+  }
 
 }

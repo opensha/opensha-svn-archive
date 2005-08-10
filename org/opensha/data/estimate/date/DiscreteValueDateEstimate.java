@@ -13,7 +13,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
  */
 
 public class DiscreteValueDateEstimate extends DiscreteValueEstimate implements DateEstimateAPI {
-
+  public final static String NAME  =  "Date Discrete Values";
   private boolean isDateCorrected=false;
 
   public DiscreteValueDateEstimate(ArbitrarilyDiscretizedFunc func, boolean isNormalized) {

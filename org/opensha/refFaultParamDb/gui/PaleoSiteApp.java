@@ -74,6 +74,16 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
   private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Events";
   private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement & Events";
 
+  // start time estimate param
+  private final static String START_TIME_ESTIMATE_PARAM_NAME="Start Time Estimate";
+  private final static double TIME_ESTIMATE_MIN=0;
+  private final static double TIME_ESTIMATE_MAX=Double.MAX_VALUE;
+  private final static String TIME_ESTIMATE_UNITS="years";
+
+  // end time estimate param
+  private final static String END_TIME_ESTIMATE_PARAM_NAME="End Time Estimate";
+
+
 
   // Title of this window
   private final static String FRAME_TITLE="Cal. Ref. Fault Database Entry GUI";
@@ -93,6 +103,8 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
   private EstimateParameter cumDisplacementParam;
   private StringParameter displacementCommentsParam;
   private EstimateParameter numEventsParam;
+  private EstimateParameter startTimeEstimateParam;
+  private EstimateParameter endTimeEstimateParam;
 
   private ParameterListEditor editor;
   private ParameterList paramList;
@@ -178,9 +190,18 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
     eventDatesAvailableParam = new BooleanParameter(INDIVIDUAL_EVENTS_DATE_AVAILABLE_PARAM_NAME);
 
     // ADD START TIME ESTIMATE & END TIME ESTIMATE HERE
+    ArrayList dateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
+    startTimeEstimateParam = new EstimateParameter(this.START_TIME_ESTIMATE_PARAM_NAME,
+        this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
+        dateEstimatesList);
+    endTimeEstimateParam = new EstimateParameter(this.END_TIME_ESTIMATE_PARAM_NAME,
+        this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
+        dateEstimatesList);
+
+
 
     // dated feature comments
-     datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
+    datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
 
      // availablle info for this site
     ArrayList availableReferences = getAvailableReferences();
@@ -196,6 +217,8 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
      paramList.addParameter(siteRepresentationParam);
      paramList.addParameter(availableInfoParam);
      paramList.addParameter(eventDatesAvailableParam);
+     paramList.addParameter(startTimeEstimateParam);
+     paramList.addParameter(endTimeEstimateParam);
      paramList.addParameter(datedFeatureCommentsParam);
      paramList.addParameter(referencesParam);
   }

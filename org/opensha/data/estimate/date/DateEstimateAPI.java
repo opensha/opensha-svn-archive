@@ -11,6 +11,12 @@ package org.opensha.data.estimate.date;
  */
 
 public interface DateEstimateAPI {
+  public final static String CARBON14_TECHNIQUE = "Carbon 14";
+  public final static String KA = "ka";
+  public final static String MA = "ma";
+  public final static String YEAR1950 = "1950";
+  public final static String TODAY = "Today";
+
 
   /**
    * This method allows to set whether date has been corrected

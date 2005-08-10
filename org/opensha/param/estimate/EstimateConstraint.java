@@ -1,5 +1,6 @@
 package org.opensha.param.estimate;
 import org.opensha.data.estimate.*;
+import org.opensha.data.estimate.date.*;
 import org.opensha.exceptions.EditableException;
 import java.util.ArrayList;
 import org.opensha.param.*;
@@ -217,7 +218,8 @@ public class EstimateConstraint extends DoubleConstraint {
   }
 
   /**
-    * create  constraint so that all estimates are allowed.
+    * create  constraint so that all estimates are allowed. (It does not include
+    * date estimates)
     *
     * @return
     */
@@ -232,6 +234,21 @@ public class EstimateConstraint extends DoubleConstraint {
      return allowedEstimateTypes;
    }
 
+   /**
+    * Return a list of classnames which can be used to specify the date Estimate
+    * @return
+    */
+
+   public static ArrayList createConstraintForDateEstimates() {
+     ArrayList allowedEstimateTypes = new ArrayList();
+     allowedEstimateTypes.add(NormalDateEstimate.NAME);
+     allowedEstimateTypes.add(LogNormalDateEstimate.NAME);
+     allowedEstimateTypes.add(DiscreteValueDateEstimate.NAME);
+     allowedEstimateTypes.add(FractileListDateEstimate.NAME);
+     allowedEstimateTypes.add(PDF_DateEstimate.NAME);
+     return allowedEstimateTypes;
+
+   }
 
 
 

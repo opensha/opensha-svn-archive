@@ -23,6 +23,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import org.opensha.param.estimate.*;
+import org.opensha.data.estimate.date.*;
 import ch.randelshofer.quaqua.QuaquaManager;
 
 /**
@@ -142,6 +143,17 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private final static Double DEFAULT_PREFERRED_PROB_PARAM_VAL=new Double(0.5);
    private ParameterListEditor xValsParamListEditor;
    private ParameterListEditor probValsParamListEditor;
+
+   // parameters for Date Estimate
+   private StringParameter datingTechParam;
+   private final static String DATING_TECH_PARAM_NAME="Dating Technique";
+   private BooleanParameter isDateCorrectedParam;
+   private final static String IS_DATE_CORRECTED_PARAM_NAME="Is Date Corrected";
+   private StringParameter yearUnitsParam;
+   private final static String YEAR_UNITS_PARAM_NAME="Year Units";
+   private StringParameter yearBeforeParam;
+   private final static String YEAR_BEFORE_PARAM_NAME="Years Before";
+
    // title of Parameter List Editor
    public static final String X_TITLE = new String("X Values");
    // title of Parameter List Editor
@@ -254,6 +266,28 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
 
 
+    /**
+     * Parameters for Date Estimate [dating technique, isCorrected, units(ka/ma),
+     *  years before today/1950]
+     */
+    ArrayList datingTechniques = new ArrayList();
+    datingTechniques.add(DateEstimateAPI.CARBON14_TECHNIQUE);
+    datingTechParam = new StringParameter(DATING_TECH_PARAM_NAME,
+        datingTechniques, (String)datingTechniques.get(0));
+
+    isDateCorrectedParam = new BooleanParameter(IS_DATE_CORRECTED_PARAM_NAME);
+
+    ArrayList yearUnitsList = new ArrayList();
+    yearUnitsList.add(DateEstimateAPI.KA);
+    yearUnitsList.add(DateEstimateAPI.MA);
+    yearUnitsParam = new StringParameter(YEAR_UNITS_PARAM_NAME,
+        yearUnitsList, (String)yearUnitsList.get(0));
+
+    ArrayList yearBeforeList = new ArrayList();
+    yearBeforeList.add(DateEstimateAPI.YEAR1950);
+    yearBeforeList.add(DateEstimateAPI.TODAY);
+    yearBeforeParam = new StringParameter(YEAR_BEFORE_PARAM_NAME,
+        yearBeforeList, (String)yearBeforeList.get(0));
 
    /**
     * Min/Max  values that can be set into Normal/LogNormal estimate
@@ -266,8 +300,10 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
        LOGNORMAL_MIN_X_PARAM_CONSTRAINT, DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL);
    maxNormalEstimateParam = new DoubleParameter(NORMAL_MAX_X_PARAM_NAME,
                                           DEFAULT_NORMAL_MAX_X_PARAM_VAL);
-  maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
+    maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
                                                  DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL);
+
+
 
    // put all the parameters in the parameter list
    parameterList = new ParameterList();
@@ -276,12 +312,17 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(this.stdDevParam);
    parameterList.addParameter(this.linearMedianParam);
    parameterList.addParameter(this.logBaseParam);
+   parameterList.addParameter(datingTechParam);
+   parameterList.addParameter(isDateCorrectedParam);
+   parameterList.addParameter(yearUnitsParam);
+   parameterList.addParameter(yearBeforeParam);
    parameterList.addParameter(this.arbitrarilyDiscFuncParam);
    parameterList.addParameter(evenlyDiscFuncParam);
    parameterList.addParameter(minNormalEstimateParam);
    parameterList.addParameter(minLogNormalEstimateParam);
    parameterList.addParameter(maxNormalEstimateParam);
    parameterList.addParameter(maxLogNormalEstimateParam);
+
    this.editor = new ParameterListEditor(parameterList);
 
    // show the units and estimate param name as the editor title
@@ -354,18 +395,61 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   // make the params visible/invisible based on selected estimate type
   private void setEstimateParams(String estimateName) {
-    if(estimateName.equalsIgnoreCase(NormalEstimate.NAME))
+
+
+    // if it is a date estimate, show the additional parameters
+    if(this.isDateEstimate(estimateName)) setParamsForDateEstimate(true);
+    else setParamsForDateEstimate(false);
+
+
+    // For NORMAL estimate
+    if(estimateName.equalsIgnoreCase(NormalEstimate.NAME) ||
+       estimateName.equalsIgnoreCase(NormalDateEstimate.NAME))
       setParamsForNormalEstimate();
-    else if(estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
+    // for LOGNORMAL Estimate
+    else if(estimateName.equalsIgnoreCase(LogNormalEstimate.NAME)||
+            estimateName.equalsIgnoreCase(LogNormalDateEstimate.NAME))
       setParamsForLogNormalEstimate();
+    // for Integer Estimate and DiscretValueEstimate
     else if(estimateName.equalsIgnoreCase(IntegerEstimate.NAME) ||
-            estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME))
+            estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME) ||
+            estimateName.equalsIgnoreCase(DiscreteValueDateEstimate.NAME))
       setParamsForXY_Estimate();
-    else if(estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
+    // for Fractile List Estimate
+    else if(estimateName.equalsIgnoreCase(FractileListEstimate.NAME)||
+            estimateName.equalsIgnoreCase(FractileListDateEstimate.NAME))
       setParamsForFractileListEstimate();
-    else if(estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
+    // For PDF Estimate
+    else if(estimateName.equalsIgnoreCase(PDF_Estimate.NAME) ||
+            estimateName.equalsIgnoreCase(PDF_DateEstimate.NAME))
       setParamsForPDF_Estimate();
+
   }
+
+
+  /**
+   * Finds whether some type of date estimate has been selected by the user
+   *
+   * @param estimateName
+   * @return
+   */
+  private boolean isDateEstimate(String estimateName) {
+    if(estimateName.equalsIgnoreCase(NormalDateEstimate.NAME) ||
+      estimateName.equalsIgnoreCase(LogNormalDateEstimate.NAME) ||
+      estimateName.equalsIgnoreCase(FractileListDateEstimate.NAME) ||
+      estimateName.equalsIgnoreCase(DiscreteValueDateEstimate.NAME) ||
+      estimateName.equalsIgnoreCase(PDF_DateEstimate.NAME))
+     return true;
+   return false;
+  }
+
+  private void setParamsForDateEstimate(boolean isVisible) {
+    editor.setParameterVisible(DATING_TECH_PARAM_NAME, isVisible);
+    editor.setParameterVisible(IS_DATE_CORRECTED_PARAM_NAME, isVisible);
+    editor.setParameterVisible(YEAR_UNITS_PARAM_NAME, isVisible);
+    editor.setParameterVisible(YEAR_BEFORE_PARAM_NAME, isVisible);
+  }
+
 
   /**
    * make the parameters visible/invisible for min/max/preferred estimate
@@ -461,7 +545,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
    editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -511,6 +595,19 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      estimate = setDiscreteValueEstimate();
    else if (estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
      estimate = setPDF_Estimate();
+
+     // for Date estimates
+   if (estimateName.equalsIgnoreCase(NormalDateEstimate.NAME))
+     estimate = setNormalDateEstimate();
+   else if (estimateName.equalsIgnoreCase(LogNormalDateEstimate.NAME))
+     estimate = setLogNormalDateEstimate();
+   else if (estimateName.equalsIgnoreCase(FractileListDateEstimate.NAME))
+     estimate = setFractileListDateEstimate();
+   else if (estimateName.equalsIgnoreCase(DiscreteValueDateEstimate.NAME))
+     estimate = setDiscreteValueDateEstimate();
+   else if (estimateName.equalsIgnoreCase(PDF_DateEstimate.NAME))
+     estimate = setPDF_DateEstimate();
+
    estimate.setUnits(estimateParam.getUnits());
    this.estimateParam.setValue(estimate);
  }
@@ -529,6 +626,20 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  }
 
  /**
+  * Set the estimate paramter value to be normal date estimate
+  */
+ private Estimate setNormalDateEstimate() {
+   double mean = ((Double)meanParam.getValue()).doubleValue();
+   double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   double minX = ((Double)this.minNormalEstimateParam.getValue()).doubleValue();
+   double maxX = ((Double)this.maxNormalEstimateParam.getValue()).doubleValue();
+   NormalDateEstimate estimate = new NormalDateEstimate(mean, stdDev);
+   estimate.setMinMaxX(minX, maxX);
+   return estimate;
+ }
+
+
+ /**
   * Set the estimate paramter value to be lognormal estimate
   */
  private Estimate setLogNormalEstimate() {
@@ -545,12 +656,38 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  }
 
  /**
+  * Set the estimate paramter value to be lognormal date estimate
+  */
+ private Estimate setLogNormalDateEstimate() {
+   double linearMedian = ((Double)linearMedianParam.getValue()).doubleValue();
+   double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   LogNormalDateEstimate estimate = new LogNormalDateEstimate(linearMedian, stdDev);
+   if(this.logBaseParam.getValue().equals(this.LOG_BASE_10_NAME))
+     estimate.setIsBase10(true);
+   else   estimate.setIsBase10(false);
+   double minX = ((Double)this.minLogNormalEstimateParam.getValue()).doubleValue();
+   double maxX = ((Double)this.maxLogNormalEstimateParam.getValue()).doubleValue();
+   estimate.setMinMaxX(minX, maxX);
+   return estimate;
+ }
+
+
+ /**
   * Set the estimate paramter value to be discrete vlaue estimate
   */
  private Estimate setDiscreteValueEstimate() {
    DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
    return estimate;
  }
+
+ /**
+  * Set the estimate paramter value to be discrete value Date estimate
+  */
+ private Estimate setDiscreteValueDateEstimate() {
+   DiscreteValueDateEstimate estimate = new DiscreteValueDateEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
+   return estimate;
+ }
+
 
  /**
   * Set the estimate paramter value to be integer estimate
@@ -569,6 +706,15 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  }
 
  /**
+  * Set the estimate paramter value to be Pdf Date estimate
+  */
+ private Estimate setPDF_DateEstimate() {
+   PDF_DateEstimate estimate = new PDF_DateEstimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), false);
+   return estimate;
+ }
+
+
+ /**
    * Set the estimate paramter value to be min/max/preferred estimate
    */
  private Estimate setFractileListEstimate() {
@@ -579,6 +725,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    FractileListEstimate estimate = new FractileListEstimate(empiricalFunc);
    return estimate;
  }
+
+ /**
+  * Set the estimate paramter value to be min/max/preferred date estimate
+  */
+ private Estimate setFractileListDateEstimate() {
+   ArbDiscrEmpiricalDistFunc empiricalFunc = new ArbDiscrEmpiricalDistFunc();
+   empiricalFunc.set( ( (Double)this.minX_Param.getValue()).doubleValue(),
+                     ( (Double)this.minProbParam.getValue()).doubleValue());
+   empiricalFunc.set( ( (Double)this.maxX_Param.getValue()).doubleValue(),
+                     ( (Double)this.maxProbParam.getValue()).doubleValue());
+   empiricalFunc.set( ( (Double)this.prefferedX_Param.getValue()).doubleValue(),
+                     ( (Double)this.prefferedProbParam.getValue()).doubleValue());
+   FractileListDateEstimate estimate = new FractileListDateEstimate(empiricalFunc);
+   return estimate;
+ }
+
 
 
   private void copyFunction(DiscretizedFunc funcFrom, DiscretizedFunc funcTo) {
