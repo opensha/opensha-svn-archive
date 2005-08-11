@@ -26,7 +26,7 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
   private final static String SITE_PARAM_NAME = "Site Name";
 
   private final static String FAULT_PARAM_NAME="Associated with Fault";
-  private final static String TYPES_OF_STUDY_PARAM_NAME="Types of Study";
+  private final static String TYPES_OF_SITE_PARAM_NAME="Types of Site";
   private final static String REPRESENTATIVE_SITE_PARAM_NAME="How representative is this site";
   private final static String AVAILABLE_INFO_PARAM_NAME="I have info on";
   private final static String INDIVIDUAL_EVENTS_DATE_AVAILABLE_PARAM_NAME="I can provide dates for individual events";
@@ -175,7 +175,7 @@ public class PaleoSiteApp extends JFrame implements ParameterChangeListener {
                                                 (String)faultNamesList.get(0));
      // available study types
      ArrayList studyTypes = getStudyTypes();
-     studyTypesParam = new StringParameter(TYPES_OF_STUDY_PARAM_NAME, studyTypes,
+     studyTypesParam = new StringParameter(TYPES_OF_SITE_PARAM_NAME, studyTypes,
                                                 (String)studyTypes.get(0));
 
      // how representative is this site?
