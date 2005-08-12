@@ -39,9 +39,9 @@ public class AddNewSiteType extends JFrame {
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // ok/cancel button
     this.getContentPane().add(okButton,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
     this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
     this.show();
