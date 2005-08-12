@@ -34,7 +34,7 @@ public class AddNewReference extends JFrame {
     catch (Exception ex) {
       ex.printStackTrace();
     }
-    // add string parameter editor so that user can type in site type name
+    // add string parameter editor so that user can type in reference
     this.getContentPane().add(referenceParameterEditor,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // ok/cancel button
