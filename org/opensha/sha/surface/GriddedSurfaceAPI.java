@@ -81,6 +81,13 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
     /** Common debug string that most Java classes implement */
     public String toString();
 
+    /**
+     * Returns the grid centered location on each grid surface.
+     * @return GriddedSurfaceAPI returns a Surface that has one less
+     * row and col then the original surface. It averages the 4 corner location
+     * on each grid surface to get the grid centered location.
+     */
+    public GriddedSurfaceAPI getGridCenteredSurface() ;
 
 
 }

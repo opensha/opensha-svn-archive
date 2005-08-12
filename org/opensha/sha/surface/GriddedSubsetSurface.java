@@ -248,5 +248,38 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
         return b.toString();
     }
 
+    /**
+     * Returns the grid centered location on each grid surface.
+     * @return GriddedSurfaceAPI returns a Surface that has one less
+     * row and col then the original surface. It averages the 4 corner location
+     * on each grid surface to get the grid centered location.
+     */
+    public GriddedSurfaceAPI getGridCenteredSurface() {
 
+      int numRows = getNumRows() -1;
+      int numCols = getNumCols() -1 ;
+      //System.out.println("NumRows:"+numRows+" NumCols:"+numCols);
+      GriddedSurfaceAPI surface = new GriddedSurface(numRows,
+          numCols);
+      for (int i = 0; i < numRows; ++i) {
+        for (int j = 0; j < numCols; ++j) {
+          Location loc;
+          Location loc1 = getLocation(i, j);
+          Location loc2 = getLocation(i, j + 1);
+          Location loc3 = getLocation(i + 1, j);
+          Location loc4 = getLocation(i + 1, j + 1);
+          double locLat = (loc1.getLatitude() + loc2.getLatitude() +
+                           loc3.getLatitude() +
+                           loc4.getLatitude()) / 4;
+          double locLon = (loc1.getLongitude() + loc2.getLongitude() +
+                           loc3.getLongitude() +
+                           loc4.getLongitude()) / 4;
+          double locDepth = (loc1.getDepth() + loc2.getDepth() + loc3.getDepth() +
+                             loc4.getDepth()) / 4;
+          loc = new Location(locLat,locLon,locDepth);
+          surface.set(i,j,loc);
+        }
+      }
+      return surface;
+    }
 }

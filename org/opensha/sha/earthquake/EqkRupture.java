@@ -38,7 +38,7 @@ public class EqkRupture implements java.io.Serializable {
     protected GriddedSurfaceAPI ruptureSurface = null;
 
     /** object to contain arbitrary parameters */
-    protected ParameterList otherParams = new ParameterList();
+    protected ParameterList otherParams ;
 
 
 
@@ -190,5 +190,38 @@ public class EqkRupture implements java.io.Serializable {
     }
 
 
+    /**
+     * Creates the XML representation for the Eqk Rupture Object
+     * @return String
+     */
+    public String ruptureXML_String(){
+      String rupInfo = "<EqkRupture>\n";
+      rupInfo +="<Mag>"+mag+"</Mag>\n";
+      rupInfo +="<Ave.Rake>"+aveRake+"</Ave.Rake>\n";
+      rupInfo +="<Ave.Dip>"+ruptureSurface.getAveDip()+"</Ave.Dip>\n";
+      rupInfo +="<NumRows>"+(ruptureSurface.getNumRows()-1)+"</NumRows>\n";
+      rupInfo +="<NumCols>"+(ruptureSurface.getNumCols()-1)+"</NumCols>\n";
+      rupInfo +="<EqkRuptureGridSpacing>"+((EvenlyGriddedSurface)ruptureSurface).getGridSpacing()+"</EqkRuptureGridSpacing>\n";
+      rupInfo +="<EqkRupture-Params>\n";
+      if(otherParams !=null){
+        ListIterator it = otherParams.getParametersIterator();
+        while(it.hasNext()){
+          ParameterAPI param = (ParameterAPI) it.next();
+          rupInfo += param.getName() +"="+ param.getValue() + "\n";
+        }
+      }
+      rupInfo +="</EqkRupture-Params>\n";
+      rupInfo +="<RuptureGridCenteredSurfaceLocations>\n";
+      GriddedSurfaceAPI rupSurface= ruptureSurface.getGridCenteredSurface();
+      ListIterator it = rupSurface.getLocationsIterator();
+      while(it.hasNext()){
+        Location loc = (Location)it.next();
+        rupInfo +=loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth()+
+            ","+ruptureSurface.getAveStrike()+"\n";
+      }
+      rupInfo +="</RuptureGridCenteredSurface>\n";
+      rupInfo +="</EqkRupture>\n";
+      return rupInfo;
+    }
 
 }

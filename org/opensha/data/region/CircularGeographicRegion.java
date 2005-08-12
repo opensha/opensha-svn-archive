@@ -17,7 +17,7 @@ public class CircularGeographicRegion extends GeographicRegion {
 
 
   private final static String C = "CircularGeographicRegion";
-  private final static boolean D = true;
+  private final static boolean D = false;
 
   protected Location circleCenterLocation;
   protected double circleRadius;

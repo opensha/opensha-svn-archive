@@ -274,6 +274,15 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
         }
     }
 
+    /**
+     * Returns the grid centered location on each grid surface.
+     * @return GriddedSurfaceAPI returns a Surface that has one less
+     * row and col then the original surface. It averages the 4 corner location
+     * on each grid surface to get the grid centered location.
+     */
+    public GriddedSurfaceAPI getGridCenteredSurface() {
+      return this;
+    }
 
 
     /** returns number of elements in array. Returns 1.  */

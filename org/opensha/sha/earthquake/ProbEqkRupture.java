@@ -5,6 +5,9 @@ package org.opensha.sha.earthquake;
 import org.opensha.data.*;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.sha.surface.GriddedSurfaceAPI;
+import java.util.ListIterator;
+import org.opensha.param.ParameterAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurface;
 
 
 /**
@@ -115,5 +118,21 @@ public class ProbEqkRupture extends EqkRupture{
     eqkRuptureClone.setProbability(this.probability);
     return eqkRuptureClone;
   }
+
+
+
+  /**
+   * Creates the XML representation for the Eqk Rupture Object
+   * @return String
+   */
+  public String ruptureXML_String() {
+    String rupInfo = "<ProbEqkRupture>\n";
+    rupInfo += "<Probability>" + probability + "</Probability>\n";
+    rupInfo += super.ruptureXML_String();
+    rupInfo += "</ProbEqkRupture>\n";
+    return rupInfo;
+  }
+
+
 
 }

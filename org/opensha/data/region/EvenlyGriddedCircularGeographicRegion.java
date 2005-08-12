@@ -197,7 +197,20 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
 
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new RegionConstraintException("Location outside the given Gridded Region bounds");
+      throw new RegionConstraintException(
+          "Location outside the given Gridded Region bounds");
+    else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
+      //constraints then assign it to the nice min/max lat/lon.
+      if (lat < niceMinLat)
+        lat = niceMinLat;
+      else if (lat > niceMaxLat)
+        lat = niceMaxLat;
+      if (lon < niceMinLon)
+        lon = niceMinLon;
+      else if (lon > niceMaxLon)
+        lon = niceMaxLon;
+    }
+
 
     lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
                              format(lat));
@@ -220,8 +233,19 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
 
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new RegionConstraintException("Location outside the given Gridded Region bounds");
-
+      throw new RegionConstraintException(
+          "Location outside the given Gridded Region bounds");
+    else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
+      //constraints then assign it to the nice min/max lat/lon.
+      if (lat < niceMinLat)
+        lat = niceMinLat;
+      else if (lat > niceMaxLat)
+        lat = niceMaxLat;
+      if (lon < niceMinLon)
+        lon = niceMinLon;
+      else if (lon > niceMaxLon)
+        lon = niceMaxLon;
+    }
 
     //getting the lat index
     int latIndex = (int)Math.rint((lat - niceMinLat)/gridSpacing);

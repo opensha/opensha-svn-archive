@@ -79,6 +79,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
   }
 
+
+
   /**
    *
    * @return  the grid spacing(in degrees)
@@ -152,7 +154,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     //gets the column in the row (longitude point) where that index exists
     int col=index%numLonGridPoints;
-    if(row > getNumGridLats() || col > getNumGridLocs())
+    if(row > numLatGridPoints || col > numLonGridPoints)
       throw new RegionConstraintException("Not a valid index in the region");
     //lat and lon for that indexed point
     double newLat=niceMinLat+row*gridSpacing;
@@ -181,11 +183,21 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
-    //throw exception if location  lat is outside the region lat bounds.
-    if (!isLocationInside(loc))
+    //throw exception if location is outside the region lat bounds.
+    if (!this.isLocationInside(loc))
       throw new RegionConstraintException(
           "Location outside the given Gridded Region bounds");
-
+    else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
+      //constraints then assign it to the nice min/max lat/lon.
+      if (lat < niceMinLat)
+        lat = niceMinLat;
+      else if (lat > niceMaxLat)
+        lat = niceMaxLat;
+      if (lon < niceMinLon)
+        lon = niceMinLon;
+      else if (lon > niceMaxLon)
+        lon = niceMaxLon;
+    }
 
     //Considering the Locations to be store in a 2D container where lats are rows
     //and lons are the Cols.
@@ -196,9 +208,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     //System.out.println("rowIndex:"+ rowIndex+"  colIndex:"+colIndex);
 
-    //getting the number of Lons(columns per row) per Lat.
-    int numCols = getNumGridLons();
-    int index = rowIndex*numCols+colIndex;
+    // getting the index of the location in the region.
+    int index = rowIndex*numLonGridPoints+colIndex;
     return index;
   }
 
