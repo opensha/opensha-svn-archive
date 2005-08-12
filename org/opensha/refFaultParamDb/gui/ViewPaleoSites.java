@@ -50,7 +50,7 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
   // input parameter editors
   private ConstrainedStringParameterEditor siteNameParamEditor;
   private LocationParameterEditor siteLocationParamEditor;
-  private ConstrainedStringParameterEditor assocWithFaultParamEditor;
+  private StringParameterEditor assocWithFaultParamEditor;
   private StringParameterEditor siteTypeParamEditor;
   private StringParameterEditor siteRepresentationParamEditor;
   private ConstrainedStringParameterEditor startTimeParamEditor;
@@ -174,10 +174,9 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
   siteLocationParamEditor = new LocationParameterEditor(siteLocationParam);
 
   //  fault with which this site is associated
-  ArrayList allowedVals= new ArrayList();
-  allowedVals.add("Fault1");
-  assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME,allowedVals, (String)allowedVals.get(0));
-  assocWithFaultParamEditor = new ConstrainedStringParameterEditor(assocWithFaultParam);
+  assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME);
+  assocWithFaultParamEditor = new StringParameterEditor(assocWithFaultParam);
+  assocWithFaultParamEditor.setEditable(false);
 
   // study type for this site
   siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME);
@@ -232,9 +231,6 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
      // IN REALITY, IT SHOULD GET DATA FROM database.
      String siteName = (String)event.getNewValue();
      String faultName = siteName.replaceAll("Site", "Fault");
-     ArrayList list  = new ArrayList();
-     list.add(faultName);
-     assocWithFaultParam.setConstraint(new StringConstraint(list));
      assocWithFaultParam.setValue(faultName);
      assocWithFaultParamEditor.refreshParamEditor();
    }

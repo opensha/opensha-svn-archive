@@ -498,6 +498,14 @@ public class ParameterEditor
     /** Called when a key was pressed and is now released in this editor. */
     public void keyReleased( KeyEvent e ) { }
 
+    /**
+     * It enables/disables the editor according to whether user is allowed to
+     * fill in the values. THIS METHOD NEEDS TO BE OVERRIDDEN FOR COMPLEX ParameterEditors
+     */
+    public void setEditable(boolean isEditable) {
+      valueEditor.setEnabled(isEditable);
+    }
+
 
     /**
      * return the JPanel
