@@ -25,7 +25,8 @@ public class AddNewReference extends JFrame {
   private JButton cancelButton = new JButton("Cancel");
 
   public AddNewReference() {
-    this.getContentPane().setLayout(new GridBagLayout());
+    Container contentPane = this.getContentPane();
+    contentPane.setLayout(new GridBagLayout());
     referenceParamName = new StringParameter(REFERENCE_PARAM_NAME);
     StringParameterEditor referenceParameterEditor = null;
     try {
@@ -35,12 +36,12 @@ public class AddNewReference extends JFrame {
       ex.printStackTrace();
     }
     // add string parameter editor so that user can type in reference
-    this.getContentPane().add(referenceParameterEditor,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+    contentPane.add(referenceParameterEditor,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // ok/cancel button
-    this.getContentPane().add(okButton,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    contentPane.add(okButton,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+    contentPane.add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
