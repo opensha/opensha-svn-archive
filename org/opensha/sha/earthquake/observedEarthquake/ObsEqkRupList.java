@@ -22,7 +22,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param mag double
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsAboveMag(double mag){
+  public ObsEqkRupList getObsEqkRupsAboveMag(double mag){
     return null;
   }
 
@@ -32,7 +32,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param mag double
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsBelowMag(double mag){
+  public  ObsEqkRupList getObsEqkRupsBelowMag(double mag){
     return null;
   }
 
@@ -43,7 +43,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param mag2 double
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsBetweenMag(double mag1, double mag2){
+  public ObsEqkRupList getObsEqkRupsBetweenMag(double mag1, double mag2){
     return null;
   }
 
@@ -53,7 +53,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param cal GregorianCalendar
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsBefore(GregorianCalendar cal) {
+  public ObsEqkRupList getObsEqkRupsBefore(GregorianCalendar cal) {
     return null;
   }
 
@@ -63,7 +63,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param cal GregorianCalendar
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsAfter(GregorianCalendar cal) {
+  public ObsEqkRupList getObsEqkRupsAfter(GregorianCalendar cal) {
     return null;
   }
 
@@ -73,7 +73,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param cal2 GregorianCalendar
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsBetween(GregorianCalendar cal1,GregorianCalendar cal2) {
+  public ObsEqkRupList getObsEqkRupsBetween(GregorianCalendar cal1,GregorianCalendar cal2) {
      return null;
   }
 
@@ -82,7 +82,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param region GeographicRegion
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsInside(GeographicRegion region) {
+  public ObsEqkRupList getObsEqkRupsInside(GeographicRegion region) {
      return null;
   }
 
@@ -92,7 +92,7 @@ public class ObsEqkRupList extends ArrayList{
    * @param region GeographicRegion
    * @return ArrayList
    */
-  public ArrayList getObsEqkRupsOutside(GeographicRegion region) {
+  public ObsEqkRupList getObsEqkRupsOutside(GeographicRegion region) {
      return null;
   }
 }

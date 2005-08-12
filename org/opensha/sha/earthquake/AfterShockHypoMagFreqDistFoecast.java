@@ -2,6 +2,8 @@ package org.opensha.sha.earthquake;
 
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
+import org.opensha.sha.fault.FaultTrace;
+import org.opensha.sha.fault.SimpleFaultData;
 
 /**
  * <p>Title: AfterShockHypoMagFreqDistFoecast</p>
@@ -52,4 +54,17 @@ public class AfterShockHypoMagFreqDistFoecast
   public void setMainShock(ObsEqkRupture mainShock) {
     this.mainShock = mainShock;
   }
+
+  public void set_FaultSurface(){
+    String faultName = "";
+    FaultTrace fault_trace = new FaultTrace(faultName);
+    SimpleFaultData mainshockFault = new SimpleFaultData();
+    mainshockFault.setAveDip(90.0);
+
+    //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
+    mainshockFault.setFaultTrace(fault_trace);
+  }
+
+
+
 }

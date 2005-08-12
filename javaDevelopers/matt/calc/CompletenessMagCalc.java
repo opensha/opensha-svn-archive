@@ -1,9 +1,12 @@
 package javaDevelopers.matt.calc;
 
-import java.util.ArrayList;
-//import javaDevelopers.matt.calc.ListSortingTools;
-import java.lang.Object;
-import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.magdist.*;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import java.util.*;
+import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+
+
 
 /**
  * <p>Title: CompletenessMagCalc</p>
@@ -25,13 +28,51 @@ public class CompletenessMagCalc {
   public CompletenessMagCalc() {
 
   }
+
   /**
+   * set_McBest
    * Calculate the best Mc estimate based on the synthetic and max curvature
    * methods
+   */
+  public static void setMcBest(ObsEqkRupList eventList) {
+    ListIterator eventIt = eventList.listIterator();
+    ObsEqkRupture event;
+    int numEvents = eventList.size();
+    int ind = 0;
+    double[] magList = new double[numEvents];
+    while (eventIt.hasNext())  {
+      event = (ObsEqkRupture)eventIt.next();
+      magList[ind++] = event.getMag();
+    }
+    calcMcSynth(magList);
+  }
+
+  /**
+   * setMcMaxCurv
+   */
+  public void setMcMaxCurv(ObsEqkRupList eventList) {
+    ListIterator eventIt = eventList.listIterator();
+    ObsEqkRupture event;
+    int numEvents = eventList.size();
+    int ind = 0;
+    double[] magList = new double[numEvents];
+    while (eventIt.hasNext())  {
+      event = (ObsEqkRupture)eventIt.next();
+      magList[ind++] = event.getMag();
+    }
+    calcMcMaxCurv(magList);
+  }
+
+  /**
+   *
    * @return mcBest double
    */
   public static double getMcBest(){
-      return mcBest;
+    if (mcSynth != -99)
+        mcBest = mcSynth;
+      else
+        mcBest = mcMaxCurv;
+    return mcBest;
     }
 
     /**
@@ -45,10 +86,12 @@ public class CompletenessMagCalc {
     /**
      * Calculate Mc based on synthetic GR distributions.  Return the value
      * estimated at 95% probability, if not return the 90%.  If this is not
-     * possible to estimate, return a Nan
+     * possible to estimate, return a -99
      * @return double
      */
     public static double getMcSynth(){
+
+      //HOW TO BETTER HANDLE THE -99?!?!?!?!?!
       return mcSynth;
     }
 
@@ -74,7 +117,7 @@ public class CompletenessMagCalc {
       mcMaxCurv = magRange[maxCurvInd];
     }
 
-    private void calcMcSynth(double[] magList){
+    private static void calcMcSynth(double[] magList){
       // make a first guess at Mc using max curvature
       mcMaxCurv = getMcMaxCurv();
       int numEvents = magList.length;
@@ -129,15 +172,20 @@ public class CompletenessMagCalc {
         double mcSynth = ListSortingTools.getMinVal(mc95List);
       }
       catch (NoValsFoundException err1){
-        double[] mc90List = ListSortingTools.getValsAbove(fitProb, 90.0);
-        double mc90 = ListSortingTools.getMinVal(mc90List);
-      }
-      //catch (NoValsFoundException err2){
-      //  double mcSynth = -1;
-      //}
+        try {
+          double[] mc90List = ListSortingTools.getValsAbove(fitProb, 90.0);
+          double mcSynth = ListSortingTools.getMinVal(mc90List);
+        }
+        catch (NoValsFoundException err2){
+          // MUST BE A BETTER WAY TO HANDLE NO VALUE FOUND!!!
+          double mcSynth = -99;
+        }
 
-      double[] mc95List = ListSortingTools.getValsAbove(fitProb,95.0);
-      double mc95 = ListSortingTools.getMinVal(mc95List);
+      }
+
+
+      // double[] mc95List = ListSortingTools.getValsAbove(fitProb,95.0);
+      //double mc95 = ListSortingTools.getMinVal(mc95List);
 
     }
 

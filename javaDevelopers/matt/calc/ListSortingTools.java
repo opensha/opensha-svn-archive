@@ -1,6 +1,10 @@
 package javaDevelopers.matt.calc;
 
-import java.util.ArrayList;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import java.util.ListIterator;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+
+
 
 /**
  * <p>Title: listSortingTools</p>
@@ -18,6 +22,8 @@ public class ListSortingTools {
    */
   public ListSortingTools() {
   }
+
+
 
   /**
    * Calculate the minimum value from a list
@@ -180,6 +186,23 @@ public class ListSortingTools {
     else
       throw new NoValsFoundException();
   }
+
+  /**
+   * getValsAbove
+   */
+  public void getValsAboveMag(ObsEqkRupList obs_eqkList, double minMag) {
+    ListIterator eventIt = obs_eqkList.listIterator();
+    ObsEqkRupture event;
+    int numEvents = obs_eqkList.size();
+    int ind = 0;
+    double[] valList = new double[numEvents];
+    while (eventIt.hasNext())  {
+      event = (ObsEqkRupture)eventIt.next();
+      valList[ind++] = event.getMag();
+    }
+    getValsAbove(valList, minMag);
+  }
+
 
   /**
    * calculate the sum of a list

@@ -36,8 +36,8 @@ public class ObsEqkRupListCalc {
   }
 
 
-  public double getInterEventTimes() {
-    return 0.0;
+  public double[] getInterEventTimes() {
+    return null;
   }
 
   public IncrementalMagFreqDist getMagFreqDist() {

@@ -1,6 +1,12 @@
 package javaDevelopers.matt.calc;
 
-import java.util.ArrayList;
+import java.util.*;
+import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
+import org.opensha.calc.RelativeLocation;
+import org.opensha.data.region.CircularGeographicRegion;
+import org.opensha.data.Location;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 /**
  * <p>Title: MaxLikeGR_Calc </p>
@@ -13,6 +19,8 @@ import java.util.ArrayList;
 public class MaxLikeGR_Calc {
   private static double aVal;
   private static double bVal;
+  private static double[] grid_aVal;
+  private static double[] grid_bVal;
   private static double binning = 0.1;
 
   /**
@@ -36,6 +44,24 @@ public class MaxLikeGR_Calc {
   public static double get_bValueMaxLike(){
     return bVal;
   }
+
+  /**
+   * getGridded_aValMaxLike
+   * returns the a value for each location in the evenly gridded region
+   */
+  public static double[] getGridded_aValMaxLike() {
+    return grid_aVal;
+  }
+
+  /**
+   * getGridded_bValMaxLike
+   * returns the b value for each location in the evenly gridded region
+   */
+  public static double[] getGridded_bValMaxLike() {
+    return grid_bVal;
+  }
+
+
   /**
    * Get the magnitudes of the earthquakes to be used in the GR calculation
    * @param magList double[]
@@ -48,9 +74,29 @@ public class MaxLikeGR_Calc {
    * @param magList ArrayList array of Doubles
    */
 
-  public static void setMags(ArrayList magList){
+  public static void setMags(ObsEqkRupList obsEventList){
+    ListIterator eventIt = obsEventList.listIterator();
+    ObsEqkRupture event;
+    int numEvents = obsEventList.size();
+    int ind = 0;
+    double[] magList = new double[numEvents];
+    while (eventIt.hasNext())  {
+      event = (ObsEqkRupture)eventIt.next();
+      magList[ind++] = event.getMag();
+    }
+    calcGR_MaxLike(magList);
 
   }
+
+  /**
+   * setGriddedMags
+   * calculate the a and b values on the evenly gridded region grid.
+   *
+   */
+  public static void setGriddedMags(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList) {
+    calc_GROnGrid(gridNodes, eventList);
+  }
+
   private static double getMinMag(double[] magList){
     // find the minimum magnitude of the given catalogue
    double minMag = magList[0];
@@ -85,6 +131,45 @@ public class MaxLikeGR_Calc {
    aVal = Math.log(size)*.43429 + bVal * minMag;
   }
 
+
+
+  /**
+   * calc_GROnGrid
+   */
+  private static void calc_GROnGrid(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList){
+    ListIterator gridIt = gridNodes.getGridLocationsIterator();
+    int numNodes = gridNodes.getNumGridLocs();
+    //I DO THIS TWICE - ABOVE PUBLIC W/O THE SIZE DEC?!?!?!
+    double[] grid_aVal = new double[numNodes];
+    double[] grid_bVal = new double[numNodes];
+
+    ListIterator eventIt = eventList.listIterator();
+    int numEvents = eventList.size();
+    double[] eventDist = new double[numEvents];
+    double searchRadius;
+    double completenessMag;
+    int ind = 0;
+
+    if (numEvents < 1000) searchRadius = 15;
+    else if (numEvents < 1500) searchRadius = 12;
+    else if (numEvents < 2000) searchRadius = 10;
+    else searchRadius = 7.5;
+    while (gridIt.hasNext()) {
+      CircularGeographicRegion gridRegion = new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
+      ObsEqkRupList regionList = new ObsEqkRupList();
+      while (eventIt.hasNext()) {
+        Location loc = (Location)eventIt.next();
+        if (gridRegion.isLocationInside(loc))
+          regionList.add(loc);
+      }
+      CompletenessMagCalc.setMcBest(regionList);
+      completenessMag = CompletenessMagCalc.getMcBest();
+      ObsEqkRupList completeRegionList = regionList.getObsEqkRupsAboveMag(completenessMag);
+      setMags(completeRegionList);
+      grid_aVal[ind] = get_aValueMaxLike();
+      grid_bVal[ind++] = get_bValueMaxLike();
+    }
+  }
 
   public static void main(String[] args) {
     double[] magList = new double[10];
