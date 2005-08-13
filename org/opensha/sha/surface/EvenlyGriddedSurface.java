@@ -180,6 +180,22 @@ public class EvenlyGriddedSurface extends GriddedSurface {
 
     }
 
+    /**
+     * Returns the gridspacing for the Latitudes
+     * @return double
+     */
+    public double getGridSpacingForLat() {
+      return gridSpacing;
+    }
+
+    /**
+     * Returns the gridSpacing for the Longitudes
+     * @return double
+     */
+    public double getGridSpacingForLon() {
+      return gridSpacing;
+    }
+
 
     /**
      *

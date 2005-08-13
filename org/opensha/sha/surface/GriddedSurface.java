@@ -202,6 +202,27 @@ public class GriddedSurface
     }
 
     /**
+     * Returns the gridspacing for the Latitudes
+     * @return double
+     */
+    public double getGridSpacingForLat(){
+      Location loc1 = getLocation(0,0);
+      Location loc2 = getLocation(1,0);
+      return Math.abs(loc2.getLatitude() - loc1.getLatitude());
+    }
+
+    /**
+     * Returns the gridSpacing for the Longitudes
+     * @return double
+     */
+    public double getGridSpacingForLon(){
+      Location loc1 = getLocation(0,0);
+      Location loc2 = getLocation(0,1);
+      return Math.abs(loc2.getLongitude() - loc1.getLongitude());
+    }
+
+
+    /**
      * Returns the grid centered location on each grid surface.
      * @return GriddedSurfaceAPI returns a Surface that has one less
      * row and col then the original surface. It averages the 4 corner location

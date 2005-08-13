@@ -195,13 +195,15 @@ public class EqkRupture implements java.io.Serializable {
      * @return String
      */
     public String ruptureXML_String(){
+
       String rupInfo = "<EqkRupture>\n";
       rupInfo +="<Mag>"+mag+"</Mag>\n";
       rupInfo +="<Ave.Rake>"+aveRake+"</Ave.Rake>\n";
       rupInfo +="<Ave.Dip>"+ruptureSurface.getAveDip()+"</Ave.Dip>\n";
       rupInfo +="<NumRows>"+(ruptureSurface.getNumRows()-1)+"</NumRows>\n";
       rupInfo +="<NumCols>"+(ruptureSurface.getNumCols()-1)+"</NumCols>\n";
-      rupInfo +="<EqkRuptureGridSpacing>"+((EvenlyGriddedSurface)ruptureSurface).getGridSpacing()+"</EqkRuptureGridSpacing>\n";
+      rupInfo +="<EqkRupLatGridSpacing>"+ruptureSurface.getGridSpacingForLat()+"</EqkRupLatGridSpacing>\n";
+      rupInfo +="<EqkRupLonGridSpacing>"+ruptureSurface.getGridSpacingForLon()+"</EqkRupLonGridSpacing>\n";
       rupInfo +="<EqkRupture-Params>\n";
       if(otherParams !=null){
         ListIterator it = otherParams.getParametersIterator();

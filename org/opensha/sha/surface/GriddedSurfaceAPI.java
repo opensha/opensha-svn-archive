@@ -90,4 +90,17 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
     public GriddedSurfaceAPI getGridCenteredSurface() ;
 
 
+    /**
+     * Returns the gridspacing for the Latitudes
+     * @return double
+     */
+    public double getGridSpacingForLat();
+
+    /**
+     * Returns the gridSpacing for the Longitudes
+     * @return double
+     */
+    public double getGridSpacingForLon();
+
+
 }

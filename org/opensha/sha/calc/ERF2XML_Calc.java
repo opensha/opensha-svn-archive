@@ -91,11 +91,13 @@ public class ERF2XML_Calc {
   }
 
   /**
+   * Creates XML file with metadata about the selected ERF, Site and cut-off distance
+   * as the Header info. It also writes out the Source index for the ERF and Ruptures
+   * index and its info like prob,mag,rake,dip,strike and GriddedSurface in the same
+   * XML file. Ruptures which are in the range of cut-off distance form the Site
+   * are written to the XML file.
    *
-   * @param eqkRupForecast EqkRupForecastAPI
-   * @param site Site
-   * @param distance double
-   * @return String
+   * @return FileWriter handle to the XML file
    */
   public FileWriter getEqkRupturesAsXMLStringNearSite() {
 
@@ -231,11 +233,10 @@ public class ERF2XML_Calc {
   }
 
   /**
-   *
-   * @param eqkRupForecast EqkRupForecastAPI
-   * @param site Site
-   * @param distance double
-   * @return String
+   * Create a XML with Metadata for the selected ERF, Site and cut-off distance.
+   * It then writes out source index and rupture index for the EqkRupture which
+   * are within the cut-off distance from the Site.
+   * Returns the Handle to XML file
    */
   public FileWriter getProbEqkRuptureIdentifiersXMLFileNearSite() {
 

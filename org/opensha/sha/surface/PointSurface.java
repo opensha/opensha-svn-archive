@@ -285,6 +285,25 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
     }
 
 
+    /**
+     * Returns the gridspacing for the Latitudes.
+     * As is the point Surface so the GridSpacing is 0.0
+     * @return double
+     */
+    public double getGridSpacingForLat() {
+      return 0.0;
+    }
+
+    /**
+     * Returns the gridSpacing for the Longitudes.
+     * As is the point Surface so the GridSpacing is 0.0
+     * @return double
+     */
+    public double getGridSpacingForLon() {
+      return 0.0;
+    }
+
+
     /** returns number of elements in array. Returns 1.  */
     public long size() {
         return 1L;
