@@ -77,7 +77,7 @@ public class MaxLikeOmori_Calc {
        */
 
       if (iterCount++ >= maxIterations){
-        pGuess = 0.0;
+        pGuess = Double.NaN;
         break;
       }
     }
@@ -104,7 +104,7 @@ public class MaxLikeOmori_Calc {
     */
 
      if (iterCount++ >= maxIterations){
-       pGuess = 0.0;
+       pGuess = Double.NaN;
        break;
      }
 

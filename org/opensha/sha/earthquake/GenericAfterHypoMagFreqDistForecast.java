@@ -1,14 +1,9 @@
 package org.opensha.sha.earthquake;
 
-import org.opensha.sha.earthquake.*;
-import org.opensha.sha.earthquake.GriddedHypoMagFreqDistAtLocAPI;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import java.util.ListIterator;
-import org.opensha.data.Location;
-import java.util.ArrayList;
-import org.opensha.calc.RelativeLocation;
+import javaDevelopers.matt.calc.*;
+
 import org.opensha.sha.fault.*;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 
 
 /**
@@ -24,163 +19,115 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
  * @version 1.0
  */
 public class GenericAfterHypoMagFreqDistForecast
-    extends AfterShockHypoMagFreqDistFoecast implements GriddedHypoMagFreqDistAtLocAPI{
+    extends STEP_AftershockHypoMagForecast {
 
-  private double a_value = -1.67;
-  private double b_value = 0.91;
-  private double c_value = 0.05;
-  private double p_value = 1.08;
-  private double minForecastMag = 4.0;
-  private double maxForecastMag = 8.0;
+  private double a_valueGeneric = -1.67;
+  private double b_valueGeneric = 0.91;
+  private double c_valueGeneric = 0.05;
+  private double p_valueGeneric = 1.08;
   private double nodeCompletenessMag;
   private SimpleFaultData mainshockFault;
+  private double[] grid_kVal, grid_aVal, grid_bVal, grid_cVal, grid_pVal;
+  int numGridLocs;
 
 
-  /**
-   * set_ReasenbergJonesParms
-   */
-  public void set_ReasenbergJonesParms(double[] rjParms) {
-    a_value = rjParms[0];
-    b_value = rjParms[1];
-    c_value = rjParms[2];
-    p_value = rjParms[3];
-  }
-
-
-
-
-
-  /**
-   * set_k_value
-   * This will taper the generic k value
-   */
-  public void set_k_value() {
-    double sumInvDist = 0;
-
-    EvenlyGriddedGeographicRegionAPI aftershockZone = getAfterShockZone();
-    int numLocs = aftershockZone.getNumGridLocs();
-    double[] nodeTaper_k =  new double[numLocs];
-    double[] nodeDistFromFault = new double[numLocs];
-    double[] invDist = new double[numLocs];
-    double[] nodePerc = new double[numLocs];
-
-    //get the iterator of all the locations within that region
-    ListIterator it = aftershockZone.getGridLocationsIterator();
-    int ind = 0;
-    FaultTrace faultTrace = mainshockFault.getFaultTrace();
-    int numFaultPoints = faultTrace.size();
-    double totDistFromFault = 0;
-    while (it.hasNext()) {
-      nodeDistFromFault[ind++] = RelativeLocation.getApproxHorzDistToLine( (
-          Location) (it.next()), faultTrace.getLocationAt(0),
-          faultTrace.getLocationAt(numFaultPoints));
-      totDistFromFault = totDistFromFault +
-          Math.pow(nodeDistFromFault[ind - 1], 2.0);
-    }
-
-    for (int indLoop = 0; indLoop < numLocs; ++indLoop) {
-      invDist[indLoop] = totDistFromFault /
-          Math.pow(nodeDistFromFault[indLoop], 2.0);
-      sumInvDist = sumInvDist + invDist[indLoop];
-    }
-
-    for (int indLoop = 0; indLoop < ind - 1; ++indLoop) {
-      nodePerc[indLoop] = invDist[indLoop] / sumInvDist;
-    }
-
-    ObsEqkRupture mainshock = getMainShock();
-    double mainshockMag = mainshock.getMag();
-    double rightSide = a_value + b_value * (mainshockMag - nodeCompletenessMag);
-    double generic_k = Math.pow(10,rightSide);
-    for (int indLoop = 0; indLoop < ind -1; ++indLoop) {
-         nodeTaper_k[indLoop] = generic_k * nodePerc[indLoop];
-    };
-
-
-
+  public GenericAfterHypoMagFreqDistForecast() {
+    EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
+     numGridLocs = aftershockZone.getNumGridLocs();
+     grid_aVal = new double[numGridLocs];
+     grid_bVal = new double[numGridLocs];
+     grid_cVal = new double[numGridLocs];
+     grid_pVal = new double[numGridLocs];
+     grid_kVal = new double[numGridLocs];
   }
 
   /**
-   * get_a_value
+   * set_GenReasenbergJonesParms
    */
-  public double get_a_value() {
-    return a_value;
+  public void set_GenReasenbergJonesParms(double[] rjParms) {
+    a_valueGeneric = rjParms[0];
+    b_valueGeneric = rjParms[1];
+    c_valueGeneric = rjParms[2];
+    p_valueGeneric = rjParms[3];
   }
 
   /**
-   * get_b_value
-   */
-  public double get_b_value() {
-    return b_value;
+  * set_Gridded_kValue
+  * This will taper the generic k value.  Each grid node will be assigned
+  * a k value based on the distance from the fault.
+  */
+
+  public void set_Gridded_kValue() {
+    SmoothKVal_Calc smooth_k = new SmoothKVal_Calc();
+    smooth_k.setAftershockModel(this);
+    grid_kVal = smooth_k.get_Smooth_kVal();
   }
 
   /**
-   * get_c_value
+   * set_Gridded_aValue
    */
-  public double get_c_value() {
-    return c_value;
+  public void set_Gridded_aValue() {
+    java.util.Arrays.fill(grid_aVal,a_valueGeneric);
   }
 
   /**
-   * get_p_value
+   * set_Gridded_bValue
    */
-  public double get_p_value() {
-    return p_value;
+  public void set_Gridded_bValue() {
+    java.util.Arrays.fill(grid_bVal,b_valueGeneric);
   }
-
-
-
-
-  public GenericAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock,
-      EvenlyGriddedGeographicRegionAPI afterShockZone, double minMag,
-      double deltaMag, int numMag) {
-
-  }
-
-
 
   /**
-   * calc_NodeCompletenessMag
-   * fore the generic model set this to the minimum
-   * forecast magnitude
+   * set_Gridded_pValue
    */
-  private void calc_NodeCompletenessMag() {
+  public void set_Gridded_pValue() {
+    java.util.Arrays.fill(grid_pVal,p_valueGeneric);
+  }
+
+  /**
+   * set_Gridded_cValue
+   */
+  public void set_Gridded_cValue() {
+    java.util.Arrays.fill(grid_cVal,c_valueGeneric);
+  }
+
+  /**
+   * get_a_valueGeneric
+   */
+  public double get_a_valueGeneric() {
+    return a_valueGeneric;
+  }
+
+  /**
+   * get_b_valueGeneric
+   */
+  public double get_b_valueGeneric() {
+    return b_valueGeneric;
+  }
+
+  /**
+   * get_c_valueGeneric
+   */
+  public double get_c_valueGeneric() {
+    return c_valueGeneric;
+  }
+
+  /**
+   * get_p_valueGeneric
+   */
+  public double get_p_valueGeneric() {
+    return p_valueGeneric;
+  }
+
+  /**
+   * for the generic case, the min completeness mag Mc is the
+   * same as the min forecast mag.
+   */
+
+  public void calc_NodeCompletenessMag() {
     nodeCompletenessMag = minForecastMag;
   }
 
-  /**
-   * set_minForecastMag
-   */
-  public void set_minForecastMag(double min_forecastMag) {
-  minForecastMag = min_forecastMag;
-  }
 
-  /**
-   * set_maxForecastMag
-   */
-  public void set_maxForecastMag(double max_forecastMag) {
-  maxForecastMag = max_forecastMag;
-  }
-
-  /**
-   * get_minForecastMag
-   */
-  public double get_minForecastMag() {
-    return minForecastMag;
-  }
-
-  /**
-   * get_maxForecastMag
-   */
-  public double get_maxForecastMag() {
-    return maxForecastMag;
-  }
-
-  /**
-   * set_completenessMag
-   */
-  public void set_completenessMag() {
-    calc_NodeCompletenessMag();
-  }
 
 }

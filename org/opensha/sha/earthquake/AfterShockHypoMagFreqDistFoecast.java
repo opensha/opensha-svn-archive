@@ -55,15 +55,7 @@ public class AfterShockHypoMagFreqDistFoecast
     this.mainShock = mainShock;
   }
 
-  public void set_FaultSurface(){
-    String faultName = "";
-    FaultTrace fault_trace = new FaultTrace(faultName);
-    SimpleFaultData mainshockFault = new SimpleFaultData();
-    mainshockFault.setAveDip(90.0);
 
-    //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
-    mainshockFault.setFaultTrace(fault_trace);
-  }
 
 
 

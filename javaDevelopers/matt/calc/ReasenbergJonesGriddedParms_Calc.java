@@ -169,9 +169,9 @@ public class ReasenbergJonesGriddedParms_Calc {
       }
       // if less than 100 events, fill the parms with dummy vals.
       else {
-        grid_cVal[ind] = -99;
-        grid_pVal[ind] = -99;
-        grid_kVal[ind++] = -99;
+        grid_cVal[ind] = Double.NaN;
+        grid_pVal[ind] = Double.NaN;
+        grid_kVal[ind++] = Double.NaN;
       }
     }
   }
