@@ -29,6 +29,12 @@ public class CubeToObsEqkRupture {
   //Gets  the ObsEqkRupEvents from QDM Cube File
   private ObsEqkRupList eqkRupList;
 
+  //define the region for which we have to collect the events
+  private static final double MIN_LAT = 32.0;
+  private static final double MAX_LAT = 42.2;
+  private static final double MIN_LON = -124.6;
+  private static final double MAX_LON = -112.0;
+
 
   public CubeToObsEqkRupture(String eventFile) throws FileNotFoundException,
       IOException {
@@ -69,9 +75,19 @@ public class CubeToObsEqkRupture {
       String sLongitude = divideAndGetString(obsEqkEvent.substring(35, 43),
                                              10000);
       String sDepth = divideAndGetString(obsEqkEvent.substring(43, 47), 10);
-      String sMagnitude = divideAndGetString(obsEqkEvent.substring(47, 49), 10);
-      if(sMagnitude ==null || sMagnitude.equals(""))
+      double lat = Double.parseDouble(sLatitude);
+      double lon = Double.parseDouble(sLongitude);
+      double depth = Double.parseDouble(sDepth);
+
+      //if lat or lon of the events are outside the region bounds then neglect them.
+      if(lat < MIN_LAT || lat >MAX_LAT)
         return null;
+      if(lon < MIN_LON || lon > MAX_LON)
+        return null;
+
+      String sMagnitude = divideAndGetString(obsEqkEvent.substring(47, 49), 10);
+      //if(sMagnitude ==null || sMagnitude.equals(""))
+        //return null;
       //String sNst = sRecord.substring(49, 52).trim();
       //String sNph = sRecord.substring(52, 55).trim();
       //String sDmin = divideAndGetString(sRecord.substring(55, 59), 10);
@@ -96,9 +112,7 @@ public class CubeToObsEqkRupture {
           min, sec);
 
       //Hypocenter Location at which EqkRupture occured
-      double lat = Double.parseDouble(sLatitude);
-      double lon = Double.parseDouble(sLongitude);
-      double depth = Double.parseDouble(sDepth);
+
       Location hypoLoc = new Location(lat, lon, depth);
 
       //magnitude of the rupture
