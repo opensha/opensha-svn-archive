@@ -138,7 +138,7 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
                                              LON_PARAM_NAME, DEPTH_PARAM_NAME,
                                              DEFAULT_LAT_VAL,
                                              DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
-   siteLocationParamEditor = new LocationParameterEditor(siteLocationParam);
+   siteLocationParamEditor = new LocationParameterEditor(siteLocationParam,true);
 
    // choose the fault with which this site is associated
    ArrayList faultNamesList = getFaultNames();

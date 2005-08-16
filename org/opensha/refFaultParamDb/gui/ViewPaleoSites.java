@@ -59,8 +59,7 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
   // various buttons in thos window
   private JButton addNewSiteButton = new JButton("Add New Site");
   private JButton editSiteButton = new JButton("Edit Current Site");
-  private JButton viewTimeSpanInfoButton = new JButton("View Info for this Time Period");
-  private JButton editTimeSpanInfoButton = new JButton("Edit Info for this Time Period");
+  private JButton viewEditTimeSpanInfoButton = new JButton("View/Edit Info for this Time Period");
   private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Period");
   private JButton closeButton = new JButton("Close");
 
@@ -117,12 +116,9 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
    contentPane.add(this.endTimeParamEditor,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // view data for this time period
-   contentPane.add(this.viewTimeSpanInfoButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+   contentPane.add(this.viewEditTimeSpanInfoButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-   //edit data for this time period
-   contentPane.add(this.editTimeSpanInfoButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
-      ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-   // add data for a new time period
+  // add data for a new time period
    contentPane.add(this.addTimeSpanInfoButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
     ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
    // close button
@@ -136,8 +132,7 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
   private void addActionListeners() {
     addNewSiteButton.addActionListener(this);
     editSiteButton.addActionListener(this);
-    viewTimeSpanInfoButton.addActionListener(this);
-    editTimeSpanInfoButton.addActionListener(this);
+    viewEditTimeSpanInfoButton.addActionListener(this);
     addTimeSpanInfoButton.addActionListener(this);
   }
 
@@ -150,8 +145,7 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
    Object source = event.getSource();
     if(source==this.addNewSiteButton ||  source==this.editSiteButton)
        new AddEditPaleoSite();
-    else if(source==viewTimeSpanInfoButton || source==editTimeSpanInfoButton ||
-      source==addTimeSpanInfoButton)
+    else if(source==viewEditTimeSpanInfoButton  || source==addTimeSpanInfoButton)
        new SiteInfoForTimePeriod();
  }
 
@@ -171,7 +165,7 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
                                             LON_PARAM_NAME, DEPTH_PARAM_NAME,
                                             DEFAULT_LAT_VAL,
                                             DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
-  siteLocationParamEditor = new LocationParameterEditor(siteLocationParam);
+  siteLocationParamEditor = new LocationParameterEditor(siteLocationParam, true);
 
   //  fault with which this site is associated
   assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME);

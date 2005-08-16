@@ -37,7 +37,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
      protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 230 );
      protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
             0, 0, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 );
-    protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
+     protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
             0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
 
     /** No-Arg constructor calls parent constructor */
@@ -57,7 +57,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         if ( (model != null ) && !(model instanceof ArbitrarilyDiscretizedFuncParameter))
             throw new Exception( S + "Input model parameter must be a DiscretizedFuncParameter.");
 
-        this.setParameter(model);
+        //this.setParameter(model);
         if(D) System.out.println(S.concat("Ending"));
 
     }

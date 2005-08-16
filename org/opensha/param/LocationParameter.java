@@ -38,6 +38,8 @@ public class LocationParameter extends DependentParameter
   //location parameterlist parameter name static declaration
   private final static String LOCATION_PARAMETER_LIST_PARAMETER_NAME = "Location(lat,lon,depth)";
 
+  private final static String DECIMAL_DEGREES = "Decimal Degrees";
+  private final static String KMS = "kms";
   /**
    * No constraints specified for this parameter. Sets the name of this
    * parameter.
@@ -309,13 +311,13 @@ public class LocationParameter extends DependentParameter
     super(locationParamName,null,null,null);
     latParam = new DoubleParameter(latParamName,
                                    new DoubleConstraint(Location.MIN_LAT,Location.MAX_LAT),
-                                   "degrees", latValue);
+                                   DECIMAL_DEGREES, latValue);
     lonParam = new DoubleParameter(lonParamName,
                                    new DoubleConstraint(Location.MIN_LON,Location.MAX_LON),
-                                   "degrees", lonValue);
+                                   DECIMAL_DEGREES, lonValue);
     depthParam = new DoubleParameter(depthParamName,
                                      new DoubleConstraint(Location.MIN_DEPTH,50),
-                                     "kms", depthValue);
+                                    KMS, depthValue);
 
     ParameterList paramList = new ParameterList();
     paramList.addParameter(latParam);
@@ -357,11 +359,11 @@ public class LocationParameter extends DependentParameter
                             Double lonValue, Double depthValue) {
      super(locationParamName,null,null,null);
      latParam = new DoubleParameter(latParamName, latConstraint,
-                                    "Degrees", latValue);
+                                    DECIMAL_DEGREES, latValue);
      lonParam = new DoubleParameter(lonParamName, lonConstraint,
-                                    "Degrees", lonValue);
+                                    DECIMAL_DEGREES, lonValue);
      depthParam = new DoubleParameter(depthParamName,
-                                      depthConstraint, "Kms", depthValue);
+                                      depthConstraint, KMS, depthValue);
 
      ParameterList paramList = new ParameterList();
      paramList.addParameter(latParam);
@@ -412,11 +414,11 @@ public class LocationParameter extends DependentParameter
                            Double lonValue, Double depthValue) {
     super(locationParamName,null,null,null);
     latParam = new DoubleParameter(latParamName, new DoubleConstraint(minLat,maxLat),
-                                   "Degrees", latValue);
+                                   DECIMAL_DEGREES, latValue);
     lonParam = new DoubleParameter(lonParamName, new DoubleConstraint(minLon,maxLon),
-                                   "Degrees", lonValue);
+                                   DECIMAL_DEGREES, lonValue);
     depthParam = new DoubleParameter(depthParamName,
-                                     new DoubleConstraint(minDepth,maxDepth), "Kms", depthValue);
+                                     new DoubleConstraint(minDepth,maxDepth), KMS, depthValue);
 
     ParameterList paramList = new ParameterList();
     paramList.addParameter(latParam);

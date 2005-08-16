@@ -25,7 +25,6 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
     ActionListener {
 
   private final static String AVAILABLE_INFO_PARAM_NAME="I have info on";
-  private final static String INDIVIDUAL_EVENTS_DATE_AVAILABLE_PARAM_NAME="I can provide dates for individual events";
   private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Dated Features";
   private final static String REFERENCES_PARAM_NAME="References";
 
@@ -57,9 +56,9 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
   private final static String EVENTS_INFO = "Events";
-  private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Events";
-  private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement & Events";
-
+  private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Number of Events in same Time Period";
+  private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement and Number of Events in same Time Period";
+   private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
   // start time estimate param
   private final static String START_TIME_ESTIMATE_PARAM_NAME="Start Time Estimate";
   private final static double TIME_ESTIMATE_MIN=0;
@@ -73,7 +72,6 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
 
   // various parameters for this window
   private StringParameter availableInfoParam;
-  private BooleanParameter eventDatesAvailableParam;
   private StringParameter datedFeatureCommentsParam;
   private StringParameter referencesParam;
   private EstimateParameter slipRateEstimateParam;
@@ -87,7 +85,6 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
 
   // various parameter Editorts for this window
   private ConstrainedStringParameterEditor availableInfoParamEditor;
-  private BooleanParameterEditor eventDatesAvailableParamEditor;
   private StringParameterEditor datedFeatureCommentsParamEditor;
   private ConstrainedStringParameterEditor referencesParamEditor;
   private ConstrainedEstimateParameterEditor slipRateEstimateParamEditor;
@@ -170,10 +167,7 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
     // what type of info is provided by the user
     contentPane.add(availableInfoParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    // whether user can provide event dates
-    contentPane.add(eventDatesAvailableParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    // references
+     // references
    contentPane.add(referencesParamEditor,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // add  new reference  button
@@ -215,9 +209,6 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
     availableInfoParam = new StringParameter(AVAILABLE_INFO_PARAM_NAME, availableInfoList,
                                              (String)availableInfoList.get(0));
     availableInfoParamEditor = new ConstrainedStringParameterEditor(availableInfoParam);
-    // I can/cannot provide dates for individual events
-    eventDatesAvailableParam = new BooleanParameter(INDIVIDUAL_EVENTS_DATE_AVAILABLE_PARAM_NAME);
-    eventDatesAvailableParamEditor = new BooleanParameterEditor(eventDatesAvailableParam);
 
     // ADD START TIME ESTIMATE & END TIME ESTIMATE HERE
     ArrayList dateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
@@ -373,6 +364,7 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
     availableInfoList.add(EVENTS_INFO);
     availableInfoList.add(SLIP_RATE_AND_EVENTS_INFO);
     availableInfoList.add(CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO);
+    availableInfoList.add(this.INDIVIDUAL_EVENTS_INFO);
     return availableInfoList;
  }
 

@@ -40,31 +40,79 @@ public class LocationParameterEditor
   //Instance for the framee to show the all parameters in this editor
   protected JDialog frame;
 
+  /* Whether to show this editor as a button.
+   1. If this is set as true, a pop-up window appears on button click
+   2. If this is set as false, button is not shown for pop-up window.
+   */
+  private boolean showEditorAsPanel = false;
+
+  // size of the location parameter editor
+  protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 220 );
+
   //default class constructor
   public LocationParameterEditor() {}
 
+  /**
+   * Show the location parameter editor.
+   * Editor is show nas a button which pops up window to fill lat/lon/depth.
+   *
+   * @param model
+   */
   public LocationParameterEditor(ParameterAPI model) {
-    super(model);
+    this(model, false);
   }
+
+  public LocationParameterEditor(ParameterAPI model, boolean showEditorAsPanel) {
+    this.showEditorAsPanel = showEditorAsPanel;
+    try {
+      this.jbInit();
+      setParameter(model);
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+     * Main GUI Initialization point. This block of code is updated by JBuilder
+     * when using it's GUI Editor.
+     */
+    protected void jbInit() throws Exception {
+      this.setLayout(new GridBagLayout());
+    }
+
+
 
   /**
    * Set the values in the parameters in this parameterList parameter
    */
   public void setParameter(ParameterAPI param) {
     setParameterInEditor(param);
-    valueEditor = new JButton(param.getName());
-    ( (JButton) valueEditor).addActionListener(this);
+    this.param = (LocationParameter) param;
+    // make the params editor
+    initParamListAndEditor();
+    int fillConstraint;
+    if(!showEditorAsPanel) { // show a button which pops up window to fill lat/lon/depth
+      valueEditor = new JButton(param.getName());
+
+      ( (JButton) valueEditor).addActionListener(this);
+      fillConstraint = GridBagConstraints.HORIZONTAL;
+    } else { // DO NOT show button for pop-up window
+      valueEditor = editor;
+      fillConstraint = GridBagConstraints.BOTH;
+      valueEditor.setMinimumSize( WIGET_PANEL_DIM);
+      valueEditor.setPreferredSize( WIGET_PANEL_DIM );
+    }
+
+    // add the valueEditor to the panel
     add(valueEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0
                                             , GridBagConstraints.CENTER,
-                                            GridBagConstraints.HORIZONTAL,
+                                            fillConstraint,
                                             new Insets(0, 0, 0, 0), 0, 0));
+
     String S = C + ": Constructor(): ";
 
     // remove the previous editor
     //removeAll();
-    this.param = (LocationParameter) param;
-    // make the params editor
-    initParamListAndEditor();
 
   }
 
@@ -110,16 +158,6 @@ public class LocationParameterEditor
    */
   public void setEditorTitle(String title) {
     editor.setTitle(title);
-  }
-
-  /**
-   * Main GUI Initialization point. This block of code is updated by JBuilder
-   * when using it's GUI Editor.
-   */
-  protected void jbInit() throws Exception {
-
-    // Main component
-    this.setLayout(new GridBagLayout());
   }
 
   /**
