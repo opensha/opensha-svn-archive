@@ -32,4 +32,13 @@ public class DiscreteValueDateEstimate extends DiscreteValueEstimate implements 
     return isDateCorrected;
   }
 
+  /**
+  * Get the name displayed to the user
+  * @return
+  */
+ public String getName() {
+   return NAME;
+ }
+
+
 }

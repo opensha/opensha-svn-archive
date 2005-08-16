@@ -32,4 +32,13 @@ public class PDF_DateEstimate extends PDF_Estimate implements DateEstimateAPI {
     return isDateCorrected;
   }
 
+  /**
+  * Get the name displayed to the user
+  * @return
+  */
+ public String getName() {
+   return NAME;
+ }
+
+
 }

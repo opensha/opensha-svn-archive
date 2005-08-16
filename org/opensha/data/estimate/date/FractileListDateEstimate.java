@@ -32,4 +32,13 @@ public class FractileListDateEstimate extends FractileListEstimate implements Da
     return isDateCorrected;
   }
 
+  /**
+  * Get the name displayed to the user
+  * @return
+  */
+ public String getName() {
+   return NAME;
+ }
+
+
 }

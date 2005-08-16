@@ -31,4 +31,13 @@ public class LogNormalDateEstimate extends LogNormalEstimate implements DateEsti
     return isDateCorrected;
   }
 
+  /**
+  * Get the name displayed to the user
+  * @return
+  */
+ public String getName() {
+   return NAME;
+ }
+
+
 }

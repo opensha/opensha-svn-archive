@@ -334,13 +334,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     * when we deploy this.
     */
    minNormalEstimateParam = new DoubleParameter(NORMAL_MIN_X_PARAM_NAME,
-                                                DEFAULT_NORMAL_MIN_X_PARAM_VAL);
+                                                estimateConstraint.getMin());
    minLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MIN_X_PARAM_NAME,
-       LOGNORMAL_MIN_X_PARAM_CONSTRAINT, DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL);
+       LOGNORMAL_MIN_X_PARAM_CONSTRAINT, estimateConstraint.getMin());
    maxNormalEstimateParam = new DoubleParameter(NORMAL_MAX_X_PARAM_NAME,
-                                          DEFAULT_NORMAL_MAX_X_PARAM_VAL);
-    maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
-                                                 DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL);
+                                          estimateConstraint.getMax());
+   maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
+                                                 estimateConstraint.getMax());
 
 
 
@@ -597,6 +597,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
        viewEstimate();
      }catch(Exception ex) {
        JOptionPane.showMessageDialog(this,ex.getMessage());
+       ex.printStackTrace();
      }
    } else if (e.getSource()==this.button) {
      frame.pack();

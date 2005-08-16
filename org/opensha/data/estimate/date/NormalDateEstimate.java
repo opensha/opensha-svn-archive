@@ -36,5 +36,14 @@ public class NormalDateEstimate extends NormalEstimate implements DateEstimateAP
     return isDateCorrected;
   }
 
+  /**
+  * Get the name displayed to the user
+  * @return
+  */
+ public String getName() {
+   return NAME;
+ }
+
+
 
 }
