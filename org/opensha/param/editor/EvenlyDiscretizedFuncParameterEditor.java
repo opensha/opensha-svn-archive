@@ -176,6 +176,18 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     }
 
     /**
+     * It enables/disables the editor according to whether user is allowed to
+     * fill in the values.
+     */
+    public void setEnabled(boolean isEnabled) {
+      this.editor.setEnabled(isEnabled);
+      this.xTextArea.setEnabled(isEnabled);
+      this.yTextArea.setEnabled(isEnabled);
+
+    }
+
+
+    /**
      * Set the X values in the text area based on user specified min/max/num
      */
     private void setXValues() {

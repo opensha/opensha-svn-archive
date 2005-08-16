@@ -86,6 +86,15 @@ ActionListener,ParameterChangeListener{
   }
 
   /**
+  * It enables/disables the editor according to whether user is allowed to
+  * fill in the values.
+  */
+ public void setEnabled(boolean isEnabled) {
+   this.editor.setEnabled(isEnabled);
+ }
+
+
+  /**
    * sets the title for this editor
    * @param title
    */

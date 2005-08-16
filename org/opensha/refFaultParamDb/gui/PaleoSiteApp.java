@@ -48,8 +48,8 @@ public class PaleoSiteApp extends JFrame {
   // various parameter editors
   private ConstrainedEstimateParameterEditor startTimeEstimateParamEditor;
   private ConstrainedEstimateParameterEditor endTimeEstimateParamEditor;
-  BorderLayout borderLayout1 = new BorderLayout();
-  BorderLayout borderLayout2 = new BorderLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private BorderLayout borderLayout2 = new BorderLayout();
 
 
   public PaleoSiteApp() {

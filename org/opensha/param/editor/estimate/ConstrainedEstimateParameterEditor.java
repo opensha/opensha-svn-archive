@@ -571,6 +571,18 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  }
 
  /**
+  * It enables/disables the editor according to whether user is allowed to
+  * fill in the values.
+  */
+ public void setEnabled(boolean isEnabled) {
+   this.editor.setEnabled(isEnabled);
+   this.xValsParamListEditor.setEnabled(isEnabled);
+   this.probValsParamListEditor.setEnabled(isEnabled);
+
+ }
+
+
+ /**
   * Set the params visible for DiscreteValue and Integer  estimate
   */
  private void setParamsForXY_Estimate() {

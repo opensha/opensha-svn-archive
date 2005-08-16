@@ -59,8 +59,8 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   // various buttons in thos window
   private JButton addNewSiteButton = new JButton("Add Site");
   private JButton editSiteButton = new JButton("Edit Site");
-  private JButton viewEditTimeSpanInfoButton = new JButton("View/Edit Info for this Time Period");
-  private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Period");
+  private JButton viewEditTimeSpanInfoButton = new JButton("<html>Edit Info for <br> this Time Period</html>");
+  private JButton addTimeSpanInfoButton = new JButton("<html>Add Info for <br>another Time Period</html>");
   private JButton closeButton = new JButton("Close");
 
 

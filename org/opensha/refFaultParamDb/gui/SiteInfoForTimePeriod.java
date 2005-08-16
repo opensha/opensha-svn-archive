@@ -88,7 +88,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
 
 
   // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add New Reference");
+  private JButton addNewReferenceButton = new JButton("Add Reference");
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
 
