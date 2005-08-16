@@ -3,6 +3,8 @@ package org.opensha.sha.earthquake.observedEarthquake;
 import java.util.*;
 
 import org.opensha.sha.earthquake.*;
+import org.opensha.data.Location;
+import org.opensha.sha.surface.PointSurface;
 
 /**
  * <p>Title: ObsEqkRupture </p>
@@ -35,10 +37,14 @@ public class ObsEqkRupture
   public ObsEqkRupture(String eventId, String dataSource, char eventVersion,
                        GregorianCalendar originTime, double hypoLocHorzErr,
                        double hypoLocVertErr,double magError,
-                      String magType) {
+                      String magType, Location hypoLoc, double mag) {
 
-    this.setObsEqkRup(eventId,dataSource,eventVersion,originTime,hypoLocHorzErr,
-        hypoLocVertErr, magError, magType);
+   super(mag,0,null,hypoLoc);
+   //making the Obs Rupture Surface to just be the hypocenter location.
+   PointSurface surface = new PointSurface(hypoLoc);
+   this.setRuptureSurface(surface);
+   this.setObsEqkRup(eventId,dataSource,eventVersion,originTime,hypoLocHorzErr,
+                     hypoLocVertErr, magError, magType);
   }
 
   public String getDataSource() {
@@ -140,6 +146,21 @@ public class ObsEqkRupture
     return rupInfo;
   }
 
-
+  /**
+   * Gets the Info for the Observed EqkRupture
+   * @return String
+   */
+  public String getInfo(){
+    String obsEqkInfo = super.getInfo();
+    obsEqkInfo += "EventId ="+eventId+"\n";
+    obsEqkInfo += "DataSource ="+dataSource+"\n";
+    obsEqkInfo += "EventVersion ="+eventVersion+"\n";
+    obsEqkInfo += "OriginTime ="+originTime.toString()+"\n";
+    obsEqkInfo += "HypoLocHorzErr ="+hypoLocHorzErr+"\n";
+    obsEqkInfo += "HypoLocVertErr ="+hypoLocVertErr+"\n";
+    obsEqkInfo += "MagError ="+magError+"\n";
+    obsEqkInfo += "MagType ="+magType+"\n";
+    return obsEqkInfo;
+  }
 
 }
