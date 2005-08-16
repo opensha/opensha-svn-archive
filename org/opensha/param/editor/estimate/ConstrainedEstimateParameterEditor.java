@@ -234,7 +234,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     /*container.add(addParamatersToPanel(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
                                                  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
      */
-
     container.add(this.editor,new GridBagConstraints( 0, 0, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     container.add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
@@ -256,7 +255,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
 
   protected void jbInit() {
-     this.setLayout(GBL);
+    this.setMinimumSize(new Dimension(0, 0));
+    this.setLayout(GBL);
   }
 
   /**

@@ -20,7 +20,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
 public class AddNewReference extends JFrame {
   private final static String REFERENCE_PARAM_NAME="Reference";
   private StringParameter referenceParamName;
-  private final static String NEW_SITE_TYPE_LABEL="Add New Reference";
+  private final static String NEW_SITE_TYPE_LABEL="Add Reference";
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
 

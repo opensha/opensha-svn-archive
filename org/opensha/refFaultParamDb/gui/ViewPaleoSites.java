@@ -57,8 +57,8 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private ConstrainedStringParameterEditor endTimeParamEditor;
 
   // various buttons in thos window
-  private JButton addNewSiteButton = new JButton("Add New Site");
-  private JButton editSiteButton = new JButton("Edit Current Site");
+  private JButton addNewSiteButton = new JButton("Add Site");
+  private JButton editSiteButton = new JButton("Edit Site");
   private JButton viewEditTimeSpanInfoButton = new JButton("View/Edit Info for this Time Period");
   private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Period");
   private JButton closeButton = new JButton("Close");
@@ -84,6 +84,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     int yPos = 0;
     setLayout(new GridBagLayout());
     // site name editor
+    this.setMinimumSize(new Dimension(0, 0));
     add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // edit site button

@@ -24,7 +24,11 @@ public class PaleoSiteApp extends JFrame {
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane summarySplitPane = new JSplitPane();
   private JSplitPane timespanSplitPane = new JSplitPane();
-  private JSplitPane infoSplitPane = new JSplitPane();
+
+  private final static int WIDTH = 850;
+  private final static int HEIGHT = 700;
+
+  private final static String TITLE = "Cal Ref. Fault GUI";
 
   // start time estimate param
   private final static String START_TIME_ESTIMATE_PARAM_NAME="Start Time Estimate";
@@ -50,6 +54,7 @@ public class PaleoSiteApp extends JFrame {
 
   public PaleoSiteApp() {
     try {
+      setTitle(TITLE);
       jbInit();
       addSitesPanel(); // add the avialbel sites from database for viewing
       addTimeEstimateParametersAndEditors(); // add start and end time estimates
@@ -63,6 +68,7 @@ public class PaleoSiteApp extends JFrame {
   public static void main(String[] args) {
     PaleoSiteApp paleoSiteApp = new PaleoSiteApp();
     paleoSiteApp.pack();
+    paleoSiteApp.setSize(WIDTH, HEIGHT);
     paleoSiteApp.show();
   }
 
@@ -74,18 +80,17 @@ public class PaleoSiteApp extends JFrame {
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     summarySplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    infoSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 
-    mainSplitPane.setLastDividerLocation(150);
-    summarySplitPane.setLastDividerLocation(100);
-    timespanSplitPane.setLastDividerLocation(75);
-    infoSplitPane.setLastDividerLocation(50);
 
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     mainSplitPane.add(summarySplitPane, JSplitPane.LEFT);
     mainSplitPane.add(timespanSplitPane, JSplitPane.RIGHT);
-    timespanSplitPane.add(infoSplitPane, JSplitPane.RIGHT);
+
+    mainSplitPane.setDividerLocation(WIDTH/2);
+    summarySplitPane.setDividerLocation(WIDTH/4);
+    timespanSplitPane.setDividerLocation(WIDTH/4);
+
   }
 
   /**
@@ -93,7 +98,7 @@ public class PaleoSiteApp extends JFrame {
    */
   private void addSitesPanel() {
     viewPaleoSites = new ViewPaleoSites();
-    summarySplitPane.add(viewPaleoSites, JSplitPane.RIGHT);
+    summarySplitPane.add(viewPaleoSites, JSplitPane.LEFT);
   }
 
   //static initializer for setting look & feel
@@ -114,7 +119,7 @@ public class PaleoSiteApp extends JFrame {
    */
   private void addSiteInfoForTimePeriod() {
     SiteInfoForTimePeriod siteInfoForTimePeriod = new SiteInfoForTimePeriod();
-    infoSplitPane.add(siteInfoForTimePeriod, JSplitPane.RIGHT);
+    timespanSplitPane.add(siteInfoForTimePeriod, JSplitPane.RIGHT);
   }
 
   /**
@@ -128,12 +133,12 @@ public class PaleoSiteApp extends JFrame {
        this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
        startDateEstimatesList);
    startTimeEstimateParamEditor = new ConstrainedEstimateParameterEditor(startTimeEstimateParam,true);
-   timespanSplitPane.add(startTimeEstimateParamEditor, JSplitPane.LEFT);
+   summarySplitPane.add(startTimeEstimateParamEditor, JSplitPane.RIGHT);
    //end time estimate
    endTimeEstimateParam = new EstimateParameter(this.END_TIME_ESTIMATE_PARAM_NAME,
                                                 this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
                                                 startDateEstimatesList);
    endTimeEstimateParamEditor = new ConstrainedEstimateParameterEditor(endTimeEstimateParam,true);
-   infoSplitPane.add(endTimeEstimateParamEditor, JSplitPane.LEFT);
+   timespanSplitPane.add(endTimeEstimateParamEditor, JSplitPane.LEFT);
   }
 }

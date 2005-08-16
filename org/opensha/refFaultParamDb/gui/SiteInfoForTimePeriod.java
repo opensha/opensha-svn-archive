@@ -41,14 +41,14 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
 
    // CUMULATIVE DISPLACEMENT
-  private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Total Displacement at this Site in this Time Span Estimate";
+  private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Total Displacement Estimate";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
   private final static String CUMULATIVE_DISPLACEMENT_UNITS = "mm/yr";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 
   // Number of events parameter
-  private final static String NUM_EVENTS_PARAM_NAME="Number of Events in This Time Span";
+  private final static String NUM_EVENTS_PARAM_NAME="Number of Events";
   private final static double NUM_EVENTS_MIN=0;
   private final static double NUM_EVENTS_MAX=Integer.MAX_VALUE;
 
@@ -145,40 +145,40 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
     int yPos=0;
     // dated feature comments
     contentPane.add(datedFeatureCommentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     // what type of info is provided by the user
     contentPane.add(availableInfoParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
      // references
-   contentPane.add(referencesParamEditor,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+   contentPane.add(referencesParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
    // add  new reference  button
    contentPane.add(addNewReferenceButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // Slip Rate Estimate
    contentPane.add(slipRateEstimateParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // Aseismic Slip Factor estimate
    contentPane.add(aSeismicSlipFactorParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // Slip Rate Comments
    contentPane.add(slipRateCommentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
    // Cumulative diplacement
    contentPane.add(cumDisplacementParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // displacement comments
    contentPane.add(displacementCommentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
    // num events estimate
    contentPane.add(numEventsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // ok button
    contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // cancel button
    contentPane.add(cancelButton,  new GridBagConstraints(1, yPos, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
   }
 
   /**
@@ -263,7 +263,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
  private void setParamsVisibleForSlipRateInfo(boolean isVisible) {
    this.slipRateCommentsParamEditor.setVisible(isVisible);
    this.aSeismicSlipFactorParamEditor.setVisible(isVisible);
-   this.slipRateCommentsParamEditor.setVisible(isVisible);
+   this.slipRateEstimateParamEditor.setVisible(isVisible);
  }
 
  /**
