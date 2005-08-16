@@ -48,18 +48,7 @@ public class AddNewSiteType extends JFrame {
     this.show();
   }
 
-  //static initializer for setting look & feel
- static {
-   String osName = System.getProperty("os.name");
-   try {
-     if(osName.startsWith("Mac OS"))
-       UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-     else
-       UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-   }
-   catch(Exception e) {
-   }
- }
+
 
   public static void main(String[] args) {
     AddNewSiteType addNewSiteType = new AddNewSiteType();

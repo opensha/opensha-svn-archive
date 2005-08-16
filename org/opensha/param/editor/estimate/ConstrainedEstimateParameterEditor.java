@@ -167,19 +167,41 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   // private JLabel maxConstraintLabel;
    private final static String MAX_CONSTRAINT_LABEL="Max Value:";
 
+   // size of the editor
+   protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 300 );
+
    /* this editor will be shown only as a button. On button click, a new window
     appears showing all the parameters */
    private JButton button;
 
    private JFrame frame;
 
+   /* Whether to show this editor as a button.
+      1. If this is set as true, a pop-up window appears on button click
+      2. If this is set as false, button is not shown for pop-up window.
+    */
+   private boolean showEditorAsPanel = false;
+
+
 
    public ConstrainedEstimateParameterEditor() {
    }
 
+    public ConstrainedEstimateParameterEditor(ParameterAPI model) {
+      this(model, false);
+    }
+
    //constructor taking the Parameter as the input argument
-   public ConstrainedEstimateParameterEditor(ParameterAPI model){
-     super(model);
+   public ConstrainedEstimateParameterEditor(ParameterAPI model,
+                                             boolean showEditorAsPanel){
+
+     this.showEditorAsPanel = showEditorAsPanel;
+     try {
+       this.jbInit();
+       setParameter(model);
+     }catch(Exception e) {
+       e.printStackTrace();
+     }
    }
 
   public void setParameter(ParameterAPI param)  {
@@ -191,32 +213,47 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     estimateParam = (EstimateParameter) param;
     // make the params editor
     initParamListAndEditor();
-    this.setLayout(GBL);
-    button = new JButton(this.estimateParam.getName());
-    button.addActionListener(this);
-    this.add(this.button,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
 
-    // add editor to the frame. This frame is visible when user clicks on button created above
-    frame = new JFrame();
-    frame.setTitle(this.estimateParam.getName());
-    frame.getContentPane().setLayout(GBL);
-    frame.getContentPane().add(this.editor,new GridBagConstraints( 0, 0, 2, 1, 1.0, 0.0
+    this.setLayout(GBL);
+
+    Container container;
+    if (!this.showEditorAsPanel) { // show editor as a button. In this case
+                                   // parameters are shown in a pop up window on button click
+      frame = new JFrame();
+      frame.setTitle(this.estimateParam.getName());
+      button = new JButton(this.estimateParam.getName());
+      button.addActionListener(this);
+      this.add(this.button,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    frame.getContentPane().add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 0.0
+      container = frame.getContentPane();
+      container.setLayout(GBL);
+    } else { // add all the parameters in the current panel
+      container = this;
+    }
+
+    /*container.add(addParamatersToPanel(), new GridBagConstraints( 0, 0, 1, 1, 1.0, 0.0
+                                                 , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+     */
+
+    container.add(this.editor,new GridBagConstraints( 0, 0, 2, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    container.add(xValsParamListEditor,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    frame.getContentPane().add(probValsParamListEditor,new GridBagConstraints( 1, 1, 1, 1, 1.0, 0.0
+    container.add(probValsParamListEditor,new GridBagConstraints( 1, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    frame.getContentPane().add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
+    container.add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    frame.getContentPane().add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
-                                                  , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
+    container.add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
+
+
     this.setEstimateInfo(editor.getToolTipText()+"\n"+PDF_DISCRETE_ESTIMATE_INFO);
     setEstimateParams((String)chooseEstimateParam.getValue());
     this.refreshParamEditor();
     // All done
     if ( D ) System.out.println( S + "Ending:" );
   }
+
 
   protected void jbInit() {
      this.setLayout(GBL);
@@ -231,7 +268,9 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    */
   public void refreshParamEditor() {
     editor.refreshParamEditor();
-    frame.repaint();
+    this.updateUI();
+    if(frame!=null)
+      frame.repaint();
   }
 
   /**
@@ -780,7 +819,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
-    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam);
+    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true);
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();

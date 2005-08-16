@@ -502,8 +502,8 @@ public class ParameterEditor
      * It enables/disables the editor according to whether user is allowed to
      * fill in the values. THIS METHOD NEEDS TO BE OVERRIDDEN FOR COMPLEX ParameterEditors
      */
-    public void setEditable(boolean isEditable) {
-      valueEditor.setEnabled(isEditable);
+    public void setEnabled(boolean isEnabled) {
+      valueEditor.setEnabled(isEnabled);
     }
 
 

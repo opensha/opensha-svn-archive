@@ -19,7 +19,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
  * @version 1.0
  */
 
-public class ViewPaleoSites extends JFrame implements ActionListener, ParameterChangeListener {
+public class ViewPaleoSites extends JPanel implements ActionListener, ParameterChangeListener {
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
   private final static String SITE_LOCATION_PARAM_NAME="Site Location";
@@ -72,9 +72,6 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
       jbInit();
       // ad action listeners to catch the event on button click
       addActionListeners();
-      this.setTitle(TITLE);
-      this.pack();
-      this.show();
     }catch(Exception e)  {
       e.printStackTrace();
     }
@@ -85,44 +82,43 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
    */
   private void jbInit() {
     int yPos = 0;
-    Container contentPane = this.getContentPane();
-    contentPane.setLayout(new GridBagLayout());
+    setLayout(new GridBagLayout());
     // site name editor
-    contentPane.add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+    add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // edit site button
-    contentPane.add(editSiteButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+    add(editSiteButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
    // add site button
-   contentPane.add(addNewSiteButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+   add(addNewSiteButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
    // site location
-   contentPane.add(siteLocationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+   add(siteLocationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // associated with fault
-   contentPane.add(assocWithFaultParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+   add(assocWithFaultParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // site types
-   contentPane.add(siteTypeParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+   add(siteTypeParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // how representative is this site
-   contentPane.add(siteRepresentationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+   add(siteRepresentationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // start times
-   contentPane.add(this.startTimeParamEditor,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+   add(this.startTimeParamEditor,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // end times
-   contentPane.add(this.endTimeParamEditor,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+   add(this.endTimeParamEditor,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // view data for this time period
-   contentPane.add(this.viewEditTimeSpanInfoButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+   add(this.viewEditTimeSpanInfoButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
   // add data for a new time period
-   contentPane.add(this.addTimeSpanInfoButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+   add(this.addTimeSpanInfoButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
     ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
    // close button
-   contentPane.add(closeButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+   add(closeButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
   }
 
@@ -166,19 +162,22 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
                                             DEFAULT_LAT_VAL,
                                             DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
   siteLocationParamEditor = new LocationParameterEditor(siteLocationParam, true);
+  siteLocationParamEditor.setEnabled(false);
 
   //  fault with which this site is associated
   assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME);
   assocWithFaultParamEditor = new StringParameterEditor(assocWithFaultParam);
-  assocWithFaultParamEditor.setEditable(false);
+  assocWithFaultParamEditor.setEnabled(false);
 
   // study type for this site
   siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME);
   siteTypeParamEditor = new StringParameterEditor(siteTypeParam);
+  siteTypeParamEditor.setEnabled(false);
 
   // Site representation
   siteRepresentationParam = new StringParameter(SITE_REPRESENTATION_PARAM_NAME);
   siteRepresentationParamEditor = new StringParameterEditor(siteRepresentationParam);
+  siteRepresentationParamEditor.setEnabled(false);
 
   // get all the start times associated with this site
   ArrayList startTimes = getAllStartTimes();
@@ -243,21 +242,11 @@ public class ViewPaleoSites extends JFrame implements ActionListener, ParameterC
    return siteNamesList;
  }
 
-//static initializer for setting look & feel
-  static {
-    String osName = System.getProperty("os.name");
-    try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch(Exception e) {
-    }
-  }
-
-
   public static void main(String[] args) {
     ViewPaleoSites viewPaleoSites = new ViewPaleoSites();
+    /*this.setTitle(TITLE);
+    this.pack();
+    this.show();*/
+
   }
 }

@@ -144,6 +144,16 @@ public class ParameterListEditor extends LabeledBoxPanel {
     }
 
     /**
+     * It enables/disables the paramaters in this editor according to whether user is allowed to
+     * fill in the values.
+     */
+    public void setEnabled(boolean isEnabled) {
+      for(int i=0; i<parameterEditors.size(); ++i)
+        (( ParameterEditor ) parameterEditors.get(i)).setEnabled(isEnabled);
+    }
+
+
+    /**
      *
      * @param paramName
      * @returns the index of the parameter Name in the ArrayList

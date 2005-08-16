@@ -161,6 +161,15 @@ public class LocationParameterEditor
   }
 
   /**
+   * It enables/disables the editor according to whether user is allowed to
+   * fill in the values.
+   */
+  public void setEnabled(boolean isEnabled) {
+    editor.setEnabled(isEnabled);
+  }
+
+
+  /**
    * Called when the parameter has changed independently from
    * the editor, such as with the ParameterWarningListener.
    * This function needs to be called to to update

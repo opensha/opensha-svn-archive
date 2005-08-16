@@ -21,7 +21,7 @@ import java.awt.event.*;
  * @version 1.0
  */
 
-public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeListener,
+public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeListener,
     ActionListener {
 
   private final static String AVAILABLE_INFO_PARAM_NAME="I have info on";
@@ -59,14 +59,7 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
   private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Number of Events in same Time Period";
   private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement and Number of Events in same Time Period";
    private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
-  // start time estimate param
-  private final static String START_TIME_ESTIMATE_PARAM_NAME="Start Time Estimate";
-  private final static double TIME_ESTIMATE_MIN=0;
-  private final static double TIME_ESTIMATE_MAX=Double.MAX_VALUE;
-  private final static String TIME_ESTIMATE_UNITS="years";
 
-  // end time estimate param
-  private final static String END_TIME_ESTIMATE_PARAM_NAME="End Time Estimate";
 
   private final static String TITLE = "Site Info for Time Period";
 
@@ -80,8 +73,7 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
   private EstimateParameter cumDisplacementParam;
   private StringParameter displacementCommentsParam;
   private EstimateParameter numEventsParam;
-  private EstimateParameter startTimeEstimateParam;
-  private EstimateParameter endTimeEstimateParam;
+
 
   // various parameter Editorts for this window
   private ConstrainedStringParameterEditor availableInfoParamEditor;
@@ -93,8 +85,7 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
   private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
   private StringParameterEditor displacementCommentsParamEditor;
   private ConstrainedEstimateParameterEditor numEventsParamEditor;
-  private ConstrainedEstimateParameterEditor startTimeEstimateParamEditor;
-  private ConstrainedEstimateParameterEditor endTimeEstimateParamEditor;
+
 
   // various buttons in this window
   private JButton addNewReferenceButton = new JButton("Add New Reference");
@@ -111,9 +102,6 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
       jbInit();
       //add action listeners on the buttons
       addActionListeners();
-      this.setTitle(TITLE);
-      this.pack();
-      this.show();
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -152,15 +140,9 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
   }
 
   private void jbInit() {
-    Container contentPane = this.getContentPane();
+    Container contentPane = this;
     contentPane.setLayout(new GridBagLayout());
     int yPos=0;
-    //start time estimate
-    contentPane.add(startTimeEstimateParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    //end time estimate
-    contentPane.add(endTimeEstimateParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // dated feature comments
     contentPane.add(datedFeatureCommentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
@@ -209,17 +191,6 @@ public class SiteInfoForTimePeriod extends JFrame implements ParameterChangeList
     availableInfoParam = new StringParameter(AVAILABLE_INFO_PARAM_NAME, availableInfoList,
                                              (String)availableInfoList.get(0));
     availableInfoParamEditor = new ConstrainedStringParameterEditor(availableInfoParam);
-
-    // ADD START TIME ESTIMATE & END TIME ESTIMATE HERE
-    ArrayList dateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
-    startTimeEstimateParam = new EstimateParameter(this.START_TIME_ESTIMATE_PARAM_NAME,
-        this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
-        dateEstimatesList);
-    startTimeEstimateParamEditor = new ConstrainedEstimateParameterEditor(startTimeEstimateParam);
-    endTimeEstimateParam = new EstimateParameter(this.END_TIME_ESTIMATE_PARAM_NAME,
-                                                 this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
-                                                 dateEstimatesList);
-    endTimeEstimateParamEditor = new ConstrainedEstimateParameterEditor(endTimeEstimateParam);
 
     // dated feature comments
     datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
@@ -383,21 +354,12 @@ private ArrayList getAvailableReferences() {
 }
 
 
-//static initializer for setting look & feel
-  static {
-    String osName = System.getProperty("os.name");
-    try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch(Exception e) {
-    }
-  }
-
 
   public static void main(String[] args) {
     SiteInfoForTimePeriod siteInfoForTimePeriod = new SiteInfoForTimePeriod();
+   /* this.setTitle(TITLE);
+      this.pack();
+      this.show(); */
+
   }
 }
