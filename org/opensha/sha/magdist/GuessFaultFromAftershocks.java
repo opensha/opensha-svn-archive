@@ -1,7 +1,7 @@
 package org.opensha.sha.magdist;
 
 import java.util.*;
-import org.opensha.sha.earthquake.AfterShockHypoMagFreqDistFoecast;
+import org.opensha.sha.earthquake.AfterShockHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
@@ -21,8 +21,8 @@ import org.opensha.data.LocationList;
  * @version 1.0
  */
 public class GuessFaultFromAftershocks {
-  public GuessFaultFromAftershocks(AfterShockHypoMagFreqDistFoecast aftershockModel) {
-    AfterShockHypoMagFreqDistFoecast aftershockmodel = new AfterShockHypoMagFreqDistFoecast();
+  public GuessFaultFromAftershocks(AfterShockHypoMagFreqDistForecast aftershockModel) {
+    AfterShockHypoMagFreqDistForecast aftershockmodel = new AfterShockHypoMagFreqDistForecast();
     faultGuess_Calc(aftershockmodel);
   }
 
@@ -30,7 +30,7 @@ public class GuessFaultFromAftershocks {
   /**
    * faultGuess_Calc
    */
-  public void faultGuess_Calc(AfterShockHypoMagFreqDistFoecast aftershockModel) {
+  public void faultGuess_Calc(AfterShockHypoMagFreqDistForecast aftershockModel) {
     ObsEqkRupList aftershocks = aftershockModel.getAfterShocks();
     ListIterator asIt = aftershocks.listIterator();
     int numEvents = aftershocks.size();

@@ -6,24 +6,24 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.SimpleFaultData;
 
 /**
- * <p>Title: AfterShockHypoMagFreqDistFoecast</p>
+ * <p>Title: AfterShockHypoMagFreqDistForecast</p>
  *
  * <p>Description: This class allows user to create the After shocks forecast.</p>
  *
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
  * @version 1.0
  */
-public class AfterShockHypoMagFreqDistFoecast
+public class AfterShockHypoMagFreqDistForecast
     extends GriddedHypoMagFreqDistForecast {
 
   private ObsEqkRupture mainShock;
   private ObsEqkRupList afterShocks;
   private EvenlyGriddedGeographicRegionAPI afterShockZone;
 
-  public AfterShockHypoMagFreqDistFoecast() {
+  public AfterShockHypoMagFreqDistForecast() {
   }
 
-  public AfterShockHypoMagFreqDistFoecast(ObsEqkRupture mainShock,
+  public AfterShockHypoMagFreqDistForecast(ObsEqkRupture mainShock,
                                           ObsEqkRupList afterShocks,
                                           EvenlyGriddedGeographicRegionAPI afterShockZone){
     this.mainShock = mainShock;
