@@ -22,8 +22,7 @@ import org.opensha.data.LocationList;
  */
 public class GuessFaultFromAftershocks {
   public GuessFaultFromAftershocks(AfterShockHypoMagFreqDistForecast aftershockModel) {
-    AfterShockHypoMagFreqDistForecast aftershockmodel = new AfterShockHypoMagFreqDistForecast();
-    faultGuess_Calc(aftershockmodel);
+    faultGuess_Calc(aftershockModel);
   }
 
 

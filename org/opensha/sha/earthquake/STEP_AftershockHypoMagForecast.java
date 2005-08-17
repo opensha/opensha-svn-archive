@@ -14,12 +14,12 @@ import org.opensha.sha.fault.*;
  * @author not attributable
  * @version 1.0
  */
-public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFreqDistFoecast {
+public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFreqDistForecast {
   public double minForecastMag = 4.0;
   private double maxForecastMag = 8.0;
   private double deltaMag = 0.1;
   private int numHypoLocation;
-  private AfterShockHypoMagFreqDistFoecast STEP_Model;
+  //private AfterShockHypoMagFreqDistForecast STEP_Model;
   private double[] grid_aVal, grid_bVal, grid_cVal, grid_pVal, grid_kVal;
   private double[] node_CompletenessMag;
   private SimpleFaultData mainshockFault;
