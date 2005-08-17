@@ -264,7 +264,10 @@ public class StringParameter
          c1 = ( StringConstraint ) constraint.clone();
 
         StringParameter param = null;
-        if( value == null ) param = new StringParameter( name, c1, units);
+        if( value == null ) {
+          param = new StringParameter(name, c1);
+          param.setUnits(units);
+        }
         else param = new StringParameter( name, c1, units, this.value.toString() );
         if( param == null ) return null;
         param.editable = true;

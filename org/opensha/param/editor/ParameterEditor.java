@@ -70,6 +70,8 @@ public class ParameterEditor
     protected final static Dimension LABEL_PANEL_DIM = new Dimension( 100, 20 );
     protected final static Dimension WIGET_PANEL_DIM = new Dimension( 100, 23 );
     protected final static Dimension JCOMBO_DIM = new Dimension( 100, 22 );
+    protected final static Dimension JLIST_DIM = new Dimension( 100, 100 );
+
 
     // Panel layout manager
     protected final static GridBagLayout GBL = new GridBagLayout();

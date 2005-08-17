@@ -76,7 +76,7 @@ public class StringConstraint
 
 
     /**
-     *  Determine if the new value being set is allowed. First checks
+     * Determine if the new value being set is allowed. First checks
      * if null and if nulls are allowed. Then verifies the Object is
      * a String. Finally the code verifies that the String is
      * in the allowed strings vector. If any of these checks fails, false
@@ -92,6 +92,7 @@ public class StringConstraint
         else if ( !containsString( obj.toString() ) ) return false;
         else return true;
     }
+
 
     /** Returns an Iterator over allowed values.*/
     public ListIterator listIterator() { return strings.listIterator(); }

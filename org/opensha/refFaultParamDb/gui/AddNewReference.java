@@ -19,7 +19,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
 
 public class AddNewReference extends JFrame {
   private final static String CITATION_PARAM_NAME="Short Citation";
-  private final static String BIBLIO_PARAM_NAME="Full BiblioGraphic Ref";
+  private final static String BIBLIO_PARAM_NAME="Full Bibliographic Ref";
   private StringParameter citationParam;
   private StringParameter biblioParam;
   private final static String NEW_SITE_TYPE_LABEL="Add Reference";
