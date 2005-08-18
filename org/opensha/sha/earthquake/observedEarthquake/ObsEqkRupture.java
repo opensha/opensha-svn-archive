@@ -168,10 +168,11 @@ public class ObsEqkRupture
    * @param obj Object the reference object with which to compare
    * @return boolean true if this object is the same as the obj  argument; false otherwise.
    */
-  public boolean equals(Object obj){
-      if(obj instanceof ObsEqkRupture) return equalsObsEqkRupEvent( (ObsEqkRupture)obj );
-      return false;
-    }
+  public boolean equals(Object obj) {
+    if (obj instanceof ObsEqkRupture)return equalsObsEqkRupEvent( (
+        ObsEqkRupture) obj);
+    return false;
+  }
 
   /**
    * Creates the XML representation for the Eqk Rupture Object
@@ -209,5 +210,28 @@ public class ObsEqkRupture
     obsEqkInfo += "MagType ="+magType+"\n";
     return obsEqkInfo;
   }
+
+
+  /**
+   * Clones the eqk rupture and returns the new cloned object
+   * @return
+   */
+ public Object clone() {
+   ObsEqkRupture eqkEventClone=new ObsEqkRupture();
+   eqkEventClone.setEventId(eventId);
+   eqkEventClone.setMag(mag);
+   eqkEventClone.setRuptureSurface(getRuptureSurface());
+   eqkEventClone.setHypocenterLocation(hypocenterLocation);
+   eqkEventClone.setDataSource(dataSource);
+   eqkEventClone.setEventVersion(eventVersion);
+   eqkEventClone.setOriginTime(originTime);
+   eqkEventClone.setHypoLocHorzErr(hypoLocHorzErr);
+   eqkEventClone.setHypoLocVertErr(hypoLocVertErr);
+   eqkEventClone.setMagError(magError);
+   eqkEventClone.setMagType(magType);
+   eqkEventClone.setAveRake(aveRake);
+   return eqkEventClone;
+  }
+
 
 }

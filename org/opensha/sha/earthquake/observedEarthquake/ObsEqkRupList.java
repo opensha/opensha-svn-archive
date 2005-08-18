@@ -28,7 +28,8 @@ public class ObsEqkRupList {
   /**
    * Returns the list of the Observed events above/at the given magnitude.
    * @param mag double Magnitude
-   * @return ObsEqkRupList list of ObsEqkRuptures above a given magnitude
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * above a given magnitude
    */
   public ObsEqkRupList getObsEqkRupsAboveMag(double mag) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
@@ -44,7 +45,8 @@ public class ObsEqkRupList {
   /**
    * Returns the list of the Observed events below the given magnitude.
    * @param mag double Magnitude
-   * @return ObsEqkRupList list of ObsEqkRuptures below a given magnitude
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * below a given magnitude
    */
   public ObsEqkRupList getObsEqkRupsBelowMag(double mag) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
@@ -63,7 +65,8 @@ public class ObsEqkRupList {
    * It includes lower magnitude in the range but excludes the upper magnitude.
    * @param mag1 double lower magnitude
    * @param mag2 double upper magnitude
-   * @return ObsEqkRupList
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * between 2 given magnitudes.
    */
   public ObsEqkRupList getObsEqkRupsBetweenMag(double mag1, double mag2) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
@@ -79,9 +82,10 @@ public class ObsEqkRupList {
   }
 
   /**
-   *
-   * @param cal GregorianCalendar
-   * @return ObsEqkRupList
+   * Returns the list of Observed events before a given time period
+   * @param cal GregorianCalendar Time Period
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * before a given time period
    */
   public ObsEqkRupList getObsEqkRupsBefore(GregorianCalendar cal) {
 
@@ -98,9 +102,10 @@ public class ObsEqkRupList {
   }
 
   /**
-   *
-   * @param cal GregorianCalendar
-   * @return ObsEqkRupList
+   * Returns the list of Observed events after a given time period
+   * @param cal GregorianCalendar Time Period
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * after a given time period
    */
   public ObsEqkRupList getObsEqkRupsAfter(GregorianCalendar cal) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
@@ -116,10 +121,11 @@ public class ObsEqkRupList {
   }
 
   /**
-   *
-   * @param cal1 GregorianCalendar
-   * @param cal2 GregorianCalendar
-   * @return ObsEqkRupList
+   * Returns the list of the Observed events between 2 given time periods.
+   * @param cal1 GregorianCalendar Time Period
+   * @param cal2 GregorianCalendar Time Period
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * between 2 given time periods.
    */
   public ObsEqkRupList getObsEqkRupsBetween(GregorianCalendar cal1,
                                         GregorianCalendar cal2) {
@@ -136,9 +142,10 @@ public class ObsEqkRupList {
   }
 
   /**
-   *
+   * Returns the list of the Observed events inside a given geographic region
    * @param region GeographicRegion
-   * @return ObsEqkRupList
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * inside a given region.
    */
   public ObsEqkRupList getObsEqkRupsInside(GeographicRegion region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
@@ -154,9 +161,10 @@ public class ObsEqkRupList {
   }
 
   /**
-   *
+   * Returns the list of the Observed events outside a given geographic region
    * @param region GeographicRegion
-   * @return ObsEqkRupList
+   * @returns the subset of total observed events as ObsEqkRupList list
+   * outside a given region.
    */
   public ObsEqkRupList getObsEqkRupsOutside(GeographicRegion region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
@@ -252,6 +260,9 @@ public class ObsEqkRupList {
   public void clear() {
     obsEqkList.clear();
   }
+
+
+
 
   /**
    * Compares  2 ObsEqkRupList.
