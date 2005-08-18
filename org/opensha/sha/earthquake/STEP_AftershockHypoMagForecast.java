@@ -5,7 +5,6 @@ import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.fault.*;
-import java.util.ListIterator;
 import javaDevelopers.matt.calc.STEP_TypeIIAftershockZone_Calc;
 
 /**
@@ -25,7 +24,6 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   private double maxForecastMag = 8.0;
   private double deltaMag = 0.1;
   private int numHypoLocation;
-  private AfterShockHypoMagFreqDistForecast STEP_Model;
   private double[] grid_aVal, grid_bVal, grid_cVal, grid_pVal, grid_kVal;
   private double[] node_CompletenessMag;
   private SimpleFaultData mainshockFault;

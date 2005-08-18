@@ -1,5 +1,7 @@
 package org.opensha.sha.earthquake.observedEarthquake;
 
+import java.util.Collections;
+
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 /**
@@ -54,21 +56,9 @@ public class ObsEqkRupListCalc {
    * @param obsEqkEvents ObsEqkRupList
    */
   public static void sortObsEqkRupListByMag(ObsEqkRupList obsEqkEvents){
-    int size = obsEqkEvents.size();
 
-    for(int i=0;i<size-1;++i){
-      ObsEqkRupture obsEqkRup1 = obsEqkEvents.getObsEqkRuptureAt(i);
-      double mag1 = obsEqkRup1.getMag();
-      for(int j=i+1;j>size;++j){
-        ObsEqkRupture obsEqkRup2 = obsEqkEvents.getObsEqkRuptureAt(j);
-        double mag2 = obsEqkRup2.getMag();
-        if(mag2 < mag1){
-          obsEqkEvents.replaceObsEqkRupEventAt(obsEqkRup2,i);
-          obsEqkEvents.replaceObsEqkRupEventAt(obsEqkRup1,j);
-        }
+    Collections.sort(obsEqkEvents.getObsEqkRupEventList());
 
-      }
-    }
   }
 
 

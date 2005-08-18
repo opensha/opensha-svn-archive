@@ -5,7 +5,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import java.util.*;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.Location;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
+import org.opensha.data.region.EvenlyGriddedGeographicRegion;
 
 /**
  * <p>Title: </p>
@@ -22,14 +22,23 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 public class ReasenbergJonesGriddedParms_Calc {
 
   private static boolean useFixed_cValue = true;
-  private double[] grid_pVal,grid_cVal,grid_kVal,grid_aVal,grid_bVal;
+  private double[] grid_pVal,grid_cVal,grid_kVal,grid_aVal,grid_bVal, grid_Mc;
   private double constantAddToMc = .2;
 
-  // IF setGridd is CALLED HERE, HOW CAN THE DEFAULT FOR FIXED_C BE CHANGED B4 CALCULATING?
+
+// the first constructor must be used if a non-fixed c value is to be used and then useFixed_cValue must be set to false
+  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegionAPI
+                                          gridNodes, ObsEqkRupList eventList,
+                                          boolean useFixed_cValue) {
+    setGriddedMags(gridNodes, eventList);
+    setUseFixed_cVal(useFixed_cValue);
+  }
+
   public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegionAPI
                                           gridNodes, ObsEqkRupList eventList) {
     setGriddedMags(gridNodes, eventList);
   }
+
 
   /**
    * setUseFixed_cVal
@@ -98,6 +107,7 @@ public class ReasenbergJonesGriddedParms_Calc {
       RJParms.add(3,grid_pVal);
       RJParms.add(4,grid_kVal);
       RJParms.add(5,grid_cVal);
+      RJParms.add(6,grid_Mc);
       return RJParms;
   }
 
@@ -122,6 +132,7 @@ public class ReasenbergJonesGriddedParms_Calc {
     grid_pVal = new double[numNodes];
     grid_kVal = new double[numNodes];
     grid_cVal = new double[numNodes];
+    grid_Mc = new double[numNodes];
 
     ListIterator eventIt = eventList.listIterator();
     int numEvents = eventList.size();
@@ -139,17 +150,13 @@ public class ReasenbergJonesGriddedParms_Calc {
 
     while (gridIt.hasNext()) {
       CircularGeographicRegion gridRegion = new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
-      ObsEqkRupList regionList = new ObsEqkRupList();
-      while (eventIt.hasNext()) {
-        if (gridRegion.isLocationInside((Location)eventIt.next()));
-          regionList.addObsEqkEvent((ObsEqkRupture)eventIt.previous());  // HOW DO I DO THIS AND GET THE SAME AS THE ABOVE LINE??
-      }
+      ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove
       // events below this mag.
       CompletenessMagCalc.setMcBest(regionList);
       completenessMag = CompletenessMagCalc.getMcBest();
-      //WHY DOES THE BELOW RETURN AN ARRAYLIST?!?!!?
+      grid_Mc[ind] = completenessMag;
       ObsEqkRupList completeRegionList = regionList.getObsEqkRupsAboveMag(completenessMag+constantAddToMc);
 
       // Calculate the Gutenberg-Richter parms

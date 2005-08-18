@@ -180,9 +180,12 @@ public class ObsEqkRupList {
   }
 
 
-  public ArrayList getObsEqkRupEventList(ObsEqkRupList obsEqkRupEventList){
-    ArrayList eventList = new ArrayList();
-    return eventList;
+  /**
+   * Returns the list of ObsEqkRuptures as ArrayList.
+   * @return ArrayList of ObsEqkRuptures.
+   */
+  public ArrayList getObsEqkRupEventList(){
+    return obsEqkList;
   }
 
 
