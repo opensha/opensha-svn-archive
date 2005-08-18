@@ -16,11 +16,10 @@ import java.io.FileWriter;
  * <p>Description: This class will create the ObsEqkRupture object from the
  * data string that it receives from the network catalog. </p>
  *
- * <p>Copyright: Copyright (c) 2002</p>
+ * Note : Mag read from the QDM cube format file is not always assumed to be
+ * moment mag.
  *
- * <p>Company: </p>
- *
- * @author not attributable
+ * @author Nitin Gupta , Vipin Gupta and Ned Field
  * @version 1.0
  */
 public class CubeToObsEqkRupture {
@@ -48,7 +47,7 @@ public class CubeToObsEqkRupture {
       String obsEqkRupString = (String)fileLines.get(i);
       ObsEqkRupture obsEqkEvent = readFile(obsEqkRupString);
       if(obsEqkEvent !=null)
-        eqkRupList.add(obsEqkEvent);
+        eqkRupList.addObsEqkEvent(obsEqkEvent);
     }
     fileLines = null;
   }
@@ -172,10 +171,13 @@ public class CubeToObsEqkRupture {
     * @return ObsEqkRupture
     */
    public ObsEqkRupture getObsEqkRupture(int index){
-     return (ObsEqkRupture)eqkRupList.get(index);
+     return (ObsEqkRupture)eqkRupList.getObsEqkRuptureAt(index);
    }
 
-
+   /**
+    * Method to test and see if we are reading the network catalog file correctly.
+    * @param args String[]
+    */
    public static void main(String args[]){
     CubeToObsEqkRupture cubeToRup = null;
     try {
@@ -192,7 +194,7 @@ public class CubeToObsEqkRupture {
      try{
        FileWriter fw = new FileWriter("ObsEqkRup.txt");
        for (int i = 0; i < size; ++i) {
-         ObsEqkRupture eqkRup = (ObsEqkRupture) rupList.get(i);
+         ObsEqkRupture eqkRup = (ObsEqkRupture) rupList.getObsEqkRuptureAt(i);
          fw.write("Obs EqkRupture: "+i+"\n");
          fw.write(eqkRup.getInfo()+"\n\n");
        }

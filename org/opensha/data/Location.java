@@ -237,7 +237,7 @@ public class Location implements java.io.Serializable {
      */
     public boolean equals(Object obj){
         if(obj instanceof Location) return equalsLocation( (Location)obj );
-        else return false;
+        return false;
     }
 
 

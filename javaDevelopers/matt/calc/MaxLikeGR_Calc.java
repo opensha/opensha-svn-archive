@@ -158,9 +158,14 @@ public class MaxLikeGR_Calc {
       CircularGeographicRegion gridRegion = new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
       ObsEqkRupList regionList = new ObsEqkRupList();
       while (eventIt.hasNext()) {
-        Location loc = (Location)eventIt.next();
-        if (gridRegion.isLocationInside(loc))
-          regionList.add(loc);
+          /**
+           * Matt, NEEDS to fix this
+           */
+
+
+        //Location loc = (Location)eventIt.next();
+        //if (gridRegion.isLocationInside(loc))
+         // regionList.addObsEqkEvent(loc);
       }
       CompletenessMagCalc.setMcBest(regionList);
       completenessMag = CompletenessMagCalc.getMcBest();

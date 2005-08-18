@@ -5,6 +5,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import java.util.*;
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.Location;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 
 /**
  * <p>Title: </p>
@@ -140,7 +141,7 @@ public class ReasenbergJonesGriddedParms_Calc {
       ObsEqkRupList regionList = new ObsEqkRupList();
       while (eventIt.hasNext()) {
         if (gridRegion.isLocationInside((Location)eventIt.next()));
-          regionList.add(eventIt.previous());  // HOW DO I DO THIS AND GET THE SAME AS THE ABOVE LINE??
+          regionList.addObsEqkEvent((ObsEqkRupture)eventIt.previous());  // HOW DO I DO THIS AND GET THE SAME AS THE ABOVE LINE??
       }
 
       // Calculate the completeness of the events selected for the node and remove

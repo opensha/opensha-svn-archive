@@ -127,6 +127,53 @@ public class ObsEqkRupture
 
 
   /**
+   * Checks if the given ObsEqkRupture objects are same
+   * @param obsRupEvent ObsEqkRupture
+   * Note : Currently we are not checking if 2 Observed Eqk Rupture events
+   * have same Gridded Surface, I don't think that is necessary, so havn't
+   * added.
+   * @return boolean
+   */
+  public boolean equalsObsEqkRupEvent(ObsEqkRupture obsRupEvent){
+
+    boolean eventsEqual = true;
+
+    //if any of the condition is not true else return false
+    if(eventId != obsRupEvent.getEventId() ||
+       eventVersion != obsRupEvent.getEventVersion() ||
+       magType != obsRupEvent.getMagType() ||
+       magError != obsRupEvent.getMagError() ||
+       hypoLocHorzErr != obsRupEvent.getHypoLocHorzErr() ||
+       hypoLocVertErr != obsRupEvent.getHypoLocVertErr() ||
+       getMag() != obsRupEvent.getMag())
+      return false;
+
+    return eventsEqual;
+  }
+
+
+
+  /**
+   * Checks if the passed object (obj) is similar to the object equalsObsEqkRup Object
+   * on which this function was called.
+   * Indicates whether some other object is "equal to" this one.
+   * The equals method implements an equivalence relation  on non-null object references:
+   * It is reflexive: for any non-null reference value  x, x.equals(x) should return  true.
+   * It is symmetric: for any non-null reference values  x and y, x.equals(y)  should return true if and only if  y.equals(x) returns true.
+   * It is transitive: for any non-null reference values  x, y, and z, if  x.equals(y) returns true and  y.equals(z) returns true, then  x.equals(z) should return true.
+   * It is consistent: for any non-null reference values  x and y, multiple invocations of  x.equals(y) consistently return true  or consistently return false, provided no  information used in equals comparisons on the  objects is modified.
+   * For any non-null reference value x,  x.equals(null) should return false.
+   * The equals method for class Object implements the most discriminating possible equivalence relation on objects; that is, for any non-null reference values x and  y, this method returns true if and only  if x and y refer to the same object  (x == y has the value true).
+   * Note that it is generally necessary to override the hashCode  method whenever this method is overridden, so as to maintain the  general contract for the hashCode method, which states  that equal objects must have equal hash codes
+   * @param obj Object the reference object with which to compare
+   * @return boolean true if this object is the same as the obj  argument; false otherwise.
+   */
+  public boolean equals(Object obj){
+      if(obj instanceof ObsEqkRupture) return equalsObsEqkRupEvent( (ObsEqkRupture)obj );
+      return false;
+    }
+
+  /**
    * Creates the XML representation for the Eqk Rupture Object
    * @return String
    */

@@ -64,16 +64,16 @@ public class LocationList implements java.io.Serializable{
     }
 
     /**
-     *  Adds the Location at the specified index if it is a valid index.
-     *  All subsequent Locations are shifted by one index.
-     *  An exception is thrown if the specified index is invalid.
-     *
-     * @param  location  Description of the Parameter
-     * @param  index     Description of the Parameter
-     */
+   *  Replaces the location in the list at the specified index if it is a valid index.
+   *  An exception is thrown if the specified index is invalid.
+   *
+   * @param  location  Location that is to be added
+   * @param  index     location in the list at which this event needs to be added.
+   */
+
     public void replaceLocationAt( Location location, int index ) throws InvalidRangeException  {
         checkIndex(index);
-        locations.add(index, location);
+        locations.set(index, location);
     }
 
 
@@ -83,6 +83,22 @@ public class LocationList implements java.io.Serializable{
      * @param  location  The feature to be added to the Location attribute
      */
     public void addLocation( Location location ) { locations.add(location); }
+
+    /**
+     * Inserts the location at the given index.
+     *
+     * @param  location  The feature to be added to the Location attribute
+     * @param index int Index at which location is to be added
+     *
+     * Inserts the specified element at the specified position in this list.
+     * Shifts the element currently at that position (if any) and any subsequent
+     * elements to the right (adds one to their indices).
+     */
+    public void addLocationAt( Location location, int index ) {
+      locations.add(index,location);
+    }
+
+
 
 
     /**
