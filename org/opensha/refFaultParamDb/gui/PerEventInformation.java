@@ -108,6 +108,7 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
    * Intialize the parameters and editors and add to the GUI
    */
   private void initParamsAndEditors() throws Exception {
+
     // fill all the events from 1 to number of events
     ArrayList eventNumList = new ArrayList();
     for(int i=1; i<=numberOfEvents; ++i) eventNumList.add(new String(""+i));
