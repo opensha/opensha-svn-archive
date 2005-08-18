@@ -6,6 +6,8 @@ import org.opensha.data.region.GeographicRegion;
 import java.util.ListIterator;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.Location;
+import java.util.Collections;
+import org.opensha.sha.earthquake.EqkRuptureMagComparator;
 
 /**
  * <p>Title: ObsEqkRupList</p>
@@ -179,15 +181,13 @@ public class ObsEqkRupList {
     return obsEventList;
   }
 
-
   /**
    * Returns the list of ObsEqkRuptures as ArrayList.
    * @return ArrayList of ObsEqkRuptures.
    */
-  public ArrayList getObsEqkRupEventList(){
+  public ArrayList getObsEqkRupEventList() {
     return obsEqkList;
   }
-
 
 
   /**
@@ -274,7 +274,21 @@ public class ObsEqkRupList {
   }
 
 
+  /**
+   * Sorts the Observed Eqk Rupture Event list based on the magitude.
+   *
+   */
+  public void sortObsEqkRupListByMag(){
+    Collections.sort(obsEqkList, new EqkRuptureMagComparator());
+  }
 
+  /**
+   * Sorts the Observed Eqk Rupture Event list based on the Origin time.
+   *
+   */
+  public void sortObsEqkRupListByOriginTime() {
+    Collections.sort(obsEqkList,new ObsEqkRupEventOriginTimeComparator());
+  }
 
   /**
    * Compares  2 ObsEqkRupList.

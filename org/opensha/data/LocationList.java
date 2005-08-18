@@ -78,6 +78,14 @@ public class LocationList implements java.io.Serializable{
 
 
     /**
+     * Sorts the list of locations based on Latitude. If Latitude is same then
+     * sorts on Longitude.
+     */
+    public void sort(){
+      Collections.sort(locations, new LocationComparator());
+    }
+
+    /**
      *  Adds the Locatrion to the end of the list.
      *
      * @param  location  The feature to be added to the Location attribute

@@ -4,10 +4,9 @@ import java.util.Collections;
 
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.sha.earthquake.EqkRuptureMagComparator;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupEventOriginTimeComparator;
 
 /**
- * <p>Title: </p>
+ * <p>Title: ObsEqkRupListCalc</p>
  *
  * <p>Description: </p>
  *
@@ -20,23 +19,30 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupEventOriginTimeCom
  */
 public class ObsEqkRupListCalc {
 
-  private ObsEqkRupList obsEqkRupList;
 
-  public ObsEqkRupListCalc(ObsEqkRupList obsEqkRupList) {
-    this.obsEqkRupList = obsEqkRupList;
-  }
-
-
-  public double getMeanMag(){
+  public static double getMeanMag(ObsEqkRupList obsEqkEvents){
     return 0.0;
   }
 
-  public double getMinMag() {
-    return 0.0;
+  /**
+   * Returns the minimum magnitude for the observed Eqk Rupture events.
+   * @param obsEqkEvents ObsEqkRupList list of observed eqk events
+   * @return double min-mag
+   */
+  public static double getMinMag(ObsEqkRupList obsEqkEvents) {
+    Double minMag = (Double)Collections.min(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator());
+    return minMag.doubleValue();
   }
 
-  public double getMaxMag() {
-      return 0.0;
+
+  /**
+   * Returns the maximum magnitude for the observed Eqk Rupture events.
+   * @param obsEqkEvents ObsEqkRupList list of observed eqk events
+   * @return double max-mag
+   */
+  public static double getMaxMag(ObsEqkRupList obsEqkEvents) {
+    Double maxMag = (Double)Collections.max(obsEqkEvents.getObsEqkRupEventList(),new EqkRuptureMagComparator());
+    return maxMag.doubleValue();
   }
 
 
@@ -53,22 +59,7 @@ public class ObsEqkRupListCalc {
   }
 
 
-  /**
-   * Sorts the Observed Eqk Rupture Event list based on the magitude.
-   * @param obsEqkEvents ObsEqkRupList
-   */
-  public static void sortObsEqkRupListByMag(ObsEqkRupList obsEqkEvents){
-    Collections.sort(obsEqkEvents.getObsEqkRupEventList(), new EqkRuptureMagComparator());
-  }
 
-  /**
-   * Sorts the Observed Eqk Rupture Event list based on the Origin time.
-   * @param obsEqkEvents ObsEqkRupList
-   */
-  public static void sortObsEqkRupListByOriginTime(ObsEqkRupList obsEqkEvents) {
-    Collections.sort(obsEqkEvents.getObsEqkRupEventList(),
-                     new ObsEqkRupEventOriginTimeComparator());
-  }
 
 
 

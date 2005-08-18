@@ -13,7 +13,7 @@ import java.util.*;
  * @version 1.0
  */
 public class LocationComparator
-    implements Comparator {
+    implements Comparator, java.io.Serializable{
 
   /**
    * Compares 2 location objects. Comparision is done based on location latitudes.

@@ -13,7 +13,7 @@ import java.util.*;
  * @version 1.0
  */
 public class EqkRuptureMagComparator
-    implements Comparator {
+    implements Comparator, java.io.Serializable {
 
   /**
    * Compares its two arguments for order. Returns a negative integer, zero, or
