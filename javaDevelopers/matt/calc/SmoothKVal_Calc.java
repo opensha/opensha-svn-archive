@@ -34,7 +34,7 @@ public class SmoothKVal_Calc {
   }
 
   /**
-  * setAftershockZone
+  * setAftershockModel
   */
  public void setAftershockModel(STEP_AftershockHypoMagForecast aftershockModel) {
    aftershockZone = aftershockModel.getAfterShockZone();

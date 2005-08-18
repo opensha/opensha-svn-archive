@@ -177,8 +177,7 @@ public class CompletenessMagCalc {
           double mcSynth = ListSortingTools.getMinVal(mc90List);
         }
         catch (NoValsFoundException err2){
-          // MUST BE A BETTER WAY TO HANDLE NO VALUE FOUND!!!
-          double mcSynth = -99;
+          double mcSynth = Double.NaN;
         }
 
       }
