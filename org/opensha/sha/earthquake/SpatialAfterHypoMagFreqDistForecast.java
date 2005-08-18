@@ -40,9 +40,9 @@ public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagF
     if (this.useFixed_cValue){
       rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList);
     }
-    else {
-       rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList, this.useFixed_cValue);
-    }
+    //else {
+      // rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList, this.useFixed_cValue);
+    //}
     // returns an array list with all parms in it
     rjParms = rjcalc.getAllGriddedVals();
 

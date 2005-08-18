@@ -98,8 +98,9 @@ public class ObsEqkRupList {
         obsEventList.addObsEqkEvent(eqkRup);
     }
     return obsEventList;
-
   }
+
+
 
   /**
    * Returns the list of Observed events after a given time period
@@ -177,6 +178,14 @@ public class ObsEqkRupList {
     }
     return obsEventList;
   }
+
+
+  public ArrayList getObsEqkRupEventList(ObsEqkRupList obsEqkRupEventList){
+    ArrayList eventList = new ArrayList();
+    return eventList;
+  }
+
+
 
   /**
    *  Returns parameter at the specified index if exist, else throws
