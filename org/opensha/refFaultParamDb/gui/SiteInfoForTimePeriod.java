@@ -55,6 +55,10 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private final static double NUM_EVENTS_MIN=0;
   private final static double NUM_EVENTS_MAX=Integer.MAX_VALUE;
 
+  // number of individual parameter
+  private final static String NUM_INDIVIDUAL_EVENTS_PARAM_NAME = "Num Individual Events:";
+  private final static String NUM_SEQUENCES_PARAM_NAME = "Num Sequences:";
+
   // various types of information that user can provide
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
@@ -68,6 +72,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private final static String NUM_EVENTS_PARAMS_TITLE = "Num Events Params";
   private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
   private final static String SLIP_RATE_PARAMS_TITLE = "Slip Rate Params";
+  private final static String INDIVIDUAL_EVENTS_PARAMS_TITLE="Individual Events Params";
 
   // various parameters for this window
   private StringParameter availableInfoParam;
@@ -81,6 +86,8 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private EstimateParameter cumDisplacementParam;
   private StringParameter displacementCommentsParam;
   private EstimateParameter numEventsParam;
+  private IntegerParameter numIndividualEventsParam;
+  private IntegerParameter numSequencesParam;
 
 
   // various parameter Editors for this window
@@ -100,12 +107,15 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private ParameterListEditor slipRateParameterListEditor;
   private ParameterListEditor cumDisplacementParameterListEditor;
   private ParameterListEditor numEventsParameterListEditor;
+  private ParameterListEditor individualEventsParameterListEditor;
 
 
   // various buttons in this window
   private JButton addNewReferenceButton = new JButton("Add Reference");
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
+  private JButton perEventInfoButton = new JButton("Per Event Info");
+  private JButton perSequenceInfoButton = new JButton("Per Sequence Info");
 
 
 
@@ -130,14 +140,20 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   */
  public void actionPerformed(ActionEvent event) {
    // if it is "Add New Site" request, pop up another window to fill the new site type
-    if(event.getSource()==this.addNewReferenceButton)
+    Object source = event.getSource();
+    if(source==this.addNewReferenceButton)
        new AddNewReference();
+     else if (source == this.perEventInfoButton)
+       new PerEventInformation(((Integer)numIndividualEventsParam.getValue()).intValue());
+     else if(source == this.perSequenceInfoButton)
+       new SequenceInformation(((Integer)numSequencesParam.getValue()).intValue());
  }
-
 
   // add action listeners on the buttons in this window
   private void addActionListeners() {
      this.addNewReferenceButton.addActionListener(this);
+     this.perEventInfoButton.addActionListener(this);
+     this.perSequenceInfoButton.addActionListener(this);
   }
 
   /**
@@ -151,8 +167,10 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
     addSlipRateInfoParameters();
     // add parameters for cumulative displacement
     addCumulativeDisplacementParameters();
-    // add parameters for events
-    addEventsParameters();
+    // add parameters for Num Events info
+    addNumEventsParameters();
+    // add parametrs for individual events info
+    this.addIndividualEventsParameters();
 
   }
 
@@ -206,6 +224,17 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
    // num events params
    contentPane.add(this.numEventsParameterListEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.5
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+   // individual events params
+   contentPane.add(this.individualEventsParameterListEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+
+   // enter info for individual events
+   contentPane.add(this.perEventInfoButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+   // enter info for sequences
+   contentPane.add(this.perSequenceInfoButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+
    // add new reference
    contentPane.add(this.addNewReferenceButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
@@ -259,32 +288,45 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
    if(info.equalsIgnoreCase(this.SLIP_RATE_INFO)) {
      setParamsVisibleForCumDisplacementInfo(false);
      setParamsVisibleForEventsInfo(false);
+     setParamsVisibleForIndividualEvents(false);
      setParamsVisibleForSlipRateInfo(true);
    }
     // show parameters just for cumulative displacement
    else if(info.equalsIgnoreCase(this.CUMULATIVE_DISPLACEMENT_INFO)) {
      setParamsVisibleForSlipRateInfo(false);
      setParamsVisibleForEventsInfo(false);
+     setParamsVisibleForIndividualEvents(false);
      setParamsVisibleForCumDisplacementInfo(true);
    }
    // show parameters for events info only
    else if(info.equalsIgnoreCase(this.EVENTS_INFO)) {
      setParamsVisibleForSlipRateInfo(false);
     setParamsVisibleForCumDisplacementInfo(false);
+    setParamsVisibleForIndividualEvents(false);
     setParamsVisibleForEventsInfo(true);
    }
    // show parameters for slip rate and events info
    else if(info.equalsIgnoreCase(this.SLIP_RATE_AND_EVENTS_INFO)) {
      setParamsVisibleForCumDisplacementInfo(false);
+     setParamsVisibleForIndividualEvents(false);
      setParamsVisibleForSlipRateInfo(true);
      setParamsVisibleForEventsInfo(true);
    }
    // show parameters for cumulative displacement and event info
    else if(info.equalsIgnoreCase(this.CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO)) {
      setParamsVisibleForSlipRateInfo(false);
+     setParamsVisibleForIndividualEvents(false);
      setParamsVisibleForCumDisplacementInfo(true);
      setParamsVisibleForEventsInfo(true);
    }
+   // show parameters for individual events
+   else if(info.equalsIgnoreCase(this.INDIVIDUAL_EVENTS_INFO)) {
+     setParamsVisibleForSlipRateInfo(false);
+     setParamsVisibleForCumDisplacementInfo(false);
+     setParamsVisibleForEventsInfo(false);
+     setParamsVisibleForIndividualEvents(true);
+   }
+
  }
 
  /**
@@ -311,13 +353,24 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
  }
 
  /**
- *  Set the parameters visible/invisible when user is providing just Events
+ *  Set the parameters visible/invisible when user is providing just Number of Events
  *   info
  */
  private void setParamsVisibleForEventsInfo(boolean isVisible) {
    this.numEventsParameterListEditor.setVisible(isVisible);
    /*this.numEventsParamEditor.setVisible(isVisible);
    this.numEventsReferencesParamEditor.setVisible(isVisible);*/
+ }
+
+ /**
+  * Set the parameters visible/invisible related to individual events
+  *
+  * @param isVisible
+  */
+ private void setParamsVisibleForIndividualEvents(boolean isVisible) {
+   this.individualEventsParameterListEditor.setVisible(isVisible);
+   this.perEventInfoButton.setVisible(isVisible);
+   this.perSequenceInfoButton.setVisible(isVisible);
  }
 
 
@@ -376,7 +429,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
  /**
   * Add the input parameters if user provides the events
   */
- private void addEventsParameters() throws Exception {
+ private void addNumEventsParameters() throws Exception {
    ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveIntValues();
    this.numEventsParam = new EstimateParameter(this.NUM_EVENTS_PARAM_NAME,
                                                NUM_EVENTS_MIN, NUM_EVENTS_MAX, allowedEstimates);
@@ -390,6 +443,21 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   paramList.addParameter(numEventsReferencesParam);
   this.numEventsParameterListEditor = new ParameterListEditor(paramList);
   numEventsParameterListEditor.setTitle(this.NUM_EVENTS_PARAMS_TITLE);
+ }
+
+ /**
+  * Add the parameters associated with individual events
+  *
+  * @throws java.lang.Exception
+  */
+ private void addIndividualEventsParameters() throws Exception {
+   this.numIndividualEventsParam = new IntegerParameter(this.NUM_INDIVIDUAL_EVENTS_PARAM_NAME, 0, Integer.MAX_VALUE, new Integer(1));
+   this.numSequencesParam = new IntegerParameter(this.NUM_SEQUENCES_PARAM_NAME, 0, Integer.MAX_VALUE, new Integer(1));
+   ParameterList paramList = new ParameterList();
+   paramList.addParameter(numIndividualEventsParam);
+   paramList.addParameter(numSequencesParam);
+   this.individualEventsParameterListEditor = new ParameterListEditor(paramList);
+   individualEventsParameterListEditor.setTitle(this.INDIVIDUAL_EVENTS_PARAMS_TITLE);
  }
 
  /**

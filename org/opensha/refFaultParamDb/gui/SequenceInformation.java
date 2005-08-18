@@ -87,6 +87,8 @@ public class SequenceInformation extends JFrame implements ActionListener {
       addActionListeners();
       // set the title
       this.setTitle(TITLE);
+      setSize(WIDTH, HEIGHT);
+      show();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -222,8 +224,6 @@ public class SequenceInformation extends JFrame implements ActionListener {
 
   public static void main(String[] args) {
     SequenceInformation sequenceInformation = new SequenceInformation(5);
-    sequenceInformation.setSize(WIDTH, HEIGHT);
-    sequenceInformation.show();
   }
 
 

@@ -98,6 +98,8 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
       this.setTitle(TITLE);
       // Show/Hide the editor to enter the name of event with which dispalcement is shared
       setSharedEventVisible(((Boolean)this.displacementSharedParam.getValue()).booleanValue());
+      setSize(WIDTH, HEIGHT);
+      show();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -233,8 +235,6 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
 
   public static void main(String args[]) {
     PerEventInformation eventInfo = new PerEventInformation(5);
-    eventInfo.setSize(WIDTH, HEIGHT);
-    eventInfo.show();
   }
 
   //static initializer for setting look & feel
