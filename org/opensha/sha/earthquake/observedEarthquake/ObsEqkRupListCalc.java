@@ -3,6 +3,8 @@ package org.opensha.sha.earthquake.observedEarthquake;
 import java.util.Collections;
 
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.sha.earthquake.EqkRuptureMagComparator;
+import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupEventOriginTimeComparator;
 
 /**
  * <p>Title: </p>
@@ -56,10 +58,18 @@ public class ObsEqkRupListCalc {
    * @param obsEqkEvents ObsEqkRupList
    */
   public static void sortObsEqkRupListByMag(ObsEqkRupList obsEqkEvents){
-
-    Collections.sort(obsEqkEvents.getObsEqkRupEventList());
-
+    Collections.sort(obsEqkEvents.getObsEqkRupEventList(), new EqkRuptureMagComparator());
   }
+
+  /**
+   * Sorts the Observed Eqk Rupture Event list based on the Origin time.
+   * @param obsEqkEvents ObsEqkRupList
+   */
+  public static void sortObsEqkRupListByOriginTime(ObsEqkRupList obsEqkEvents) {
+    Collections.sort(obsEqkEvents.getObsEqkRupEventList(),
+                     new ObsEqkRupEventOriginTimeComparator());
+  }
+
 
 
 
