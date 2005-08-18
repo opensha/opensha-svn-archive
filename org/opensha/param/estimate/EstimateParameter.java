@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 /**
  * <p>Title: EstimateParameter.java </p>
- * <p>Description: </p>
+ * <p>Description: EstimateParameter wraps the Estimate object. constraints are specified
+ * in EstimateConstraint which is alist of allowed estimate type names. </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
