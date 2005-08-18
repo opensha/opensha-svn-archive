@@ -26,8 +26,9 @@ public class ReasenbergJonesGriddedParms_Calc {
   private double constantAddToMc = .2;
 
   // IF setGridd is CALLED HERE, HOW CAN THE DEFAULT FOR FIXED_C BE CHANGED B4 CALCULATING?
-  public void ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList) {
-   setGriddedMags(gridNodes, eventList);
+  public ReasenbergJonesGriddedParms_Calc(EvenlyGriddedGeographicRegionAPI
+                                          gridNodes, ObsEqkRupList eventList) {
+    setGriddedMags(gridNodes, eventList);
   }
 
   /**
@@ -175,12 +176,5 @@ public class ReasenbergJonesGriddedParms_Calc {
         grid_kVal[ind++] = Double.NaN;
       }
     }
-  }
-
-
-
-  public static void main(String[] args) {
-    ReasenbergJonesGriddedParms_Calc reasenbergjonesgriddedparms_calc = new
-        ReasenbergJonesGriddedParms_Calc();
   }
 }

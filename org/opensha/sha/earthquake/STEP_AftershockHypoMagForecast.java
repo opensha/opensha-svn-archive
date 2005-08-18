@@ -27,9 +27,6 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   public double addToMc = .2;
 
 
- public STEP_AftershockHypoMagForecast() {
- }
-
   /**
   * calc_NodeCompletenessMag
   * calculate the completeness at each node
