@@ -1,6 +1,12 @@
 package org.opensha.sha.earthquake;
 
+import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
+import org.opensha.data.*;
+import org.opensha.data.region.*;
+import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.fault.*;
+import java.util.ListIterator;
+import javaDevelopers.matt.calc.STEP_TypeIIAftershockZone_Calc;
 
 /**
  * <p>Title: </p>
@@ -19,12 +25,16 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   private double maxForecastMag = 8.0;
   private double deltaMag = 0.1;
   private int numHypoLocation;
-  //private AfterShockHypoMagFreqDistForecast STEP_Model;
+  private AfterShockHypoMagFreqDistForecast STEP_Model;
   private double[] grid_aVal, grid_bVal, grid_cVal, grid_pVal, grid_kVal;
   private double[] node_CompletenessMag;
   private SimpleFaultData mainshockFault;
   public boolean useFixed_cValue = true;
+  private boolean hasExternalFaultModel = false;
   public double addToMc = .2;
+  private double zoneRadius;
+  public ObsEqkRupList newObsEventList;
+  private double gridSpacing = 0.05;
 
 
   /**
@@ -55,6 +65,13 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
    */
   public void set_deltaMag(double delta_mag) {
   deltaMag = delta_mag;
+  }
+
+  /**
+   * set_GridSpacing
+   */
+  public void set_GridSpacing(double grid_spacing) {
+    gridSpacing = grid_spacing;
   }
 
   /**
@@ -93,6 +110,62 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   public void set_addToMcConstant(double mcConst) {
     addToMc = mcConst;
   }
+
+  /**
+   * setNewObsEventsList
+   * This should contain All new events - this is the list that will
+   * be used to look for new aftershocks.
+   */
+  public void setNewObsEventsList(ObsEqkRupList newObsEventList) {
+  }
+
+
+
+  /**
+   * set_AftershockZoneRadius
+   * set the radius based on Wells and Coppersmith
+   *
+   * THIS USES A DIFFERENT RADIUS THAN I HAVE PREVIOUSLY USED!
+   * NEED TO ADD THE SUBSURFACE RUPTURE LENGTH REL TO WC1994
+   */
+  public void set_AftershockZoneRadius() {
+    ObsEqkRupture mainshock = this.getMainShock();
+    double mainshockMag = mainshock.getMag();
+    WC1994_MagLengthRelationship WCRel = new WC1994_MagLengthRelationship();
+    zoneRadius = WCRel.getMedianLength(mainshockMag);
+  }
+
+  public void calcAfterShockZone(){
+    if (hasExternalFaultModel) {
+    }
+    else {
+      ObsEqkRupture mainshock = this.getMainShock();
+      Location mainshockLocation = mainshock.getHypocenterLocation();
+      CircularGeographicRegion aftershockZone = new CircularGeographicRegion(
+          mainshockLocation, zoneRadius);
+      ObsEqkRupList eventsInZoneList = newObsEventList.getObsEqkRupsInside(aftershockZone);
+      if (eventsInZoneList.size() > 100) {
+        STEP_TypeIIAftershockZone_Calc typeIIcalc = new
+            STEP_TypeIIAftershockZone_Calc(eventsInZoneList, this);
+        EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.get_TypeIIAftershockZone();
+        this.setAfterShockZone(typeII_Zone);
+      }
+    }
+  }
+  /**
+   * findEventsInRegion
+
+  private ObsEqkRupList findEventsInRegion(GeographicRegion zoneRegion, ObsEqkRupList eventList) {
+    ObsEqkRupList eventsInZoneList = new ObsEqkRupList();
+    ListIterator eventIt = eventList.listIterator();
+    while (eventIt.hasNext()) {
+      Location loc = (Location)eventIt.next();
+      if (zoneRegion.isLocationInside(loc))
+          eventsInZoneList.add(loc);
+      }
+
+  }
+//
 
   /**
   * get_minForecastMag
@@ -183,6 +256,13 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   }
 
   /**
+   * get_GridSpacing
+   */
+  public double get_GridSpacing() {
+    return gridSpacing;
+  }
+
+  /**
    * get_FaultModel
    */
   public SimpleFaultData get_FaultModel() {
@@ -194,6 +274,13 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
    */
   public double get_addToMcConst() {
     return addToMc;
+  }
+
+  /**
+   * get_AftershockZoneRadius
+   */
+  public double get_AftershockZoneRadius() {
+    return zoneRadius;
   }
 
 }

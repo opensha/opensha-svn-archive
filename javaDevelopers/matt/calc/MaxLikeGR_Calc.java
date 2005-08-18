@@ -154,26 +154,23 @@ public class MaxLikeGR_Calc {
     else if (numEvents < 1500) searchRadius = 12;
     else if (numEvents < 2000) searchRadius = 10;
     else searchRadius = 7.5;
+    /**
+     * This is defined here and in CalcGROnGRid
+     * need to sort that out.
     while (gridIt.hasNext()) {
       CircularGeographicRegion gridRegion = new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
-      ObsEqkRupList regionList = new ObsEqkRupList();
-      while (eventIt.hasNext()) {
-          /**
-           * Matt, NEEDS to fix this
-           */
+      ObsEqkRupList regionEventList = eventList.getObsEqkRupsInside(gridRegion);
 
+      ObsEqkRupList regionEventList = new ObsEqkRupList();
 
-        //Location loc = (Location)eventIt.next();
-        //if (gridRegion.isLocationInside(loc))
-         // regionList.addObsEqkEvent(loc);
-      }
-      CompletenessMagCalc.setMcBest(regionList);
+      CompletenessMagCalc.setMcBest(regionEventList);
       completenessMag = CompletenessMagCalc.getMcBest();
-      ObsEqkRupList completeRegionList = regionList.getObsEqkRupsAboveMag(completenessMag);
+      ObsEqkRupList completeRegionList = regionEventList.getObsEqkRupsAboveMag(completenessMag);
       setMags(completeRegionList);
       grid_aVal[ind] = get_aValueMaxLike();
       grid_bVal[ind++] = get_bValueMaxLike();
     }
+   */
   }
 
   public static void main(String[] args) {
