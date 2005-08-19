@@ -10,11 +10,7 @@ import org.opensha.sha.earthquake.EqkRuptureMagComparator;
  *
  * <p>Description: </p>
  *
- * <p>Copyright: Copyright (c) 2002</p>
- *
- * <p>Company: </p>
- *
- * @author not attributable
+ * @author Nitin Gupta
  * @version 1.0
  */
 public class ObsEqkRupListCalc {
