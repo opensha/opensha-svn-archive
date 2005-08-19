@@ -117,14 +117,16 @@ public class ReasenbergJonesGriddedParms_Calc {
    * calculate the Reasenberg & Jones parms (a,b,p,c,k) on the evenly gridded region grid.
    *
    */
-  public void setGriddedMags(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList) {
+  public void setGriddedMags(EvenlyGriddedGeographicRegionAPI gridNodes,
+                             ObsEqkRupList eventList) {
     calc_RJParmsOnGrid(gridNodes, eventList);
   }
 
   /**
    * calc_RJParmsOnGrid
    */
-  private void calc_RJParmsOnGrid(EvenlyGriddedGeographicRegionAPI gridNodes, ObsEqkRupList eventList){
+  private void calc_RJParmsOnGrid(EvenlyGriddedGeographicRegionAPI gridNodes,
+                                  ObsEqkRupList eventList){
     ListIterator gridIt = gridNodes.getGridLocationsIterator();
     int numNodes = gridNodes.getNumGridLocs();
     grid_aVal = new double[numNodes];
@@ -149,7 +151,8 @@ public class ReasenbergJonesGriddedParms_Calc {
 
 
     while (gridIt.hasNext()) {
-      CircularGeographicRegion gridRegion = new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
+      CircularGeographicRegion gridRegion =
+          new CircularGeographicRegion((Location)gridIt.next(),searchRadius);
       ObsEqkRupList regionList = eventList.getObsEqkRupsInside(gridRegion);
 
       // Calculate the completeness of the events selected for the node and remove
@@ -157,7 +160,8 @@ public class ReasenbergJonesGriddedParms_Calc {
       CompletenessMagCalc.setMcBest(regionList);
       completenessMag = CompletenessMagCalc.getMcBest();
       grid_Mc[ind] = completenessMag;
-      ObsEqkRupList completeRegionList = regionList.getObsEqkRupsAboveMag(completenessMag+constantAddToMc);
+      ObsEqkRupList completeRegionList =
+          regionList.getObsEqkRupsAboveMag(completenessMag+constantAddToMc);
 
       // Calculate the Gutenberg-Richter parms
       MaxLikeGR_Calc.setMags(completeRegionList);

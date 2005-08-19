@@ -3,7 +3,15 @@ package javaDevelopers.matt.calc;
 /**
  * <p>Title: </p>
  *
- * <p>Description: </p>
+ * <p>Description: Calculates the forecasted rate of events based on the modified
+ * Omori law and the given time span
+ * Input is, in the following order:
+ * double k value
+ * double c value
+ * double p value
+ * timeParms[0] = forecastStartTime
+ * timeParms[1] = forecastEndTime
+ *  </p>
  *
  * <p>Copyright: Copyright (c) 2002</p>
  *
@@ -21,8 +29,8 @@ public class OmoriRate_Calc {
   private double eventRate;
 
 
-  public OmoriRate_Calc(double[] OmoriParms, double [] TimeParms) {
-    set_OmoriParms(OmoriParms, TimeParms);
+  public OmoriRate_Calc(double[] rjParms, double[] timeParms) {
+    set_OmoriParms(rjParms, timeParms);
   }
 
   /**
@@ -31,10 +39,10 @@ public class OmoriRate_Calc {
    * set the begin time and end time for the calculations
    * do the calculation
    */
-  public void set_OmoriParms(double[] omoriParms, double [] timeParms) {
-    k_value = omoriParms[0];
-    c_value = omoriParms[1];
-    p_value = omoriParms[2];
+  public void set_OmoriParms(double[] rjParms, double[] timeParms) {
+    k_value = rjParms[0];
+    c_value = rjParms[1];
+    p_value = rjParms[2];
     time_start = timeParms[0];
     time_end = timeParms[1];
     calc_OmoriRate();

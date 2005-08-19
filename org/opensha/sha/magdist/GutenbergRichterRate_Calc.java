@@ -16,6 +16,7 @@ public class GutenbergRichterRate_Calc {
   private double minMag = 4;
   private double maxMag = 8;
   private double deltaMag = 0.1;
+  private double[] evenlyDescMagRates;
 
   public GutenbergRichterRate_Calc(double b_value, double numForecastEvents) {
     set_aValForForecast(numForecastEvents, b_value);
@@ -37,7 +38,7 @@ public class GutenbergRichterRate_Calc {
   public void calc_EvenlyDiscGR_Rates(double forecastGRa, double b_value) {
     int numMags = (int)((maxMag-minMag)/deltaMag)+1;
     double rateLower, rateUpper, magVal;
-    double[] evenlyDescMagRates = new double[numMags];
+    evenlyDescMagRates = new double[numMags];
 
     //Calculate the cum. rate in each bin and find the difference
     // I know this can be done better...
@@ -46,10 +47,7 @@ public class GutenbergRichterRate_Calc {
       rateUpper = Math.pow(10,(forecastGRa-b_value*magVal));
       rateLower = Math.pow(10,(forecastGRa-b_value*(magVal+deltaMag)));
       evenlyDescMagRates[magLoop] = rateUpper-rateLower;
-
     }
-
-
   }
 
   /**
@@ -77,6 +75,13 @@ public class GutenbergRichterRate_Calc {
    */
   public void set_deltaMag(double deltamag) {
     deltaMag = deltamag;
+  }
+
+  /**
+   * get_ForecastedRates
+   */
+  public double[] get_ForecastedRates() {
+    return evenlyDescMagRates;
   }
 
 }

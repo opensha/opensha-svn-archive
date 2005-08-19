@@ -1,11 +1,10 @@
 package org.opensha.sha.earthquake;
 
 import java.util.*;
-import javaDevelopers.matt.calc.MaxLikeOmori_Calc;
-import javaDevelopers.matt.calc.ReasenbergJonesGriddedParms_Calc;
+import javaDevelopers.matt.calc.*;
+
 import org.opensha.data.region.*;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import javaDevelopers.matt.calc.CompletenessMagCalc;
+import org.opensha.sha.earthquake.observedEarthquake.*;
 
 /**
  * <p>Title: </p>
@@ -40,9 +39,9 @@ public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagF
     if (this.useFixed_cValue){
       rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList);
     }
-    //else {
-      // rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList, this.useFixed_cValue);
-    //}
+    else {
+       rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList, this.useFixed_cValue);
+    }
     // returns an array list with all parms in it
     rjParms = rjcalc.getAllGriddedVals();
 
@@ -92,6 +91,11 @@ public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagF
     public void calc_NodeCompletenessMag() {
       nodeCompletenessMag = (double[])rjParms.get(6);
   }
+
+
+
+
+
 
   /**
    * get_gridded_aValue

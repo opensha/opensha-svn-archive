@@ -1,11 +1,14 @@
 package org.opensha.sha.earthquake;
 
+import java.util.*;
+import javaDevelopers.matt.calc.*;
+
 import org.opensha.calc.magScalingRelations.magScalingRelImpl.*;
 import org.opensha.data.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.fault.*;
-import javaDevelopers.matt.calc.STEP_TypeIIAftershockZone_Calc;
+import org.opensha.sha.magdist.*;
 
 /**
  * <p>Title: </p>
@@ -33,7 +36,8 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   private double zoneRadius;
   public ObsEqkRupList newObsEventList;
   private double gridSpacing = 0.05;
-
+  private double forecastEndTime, forecastStartTime;
+  private ArrayList griddedMagFreqDistForecast;
 
   /**
   * calc_NodeCompletenessMag
@@ -117,7 +121,13 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   public void setNewObsEventsList(ObsEqkRupList newObsEventList) {
   }
 
-
+  /**
+   * set_PreviousAftershocks
+   * this will pass the aftershocks for this sequence that were saved in
+   * the last run of the code.
+   */
+  public void set_PreviousAftershocks(ObsEqkRupList previousAftershockList) {
+  }
 
   /**
    * set_AftershockZoneRadius
@@ -150,6 +160,16 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
       }
     }
   }
+
+  /**
+   * calc_AftershocksInZone
+   */
+  public void calc_AftershocksInZone() {
+     EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
+     //ObsEqkRupList eventsInZone =
+
+  }
+
   /**
    * findEventsInRegion
 
@@ -164,6 +184,72 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
 
   }
 //
+
+/**
+   * set_ForecastStartTime
+   */
+  public void set_ForecastStartTime(double timeStart) {
+    forecastStartTime = timeStart;
+  }
+
+  /**
+   * set_ForecastEndTime
+   */
+  public void set_ForecastEndTime(double timeEnd) {
+    forecastEndTime = timeEnd;
+  }
+
+  /**
+   * calc_GriddedForecastRates
+   */
+  public void calc_GriddedForecastRates() {
+    double[] rjParms = new double[3];
+    double[] timeParms = new double[2];
+    timeParms[0] = forecastStartTime;
+    timeParms[1] = forecastEndTime;
+    EvenlyGriddedGeographicRegionAPI aftershockZone =
+        this.getAfterShockZone();
+    int numGridNodes = aftershockZone.getNumGridLocs();
+
+    double[] singleGridMagFreqDist = new double[numGridNodes];
+    ArrayList griddedMagFreqDistForecast = new ArrayList(numGridNodes);
+
+    for (int gridLoop = 0; gridLoop < numGridNodes; ++gridLoop){
+      rjParms[0] = grid_kVal[gridLoop];
+      rjParms[1] = grid_cVal[gridLoop];
+      rjParms[2] = grid_pVal[gridLoop];
+      OmoriRate_Calc calcOmoriRate = new OmoriRate_Calc(rjParms,timeParms);
+      double totalForecastEvents = calcOmoriRate.get_OmoriRate();
+      GutenbergRichterRate_Calc calcGR_Rate =
+          new GutenbergRichterRate_Calc(grid_bVal[gridLoop],totalForecastEvents);
+      singleGridMagFreqDist = calcGR_Rate.get_ForecastedRates();
+      griddedMagFreqDistForecast.add(singleGridMagFreqDist);
+    }
+  }
+
+  /**
+   * set_completenessMag
+   */
+  public void set_completenessMag() {
+    calc_NodeCompletenessMag();
+  }
+
+
+   /**
+    * Set the fault surface that will be used do define a Type II
+    * aftershock zone.
+    * This will not be used in a spatially varying model.
+    */
+
+   public void set_FaultSurface(){
+     String faultName = "";
+     FaultTrace fault_trace = new FaultTrace(faultName);
+     mainshockFault = new SimpleFaultData();
+     mainshockFault.setAveDip(90.0);
+
+     //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
+     mainshockFault.setFaultTrace(fault_trace);
+   }
 
   /**
   * get_minForecastMag
@@ -186,29 +272,6 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
     return deltaMag;
   }
 
-  /**
-  * set_completenessMag
-  */
- public void set_completenessMag() {
-   calc_NodeCompletenessMag();
- }
-
-
-  /**
-   * Set the fault surface that will be used do define a Type II
-   * aftershock zone.
-   * This will not be used in a spatially varying model.
-   */
-
-  public void set_FaultSurface(){
-    String faultName = "";
-    FaultTrace fault_trace = new FaultTrace(faultName);
-    mainshockFault = new SimpleFaultData();
-    mainshockFault.setAveDip(90.0);
-
-    //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
-    mainshockFault.setFaultTrace(fault_trace);
-  }
 
   /**
    * get_Gridded_aVal
@@ -279,6 +342,13 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
    */
   public double get_AftershockZoneRadius() {
     return zoneRadius;
+  }
+
+  /**
+   * get_griddedMagFreqDistForecast
+   */
+  public ArrayList get_griddedMagFreqDistForecast() {
+    return griddedMagFreqDistForecast;
   }
 
 }
