@@ -12,7 +12,11 @@ import org.opensha.data.region.GeographicRegionAPI;
 /**
  * <p>Title: ObsEqkRupList</p>
  *
- * <p>Description: This class </p>
+ * <p>Description: This class provide capabilty of storing observed events as
+ * a list. Also defines the function using which user can extract a subset of the
+ * list based on Magnitude  range, origin time or geographic Region.
+ * It also defines functions that allows user to Sort the list based on Mag,
+ * Origin Time.</p>
  *
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
  * @version 1.0
@@ -241,6 +245,28 @@ public class ObsEqkRupList {
   public void addObsEqkEventAt(ObsEqkRupture obsEqkEvent, int index) {
     obsEqkList.add(index, obsEqkEvent);
   }
+
+
+  /**
+   * This adds a list of events to the existing list of events. List of events is
+   * added to the ObsEqkRupList object on which this function is called.
+   * @param obsRupEventList ObsEqkRupList
+   *
+   * Appends all of the elements in the specified Collection to the end of this
+   * list, in the order that they are returned by the specified Collection's Iterator.
+   * The behavior of this operation is undefined if the specified Collection is
+   * modified while the operation is in progress. (This implies that the behavior
+   * of this call is undefined if the specified Collection is this list, and
+   * this list is nonempty.)
+   *
+   * @return true if this list changed as a result of the call.
+   */
+  public boolean addAllObsEqkRupEvents(ObsEqkRupList obsRupEventList){
+    return obsEqkList.addAll(obsRupEventList.getObsEqkRupEventList());
+  }
+
+
+
 
   /**
    * Returns the number of ObsEqkRupEvents in the list
