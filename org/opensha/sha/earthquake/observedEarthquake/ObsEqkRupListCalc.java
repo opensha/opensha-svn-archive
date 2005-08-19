@@ -8,16 +8,27 @@ import org.opensha.sha.earthquake.EqkRuptureMagComparator;
 /**
  * <p>Title: ObsEqkRupListCalc</p>
  *
- * <p>Description: </p>
+ * <p>Description: This class provides users with capability to operate on
+ * Observed Eqk Rupture list. all the functions defined in this class are static,
+ * so user does not have to create the object of the class to call the method.
+ * </p>
  *
  * @author Nitin Gupta
  * @version 1.0
  */
 public class ObsEqkRupListCalc {
 
-
-  public static double getMeanMag(ObsEqkRupList obsEqkEvents){
-    return 0.0;
+    /**
+     * Returns the Mean Mag for the given list of Events.
+     * @param obsEqkEvents ObsEqkRupList list of Observed Events
+     * @return double meean Magnitude
+     */
+    public static double getMeanMag(ObsEqkRupList obsEqkEvents){
+    int size = obsEqkEvents.size();
+    double mag =0;
+    for(int i=0;i<size;++i)
+      mag += obsEqkEvents.getObsEqkRuptureAt(i).getMag();
+    return (mag/size);
   }
 
   /**
@@ -41,8 +52,28 @@ public class ObsEqkRupListCalc {
     return maxMag.doubleValue();
   }
 
+  /**
+   * Returns the difference in origin time of Observed Eqk events in chronological
+   * order. Difference is in the millisec.
+   * @param obsEqkEvents ObsEqkRupList Observed Eqk Event List
+   * @return long[] returns the long array of difference in time between all
+   * the observed events after ordering them based on their origin time.
+   *
+   * Note : Returns array of long  which is the differnce in the origin time
+   * of 2 events after they are converted to milliseconds.
+   */
+  public static long[] getInterEventTimes(ObsEqkRupList obsEqkEvents) {
 
-  public static double[] getInterEventTimes(ObsEqkRupList obsEqkEvents) {
+    obsEqkEvents.sortObsEqkRupListByOriginTime();
+    int size = obsEqkEvents.size();
+    long[] interEventTimes = new long[size-1];
+
+    for(int i=0;i<size -1;++i){
+      long time = obsEqkEvents.getObsEqkRuptureAt(i+1).getOriginTime().getTimeInMillis() -
+          obsEqkEvents.getObsEqkRuptureAt(i).getOriginTime().getTimeInMillis();
+      interEventTimes[i] = time;
+    }
+
     return null;
   }
 

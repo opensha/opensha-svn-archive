@@ -359,7 +359,7 @@ public class ObsEqkRupList {
    * @param obsEqkEvent ObsEqkRupture finds index of this location
    * @return int index in the List.
    */
-  public int getLocationIndex(ObsEqkRupture obsEqkEvent) {
+  public int getIndex(ObsEqkRupture obsEqkEvent) {
     return obsEqkList.indexOf(obsEqkEvent);
   }
 

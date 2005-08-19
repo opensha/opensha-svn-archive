@@ -62,7 +62,7 @@ public class MaxLikeOmori_Calc {
    */
   public void set_AfterShockListFixed_c(ObsEqkRupList aftershockList) {
 
-    double[] intEventTimes =  ObsEqkRupListCalc.getInterEventTimes(aftershockList);
+    long[] intEventTimes =  ObsEqkRupListCalc.getInterEventTimes(aftershockList);
 
     int iterCount = 1;
 
@@ -89,7 +89,7 @@ public class MaxLikeOmori_Calc {
   public void set_AfterShockList(ObsEqkRupList aftershockList) {
     double iterCount = 0;
 
-    double[] intEventTimes =  ObsEqkRupListCalc.getInterEventTimes(aftershockList);
+    long[] intEventTimes =  ObsEqkRupListCalc.getInterEventTimes(aftershockList);
 
     while ((Math.abs(error1) > maxErrorAllow) && ((Math.abs(error2) > maxErrorAllow))) {
 
@@ -140,7 +140,7 @@ public class MaxLikeOmori_Calc {
    * this estimates k, c and p.  It does not assume a fixed c value.
    * It calculates the misfit error, which is used in update_p_c
    */
-  private void calc_pErr(double[] intEventTimes) {
+  private void calc_pErr(long[] intEventTimes) {
 
     /**
      *  pGuess is guessed p-value.
@@ -179,7 +179,7 @@ public class MaxLikeOmori_Calc {
    * a fixed c is used (default = .05)
    * update_p calculates a new p value based on the guess p and the misfit
    */
-  private void calc_pErrFixed_c(double[] intEventTimes) {
+  private void calc_pErrFixed_c(long[] intEventTimes) {
 
     /**
      *  pGuess is guessed p-value.

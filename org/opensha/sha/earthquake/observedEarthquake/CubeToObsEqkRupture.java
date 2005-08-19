@@ -190,6 +190,7 @@ public class CubeToObsEqkRupture {
       ex.printStackTrace();
     }
      ObsEqkRupList rupList = cubeToRup.getAllObsEqkRupEvents();
+     rupList.sortObsEqkRupListByOriginTime();
      int size = rupList.size();
      try{
        FileWriter fw = new FileWriter("ObsEqkRup.txt");

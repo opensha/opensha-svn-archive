@@ -3,7 +3,7 @@ package javaDevelopers.matt.calc;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import java.util.ListIterator;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
-
+import java.util.Arrays;
 
 
 /**
@@ -68,6 +68,7 @@ public class ListSortingTools {
      */
 
   public static int getMaxVal(int[] valList) {
+
       // find the maximum magnitude of the given catalogue
       int maxVal = valList[0];
       int size = valList.length;
@@ -77,6 +78,28 @@ public class ListSortingTools {
         }
       return maxVal;
     }
+
+
+    /**
+     * Gets the Maximum value from long[].
+     * @param valList long[] list of long values
+     * @return long
+     */
+    public static long getMaxVal(long[] valList) {
+      Arrays.sort(valList);
+      return valList[valList.length - 1];
+    }
+
+    /**
+     * Gets the Minimum value from long[].
+     * @param valList long[] list of long values
+     * @return long
+     */
+    public static long getMinVal(long[] valList) {
+      Arrays.sort(valList);
+      return valList[0];
+    }
+
 
 
     /**

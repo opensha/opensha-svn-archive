@@ -20,7 +20,7 @@ public class OgataLogLike_Calc {
   private double k_value;
   private double c_value;
   private double p_value;
-  private double[] intEventTimes;
+  private long[] intEventTimes;
   private double minIntTime;
   private double maxIntTime;
   private double logLikelihood;
