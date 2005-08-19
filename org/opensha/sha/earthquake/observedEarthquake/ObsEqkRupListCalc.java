@@ -42,15 +42,15 @@ public class ObsEqkRupListCalc {
   }
 
 
-  public double[] getInterEventTimes() {
+  public static double[] getInterEventTimes(ObsEqkRupList obsEqkEvents) {
     return null;
   }
 
-  public IncrementalMagFreqDist getMagFreqDist() {
+  public static IncrementalMagFreqDist getMagFreqDist(ObsEqkRupList obsEqkEvents) {
     return null;
   }
 
-  public IncrementalMagFreqDist getMagNumDist() {
+  public static IncrementalMagFreqDist getMagNumDist(ObsEqkRupList obsEqkEvents) {
     return null;
   }
 

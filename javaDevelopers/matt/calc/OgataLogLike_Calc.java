@@ -38,8 +38,8 @@ public class OgataLogLike_Calc {
     c_value = OmoriParms[1];
     p_value = OmoriParms[2];
 
-    ObsEqkRupListCalc obsEqkCalc = new ObsEqkRupListCalc(aftershockList);
-    intEventTimes = obsEqkCalc.getInterEventTimes();
+
+    intEventTimes = ObsEqkRupListCalc.getInterEventTimes(aftershockList);
     minIntTime = ListSortingTools.getMinVal(intEventTimes);
     maxIntTime = ListSortingTools.getMaxVal(intEventTimes);
     calc_OgataLoglike();

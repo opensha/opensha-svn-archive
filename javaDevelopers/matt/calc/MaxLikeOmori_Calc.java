@@ -62,8 +62,7 @@ public class MaxLikeOmori_Calc {
    */
   public void set_AfterShockListFixed_c(ObsEqkRupList aftershockList) {
 
-    ObsEqkRupListCalc obsCalc = new ObsEqkRupListCalc(aftershockList);
-    double[] intEventTimes =  obsCalc.getInterEventTimes();
+    double[] intEventTimes =  ObsEqkRupListCalc.getInterEventTimes(aftershockList);
 
     int iterCount = 1;
 
@@ -89,8 +88,8 @@ public class MaxLikeOmori_Calc {
    */
   public void set_AfterShockList(ObsEqkRupList aftershockList) {
     double iterCount = 0;
-    ObsEqkRupListCalc obsCalc = new ObsEqkRupListCalc(aftershockList);
-    double[] intEventTimes =  obsCalc.getInterEventTimes();
+
+    double[] intEventTimes =  ObsEqkRupListCalc.getInterEventTimes(aftershockList);
 
     while ((Math.abs(error1) > maxErrorAllow) && ((Math.abs(error2) > maxErrorAllow))) {
 
