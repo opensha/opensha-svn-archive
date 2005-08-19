@@ -10,6 +10,7 @@ import org.opensha.param.event.*;
 import java.awt.*;
 import ch.randelshofer.quaqua.QuaquaManager;
 import java.awt.event.*;
+import org.opensha.gui.LabeledBoxPanel;
 
 /**
  * <p>Title: SiteInfoForTimePeriod.java </p>
@@ -62,7 +63,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   // various types of information that user can provide
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
-  private final static String EVENTS_INFO = "Events";
+  private final static String EVENTS_INFO = "Number of Events";
   private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Number of Events in same Time Period";
   private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement and Number of Events in same Time Period";
   private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
@@ -107,7 +108,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private ParameterListEditor slipRateParameterListEditor;
   private ParameterListEditor cumDisplacementParameterListEditor;
   private ParameterListEditor numEventsParameterListEditor;
-  private ParameterListEditor individualEventsParameterListEditor;
+  private LabeledBoxPanel individualEventsParameterListEditor;
 
 
   // various buttons in this window
@@ -227,13 +228,6 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
    // individual events params
    contentPane.add(this.individualEventsParameterListEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-
-   // enter info for individual events
-   contentPane.add(this.perEventInfoButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
-   // enter info for sequences
-   contentPane.add(this.perSequenceInfoButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
 
    // add new reference
    contentPane.add(this.addNewReferenceButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
@@ -458,6 +452,13 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
    paramList.addParameter(numSequencesParam);
    this.individualEventsParameterListEditor = new ParameterListEditor(paramList);
    individualEventsParameterListEditor.setTitle(this.INDIVIDUAL_EVENTS_PARAMS_TITLE);
+   // enter info for individual events
+   individualEventsParameterListEditor.add(this.perEventInfoButton,  new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+   // enter info for sequences
+   individualEventsParameterListEditor.add(this.perSequenceInfoButton,  new GridBagConstraints(0, 3, 2, 1, 1.0, 0.0
+       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+
  }
 
  /**
