@@ -143,32 +143,42 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
     zoneRadius = WCRel.getMedianLength(mainshockMag);
   }
 
+  /**
+   * This will calculate the appropriate afershock zone based on the availability
+   * of an external model, a circular Type I model, and a sausage shaped Type II model
+   * Type II is only calculated if more than 100 events are found in the circular
+   * Type II model.
+   *
+   * This will also set the aftershock list.
+   */
+
   public void calcAfterShockZone(){
+
+    ObsEqkRupList eventsInZoneList = new ObsEqkRupList();
+    ObsEqkRupList allEventsList = new ObsEqkRupList();
+    allEventsList.addAllObsEqkRupEvents(this.get_NewObsEventsList());
+    allEventsList.addAllObsEqkRupEvents(this.get_PreviousAftershockList());
+
     if (hasExternalFaultModel) {
+      // This needs to be set up to read an external fault model.
     }
     else {
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
       CircularGeographicRegion aftershockZone = new CircularGeographicRegion(
           mainshockLocation, zoneRadius);
-      ObsEqkRupList eventsInZoneList = newObsEventList.getObsEqkRupsInside(aftershockZone);
+      eventsInZoneList = allEventsList.getObsEqkRupsInside(aftershockZone);
       if (eventsInZoneList.size() > 100) {
         STEP_TypeIIAftershockZone_Calc typeIIcalc = new
             STEP_TypeIIAftershockZone_Calc(eventsInZoneList, this);
         EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.get_TypeIIAftershockZone();
         this.setAfterShockZone(typeII_Zone);
+        eventsInZoneList.getObsEqkRupsInside(typeII_Zone);
       }
     }
+    this.setAfterShocks(eventsInZoneList);
   }
 
-  /**
-   * calc_AftershocksInZone
-   */
-  public void calc_AftershocksInZone() {
-     EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
-     //ObsEqkRupList eventsInZone =
-
-  }
 
   /**
    * findEventsInRegion
@@ -350,5 +360,20 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   public ArrayList get_griddedMagFreqDistForecast() {
     return griddedMagFreqDistForecast;
   }
+
+  /**
+   * get_NewObsEventsList
+   */
+  public ObsEqkRupList get_NewObsEventsList() {
+    return newObsEventList;
+  }
+
+  /**
+   * get_PreviousAftershockList
+   */
+  public ObsEqkRupList get_PreviousAftershockList() {
+    return newObsEventList;
+  }
+
 
 }
