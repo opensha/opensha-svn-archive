@@ -2,12 +2,12 @@ package org.opensha.sha.earthquake.observedEarthquake;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import org.opensha.data.region.GeographicRegion;
 import java.util.ListIterator;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.Location;
 import java.util.Collections;
 import org.opensha.sha.earthquake.EqkRuptureMagComparator;
+import org.opensha.data.region.GeographicRegionAPI;
 
 /**
  * <p>Title: ObsEqkRupList</p>
@@ -150,7 +150,7 @@ public class ObsEqkRupList {
    * @returns the subset of total observed events as ObsEqkRupList list
    * inside a given region.
    */
-  public ObsEqkRupList getObsEqkRupsInside(GeographicRegion region) {
+  public ObsEqkRupList getObsEqkRupsInside(GeographicRegionAPI region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
     int size = size();
     for (int i = 0; i < size; ++i) {
@@ -169,7 +169,7 @@ public class ObsEqkRupList {
    * @returns the subset of total observed events as ObsEqkRupList list
    * outside a given region.
    */
-  public ObsEqkRupList getObsEqkRupsOutside(GeographicRegion region) {
+  public ObsEqkRupList getObsEqkRupsOutside(GeographicRegionAPI region) {
     ObsEqkRupList obsEventList = new ObsEqkRupList();
     int size = size();
     for (int i = 0; i < size; ++i) {

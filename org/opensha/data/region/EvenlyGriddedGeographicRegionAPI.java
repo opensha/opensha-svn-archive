@@ -20,7 +20,7 @@ import org.opensha.exceptions.RegionConstraintException;
  * @version 1.0
  */
 
-public interface EvenlyGriddedGeographicRegionAPI extends java.io.Serializable{
+public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,java.io.Serializable{
 
 
   public final static DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
