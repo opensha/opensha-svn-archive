@@ -20,13 +20,9 @@ import ch.randelshofer.quaqua.QuaquaManager;
  */
 
 public class PaleoSiteApp extends JFrame {
-  private JPanel mainPanel = new JPanel();
-  private JSplitPane mainSplitPane = new JSplitPane();
-  private JSplitPane summarySplitPane = new JSplitPane();
-  private JSplitPane timespanSplitPane = new JSplitPane();
 
   private final static int WIDTH = 850;
-  private final static int HEIGHT = 700;
+  private final static int HEIGHT = 725;
 
   private final static String TITLE = "Cal Ref. Fault GUI";
 
@@ -48,8 +44,15 @@ public class PaleoSiteApp extends JFrame {
   // various parameter editors
   private ConstrainedEstimateParameterEditor startTimeEstimateParamEditor;
   private ConstrainedEstimateParameterEditor endTimeEstimateParamEditor;
-  private BorderLayout borderLayout1 = new BorderLayout();
   private BorderLayout borderLayout2 = new BorderLayout();
+  private JSplitPane topSplitPane = new JSplitPane();
+  private JPanel mainPanel = new JPanel();
+  private JSplitPane mainSplitPane = new JSplitPane();
+  private JSplitPane summarySplitPane = new JSplitPane();
+  private JSplitPane timespanSplitPane = new JSplitPane();
+  private BorderLayout borderLayout1 = new BorderLayout();
+  private JScrollPane statusScrollPane = new JScrollPane();
+  private JTextArea statusTextArea = new JTextArea();
 
 
   public PaleoSiteApp() {
@@ -76,21 +79,24 @@ public class PaleoSiteApp extends JFrame {
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout2);
     mainPanel.setLayout(borderLayout1);
-
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     summarySplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-
-
-    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+    topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    statusTextArea.setEnabled(false);
+    statusTextArea.setEditable(false);
+    statusTextArea.setText("");
+    this.getContentPane().add(topSplitPane, BorderLayout.CENTER);
+    topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     mainSplitPane.add(summarySplitPane, JSplitPane.LEFT);
     mainSplitPane.add(timespanSplitPane, JSplitPane.RIGHT);
-
-    mainSplitPane.setDividerLocation(WIDTH/2);
-    summarySplitPane.setDividerLocation(WIDTH/4);
-    timespanSplitPane.setDividerLocation(WIDTH/4);
-
+    topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
+    statusScrollPane.getViewport().add(statusTextArea, null);
+    topSplitPane.setDividerLocation(625);
+    mainSplitPane.setDividerLocation(425);
+    summarySplitPane.setDividerLocation(212);
+    timespanSplitPane.setDividerLocation(212);
   }
 
   /**

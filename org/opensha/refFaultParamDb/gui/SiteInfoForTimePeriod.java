@@ -90,7 +90,6 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private IntegerParameter numIndividualEventsParam;
   private IntegerParameter numSequencesParam;
 
-
   // various parameter Editors for this window
   private ConstrainedStringParameterEditor availableInfoParamEditor;
   private StringParameterEditor datedFeatureCommentsParamEditor;
