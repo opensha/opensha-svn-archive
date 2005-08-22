@@ -5,11 +5,14 @@ package org.opensha.sha.earthquake;
  *
  * <p>Description: </p>
  *
+ * Note : Additiional info needs to be added like binning of Lat, Lon and Depth).
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
  *
  * @version 1.0
  */
 public interface GriddedHypoMagFreqDistAtLocAPI {
+
+
 
 
   /**
@@ -19,6 +22,8 @@ public interface GriddedHypoMagFreqDistAtLocAPI {
    * @param ithLocation int : Index of the location in the region
    * @return HypoMagFreqDistAtLoc Object using which user can retrieve the
    * Magnitude Frequency Distribution.
+   *
+   * Note : This always gives out yearly Rate.
    */
   public HypoMagFreqDistAtLoc getHypRatesAtLoc(int ithLocation);
 
