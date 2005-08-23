@@ -68,57 +68,55 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   //variables that determine the width and height of the frame
-  private static final int W=550;
-  private static final int H=760;
+  protected static final int W=550;
+  protected static final int H=760;
 
   // default insets
-  private Insets defaultInsets = new Insets( 4, 4, 4, 4 );
+  protected Insets defaultInsets = new Insets( 4, 4, 4, 4 );
 
 
   //the path to the file where gridded region is stored if calculation are to be
  // done on the server
-  private String serverRegionFilePath;
+  protected String serverRegionFilePath;
   //path to the file where the XYZ data file is stored
-  private String serverXYZDataSetFilePath;
+  protected String serverXYZDataSetFilePath;
 
 
   //reference to the  XYZ dataSet
-  private XYZ_DataSetAPI xyzDataSet;
+  protected XYZ_DataSetAPI xyzDataSet;
 
 
   //store the site values for each site in the griddded region
-  private SitesInGriddedRectangularRegion griddedRegionSites;
+  protected SitesInGriddedRectangularRegion griddedRegionSites;
 
   //stores the IML or Prob selection and their value for which we want to compute the
   //scenario shake map. Value we get from the respective guibeans.
-  private boolean probAtIML=false;
-  private double imlProbValue;
+  protected boolean probAtIML=false;
+  protected double imlProbValue;
 
   //Eqkrupture Object
-  private EqkRupture eqkRupture;
+  protected EqkRupture eqkRupture;
 
   // stores the instances of the selected AttenuationRelationships
-  private ArrayList attenRel;
+  protected ArrayList attenRel;
   //stores the instance of the selected AttenuationRelationships wts after normalization
-  private ArrayList attenRelWts;
+  protected ArrayList attenRelWts;
 
   //Instance to the ShakeMap calculator to get the XYZ data for the selected scenario
   //making the object for the ScenarioShakeMapCalculator to get the XYZ data.
-  private ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
+  protected ScenarioShakeMapCalculator shakeMapCalc = new ScenarioShakeMapCalculator();
 
   //timer to show thw progress bar
-  Timer timer;
+  protected Timer timer;
 
   //Metadata String
-  private static String mapParametersInfo = null;
+  protected static String mapParametersInfo = null;
 
 
   //boolean to check if the calculation have to be done on the server
-  private boolean calculationFromServer = true;
+  protected boolean calculationFromServer = true;
 
-  /**
-   *  The object class names for all the supported Eqk Rup Forecasts
-   */
+
   /**
    *  The object class names for all the supported Eqk Rup Forecasts
    */
@@ -135,33 +133,33 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   public final static String RMI_WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
 
   // Strings for control pick list
-  private final static String CONTROL_PANELS = "Control Panels";
-  private final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
+  protected final static String CONTROL_PANELS = "Control Panels";
+  protected final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
-  private final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
-  private final static String PUENTE_HILLS_CONTROL =
+  protected final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
+  protected final static String PUENTE_HILLS_CONTROL =
       "Set Params for Puente Hills Sceanrio";
-  private final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
+  protected final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
   //private final static String SF_BAY_CONTROL = "Set Params and generate shapefiles for SF Bay Area";
   //private final static String RUN_ALL_CASES_FOR_PUENTE_HILLS = "Run all Puente Hills Scenarios";
   private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
-  private final static String CALC_PARAMS_CONTROL = "Calculation Settings";
+  protected final static String CALC_PARAMS_CONTROL = "Calculation Settings";
 
     // objects for control panels
-  private RegionsOfInterestControlPanel regionsOfInterest;
-  private PuenteHillsScenarioControlPanelUsingEqkRuptureCreation puenteHillsControlUsingEqkRupture;
-  private PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
-  private GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
+  protected RegionsOfInterestControlPanel regionsOfInterest;
+  protected PuenteHillsScenarioControlPanelUsingEqkRuptureCreation puenteHillsControlUsingEqkRupture;
+  protected PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
+  protected GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
-  private CalculationSettingsControlPanel calcParamsControl;
+  protected CalculationSettingsControlPanel calcParamsControl;
   //private SF_BayAreaScenarioControlPanel bayAreaControl;
 
   // instances of the GUI Beans which will be shown in this applet
-  private EqkRupSelectorGuiBean erfGuiBean;
-  private AttenuationRelationshipGuiBean imrGuiBean;
-  private SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
-  private IMLorProbSelectorGuiBean imlProbGuiBean;
-  private MapGuiBean mapGuiBean;
+  protected EqkRupSelectorGuiBean erfGuiBean;
+  protected AttenuationRelationshipGuiBean imrGuiBean;
+  protected SitesInGriddedRectangularRegionGuiBean sitesGuiBean;
+  protected IMLorProbSelectorGuiBean imlProbGuiBean;
+  protected MapGuiBean mapGuiBean;
 
 
   //Adding the Menu to the application
@@ -170,35 +168,35 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //JMenuItem helpLaunchMenu = new JMenuItem();
 
 
-  private boolean isStandalone = false;
-  private JPanel mainPanel = new JPanel();
-  private Border border1;
-  private JSplitPane mainSplitPane = new JSplitPane();
-  private JPanel buttonPanel = new JPanel();
-  private JPanel eqkRupPanel = new JPanel();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private JPanel gmtPanel = new JPanel();
-  private JTabbedPane parameterTabbedPanel = new JTabbedPane();
-  private JPanel imrPanel = new JPanel();
-  private JPanel imtPanel = new JPanel();
-  private JPanel prob_IMLPanel = new JPanel();
-  private BorderLayout borderLayout2 = new BorderLayout();
-  private GridBagLayout gridBagLayout9 = new GridBagLayout();
-  private GridBagLayout gridBagLayout8 = new GridBagLayout();
-  private JButton addButton = new JButton();
-  private JPanel gridRegionSitePanel = new JPanel();
-  private GridLayout gridLayout1 = new GridLayout();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout5 = new GridBagLayout();
-  JComboBox controlComboBox = new JComboBox();
-  GridBagLayout gridBagLayout6 = new GridBagLayout();
-  BorderLayout borderLayout1 = new BorderLayout();
-  private CalcProgressBar calcProgress;
-  private int step;
+  protected boolean isStandalone = false;
+  protected JPanel mainPanel = new JPanel();
+  protected Border border1;
+  protected JSplitPane mainSplitPane = new JSplitPane();
+  protected JPanel buttonPanel = new JPanel();
+  protected JPanel eqkRupPanel = new JPanel();
+  protected GridBagLayout gridBagLayout3 = new GridBagLayout();
+  protected GridBagLayout gridBagLayout2 = new GridBagLayout();
+  protected JPanel gmtPanel = new JPanel();
+  protected JTabbedPane parameterTabbedPanel = new JTabbedPane();
+  protected JPanel imrPanel = new JPanel();
+  protected JPanel imtPanel = new JPanel();
+  protected JPanel prob_IMLPanel = new JPanel();
+  protected BorderLayout borderLayout2 = new BorderLayout();
+  protected GridBagLayout gridBagLayout9 = new GridBagLayout();
+  protected GridBagLayout gridBagLayout8 = new GridBagLayout();
+  protected JButton addButton = new JButton();
+  protected JPanel gridRegionSitePanel = new JPanel();
+  protected GridLayout gridLayout1 = new GridLayout();
+  protected GridBagLayout gridBagLayout1 = new GridBagLayout();
+  protected GridBagLayout gridBagLayout5 = new GridBagLayout();
+  protected JComboBox controlComboBox = new JComboBox();
+  protected GridBagLayout gridBagLayout6 = new GridBagLayout();
+  protected BorderLayout borderLayout1 = new BorderLayout();
+  protected CalcProgressBar calcProgress;
+  protected int step;
 
 
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  protected GridBagLayout gridBagLayout4 = new GridBagLayout();
   //Get a parameter value
   public String getParameter(String key, String def) {
     return isStandalone ? System.getProperty(key, def) :
@@ -265,7 +263,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   //Component initialization
-  private void jbInit() throws Exception {
+  protected void jbInit() throws Exception {
     border1 = new EtchedBorder(EtchedBorder.RAISED,new Color(248, 254, 255),new Color(121, 124, 136));
     this.setSize(new Dimension(564, 752));
     this.getContentPane().setLayout(borderLayout1);
@@ -366,7 +364,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Initialise the Gridded Region sites gui bean
    *
    */
-  private void initGriddedRegionGuiBean() throws RegionConstraintException {
+  protected void initGriddedRegionGuiBean() throws RegionConstraintException {
 
     // create the Site Gui Bean object
     sitesGuiBean = new SitesInGriddedRectangularRegionGuiBean();
@@ -383,7 +381,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Initialize the IMR Gui Bean
    */
-  private void initIMRGuiBean() {
+  protected void initIMRGuiBean() {
     imrGuiBean = new AttenuationRelationshipGuiBean(this);
     imrGuiBean.getIntensityMeasureParamEditor().getParameterEditor(imrGuiBean.IMT_PARAM_NAME).getParameter().addParameterChangeListener(this);
     // show this IMRgui bean the Panel
@@ -394,7 +392,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Initialize the ERF Gui Bean
    */
-  private void initERFSelector_GuiBean() {
+  protected void initERFSelector_GuiBean() {
      // create the ERF Gui Bean object
    ArrayList erf_Classes = new ArrayList();
 
@@ -424,7 +422,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Initialise the IMT_Prob Selector Gui Bean
    */
-  private void initImlProb_GuiBean(){
+  protected void initImlProb_GuiBean(){
     imlProbGuiBean = new IMLorProbSelectorGuiBean();
     imlProbGuiBean.setIMLConstraintBasedOnSelectedIMT(imrGuiBean.getSelectedIMT());
     prob_IMLPanel.add(imlProbGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -438,7 +436,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Sets the GMT Params
    */
-  private void initMapGuiBean(){
+  protected void initMapGuiBean(){
     mapGuiBean = new MapGuiBean();
     mapGuiBean.showRegionParams(false);
     gmtPanel.add(mapGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
@@ -518,7 +516,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Updates the Sites Values for each site in the region chosen by the user
    *
    */
-  private void getGriddedRegionSites() throws RuntimeException, RegionConstraintException {
+  protected void getGriddedRegionSites() throws RuntimeException, RegionConstraintException {
     //if calculation have to be done on the local system
     if(!calculationFromServer)
       griddedRegionSites = sitesGuiBean.getGriddedRegionSite();
@@ -530,7 +528,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * gets the IML or Prob selected option and its value from the respective guiBean
    */
-  private void getIMLorProb(){
+  protected void getIMLorProb(){
     imlProbValue=imlProbGuiBean.getIML_Prob();
     String imlOrProb=imlProbGuiBean.getSelectedOption();
     if(imlOrProb.equalsIgnoreCase(imlProbGuiBean.PROB_AT_IML))
@@ -603,7 +601,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Sets the GMT Region coordinates
    */
-  private void setRegionForGMT(){
+  protected void setRegionForGMT(){
     double minLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LATITUDE).getValue()).doubleValue();
     double maxLat=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MAX_LATITUDE).getValue()).doubleValue();
     double minLon=((Double)sitesGuiBean.getParameterList().getParameter(sitesGuiBean.MIN_LONGITUDE).getValue()).doubleValue();
@@ -693,7 +691,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     attenRel = imrGuiBean.getSelectedIMRs();
   }
 
-  void addButton_actionPerformed(ActionEvent e) {
+  protected void addButton_actionPerformed(ActionEvent e) {
 
 
     addButton.setEnabled(false);
@@ -752,7 +750,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * when the generate Map button is pressed
    */
-  private void addButton() throws RegionConstraintException, ParameterException,
+  protected void addButton() throws RegionConstraintException, ParameterException,
       RuntimeException {
     timer.start();
     step = 1;
@@ -775,7 +773,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    *
    * @returns the Map label based on the selected Map Type( Prob@IML or IML@Prob)
    */
-  private String getMapLabel(){
+  protected String getMapLabel(){
     //making the map
     String label;
 
@@ -808,7 +806,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Initialize the items to be added to the control list
    */
-  private void initControlList() {
+  protected void initControlList() {
     this.controlComboBox.addItem(CONTROL_PANELS);
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
@@ -825,7 +823,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * This function is called when controls pick list is chosen
    * @param e
    */
-  void controlComboBox_actionPerformed(ActionEvent e) {
+  protected void controlComboBox_actionPerformed(ActionEvent e) {
     if(controlComboBox.getItemCount()<=0) return;
     String selectedControl = controlComboBox.getSelectedItem().toString();
     if(selectedControl.equalsIgnoreCase(this.REGIONS_OF_INTEREST_CONTROL))
@@ -848,7 +846,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * shows the Distance parameters in a seperate window.
    */
-  private void initCalcParamsControl(){
+  protected void initCalcParamsControl(){
     if(calcParamsControl == null)
       calcParamsControl = new CalculationSettingsControlPanel(this,this);
 
@@ -880,7 +878,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
    * Initialize the Interesting regions control panel
    * It will provide a pick list of interesting regions
    */
-  private void initRegionsOfInterestControl() {
+  protected void initRegionsOfInterestControl() {
     if(this.regionsOfInterest==null)
       regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
     regionsOfInterest.pack();
@@ -890,7 +888,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    * Initialize the parameter settings for Puente Hills Scenario
    */
-  private void initPuenteHillsScenarioControl() {
+  protected void initPuenteHillsScenarioControl() {
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters"+
         " for a Puente Hills scenario?",
                                     "Puente Hills Control Panel",JOptionPane.OK_CANCEL_OPTION);
@@ -906,7 +904,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   /**
    *Initialise the Control panel to generate the shapefiles for hazus input.
    */
-  private void initHazusScenarioControl(){
+  protected void initHazusScenarioControl(){
     if(hazusControl == null)
       hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
 
@@ -926,7 +924,7 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
  /**
   * Initialize the parameter settings for Puente Hills Scenario
    */
-  private void initPuenteHillsScenarioControlOld() {
+  protected void initPuenteHillsScenarioControlOld() {
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters for a Puente Hills scenario?",
                                     "Puente Hills Control Panel (old)",JOptionPane.OK_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
