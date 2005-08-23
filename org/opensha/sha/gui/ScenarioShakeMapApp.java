@@ -55,7 +55,7 @@ import org.opensha.exceptions.RegionConstraintException;
  * @version 1.0
  */
 
-public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListener,
+public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListener,
     AttenuationRelationshipSiteParamsRegionAPI,CalculationSettingsControlPanelAPI,Runnable{
 
   /**
@@ -197,11 +197,6 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
 
 
   protected GridBagLayout gridBagLayout4 = new GridBagLayout();
-  //Get a parameter value
-  public String getParameter(String key, String def) {
-    return isStandalone ? System.getProperty(key, def) :
-      (getParameter(key) != null ? getParameter(key) : def);
-  }
 
   //Construct the applet
   public ScenarioShakeMapApp() {
@@ -312,6 +307,18 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
     mainSplitPane.setDividerLocation(630);
 
+
+    //applet.createHelpMenu();
+    this.setSize(W,H);
+    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+    this.setLocation((dim.width - getSize().width) / 2, (dim.height - getSize().height) / 2);
+    //EXIT_ON_CLOSE == 3
+    this.setDefaultCloseOperation(3);
+
+
+
+
+
     //adding the Menu to the application
     /*helpMenu.setText("Help");
     helpLaunchMenu.setText("Help Application");
@@ -331,19 +338,8 @@ public class ScenarioShakeMapApp extends JApplet implements ParameterChangeListe
   //Main method
   public static void main(String[] args) {
     ScenarioShakeMapApp applet = new ScenarioShakeMapApp();
-    applet.isStandalone = true;
-    JFrame frame = new JFrame();
-    //EXIT_ON_CLOSE == 3
-    frame.setDefaultCloseOperation(3);
-    frame.setTitle("ScenarioShakeMap App");
-    frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
-    //applet.createHelpMenu();
-    applet.start();
-    frame.setSize(W,H);
-    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
-    frame.setVisible(true);
+    applet.setVisible(true);
   }
 
   //static initializer for setting look & feel

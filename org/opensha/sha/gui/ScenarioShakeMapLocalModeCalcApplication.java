@@ -78,19 +78,8 @@ public class ScenarioShakeMapLocalModeCalcApplication
   //Main method
   public static void main(String[] args) {
     ScenarioShakeMapLocalModeCalcApplication applet = new ScenarioShakeMapLocalModeCalcApplication();
-    applet.isStandalone = true;
-    JFrame frame = new JFrame();
-    //EXIT_ON_CLOSE == 3
-    frame.setDefaultCloseOperation(3);
-    frame.setTitle("ScenarioShakeMap App");
-    frame.getContentPane().add(applet, BorderLayout.CENTER);
     applet.init();
-    //applet.createHelpMenu();
-    applet.start();
-    frame.setSize(W,H);
-    Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-    frame.setLocation((d.width - frame.getSize().width) / 2, (d.height - frame.getSize().height) / 2);
-    frame.setVisible(true);
+    applet.setVisible(true);
   }
 
   /**
