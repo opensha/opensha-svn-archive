@@ -41,39 +41,45 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
   /**
    * class variables
    */
-  private double gridSpacing;
+  protected double gridSpacing;
 
-  private LocationList gridLocsList;
+  protected LocationList gridLocsList;
 
 
   // this makes the first lat and long grid points nice in that niceMinLat/gridSpacing
   // is and integer and the point is within the polygon
-  private double niceMinLat;
-  private double niceMinLon ;
+  protected double niceMinLat;
+  protected double niceMinLon ;
   //this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
   // is an integer
-  private double niceMaxLat;
-  private double niceMaxLon;
+  protected double niceMaxLat;
+  protected double niceMaxLon;
 
 
   //This array store number of locations below a given latitude
-  private int[] locsBelowLat;
+  protected int[] locsBelowLat;
 
   //List for storing each for a given latitude
-  private ArrayList lonsPerLatList;
+  protected ArrayList lonsPerLatList;
 
 
   //gets the locations where min/max lat lons are found in the case of sausage region.
   //these are the corresponding locaiton lat/lon for the locations provided by the
   //user in which we found the min/max lat/lon.
-  private double minLatLon, maxLatLon, minLonLat, maxLonLat;
+  protected double minLatLon, maxLatLon, minLonLat, maxLonLat;
 
   //Sausage Region Min/Max lat/lon
-  private double regionMinLat, regionMaxLat,regionMinLon,regionMaxLon;
+  protected double regionMinLat, regionMaxLat,regionMinLon,regionMaxLon;
 
 
   //Radius of the Sausage region
-  private double radius;
+  protected double radius;
+
+
+  /**
+   * Class default constructor
+   */
+  public EvenlyGriddedSausageGeographicRegion(){}
 
 
 
@@ -85,13 +91,30 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
    * @param gridSpacing double Grid Spacing in degrees
    */
   public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
+    createEvenGriddedGeographicRegion(locList, radius,gridSpacing) ;
+  }
+
+
+  /**
+   * This function allows to create a sausage region around a given list of
+   * locations with the given radius.
+   *
+   * Note:Only end point locations for the given line segments should be included.
+   *
+   * @param locList LocationList List of locations for end-points on teh line segments
+   * @param radius double maximum distance from any given location in the
+   * locationlist
+   * @param gridSpacing double
+   */
+  public void createEvenGriddedGeographicRegion(LocationList locList,
+                                                double radius,
+                                                double gridSpacing) {
     this.locList = locList;
     setMinMaxLatLon();
     this.radius = radius;
     setGridSpacing(gridSpacing);
+
   }
-
-
 
   /**
    * this method finds the minLat,maxLat,minLon and maxLon.
@@ -133,7 +156,7 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
   /*
    * This function creates the Gridded Rectangular Region Outline
    */
-  private void createEvenlyGriddedRectangularRegionOutline(){
+  protected void createEvenlyGriddedRectangularRegionOutline(){
     //location that finds the min lat for the rectangular region
     Location minLatLoc = new Location(niceMinLat,minLatLon);
     //set min and max lat and lons
@@ -437,7 +460,7 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
   /**
    * Creates the locationlist from the
    */
-  private void createGriddedLocationList() {
+  protected void createGriddedLocationList() {
 
     //creates a instance of new locationList
     gridLocsList = new LocationList();

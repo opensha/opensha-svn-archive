@@ -221,7 +221,7 @@ public class EqkRupture implements java.io.Serializable {
         rupInfo +=loc.getLatitude()+","+loc.getLongitude()+","+loc.getDepth()+
             ","+ruptureSurface.getAveStrike()+"\n";
       }
-      rupInfo +="</RuptureGridCenteredSurface>\n";
+      rupInfo +="</RuptureGridCenteredSurfaceLocations>\n";
       rupInfo +="</EqkRupture>\n";
       return rupInfo;
     }
