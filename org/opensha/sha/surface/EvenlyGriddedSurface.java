@@ -18,8 +18,6 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      */
      private double gridSpacing;
 
-     //vector to store the GriddedSurface
-     ArrayList v= new ArrayList();
 
     /**
      *  Constructor for the GriddedSurface object
@@ -129,6 +127,9 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      *
      */
     public Iterator getSubsetSurfacesIterator(int numSubSurfaceCols, int numSubSurfaceRows, int numSubSurfaceOffset) {
+
+        //vector to store the GriddedSurface
+        ArrayList v= new ArrayList();
 
         // number of subSurfaces along the length of fault
         int nSubSurfaceAlong = (int)Math.floor((numCols-numSubSurfaceCols)/numSubSurfaceOffset +1);

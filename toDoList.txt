@@ -2,6 +2,8 @@
 -------------------------------------------------------------
 
 
+Move ERF2XML_Calc out of sha/calc and into sha/util?
+
 Implement:
 
 	CubeObsEqkRuptureGeneratior - makes ObsEqkRupture(s) from a String (of list of Strings)
