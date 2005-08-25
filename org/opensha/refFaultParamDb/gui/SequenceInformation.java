@@ -6,6 +6,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
 import java.awt.event.*;
 import java.util.ArrayList;
 import org.opensha.param.*;
+import org.opensha.param.event.*;
 import org.opensha.param.estimate.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.editor.estimate.*;
@@ -20,7 +21,8 @@ import org.opensha.param.editor.estimate.*;
  * @version 1.0
  */
 
-public class SequenceInformation extends JFrame implements ActionListener {
+public class SequenceInformation extends JFrame implements ActionListener,
+    ParameterChangeListener {
   private JPanel mainPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
   private JPanel sequenceParamsPanel = new JPanel();
@@ -40,8 +42,14 @@ public class SequenceInformation extends JFrame implements ActionListener {
   private final static String SEQUENCE_PROB_PARAM_NAME = "Sequence Prob.";
   private final static String COMMENTS_PARAM_NAME = "Comments";
   private final static String REFERENCES_PARAM_NAME = "References";
-  private final static String MISSED_EVENTS_PROB_PARAM_NAME = "Missed Events Probabilities";
+  private final static String MISSED_EVENTS_PROB_PARAM_NAME = "Probability of missed events";
   private final static String EVENTS_PARAM_NAME = "Events in Sequence";
+
+  // constants for making missed events prob parameters
+  private final static String BEFORE = "Before";
+  private final static String BETWEEN = "Between";
+  private final static double MISSED_EVENT_PROB_MIN=0.0;
+  private final static double MISSED_EVENT_PROB_MAX=1.0;
 
   // Sequence Prob constraints
   private final static double SEQUENCE_PROB_MIN = 0;
@@ -52,22 +60,16 @@ public class SequenceInformation extends JFrame implements ActionListener {
   private StringParameter sequenceNameParam;
   private DoubleParameter sequenceProbParam;
   private StringParameter commentsParam;
-  private StringListParameter referencesParam;
   private StringListParameter eventsParam;
-  private EstimateParameter missedEventsParam;
+  private ParameterList missedEventsProbParamList;
 
   // various parameter editors
   private ConstrainedStringParameterEditor sequenceNumParamEditor;
   private StringParameterEditor sequenceNameParamEditor;
   private DoubleParameterEditor sequenceProbParamEditor;
-  private StringParameterEditor commentsParamEditor;
-  private ConstrainedStringListParameterEditor referencesParamEditor;
+  private CommentsParameterEditor commentsParamEditor;
   private ConstrainedStringListParameterEditor eventsParamEditor;
-  private ConstrainedEstimateParameterEditor missedEventsParamEditor;
-
-
-  // add new reference button
-  private JButton newReferenceButton = new JButton("Add Reference");
+  private ParameterListEditor missedEventsProbParamEditor;
 
   // width and height for this window
   private final static int WIDTH = 700;
@@ -98,7 +100,7 @@ public class SequenceInformation extends JFrame implements ActionListener {
   private void initParamsAndEditors() throws Exception {
     // fill all the events from 1 to number of sequences
    ArrayList sequenceNumList = new ArrayList();
-   for(int i=1; i<=numSequences; ++i) sequenceNumList.add(new String(""+i));
+   for(int i=1; i<=numSequences; ++i) sequenceNumList.add(new String("Seq "+i));
    sequenceNumParam = new StringParameter(this.SEQUENCE_NUM_PARAM_NAME, sequenceNumList, (String)sequenceNumList.get(0));
    this.sequenceNumParamEditor = new ConstrainedStringParameterEditor(sequenceNumParam);
 
@@ -108,12 +110,8 @@ public class SequenceInformation extends JFrame implements ActionListener {
 
    // comments param
    commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME);
-   commentsParamEditor = new StringParameterEditor(commentsParam);
+   commentsParamEditor = new CommentsParameterEditor(commentsParam);
 
-   // references param
-   ArrayList referencesList = getAvailableReferences();
-   referencesParam = new StringListParameter(this.REFERENCES_PARAM_NAME, referencesList);
-   referencesParamEditor = new ConstrainedStringListParameterEditor(referencesParam);
 
    // sequence probability
    this.sequenceProbParam = new DoubleParameter(this.SEQUENCE_PROB_PARAM_NAME, SEQUENCE_PROB_MIN, SEQUENCE_PROB_MAX);
@@ -122,15 +120,50 @@ public class SequenceInformation extends JFrame implements ActionListener {
    // select events in this sequence
    ArrayList eventList = getAvailableEvents();
    this.eventsParam = new StringListParameter(this.EVENTS_PARAM_NAME, eventList);
+   eventsParam.addParameterChangeListener(this);
    eventsParamEditor = new ConstrainedStringListParameterEditor(eventsParam);
 
-   // missed events prob.
-   ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveIntValues();
-   missedEventsParam = new EstimateParameter(MISSED_EVENTS_PROB_PARAM_NAME, 1, Double.POSITIVE_INFINITY,allowedEstimates);
-   missedEventsParamEditor  = new ConstrainedEstimateParameterEditor(missedEventsParam, true);
+   constructMissedEventsProbEditor();
 
    // add the parameter editors to the GUI componenets
     addEditorstoGUI();
+  }
+
+
+  /**
+   * If user selects/deselects an event in missed events list, then add/remove to the
+   * missed events prob. editor
+   * @param event
+   */
+  public void parameterChange(ParameterChangeEvent event) {
+    if(event.getParameterName().equalsIgnoreCase(this.EVENTS_PARAM_NAME))
+      constructMissedEventsProbEditor();
+  }
+
+  /**
+   * construct the missed event param editor based on selected events in the sequence
+   */
+  private void constructMissedEventsProbEditor() {
+    if(missedEventsProbParamEditor!=null)
+      eventSplitPane.remove(missedEventsProbParamEditor); // remove this from the splitpane
+    ArrayList selectedEvents = (ArrayList)eventsParam.getValue();
+    missedEventsProbParamList = new ParameterList();
+    int numEvents = 0;
+    if(selectedEvents!=null) numEvents = selectedEvents.size();
+    DoubleParameter probParameter;
+    String paramName;
+    // create the missed events prob parameters (they are equal to number of events in sequence)
+    for(int i=0; i<numEvents; ++i)  {
+      if(i==0) paramName = BEFORE+" "+selectedEvents.get(i);
+      else paramName = BETWEEN+" " +selectedEvents.get(i-1)+" & "+selectedEvents.get(i);
+      probParameter = new DoubleParameter(paramName, this.MISSED_EVENT_PROB_MIN,
+                                          this.MISSED_EVENT_PROB_MAX, new Double(1.0/numEvents));
+      missedEventsProbParamList.addParameter(probParameter);
+    }
+    missedEventsProbParamEditor  = new ParameterListEditor(missedEventsProbParamList);
+    missedEventsProbParamEditor.setTitle(MISSED_EVENTS_PROB_PARAM_NAME);
+    eventSplitPane.add(missedEventsProbParamEditor, JSplitPane.RIGHT);
+    eventSplitPane.setDividerLocation(300);
   }
 
   /**
@@ -138,20 +171,16 @@ public class SequenceInformation extends JFrame implements ActionListener {
    */
   private void addEditorstoGUI() {
     eventSplitPane.add(eventsParamEditor, JSplitPane.LEFT);
-    eventSplitPane.add(missedEventsParamEditor, JSplitPane.RIGHT);
     int yPos=0;
     sequenceParamsPanel.add(sequenceNumParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     sequenceParamsPanel.add(sequenceNameParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    sequenceParamsPanel.add(commentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     sequenceParamsPanel.add(sequenceProbParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    sequenceParamsPanel.add(referencesParamEditor,  new GridBagConstraints(1, 0, 1, 3, 1.0, 1.0
+    sequenceParamsPanel.add(commentsParamEditor,  new GridBagConstraints(1, 0, 1, 3, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    sequenceParamsPanel.add(this.newReferenceButton,  new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+
   }
 
 
@@ -161,7 +190,6 @@ public class SequenceInformation extends JFrame implements ActionListener {
    * @param event
    */
   public void actionPerformed(ActionEvent event) {
-    if(event.getSource()==this.newReferenceButton) new AddNewReference();
    /* else if(event.getSource()==this.okButton ||
       event.getSource()==this.cancelButton) this.di
     */
@@ -172,22 +200,10 @@ public class SequenceInformation extends JFrame implements ActionListener {
    * add the action listeners to the buttons
    */
   private void addActionListeners() {
-    newReferenceButton.addActionListener(this);
     okButton.addActionListener(this);
     cancelButton.addActionListener(this);
   }
 
-  /**
-  * Get a list of available references.
-  *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
-  * @return
-  */
- private ArrayList getAvailableReferences() {
-   ArrayList referencesNamesList = new ArrayList();
-   referencesNamesList.add("Reference 1");
-   referencesNamesList.add("Reference 2");
-   return referencesNamesList;
- }
 
  /**
   * Get a list of available events.
@@ -199,9 +215,9 @@ public class SequenceInformation extends JFrame implements ActionListener {
    eventNamesList.add("Event 1");
    eventNamesList.add("Event 2");
    eventNamesList.add("Event 3");
-   eventNamesList.add("Event 4");
+   /*eventNamesList.add("Event 4");
    eventNamesList.add("Event 5");
-   eventNamesList.add("Event 6");
+   eventNamesList.add("Event 6");*/
    return eventNamesList;
  }
 

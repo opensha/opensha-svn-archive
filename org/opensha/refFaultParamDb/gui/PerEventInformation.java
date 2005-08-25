@@ -38,10 +38,10 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
   private final static String EVENT_NAME_PARAM_NAME = "Event Name";
   private final static String COMMENTS_PARAM_NAME = "Comments";
   private final static String REFERENCES_PARAM_NAME = "References";
-  private final static String DATE_ESTIMATE_PARAM_NAME = "Event Date Estimate";
+  private final static String DATE_ESTIMATE_PARAM_NAME = "Event Time Estimate";
   private final static String SLIP_ESTIMATE_PARAM_NAME = "Event Slip Estimate";
-  private final static String DISPLACEMENT_SHARED_PARAM_NAME = "Displacement Shared With Other Events";
-  private final static String SHARED_EVENT_PARAM_NAME = "Sharing Displacement Event Name";
+  private final static String DISPLACEMENT_SHARED_PARAM_NAME = "Slip Shared With Other Events";
+  private final static String SHARED_EVENT_PARAM_NAME = "Names of Events Sharing Slip";
 
   //date estimate related constants
   private final static double TIME_ESTIMATE_MIN=0;
@@ -54,30 +54,25 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 
   // diplacement parameter list editor title
-  private final static String DISPLACEMENT_TITLE = "Shared Displacement";
+  private final static String DISPLACEMENT_TITLE = "Shared Slip";
   private final static String TITLE = "Per Event Information";
 
   // various parameter types
   private StringParameter eventNumParam;
   private StringParameter eventNameParam;
   private StringParameter commentsParam;
-  private StringListParameter referencesParam;
   private EstimateParameter dateEstParam;
   private EstimateParameter slipEstParam;
   private BooleanParameter displacementSharedParam;
-  private StringParameter sharedEventParam;
+  private StringListParameter sharedEventParam;
 
   // various parameter editors
   private ConstrainedStringParameterEditor eventNumParamEditor;
   private StringParameterEditor eventNameParamEditor;
-  private StringParameterEditor commentsParamEditor;
-  private ConstrainedStringListParameterEditor referencesParamEditor;
+  private CommentsParameterEditor commentsParamEditor;
   private ConstrainedEstimateParameterEditor dateEstParamEditor;
   private ConstrainedEstimateParameterEditor slipEstParamEditor;
   private ParameterListEditor displacementParamListEditor;
-
-  // add new reference button
-  private JButton newReferenceButton = new JButton("Add Reference");
 
   private final static int WIDTH = 700;
   private final static int HEIGHT = 700;
@@ -113,7 +108,7 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
 
     // fill all the events from 1 to number of events
     ArrayList eventNumList = new ArrayList();
-    for(int i=1; i<=numberOfEvents; ++i) eventNumList.add(new String(""+i));
+    for(int i=1; i<=numberOfEvents; ++i) eventNumList.add(new String("Ev "+i));
     eventNumParam = new StringParameter(this.EVENT_NUM_PARAM_NAME, eventNumList, (String)eventNumList.get(0));
     eventNumParam.addParameterChangeListener(this);
     this.eventNumParamEditor = new ConstrainedStringParameterEditor(eventNumParam);
@@ -124,12 +119,8 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
 
     // comments param
     commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME);
-    commentsParamEditor = new StringParameterEditor(commentsParam);
+    commentsParamEditor = new CommentsParameterEditor(commentsParam);
 
-    // references param
-    ArrayList referencesList = getAvailableReferences();
-    referencesParam = new StringListParameter(this.REFERENCES_PARAM_NAME, referencesList);
-    referencesParamEditor = new ConstrainedStringListParameterEditor(referencesParam);
 
     // date param
     ArrayList dateAllowedEstList = EstimateConstraint.createConstraintForDateEstimates();
@@ -147,8 +138,8 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
     // whether displacement is shared with other events
     this.displacementSharedParam = new BooleanParameter(this.DISPLACEMENT_SHARED_PARAM_NAME, new Boolean(false));
     displacementSharedParam.addParameterChangeListener(this);
-    // eevnt name parameter with which dispalcement is shared(only if displacement is shared)
-    this.sharedEventParam = new StringParameter(SHARED_EVENT_PARAM_NAME);
+    // event name parameter with which dispalcement is shared(only if displacement is shared)
+    this.sharedEventParam = new StringListParameter(SHARED_EVENT_PARAM_NAME, eventNumList);
     ParameterList paramList  = new ParameterList();
     paramList.addParameter(displacementSharedParam);
     paramList.addParameter(sharedEventParam);
@@ -171,26 +162,10 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     eventSummaryPanel.add(eventNameParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    eventSummaryPanel.add(commentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+    eventSummaryPanel.add(commentsParamEditor,  new GridBagConstraints(1, 0, 1, 2, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    eventSummaryPanel.add(referencesParamEditor,  new GridBagConstraints(1, 0, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    eventSummaryPanel.add(this.newReferenceButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
   }
 
-  /**
-   * Get a list of available references.
-   *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
-   * @return
-   */
-  private ArrayList getAvailableReferences() {
-    ArrayList referencesNamesList = new ArrayList();
-    referencesNamesList.add("Reference 1");
-    referencesNamesList.add("Reference 2");
-    return referencesNamesList;
-
-  }
 
   /**
    * This function is called whenever a paramter is changed and we have
@@ -218,17 +193,13 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
    * @param event
    */
   public void actionPerformed(ActionEvent event) {
-    if(event.getSource()==this.newReferenceButton) new AddNewReference();
-   /* else if(event.getSource()==this.okButton ||
-      event.getSource()==this.cancelButton) this.di
-    */
+
   }
 
   /**
    * add the action listeners to the buttons
    */
   private void addActionListeners() {
-    newReferenceButton.addActionListener(this);
     okButton.addActionListener(this);
     cancelButton.addActionListener(this);
   }
@@ -274,7 +245,7 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
     detailedEventInfoSplitPane.add(estimatesSplitPane, JSplitPane.LEFT);
     mainSplitPane.add(eventSummaryPanel, JSplitPane.TOP);
     estimatesSplitPane.setDividerLocation(WIDTH/3);
-    mainSplitPane.setDividerLocation(175);
+    mainSplitPane.setDividerLocation(125);
     detailedEventInfoSplitPane.setDividerLocation(WIDTH*2/3);
   }
 }

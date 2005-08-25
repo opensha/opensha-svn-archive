@@ -111,10 +111,10 @@ public class ParameterEditor
     protected JPanel widgetPanel = new JPanel();
     protected JLabel nameLabel = new JLabel();
     protected boolean focusEnabled = true;
-    Border border1;
+    protected Border border1;
 
     /** This border displays the name of the parameter. */
-    TitledBorder titledBorder1;
+    protected TitledBorder titledBorder1;
 
     /**
      *  This is a VERY IMPORTANT component to understand this framework.
@@ -130,7 +130,7 @@ public class ParameterEditor
      * Flag whether to catch errors when constraint error thrown. Resets
      * value to last value before setting with new value.
      */
-    boolean catchConstraint = false;
+    protected boolean catchConstraint = false;
 
 
     /** Flag to indicate that this widget is processing a key typed event */

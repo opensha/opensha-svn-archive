@@ -25,7 +25,7 @@ import org.opensha.gui.LabeledBoxPanel;
 public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeListener,
     ActionListener {
 
-  private final static String AVAILABLE_INFO_PARAM_NAME="I have info on";
+  private final static String AVAILABLE_INFO_PARAM_NAME="For this Time-period, I have info on";
   private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Dated Features";
 
 
@@ -43,10 +43,10 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
 
    // CUMULATIVE DISPLACEMENT
-  private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Total Displacement Estimate";
+  private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Cumulative Displacement Estimate";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
   private final static String CUMULATIVE_DISPLACEMENT_REFERENCES_PARAM_NAME="Cumulative Displacement References";
-  private final static String CUMULATIVE_DISPLACEMENT_UNITS = "mm/yr";
+  private final static String CUMULATIVE_DISPLACEMENT_UNITS = "mm";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 
@@ -57,15 +57,16 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private final static double NUM_EVENTS_MAX=Integer.MAX_VALUE;
 
   // number of individual parameter
-  private final static String NUM_INDIVIDUAL_EVENTS_PARAM_NAME = "Num Individual Events:";
-  private final static String NUM_SEQUENCES_PARAM_NAME = "Num Sequences:";
+  private final static String NUM_INDIVIDUAL_EVENTS_PARAM_NAME = "Num Individual Events";
+  private final static String NUM_SEQUENCES_PARAM_NAME = "Num Sequences";
+  private final static String INDIVIDUAL_EVENTS_REFERENCES_PARAM_NAME="Individual Events References";
 
   // various types of information that user can provide
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
   private final static String EVENTS_INFO = "Number of Events";
-  private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate and Number of Events in same Time Period";
-  private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cumulative Displacement and Number of Events in same Time Period";
+  private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate & Num of Events";
+  private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cum Displacement & Num of Events";
   private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
 
 
@@ -81,6 +82,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private StringListParameter slipRateReferencesParam;
   private StringListParameter cumDisplacementReferencesParam;
   private StringListParameter numEventsReferencesParam;
+  private StringListParameter individualEventsReferencesParam;
   private EstimateParameter slipRateEstimateParam;
   private EstimateParameter aSeismicSlipFactorParam;
   private StringParameter slipRateCommentsParam;
@@ -92,7 +94,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
 
   // various parameter Editors for this window
   private ConstrainedStringParameterEditor availableInfoParamEditor;
-  private StringParameterEditor datedFeatureCommentsParamEditor;
+  private CommentsParameterEditor datedFeatureCommentsParamEditor;
  /* private ConstrainedStringListParameterEditor slipRateReferencesParamEditor;
   private ConstrainedStringListParameterEditor cumDisplacementReferencesParamEditor;
   private ConstrainedStringListParameterEditor numEventsReferencesParamEditor;
@@ -253,7 +255,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
 
     // dated feature comments
     datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
-    datedFeatureCommentsParamEditor = new StringParameterEditor(datedFeatureCommentsParam);
+    datedFeatureCommentsParamEditor = new CommentsParameterEditor(datedFeatureCommentsParam);
 
   }
 
@@ -389,8 +391,8 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
    ParameterList paramList = new ParameterList();
    paramList.addParameter(slipRateEstimateParam);
    paramList.addParameter(aSeismicSlipFactorParam);
-   paramList.addParameter(slipRateReferencesParam);
    paramList.addParameter(slipRateCommentsParam);
+   paramList.addParameter(slipRateReferencesParam);
    slipRateParameterListEditor = new ParameterListEditor(paramList);
    slipRateParameterListEditor.setTitle(this.SLIP_RATE_PARAMS_TITLE);
   }
@@ -412,8 +414,8 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
    ParameterList paramList = new ParameterList();
    paramList.addParameter(cumDisplacementParam);
    paramList.addParameter(aSeismicSlipFactorParam);
-   paramList.addParameter(cumDisplacementReferencesParam);
    paramList.addParameter(displacementCommentsParam);
+   paramList.addParameter(cumDisplacementReferencesParam);
    this.cumDisplacementParameterListEditor = new ParameterListEditor(paramList);
    cumDisplacementParameterListEditor.setTitle(this.CUM_DISPLACEMENT_PARAMS_TITLE);
 
@@ -446,16 +448,19 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
  private void addIndividualEventsParameters() throws Exception {
    this.numIndividualEventsParam = new IntegerParameter(this.NUM_INDIVIDUAL_EVENTS_PARAM_NAME, 0, Integer.MAX_VALUE, new Integer(1));
    this.numSequencesParam = new IntegerParameter(this.NUM_SEQUENCES_PARAM_NAME, 0, Integer.MAX_VALUE, new Integer(1));
+   ArrayList availableReferences = getAvailableReferences();
+   this.individualEventsReferencesParam = new StringListParameter(this.INDIVIDUAL_EVENTS_REFERENCES_PARAM_NAME, availableReferences);
    ParameterList paramList = new ParameterList();
    paramList.addParameter(numIndividualEventsParam);
    paramList.addParameter(numSequencesParam);
+   paramList.addParameter(individualEventsReferencesParam);
    this.individualEventsParameterListEditor = new ParameterListEditor(paramList);
    individualEventsParameterListEditor.setTitle(this.INDIVIDUAL_EVENTS_PARAMS_TITLE);
    // enter info for individual events
-   individualEventsParameterListEditor.add(this.perEventInfoButton,  new GridBagConstraints(0, 2, 2, 1, 1.0, 0.0
+   individualEventsParameterListEditor.add(this.perEventInfoButton,  new GridBagConstraints(0, 3, 2, 1, 1.0, 0.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
    // enter info for sequences
-   individualEventsParameterListEditor.add(this.perSequenceInfoButton,  new GridBagConstraints(0, 3, 2, 1, 1.0, 0.0
+   individualEventsParameterListEditor.add(this.perSequenceInfoButton,  new GridBagConstraints(0, 4, 2, 1, 1.0, 0.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
 
  }

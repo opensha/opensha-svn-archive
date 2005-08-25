@@ -96,11 +96,13 @@ public class LocationParameterEditor
 
       ( (JButton) valueEditor).addActionListener(this);
       fillConstraint = GridBagConstraints.HORIZONTAL;
+      editor.setTitle("Set " + param.getName());
     } else { // DO NOT show button for pop-up window
       valueEditor = editor;
       fillConstraint = GridBagConstraints.BOTH;
       valueEditor.setMinimumSize( WIGET_PANEL_DIM);
       valueEditor.setPreferredSize( WIGET_PANEL_DIM );
+      editor.setTitle(param.getName());
     }
 
     // add the valueEditor to the panel
@@ -135,7 +137,6 @@ public class LocationParameterEditor
     while (it.hasNext())
       ( (ParameterAPI) it.next()).addParameterChangeListener(this);
     editor = new ParameterListEditor(paramList);
-    editor.setTitle("Set " + param.getName());
   }
 
   /**

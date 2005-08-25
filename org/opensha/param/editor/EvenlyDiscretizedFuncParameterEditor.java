@@ -47,7 +47,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
         "one Y value";
     private final static String Y_VALID_MSG = "Y Values entered must be valid numbers" ;
     private final static String INCORRECT_NUM_Y_VALS = "Number of Y vals should be equal to number of X values";
-    protected final static Dimension SCROLLPANE_DIM = new Dimension( 140, 230 );
+    protected final static Dimension SCROLLPANE_DIM = new Dimension( 70, 230 );
     /**
      * Paramter List for holding all parameters
      */

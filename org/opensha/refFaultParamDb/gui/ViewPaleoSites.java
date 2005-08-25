@@ -59,9 +59,8 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   // various buttons in thos window
   private JButton addNewSiteButton = new JButton("Add Site");
   private JButton editSiteButton = new JButton("Edit Site");
-  private JButton viewEditTimeSpanInfoButton = new JButton("<html>Edit Info for <br> this Time Period</html>");
-  private JButton addTimeSpanInfoButton = new JButton("<html>Add Info for <br>another Time Period</html>");
-  private JButton closeButton = new JButton("Close");
+  private JButton viewEditTimeSpanInfoButton = new JButton("Edit Info for this Time Period");
+  private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Period");
 
 
   public ViewPaleoSites() {
@@ -113,14 +112,11 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
    add(this.endTimeParamEditor,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
    // view data for this time period
-   add(this.viewEditTimeSpanInfoButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+   add(this.viewEditTimeSpanInfoButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
   // add data for a new time period
-   add(this.addTimeSpanInfoButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+   add(this.addTimeSpanInfoButton,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
     ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-   // close button
-   add(closeButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
   }
 
   /**

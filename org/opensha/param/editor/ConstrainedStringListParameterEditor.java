@@ -67,8 +67,6 @@ public class ConstrainedStringListParameterEditor
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
-        setParameter(model);
-
         if(D) System.out.println(S + "Ending");
     }
 
@@ -182,7 +180,6 @@ public class ConstrainedStringListParameterEditor
             widgetPanel.setMinimumSize(JLIST_DIM);
 
             ( (JList) valueEditor).addListSelectionListener(this);
-            valueEditor.addFocusListener(this);
             widgetPanel.add(scrollPane, WIDGET_GBC);
             widgetPanel.setBackground(null);
             widgetPanel.validate();
@@ -225,21 +222,6 @@ public class ConstrainedStringListParameterEditor
       }
     }
 
-    /**
-     * Called whenever a user picks a new value in the picklist, i.e.
-     * synchronizes the model to the new GUI value. This is where the
-     * picklist value is set in the ParameterAPI of this editor.
-     */
-    public void itemStateChanged(ItemEvent e) {
-        String S = C + ": itemStateChanged(): ";
-        if(D) System.out.println(S + "Starting: " + e.toString());
-
-        String value = ((JComboBox) valueEditor).getSelectedItem().toString();
-        if(D) System.out.println(S + "New Value = " + (value) );
-        this.setValue(value);
-
-        if(D) System.out.println(S + "Ending");
-    }
 
     /**
      * This method is called when a selection is changed in the JList

@@ -1,9 +1,10 @@
-package org.opensha.param.editor;
+package org.opensha.refFaultParamDb.gui;
 
 import java.awt.event.*;
 import javax.swing.border.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
+import org.opensha.param.editor.ParameterEditor;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import org.opensha.data.function.DiscretizedFuncAPI;
@@ -16,46 +17,42 @@ import java.awt.Dimension;
 import java.awt.Insets;
 
 /**
- * <b>Title:</b> ArbitrarilyDiscretizedFuncParameterEditor<p>
+ * <b>Title:</b> CommnetsParameterEditor<p>
  *
- * <b>Description:</b> Subclass of ParameterEditor for editing DiscretizedFuncParameters.
- * The widget is a JTextArea which allows X and Y values to be filled in.  <p>
+ * <b>Description:</b>   This allows the input of multi line comments by the user.
  *
  * @author Vipin Gupta, Nitin Gupta
  * @version 1.0
  */
-public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
+public class CommentsParameterEditor extends ParameterEditor
 {
 
     /** Class name for debugging. */
-    protected final static String C = "DiscretizedFuncParameterEditor";
+    protected final static String C = "CommentsParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;
-    private final static String  ONE_XY_VAL_MSG = "Each line should have just one X and " +
-                                          "one Y value, which are space seperated";
-     private final static String XY_VALID_MSG = "X and Y Values entered must be valid numbers" ;
-     protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 230 );
-     protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
-            0, 0, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 );
-     protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
-            0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
+    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 100 );
+    protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
+      0, 0, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 );
+    protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
+      0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
 
     /** No-Arg constructor calls parent constructor */
-    public ArbitrarilyDiscretizedFuncParameterEditor() { super(); }
+    public CommentsParameterEditor() { super(); }
 
     /**
      * Constructor that sets the parameter that it edits. An
-     * Exception is thrown if the model is not an DiscretizedFuncParameter <p>
+     * Exception is thrown if the model is not an String Parameter <p>
      */
-     public ArbitrarilyDiscretizedFuncParameterEditor(ParameterAPI model) throws Exception {
+     public CommentsParameterEditor(ParameterAPI model) throws Exception {
 
         super(model);
 
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
-        if ( (model != null ) && !(model instanceof ArbitrarilyDiscretizedFuncParameter))
-            throw new Exception( S + "Input model parameter must be a DiscretizedFuncParameter.");
+        if ( (model != null ) && !(model instanceof StringParameter))
+            throw new Exception( S + "Input model parameter must be a StringParameter.");
 
         //this.setParameter(model);
         if(D) System.out.println(S.concat("Ending"));
@@ -131,51 +128,56 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
 
 
 
-    /**
-     * Called when the user clicks on another area of the GUI outside
-     * this editor panel. This synchornizes the editor text field
-     * value to the internal parameter reference.
-     */
-    public void focusLost(FocusEvent e) throws ConstraintException {
+       /**
+        * Called when the user clicks on another area of the GUI outside
+        * this editor panel. This synchornizes the editor text field
+        * value to the internal parameter reference.
+        */
+       public void focusLost(FocusEvent e) {
 
-        String S = C + ": focusLost(): ";
-        if(D) System.out.println(S + "Starting");
+           String S = C + ": focusLost(): ";
+           if(D) System.out.println(S + "Starting");
 
-        super.focusLost(e);
+           super.focusLost(e);
 
-        focusLostProcessing = false;
-        if( keyTypeProcessing == true ) return;
-        focusLostProcessing = true;
+           focusLostProcessing = false;
+           if( keyTypeProcessing == true ) return;
+           focusLostProcessing = true;
 
-        String str = ((JTextArea) valueEditor).getText();
+           String value = ((JTextArea) valueEditor).getText();
+           try {
 
-        // set the value in ArbitrarilyDiscretizedFunc
-        DiscretizedFuncAPI function = (DiscretizedFuncAPI)model.getValue();
-        StringTokenizer st = new StringTokenizer(str,"\n");
-        while(st.hasMoreTokens()){
-          StringTokenizer st1 = new StringTokenizer(st.nextToken());
-          int numVals = st1.countTokens();
-          if(numVals !=2) {
-            JOptionPane.showMessageDialog(this, this.ONE_XY_VAL_MSG);
-            return;
-          }
-          double tempX_Val=0;
-          double tempY_Val=0;
-          try{
-            tempX_Val = Double.parseDouble(st1.nextToken());
-            tempY_Val = Double.parseDouble(st1.nextToken());
-          }catch(NumberFormatException ex){
-            JOptionPane.showMessageDialog(this, XY_VALID_MSG);
-            return;
-          }
-          function.set(tempX_Val,tempY_Val);
-        }
-        refreshParamEditor();
-        valueEditor.validate();
-        valueEditor.repaint();
-        focusLostProcessing = false;
-        if(D) System.out.println(S + "Ending");
-      }
+               String d = "";
+               if( !value.equals( "" ) ) d = value;
+               setValue(d);
+               refreshParamEditor();
+               valueEditor.validate();
+               valueEditor.repaint();
+           }
+           catch (ConstraintException ee) {
+               if(D) System.out.println(S + "Error = " + ee.toString());
+
+               Object obj = getValue();
+               if( obj != null )
+                   ((JTextArea) valueEditor).setText(obj.toString());
+               else ((JTextArea) valueEditor).setText( "" );
+
+               if( !catchConstraint ){ this.unableToSetValue(value); }
+               focusLostProcessing = false;
+           }
+           catch (WarningException ee){
+               focusLostProcessing = false;
+               refreshParamEditor();
+               valueEditor.validate();
+               valueEditor.repaint();
+           }
+
+
+           focusLostProcessing = false;
+           if(D) System.out.println(S + "Ending");
+
+       }
+
 
     /** Sets the parameter to be edited. */
     public void setParameter(ParameterAPI model) {
@@ -202,13 +204,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
      * event.
      */
     public void refreshParamEditor(){
-        DiscretizedFuncAPI func = (DiscretizedFuncAPI)model.getValue();
-        if ( func != null ) { // show X, Y values from the function
-          JTextArea textArea = (JTextArea) valueEditor;
-          textArea.setText("");
-          int num = func.getNum();
-          for(int i=0; i<num; ++i) textArea.append(func.getX(i)+"\t"+func.getY(i)+"\n");
-        }
-        else ((JTextArea) valueEditor).setText( "" );
+      String string = (String)model.getValue();
+      ((JTextArea)valueEditor).setText(string);
     }
 }

@@ -145,14 +145,23 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private ParameterListEditor probValsParamListEditor;
 
    // parameters for Date Estimate
-   private StringParameter datingTechParam;
-   private final static String DATING_TECH_PARAM_NAME="Dating Technique";
-   private BooleanParameter isDateCorrectedParam;
    private final static String IS_DATE_CORRECTED_PARAM_NAME="Is Date Corrected";
+   private BooleanParameter isDateCorrectedParam;
    private StringParameter yearUnitsParam;
    private final static String YEAR_UNITS_PARAM_NAME="Year Units";
-   private StringParameter yearBeforeParam;
-   private final static String YEAR_BEFORE_PARAM_NAME="Years Before";
+   private IntegerParameter calendarYearParam;
+   private final static String CALENDAR_YEAR = "Calendar Year";
+   private final static String CALENDAR_YEAR_PARAM_NAME="Year";
+   private final static Integer CALENDAR_YEAR_DEFAULT_VAL = new Integer(2005);
+   private final static String ZERO_YEAR_PARAM_NAME = "Zero Year";
+   private IntegerParameter zeroYearParam;
+   private final static String CALENDAR_ERA_PARAM_NAME="Era";
+   private final static String AD = "AD";
+   private final static String BC = "BC";
+   private final static String KA = "ka";
+   private final static Integer YEAR1950 = new Integer(1950);
+   private StringParameter eraParam;
+
 
    // title of Parameter List Editor
    public static final String X_TITLE = new String("X Values");
@@ -242,11 +251,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     container.add(viewEstimateButton,new GridBagConstraints( 0, 2, 1, 1, 1.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-    container.add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
+    //container.add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
+    //    , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
 
 
     this.setEstimateInfo(editor.getToolTipText()+"\n"+PDF_DISCRETE_ESTIMATE_INFO);
+    // change date params based on whether user wants to enter calendar date or ka
+    setDateParamsVisible();
     setEstimateParams((String)chooseEstimateParam.getValue());
     this.refreshParamEditor();
     // All done
@@ -306,27 +317,31 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
 
     /**
-     * Parameters for Date Estimate [dating technique, isCorrected, units(ka/ma),
-     *  years before today/1950]
+     * Parameters for Date Estimate [ isCorrected, units(ka/calendar year),
+     *  era, 0th year (in case it is ka)]
      */
-    ArrayList datingTechniques = new ArrayList();
-    datingTechniques.add(DateEstimateAPI.CARBON14_TECHNIQUE);
-    datingTechParam = new StringParameter(DATING_TECH_PARAM_NAME,
-        datingTechniques, (String)datingTechniques.get(0));
 
-    isDateCorrectedParam = new BooleanParameter(IS_DATE_CORRECTED_PARAM_NAME);
-
+    // whether user wants to enter ka or calendar year
     ArrayList yearUnitsList = new ArrayList();
-    yearUnitsList.add(DateEstimateAPI.KA);
-    yearUnitsList.add(DateEstimateAPI.MA);
+    yearUnitsList.add(CALENDAR_YEAR);
+    yearUnitsList.add(KA);
     yearUnitsParam = new StringParameter(YEAR_UNITS_PARAM_NAME,
         yearUnitsList, (String)yearUnitsList.get(0));
+    yearUnitsParam.addParameterChangeListener(this);
 
-    ArrayList yearBeforeList = new ArrayList();
-    yearBeforeList.add(DateEstimateAPI.YEAR1950);
-    yearBeforeList.add(DateEstimateAPI.TODAY);
-    yearBeforeParam = new StringParameter(YEAR_BEFORE_PARAM_NAME,
-        yearBeforeList, (String)yearBeforeList.get(0));
+    this.calendarYearParam = new IntegerParameter(this.CALENDAR_YEAR_PARAM_NAME, 0, Integer.MAX_VALUE, CALENDAR_YEAR_DEFAULT_VAL);
+
+    // Add ERAs
+    ArrayList eras = new ArrayList();
+    eras.add(AD);
+    eras.add(BC);
+    this.eraParam = new StringParameter(this.CALENDAR_ERA_PARAM_NAME, eras, (String)eras.get(0));
+
+    // ZERO year param
+    this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, Integer.MAX_VALUE, YEAR1950);
+
+    // is date corrected ?
+    isDateCorrectedParam = new BooleanParameter(IS_DATE_CORRECTED_PARAM_NAME);
 
    /**
     * Min/Max  values that can be set into Normal/LogNormal estimate
@@ -351,10 +366,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(this.stdDevParam);
    parameterList.addParameter(this.linearMedianParam);
    parameterList.addParameter(this.logBaseParam);
-   parameterList.addParameter(datingTechParam);
-   parameterList.addParameter(isDateCorrectedParam);
    parameterList.addParameter(yearUnitsParam);
-   parameterList.addParameter(yearBeforeParam);
+   parameterList.addParameter(calendarYearParam);
+   parameterList.addParameter(zeroYearParam);
+   parameterList.addParameter(eraParam);
+   parameterList.addParameter(isDateCorrectedParam);
    parameterList.addParameter(this.arbitrarilyDiscFuncParam);
    parameterList.addParameter(evenlyDiscFuncParam);
    parameterList.addParameter(minNormalEstimateParam);
@@ -402,7 +418,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    estimateInfo.setBackground(this.STRING_BACK_COLOR);
    estimateInfo.setEditable(false);
    //setEstimateButton = new JButton("Set Estimate");
-   viewEstimateButton = new JButton("View Estimate");
+   viewEstimateButton = new JButton("Plot Estimate");
    //setEstimateButton.addActionListener(this);
    viewEstimateButton.addActionListener(this);
 
@@ -427,9 +443,25 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    */
   public void parameterChange(ParameterChangeEvent event) {
     // based on user selection of estimates, make the parameters visible/invisible
-    if(event.getParameterName().equalsIgnoreCase(CHOOSE_ESTIMATE_PARAM_NAME))
-      setEstimateParams((String)chooseEstimateParam.getValue());
-    this.refreshParamEditor();
+    if(event.getParameterName().equalsIgnoreCase(CHOOSE_ESTIMATE_PARAM_NAME)) {
+      setEstimateParams( (String) chooseEstimateParam.getValue());
+      this.refreshParamEditor();
+    }else if(event.getParameterName().equalsIgnoreCase(this.YEAR_UNITS_PARAM_NAME)) {
+       // change date params based on whether user wants to enter calendar date or ka
+       setDateParamsVisible();
+    }
+  }
+
+  // change date params based on whether user wants to enter calendar date or ka
+  private void setDateParamsVisible() {
+    String yearUnitsVal = (String)this.yearUnitsParam.getValue();
+     if(yearUnitsVal.equalsIgnoreCase(this.CALENDAR_YEAR)) { //if user wants to enter calendar date
+       editor.setParameterVisible(this.CALENDAR_YEAR_PARAM_NAME, true);
+       editor.setParameterVisible(this.ZERO_YEAR_PARAM_NAME, false);
+     }else if(yearUnitsVal.equalsIgnoreCase(KA)) { // if user wants to enter ka years
+         editor.setParameterVisible(this.CALENDAR_YEAR_PARAM_NAME, false);
+         editor.setParameterVisible(this.ZERO_YEAR_PARAM_NAME, true);
+     }
   }
 
   // make the params visible/invisible based on selected estimate type
@@ -483,10 +515,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   }
 
   private void setParamsForDateEstimate(boolean isVisible) {
-    editor.setParameterVisible(DATING_TECH_PARAM_NAME, isVisible);
+    editor.setParameterVisible(CALENDAR_ERA_PARAM_NAME, isVisible);
     editor.setParameterVisible(IS_DATE_CORRECTED_PARAM_NAME, isVisible);
     editor.setParameterVisible(YEAR_UNITS_PARAM_NAME, isVisible);
-    editor.setParameterVisible(YEAR_BEFORE_PARAM_NAME, isVisible);
+    editor.setParameterVisible(CALENDAR_YEAR_PARAM_NAME, isVisible);
+    editor.setParameterVisible(ZERO_YEAR_PARAM_NAME, isVisible);
   }
 
 
