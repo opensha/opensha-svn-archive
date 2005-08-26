@@ -1,11 +1,11 @@
-package org.opensha.sha.calc;
+package org.opensha.cybershake;
 
 import java.io.*;
 import java.util.*;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.*;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
@@ -13,9 +13,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
 import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.region.RectangularGeographicRegion;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.util.SystemPropertiesUtils;
 
 /**
- * <p>Title: ERF2XML_Calc</p>
+ * <p>Title: ERF2RuptureForSTF_Generator</p>
  *
  * <p>Description: This class returns the list of EqkRuptures either
  * as ArrayList or a XML String, which can be dumped in the file.</p>
@@ -24,7 +25,7 @@ import org.opensha.exceptions.RegionConstraintException;
  */
 
 
-public class ERF2XML_Calc {
+public class ERF2RuptureForSTF_Generator {
 
   private EqkRupForecastAPI eqkRupForecast;
 
@@ -37,11 +38,9 @@ public class ERF2XML_Calc {
   //to see if the rupture is within the circular distance of the given Site.
   private CircularGeographicRegion region;
 
-  private static int xmlFileCounter =1;
-  private static int erfSourceIndexXML_FileCounter=1;
 
 
-  public ERF2XML_Calc(EqkRupForecast eqkRupForecast, Site site,
+  public ERF2RuptureForSTF_Generator(EqkRupForecast eqkRupForecast, Site site,
                       double cuttOffDistance) {
     this.eqkRupForecast = eqkRupForecast;
     this.site = site;
@@ -99,58 +98,56 @@ public class ERF2XML_Calc {
    *
    * @return FileWriter handle to the XML file
    */
-  public FileWriter getEqkRupturesAsXMLStringNearSite() {
+  public void getEqkRupturesAsXMLStringNearSite(String directoryName) {
 
     //Location of the Site
     Location siteLoc = site.getLocation();
 
+    if(directoryName.endsWith(SystemPropertiesUtils.getSystemFileSeparator()))
+      directoryName += SystemPropertiesUtils.getSystemFileSeparator();
     FileWriter fw = null;
     try {
-      fw = new FileWriter("Site"+xmlFileCounter+".xml");
+      File f = new File(directoryName);
+      if(!f.exists() || !f.isDirectory()){
+        f.mkdir();
 
-      String rupturesXMLString = "<Earthquake>\n";
-      rupturesXMLString += "<EqkRupForecast>\n";
-      rupturesXMLString += "<EqkRupForecast-Class>" +
-          eqkRupForecast.getClass().getName() + "</EqkRupForecast-Class>\n";
-      rupturesXMLString += "<EqkRupForecast-Params>\n";
-      ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
-      while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
-        rupturesXMLString +=  param.getName() +"="+ param.getValue() + "\n";
+        fw = new FileWriter(directoryName + "EqkRupForecast_Params.txt");
+
+        String erfString = "EqkRupForecast_Class" +
+            eqkRupForecast.getClass().getName() + "\n";
+
+        ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
+        while (it.hasNext()) {
+          ParameterAPI param = (ParameterAPI) it.next();
+          erfString += param.getName() + "=" + param.getValue() + "\n";
+        }
+        fw.write(erfString);
+        fw.close();
       }
-      rupturesXMLString += "</EqkRupForecast-Params>\n";
-      rupturesXMLString += "</EqkRupForecast>\n";
-      rupturesXMLString += "<Site>\n";
-      rupturesXMLString += "<Site-Location>\n";
-      rupturesXMLString += "<Latitude>" + siteLoc.getLatitude() +
-          "</Latitude>\n";
-      rupturesXMLString += "<Longitude>" + siteLoc.getLongitude() +
-          "</Longitude>\n";
-      rupturesXMLString += "<Depth>" + siteLoc.getDepth() + "</Depth>\n";
-      rupturesXMLString += "</Site-Location>\n";
-      rupturesXMLString += "</Site>\n";
-      rupturesXMLString += "<Cut-Off-Distance>" + distance +
-          "</Cut-Off-Distance>\n";
-      rupturesXMLString += "<ProbEqkRupList>\n";
+      fw = new FileWriter(directoryName+siteLoc.getLatitude()+"_"+siteLoc.getLongitude()+".txt");
+      String siteString ="";
+      siteString += "Site-Latitude = "+siteLoc.getLatitude() +"\n";
+      siteString += "Site-Longitude = "+siteLoc.getLongitude() +"\n";
+
+      siteString += "Site-Depth = " + siteLoc.getDepth() + "\n";
+      siteString += "Cut-Off-Distance = " + distance +"\n";
+      fw.write(siteString);
+      fw.close();
       int numSources = eqkRupForecast.getNumSources();
-      fw.write(rupturesXMLString);
-      rupturesXMLString = "";
+
       //Going over each and every source in the forecast
       for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
 
         // get the ith source
         ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
         int numRuptures = source.getNumRuptures();
-        //System.out.println("Going over source :" + sourceIndex +
-          //                 " with numRups :" + numRuptures);
-        rupturesXMLString += "<FaultSource>\n";
-        rupturesXMLString += "SourceIndex = " + sourceIndex +"\n";
+
         //going over all the ruptures in the source
         for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 
           ProbEqkRupture rupture = source.getRupture(rupIndex);
-
-          GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface().getGridCenteredSurface();
+          GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface().
+              getGridCenteredSurface();
 
           //getting the iterator for all points on the rupture
           ListIterator lit = rupSurface.getAllByRowsIterator();
@@ -158,30 +155,22 @@ public class ERF2XML_Calc {
           //within the provided distance range then include the rupture in the list.
           while (lit.hasNext()) {
             Location ptLoc = (Location) lit.next();
-            if (region.isLocationInside(ptLoc)) {
-              rupturesXMLString += "RuptureIndex =" + rupIndex +"\n";
-              rupturesXMLString += rupture.ruptureXML_String();
+            if(region.isLocationInside(ptLoc)) {
+              fw = new FileWriter(directoryName+sourceIndex+"_"+rupIndex+".txt");
+              String ruptureString = ruptureString(rupture);
+              fw.write(ruptureString);
+              fw.close();
               break;
             }
           }
-          fw.write(rupturesXMLString);
-          rupturesXMLString = "";
-        }
-        rupturesXMLString += "</FaultSource>\n";
-        fw.write(rupturesXMLString);
-        rupturesXMLString = "";
-      }
 
-      rupturesXMLString += "</ProbEqkRupList>\n";
-      rupturesXMLString += "</Earthquake>\n";
-      fw.close();
+        }
+
+      }
     }
     catch (IOException ex) {
       ex.printStackTrace();
     }
-
-    ++xmlFileCounter;
-    return fw;
   }
 
   /**
@@ -197,7 +186,7 @@ public class ERF2XML_Calc {
     HashMap probRupIdentifierList = new HashMap();
 
     int numSources = eqkRupForecast.getNumSources();
-    //creating a arrayList to hold the rupture indices for a given site and eqkrupforecast.
+    //creating a ArrayList to hold the rupture indices for a given site and eqkrupforecast.
     for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex)
       probRupIdentifierList.put(new Integer(sourceIndex), new ArrayList());
 
@@ -231,80 +220,6 @@ public class ERF2XML_Calc {
     }
     return probRupIdentifierList;
   }
-
-  /**
-   * Create a XML with Metadata for the selected ERF, Site and cut-off distance.
-   * It then writes out source index and rupture index for the EqkRupture which
-   * are within the cut-off distance from the Site.
-   * Returns the Handle to XML file
-   */
-  public FileWriter getProbEqkRuptureIdentifiersXMLFileNearSite() {
-
-    //Location of the Site
-    Location siteLoc = site.getLocation();
-
-    FileWriter fw = null;
-    try {
-      fw = new FileWriter("ERF_Identifier"+erfSourceIndexXML_FileCounter+".xml");
-
-      String rupturesXMLString = "<Earthquake>\n";
-      rupturesXMLString += "<EqkRupForecast>\n";
-      rupturesXMLString += "<EqkRupForecast-Class>" +
-          eqkRupForecast.getClass().getName() + "</EqkRupForecast-Class>\n";
-      rupturesXMLString += "<EqkRupForecast-Params>\n";
-      ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
-      while (it.hasNext()) {
-        ParameterAPI param = (ParameterAPI) it.next();
-        rupturesXMLString +=  param.getName() +"="+ param.getValue() + "\n";
-      }
-      rupturesXMLString += "</EqkRupForecast-Params>\n";
-      rupturesXMLString += "</EqkRupForecast>\n";
-      rupturesXMLString += "<Site>\n";
-      rupturesXMLString += "<Site-Location>\n";
-      rupturesXMLString += "<Latitude>" + siteLoc.getLatitude() +
-          "</Latitude>\n";
-      rupturesXMLString += "<Longitude>" + siteLoc.getLongitude() +
-          "</Longitude>\n";
-      rupturesXMLString += "<Depth>" + siteLoc.getDepth() + "</Depth>\n";
-      rupturesXMLString += "</Site-Location>\n";
-      rupturesXMLString += "</Site>\n";
-      rupturesXMLString += "<Cut-Off-Distance>" + distance +
-          "</Cut-Off-Distance>\n";
-      rupturesXMLString += "<ProbEqkRupList>\n";
-      fw.write(rupturesXMLString);
-      rupturesXMLString = "";
-
-      HashMap sourceRupList = getProbEqkRuptureIdentifiersNearSite();
-      Set set = sourceRupList.keySet();
-      Iterator lit = set.iterator();
-      while(lit.hasNext()){
-        int sourceIndex = ((Integer)lit.next()).intValue();
-        ArrayList rupList = (ArrayList)sourceRupList.get(new Integer(sourceIndex));
-        int rupListSize = rupList.size();
-        if(rupListSize >0){
-          rupturesXMLString += "<FaultSource>\n";
-          rupturesXMLString += "SourceIndex = " + sourceIndex + "\n";
-          for(int i=0;i<rupListSize;++i){
-            rupturesXMLString += "RuptureIndex =" + ((Integer)rupList.get(i)).intValue() + "\n";
-          }
-          rupturesXMLString += "</FaultSource>\n";
-          fw.write(rupturesXMLString);
-          rupturesXMLString = "";
-        }
-      }
-      rupturesXMLString += "</ProbEqkRupList>\n";
-      rupturesXMLString += "</Earthquake>\n";
-      fw.close();
-    }
-    catch (IOException ex) {
-      ex.printStackTrace();
-    }
-
-    ++xmlFileCounter;
-    return fw;
-  }
-
-
 
 
 
@@ -404,7 +319,7 @@ public class ERF2XML_Calc {
     LocationList locList = new LocationList();
 
     locList.addLocation(new Location(34.01919, -118.28631));
-    locList.addLocation(new Location(34.14844 , -118.17117));
+    /*locList.addLocation(new Location(34.14844 , -118.17117));
     locList.addLocation(new Location(34.054985,-118.41201));
     locList.addLocation(new Location(34.052041, -118.25713));
     locList.addLocation(new Location(33.754962, -118.22300));
@@ -412,7 +327,7 @@ public class ERF2XML_Calc {
     locList.addLocation(new Location(34.041832,-118.06528));
     locList.addLocation(new Location(34.063778, -117.29572));
     locList.addLocation(new Location(34.009092, -118.48937));
-    locList.addLocation(new Location(34.199765, -118.35602));
+    locList.addLocation(new Location(34.199765, -118.35602));*/
 
     ListIterator it = locList.listIterator();
     /*FileWriter fw = null;
@@ -426,8 +341,8 @@ public class ERF2XML_Calc {
       Location loc = (Location) it.next();
       //System.out.println("After creating the ERF");
       Site site = new Site(loc);
-      ERF2XML_Calc calc = new ERF2XML_Calc(frankelForecast, site, 200.0);
-      calc.getEqkRupturesAsXMLStringNearSite();
+      ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
+      calc.getEqkRupturesAsXMLStringNearSite("Temp");
       /*RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
@@ -473,4 +388,84 @@ public class ERF2XML_Calc {
       ex3.printStackTrace();
     }*/
   }
+
+  /**
+   * Creates the XML representation for the Eqk Rupture Object
+   * @return String
+   */
+  private String ruptureString(ProbEqkRupture rupture) {
+
+    String rupInfo = "";
+    rupInfo += "Probability =" + rupture.getProbability() +"\n";
+    rupInfo += "Magnitude = " + rupture.getMag() +"\n";
+
+    GriddedSurfaceAPI surface = rupture.getRuptureSurface();
+    double gridSpacing = this.getGridSpacing(surface);
+    rupInfo += "GridSpacing = " + gridSpacing +"\n";
+    ListIterator it = rupture.getAddedParametersIterator();
+    if (it != null) {
+      while (it.hasNext()) {
+        ParameterAPI param = (ParameterAPI) it.next();
+        rupInfo += param.getName() + "=" + param.getValue() + "\n";
+      }
+    }
+
+    double rake = rupture.getAveRake();
+    double dip = surface.getAveDip();
+
+    //Local Strike for each grid centered location on the rupture
+    double[] localStrikeList = this.getLocalStrikeList(surface);
+
+    GriddedSurfaceAPI rupSurface = surface.getGridCenteredSurface();
+    int numRows = surface.getNumRows();
+    int numCols = surface.getNumCols();
+    rupInfo += "NumRows = "+numRows+"\n";
+    rupInfo += "NumCols = "+numCols+"\n";
+
+    for(int i=0;i<numRows;++i){
+      for (int j = 0; j < numCols; ++j) {
+        Location loc = rupSurface.getLocation(i,j);
+        rupInfo += loc.getLatitude() + " , " + loc.getLongitude() + " , " +
+            loc.getDepth() +" , "+rake+" , "+dip+" , "+localStrikeList[j]+"\n";
+      }
+    }
+    return rupInfo;
+  }
+
+  /**
+   * Returns the local strike list for a given rupture
+   * @param surface GriddedSurfaceAPI
+   * @return double[]
+   */
+  private double[] getLocalStrikeList(GriddedSurfaceAPI surface){
+    int numCols = surface.getNumCols();
+    double[] localStrike = new double[numCols-1];
+    for(int i=0;i<numCols-1;++i){
+      Location loc1 = surface.getLocation(0,i);
+      Location loc2 = surface.getLocation(0,i+1);
+      double strike = RelativeLocation.getAzimuth(loc1.getLatitude(),loc1.getLongitude(),loc2.getLatitude(),loc2.getLongitude());
+      localStrike[i] = strike;
+    }
+    return localStrike;
+  }
+
+
+
+  /**
+   * Returns the gridspacing for the Latitudes
+   * @return double
+   */
+  private double getGridSpacing(GriddedSurfaceAPI surface) {
+    if(surface instanceof EvenlyGriddedSurface)
+      return ((EvenlyGriddedSurface)surface).getGridSpacing();
+    else{
+      Location loc1 = surface.getLocation(0, 0);
+      Location loc2 = surface.getLocation(1, 0);
+      return Math.abs(loc2.getLatitude() - loc1.getLatitude());
+    }
+  }
+
+
+
+
 }

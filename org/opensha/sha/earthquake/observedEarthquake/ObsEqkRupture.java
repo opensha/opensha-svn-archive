@@ -174,25 +174,6 @@ public class ObsEqkRupture
     return false;
   }
 
-  /**
-   * Creates the XML representation for the Eqk Rupture Object
-   * @return String
-   */
-  public String ruptureXML_String() {
-    String rupInfo = "<ObsEqkRupture>\n";
-    rupInfo += "<EventId>" + eventId + "</EventId>\n";
-    rupInfo += "<DataSource>" + dataSource + "</DataSource>\n";
-    rupInfo += "<EventVersion>" + eventVersion + "</EventVersion>\n";
-    rupInfo += "<OriginTime>" + originTime.toString() + "</OriginTime>\n";
-    rupInfo += "<HypoLocHorzErr>" + hypoLocHorzErr + "</HypoLocHorzErr>\n";
-    rupInfo += "<HypoLocVertErr>" + hypoLocVertErr + "</HypoLocVertErr>\n";
-    rupInfo += "<HypoLocVertErr>" + hypoLocVertErr + "</HypoLocVertErr>\n";
-    rupInfo += "<MagError>" + magError + "</MagError>\n";
-    rupInfo += "<magType>" + magType + "</magType>\n";
-    rupInfo += super.ruptureXML_String();
-    rupInfo += "</ObsEqkRupture>\n";
-    return rupInfo;
-  }
 
   /**
    * Gets the Info for the Observed EqkRupture

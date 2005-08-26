@@ -41,6 +41,8 @@ public class EvenlyGriddedGeographicRegionAroundEqkRupture
     LocationList locList = new LocationList();
     locList.addLocation(surface.getLocation(0,0));
     locList.addLocation(surface.getLocation(0,surface.getNumCols()-1));
+    locList.addLocation(surface.getLocation(surface.getNumRows()-1,surface.getNumCols()-1));
+    locList.addLocation(surface.getLocation(surface.getNumRows()-1,0));
     createEvenGriddedGeographicRegion(locList, radius,gridSpacing);
   }
 

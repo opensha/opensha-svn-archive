@@ -121,17 +121,6 @@ public class ProbEqkRupture extends EqkRupture{
 
 
 
-  /**
-   * Creates the XML representation for the Eqk Rupture Object
-   * @return String
-   */
-  public String ruptureXML_String() {
-    String rupInfo = "<ProbEqkRupture>\n";
-    rupInfo += "<Probability>" + probability + "</Probability>\n";
-    rupInfo += super.ruptureXML_String();
-    rupInfo += "</ProbEqkRupture>\n";
-    return rupInfo;
-  }
 
 
 
