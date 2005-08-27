@@ -103,17 +103,21 @@ public class ERF2RuptureForSTF_Generator {
     //Location of the Site
     Location siteLoc = site.getLocation();
 
-    if(directoryName.endsWith(SystemPropertiesUtils.getSystemFileSeparator()))
-      directoryName += SystemPropertiesUtils.getSystemFileSeparator();
+
     FileWriter fw = null;
     try {
       File f = new File(directoryName);
+
+      String directoryPath = f.getAbsolutePath();
+
+      if(!directoryPath.endsWith(SystemPropertiesUtils.getSystemFileSeparator()))
+      directoryPath += SystemPropertiesUtils.getSystemFileSeparator();
       if(!f.exists() || !f.isDirectory()){
         f.mkdir();
 
-        fw = new FileWriter(directoryName + "EqkRupForecast_Params.txt");
+        fw = new FileWriter(directoryPath + "EqkRupForecast_Params.txt");
 
-        String erfString = "EqkRupForecast_Class" +
+        String erfString = "EqkRupForecast_Class = " +
             eqkRupForecast.getClass().getName() + "\n";
 
         ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
@@ -124,12 +128,14 @@ public class ERF2RuptureForSTF_Generator {
         fw.write(erfString);
         fw.close();
       }
-      fw = new FileWriter(directoryName+siteLoc.getLatitude()+"_"+siteLoc.getLongitude()+".txt");
-      String siteString ="";
-      siteString += "Site-Latitude = "+siteLoc.getLatitude() +"\n";
-      siteString += "Site-Longitude = "+siteLoc.getLongitude() +"\n";
 
-      siteString += "Site-Depth = " + siteLoc.getDepth() + "\n";
+
+      fw = new FileWriter(directoryPath+(float)siteLoc.getLatitude()+"_"+(float)siteLoc.getLongitude()+".txt");
+      String siteString ="";
+      siteString += "Site-Latitude = "+(float)siteLoc.getLatitude() +"\n";
+      siteString += "Site-Longitude = "+(float)siteLoc.getLongitude() +"\n";
+
+      siteString += "Site-Depth = " + (float)siteLoc.getDepth() + "\n";
       siteString += "Cut-Off-Distance = " + distance +"\n";
       fw.write(siteString);
       fw.close();
@@ -156,7 +162,7 @@ public class ERF2RuptureForSTF_Generator {
           while (lit.hasNext()) {
             Location ptLoc = (Location) lit.next();
             if(region.isLocationInside(ptLoc)) {
-              fw = new FileWriter(directoryName+sourceIndex+"_"+rupIndex+".txt");
+              fw = new FileWriter(directoryPath+sourceIndex+"_"+rupIndex+".txt");
               String ruptureString = ruptureString(rupture);
               fw.write(ruptureString);
               fw.close();
@@ -312,8 +318,12 @@ public class ERF2RuptureForSTF_Generator {
         setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
 
     frankelForecast.getAdjustableParameterList().getParameter(
-        Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_NAME).setValue(
-            frankelForecast.FAULT_MODEL_STIRLING);
+      Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_NAME).setValue(
+        frankelForecast.FAULT_MODEL_STIRLING);
+    frankelForecast.getAdjustableParameterList().getParameter(
+      Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(
+        new Double(5.0));
+
     frankelForecast.getTimeSpan().setDuration(50.0);
     frankelForecast.updateForecast();
     LocationList locList = new LocationList();
@@ -396,11 +406,11 @@ public class ERF2RuptureForSTF_Generator {
   private String ruptureString(ProbEqkRupture rupture) {
 
     String rupInfo = "";
-    rupInfo += "Probability =" + rupture.getProbability() +"\n";
-    rupInfo += "Magnitude = " + rupture.getMag() +"\n";
+    rupInfo += "Probability = " + (float)rupture.getProbability() +"\n";
+    rupInfo += "Magnitude = " + (float)rupture.getMag() +"\n";
 
     GriddedSurfaceAPI surface = rupture.getRuptureSurface();
-    double gridSpacing = this.getGridSpacing(surface);
+    double gridSpacing = (float)this.getGridSpacing(surface);
     rupInfo += "GridSpacing = " + gridSpacing +"\n";
     ListIterator it = rupture.getAddedParametersIterator();
     if (it != null) {
@@ -417,16 +427,16 @@ public class ERF2RuptureForSTF_Generator {
     double[] localStrikeList = this.getLocalStrikeList(surface);
 
     GriddedSurfaceAPI rupSurface = surface.getGridCenteredSurface();
-    int numRows = surface.getNumRows();
-    int numCols = surface.getNumCols();
+    int numRows = rupSurface.getNumRows();
+    int numCols = rupSurface.getNumCols();
     rupInfo += "NumRows = "+numRows+"\n";
     rupInfo += "NumCols = "+numCols+"\n";
-
+    rupInfo +="# Lat  Lon  Depth  Rake  Dip  Strike\n";
     for(int i=0;i<numRows;++i){
       for (int j = 0; j < numCols; ++j) {
         Location loc = rupSurface.getLocation(i,j);
-        rupInfo += loc.getLatitude() + " , " + loc.getLongitude() + " , " +
-            loc.getDepth() +" , "+rake+" , "+dip+" , "+localStrikeList[j]+"\n";
+        rupInfo += (float)loc.getLatitude() + "    " + (float)loc.getLongitude() + "    " +
+            (float)loc.getDepth() +"   "+(float)rake+"    "+(float)dip+"   "+(float)localStrikeList[j]+"\n";
       }
     }
     return rupInfo;
@@ -464,8 +474,6 @@ public class ERF2RuptureForSTF_Generator {
       return Math.abs(loc2.getLatitude() - loc1.getLatitude());
     }
   }
-
-
 
 
 }
