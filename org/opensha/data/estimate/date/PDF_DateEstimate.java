@@ -13,7 +13,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  */
 
 public class PDF_DateEstimate extends PDF_Estimate implements DateEstimateAPI {
-  public final static String NAME  =  "Date PDF";
+  public final static String NAME  =  "Time PDF";
   private boolean isDateCorrected=false;
 
   public PDF_DateEstimate(EvenlyDiscretizedFunc func, boolean isNormalized) {

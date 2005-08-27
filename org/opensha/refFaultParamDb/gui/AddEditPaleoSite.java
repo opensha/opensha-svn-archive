@@ -3,6 +3,7 @@ package org.opensha.refFaultParamDb.gui;
 import javax.swing.*;
 import java.util.ArrayList;
 import org.opensha.param.*;
+import org.opensha.param.event.*;
 import org.opensha.param.editor.*;
 import java.awt.Container;
 import java.awt.*;
@@ -14,7 +15,7 @@ import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: AddPaleoSite.java </p>
- * <p>Description:  GUI to allow the user to add a new paleo site or edit a exisitng
+ * <p>Description:  GUI to allow the user to add a new paleo site or edit an exisitng
  * paleo site. </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -22,7 +23,7 @@ import java.awt.event.ActionEvent;
  * @version 1.0
  */
 
-public class AddEditPaleoSite extends JFrame implements ActionListener {
+public class AddEditPaleoSite extends JFrame implements ActionListener, ParameterChangeListener {
 
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
@@ -37,11 +38,13 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
   private final static Double DEFAULT_LON_VAL=new Double(-118.0);
   private final static Double DEFAULT_DEPTH_VAL=new Double(2.0);
   private final static String TITLE = "Add New Site";
+  private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
 
 
   // input parameters declaration
   private StringParameter siteNameParam;
   private LocationParameter siteLocationParam;
+  private LocationParameter siteLocationParam2;
   private StringParameter assocWithFaultParam;
   private StringParameter siteTypeParam;
   private StringParameter siteRepresentationParam;
@@ -49,6 +52,7 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
   // input parameter editors
   private StringParameterEditor siteNameParamEditor;
   private LocationParameterEditor siteLocationParamEditor;
+  private LocationParameterEditor siteLocationParamEditor2;
   private ConstrainedStringParameterEditor assocWithFaultParamEditor;
   private ConstrainedStringParameterEditor siteTypeParamEditor;
   private ConstrainedStringParameterEditor siteRepresentationParamEditor;
@@ -69,6 +73,8 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
       this.setTitle(TITLE);
       // add listeners for the buttons in this window
       addActionListeners();
+      // show/not show second site location
+      setSecondLocationVisible();
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -97,29 +103,33 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
   private void jbInit() {
     Container contentPane = this.getContentPane();
     contentPane.setLayout(new GridBagLayout());
+    int yPos = 0;
     // site name editor
-    contentPane.add(siteNameParamEditor,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+    contentPane.add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // site location
-    contentPane.add(siteLocationParamEditor,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+    contentPane.add(siteLocationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // associated with fault
-    contentPane.add(assocWithFaultParamEditor,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
+    contentPane.add(assocWithFaultParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // site types
-    contentPane.add(siteTypeParamEditor,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+    contentPane.add(siteTypeParamEditor,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // add new site type
-    contentPane.add(addNewSiteButton,  new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0
+    contentPane.add(addNewSiteButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+    // site location 2
+    contentPane.add(siteLocationParamEditor2,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // how representative is this site
-    contentPane.add(siteRepresentationParamEditor,  new GridBagConstraints(0, 4, 2, 1, 1.0, 1.0
+    contentPane.add(siteRepresentationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // ok button
-    contentPane.add(okButton,  new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
+    contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
     // cancel button
-    contentPane.add(cancelButton,  new GridBagConstraints(1, 5, 1, 1, 1.0, 1.0
+    contentPane.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
   }
 
@@ -139,8 +149,20 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
                                              DEFAULT_LAT_VAL,
                                              DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
    siteLocationParamEditor = new LocationParameterEditor(siteLocationParam,true);
+   // set depth invisible
+   //siteLocationParamEditor.setParameterVisible(DEPTH_PARAM_NAME, false);
 
-   // choose the fault with which this site is associated
+   // second site location, in "Between Locations" is selected as the Site type
+   siteLocationParam2 = new LocationParameter(SITE_LOCATION_PARAM_NAME, LAT_PARAM_NAME,
+                                             LON_PARAM_NAME, DEPTH_PARAM_NAME,
+                                             DEFAULT_LAT_VAL,
+                                             DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
+   siteLocationParamEditor2 = new LocationParameterEditor(siteLocationParam2,true);
+   // set depth invisible
+   //siteLocationParamEditor2.setParameterVisible(DEPTH_PARAM_NAME, false);
+
+
+   // choose the fault with which this site is associateda
    ArrayList faultNamesList = getFaultNames();
    assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME, faultNamesList,
                                               (String)faultNamesList.get(0));
@@ -149,8 +171,9 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
    // available study types
    ArrayList siteTypes = getSiteTypes();
    siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME, siteTypes,
-                                              (String)siteTypes.get(0));
-    siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
+                                       (String)siteTypes.get(0));
+   siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
+   siteTypeParam.addParameterChangeListener(this);
 
    // how representative is this site?
    ArrayList siteRepresentations = getSiteRepresentations();
@@ -158,6 +181,31 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
                                               (String)siteRepresentations.get(0));
    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
   }
+
+
+  /**
+   * If site type added is "BETWEEN LOCATIONS", then  allow the user to enter
+   * the second location
+   *
+   * @param event
+   */
+  public void parameterChange(ParameterChangeEvent event) {
+    if(event.getParameterName().equalsIgnoreCase(this.SITE_TYPE_PARAM_NAME))
+      setSecondLocationVisible();
+  }
+
+  /**
+   * If site type added is "BETWEEN LOCATIONS", then  allow the user to enter
+   * the second location
+   *
+   */
+  private void setSecondLocationVisible() {
+    String selectedSiteType =  (String)this.siteTypeParam.getValue();
+    if(selectedSiteType.equalsIgnoreCase(this.BETWEEN_LOCATIONS_SITE_TYPE))
+      this.siteLocationParamEditor2.setVisible(true);
+    else this.siteLocationParamEditor2.setVisible(false);
+  }
+
 
   /**
   * Get the site representations.
@@ -197,6 +245,7 @@ public class AddEditPaleoSite extends JFrame implements ActionListener {
    */
   private ArrayList getSiteTypes() {
     ArrayList siteTypesList = new ArrayList();
+    siteTypesList.add(this.BETWEEN_LOCATIONS_SITE_TYPE);
     siteTypesList.add("Trench");
     siteTypesList.add("Geologic");
     siteTypesList.add("Survey/Cultural");

@@ -631,6 +631,13 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
       return true;
     }
 
+    /**
+     * Clear all the X and Y values from this function
+     */
+    public void clear() {
+      points.clear();
+    }
+
     /*  temp main method to investige numerical precision issues
 public static void main( String[] args ) {
 

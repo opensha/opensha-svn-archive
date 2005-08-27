@@ -169,6 +169,19 @@ public class LocationParameterEditor
     editor.setEnabled(isEnabled);
   }
 
+  /**
+   *  Hides or shows one of the ParameterEditors in the ParameterList. setting
+   *  the boolean parameter to true shows the panel, setting it to false hides
+   *  the panel. <p>
+   *
+   * @param  parameterName  The parameter editor to toggle on or off.
+   * @param  visible      The boolean flag. If true editor is visible.
+   */
+  public void setParameterVisible(String parameterName, boolean visible) {
+    editor.setParameterVisible(parameterName, visible);
+  }
+
+
 
   /**
    * Called when the parameter has changed independently from

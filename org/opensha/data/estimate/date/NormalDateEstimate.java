@@ -12,7 +12,7 @@ import org.opensha.data.estimate.NormalEstimate;
  */
 
 public class NormalDateEstimate extends NormalEstimate implements DateEstimateAPI {
-  public final static String NAME  =  "Date Normal";
+  public final static String NAME  =  "Time Normal";
   private boolean isDateCorrected=false;
 
 

@@ -12,7 +12,7 @@ import org.opensha.data.estimate.LogNormalEstimate;
  */
 
 public class LogNormalDateEstimate extends LogNormalEstimate implements DateEstimateAPI {
-  public final static String NAME  =  "Date Log Normal";
+  public final static String NAME  =  "Time Log Normal";
   private boolean isDateCorrected=false;
 
   public LogNormalDateEstimate(double linearMedian, double stdDev) {

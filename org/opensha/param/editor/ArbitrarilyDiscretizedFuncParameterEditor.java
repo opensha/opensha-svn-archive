@@ -6,7 +6,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
-import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import java.util.StringTokenizer;
 import javax.swing.JOptionPane;
 import javax.swing.BorderFactory;
@@ -18,7 +18,7 @@ import java.awt.Insets;
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFuncParameterEditor<p>
  *
- * <b>Description:</b> Subclass of ParameterEditor for editing DiscretizedFuncParameters.
+ * <b>Description:</b> Subclass of ParameterEditor for editing ArbitrarilyDiscretizedFunc.
  * The widget is a JTextArea which allows X and Y values to be filled in.  <p>
  *
  * @author Vipin Gupta, Nitin Gupta
@@ -150,7 +150,8 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         String str = ((JTextArea) valueEditor).getText();
 
         // set the value in ArbitrarilyDiscretizedFunc
-        DiscretizedFuncAPI function = (DiscretizedFuncAPI)model.getValue();
+        ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)model.getValue();
+        function.clear();
         StringTokenizer st = new StringTokenizer(str,"\n");
         while(st.hasMoreTokens()){
           StringTokenizer st1 = new StringTokenizer(st.nextToken());
@@ -202,7 +203,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
      * event.
      */
     public void refreshParamEditor(){
-        DiscretizedFuncAPI func = (DiscretizedFuncAPI)model.getValue();
+        ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)model.getValue();
         if ( func != null ) { // show X, Y values from the function
           JTextArea textArea = (JTextArea) valueEditor;
           textArea.setText("");

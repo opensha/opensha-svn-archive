@@ -13,7 +13,7 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
  */
 
 public class FractileListDateEstimate extends FractileListEstimate implements DateEstimateAPI {
-  public final static String NAME  =  "Date Min, Max and Preferred";
+  public final static String NAME  =  "Time Min, Max and Preferred";
   private boolean isDateCorrected=false;
 
   public FractileListDateEstimate(ArbDiscrEmpiricalDistFunc func) {

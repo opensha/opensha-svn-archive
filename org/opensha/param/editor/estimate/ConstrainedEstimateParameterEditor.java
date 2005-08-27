@@ -131,22 +131,20 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private final static Double DEFAULT_MAX_X_PARAM_VAL=new Double(10);
    private DoubleParameter prefferedX_Param ;
    private final static String PREF_X_PARAM_NAME="Preffered X";
-   private final static Double DEFAULT_PREFERRED_X_PARAM_VAL=new Double(10);
+   private final static Double DEFAULT_PREFERRED_X_PARAM_VAL=new Double(5);
    private DoubleParameter minProbParam;
    private final static String MIN_PROB_PARAM_NAME="Min Prob";
    private final static Double DEFAULT_MIN_PROB_PARAM_VAL=new Double(0.25);
    private DoubleParameter maxProbParam ;
    private final static String MAX_PROB_PARAM_NAME="Max Prob";
-   private final static Double DEFAULT_MAX_PROB_PARAM_VAL=new Double(0.25);
+   private final static Double DEFAULT_MAX_PROB_PARAM_VAL=new Double(1.0);
    private DoubleParameter prefferedProbParam ;
-   private final static String PREF_PROB_PARAM_NAME="Preffered Prob";
+   private final static String PREF_PROB_PARAM_NAME="Preferred Prob";
    private final static Double DEFAULT_PREFERRED_PROB_PARAM_VAL=new Double(0.5);
    private ParameterListEditor xValsParamListEditor;
    private ParameterListEditor probValsParamListEditor;
 
    // parameters for Date Estimate
-   private final static String IS_DATE_CORRECTED_PARAM_NAME="Is Date Corrected";
-   private BooleanParameter isDateCorrectedParam;
    private StringParameter yearUnitsParam;
    private final static String YEAR_UNITS_PARAM_NAME="Year Units";
    private IntegerParameter calendarYearParam;
@@ -257,7 +255,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
     this.setEstimateInfo(editor.getToolTipText()+"\n"+PDF_DISCRETE_ESTIMATE_INFO);
     // change date params based on whether user wants to enter calendar date or ka
-    setDateParamsVisible();
+    setDateParamsVisibleBasedOnUnits();
     setEstimateParams((String)chooseEstimateParam.getValue());
     this.refreshParamEditor();
     // All done
@@ -338,10 +336,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.eraParam = new StringParameter(this.CALENDAR_ERA_PARAM_NAME, eras, (String)eras.get(0));
 
     // ZERO year param
-    this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, Integer.MAX_VALUE, YEAR1950);
+    this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, Integer.MAX_VALUE, AD, YEAR1950);
 
-    // is date corrected ?
-    isDateCorrectedParam = new BooleanParameter(IS_DATE_CORRECTED_PARAM_NAME);
 
    /**
     * Min/Max  values that can be set into Normal/LogNormal estimate
@@ -370,7 +366,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    parameterList.addParameter(calendarYearParam);
    parameterList.addParameter(zeroYearParam);
    parameterList.addParameter(eraParam);
-   parameterList.addParameter(isDateCorrectedParam);
    parameterList.addParameter(this.arbitrarilyDiscFuncParam);
    parameterList.addParameter(evenlyDiscFuncParam);
    parameterList.addParameter(minNormalEstimateParam);
@@ -448,19 +443,21 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
       this.refreshParamEditor();
     }else if(event.getParameterName().equalsIgnoreCase(this.YEAR_UNITS_PARAM_NAME)) {
        // change date params based on whether user wants to enter calendar date or ka
-       setDateParamsVisible();
+       setDateParamsVisibleBasedOnUnits();
     }
   }
 
   // change date params based on whether user wants to enter calendar date or ka
-  private void setDateParamsVisible() {
+  private void setDateParamsVisibleBasedOnUnits() {
     String yearUnitsVal = (String)this.yearUnitsParam.getValue();
      if(yearUnitsVal.equalsIgnoreCase(this.CALENDAR_YEAR)) { //if user wants to enter calendar date
        editor.setParameterVisible(this.CALENDAR_YEAR_PARAM_NAME, true);
        editor.setParameterVisible(this.ZERO_YEAR_PARAM_NAME, false);
+       editor.setParameterVisible(this.CALENDAR_ERA_PARAM_NAME, true);
      }else if(yearUnitsVal.equalsIgnoreCase(KA)) { // if user wants to enter ka years
          editor.setParameterVisible(this.CALENDAR_YEAR_PARAM_NAME, false);
          editor.setParameterVisible(this.ZERO_YEAR_PARAM_NAME, true);
+         editor.setParameterVisible(this.CALENDAR_ERA_PARAM_NAME, false);
      }
   }
 
@@ -469,18 +466,33 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
 
     // if it is a date estimate, show the additional parameters
-    if(this.isDateEstimate(estimateName)) setParamsForDateEstimate(true);
+    if(this.isDateEstimate(estimateName)) {
+      setParamsForDateEstimate(true);
+      setDateParamsVisibleBasedOnUnits();
+    }
     else setParamsForDateEstimate(false);
 
 
     // For NORMAL estimate
     if(estimateName.equalsIgnoreCase(NormalEstimate.NAME) ||
-       estimateName.equalsIgnoreCase(NormalDateEstimate.NAME))
+       estimateName.equalsIgnoreCase(NormalDateEstimate.NAME)) {
       setParamsForNormalEstimate();
+      // do not show min/max params for Normal estimate in case of Date estimate
+      if(estimateName.equalsIgnoreCase(NormalDateEstimate.NAME)) {
+         editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+         editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+      }
+    }
     // for LOGNORMAL Estimate
     else if(estimateName.equalsIgnoreCase(LogNormalEstimate.NAME)||
-            estimateName.equalsIgnoreCase(LogNormalDateEstimate.NAME))
+            estimateName.equalsIgnoreCase(LogNormalDateEstimate.NAME)) {
       setParamsForLogNormalEstimate();
+      // do not show min/max params for LogNormal estimate in case of Date estimate
+      if(estimateName.equalsIgnoreCase(LogNormalDateEstimate.NAME)) {
+        editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+        editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+      }
+    }
     // for Integer Estimate and DiscretValueEstimate
     else if(estimateName.equalsIgnoreCase(IntegerEstimate.NAME) ||
             estimateName.equalsIgnoreCase(DiscreteValueEstimate.NAME) ||
@@ -516,7 +528,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   private void setParamsForDateEstimate(boolean isVisible) {
     editor.setParameterVisible(CALENDAR_ERA_PARAM_NAME, isVisible);
-    editor.setParameterVisible(IS_DATE_CORRECTED_PARAM_NAME, isVisible);
     editor.setParameterVisible(YEAR_UNITS_PARAM_NAME, isVisible);
     editor.setParameterVisible(CALENDAR_YEAR_PARAM_NAME, isVisible);
     editor.setParameterVisible(ZERO_YEAR_PARAM_NAME, isVisible);

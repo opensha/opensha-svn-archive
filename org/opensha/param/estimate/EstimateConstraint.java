@@ -242,7 +242,6 @@ public class EstimateConstraint extends DoubleConstraint {
    public static ArrayList createConstraintForDateEstimates() {
      ArrayList allowedEstimateTypes = new ArrayList();
      allowedEstimateTypes.add(NormalDateEstimate.NAME);
-     allowedEstimateTypes.add(LogNormalDateEstimate.NAME);
      allowedEstimateTypes.add(DiscreteValueDateEstimate.NAME);
      allowedEstimateTypes.add(FractileListDateEstimate.NAME);
      allowedEstimateTypes.add(PDF_DateEstimate.NAME);

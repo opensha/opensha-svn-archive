@@ -71,7 +71,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     private JTextArea yTextArea;
     // y scroll pane
     private JScrollPane yScrollPane;
-    EvenlyDiscretizedFunc function;
+    private EvenlyDiscretizedFunc function;
 
     /** No-Arg constructor calls parent constructor */
     public EvenlyDiscretizedFuncParameterEditor() {
