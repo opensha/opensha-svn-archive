@@ -90,13 +90,19 @@ public class ERF2RuptureForSTF_Generator {
   }
 
   /**
-   * Creates XML file with metadata about the selected ERF, Site and cut-off distance
-   * as the Header info. It also writes out the Source index for the ERF and Ruptures
-   * index and its info like prob,mag,rake,dip,strike and GriddedSurface in the same
-   * XML file. Ruptures which are in the range of cut-off distance form the Site
-   * are written to the XML file.
-   *
-   * @return FileWriter handle to the XML file
+   * This function creates ruptures files in the specified directory, if it already
+   * does not exists. It creates a single rupture file for a given rupture.
+   * If the directory in which files are to be created already exists then it assumes
+   * that will contain the "EqkRupForecast_Params.txt" metadata file.
+   * This function allows the user with the flexibility of creating rupture files
+   * for multiple sites keeping the ERf parameters same for all sites.
+   * Also it will also generate a file for for each site which will tell the source
+   * and rupture index which were within the cutt-off distance of the site.
+   * It generates rupture file with following naming convention:
+   * sourceIndex+"_"+ruptureIndex+".txt". It generates a new rupture file only
+   * if it does not exists.
+   * @param directoryName String Name of the directory in which rupture files are
+   * to be  created
    */
   public void getEqkRupturesAsXMLStringNearSite(String directoryName) {
 
@@ -106,6 +112,9 @@ public class ERF2RuptureForSTF_Generator {
 
     FileWriter fw = null;
     try {
+      //creating the file with the directory name provided by the user. It will
+      // then it sees if directory already exists and if it does then don't create
+      //else create a new directory.
       File f = new File(directoryName);
 
       String directoryPath = f.getAbsolutePath();
@@ -115,11 +124,12 @@ public class ERF2RuptureForSTF_Generator {
       if(!f.exists() || !f.isDirectory()){
         f.mkdir();
 
+        //creating the ERF params file in the directory.
         fw = new FileWriter(directoryPath + "EqkRupForecast_Params.txt");
 
         String erfString = "EqkRupForecast_Class = " +
             eqkRupForecast.getClass().getName() + "\n";
-
+        //filling the metadata for ERF params.
         ListIterator it = eqkRupForecast.getAdjustableParamsIterator();
         while (it.hasNext()) {
           ParameterAPI param = (ParameterAPI) it.next();
@@ -129,20 +139,23 @@ public class ERF2RuptureForSTF_Generator {
         fw.close();
       }
 
-
-      fw = new FileWriter(directoryPath+(float)siteLoc.getLatitude()+"_"+(float)siteLoc.getLongitude()+".txt");
+      //creating the Site file
+      FileWriter siteFw = new FileWriter(directoryPath+(float)siteLoc.getLatitude()+"_"+(float)siteLoc.getLongitude()+".txt");
       String siteString ="";
       siteString += "Site-Latitude = "+(float)siteLoc.getLatitude() +"\n";
       siteString += "Site-Longitude = "+(float)siteLoc.getLongitude() +"\n";
 
       siteString += "Site-Depth = " + (float)siteLoc.getDepth() + "\n";
       siteString += "Cut-Off-Distance = " + distance +"\n";
-      fw.write(siteString);
-      fw.close();
+      siteFw.write(siteString+"\n\n");
+      siteFw.write("# Below are the Source and Ruptures that within the cutt-off "+
+          "distance from the Site for the ERF\n\n");
+      siteFw.write("# SourceIndex   RuptureIndex\n");
+
       int numSources = eqkRupForecast.getNumSources();
 
       //Going over each and every source in the forecast
-      for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
+      for (int sourceIndex = 5506; sourceIndex < numSources; ++sourceIndex) {
 
         // get the ith source
         ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
@@ -151,6 +164,7 @@ public class ERF2RuptureForSTF_Generator {
         //going over all the ruptures in the source
         for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 
+          //getting the rupture on the source and its gridCentered Surface
           ProbEqkRupture rupture = source.getRupture(rupIndex);
           GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface().
               getGridCenteredSurface();
@@ -161,18 +175,26 @@ public class ERF2RuptureForSTF_Generator {
           //within the provided distance range then include the rupture in the list.
           while (lit.hasNext()) {
             Location ptLoc = (Location) lit.next();
+            //if any location of the rupture is within the cutt-off distance of
+            //the site then include that rupture.
             if(region.isLocationInside(ptLoc)) {
-              fw = new FileWriter(directoryPath+sourceIndex+"_"+rupIndex+".txt");
-              String ruptureString = ruptureString(rupture);
-              fw.write(ruptureString);
-              fw.close();
-              break;
+              //writing the source rupture index for the Site in the Site file
+              siteFw.write(sourceIndex+"    "+rupIndex+"\n");
+              //creating the rupture file if it already does not exists else go to the next rupture.
+              String ruptureFileName = directoryPath+sourceIndex+"_"+rupIndex+".txt";
+              File file = new File(ruptureFileName);
+              if(!file.exists() || !file.isFile()){
+                fw = new FileWriter(ruptureFileName);
+                String ruptureString = ruptureString(rupture);
+                fw.write(ruptureString);
+                fw.close();
+                break;
+              }
             }
           }
-
         }
-
       }
+      siteFw.close();
     }
     catch (IOException ex) {
       ex.printStackTrace();
@@ -328,9 +350,9 @@ public class ERF2RuptureForSTF_Generator {
     frankelForecast.updateForecast();
     LocationList locList = new LocationList();
 
-    locList.addLocation(new Location(34.01919, -118.28631));
-    /*locList.addLocation(new Location(34.14844 , -118.17117));
-    locList.addLocation(new Location(34.054985,-118.41201));
+    locList.addLocation(new Location(34.019200, -118.28600));
+    locList.addLocation(new Location(34.148427 , -118.17119));
+    /*locList.addLocation(new Location(34.052041, -118.25713));
     locList.addLocation(new Location(34.052041, -118.25713));
     locList.addLocation(new Location(33.754962, -118.22300));
     locList.addLocation(new Location(33.754111, -117.86776));
@@ -400,7 +422,7 @@ public class ERF2RuptureForSTF_Generator {
   }
 
   /**
-   * Creates the XML representation for the Eqk Rupture Object
+   * Creates the String represenation for the Prob Eqk Rupture
    * @return String
    */
   private String ruptureString(ProbEqkRupture rupture) {
@@ -449,13 +471,26 @@ public class ERF2RuptureForSTF_Generator {
    */
   private double[] getLocalStrikeList(GriddedSurfaceAPI surface){
     int numCols = surface.getNumCols();
-    double[] localStrike = new double[numCols-1];
-    for(int i=0;i<numCols-1;++i){
-      Location loc1 = surface.getLocation(0,i);
-      Location loc2 = surface.getLocation(0,i+1);
-      double strike = RelativeLocation.getAzimuth(loc1.getLatitude(),loc1.getLongitude(),loc2.getLatitude(),loc2.getLongitude());
-      localStrike[i] = strike;
+    double[] localStrike = null;
+    //if it not a point surface, then get the Azimuth(strike) for 2 neighbouring
+    //horizontal locations on the rupture surface.
+    //if it is a point surface then it will be just having one location so
+    //for now I am considering the Strike to be 0.
+    if(! (surface instanceof PointSurface)){
+      localStrike = new double[numCols - 1];
+      for (int i = 0; i < numCols - 1; ++i) {
+        Location loc1 = surface.getLocation(0, i);
+        Location loc2 = surface.getLocation(0, i + 1);
+        double strike = RelativeLocation.getAzimuth(loc1.getLatitude(),
+            loc1.getLongitude(), loc2.getLatitude(), loc2.getLongitude());
+        localStrike[i] = strike;
+      }
     }
+    else{
+      localStrike = new double[1];
+      localStrike[0]= 0;
+    }
+
     return localStrike;
   }
 
