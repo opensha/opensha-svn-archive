@@ -122,11 +122,23 @@ public class WardAnalysis {
     // make elem_area
     int num_elem = elem_length.length;
     elem_area = new double[num_elem];
-    int i;
+    int i,j;
     for(i=0;i<num_elem;i++) {
-      elem_area[i] = elem_length[i] * this.seg_ddw[elem_segNum[i]];
+      elem_area[i] = elem_length[i] * seg_ddw[elem_segNum[i]] *1e6;  // this is sq-meters
     }
 
+    // make the event aveSlip and area
+    int num_events = eventMag.length;
+    eventAveSlip = new double[num_events];
+    eventArea = new double[num_events];
+    double totArea;
+    for(i=0;i<num_events;i++) {
+      totArea = 0;
+      for(j=eventStartElem[i]; j<=eventEndElem[i];j++)
+        totArea += elem_area[j];
+      eventArea[i] = totArea;
+      eventAveSlip[i] = eventMo[i]/(eventArea[i]*3e10);
+    }
 
 
   }
