@@ -30,7 +30,8 @@ public class WardAnalysis {
   private double elem_length[], elem_azim[], elem_lat[], elem_lon[];
 
   // simulation data (qk number is the index in the following):
-  private int eventStartElem[], eventEndElem[], eventMo[], eventMag[], eventYear[];
+  private int eventStartElem[], eventEndElem[];
+  private double eventMo[], eventMag[], eventYear[];
 
   //computed info:
   private double elem_area[];
@@ -47,9 +48,11 @@ public class WardAnalysis {
     //                    elem_lat, elem_lon
     read_fort_11();
 
-
     // read event info: eventStartElem[], eventEndElem[], eventMo[], eventMag[], & eventYear[]
     read_FOR088_DAT();
+
+    // make other data
+    make_computed_data();
 
 
     // get computed info:
@@ -111,6 +114,23 @@ public class WardAnalysis {
   }
 
 
+  private void make_computed_data() {
+    // elem_area[], eventAveSlip[], eventArea[],
+    // ArrayList elemSlipInfoList
+    // TreeMap timeElemMapping
+
+    // make elem_area
+    int num_elem = elem_length.length;
+    elem_area = new double[num_elem];
+    int i;
+    for(i=0;i<num_elem;i++) {
+      elem_area[i] = elem_length[i] * this.seg_ddw[elem_segNum[i]];
+    }
+
+
+
+  }
+
   private void read_fort_11() {
     String inputFileName = "javaDevelopers/ned/WardAnalysis/Warddata/fort.11";
     int numSegs = 101;
@@ -132,7 +152,6 @@ public class WardAnalysis {
 
     try {
       ArrayList fileLines = FileUtils.loadFile(inputFileName);
-      StringTokenizer st;
       char charStr[];
 
       // read the segment stuff
@@ -178,8 +197,6 @@ public class WardAnalysis {
 //                           elem_azim[i]+"\t"+elem_lat[i]+"\t"+elem_lon[i]);
 
       }
-
-
     }
     catch (FileNotFoundException ex) {
       ex.printStackTrace();
@@ -195,6 +212,38 @@ public class WardAnalysis {
 
   private void read_FOR088_DAT() {
     String inputFileName = "javaDevelopers/ned/WardAnalysis/Warddata/FOR088.DAT";
+    ArrayList fileLines = new ArrayList();
+    try {
+        //reading the file
+        fileLines = FileUtils.loadFile(inputFileName);
+    }
+    catch (FileNotFoundException ex) {
+        ex.printStackTrace();
+        System.exit(0);
+    }
+    catch (IOException ex) {
+        ex.printStackTrace();
+        System.exit(0);
+    }
+
+    StringTokenizer st;
+    int numEvents = fileLines.size();
+    eventStartElem = new int[numEvents];
+    eventEndElem = new int[numEvents];
+    eventMo = new double[numEvents];
+    eventMag = new double[numEvents];
+    eventYear = new double[numEvents];
+    for(int i=0; i<numEvents; ++i){
+      st = new StringTokenizer( (String) fileLines.get(i));
+      st.nextToken();
+      st.nextToken();
+      eventStartElem[i] = Integer.parseInt(st.nextToken().trim());
+      eventEndElem[i] = Integer.parseInt(st.nextToken().trim());
+      eventMo[i] = Double.parseDouble(st.nextToken().trim());
+      eventMag[i] = Double.parseDouble(st.nextToken().trim());
+      eventYear[i] = Double.parseDouble(st.nextToken().trim());
+
+    }
   }
 
 
