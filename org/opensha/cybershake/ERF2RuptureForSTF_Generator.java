@@ -371,9 +371,13 @@ public class ERF2RuptureForSTF_Generator {
     }*/
     while (it.hasNext()) {
       Location loc = (Location) it.next();
-      //System.out.println("After creating the ERF");
+
+      //creating the Site object
       Site site = new Site(loc);
+      //Creating the STF Generator object
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
+
+      //calling the function to generate the rupture files with directory name.
       calc.getEqkRupturesAsStringNearSite("Temp");
       /*RectangularGeographicRegion region = null;
       try {
