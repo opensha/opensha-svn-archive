@@ -346,7 +346,7 @@ public class ERF2RuptureForSTF_Generator {
       Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(
         new Double(5.0));
 
-    frankelForecast.getTimeSpan().setDuration(50.0);
+    frankelForecast.getTimeSpan().setDuration(1.0);
     frankelForecast.updateForecast();
     LocationList locList = new LocationList();
 
@@ -475,7 +475,7 @@ public class ERF2RuptureForSTF_Generator {
     //if it not a point surface, then get the Azimuth(strike) for 2 neighbouring
     //horizontal locations on the rupture surface.
     //if it is a point surface then it will be just having one location so
-    //for now I am considering the Strike to be 0.
+    //in that we take the Ave. Strike for the Surface.
     if(! (surface instanceof PointSurface)){
       localStrike = new double[numCols - 1];
       for (int i = 0; i < numCols - 1; ++i) {
@@ -486,9 +486,9 @@ public class ERF2RuptureForSTF_Generator {
         localStrike[i] = strike;
       }
     }
-    else{
+    else if(surface instanceof PointSurface) {
       localStrike = new double[1];
-      localStrike[0]= 0;
+      localStrike[0]= surface.getAveStrike();
     }
 
     return localStrike;

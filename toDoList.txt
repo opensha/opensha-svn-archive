@@ -2,7 +2,9 @@
 -------------------------------------------------------------
 
 
-Move ERF2XML_Calc out of sha/calc and into sha/util?
+Move ERF2XML_Calc out of sha/calc and into sha/util?(Done - Nitin)
+
+Nitin has to look on how to get the OpenSHA code to the source-forge.
 
 Implement:
 
