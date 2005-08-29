@@ -52,7 +52,7 @@ public class WardAnalysis {
     read_FOR088_DAT();
 
     // make other data
-    make_computed_data();
+//    make_computed_data();
 
 
     // get computed info:
