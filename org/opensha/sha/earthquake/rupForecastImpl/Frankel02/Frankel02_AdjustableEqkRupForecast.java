@@ -957,9 +957,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
       String backSeisRup = (String) backSeisRupParam.getValue();
       double magCutOff;
       if (backSeisRup.equals(this.BACK_SEIS_RUP_FINITE))
-        magCutOff = 6.0;
+        magCutOff = 6.0;     // those below this will be treated as point sources
       else
-        magCutOff = 10.0;
+        magCutOff = 10.0;    // this will force all to be treated as point sources
 
       // now make the source
       if(iflt == 2)
