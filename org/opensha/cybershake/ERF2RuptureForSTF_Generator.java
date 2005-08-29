@@ -138,7 +138,7 @@ public class ERF2RuptureForSTF_Generator {
         fw.write(erfString);
         fw.close();
       }
-
+      f = null;
       //creating the Site file
       FileWriter siteFw = new FileWriter(directoryPath+(float)siteLoc.getLatitude()+"_"+(float)siteLoc.getLongitude()+".txt");
       String siteString ="";
@@ -182,8 +182,8 @@ public class ERF2RuptureForSTF_Generator {
               siteFw.write(sourceIndex+"    "+rupIndex+"\n");
               //creating the rupture file if it already does not exists else go to the next rupture.
               String ruptureFileName = directoryPath+sourceIndex+"_"+rupIndex+".txt";
-              File file = new File(ruptureFileName);
-              if(!file.exists() || !file.isFile()){
+              f = new File(ruptureFileName);
+              if(!f.exists() || !f.isFile()){
                 fw = new FileWriter(ruptureFileName);
                 String ruptureString = ruptureString(rupture);
                 fw.write(ruptureString);
