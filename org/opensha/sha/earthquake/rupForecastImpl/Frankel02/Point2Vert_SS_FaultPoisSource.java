@@ -155,6 +155,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
 
     // make the point surface
     ptSurface = new PointSurface(loc);
+    ptSurface.setAveDip(90.0);
+    ptSurface.setAveStrike(strike);
     double maxMag = magFreqDist.getX(magFreqDist.getNum()-1);
     // make finite source if necessary
     if(maxMag > magCutOff) {
@@ -201,7 +203,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
     if(mag <= this.magCutOff)
       probEqkRupture.setRuptureSurface(ptSurface);
     else {
-      if(nthRupture == magFreqDist.getNum()) {
+      if(nthRupture == magFreqDist.getNum()-1) {
         probEqkRupture.setRuptureSurface(finiteFault);
       }
       else {
