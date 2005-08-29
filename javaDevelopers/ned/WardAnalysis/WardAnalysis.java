@@ -40,6 +40,9 @@ public class WardAnalysis {
   private double eventAveSlip[], eventArea[];
   private double eventYearPred1[], aveLastEvTime1[], eventYearPred2[], aveLastEvTime2[];
 
+  // this will hold an ArrayList of elements for each event
+  private ArrayList eventElems;
+
 
   public WardAnalysis() {
 
@@ -58,36 +61,22 @@ public class WardAnalysis {
     // get computed info:
     // elemSlipInfoList ;
     // timeElemMapping ;
-    /*
-    eventAveSlip = new double[eventYear.size()];
-    eventArea = new double[eventYear.size()];
-    eventYearPred1 = new double[eventYear.size()];
-    eventYearPred2 = new double[eventYear.size()];
-    aveLastEvTime1 = new double[eventYear.size()];
-    aveLastEvTime2 = new double[eventYear.size()];
-*/
 
-  /*
-    try {
-      writeSegNumYearSlip();
-    }
-    catch (IOException ex1) {
-      ex1.printStackTrace();
-      System.exit(0);
-    }
-
-
-    try {
-      writeSegmentStats();
-    }
-    catch (IOException ex1) {
-      ex1.printStackTrace();
-      System.exit(0);
-    }
-
+    eventYearPred1 = new double[eventYear.length];
+    eventYearPred2 = new double[eventYear.length];
+    aveLastEvTime1 = new double[eventYear.length];
+    aveLastEvTime2 = new double[eventYear.length];
 
 
     getEventStats();
+
+    try {
+      writeElemNumYearSlip();
+    }
+    catch (IOException ex1) {
+      ex1.printStackTrace();
+      System.exit(0);
+    }
 
     try {
       writeEventData();
@@ -97,6 +86,7 @@ public class WardAnalysis {
       System.exit(0);
     }
 
+    /*
 
 
 
@@ -113,6 +103,52 @@ public class WardAnalysis {
  */
   }
 
+
+  private void getEventStats() {
+    Integer year, yearLastInt;
+    double totArea, totPot, sum1, sum2, totPotRate, yearLast, slipLast, sumForT_last1, sumForT_last2;
+    int elem;
+    ArrayList elems;
+    for(int i=0;i<eventYear.length;i++) {
+      year = new Integer(Math.round((float)eventYear[i]));
+      elems = (ArrayList) eventElems.get(i);
+      totArea = 0.0;
+      totPot  = 0.0;
+      sumForT_last1 = 0.0;
+      sumForT_last2 = 0.0;
+      sum1 = 0.0;
+      sum2 = 0;
+      totPotRate = 0.;
+      for(int j=0;j<elems.size();j++) { // loop over segments
+        elem = ((Integer) elems.get(j)).intValue();
+        SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) elemSlipInfoList.get(elem);
+        if(elem != info.getSegmentNumber())
+          throw new RuntimeException("problem");
+        totArea += elem_area[elem];                    // m-squared
+        totPot += elem_area[elem]*Math.abs(info.getSlip(year));  // SI units
+        yearLastInt = info.getPreviousSlipTime(year);
+        if (yearLastInt != null)
+          yearLast = yearLastInt.doubleValue();
+        else
+          yearLast = Double.NaN;
+        slipLast = info.getPreviousSlip(year); // will be NaN is not available
+        sum1 += yearLast*Math.abs(seg_slipRate[elem_segNum[elem]])*elem_area[elem]*1e-3;
+        sum2 += elem_area[elem]*(Math.abs(slipLast)/Math.abs(seg_slipRate[elem_segNum[elem]]*1e-3)+yearLast);
+        totPotRate += Math.abs(seg_slipRate[elem_segNum[elem]]*1e-3)*elem_area[elem];
+        sumForT_last1 += Math.abs(seg_slipRate[elem_segNum[elem]]*1e-3)*elem_area[elem]*yearLast;
+        sumForT_last2 += elem_area[elem]*yearLast;
+      }
+      eventAveSlip[i]=(totPot/totArea);   //meters
+      eventArea[i]=totArea;             //meters-sq
+//      eventMag[i]= MomentMagCalc.getMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
+      eventYearPred1[i] = (totPot+sum1)/totPotRate;
+      eventYearPred2[i] = sum2/totArea;
+      aveLastEvTime1[i] = sumForT_last1/totPotRate;
+      aveLastEvTime2[i] = sumForT_last2/totArea;
+//        System.out.println(year+"\t"+eventAveSlips[i]+"\t"+eventAreas[i]+"\t"+eventMags[i]+
+//            "\t"+eventYearPred1[i]+"\t"+eventYearPred2[i]+"\t"+aveLastEvTime1[i]+"\t"+aveLastEvTime2[i]);
+    }
+  }
 
   private void make_computed_data() {
     // elem_area[], eventAveSlip[], eventArea[],
@@ -141,9 +177,40 @@ public class WardAnalysis {
 //      if(i < 100)
 //        System.out.println(i+"\t"+eventArea[i]+"\t"+eventAveSlip[i]+"\t"+eventMo[i]+"\t"+
 //                       eventMag[i]+"\t"+eventYear[i]);
-
     }
 
+    // make eventElems (elements associated with each event)
+    eventElems = new ArrayList();
+    ArrayList tempElemList;
+    for(i=0; i <num_events; i++) {
+      tempElemList = new ArrayList();
+      for(j=eventStartElem[i]; j<=eventEndElem[i];j++)
+        tempElemList.add(new Integer(j));
+      eventElems.add(tempElemList);
+    }
+
+System.out.println("starting to make elemSlipInfoList");
+    // make elemSlipInfoList (a SegmentSlipTimeInfo object for each element)
+    elemSlipInfoList = new ArrayList();
+    SegmentSlipTimeInfo tempInfo;
+    ArrayList tempTimes, tempSlips;
+    Integer time;
+    Double slip;
+    for(int e=0; e < elem_area.length; e++) {
+      tempTimes = new ArrayList();
+      tempSlips = new ArrayList();
+      for(i=0;i<num_events;i++) {
+        if(e >= eventStartElem[i] && e <= eventEndElem[i]) {
+          time = new Integer(Math.round((float)eventYear[i]));
+          slip = new Double(eventAveSlip[i]);
+          tempTimes.add(time);
+          tempSlips.add(slip);
+        }
+      }
+      tempInfo = new SegmentSlipTimeInfo(e,tempTimes, tempSlips);
+      elemSlipInfoList.add(tempInfo);
+    }
+System.out.println("done with elemSlipInfoList");
 
   }
 
@@ -269,23 +336,23 @@ public class WardAnalysis {
 
 
   /**
-   * This writes out the date and amount of slip for each section (so the slips can
-   * be plotted as segment number versus year)
+   * This writes out the date and amount of slip for each element (so the slips can
+   * be plotted as element number versus year)
    */
-  private void writeSegNumYearSlip() throws IOException {
-    FileWriter fw = new FileWriter("javaDevelopers/ned/RundleAnalysis/RundleVC_data/VC_segNumYearSlip.txt");
-    SegmentSlipTimeInfo segInfo;
+  private void writeElemNumYearSlip() throws IOException {
+    FileWriter fw = new FileWriter("javaDevelopers/ned/WardAnalysis/WardData/Ward_elemNumYearSlip.txt");
+    SegmentSlipTimeInfo elemInfo;
     ArrayList years, slips;
-    int segNum;
-    int numSegs = elemSlipInfoList.size();
-    fw.write("segNum\tSegYear\tsegSlip\n");
-    for(int j=0;j<numSegs;j++) { // loop over segments
-      segInfo = (SegmentSlipTimeInfo) elemSlipInfoList.get(j);
-      years = segInfo.getTimeHistories();
-      slips = segInfo.getSlipHistories();
-      segNum = segInfo.getSegmentNumber();
+    int elemNum;
+    int numElems = elemSlipInfoList.size();
+    fw.write("elemNum\telemYear\telemSlip\n");
+    for(int j=0;j<numElems;j++) { // loop over segments
+      elemInfo = (SegmentSlipTimeInfo) elemSlipInfoList.get(j);
+      years = elemInfo.getTimeHistories();
+      slips = elemInfo.getSlipHistories();
+      elemNum = elemInfo.getSegmentNumber();
       for (int i = 0; i < years.size(); i++) {
-          fw.write(segNum + "\t" + years.get(i) + "\t" + slips.get(i) + "\n");
+          fw.write(elemNum + "\t" + years.get(i) + "\t" + slips.get(i) + "\n");
       }
     }
     fw.close();
@@ -321,94 +388,40 @@ public class WardAnalysis {
   }
 
 
-
-
-/*
-  private void getEventStats() {
-    Integer year, yearLastInt;
-    double totArea, totPot, sum1, sum2, totPotRate, yearLast, slipLast, sumForT_last1, sumForT_last2;
-    int seg;
-    ArrayList segs;
-    for(int i=0;i<eventYear.size();i++) {
-      year = (Integer) eventYears.get(i);
-      segs = (ArrayList) eventElems.get(i);
-      totArea = 0.0;
-      totPot  = 0.0;
-      sumForT_last1 = 0.0;
-      sumForT_last2 = 0.0;
-      sum1 = 0.0;
-      sum2 = 0;
-      totPotRate = 0.;
-      for(int j=0;j<segs.size();j++) { // loop over segments
-        seg = ((Integer) segs.get(j)).intValue();
-        SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) elemSlipInfoList.get(seg);
-        if(seg != info.getSegmentNumber())
-          throw new RuntimeException("problem");
-        totArea += elem_area[seg]*1e6;                    // converted from km to m-squared
-        totPot += elem_area[seg]*Math.abs(info.getSlip(year))*1e4;  // converted to meters
-        yearLastInt = info.getPreviousSlipTime(year);
-        if (yearLastInt != null)
-          yearLast = yearLastInt.doubleValue();
-        else
-          yearLast = Double.NaN;
-        slipLast = info.getPreviousSlip(year); // will be NaN is not available
-        sum1 += yearLast*Math.abs(seg_slipRate[seg])*elem_area[seg]*1e4;
-        sum2 += elem_area[seg]*1e6*(Math.abs(slipLast)/Math.abs(seg_slipRate[seg])+yearLast);
-        totPotRate += Math.abs(seg_slipRate[seg])*elem_area[seg]*1e4;
-        sumForT_last1 += Math.abs(seg_slipRate[seg])*elem_area[seg]*1e4*yearLast;
-        sumForT_last2 += elem_area[seg]*1e6*yearLast;
-// if(year.intValue() == 25726)
-//          System.out.println(seg+"\t"+elem_area[seg]+"\t"+info.getSlip(year)+"\t"+yearLast+"\t"+slipLast);
-      }
-      eventAveSlip[i]=(totPot/totArea);   //meters
-      eventArea[i]=totArea;             //meters-sq
-//      eventMag[i]= MomentMagCalc.getMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
-      eventYearPred1[i] = (totPot+sum1)/totPotRate;
-      eventYearPred2[i] = sum2/totArea;
-      aveLastEvTime1[i] = sumForT_last1/totPotRate;
-      aveLastEvTime2[i] = sumForT_last2/totArea;
-// if(year.intValue() == 25726)
-//        System.out.println(year+"\t"+eventAveSlips[i]+"\t"+eventAreas[i]+"\t"+eventMags[i]+
-//            "\t"+eventYearPred1[i]+"\t"+eventYearPred2[i]+"\t"+aveLastEvTime1[i]+"\t"+aveLastEvTime2[i]);
-    }
-  }
-
-
-
   private void writeEventData() throws IOException  {
-    String filename1 = "javaDevelopers/ned/RundleAnalysis/RundleVC_data/VC_EventTimesNumSegs.txt";
-    String filename2 = "javaDevelopers/ned/RundleAnalysis/RundleVC_data/VC_EventSegs.txt";
+    String filename1 = "javaDevelopers/ned/WardAnalysis/WardData/Ward_EventTimesNumSegs.txt";
+    String filename2 = "javaDevelopers/ned/WardAnalysis/WardData/Ward_EventSegs.txt";
     String evName;
-    ArrayList tempSegs;
+    ArrayList tempElems;
     Integer year;
     int lastYear=-1, counter=-1;
 
     FileWriter fw1 = new FileWriter(filename1);
-    fw1.write("evTimes\tevNumSegs\tevMags\tevAreas\tevSlips\tevYearPred1\taveLastEvTime1\tevYearPred2\taveLastEvTime2\n");
+    fw1.write("evTimes\tevNumElems\tevMags\tevAreas\tevSlips\tevYearPred1\taveLastEvTime1\tevYearPred2\taveLastEvTime2\n");
     FileWriter fw2 = new FileWriter(filename2);
     fw2.write("evSegs\n");
-    for(int i=0; i < eventYear.size(); i++) {
-      year = (Integer) eventYears.get(i);
+    for(int i=0; i < eventYear.length; i++) {
+      year = new Integer(Math.round((float)eventYear[i]));
       if(year.intValue() != lastYear)
         counter = 0;
       else
         counter += 1;
       evName = year.toString()+"_"+Integer.toString(counter);
       lastYear = year.intValue();
-      tempSegs = (ArrayList) eventElems.get(i);
-      fw1.write(year+"\t"+tempSegs.size()+"\t"+(float)eventMag[i]+"\t"+(float)eventArea[i]+"\t"+
-                (float)eventAveSlip[i]+"\t"+eventYearPred1[i]+"\t"+aveLastEvTime1[i]+
-                "\t"+eventYearPred2[i]+"\t"+aveLastEvTime2[i]+"\n");
+      tempElems = (ArrayList) eventElems.get(i);
+      fw1.write(year+"\t"+tempElems.size()+"\t"+(float)eventMag[i]+"\t"+(float)eventArea[i]+"\t"+
+                (float)eventAveSlip[i]+"\t"+(float)eventYearPred1[i]+"\t"+(float)aveLastEvTime1[i]+
+                "\t"+(float)eventYearPred2[i]+"\t"+(float)aveLastEvTime2[i]+"\n");
       fw2.write(evName+"\n");
-      for(int j=0; j < tempSegs.size(); j++)
-        fw2.write((Integer) tempSegs.get(j)+"\n");
+      for(int j=0; j < tempElems.size(); j++)
+        fw2.write((Integer) tempElems.get(j)+"\n");
     }
     fw1.close();
     fw2.close();
   }
 
 
-
+  /*
 
   private boolean creepingNotInvolved(ArrayList newEvent) {
     boolean crNotInv = true;
