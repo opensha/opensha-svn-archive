@@ -18,8 +18,18 @@ import org.opensha.util.SystemPropertiesUtils;
 /**
  * <p>Title: ERF2RuptureForSTF_Generator</p>
  *
- * <p>Description: This class returns the list of EqkRuptures either
- * as ArrayList or a XML String, which can be dumped in the file.</p>
+ * <p>Description: This class provides with the capability of dumping the String
+ * represenation of a ProbEqkRupture in a file. It creates a directory as specified
+ * by the user and puts all the ruptures file in it. It also creates a Site file
+ * that specifies which source and rupture were in its radius of cuttoff-distance.
+ * </p>
+ * <p>
+ * This class also provides the user with the functionality of computing region bounds
+ * around a given site which will let user which sources and rupture can affect a
+ * given Site.
+ * </p>
+ * <p>
+ * </p>
  * @author Nitin Gupta and Ned Field
  * @version 1.0
  */
