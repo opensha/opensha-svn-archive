@@ -104,7 +104,7 @@ public class ERF2RuptureForSTF_Generator {
    * @param directoryName String Name of the directory in which rupture files are
    * to be  created
    */
-  public void getEqkRupturesAsXMLStringNearSite(String directoryName) {
+  public void getEqkRupturesAsStringNearSite(String directoryName) {
 
     //Location of the Site
     Location siteLoc = site.getLocation();
@@ -155,7 +155,7 @@ public class ERF2RuptureForSTF_Generator {
       int numSources = eqkRupForecast.getNumSources();
 
       //Going over each and every source in the forecast
-      for (int sourceIndex = 5506; sourceIndex < numSources; ++sourceIndex) {
+      for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
 
         // get the ith source
         ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
@@ -374,7 +374,7 @@ public class ERF2RuptureForSTF_Generator {
       //System.out.println("After creating the ERF");
       Site site = new Site(loc);
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
-      calc.getEqkRupturesAsXMLStringNearSite("Temp");
+      calc.getEqkRupturesAsStringNearSite("Temp");
       /*RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
