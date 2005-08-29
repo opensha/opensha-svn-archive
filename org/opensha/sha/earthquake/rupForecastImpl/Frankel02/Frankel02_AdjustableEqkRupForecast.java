@@ -882,6 +882,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     if(iflt == 2) {
       st = new StringTokenizer(it.next().toString());
       strike = Double.parseDouble(st.nextToken());
+      if (strike < 0) strike += 360;
     }
 
     if(D) {

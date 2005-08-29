@@ -127,7 +127,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
 
      // get a random strike between -90 and 90
      double strike = (Math.random()-0.5)*180.0;
-//     if(D) System.out.println(C+" random strike = "+strike);
+     if (strike < 0.0) strike +=360;
+// System.out.println(C+" random strike = "+strike);
      setAll(loc,magFreqDist,magLengthRelationship,strike,duration,frankelFaultFactory);
    }
 
@@ -155,7 +156,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
 
     // make the point surface
     ptSurface = new PointSurface(loc);
-    ptSurface.setAveDip(90.0);
+    ptSurface.setAveDip(aveDip);
     ptSurface.setAveStrike(strike);
     double maxMag = magFreqDist.getX(magFreqDist.getNum()-1);
     // make finite source if necessary

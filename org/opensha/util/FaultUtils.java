@@ -52,11 +52,9 @@ public final class FaultUtils {
     {
 
         if( strike < 0 ) throw new InvalidRangeException( S1 +
-            "Strike angle cannot be less than zero"
-        );
+            "Strike angle cannot be less than zero (value = "+ strike+")");
         if( strike > 360 ) throw new InvalidRangeException( S1 +
-            "Strike angle cannot be greater than 360"
-        );
+            "Strike angle cannot be greater than 360 (value = "+ strike+")");
     }
 
 

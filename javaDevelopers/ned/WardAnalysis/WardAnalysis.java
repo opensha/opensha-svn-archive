@@ -52,7 +52,7 @@ public class WardAnalysis {
     read_FOR088_DAT();
 
     // make other data
-//    make_computed_data();
+    make_computed_data();
 
 
     // get computed info:
@@ -138,6 +138,10 @@ public class WardAnalysis {
         totArea += elem_area[j];
       eventArea[i] = totArea;
       eventAveSlip[i] = eventMo[i]/(eventArea[i]*3e10);
+//      if(i < 100)
+//        System.out.println(i+"\t"+eventArea[i]+"\t"+eventAveSlip[i]+"\t"+eventMo[i]+"\t"+
+//                       eventMag[i]+"\t"+eventYear[i]);
+
     }
 
 
@@ -181,7 +185,7 @@ public class WardAnalysis {
         charStr = new char[numChars-41];
         line.getChars(41,numChars,charStr,0);
         seg_name[i] = (new String(charStr)).trim();
-        System.out.println(i+"\t"+seg_slipRate[i]+"\t"+seg_ddw[i]+"\t"+seg_code[i]+"\t"+seg_name[i]);
+//        System.out.println(i+"\t"+seg_slipRate[i]+"\t"+seg_ddw[i]+"\t"+seg_code[i]+"\t"+seg_name[i]);
 
       }
 
@@ -192,7 +196,7 @@ public class WardAnalysis {
         line.getChars(8,11,charStr,0);
         elem_fltNum[i] = Integer.parseInt((new String(charStr)).trim());
         line.getChars(12,15,charStr,0);
-        elem_segNum[i] = Integer.parseInt((new String(charStr)).trim());
+        elem_segNum[i] = Integer.parseInt((new String(charStr)).trim()) - 1; // subtract 1 for indexing from 0
         charStr = new char[8];
         line.getChars(40,48,charStr,0);
         elem_length[i] = Double.parseDouble((new String(charStr)).trim());
@@ -205,7 +209,9 @@ public class WardAnalysis {
         charStr = new char[8];
         line.getChars(91,99,charStr,0);
         elem_lon[i] = Double.parseDouble((new String(charStr)).trim());
-//        System.out.println(i+"\t"+elem_fltNum[i]+"\t"+elem_segNum[i]+"\t"+elem_length[i]+"\t"+
+
+//        if(i>1400)
+//          System.out.println(i+"\t"+elem_fltNum[i]+"\t"+elem_segNum[i]+"\t"+elem_length[i]+"\t"+
 //                           elem_azim[i]+"\t"+elem_lat[i]+"\t"+elem_lon[i]);
 
       }
@@ -249,11 +255,14 @@ public class WardAnalysis {
       st = new StringTokenizer( (String) fileLines.get(i));
       st.nextToken();
       st.nextToken();
-      eventStartElem[i] = Integer.parseInt(st.nextToken().trim());
-      eventEndElem[i] = Integer.parseInt(st.nextToken().trim());
+      eventStartElem[i] = Integer.parseInt(st.nextToken().trim()) - 1; // subtract 1 for indexing from 0
+      eventEndElem[i] = Integer.parseInt(st.nextToken().trim()) - 1;   // subtract 1 for indexing from 0
       eventMo[i] = Double.parseDouble(st.nextToken().trim());
       eventMag[i] = Double.parseDouble(st.nextToken().trim());
       eventYear[i] = Double.parseDouble(st.nextToken().trim());
+//      if(i > numEvents-100)
+//        System.out.println(i+"\t"+eventStartElem[i]+"\t"+eventEndElem[i]+"\t"+eventMo[i]+"\t"+
+//                       eventMag[i]+"\t"+eventYear[i]);
 
     }
   }
