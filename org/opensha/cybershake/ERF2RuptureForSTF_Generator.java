@@ -198,8 +198,8 @@ public class ERF2RuptureForSTF_Generator {
                 String ruptureString = ruptureString(rupture);
                 fw.write(ruptureString);
                 fw.close();
-                break;
               }
+              break;
             }
           }
         }
