@@ -111,7 +111,7 @@ public class WardAnalysis {
     ArrayList elems;
     for(int i=0;i<eventYear.length;i++) {
       year = new Integer(Math.round((float)eventYear[i]));
-      elems = (ArrayList) eventElems.get(i);
+      elems = (ArrayList) eventElems.get(i); // this gets the elements for the event
       totArea = 0.0;
       totPot  = 0.0;
       sumForT_last1 = 0.0;
@@ -124,7 +124,7 @@ public class WardAnalysis {
         SegmentSlipTimeInfo info = (SegmentSlipTimeInfo) elemSlipInfoList.get(elem);
         if(elem != info.getSegmentNumber())
           throw new RuntimeException("problem");
-        totArea += elem_area[elem];                    // m-squared
+        totArea += elem_area[elem];                              // m-squared
         totPot += elem_area[elem]*Math.abs(info.getSlip(year));  // SI units
         yearLastInt = info.getPreviousSlipTime(year);
         if (yearLastInt != null)
@@ -132,21 +132,15 @@ public class WardAnalysis {
         else
           yearLast = Double.NaN;
         slipLast = info.getPreviousSlip(year); // will be NaN is not available
-        sum1 += yearLast*Math.abs(seg_slipRate[elem_segNum[elem]])*elem_area[elem]*1e-3;
-        sum2 += elem_area[elem]*(Math.abs(slipLast)/Math.abs(seg_slipRate[elem_segNum[elem]]*1e-3)+yearLast);
-        totPotRate += Math.abs(seg_slipRate[elem_segNum[elem]]*1e-3)*elem_area[elem];
-        sumForT_last1 += Math.abs(seg_slipRate[elem_segNum[elem]]*1e-3)*elem_area[elem]*yearLast;
+        sum1 += yearLast*Math.abs(seg_slipRate[elem_segNum[elem]])*1e-3*elem_area[elem];
+        sum2 += Math.abs( elem_area[elem] * slipLast / (seg_slipRate[elem_segNum[elem]]*1e-3));
+        totPotRate += Math.abs(seg_slipRate[elem_segNum[elem]])*1e-3*elem_area[elem];
         sumForT_last2 += elem_area[elem]*yearLast;
       }
-      eventAveSlip[i]=(totPot/totArea);   //meters
-      eventArea[i]=totArea;             //meters-sq
-//      eventMag[i]= MomentMagCalc.getMag(FaultMomentCalc.getMoment(totArea,totPot/totArea));
-      eventYearPred1[i] = (totPot+sum1)/totPotRate;
-      eventYearPred2[i] = sum2/totArea;
-      aveLastEvTime1[i] = sumForT_last1/totPotRate;
+      aveLastEvTime1[i] = sum1/totPotRate;
+      eventYearPred1[i] = totPot/totPotRate + aveLastEvTime1[i];
       aveLastEvTime2[i] = sumForT_last2/totArea;
-//        System.out.println(year+"\t"+eventAveSlips[i]+"\t"+eventAreas[i]+"\t"+eventMags[i]+
-//            "\t"+eventYearPred1[i]+"\t"+eventYearPred2[i]+"\t"+aveLastEvTime1[i]+"\t"+aveLastEvTime2[i]);
+      eventYearPred2[i] = sum2/totArea + aveLastEvTime2[i];
     }
   }
 
@@ -189,7 +183,6 @@ public class WardAnalysis {
       eventElems.add(tempElemList);
     }
 
-System.out.println("starting to make elemSlipInfoList");
     // make elemSlipInfoList (a SegmentSlipTimeInfo object for each element)
     elemSlipInfoList = new ArrayList();
     SegmentSlipTimeInfo tempInfo;
@@ -210,7 +203,6 @@ System.out.println("starting to make elemSlipInfoList");
       tempInfo = new SegmentSlipTimeInfo(e,tempTimes, tempSlips);
       elemSlipInfoList.add(tempInfo);
     }
-System.out.println("done with elemSlipInfoList");
 
   }
 
