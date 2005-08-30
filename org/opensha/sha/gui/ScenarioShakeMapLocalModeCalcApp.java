@@ -4,13 +4,7 @@ import java.awt.GridBagConstraints;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import java.util.ArrayList;
 import java.lang.reflect.InvocationTargetException;
-import java.awt.event.ActionEvent;
 import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.sha.gui.controls.CalcOptionControl;
-import java.awt.Toolkit;
-import java.awt.BorderLayout;
-import javax.swing.JFrame;
-import java.awt.Dimension;
 
 /**
  * <p>Title: ScenarioShakeMapLocalModeCalcApplication</p>
@@ -23,7 +17,7 @@ import java.awt.Dimension;
  * @author Nitin Gupta
  * @version 1.0
  */
-public class ScenarioShakeMapLocalModeCalcApplication
+public class ScenarioShakeMapLocalModeCalcApp
     extends ScenarioShakeMapApp {
 
 
@@ -77,7 +71,7 @@ public class ScenarioShakeMapLocalModeCalcApplication
 
   //Main method
   public static void main(String[] args) {
-    ScenarioShakeMapLocalModeCalcApplication applet = new ScenarioShakeMapLocalModeCalcApplication();
+    ScenarioShakeMapLocalModeCalcApp applet = new ScenarioShakeMapLocalModeCalcApp();
     applet.init();
     applet.setVisible(true);
   }

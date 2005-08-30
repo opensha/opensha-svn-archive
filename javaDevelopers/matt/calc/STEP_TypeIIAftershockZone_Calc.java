@@ -4,7 +4,7 @@ import java.util.*;
 
 import org.opensha.data.*;
 import org.opensha.data.region.*;
-import org.opensha.sha.earthquake.*;
+import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 
 /**

@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake;
+package org.opensha.sha.earthquake.griddedForecast;
 
 import javaDevelopers.matt.calc.*;
 import java.util.*;

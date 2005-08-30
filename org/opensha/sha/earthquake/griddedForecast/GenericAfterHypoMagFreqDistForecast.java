@@ -1,9 +1,10 @@
-package org.opensha.sha.earthquake;
+package org.opensha.sha.earthquake.griddedForecast;
 
 import javaDevelopers.matt.calc.*;
 
 import org.opensha.sha.fault.*;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import org.opensha.sha.earthquake.*;
 
 
 /**

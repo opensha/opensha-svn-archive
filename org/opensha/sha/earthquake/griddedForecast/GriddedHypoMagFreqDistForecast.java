@@ -1,4 +1,4 @@
-package org.opensha.sha.earthquake;
+package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.data.*;
 import org.opensha.param.ParameterList;
