@@ -1,7 +1,7 @@
 package javaDevelopers.matt.calc;
 
 import java.util.*;
-import org.opensha.sha.earthquake.AfterShockHypoMagFreqDistForecast;
+import org.opensha.sha.earthquake.griddedForecast.AfterShockHypoMagFreqDistForecast;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 
 /**
