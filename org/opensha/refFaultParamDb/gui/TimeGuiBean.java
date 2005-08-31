@@ -66,6 +66,7 @@ public class TimeGuiBean extends LabeledBorderPanel implements ParameterChangeLi
       addEditorsToPanel();
       setParametersVisible();
       setTitle(title);
+      setDateParamsVisibleBasedOnUnits();
     }catch(Exception e) {
       e.printStackTrace();
     }
