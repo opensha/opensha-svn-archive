@@ -8,9 +8,9 @@ import org.opensha.param.event.ParameterChangeListener;
 /**
  * <p>Title: GriddedHypoMagFreqForecast</p>
  *
- * <p>Description: This is a point-poission ERF. This does not provide any info.
- * about the rupture associated with it. It can wrap any ERF.
- * This provide MagFreqDist for a given hypocenter location.
+ * <p>Description: This constitutes a Poissonian hypocenter forecast.
+ *
+ * Are locations unique?.
  *  </p>
  *<p>
  * Note : The rate provided by this forecast are always yearly rate.

@@ -3,7 +3,9 @@ package org.opensha.sha.earthquake.griddedForecast;
 /**
  * <p>Title: GriddedHypoMagFreqDistAtLocAPI </p>
  *
- * <p>Description: </p>
+ * <p>Description: This API constitutes an interface to a number of
+ * HypoMagFreqDistAtLoc objects (e.g., for multiple locations, although each
+ * location is not necessarily unique).</p>
  *
  * Note : Additiional info needs to be added like binning of Lat, Lon and Depth).
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
@@ -16,12 +18,9 @@ public interface GriddedHypoMagFreqDistAtLocAPI {
 
 
   /**
-   * gets the Hypocenter Mag. Freq. Dist. for ith location.
-   * User will have to call this function for each location in the region
-   * to get the Mag Freq. Dist. at each location.
+   * This gets the HypoMagFreqDistAtLoc for the ith location.
    * @param ithLocation int : Index of the location in the region
-   * @return HypoMagFreqDistAtLoc Object using which user can retrieve the
-   * Magnitude Frequency Distribution.
+   * @return HypoMagFreqDistAtLoc Object.
    *
    * Note : This always gives out yearly Rate.
    */

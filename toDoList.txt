@@ -5,6 +5,25 @@
 Ned's Notes: ****************************
 
 
+HypoMagFreqDistAtLoc:
+
+	Is nonEditable needed and meaningful; doesn't throw exeception?
+
+GriddedHypoMagFreqDistAtLocAPI
+
+	change getHypRatesAtLoc() to getHypoMagFreqDistAtLoc()
+	change getNumHypoLocation() to getNumHypoMagFreqDistAtLocs()
+
+GriddedHypoMagFreqDistForecast
+
+	private boolean editable?
+	needs get/set methods for adjustable parameters.
+	(do we need an AdjustableParametersAPI?)
+
+AfterShockHypoMagFreqDistForecast
+
+	do we want the set methods for individual elements?
+	locations need to be unique here; probs with diff focal mechanisms?
 
 EvenlyGriddedRectangularGeographicRegion
 
@@ -38,6 +57,9 @@ EvenlyGriddedGeographicRegion
 	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
 	(EvenlyGriddedRectangularGeographicRegion does it correctly?)
 
+All gridded regions:
+
+	Establish consistent rules on pointers vs clones, and add setLocasAsPointers(EvenlyGriddedGeogReg) method.
 
 Will the RegionConstraintException thrown by so many methods require using try/catch; if so, isn't his going to be inefficient?
 

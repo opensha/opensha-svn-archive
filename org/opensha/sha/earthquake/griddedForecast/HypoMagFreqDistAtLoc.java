@@ -7,7 +7,8 @@ import org.opensha.sha.earthquake.*;
 /**
  * <p>Title: HypoMagFreqDistAtLoc</p>
  *
- * <p>Description: This allows user to get a Mag Freq. for a given location.</p>
+ * <p>Description: This allows user to get a Mag Freq. Distribution for a given location.
+ * This is generally used for forecasting hypocenters.</p>
  *
  * @author Nitin Gupta , Vipin Gupta
  * @version 1.0
@@ -62,8 +63,8 @@ public class HypoMagFreqDistAtLoc {
       this.magFreqDist = magFreqDist;
   }
 
-  public void ignoreFocalMechanism(boolean focalMechanism){
-    ignoreFocalMechanism = focalMechanism;
+  public void ignoreFocalMechanism(boolean ignore){
+    ignoreFocalMechanism = ignore;
   }
 
   /**

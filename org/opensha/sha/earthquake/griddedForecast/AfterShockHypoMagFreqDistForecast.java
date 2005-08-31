@@ -8,7 +8,11 @@ import org.opensha.sha.fault.SimpleFaultData;
 /**
  * <p>Title: AfterShockHypoMagFreqDistForecast</p>
  *
- * <p>Description: This class allows user to create the After shocks forecast.</p>
+ * <p>Description: This class represents a poissonian aftershock hypocenter
+ * forecast.
+ *
+ * The indexing over HypMagFreqDistAtLoc objects is exactly the same as the
+ * EvenlyGriddedGeographicRegionAPI afterShockZone.</p>
  *
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
  * @version 1.0
