@@ -26,7 +26,6 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
     ActionListener {
 
   private final static String AVAILABLE_INFO_PARAM_NAME="For this Time-period, I have info on";
-  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Dated Features";
 
 
 // SLIP RATE
@@ -67,7 +66,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
   private final static String EVENTS_INFO = "Number of Events";
   private final static String SLIP_RATE_AND_EVENTS_INFO = "Slip Rate & Num of Events";
   private final static String CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO = "Cum Displacement & Num of Events";
-  private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
+  private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events & Sequences";
 
 
   private final static String TITLE = "Site Info for Time Period";
@@ -78,7 +77,6 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
 
   // various parameters for this window
   private StringParameter availableInfoParam;
-  private StringParameter datedFeatureCommentsParam;
   private StringListParameter slipRateReferencesParam;
   private StringListParameter cumDisplacementReferencesParam;
   private StringListParameter numEventsReferencesParam;
@@ -94,7 +92,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
 
   // various parameter Editors for this window
   private ConstrainedStringParameterEditor availableInfoParamEditor;
-  private CommentsParameterEditor datedFeatureCommentsParamEditor;
+
  /* private ConstrainedStringListParameterEditor slipRateReferencesParamEditor;
   private ConstrainedStringListParameterEditor cumDisplacementReferencesParamEditor;
   private ConstrainedStringListParameterEditor numEventsReferencesParamEditor;
@@ -180,9 +178,6 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
     Container contentPane = this;
     contentPane.setLayout(new GridBagLayout());
     int yPos=0;
-    // dated feature comments
-    contentPane.add(datedFeatureCommentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     // what type of info is provided by the user
     contentPane.add(availableInfoParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
@@ -253,9 +248,6 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
     availableInfoParamEditor = new ConstrainedStringParameterEditor(availableInfoParam);
     availableInfoParam.addParameterChangeListener(this);
 
-    // dated feature comments
-    datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
-    datedFeatureCommentsParamEditor = new CommentsParameterEditor(datedFeatureCommentsParam);
 
   }
 

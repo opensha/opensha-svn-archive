@@ -36,14 +36,12 @@ public class PaleoSiteApp extends JFrame {
   private final static String END_TIME_ESTIMATE_PARAM_NAME="End Time Estimate";
 
   // various parameters
-  private EstimateParameter startTimeEstimateParam;
-  private EstimateParameter endTimeEstimateParam;
+  private TimeGuiBean startTimeBean;
+  private TimeGuiBean endTimeBean;
   private ViewPaleoSites viewPaleoSites;
   private SiteInfoForTimePeriod siteInfoForTimePeriod;
 
   // various parameter editors
-  private ConstrainedEstimateParameterEditor startTimeEstimateParamEditor;
-  private ConstrainedEstimateParameterEditor endTimeEstimateParamEditor;
   private BorderLayout borderLayout2 = new BorderLayout();
   private JSplitPane topSplitPane = new JSplitPane();
   private JPanel mainPanel = new JPanel();
@@ -135,16 +133,10 @@ public class PaleoSiteApp extends JFrame {
     // create constraint of allowed estimate types
     ArrayList startDateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
     // start time estimate
-    startTimeEstimateParam = new EstimateParameter(this.START_TIME_ESTIMATE_PARAM_NAME,
-       this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
-       startDateEstimatesList);
-   startTimeEstimateParamEditor = new ConstrainedEstimateParameterEditor(startTimeEstimateParam,true);
-   summarySplitPane.add(startTimeEstimateParamEditor, JSplitPane.RIGHT);
-   //end time estimate
-   endTimeEstimateParam = new EstimateParameter(this.END_TIME_ESTIMATE_PARAM_NAME,
-                                                this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
-                                                startDateEstimatesList);
-   endTimeEstimateParamEditor = new ConstrainedEstimateParameterEditor(endTimeEstimateParam,true);
-   timespanSplitPane.add(endTimeEstimateParamEditor, JSplitPane.LEFT);
+    startTimeBean = new TimeGuiBean();
+    summarySplitPane.add(startTimeBean, JSplitPane.RIGHT);
+    //end time estimate
+    endTimeBean = new TimeGuiBean();
+    timespanSplitPane.add(endTimeBean, JSplitPane.LEFT);
   }
 }
