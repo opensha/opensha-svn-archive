@@ -12,12 +12,12 @@ import java.io.FileWriter;
 import java.io.*;
 
 /**
- * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
- * <p>Description: This class creates a EvenlyGridded Sausage Geographical region.
+ * <p>Title: EvenlyGriddedSausageGeographicRegion</p>
+ * <p>Description: This class creates a EvenlyGridded Sausage Geographical region
+ * using a line (LocationList) and radius (km).
  * </p>
  * <p>
- * It accepts the end locations of the line, around which sausage region is to
- * be created.
+ * This is defined by all grid points that are within radius from the line.
  * </p>
  * <p>
  * This class has been tested by having a main method that creates all the

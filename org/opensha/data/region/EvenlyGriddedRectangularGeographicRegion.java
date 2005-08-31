@@ -10,7 +10,8 @@ import org.opensha.exceptions.RegionConstraintException;
 /**
  * <p>Title: EvenlyGriddedRectangularGrographicRegion</p>
  * <p>Description: It creates a evenly gridded geographic region for the
- * specified gridded region provided by the user</p>
+ * specified gridded region provided by the user.  All grid points are nice
+ * valuesin that lat/gridSpacing and lon/gridASpacing are always whole numbers.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Ned Field & Nitin Gupta & Vipin Gupta

@@ -12,6 +12,8 @@ import java.io.FileWriter;
 /**
  * <p>Title: EvenlyGriddedCircularGeographicRegion</p>
  * <p>Description: This class creates a EvenlyGridded circular Geographical region.
+ * All grid points are nice values in that lat/gridSpacing and lon/gridASpacing
+ * are always whole numbers.
  * </p>
  * <p>
  * This class has been testde by having a main method that creates all the
@@ -186,7 +188,6 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    */
   public Location getNearestLocation(Location loc) throws RegionConstraintException{
     //Getting the nearest Location to the rupture point location
-
 
     //getting the nearest Latitude.
     double lat = Math.rint(loc.getLatitude() / gridSpacing) *

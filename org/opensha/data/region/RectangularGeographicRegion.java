@@ -32,51 +32,6 @@ public class RectangularGeographicRegion extends GeographicRegion {
     super.minLon=minLon;
     super.maxLon=maxLon;
 
-    /*if(minLat > maxLat){
-
-        if (minLat < 0 && maxLat < 0) {
-          throw new RegionConstraintException(
-              "Min. Lat must be less then Max. Lat.\n" +
-              "Two options to enter the Min and Max Lat :\n" +
-              "1. MinLat = " + maxLat + " and MaxLat = " + minLat + "\n" +
-              "2. MinLat = " + minLat + " and MaxLat = " +
-              (90 - Math.abs(maxLat)));
-        }
-        else if (minLat > 0 && maxLat > 0) {
-          throw new RegionConstraintException(
-              "Min. Lat must be less then Max. Lat.\n" +
-              "Two options to enter the Min and Max Lat :\n" +
-              "1. MinLat = " + maxLat + " and MaxLat = " + minLat + "\n" +
-              "2. MinLat = " + -(90 - minLat) + " and MaxLat = " + maxLat);
-        }
-        else{
-          throw new RegionConstraintException(
-              "Min. Lat must be less then Max. Lat.\n");
-      }
-    }
-
-    if(minLon > maxLon){
-      if (minLon < 0 && maxLon < 0) {
-         throw new RegionConstraintException(
-             "Min. Lon must be less then Max. Lon.\n" +
-             "Two options to enter the Min and Max Lon :\n" +
-             "1. MinLon = " + maxLon + " and MaxLon = " + minLon + "\n" +
-             "2. MinLon = " + minLon + " and MaxLon = " +
-             (360 - Math.abs(maxLon)));
-       }
-       else if (minLon > 0 && maxLon > 0) {
-         throw new RegionConstraintException(
-             "Min. Lon must be less then Max. Lon.\n" +
-             "Two options to enter the Min and Max Lon :\n" +
-             "1. MinLon = " + maxLon + " and MaxLon = " + minLon + "\n" +
-             "2. MinLon = " + -(360 - minLon) + " and MaxLon = " + maxLon);
-       }
-       else{
-         throw new RegionConstraintException(
-             "Min. Lon must be less then Max. Lon.\n");
-      }
-    }*/
-
   if(minLat > maxLat)
     throw new RegionConstraintException(
         "Min. Lat must be less then Max. Lat.\n");

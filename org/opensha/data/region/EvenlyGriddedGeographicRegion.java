@@ -19,7 +19,7 @@ import java.io.FileWriter;
  * <p>
  * This class has been tested by having a main method that creates all the
  * locations within EvenlyGridded Geographical region. It dumps out all
- * these locations in a file called  "SausageRegionFile.txt",
+ * these locations in a file called  "GeoRegionFile.txt",
  * in the sha project home directory. File format is "lat,lon,depth" on each line
  * of file. One can take this file and plot it in some kind plotting tool to see
  * if region looks like a EvenlyGridded Geographical region for the locations
@@ -51,7 +51,7 @@ public class EvenlyGriddedGeographicRegion
   //list of of location in the given region
   private LocationList gridLocsList;
 
-  //This array store number of locations below a given latitude
+  //This array stores the number of locations below a given latitude
   private int[] locsBelowLat;
 
   //List for storing each for a given latitude
@@ -62,7 +62,7 @@ public class EvenlyGriddedGeographicRegion
    */
   public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing) {
     super(locList);
-    setGridSpacing(gridSpacing);
+    setGridSpacing(gridSpacing); // this also sets the max and min grid lats and lons.
 
     //this function creates a Lon Array for each gridLat. It also creates a
     //int array which tells how many locations are there below a given lat

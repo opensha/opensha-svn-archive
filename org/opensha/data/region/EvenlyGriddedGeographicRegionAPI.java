@@ -12,8 +12,9 @@ import org.opensha.exceptions.RegionConstraintException;
  * <p>Description:
  * </p>
  * <p>
- * Note : All classes utilising this API creates the niceMinLat and niceMinLon
- * so that all locations within the region match to perfect grid lat-lon.
+ * Note : All classes utilising this API utilize nice grid-point locations, meaning
+ * lat/gridSpacing & lon/gridSpacing are always equal to whole numbers, for all
+ * grid locations.
  * </p>
  * @author : Nitin Gupta & Vipin Gupta
  * @created: March 5,2003

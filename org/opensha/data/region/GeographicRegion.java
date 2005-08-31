@@ -10,7 +10,11 @@ import org.opensha.calc.RelativeLocation;
  * <p>Title: GeographicRegion </p>
  *
  * <p>Description: This class represents a geographical region using a polygon
- * specified with a LocationList.    </p>
+ * specified with a LocationList.  It is assumed that the last location is to
+ * be connected with the first.
+ * WARNING - this region may be screwed up if lon is defined over a range of
+ * greater than 360 (e.g., -360 to 360 could cause problems, but 0 to 360, -180 to 180,
+ * and -360 to 0 will be OK).     </p>
  *
  * @author : Nitin Gupta, Vipin Gupta, and Edward field
  * @created : March 5, 2003

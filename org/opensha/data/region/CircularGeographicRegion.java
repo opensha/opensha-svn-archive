@@ -6,7 +6,8 @@ import org.opensha.calc.RelativeLocation;
 /**
  * <p>Title: RectangularGeographicRegion</p>
  *
- * <p>Description: This class defines a Circular Geographical region.</p>
+ * <p>Description: This class defines a Circular Geographical region.  Circle
+ * radius is defined in km.</p>
  *
  * @author : Edward Field
  * @created: Aug. 2,2004
@@ -49,6 +50,9 @@ public class CircularGeographicRegion extends GeographicRegion {
     tempLoc = RelativeLocation.getLocation(centerLoc,dir);
     super.maxLon=tempLoc.getLongitude();
 
+    if(minLon>maxLon) throw new RuntimeException("Problem in CircularGeographicRegion"+
+                                                "related to crossing the zero lat boundary");
+
     if (D) {
       System.out.println("minLat = "+minLat+";  maxLat = "+maxLat+";  minLon = "+minLon+";  maxLon = "+maxLon);
       double dist;
@@ -87,7 +91,7 @@ public class CircularGeographicRegion extends GeographicRegion {
   // this make the locList for the region outline
   /**
    * This creates the region outline for the circle, where there are 360/degreeIncrement
-   * equally spaced points (the last two may be closer than this).  The constructore (default)
+   * equally spaced points (the last two may be closer than this).  The constructor (default)
    * uses 10 degrees (36 points)
    *
    * @param degreeIncrement - difference in azimuth (from the center) between neighboring points

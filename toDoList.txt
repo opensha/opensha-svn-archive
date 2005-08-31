@@ -2,6 +2,47 @@
 -------------------------------------------------------------
 
 
+Ned's Notes: ****************************
+
+
+
+EvenlyGriddedRectangularGeographicRegion
+
+	getGridLocation(int index) - always returns a clone (never a pointer)
+	getNearestLocation(Location loc) - always clone too
+	list methods always same (list created once and only once)
+
+
+EvenlyGriddedCircularGeographicRegion.
+
+	getGridLocation(int index) - returns pointer if list exists; otherwise clone
+	getNearestLocation(Location loc)- always returns clone
+	list methods always same (list created once and only once)
+
+	initLatLonArray() method - is using an ArrayList to temporarily store the lons most efficient?
+	(used in other classes as well)
+
+	getNumGridLocs() - else case incorrect (index needs a -1)?
+
+	getNearestLocation(Location loc) - 1st lines can move points near edge (but inside) of region outside
+	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
+	(EvenlyGriddedRectangularGeographicRegion does it correctly?)
+
+EvenlyGriddedGeographicRegion
+
+	getGridLocation(int index) - returns pointer if list exists; otherwise clone
+	getNearestLocation(Location loc)- always returns clone
+	list methods always same (list created once and only once); though user can do this explicitly
+
+	getNearestLocation(Location loc) - 1st lines can move points near edge (but inside) of region outside
+	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
+	(EvenlyGriddedRectangularGeographicRegion does it correctly?)
+
+
+Will the RegionConstraintException thrown by so many methods require using try/catch; if so, isn't his going to be inefficient?
+
+*****************************************
+
 Move ERF2XML_Calc out of sha/calc and into sha/util?(Done - Nitin)
 
 Nitin has to look on how to get the OpenSHA code to the source-forge.
