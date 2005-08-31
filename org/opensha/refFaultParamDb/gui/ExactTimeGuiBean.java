@@ -38,9 +38,10 @@ public class ExactTimeGuiBean extends ParameterListEditor{
     private final static Integer SECOND_PARAM_DEFAULT = new Integer(0);
     private IntegerConstraint secondConstraint = new IntegerConstraint(0,59);
 
-  public ExactTimeGuiBean() {
+  public ExactTimeGuiBean(String title) {
     initParamsList();
     this.addParameters();
+    this.setTitle(title);
   }
 
   /**
@@ -62,8 +63,5 @@ public class ExactTimeGuiBean extends ParameterListEditor{
     parameterList.addParameter(secondParam);
   }
 
-  public static void main(String[] args) {
-    ExactTimeGuiBean exactTimeGuiBean1 = new ExactTimeGuiBean();
-  }
 
 }

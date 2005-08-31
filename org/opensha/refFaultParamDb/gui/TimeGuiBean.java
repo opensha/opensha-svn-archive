@@ -7,6 +7,7 @@ import org.opensha.param.*;
 import java.util.ArrayList;
 import java.awt.*;
 import org.opensha.param.event.*;
+import org.opensha.gui.LabeledBorderPanel;
 
 /**
  * <p>Title: TimeGuiBean.java </p>
@@ -21,11 +22,28 @@ import org.opensha.param.event.*;
  * @version 1.0
  */
 
-public class TimeGuiBean extends JPanel implements ParameterChangeListener {
+public class TimeGuiBean extends LabeledBorderPanel implements ParameterChangeListener {
+  // parameters for Date Estimate
+  private StringParameter yearUnitsParam;
+  private final static String YEAR_UNITS_PARAM_NAME="Year Units";
+  private final static String CALENDAR_YEAR = "Calendar Year";
+  private final static String ZERO_YEAR_PARAM_NAME = "Zero Year";
+  private IntegerParameter zeroYearParam;
+  private final static String CALENDAR_ERA_PARAM_NAME="Era";
+  private final static String AD = "AD";
+  private final static String BC = "BC";
+  private final static String KA = "ka";
+  private final static Integer YEAR1950 = new Integer(1950);
+  private StringParameter eraParam;
+
+  // editors
+  ConstrainedStringParameterEditor yearUnitsParamEditor;
+  IntegerParameterEditor zeroYearParamEditor;
+  ConstrainedStringParameterEditor eraParamEditor;
+
   private final static String TIME_OPTIONS_PARAM_NAME = "Time Available";
   private final static String ESTIMATE = "Estimate";
   private final static String EXACT="Exact";
-  private final static String ESTIMATE_PARAMETER_NAME = "Estimate";
 
 
   // GUI bean to provide the exact time
@@ -39,18 +57,24 @@ public class TimeGuiBean extends JPanel implements ParameterChangeListener {
   private ConstrainedEstimateParameterEditor estimateParamEditor;
   private ConstrainedStringParameterEditor timeOptionsParamEditor;
 
-  public TimeGuiBean() {
-    // intialize the parameters and editors
-    initParamListAndEditors();
-    // add the editors this panel
-    addEditorsToPanel();
-    setParametersVisible();
+  public TimeGuiBean(String title) {
+    try {
+      this.title = title;
+      // intialize the parameters and editors
+      initParamListAndEditors();
+      // add the editors this panel
+      addEditorsToPanel();
+      setParametersVisible();
+      setTitle(title);
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
   }
 
 
 
   // intialize the various parameters and editors
-  private void initParamListAndEditors() {
+  private void initParamListAndEditors() throws Exception {
     // user can choose to provide exact time or a time estimate
     ArrayList availableTimeOptions = getAvailableTimeOptions();
     timeOptionsParam = new StringParameter(TIME_OPTIONS_PARAM_NAME, availableTimeOptions,
@@ -58,12 +82,37 @@ public class TimeGuiBean extends JPanel implements ParameterChangeListener {
     timeOptionsParam.addParameterChangeListener(this);
     timeOptionsParamEditor = new ConstrainedStringParameterEditor(timeOptionsParam);
     // GUI bean so that user can provide exact time
-    exactTimeGuiBean = new ExactTimeGuiBean();
+    exactTimeGuiBean = new ExactTimeGuiBean(EXACT+" "+title);
     // param and editor to allow user to fill the time estimate values
     ArrayList allowedDateEstimates  = EstimateConstraint.createConstraintForDateEstimates();
-    estimateParameter = new EstimateParameter(ESTIMATE_PARAMETER_NAME, 0,
+    estimateParameter = new EstimateParameter(ESTIMATE+" "+title, 0,
                                               Double.MAX_VALUE, allowedDateEstimates);
     estimateParamEditor = new ConstrainedEstimateParameterEditor(estimateParameter,true);
+    /**
+    * Parameters for Date Estimate [ isCorrected, units(ka/calendar year),
+    *  era, 0th year (in case it is ka)]
+    */
+
+   // whether user wants to enter ka or calendar year
+   ArrayList yearUnitsList = new ArrayList();
+   yearUnitsList.add(CALENDAR_YEAR);
+   yearUnitsList.add(KA);
+   yearUnitsParam = new StringParameter(YEAR_UNITS_PARAM_NAME,
+       yearUnitsList, (String)yearUnitsList.get(0));
+   yearUnitsParam.addParameterChangeListener(this);
+   yearUnitsParamEditor = new ConstrainedStringParameterEditor(yearUnitsParam);
+
+   // Add ERAs
+   ArrayList eras = new ArrayList();
+   eras.add(AD);
+   eras.add(BC);
+   this.eraParam = new StringParameter(this.CALENDAR_ERA_PARAM_NAME, eras, (String)eras.get(0));
+   eraParamEditor = new ConstrainedStringParameterEditor(eraParam);
+
+   // ZERO year param
+   this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, Integer.MAX_VALUE, AD, YEAR1950);
+   zeroYearParamEditor = new IntegerParameterEditor(zeroYearParam);
+
   }
 
 
@@ -74,11 +123,17 @@ public class TimeGuiBean extends JPanel implements ParameterChangeListener {
     setLayout(new GridBagLayout());
     int yPos=0;
     add(this.timeOptionsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
-         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.yearUnitsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.eraParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.zeroYearParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.exactTimeGuiBean, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.estimateParamEditor, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
   }
 
   /**
@@ -102,8 +157,24 @@ public class TimeGuiBean extends JPanel implements ParameterChangeListener {
     String paramName = event.getParameterName();
     if(paramName.equalsIgnoreCase(this.TIME_OPTIONS_PARAM_NAME)) {
       setParametersVisible();
+    }else if(event.getParameterName().equalsIgnoreCase(this.YEAR_UNITS_PARAM_NAME)) {
+       // change date params based on whether user wants to enter calendar date or ka
+       setDateParamsVisibleBasedOnUnits();
     }
   }
+
+  // change date params based on whether user wants to enter calendar date or ka
+  private void setDateParamsVisibleBasedOnUnits() {
+    String yearUnitsVal = (String)this.yearUnitsParam.getValue();
+     if(yearUnitsVal.equalsIgnoreCase(this.CALENDAR_YEAR)) { //if user wants to enter calendar date
+       this.zeroYearParamEditor.setVisible(false);
+       this.eraParamEditor.setVisible( true);
+     }else if(yearUnitsVal.equalsIgnoreCase(KA)) { // if user wants to enter ka years
+      this.zeroYearParamEditor.setVisible(true);
+       this.eraParamEditor.setVisible(false);
+     }
+  }
+
 
   /**
    * Set the exact/estimate

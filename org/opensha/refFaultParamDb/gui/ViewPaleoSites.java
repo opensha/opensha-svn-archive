@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.*;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -39,10 +40,10 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
 
   // input parameter editors
   private ConstrainedStringParameterEditor siteNameParamEditor;
-  private JLabel siteLocationLabel = new JLabel();
-  private JLabel assocWithFaultLabel = new JLabel();
-  private JLabel siteTypeLabel = new JLabel();
-  private JLabel siteRepresentationLabel = new JLabel();
+  private InfoLabel siteLocationLabel ;
+  private InfoLabel assocWithFaultLabel ;
+  private InfoLabel siteTypeLabel;
+  private InfoLabel siteRepresentationLabel;
   private ConstrainedStringParameterEditor timeSpanParamEditor;
   private CommentsParameterEditor datedFeatureCommentsParamEditor;
 
@@ -52,15 +53,12 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private JButton viewEditTimeSpanInfoButton = new JButton("Edit Info for this Time Period");
   private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Period");
 
-  // color for JLabels
-  private Color labelColor = new Color( 80, 80, 133 );
+
 
   public ViewPaleoSites() {
     try {
       // initialize parameters and editors
       initParametersAndEditors();
-      // set the colors of the site information text labels
-      setLabelColors();
       // add the editors to this window
       jbInit();
       // ad action listeners to catch the event on button click
@@ -70,15 +68,6 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     }
   }
 
-  /**
-   * Set the colors of site information text labels
-   */
-  private void setLabelColors() {
-    siteLocationLabel.setForeground(labelColor);
-    assocWithFaultLabel.setForeground(labelColor);
-    siteTypeLabel.setForeground(labelColor);
-    siteRepresentationLabel.setForeground(labelColor);
-  }
 
   /**
    * Add the editors to the window
@@ -163,15 +152,15 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   * @param paleoSite
   */
   private void setSiteInfo()  {
-    siteLocationLabel.setText(SITE_LOCATION_PARAM_NAME+"33.47,-118.25");
+    siteLocationLabel = new InfoLabel(SITE_LOCATION_PARAM_NAME,"33.47,-118.25");
     //  fault with which this site is associated
-    assocWithFaultLabel.setText(ASSOCIATED_WITH_FAULT_PARAM_NAME+"Fault1");
+    assocWithFaultLabel = new InfoLabel(ASSOCIATED_WITH_FAULT_PARAM_NAME,"Fault1");
 
     // site type for this site
-    siteTypeLabel.setText(SITE_TYPE_PARAM_NAME+"Trench");
+    siteTypeLabel = new InfoLabel(SITE_TYPE_PARAM_NAME,"Trench");
 
     // Site representation
-    siteRepresentationLabel.setText(SITE_REPRESENTATION_PARAM_NAME+"Most Significant Strand");
+    siteRepresentationLabel = new InfoLabel(SITE_REPRESENTATION_PARAM_NAME,"Most Significant Strand");
 
     // get all the start times associated with this site
     ArrayList timeSpans = getAllTimeSpans();

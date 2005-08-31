@@ -11,8 +11,8 @@ import ch.randelshofer.quaqua.QuaquaManager;
 
 /**
  * <p>Title: PaleoSiteApp.java </p>
- * <p>Description:  This application allows user to add/view/edit information
- * for a paleo site </p>
+ * <p>Description:  Gets all the available paleo sites from the database and
+ * displays information about a user selected site </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
@@ -26,18 +26,7 @@ public class PaleoSiteApp extends JFrame {
 
   private final static String TITLE = "Cal Ref. Fault GUI";
 
-  // start time estimate param
-  private final static String START_TIME_ESTIMATE_PARAM_NAME="Start Time Estimate";
-  private final static double TIME_ESTIMATE_MIN=0;
-  private final static double TIME_ESTIMATE_MAX=Double.MAX_VALUE;
-  private final static String TIME_ESTIMATE_UNITS="years";
-
-  // end time estimate param
-  private final static String END_TIME_ESTIMATE_PARAM_NAME="End Time Estimate";
-
   // various parameters
-  private TimeGuiBean startTimeBean;
-  private TimeGuiBean endTimeBean;
   private ViewPaleoSites viewPaleoSites;
   private SiteInfoForTimePeriod siteInfoForTimePeriod;
 
@@ -52,18 +41,26 @@ public class PaleoSiteApp extends JFrame {
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
 
-
+  /**
+   * Constructor.
+   * Gets all the available paleo sites from the database and displays
+   * information about a user selected site
+   */
   public PaleoSiteApp() {
     try {
       setTitle(TITLE);
       jbInit();
-      addSitesPanel(); // add the avialbel sites from database for viewing
-      addTimeEstimateParametersAndEditors(); // add start and end time estimates
+      addSitesPanel(); // add the available sites from database for viewing
+      addTimeInfo(); // add start and end time estimates
       addSiteInfoForTimePeriod(); // add the info for the selected time period
     }
-    catch(Exception e) {
+    catch (Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private void addTimeInfo() {
+
   }
 
   public static void main(String[] args) {
@@ -73,7 +70,10 @@ public class PaleoSiteApp extends JFrame {
     paleoSiteApp.show();
   }
 
-
+  /**
+   * Add all the components to the GUI
+   * @throws java.lang.Exception
+   */
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout2);
     mainPanel.setLayout(borderLayout1);
@@ -126,17 +126,5 @@ public class PaleoSiteApp extends JFrame {
     timespanSplitPane.add(siteInfoForTimePeriod, JSplitPane.RIGHT);
   }
 
-  /**
-   * Add the start and end time estimate parameters
-   */
-  private void addTimeEstimateParametersAndEditors() {
-    // create constraint of allowed estimate types
-    ArrayList startDateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
-    // start time estimate
-    startTimeBean = new TimeGuiBean();
-    summarySplitPane.add(startTimeBean, JSplitPane.RIGHT);
-    //end time estimate
-    endTimeBean = new TimeGuiBean();
-    timespanSplitPane.add(endTimeBean, JSplitPane.LEFT);
-  }
+
 }
