@@ -7,23 +7,30 @@ Ned's Notes: ****************************
 
 HypoMagFreqDistAtLoc:
 
-	Is nonEditable needed and meaningful; doesn't throw exeception?
+	Remove editable and all set methods
+	Remove ignoreFocalMech and just do that if it's null
+	Make MagFreqDist and FocMech arrays of each to support multiple foc mech
+	Loc can be null if it's not needed.
+
+	Might want to subclass to take EvenlyGriddedRegion and index.
 
 GriddedHypoMagFreqDistAtLocAPI
 
 	change getHypRatesAtLoc() to getHypoMagFreqDistAtLoc()
 	change getNumHypoLocation() to getNumHypoMagFreqDistAtLocs()
+	Take "Gridded out of class name.
 
 GriddedHypoMagFreqDistForecast
 
-	private boolean editable?
+	remove editable boolean
 	needs get/set methods for adjustable parameters.
-	(do we need an AdjustableParametersAPI?)
+	Add evenlyGriddedRegion with get, but no set method.
+	Make this abstract (ERF wrapper will be subclass)
+	Note that indexing on HypMagFreqDistAtLocs is exactly the same as for griddedRegion
 
 AfterShockHypoMagFreqDistForecast
 
-	do we want the set methods for individual elements?
-	locations need to be unique here; probs with diff focal mechanisms?
+	add set method for griddedRegion (defined in parent), and change name to aftershockZone
 
 EvenlyGriddedRectangularGeographicRegion
 

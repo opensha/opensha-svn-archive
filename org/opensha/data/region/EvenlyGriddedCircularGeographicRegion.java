@@ -156,7 +156,7 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     if(gridLocsList !=null)
       return gridLocsList.size();
     else
-      return locsBelowLat[locsBelowLat.length];
+      return locsBelowLat[locsBelowLat.length-1];
   }
 
   /**
