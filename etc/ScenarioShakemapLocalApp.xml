@@ -6,7 +6,7 @@
   directories. For example, the JBuilder output directory might be "classes"
   and the Ant output directory might be "classes.ant".
 -->
-<project basedir="." default="jarfile" name="ScenarioShakeMapLocalcCalcApp_test">
+<project basedir="." default="jarfile" name="ScenarioShakeMapLocalCalcApp_test">
   <property name="jbuilder.home" value="/Developer/Applications/JBuilder-2005/JBuilder.framework"/>
   <property name="jdk.home" value="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Home"/>
   <property name="dest" value="../classes.ant"/>
@@ -122,7 +122,6 @@
       <include name="img/**"/>
       <include name="ch/**"/>
     </jar>
-    <antcall target="postcompile" />
   </target>
   <target name="precompilecleanup">
     <delete dir="${dest}" failonerror="yes" verbose="no"/>
