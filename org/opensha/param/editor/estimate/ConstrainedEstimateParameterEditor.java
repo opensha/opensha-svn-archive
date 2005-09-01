@@ -174,6 +174,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     */
    private boolean showEditorAsPanel = false;
 
+   private EstimateConstraint estimateConstraint;
+
    /**
     * Whether to show the min/max cut off parameters for normal/log normal estimates
     */
@@ -288,7 +290,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
     evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, new EvenlyDiscretizedFunc(1.0,4.0,7));
     // list of available estimates
-    EstimateConstraint estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
+    estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
     ArrayList allowedEstimatesList = estimateConstraint.getAllowedEstimateList();
     chooseEstimateParam = new StringParameter(CHOOSE_ESTIMATE_PARAM_NAME,
                                               allowedEstimatesList,
@@ -626,6 +628,9 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      double maxX = ( (Double)this.maxNormalEstimateParam.getValue()).
          doubleValue();
      estimate.setMinMaxX(minX, maxX);
+   } else {
+     estimate.setMinMaxX(estimateConstraint.getMin().doubleValue(),
+                         estimateConstraint.getMax().doubleValue());
    }
    return estimate;
  }
@@ -650,7 +655,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      double maxX = ( (Double)this.maxLogNormalEstimateParam.getValue()).
          doubleValue();
      estimate.setMinMaxX(minX, maxX);
+   }else {
+     estimate.setMinMaxX(estimateConstraint.getMin().doubleValue(),
+                         estimateConstraint.getMax().doubleValue());
    }
+
    return estimate;
  }
 
@@ -709,9 +718,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    static {
      String osName = System.getProperty("os.name");
      try {
-       if(osName.startsWith("Mac OS"))
-         UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-       else
          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
      }
      catch(Exception e) {
