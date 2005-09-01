@@ -174,20 +174,26 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     */
    private boolean showEditorAsPanel = false;
 
+   /**
+    * Whether to show the min/max cut off parameters for normal/log normal estimates
+    */
+   private boolean showMinMaxTruncationParams=true;
 
 
    public ConstrainedEstimateParameterEditor() {
    }
 
     public ConstrainedEstimateParameterEditor(ParameterAPI model) {
-      this(model, false);
+      this(model, false, true);
     }
 
    //constructor taking the Parameter as the input argument
    public ConstrainedEstimateParameterEditor(ParameterAPI model,
-                                             boolean showEditorAsPanel){
+                                             boolean showEditorAsPanel,
+                                             boolean showMinMaxTruncationParams){
 
      this.showEditorAsPanel = showEditorAsPanel;
+     this.showMinMaxTruncationParams = showMinMaxTruncationParams;
      try {
        this.jbInit();
        setParameter(model);
@@ -296,37 +302,20 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     logBases.add(this.LOG_BASE_10_NAME);
     logBaseParam = new StringParameter(this.LOG_BASE_PARAM_NAME,logBases,(String)logBases.get(0));
 
-   /**
-    * Min/Max  values that can be set into Normal/LogNormal estimate
-    * These are used for testing purposes. These  parameters may be removed
-    * when we deploy this.
-    */
-   minNormalEstimateParam = new DoubleParameter(NORMAL_MIN_X_PARAM_NAME,
-                                                estimateConstraint.getMin());
-   minLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MIN_X_PARAM_NAME,
-       LOGNORMAL_MIN_X_PARAM_CONSTRAINT, estimateConstraint.getMin());
-   maxNormalEstimateParam = new DoubleParameter(NORMAL_MAX_X_PARAM_NAME,
-                                          estimateConstraint.getMax());
-   maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
-                                                 estimateConstraint.getMax());
+    // put all the parameters in the parameter list
+    parameterList = new ParameterList();
+    parameterList.addParameter(chooseEstimateParam);
+    parameterList.addParameter(this.meanParam);
+    parameterList.addParameter(this.stdDevParam);
+    parameterList.addParameter(this.linearMedianParam);
+    parameterList.addParameter(this.logBaseParam);
+    parameterList.addParameter(this.arbitrarilyDiscFuncParam);
+    parameterList.addParameter(evenlyDiscFuncParam);
 
+    if(this.showMinMaxTruncationParams) // whether to show min/max truncation params
+      addMinMaxTruncationParams(estimateConstraint);
 
-
-   // put all the parameters in the parameter list
-   parameterList = new ParameterList();
-   parameterList.addParameter(chooseEstimateParam);
-   parameterList.addParameter(this.meanParam);
-   parameterList.addParameter(this.stdDevParam);
-   parameterList.addParameter(this.linearMedianParam);
-   parameterList.addParameter(this.logBaseParam);
-   parameterList.addParameter(this.arbitrarilyDiscFuncParam);
-   parameterList.addParameter(evenlyDiscFuncParam);
-   parameterList.addParameter(minNormalEstimateParam);
-   parameterList.addParameter(minLogNormalEstimateParam);
-   parameterList.addParameter(maxNormalEstimateParam);
-   parameterList.addParameter(maxLogNormalEstimateParam);
-
-   this.editor = new ParameterListEditor(parameterList);
+    this.editor = new ParameterListEditor(parameterList);
 
    // show the units and estimate param name as the editor title
    String units = estimateParam.getUnits();
@@ -379,6 +368,34 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    //editor.setToolTipText(minConstraintLabel.getText()+","+maxConstraintLabel.getText());
    editor.setToolTipText(this.estimateParam.getInfo()+"::"+constraintMinText+","+constraintMaxText);
  }
+
+ /**
+  * Add the parameters  so that user can enter min/max truncation values
+  * @param estimateConstraint
+  * @throws ParameterException
+  * @throws ConstraintException
+  */
+  private void addMinMaxTruncationParams(EstimateConstraint estimateConstraint) throws
+      ParameterException, ConstraintException {
+    /**
+     * Min/Max  values that can be set into Normal/LogNormal estimate
+     * These are used for testing purposes. These  parameters may be removed
+     * when we deploy this.
+     */
+    minNormalEstimateParam = new DoubleParameter(NORMAL_MIN_X_PARAM_NAME,
+                                                 estimateConstraint.getMin());
+    minLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MIN_X_PARAM_NAME,
+        LOGNORMAL_MIN_X_PARAM_CONSTRAINT, estimateConstraint.getMin());
+    maxNormalEstimateParam = new DoubleParameter(NORMAL_MAX_X_PARAM_NAME,
+                                           estimateConstraint.getMax());
+    maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
+                                                  estimateConstraint.getMax());
+    parameterList.addParameter(minNormalEstimateParam);
+    parameterList.addParameter(minLogNormalEstimateParam);
+    parameterList.addParameter(maxNormalEstimateParam);
+    parameterList.addParameter(maxLogNormalEstimateParam);
+  }
+
 
   public void parameterChangeFailed(ParameterChangeFailEvent event) {
     throw new RuntimeException("Unsupported method");
@@ -435,10 +452,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
     editor.setParameterVisible(PDF_PARAM_NAME, false);
     editor.setParameterVisible(XY_PARAM_NAME, false);
-    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-    editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+     if(this.showMinMaxTruncationParams) {
+       editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+       editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+       editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+       editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+     }
     xValsParamListEditor.setVisible(true);
     probValsParamListEditor.setVisible(true);
     viewEstimateButton.setVisible(false);
@@ -455,10 +474,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, false);
-   editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, true);
-   editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, true);
-    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   if(this.showMinMaxTruncationParams) {
+     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, true);
+     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+     editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, true);
+     editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   }
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -475,10 +496,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
     editor.setParameterVisible(PDF_PARAM_NAME, false);
     editor.setParameterVisible(XY_PARAM_NAME, false);
-    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, true);
-    editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, true);
+    if(this.showMinMaxTruncationParams) {
+      editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+      editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, true);
+      editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+      editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, true);
+    }
     xValsParamListEditor.setVisible(false);
     probValsParamListEditor.setVisible(false);
     viewEstimateButton.setVisible(true);
@@ -495,10 +518,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(PDF_PARAM_NAME, true);
    editor.setParameterVisible(XY_PARAM_NAME, false);
-   editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   if(this.showMinMaxTruncationParams) {
+     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+     editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+     editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   }
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -527,10 +552,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(PDF_PARAM_NAME, false);
    editor.setParameterVisible(XY_PARAM_NAME, true);
-   editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-   editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-   editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   if(this.showMinMaxTruncationParams) {
+     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
+     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
+     editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
+     editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
+   }
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -592,10 +619,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  private Estimate setNormalEstimate() {
    double mean = ((Double)meanParam.getValue()).doubleValue();
    double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
-   double minX = ((Double)this.minNormalEstimateParam.getValue()).doubleValue();
-   double maxX = ((Double)this.maxNormalEstimateParam.getValue()).doubleValue();
    NormalEstimate estimate = new NormalEstimate(mean, stdDev);
-   estimate.setMinMaxX(minX, maxX);
+   if(this.showMinMaxTruncationParams) {
+     double minX = ( (Double)this.minNormalEstimateParam.getValue()).
+         doubleValue();
+     double maxX = ( (Double)this.maxNormalEstimateParam.getValue()).
+         doubleValue();
+     estimate.setMinMaxX(minX, maxX);
+   }
    return estimate;
  }
 
@@ -612,9 +643,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    if(this.logBaseParam.getValue().equals(this.LOG_BASE_10_NAME))
      estimate.setIsBase10(true);
    else   estimate.setIsBase10(false);
-   double minX = ((Double)this.minLogNormalEstimateParam.getValue()).doubleValue();
-   double maxX = ((Double)this.maxLogNormalEstimateParam.getValue()).doubleValue();
-   estimate.setMinMaxX(minX, maxX);
+
+   if(this.showMinMaxTruncationParams) {
+     double minX = ( (Double)this.minLogNormalEstimateParam.getValue()).
+         doubleValue();
+     double maxX = ( (Double)this.maxLogNormalEstimateParam.getValue()).
+         doubleValue();
+     estimate.setMinMaxX(minX, maxX);
+   }
    return estimate;
  }
 
@@ -701,7 +737,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
-    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true);
+    ConstrainedEstimateParameterEditor estimateParameterEditor = new ConstrainedEstimateParameterEditor(estimateParam,true,true);
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();

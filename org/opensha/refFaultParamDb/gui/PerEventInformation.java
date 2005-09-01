@@ -127,13 +127,13 @@ public class PerEventInformation extends JFrame implements ParameterChangeListen
     dateEstParam = new EstimateParameter(this.DATE_ESTIMATE_PARAM_NAME,
              this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
              dateAllowedEstList);
-    this.dateEstParamEditor = new ConstrainedEstimateParameterEditor(dateEstParam,true);
+    this.dateEstParamEditor = new ConstrainedEstimateParameterEditor(dateEstParam,true,false);
 
     // slip rate param
     ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
     this.slipEstParam = new EstimateParameter(this.SLIP_ESTIMATE_PARAM_NAME,
       SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
-    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true);
+    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true,false);
 
     // whether displacement is shared with other events
     this.displacementSharedParam = new BooleanParameter(this.DISPLACEMENT_SHARED_PARAM_NAME, new Boolean(false));

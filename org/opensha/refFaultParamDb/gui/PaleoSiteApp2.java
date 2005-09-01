@@ -21,7 +21,7 @@ import ch.randelshofer.quaqua.QuaquaManager;
  * @version 1.0
  */
 
-public class PaleoSiteApp extends JFrame {
+public class PaleoSiteApp2 extends JFrame {
 
   private final static int WIDTH = 850;
   private final static int HEIGHT = 725;
@@ -48,7 +48,7 @@ public class PaleoSiteApp extends JFrame {
   private JSplitPane topSplitPane = new JSplitPane();
   private JPanel mainPanel = new JPanel();
   private JSplitPane mainSplitPane = new JSplitPane();
-  private JSplitPane summarySplitPane = new JSplitPane();
+  private JSplitPane infoForTimeSpanSplitPane = new JSplitPane();
   private JSplitPane timespanSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
@@ -60,12 +60,12 @@ public class PaleoSiteApp extends JFrame {
    * information about a user selected site
    */
 
-  public PaleoSiteApp() {
+  public PaleoSiteApp2() {
     try {
       setTitle(TITLE);
       jbInit();
-      addSitesPanel(); // add the avialbel sites from database for viewing
-      addTimeEstimateParametersAndEditors(); // add start and end time estimates
+      addSitesPanel(); // add the available sites from database for viewing
+      addTimeSpanInfo(); // add start and end time estimates
       addSiteInfoForTimePeriod(); // add the info for the selected time period
     }
     catch (Exception e) {
@@ -75,7 +75,7 @@ public class PaleoSiteApp extends JFrame {
 
 
   public static void main(String[] args) {
-    PaleoSiteApp paleoSiteApp = new PaleoSiteApp();
+    PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();
     paleoSiteApp.pack();
     paleoSiteApp.setSize(WIDTH, HEIGHT);
     paleoSiteApp.show();
@@ -90,7 +90,7 @@ public class PaleoSiteApp extends JFrame {
     this.getContentPane().setLayout(borderLayout2);
     mainPanel.setLayout(borderLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    summarySplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+    infoForTimeSpanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     statusTextArea.setEnabled(false);
@@ -99,13 +99,13 @@ public class PaleoSiteApp extends JFrame {
     this.getContentPane().add(topSplitPane, BorderLayout.CENTER);
     topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
-    mainSplitPane.add(summarySplitPane, JSplitPane.LEFT);
-    mainSplitPane.add(timespanSplitPane, JSplitPane.RIGHT);
+    mainSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
+    mainSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
     statusScrollPane.getViewport().add(statusTextArea, null);
     topSplitPane.setDividerLocation(625);
     mainSplitPane.setDividerLocation(425);
-    summarySplitPane.setDividerLocation(212);
+    infoForTimeSpanSplitPane.setDividerLocation(212);
     timespanSplitPane.setDividerLocation(212);
   }
 
@@ -114,7 +114,7 @@ public class PaleoSiteApp extends JFrame {
    */
   private void addSitesPanel() {
     viewPaleoSites = new ViewPaleoSites();
-    summarySplitPane.add(viewPaleoSites, JSplitPane.LEFT);
+    timespanSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
   }
 
   //static initializer for setting look & feel
@@ -135,21 +135,14 @@ public class PaleoSiteApp extends JFrame {
    */
   private void addSiteInfoForTimePeriod() {
     SiteInfoForTimePeriod siteInfoForTimePeriod = new SiteInfoForTimePeriod();
-    timespanSplitPane.add(siteInfoForTimePeriod, JSplitPane.RIGHT);
+    infoForTimeSpanSplitPane.add(siteInfoForTimePeriod, JSplitPane.RIGHT);
   }
 
 
   /**
    * Add the start and end time estimate parameters
    */
-  private void addTimeEstimateParametersAndEditors() {
-    // create constraint of allowed estimate types
-    ArrayList startDateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
-    // start time estimate
-    startTimeBean = new TimeGuiBean(this.START_TIME_PARAM_NAME);
-    summarySplitPane.add(startTimeBean, JSplitPane.RIGHT);
-    //end time estimate
-    endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME);
-    timespanSplitPane.add(endTimeBean, JSplitPane.LEFT);
+  private void addTimeSpanInfo() {
+
   }
 }
