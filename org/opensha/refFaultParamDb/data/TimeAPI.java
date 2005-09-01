@@ -11,5 +11,9 @@ package org.opensha.refFaultParamDb.data;
  */
 
 public interface TimeAPI {
+  // constant values for AD/BC
+  public final static int AD = 1;
+  public final static int BC = 2;
+
 
 }

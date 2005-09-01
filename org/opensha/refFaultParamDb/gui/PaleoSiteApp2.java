@@ -8,6 +8,9 @@ import org.opensha.param.editor.*;
 import java.util.ArrayList;
 import org.opensha.param.estimate.EstimateConstraint;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.refFaultParamDb.data.*;
+import org.opensha.data.estimate.NormalEstimate;
 
 /**
  * <p>Title: PaleoSiteApp.java </p>
@@ -28,15 +31,6 @@ public class PaleoSiteApp2 extends JFrame {
 
   private final static String TITLE = "Cal Ref. Fault GUI";
 
-  // start time estimate param
-  private final static String START_TIME_PARAM_NAME="Start Time";
-  private final static double TIME_ESTIMATE_MIN=0;
-  private final static double TIME_ESTIMATE_MAX=Double.MAX_VALUE;
-  private final static String TIME_ESTIMATE_UNITS="years";
-
-  // end time estimate param
-  private final static String END_TIME_PARAM_NAME="End Time";
-
   // various parameters
   private TimeGuiBean startTimeBean;
   private TimeGuiBean endTimeBean;
@@ -53,6 +47,7 @@ public class PaleoSiteApp2 extends JFrame {
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
+
 
   /**
    * Constructor.
@@ -143,6 +138,12 @@ public class PaleoSiteApp2 extends JFrame {
    * Add the start and end time estimate parameters
    */
   private void addTimeSpanInfo() {
-
+    ExactTime startTime = new ExactTime(246, 1, 15, 10, 56, 21, TimeAPI.BC);
+    TimeEstimate endTime =  new TimeEstimate();
+    endTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
+    String comments = "Dating features comments and techniques will go here";
+    // timeSpan panel which will conatin start time and end time
+    LabeledBoxPanel timeSpanPanel = new ViewTimeSpan(startTime, endTime, comments);
+    timespanSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
   }
 }

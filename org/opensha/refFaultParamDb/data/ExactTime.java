@@ -12,9 +12,24 @@ import java.util.GregorianCalendar;
 
 public class ExactTime implements TimeAPI {
   private GregorianCalendar gregorianCalendar;
+  private int era;
 
-  public ExactTime() {
+  public ExactTime(int year, int month, int day, int hour, int minute, int second, int era) {
+    gregorianCalendar = new GregorianCalendar(year, month, day, hour, minute, second);
+    this.era = era;
   }
 
+  public ExactTime(GregorianCalendar calendar, int era) {
+    this.gregorianCalendar = calendar;
+    this.era = era;
+  }
+
+  public int getEra() {
+    return era;
+  }
+
+  public GregorianCalendar getGregorianCalendar() {
+    return gregorianCalendar;
+  }
 
 }

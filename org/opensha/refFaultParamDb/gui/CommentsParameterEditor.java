@@ -53,7 +53,7 @@ public class CommentsParameterEditor extends ParameterEditor
 
         if ( (model != null ) && !(model instanceof StringParameter))
             throw new Exception( S + "Input model parameter must be a StringParameter.");
-
+          refreshParamEditor();
         //this.setParameter(model);
         if(D) System.out.println(S.concat("Ending"));
 
@@ -66,6 +66,8 @@ public class CommentsParameterEditor extends ParameterEditor
         if(D) System.out.println(S + "Starting");
 
         valueEditor = new JTextArea();
+        ((JTextArea)valueEditor).setLineWrap(true);
+        ((JTextArea)valueEditor).setWrapStyleWord(true);
 
         valueEditor.setBorder(ETCHED);
         valueEditor.setFont(this.DEFAULT_FONT);
