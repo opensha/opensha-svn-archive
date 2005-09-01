@@ -15,9 +15,12 @@ import javax.swing.*;
 public class TitledBorderPanel
     extends JPanel {
 
+  //defines the Default Border color
   private static Color FORE_COLOR = new Color( 80, 80, 140 );
+  //defines the Default Border Font for the Title
   private static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 12 );
 
+  //creating a LineBorder for the Panel
   private Border border = BorderFactory.createLineBorder(FORE_COLOR);
   private TitledBorder titledBorder;
 
