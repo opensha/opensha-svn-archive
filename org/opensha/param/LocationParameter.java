@@ -37,6 +37,7 @@ public class LocationParameter extends DependentParameter
 
   //location parameterlist parameter name static declaration
   private final static String LOCATION_PARAMETER_LIST_PARAMETER_NAME = "Location(lat,lon,depth)";
+  private final static String LOCATION_WITHOUT_DEPTH_PARAMETER_LIST_PARAMETER_NAME = "Location(lat,lon)";
 
   private final static String DECIMAL_DEGREES = "Decimal Degrees";
   private final static String KMS = "kms";
@@ -445,9 +446,15 @@ public class LocationParameter extends DependentParameter
    */
   public LocationParameter(String name, ParameterList paramList,Location loc) {
     super(name,null,null,null);
-    locationParameterListParameter = new ParameterListParameter(
-      LOCATION_PARAMETER_LIST_PARAMETER_NAME,
-      paramList);
+    if(paramList.size() ==3)
+      locationParameterListParameter = new ParameterListParameter(
+        LOCATION_PARAMETER_LIST_PARAMETER_NAME,
+        paramList);
+    else
+      locationParameterListParameter = new ParameterListParameter(
+        LOCATION_WITHOUT_DEPTH_PARAMETER_LIST_PARAMETER_NAME,
+        paramList);
+
     location = loc;
     setValue(location);
     //setting the independent parameters for the Location parameter

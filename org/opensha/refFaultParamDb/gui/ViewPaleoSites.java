@@ -7,12 +7,13 @@ import org.opensha.param.editor.*;
 import java.util.ArrayList;
 import java.awt.event.*;
 import java.awt.*;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+import javax.swing.border.TitledBorder;
+import javax.swing.border.Border;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
- * <p>Description: This GUI allows usre to choose sites and view information about
+ * <p>Description: This GUI allows user to choose sites and view information about
  * them. </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -48,10 +49,20 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private CommentsParameterEditor datedFeatureCommentsParamEditor;
 
   // various buttons in thos window
-  private JButton addNewSiteButton = new JButton("Add Site");
-  private JButton editSiteButton = new JButton("Edit Site");
-  private JButton viewEditTimeSpanInfoButton = new JButton("Edit Info for this Time Period");
-  private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Period");
+  private JButton addNewSiteButton = new JButton("  Add  ");
+  private JButton editSiteButton = new JButton("  Edit  ");
+  private JButton viewEditTimeSpanInfoButton = new JButton("Edit Info for this Time Pd");
+  private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Pd");
+  private JButton eventSequenceButton = new JButton("Events and Seq.");
+  private JButton addTimePdButton = new JButton("Add Time Pd");
+
+  private JPanel addEditSitePanel = new JPanel();
+
+
+  private Border border9 = BorderFactory.createLineBorder(new Color(80, 80, 140),
+      1);
+  private TitledBorder siteBorder = new TitledBorder(border9,
+      "Site Characterstics");
 
 
 
@@ -75,39 +86,99 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private void jbInit() {
     int yPos = 0;
     setLayout(new GridBagLayout());
+    addEditSitePanel.setLayout(new GridBagLayout());
+    addEditSitePanel.setBorder(siteBorder);
+    siteBorder.setTitleColor(new Color(80,80,133));
     // site name editor
     this.setMinimumSize(new Dimension(0, 0));
-    add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-   // add site button
-   add(addNewSiteButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-   // site location
-   add(siteLocationLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-   // associated with fault
-   add(assocWithFaultLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-   // site types
-   add(siteTypeLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-   // how representative is this site
-   add(siteRepresentationLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-   // edit site button
-     add(editSiteButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-   // various timespans
-   add(this.timeSpanParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-   add(this.datedFeatureCommentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-// view data for this time period
-   add(this.viewEditTimeSpanInfoButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-      ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-  // add data for a new time period
-   add(this.addTimeSpanInfoButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-    ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+    add(addEditSitePanel, new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                                 , GridBagConstraints.CENTER,
+                                                 GridBagConstraints.BOTH,
+                                                 new Insets(2, 2, 2, 2), 0, 0));
+    int siteYPos = 0;
+    addEditSitePanel.add(siteNameParamEditor,
+                         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0,
+                                                1.0
+                                                , GridBagConstraints.CENTER,
+                                                GridBagConstraints.BOTH,
+                                                new Insets(2, 2, 2, 2), 0, 0));
+    // add site button
+    addEditSitePanel.add(addNewSiteButton,
+                         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.CENTER,
+                                                GridBagConstraints.HORIZONTAL,
+                                                new Insets(2, 2, 2, 2), 0, 0));
+    // site location
+    addEditSitePanel.add(siteLocationLabel,
+                         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.CENTER,
+                                                GridBagConstraints.BOTH,
+                                                new Insets(2, 2, 2, 2), 0, 0));
+    // associated with fault
+    addEditSitePanel.add(assocWithFaultLabel, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                                    , GridBagConstraints.CENTER,
+                                                    GridBagConstraints.BOTH,
+                                                    new Insets(2, 2 , 2, 2), 0, 0));
+    // site types
+    addEditSitePanel.add(siteTypeLabel, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.BOTH,
+                                              new Insets(2, 2 , 2, 2), 0, 0));
+    // how representative is this site
+    addEditSitePanel.add(siteRepresentationLabel,
+        new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
+                               0, 0));
+    // edit site button
+    addEditSitePanel.add(editSiteButton, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                               , GridBagConstraints.CENTER,
+                                               GridBagConstraints.HORIZONTAL,
+                                               new Insets(2, 2, 2, 2), 0, 0));
+
+    //adding the Events and Sequence button
+    // various timespans
+    add(eventSequenceButton,
+        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2),
+                               0, 0));
+
+    //making the disabled for now
+    eventSequenceButton.setEnabled(false);
+
+
+    //adding the button to add the Time Pd for the given Site
+    add(this.addTimePdButton,
+        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2),
+                               0, 0));
+
+
+    // various timespans
+    add(this.timeSpanParamEditor,
+        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
+                               0, 0));
+    add(this.datedFeatureCommentsParamEditor,
+        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
+                               0, 0));
+  // view data for this time period
+    add(this.viewEditTimeSpanInfoButton,
+        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.HORIZONTAL,
+                               new Insets(2, 2, 2, 2), 0, 0));
+    // add data for a new time period
+    add(this.addTimeSpanInfoButton,
+        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                               , GridBagConstraints.CENTER,
+                               GridBagConstraints.HORIZONTAL,
+                               new Insets(2, 2, 2, 2), 0, 0));
   }
 
   /**
@@ -118,6 +189,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     editSiteButton.addActionListener(this);
     viewEditTimeSpanInfoButton.addActionListener(this);
     addTimeSpanInfoButton.addActionListener(this);
+    addTimePdButton.addActionListener(this);
   }
 
   /**

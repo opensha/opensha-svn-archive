@@ -6,6 +6,7 @@ import org.opensha.param.*;
 import org.opensha.param.event.*;
 import org.opensha.param.editor.*;
 import java.awt.Container;
+import org.opensha.data.Location;
 import java.awt.*;
 import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
@@ -33,12 +34,12 @@ public class AddEditPaleoSite extends JFrame implements ActionListener, Paramete
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
   private final static String LAT_PARAM_NAME="Site Latitude";
   private final static String LON_PARAM_NAME="Site Longitide";
-  private final static String DEPTH_PARAM_NAME="Site Elevation";
   private final static Double DEFAULT_LAT_VAL=new Double(34.00);
   private final static Double DEFAULT_LON_VAL=new Double(-118.0);
-  private final static Double DEFAULT_DEPTH_VAL=new Double(2.0);
+  //private final static Double DEFAULT_DEPTH_VAL=new Double(2.0);
   private final static String TITLE = "Add New Site";
   private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
+  private final static String UNITS = "Decimal Degrees";
 
 
   // input parameters declaration
@@ -143,21 +144,39 @@ public class AddEditPaleoSite extends JFrame implements ActionListener, Paramete
    siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME);
    siteNameParamEditor = new StringParameterEditor(siteNameParam);
 
-   // Site Location(Lat/lon/depth)
-   siteLocationParam = new LocationParameter(SITE_LOCATION_PARAM_NAME, LAT_PARAM_NAME,
-                                             LON_PARAM_NAME, DEPTH_PARAM_NAME,
-                                             DEFAULT_LAT_VAL,
-                                             DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
+   //creating the Location parameterlist for the Site
+   DoubleParameter siteLocLatParam = new DoubleParameter(LAT_PARAM_NAME,
+       Location.MIN_LAT,Location.MAX_LAT,UNITS,DEFAULT_LAT_VAL);
+   DoubleParameter siteLocLonParam = new DoubleParameter(LON_PARAM_NAME,
+       Location.MIN_LON,Location.MAX_LON,UNITS,DEFAULT_LON_VAL);
+   ParameterList siteLocParamList = new ParameterList();
+   siteLocParamList.addParameter(siteLocLatParam);
+   siteLocParamList.addParameter(siteLocLonParam);
+   Location siteLoc = new Location(((Double)siteLocLatParam.getValue()).doubleValue(),
+       ((Double)siteLocLonParam.getValue()).doubleValue());
+   // Site Location(Lat/lon/)
+   siteLocationParam = new LocationParameter(SITE_LOCATION_PARAM_NAME,siteLocParamList,
+       siteLoc);
    siteLocationParamEditor = new LocationParameterEditor(siteLocationParam,true);
    // set depth invisible
    //siteLocationParamEditor.setParameterVisible(DEPTH_PARAM_NAME, false);
 
    // second site location, in "Between Locations" is selected as the Site type
-   siteLocationParam2 = new LocationParameter(SITE_LOCATION_PARAM_NAME, LAT_PARAM_NAME,
-                                             LON_PARAM_NAME, DEPTH_PARAM_NAME,
-                                             DEFAULT_LAT_VAL,
-                                             DEFAULT_LON_VAL, DEFAULT_DEPTH_VAL);
+   DoubleParameter siteLocLatParam2 = new DoubleParameter(LAT_PARAM_NAME,
+       Location.MIN_LAT,Location.MAX_LAT,UNITS,DEFAULT_LAT_VAL);
+   DoubleParameter siteLocLonParam2 = new DoubleParameter(LON_PARAM_NAME,
+       Location.MIN_LON,Location.MAX_LON,UNITS,DEFAULT_LON_VAL);
+   ParameterList siteLocParamList2 = new ParameterList();
+   siteLocParamList2.addParameter(siteLocLatParam2);
+   siteLocParamList2.addParameter(siteLocLonParam2);
+   Location siteLoc2 = new Location(((Double)siteLocLatParam.getValue()).doubleValue(),
+       ((Double)siteLocLonParam.getValue()).doubleValue());
+
+   siteLocationParam2 = new LocationParameter(SITE_LOCATION_PARAM_NAME,siteLocParamList2,
+       siteLoc2);
    siteLocationParamEditor2 = new LocationParameterEditor(siteLocationParam2,true);
+
+
    // set depth invisible
    //siteLocationParamEditor2.setParameterVisible(DEPTH_PARAM_NAME, false);
 

@@ -26,7 +26,7 @@ public class InfoLabel extends JLabel {
    */
   public InfoLabel(String paramName, String paramValue) {
     this.setForeground(labelColor);
-    String label  = "<html><b>"+paramName+":</b>"+paramValue+"</html>";
+    String label  = "<html><b>"+paramName+"</b>"+paramValue+"</html>";
     setText(label);
   }
 

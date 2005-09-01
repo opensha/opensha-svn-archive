@@ -469,7 +469,7 @@ public class SiteInfoForTimePeriod extends JPanel implements ParameterChangeList
     availableInfoList.add(EVENTS_INFO);
     availableInfoList.add(SLIP_RATE_AND_EVENTS_INFO);
     availableInfoList.add(CUMULATIVE_DISPLACEMENT_AND_EVENTS_INFO);
-    availableInfoList.add(this.INDIVIDUAL_EVENTS_INFO);
+    //availableInfoList.add(this.INDIVIDUAL_EVENTS_INFO);
     return availableInfoList;
  }
 
