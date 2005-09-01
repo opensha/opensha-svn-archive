@@ -5,6 +5,7 @@ import org.opensha.data.estimate.*;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.data.*;
 import java.util.GregorianCalendar;
+import java.util.ArrayList;
 
 /**
  * <p>Title: InfoLabel.java </p>
@@ -32,6 +33,36 @@ public class InfoLabel extends JLabel {
     String label  = "<html><b>"+paramName+"</b>"+paramValue+"</html>";
     setText(label);
   }
+
+  /**
+   * Make  a JLabel for a String
+   *
+   * @param paramName
+   * @param paramValue
+   */
+  public InfoLabel(String value) {
+    this.setForeground(labelColor);
+    String label  = "<html>"+value+"</html>";
+    setText(label);
+  }
+
+
+  /**
+   * Make  a JLabel for a Arraylist of Strings
+   *
+   * @param paramName
+   * @param paramValue
+   */
+  public InfoLabel(ArrayList values) {
+    this.setForeground(labelColor);
+    String label  = "<html>";
+    for(int i=0; i<values.size(); ++i)
+        label += values.get(0).toString()+"<br>";
+    label = label+"</html>";
+    setText(label);
+  }
+
+
 
   /**
    * Make a JLabel to provide info about a estimate
