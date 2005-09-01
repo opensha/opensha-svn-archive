@@ -1,0 +1,48 @@
+package org.opensha.gui;
+
+import java.awt.*;
+import javax.swing.border.*;
+import javax.swing.*;
+
+/**
+ * <p>Title: TitledBorderPanel</p>
+ *
+ * <p>Description: This class creates a JPanel with a TitledBorder.
+ * It allows user to specify the name and color for the Title.</p>
+ * @author Nitin Gupta, vipin Gupta
+ * @version 1.0
+ */
+public class TitledBorderPanel
+    extends JPanel {
+
+  private static Color FORE_COLOR = new Color( 80, 80, 140 );
+  private static Font DEFAULT_LABEL_FONT = new Font( "SansSerif", Font.BOLD, 12 );
+
+  private Border border = BorderFactory.createLineBorder(FORE_COLOR);
+  private TitledBorder titledBorder;
+
+  /**
+   * Creates a Panel with TitledBorder with dark blue color.
+   * @param title String Title of the Panel
+   */
+  public TitledBorderPanel(String title) {
+    titledBorder = new TitledBorder(border,title);
+    titledBorder.setTitleColor(FORE_COLOR);
+    titledBorder.setTitleFont(DEFAULT_LABEL_FONT);
+    setBorder(titledBorder);
+  }
+
+  /**
+   * Creates a Panel with TitledBorder.
+   * @param title String Title of the Panel
+   * @param titleColor Color Color of the Border around the Panel
+   */
+  public TitledBorderPanel(String title, Color titleColor) {
+    titledBorder = new TitledBorder(border,title);
+    titledBorder.setTitleColor(titleColor);
+    titledBorder.setTitleFont(DEFAULT_LABEL_FONT);
+    setBorder(titledBorder);
+  }
+
+
+}
