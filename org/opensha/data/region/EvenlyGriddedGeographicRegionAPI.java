@@ -24,7 +24,6 @@ import org.opensha.exceptions.RegionConstraintException;
 public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,java.io.Serializable{
 
 
-  public final static DecimalFormat latLonFormat = new DecimalFormat("0.0#####");
 
   /**
    * This method sets the grid spacing in degrees.

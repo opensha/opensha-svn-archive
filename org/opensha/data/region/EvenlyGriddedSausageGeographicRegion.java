@@ -358,10 +358,6 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
         lon = niceMaxLon;
     }
 
-    lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
-                             format(lat));
-    lon = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
-                             format(lon));
     return new Location(lat, lon);
   }
 

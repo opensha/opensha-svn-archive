@@ -237,10 +237,6 @@ public class EvenlyGriddedGeographicRegion
     }
 
 
-    lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
-                             format(lat));
-    lon = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
-                             format(lon));
     return new Location(lat, lon);
   }
 

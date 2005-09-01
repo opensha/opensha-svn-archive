@@ -4,7 +4,6 @@ import java.util.ListIterator;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
-import java.util.ArrayList;
 import org.opensha.exceptions.RegionConstraintException;
 import java.io.IOException;
 import java.io.FileWriter;
@@ -114,24 +113,28 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
     for(int iLat =0;iLat <numLats;++iLat) {
       double lat = niceMinLat +iLat*gridSpacing ;
       double lon = niceMinLon;
-      //List for temporarily storing all the Lons for a given lat
-      ArrayList lonList  = new ArrayList();
+      //saves the first location for each lat
+      double firstLocForLat = lon;
+      //counts the number of lons per lat
+      int lonCounter = 0;
       while (lon <= niceMaxLon) {
         //creating the location object for the lat and lon that we got
         Location loc = new Location(lat, lon);
         //checking if this location lies in the given gridded region
         //once found the first lon on the lat that lies within the region
         //save it and jump to find first lon on the next lat.
-        if (this.isLocationInside(loc))
-          lonList.add(new Double(lon));
+        if (this.isLocationInside(loc)){
+          ++lonCounter;
+          firstLocForLat = lon;
+        }
         lon += gridSpacing;
       }
       //assigning number of locations below a grid lat to the grid Lat above this lat.
       locsBelowLat[locBelowIndex] = locsBelowLat[locBelowIndex - 1];
-      locsBelowLat[locBelowIndex] += lonList.size();
+      locsBelowLat[locBelowIndex] += lonCounter;
 
       //just storing the first Lon for all the given grid Lats in the region.
-      firstLonPerLat[locBelowIndex -1] = ((Double)lonList.get(0)).doubleValue();
+      firstLonPerLat[locBelowIndex -1] = firstLocForLat;
       //incrementing the index counter for number of locations below a given latitude
       ++locBelowIndex;
     }
@@ -212,11 +215,6 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
         lon = niceMaxLon;
     }
 
-
-    lat = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
-                             format(lat));
-    lon = Double.parseDouble(EvenlyGriddedGeographicRegionAPI.latLonFormat.
-                             format(lon));
     return new Location(lat, lon);
   }
 
