@@ -70,7 +70,7 @@ public class PaleoSiteApp2 extends JFrame {
       setTitle(TITLE);
       jbInit();
       addSitesPanel(); // add the available sites from database for viewing
-      viewTimeSpanInfo(); // add start and end time estimates
+      //viewTimeSpanInfo(); // add start and end time estimates
       viewSlipRateForTimePeriod(); // add the slip rate for the selected time period
       viewDisplacementForTimePeriod(); // add displacement for the time period
       viewNumEventsForTimePeriod(); // add num events info for the time period
@@ -164,16 +164,4 @@ public class PaleoSiteApp2 extends JFrame {
   }
 
 
-  /**
-   * Add the start and end time estimate parameters
-   */
-  private void viewTimeSpanInfo() {
-    ExactTime startTime = new ExactTime(246, 1, 15, 10, 56, 21, TimeAPI.BC);
-    TimeEstimate endTime =  new TimeEstimate();
-    endTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
-    String comments = "Dating features comments and techniques will go here";
-    // timeSpan panel which will conatin start time and end time
-    timeSpanPanel = new ViewTimeSpan(startTime, endTime, comments);
-    timespanSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
-  }
 }

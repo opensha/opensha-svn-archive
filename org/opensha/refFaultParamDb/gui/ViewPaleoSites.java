@@ -37,7 +37,6 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   // input parameters declaration
   private StringParameter siteNameParam;
   private StringParameter timeSpanParam;
-  private StringParameter datedFeatureCommentsParam;
 
   // input parameter editors
   private ConstrainedStringParameterEditor siteNameParamEditor;
@@ -46,7 +45,6 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private InfoLabel siteTypeLabel;
   private InfoLabel siteRepresentationLabel;
   private ConstrainedStringParameterEditor timeSpanParamEditor;
-  private CommentsParameterEditor datedFeatureCommentsParamEditor;
 
   // various buttons in thos window
   private JButton addNewSiteButton = new JButton("  Add  ");
@@ -162,11 +160,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
                                , GridBagConstraints.CENTER,
                                GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
                                0, 0));
-    add(this.datedFeatureCommentsParamEditor,
-        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                               , GridBagConstraints.CENTER,
-                               GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
-                               0, 0));
+
   // view data for this time period
     add(this.viewEditTimeSpanInfoButton,
         new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -202,7 +196,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     if(source==this.addNewSiteButton ||  source==this.editSiteButton)
        new AddEditPaleoSite();
     else if(source==viewEditTimeSpanInfoButton  || source==addTimeSpanInfoButton)
-       new SiteInfoForTimePeriod();
+      new AddEditSiteInfoForTimePeriod();
     else if(source == this.addTimePdButton)
       new AddNewTimeSpan();
  }
@@ -240,13 +234,6 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     ArrayList timeSpans = getAllTimeSpans();
     timeSpanParam = new StringParameter(TIMESPAN_PARAM_NAME, timeSpans, (String)timeSpans.get(0));
     timeSpanParamEditor = new ConstrainedStringParameterEditor(timeSpanParam);
-    try {
-      // dated feature comments
-      datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
-      datedFeatureCommentsParamEditor = new CommentsParameterEditor(datedFeatureCommentsParam);
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
   }
 
  /**
