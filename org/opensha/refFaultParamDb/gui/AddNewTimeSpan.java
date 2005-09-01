@@ -1,17 +1,18 @@
 package org.opensha.refFaultParamDb.gui;
 
 import javax.swing.JFrame;
-import java.awt.GraphicsConfiguration;
-import java.awt.HeadlessException;
+
 import java.util.ArrayList;
+
 import org.opensha.param.estimate.*;
+import javax.swing.JSplitPane;
+import java.awt.*;
+import javax.swing.JPanel;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
- * @author not attributable
+ * <p>Title: AddNewTimeSpan</p>
+ * <p>Description:  This class allows the user to add new Timespn for a given Site.</p>
+ * @author Vipin Gupta
  * @version 1.0
  */
 
@@ -25,9 +26,20 @@ public class AddNewTimeSpan extends JFrame {
   // time gui bean
   private TimeGuiBean startTimeBean;
   private TimeGuiBean endTimeBean;
+  private JSplitPane timSpanSplitPane = new JSplitPane();
+
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   public AddNewTimeSpan() {
-
+    try {
+      jbInit();
+      addTimeEstimateParametersAndEditors();
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    this.pack();
+    this.setVisible(true);
   }
 
   /**
@@ -35,11 +47,21 @@ public class AddNewTimeSpan extends JFrame {
   */
  private void addTimeEstimateParametersAndEditors() {
    // create constraint of allowed estimate types
-   ArrayList startDateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
+   //ArrayList startDateEstimatesList =  EstimateConstraint.createConstraintForDateEstimates();
    // start time estimate
    startTimeBean = new TimeGuiBean(this.START_TIME_PARAM_NAME);
    //end time estimate
    endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME);
+   timSpanSplitPane.add(startTimeBean, JSplitPane.LEFT);
+   timSpanSplitPane.add(endTimeBean, JSplitPane.RIGHT);
  }
+
+  private void jbInit() throws Exception {
+    this.getContentPane().setLayout(borderLayout1);
+
+    this.getContentPane().add(timSpanSplitPane, java.awt.BorderLayout.CENTER);
+    timSpanSplitPane.setOrientation(timSpanSplitPane.HORIZONTAL_SPLIT);
+    timSpanSplitPane.setDividerLocation(220);
+  }
 
 }

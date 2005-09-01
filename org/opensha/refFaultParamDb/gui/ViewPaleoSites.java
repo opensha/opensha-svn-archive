@@ -203,6 +203,8 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
        new AddEditPaleoSite();
     else if(source==viewEditTimeSpanInfoButton  || source==addTimeSpanInfoButton)
        new SiteInfoForTimePeriod();
+    else if(source == this.addTimePdButton)
+      new AddNewTimeSpan();
  }
 
 
