@@ -7,7 +7,7 @@ import org.opensha.param.*;
 import java.util.ArrayList;
 import java.awt.*;
 import org.opensha.param.event.*;
-import org.opensha.gui.LabeledBorderPanel;
+import org.opensha.gui.LabeledBoxPanel;
 
 /**
  * <p>Title: TimeGuiBean.java </p>
@@ -22,7 +22,7 @@ import org.opensha.gui.LabeledBorderPanel;
  * @version 1.0
  */
 
-public class TimeGuiBean extends LabeledBorderPanel implements ParameterChangeListener {
+public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListener {
   // parameters for Date Estimate
   private StringParameter yearUnitsParam;
   private final static String YEAR_UNITS_PARAM_NAME="Year Units";
@@ -123,18 +123,18 @@ public class TimeGuiBean extends LabeledBorderPanel implements ParameterChangeLi
   private void addEditorsToPanel() {
     setLayout(new GridBagLayout());
     int yPos=0;
-    add(this.timeOptionsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(this.yearUnitsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(this.eraParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    add(this.zeroYearParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.timeOptionsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.yearUnitsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.eraParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.zeroYearParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.exactTimeGuiBean, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.estimateParamEditor, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
   }
 
   /**

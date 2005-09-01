@@ -32,8 +32,9 @@ public class AddNewTimeSpan extends JFrame {
 
   public AddNewTimeSpan() {
     try {
-      jbInit();
       addTimeEstimateParametersAndEditors();
+      jbInit();
+
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -54,14 +55,15 @@ public class AddNewTimeSpan extends JFrame {
    endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME);
    timSpanSplitPane.add(startTimeBean, JSplitPane.LEFT);
    timSpanSplitPane.add(endTimeBean, JSplitPane.RIGHT);
+    timSpanSplitPane.setDividerLocation(220);
  }
 
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
-
+    timSpanSplitPane.setPreferredSize(new Dimension(450, 475));
     this.getContentPane().add(timSpanSplitPane, java.awt.BorderLayout.CENTER);
     timSpanSplitPane.setOrientation(timSpanSplitPane.HORIZONTAL_SPLIT);
-    timSpanSplitPane.setDividerLocation(220);
+
   }
 
 }
