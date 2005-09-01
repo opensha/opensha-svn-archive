@@ -274,6 +274,16 @@ public class WardAnalysis {
 //                           elem_azim[i]+"\t"+elem_lat[i]+"\t"+elem_lon[i]);
 
       }
+
+      //find min and max elem length
+      double maxLen =0, minLen=100;
+      for(int i=0;i<elem_length.length;i++){
+        if(maxLen < elem_length[i]) maxLen = elem_length[i];
+        if(minLen > elem_length[i]) minLen = elem_length[i];
+      }
+      System.out.println("maxElemLength = "+maxLen+"; minElemLength = "+minLen);
+
+
     }
     catch (FileNotFoundException ex) {
       ex.printStackTrace();
@@ -304,21 +314,49 @@ public class WardAnalysis {
     }
 
     StringTokenizer st;
+
     int numEvents = fileLines.size();
-    eventStartElem = new int[numEvents];
-    eventEndElem = new int[numEvents];
-    eventMo = new double[numEvents];
-    eventMag = new double[numEvents];
-    eventYear = new double[numEvents];
+    int numGoodEvents=0;
+    int startElem, endElem, numElem=0;
+    double mo, mag, year;
+
+    // find the number of good events
     for(int i=0; i<numEvents; ++i){
       st = new StringTokenizer( (String) fileLines.get(i));
       st.nextToken();
       st.nextToken();
-      eventStartElem[i] = Integer.parseInt(st.nextToken().trim()) - 1; // subtract 1 for indexing from 0
-      eventEndElem[i] = Integer.parseInt(st.nextToken().trim()) - 1;   // subtract 1 for indexing from 0
-      eventMo[i] = Double.parseDouble(st.nextToken().trim());
-      eventMag[i] = Double.parseDouble(st.nextToken().trim());
-      eventYear[i] = Double.parseDouble(st.nextToken().trim());
+      startElem = Integer.parseInt(st.nextToken().trim()) - 1; // subtract 1 for indexing from 0
+      endElem = Integer.parseInt(st.nextToken().trim()) - 1; // subtract 1 for indexing from 0
+      numElem = endElem-startElem+1;
+      st.nextToken();
+      mag = Double.parseDouble(st.nextToken().trim());
+      if(mag >= 0 || numElem >= 0) numGoodEvents++;
+    }
+    //
+    eventStartElem = new int[numGoodEvents];
+    eventEndElem = new int[numGoodEvents];
+    eventMo = new double[numGoodEvents];
+    eventMag = new double[numGoodEvents];
+    eventYear = new double[numGoodEvents];
+
+    int index=0;
+    for(int i=0; i<numEvents; ++i){
+      st = new StringTokenizer( (String) fileLines.get(i));
+      st.nextToken();
+      st.nextToken();
+      startElem = Integer.parseInt(st.nextToken().trim()) - 1; // subtract 1 for indexing from 0
+      endElem = Integer.parseInt(st.nextToken().trim()) - 1;   // subtract 1 for indexing from 0
+      mo = Double.parseDouble(st.nextToken().trim());
+      mag = Double.parseDouble(st.nextToken().trim());
+      year = Double.parseDouble(st.nextToken().trim());
+      if(mag >= 0 || numElem >= 0) {
+        eventStartElem[index] = startElem;
+        eventEndElem[index] = endElem;
+        eventMo[index] = mo;
+        eventMag[index] = mag;
+        eventYear[index] = year;
+        index ++;
+      }
 //      if(i > numEvents-100)
 //        System.out.println(i+"\t"+eventStartElem[i]+"\t"+eventEndElem[i]+"\t"+eventMo[i]+"\t"+
 //                       eventMag[i]+"\t"+eventYear[i]);
