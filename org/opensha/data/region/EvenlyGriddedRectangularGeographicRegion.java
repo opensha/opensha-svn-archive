@@ -240,8 +240,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     EvenlyGriddedRectangularGeographicRegion geoReg = null;
     try {
-      geoReg = new EvenlyGriddedRectangularGeographicRegion(33.0, 33.9, 120.,
-          121.9, .05);
+      geoReg = new EvenlyGriddedRectangularGeographicRegion(39.0, 39.99, 120.,
+          121.0, .1);
     }
     catch (RegionConstraintException ex) {
     }
@@ -255,6 +255,19 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     System.out.println(C+": numGridLocs="+ geoReg.getNumGridLocs());
 
+    Location locIn=new Location(39.98, 120.5);
+    Location locOut = null;
+    try {
+      locOut = geoReg.getNearestLocation(locIn);
+    }catch (RegionConstraintException ex) {
+    }
+    System.out.println("locIn  inside = "+geoReg.isLocationInside(locIn));
+    System.out.println("locOut inside = "+geoReg.isLocationInside(locOut));
+
+    System.out.println("locOut = "+locOut.toString());
+
+
+/*
     LocationList list = geoReg.getGridLocationsList();
 
     System.out.print("numInList="+list.size()+"; getNumGridLocs="+geoReg.getNumGridLocs()+"\n");
@@ -271,6 +284,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
         ex1.printStackTrace();
       }
     }
+ */
+
   }
 
 
