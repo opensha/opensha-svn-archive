@@ -57,7 +57,7 @@ public class InfoLabel extends JLabel {
     this.setForeground(labelColor);
     String label  = "<html>";
     for(int i=0; i<values.size(); ++i)
-        label += values.get(0).toString()+"<br>";
+        label += values.get(i).toString()+"<br>";
     label = label+"</html>";
     setText(label);
   }

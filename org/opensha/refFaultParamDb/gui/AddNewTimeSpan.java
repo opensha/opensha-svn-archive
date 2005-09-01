@@ -23,6 +23,8 @@ public class AddNewTimeSpan extends JFrame {
   // end time estimate param
   private final static String END_TIME_PARAM_NAME="End Time";
 
+  private final static String TITLE = "Add Time Span";
+
   // time gui bean
   private TimeGuiBean startTimeBean;
   private TimeGuiBean endTimeBean;
@@ -32,6 +34,7 @@ public class AddNewTimeSpan extends JFrame {
 
   public AddNewTimeSpan() {
     try {
+      setTitle(TITLE);
       addTimeEstimateParametersAndEditors();
       jbInit();
 

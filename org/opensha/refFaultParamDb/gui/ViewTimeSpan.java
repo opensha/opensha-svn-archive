@@ -5,6 +5,8 @@ import org.opensha.refFaultParamDb.data.TimeAPI;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.param.StringParameter;
+import org.opensha.gui.TitledBorderPanel;
+import javax.swing.JPanel;
 
 /**
  * <p>Title: ViewTimeSpan.java </p>
@@ -25,7 +27,7 @@ public class ViewTimeSpan extends LabeledBoxPanel {
   // timespan header
   private final static String TIME_SPAN_PARAM_NAME="TimeSpan";
   // dated feature comments
-  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Dated Features";
+  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Timespan";
   // dating comments params
   StringParameter datedFeatureCommentsParam;
   CommentsParameterEditor datedFeatureCommentsParamEditor;
@@ -41,14 +43,14 @@ public class ViewTimeSpan extends LabeledBoxPanel {
     setLayout(new GridBagLayout());
     setTitle(this.TIME_SPAN_PARAM_NAME);
     // start time
-    LabeledBoxPanel startTimePanel = new LabeledBoxPanel(new GridBagLayout());
-    startTimePanel.setTitle(this.START_TIME_PARAM_NAME);
+    JPanel startTimePanel = new TitledBorderPanel(this.START_TIME_PARAM_NAME);
+    startTimePanel.setLayout(new GridBagLayout());
     startTimePanel.add(new InfoLabel(startTime),  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
 
     //end time
-    LabeledBoxPanel endTimePanel = new LabeledBoxPanel(new GridBagLayout());
-    endTimePanel.setTitle(this.END_TIME_PARAM_NAME);
+    JPanel endTimePanel = new TitledBorderPanel(END_TIME_PARAM_NAME);
+    endTimePanel.setLayout(new GridBagLayout());
     endTimePanel.add(new InfoLabel(endTime),  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
 

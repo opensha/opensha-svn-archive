@@ -10,6 +10,7 @@ import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.Border;
+import org.opensha.gui.TitledBorderPanel;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -29,7 +30,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private final static String SITE_TYPE_PARAM_NAME="Site Type:";
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site:";
   private final static String TIMESPAN_PARAM_NAME="TimeSpans";
-  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Dated Features";
+  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Timespan";
 
 
   private final static String TITLE = "View Sites";
@@ -49,19 +50,12 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   // various buttons in thos window
   private JButton addNewSiteButton = new JButton("  Add  ");
   private JButton editSiteButton = new JButton("  Edit  ");
-  private JButton viewEditTimeSpanInfoButton = new JButton("Edit Info for this Time Pd");
-  private JButton addTimeSpanInfoButton = new JButton("Add Info for another Time Pd");
+  private JButton viewEditTimeSpanInfoButton = new JButton("Edit Info for this Time Period");
+  private JButton addTimeSpanInfoButton = new JButton("Add Info for this Time Period");
   private JButton eventSequenceButton = new JButton("Events and Seq.");
-  private JButton addTimePdButton = new JButton("Add Time Pd");
+  private JButton addTimePdButton = new JButton("Add Time Period");
 
-  private JPanel addEditSitePanel = new JPanel();
-
-
-  private Border border9 = BorderFactory.createLineBorder(new Color(80, 80, 140),
-      1);
-  private TitledBorder siteBorder = new TitledBorder(border9,
-      "Site Characterstics");
-
+  private JPanel addEditSitePanel = new TitledBorderPanel("Site Characteristics");
 
 
   public ViewPaleoSites() {
@@ -85,8 +79,6 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     int yPos = 0;
     setLayout(new GridBagLayout());
     addEditSitePanel.setLayout(new GridBagLayout());
-    addEditSitePanel.setBorder(siteBorder);
-    siteBorder.setTitleColor(new Color(80,80,133));
     // site name editor
     this.setMinimumSize(new Dimension(0, 0));
     add(addEditSitePanel, new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -104,7 +96,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     addEditSitePanel.add(addNewSiteButton,
                          new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
-                                                GridBagConstraints.HORIZONTAL,
+                                                GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     // site location
     addEditSitePanel.add(siteLocationLabel,
@@ -131,7 +123,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     // edit site button
     addEditSitePanel.add(editSiteButton, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
                                                , GridBagConstraints.CENTER,
-                                               GridBagConstraints.HORIZONTAL,
+                                               GridBagConstraints.NONE,
                                                new Insets(2, 2, 2, 2), 0, 0));
 
     //adding the Events and Sequence button
@@ -150,7 +142,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     add(this.addTimePdButton,
         new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                , GridBagConstraints.CENTER,
-                               GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2),
+                               GridBagConstraints.NONE, new Insets(2, 2, 2, 2),
                                0, 0));
 
 
@@ -165,13 +157,13 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
     add(this.viewEditTimeSpanInfoButton,
         new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                , GridBagConstraints.CENTER,
-                               GridBagConstraints.HORIZONTAL,
+                               GridBagConstraints.NONE,
                                new Insets(2, 2, 2, 2), 0, 0));
     // add data for a new time period
     add(this.addTimeSpanInfoButton,
         new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                , GridBagConstraints.CENTER,
-                               GridBagConstraints.HORIZONTAL,
+                               GridBagConstraints.NONE,
                                new Insets(2, 2, 2, 2), 0, 0));
   }
 

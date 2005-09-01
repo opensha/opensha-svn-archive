@@ -22,6 +22,7 @@ public class AddEditSiteInfoForTimePeriod
 
   private JSplitPane siteInfoSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private final static String TITLE = "Add/Edit Site Info for Time Period";
 
   public AddEditSiteInfoForTimePeriod() {
     try {
@@ -31,6 +32,7 @@ public class AddEditSiteInfoForTimePeriod
       siteInfoSplitPane.setDividerLocation(225);
       this.pack();
       this.setVisible(true);
+      setTitle(TITLE);
     }
     catch (Exception exception) {
       exception.printStackTrace();

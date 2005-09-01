@@ -62,7 +62,7 @@ public class ParameterEditor
 
     // static defined colors
     //protected static Color BACK_COLOR = Color.white;
-    protected static Color FORE_COLOR = new Color( 80, 80, 140 );
+    public static Color FORE_COLOR = new Color( 80, 80, 140 );
     protected static Color STRING_BACK_COLOR = Color.lightGray;
 
     // dimensions for layout of components
