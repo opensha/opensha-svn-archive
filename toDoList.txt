@@ -2,9 +2,6 @@
 -------------------------------------------------------------
 
 
-Ned's Notes: ****************************
-
-
 HypoMagFreqDistAtLoc:
 
 	Remove editable and all set methods
@@ -32,6 +29,19 @@ AfterShockHypoMagFreqDistForecast
 
 	add set method for griddedRegion (defined in parent), and change name to aftershockZone
 
+
+EvenlyGriddedGeographicRegionAPI
+
+	make all existing getLoc related methods return pointers (create list if needed)
+	add getGridLocationClone(int index) and getNearestGridLocationClone(int index)
+	add clearLocationList() method.
+
+	add getGridLocation(index, EvenlyGriddedGeogRegionAPI) - this will return what is 
+	returned by the getNearestGridLocation method of EvenlyGriddedGeogRegionAPI.
+
+	add getGridLocationIndex(index, EvenlyGriddedGeogRegionAPI) - this will return what is 
+	returned by the getNearestGridLocationIndex method of EvenlyGriddedGeogRegionAPI.
+
 EvenlyGriddedRectangularGeographicRegion
 
 	getGridLocation(int index) - always returns a clone (never a pointer)
@@ -41,24 +51,14 @@ EvenlyGriddedRectangularGeographicRegion
 
 EvenlyGriddedCircularGeographicRegion.
 
-	getGridLocation(int index) - returns pointer if list exists; otherwise clone
-	getNearestLocation(Location loc)- always returns clone
-	list methods always same (list created once and only once)
-
 	initLatLonArray() method - is using an ArrayList to temporarily store the lons most efficient?
 	(used in other classes as well)
 
-	getNumGridLocs() - else case incorrect (index needs a -1)?
-
 	getNearestLocation(Location loc) - 1st lines can move points near edge (but inside) of region outside
 	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
-	(EvenlyGriddedRectangularGeographicRegion does it correctly?)
+	(getNearestLocationIndex(Location loc) does it correctly?)
 
 EvenlyGriddedGeographicRegion
-
-	getGridLocation(int index) - returns pointer if list exists; otherwise clone
-	getNearestLocation(Location loc)- always returns clone
-	list methods always same (list created once and only once); though user can do this explicitly
 
 	getNearestLocation(Location loc) - 1st lines can move points near edge (but inside) of region outside
 	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
@@ -66,11 +66,8 @@ EvenlyGriddedGeographicRegion
 
 All gridded regions:
 
-	Establish consistent rules on pointers vs clones, and add setLocasAsPointers(EvenlyGriddedGeogReg) method.
-
 Will the RegionConstraintException thrown by so many methods require using try/catch; if so, isn't his going to be inefficient?
 
-*****************************************
 
 Move ERF2XML_Calc out of sha/calc and into sha/util?(Done - Nitin)
 
@@ -121,6 +118,7 @@ Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations si
 Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
 
 
+make a web-based tool where one can plot seismicity rate maps for any RELM forecast, where the user can choose a lower mag threshhold, a color scale, and a color scheme.
 
 
 		 
