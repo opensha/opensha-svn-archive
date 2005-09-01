@@ -160,7 +160,7 @@ public class ERF2RuptureForSTF_Generator {
       siteFw.write(siteString+"\n\n");
       siteFw.write("# Below are the Source and Ruptures that within the cutt-off "+
           "distance from the Site for the ERF\n\n");
-      siteFw.write("# SourceIndex   RuptureIndex\n");
+      siteFw.write("#SourceIndex   RuptureIndex    Probability\n");
 
       int numSources = eqkRupForecast.getNumSources();
 
@@ -189,7 +189,7 @@ public class ERF2RuptureForSTF_Generator {
             //the site then include that rupture.
             if(region.isLocationInside(ptLoc)) {
               //writing the source rupture index for the Site in the Site file
-              siteFw.write(sourceIndex+"    "+rupIndex+"\n");
+              siteFw.write(sourceIndex+"    "+rupIndex+"    "+ (float)rupture.getProbability()+"\n");
               //creating the rupture file if it already does not exists else go to the next rupture.
               String ruptureFileName = directoryPath+sourceIndex+"_"+rupIndex+".txt";
               f = new File(ruptureFileName);
@@ -362,14 +362,14 @@ public class ERF2RuptureForSTF_Generator {
 
     locList.addLocation(new Location(34.019200, -118.28600));
     locList.addLocation(new Location(34.148427 , -118.17119));
-    /*locList.addLocation(new Location(34.052041, -118.25713));
     locList.addLocation(new Location(34.052041, -118.25713));
-    locList.addLocation(new Location(33.754962, -118.22300));
-    locList.addLocation(new Location(33.754111, -117.86776));
-    locList.addLocation(new Location(34.041832,-118.06528));
-    locList.addLocation(new Location(34.063778, -117.29572));
-    locList.addLocation(new Location(34.009092, -118.48937));
-    locList.addLocation(new Location(34.199765, -118.35602));*/
+    locList.addLocation(new Location(33.754944 , -118.22300));
+    locList.addLocation(new Location(33.754111 , -117.86778));
+    locList.addLocation(new Location(34.041823 , -118.06530));
+    locList.addLocation(new Location(34.064986 , -117.29201));
+    locList.addLocation(new Location(34.336030 , -118.50862));
+    locList.addLocation(new Location(34.054884 , -118.41302));
+    locList.addLocation(new Location(34.009092 , -118.48939));
 
     ListIterator it = locList.listIterator();
     /*FileWriter fw = null;
