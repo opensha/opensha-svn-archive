@@ -48,8 +48,16 @@ public class AS_1997_AttenRel
          implements
         AttenuationRelationshipAPI,
         NamedObjectAPI {
+  public AS_1997_AttenRel() {
+    try {
+      jbInit();
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
 
-    // Debugging stuff
+  // Debugging stuff
     private final static String C = "AS_1997_AttenRel";
     private final static boolean D = false;
 
@@ -1056,8 +1064,10 @@ System.out.println( a13 );
          return NAME;
     }
 
+  private void jbInit() throws Exception {
+  }
 
-    /**
+  /**
      *  <b>Title:</b> AS_1997_AttenRelCoefficients<br>
      *  <b>Description:</b> This class encapsulates all the
      *  coefficients needed to calculate the Mean and StdDev for
