@@ -330,8 +330,9 @@ public class WardAnalysis {
       numElem = endElem-startElem+1;
       st.nextToken();
       mag = Double.parseDouble(st.nextToken().trim());
-      if(mag >= 0 || numElem >= 0) numGoodEvents++;
+      if(mag >= 5.5) numGoodEvents++;
     }
+    System.out.println("num good events = "+numGoodEvents);
     //
     eventStartElem = new int[numGoodEvents];
     eventEndElem = new int[numGoodEvents];
@@ -349,7 +350,7 @@ public class WardAnalysis {
       mo = Double.parseDouble(st.nextToken().trim());
       mag = Double.parseDouble(st.nextToken().trim());
       year = Double.parseDouble(st.nextToken().trim());
-      if(mag >= 0 || numElem >= 0) {
+      if(mag >= 5.5) {
         eventStartElem[index] = startElem;
         eventEndElem[index] = endElem;
         eventMo[index] = mo;
