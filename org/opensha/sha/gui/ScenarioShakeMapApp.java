@@ -110,7 +110,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   protected Timer timer;
 
   //Metadata String
-  protected static String mapParametersInfo = null;
+  protected String mapParametersInfo = null;
 
 
   //boolean to check if the calculation have to be done on the server
@@ -209,7 +209,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       jbInit();
     }
     catch(Exception e) {
-      step =0;
+      step = 0;
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception during initializing the application.\n"+
           "Parameters values not yet set.");
       bugWindow.show();
@@ -220,7 +220,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       initIMRGuiBean();
     }catch(RuntimeException e){
       //e.printStackTrace();
-      step =0;
+      step = 0;
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), "Exception occured initializing the IMR with "+
           "default parameters value");
       bugWindow.show();
@@ -232,6 +232,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       this.initGriddedRegionGuiBean();
     }
     catch (RegionConstraintException ex) {
+      step = 0;
       ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
           "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
           "Parameters values have not been set yet.");
@@ -487,9 +488,10 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       return;
     }
     catch(Exception ee){
-      ee.printStackTrace();
-      step =0;
-      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.INFORMATION_MESSAGE);
+      step = 0;
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),mapParametersInfo);
+      bugWindow.show();
+      bugWindow.pack();
       return;
     }
   }
@@ -636,16 +638,16 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     //sets the some GMT param to specific value for computation for Hazus files.
     mapGuiBean.setGMT_ParamsForHazus();
     //gets the map parameters info.
-    String mapInfo = getMapParametersInfo();
+    mapParametersInfo = getMapParametersInfo();
 
     if(!calculationFromServer) //if the calc are to be done on the local system
       //creates the maps and information that goes into the Hazus.
       mapGuiBean.makeHazusShapeFilesAndMap((XYZ_DataSetAPI)datasetForSA_03,(XYZ_DataSetAPI)datasetForSA_1,
-      (XYZ_DataSetAPI)datasetForPGA,(XYZ_DataSetAPI)datasetForPGV,eqkRupture,mapInfo);
+      (XYZ_DataSetAPI)datasetForPGA,(XYZ_DataSetAPI)datasetForPGV,eqkRupture,mapParametersInfo);
     else //if the calc are to be done on server
       //creates the maps and information that goes into the Hazus.
       mapGuiBean.makeHazusShapeFilesAndMap((String)datasetForSA_03,(String)datasetForSA_1,
-      (String)datasetForPGA,(String)datasetForPGV,eqkRupture,mapInfo);
+      (String)datasetForPGA,(String)datasetForPGV,eqkRupture,mapParametersInfo);
 
     //sets the GMT parameters changed for Hazus files generation to their original value.
     mapGuiBean.setGMT_ParamsChangedForHazusToOriginalValue();
@@ -705,9 +707,15 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       getGriddedSitesMapTypeAndSelectedAttenRels();
     }
     catch (RegionConstraintException ee) {
-      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
+      step = 0;
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ee.getStackTrace(),
+          mapParametersInfo);
+      bugWindow.show();
+      bugWindow.pack();
+
+/*      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
                                     JOptionPane.ERROR_MESSAGE);
-      addButton.setEnabled(true);
+      addButton.setEnabled(true);*/
       return;
     }
     catch (RuntimeException ee) {

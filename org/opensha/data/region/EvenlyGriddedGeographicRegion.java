@@ -4,9 +4,10 @@ import java.util.*;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
-import org.opensha.exceptions.RegionConstraintException;
 import java.io.IOException;
 import java.io.FileWriter;
+import org.opensha.exceptions.LocationOutOfRegionBoundsException;
+import org.opensha.exceptions.InvalidRangeException;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegion</p>
@@ -172,7 +173,7 @@ public class EvenlyGriddedGeographicRegion
    * @param index
    * @returns the Grid Location at that index.
    */
-  public Location getGridLocation(int index) throws RegionConstraintException {
+  public Location getGridLocationClone(int index) throws LocationOutOfRegionBoundsException{
 
     //returns  the location at the specified index in the location list
     if(gridLocsList !=null)
@@ -195,7 +196,7 @@ public class EvenlyGriddedGeographicRegion
         }
       }
 
-      if(!locationFound) throw new RegionConstraintException("Not a valid index in the region");
+      if(!locationFound) throw new LocationOutOfRegionBoundsException("Not a valid index in the region");
       ArrayList lonList = (ArrayList)lonsPerLatList.get(latIndex);
       double lon = ((Double)lonList.get(index - locIndex)).doubleValue();
       double lat = niceMinLat+latIndex*gridSpacing;
@@ -204,12 +205,55 @@ public class EvenlyGriddedGeographicRegion
 
   }
 
+
+  /**
+   * Clears the Region LocationList so as to make it empty.
+   */
+  public void clearRegionLocations(){
+    if(gridLocsList !=null){
+      gridLocsList.clear();
+      gridLocsList = null;
+    }
+  }
+
+  /**
+   * Returns the Location at a given index.
+   * This method will create a list of locations in the region if not already created
+   * and then find the location at a given index.
+   * @param index int
+   * @return Location
+   */
+  public Location getGridLocation(int index) throws LocationOutOfRegionBoundsException{
+    LocationList locList = getGridLocationsList();
+    try{
+      Location loc = locList.getLocationAt(index);
+      return loc;
+    }catch(InvalidRangeException e){
+      throw new LocationOutOfRegionBoundsException(e.getMessage());
+    }
+
+  }
+
+  /**
+   * Returns the Location  in the Region to a given location.
+   * This method will create a list of locations in the region if not already created
+   * and then find the location at a given index.
+   * @param index int
+   * @return Location
+   */
+  public Location getNearestLocation(Location loc) throws LocationOutOfRegionBoundsException{
+    LocationList locList = getGridLocationsList();
+    int index = 0;
+    index = getNearestLocationIndex(loc);
+    return locList.getLocationAt(index);
+  }
+
   /**
    * Returns the nearest location in the gridded region to the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
    * @return Location Nearest Location
    */
-  public Location getNearestLocation(Location loc) throws RegionConstraintException{
+  public Location getNearestLocationClone(Location loc) throws LocationOutOfRegionBoundsException{
     //Getting the nearest Location to the rupture point location
 
 
@@ -222,7 +266,7 @@ public class EvenlyGriddedGeographicRegion
 
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new RegionConstraintException(
+      throw new LocationOutOfRegionBoundsException(
           "Location outside the given Gridded Region bounds");
     else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
@@ -246,15 +290,14 @@ public class EvenlyGriddedGeographicRegion
    * @param loc Location Location to which we have to find the nearest location.
    * @return int
    */
-  public int getNearestLocationIndex(Location loc) throws
-      RegionConstraintException {
+  public int getNearestLocationIndex(Location loc) throws LocationOutOfRegionBoundsException{
 
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
 
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new RegionConstraintException("Location outside the given Gridded Region bounds");
+      throw new LocationOutOfRegionBoundsException("Location outside the given Gridded Region bounds");
     else{ //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
       if (lat < niceMinLat)

@@ -6,6 +6,8 @@ import java.util.ListIterator;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.exceptions.LocationOutOfRegionBoundsException;
+import org.opensha.exceptions.InvalidRangeException;
 
 /**
  * <p>Title: EvenlyGriddedRectangularGrographicRegion</p>
@@ -147,7 +149,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @param index (starts from zero)
    * @returns the Grid Location at that index.
    */
-  public Location getGridLocation(int index) throws RegionConstraintException {
+  public Location getGridLocationClone(int index) throws
+      LocationOutOfRegionBoundsException {
 
     //gets the row for the latitude in which that index of grid exists
     int row=index/numLonGridPoints;
@@ -156,7 +159,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     //gets the column in the row (longitude point) where that index exists
     int col=index%numLonGridPoints;
     if(row > numLatGridPoints || col > numLonGridPoints)
-      throw new RegionConstraintException("Not a valid index in the region");
+      throw new LocationOutOfRegionBoundsException("Not a valid index in the region");
     //lat and lon for that indexed point
     double newLat=niceMinLat+row*gridSpacing;
     double newLon=niceMinLon+col*gridSpacing;
@@ -169,6 +172,36 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
   }
 
 
+  /**
+   * Returns the Location at a given index.
+   * This method will create a list of locations in the region if not already created
+   * and then find the location at a given index.
+   * @param index int
+   * @return Location
+   */
+  public Location getGridLocation(int index) throws LocationOutOfRegionBoundsException{
+    LocationList locList = getGridLocationsList();
+    try{
+      Location loc = locList.getLocationAt(index);
+      return loc;
+    }catch(InvalidRangeException e){
+      throw new LocationOutOfRegionBoundsException(e.getMessage());
+    }
+
+  }
+
+
+
+  /**
+   * Clears the Region LocationList so as to make it empty.
+   */
+  public void clearRegionLocations(){
+    if(gridLocsList !=null){
+      gridLocsList.clear();
+      gridLocsList = null;
+    }
+  }
+
 
 
   /**
@@ -179,14 +212,14 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * retrive the location from the locationlist.
    */
   public int getNearestLocationIndex(Location loc) throws
-      RegionConstraintException {
+      LocationOutOfRegionBoundsException {
     //getting the Location lat and Lon
 
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new RegionConstraintException(
+      throw new LocationOutOfRegionBoundsException(
           "Location outside the given Gridded Region bounds");
     else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
@@ -213,6 +246,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     int index = rowIndex*numLonGridPoints+colIndex;
     return index;
   }
+
 
 
 
@@ -257,10 +291,9 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     Location locIn=new Location(39.98, 120.5);
     Location locOut = null;
-    try {
-      locOut = geoReg.getNearestLocation(locIn);
-    }catch (RegionConstraintException ex) {
-    }
+
+    locOut = geoReg.getNearestLocationClone(locIn);
+
     System.out.println("locIn  inside = "+geoReg.isLocationInside(locIn));
     System.out.println("locOut inside = "+geoReg.isLocationInside(locOut));
 
@@ -295,7 +328,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @param loc Location Location to which we have to find the nearest location.
    * @return Location Nearest Location
    */
-  public Location getNearestLocation(Location loc) throws RegionConstraintException{
+  public Location getNearestLocationClone(Location loc) throws
+      LocationOutOfRegionBoundsException {
     //Getting the nearest Location to the rupture point location
 
 
@@ -308,7 +342,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     //throw exception if location  lat is outside the region lat bounds.
     if (!isLocationInside(loc))
-      throw new RegionConstraintException(
+      throw new LocationOutOfRegionBoundsException(
           "Location outside the given Gridded Region bounds");
       else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
         //constraints then assign it to the nice min/max lat/lon.
@@ -324,6 +358,25 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     return new Location(lat, lon);
   }
+
+
+  /**
+   * Returns the Location  in the Region to a given location.
+   * This method will create a list of locations in the region if not already created
+   * and then find the location at a given index.
+   * @param index int
+   * @return Location
+   */
+  public Location getNearestLocation(Location loc) throws
+      LocationOutOfRegionBoundsException {
+    LocationList locList = getGridLocationsList();
+    int index = 0;
+    index = getNearestLocationIndex(loc);
+    return locList.getLocationAt(index);
+  }
+
+
+
 
   /**
    * Returns the minimum Lat so that this gridLat/gridSpacing is an int,

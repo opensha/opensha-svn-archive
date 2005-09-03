@@ -50,7 +50,7 @@ public class SitesInGriddedRectangularRegion extends EvenlyGriddedRectangularGeo
 
 
   /**
-   *class constructor
+   * class constructor
    * @param minLat
    * @param maxLat
    * @param minLon

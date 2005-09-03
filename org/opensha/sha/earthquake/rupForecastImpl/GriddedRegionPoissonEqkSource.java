@@ -130,11 +130,8 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
     probEqkRupture.setMag(((Double)mags.get(ithMag)).doubleValue());
 
     // set the location & aveDip
-    try {
-      probEqkRupture.setPointSurface(region.getGridLocation(ithLoc), aveDip);
-    }
-    catch (RegionConstraintException ex) {
-    }
+
+    probEqkRupture.setPointSurface(region.getGridLocation(ithLoc), aveDip);
 
     // compute and set the probability
     double prob = 1.0 - Math.exp(-duration*((Double)rates.get(ithMag)).doubleValue());

@@ -4,8 +4,7 @@ import java.util.ListIterator;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
-import java.text.DecimalFormat;
-import org.opensha.exceptions.RegionConstraintException;
+import org.opensha.exceptions.LocationOutOfRegionBoundsException;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegionAPI</p>
@@ -90,7 +89,7 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
    * @param index
    * @returns the Grid Location at that index.
    */
-  public Location getGridLocation(int index) throws RegionConstraintException;
+  public Location getGridLocation(int index) throws LocationOutOfRegionBoundsException;
 
 
   /**
@@ -99,13 +98,34 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
    * @param loc Location Location to which we have to find the nearest location.
    * @return int Nearest Location index
    */
-  public int getNearestLocationIndex(Location loc) throws RegionConstraintException;
+  public int getNearestLocationIndex(Location loc) throws LocationOutOfRegionBoundsException;
 
   /**
    * Returns the nearest location in the gridded region to the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
    * @return Location Nearest Location
    */
-  public Location getNearestLocation(Location loc) throws RegionConstraintException;
+  public Location getNearestLocation(Location loc) throws LocationOutOfRegionBoundsException;
+
+  /**
+   *
+   * @param loc Location
+   * @return Location
+   * @throws RegionConstraintException
+   */
+  public Location getNearestLocationClone(Location loc) throws LocationOutOfRegionBoundsException;
+
+  /**
+   *
+   * @param index int
+   * @return Location
+   * @throws RegionConstraintException
+   */
+  public Location getGridLocationClone(int index) throws LocationOutOfRegionBoundsException;
+
+  /**
+   * Clears the Region LocationList so as to make it empty.
+   */
+  public void clearRegionLocations();
 }
 

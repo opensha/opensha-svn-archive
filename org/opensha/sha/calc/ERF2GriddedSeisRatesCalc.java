@@ -328,7 +328,7 @@ public class ERF2GriddedSeisRatesCalc {
           try {
             locIndex = region.getNearestLocationIndex(ptLoc);
           }
-          catch (RegionConstraintException ex) {
+          catch (LocationOutOfRegionBoundsException ex) {
             continue;
           }
           rates[locIndex] += ptRate;
@@ -382,7 +382,7 @@ public class ERF2GriddedSeisRatesCalc {
           try {
             locIndex = region.getNearestLocationIndex(ptLoc);
           }
-          catch (RegionConstraintException ex) {
+          catch (LocationOutOfRegionBoundsException ex) {
             continue;
           }
           String magString = magFormat.format(minMagnitude);
