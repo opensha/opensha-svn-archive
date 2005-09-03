@@ -28,6 +28,12 @@ to the parent directory here as WardAnalysis.java and edited it accordingly.\
 \
 Note that Ward has faults, segments, and elements.  The element correspond to the segments in the Rundle analysis (I changed names accordingly).\
 \
+Note also that a Magnitude threshold can be imposed when reading the event data from FOR088.DAT (e.g., don't want little events considered when considering date or amount of slip in last event).  A magnitude threshold can also be applied in IgorAnalysis when looking at the rurrence  statistics.  So far the following looks best (although this selective searching is probably biasing the results):\
+\
+	Mag 5.5 filter on reading FOR088.DAT and Mag 6.5 filer on the recurrence statistics.\
+\
+	This implies M\'b36.5 events can be model as renewal when considering M\'b35.5 last-event data (date of or amount of slip).\
+\
 Note also that until I use the file below, the slips  on each element used to determine next-event time are average slips in the last event (not actual slips).  This is one difference from Rundle's implementation.\
 \
 The file:\
@@ -37,6 +43,4 @@ The file:\
 has the displacement for each element info (I haven't done anything with it yet).\
 \
 \
-TO DO:\
-\
-Impose magThresh before computing type 2 event time (so small events don't create uneccessarily short inter-event times)?}
+}
