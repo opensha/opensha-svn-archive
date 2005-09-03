@@ -39,12 +39,16 @@ public class PaleoSiteApp2 extends JFrame {
   private final static String SLIP_RATE_TITLE = "Slip Rate";
   private final static String DISPLACEMENT_TITLE = "Displacement";
   private final static String NUM_EVENTS_TITLE = "Number of Events";
+  private final static String TIMESPAN_PARAM_NAME="TimeSpans";
+  private final static String DATA_SPECIFIC_TO_TIME_INTERVALS = "Data Specific to Time Intervals";
 
   // various parameters
   private TimeGuiBean startTimeBean;
   private TimeGuiBean endTimeBean;
   private ViewPaleoSites viewPaleoSites;
   private SiteInfoForTimePeriod siteInfoForTimePeriod;
+  private StringParameter timeSpanParam;
+  private ConstrainedStringParameterEditor timeSpanParamEditor;
 
   // various parameter editors
   private BorderLayout borderLayout2 = new BorderLayout();
@@ -53,19 +57,19 @@ public class PaleoSiteApp2 extends JFrame {
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane infoForTimeSpanSplitPane = new JSplitPane();
   private JSplitPane timespanSplitPane = new JSplitPane();
+  private JSplitPane timeSpanSelectionSplitPane = new JSplitPane();
   private JSplitPane slipDisplacementSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
+
   // panel to display the start time/end time and comments
   private LabeledBoxPanel timeSpanPanel;
   private LabeledBoxPanel slipRatePanel;
   private LabeledBoxPanel displacementPanel;
   private LabeledBoxPanel numEventsPanel;
+  private LabeledBoxPanel availableTimeSpansPanel;
   private GridBagLayout gridBagLayout = new GridBagLayout();
-
-
-
 
   /**
    * Constructor.
@@ -78,6 +82,7 @@ public class PaleoSiteApp2 extends JFrame {
       setTitle(TITLE);
       jbInit();
       addSitesPanel(); // add the available sites from database for viewing
+      addAvailableTimeSpans(); // add the available timespans for this site
       viewTimeSpanInfo(); // add start and end time estimates
       viewSlipRateForTimePeriod(); // add the slip rate for the selected time period
       viewDisplacementForTimePeriod(); // add displacement for the time period
@@ -97,6 +102,35 @@ public class PaleoSiteApp2 extends JFrame {
   }
 
   /**
+   * Add the available time spans for this site
+   */
+  private void addAvailableTimeSpans() {
+    availableTimeSpansPanel = new LabeledBoxPanel(this.gridBagLayout);
+    availableTimeSpansPanel.setTitle(DATA_SPECIFIC_TO_TIME_INTERVALS);
+    // get all the start times associated with this site
+    ArrayList timeSpans = getAllTimeSpans();
+    timeSpanParam = new StringParameter(TIMESPAN_PARAM_NAME, timeSpans,
+                                        (String) timeSpans.get(0));
+    timeSpanParamEditor = new ConstrainedStringParameterEditor(timeSpanParam);
+    availableTimeSpansPanel.add(timeSpanParamEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    timeSpanSelectionSplitPane.add(availableTimeSpansPanel, JSplitPane.TOP);
+}
+
+  /**
+   * this is JUST A FAKE IMPLEMENTATION. IT SHOULD GET ALL START TIMES FROM
+   * the DATABASE
+   * @return
+   */
+  private ArrayList getAllTimeSpans() {
+    ArrayList timeSpansList = new ArrayList();
+    timeSpansList.add("TimeSpan 1");
+    timeSpansList.add("TimeSpan 2");
+    return timeSpansList;
+
+  }
+
+  /**
    * Add all the components to the GUI
    * @throws java.lang.Exception
    */
@@ -109,19 +143,24 @@ public class PaleoSiteApp2 extends JFrame {
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     slipDisplacementSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    timeSpanSelectionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     statusTextArea.setEnabled(false);
     statusTextArea.setEditable(false);
     statusTextArea.setText("");
     this.getContentPane().add(topSplitPane, BorderLayout.CENTER);
     topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
-    mainSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
-    mainSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
+    //mainSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
+    mainSplitPane.add(timeSpanSelectionSplitPane, JSplitPane.RIGHT);
+    timeSpanSelectionSplitPane.add(timespanSplitPane, JSplitPane.BOTTOM);
+    timespanSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
+    //mainSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
     infoForTimeSpanSplitPane.add(slipDisplacementSplitPane, JSplitPane.LEFT);
     statusScrollPane.getViewport().add(statusTextArea, null);
     topSplitPane.setDividerLocation(625);
-    mainSplitPane.setDividerLocation(425);
+    mainSplitPane.setDividerLocation(212);
+    timeSpanSelectionSplitPane.setDividerLocation(75);
     infoForTimeSpanSplitPane.setDividerLocation(212);
     timespanSplitPane.setDividerLocation(212);
   }
@@ -131,7 +170,8 @@ public class PaleoSiteApp2 extends JFrame {
    */
   private void addSitesPanel() {
     viewPaleoSites = new ViewPaleoSites();
-    timespanSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
+    mainSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
+    //timespanSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
   }
 
   //static initializer for setting look & feel
@@ -153,15 +193,15 @@ public class PaleoSiteApp2 extends JFrame {
     slipRatePanel.setTitle(this.SLIP_RATE_TITLE);
 
     // Slip Rate Estimate
-    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1, 0.25);
-    JPanel slipRateEstimatePanel = getPanel(new InfoLabel(slipRateEstimate), "Slip Rate Estimate");
+    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
+    JPanel slipRateEstimatePanel = getPanel(new InfoLabel(slipRateEstimate), "Slip Rate Estimate(mm/yr)");
 
     // Aseismic slip rate estimate
-    NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(5, 0.5);
-    JPanel aseismicPanel = getPanel(new InfoLabel(aSiemsicSlipEstimate), "Aseismic Slip Rate");
+    NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+    JPanel aseismicPanel = getPanel(new InfoLabel(aSiemsicSlipEstimate), "Aseismic Slip Factor(0-1, 1=all aseismic)");
 
     // comments
-    String comments = "Slip Rate Comments will be displayed here";
+    String comments = "Perinent comments will be displayed here";
     StringParameter commentsParam = new StringParameter("Slip Rate Comments", comments);
     CommentsParameterEditor commentsPanel = new CommentsParameterEditor(commentsParam);
     commentsPanel.setEnabled(false);
@@ -193,7 +233,7 @@ public class PaleoSiteApp2 extends JFrame {
    * @return
    */
   private JPanel getPanel(InfoLabel infoLabel, String borderTitle) {
-    JPanel panel = new TitledBorderPanel(borderTitle);
+    JPanel panel = new TitledBorderPanel(borderTitle+":");
     panel.setLayout(this.gridBagLayout);
     panel.add(infoLabel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
@@ -209,13 +249,13 @@ public class PaleoSiteApp2 extends JFrame {
     displacementPanel.setTitle(this.DISPLACEMENT_TITLE);
 
     // comments
-    String comments = "Displacement is implied from Slip Rate";
+    String comments = "Displacement is implied when Slip Rate is provided";
     InfoLabel commentsLabel = new InfoLabel(comments);
     int yPos=0;
     displacementPanel.add(commentsLabel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     slipDisplacementSplitPane.add(displacementPanel, JSplitPane.BOTTOM);
-    slipDisplacementSplitPane.setDividerLocation(500);
+    slipDisplacementSplitPane.setDividerLocation(450);
 
   }
 
@@ -238,7 +278,7 @@ public class PaleoSiteApp2 extends JFrame {
 
 
     // comments
-    String comments = "Number of Events Comments will be displayed here";
+    String comments = "Pertinent comments will be displayed here";
     StringParameter commentsParam = new StringParameter("Num Events Comments", comments);
     CommentsParameterEditor commentsPanel = new CommentsParameterEditor(commentsParam);
     commentsPanel.setEnabled(false);
@@ -265,13 +305,13 @@ public class PaleoSiteApp2 extends JFrame {
    * Add the start and end time estimate parameters
    */
   private void viewTimeSpanInfo() {
-    ExactTime startTime = new ExactTime(246, 1, 15, 10, 56, 21, TimeAPI.BC);
-    TimeEstimate endTime =  new TimeEstimate();
-    endTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
-    String comments = "Dating features comments and techniques will go here";
+    ExactTime endTime = new ExactTime(1857, 1, 15, 10, 56, 21, TimeAPI.AD);
+    TimeEstimate startTime =  new TimeEstimate();
+    startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
+    String comments = "Summary of Dating techniques and dated features ";
     // timeSpan panel which will conatin start time and end time
     timeSpanPanel = new ViewTimeSpan(startTime, endTime, comments);
-    timespanSplitPane.add(timeSpanPanel, JSplitPane.RIGHT);
+    timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
   }
 
 }

@@ -198,6 +198,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    */
   private void setParametersVisibleForExactTime(boolean isVisible) {
     this.exactTimeGuiBean.setVisible(isVisible);
+    this.yearUnitsParamEditor.setVisible(isVisible);
   }
 
   /**
@@ -206,6 +207,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    */
   private void setParametersVisibleForEstimateTime(boolean isVisible) {
     this.estimateParamEditor.setVisible(isVisible);
+    this.yearUnitsParamEditor.setVisible(isVisible);
   }
 
 

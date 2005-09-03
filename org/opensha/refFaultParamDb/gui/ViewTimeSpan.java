@@ -21,13 +21,13 @@ import javax.swing.JPanel;
 public class ViewTimeSpan extends LabeledBoxPanel {
 
   // start time header
-  private final static String START_TIME_PARAM_NAME="Start Time";
+  private final static String START_TIME_PARAM_NAME="Start Time:";
   // end time header
-  private final static String END_TIME_PARAM_NAME="End Time";
+  private final static String END_TIME_PARAM_NAME="End Time:";
   // timespan header
   private final static String TIME_SPAN_PARAM_NAME="TimeSpan";
   // dated feature comments
-  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Timespan";
+  private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Dating Methodology";
   // dating comments params
   StringParameter datedFeatureCommentsParam;
   CommentsParameterEditor datedFeatureCommentsParamEditor;

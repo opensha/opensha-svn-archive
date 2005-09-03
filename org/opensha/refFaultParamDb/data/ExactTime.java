@@ -28,6 +28,11 @@ public class ExactTime implements TimeAPI {
     return era;
   }
 
+  public String getEraAsString() {
+    if(this.era==this.AD) return "AD";
+    else return "BC";
+  }
+
   public GregorianCalendar getGregorianCalendar() {
     return gregorianCalendar;
   }
