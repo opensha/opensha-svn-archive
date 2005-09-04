@@ -24,12 +24,29 @@ public class InfoLabel extends JLabel {
   private final static String TIME = "Time";
 
   /**
+   * default constructor
+   */
+  public InfoLabel() {
+     this.setForeground(labelColor);
+  }
+
+  /**
    * Make  a JLabel for a param name-value pair
    * @param paramName
    * @param paramValue
    */
   public InfoLabel(String paramName, String paramValue) {
-    this.setForeground(labelColor);
+    this();
+    setTextAsHTML(paramName, paramValue);
+  }
+
+  /**
+  *  JLabel text for a param name-value pair
+  * @param paramName
+  * @param paramValue
+  */
+
+  public void setTextAsHTML(String paramName, String paramValue) {
     String label  = "<html><b>"+paramName+"</b>"+paramValue+"</html>";
     setText(label);
   }
@@ -41,7 +58,18 @@ public class InfoLabel extends JLabel {
    * @param paramValue
    */
   public InfoLabel(String value) {
-    this.setForeground(labelColor);
+    this();
+    setTextAsHTML(value);
+  }
+
+  /**
+   *  JLabel text for a String
+   *
+   * @param paramName
+   * @param paramValue
+   */
+
+  private void setTextAsHTML(String value) {
     String label  = "<html>"+value+"</html>";
     setText(label);
   }
@@ -54,7 +82,17 @@ public class InfoLabel extends JLabel {
    * @param paramValue
    */
   public InfoLabel(ArrayList values) {
-    this.setForeground(labelColor);
+    this();
+    setTextAsHTML(values);
+  }
+
+  /**
+   * JLabel text for a Arraylist of Strings
+   *
+   * @param paramName
+   * @param paramValue
+   */
+  private void setTextAsHTML(ArrayList values) {
     String label  = "<html>";
     for(int i=0; i<values.size(); ++i)
         label += values.get(i).toString()+"<br>";
@@ -70,7 +108,17 @@ public class InfoLabel extends JLabel {
    * @param estimate
    */
   public InfoLabel(Estimate estimate) {
-    this.setForeground(labelColor);
+    this();
+    setTextAsHTML(estimate);
+  }
+
+  /**
+   * JLabel text to provide info about a estimate
+   *
+   * @param estimate
+   */
+
+  private void setTextAsHTML(Estimate estimate) {
     String text="<html>"+getTextForEstimate(estimate)+"</html>";
     setText(text);
   }

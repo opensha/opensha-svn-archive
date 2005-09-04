@@ -71,6 +71,10 @@ public class PaleoSiteApp2 extends JFrame {
   private LabeledBoxPanel availableTimeSpansPanel;
   private GridBagLayout gridBagLayout = new GridBagLayout();
 
+  // edit buttons
+  private JButton editSlipRateButton = new JButton("Edit");
+  private JButton editNumEventsButton = new JButton("Edit");
+
   /**
    * Constructor.
    * Gets all the available paleo sites from the database and displays
@@ -214,6 +218,8 @@ public class PaleoSiteApp2 extends JFrame {
 
     // add the slip rate info the panel
     int yPos=0;
+    slipRatePanel.add(this.editSlipRateButton,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     slipRatePanel.add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     slipRatePanel.add(aseismicPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
@@ -292,6 +298,8 @@ public class PaleoSiteApp2 extends JFrame {
 
     // add the slip rate info the panel
     int yPos=0;
+    numEventsPanel.add(this.editNumEventsButton,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     numEventsPanel.add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     numEventsPanel.add(commentsPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
