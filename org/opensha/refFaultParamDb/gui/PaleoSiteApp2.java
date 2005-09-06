@@ -16,9 +16,11 @@ import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.StringParameter;
 import org.opensha.gui.TitledBorderPanel;
+import org.opensha.refFaultParamDb.gui.view.*;
+import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
 
 /**
- * <p>Title: PaleoSiteApp.java </p>
+ * <p>Title: PaleoSiteApp2.java </p>
  * <p>Description:  Gets all the available paleo sites from the database and
  * displays information about a user selected site </p>
  * <p>Description:  This application allows user to add/view/edit information
@@ -36,16 +38,13 @@ public class PaleoSiteApp2 extends JFrame {
 
 
   private final static String TITLE = "California Reference Geologic Fault Parameter (Paleo Site) GUI";
-  private final static String SLIP_RATE_TITLE = "Slip Rate";
-  private final static String DISPLACEMENT_TITLE = "Displacement";
-  private final static String NUM_EVENTS_TITLE = "Number of Events";
   private final static String TIMESPAN_PARAM_NAME="TimeSpans";
   private final static String DATA_SPECIFIC_TO_TIME_INTERVALS = "Data Specific to Time Intervals";
 
   // various parameters
   private TimeGuiBean startTimeBean;
   private TimeGuiBean endTimeBean;
-  private ViewPaleoSites viewPaleoSites;
+  private ViewSiteCharacteristics viewPaleoSites;
   private SiteInfoForTimePeriod siteInfoForTimePeriod;
   private StringParameter timeSpanParam;
   private ConstrainedStringParameterEditor timeSpanParamEditor;
@@ -65,22 +64,21 @@ public class PaleoSiteApp2 extends JFrame {
 
   // panel to display the start time/end time and comments
   private LabeledBoxPanel timeSpanPanel;
-  private LabeledBoxPanel slipRatePanel;
-  private LabeledBoxPanel displacementPanel;
-  private LabeledBoxPanel numEventsPanel;
   private LabeledBoxPanel availableTimeSpansPanel;
   private GridBagLayout gridBagLayout = new GridBagLayout();
 
-  // edit buttons
-  private JButton editSlipRateButton = new JButton("Edit");
-  private JButton editNumEventsButton = new JButton("Edit");
+  // panels for viewing slip rate, displacement and num events
+   private ViewSlipRate slipRatePanel;
+   private ViewCumDisplacement displacementPanel;
+   private ViewNumEvents numEventsPanel ;
+
+
 
   /**
    * Constructor.
    * Gets all the available paleo sites from the database and displays
    * information about a user selected site
    */
-
   public PaleoSiteApp2() {
     try {
       setTitle(TITLE);
@@ -173,9 +171,8 @@ public class PaleoSiteApp2 extends JFrame {
    * Add the panel to display the available paleo sites in the database
    */
   private void addSitesPanel() {
-    viewPaleoSites = new ViewPaleoSites();
+    viewPaleoSites = new ViewSiteCharacteristics();
     mainSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
-    //timespanSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
   }
 
   //static initializer for setting look & feel
@@ -193,57 +190,9 @@ public class PaleoSiteApp2 extends JFrame {
    */
   private void viewSlipRateForTimePeriod() throws Exception {
 
-    this.slipRatePanel = new LabeledBoxPanel(this.gridBagLayout);
-    slipRatePanel.setTitle(this.SLIP_RATE_TITLE);
-
-    // Slip Rate Estimate
-    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
-    JPanel slipRateEstimatePanel = getPanel(new InfoLabel(slipRateEstimate), "Slip Rate Estimate(mm/yr)");
-
-    // Aseismic slip rate estimate
-    NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
-    JPanel aseismicPanel = getPanel(new InfoLabel(aSiemsicSlipEstimate), "Aseismic Slip Factor(0-1, 1=all aseismic)");
-
-    // comments
-    String comments = "Perinent comments will be displayed here";
-    StringParameter commentsParam = new StringParameter("Slip Rate Comments", comments);
-    CommentsParameterEditor commentsPanel = new CommentsParameterEditor(commentsParam);
-    commentsPanel.setEnabled(false);
-
-    // references
-    ArrayList references = new ArrayList();
-    references.add("Ref 1");
-    references.add("Ref 2");
-    JPanel referencesPanel = getPanel(new InfoLabel(references), "References");
-
-    // add the slip rate info the panel
-    int yPos=0;
-    slipRatePanel.add(this.editSlipRateButton,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    slipRatePanel.add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    slipRatePanel.add(aseismicPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    slipRatePanel.add(commentsPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    slipRatePanel.add(referencesPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    this.slipRatePanel = new ViewSlipRate();
     slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.TOP);
 
-  }
-
-  /**
-   * Get Panel for an estimate
-   * @param estimate
-   * @param borderTitle
-   * @return
-   */
-  private JPanel getPanel(InfoLabel infoLabel, String borderTitle) {
-    JPanel panel = new TitledBorderPanel(borderTitle+":");
-    panel.setLayout(this.gridBagLayout);
-    panel.add(infoLabel,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    return panel;
   }
 
 
@@ -251,15 +200,7 @@ public class PaleoSiteApp2 extends JFrame {
    * Display the displacement info for the selected time period
    */
   private void viewDisplacementForTimePeriod() {
-    this.displacementPanel = new LabeledBoxPanel(this.gridBagLayout);
-    displacementPanel.setTitle(this.DISPLACEMENT_TITLE);
-
-    // comments
-    String comments = "Displacement is implied when Slip Rate is provided";
-    InfoLabel commentsLabel = new InfoLabel(comments);
-    int yPos=0;
-    displacementPanel.add(commentsLabel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    this.displacementPanel = new ViewCumDisplacement();
     slipDisplacementSplitPane.add(displacementPanel, JSplitPane.BOTTOM);
     slipDisplacementSplitPane.setDividerLocation(450);
 
@@ -269,43 +210,7 @@ public class PaleoSiteApp2 extends JFrame {
    * display the Num events info for the selected time period
    */
   private void viewNumEventsForTimePeriod() throws Exception {
-
-    this.numEventsPanel = new LabeledBoxPanel(this.gridBagLayout);
-    numEventsPanel.setTitle(this.NUM_EVENTS_TITLE);
-
-    // Num Events Estimate
-    ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-    func.set(4.0, 0.2);
-    func.set(5.0, 0.3);
-    func.set(6.0, 0.1);
-    func.set(7.0, 0.4);
-    IntegerEstimate numEventsEstimate = new IntegerEstimate(func, false);
-    JPanel slipRateEstimatePanel = getPanel(new InfoLabel(numEventsEstimate), "Num Events Estimate");
-
-
-    // comments
-    String comments = "Pertinent comments will be displayed here";
-    StringParameter commentsParam = new StringParameter("Num Events Comments", comments);
-    CommentsParameterEditor commentsPanel = new CommentsParameterEditor(commentsParam);
-    commentsPanel.setEnabled(false);
-
-
-    // references
-    ArrayList references = new ArrayList();
-    references.add("Ref 5");
-    references.add("Ref 7");
-    JPanel referencesPanel = getPanel(new InfoLabel(references), "References");
-
-    // add the slip rate info the panel
-    int yPos=0;
-    numEventsPanel.add(this.editNumEventsButton,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    numEventsPanel.add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    numEventsPanel.add(commentsPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-    numEventsPanel.add(referencesPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    this.numEventsPanel = new ViewNumEvents();
     infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
   }
 

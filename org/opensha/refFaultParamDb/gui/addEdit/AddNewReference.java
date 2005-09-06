@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui;
+package org.opensha.refFaultParamDb.gui.addEdit;
 
 import javax.swing.*;
 import org.opensha.param.editor.ParameterListEditor;
@@ -7,6 +7,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import java.awt.*;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: AddNewReference.java </p>
@@ -28,7 +29,7 @@ public class AddNewReference extends JFrame {
 
   public AddNewReference() {
     Container contentPane = this.getContentPane();
-    contentPane.setLayout(new GridBagLayout());
+    contentPane.setLayout(GUI_Utils.gridBagLayout);
     citationParam = new StringParameter(CITATION_PARAM_NAME);
     biblioParam = new StringParameter(BIBLIO_PARAM_NAME);
     StringParameterEditor citationParameterEditor = null;

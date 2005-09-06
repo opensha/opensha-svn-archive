@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui;
+package org.opensha.refFaultParamDb.gui.addEdit;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -12,6 +12,8 @@ import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.gui.*;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 
 /**
@@ -24,7 +26,7 @@ import java.awt.event.ActionEvent;
  * @version 1.0
  */
 
-public class AddEditPaleoSite extends JFrame implements ActionListener, ParameterChangeListener {
+public class AddEditSiteCharacteristics extends JFrame implements ActionListener, ParameterChangeListener {
 
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
@@ -65,7 +67,7 @@ public class AddEditPaleoSite extends JFrame implements ActionListener, Paramete
   private JButton cancelButton = new JButton("Cancel");
 
 
-  public AddEditPaleoSite() {
+  public AddEditSiteCharacteristics() {
     try {
       // initialize the parameters and editors
       initParametersAndEditors();
@@ -103,7 +105,7 @@ public class AddEditPaleoSite extends JFrame implements ActionListener, Paramete
    */
   private void jbInit() {
     Container contentPane = this.getContentPane();
-    contentPane.setLayout(new GridBagLayout());
+    contentPane.setLayout(GUI_Utils.gridBagLayout);
     int yPos = 0;
     // site name editor
     contentPane.add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
@@ -276,6 +278,6 @@ public class AddEditPaleoSite extends JFrame implements ActionListener, Paramete
 
 
   public static void main(String[] args) {
-    AddEditPaleoSite addPaleoSite = new AddEditPaleoSite();
+    AddEditSiteCharacteristics addPaleoSite = new AddEditSiteCharacteristics();
   }
 }

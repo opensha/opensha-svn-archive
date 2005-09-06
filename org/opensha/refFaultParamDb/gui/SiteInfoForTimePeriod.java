@@ -11,6 +11,7 @@ import java.awt.*;
 import ch.randelshofer.quaqua.QuaquaManager;
 import java.awt.event.*;
 import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.refFaultParamDb.gui.addEdit.*;
 
 /**
  * <p>Title: SiteInfoForTimePeriod.java </p>

@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui;
+package org.opensha.refFaultParamDb.gui.view;
 
 import javax.swing.*;
 import org.opensha.param.*;
@@ -13,6 +13,9 @@ import javax.swing.border.Border;
 import org.opensha.gui.TitledBorderPanel;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.data.Location;
+import org.opensha.refFaultParamDb.gui.addEdit.*;
+import org.opensha.refFaultParamDb.gui.*;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -24,7 +27,7 @@ import org.opensha.data.Location;
  * @version 1.0
  */
 
-public class ViewPaleoSites extends JPanel implements ActionListener, ParameterChangeListener {
+public class ViewSiteCharacteristics extends JPanel implements ActionListener, ParameterChangeListener {
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
   private final static String SITE_LOCATION_PARAM_NAME="Site Location:";
@@ -65,7 +68,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private JButton editSiteButton = new JButton("Edit");
   private JButton qFaultsEntriesButton = new JButton("QFault entries for this site");
   private JButton eventSequenceButton = new JButton("Events and Seq.");
-  private JButton addTimePdButton = new JButton("Add Info");
+  private JButton addInfoButton = new JButton("Add Info");
 
   private JPanel addEditSitePanel = new TitledBorderPanel("Site Characteristics");
 
@@ -75,7 +78,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
   private ArrayList siteNamesList;
 
 
-  public ViewPaleoSites() {
+  public ViewSiteCharacteristics() {
     try {
       // initialize parameters and editors
       initParametersAndEditors();
@@ -94,7 +97,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
    * Add the panel which lists the information which can be provided by the user
    */
   private void addUserProvidedInfoChoices() {
-    iHaveInfoOnPanel = new LabeledBoxPanel(new GridBagLayout());
+    iHaveInfoOnPanel = new LabeledBoxPanel(GUI_Utils.gridBagLayout);
     iHaveInfoOnPanel.setTitle(AVAILABLE_INFO_PARAM_NAME);
     slipRateCheckBox = new JCheckBox(this.SLIP_RATE_INFO);
     cumDispCheckBox = new JCheckBox(this.CUMULATIVE_DISPLACEMENT_INFO);
@@ -121,7 +124,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
                                                 GridBagConstraints.BOTH,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     */
-     iHaveInfoOnPanel.add(addTimePdButton,
+     iHaveInfoOnPanel.add(addInfoButton,
                          new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
@@ -133,8 +136,8 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
    */
   private void jbInit() {
     int yPos = 0;
-    setLayout(new GridBagLayout());
-    addEditSitePanel.setLayout(new GridBagLayout());
+    setLayout(GUI_Utils.gridBagLayout);
+    addEditSitePanel.setLayout(GUI_Utils.gridBagLayout);
     // site name editor
     this.setMinimumSize(new Dimension(0, 0));
     add(addEditSitePanel, new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -216,7 +219,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
    */
   private void addActionListeners() {
     editSiteButton.addActionListener(this);
-    addTimePdButton.addActionListener(this);
+    addInfoButton.addActionListener(this);
   }
 
   /**
@@ -227,9 +230,16 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
    // if it is "Add New Site" request, pop up another window to fill the new site type
    Object source = event.getSource();
     if(source==this.editSiteButton)
-       new AddEditPaleoSite();
-    else if(source == this.addTimePdButton)
-      new AddNewTimeSpan();
+       new AddEditSiteCharacteristics();
+    else if(source == this.addInfoButton) {
+     try {
+       new AddSiteInfo(this.slipRateCheckBox.isSelected(),
+                       this.cumDispCheckBox.isSelected(),
+                       this.numEventsCheckBox.isSelected());
+     }catch(Exception e) {
+       JOptionPane.showMessageDialog(this, e.getMessage());
+     }
+    }
     // if user is providing information about the slip rate, disable the cum disp. check box
     else if(source == this.slipRateCheckBox) {
       if(slipRateCheckBox.isSelected()) this.cumDispCheckBox.setEnabled(false);
@@ -285,7 +295,7 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
    if(paramName.equalsIgnoreCase(this.SITE_NAME_PARAM_NAME)) {
      String siteName = (String) this.siteNameParam.getValue();
      // if add site is selected, show window to add a site
-     if(siteName.equalsIgnoreCase(this.ADD_SITE)) new AddEditPaleoSite();
+     if(siteName.equalsIgnoreCase(this.ADD_SITE)) new AddEditSiteCharacteristics();
      else setSiteInfo(siteName);
    }
 
@@ -940,6 +950,6 @@ public class ViewPaleoSites extends JPanel implements ActionListener, ParameterC
 
 
   public static void main(String[] args) {
-    ViewPaleoSites viewPaleoSites = new ViewPaleoSites();
+    ViewSiteCharacteristics viewPaleoSites = new ViewSiteCharacteristics();
   }
 }

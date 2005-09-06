@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.awt.*;
 import org.opensha.param.event.*;
 import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: TimeGuiBean.java </p>
@@ -121,7 +122,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    * Add the editors the panel
    */
   private void addEditorsToPanel() {
-    setLayout(new GridBagLayout());
+    setLayout(GUI_Utils.gridBagLayout);
     int yPos=0;
     add(this.timeOptionsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );

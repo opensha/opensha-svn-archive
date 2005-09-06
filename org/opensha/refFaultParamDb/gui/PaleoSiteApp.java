@@ -5,6 +5,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import org.opensha.param.estimate.EstimateConstraint;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.opensha.refFaultParamDb.gui.view.*;
 
 /**
  * <p>Title: PaleoSiteApp.java </p>
@@ -37,7 +38,7 @@ public class PaleoSiteApp extends JFrame {
   // various parameters
   private TimeGuiBean startTimeBean;
   private TimeGuiBean endTimeBean;
-  private ViewPaleoSites viewPaleoSites;
+  private ViewSiteCharacteristics viewPaleoSites;
   private SiteInfoForTimePeriod siteInfoForTimePeriod;
 
   // various parameter editors
@@ -112,7 +113,7 @@ public class PaleoSiteApp extends JFrame {
    * Add the panel to display the available paleo sites in the database
    */
   private void addSitesPanel() {
-    viewPaleoSites = new ViewPaleoSites();
+    viewPaleoSites = new ViewSiteCharacteristics();
     summarySplitPane.add(viewPaleoSites, JSplitPane.LEFT);
   }
 

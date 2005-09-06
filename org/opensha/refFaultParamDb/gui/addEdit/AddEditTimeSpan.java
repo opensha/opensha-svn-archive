@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui;
+package org.opensha.refFaultParamDb.gui.addEdit;
 
 import javax.swing.JFrame;
 
@@ -8,6 +8,7 @@ import org.opensha.param.estimate.*;
 import javax.swing.JSplitPane;
 import java.awt.*;
 import javax.swing.JPanel;
+import org.opensha.refFaultParamDb.gui.*;
 
 /**
  * <p>Title: AddNewTimeSpan</p>
@@ -16,7 +17,7 @@ import javax.swing.JPanel;
  * @version 1.0
  */
 
-public class AddNewTimeSpan extends JFrame {
+public class AddEditTimeSpan extends JPanel {
   // start time estimate param
   private final static String START_TIME_PARAM_NAME="Start Time";
 
@@ -32,9 +33,8 @@ public class AddNewTimeSpan extends JFrame {
 
   private BorderLayout borderLayout1 = new BorderLayout();
 
-  public AddNewTimeSpan() {
+  public AddEditTimeSpan() {
     try {
-      setTitle(TITLE);
       addTimeEstimateParametersAndEditors();
       jbInit();
 
@@ -42,7 +42,6 @@ public class AddNewTimeSpan extends JFrame {
     catch (Exception ex) {
       ex.printStackTrace();
     }
-    this.pack();
     this.setVisible(true);
   }
 
@@ -58,15 +57,13 @@ public class AddNewTimeSpan extends JFrame {
    endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME);
    timSpanSplitPane.add(startTimeBean, JSplitPane.LEFT);
    timSpanSplitPane.add(endTimeBean, JSplitPane.RIGHT);
-    timSpanSplitPane.setDividerLocation(220);
+   timSpanSplitPane.setDividerLocation(220);
  }
 
   private void jbInit() throws Exception {
-    this.getContentPane().setLayout(borderLayout1);
-    timSpanSplitPane.setPreferredSize(new Dimension(450, 475));
-    this.getContentPane().add(timSpanSplitPane, java.awt.BorderLayout.CENTER);
+    setLayout(borderLayout1);
+    add(timSpanSplitPane, java.awt.BorderLayout.CENTER);
     timSpanSplitPane.setOrientation(timSpanSplitPane.HORIZONTAL_SPLIT);
-
   }
 
 }

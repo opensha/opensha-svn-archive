@@ -1,4 +1,4 @@
-package org.opensha.refFaultParamDb.gui;
+package org.opensha.refFaultParamDb.gui.addEdit;
 
 import javax.swing.*;
 import org.opensha.param.editor.ParameterListEditor;
@@ -6,7 +6,7 @@ import org.opensha.param.editor.StringParameterEditor;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import java.awt.*;
-import ch.randelshofer.quaqua.QuaquaManager;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: AddNewSiteType.java </p>
@@ -26,7 +26,7 @@ public class AddNewSiteType extends JFrame {
 
   public AddNewSiteType() {
     Container contentPane = this.getContentPane();
-    contentPane.setLayout(new GridBagLayout());
+    contentPane.setLayout(GUI_Utils.gridBagLayout);
     siteTypeParamName = new StringParameter(SITE_TYPE_NAME_PARAM_NAME);
     StringParameterEditor stringParameterEditor = null;
     try {
