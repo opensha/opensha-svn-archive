@@ -29,11 +29,14 @@ public class LocationConstraint
     protected final static boolean D = false;
 
     /** ArrayList list of possible locations, i.e. allowed values. */
-    private ArrayList locations = new ArrayList();
+    private ArrayList locations;
 
 
     /** No-Arg constructor for the LocationConstraint object. Calls the super() constructor. */
-    public LocationConstraint() { super(); }
+    public LocationConstraint() {
+      super();
+      locations = new ArrayList();
+    }
 
 
     /**

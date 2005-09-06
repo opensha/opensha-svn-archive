@@ -476,16 +476,22 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     try{
       addButton();
     }catch(ParameterException ee){
-      ee.printStackTrace();
+      //ee.printStackTrace();
       step =0;
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Parameters",JOptionPane.ERROR_MESSAGE);
       return;
     }
     catch(RegionConstraintException ee){
-      ee.printStackTrace();
+      //ee.printStackTrace();
       step =0;
       JOptionPane.showMessageDialog(this,ee.getMessage(),"Invalid Site",JOptionPane.ERROR_MESSAGE);
       return;
+    }
+    catch(RuntimeException ee){
+      step =0;
+      JOptionPane.showMessageDialog(this,ee.getMessage(),"Input Error",JOptionPane.ERROR_MESSAGE);
+      return;
+
     }
     catch(Exception ee){
       step = 0;
@@ -708,14 +714,14 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     }
     catch (RegionConstraintException ee) {
       step = 0;
-      ExceptionWindow bugWindow = new ExceptionWindow(this, ee.getStackTrace(),
+      /*ExceptionWindow bugWindow = new ExceptionWindow(this, ee.getStackTrace(),
           mapParametersInfo);
       bugWindow.show();
-      bugWindow.pack();
+      bugWindow.pack();*/
 
-/*      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
+     JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
                                     JOptionPane.ERROR_MESSAGE);
-      addButton.setEnabled(true);*/
+      addButton.setEnabled(true);
       return;
     }
     catch (RuntimeException ee) {

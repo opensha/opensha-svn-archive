@@ -211,13 +211,13 @@ public class Location implements java.io.Serializable {
      * @param loc Location
      * @return boolean
      */
-    public boolean equalsLocation(Location loc){
+    public boolean equalsLocation(Location loc) {
 
-        if(this.latitude != loc.latitude ) return false;
-        if(this.longitude != loc.longitude ) return false;
-        if(this.depth != loc.depth ) return false;
+      if ( (float)this.latitude != (float) loc.latitude)return false;
+      if ( (float)this.longitude != (float) loc.longitude)return false;
+      if ( (float)this.depth != (float) loc.depth)return false;
 
-        return true;
+      return true;
     }
 
     /**

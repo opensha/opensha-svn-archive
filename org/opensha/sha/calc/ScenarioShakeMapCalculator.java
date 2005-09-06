@@ -11,16 +11,11 @@ import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.ArbDiscretizedXYZ_DataSet;
-import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AttenuationRelationship;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.sha.param.PropagationEffect;
 import org.opensha.param.ParameterList;
 
-import org.opensha.sha.param.DistanceRupParameter;
-import org.opensha.sha.param.DistanceSeisParameter;
-import org.opensha.sha.param.DistanceJBParameter;
-import org.opensha.sha.imr.attenRelImpl.*;
 import org.opensha.exceptions.RegionConstraintException;
 
 /**
