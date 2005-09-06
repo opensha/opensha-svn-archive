@@ -31,15 +31,16 @@ import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
  * @version 1.0
  */
 
-public class PaleoSiteApp2 extends JFrame {
+public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI{
 
   private final static int WIDTH = 850;
   private final static int HEIGHT = 725;
 
-
-  private final static String TITLE = "California Reference Geologic Fault Parameter (Paleo Site) GUI";
-  private final static String TIMESPAN_PARAM_NAME="TimeSpans";
-  private final static String DATA_SPECIFIC_TO_TIME_INTERVALS = "Data Specific to Time Intervals";
+  private final static String TITLE =
+      "California Reference Geologic Fault Parameter (Paleo Site) GUI";
+  private final static String TIMESPAN_PARAM_NAME = "TimeSpans";
+  private final static String DATA_SPECIFIC_TO_TIME_INTERVALS =
+      "Data Specific to Time Intervals";
 
   // various parameters
   private TimeGuiBean startTimeBean;
@@ -63,14 +64,14 @@ public class PaleoSiteApp2 extends JFrame {
   private JTextArea statusTextArea = new JTextArea();
 
   // panel to display the start time/end time and comments
-  private LabeledBoxPanel timeSpanPanel;
+  private ViewTimeSpan timeSpanPanel = new ViewTimeSpan();
   private LabeledBoxPanel availableTimeSpansPanel;
   private GridBagLayout gridBagLayout = new GridBagLayout();
 
   // panels for viewing slip rate, displacement and num events
-   private ViewSlipRate slipRatePanel;
+   private ViewSlipRate slipRatePanel = new ViewSlipRate();
    private ViewCumDisplacement displacementPanel;
-   private ViewNumEvents numEventsPanel ;
+   private ViewNumEvents numEventsPanel= new ViewNumEvents() ;
 
 
 
@@ -85,10 +86,7 @@ public class PaleoSiteApp2 extends JFrame {
       jbInit();
       addSitesPanel(); // add the available sites from database for viewing
       addAvailableTimeSpans(); // add the available timespans for this site
-      viewTimeSpanInfo(); // add start and end time estimates
-      viewSlipRateForTimePeriod(); // add the slip rate for the selected time period
       viewDisplacementForTimePeriod(); // add displacement for the time period
-      viewNumEventsForTimePeriod(); // add num events info for the time period
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -160,6 +158,9 @@ public class PaleoSiteApp2 extends JFrame {
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
     infoForTimeSpanSplitPane.add(slipDisplacementSplitPane, JSplitPane.LEFT);
     statusScrollPane.getViewport().add(statusTextArea, null);
+    slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.TOP);
+    infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
+    timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
     topSplitPane.setDividerLocation(625);
     mainSplitPane.setDividerLocation(212);
     timeSpanSelectionSplitPane.setDividerLocation(75);
@@ -171,7 +172,7 @@ public class PaleoSiteApp2 extends JFrame {
    * Add the panel to display the available paleo sites in the database
    */
   private void addSitesPanel() {
-    viewPaleoSites = new ViewSiteCharacteristics();
+    viewPaleoSites = new ViewSiteCharacteristics(this);
     mainSplitPane.add(viewPaleoSites, JSplitPane.LEFT);
   }
 
@@ -188,10 +189,24 @@ public class PaleoSiteApp2 extends JFrame {
   /**
    * display the slip Rate info for the selected time period
    */
-  private void viewSlipRateForTimePeriod() throws Exception {
+  private void viewSlipRateForTimePeriod(String siteName) {
+    if(siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+      // FAKE DATA FOR TEST SITE
+      // Slip Rate Estimate
+    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
+    // Aseismic slip rate estimate
+    NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+    // comments
+    String comments = "Perinent comments will be displayed here";
+    // references
+    ArrayList references = new ArrayList();
+    references.add("Ref 1");
+    references.add("Ref 2");
+    slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments, references);
 
-    this.slipRatePanel = new ViewSlipRate();
-    slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.TOP);
+    } else { // information not available yet
+      this.slipRatePanel.setInfo(null, null, null, null);
+    }
 
   }
 
@@ -209,22 +224,58 @@ public class PaleoSiteApp2 extends JFrame {
   /**
    * display the Num events info for the selected time period
    */
-  private void viewNumEventsForTimePeriod() throws Exception {
-    this.numEventsPanel = new ViewNumEvents();
-    infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
+  private void viewNumEventsForTimePeriod(String siteName) {
+    if(siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+      // Num Events Estimate
+      // FAKE DATA FOR TEST SITE
+      ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+      func.set(4.0, 0.2);
+      func.set(5.0, 0.3);
+      func.set(6.0, 0.1);
+      func.set(7.0, 0.4);
+      func.setXAxisName("# Events");
+      func.setYAxisName("Prob this is correct #");
+      IntegerEstimate numEventsEstimate = new IntegerEstimate(func, false);
+      String comments = "Pertinent comments will be displayed here";
+      ArrayList references = new ArrayList();
+      references.add("Ref 5");
+      references.add("Ref 7");
+      this.numEventsPanel.setInfo(numEventsEstimate, comments , references);
+    } else { // information not available yet
+      this.numEventsPanel.setInfo(null, null, null);
+    }
   }
+
+  /**
+  * Whenever a user selects a site, this function is called in the listener class
+  * @param siteName
+  */
+  public void siteSelected(String siteName) {
+    viewSlipRateForTimePeriod(siteName);
+    viewNumEventsForTimePeriod(siteName);
+    viewTimeSpanInfo(siteName);
+  }
+
 
   /**
    * Add the start and end time estimate parameters
    */
-  private void viewTimeSpanInfo() {
-    ExactTime endTime = new ExactTime(1857, 1, 15, 10, 56, 21, TimeAPI.AD);
-    TimeEstimate startTime =  new TimeEstimate();
-    startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
-    String comments = "Summary of Dating techniques and dated features ";
-    // timeSpan panel which will conatin start time and end time
-    timeSpanPanel = new ViewTimeSpan(startTime, endTime, comments);
-    timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
+  private void viewTimeSpanInfo(String siteName) {
+    if (siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+      // FAKE DATA FOR TEST SITE
+      ExactTime endTime = new ExactTime(1857, 1, 15, 10, 56, 21, TimeAPI.AD);
+      TimeEstimate startTime = new TimeEstimate();
+      startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
+      String comments = "Summary of Dating techniques and dated features ";
+      ArrayList references = new ArrayList();
+      references.add("Ref 4");
+      references.add("Ref 1");
+      // timeSpan panel which will conatin start time and end time
+      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references);
+    }
+    else {
+      this.timeSpanPanel.setTimeSpan(null, null, null, null);
+    }
   }
 
 }

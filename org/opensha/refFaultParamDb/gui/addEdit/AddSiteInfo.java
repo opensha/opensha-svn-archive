@@ -28,6 +28,7 @@ public class AddSiteInfo extends JFrame {
   private final static String ATLEAT_ONE_MSG = "Atleast one of Slip, Cumulative Displacement or Num events should be specified";
   private final static int W = 750;
   private final static int H = 600;
+  private final static String TITLE = "Add Site Info";
 
   public AddSiteInfo(boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible)  {
@@ -43,6 +44,7 @@ public class AddSiteInfo extends JFrame {
     this.isNumEventsVisible = isNumEventsVisible;
     jbInit();
     this.setSize(W,H);
+    setTitle(TITLE);
     show();
   }
 
@@ -64,19 +66,23 @@ public class AddSiteInfo extends JFrame {
     this.getContentPane().add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 22, 11, 175), 8, 0));
 
-    JSplitPane splitPane;
-    String constraints;
+    JSplitPane splitPane=null;
+    String constraints="";
     this.mainSplitPane.setDividerLocation(W/2);
     addEditTimeSpan = new AddEditTimeSpan();
     mainSplitPane.add(addEditTimeSpan, JSplitPane.LEFT);
 
     if(this.isNumEventsVisible)  { // if num events is visible add another split pane
       addEditNumEvents = new AddEditNumEvents();
-      mainSplitPane.add(infoSplitPane, JSplitPane.RIGHT);
-      infoSplitPane.add(addEditNumEvents, JSplitPane.RIGHT);
-      splitPane = infoSplitPane;
-      constraints = JSplitPane.LEFT;
-      infoSplitPane.setDividerLocation(W/4);
+      if(this.isDisplacementVisible || this.isSlipVisible) {
+        mainSplitPane.add(infoSplitPane, JSplitPane.RIGHT);
+        infoSplitPane.add(addEditNumEvents, JSplitPane.RIGHT);
+        splitPane = infoSplitPane;
+        constraints = JSplitPane.LEFT;
+        infoSplitPane.setDividerLocation(W/4);
+      } else {
+        mainSplitPane.add(addEditNumEvents,JSplitPane.RIGHT);
+      }
     } else {
       splitPane = mainSplitPane;
       constraints = JSplitPane.RIGHT;

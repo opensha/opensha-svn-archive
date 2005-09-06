@@ -462,6 +462,8 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
         function.setName(getName());
         function.setTolerance( getTolerance() );
         function.setInfo(getInfo());
+        function.setXAxisName(this.getXAxisName());
+        function.setYAxisName(this.getYAxisName());
         Iterator it = this.getPointsIterator();
         if( it != null ) {
             while(it.hasNext()) {

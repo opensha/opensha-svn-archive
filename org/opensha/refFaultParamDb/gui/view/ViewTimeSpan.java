@@ -10,6 +10,12 @@ import javax.swing.JPanel;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import org.opensha.refFaultParamDb.gui.addEdit.AddEditNumEvents;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import org.opensha.refFaultParamDb.gui.addEdit.AddEditTimeSpan;
+import java.util.ArrayList;
 
 /**
  * <p>Title: ViewTimeSpan.java </p>
@@ -21,7 +27,7 @@ import javax.swing.JButton;
  * @version 1.0
  */
 
-public class ViewTimeSpan extends LabeledBoxPanel {
+public class ViewTimeSpan extends LabeledBoxPanel implements ActionListener{
 
   // start time header
   private final static String START_TIME_PARAM_NAME="Start Time:";
@@ -32,10 +38,14 @@ public class ViewTimeSpan extends LabeledBoxPanel {
   // dated feature comments
   private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Dating Methodology";
   // dating comments params
-  StringParameter datedFeatureCommentsParam;
+  StringParameter datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
   CommentsParameterEditor datedFeatureCommentsParamEditor;
   // edit button
   private JButton editTimeSpanButton = new JButton("Edit");
+  private final static String EDIT_TITLE = "Edit Timespan";
+  private InfoLabel startTimeLabel = new InfoLabel();
+  private InfoLabel endTimeLabel = new InfoLabel();
+  private InfoLabel referencesLabel = new InfoLabel();
 
   /**
    *
@@ -43,31 +53,32 @@ public class ViewTimeSpan extends LabeledBoxPanel {
    * @param endTime End Time
    * @param datingComments - dating feature comments
    */
-  public ViewTimeSpan(TimeAPI startTime, TimeAPI endTime, String datingComments) {
+  public ViewTimeSpan() {
 
     setLayout(GUI_Utils.gridBagLayout);
     setTitle(this.TIME_SPAN_PARAM_NAME);
     // start time
     JPanel startTimePanel = new TitledBorderPanel(this.START_TIME_PARAM_NAME);
     startTimePanel.setLayout(GUI_Utils.gridBagLayout);
-    startTimePanel.add(new InfoLabel(startTime),  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    startTimePanel.add(startTimeLabel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
 
     //end time
     JPanel endTimePanel = new TitledBorderPanel(END_TIME_PARAM_NAME);
     endTimePanel.setLayout(GUI_Utils.gridBagLayout);
-    endTimePanel.add(new InfoLabel(endTime),  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    endTimePanel.add(endTimeLabel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
 
     // dating techniques
     try {
       // dated feature comments
-      datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME, datingComments);
       datedFeatureCommentsParamEditor = new CommentsParameterEditor(datedFeatureCommentsParam);
       datedFeatureCommentsParamEditor.setEnabled(false);
     }catch(Exception e) {
       e.printStackTrace();
     }
+
+    JPanel referencesPanel = GUI_Utils.getPanel(referencesLabel, "References");
 
     // add start time, end time and comments to the GUI
     int yPos = 0;
@@ -79,7 +90,45 @@ public class ViewTimeSpan extends LabeledBoxPanel {
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(datedFeatureCommentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-
+    add(referencesPanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    editTimeSpanButton.addActionListener(this);
   }
+
+  /**
+   * Set the info about the start and end time and dating comments based on selected
+   * site and timespan
+   *
+   * @param startTime
+   * @param endTime
+   * @param datingComments
+   */
+  public void setTimeSpan(TimeAPI startTime, TimeAPI endTime, String datingComments,
+                          ArrayList references) {
+    this.startTimeLabel.setTextAsHTML(startTime);
+    this.endTimeLabel.setTextAsHTML(endTime);
+    this.referencesLabel.setTextAsHTML(references);
+    this.datedFeatureCommentsParam.setValue(datingComments);
+    this.datedFeatureCommentsParamEditor.refreshParamEditor();
+  }
+
+  /**
+ * This function is called when edit button is clicked
+ * @param event
+ */
+public void actionPerformed(ActionEvent event) {
+  JFrame frame= new JFrame(EDIT_TITLE);
+  AddEditTimeSpan addEditTimespan =  new AddEditTimeSpan();
+  Container contentPane = frame.getContentPane();
+  contentPane.setLayout(GUI_Utils.gridBagLayout);
+  contentPane.add(addEditTimespan, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+      , GridBagConstraints.CENTER,
+      GridBagConstraints.BOTH,
+      new Insets(0, 0, 0, 0), 0, 0));
+  frame.pack();
+  frame.setSize(500,500);
+  frame.show();
+}
+
 
 }

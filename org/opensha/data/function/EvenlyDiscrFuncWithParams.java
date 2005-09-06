@@ -115,6 +115,8 @@ public class EvenlyDiscrFuncWithParams
         f.maxX = maxX;
         f.name = name;
         f.tolerance = tolerance;
+        f.setXAxisName(this.getXAxisName());
+        f.setYAxisName(this.getYAxisName());
 
         f.setParameterList( (ParameterList)getParameterList().clone() );
 

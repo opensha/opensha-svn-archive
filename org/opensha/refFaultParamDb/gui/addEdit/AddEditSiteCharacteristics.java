@@ -35,7 +35,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private final static String SITE_TYPE_PARAM_NAME="Site Type";
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
   private final static String LAT_PARAM_NAME="Site Latitude";
-  private final static String LON_PARAM_NAME="Site Longitide";
+  private final static String LON_PARAM_NAME="Site Longitude";
   private final static Double DEFAULT_LAT_VAL=new Double(34.00);
   private final static Double DEFAULT_LON_VAL=new Double(-118.0);
   //private final static Double DEFAULT_DEPTH_VAL=new Double(2.0);

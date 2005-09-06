@@ -52,7 +52,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
 
   // input parameters declaration
   private StringParameter siteNameParam;
-  private final static String TEST_SITE = "Test Site 1";
+  public final static String TEST_SITE = "Test Site 1";
 
 
   // input parameter editors
@@ -77,9 +77,13 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private ArrayList siteLocationsList;
   private ArrayList siteNamesList;
 
+  // class listening to site change events
+  private SiteSelectionAPI siteSelectionListener;
 
-  public ViewSiteCharacteristics() {
+
+  public ViewSiteCharacteristics(SiteSelectionAPI siteSelectionListener) {
     try {
+      this.siteSelectionListener = siteSelectionListener;
       // initialize parameters and editors
       initParametersAndEditors();
       // add user provided info choices
@@ -287,6 +291,8 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     siteTypeLabel.setTextAsHTML(SITE_TYPE_PARAM_NAME,siteType);
     // Site representation
     siteRepresentationLabel.setTextAsHTML(SITE_REPRESENTATION_PARAM_NAME,siteRepresentation);
+    // call the listener
+    siteSelectionListener.siteSelected(siteName); // call the listening class
   }
 
 
@@ -947,9 +953,4 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    siteLocationsList.add(new Location(0.0,0.0));
 
  }
-
-
-  public static void main(String[] args) {
-    ViewSiteCharacteristics viewPaleoSites = new ViewSiteCharacteristics();
-  }
 }

@@ -13,6 +13,10 @@ import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
+import javax.swing.JFrame;
+import org.opensha.refFaultParamDb.gui.addEdit.AddEditNumEvents;
+import java.awt.event.ActionListener;
 
 
 /**
@@ -24,19 +28,42 @@ import javax.swing.JPanel;
  * @version 1.0
  */
 
-public class ViewNumEvents extends LabeledBoxPanel {
+public class ViewNumEvents extends LabeledBoxPanel implements ActionListener {
   private final static String NUM_EVENTS_TITLE = "Number of Events";
   // edit buttons
   private JButton editNumEventsButton = new JButton("Edit");
+  private final static String EDIT_TITLE = "Edit Num Events";
+
+  private InfoLabel numEventsEstimateLabel = new InfoLabel();
+  private InfoLabel referencesLabel = new InfoLabel();
+  private StringParameter commentsParam = new StringParameter("Num Events Comments");
+  private CommentsParameterEditor commentsParamEditor;
 
   public ViewNumEvents() {
     super(GUI_Utils.gridBagLayout);
     try {
       viewNumEventsForTimePeriod();
       setTitle(this.NUM_EVENTS_TITLE);
+      editNumEventsButton.addActionListener(this);
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Set the information about number of events estimate, comments and references
+   * based on site selected by the user.
+   *
+   * @param numEventsEstimate
+   * @param comments
+   * @param references
+   */
+  public void setInfo(IntegerEstimate numEventsEstimate, String comments,
+                      ArrayList references) {
+    numEventsEstimateLabel.setTextAsHTML(numEventsEstimate);
+    referencesLabel.setTextAsHTML(references);
+    commentsParam.setValue(comments);
+    commentsParamEditor.refreshParamEditor();
   }
 
   /**
@@ -44,28 +71,16 @@ public class ViewNumEvents extends LabeledBoxPanel {
   */
  private void viewNumEventsForTimePeriod() throws Exception {
 
-   // Num Events Estimate
-   ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
-   func.set(4.0, 0.2);
-   func.set(5.0, 0.3);
-   func.set(6.0, 0.1);
-   func.set(7.0, 0.4);
-   IntegerEstimate numEventsEstimate = new IntegerEstimate(func, false);
-   JPanel slipRateEstimatePanel = GUI_Utils.getPanel(new InfoLabel(numEventsEstimate), "Num Events Estimate");
 
+   JPanel slipRateEstimatePanel = GUI_Utils.getPanel(numEventsEstimateLabel, "Num Events Estimate");
 
    // comments
-   String comments = "Pertinent comments will be displayed here";
-   StringParameter commentsParam = new StringParameter("Num Events Comments", comments);
-   CommentsParameterEditor commentsPanel = new CommentsParameterEditor(commentsParam);
-   commentsPanel.setEnabled(false);
+   commentsParamEditor = new CommentsParameterEditor(commentsParam);
+   commentsParamEditor.setEnabled(false);
 
 
    // references
-   ArrayList references = new ArrayList();
-   references.add("Ref 5");
-   references.add("Ref 7");
-   JPanel referencesPanel = GUI_Utils.getPanel(new InfoLabel(references), "References");
+   JPanel referencesPanel = GUI_Utils.getPanel(this.referencesLabel, "References");
 
    // add the slip rate info the panel
    int yPos=0;
@@ -73,10 +88,28 @@ public class ViewNumEvents extends LabeledBoxPanel {
        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
    add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-   add(commentsPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+   add(commentsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
    add(referencesPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
  }
+
+ /**
+  * This function is called when edit button is clicked
+  * @param event
+  */
+ public void actionPerformed(ActionEvent event) {
+   JFrame frame= new JFrame(EDIT_TITLE);
+   AddEditNumEvents addEditNumEvents =  new AddEditNumEvents();
+   Container contentPane = frame.getContentPane();
+   contentPane.setLayout(GUI_Utils.gridBagLayout);
+   contentPane.add(addEditNumEvents, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+       , GridBagConstraints.CENTER,
+       GridBagConstraints.BOTH,
+       new Insets(0, 0, 0, 0), 0, 0));
+   frame.pack();
+   frame.show();
+ }
+
 
 }

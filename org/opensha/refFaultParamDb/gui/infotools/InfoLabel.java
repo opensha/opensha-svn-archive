@@ -22,6 +22,7 @@ public class InfoLabel extends JLabel {
   private Color labelColor = new Color( 80, 80, 133 );
   private final static String ESTIMATE_TYPE = "Estimate Type";
   private final static String TIME = "Time";
+  private final static String NA = "N/A";
 
   /**
    * default constructor
@@ -47,6 +48,7 @@ public class InfoLabel extends JLabel {
   */
 
   public void setTextAsHTML(String paramName, String paramValue) {
+    if(paramValue==null) paramValue = NA;
     String label  = "<html><b>"+paramName+"</b>"+paramValue+"</html>";
     setText(label);
   }
@@ -69,7 +71,8 @@ public class InfoLabel extends JLabel {
    * @param paramValue
    */
 
-  private void setTextAsHTML(String value) {
+  public void setTextAsHTML(String value) {
+    if(value==null) value = NA;
     String label  = "<html>"+value+"</html>";
     setText(label);
   }
@@ -92,10 +95,13 @@ public class InfoLabel extends JLabel {
    * @param paramName
    * @param paramValue
    */
-  private void setTextAsHTML(ArrayList values) {
+  public void setTextAsHTML(ArrayList values) {
     String label  = "<html>";
-    for(int i=0; i<values.size(); ++i)
-        label += values.get(i).toString()+"<br>";
+    if(values==null || values.size()==0) label += NA;
+    else {
+      for (int i = 0; i < values.size(); ++i)
+        label += values.get(i).toString() + "<br>";
+    }
     label = label+"</html>";
     setText(label);
   }
@@ -118,8 +124,10 @@ public class InfoLabel extends JLabel {
    * @param estimate
    */
 
-  private void setTextAsHTML(Estimate estimate) {
-    String text="<html>"+getTextForEstimate(estimate)+"</html>";
+  public void setTextAsHTML(Estimate estimate) {
+    String text;
+    if(estimate==null) text = "<html>"+NA+"</html>";
+    else  text="<html>"+getTextForEstimate(estimate)+"</html>";
     setText(text);
   }
 
@@ -148,8 +156,18 @@ public class InfoLabel extends JLabel {
    */
   public InfoLabel(TimeAPI time) {
     this.setForeground(labelColor);
+    setTextAsHTML(time);
+  }
+
+  /**
+   *
+   * @param time
+   */
+  public void setTextAsHTML(TimeAPI time) {
     String text="";
-    if(time instanceof TimeEstimate)
+    if(time == null ) // if time is not available
+      text = "<html>NA</html>";
+    else if(time instanceof TimeEstimate)
       text = getTextForTimeEstimate((TimeEstimate)time);
     else if(time instanceof ExactTime)
       text = getTextForExactTime((ExactTime)time);
@@ -216,7 +234,7 @@ public class InfoLabel extends JLabel {
    */
   private String getTextForLogNormalEstimate(LogNormalEstimate estimate) {
     return "<b>"+ESTIMATE_TYPE+":</b>"+estimate.getName()+"<br>"+
-        "<b>Linear Median:</b>"+estimate.getMedian()+"<br>"+
+        "<b>Linear Median:</b>"+estimate.getLinearMedian()+"<br>"+
         "<b>StdDev:</b>"+estimate.getStdDev();
   }
 
@@ -227,11 +245,11 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForDiscretizedFuncEstimate(DiscretizedFuncEstimate estimate) {
-    String text =  "<b>"+ESTIMATE_TYPE+":</b>"+estimate.getName()+"<br>"+
-        "<b>X  Y</b> <br>";
     DiscretizedFunc func = estimate.getValues();
+    String text =  "<b>"+ESTIMATE_TYPE+":</b>"+estimate.getName()+"<br>"+
+        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
     for(int i=0; i<func.getNum(); ++i)
-        text+=  func.getX(i)+" "+func.getY(i)+"<br>";
+        text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
     return text;
   }
 
