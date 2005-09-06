@@ -30,43 +30,23 @@ AfterShockHypoMagFreqDistForecast
 	add set method for griddedRegion (defined in parent), and change name to aftershockZone
 
 
-EvenlyGriddedGeographicRegionAPI
+EvenlyGriddedGeographicRegions
 
-	make all existing getLoc related methods return pointers (create list if needed)
-	add getGridLocationClone(int index) and getNearestGridLocationClone(int index)
-	add clearLocationList() method.
+	make all extend EvenlyGriddedGeographicRegion to share methods
 
-	add getGridLocation(index, EvenlyGriddedGeogRegionAPI) - this will return what is 
-	returned by the getNearestGridLocation method of EvenlyGriddedGeogRegionAPI.
+	Change getGridLocation(int index,EvenlyGriddedGeographicRegionAPI region) to
+	getNearestGridLocation(int index,EvenlyGriddedGeographicRegionAPI region)
 
-	add getGridLocationIndex(index, EvenlyGriddedGeogRegionAPI) - this will return what is 
-	returned by the getNearestGridLocationIndex method of EvenlyGriddedGeogRegionAPI.
+	Have methods return null if loc or index not in region.
 
-EvenlyGriddedRectangularGeographicRegion
+        Document the following in either EvenlyGriddedGeographicRegion or EvenlyGriddedGeographicRegionAPI:
 
-	getGridLocation(int index) - always returns a clone (never a pointer)
-	getNearestLocation(Location loc) - always clone too
-	list methods always same (list created once and only once)
-
-
-EvenlyGriddedCircularGeographicRegion.
-
-	initLatLonArray() method - is using an ArrayList to temporarily store the lons most efficient?
-	(used in other classes as well)
-
-	getNearestLocation(Location loc) - 1st lines can move points near edge (but inside) of region outside
-	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
-	(getNearestLocationIndex(Location loc) does it correctly?)
-
-EvenlyGriddedGeographicRegion
-
-	getNearestLocation(Location loc) - 1st lines can move points near edge (but inside) of region outside
-	this also uses EvenlyGriddedGeographicRegionAPI.latLonFormat.format(lon) ??? what is this ???
-	(EvenlyGriddedRectangularGeographicRegion does it correctly?)
-
-All gridded regions:
-
-Will the RegionConstraintException thrown by so many methods require using try/catch; if so, isn't his going to be inefficient?
+		1) that methods return null if ...
+		2) ordering of locs in region is as reading a book
+		3) nice grid values
+		4) pointers returned for speed (at sacrifice of memory because e3ntire list is created); 
+		otherwise use get*Clone* methods.
+		5)
 
 
 Move ERF2XML_Calc out of sha/calc and into sha/util?(Done - Nitin)
@@ -92,24 +72,6 @@ Implement:
 
 	Other classes .................. (once done tell ned and he'll update STEP doc)
 
-EvenlyGriddedRegion Stuff:
-
-	Impose & document the following rules for all classes:
-
-		 min discrete lat and lon are inside the region & such that division by 
-		 gridSpacing is exactly an int (same for max discrete lat and lon)
-
-		add getMinGridLat() & getMaxGridLat() methods (likewise for Lon) to API
-
-		Impose and document rules for ordering of indexed locations (increasing lat 
-		and lons, sweeping over lons)
-
-		Add method that will take a list of locations (or gridded region) and return the list
-		of those corresponding to the locations in the present gridded region.????
-
-		Implement the efficient schemes we discussed for getting index of loc or loc 
-		of index.  Make sure docs are explicit about whether pointers or clones are returned
-		under the various conditions.
 
 Create a SausageGeographicRegion that takes a locListLine and radius as input and constructs a polygon such that each point on the polygon is ~radius from the line defined by locListLine.  Note that LocationList has the method getMinHorzDistToLine(loc) which could be useful here.  Note also that some of the presently private attributes in the parent class (GeographicRegion) could be useful if made protected.  Note also that the polygon does not need to be created until asked for.
 

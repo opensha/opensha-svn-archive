@@ -143,8 +143,6 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
   }
 
 
-
-
   /**
    *
    * @return  the grid spacing (in degrees)
@@ -282,11 +280,6 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
    */
   public Location getGridLocationClone(int index)  throws LocationOutOfRegionBoundsException{
 
-    //returns  the location at the specified index in the location list
-    if (gridLocsList != null)
-      return gridLocsList.getLocationAt(index);
-    else { // if location list has not been initialised
-      //getting the size of array that maintains number of locations at each lat
       int size = locsBelowLat.length;
       int locIndex = 0;
       //iterating over all the lonsPerLat array to get the Lat index where given
@@ -314,7 +307,6 @@ public class EvenlyGriddedCircularGeographicRegion extends CircularGeographicReg
       //getting the lat for the given location index
       double lat = niceMinLat + latIndex * gridSpacing;
       return new Location(lat, lon);
-    }
   }
 
 

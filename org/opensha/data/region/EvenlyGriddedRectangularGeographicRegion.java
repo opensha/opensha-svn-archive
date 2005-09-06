@@ -11,9 +11,9 @@ import org.opensha.exceptions.InvalidRangeException;
 
 /**
  * <p>Title: EvenlyGriddedRectangularGrographicRegion</p>
- * <p>Description: It creates a evenly gridded geographic region for the
- * specified gridded region provided by the user.  All grid points are nice
- * valuesin that lat/gridSpacing and lon/gridASpacing are always whole numbers.</p>
+ * <p>Description: This creates a evenly gridded rectangular geographic region.
+ * All grid points are nice values in that lat/gridSpacing and lon/gridASpacing
+ * are always whole numbers.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Ned Field & Nitin Gupta & Vipin Gupta
@@ -61,7 +61,6 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     if (D) System.out.println("numLatGridPoints="+numLatGridPoints+"; numLonGridPoints="+numLonGridPoints);
   }
 
-
   /**
    * It samples out the grids location points based on the grid spacing(in degrees)
    * chosen.
@@ -81,8 +80,6 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     numLonGridPoints = (int)Math.rint((niceMaxLon - niceMinLon)/gridSpacing)+1;
 
   }
-
-
 
   /**
    *
@@ -106,7 +103,6 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @returns the Grid Locations Iterator.
    */
   public ListIterator getGridLocationsIterator(){
-    //only create the location list if null
     if(gridLocsList == null)
       //creating the instance of the locationList
       gridLocsList=createGriddedLocationList();
@@ -147,7 +143,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
   /**
    *
    * @param index (starts from zero)
-   * @returns the Grid Location at that index.
+   * @returns a clone of the Grid Location at that index.
    */
   public Location getGridLocationClone(int index) throws
       LocationOutOfRegionBoundsException {
@@ -158,17 +154,14 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     //gets the column in the row (longitude point) where that index exists
     int col=index%numLonGridPoints;
-    if(row > numLatGridPoints || col > numLonGridPoints)
+    if(row > numLatGridPoints-1 || col > numLonGridPoints-1)
       throw new LocationOutOfRegionBoundsException("Not a valid index in the region");
     //lat and lon for that indexed point
     double newLat=niceMinLat+row*gridSpacing;
     double newLon=niceMinLon+col*gridSpacing;
 
-    //new location at which that lat and lon exists
-    Location location= new Location(newLat,newLon);
-
-    //returns  the location at the specified index in the location list
-    return location;
+    // return new location at which that lat and lon exists
+    return new Location(newLat,newLon);
   }
 
 
@@ -180,14 +173,20 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @return Location
    */
   public Location getGridLocation(int index) throws LocationOutOfRegionBoundsException{
-    LocationList locList = getGridLocationsList();
-    try{
-      Location loc = locList.getLocationAt(index);
-      return loc;
-    }catch(InvalidRangeException e){
-      throw new LocationOutOfRegionBoundsException(e.getMessage());
-    }
+    if(index < 0 || index >= locList.size())
+      throw new LocationOutOfRegionBoundsException();
+    else
+      return locList.getLocationAt(index);
+  }
 
+
+  public Location getGridLocationTest(int index) throws LocationOutOfRegionBoundsException{
+
+    LocationList locList = getGridLocationsList();
+    if(index < 0 || index >= locList.size())
+      return null;
+    else
+      return locList.getLocationAt(index);
   }
 
 
@@ -318,7 +317,23 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     }
     catch (RegionConstraintException ex) {
     }
+    geoReg.getGridLocation(0);
+    Location loc = null;
 
+    long time = System.currentTimeMillis();
+    for(int i=0; i<10000;i++) {
+      try {
+        loc = geoReg.getGridLocation(-10);
+      }
+      catch (RuntimeException e) {
+        continue;
+      }
+    }
+    System.out.println("time1 = "+(System.currentTimeMillis()-time));
+
+
+
+/*
     System.out.println(C+": numLocations="+ geoReg.getNumRegionOutlineLocations());
 
     System.out.println(C+": getMinLat ="+ geoReg.getMinLat());
@@ -337,7 +352,7 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     System.out.println("locOut inside = "+geoReg.isLocationInside(locOut));
 
     System.out.println("locOut = "+locOut.toString());
-
+*/
 
 /*
     LocationList list = geoReg.getGridLocationsList();

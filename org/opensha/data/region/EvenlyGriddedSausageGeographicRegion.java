@@ -268,17 +268,9 @@ public class EvenlyGriddedSausageGeographicRegion extends GeographicRegion
    * @param location Location
    * @return boolean
    */
-  public boolean isLocationInside(Location location){
-     int numLines = locList.size() -1;
-     for (int i = 0; i < numLines; ++i) {
-       Location loc1 = locList.getLocationAt(i);
-       Location loc2 = locList.getLocationAt(i + 1);
-       double distance = RelativeLocation.getApproxHorzDistToLine(location, loc1, loc2);
-       if (distance <= radius) {
-         return true;
-       }
-     }
-     return false;
+  public boolean isLocationInside(Location loc){
+    if(locList.getMinHorzDistToLine(loc) > radius) return false;
+    return true;
    }
 
 

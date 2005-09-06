@@ -175,10 +175,6 @@ public class EvenlyGriddedGeographicRegion
    */
   public Location getGridLocationClone(int index) throws LocationOutOfRegionBoundsException{
 
-    //returns  the location at the specified index in the location list
-    if(gridLocsList !=null)
-      return gridLocsList.getLocationAt(index);
-    else{// if location list has not been initialised
       //getting the size of array that maintains number of locations at each lat
       int size = locsBelowLat.length;
       int locIndex = 0;
@@ -201,8 +197,6 @@ public class EvenlyGriddedGeographicRegion
       double lon = ((Double)lonList.get(index - locIndex)).doubleValue();
       double lat = niceMinLat+latIndex*gridSpacing;
       return new Location(lat,lon);
-    }
-
   }
 
 
