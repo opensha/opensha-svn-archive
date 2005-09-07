@@ -18,6 +18,7 @@ import org.opensha.param.StringParameter;
 import org.opensha.gui.TitledBorderPanel;
 import org.opensha.refFaultParamDb.gui.view.*;
 import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
+import java.awt.event.*;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -33,8 +34,8 @@ import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
 
 public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
 
-  private final static int WIDTH = 850;
-  private final static int HEIGHT = 725;
+  private final static int WIDTH = 950;
+  private final static int HEIGHT = 825;
 
   private final static String TITLE =
       "California Reference Geologic Fault Parameter (Paleo Site) GUI";
@@ -84,6 +85,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       addSitesPanel(); // add the available sites from database for viewing
       addAvailableTimeSpans(); // add the available timespans for this site
       viewDisplacementForTimePeriod(); // add displacement for the time period
+      pack();
+      setSize(WIDTH, HEIGHT);
+      setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
+                     parentComponent.getY()+parentComponent.getHeight()/2);
+      show();
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -93,9 +99,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
 
   public static void main(String[] args) {
     PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();
-    paleoSiteApp.pack();
-    paleoSiteApp.setSize(WIDTH, HEIGHT);
-    paleoSiteApp.show();
   }
 
   /**
@@ -144,6 +147,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
     statusTextArea.setEnabled(false);
     statusTextArea.setEditable(false);
     statusTextArea.setText("");
+    this.setDefaultCloseOperation(EXIT_ON_CLOSE);
     this.getContentPane().add(topSplitPane, BorderLayout.CENTER);
     topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
@@ -275,4 +279,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
     }
   }
 
+
 }
+
