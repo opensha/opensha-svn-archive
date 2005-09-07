@@ -108,6 +108,7 @@ public class ViewNumEvents extends LabeledBoxPanel implements ActionListener {
        GridBagConstraints.BOTH,
        new Insets(0, 0, 0, 0), 0, 0));
    frame.pack();
+   frame.setSize(300,750);
    frame.show();
  }
 

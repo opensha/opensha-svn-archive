@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import org.opensha.param.editor.ParameterListEditor;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.param.editor.ConstrainedStringListParameterEditor;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.gui.LabeledBoxPanel;
 
 /**
  * <p>Title: AddEditCumDisplacement.java </p>
@@ -19,7 +23,7 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
  * @version 1.0
  */
 
-public class AddEditCumDisplacement extends JPanel{
+public class AddEditCumDisplacement extends LabeledBoxPanel {
   // ASEISMICE SLIP FACTOR
   private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
@@ -28,24 +32,26 @@ public class AddEditCumDisplacement extends JPanel{
    // CUMULATIVE DISPLACEMENT
   private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Cumulative Displacement Estimate";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
-  private final static String CUMULATIVE_DISPLACEMENT_REFERENCES_PARAM_NAME="Cumulative Displacement References";
+  private final static String CUMULATIVE_DISPLACEMENT_REFERENCES_PARAM_NAME="Choose References";
   private final static String CUMULATIVE_DISPLACEMENT_UNITS = "mm";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 
-
+  // various parameters
  private StringListParameter cumDisplacementReferencesParam;
  private EstimateParameter aSeismicSlipFactorParam;
  private EstimateParameter cumDisplacementParam;
  private StringParameter displacementCommentsParam;
 
- // parameter List editor
- private ParameterListEditor cumDisplacementParameterListEditor;
+ // parameter editors
+ private ConstrainedStringListParameterEditor cumDisplacementReferencesParamEditor;
+ private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
+ private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
+ private CommentsParameterEditor displacementCommentsParamEditor;
 
-// various buttons in this window
- private JButton addNewReferenceButton = new JButton("Add Reference");
- private JButton okButton = new JButton("OK");
- private JButton cancelButton = new JButton("Cancel");
+ // various buttons in this window
+  private JButton addNewReferenceButton = new JButton("Add Reference not currently in database");
+
  private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
 
  /**
@@ -53,13 +59,8 @@ public class AddEditCumDisplacement extends JPanel{
   */
  public AddEditCumDisplacement() {
    try {
+     setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
-     this.setLayout(GUI_Utils.gridBagLayout);
-     this.add(cumDisplacementParameterListEditor,
-              new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                     , GridBagConstraints.CENTER,
-                                     GridBagConstraints.BOTH,
-                                     new Insets(0, 0, 0, 0), 0, 0));
    }catch(Exception e) {
      e.printStackTrace();
    }
@@ -69,29 +70,64 @@ public class AddEditCumDisplacement extends JPanel{
    * Add the input parameters if user provides the cumulative displacement
    */
   private void addCumulativeDisplacementParameters() throws Exception {
+
+    // cumulative displacement estimate
     ArrayList allowedEstimates = EstimateConstraint.
         createConstraintForPositiveDoubleValues();
     this.cumDisplacementParam = new EstimateParameter(this.
         CUMULATIVE_DISPLACEMENT_PARAM_NAME,
         CUMULATIVE_DISPLACEMENT_UNITS, CUMULATIVE_DISPLACEMENT_MIN,
         CUMULATIVE_DISPLACEMENT_MAX, allowedEstimates);
-    // cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam);
+    cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam,true, true);
+    //aseismic slip factor
+    this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
+        ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
+    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, true);
+    // comments parameter editor
     displacementCommentsParam = new StringParameter(this.
         CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME);
-    //displacementCommentsParamEditor = new StringParameterEditor(displacementCommentsParam);
+    displacementCommentsParamEditor = new CommentsParameterEditor(displacementCommentsParam);
+
     // references
     ArrayList availableReferences = getAvailableReferences();
     this.cumDisplacementReferencesParam = new StringListParameter(this.
         CUMULATIVE_DISPLACEMENT_REFERENCES_PARAM_NAME, availableReferences);
-    //cumDisplacementReferencesParamEditor = new ConstrainedStringListParameterEditor(cumDisplacementReferencesParam);
-    ParameterList paramList = new ParameterList();
-    paramList.addParameter(cumDisplacementParam);
-    paramList.addParameter(aSeismicSlipFactorParam);
-    paramList.addParameter(displacementCommentsParam);
-    paramList.addParameter(cumDisplacementReferencesParam);
-    this.cumDisplacementParameterListEditor = new ParameterListEditor(paramList);
-    cumDisplacementParameterListEditor.setTitle(this.
-                                                CUM_DISPLACEMENT_PARAMS_TITLE);
+    cumDisplacementReferencesParamEditor = new ConstrainedStringListParameterEditor(cumDisplacementReferencesParam);
+
+
+    int yPos=0;
+    this.add(cumDisplacementParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+    this.add(aSeismicSlipFactorParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
+    this.add(cumDisplacementReferencesParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
+    this.add(this.addNewReferenceButton,
+            new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                   , GridBagConstraints.CENTER,
+                                   GridBagConstraints.NONE,
+                                   new Insets(0, 0, 0, 0), 0, 0));
+
+
+    this.add(displacementCommentsParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
+
+    setTitle(this.CUM_DISPLACEMENT_PARAMS_TITLE);
   }
 
   /**

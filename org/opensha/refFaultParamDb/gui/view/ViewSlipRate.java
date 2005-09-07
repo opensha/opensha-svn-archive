@@ -120,7 +120,7 @@ public class ViewSlipRate extends LabeledBoxPanel implements ActionListener {
         , GridBagConstraints.CENTER,
         GridBagConstraints.BOTH,
         new Insets(0, 0, 0, 0), 0, 0));
-    frame.pack();
+    frame.setSize(300,750);
     frame.show();
   }
 

@@ -7,6 +7,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 
 /**
  * <p>Title: AddNewSiteType.java </p>
@@ -19,7 +20,11 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 public class AddNewSiteType extends JFrame {
   private final static String SITE_TYPE_NAME_PARAM_NAME="Site Type Name";
-  private StringParameter siteTypeParamName;
+  private final static String SITE_TYPE_COMMENTS_PARAM_NAME="Site Type Comments";
+  private final static String SITE_TYPE_NAME_PARAM_DEFAULT="Enter Name Here";
+  private StringParameter siteTypeParam;
+  private StringParameter siteTypeCommentsParam;
+
   private final static String NEW_SITE_TYPE_LABEL="Add New Site Type";
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
@@ -27,23 +32,28 @@ public class AddNewSiteType extends JFrame {
   public AddNewSiteType() {
     Container contentPane = this.getContentPane();
     contentPane.setLayout(GUI_Utils.gridBagLayout);
-    siteTypeParamName = new StringParameter(SITE_TYPE_NAME_PARAM_NAME);
-    StringParameterEditor stringParameterEditor = null;
+    siteTypeParam = new StringParameter(SITE_TYPE_NAME_PARAM_NAME, SITE_TYPE_NAME_PARAM_DEFAULT);
+    siteTypeCommentsParam = new StringParameter(SITE_TYPE_COMMENTS_PARAM_NAME);
+    StringParameterEditor siteTypeNameParameterEditor = null;
+    CommentsParameterEditor siteTypeCommentsParamEditor = null;
     try {
-      stringParameterEditor = new StringParameterEditor(siteTypeParamName);
+      siteTypeNameParameterEditor = new StringParameterEditor(siteTypeParam);
+      siteTypeCommentsParamEditor = new CommentsParameterEditor(siteTypeCommentsParam);
     }
     catch (Exception ex) {
       ex.printStackTrace();
     }
     // add string parameter editor so that user can type in site type name
     int yPos =0;
-    contentPane.add(stringParameterEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+    contentPane.add(siteTypeNameParameterEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+    contentPane.add(siteTypeCommentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // ok/cancel button
     contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     contentPane.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
     this.show();

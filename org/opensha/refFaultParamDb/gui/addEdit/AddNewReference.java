@@ -20,7 +20,9 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 public class AddNewReference extends JFrame {
   private final static String CITATION_PARAM_NAME="Short Citation";
+  private final static String CITATION_PARAM_DEFAULT="e.g. Knight & Dey (1988)";
   private final static String BIBLIO_PARAM_NAME="Full Bibliographic Ref";
+  private final static String BIBLIO_PARAM_DEFAULT="Enter full citation here";
   private StringParameter citationParam;
   private StringParameter biblioParam;
   private final static String NEW_SITE_TYPE_LABEL="Add Reference";
@@ -30,8 +32,8 @@ public class AddNewReference extends JFrame {
   public AddNewReference() {
     Container contentPane = this.getContentPane();
     contentPane.setLayout(GUI_Utils.gridBagLayout);
-    citationParam = new StringParameter(CITATION_PARAM_NAME);
-    biblioParam = new StringParameter(BIBLIO_PARAM_NAME);
+    citationParam = new StringParameter(CITATION_PARAM_NAME, CITATION_PARAM_DEFAULT);
+    biblioParam = new StringParameter(BIBLIO_PARAM_NAME, BIBLIO_PARAM_DEFAULT);
     StringParameterEditor citationParameterEditor = null;
     StringParameterEditor biblioParameterEditor = null;
     try {

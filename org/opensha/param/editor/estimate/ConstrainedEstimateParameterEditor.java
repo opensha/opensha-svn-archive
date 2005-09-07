@@ -123,22 +123,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     * Min, Max, Preferred
     */
    private DoubleParameter minX_Param;
-   private final static String MIN_X_PARAM_NAME="Min X";
+   private final static String MIN_X_PARAM_NAME="Min";
    private final static Double DEFAULT_MIN_X_PARAM_VAL=new Double(1);
    private DoubleParameter maxX_Param ;
-   private final static String MAX_X_PARAM_NAME="Max X";
+   private final static String MAX_X_PARAM_NAME="Max";
    private final static Double DEFAULT_MAX_X_PARAM_VAL=new Double(10);
    private DoubleParameter prefferedX_Param ;
-   private final static String PREF_X_PARAM_NAME="Preffered X";
+   private final static String PREF_X_PARAM_NAME="Preferred";
    private final static Double DEFAULT_PREFERRED_X_PARAM_VAL=new Double(5);
    private DoubleParameter minProbParam;
-   private final static String MIN_PROB_PARAM_NAME="Min Prob";
+   private final static String MIN_PROB_PARAM_NAME="Min";
    private final static Double DEFAULT_MIN_PROB_PARAM_VAL=new Double(0.25);
    private DoubleParameter maxProbParam ;
-   private final static String MAX_PROB_PARAM_NAME="Max Prob";
+   private final static String MAX_PROB_PARAM_NAME="Max";
    private final static Double DEFAULT_MAX_PROB_PARAM_VAL=new Double(1.0);
    private DoubleParameter prefferedProbParam ;
-   private final static String PREF_PROB_PARAM_NAME="Preferred Prob";
+   private final static String PREF_PROB_PARAM_NAME="Preferred";
    private final static Double DEFAULT_PREFERRED_PROB_PARAM_VAL=new Double(0.5);
    private ParameterListEditor xValsParamListEditor;
    private ParameterListEditor probValsParamListEditor;
@@ -149,7 +149,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    // title of Parameter List Editor
    public static final String X_TITLE = new String("X Values");
    // title of Parameter List Editor
-   public static final String PROB_TITLE = new String("Probability");
+   public static final String PROB_TITLE = new String("Probability this value is correct");
 
    private JTextArea estimateInfo;
 
