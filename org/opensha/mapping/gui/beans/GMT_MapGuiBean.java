@@ -1,11 +1,9 @@
-package org.opensha.sha.gui.beans;
+package org.opensha.mapping.gui.beans;
 
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.border.*;
 
-import java.awt.event.*;
 
 
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
@@ -17,7 +15,7 @@ import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.util.FileUtils;
 import org.opensha.webservices.client.*;
 import org.opensha.data.*;
-import org.opensha.sha.earthquake.EqkRupture;
+
 import org.opensha.exceptions.GMT_MapException;
 
 /**
@@ -60,23 +58,16 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   //name of the directory in which to store all the map and its related data.
   protected String dirName = null;
 
-  private GMT_MapGuiBeanAPI application;
-
-
-  //class default constructor
-  public GMT_MapGuiBean(){};
 
   /**
    * Class constructor accepts the GMT parameters list
    * @param api : Instance of the application using this Gui Bean.
    */
-  public GMT_MapGuiBean(GMT_MapGuiBeanAPI api) {
-    application = api;
+  public GMT_MapGuiBean() {
 
     try {
       //initialise the param list and editor for the GMT Map Params and Editors
       initParamListAndEditor();
-      getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -84,21 +75,6 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
   }
 
 
-  /**
-   * This function provides the flexibiltiy of creating the parameterList and editor
-   * from application.
-   */
-  public void createParamListAndEditor(){
-    //initialise the param list and editor for the GMT Map Params and Editors
-     initParamListAndEditor();
-     try {
-
-       getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
-     }
-     catch(Exception e) {
-       e.printStackTrace();
-    }
-  }
 
   protected void initParamListAndEditor(){
     //get the adjustableParam List from the GMT_MapGenerator
@@ -110,7 +86,14 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     addParameters();
     setTitle(GMT_TITLE);
     parameterList.getParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME).addParameterChangeListener(this);
+    parameterList.getParameter(GMT_MapGenerator.CUSTOM_SCALE_LABEL_PARAM_CHECK_NAME).addParameterChangeListener(this);
     changeColorScaleModeValue(GMT_MapGenerator.COLOR_SCALE_MODE_DEFAULT);
+    //making the map using GMT service ( making this param false, as not allowing
+    //the user to set its value)
+    getParameterEditor(GMT_MapGenerator.GMT_WEBSERVICE_NAME).setVisible(false);
+
+    //making the Custom Scale Label Param invisible when application is started
+    getParameterEditor(GMT_MapGenerator.SCALE_LABEL_PARAM_NAME).setVisible(false);
   }
 
   /**
@@ -118,11 +101,11 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    * @param regionParamsFlag: boolean flag to check if the region params are to be shown in the
    */
   public void showRegionParams(boolean regionParamsFlag) {
-      getParameterEditor(gmtMap.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
-      getParameterEditor(gmtMap.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(GMT_MapGenerator.MAX_LAT_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(GMT_MapGenerator.MIN_LAT_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(GMT_MapGenerator.MAX_LON_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(GMT_MapGenerator.MIN_LON_PARAM_NAME).setVisible(regionParamsFlag);
+      getParameterEditor(GMT_MapGenerator.GRID_SPACING_PARAM_NAME).setVisible(regionParamsFlag);
   }
 
   /**
@@ -152,6 +135,21 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     String name = e.getParameterName();
     if(name.equalsIgnoreCase(GMT_MapGenerator.COLOR_SCALE_MODE_NAME))
       changeColorScaleModeValue((String)e.getNewValue());
+    else if(name.equalsIgnoreCase(GMT_MapGenerator.CUSTOM_SCALE_LABEL_PARAM_CHECK_NAME)){
+      boolean boolVal = ((Boolean)e.getNewValue()).booleanValue();
+      showCustomScaleLabel(boolVal);
+    }
+  }
+
+
+  /**
+   * If user chooses to give own custom label then it makes the ScaleLabel parameter
+   * visible to the user.
+   * @param showLabel boolean checks if custom label needed.
+   */
+  protected void showCustomScaleLabel(boolean showLabel) {
+    getParameterEditor(GMT_MapGenerator.SCALE_LABEL_PARAM_NAME).setVisible(
+        showLabel);
   }
 
   /**

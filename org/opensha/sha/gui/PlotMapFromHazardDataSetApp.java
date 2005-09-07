@@ -27,8 +27,8 @@ import org.opensha.param.StringParameter;
 import org.opensha.param.DoubleParameter;
 import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
-import org.opensha.sha.gui.beans.GMT_MapGuiBean;
-import org.opensha.sha.gui.beans.GMT_MapGuiBeanAPI;
+import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
+
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
@@ -46,7 +46,7 @@ import org.opensha.sha.gui.infoTools.ExceptionWindow;
  */
 
 
-public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBeanAPI{
+public class PlotMapFromHazardDataSetApp extends JApplet {
   public static String SERVLET_URL  = "http://gravity.usc.edu/OpenSHA/servlet/HazardMapViewerServlet";
   private boolean isStandalone = false;
   Border border1;
@@ -458,7 +458,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet implements GMT_MapGuiBe
    * initialize the map gui bean
    */
   private void initMapGuiBean() {
-    mapGuiBean = new GMT_MapGuiBean(this);
+    mapGuiBean = new GMT_MapGuiBean();
     // show this gui bean the JPanel
     this.gmtPanel.add(this.mapGuiBean,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0 ));

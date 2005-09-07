@@ -157,6 +157,18 @@ public class GMT_MapGenerator implements Serializable{
   private final static String LOG_PLOT_INFO = "Plot Log or Linear Map";
   protected BooleanParameter logPlotParam;
 
+
+  //Boolean parameter to see if user wants to give a custom Label
+  public final static String CUSTOM_SCALE_LABEL_PARAM_CHECK_NAME = "Custom Scale Label";
+  private final static String CUSTOM_SCALE_LABEL_PARAM_CHECK_INFO = "Allows to give a custom scale label to the map";
+  protected BooleanParameter customScaleLabelCheckParam;
+
+
+  public final static String SCALE_LABEL_PARAM_NAME = "Scale Label";
+  private final static String SCALE_LABEL_PARAM_INFO = "Map Scale Label(Don't give any brackets in label)";
+  protected StringParameter scaleLabelParam;
+
+
   protected ParameterList adjustableParams;
 
   //GMT files web address(if the person is using the gmt webService)
@@ -230,6 +242,13 @@ public class GMT_MapGenerator implements Serializable{
     logPlotParam = new BooleanParameter(LOG_PLOT_NAME, new Boolean("true"));
     logPlotParam.setInfo(LOG_PLOT_INFO);
 
+
+    customScaleLabelCheckParam = new BooleanParameter(CUSTOM_SCALE_LABEL_PARAM_CHECK_NAME,new Boolean(false));
+    customScaleLabelCheckParam.setInfo(CUSTOM_SCALE_LABEL_PARAM_CHECK_INFO);
+
+    scaleLabelParam = new StringParameter(SCALE_LABEL_PARAM_NAME,"");
+    scaleLabelParam.setInfo(SCALE_LABEL_PARAM_INFO);
+
     // create adjustable parameter list
     adjustableParams = new ParameterList();
 
@@ -246,10 +265,13 @@ public class GMT_MapGenerator implements Serializable{
     adjustableParams.addParameter(showHiwysParam);
     adjustableParams.addParameter(coastParam);
     adjustableParams.addParameter(imageWidthParam);
+    adjustableParams.addParameter(customScaleLabelCheckParam);
+    adjustableParams.addParameter(scaleLabelParam);
     adjustableParams.addParameter(gmtFromServer);
     adjustableParams.addParameter(logPlotParam);
-  }
 
+
+  }
 
 
 
@@ -869,7 +891,14 @@ public class GMT_MapGenerator implements Serializable{
     DecimalFormat df2 = new DecimalFormat("0.E0");
     Float tickInc = new Float(df2.format((colorScaleMax-colorScaleMin)/4.0));
     inc = tickInc.floatValue();
-    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+SCALE_LABEL+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + PS_FILE_NAME;
+    //checks to see if customLabel is selected, then get the custom label
+    boolean customLabelSelected = ((Boolean)customScaleLabelCheckParam.getValue()).booleanValue();
+    String scaleLabel ="";
+    if(customLabelSelected)
+      scaleLabel = (String)scaleLabelParam.getValue();
+    else
+      scaleLabel = SCALE_LABEL;
+    commandLine=GMT_PATH+"psscale -Ba"+inc+":"+scaleLabel+": -D3.25i/-0.5i/6i/0.3ih -C"+fileName+".cpt -K -O -N70 >> " + PS_FILE_NAME;
     gmtCommandLines.add(commandLine+"\n");
 
     // add the basemap

@@ -4,13 +4,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.applet.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.net.*;
 import java.util.*;
 
 
-import org.opensha.sha.gui.beans.GMT_MapGuiBean;
-import org.opensha.sha.gui.beans.GMT_MapGuiBeanAPI;
+import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
+
 import org.opensha.param.StringParameter;
 import org.opensha.param.editor.StringParameterEditor;
 import org.opensha.util.*;
@@ -25,7 +24,7 @@ import org.opensha.data.*;
  * @version 1.0
  */
 
-public class GMT_MapGeneratorApplet extends Applet implements GMT_MapGuiBeanAPI{
+public class GMT_MapGeneratorApplet extends Applet{
 
 
   private static final String C="GMT_MapGeneratorApplet";
@@ -45,12 +44,12 @@ public class GMT_MapGeneratorApplet extends Applet implements GMT_MapGuiBeanAPI{
   //variables that determine the window size
   protected final static int W = 600;
   protected final static int H = 750;
-  private Border border1;
+
   private JButton addButton = new JButton();
 
   private GMT_MapGuiBean gmtGuiBean=null;
 
-  private Border border2;
+
   private final static String URL_NAME = "Enter URL";
   private StringParameter xyzFileName= new StringParameter(URL_NAME,"http://gravity.usc.edu/OpenSHA/step/backGround.txt");
   private StringParameterEditor xyzFileEditor;
@@ -83,7 +82,7 @@ public class GMT_MapGeneratorApplet extends Applet implements GMT_MapGuiBeanAPI{
       parameterPanel.add(xyzFileEditor,new GridBagConstraints( 0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER,
                     GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-      gmtGuiBean =new GMT_MapGuiBean(this);
+      gmtGuiBean =new GMT_MapGuiBean();
       //panel to display the GMT adjustable parameters
       parameterPanel.add(gmtGuiBean,new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0,
                     GridBagConstraints.CENTER,
@@ -97,8 +96,6 @@ public class GMT_MapGeneratorApplet extends Applet implements GMT_MapGuiBeanAPI{
   }
   //Component initialization
   private void jbInit() throws Exception {
-    border1 = BorderFactory.createEtchedBorder(new Color(248, 254, 255),new Color(121, 124, 136));
-    border2 = BorderFactory.createLineBorder(SystemColor.controlText,1);
     this.setSize(new Dimension(492, 686));
     this.setLayout(borderLayout1);
     mainPanel.setLayout(gridBagLayout3);

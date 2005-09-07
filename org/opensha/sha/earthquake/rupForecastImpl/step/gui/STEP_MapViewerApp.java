@@ -22,6 +22,7 @@ import org.opensha.param.editor.ParameterListEditor;
 import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.sha.gui.beans.MapGuiBean;
 import org.opensha.data.*;
+import org.opensha.mapping.gui.beans.*;
 
 /**
  * <p>Title: STEP_MapViewerApp </p>

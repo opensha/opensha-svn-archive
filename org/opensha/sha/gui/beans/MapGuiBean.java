@@ -18,6 +18,7 @@ import org.opensha.webservices.client.*;
 import org.opensha.data.*;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.exceptions.GMT_MapException;
+import org.opensha.mapping.gui.beans.*;
 
 /**
  * <p>Title: MapGuiBean</p>
@@ -56,9 +57,6 @@ public class MapGuiBean extends GMT_MapGuiBean {
     gmtMap= new GMT_MapGeneratorForShakeMaps();
     //initialise the param list and editor for the GMT Map Params and Editors
     initParamListAndEditor();
-    //making the map using GMT service ( making this param false, as not allowing
-    //the user to set its value)
-    getParameterEditor(gmtMap.GMT_WEBSERVICE_NAME).setVisible(false);
   }
 
 

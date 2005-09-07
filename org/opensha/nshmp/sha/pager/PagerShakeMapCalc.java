@@ -27,6 +27,7 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.exceptions.ParameterException;
 import org.opensha.mapping.gmtWrapper.GMT_MapGenerator;
 import org.opensha.exceptions.*;
+import org.opensha.mapping.gui.beans.*;
 
 /**
  * <p>Title: PagerShakeMapCalc</p>
