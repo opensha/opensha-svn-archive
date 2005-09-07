@@ -56,13 +56,20 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
      public ArbitrarilyDiscretizedFuncParameterEditor(ParameterAPI model) throws Exception {
 
         super(model);
-        this.setParameter(model);
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
 
         //this.setParameter(model);
         if(D) System.out.println(S.concat("Ending"));
 
+    }
+
+    /**
+     * Whether you want the user to be able to type in the X values
+     * @param isEnabled
+     */
+    public void setXEnabled(boolean isEnabled) {
+      this.xValsTextArea.setEnabled(isEnabled);
     }
 
     /** This is where the JTextArea is defined and configured. */
@@ -87,21 +94,17 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
 
         // text area to enter x values
         xValsTextArea = new JTextArea();
-        xValsTextArea.setBorder(ETCHED);
-        xValsTextArea.setFont(this.DEFAULT_FONT);
         JScrollPane xScrollPane = new JScrollPane(xValsTextArea);
         xScrollPane.setMinimumSize( SCROLLPANE_DIM );
         xScrollPane.setPreferredSize( SCROLLPANE_DIM );
         widgetPanel.add(xLabel, new GridBagConstraints(
         0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
         widgetPanel.add(xScrollPane, new GridBagConstraints(
-        0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 ));
+        0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
 
         // text area to enter y values
         yValsTextArea = new JTextArea();
-        yValsTextArea.setBorder(ETCHED);
-        yValsTextArea.setFont(this.DEFAULT_FONT);
         yValsTextArea.addFocusListener( this );
         JScrollPane yScrollPane = new JScrollPane(yValsTextArea);
         yScrollPane.setMinimumSize( SCROLLPANE_DIM );
@@ -109,7 +112,7 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         widgetPanel.add(yLabel, new GridBagConstraints(
         1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0), 0, 0 ));
         widgetPanel.add(yScrollPane, new GridBagConstraints(
-        1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 ));
+        1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
         widgetPanel.setBackground(null);
         widgetPanel.validate();
@@ -226,7 +229,6 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         }
         else this.nameLabel.setToolTipText( null);
 
-
         if(D) System.out.println(S.concat("Ending"));
     }
 
@@ -242,14 +244,29 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
           this.xValsTextArea.setText("");
           this.yValsTextArea.setText("");
           int num = func.getNum();
+          String xText = "";
+          String yText= "";
           for(int i=0; i<num; ++i) {
-            xValsTextArea.append(func.getX(i)  + "\n");
-            yValsTextArea.append(func.getY(i) + "\n");
+            xText += func.getX(i)  + "\n";
+            yText += func.getY(i)  + "\n";
           }
+          xValsTextArea.setText(xText);
+          yValsTextArea.setText(yText);
         }
         else {
           xValsTextArea.setText("");
           yValsTextArea.setText("");
         }
+        this.repaint();
     }
+
+    /**
+    * It enables/disables the editor according to whether user is allowed to
+    * fill in the values.
+    */
+   public void setEnabled(boolean isEnabled) {
+     this.xValsTextArea.setEnabled(isEnabled);
+     this.yValsTextArea.setEnabled(isEnabled);
+   }
+
 }

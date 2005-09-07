@@ -186,7 +186,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       editor.setTitle(EDITOR_TITLE);
 
       xTextArea = new JTextArea();
-      xTextArea.setEditable(false);
+      xTextArea.setEnabled(false);
       xScrollPane = new JScrollPane(xTextArea);
       xScrollPane.setMinimumSize( SCROLLPANE_DIM );
       xScrollPane.setPreferredSize( SCROLLPANE_DIM );
@@ -219,11 +219,15 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       double max = ((Double)maxParam.getValue()).doubleValue();
       int num = ((Integer)numParam.getValue()).intValue();
       function.set(min, max, num);
-      String str = "";
-      for(int i=0; i<num; ++i) str=str+function.getX(i)+"\n";
-      this.xTextArea.setEditable(true);
-      xTextArea.setText(str);
-      this.xTextArea.setEditable(false);
+      String xStr = "";
+      String yStr = "";
+      for(int i=0; i<num; ++i) {
+        function.set(i,0.0);
+        xStr = xStr + function.getX(i) + "\n";
+        yStr = yStr +  "0.0 \n";
+      }
+      xTextArea.setText(xStr);
+      yTextArea.setText(yStr);
     }
 
 
@@ -298,5 +302,6 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       editor.refreshParamEditor();
       this.repaint();
     }
+
 
   }

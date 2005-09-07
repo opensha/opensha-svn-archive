@@ -1,6 +1,6 @@
 package org.opensha.param.estimate;
 import org.opensha.data.estimate.*;
-import org.opensha.data.estimate.date.*;
+import org.opensha.data.estimate.*;
 import org.opensha.exceptions.EditableException;
 import java.util.ArrayList;
 import org.opensha.param.*;
