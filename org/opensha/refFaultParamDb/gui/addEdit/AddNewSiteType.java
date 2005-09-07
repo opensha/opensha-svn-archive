@@ -36,12 +36,13 @@ public class AddNewSiteType extends JFrame {
       ex.printStackTrace();
     }
     // add string parameter editor so that user can type in site type name
-    contentPane.add(stringParameterEditor,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+    int yPos =0;
+    contentPane.add(stringParameterEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // ok/cancel button
-    contentPane.add(okButton,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
-    contentPane.add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
+    contentPane.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();

@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import org.opensha.param.editor.ParameterListEditor;
 import java.awt.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.param.editor.ConstrainedStringListParameterEditor;
+import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 
 
 /**
@@ -20,7 +24,7 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
  * @version 1.0
  */
 
-public class AddEditSlipRate extends JPanel{
+public class AddEditSlipRate extends LabeledBoxPanel{
   // SLIP RATE
   private final static String SLIP_RATE_PARAM_NAME="Slip Rate Estimate";
   private final static String SLIP_RATE_COMMENTS_PARAM_NAME="Slip Rate Comments";
@@ -34,32 +38,31 @@ public class AddEditSlipRate extends JPanel{
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
 
+  // parameters
   private StringListParameter slipRateReferencesParam;
- private EstimateParameter slipRateEstimateParam;
- private EstimateParameter aSeismicSlipFactorParam;
- private StringParameter slipRateCommentsParam;
+  private EstimateParameter slipRateEstimateParam;
+  private EstimateParameter aSeismicSlipFactorParam;
+  private StringParameter slipRateCommentsParam;
 
- // parameter List editor
- private ParameterListEditor slipRateParameterListEditor;
+  // parameter editors
+  private ConstrainedStringListParameterEditor slipRateReferencesParamEditor;
+  private ConstrainedEstimateParameterEditor slipRateEstimateParamEditor;
+  private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
+  private CommentsParameterEditor slipRateCommentsParamEditor;
 
 
 // various buttons in this window
- private JButton addNewReferenceButton = new JButton("Add Reference");
- private JButton okButton = new JButton("OK");
- private JButton cancelButton = new JButton("Cancel");
+  private JButton addNewReferenceButton = new JButton("Add Reference");
+  private JButton okButton = new JButton("OK");
+  private JButton cancelButton = new JButton("Cancel");
 
- private final static String SLIP_RATE_PARAMS_TITLE = "Slip Rate Params";
+  private final static String SLIP_RATE_PARAMS_TITLE = "Slip Rate Params";
 
 
   public AddEditSlipRate() {
     try {
-      this.addSlipRateInfoParameters();
       this.setLayout(GUI_Utils.gridBagLayout);
-      this.add(slipRateParameterListEditor,
-               new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                      , GridBagConstraints.CENTER,
-                                      GridBagConstraints.BOTH,
-                                      new Insets(0, 0, 0, 0), 0, 0));
+      this.addSlipRateInfoParameters();
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -74,24 +77,42 @@ public class AddEditSlipRate extends JPanel{
    ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
    this.slipRateEstimateParam = new EstimateParameter(this.SLIP_RATE_PARAM_NAME,
         SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
-   // slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam);
+    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true, true);
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
-    //aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam);
+    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, true);
     // references
     ArrayList availableReferences = getAvailableReferences();
     this.slipRateReferencesParam = new StringListParameter(this.SLIP_RATE_REFERENCES_PARAM_NAME, availableReferences);
-    //slipRateReferencesParamEditor = new ConstrainedStringListParameterEditor(slipRateReferencesParam);
+    slipRateReferencesParamEditor = new ConstrainedStringListParameterEditor(slipRateReferencesParam);
 
     slipRateCommentsParam = new StringParameter(this.SLIP_RATE_COMMENTS_PARAM_NAME);
-    //slipRateCommentsParamEditor = new StringParameterEditor(slipRateCommentsParam);
-    ParameterList paramList = new ParameterList();
-    paramList.addParameter(slipRateEstimateParam);
-    paramList.addParameter(aSeismicSlipFactorParam);
-    paramList.addParameter(slipRateCommentsParam);
-    paramList.addParameter(slipRateReferencesParam);
-    slipRateParameterListEditor = new ParameterListEditor(paramList);
-    slipRateParameterListEditor.setTitle(this.SLIP_RATE_PARAMS_TITLE);
+    slipRateCommentsParamEditor = new CommentsParameterEditor(slipRateCommentsParam);
+
+    int yPos=0;
+    this.add(slipRateEstimateParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+    this.add(aSeismicSlipFactorParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
+    this.add(slipRateReferencesParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
+    this.add(slipRateCommentsParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+    setTitle(this.SLIP_RATE_PARAMS_TITLE);
    }
 
    /**

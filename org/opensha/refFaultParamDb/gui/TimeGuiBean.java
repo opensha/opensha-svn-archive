@@ -38,9 +38,9 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
   private StringParameter eraParam;
 
   // editors
-  ConstrainedStringParameterEditor yearUnitsParamEditor;
-  IntegerParameterEditor zeroYearParamEditor;
-  ConstrainedStringParameterEditor eraParamEditor;
+  private ConstrainedStringParameterEditor yearUnitsParamEditor;
+  private IntegerParameterEditor zeroYearParamEditor;
+  private ConstrainedStringParameterEditor eraParamEditor;
 
   private final static String TIME_OPTIONS_PARAM_NAME = "Type of Time";
   private final static String ESTIMATE = "Estimate";

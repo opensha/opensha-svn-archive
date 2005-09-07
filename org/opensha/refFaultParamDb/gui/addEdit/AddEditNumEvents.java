@@ -26,7 +26,6 @@ public class AddEditNumEvents extends JPanel {
 
   private StringListParameter numEventsReferencesParam;
   private EstimateParameter numEventsParam;
-  private StringParameter numEventsCommentsParam;
 
   // parameter List editor
   private ParameterListEditor numEventsParameterListEditor;
