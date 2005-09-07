@@ -16,6 +16,8 @@ import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: </p>
@@ -26,7 +28,7 @@ import org.opensha.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
  * @version 1.0
  */
 
-public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChangeListener {
+public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChangeListener,ActionListener {
   // Number of events parameter
   private final static String NUM_EVENTS_PARAM_NAME="Number of Events";
   private final static String MIN_EVENTS_PARAM_NAME="Min Events";
@@ -67,10 +69,20 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
        this.setLayout(GUI_Utils.gridBagLayout);
        addNumEventsParameters();
        updateNumEventsList();
+       addNewReferenceButton.addActionListener(this);
     }catch(Exception e) {
       e.printStackTrace();
     }
   }
+
+  /**
+  * When user chooses to add a new reference
+  * @param event
+  */
+ public void actionPerformed(ActionEvent event) {
+   if(event.getSource() == addNewReferenceButton) new AddNewReference();
+ }
+
 
   /**
   * Add the input parameters if user provides the events

@@ -11,6 +11,8 @@ import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.editor.ConstrainedStringListParameterEditor;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.gui.LabeledBoxPanel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: AddEditCumDisplacement.java </p>
@@ -23,7 +25,7 @@ import org.opensha.gui.LabeledBoxPanel;
  * @version 1.0
  */
 
-public class AddEditCumDisplacement extends LabeledBoxPanel {
+public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionListener{
   // ASEISMICE SLIP FACTOR
   private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
@@ -61,10 +63,20 @@ public class AddEditCumDisplacement extends LabeledBoxPanel {
    try {
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
+     addNewReferenceButton.addActionListener(this);
    }catch(Exception e) {
      e.printStackTrace();
    }
   }
+
+  /**
+  * When user chooses to add a new reference
+  * @param event
+  */
+ public void actionPerformed(ActionEvent event) {
+   if(event.getSource() == addNewReferenceButton) new AddNewReference();
+ }
+
 
   /**
    * Add the input parameters if user provides the cumulative displacement

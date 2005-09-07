@@ -57,6 +57,7 @@ public class AddNewReference extends JFrame {
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
+    setSize(200,200);
     this.show();
   }
 

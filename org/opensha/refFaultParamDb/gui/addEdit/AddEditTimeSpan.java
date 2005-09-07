@@ -10,6 +10,8 @@ import javax.swing.*;
 import org.opensha.param.StringParameter;
 import org.opensha.param.StringListParameter;
 import org.opensha.param.editor.ConstrainedStringListParameterEditor;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: AddNewTimeSpan</p>
@@ -18,7 +20,7 @@ import org.opensha.param.editor.ConstrainedStringListParameterEditor;
  * @version 1.0
  */
 
-public class AddEditTimeSpan extends JPanel {
+public class AddEditTimeSpan extends JPanel implements ActionListener {
   // start time estimate param
   private final static String START_TIME_PARAM_NAME="Start Time";
   // end time estimate param
@@ -54,12 +56,22 @@ public class AddEditTimeSpan extends JPanel {
     try {
       jbInit();
       addTimeEstimateParametersAndEditors();
+      addNewReferenceButton.addActionListener(this);
     }
     catch (Exception ex) {
       ex.printStackTrace();
     }
     this.setVisible(true);
   }
+
+  /**
+  * When user chooses to add a new reference
+  * @param event
+  */
+ public void actionPerformed(ActionEvent event) {
+   if(event.getSource() == addNewReferenceButton) new AddNewReference();
+ }
+
 
   /**
   * Add the start and end time estimate parameters
