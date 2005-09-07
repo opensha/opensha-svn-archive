@@ -111,7 +111,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
  // for X and Y vlaues for Discrete Value estimate and Min/Max/Preferred Estimate
    private ArbitrarilyDiscretizedFuncParameter arbitrarilyDiscFuncParam;
-   private final static String XY_PARAM_NAME = "XY Values";
+   private final static String XY_PARAM_NAME = "Values";
 
    private EvenlyDiscretizedFuncParameter evenlyDiscFuncParam;
    private final static String PDF_PARAM_NAME = "PDF Vals";
@@ -287,8 +287,15 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     stdDevParam = new DoubleParameter(STD_DEV_PARAM_NAME, DEFAULT_STD_DEV_PARAM_VAL);
     linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME, DEFAULT_LINEAR_MEDIAN_PARAM_VAL);
 
-    arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, new ArbitrarilyDiscretizedFunc());
-    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, new EvenlyDiscretizedFunc(1.0,4.0,7));
+    ArbitrarilyDiscretizedFunc arbitraryDiscretizedFunc = new ArbitrarilyDiscretizedFunc();
+    arbitraryDiscretizedFunc.setXAxisName("Exact Value");
+    arbitraryDiscretizedFunc.setYAxisName("Probability");
+    arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, arbitraryDiscretizedFunc);
+
+    EvenlyDiscretizedFunc evenlyDiscretizedFunc = new EvenlyDiscretizedFunc(1.0,4.0,7);
+    evenlyDiscretizedFunc.setXAxisName("Value");
+    evenlyDiscretizedFunc.setYAxisName("Probability");
+    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, evenlyDiscretizedFunc);
     // list of available estimates
     estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
     ArrayList allowedEstimatesList = estimateConstraint.getAllowedEstimateList();

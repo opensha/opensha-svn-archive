@@ -126,7 +126,7 @@ public void actionPerformed(ActionEvent event) {
       GridBagConstraints.BOTH,
       new Insets(0, 0, 0, 0), 0, 0));
   frame.pack();
-  frame.setSize(500,500);
+  frame.setSize(600,600);
   frame.show();
 }
 

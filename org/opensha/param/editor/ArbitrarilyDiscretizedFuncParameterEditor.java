@@ -14,6 +14,7 @@ import javax.swing.SwingConstants;
 import java.awt.GridBagConstraints;
 import java.awt.Dimension;
 import java.awt.Insets;
+import javax.swing.JLabel;
 
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFuncParameterEditor<p>
@@ -31,14 +32,19 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
     protected final static String C = "DiscretizedFuncParameterEditor";
     /** If true print out debug statements. */
     protected final static boolean D = false;
-    private final static String  ONE_XY_VAL_MSG = "Each line should have just one X and " +
-                                          "one Y value, which are space seperated";
-     private final static String XY_VALID_MSG = "X and Y Values entered must be valid numbers" ;
-     protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 230 );
-     protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
-            0, 0, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 );
-     protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
-            0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
+    private final static String  ONE_XY_VAL_MSG = "Each line should have exactly one X and " +
+        "one Y value";
+    private final static String XY_VALID_MSG = "X and Y Values entered must be valid numbers" ;
+    protected final static Dimension WIGET_PANEL_DIM = new Dimension( 140, 230 );
+    protected final static Dimension SCROLLPANE_DIM = new Dimension( 70, 215 );
+    protected final static GridBagConstraints WIDGET_GBC = new GridBagConstraints(
+      0, 0, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 );
+    protected final static GridBagConstraints WIDGET_PANEL_GBC = new GridBagConstraints(
+      0, 1, 1, 1, 1.0, 0.0, 10, GridBagConstraints.BOTH, ZERO_INSETS, 0, 0 );
+
+
+    private JTextArea xValsTextArea;
+    private JTextArea yValsTextArea;
 
     /** No-Arg constructor calls parent constructor */
     public ArbitrarilyDiscretizedFuncParameterEditor() { super(); }
@@ -50,12 +56,9 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
      public ArbitrarilyDiscretizedFuncParameterEditor(ParameterAPI model) throws Exception {
 
         super(model);
-
+        this.setParameter(model);
         String S = C + ": Constructor(model): ";
         if(D) System.out.println(S + "Starting");
-
-        if ( (model != null ) && !(model instanceof ArbitrarilyDiscretizedFuncParameter))
-            throw new Exception( S + "Input model parameter must be a DiscretizedFuncParameter.");
 
         //this.setParameter(model);
         if(D) System.out.println(S.concat("Ending"));
@@ -68,17 +71,46 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         String S = C + ": addWidget(): ";
         if(D) System.out.println(S + "Starting");
 
-        valueEditor = new JTextArea();
+        String xLabelText = "";
+        String yLabelText = "";
 
-        valueEditor.setBorder(ETCHED);
-        valueEditor.setFont(this.DEFAULT_FONT);
+        // set the value in ArbitrarilyDiscretizedFunc
+        ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)model.getValue();
+        if(function!=null) {
+          if(function.getXAxisName()!=null) xLabelText = function.getXAxisName();
+          if(function.getYAxisName()!=null) yLabelText = function.getYAxisName();
+        }
 
-        valueEditor.addFocusListener( this );
-        JScrollPane scrollPane = new JScrollPane(valueEditor);
-        scrollPane.setMinimumSize( WIGET_PANEL_DIM );
-        scrollPane.setPreferredSize( WIGET_PANEL_DIM );
+        // labels to be displayed on header of text area
+        JLabel xLabel = new JLabel(xLabelText);
+        JLabel yLabel = new JLabel(yLabelText);
 
-        widgetPanel.add(scrollPane, ParameterEditor.WIDGET_GBC);
+        // text area to enter x values
+        xValsTextArea = new JTextArea();
+        xValsTextArea.setBorder(ETCHED);
+        xValsTextArea.setFont(this.DEFAULT_FONT);
+        JScrollPane xScrollPane = new JScrollPane(xValsTextArea);
+        xScrollPane.setMinimumSize( SCROLLPANE_DIM );
+        xScrollPane.setPreferredSize( SCROLLPANE_DIM );
+        widgetPanel.add(xLabel, new GridBagConstraints(
+        0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+        widgetPanel.add(xScrollPane, new GridBagConstraints(
+        0, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 ));
+
+
+        // text area to enter y values
+        yValsTextArea = new JTextArea();
+        yValsTextArea.setBorder(ETCHED);
+        yValsTextArea.setFont(this.DEFAULT_FONT);
+        yValsTextArea.addFocusListener( this );
+        JScrollPane yScrollPane = new JScrollPane(yValsTextArea);
+        yScrollPane.setMinimumSize( SCROLLPANE_DIM );
+        yScrollPane.setPreferredSize( SCROLLPANE_DIM );
+        widgetPanel.add(yLabel, new GridBagConstraints(
+        1, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0), 0, 0 ));
+        widgetPanel.add(yScrollPane, new GridBagConstraints(
+        1, 1, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 1, 5, 0, 1 ), 0, 0 ));
+
         widgetPanel.setBackground(null);
         widgetPanel.validate();
         widgetPanel.repaint();
@@ -147,33 +179,33 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         if( keyTypeProcessing == true ) return;
         focusLostProcessing = true;
 
-        String str = ((JTextArea) valueEditor).getText();
+        String xValsStr = this.xValsTextArea.getText();
+        String yValsStr = this.yValsTextArea.getText();
 
         // set the value in ArbitrarilyDiscretizedFunc
         ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)model.getValue();
         function.clear();
-        StringTokenizer st = new StringTokenizer(str,"\n");
-        while(st.hasMoreTokens()){
-          StringTokenizer st1 = new StringTokenizer(st.nextToken());
-          int numVals = st1.countTokens();
-          if(numVals !=2) {
-            JOptionPane.showMessageDialog(this, this.ONE_XY_VAL_MSG);
-            return;
-          }
+        StringTokenizer xStringTokenizer = new StringTokenizer(xValsStr,"\n");
+        StringTokenizer yStringTokenizer = new StringTokenizer(yValsStr,"\n");
+
+
+        while(xStringTokenizer.hasMoreTokens()){
           double tempX_Val=0;
           double tempY_Val=0;
           try{
-            tempX_Val = Double.parseDouble(st1.nextToken());
-            tempY_Val = Double.parseDouble(st1.nextToken());
-          }catch(NumberFormatException ex){
+            tempX_Val = Double.parseDouble(xStringTokenizer.nextToken());
+            tempY_Val = Double.parseDouble(yStringTokenizer.nextToken());
+          }catch(Exception ex){
             JOptionPane.showMessageDialog(this, XY_VALID_MSG);
             return;
           }
           function.set(tempX_Val,tempY_Val);
         }
+
+        if(yStringTokenizer.hasMoreTokens()) {
+          JOptionPane.showMessageDialog(this, ONE_XY_VAL_MSG);
+        }
         refreshParamEditor();
-        valueEditor.validate();
-        valueEditor.repaint();
         focusLostProcessing = false;
         if(D) System.out.println(S + "Ending");
       }
@@ -182,9 +214,11 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
     public void setParameter(ParameterAPI model) {
         String S = C + ": setParameter(): ";
         if(D) System.out.println(S.concat("Starting"));
-
+        if ( (model != null ) && !(model instanceof ArbitrarilyDiscretizedFuncParameter))
+            throw new RuntimeException( S + "Input model parameter must be a DiscretizedFuncParameter.");
         super.setParameter(model);
-        ((JTextArea) valueEditor).setToolTipText("No Constraints");
+        xValsTextArea.setToolTipText("No Constraints");
+        yValsTextArea.setToolTipText("No Constraints");
 
         String info = model.getInfo();
         if( (info != null ) && !( info.equals("") ) ){
@@ -205,11 +239,17 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
     public void refreshParamEditor(){
         ArbitrarilyDiscretizedFunc func = (ArbitrarilyDiscretizedFunc)model.getValue();
         if ( func != null ) { // show X, Y values from the function
-          JTextArea textArea = (JTextArea) valueEditor;
-          textArea.setText("");
+          this.xValsTextArea.setText("");
+          this.yValsTextArea.setText("");
           int num = func.getNum();
-          for(int i=0; i<num; ++i) textArea.append(func.getX(i)+"\t"+func.getY(i)+"\n");
+          for(int i=0; i<num; ++i) {
+            xValsTextArea.append(func.getX(i)  + "\n");
+            yValsTextArea.append(func.getY(i) + "\n");
+          }
         }
-        else ((JTextArea) valueEditor).setText( "" );
+        else {
+          xValsTextArea.setText("");
+          yValsTextArea.setText("");
+        }
     }
 }

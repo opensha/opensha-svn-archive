@@ -15,6 +15,7 @@ import javax.swing.SwingConstants;
 import java.awt.GridBagConstraints;
 import java.awt.Dimension;
 import java.awt.Insets;
+import javax.swing.JLabel;
 
 /**
  * <b>Title:</b> EvenlyDiscretizedFuncParameterEditor<p>
@@ -118,17 +119,40 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
 
       // make the params editor
       function = (EvenlyDiscretizedFunc)param.getValue();
+
+      String xLabelText = "";
+      String yLabelText = "";
+      if(function!=null) {
+        if(function.getXAxisName()!=null) xLabelText = function.getXAxisName();
+        if(function.getYAxisName()!=null) yLabelText = function.getYAxisName();
+      }
+
+      // labels to be displayed on header of text area
+      JLabel xLabel = new JLabel(xLabelText);
+      JLabel yLabel = new JLabel(yLabelText);
+
+
       initParamListAndEditor();
       this.setLayout(GBL);
       add(this.editor, new GridBagConstraints(0, 0, 2, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.BOTH,
                                               new Insets(0, 0, 0, 0), 0, 0));
-      add(this.xScrollPane, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+
+      add(xLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.NONE,
+                                              new Insets(0, 0, 0, 0), 0, 0));
+      add(yLabel, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.NONE,
+                                              new Insets(0, 0, 0, 0), 0, 0));
+
+      add(this.xScrollPane, new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.BOTH,
                                               new Insets(0, 0, 0, 0), 0, 0));
-      add(this.yScrollPane, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0
+      add(this.yScrollPane, new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.BOTH,
                                               new Insets(0, 0, 0, 0), 0, 0));
