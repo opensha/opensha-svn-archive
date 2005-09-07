@@ -31,7 +31,7 @@ import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
  * @version 1.0
  */
 
-public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI{
+public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
 
   private final static int WIDTH = 850;
   private final static int HEIGHT = 725;
@@ -43,10 +43,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI{
       "Data Specific to Time Intervals";
 
   // various parameters
-  private TimeGuiBean startTimeBean;
-  private TimeGuiBean endTimeBean;
   private ViewSiteCharacteristics viewPaleoSites;
-  private SiteInfoForTimePeriod siteInfoForTimePeriod;
   private StringParameter timeSpanParam;
   private ConstrainedStringParameterEditor timeSpanParamEditor;
 
