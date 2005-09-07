@@ -1,6 +1,6 @@
 package javaDevelopers.matt.calc;
 
-import org.opensha.sha.earthquake.STEP_AftershockHypoMagForecast;
+import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockHypoMagForecast;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
@@ -21,16 +21,16 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
  */
 public class SortAftershocks_Calc {
   private STEP_AftershockHypoMagForecast aftershockModel;  // this is the new event
-  private AftershockModelList previousMainshockModels,newEventModels;
+  //private AftershockModelList previousMainshockModels,newEventModels;
 
-  public SortAftershocks_Calc(AfterShockModelList newEventModels,
+  /*public SortAftershocks_Calc(AfterShockModelList newEventModels,
                               AfterShockModelList previousMainshockModels) {
-  }
+  }*/
 
   /**
    * selectAftershocksToPrevMainshock_Calc
    */
-  public void selectAftershocksToPrevMainshock_Calc() {
+ /* public void selectAftershocksToPrevMainshock_Calc() {
     int numNewEvents = newEventModels.getNumModels();
     int numPrevMainshocks = previousMainshockModels.getNumModels();
     STEP_AftershockHypoMagForecast msModel;
@@ -45,10 +45,8 @@ public class SortAftershocks_Calc {
     boolean isInZone;
     int msRefNum;
 
-    /** Loop through all newly recorded events and see if they are an aftershock
-     * to an previoulsy recorded mainshocks.
-     */
-
+    // Loop through all newly recorded events and see if they are an aftershock
+    // to an previoulsy recorded mainshocks.
     while (newIt.hasNext()) {
       newEventModel = newIt.next();
       newEventZone = newEventModel.getAfterShockZone();
@@ -65,7 +63,7 @@ public class SortAftershocks_Calc {
       }
     }
 
-  }
+  }*/
 
   /**
    * Now find all aftershocks to each new event.

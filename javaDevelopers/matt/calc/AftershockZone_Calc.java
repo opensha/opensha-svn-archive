@@ -5,7 +5,7 @@ import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import org.opensha.sha.earthquake.STEP_AftershockHypoMagForecast;
+import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockHypoMagForecast;
 
 /**
  * <p>Title: </p>
@@ -24,10 +24,10 @@ public class AftershockZone_Calc {
   public AftershockZone_Calc(STEP_AftershockHypoMagForecast aftershockModel,
                              ObsEqkRupList previousAftershocks,
                              ObsEqkRupList newObsEvents) {
-    calc_AftershockZone(aftershockModel, previousAftershocks, newObsEvents);
+   // calc_AftershockZone(aftershockModel, previousAftershocks, newObsEvents);
   }
 
-  public void calc_AftershockZone(STEP_AftershockHypoMagForecast aftershockModel,
+  /*public void calc_AftershockZone(STEP_AftershockHypoMagForecast aftershockModel,
                                   ObsEqkRupList previousAftershocks,
                                   ObsEqkRupList newObsEvents){
     ObsEqkRupList eventsInZoneList = new ObsEqkRupList();
@@ -53,5 +53,5 @@ public class AftershockZone_Calc {
       }
     }
     this.setAfterShocks(eventsInZoneList);
-  }
+  }*/
 }
