@@ -87,8 +87,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       viewDisplacementForTimePeriod(); // add displacement for the time period
       pack();
       setSize(WIDTH, HEIGHT);
-      setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
-                     parentComponent.getY()+parentComponent.getHeight()/2);
       show();
     }
     catch (Exception e) {
