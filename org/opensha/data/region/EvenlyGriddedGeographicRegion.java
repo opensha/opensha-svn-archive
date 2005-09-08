@@ -36,20 +36,20 @@ public class EvenlyGriddedGeographicRegion
   private final static String C = "EvenlyGriddedGeographicRegion";
   private final static boolean D = false;
 
-  private double gridSpacing;
+  protected double gridSpacing;
 
   // this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
   // is an integer and the point is within the polygon
-  private double niceMinLat;
-  private double niceMinLon;
+  protected double niceMinLat;
+  protected double niceMinLon;
 
   //this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
   // is an integer
-  private double niceMaxLat;
-  private double niceMaxLon;
+  protected double niceMaxLat;
+  protected double niceMaxLon;
 
   //list of of location in the given region
-  private LocationList gridLocsList;
+  protected LocationList gridLocsList;
 
   //This array stores the number of locations below a given latitude
   private int[] locsBelowLat;
@@ -79,7 +79,6 @@ public class EvenlyGriddedGeographicRegion
     createGeographicRegion(locList);
     setGridSpacing(gridSpacing); // this also sets the max and min grid lats and lons.
   }
-
 
 
   /*

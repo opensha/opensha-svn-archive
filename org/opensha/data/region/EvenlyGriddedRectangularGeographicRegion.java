@@ -22,26 +22,14 @@ import org.opensha.exceptions.RegionConstraintException;
 public class EvenlyGriddedRectangularGeographicRegion
     extends EvenlyGriddedGeographicRegion {
 
-  /**
-   * class variables
-   */
-  private double gridSpacing;
 
   private int numLatGridPoints;
   private int numLonGridPoints;
 
   private final static String C = "EvenlyGriddedRectangularGeographicRegion";
   private final static boolean D = false;
-  private LocationList gridLocsList;
 
-  // this makes the first lat and lon grid points nice in that niceMinLat/gridSpacing
-  // is and integer and the point is within the polygon
-  private double niceMinLat ;
-  private double niceMinLon ;
-  // this makes the last lat and lon grid points nice in that niceMaxLat/gridSpacing
-  // is and integer and the point is within the polygon.
-  private double niceMaxLat ;
-  private double niceMaxLon ;
+
 
   /**
    * class constructor

@@ -2,6 +2,9 @@ package org.opensha.data.region;
 
 import org.opensha.data.*;
 import org.opensha.calc.RelativeLocation;
+import java.io.IOException;
+import java.util.ListIterator;
+import java.io.FileWriter;
 
 /**
  * <p>Title: RectangularGeographicRegion</p>
@@ -100,7 +103,19 @@ public class CircularGeographicRegion extends GeographicRegion {
 
   public static void main(String[] args) {
     CircularGeographicRegion reg = new CircularGeographicRegion(new Location(34,-122,0),111);
-    System.out.println(reg.getNumRegionOutlineLocations());
+    try {
+      FileWriter fw = new FileWriter("CircularRegionFile1.txt");
+      ListIterator it = reg.getRegionOutlineIterator();
+      while(it.hasNext()){
+        Location loc = (Location)it.next();
+        fw.write(loc.toString()+"\n");
+      }
+      fw.close();
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+
   }
 
   // this make the locList for the region outline

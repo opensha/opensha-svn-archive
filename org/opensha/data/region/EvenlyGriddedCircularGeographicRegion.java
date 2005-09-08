@@ -34,22 +34,6 @@ public class EvenlyGriddedCircularGeographicRegion
   private final static String C = "EvenlyGriddedCircularGeographicRegion";
   private final static boolean D = false;
 
-  /**
-   * class variables
-   */
-  private double gridSpacing;
-
-  private LocationList gridLocsList;
-
-
-  // this makes the first lat and long grid points nice in that niceMinLat/gridSpacing
-  // is and integer and the point is within the polygon
-  private double niceMinLat;
-  private double niceMinLon ;
-  //this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
-  // is an integer
-  private double niceMaxLat;
-  private double niceMaxLon;
 
 
   //This array store number of locations below a given latitude
@@ -210,6 +194,8 @@ public class EvenlyGriddedCircularGeographicRegion
       double firstLocForLat = lon;
       //counts the number of lons per lat
       int lonCounter = 0;
+      //gets the first Lon for each Lat
+      boolean firstLon = true;
       while (lon <= niceMaxLon) {
         //creating the location object for the lat and lon that we got
         Location loc = new Location(lat, lon);
@@ -218,7 +204,10 @@ public class EvenlyGriddedCircularGeographicRegion
         //save it and jump to find first lon on the next lat.
         if (this.isLocationInside(loc)){
           ++lonCounter;
-          firstLocForLat = lon;
+          if(firstLon){
+            firstLocForLat = lon;
+            firstLon = false;
+          }
         }
         lon += gridSpacing;
       }

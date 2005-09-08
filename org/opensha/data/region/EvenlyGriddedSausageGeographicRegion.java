@@ -40,23 +40,6 @@ public class EvenlyGriddedSausageGeographicRegion
   private final static String C = "EvenlyGriddedSausageGeographicRegion";
   private final static boolean D = false;
 
-  /**
-   * class variables
-   */
-  protected double gridSpacing;
-
-  protected LocationList gridLocsList;
-
-
-  // this makes the first lat and long grid points nice in that niceMinLat/gridSpacing
-  // is and integer and the point is within the polygon
-  protected double niceMinLat;
-  protected double niceMinLon ;
-  //this makes the last lat and Lon grid points nice so that niceMaxLat/gridSpacing
-  // is an integer
-  protected double niceMaxLat;
-  protected double niceMaxLon;
-
 
   //This array store number of locations below a given latitude
   protected int[] locsBelowLat;
@@ -93,7 +76,7 @@ public class EvenlyGriddedSausageGeographicRegion
    * @param gridSpacing double Grid Spacing in degrees
    */
   public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
-    createEvenGriddedGeographicRegion(locList, radius,gridSpacing) ;
+    createEvenlyGriddedSausageGeographicRegion(locList,radius,gridSpacing) ;
   }
 
 
@@ -108,7 +91,7 @@ public class EvenlyGriddedSausageGeographicRegion
    * locationlist
    * @param gridSpacing double
    */
-  public void createEvenGriddedGeographicRegion(LocationList locList,
+  public void createEvenlyGriddedSausageGeographicRegion(LocationList locList,
                                                 double radius,
                                                 double gridSpacing) {
     this.locList = locList;
