@@ -325,12 +325,10 @@ public class ERF2GriddedSeisRatesCalc {
           Location ptLoc = (Location) it.next();
           int locIndex = 0;
           //if rupture location is outside the region bounds then keep continuing
-          try {
-            locIndex = region.getNearestLocationIndex(ptLoc);
-          }
-          catch (LocationOutOfRegionBoundsException ex) {
+          //it returns -1 if location onn rupture is outside the regio bounds
+          locIndex = region.getNearestLocationIndex(ptLoc);
+          if(locIndex < 0)
             continue;
-          }
           rates[locIndex] += ptRate;
         }
       }
@@ -379,12 +377,12 @@ public class ERF2GriddedSeisRatesCalc {
           Location ptLoc = (Location) it.next();
           //discard the pt location on the rupture if outside the region polygon
           int locIndex = 0;
-          try {
-            locIndex = region.getNearestLocationIndex(ptLoc);
-          }
-          catch (LocationOutOfRegionBoundsException ex) {
+
+          //returns -1 if location not in the region
+          locIndex = region.getNearestLocationIndex(ptLoc);
+          //continue if location not in the region
+          if(locIndex < 0)
             continue;
-          }
           String magString = magFormat.format(minMagnitude);
           funcs[locIndex].set(Double.parseDouble(magString), ptRate);        }
       }

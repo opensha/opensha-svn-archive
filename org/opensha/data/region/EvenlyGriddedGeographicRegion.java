@@ -6,8 +6,7 @@ import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import java.io.IOException;
 import java.io.FileWriter;
-import org.opensha.exceptions.LocationOutOfRegionBoundsException;
-import org.opensha.exceptions.InvalidRangeException;
+
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegion</p>
@@ -79,8 +78,6 @@ public class EvenlyGriddedGeographicRegion
   public void createEvenlyGriddedGriddedGeographicRegion(LocationList locList, double gridSpacing){
     createGeographicRegion(locList);
     setGridSpacing(gridSpacing); // this also sets the max and min grid lats and lons.
-
-
   }
 
 
@@ -191,7 +188,7 @@ public class EvenlyGriddedGeographicRegion
    * @param index
    * @returns the Grid Location at that index.
    */
-  public Location getGridLocationClone(int index) throws LocationOutOfRegionBoundsException{
+  public Location getGridLocationClone(int index) {
 
       //getting the size of array that maintains number of locations at each lat
       int size = locsBelowLat.length;
@@ -210,7 +207,7 @@ public class EvenlyGriddedGeographicRegion
         }
       }
 
-      if(!locationFound) throw new LocationOutOfRegionBoundsException("Not a valid index in the region");
+      if(!locationFound) return null;
       ArrayList lonList = (ArrayList)lonsPerLatList.get(latIndex);
       double lon = ((Double)lonList.get(index - locIndex)).doubleValue();
       double lat = niceMinLat+latIndex*gridSpacing;
@@ -239,8 +236,7 @@ public class EvenlyGriddedGeographicRegion
    * on which this function is called.
    */
  public Location getNearestGridLocation(int index,
-                                 EvenlyGriddedGeographicRegionAPI region) throws
-     LocationOutOfRegionBoundsException {
+                                 EvenlyGriddedGeographicRegionAPI region) {
     //gets the location in the EvenlyGriddedRectangularRegion at a given index
     Location loc = getGridLocationClone(index);
     //finding the nearest location in the EvenlyGriddedGeographicRegionAPI to the
@@ -258,8 +254,7 @@ public class EvenlyGriddedGeographicRegion
    * on which this function is called.
    */
  public int getNearestGridLocationIndex(int index,
-                                 EvenlyGriddedGeographicRegionAPI region) throws
-     LocationOutOfRegionBoundsException {
+                                 EvenlyGriddedGeographicRegionAPI region) {
     //gets the location in the EvenlyGriddedRectangularRegion at a given index
     Location loc = getGridLocationClone(index);
     //finding the nearest location index in the EvenlyGriddedGeographicRegionAPI to the
@@ -275,15 +270,12 @@ public class EvenlyGriddedGeographicRegion
    * @param index int
    * @return Location
    */
-  public Location getGridLocation(int index) throws LocationOutOfRegionBoundsException{
+  public Location getGridLocation(int index) {
+    if(index < 0 || index > (locList.size() -1))
+      return null;
     LocationList locList = getGridLocationsList();
-    try{
-      Location loc = locList.getLocationAt(index);
-      return loc;
-    }catch(InvalidRangeException e){
-      throw new LocationOutOfRegionBoundsException(e.getMessage());
-    }
-
+    Location loc = locList.getLocationAt(index);
+    return loc;
   }
 
   /**
@@ -293,10 +285,12 @@ public class EvenlyGriddedGeographicRegion
    * @param index int
    * @return Location
    */
-  public Location getNearestLocation(Location loc) throws LocationOutOfRegionBoundsException{
+  public Location getNearestLocation(Location loc){
     LocationList locList = getGridLocationsList();
     int index = 0;
     index = getNearestLocationIndex(loc);
+    if(index < 0)
+      return null;
     return locList.getLocationAt(index);
   }
 
@@ -305,7 +299,7 @@ public class EvenlyGriddedGeographicRegion
    * @param loc Location Location to which we have to find the nearest location.
    * @return Location Nearest Location
    */
-  public Location getNearestLocationClone(Location loc) throws LocationOutOfRegionBoundsException{
+  public Location getNearestLocationClone(Location loc){
     //Getting the nearest Location to the rupture point location
 
 
@@ -318,8 +312,7 @@ public class EvenlyGriddedGeographicRegion
 
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new LocationOutOfRegionBoundsException(
-          "Location outside the given Gridded Region bounds");
+      return null;
     else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
       if (lat < niceMinLat)
@@ -332,7 +325,6 @@ public class EvenlyGriddedGeographicRegion
         lon = niceMaxLon;
     }
 
-
     return new Location(lat, lon);
   }
 
@@ -342,14 +334,14 @@ public class EvenlyGriddedGeographicRegion
    * @param loc Location Location to which we have to find the nearest location.
    * @return int
    */
-  public int getNearestLocationIndex(Location loc) throws LocationOutOfRegionBoundsException{
+  public int getNearestLocationIndex(Location loc) {
 
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
 
     //throw exception if location is outside the region lat bounds.
-    if (!this.isLocationInside(loc))
-      throw new LocationOutOfRegionBoundsException("Location outside the given Gridded Region bounds");
+    if (!isLocationInside(loc))
+      return -1;
     else{ //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
       if (lat < niceMinLat)

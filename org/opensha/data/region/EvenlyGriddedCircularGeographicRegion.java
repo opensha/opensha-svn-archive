@@ -4,11 +4,8 @@ import java.util.ListIterator;
 
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
-import org.opensha.exceptions.RegionConstraintException;
 import java.io.IOException;
 import java.io.FileWriter;
-import org.opensha.exceptions.InvalidRangeException;
-import org.opensha.exceptions.LocationOutOfRegionBoundsException;
 import org.opensha.data.Direction;
 import org.opensha.calc.RelativeLocation;
 
@@ -243,15 +240,14 @@ public class EvenlyGriddedCircularGeographicRegion
    * @param loc Location Location to which we have to find the nearest location.
    * @return int
    */
-  public int getNearestLocationIndex(Location loc) throws LocationOutOfRegionBoundsException{
+  public int getNearestLocationIndex(Location loc){
 
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
 
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new LocationOutOfRegionBoundsException(
-          "Location outside the given Gridded Region bounds");
+      return -1;
     else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
       if (lat < niceMinLat)
@@ -297,7 +293,7 @@ public class EvenlyGriddedCircularGeographicRegion
    * @param index
    * @returns the Grid Location at that index.
    */
-  public Location getGridLocationClone(int index)  throws LocationOutOfRegionBoundsException{
+  public Location getGridLocationClone(int index)  {
 
       int size = locsBelowLat.length;
       int locIndex = 0;
@@ -315,8 +311,7 @@ public class EvenlyGriddedCircularGeographicRegion
         }
       }
 
-      if (!locationFound)throw new LocationOutOfRegionBoundsException(
-          "Not a valid index in the region");
+      if (!locationFound) return null;
       double firstLonForLat = firstLonPerLat[latIndex];
       //this defines the position whichlocation has to be retrieved for the lat
       int lonIndex = index - locIndex;

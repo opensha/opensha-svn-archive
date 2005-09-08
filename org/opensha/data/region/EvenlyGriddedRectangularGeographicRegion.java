@@ -6,13 +6,12 @@ import java.util.ListIterator;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import org.opensha.exceptions.RegionConstraintException;
-import org.opensha.exceptions.LocationOutOfRegionBoundsException;
-import org.opensha.exceptions.InvalidRangeException;
+
 
 /**
  * <p>Title: EvenlyGriddedRectangularGrographicRegion</p>
  * <p>Description: This creates a evenly gridded rectangular geographic region.
- * All grid points are nice values in that lat/gridSpacing and lon/gridASpacing
+ * All grid points are nice values in that lat/gridSpacing and lon/gridSpacing
  * are always whole numbers.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
@@ -152,8 +151,7 @@ public class EvenlyGriddedRectangularGeographicRegion
    * @param index (starts from zero)
    * @returns a clone of the Grid Location at that index.
    */
-  public Location getGridLocationClone(int index) throws
-      LocationOutOfRegionBoundsException {
+  public Location getGridLocationClone(int index)  {
 
     //gets the row for the latitude in which that index of grid exists
     int row=index/numLonGridPoints;
@@ -162,7 +160,8 @@ public class EvenlyGriddedRectangularGeographicRegion
     //gets the column in the row (longitude point) where that index exists
     int col=index%numLonGridPoints;
     if(row > numLatGridPoints-1 || col > numLonGridPoints-1)
-      throw new LocationOutOfRegionBoundsException("Not a valid index in the region");
+      return null;
+
     //lat and lon for that indexed point
     double newLat=niceMinLat+row*gridSpacing;
     double newLon=niceMinLon+col*gridSpacing;
@@ -181,16 +180,14 @@ public class EvenlyGriddedRectangularGeographicRegion
    * @return int index of the nearest location. User can use this index to
    * retrive the location from the locationlist.
    */
-  public int getNearestLocationIndex(Location loc) throws
-      LocationOutOfRegionBoundsException {
+  public int getNearestLocationIndex(Location loc){
     //getting the Location lat and Lon
 
     double lat = loc.getLatitude();
     double lon = loc.getLongitude();
     //throw exception if location is outside the region lat bounds.
     if (!this.isLocationInside(loc))
-      throw new LocationOutOfRegionBoundsException(
-          "Location outside the given Gridded Region bounds");
+      return -1;
     else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
       //constraints then assign it to the nice min/max lat/lon.
       if (lat < niceMinLat)
