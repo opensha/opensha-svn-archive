@@ -56,6 +56,7 @@ public class AddNewSiteType extends JFrame {
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
+    this.setLocationRelativeTo(null);
     this.show();
   }
 

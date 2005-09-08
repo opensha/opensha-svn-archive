@@ -45,6 +45,7 @@ public class AddSiteInfo extends JFrame {
     jbInit();
     this.setSize(W,H);
     setTitle(TITLE);
+    this.setLocationRelativeTo(null);
     show();
   }
 

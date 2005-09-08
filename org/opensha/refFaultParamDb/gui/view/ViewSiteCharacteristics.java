@@ -316,6 +316,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    this.makeFaultNamesList();
    this.makeSiteLocationList();
    siteNamesList = new ArrayList();
+   siteNamesList.add(TEST_SITE);
    siteNamesList.add("	Airport Creek	");
    siteNamesList.add("	Alabama Gates	");
    siteNamesList.add("	Alder Creek	");
@@ -523,7 +524,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    siteNamesList.add("	Winter Mesa	");
    siteNamesList.add("	Wrightwood	");
    siteNamesList.add("	Yorba Linda	");
-   siteNamesList.add(TEST_SITE);
    siteNamesList.add(ADD_SITE);
    return siteNamesList;
  }
@@ -531,6 +531,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
 
  private void makeFaultNamesList() {
    faultNamesList = new ArrayList();
+   faultNamesList.add("Test Fault 1");
    faultNamesList.add("	San Simeon 		");
    faultNamesList.add("	Owens Valley  		");
    faultNamesList.add("	San Andreas  		");
@@ -738,11 +739,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    faultNamesList.add("	Malibu Coast  		");
    faultNamesList.add("	San Andreas  		");
    faultNamesList.add("	Elsinore  		");
-   faultNamesList.add("Test Fault 1");
  }
 
  private void makeSiteLocationList() {
    siteLocationsList = new ArrayList();
+   siteLocationsList.add(new Location(0.0,0.0));
    siteLocationsList.add(new Location(35.6509, -121.204));
    siteLocationsList.add(new Location(36.6653, -118.093));
    siteLocationsList.add(new Location(38.998, -123.688));
@@ -950,7 +951,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    siteLocationsList.add(new Location(34.0337, -118.698));
    siteLocationsList.add(new Location(34.3701, -117.667));
    siteLocationsList.add(new Location(33.8815, -117.713));
-   siteLocationsList.add(new Location(0.0,0.0));
+
 
  }
 }

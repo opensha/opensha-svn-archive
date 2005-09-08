@@ -58,6 +58,7 @@ public class AddNewReference extends JFrame {
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
     setSize(200,200);
+    this.setLocationRelativeTo(null);
     this.show();
   }
 

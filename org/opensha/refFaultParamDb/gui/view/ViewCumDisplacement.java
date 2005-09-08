@@ -64,6 +64,7 @@ public class ViewCumDisplacement extends LabeledBoxPanel implements ActionListen
        new Insets(0, 0, 0, 0), 0, 0));
    frame.pack();
    frame.setSize(300,750);
+   frame.setLocationRelativeTo(null);
    frame.show();
  }
 

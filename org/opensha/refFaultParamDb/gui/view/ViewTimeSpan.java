@@ -127,6 +127,7 @@ public void actionPerformed(ActionEvent event) {
       new Insets(0, 0, 0, 0), 0, 0));
   frame.pack();
   frame.setSize(600,600);
+  frame.setLocationRelativeTo(null);
   frame.show();
 }
 

@@ -87,6 +87,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       viewDisplacementForTimePeriod(); // add displacement for the time period
       pack();
       setSize(WIDTH, HEIGHT);
+      this.setLocationRelativeTo(null);
       show();
     }
     catch (Exception e) {
@@ -269,7 +270,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       ArrayList references = new ArrayList();
       references.add("Ref 4");
       references.add("Ref 1");
-      // timeSpan panel which will conatin start time and end time
+      // timeSpan panel which will contain start time and end time
       this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references);
     }
     else {
