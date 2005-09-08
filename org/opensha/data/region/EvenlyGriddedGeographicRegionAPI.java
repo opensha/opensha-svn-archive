@@ -129,29 +129,29 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
   public void clearRegionLocations();
 
   /**
-   * This gets the location at the given index corresponding to the location in the
+   * This gets the nearest location at the given index corresponding to the location in the
    * given EvenlyGriddedGeographicRegionAPI region.
    * @param index int index of the called EvenlyGriddedGeographicRegionAPI
    * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
    * location in this region.
-   * @return Location Returns the location in the region for the index in the Region
+   * @return Location Returns the nearest location in the region for the index in the Region
    * on which this function is called.
    */
-  public Location getGridLocation(int index,
+  public Location getNearestGridLocation(int index,
                                   EvenlyGriddedGeographicRegionAPI region) throws
       LocationOutOfRegionBoundsException;
 
   /**
-   * This gets the index of the location at the given index
+   * This gets the index of the nearest location at the given index
    * corresponding to the location in the given EvenlyGriddedGeographicRegionAPI region.
    * @param index int index of the called EvenlyGriddedGeographicRegionAPI
    * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
    * location in this region.
-   * @return int  Returns the location index in the region for the index in the Region
+   * @return int  Returns the nearest location index in the region for the index in the Region
    * on which this function is called.
    */
 
-  public int getGridLocationIndex(int index,
+  public int getNearestGridLocationIndex(int index,
                                   EvenlyGriddedGeographicRegionAPI region) throws
       LocationOutOfRegionBoundsException;
 

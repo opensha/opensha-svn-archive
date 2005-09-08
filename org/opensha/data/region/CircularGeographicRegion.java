@@ -67,6 +67,21 @@ public class CircularGeographicRegion extends GeographicRegion {
   }
 
 
+  /**
+   * Returns the CircularGeographicRegion radius
+   * @return double
+   */
+  public double getCircularRegionRadius(){
+    return circleRadius;
+  }
+
+  /**
+   * Returns the center location CircularRegionCenterLocation
+   * @return Location Center Location
+   */
+  public Location getCircularRegionCenterLocation(){
+    return circleCenterLocation;
+  }
 
   /**
    * This method checks whether the given location is within the region by seeing whether

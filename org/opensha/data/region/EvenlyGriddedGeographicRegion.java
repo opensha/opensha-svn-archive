@@ -59,16 +59,31 @@ public class EvenlyGriddedGeographicRegion
   private ArrayList lonsPerLatList;
 
   /**
+   * Class default constructor
+   */
+  public EvenlyGriddedGeographicRegion(){}
+
+  /**
    * default class constructor
    */
   public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing) {
-    super(locList);
+    createEvenlyGriddedGriddedGeographicRegion(locList,gridSpacing);
+  }
+
+
+  /**
+   * Creates a EvenlyGriddedGeographicRegion with the given locationlist and gridSpacing.
+   * @param locList LocationList creates the region  boundary using this location list.
+   * @param gridSpacing double
+   */
+  public void createEvenlyGriddedGriddedGeographicRegion(LocationList locList, double gridSpacing){
+    createGeographicRegion(locList);
     setGridSpacing(gridSpacing); // this also sets the max and min grid lats and lons.
 
-    //this function creates a Lon Array for each gridLat. It also creates a
-    //int array which tells how many locations are there below a given lat
-    initLatLonArray();
+
   }
+
+
 
   /*
    * this function creates a Lon Array for each gridLat. It also creates a
@@ -123,6 +138,9 @@ public class EvenlyGriddedGeographicRegion
     niceMinLon = Math.ceil(minLon / gridSpacing) * gridSpacing;
     niceMaxLat = Math.floor(maxLat / gridSpacing) * gridSpacing;
     niceMaxLon = Math.floor(maxLon / gridSpacing) * gridSpacing;
+    //this function creates a Lon Array for each gridLat. It also creates a
+    //int array which tells how many locations are there below a given lat
+    initLatLonArray();
   }
 
   /**
@@ -212,17 +230,17 @@ public class EvenlyGriddedGeographicRegion
 
 
   /**
-   * This gets the location at the given index corresponding to the location in the
+   * This gets the nearest location at the given index corresponding to the location in the
    * given EvenlyGriddedGeographicRegionAPI region.
    * @param index int index of the called EvenlyGriddedGeographicRegionAPI
    * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
    * location in this region.
-   * @return Location Returns the location in the region for the index in the Region
+   * @return Location Returns the nearest location in the region for the index in the Region
    * on which this function is called.
    */
-  public Location getGridLocation(int index,
-                                  EvenlyGriddedGeographicRegionAPI region) throws
-      LocationOutOfRegionBoundsException {
+ public Location getNearestGridLocation(int index,
+                                 EvenlyGriddedGeographicRegionAPI region) throws
+     LocationOutOfRegionBoundsException {
     //gets the location in the EvenlyGriddedRectangularRegion at a given index
     Location loc = getGridLocationClone(index);
     //finding the nearest location in the EvenlyGriddedGeographicRegionAPI to the
@@ -231,17 +249,17 @@ public class EvenlyGriddedGeographicRegion
   }
 
   /**
-   * This gets the index of the location at the given index
+   * This gets the index of the nearest location at the given index
    * corresponding to the location in the given EvenlyGriddedGeographicRegionAPI region.
    * @param index int index of the called EvenlyGriddedGeographicRegionAPI
    * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
    * location in this region.
-   * @return int  Returns the location index in the region for the index in the Region
+   * @return int  Returns the nearest location index in the region for the index in the Region
    * on which this function is called.
    */
-  public int getGridLocationIndex(int index,
-                                  EvenlyGriddedGeographicRegionAPI region) throws
-      LocationOutOfRegionBoundsException {
+ public int getNearestGridLocationIndex(int index,
+                                 EvenlyGriddedGeographicRegionAPI region) throws
+     LocationOutOfRegionBoundsException {
     //gets the location in the EvenlyGriddedRectangularRegion at a given index
     Location loc = getGridLocationClone(index);
     //finding the nearest location index in the EvenlyGriddedGeographicRegionAPI to the
@@ -402,7 +420,7 @@ public class EvenlyGriddedGeographicRegion
   /**
    * Creates the locationlist from the
    */
-  private void createGriddedLocationList() {
+  protected void createGriddedLocationList() {
 
     //creates a instance of new locationList
     gridLocsList = new LocationList();

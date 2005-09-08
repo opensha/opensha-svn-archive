@@ -49,7 +49,15 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
    * @param locs = locationList
    */
   public GeographicRegion(LocationList locs) {
+    createGeographicRegion(locs);
 
+  }
+
+  /**
+   * Creates a Geographic with the given list of locations.
+   * @param locs LocationList
+   */
+  public void createGeographicRegion(LocationList locs) {
     locList=locs;
 
     //calls the private method of the class to precompute the min..max lat & lon.
@@ -57,9 +65,8 @@ public class GeographicRegion implements GeographicRegionAPI,java.io.Serializabl
 
     // create the polygon used for determining whether points are inside
     createPoly();
+
   }
-
-
 
   /**
    * This method checks whether the given location is inside the region by

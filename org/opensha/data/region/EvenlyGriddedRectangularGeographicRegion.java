@@ -20,8 +20,8 @@ import org.opensha.exceptions.InvalidRangeException;
  * @version 1.0
  */
 
-public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeographicRegion
-                                  implements EvenlyGriddedGeographicRegionAPI{
+public class EvenlyGriddedRectangularGeographicRegion
+    extends EvenlyGriddedGeographicRegion {
 
   /**
    * class variables
@@ -51,14 +51,34 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * @param minLon
    * @param maxLon
    */
-  public EvenlyGriddedRectangularGeographicRegion(double minLat,double maxLat,
-      double minLon,double maxLon, double gridSpacing) throws
+  public EvenlyGriddedRectangularGeographicRegion(double minLat, double maxLat,
+                                                  double minLon, double maxLon,
+                                                  double gridSpacing) throws
       RegionConstraintException {
-    super(minLat,maxLat,minLon,maxLon);
+    //sets the class variable
+    super.minLat = minLat;
+    super.maxLat = maxLat;
+    super.minLon = minLon;
+    super.maxLon = maxLon;
+
+    if (minLat > maxLat)
+      throw new RegionConstraintException(
+          "Min. Lat must be less then Max. Lat.\n");
+    if (minLon > maxLon)
+      throw new RegionConstraintException(
+          "Min. Lon must be less then Max. Lon.\n");
+
+    //creates the Location List for this rectangular region.
+    locList = new LocationList();
+    locList.addLocation(new Location(minLat, minLon));
+    locList.addLocation(new Location(minLat, maxLon));
+    locList.addLocation(new Location(maxLat, maxLon));
+    locList.addLocation(new Location(maxLat, minLon));
 
     setGridSpacing(gridSpacing);
 
-    if (D) System.out.println("numLatGridPoints="+numLatGridPoints+"; numLonGridPoints="+numLonGridPoints);
+    if (D) System.out.println("numLatGridPoints=" + numLatGridPoints +
+                              "; numLonGridPoints=" + numLonGridPoints);
   }
 
   /**
@@ -78,16 +98,8 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
 
     numLatGridPoints = (int)Math.rint((niceMaxLat - niceMinLat)/gridSpacing)+1;
     numLonGridPoints = (int)Math.rint((niceMaxLon - niceMinLon)/gridSpacing)+1;
-
   }
 
-  /**
-   *
-   * @return  the grid spacing(in degrees)
-   */
-  public double getGridSpacing(){
-    return gridSpacing;
-  }
 
   /**
    *
@@ -98,29 +110,24 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     return numLatGridPoints*numLonGridPoints;
   }
 
-  /**
-   *
-   * @returns the Grid Locations Iterator.
-   */
-  public ListIterator getGridLocationsIterator(){
-    if(gridLocsList == null)
-      //creating the instance of the locationList
-      gridLocsList=createGriddedLocationList();
-    //return the ListIterator for the locationList
-    return gridLocsList.listIterator();
-  }
 
   /**
-   *
-   * @returns a list of grid-site locations
+   * This method checks whether the given location is within the region using the definition of
+   * insidedness used in the parent class (true if on lower or left-hand boundary, but false
+   * if on the upper or right-hand boundary)
+   * @param location
+   * @return
    */
-  public LocationList getGridLocationsList(){
-    //only create the location list if null
-    if(gridLocsList == null)
-      //creating the instance of the locationList
-      gridLocsList=createGriddedLocationList();
+  public boolean isLocationInside(Location location){
+    double tempLat=location.getLatitude();
+    double tempLon=location.getLongitude();
 
-    return gridLocsList;
+    if(D) System.out.println(C +": minLat="+minLat+"; maxLat="+maxLat+"; minLon="+minLon+"; maxLon="+maxLon);
+
+    if((tempLat >= minLat && tempLat < maxLat) && (tempLon >= minLon && tempLon < maxLon))
+      return true;
+    return false;
+
   }
 
 
@@ -164,81 +171,6 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     return new Location(newLat,newLon);
   }
 
-
-  /**
-   * Returns the Location at a given index.
-   * This method will create a list of locations in the region if not already created
-   * and then find the location at a given index.
-   * @param index int
-   * @return Location
-   */
-  public Location getGridLocation(int index) throws LocationOutOfRegionBoundsException{
-    if(index < 0 || index >= locList.size())
-      throw new LocationOutOfRegionBoundsException();
-    else
-      return locList.getLocationAt(index);
-  }
-
-
-  public Location getGridLocationTest(int index) throws LocationOutOfRegionBoundsException{
-
-    LocationList locList = getGridLocationsList();
-    if(index < 0 || index >= locList.size())
-      return null;
-    else
-      return locList.getLocationAt(index);
-  }
-
-
-  /**
-   * This gets the location at the given index corresponding to the location in the
-   * given EvenlyGriddedGeographicRegionAPI region.
-   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
-   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
-   * location in this region.
-   * @return Location Returns the location in the region for the index in the Region
-   * on which this function is called.
-   */
-  public Location getGridLocation(int index,
-                                  EvenlyGriddedGeographicRegionAPI region) throws
-      LocationOutOfRegionBoundsException {
-    //gets the location in the EvenlyGriddedRectangularRegion at a given index
-    Location loc = getGridLocationClone(index);
-    //finding the nearest location in the EvenlyGriddedGeographicRegionAPI to the
-    //location in the EvenlyGriddedRectangularRegion location.
-    return region.getNearestLocation(loc);
-  }
-
-  /**
-   * This gets the index of the location at the given index
-   * corresponding to the location in the given EvenlyGriddedGeographicRegionAPI region.
-   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
-   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
-   * location in this region.
-   * @return int  Returns the location index in the region for the index in the Region
-   * on which this function is called.
-   */
-  public int getGridLocationIndex(int index,
-                                  EvenlyGriddedGeographicRegionAPI region) throws
-      LocationOutOfRegionBoundsException {
-    //gets the location in the EvenlyGriddedRectangularRegion at a given index
-    Location loc = getGridLocationClone(index);
-    //finding the nearest location index in the EvenlyGriddedGeographicRegionAPI to the
-    //location in the EvenlyGriddedRectangularRegion location.
-    return region.getNearestLocationIndex(loc);
-  }
-
-
-
-  /**
-   * Clears the Region LocationList so as to make it empty.
-   */
-  public void clearRegionLocations(){
-    if(gridLocsList !=null){
-      gridLocsList.clear();
-      gridLocsList = null;
-    }
-  }
 
 
 
@@ -292,11 +224,11 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
    * Private method to create the Location List for the gridded Rectangular Geog. Region
    * @returns the LocationList
    */
-  private LocationList createGriddedLocationList(){
+  protected void createGriddedLocationList(){
     double lat,lon;
 
     //creates a instance of new locationList
-    LocationList gridLocsList=new LocationList();
+    gridLocsList=new LocationList();
     for(int iLat=0;iLat < numLatGridPoints; iLat++){
       lat = niceMinLat + gridSpacing*iLat;
       for(int iLon=0; iLon < this.numLonGridPoints; iLon++){
@@ -304,7 +236,6 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
         gridLocsList.addLocation(new Location(lat,lon));
       }
     }
-    return gridLocsList;
   }
 
 
@@ -373,99 +304,5 @@ public class EvenlyGriddedRectangularGeographicRegion extends RectangularGeograp
     }
  */
 
-  }
-
-
-
-  /**
-   * Returns the nearest location in the gridded region to the provided Location.
-   * @param loc Location Location to which we have to find the nearest location.
-   * @return Location Nearest Location
-   */
-  public Location getNearestLocationClone(Location loc) throws
-      LocationOutOfRegionBoundsException {
-    //Getting the nearest Location to the rupture point location
-
-
-    //getting the nearest Latitude.
-    double lat = Math.rint(loc.getLatitude() / gridSpacing) *
-        gridSpacing;
-    //getting the nearest Longitude.
-    double lon = Math.rint(loc.getLongitude() / gridSpacing) *
-        gridSpacing;
-
-    //throw exception if location  lat is outside the region lat bounds.
-    if (!isLocationInside(loc))
-      throw new LocationOutOfRegionBoundsException(
-          "Location outside the given Gridded Region bounds");
-      else { //location is inside the polygon bounds but is outside the nice min/max lat/lon
-        //constraints then assign it to the nice min/max lat/lon.
-        if (lat < niceMinLat)
-          lat = niceMinLat;
-        else if (lat > niceMaxLat)
-          lat = niceMaxLat;
-        if (lon < niceMinLon)
-          lon = niceMinLon;
-        else if (lon > niceMaxLon)
-          lon = niceMaxLon;
-      }
-
-    return new Location(lat, lon);
-  }
-
-
-  /**
-   * Returns the Location  in the Region to a given location.
-   * This method will create a list of locations in the region if not already created
-   * and then find the location at a given index.
-   * @param index int
-   * @return Location
-   */
-  public Location getNearestLocation(Location loc) throws
-      LocationOutOfRegionBoundsException {
-    LocationList locList = getGridLocationsList();
-    int index = 0;
-    index = getNearestLocationIndex(loc);
-    return locList.getLocationAt(index);
-  }
-
-
-
-
-  /**
-   * Returns the minimum Lat so that this gridLat/gridSpacing is an int,
-   * and this min Lat is within the polygon;
-   * @return double
-   */
-  public double getMinGridLat(){
-    return niceMinLat;
-  }
-
-
-  /**
-   * Returns the maximum Lat so that this gridLat/gridSpacing is an int,
-   * and this max Lat is within the polygon;
-   * @return double
-   */
-  public double getMaxGridLat(){
-    return niceMaxLat;
-  }
-
-  /**
-   * Returns the minimum Lon so that this gridLon/gridSpacing is an int,
-   * and this min Lon is within the polygon;
-   * @return double
-   */
-  public double getMinGridLon(){
-    return niceMinLon;
-  }
-
-  /**
-   * Returns the maximum Lon so that this gridLon/gridSpacing is an int,
-   * and this max Lon is within the polygon;
-   * @return double
-   */
-  public double getMaxGridLon(){
-    return niceMaxLon ;
   }
 }
