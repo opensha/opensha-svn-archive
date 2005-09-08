@@ -28,7 +28,8 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   private final static String TIMESPAN_COMMENTS_PARAM_NAME="Dating Methodology";
   private final static String TIMESPAN_COMMENTS_DEFAULT="Summary of dating techniques and dated features";
   private final static String TIMESPAN_REFERENCES_PARAM_NAME="Choose References";
-  private final static String ADD_REFERENCE_TEXT="Add Reference not currently in database";
+  private final static String ADD_REFERENCE_TEXT="Add Reference";
+  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
 
   private final static String TITLE = "Add Time Span";
@@ -48,7 +49,7 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   private JSplitPane timSpanSplitPane = new JSplitPane();
   private JPanel commentsPanel = new JPanel();
   private JPanel referencesPanel = new JPanel();
-  private JButton addNewReferenceButton = new JButton();
+  private JButton addNewReferenceButton = new JButton(ADD_REFERENCE_TEXT);
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
 
@@ -103,7 +104,8 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
 
   private void jbInit() throws Exception {
     setLayout(gridBagLayout1);
-    addNewReferenceButton.setText(ADD_REFERENCE_TEXT);
+    addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
+    this.setMinimumSize(new Dimension(0, 0));
     add(timSpanSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(3, 3, 0, 4), 374, 432));
     this.add(commentsPanel,  new GridBagConstraints(0, 1, 1, 2, 1.0, 1.0
@@ -111,7 +113,7 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
     this.add(referencesPanel,  new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 7, 0, 4), 270, 56));
     this.add(addNewReferenceButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 12, 3, 15), 191, 7));
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 12, 3, 15), 0, 0));
     timSpanSplitPane.setOrientation(timSpanSplitPane.HORIZONTAL_SPLIT);
     commentsPanel.setLayout(gridBagLayout1);
     referencesPanel.setLayout(gridBagLayout1);

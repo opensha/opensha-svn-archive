@@ -52,8 +52,8 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   private final static String TIME_ESTIMATE_UNITS="years";
 
   // add new reference button
-  private JButton addNewReferenceButton = new JButton("Add Reference not currently in database");
-
+  private JButton addNewReferenceButton = new JButton("Add Reference");
+  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
   //slip rate constants
   private final static String SLIP_RATE_UNITS = "mm/yr";
@@ -247,6 +247,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   private void addActionListeners() {
     okButton.addActionListener(this);
     cancelButton.addActionListener(this);
+    this.addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     addNewReferenceButton.addActionListener(this);
   }
 

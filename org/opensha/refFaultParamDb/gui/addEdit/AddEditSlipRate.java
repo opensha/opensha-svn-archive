@@ -54,8 +54,8 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
 
 
  // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add Reference not currently in database");
-
+  private JButton addNewReferenceButton = new JButton("Add Reference");
+  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
   private final static String SLIP_RATE_PARAMS_TITLE = "Slip Rate Params";
 
@@ -64,6 +64,7 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
     try {
       this.setLayout(GUI_Utils.gridBagLayout);
       this.addSlipRateInfoParameters();
+      addNewReferenceButton.setToolTipText(addNewReferenceToolTipText);
       addNewReferenceButton.addActionListener(this);
     }catch(Exception e) {
       e.printStackTrace();

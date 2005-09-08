@@ -14,6 +14,11 @@ import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.gui.addEdit.AddNewReference;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.gui.addEdit.AddEditIndividualEvent;
+import org.opensha.refFaultParamDb.data.TimeEstimate;
+import org.opensha.data.estimate.NormalEstimate;
+import org.opensha.data.estimate.LogNormalEstimate;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.data.estimate.Estimate;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -81,6 +86,8 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
       initParamsAndEditors();
       // add the action listeners to the button
       addActionListeners();
+      // set event info according to selected event
+      this.setEventInfo((String)eventNameParam.getValue());
       // set the title
       this.setTitle(TITLE);
       setSize(WIDTH, HEIGHT);
@@ -101,6 +108,7 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
     ArrayList eventNamesList = getEventNamesList();
     eventNameParam = new StringParameter(this.EVENT_NAME_PARAM_NAME, eventNamesList,
                                          (String)eventNamesList.get(0));
+    eventNameParam.addParameterChangeListener(this);
     eventNameParamEditor = new ConstrainedStringParameterEditor(eventNameParam);
 
     // add the parameter editors to the GUI componenets
@@ -137,6 +145,8 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     slipPanel.add(displacementSharedLabel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    slipPanel.add(this.sharedEventLabel,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     estimatesSplitPane.add(slipPanel, JSplitPane.RIGHT);
 
     // comments and references
@@ -165,20 +175,54 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
    * @param event
    */
   public void parameterChange(ParameterChangeEvent event) {
-
+    this.setEventInfo((String)eventNameParam.getValue());
   }
 
   /**
    * Show the info according to event selected by the user
+   *
    * @param eventName
    */
   private void setEventInfo(String eventName) {
-   /* TimeEstimate startTime = new TimeEstimate();
+    // just set some fake implementation right now
+    // event time estimate
+    TimeEstimate startTime = new TimeEstimate();
     startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
+    // comments
     String comments = "Comments about this event";
+    // references
     ArrayList references = new ArrayList();
     references.add("Ref 4");
-    references.add("Ref 1");*/
+    references.add("Ref 1");
+    // Slip Rate Estimate
+    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
+    // displacement is shared or not
+    String displacement = "Shared";
+    // events with which displacement is shared
+    ArrayList eventsList = new ArrayList();
+    eventsList.add("Event 10");
+    eventsList.add("Event 11");
+    updateLabels(startTime, slipRateEstimate, comments, references, displacement,
+                 eventsList);
+  }
+
+  /**
+   * Update the labels to view information about the events
+   * @param eventTime
+   * @param slipEstimate
+   * @param comments
+   * @param references
+   * @param displacement
+   * @param sharingEvents
+   */
+  private void updateLabels(TimeAPI eventTime, Estimate slipEstimate, String comments,
+                            ArrayList references, String displacement, ArrayList sharingEvents) {
+    commentsLabel.setTextAsHTML(comments);
+    timeEstLabel.setTextAsHTML(eventTime);
+    slipEstLabel.setTextAsHTML(slipEstimate);
+    displacementSharedLabel.setTextAsHTML(displacement);
+    sharedEventLabel.setTextAsHTML(sharingEvents);
+    referencesLabel.setTextAsHTML(references);
 
   }
 

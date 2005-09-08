@@ -193,17 +193,17 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
     if(siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
       // FAKE DATA FOR TEST SITE
       // Slip Rate Estimate
-    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
-    // Aseismic slip rate estimate
-    NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
-    // comments
-    String comments = "Perinent comments will be displayed here";
-    // references
-    ArrayList references = new ArrayList();
-    references.add("Ref 1");
-    references.add("Ref 2");
-    slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments, references);
-
+      LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
+      // Aseismic slip rate estimate
+      NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+      // comments
+      String comments = "Perinent comments will be displayed here";
+      // references
+      ArrayList references = new ArrayList();
+      references.add("Ref 1");
+      references.add("Ref 2");
+      slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments,
+                            references);
     } else { // information not available yet
       this.slipRatePanel.setInfo(null, null, null, null);
     }

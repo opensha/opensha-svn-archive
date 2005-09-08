@@ -26,8 +26,8 @@ public class AddSiteInfo extends JFrame {
   private AddEditTimeSpan addEditTimeSpan;
   private final static String SLIP_OR_DISP_MSG = "Only one of Slip or Cumulative Displacement can be specified";
   private final static String ATLEAT_ONE_MSG = "Atleast one of Slip, Cumulative Displacement or Num events should be specified";
-  private final static int W = 750;
-  private final static int H = 600;
+  private final static int W = 775;
+  private final static int H = 650;
   private final static String TITLE = "Add Data for this Site";
 
   public AddSiteInfo(boolean isSlipVisible, boolean isDisplacementVisible,

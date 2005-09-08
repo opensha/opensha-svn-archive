@@ -52,9 +52,9 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionLis
  private CommentsParameterEditor displacementCommentsParamEditor;
 
  // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add Reference not currently in database");
-
- private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
+  private JButton addNewReferenceButton = new JButton("Add Reference");
+  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
+  private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
 
  /**
   * Add Cum displacement parameters
@@ -63,6 +63,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionLis
    try {
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
+     this.addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
      addNewReferenceButton.addActionListener(this);
    }catch(Exception e) {
      e.printStackTrace();

@@ -59,8 +59,8 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
   private ArbitrarilyDiscretizedFunc eventProbs = new ArbitrarilyDiscretizedFunc();
 
   // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add Reference not currently in database");
-
+  private JButton addNewReferenceButton = new JButton("Add Reference");
+  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
   private final static String NUM_EVENTS_PARAMS_TITLE = "Num Events Params";
 
@@ -70,6 +70,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
        addNumEventsParameters();
        updateNumEventsList();
        addNewReferenceButton.addActionListener(this);
+       addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     }catch(Exception e) {
       e.printStackTrace();
     }
