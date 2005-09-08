@@ -31,8 +31,8 @@ import java.awt.event.ActionEvent;
 public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChangeListener,ActionListener {
   // Number of events parameter
   private final static String NUM_EVENTS_PARAM_NAME="Number of Events";
-  private final static String MIN_EVENTS_PARAM_NAME="Min Events";
-  private final static String MAX_EVENTS_PARAM_NAME="Max Events";
+  private final static String MIN_EVENTS_PARAM_NAME="Min # of Events";
+  private final static String MAX_EVENTS_PARAM_NAME="Max # of Events";
   private final static String NUM_EVENTS_COMMENTS_PARAM_NAME="Comments";
   private final static String NUM_EVENTS_REFERENCES_PARAM_NAME="Choose References";
   private final static String NUM_EVENTS_LIST_HEADER="# of Events";
@@ -94,7 +94,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    minEventsParam.addParameterChangeListener(this);
    minEventsParamEditor = new IntegerParameterEditor(minEventsParam);
    // max number of events
-   maxEventsParam = new IntegerParameter(this.MIN_EVENTS_PARAM_NAME, NUM_EVENTS_MIN, NUM_EVENTS_MAX, new Integer(2));
+   maxEventsParam = new IntegerParameter(this.MAX_EVENTS_PARAM_NAME, NUM_EVENTS_MIN, NUM_EVENTS_MAX, new Integer(2));
    maxEventsParam.addParameterChangeListener(this);
    maxEventsParamEditor = new IntegerParameterEditor(maxEventsParam);
 

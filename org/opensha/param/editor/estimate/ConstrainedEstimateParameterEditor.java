@@ -289,7 +289,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
     ArbitrarilyDiscretizedFunc arbitraryDiscretizedFunc = new ArbitrarilyDiscretizedFunc();
     arbitraryDiscretizedFunc.setXAxisName("Exact Value");
-    arbitraryDiscretizedFunc.setYAxisName("Probability");
+    arbitraryDiscretizedFunc.setYAxisName("Probability this is correct");
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, arbitraryDiscretizedFunc);
 
     EvenlyDiscretizedFunc evenlyDiscretizedFunc = new EvenlyDiscretizedFunc(1.0,4.0,7);

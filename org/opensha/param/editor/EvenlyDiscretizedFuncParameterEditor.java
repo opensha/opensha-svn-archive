@@ -36,11 +36,11 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     protected final static boolean D = false;
 
     private DoubleParameter minParam ;
-    private final static String MIN_PARAM_NAME="Min";
+    private final static String MIN_PARAM_NAME="Min X value";
     private DoubleParameter maxParam ;
-    private final static String MAX_PARAM_NAME="Max";
+    private final static String MAX_PARAM_NAME="Max X value";
     private IntegerParameter numParam;
-    private final static String NUM_PARAM_NAME="Num";
+    private final static String NUM_PARAM_NAME="Number of X values";
 
     private final static String EDITOR_TITLE = "Evenly Discretized XY Vals";
 

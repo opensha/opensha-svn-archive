@@ -28,7 +28,7 @@ public class AddSiteInfo extends JFrame {
   private final static String ATLEAT_ONE_MSG = "Atleast one of Slip, Cumulative Displacement or Num events should be specified";
   private final static int W = 750;
   private final static int H = 600;
-  private final static String TITLE = "Add Site Info";
+  private final static String TITLE = "Add Data for this Site";
 
   public AddSiteInfo(boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible)  {

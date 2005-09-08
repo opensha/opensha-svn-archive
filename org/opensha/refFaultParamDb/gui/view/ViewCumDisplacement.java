@@ -41,7 +41,7 @@ public class ViewCumDisplacement extends LabeledBoxPanel implements ActionListen
  private void viewDisplacementForTimePeriod() {
 
    // comments
-   String comments = "Displacement is implied when Slip Rate is provided";
+   String comments = "Implied from Slip Rate";
    commentsLabel.setTextAsHTML(comments);
    int yPos=0;
    add(commentsLabel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0

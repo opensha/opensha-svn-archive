@@ -185,11 +185,11 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
   private void setParametersVisible() {
     String timeOptionChosen = (String)timeOptionsParam.getValue();
     if(timeOptionChosen.equalsIgnoreCase(this.EXACT)) {
-      setParametersVisibleForExactTime(true);
       setParametersVisibleForEstimateTime(false);
+      setParametersVisibleForExactTime(true);
     } else if(timeOptionChosen.equalsIgnoreCase(this.ESTIMATE)) {
+       setParametersVisibleForExactTime(false);
       setParametersVisibleForEstimateTime(true);
-      setParametersVisibleForExactTime(false);
     }
   }
 
@@ -199,7 +199,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    */
   private void setParametersVisibleForExactTime(boolean isVisible) {
     this.exactTimeGuiBean.setVisible(isVisible);
-    this.yearUnitsParamEditor.setVisible(isVisible);
+    this.yearUnitsParamEditor.setVisible(!isVisible);
   }
 
   /**

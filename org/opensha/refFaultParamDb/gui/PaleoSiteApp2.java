@@ -34,14 +34,14 @@ import java.awt.event.*;
 
 public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
 
-  private final static int WIDTH = 950;
-  private final static int HEIGHT = 825;
+  private final static int WIDTH = 925;
+  private final static int HEIGHT = 800;
 
   private final static String TITLE =
       "California Reference Geologic Fault Parameter (Paleo Site) GUI";
   private final static String TIMESPAN_PARAM_NAME = "TimeSpans";
   private final static String DATA_SPECIFIC_TO_TIME_INTERVALS =
-      "Data Specific to Time Intervals";
+      "Data currently in this database";
 
   // various parameters
   private ViewSiteCharacteristics viewPaleoSites;

@@ -22,7 +22,7 @@ public class InfoLabel extends JLabel {
   private Color labelColor = new Color( 80, 80, 133 );
   private final static String ESTIMATE_TYPE = "Estimate Type";
   private final static String TIME = "Time";
-  private final static String NA = "N/A";
+  private final static String NA = "Not Available";
 
   /**
    * default constructor
@@ -166,7 +166,7 @@ public class InfoLabel extends JLabel {
   public void setTextAsHTML(TimeAPI time) {
     String text="";
     if(time == null ) // if time is not available
-      text = "<html>NA</html>";
+      text = "<html>"+NA+"</html>";
     else if(time instanceof TimeEstimate)
       text = getTextForTimeEstimate((TimeEstimate)time);
     else if(time instanceof ExactTime)

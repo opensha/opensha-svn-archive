@@ -36,7 +36,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site:";
 
   // various types of information that can be provided by the user
-  private final static String AVAILABLE_INFO_PARAM_NAME="I have info on";
+  private final static String AVAILABLE_INFO_PARAM_NAME="I have data on";
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
   private final static String NUM_EVENTS_INFO = "Number of Events";
@@ -52,7 +52,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
 
   // input parameters declaration
   private StringParameter siteNameParam;
-  public final static String TEST_SITE = "Test Site 1";
+  public final static String TEST_SITE = "A Sample Site";
 
 
   // input parameter editors
@@ -66,9 +66,9 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   // various buttons in thos window
   private String ADD_SITE = "Add New Site";
   private JButton editSiteButton = new JButton("Edit");
-  private JButton qFaultsEntriesButton = new JButton("QFault entries for this site");
+  private JButton qFaultsEntriesButton = new JButton("Show QFault entries");
   private JButton eventSequenceButton = new JButton("Events and Seq.");
-  private JButton addInfoButton = new JButton("Add Info");
+  private JButton addInfoButton = new JButton("Add Data");
 
   private JPanel addEditSitePanel = new TitledBorderPanel("Site Characteristics");
 
@@ -279,7 +279,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     int index = this.siteNamesList.indexOf(siteName);
     String faultName = (String)this.faultNamesList.get(index);
     Location location = (Location)this.siteLocationsList.get(index);
-    String siteType="N/A", siteRepresentation="N/A";
+    String siteType="Not Available", siteRepresentation="Not Available";
     if(siteName.equalsIgnoreCase(this.TEST_SITE)) {
       siteType = "Trench";
       siteRepresentation = "Most Significant Strand";
