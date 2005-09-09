@@ -274,7 +274,38 @@ public class LabeledBoxPanel extends JPanel{
      */
     public void add(Component comp, Object constraints) {
         if( addDefault ) super.add(comp, constraints);
-        else editorPanel.add(comp, constraints); }
+        else editorPanel.add(comp, constraints);
+      }
+
+
+      /**
+       * Removes the component, specified by index, from this container
+       *
+       * @param index the index of the component to be removed
+       */
+      public void remove(int index) {
+        if( addDefault ) super.remove(index);
+        else editorPanel.remove(index);
+      }
+
+
+      /**
+       * Removes the specified component from this container.
+       *
+       * @param comp
+       */
+      public void remove(Component comp) {
+        if( addDefault ) super.remove(comp);
+        else editorPanel.remove(comp);
+      }
+
+      /**
+       * Removes all the components from this container.
+       */
+      public void removeAll() {
+        if( addDefault ) super.removeAll();
+        else editorPanel.removeAll();
+      }
 
 
     /**

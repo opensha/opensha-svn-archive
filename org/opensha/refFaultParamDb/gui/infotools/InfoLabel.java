@@ -22,7 +22,7 @@ public class InfoLabel extends JLabel {
   private Color labelColor = new Color( 80, 80, 133 );
   private final static String ESTIMATE_TYPE = "Estimate Type";
   private final static String TIME = "Time";
-  private final static String NA = "Not Available";
+  public final static String NOT_AVAILABLE = "Not Available";
 
   /**
    * default constructor
@@ -48,7 +48,7 @@ public class InfoLabel extends JLabel {
   */
 
   public void setTextAsHTML(String paramName, String paramValue) {
-    if(paramValue==null) paramValue = NA;
+    if(paramValue==null) paramValue = NOT_AVAILABLE;
     String label  = "<html><b>"+paramName+":&nbsp;</b>"+paramValue+"</html>";
     setText(label);
   }
@@ -72,7 +72,7 @@ public class InfoLabel extends JLabel {
    */
 
   public void setTextAsHTML(String value) {
-    if(value==null) value = NA;
+    if(value==null) value = NOT_AVAILABLE;
     String label  = "<html>"+value+"</html>";
     setText(label);
   }
@@ -97,7 +97,7 @@ public class InfoLabel extends JLabel {
    */
   public void setTextAsHTML(ArrayList values) {
     String label  = "<html>";
-    if(values==null || values.size()==0) label += NA;
+    if(values==null || values.size()==0) label += NOT_AVAILABLE;
     else {
       for (int i = 0; i < values.size(); ++i)
         label += values.get(i).toString() + "<br>";
@@ -126,7 +126,7 @@ public class InfoLabel extends JLabel {
 
   public void setTextAsHTML(Estimate estimate) {
     String text;
-    if(estimate==null) text = "<html>"+NA+"</html>";
+    if(estimate==null) text = "<html>"+NOT_AVAILABLE+"</html>";
     else  text="<html>"+getTextForEstimate(estimate)+"</html>";
     setText(text);
   }
@@ -166,7 +166,7 @@ public class InfoLabel extends JLabel {
   public void setTextAsHTML(TimeAPI time) {
     String text="";
     if(time == null ) // if time is not available
-      text = "<html>"+NA+"</html>";
+      text = "<html>"+NOT_AVAILABLE+"</html>";
     else if(time instanceof TimeEstimate)
       text = getTextForTimeEstimate((TimeEstimate)time);
     else if(time instanceof ExactTime)

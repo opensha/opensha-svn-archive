@@ -33,8 +33,7 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterChangeListener,
     ActionListener {
-  private JButton closeButton = new JButton("Close");
-  private JButton editButton  = new JButton("Edit Event");
+  private JButton editButton  = new JButton("Edit");
   private JButton addButton  = new JButton("Add New Event");
 
   // various parameter names
@@ -46,6 +45,8 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private final static String DISPLACEMENT_SHARED_PARAM_NAME = "Slip Shared With Other Events";
   private final static String SHARED_EVENT_PARAM_NAME = "Names of Events Sharing Slip";
   private final static String TITLE = "Individual Events";
+  private final static String TEST_EVENT1 = "Test Event 1";
+  private final static String TEST_EVENT2 = "Test Event 2";
 
   // information displayed for selected event
   private StringParameter eventNameParam;
@@ -57,17 +58,19 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private InfoLabel referencesLabel = new InfoLabel();
   // various parameter editors
   private ConstrainedStringParameterEditor eventNameParamEditor;
+  // site name
+  private String siteName=null;
 
 
   public ViewIndividualEvent() {
     try {
       this.setLayout(GUI_Utils.gridBagLayout);
       // add Parameters and editors
-      initParamsAndEditors();
+      createEventListParameterEditor();
+      // add the parameter editors to the GUI componenets
+      addEditorstoGUI();
       // add the action listeners to the button
       addActionListeners();
-      // set event info according to selected event
-      this.setEventInfo((String)eventNameParam.getValue());
       // set the title
       this.setTitle(TITLE);
     }
@@ -79,17 +82,23 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   /**
    * Intialize the parameters and editors and add to the GUI
    */
-  private void initParamsAndEditors() throws Exception {
+  private void createEventListParameterEditor()  {
 
     // event name parameter
+     if(this.eventNameParamEditor!=null) this.remove(eventNameParamEditor);
+
     ArrayList eventNamesList = getEventNamesList();
     eventNameParam = new StringParameter(this.EVENT_NAME_PARAM_NAME, eventNamesList,
                                          (String)eventNamesList.get(0));
     eventNameParam.addParameterChangeListener(this);
     eventNameParamEditor = new ConstrainedStringParameterEditor(eventNameParam);
+    add(eventNameParamEditor ,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
+    eventNameParamEditor.refreshParamEditor();
+    this.updateUI();
 
-    // add the parameter editors to the GUI componenets
-    addEditorstoGUI();
+    // set event info according to selected event
+    this.setEventInfo((String)eventNameParam.getValue());
   }
 
 
@@ -102,8 +111,12 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    */
   private ArrayList getEventNamesList() {
     ArrayList eventList = new ArrayList();
-    eventList.add("Test Event 1");
-    eventList.add("Test Event 2");
+    if(siteName!=null && siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+      eventList.add(TEST_EVENT1);
+      eventList.add(TEST_EVENT2);
+    } else {
+      eventList.add(InfoLabel.NOT_AVAILABLE);
+    }
     return eventList;
   }
 
@@ -111,10 +124,9 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    * Add all the event information to theGUI
    */
   private void addEditorstoGUI() {
-    int yPos=0;
-
-    add(eventNameParamEditor ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(this.editButton ,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+    int yPos=2;
     add(GUI_Utils.getPanel(timeEstLabel,TIME_ESTIMATE_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(GUI_Utils.getPanel(slipEstLabel,SLIP_ESTIMATE_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -141,6 +153,15 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   }
 
   /**
+   * Set the site chosen by the user. Only show the events for the selected site.
+   * @param siteName
+   */
+  public void setSite(String siteName) {
+    this.siteName = siteName;
+    createEventListParameterEditor();
+  }
+
+  /**
    * Show the info according to event selected by the user
    *
    * @param eventName
@@ -148,24 +169,33 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private void setEventInfo(String eventName) {
     // just set some fake implementation right now
     // event time estimate
-    TimeEstimate startTime = new TimeEstimate();
-    startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
-    // comments
-    String comments = "Comments about this event";
-    // references
-    ArrayList references = new ArrayList();
-    references.add("Ref 4");
-    references.add("Ref 1");
-    // Slip Rate Estimate
-    LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
-    // displacement is shared or not
-    String displacement = "Shared";
-    // events with which displacement is shared
-    ArrayList eventsList = new ArrayList();
-    eventsList.add("Event 10");
-    eventsList.add("Event 11");
-    updateLabels(startTime, slipRateEstimate, comments, references, displacement,
-                 eventsList);
+    if(eventName.equalsIgnoreCase(this.TEST_EVENT1) ||
+       eventName.equalsIgnoreCase(this.TEST_EVENT2)) {
+      TimeEstimate startTime = new TimeEstimate();
+      startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
+      // comments
+      String comments = "Comments about this event";
+      // references
+      ArrayList references = new ArrayList();
+      references.add("Ref 4");
+      references.add("Ref 1");
+      // Slip Rate Estimate
+      LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
+      // displacement is shared or not
+      String displacement = "Shared";
+      // events with which displacement is shared
+      ArrayList eventsList = new ArrayList();
+      eventsList.add("Event 10");
+      eventsList.add("Event 11");
+      updateLabels(startTime, slipRateEstimate, comments, references,
+                   displacement,
+                   eventsList);
+    }else {
+      updateLabels(null, null, null, null,
+                   null,
+                   null);
+
+    }
   }
 
   /**
@@ -204,23 +234,11 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private void addActionListeners() {
     addButton.addActionListener(this);
     editButton.addActionListener(this);
-    closeButton.addActionListener(this);
   }
 
   public static void main(String args[]) {
     ViewIndividualEvent eventInfo = new ViewIndividualEvent();
   }
-
-  //static initializer for setting look & feel
-  static {
-    String osName = System.getProperty("os.name");
-    try {
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch(Exception e) {
-    }
-  }
-
 
 
 }

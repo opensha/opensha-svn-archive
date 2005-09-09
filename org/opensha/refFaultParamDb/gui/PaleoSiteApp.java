@@ -33,7 +33,7 @@ import java.awt.event.*;
 
 public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
 
-  private final static int WIDTH = 925;
+  private final static int WIDTH = 1095;
   private final static int HEIGHT = 800;
 
   private final static String TITLE =
@@ -57,6 +57,7 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
   private JSplitPane timeSpanSelectionSplitPane = new JSplitPane();
   private JSplitPane slipDisplacementSplitPane = new JSplitPane();
   private JSplitPane individualEventsSplitPane = new JSplitPane();
+  private JSplitPane sequenceSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
@@ -71,6 +72,7 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
   private ViewCumDisplacement displacementPanel;
   private ViewNumEvents numEventsPanel= new ViewNumEvents() ;
   private ViewIndividualEvent viewIndividualEvent = new ViewIndividualEvent();
+  private ViewSequences viewSequences = new ViewSequences();
 
 
 
@@ -145,6 +147,7 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
     slipDisplacementSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     timeSpanSelectionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     individualEventsSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+    sequenceSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     statusTextArea.setEnabled(false);
     statusTextArea.setEditable(false);
     statusTextArea.setText("");
@@ -154,7 +157,9 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     mainSplitPane.add(individualEventsSplitPane, JSplitPane.RIGHT);
     individualEventsSplitPane.add(timeSpanSelectionSplitPane, JSplitPane.RIGHT);
-    timeSpanSelectionSplitPane.add(timespanSplitPane, JSplitPane.BOTTOM);
+    timeSpanSelectionSplitPane.add(sequenceSplitPane, JSplitPane.BOTTOM);
+    sequenceSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
+    sequenceSplitPane.add(this.viewSequences, JSplitPane.RIGHT);
     timespanSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
     infoForTimeSpanSplitPane.add(slipDisplacementSplitPane, JSplitPane.LEFT);
@@ -169,6 +174,7 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
     timeSpanSelectionSplitPane.setDividerLocation(75);
     infoForTimeSpanSplitPane.setDividerLocation(170);
     timespanSplitPane.setDividerLocation(170);
+    sequenceSplitPane.setDividerLocation(540);
   }
 
   /**
@@ -229,7 +235,15 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
    * @param siteName
    */
   private void viewIndividualEvent(String siteName) {
+    this.viewIndividualEvent.setSite(siteName);
+  }
 
+  /**
+   * Set the site name in the sequences to view the sequences
+   * @param siteName
+   */
+  private void viewSequence(String siteName) {
+    viewSequences.setSiteName(siteName);
   }
 
   /**
@@ -266,6 +280,7 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
     viewNumEventsForTimePeriod(siteName);
     viewTimeSpanInfo(siteName);
     viewIndividualEvent(siteName);
+    this.viewSequence(siteName);
   }
 
 

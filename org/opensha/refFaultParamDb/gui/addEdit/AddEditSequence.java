@@ -11,6 +11,7 @@ import org.opensha.param.estimate.*;
 import org.opensha.param.editor.*;
 import org.opensha.param.editor.estimate.*;
 import org.opensha.refFaultParamDb.gui.*;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: SequenceInformation.java </p>
@@ -30,8 +31,7 @@ public class AddEditSequence extends JFrame implements ActionListener,
   private JSplitPane eventSplitPane = new JSplitPane();
   private JButton okButton = new JButton();
   private JButton cancelButton = new JButton();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+
   private BorderLayout borderLayout1 = new BorderLayout();
 
   // TITLE
@@ -41,7 +41,7 @@ public class AddEditSequence extends JFrame implements ActionListener,
   private final static String SEQUENCE_NAME_PARAM_NAME = "Sequence Name";
   private final static String SEQUENCE_PROB_PARAM_NAME = "Sequence Prob.";
   private final static String COMMENTS_PARAM_NAME = "Comments";
-  private final static String REFERENCES_PARAM_NAME = "References";
+  private final static String REFERENCES_PARAM_NAME = "Choose References";
   private final static String MISSED_EVENTS_PROB_PARAM_NAME = "Probability of missed events";
   private final static String EVENTS_PARAM_NAME = "Events in Sequence";
 
@@ -92,6 +92,7 @@ public class AddEditSequence extends JFrame implements ActionListener,
       // set the title
       this.setTitle(TITLE);
       setSize(WIDTH, HEIGHT);
+      this.setLocationRelativeTo(null);
       show();
     }
     catch(Exception e) {
@@ -164,33 +165,48 @@ private ArrayList getAvailableReferences() {
     ArrayList selectedEvents = (ArrayList)eventsParam.getValue();
     missedEventsProbParamList = new ParameterList();
     int numEvents = 0;
-    if(selectedEvents!=null) numEvents = selectedEvents.size();
-    DoubleParameter probParameter;
-    String paramName;
-    double eachProb = 1.0/(numEvents+1);
-    // create the missed events prob parameters (they are equal to number of events in sequence)
-    for(int i=0; i<numEvents; ++i)  {
-      if(i==0) paramName = BEFORE+" "+selectedEvents.get(i);
-      else paramName = BETWEEN+" " +selectedEvents.get(i-1)+" & "+selectedEvents.get(i);
-      probParameter = new DoubleParameter(paramName, this.MISSED_EVENT_PROB_MIN,
-                                          this.MISSED_EVENT_PROB_MAX, new Double(eachProb));
-      missedEventsProbParamList.addParameter(probParameter);
+    ArrayList paramNames=null;
+    if(selectedEvents!=null) {
+      numEvents = selectedEvents.size();
+      paramNames = getNamesForMissedEventProbs(selectedEvents);
+      DoubleParameter probParameter;
+      String paramName;
+      double eachProb = 1.0/(numEvents+1);
+      // create the missed events prob parameters (they are equal to number of events in sequence)
+      for(int i=0; i<=numEvents; ++i)  {
+        probParameter = new DoubleParameter((String)paramNames.get(i), this.MISSED_EVENT_PROB_MIN,
+                                            this.MISSED_EVENT_PROB_MAX, new Double(eachProb));
+        missedEventsProbParamList.addParameter(probParameter);
+      }
+    }
 
-    }
-    // probability after the last event
-    if(numEvents>0) {
-      int i=numEvents-1;
-      paramName = AFTER + " " + selectedEvents.get(i);
-      probParameter = new DoubleParameter(paramName,
-                                          this.MISSED_EVENT_PROB_MIN,
-                                          this.MISSED_EVENT_PROB_MAX,
-                                          new Double(eachProb));
-      missedEventsProbParamList.addParameter(probParameter);
-    }
     missedEventsProbParamEditor  = new ParameterListEditor(missedEventsProbParamList);
     missedEventsProbParamEditor.setTitle(MISSED_EVENTS_PROB_PARAM_NAME);
     eventSplitPane.add(missedEventsProbParamEditor, JSplitPane.RIGHT);
     eventSplitPane.setDividerLocation(300);
+  }
+
+
+  /**
+   * Get the parameter name strings for missed event prob based on selected events
+   *
+   * @param selectEvents
+   * @return
+   */
+  public static ArrayList getNamesForMissedEventProbs(ArrayList selectedEvents) {
+    // create the missed events prob parameters (they are equal to number of events in sequence)
+    int numEvents = selectedEvents.size();
+    ArrayList names = new ArrayList();
+    for(int i=0; i<numEvents; ++i)  {
+      if(i==0) names.add(BEFORE+" "+selectedEvents.get(i));
+      else names.add(BETWEEN+" " +selectedEvents.get(i-1)+" & "+selectedEvents.get(i));
+    }
+    // probability after the last event
+    if(numEvents>0) {
+      int i=numEvents-1;
+      names.add(AFTER + " " + selectedEvents.get(i));
+    }
+    return names;
   }
 
   /**
@@ -280,11 +296,11 @@ private ArrayList getAvailableReferences() {
   // initialize the GUI components
   private void jbInit() throws Exception {
     this.getContentPane().setLayout(borderLayout1);
-    mainPanel.setLayout(gridBagLayout2);
+    mainPanel.setLayout(GUI_Utils.gridBagLayout);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     okButton.setText("OK");
     cancelButton.setText("Cancel");
-    sequenceParamsPanel.setLayout(gridBagLayout1);
+    sequenceParamsPanel.setLayout(GUI_Utils.gridBagLayout);
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
     mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(3, 4, 0, 3), 360, 414));

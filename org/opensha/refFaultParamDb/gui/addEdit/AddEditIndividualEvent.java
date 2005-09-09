@@ -67,7 +67,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   // various parameter types
   private StringParameter eventNameParam;
   private StringParameter commentsParam;
-  private EstimateParameter dateEstParam;
+  private TimeGuiBean eventTimeEst = new TimeGuiBean(DATE_ESTIMATE_PARAM_NAME);
   private EstimateParameter slipEstParam;
   private BooleanParameter displacementSharedParam;
   private StringListParameter sharedEventParam;
@@ -76,7 +76,6 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   // various parameter editors
   private StringParameterEditor eventNameParamEditor;
   private CommentsParameterEditor commentsParamEditor;
-  private ConstrainedEstimateParameterEditor dateEstParamEditor;
   private ConstrainedEstimateParameterEditor slipEstParamEditor;
   private ParameterListEditor displacementParamListEditor;
   private ConstrainedStringListParameterEditor referencesParamEditor;
@@ -125,10 +124,6 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
 
     // date param
     ArrayList dateAllowedEstList = EstimateConstraint.createConstraintForDateEstimates();
-    dateEstParam = new EstimateParameter(this.DATE_ESTIMATE_PARAM_NAME,
-             this.TIME_ESTIMATE_UNITS, this.TIME_ESTIMATE_MIN, this.TIME_ESTIMATE_MAX,
-             dateAllowedEstList);
-    this.dateEstParamEditor = new ConstrainedEstimateParameterEditor(dateEstParam,true,false);
 
     // slip rate param
     ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
@@ -185,7 +180,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   private void addEditorstoGUI() {
 
     // event time estimate
-    this.estimatesSplitPane.add(dateEstParamEditor, JSplitPane.LEFT);
+    this.estimatesSplitPane.add(eventTimeEst, JSplitPane.LEFT);
 
     // event slip and whether slip is shared
     LabeledBoxPanel slipPanel = new LabeledBoxPanel(gridBagLayout1);
