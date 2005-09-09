@@ -30,10 +30,10 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 public class ViewSiteCharacteristics extends JPanel implements ActionListener, ParameterChangeListener {
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
-  private final static String SITE_LOCATION_PARAM_NAME="Site Location:";
-  private final static String ASSOCIATED_WITH_FAULT_PARAM_NAME="Associated With Fault:";
-  private final static String SITE_TYPE_PARAM_NAME="Site Type:";
-  private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site:";
+  private final static String SITE_LOCATION_PARAM_NAME="Site Location";
+  private final static String ASSOCIATED_WITH_FAULT_PARAM_NAME="Associated With Fault";
+  private final static String SITE_TYPE_PARAM_NAME="Site Type";
+  private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
 
   // various types of information that can be provided by the user
   private final static String AVAILABLE_INFO_PARAM_NAME="I have data on";

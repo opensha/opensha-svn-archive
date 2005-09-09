@@ -19,6 +19,7 @@ import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.data.estimate.LogNormalEstimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -30,38 +31,21 @@ import org.opensha.data.estimate.Estimate;
  * @version 1.0
  */
 
-public class ViewIndividualEvent extends JFrame implements ParameterChangeListener,
+public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterChangeListener,
     ActionListener {
-  private JPanel topPanel = new JPanel();
-  private JSplitPane estimatesSplitPane = new JSplitPane();
-  private JSplitPane mainSplitPane = new JSplitPane();
-  private JSplitPane detailedEventInfoSplitPane = new JSplitPane();
   private JButton closeButton = new JButton("Close");
   private JButton editButton  = new JButton("Edit Event");
   private JButton addButton  = new JButton("Add New Event");
-  private JPanel eventSummaryPanel = new JPanel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
 
   // various parameter names
   private final static String EVENT_NAME_PARAM_NAME = "Event Name";
   private final static String COMMENTS_PARAM_NAME = "Comments";
-  private final static String REFERENCES_PARAM_NAME = "Choose References";
-  private final static String DATE_ESTIMATE_PARAM_NAME = "Event Time Estimate";
+  private final static String REFERENCES_PARAM_NAME = "References";
+  private final static String TIME_ESTIMATE_PARAM_NAME = "Event Time Estimate";
   private final static String SLIP_ESTIMATE_PARAM_NAME = "Event Slip Estimate";
-  private final static String SLIP_TITLE = "Event Slip";
   private final static String DISPLACEMENT_SHARED_PARAM_NAME = "Slip Shared With Other Events";
   private final static String SHARED_EVENT_PARAM_NAME = "Names of Events Sharing Slip";
-  private final static String COMMENTS_REFERENCES_TITLE="Comments & References";
-
-  //date estimate related constants
-  private final static String TIME_ESTIMATE_UNITS="years";
-  //slip rate constants
-  private final static String SLIP_RATE_UNITS = "mm/yr";
-  // diplacement parameter list editor title
-  private final static String DISPLACEMENT_TITLE = "Shared Slip";
-  private final static String TITLE = "View Event";
+  private final static String TITLE = "Individual Events";
 
   // information displayed for selected event
   private StringParameter eventNameParam;
@@ -71,17 +55,13 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
   private InfoLabel displacementSharedLabel = new InfoLabel();
   private InfoLabel sharedEventLabel = new InfoLabel();
   private InfoLabel referencesLabel = new InfoLabel();
-
   // various parameter editors
   private ConstrainedStringParameterEditor eventNameParamEditor;
 
-  private final static int WIDTH = 600;
-  private final static int HEIGHT = 700;
 
   public ViewIndividualEvent() {
     try {
-      // initialize the GUI
-      jbInit();
+      this.setLayout(GUI_Utils.gridBagLayout);
       // add Parameters and editors
       initParamsAndEditors();
       // add the action listeners to the button
@@ -90,9 +70,6 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
       this.setEventInfo((String)eventNameParam.getValue());
       // set the title
       this.setTitle(TITLE);
-      setSize(WIDTH, HEIGHT);
-      this.setLocationRelativeTo(null);
-      show();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -131,40 +108,25 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
   }
 
   /**
-   * Add the parameter editors to the GUI
+   * Add all the event information to theGUI
    */
   private void addEditorstoGUI() {
+    int yPos=0;
 
-    // event time estimate
-    this.estimatesSplitPane.add(timeEstLabel, JSplitPane.LEFT);
-
-    // event slip and whether slip is shared
-    LabeledBoxPanel slipPanel = new LabeledBoxPanel(gridBagLayout1);
-    slipPanel.setTitle(SLIP_TITLE);
-    slipPanel.add(slipEstLabel,  new GridBagConstraints(0, 0, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    slipPanel.add(displacementSharedLabel,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    slipPanel.add(this.sharedEventLabel,  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    estimatesSplitPane.add(slipPanel, JSplitPane.RIGHT);
-
-    // comments and references
-    LabeledBoxPanel commentsReferencesPanel = new LabeledBoxPanel(gridBagLayout1);
-    commentsReferencesPanel.setTitle(COMMENTS_REFERENCES_TITLE);
-    this.detailedEventInfoSplitPane.add(commentsReferencesPanel, JSplitPane.RIGHT);
-    commentsReferencesPanel.add(this.commentsLabel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    commentsReferencesPanel.add(this.referencesLabel,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-
-    // event name
-    eventSummaryPanel.add(eventNameParamEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    eventSummaryPanel.add(this.editButton,  new GridBagConstraints(1, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-    eventSummaryPanel.add(this.addButton,  new GridBagConstraints(2, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+    add(eventNameParamEditor ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(GUI_Utils.getPanel(timeEstLabel,TIME_ESTIMATE_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(GUI_Utils.getPanel(slipEstLabel,SLIP_ESTIMATE_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(GUI_Utils.getPanel(displacementSharedLabel,DISPLACEMENT_SHARED_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(GUI_Utils.getPanel(sharedEventLabel,SHARED_EVENT_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(GUI_Utils.getPanel(commentsLabel,COMMENTS_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(GUI_Utils.getPanel(referencesLabel,REFERENCES_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
   }
 
 
@@ -260,25 +222,5 @@ public class ViewIndividualEvent extends JFrame implements ParameterChangeListen
   }
 
 
-  /**
-   * initialize the GUI
-   * @throws java.lang.Exception
-   */
-  private void jbInit() throws Exception {
-    mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    topPanel.setLayout(gridBagLayout2);
-    this.getContentPane().setLayout(borderLayout1);
-    eventSummaryPanel.setLayout(gridBagLayout1);
-    this.getContentPane().add(topPanel, BorderLayout.CENTER);
-    topPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 3, 0, 2), 305, 423));
-    topPanel.add(closeButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 147, 29, 0), 54, 7));
-    mainSplitPane.add(detailedEventInfoSplitPane, JSplitPane.BOTTOM);
-    detailedEventInfoSplitPane.add(estimatesSplitPane, JSplitPane.LEFT);
-    mainSplitPane.add(eventSummaryPanel, JSplitPane.TOP);
-    estimatesSplitPane.setDividerLocation(WIDTH/3);
-    mainSplitPane.setDividerLocation(50);
-    detailedEventInfoSplitPane.setDividerLocation(WIDTH*2/3);
-  }
+
 }

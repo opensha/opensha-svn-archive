@@ -49,7 +49,7 @@ public class InfoLabel extends JLabel {
 
   public void setTextAsHTML(String paramName, String paramValue) {
     if(paramValue==null) paramValue = NA;
-    String label  = "<html><b>"+paramName+"</b>"+paramValue+"</html>";
+    String label  = "<html><b>"+paramName+":&nbsp;</b>"+paramValue+"</html>";
     setText(label);
   }
 
@@ -182,12 +182,12 @@ public class InfoLabel extends JLabel {
    */
   private String getTextForExactTime(ExactTime exactTime) {
     GregorianCalendar calendar = exactTime.getGregorianCalendar();
-    return "<html><b>"+TIME+":</b>Exact Time"+"<br>"+
-        "<b>Year:</b>"+calendar.get(GregorianCalendar.YEAR)+exactTime.getEraAsString()+"<br>"+
-        "<b>Month:</b>"+calendar.get(GregorianCalendar.MONTH)+"<br>"+
-        "<b>Date:</b>"+calendar.get(GregorianCalendar.DATE)+"<br>"+
-        "<b>Hour:</b>"+calendar.get(GregorianCalendar.HOUR)+"<br>"+
-        "<b>Second:</b>"+calendar.get(GregorianCalendar.SECOND)+"<br></html>";
+    return "<html><b>"+TIME+":&nbsp;</b>Exact Time"+"<br>"+
+        "<b>Year:&nbsp;</b>"+calendar.get(GregorianCalendar.YEAR)+exactTime.getEraAsString()+"<br>"+
+        "<b>Month:&nbsp;</b>"+calendar.get(GregorianCalendar.MONTH)+"<br>"+
+        "<b>Date:&nbsp;</b>"+calendar.get(GregorianCalendar.DATE)+"<br>"+
+        "<b>Hour:&nbsp;</b>"+calendar.get(GregorianCalendar.HOUR)+"<br>"+
+        "<b>Second:&nbsp;</b>"+calendar.get(GregorianCalendar.SECOND)+"<br></html>";
   }
 
   /**
@@ -201,13 +201,13 @@ public class InfoLabel extends JLabel {
     boolean isKaSelected = timeEstimate.isKaSelected();
     String text="";
     if(isKaSelected) { // if KA is selected
-      text = "<html><b>"+TIME+":</b>Time Estimate"+"<br>"+
-          "<html><b>Units:</b>ka"+"<br>"+
-          "<b>Zero Year:</b>"+timeEstimate.getZeroYear()+"AD<br>"+
+      text = "<html><b>"+TIME+":&nbsp;</b>Time Estimate"+"<br>"+
+          "<html><b>Units:&nbsp;</b>ka"+"<br>"+
+          "<b>Zero Year:&nbsp;</b>"+timeEstimate.getZeroYear()+"AD<br>"+
           getTextForEstimate(timeEstimate.getEstimate())+"</html>";
     } else { // if calendar year is selected for estimate
-      text = "<html><b>"+TIME+":</b>Time Estimate"+"<br>"+
-       "<html><b>Units:</b>Calendar Years"+"<br>"+
+      text = "<html><b>"+TIME+":&nbsp;</b>Time Estimate"+"<br>"+
+       "<html><b>Units:&nbsp;</b>Calendar Years"+"<br>"+
        getTextForEstimate(timeEstimate.getEstimate())+"</html>";
     }
     return text;
@@ -221,9 +221,9 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForNormalEstimate(NormalEstimate estimate) {
-    return "<b>"+ESTIMATE_TYPE+":</b>"+estimate.getName()+"<br>"+
-        "<b>Mean:</b>"+estimate.getMean()+"<br>"+
-        "<b>StdDev:</b>"+estimate.getStdDev();
+    return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
+        "<b>Mean:&nbsp;</b>"+estimate.getMean()+"<br>"+
+        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev();
   }
 
   /**
@@ -233,9 +233,9 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForLogNormalEstimate(LogNormalEstimate estimate) {
-    return "<b>"+ESTIMATE_TYPE+":</b>"+estimate.getName()+"<br>"+
-        "<b>Linear Median:</b>"+estimate.getLinearMedian()+"<br>"+
-        "<b>StdDev:</b>"+estimate.getStdDev();
+    return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
+        "<b>Linear Median:&nbsp;</b>"+estimate.getLinearMedian()+"<br>"+
+        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev();
   }
 
   /**
@@ -246,7 +246,7 @@ public class InfoLabel extends JLabel {
    */
   private String getTextForDiscretizedFuncEstimate(DiscretizedFuncEstimate estimate) {
     DiscretizedFunc func = estimate.getValues();
-    String text =  "<b>"+ESTIMATE_TYPE+":</b>"+estimate.getName()+"<br>"+
+    String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
     for(int i=0; i<func.getNum(); ++i)
         text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
