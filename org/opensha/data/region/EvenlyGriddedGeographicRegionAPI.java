@@ -8,12 +8,59 @@ import org.opensha.data.Location;
 
 /**
  * <p>Title: EvenlyGriddedGeographicRegionAPI</p>
- * <p>Description:
+ * <p>Description: This API lets the user to define a EvenlyGriddedGeographicRegion.
+ *  This API defines  minimum functionality that all the EvenGriddedGeographicRegions are
+ * supposed to provide.
  * </p>
  * <p>
- * Note : All classes utilising this API utilize nice grid-point locations, meaning
+ * When creating a EvelyGriddedGeographicRegion classes we adopt the following rules:
+ * <ul>
+ * <li>If user asks for location at a particular index in the region, then functions in
+ * all the EvenlyGriddedGeographicRegion classes will return null, if invalid index
+ * is given.
+ * <li>If user asks for index of a location in the region, then functions in
+ * all the EvenlyGridddedGeographicRegion classes will return -1, if location is
+ * not in the region's bound.
+ * </ul>
+ * User can check for "null" and "< 0" if any processing has to done.
+ * Some rules EvenlyGriddedGeographicRegionAPI classes follow when the creating the
+ * region locations :
+ * <ul>
+ * <li>We don't create the region locations before hand, we store then in a efficient
+ * way so that retreival is easy.
+ * <li>Any method name ending with "clone" just creates a new location object. It
+ * is good approach as we don't create the locationlist for the region before-hand.
+ * But if user will be calling for same function repeatedly and it returns the same
+ * location then it user should use the method that does not end with "clone".
+ * <li> When user asks for a location or index of a location in the region and
+ * calls a method WITHOUT "clone" then it creates list of locations in the region,
+ * if not already exists, and returns the location or index of the location from
+ * this list. Drawback of much a approach that this locationlist always exist in
+ * the memory but it is much more efficient as not creating a new location everytime.
+ * It is memory Vs efficency. We are getting efficency on cost of memory.
+ * <li> When locations are created for the gridded region they are created as reading a
+ * book. Locations are sorted based on Latitudes in increasing order. For each latitude
+ * longitude ordering is maintained in increasing order. Suppose we have a gridded region
+ * where Min-Lat = 33.0, Max-Lat = 34.0, Min-Lon = -119.0, Max-Lon = -118.0,GridSpacing = 0.5.
+ * Then the locations for the region will be in the following order:
+ * <br>33.0  -119.0
+ * <br>33.0  -118.5
+ * <br>33.0  -118.0
+ * <br>33.5  -119.0
+ * <br>33.5  -118.5
+ * <br>33.5  -118.0
+ * <br>33.0  -119.0
+ * <br>33.0  -118.5
+ * <br>33.0  -118.0
+ * <li> All classes utilising this API utilize nice grid-point locations, meaning
  * lat/gridSpacing & lon/gridSpacing are always equal to whole numbers, for all
- * grid locations.
+ * grid locations. This has been done to achieve  calculate the region locations
+ * on the fly efficently. But calculating the nice values, that are exact multiple of the
+ * gridspacing, might sometimes shorten the min/max lat/lon by maximum of one
+ * gridspacing. Even the region bounds remain the same as provided by the user
+ * but when list of locations are calculated they might only go upto min/max lat/lon
+ * nice grid values.
+ * </ul>
  * </p>
  * @author : Nitin Gupta & Vipin Gupta
  * @created: March 5,2003
@@ -85,46 +132,58 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
   public double getMaxGridLon();
 
   /**
-   *
-   * @param index
-   * @returns the Grid Location at that index.
+   * It returns the grid location at a given index in the region. If the list
+   * of locations in the region does not already exists then it creates it keeps
+   * it in the memory until user destroys it.  By following
+   * this approach we are improving performance on memory cost.
+   * @param index location index in the region
+   * @returns the Grid Location at that index. Returns null if invalid index is provided.
    */
-  public Location getGridLocation(int index) ;
-
+  public Location getGridLocation(int index);
 
   /**
    * Returns the index of the nearest location in the given gridded region, to
    * the provided Location.
-   * @param loc Location Location to which we have to find the nearest location.
-   * @return int Nearest Location index
+   * @param loc Location Location to which we have to find the nearest location index.
+   * @return int Nearest Location index. Returns -1 if location is outside the regional bounds.
    */
   public int getNearestLocationIndex(Location loc);
 
   /**
    * Returns the nearest location in the gridded region to the provided Location.
+   * This method will create the list of locations for the
+   * region if not already exists then find the nearest location. By following
+   * this approach we are improving performance on memory cost.
    * @param loc Location Location to which we have to find the nearest location.
-   * @return Location Nearest Location
+   * @return Location Nearest Location. Returns null if location is outside the regional bounds.
    */
   public Location getNearestLocation(Location loc);
 
   /**
-   *
-   * @param loc Location
-   * @return Location
-   * @throws RegionConstraintException
+   * Returns the nearest location in the gridded region to the provided location.
+   * This method will create a new location object every time this function is called.
+   * It improves the memory utilization as location for the gridded region are not
+   * created. This function gets the nearest location to the given location
+   * on the fly.
+   * @param loc Location Location to which we have to find the nearest location.
+   * @return Location Nearest Location. Returns null if location is outside the regional bounds.
    */
   public Location getNearestLocationClone(Location loc);
 
   /**
-   *
-   * @param index int
-   * @return Location
-   * @throws RegionConstraintException
+   * Returns the location in the gridded region to the provided location.
+   * This method will create a new location object every time this function is called.
+   * It improves the memory utilization as location for the gridded region are not
+   * created. This function gets the location to the given location
+   * on the fly.
+   * @param index int location index in the region.
+   * @return Location at the given index. Returns null if invalid index.
    */
   public Location getGridLocationClone(int index);
 
   /**
-   * Clears the Region LocationList so as to make it empty.
+   * Clears the Region LocationList so as to make it empty. Once this function is
+   * called it will remove the list of locations in the region.
    */
   public void clearRegionLocations();
 
@@ -135,7 +194,7 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
    * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
    * location in this region.
    * @return Location Returns the nearest location in the region for the index in the Region
-   * on which this function is called.
+   * on which this function is called. Returns null if invalid index is provided.
    */
   public Location getNearestGridLocation(int index,
                                   EvenlyGriddedGeographicRegionAPI region) ;
@@ -147,7 +206,7 @@ public interface EvenlyGriddedGeographicRegionAPI extends GeographicRegionAPI,ja
    * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
    * location in this region.
    * @return int  Returns the nearest location index in the region for the index in the Region
-   * on which this function is called.
+   * on which this function is called. Returns -1 if invalid index is provided.
    */
 
   public int getNearestGridLocationIndex(int index,

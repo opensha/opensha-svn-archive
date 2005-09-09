@@ -1,8 +1,5 @@
 package org.opensha.data.region;
 
-import java.util.ListIterator;
-
-
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import org.opensha.exceptions.RegionConstraintException;
@@ -13,9 +10,10 @@ import org.opensha.exceptions.RegionConstraintException;
  * <p>Description: This creates a evenly gridded rectangular geographic region.
  * All grid points are nice values in that lat/gridSpacing and lon/gridSpacing
  * are always whole numbers.</p>
- * <p>Copyright: Copyright (c) 2002</p>
- * <p>Company: </p>
+ *
  * @author : Ned Field & Nitin Gupta & Vipin Gupta
+ *
+ * @see EvenlyGriddedGeographicRegionAPI
  * @version 1.0
  */
 
@@ -23,6 +21,7 @@ public class EvenlyGriddedRectangularGeographicRegion
     extends EvenlyGriddedGeographicRegion {
 
 
+  //number of grid lats and lons
   private int numLatGridPoints;
   private int numLonGridPoints;
 
@@ -32,11 +31,15 @@ public class EvenlyGriddedRectangularGeographicRegion
 
 
   /**
+   *
    * class constructor
-   * @param minLat
-   * @param maxLat
-   * @param minLon
-   * @param maxLon
+   * @param minLat Min Latitude for the EvenlyGridded Rectangular Region
+   * @param maxLat Max Latitude for the EvenlyGridded Rectangular Region
+   * @param minLon Min Longitude for the EvenlyGridded Rectangular Region
+   * @param maxLon Max Longitude for the EvenlyGridded Rectangular Region
+   * @param gridSpacing double GridSpacing in degrees
+   * @throws RegionConstraintException if Min Lat/Lon is greater then Max Lat/Lon.
+   *
    */
   public EvenlyGriddedRectangularGeographicRegion(double minLat, double maxLat,
                                                   double minLon, double maxLon,
@@ -62,7 +65,9 @@ public class EvenlyGriddedRectangularGeographicRegion
     locList.addLocation(new Location(maxLat, maxLon));
     locList.addLocation(new Location(maxLat, minLon));
 
-    setGridSpacing(gridSpacing);
+    //sets the region min/max lat/lon aswell creates the evenly gridded
+    //Rectangular Geographic Region boundary.
+    createEvenlyGriddedGeographicRegion(locList,gridSpacing);
 
     if (D) System.out.println("numLatGridPoints=" + numLatGridPoints +
                               "; numLonGridPoints=" + numLonGridPoints);
@@ -90,7 +95,7 @@ public class EvenlyGriddedRectangularGeographicRegion
 
   /**
    *
-   * @returns the number of GridLocation points
+   * @returns the number of Grid Locations
    */
   public int getNumGridLocs(){
 
@@ -100,10 +105,10 @@ public class EvenlyGriddedRectangularGeographicRegion
 
   /**
    * This method checks whether the given location is within the region using the definition of
-   * insidedness used in the parent class (true if on lower or left-hand boundary, but false
+   * insidedness(true if on lower or left-hand boundary, but false
    * if on the upper or right-hand boundary)
-   * @param location
-   * @return
+   * @param location Location
+   * @return true if location if within the regional bounds false otherwise
    */
   public boolean isLocationInside(Location location){
     double tempLat=location.getLatitude();
@@ -135,9 +140,10 @@ public class EvenlyGriddedRectangularGeographicRegion
   }
 
   /**
-   *
+   * Returns the Gridded Locatio at the given index.
    * @param index (starts from zero)
-   * @returns a clone of the Grid Location at that index.
+   * @returns Grid Location at the index.
+   * @see EvelyGriddedGeographicRegionAPI.getGridLocationClone(int)
    */
   public Location getGridLocationClone(int index)  {
 
@@ -159,14 +165,13 @@ public class EvenlyGriddedRectangularGeographicRegion
   }
 
 
-
-
   /**
    * Returns the index of the nearest location in the given gridded region, to
    * the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
    * @return int index of the nearest location. User can use this index to
    * retrive the location from the locationlist.
+   * @see EvenlyGriddedGeographicRegionAPI.getNearestLocationIndex(Location)
    */
   public int getNearestLocationIndex(Location loc){
     //getting the Location lat and Lon
@@ -206,8 +211,8 @@ public class EvenlyGriddedRectangularGeographicRegion
 
 
   /**
-   * Private method to create the Location List for the gridded Rectangular Geog. Region
-   * @returns the LocationList
+   * Creates the list of location in the gridded region and keeps it in the
+   * memory until cleared.
    */
   protected void createGriddedLocationList(){
     double lat,lon;
@@ -224,6 +229,10 @@ public class EvenlyGriddedRectangularGeographicRegion
   }
 
 
+  /*
+   * Main method to run the this class and produce a file with
+   * EvenlyGriddedRegion locations.
+   */
   public static void main(String[] args) {
 
     EvenlyGriddedRectangularGeographicRegion geoReg = null;

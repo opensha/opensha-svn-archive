@@ -26,6 +26,8 @@ import org.opensha.calc.RelativeLocation;
  * @author : Edward Field
  * @created: March 5,2003
  * @version 1.0
+ *
+ * @see EvenlyGriddedGeographicRegionAPI
  */
 
 public class EvenlyGriddedCircularGeographicRegion
@@ -99,15 +101,17 @@ public class EvenlyGriddedCircularGeographicRegion
 
     // make the region outline (locList)
     makeRegionOutline(10.0);
-
+    //set the gridSpacing for the region and creates the minimum information required
+    //for retreiving the any location or index in the gridded region.
     setGridSpacing(gridSpacing);
   }
 
   /**
    * This method checks whether the given location is within the region by seeing whether
    * the distance to the circle center is less than or equal to the circle radius.
-   * @param location
-   * @return
+   * @param location Location
+   * @returns true if location is inside the circular region boundary
+   * otherwise it return false.
    */
   public boolean isLocationInside(Location location){
     double horzDist = RelativeLocation.getHorzDistance(this.circleCenterLocation, location);
@@ -119,9 +123,8 @@ public class EvenlyGriddedCircularGeographicRegion
   }
 
 
-  //
   /**
-   * this make the locList for the region outline
+   * this make the locList for the circular region outline
    * This creates the region outline for the circle, where there are 360/degreeIncrement
    * equally spaced points (the last two may be closer than this).  The constructor (default)
    * uses 10 degrees (36 points)
@@ -135,7 +138,6 @@ public class EvenlyGriddedCircularGeographicRegion
       tempDir = new Direction(0.0,circleRadius,deg,180-deg);
       locList.addLocation(RelativeLocation.getLocation(circleCenterLocation,tempDir));
     }
-
     if(D) {
       Location tempLoc;
       System.out.println("Region outline:");
@@ -147,7 +149,6 @@ public class EvenlyGriddedCircularGeographicRegion
   }
 
 
-
   /**
    * Returns the EvenlyGriddedCircularGeographicRegion radius
    * @return double
@@ -155,6 +156,8 @@ public class EvenlyGriddedCircularGeographicRegion
   public double getEvenlyGriddedCircularRegionRadius(){
     return circleRadius;
   }
+
+
 
   /**
    * Returns the center location EvenlyGriddedCircularRegionCenterLocation
@@ -227,7 +230,8 @@ public class EvenlyGriddedCircularGeographicRegion
    * Returns the index of the nearest location in the given gridded region, to
    * the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
-   * @return int
+   * @return nearest location index
+   * @see EvenlyGriddedGeographicRegionAPI.getNearestLocationIndex(Location)
    */
   public int getNearestLocationIndex(Location loc){
 
@@ -275,12 +279,13 @@ public class EvenlyGriddedCircularGeographicRegion
 
 
   /**
-   * Returns the Gridded Location at a given index. If user already has the gridded
-   * location list then it returns the location from this gridded location list,
-   * else creates a new location object whenever user request for a location a
-   * given index.
+   * Returns the Gridded Location at a given index. It creates a
+   * new location object whenever user request for a location a
+   * given index. It does this on the fly without having to create all locations
+   * in the EvenlyGridded Circular Region.
    * @param index
-   * @returns the Grid Location at that index.
+   * @returns the Grid Location object at that index.
+   * @see EvenlyGriddedGeographicRegionAPI.getGridLocationClone(int)
    */
   public Location getGridLocationClone(int index)  {
 
@@ -318,7 +323,8 @@ public class EvenlyGriddedCircularGeographicRegion
 
 
   /**
-   * Creates the locationlist from the
+   * Creates the list of location in the gridded region and keeps it in the
+   * memory until cleared.
    */
   protected void createGriddedLocationList() {
 
@@ -345,6 +351,11 @@ public class EvenlyGriddedCircularGeographicRegion
     }
   }
 
+
+  /**
+   * Main method to run the this class and produce a file with
+   * evenly gridded location.
+   */
   public static void main(String[] args) {
     EvenlyGriddedCircularGeographicRegion gridReg = new EvenlyGriddedCircularGeographicRegion(new Location(34,-122,0),111,0.02);
     try {
@@ -359,7 +370,5 @@ public class EvenlyGriddedCircularGeographicRegion
     catch (IOException ex) {
       ex.printStackTrace();
     }
-
   }
-
 }

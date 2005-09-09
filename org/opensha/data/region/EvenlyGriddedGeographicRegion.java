@@ -25,6 +25,10 @@ import java.io.FileWriter;
  * if region looks like a EvenlyGridded Geographical region for the locations
  * provided by the user.
  * </p>
+ *
+ * @see EvenlyGriddedGeographicRegionAPI for more documentation for the
+ * EvenlyGriddedGeographicRegion.
+ *
  * @author : Nitin Gupta & Vipin Gupta
  * @created: March 5,2003
  * @version 1.0
@@ -66,7 +70,8 @@ public class EvenlyGriddedGeographicRegion
    * default class constructor
    */
   public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing) {
-    createEvenlyGriddedGriddedGeographicRegion(locList,gridSpacing);
+    //sets the region min/max lat/lon aswell creates the region boundary.
+    createEvenlyGriddedGeographicRegion(locList,gridSpacing);
   }
 
 
@@ -75,8 +80,10 @@ public class EvenlyGriddedGeographicRegion
    * @param locList LocationList creates the region  boundary using this location list.
    * @param gridSpacing double
    */
-  public void createEvenlyGriddedGriddedGeographicRegion(LocationList locList, double gridSpacing){
+  public void createEvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing){
     createGeographicRegion(locList);
+    //set the gridSpacing for the region and creates the minimum information required
+    //for retreiving the any location or index in the gridded region.
     setGridSpacing(gridSpacing); // this also sets the max and min grid lats and lons.
   }
 
@@ -123,10 +130,14 @@ public class EvenlyGriddedGeographicRegion
     }
   }
 
+
+
+
   /**
    * It samples out the grids location points based on the grid spacing(in degrees)
    * chosen.
    * @param degrees: sets the grid spacing
+   * @see EvenlyGriddedGeographicRegionAPI.setGridSpacing(double)
    */
   public void setGridSpacing(double degrees) {
     gridSpacing = degrees;
@@ -149,7 +160,7 @@ public class EvenlyGriddedGeographicRegion
 
   /**
    *
-   * @returns the number of GridLocation points
+   * @returns the number of GridLocations in the region
    */
   public int getNumGridLocs() {
     if(gridLocsList !=null)
@@ -171,7 +182,7 @@ public class EvenlyGriddedGeographicRegion
 
   /**
    *
-   * @returns the GridLocations List
+   * @return LocationList List of locations in the region.
    */
   public LocationList getGridLocationsList() {
     if (gridLocsList == null)
@@ -180,12 +191,8 @@ public class EvenlyGriddedGeographicRegion
   }
 
   /**
-   * Returns the Gridded Location at a given index. If user has already the gridded
-   * location list then it returns the location from this gridded location list,
-   * else creates a new location object whenever user request for a location a
-   * given index.
-   * @param index
-   * @returns the Grid Location at that index.
+   * Returns the Gridded Location at a given index.
+   * @see EvenlyGriddedGeographicRegionAPI.getGridLocationClone(int).
    */
   public Location getGridLocationClone(int index) {
 
@@ -215,7 +222,8 @@ public class EvenlyGriddedGeographicRegion
 
 
   /**
-   * Clears the Region LocationList so as to make it empty.
+   * Clears the gridded region lsit of location if already exists.
+   * @see EvenlyGriddedGeographicRegionAPI.clearRegionLocations()
    */
   public void clearRegionLocations(){
     if(gridLocsList !=null){
@@ -226,13 +234,10 @@ public class EvenlyGriddedGeographicRegion
 
 
   /**
-   * This gets the nearest location at the given index corresponding to the location in the
-   * given EvenlyGriddedGeographicRegionAPI region.
-   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
-   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
-   * location in this region.
-   * @return Location Returns the nearest location in the region for the index in the Region
+   * Returns the nearest location in the region for the index in the Region
    * on which this function is called.
+   * @see EvenlyGriddedGeographicRegionAPI.getNearestGridLocation(int ,
+   * EvenlyGriddedGeographicRegionAPI).
    */
  public Location getNearestGridLocation(int index,
                                  EvenlyGriddedGeographicRegionAPI region) {
@@ -244,13 +249,10 @@ public class EvenlyGriddedGeographicRegion
   }
 
   /**
-   * This gets the index of the nearest location at the given index
-   * corresponding to the location in the given EvenlyGriddedGeographicRegionAPI region.
-   * @param index int index of the called EvenlyGriddedGeographicRegionAPI
-   * @param region EvenlyGriddedGeographicRegionAPI given index will be mapped to a
-   * location in this region.
-   * @return int  Returns the nearest location index in the region for the index in the Region
+   * Returns the nearest location index in the region for the index in the Region
    * on which this function is called.
+   * @see EvenlyGriddedGeographicRegionAPI getNearestGridLocationIndex(int ,
+   * EvenlyGriddedGeographicRegionAPI)
    */
  public int getNearestGridLocationIndex(int index,
                                  EvenlyGriddedGeographicRegionAPI region) {
@@ -267,7 +269,8 @@ public class EvenlyGriddedGeographicRegion
    * This method will create a list of locations in the region if not already created
    * and then find the location at a given index.
    * @param index int
-   * @return Location
+   * @return Location Location at a given index
+   * @see EvenlyGriddedGeographicRegionAPI.getGridLocation(int)
    */
   public Location getGridLocation(int index) {
     if(index < 0 || index > (locList.size() -1))
@@ -278,11 +281,12 @@ public class EvenlyGriddedGeographicRegion
   }
 
   /**
-   * Returns the Location  in the Region to a given location.
+   * Returns the nearest Location  in the Region to a given location.
    * This method will create a list of locations in the region if not already created
    * and then find the location at a given index.
    * @param index int
-   * @return Location
+   * @return Location nearest Location  in the Region to a given location
+   * @see EvenlyGriddedGeographicRegionAPI.getNearestLocation(Location)
    */
   public Location getNearestLocation(Location loc){
     LocationList locList = getGridLocationsList();
@@ -297,6 +301,7 @@ public class EvenlyGriddedGeographicRegion
    * Returns the nearest location in the gridded region to the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
    * @return Location Nearest Location
+   * @see EvenlyGriddedGeographicRegionAPI.getNearestLocationClone(Location)
    */
   public Location getNearestLocationClone(Location loc){
     //Getting the nearest Location to the rupture point location
@@ -331,7 +336,8 @@ public class EvenlyGriddedGeographicRegion
    * Returns the index of the nearest location in the given gridded region, to
    * the provided Location.
    * @param loc Location Location to which we have to find the nearest location.
-   * @return int
+   * @return int nearest location index in the gridded region.
+   * @see EvenlyGriddedGeographicRegionAPI.getNearestLocationIndex(Location)
    */
   public int getNearestLocationIndex(Location loc) {
 
@@ -408,8 +414,11 @@ public class EvenlyGriddedGeographicRegion
      }*/
 
 
+
+
   /**
-   * Creates the locationlist from the
+   * Creates the list of location in the gridded region and keeps it in the
+   * memory until cleared.
    */
   protected void createGriddedLocationList() {
 
@@ -470,6 +479,10 @@ public class EvenlyGriddedGeographicRegion
     return niceMaxLon;
   }
 
+  /*
+   * Main method to run the this class and produce a file with
+   * evenly gridded location.
+   */
   public static void main(String[] args) {
     LocationList locList = new LocationList();
     locList.addLocation(new Location(37.19, -120.61, 0.0));

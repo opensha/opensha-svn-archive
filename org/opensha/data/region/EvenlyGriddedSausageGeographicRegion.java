@@ -28,6 +28,8 @@ import java.io.*;
  * of file. One can take this file and plot it in some kind plotting tool to see
  * if region looks like a EvenlyGriddedSaugage Geographical region.
  * </p>
+ * @see EvenlyGriddedGeographicRegionAPI
+ *
  * @author : Nitin Gupta
  * @created: July 30,2005
  * @version 1.0
@@ -74,6 +76,9 @@ public class EvenlyGriddedSausageGeographicRegion
    * @param radius double Maximum distance for which locations in this sausage
    * region are to be considered.
    * @param gridSpacing double Grid Spacing in degrees
+   * This function creates a efficient way of retreving the locations from the
+   * EvenlyGriddedSausageGeographicRegion on the fly without stroing the list of
+   * location for this Evenly Gridded Geographic Region.
    */
   public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
     createEvenlyGriddedSausageGeographicRegion(locList,radius,gridSpacing) ;
@@ -98,11 +103,55 @@ public class EvenlyGriddedSausageGeographicRegion
     setMinMaxLatLon();
     this.radius = radius;
     setGridSpacing(gridSpacing);
+  }
 
+
+  /**
+   * These function have not been defined yet because there is is we don't know
+   * how to generate boundary around a Sausage Region.
+   * @return int
+   * @throws UnsupportedOperationException
+   */
+  public int getNumRegionOutlineLocations() throws UnsupportedOperationException{
+    throw new UnsupportedOperationException("Method not implemented");
   }
 
   /**
-   * this method finds the minLat,maxLat,minLon and maxLon.
+   * These function have not been defined yet because there is we don't know
+   * how to generate boundary around a Sausage Region.
+   * @return ListIterator
+   * @throws UnsupportedOperationException
+   */
+  public ListIterator getRegionOutlineIterator() throws
+      UnsupportedOperationException {
+    throw new UnsupportedOperationException("Method not implemented");
+  }
+
+
+
+  /**
+   * These function have not been defined yet because there is we don't know
+   * how to generate boundary around a Sausage Region.
+   * @return LocationList
+   * @throws UnsupportedOperationException
+   */
+  public LocationList getRegionOutline() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException("Method not implemented");
+  }
+
+
+
+  /**
+   * It gets the min/max lat/lon from the provided list of locations. It then
+   * creates the rectangular region around the Sausage Region and see which
+   * of the locations in this rectangular region are within the radius distance of
+   * given locations. It actually not saves all the locations in the Sausage in memory
+   * but save it in a efficient so as to conserve memory and compute the location
+   * in the gridded region on the fly.
+   * It samples out the grids location points based on the grid spacing(in degrees)
+   * chosen.
+   * @param degrees: sets the grid spacing
+   * @see EvenlyGriddedGeographicRegionAPI.setGridSpacing(double)
    */
   protected void setMinMaxLatLon(){
     ListIterator it=locList.listIterator();
@@ -145,8 +194,9 @@ public class EvenlyGriddedSausageGeographicRegion
   }
 
 
-  /*
-   * This function creates the Gridded Rectangular Region Outline
+  /**
+   * Creates the list of location in the gridded region and keeps it in the
+   * memory until cleared.
    */
   protected void createEvenlyGriddedRectangularRegionOutline(){
     //location that finds the min lat for the rectangular region
@@ -179,7 +229,12 @@ public class EvenlyGriddedSausageGeographicRegion
 
   /**
    * It samples out the grids location points based on the grid spacing(in degrees)
-   * chosen.
+   * chosen.It creates the rectangular region around the Sausage Region and see which
+   * of the locations in this rectangular region are within the radius distance of
+   * given locations. It actually not saves all the locations in the Sausage in memory
+   * but save it in a efficient so as to conserve memory and compute the location
+   * in the gridded region on the fly.
+
    * @param degrees: sets the grid spacing
    */
   public void setGridSpacing(double gridSpacing){
@@ -204,7 +259,7 @@ public class EvenlyGriddedSausageGeographicRegion
 
 
   /*
-   * this function creates a Lon Array for each gridLat. It also creates a
+   * This function creates a Lon Array for each gridLat. It also creates a
    * int array which tells how many locations are there below a given lat.
    */
   protected void initLatLonArray() {
@@ -295,7 +350,10 @@ public class EvenlyGriddedSausageGeographicRegion
     }
   }
 
-
+  /*
+   * Main method to run the this class and produce a file with
+   * EvenlyGriddedRegion locations.
+   */
   public static void main(String[] args) {
     LocationList locList = new LocationList();
     locList.addLocation(new Location(32.0,-118.0));
