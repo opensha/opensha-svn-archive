@@ -22,7 +22,9 @@ import org.opensha.sha.magdist.*;
  * @author not attributable
  * @version 1.0
  */
-public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFreqDistForecast {
+public abstract class STEP_AftershockHypoMagForecast
+    extends AfterShockHypoMagFreqDistForecast {
+
   public double minForecastMag = 4.0;
   private double maxForecastMag = 8.0;
   private double deltaMag = 0.1;
@@ -38,35 +40,44 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   private double gridSpacing = 0.05;
   private double forecastEndTime, forecastStartTime;
   private ArrayList griddedMagFreqDistForecast;
+  private boolean isStatic = false, isPrimary = true,
+      isSecondary = false, useSeqAndSpatial = false;
 
   /**
-  * calc_NodeCompletenessMag
-  * calculate the completeness at each node
-  */
- public abstract void calc_NodeCompletenessMag();
+   * set_useSeqAndSpatial
+   */
+  public void set_useSeqAndSpatial(boolean useSeqAndSpatial) {
+    this.useSeqAndSpatial = useSeqAndSpatial;
+  }
 
- /**
-  * set_minForecastMag
-  * the minimum forecast magnitude
-  */
- public void set_minForecastMag(double min_forecastMag) {
- minForecastMag = min_forecastMag;
- }
+  /**
+   * calc_NodeCompletenessMag
+   * calculate the completeness at each node
+   */
+  //public abstract void calc_NodeCompletenessMag();
 
- /**
-  * set_maxForecastMag
-  * the maximum forecast magnitude
-  */
- public void set_maxForecastMag(double max_forecastMag) {
- maxForecastMag = max_forecastMag;
- }
+  /**
+   * set_minForecastMag
+   * the minimum forecast magnitude
+   */
+  public void set_minForecastMag(double min_forecastMag) {
+    minForecastMag = min_forecastMag;
+  }
+
+  /**
+   * set_maxForecastMag
+   * the maximum forecast magnitude
+   */
+  public void set_maxForecastMag(double max_forecastMag) {
+    maxForecastMag = max_forecastMag;
+  }
 
   /**
    * set_deltaMag
    * the magnitude step for the binning of the forecasted magnitude
    */
   public void set_deltaMag(double delta_mag) {
-  deltaMag = delta_mag;
+    deltaMag = delta_mag;
   }
 
   /**
@@ -85,32 +96,58 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
     useFixed_cValue = fix_cVal;
   }
 
-  /**
-   * set_Gridded_aValue
-   */
-  public abstract void set_Gridded_aValue();
 
-  /**
-    * set_Gridded_bValue
-    */
-   public abstract void set_Gridded_bValue();
-
-
-   /**
-  * set_Gridded_pValue
-  */
- public abstract void set_Gridded_pValue();
-
- /**
-   * set_Gridded_cValue
-   */
-  public abstract void set_Gridded_cValue();
 
   /**
    * set_addToMcConstant
    */
   public void set_addToMcConstant(double mcConst) {
     addToMc = mcConst;
+  }
+
+  /**
+   * set_isStatic
+   * if true the sequence will take no more aftershocks
+   */
+  public void set_isStatic(boolean isStatic) {
+    this.isStatic = isStatic;
+  }
+
+  /**
+   * set_isPrimary
+   * if true the sequence can be any model type (generic, sequence, sp. var)
+   * set_isPrimary controls both primary and secondary.
+   */
+  public void set_isPrimary(boolean isPrimary) {
+    this.isPrimary = isPrimary;
+    if (isPrimary) {
+      this.set_isSecondary(false);
+    }
+    else {
+      this.set_isSecondary(true);
+    }
+
+  }
+
+  /**
+   * set_isSecondary
+   * if isSecondary is true the model will be forced to be generic.
+   *
+   */
+  private void set_isSecondary(boolean isSecondary) {
+    this.isSecondary = isSecondary;
+  }
+
+  /**
+   * addToAftershockList
+   *
+   * I am not sure if this is done correctly
+   */
+  public void addToAftershockList(ObsEqkRupture newAftershock) {
+    ObsEqkRupList aftershocks = this.getAfterShocks();
+    aftershocks.addObsEqkEvent(newAftershock);
+    // DO I NEED TO DO THIS SET???
+    this.setAfterShocks(aftershocks);
   }
 
   /**
@@ -152,7 +189,7 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
    * This will also set the aftershock list.
    */
 
-  public void calcAfterShockZone(){
+  public void calcAfterShockZone() {
 
     ObsEqkRupList eventsInZoneList = new ObsEqkRupList();
     ObsEqkRupList allEventsList = new ObsEqkRupList();
@@ -171,7 +208,8 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
       if (eventsInZoneList.size() > 100) {
         STEP_TypeIIAftershockZone_Calc typeIIcalc = new
             STEP_TypeIIAftershockZone_Calc(eventsInZoneList, this);
-        EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.get_TypeIIAftershockZone();
+        EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
+            get_TypeIIAftershockZone();
         this.setAfterShockZone(typeII_Zone);
         eventsInZoneList.getObsEqkRupsInside(typeII_Zone);
       }
@@ -180,27 +218,13 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   }
 
 
-  /**
-   * findEventsInRegion
 
-  private ObsEqkRupList findEventsInRegion(GeographicRegion zoneRegion, ObsEqkRupList eventList) {
-    ObsEqkRupList eventsInZoneList = new ObsEqkRupList();
-    ListIterator eventIt = eventList.listIterator();
-    while (eventIt.hasNext()) {
-      Location loc = (Location)eventIt.next();
-      if (zoneRegion.isLocationInside(loc))
-          eventsInZoneList.add(loc);
-      }
-
-  }
-//
-
-/**
-   * set_ForecastStartTime
-   */
-  public void set_ForecastStartTime(double timeStart) {
-    forecastStartTime = timeStart;
-  }
+   /**
+    * set_ForecastStartTime
+    */
+   public void set_ForecastStartTime(double timeStart) {
+     forecastStartTime = timeStart;
+   }
 
   /**
    * set_ForecastEndTime
@@ -224,56 +248,51 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
     double[] singleGridMagFreqDist = new double[numGridNodes];
     ArrayList griddedMagFreqDistForecast = new ArrayList(numGridNodes);
 
-    for (int gridLoop = 0; gridLoop < numGridNodes; ++gridLoop){
+    for (int gridLoop = 0; gridLoop < numGridNodes; ++gridLoop) {
       rjParms[0] = grid_kVal[gridLoop];
       rjParms[1] = grid_cVal[gridLoop];
       rjParms[2] = grid_pVal[gridLoop];
-      OmoriRate_Calc calcOmoriRate = new OmoriRate_Calc(rjParms,timeParms);
+      OmoriRate_Calc calcOmoriRate = new OmoriRate_Calc(rjParms, timeParms);
       double totalForecastEvents = calcOmoriRate.get_OmoriRate();
       GutenbergRichterRate_Calc calcGR_Rate =
-          new GutenbergRichterRate_Calc(grid_bVal[gridLoop],totalForecastEvents);
+          new GutenbergRichterRate_Calc(grid_bVal[gridLoop],
+                                        totalForecastEvents);
       singleGridMagFreqDist = calcGR_Rate.get_ForecastedRates();
       griddedMagFreqDistForecast.add(singleGridMagFreqDist);
     }
   }
 
+
+
   /**
-   * set_completenessMag
+   * Set the fault surface that will be used do define a Type II
+   * aftershock zone.
+   * This will not be used in a spatially varying model.
    */
-  public void set_completenessMag() {
-    calc_NodeCompletenessMag();
+
+  public void set_FaultSurface() {
+    String faultName = "";
+    FaultTrace fault_trace = new FaultTrace(faultName);
+    mainshockFault = new SimpleFaultData();
+    mainshockFault.setAveDip(90.0);
+
+    //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
+    mainshockFault.setFaultTrace(fault_trace);
   }
 
-
-   /**
-    * Set the fault surface that will be used do define a Type II
-    * aftershock zone.
-    * This will not be used in a spatially varying model.
-    */
-
-   public void set_FaultSurface(){
-     String faultName = "";
-     FaultTrace fault_trace = new FaultTrace(faultName);
-     mainshockFault = new SimpleFaultData();
-     mainshockFault.setAveDip(90.0);
-
-     //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
-     mainshockFault.setFaultTrace(fault_trace);
-   }
+  /**
+   * get_minForecastMag
+   */
+  public double get_minForecastMag() {
+    return minForecastMag;
+  }
 
   /**
-  * get_minForecastMag
-  */
- public double get_minForecastMag() {
-   return minForecastMag;
- }
-
- /**
-  * get_maxForecastMag
-  */
- public double get_maxForecastMag() {
-   return maxForecastMag;
- }
+   * get_maxForecastMag
+   */
+  public double get_maxForecastMag() {
+    return maxForecastMag;
+  }
 
   /**
    * get_deltaMag
@@ -282,49 +301,14 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
     return deltaMag;
   }
 
-
   /**
-   * get_Gridded_aVal
+   * get_useSeqAndSpatial
    */
-  public double[] get_Gridded_aVal() {
-    return grid_aVal;
-  }
-
-  /**
-   * get_Gridded_bVal
-   */
-  public double[] get_Gridded_bVal() {
-    return grid_bVal;
-  }
-
-  /**
-   * get_Gridded_cVal
-   */
-  public double[] get_Gridded_cVal() {
-    return grid_cVal;
-  }
-
-  /**
-   * get_Gridded_pVal
-   */
-  public double[] get_Gridded_pVal() {
-    return grid_pVal;
+  public boolean get_useSeqAndSpatial() {
+    return this.useSeqAndSpatial;
   }
 
 
-  /**
-  * get_Gridded_kVal
-  */
-  public double[] get_Gridded_kVal() {
-    return grid_kVal;
-  }
-
-  /**
-   * get_nodeCompletenessMag
-   */
-  public double[] get_nodeCompletenessMag() {
-    return node_CompletenessMag;
-  }
 
   /**
    * get_GridSpacing
@@ -344,7 +328,28 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
    * get_addToMcConst
    */
   public double get_addToMcConst() {
-    return addToMc;
+    return this.addToMc;
+  }
+
+  /**
+   * get_isStatic
+   */
+  public boolean get_isStatic() {
+    return this.isStatic;
+  }
+
+  /**
+   * get_isPrimary
+   */
+  public boolean get_isPrimary() {
+    return this.isPrimary;
+  }
+
+  /**
+   * get_isSecondary
+   */
+  public boolean get_isSecondary() {
+    return this.isSecondary;
   }
 
   /**
@@ -374,6 +379,5 @@ public abstract class STEP_AftershockHypoMagForecast extends AfterShockHypoMagFr
   public ObsEqkRupList get_PreviousAftershockList() {
     return newObsEventList;
   }
-
 
 }

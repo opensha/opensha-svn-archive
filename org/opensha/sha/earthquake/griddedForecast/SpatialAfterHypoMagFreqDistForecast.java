@@ -18,10 +18,10 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
  * @author not attributable
  * @version 1.0
  */
-public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagForecast{
-  private double[] nodeCompletenessMag;
+public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFreqDistForecast{
+  private double[] spaNodeCompletenessMag;
   private int numGridLocs;
-  private double[] grid_kValue, grid_aValue, grid_bValue, grid_cValue, grid_pValue;
+  private double[] grid_Spa_kValue, grid_Spa_aValue, grid_Spa_bValue, grid_Spa_cValue, grid_Spa_pValue;
   public MaxLikeOmori_Calc omoriCalc;
   private ArrayList rjParms;
   private ReasenbergJonesGriddedParms_Calc rjcalc;
@@ -50,36 +50,36 @@ public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagF
   /**
      * set_Gridded_aValue
      */
-    public void set_Gridded_aValue() {
-      grid_aValue = (double[])rjParms.get(1);
+    public void set_Gridded_Spa_aValue() {
+      grid_Spa_aValue = (double[])rjParms.get(1);
     }
 
     /**
      * set_Gridded_bValue
      */
-    public void set_Gridded_bValue() {
-      grid_bValue = (double[])rjParms.get(2);
+    public void set_Gridded_Spa_bValue() {
+      grid_Spa_bValue = (double[])rjParms.get(2);
     }
 
     /**
      * set_Gridded_pValue
      */
-    public void set_Gridded_pValue() {
-      grid_pValue = (double[])rjParms.get(3);
+    public void set_Gridded_Spa_pValue() {
+      grid_Spa_pValue = (double[])rjParms.get(3);
     }
 
     /**
      * set_Gridded_cValue
      */
-    public void set_Gridded_cValue() {
-      grid_cValue = (double[])rjParms.get(5);
+    public void set_Gridded_Spa_cValue() {
+      grid_Spa_cValue = (double[])rjParms.get(5);
     }
 
     /**
      * set_Gridded_kValue
      */
-    public void set_Gridded_kValue() {
-      grid_kValue = (double[])rjParms.get(4);
+    public void set_Gridded_Spa_kValue() {
+      grid_Spa_kValue = (double[])rjParms.get(4);
     }
 
     /**
@@ -88,8 +88,8 @@ public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagF
      * here - it is available in the rjParms ArrayList
      */
 
-    public void calc_NodeCompletenessMag() {
-      nodeCompletenessMag = (double[])rjParms.get(6);
+    public void calc_spaNodeCompletenessMag() {
+      spaNodeCompletenessMag = (double[])rjParms.get(6);
   }
 
 
@@ -100,36 +100,36 @@ public class SpatialAfterHypoMagFreqDistForecast extends STEP_AftershockHypoMagF
   /**
    * get_gridded_aValue
    */
-  public double[] get_gridded_aValue() {
-    return grid_aValue;
+  public double[] get_gridded_Spa_aValue() {
+    return grid_Spa_aValue;
   }
 
   /**
    * get_gridded_bValue
    */
-  public double[] get_gridded_bValue() {
-    return grid_bValue;
+  public double[] get_gridded_Spa_bValue() {
+    return grid_Spa_bValue;
   }
 
   /**
      * get_gridded_pValue
      */
-    public double[] get_gridded_pValue() {
-      return grid_pValue;
+    public double[] get_gridded_Spa_pValue() {
+      return grid_Spa_pValue;
   }
 
   /**
    * get_gridded_kValue
    */
-  public double[] get_gridded_kValue() {
-    return grid_kValue;
+  public double[] get_gridded_Spa_kValue() {
+    return grid_Spa_kValue;
   }
 
   /**
    * get_gridded_cValue
    */
-  public double[] get_gridded_cValue() {
-    return grid_cValue;
+  public double[] get_gridded_Spa_cValue() {
+    return grid_Spa_cValue;
   }
 
 

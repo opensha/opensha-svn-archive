@@ -2,9 +2,9 @@ package org.opensha.sha.earthquake.griddedForecast;
 
 import javaDevelopers.matt.calc.*;
 
+import org.opensha.data.region.*;
+import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.fault.*;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.sha.earthquake.*;
 
 
 /**
@@ -26,20 +26,29 @@ public class GenericAfterHypoMagFreqDistForecast
   private double b_valueGeneric = 0.91;
   private double c_valueGeneric = 0.05;
   private double p_valueGeneric = 1.08;
-  private double nodeCompletenessMag;
+  private double genNodeCompletenessMag;
   private SimpleFaultData mainshockFault;
-  private double[] grid_kVal, grid_aVal, grid_bVal, grid_cVal, grid_pVal;
+  private double[] grid_Gen_kVal, grid_Gen_aVal, grid_Gen_bVal, grid_Gen_cVal, grid_Gen_pVal;
   int numGridLocs;
 
-
   public GenericAfterHypoMagFreqDistForecast() {
+  //public GenericAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock) {
+      /**
+       * initialise the aftershock zone and mainshock for this model
+       */
+
+    //this.setMainShock(mainshock);
+    this.set_AftershockZoneRadius();
+    this.calcAfterShockZone();
+
+
     EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
      numGridLocs = aftershockZone.getNumGridLocs();
-     grid_aVal = new double[numGridLocs];
-     grid_bVal = new double[numGridLocs];
-     grid_cVal = new double[numGridLocs];
-     grid_pVal = new double[numGridLocs];
-     grid_kVal = new double[numGridLocs];
+     grid_Gen_aVal = new double[numGridLocs];
+     grid_Gen_bVal = new double[numGridLocs];
+     grid_Gen_cVal = new double[numGridLocs];
+     grid_Gen_pVal = new double[numGridLocs];
+     grid_Gen_kVal = new double[numGridLocs];
   }
 
   /**
@@ -58,38 +67,38 @@ public class GenericAfterHypoMagFreqDistForecast
   * a k value based on the distance from the fault.
   */
 
-  public void set_Gridded_kValue() {
+  public void set_Gridded_Gen_kValue() {
     SmoothKVal_Calc smooth_k = new SmoothKVal_Calc();
     smooth_k.setAftershockModel(this);
-    grid_kVal = smooth_k.get_Smooth_kVal();
+    grid_Gen_kVal = smooth_k.get_Smooth_kVal();
   }
 
   /**
    * set_Gridded_aValue
    */
-  public void set_Gridded_aValue() {
-    java.util.Arrays.fill(grid_aVal,a_valueGeneric);
+  public void set_Gridded_Gen_aValue() {
+    java.util.Arrays.fill(grid_Gen_aVal,a_valueGeneric);
   }
 
   /**
    * set_Gridded_bValue
    */
-  public void set_Gridded_bValue() {
-    java.util.Arrays.fill(grid_bVal,b_valueGeneric);
+  public void set_Gridded_Gen_bValue() {
+    java.util.Arrays.fill(grid_Gen_bVal,b_valueGeneric);
   }
 
   /**
    * set_Gridded_pValue
    */
-  public void set_Gridded_pValue() {
-    java.util.Arrays.fill(grid_pVal,p_valueGeneric);
+  public void set_Gridded_Gen_pValue() {
+    java.util.Arrays.fill(grid_Gen_pVal,p_valueGeneric);
   }
 
   /**
    * set_Gridded_cValue
    */
-  public void set_Gridded_cValue() {
-    java.util.Arrays.fill(grid_cVal,c_valueGeneric);
+  public void set_Gridded_Gen_cValue() {
+    java.util.Arrays.fill(grid_Gen_cVal,c_valueGeneric);
   }
 
   /**
@@ -121,12 +130,19 @@ public class GenericAfterHypoMagFreqDistForecast
   }
 
   /**
+   * get_GenNodeCompletenessMag
+   */
+  public double get_genNodeCompletenessMag() {
+    return genNodeCompletenessMag;
+  }
+
+  /**
    * for the generic case, the min completeness mag Mc is the
    * same as the min forecast mag.
    */
 
-  public void calc_NodeCompletenessMag() {
-    nodeCompletenessMag = minForecastMag;
+  public void calc_GenNodeCompletenessMag() {
+    genNodeCompletenessMag = minForecastMag;
   }
 
 

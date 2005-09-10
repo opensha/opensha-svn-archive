@@ -36,14 +36,13 @@ public class SmoothKVal_Calc {
   /**
   * setAftershockModel
   */
- public void setAftershockModel(STEP_AftershockHypoMagForecast aftershockModel) {
+ public void setAftershockModel(GenericAfterHypoMagFreqDistForecast aftershockModel) {
    aftershockZone = aftershockModel.getAfterShockZone();
-   double[] grid_aVal = aftershockModel.get_Gridded_aVal();
-   global_aVal = grid_aVal[0];
-   double[] grid_bVal = aftershockModel.get_Gridded_bVal();
-   global_bVal = grid_bVal[0];
-   double[] gridMc = aftershockModel.get_nodeCompletenessMag();
-   global_Mc = gridMc[0];
+
+     double global_aVal = aftershockModel.get_a_valueGeneric();
+     double global_bVal = aftershockModel.get_b_valueGeneric();
+     double global_Mc = aftershockModel.get_genNodeCompletenessMag();
+
    SimpleFaultData mainshockFault = aftershockModel.get_FaultModel();
    mainshock = aftershockModel.getMainShock();
    faultTrace = mainshockFault.getFaultTrace();
@@ -53,6 +52,25 @@ public class SmoothKVal_Calc {
 
  }
 
+ /**
+   * setAftershockModel
+   *
+  public void setAftershockModel(SequenceAfterHypoMagFreqDistForecast aftershockModel) {
+    aftershockZone = aftershockModel.getAfterShockZone();
+
+      double global_aVal = aftershockModel.get_aValSequence();
+      double global_bVal = aftershockModel.get_bValSequence();
+      double global_Mc = aftershockModel.getSeqNodeCompletenessMag();
+
+    SimpleFaultData mainshockFault = aftershockModel.get_FaultModel();
+    mainshock = aftershockModel.getMainShock();
+    faultTrace = mainshockFault.getFaultTrace();
+
+    //now do the calculations
+    set_k_value();
+
+ }
+**/
 
       /**
      * set_k_value
