@@ -52,7 +52,7 @@ public class STEP_main {
      */
     CubeToObsEqkRupture getNewEvents = null;
     try {
-      getNewEvents = new CubeToObsEqkRupture(rDefs.getCubeFilePath());
+      getNewEvents = new CubeToObsEqkRupture(rDefs.cubeFilePath);
     }
     catch (FileNotFoundException ex) {
       ex.printStackTrace();
@@ -135,8 +135,8 @@ public class STEP_main {
 
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
-      if (newMag >= rDefs.getMinMagForMainshock()) {
-       /** STEP_AftershockHypoMagForecast newForecast =
+      if (newMag >= rDefs.minMagForMainshock) {
+      STEP_AftershockHypoMagForecast newForecast =
            new GenericAfterHypoMagFreqDistForecast(newEvent);
 
         // if the new event is already an aftershock to something else
@@ -152,7 +152,7 @@ public class STEP_main {
         // of total mainshocks (for the loop)
         STEP_AftershockForecastList.add(newForecast);
         ++numMainshocks;
-        */
+
       }
     }
 

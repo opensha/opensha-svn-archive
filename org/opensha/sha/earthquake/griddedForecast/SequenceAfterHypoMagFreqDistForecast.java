@@ -20,13 +20,16 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFreqDistForecast {
   private double seqNodeCompletenessMag;
   private double aVal_Sequence, bVal_Sequence, pVal_Sequence, cVal_Sequence;
-  int numGridLocs;
+  //int numGridLocs;
   private double[] grid_Seq_kVal, grid_Seq_aVal, grid_Seq_bVal, grid_Seq_cVal, grid_Seq_pVal;
   public MaxLikeOmori_Calc omoriCalc;
 
-  public SequenceAfterHypoMagFreqDistForecast() {
-    EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
-     numGridLocs = aftershockZone.getNumGridLocs();
+  public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock) {
+    //pass mainShock object to generic model (this will initialise the aftershock zone
+    super(mainShock);
+
+    //EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
+    // numGridLocs = aftershockZone.getNumGridLocs();
      grid_Seq_aVal = new double[numGridLocs];
      grid_Seq_bVal = new double[numGridLocs];
      grid_Seq_cVal = new double[numGridLocs];
@@ -34,6 +37,7 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
      grid_Seq_kVal = new double[numGridLocs];
 
      MaxLikeOmori_Calc omoriCalc = new MaxLikeOmori_Calc();
+
   }
 
   /**

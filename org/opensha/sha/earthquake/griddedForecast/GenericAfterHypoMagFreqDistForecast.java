@@ -31,8 +31,8 @@ public class GenericAfterHypoMagFreqDistForecast
   private double[] grid_Gen_kVal, grid_Gen_aVal, grid_Gen_bVal, grid_Gen_cVal, grid_Gen_pVal;
   int numGridLocs;
 
-  public GenericAfterHypoMagFreqDistForecast() {
-  //public GenericAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock) {
+  //public GenericAfterHypoMagFreqDistForecast() {
+  public GenericAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock) {
       /**
        * initialise the aftershock zone and mainshock for this model
        */
@@ -145,6 +145,10 @@ public class GenericAfterHypoMagFreqDistForecast
     genNodeCompletenessMag = minForecastMag;
   }
 
-
+  /**
+   * GenericAfterHypoMagFreqDistForecast
+   */
+  public GenericAfterHypoMagFreqDistForecast() {
+  }
 
 }

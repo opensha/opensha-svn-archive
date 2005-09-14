@@ -21,98 +21,22 @@ public class RegionDefaults {
    * to a region.  Default values are set.
    */
 
-  private String cubeFilePath = "/home/matt/STEP/QDDS/merge.nts";
+  public static String cubeFilePath = "/home/matt/STEP/QDDS/merge.nts";
 
-  private double minMagForMainshock = 3.0;
-  private double minForecastMag = 4.0;
-  private double maxForecastMag = 8.0;
-  private double deltaForecastMag = 0.1;
+  public static double minMagForMainshock = 3.0;
+  public static double minForecastMag = 4.0;
+  public static double maxForecastMag = 8.0;
+  public static double deltaForecastMag = 0.1;
 
-  private double forecastLengthDays = 1;
-  private double daysFromQDM_Cat = 7;
+  public static double forecastLengthDays = 1;
+  public static double daysFromQDM_Cat = 7;
 
-  private double searchLatMin = 32.0;
-  private double searchLatMax = 42.2;
-  private double searchLongMin = -124.6;
-  private double searchLongMax = -112;
-
-  /**
-   * getCubeFilePath
-   */
-  public String getCubeFilePath() {
-    return cubeFilePath;
-  }
+  public static double searchLatMin = 32.0;
+  public static double searchLatMax = 42.2;
+  public static double searchLongMin = -124.6;
+  public static double searchLongMax = -112;
 
 
-  /**
-   * getMinMagForMainshock
-   */
-  public double getMinMagForMainshock() {
-    return minMagForMainshock;
-  }
-
-  /**
-   * getMinForecastMag
-   */
-  public double getMinForecastMag() {
-    return minForecastMag;
-  }
-
-  /**
-   * getMaxForecastMag
-   */
-  public double getMaxForecastMag() {
-    return maxForecastMag;
-  }
-
-  /**
-   * getDeltaForecastMag
-   */
-  public double getDeltaForecastMag() {
-    return deltaForecastMag;
-  }
-
-  /**
-   * getForecastLengthDays
-   */
-  public double getForecastLengthDays() {
-    return forecastLengthDays;
-  }
-
-  /**
-   * getDaysFromQDM_Cat
-   */
-  public double getDaysFromQDM_Cat() {
-    return daysFromQDM_Cat;
-  }
-
-  /**
-   * getSearchLatMin
-   */
-  public double getSearchLatMin() {
-    return searchLatMin;
-  }
-
-  /**
-   * getSearchLatMax
-   */
-  public double getSearchLatMax() {
-    return searchLatMax;
-  }
-
-  /**
-   * getSearchLongMin
-   */
-  public double getSearchLongMin() {
-    return searchLongMin;
-  }
-
-  /**
-   * getSearchLongMax
-   */
-  public double getSearchLongMax() {
-    return searchLongMax;
-  }
 
 
 }

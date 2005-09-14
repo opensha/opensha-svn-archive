@@ -166,6 +166,8 @@ public abstract class STEP_AftershockHypoMagForecast
   public void set_PreviousAftershocks(ObsEqkRupList previousAftershockList) {
   }
 
+
+
   /**
    * set_AftershockZoneRadius
    * set the radius based on Wells and Coppersmith
@@ -179,6 +181,13 @@ public abstract class STEP_AftershockHypoMagForecast
     WC1994_MagLengthRelationship WCRel = new WC1994_MagLengthRelationship();
     zoneRadius = WCRel.getMedianLength(mainshockMag);
   }
+
+  /**
+   * calcTypeI_AftershockZone
+   */
+  private void calcTypeI_AftershockZone() {
+  }
+
 
   /**
    * This will calculate the appropriate afershock zone based on the availability
