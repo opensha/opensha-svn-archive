@@ -211,19 +211,21 @@ public abstract class STEP_AftershockHypoMagForecast
     else {
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
-      CircularGeographicRegion aftershockZone = new CircularGeographicRegion(
-          mainshockLocation, zoneRadius);
+      /** EvenlyGriddedCircularGeographicRegion aftershockZone =
+         new EvenlyGriddedCircularGeographicRegion(mainshockLocation, zoneRadius);
       eventsInZoneList = allEventsList.getObsEqkRupsInside(aftershockZone);
       if (eventsInZoneList.size() > 100) {
         STEP_TypeIIAftershockZone_Calc typeIIcalc = new
             STEP_TypeIIAftershockZone_Calc(eventsInZoneList, this);
         EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
             get_TypeIIAftershockZone();
-        this.setAfterShockZone(typeII_Zone);
-        eventsInZoneList.getObsEqkRupsInside(typeII_Zone);
+       this.setAfterShockZone(typeII_Zone);
+       // eventsInZoneList.getObsEqkRupsInside(typeII_Zone);
       }
+      else
+        this.setAfterShockZone(aftershockZone);
+       */
     }
-    this.setAfterShocks(eventsInZoneList);
   }
 
 

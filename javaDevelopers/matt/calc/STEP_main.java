@@ -136,21 +136,21 @@ public class STEP_main {
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= rDefs.minMagForMainshock) {
-      STEP_AftershockHypoMagForecast newForecast =
+      STEP_AftershockHypoMagForecast newGenForecastMod =
            new GenericAfterHypoMagFreqDistForecast(newEvent);
 
         // if the new event is already an aftershock to something else
         // set it as a secondary event.
         if (isAftershock) {
-          newForecast.set_isPrimary(false);
+          newGenForecastMod.set_isPrimary(false);
         }
         else {
-          newForecast.set_isPrimary(true);
+          newGenForecastMod.set_isPrimary(true);
         }
 
         // add the new event to the list of mainshocks and increment the number
         // of total mainshocks (for the loop)
-        STEP_AftershockForecastList.add(newForecast);
+        STEP_AftershockForecastList.add(newGenForecastMod);
         ++numMainshocks;
 
       }

@@ -145,10 +145,5 @@ public class GenericAfterHypoMagFreqDistForecast
     genNodeCompletenessMag = minForecastMag;
   }
 
-  /**
-   * GenericAfterHypoMagFreqDistForecast
-   */
-  public GenericAfterHypoMagFreqDistForecast() {
-  }
 
 }
