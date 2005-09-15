@@ -126,7 +126,8 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList siteTypeList = new ArrayList();
-    String sql =  "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+" from "+TABLE_NAME+condition;
+    String sql =  "select "+SITE_TYPE_ID+","+SITE_TYPE_NAME+","+CONTRIBUTOR_ID+
+        ","+COMMENTS+" from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
       ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccessAPI);
