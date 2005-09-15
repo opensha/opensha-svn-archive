@@ -16,23 +16,19 @@ import org.opensha.sha.earthquake.*;
 public class HypoMagFreqDistAtLoc {
 
   private Location location;
-  private IncrementalMagFreqDist magFreqDist;
-  private FocalMechanism focalMechanism;
-  private boolean editable = true;
-  private boolean ignoreFocalMechanism;
+  private IncrementalMagFreqDist[] magFreqDist;
+  private FocalMechanism[] focalMechanism;
 
-  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist magDist, Location loc) {
+  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist[] magDist, Location loc) {
     magFreqDist = magDist;
     location = loc;
-    editable = false;
   }
 
-  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist magDist, Location loc,
-      FocalMechanism focalMechanism) {
+  public HypoMagFreqDistAtLoc(IncrementalMagFreqDist[] magDist, Location loc,
+      FocalMechanism[] focalMechanism) {
    magFreqDist = magDist;
    location = loc;
    this.focalMechanism = focalMechanism;
-   editable = false;
  }
 
 
@@ -40,38 +36,11 @@ public class HypoMagFreqDistAtLoc {
     return location;
   }
 
-  public FocalMechanism getFocalMechanism() {
+  public FocalMechanism[] getFocalMechanism() {
     return focalMechanism;
   }
 
-  public IncrementalMagFreqDist getMagFreqDist() {
+  public IncrementalMagFreqDist[] getMagFreqDist() {
     return magFreqDist;
-  }
-
-  public void setFocalMechanism(FocalMechanism focalMechanism) {
-     if(editable)
-       this.focalMechanism = focalMechanism;
-  }
-
-  public void setLocation(Location location) {
-     if(editable)
-       this.location = location;
-  }
-
-  public void setMagFreqDist(IncrementalMagFreqDist magFreqDist) {
-    if(editable)
-      this.magFreqDist = magFreqDist;
-  }
-
-  public void ignoreFocalMechanism(boolean ignore){
-    ignoreFocalMechanism = ignore;
-  }
-
-  /**
-   * Does not allows the user to edit any thing in this class.
-   * User can only call get methods on the object.
-   */
-  public void makeUneditable(){
-    editable = false;
   }
 }

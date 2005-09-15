@@ -12,7 +12,7 @@ package org.opensha.sha.earthquake.griddedForecast;
  *
  * @version 1.0
  */
-public interface GriddedHypoMagFreqDistAtLocAPI {
+public interface HypoMagFreqDistAtLocAPI {
 
 
 
@@ -24,8 +24,8 @@ public interface GriddedHypoMagFreqDistAtLocAPI {
    *
    * Note : This always gives out yearly Rate.
    */
-  public HypoMagFreqDistAtLoc getHypRatesAtLoc(int ithLocation);
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation);
 
-  public int getNumHypoLocation();
+  public int getNumHypoMagFreqDistAtLocs();
 
 }

@@ -4,6 +4,8 @@ import org.opensha.data.*;
 import org.opensha.param.ParameterList;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
+import java.util.ListIterator;
 
 /**
  * <p>Title: GriddedHypoMagFreqForecast</p>
@@ -19,7 +21,7 @@ import org.opensha.param.event.ParameterChangeListener;
  * @version 1.0
  */
 public class GriddedHypoMagFreqDistForecast
-    implements GriddedHypoMagFreqDistAtLocAPI, ParameterChangeListener {
+    implements HypoMagFreqDistAtLocAPI, ParameterChangeListener {
 
 
 
@@ -35,6 +37,9 @@ public class GriddedHypoMagFreqDistForecast
   //Only allows user to edit the timespan if this is true.
   private boolean editable = true;
 
+  //EvenlyGriddedGeographicAPI region
+  private EvenlyGriddedGeographicRegionAPI region;
+
   public GriddedHypoMagFreqDistForecast() {
   }
 
@@ -47,8 +52,41 @@ public class GriddedHypoMagFreqDistForecast
    * @todo Implement this
    *   org.opensha.sha.earthquake.GriddedHypoMagFreqDistAtLocAPI method
    */
-  public HypoMagFreqDistAtLoc getHypRatesAtLoc(int ithLocation) {
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
     return null;
+  }
+
+
+  /**
+   * Gets the EvenlyGriddedGeographic Region
+   * @return EvenlyGriddedGeographicRegionAPI
+   */
+  public EvenlyGriddedGeographicRegionAPI getEvenlyGriddedGeographicRegion(){
+    return region;
+  }
+
+  /**
+   * Returns the adjustable parameters list
+   * @return ParameterList
+   */
+  public ParameterList getAdjustableParameters(){
+    return adjustableParameters;
+  }
+
+  /**
+   * Returns the adjustable parameters as the ListIterator
+   * @return ListIterator
+   */
+  public ListIterator getAdjustablrParametersIterator(){
+    return adjustableParameters.getParametersIterator();
+  }
+
+  /**
+   * Sets the list of adjustable parameters
+   * @param paramList ParameterList list of adjustable parameters
+   */
+  public void setAdjustableParameters(ParameterList paramList){
+    adjustableParameters = paramList;
   }
 
   /**
@@ -58,7 +96,7 @@ public class GriddedHypoMagFreqDistForecast
    * @todo Implement this
    *   org.opensha.sha.earthquake.GriddedHypoMagFreqDistAtLocAPI method
    */
-  public int getNumHypoLocation() {
+  public int getNumHypoMagFreqDistAtLocs() {
     return 0;
   }
 
