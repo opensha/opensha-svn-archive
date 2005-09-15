@@ -20,7 +20,8 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   private final static String SEQUENCE_NAME="Reference_Sequence";
   private final static String TABLE_NAME="Reference";
   private final static String REFERENCE_ID="Reference_Id";
-  private final static String REFERENCE_NAME="Reference_Name";
+  private final static String SHORT_CITATION="Short_Citation";
+  private final static String FULL_BIBLIOGRAPHIC_REFERENCE="Full_Bibliographic_Reference";
   private DB_AccessAPI dbAccessAPI;
 
   /**
@@ -50,8 +51,10 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
      throw new InsertException(e.getMessage());
    }
 
-    String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+REFERENCE_NAME+")"+
-        " values ("+referenceId+",'"+reference.getReferenceName()+"')";
+    String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+SHORT_CITATION+
+        ","+this.FULL_BIBLIOGRAPHIC_REFERENCE+")"+
+        " values ("+referenceId+",'"+reference.getShortCitation()+"','"+
+        reference.getFullBiblioReference()+"')";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
@@ -67,8 +70,9 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
    * @throws UpdateException
    */
   public boolean updateReference(int referenceId, Reference reference) throws UpdateException {
-    String sql = "update "+TABLE_NAME+" set "+REFERENCE_NAME+"= '"+
-        reference.getReferenceName()+"' where "+REFERENCE_ID+"="+referenceId;
+    String sql = "update "+TABLE_NAME+" set "+SHORT_CITATION+"= '"+
+        reference.getShortCitation()+"', "+this.FULL_BIBLIOGRAPHIC_REFERENCE+" = '"+
+        reference.getFullBiblioReference()+"' where "+REFERENCE_ID+"="+referenceId;
     try {
       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
@@ -120,10 +124,12 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();
-    String sql = "select "+REFERENCE_ID+","+REFERENCE_NAME+" from "+TABLE_NAME+" "+condition;
+    String sql = "select "+REFERENCE_ID+","+SHORT_CITATION+","+
+        this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+" "+condition;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
-      while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID), rs.getString(REFERENCE_NAME)));
+      while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID),
+            rs.getString(this.SHORT_CITATION), rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE)));
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return referenceList;

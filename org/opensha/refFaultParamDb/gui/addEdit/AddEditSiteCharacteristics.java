@@ -96,7 +96,6 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       // add the editors and buttons to the window
       jbInit();
       this.setTitle(TITLE);
-      this.setLocationRelativeTo(null);
       // add listeners for the buttons in this window
       addActionListeners();
       // show/not show second site location
@@ -106,6 +105,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     }
     this.pack();
     setSize(this.WIDTH, this.HEIGHT);
+    this.setLocationRelativeTo(null);
     this.show();
   }
 

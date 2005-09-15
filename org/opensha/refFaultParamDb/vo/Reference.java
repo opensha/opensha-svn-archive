@@ -12,18 +12,20 @@ package org.opensha.refFaultParamDb.vo;
 public class Reference {
 
   private int referenceId=-1; // reference ID
-  private String referenceName; // reference name
+  private String shortCitation; // short citation
+  private String fullBiblioReference; // full bibliographic reference
 
   public Reference() {
   }
 
-  public Reference(int referenceId, String referenceName) {
+  public Reference(int referenceId, String shortCitation, String fullBiblioReference) {
+    this(shortCitation, fullBiblioReference);
     setReferenceId(referenceId);
-    setReferenceName(referenceName);
   }
 
-  public Reference(String referenceName) {
-    setReferenceName(referenceName);
+  public Reference(String shortCitation, String fullBiblioReference) {
+    this.setShortCitation(shortCitation);
+    this.setFullBiblioReference(fullBiblioReference);
   }
 
   public int getReferenceId() {
@@ -32,10 +34,17 @@ public class Reference {
   public void setReferenceId(int referenceId) {
     this.referenceId = referenceId;
   }
-  public void setReferenceName(String referenceName) {
-    this.referenceName = referenceName;
+
+  public String getFullBiblioReference() {
+    return fullBiblioReference;
   }
-  public String getReferenceName() {
-    return referenceName;
+  public void setFullBiblioReference(String fullBiblioReference) {
+    this.fullBiblioReference = fullBiblioReference;
+  }
+  public String getShortCitation() {
+    return shortCitation;
+  }
+  public void setShortCitation(String shortCitation) {
+    this.shortCitation = shortCitation;
   }
 }

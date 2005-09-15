@@ -53,8 +53,8 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     Contributor contributor1 = new Contributor("Test1");
     contributorKey1 = contributorDB_DAO.addContributor(contributor1);
     contributor1.setId(contributorKey1);
-    SiteType siteType1 = new SiteType("geologic",contributor1);
-    SiteType siteType3 = new SiteType("paleosite",contributor1);
+    SiteType siteType1 = new SiteType("geologic",contributor1,"Comments1");
+    SiteType siteType3 = new SiteType("paleosite",contributor1,"Comments2");
 
     siteTypeKey1 = siteTypeDB_DAO.addSiteType(siteType1);
     siteType1.setSiteTypeId(siteTypeKey1);
@@ -86,7 +86,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
 
     try {
       paleoSite.setSiteContributor(contributor1);
-      SiteType siteType2 = new SiteType(2,"paleosite",contributor1);
+      SiteType siteType2 = new SiteType(2,"paleosite",contributor1,"TestComments1");
       paleoSite.setSiteType(siteType2);
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
       fail("should not insert this paleosite as site type id 2 does not exist in sitetype table");

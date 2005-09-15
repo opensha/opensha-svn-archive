@@ -44,9 +44,9 @@ public class TestReferenceDB_DAO extends TestCase {
 
 
   public void testAddReference() throws InsertException {
-    Reference reference1 = new Reference("Test1");
-    Reference reference2 = new Reference("Test2");
-    Reference reference3 = new Reference("Test3");
+    Reference reference1 = new Reference("Test1","FullBiblio1");
+    Reference reference2 = new Reference("Test2","FullBiblio2");
+    Reference reference3 = new Reference("Test3","FullBiblio3");
     primaryKey1 = referenceDB_DAO.addReference(reference1);
     primaryKey2 = referenceDB_DAO.addReference(reference3);
     assertTrue(primaryKey1!=primaryKey2);
@@ -62,19 +62,21 @@ public class TestReferenceDB_DAO extends TestCase {
     assertEquals("No reference exists with id 67866", null, actualReturn);
     actualReturn = referenceDB_DAO.getReference(primaryKey1);
     assertNotNull("should not be null as reference exists with id = "+primaryKey1,actualReturn);
-    assertEquals("Test1", actualReturn.getReferenceName());
+    assertEquals("Test1", actualReturn.getShortCitation());
+    assertEquals("FullBiblio1", actualReturn.getFullBiblioReference());
   }
 
   public void testUpdateReference() throws UpdateException {
-    Reference reference = new Reference(7879,"Test2");
+    Reference reference = new Reference(7879,"Test2","Bib2");
     boolean status  = referenceDB_DAO.updateReference(7879, reference);
     this.assertFalse("cannot update reference with 7879 as it does not exist", status);
-    reference = new Reference(primaryKey1,"TestTest1");
+    reference = new Reference(primaryKey1,"TestTest1","Bib2");
     status = referenceDB_DAO.updateReference(primaryKey1, reference);
     assertTrue("reference with id="+primaryKey1+ " should be updated in the database",status);
     Reference actualReturn = referenceDB_DAO.getReference(primaryKey1);
     assertNotNull("should not be null as reference exists with id = "+primaryKey1,actualReturn);
-    assertEquals("reference id "+primaryKey1+" has name test 1", "TestTest1", actualReturn.getReferenceName());
+    assertEquals("reference id "+primaryKey1+" has short name test 1", "TestTest1", actualReturn.getShortCitation());
+    assertEquals("reference id "+primaryKey1+" has full biibliographic name Bib2", "Bib2", actualReturn.getFullBiblioReference());
   }
 
   public void testRemoveReference() throws UpdateException {

@@ -53,9 +53,9 @@ public class TestSiteTypeDB_DAO extends TestCase {
     contributorKey1 = contributorDB_DAO.addContributor(contributor1);
     contributor1.setId(contributorKey1);
 
-    SiteType siteType1 = new SiteType("geologic",contributor1);
-    SiteType siteType2 = new SiteType("trench",contributor2);
-    SiteType siteType3 = new SiteType("paleosite",contributor1);
+    SiteType siteType1 = new SiteType("geologic",contributor1, "TestComments1");
+    SiteType siteType2 = new SiteType("trench",contributor2, "TestComments2");
+    SiteType siteType3 = new SiteType("paleosite",contributor1, "TestComments3");
 
     siteTypeKey1= siteTypeDB_DAO.addSiteType(siteType1);
     try {
@@ -78,22 +78,24 @@ public class TestSiteTypeDB_DAO extends TestCase {
     assertEquals("sitetype id "+siteTypeKey1+" has name geologic", "geologic", actualReturn.getSiteType());
     assertEquals("sitetype id "+siteTypeKey1+" has id "+siteTypeKey1, siteTypeKey1, actualReturn.getSiteTypeId());
     assertEquals("sitetype id "+siteTypeKey1 +" has contributor name Test1", "Test1", actualReturn.getContributor().getName());
+    assertEquals("sitetype id "+siteTypeKey1 +" has comments TestComments1", "TestComments1", actualReturn.getComments());
   }
 
   public void testUpdateSiteType() throws UpdateException {
     Contributor contributor2 = new Contributor("Test2");
     contributorKey2 = contributorDB_DAO.addContributor(contributor2);
     contributor2.setId(contributorKey2);
-    SiteType siteType = new SiteType("SiteTest2",contributor2);
+    SiteType siteType = new SiteType("SiteTest2",contributor2,"Comments1");
     boolean status  = siteTypeDB_DAO.updateSiteType(7878, siteType);
     this.assertFalse("cannot update contributor with 7878 as it does not exist", status);
-    siteType = new SiteType("UpdateSiteTest1",contributor2);
+    siteType = new SiteType("UpdateSiteTest1",contributor2,"Comments2");
     status = siteTypeDB_DAO.updateSiteType(siteTypeKey1, siteType);
     assertTrue("sitetype with id="+siteTypeKey1+" should be updated in the database",status);
     SiteType actualReturn = siteTypeDB_DAO.getSiteType(siteTypeKey1);
     assertNotNull("should not be null as siteType exists with id = "+siteTypeKey1,actualReturn);
     assertEquals("sitetype id "+siteTypeKey1+" has name UpdateSiteTest1", "UpdateSiteTest1", actualReturn.getSiteType());
     assertEquals("sitetype id "+siteTypeKey1+" has contributor id "+contributorKey2, contributorKey2, actualReturn.getContributor().getId());
+    assertEquals("sitetype id "+siteTypeKey1+" has comments Comments2", "Comments2", actualReturn.getComments());
   }
 
   public void testRemoveSiteType() throws UpdateException {

@@ -23,6 +23,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String SITE_TYPE_NAME="Site_Type";
+  private final static String COMMENTS = "General_Comments";
   private DB_AccessAPI dbAccessAPI;
 
 
@@ -48,9 +49,9 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
       throw new InsertException(e.getMessage());
     }
     String sql = "insert into "+TABLE_NAME+"("+ SITE_TYPE_ID+","+CONTRIBUTOR_ID+
-        ","+SITE_TYPE_NAME+") "+
+        ","+SITE_TYPE_NAME+","+COMMENTS+") "+
         " values ("+siteTypeId+","+siteType.getContributor().getId()+
-        ",'"+siteType.getSiteType()+"')";
+        ",'"+siteType.getSiteType()+"','"+siteType.getComments()+"')";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
@@ -71,6 +72,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   public boolean updateSiteType(int siteTypeId, SiteType siteType) throws UpdateException {
     String sql = "update "+TABLE_NAME+" set "+SITE_TYPE_NAME+"= '"+
         siteType.getSiteType()+"',"+CONTRIBUTOR_ID+"="+siteType.getContributor().getId()+
+        ","+COMMENTS+"= '"+siteType.getComments()+"' "+
        " where "+SITE_TYPE_ID+"="+siteTypeId;
     try {
       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
@@ -130,7 +132,8 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
       ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccessAPI);
       while(rs.next()) siteTypeList.add(new SiteType(rs.getInt(SITE_TYPE_ID),
             rs.getString(SITE_TYPE_NAME),
-            contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID))));
+            contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)),
+            rs.getString(COMMENTS)));
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return siteTypeList;
