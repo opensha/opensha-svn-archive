@@ -37,7 +37,8 @@ drop table Reference;
 
 CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
-  Reference_Name VARCHAR(255) NOT NULL UNIQUE,
+  Short_Citation VARCHAR(255) NOT NULL UNIQUE,
+  Full_Bibliographic_Reference VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Reference_Id)
 );
 
@@ -280,6 +281,7 @@ CREATE TABLE Site_Type (
   Site_Type_Id INTEGER NOT NULL ,
   Contributor_Id INTEGER NOT NULL,
   Site_Type VARCHAR(255) NOT NULL UNIQUE,
+  General_Comments VARCHAR(255) NULL,
   PRIMARY KEY(Site_Type_Id),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id)
@@ -311,18 +313,21 @@ CREATE TABLE Paleo_Site (
   Site_Name VARCHAR(255) NOT NULL,
   Site_Lat1 FLOAT NOT NULL,
   Site_Lon1 FLOAT NOT NULL,
-  Site_Elevation1 FLOAT NOT NULL,
+  Site_Elevation1 FLOAT NULL,
   Site_Lat2 FLOAT NULL,
   Site_Lon2 FLOAT NULL,
   Site_Elevation2 FLOAT NULL, 
   Representative_Strand_Index INTEGER NOT NULL,
   General_Comments VARCHAR(255) NULL,
-  Old_Site_Id INTEGER NULL,
+  Old_Site_Id VARCHAR(20) NULL,
+  Reference_Id INTEGER  NOT NULL,
   PRIMARY KEY(Site_Id, Site_Type_Id, Entry_Date, Contributor_Id),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Site_Type_Id)
-     REFERENCES Site_Type(Site_Type_Id)
+     REFERENCES Site_Type(Site_Type_Id),
+  FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id)
 );
 
 
