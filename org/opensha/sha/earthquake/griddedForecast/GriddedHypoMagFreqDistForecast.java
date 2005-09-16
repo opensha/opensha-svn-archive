@@ -115,19 +115,34 @@ public class GriddedHypoMagFreqDistForecast
       parameterChangeFlag = true;
   }
 
+  /**
+   * Allows the user to get the Timespan for this GriddedHypoMagFreqDistForecast
+   * @return TimeSpan
+   */
   public TimeSpan getTimeSpan() {
     return timeSpan;
   }
 
+  /**
+   * Allows the user to set the Timespan for this GriddedHypoMagFreqDistForecast
+   * @param timeSpan TimeSpan
+   */
   public void setTimeSpan(TimeSpan timeSpan) {
     if(editable)
       this.timeSpan = timeSpan;
   }
 
+  /**
+   *
+   * @param numHypoLocation int
+   */
   public void setNumHypoLocation(int numHypoLocation) {
     this.numHypoLocation = numHypoLocation;
   }
 
+  /**
+   *
+   */
   public void updateForecast(){
     if(parameterChangeFlag){
 

@@ -2,8 +2,7 @@ package org.opensha.sha.earthquake.griddedForecast;
 
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.sha.fault.FaultTrace;
-import org.opensha.sha.fault.SimpleFaultData;
+
 
 /**
  * <p>Title: AfterShockHypoMagFreqDistForecast</p>
@@ -23,9 +22,18 @@ public class AfterShockHypoMagFreqDistForecast
   private ObsEqkRupture mainShock;
   private ObsEqkRupList afterShocks;
 
+  /**
+   * Class no-arg constructor
+   */
   public AfterShockHypoMagFreqDistForecast() {
   }
 
+  /**
+   * Class constructor
+   * @param mainShock ObsEqkRupture main shock event
+   * @param afterShocks ObsEqkRupList list of aftershocks
+   * @param afterShockZone EvenlyGriddedGeographicRegionAPI AfterShockZone
+   */
   public AfterShockHypoMagFreqDistForecast(ObsEqkRupture mainShock,
                                           ObsEqkRupList afterShocks,
                                           EvenlyGriddedGeographicRegionAPI afterShockZone){
@@ -34,26 +42,50 @@ public class AfterShockHypoMagFreqDistForecast
     this.region = afterShockZone;
   }
 
+  /**
+   * Gets the Aftershock list for the forecast model.
+   * @return ObsEqkRupList
+   */
   public ObsEqkRupList getAfterShocks() {
     return afterShocks;
   }
 
+  /**
+   * Allows the user to set the AfterShockZone as EvelyGriddedGeographicRegion.
+   * @return EvenlyGriddedGeographicRegionAPI AfterShockZone.
+   */
   public EvenlyGriddedGeographicRegionAPI getAfterShockZone() {
     return region;
   }
 
+  /**
+   * Returns the main shock
+   * @return ObsEqkRupture
+   */
   public ObsEqkRupture getMainShock() {
     return mainShock;
   }
 
+  /**
+   * Sets the list of ObsEqkRuptures for the given AfterShockHypoMagFreqDistForecast.
+   * @param afterShocks ObsEqkRupList
+   */
   public void setAfterShocks(ObsEqkRupList afterShocks) {
     this.afterShocks = afterShocks;
   }
 
+  /**
+   * Allows the user to set the AfterShockZone for the given forecast model.
+   * @param afterShockZone EvenlyGriddedGeographicRegionAPI
+   */
   public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI afterShockZone) {
     this.region = afterShockZone;
   }
 
+  /**
+   * Sets the mainshock event for the given forecast model.
+   * @param mainShock ObsEqkRupture
+   */
   public void setMainShock(ObsEqkRupture mainShock) {
     this.mainShock = mainShock;
   }
