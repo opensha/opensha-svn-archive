@@ -10,6 +10,13 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
+import org.opensha.refFaultParamDb.dao.SiteTypeDAO_API;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.vo.SiteType;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 
 /**
  * <p>Title: AddNewSiteType.java </p>
@@ -24,6 +31,8 @@ public class AddNewSiteType extends JFrame implements ActionListener {
   private final static String SITE_TYPE_NAME_PARAM_NAME="Site Type Name";
   private final static String SITE_TYPE_COMMENTS_PARAM_NAME="Site Type Comments";
   private final static String SITE_TYPE_NAME_PARAM_DEFAULT="Enter Name Here";
+  private final static String MSG_SITE_TYPE_NAME_MISSING = "Site Type Name is Missing";
+  private final static String MSG_SITE_TYPE_COMMENTS_MISSING = "Site Type comments are missing";
   private StringParameter siteTypeParam;
   private StringParameter siteTypeCommentsParam;
 
@@ -33,6 +42,8 @@ public class AddNewSiteType extends JFrame implements ActionListener {
   private final static String NEW_SITE_TYPE_LABEL="Add New Site Type";
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
+
+  private SiteTypeDAO_API siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddNewSiteType() {
     //intialize the parameters and editors
@@ -60,6 +71,33 @@ public class AddNewSiteType extends JFrame implements ActionListener {
    * @param event
    */
   public void actionPerformed(ActionEvent event) {
+    Object source = event.getSource();
+    if(source==okButton) addNewSiteType();
+  }
+
+  /**
+   * Add new site type to the database
+   */
+  private void addNewSiteType() {
+    String siteTypeName = (String)this.siteTypeParam.getValue();
+    String siteTypeComments = (String)this.siteTypeCommentsParam.getValue();
+    if(siteTypeName.trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, MSG_SITE_TYPE_NAME_MISSING);
+      return;
+    }
+    if(siteTypeComments.trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, MSG_SITE_TYPE_COMMENTS_MISSING);
+      return;
+    }
+    SiteType siteType = new SiteType(siteTypeName, SessionInfo.getContributor(),
+                                     siteTypeComments);
+    try {
+      siteTypeDAO.addSiteType(siteType);
+    }  catch(InsertException insertException) { // if there is problem inserting the site type
+      JOptionPane.showMessageDialog(this, insertException.getMessage());
+    }catch(DBConnectException connectException) {
+      JOptionPane.showMessageDialog(this, connectException.getMessage());
+    }
 
   }
 

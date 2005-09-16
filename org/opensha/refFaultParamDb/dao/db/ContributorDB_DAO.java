@@ -93,6 +93,20 @@ public class ContributorDB_DAO implements ContributorDAO_API {
   }
 
   /**
+   * Get the contributor info for a particular contributor name
+   * @param name username for the contributor
+   * @return
+   */
+  public Contributor getContributor(String name) throws QueryException {
+    Contributor contributor=null;
+    String condition  =  " where "+this.CONTRIBUTOR_NAME+"='"+name+"'";
+    ArrayList contributorList = query(condition);
+    if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
+    return contributor;
+  }
+
+
+  /**
    * Remove a contributor from the table
    *
    * @param contributorId

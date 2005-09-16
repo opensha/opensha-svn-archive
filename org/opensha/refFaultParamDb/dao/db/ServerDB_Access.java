@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.net.URLConnection;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 
 /**
@@ -121,9 +122,9 @@ public class ServerDB_Access
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
       //sending the username and password to the server
-      outputToServlet.writeObject(GUI_Utils.getUserName());
+      outputToServlet.writeObject(SessionInfo.getUserName());
       //send the password
-      outputToServlet.writeObject(GUI_Utils.getPassword());
+      outputToServlet.writeObject(SessionInfo.getPassword());
       //sending the type of operation that needs to be performed in the database
       outputToServlet.writeObject(sqlFunction);
       //sending the actual query to be performed in the database

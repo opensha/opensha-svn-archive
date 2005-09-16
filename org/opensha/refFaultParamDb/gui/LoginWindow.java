@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.awt.event.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 /**
  * <p>Title: LoginWindow</p>
@@ -133,8 +134,9 @@ public class LoginWindow extends JFrame implements ActionListener {
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
     if(source==loginButton) { // if login button is clicked, save the username/passwd
-      GUI_Utils.setPassword(this.passwordText.getText());
-      GUI_Utils.setUserName(this.usernameText.getText());
+      SessionInfo.setPassword(this.passwordText.getText());
+      SessionInfo.setUserName(this.usernameText.getText());
+      SessionInfo.setContributorInfo();
       PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();
     }
   }

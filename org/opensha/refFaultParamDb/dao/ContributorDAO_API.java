@@ -38,6 +38,15 @@ public interface ContributorDAO_API {
    */
   public Contributor getContributor(int contributorId) throws QueryException;
 
+
+  /**
+  * Get the contributor info for a particular contributor name
+  * @param name username for the contributor
+  * @return
+  */
+  public Contributor getContributor(String name) throws QueryException;
+
+
   /**
    * Remove this contributor from the list
    * @param contributorId
