@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import com.sun.rowset.CachedRowSetImpl;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 /**
  * <p>Title: DB_AccessAPI</p>
@@ -19,7 +20,8 @@ public interface DB_AccessAPI {
   public static final String SEQUENCE_NUMBER = "get sequence number";
   public static final String INSERT_UPDATE_QUERY = "insert/update/delete query";
   public static final String SELECT_QUERY = "select query";
-  public static final DB_AccessAPI dbConnection = new DB_ConnectionPool();
+  public static final DB_AccessAPI dbConnection = new DB_ConnectionPool(GUI_Utils.getUserName(),
+      GUI_Utils.getPassword());
 
   /**
    * Gets the next unique sequence number to be insertd in the table.

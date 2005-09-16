@@ -98,11 +98,6 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
     }
   }
 
-
-  public static void main(String[] args) {
-    PaleoSiteApp paleoSiteApp = new PaleoSiteApp();
-  }
-
   /**
    * Add the available time spans for this site
    */

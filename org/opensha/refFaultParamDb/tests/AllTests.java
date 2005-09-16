@@ -7,7 +7,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
 public class AllTests
     extends TestCase {
-  public static DB_AccessAPI dbConnection = new DB_ConnectionPool();
+  public static DB_AccessAPI dbConnection = new DB_ConnectionPool("","");
 
   public AllTests(String s) {
     super(s);

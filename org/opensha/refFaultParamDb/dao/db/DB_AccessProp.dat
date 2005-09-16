@@ -1,8 +1,6 @@
 dbDriver       oracle.jdbc.driver.OracleDriver
 dbServer      jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
-dbLogin       fault_sandbox
-dbPassword    perry
 minConns      2
-maxConns      50
+maxConns      7
 logFileString javaDevelopers/vipin/dao/db/DB_Log.log
 maxConnTime   .5

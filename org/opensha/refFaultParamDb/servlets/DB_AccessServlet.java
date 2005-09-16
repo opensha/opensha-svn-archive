@@ -16,6 +16,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import java.sql.SQLException;
 import com.sun.rowset.CachedRowSetImpl;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -27,38 +28,33 @@ import java.io.ObjectOutputStream;
  */
 public class DB_AccessServlet extends HttpServlet{
 
-
-  protected static DB_AccessAPI myBroker;
+  private HashMap dbConnMap = new HashMap();
+  private String dbDriver, dbServer, logFileString;
+  private int minConns, maxConns;
+  private double maxConnTime;
 
   public void init(ServletConfig config) throws ServletException {
     super.init(config);
 
-    if (myBroker == null) { // Only created by first servlet to call
-      Properties p = new Properties();
-      try {
-        p.load(new
-               FileInputStream("DbConnection_Prop.dat"));
 
-        String dbDriver = (String) p.get("dbDriver");
-        String dbServer = (String) p.get("dbServer");
-        String dbLogin = (String) p.get("dbLogin");
-        String dbPassword = (String) p.get("dbPassword");
-        int minConns = Integer.parseInt( (String) p.get("minConns"));
-        int maxConns = Integer.parseInt( (String) p.get("maxConns"));
-        String logFileString = (String) p.get("logFileString");
-        double maxConnTime =
-            (new Double( (String) p.get("maxConnTime"))).doubleValue();
+    Properties p = new Properties();
+    try {
+      p.load(new
+             FileInputStream("DbConnection_Prop.dat"));
 
-        myBroker = new
-            DB_ConnectionPool(dbDriver, dbServer, dbLogin, dbPassword,
-                               minConns, maxConns, logFileString, maxConnTime);
-      }
-      catch (FileNotFoundException f) {}
-      catch (IOException e) {}
+      dbDriver = (String) p.get("dbDriver");
+      dbServer = (String) p.get("dbServer");
+      int minConns = Integer.parseInt( (String) p.get("minConns"));
+      int maxConns = Integer.parseInt( (String) p.get("maxConns"));
+      String logFileString = (String) p.get("logFileString");
+      double maxConnTime =
+          (new Double( (String) p.get("maxConnTime"))).doubleValue();
     }
+    catch (FileNotFoundException f) {}
+    catch (IOException e) {}
   }
 
-  /**
+/**
    *
    * @param request HttpServletRequest
    * @param response HttpServletResponse
@@ -73,7 +69,21 @@ public class DB_AccessServlet extends HttpServlet{
           getInputStream());
       ObjectOutputStream outputToApp = new ObjectOutputStream(response.
         getOutputStream());
+      DB_AccessAPI myBroker;
       try {
+        // get the username
+        String usrName = (String)inputFromApp.readObject();
+        // get the password
+        String passwd = (String)inputFromApp.readObject();
+        //check whether db connection already exists for this username, passwd
+        myBroker = (DB_AccessAPI)dbConnMap.get(usrName+"_"+passwd);
+        if(myBroker==null) { // put connection for this uname password in hashmap
+          myBroker = new
+           DB_ConnectionPool(dbDriver, dbServer, usrName, passwd,
+                              minConns, maxConns, logFileString, maxConnTime);
+          dbConnMap.put(usrName+"_"+passwd, myBroker);
+        }
+
         //receiving the name of the Function to be performed
         String functionToPerform = (String) inputFromApp.readObject();
         //receiving the query
@@ -109,15 +119,15 @@ public class DB_AccessServlet extends HttpServlet{
       catch (IOException ex) {
         ex.printStackTrace();
       }
+    }
+
+
+
+    //Process the HTTP Post request
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws
+        ServletException, IOException {
+      // call the doPost method
+      doGet(request, response);
+    }
+
   }
-
-
-
-  //Process the HTTP Post request
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws
-      ServletException, IOException {
-    // call the doPost method
-    doGet(request, response);
-  }
-
-}

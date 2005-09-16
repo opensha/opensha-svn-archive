@@ -7,6 +7,7 @@ import java.net.URL;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.net.URLConnection;
+import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 
 /**
@@ -102,7 +103,7 @@ public class ServerDB_Access
 
       if(D) System.out.println("starting to make connection with servlet");
       URL dbAccessServlet = new
-                             URL("http://gravity.usc.edu/UCERF/servlet/DB_AccessServlet");
+                             URL("https://gravity.usc.edu/UCERF/servlet/DB_AccessServlet");
 
 
       URLConnection servletConnection = dbAccessServlet.openConnection();
@@ -120,7 +121,10 @@ public class ServerDB_Access
 
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
-
+      //sending the username and password to the server
+      outputToServlet.writeObject(GUI_Utils.getUserName());
+      //send the password
+      outputToServlet.writeObject(GUI_Utils.getPassword());
       //sending the type of operation that needs to be performed in the database
       outputToServlet.writeObject(sqlFunction);
       //sending the actual query to be performed in the database

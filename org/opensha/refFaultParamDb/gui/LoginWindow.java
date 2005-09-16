@@ -15,13 +15,12 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
  * @version 1.0
  */
 
-public class LoginWindow extends JFrame {
+public class LoginWindow extends JFrame implements ActionListener {
 
   private static final boolean D= false;
   private final static String TITLE = "Login";
-
   private JPanel passwordPanel = new JPanel();
-  private JButton continueButton = new JButton();
+  private JButton loginButton = new JButton();
   private JPasswordField passwordText = new JPasswordField();
   private JLabel jLabel5 = new JLabel();
   private JButton cancelButton = new JButton();
@@ -35,6 +34,8 @@ public class LoginWindow extends JFrame {
 
   private JButton newUserButton = new JButton();
   private JButton forgetPassButton = new JButton();
+
+
   public LoginWindow(){
     init();
   }
@@ -51,7 +52,6 @@ public class LoginWindow extends JFrame {
   }
 
   private void jbInit() throws Exception {
-    this.setDefaultCloseOperation(this.EXIT_ON_CLOSE);
     usernameText.setForeground(new Color(80, 80, 133));
     usernameText.setBackground(Color.white);
     passwordText.setBackground(Color.white);
@@ -65,9 +65,9 @@ public class LoginWindow extends JFrame {
     forgetPassButton.setText("Forgot Passwd");
     this.getContentPane().add(passwordPanel, java.awt.BorderLayout.CENTER);
     passwordPanel.setLayout(GUI_Utils.gridBagLayout);
-    continueButton.setFont(new java.awt.Font("Dialog", 1, 12));
-    continueButton.setForeground(new Color(80, 80, 133));
-    continueButton.setText("Login");
+    loginButton.setFont(new java.awt.Font("Dialog", 1, 12));
+    loginButton.setForeground(new Color(80, 80, 133));
+    loginButton.setText("Login");
     passwordText.setBackground(Color.white);
     passwordText.setFont(new java.awt.Font("Dialog", 1, 12));
     passwordText.setForeground(new Color(80, 80, 133));
@@ -101,11 +101,12 @@ public class LoginWindow extends JFrame {
     passwordPanel.add(jLabel2, new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
         new Insets(10, 8, 0, 0), 20, 13));
-    passwordPanel.add(continueButton,
+    passwordPanel.add(loginButton,
                       new GridBagConstraints(4, 3, 1, 1, 0.0, 0.0
                                              , GridBagConstraints.CENTER,
                                              GridBagConstraints.NONE,
                                              new Insets(24, 25, 24, 0), 5, 0));
+    loginButton.addActionListener(this);
     /*passwordPanel.add(cancelButton, new GridBagConstraints(1, 3, 2, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(24, 0, 24, 0), 9, 0));
@@ -123,6 +124,19 @@ public class LoginWindow extends JFrame {
     pack();
     this.setLocationRelativeTo(null);
     show();
+  }
+
+  /**
+   * This function is called when any button is clicked on this window
+   * @param event
+   */
+  public void actionPerformed(ActionEvent event) {
+    Object source = event.getSource();
+    if(source==loginButton) { // if login button is clicked, save the username/passwd
+      GUI_Utils.setPassword(this.passwordText.getText());
+      GUI_Utils.setUserName(this.usernameText.getText());
+      PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();
+    }
   }
 
   //static initializer for setting look & feel
