@@ -38,7 +38,7 @@ public class GriddedHypoMagFreqDistForecast
   private boolean editable = true;
 
   //EvenlyGriddedGeographicAPI region
-  private EvenlyGriddedGeographicRegionAPI region;
+  protected EvenlyGriddedGeographicRegionAPI region;
 
   public GriddedHypoMagFreqDistForecast() {
   }

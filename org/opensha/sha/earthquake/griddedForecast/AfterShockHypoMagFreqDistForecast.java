@@ -22,7 +22,6 @@ public class AfterShockHypoMagFreqDistForecast
 
   private ObsEqkRupture mainShock;
   private ObsEqkRupList afterShocks;
-  private EvenlyGriddedGeographicRegionAPI afterShockZone;
 
   public AfterShockHypoMagFreqDistForecast() {
   }
@@ -32,7 +31,7 @@ public class AfterShockHypoMagFreqDistForecast
                                           EvenlyGriddedGeographicRegionAPI afterShockZone){
     this.mainShock = mainShock;
     this.afterShocks = afterShocks;
-    this.afterShockZone = afterShockZone;
+    this.region = afterShockZone;
   }
 
   public ObsEqkRupList getAfterShocks() {
@@ -40,7 +39,7 @@ public class AfterShockHypoMagFreqDistForecast
   }
 
   public EvenlyGriddedGeographicRegionAPI getAfterShockZone() {
-    return afterShockZone;
+    return region;
   }
 
   public ObsEqkRupture getMainShock() {
@@ -52,15 +51,10 @@ public class AfterShockHypoMagFreqDistForecast
   }
 
   public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI afterShockZone) {
-    this.afterShockZone = afterShockZone;
+    this.region = afterShockZone;
   }
 
   public void setMainShock(ObsEqkRupture mainShock) {
     this.mainShock = mainShock;
   }
-
-
-
-
-
 }
