@@ -45,7 +45,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
      * Creates a new Connection Broker after reading the JDBC info from the
      * data file.
      */
-    public DB_ConnectionPool(String userName, String passwd){
+    public DB_ConnectionPool(String userName, String passwd) {
       Properties p = new Properties();
       try {
         String fileSeparator = org.opensha.util.SystemPropertiesUtils.getSystemFileSeparator();
@@ -70,7 +70,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 
       }
       catch (FileNotFoundException f) {f.printStackTrace();}
-      catch (IOException e) {e.printStackTrace();}
+      catch(IOException e){ e.printStackTrace(); }
     }
 
 
@@ -203,7 +203,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
         //    by waiting and trying again.  The loop allows 5 minutes for
         //    db reboot.
         boolean connectionsSucceeded=false;
-        int dbLoop=20;
+        int dbLoop=2;
 
         try {
             for(int i=1; i < dbLoop; i++) {
@@ -219,10 +219,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
                                     " of " + String.valueOf(dbLoop) +
                                     ") failed to create new connections set at startup: ");
                         log.println("    " + e);
-                        log.println("    Will try again in 15 seconds...");
                     }
-                    try { Thread.sleep(15000); }
-                    catch(InterruptedException e1) {}
                 }
             }
             if(!connectionsSucceeded) { // All attempts at connecting to db exhausted

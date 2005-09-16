@@ -17,6 +17,7 @@ import java.sql.SQLException;
 import com.sun.rowset.CachedRowSetImpl;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -32,26 +33,24 @@ public class DB_AccessServlet extends HttpServlet{
   private String dbDriver, dbServer, logFileString;
   private int minConns, maxConns;
   private double maxConnTime;
+  private final static String CONNECT_FAILURE_MSG = "Connection to the database server failed.\nCheck username/password or try again later";
+  private final static String propFilename = "/opt/install/jakarta-tomcat-4.1.24/webapps/UCERF/WEB-INF/DbConnection_Prop.dat";
 
-  public void init(ServletConfig config) throws ServletException {
-    super.init(config);
-
+  public void init() throws ServletException {
 
     Properties p = new Properties();
     try {
-      p.load(new
-             FileInputStream("DbConnection_Prop.dat"));
-
+      p.load(new FileInputStream(propFilename));
       dbDriver = (String) p.get("dbDriver");
       dbServer = (String) p.get("dbServer");
-      int minConns = Integer.parseInt( (String) p.get("minConns"));
-      int maxConns = Integer.parseInt( (String) p.get("maxConns"));
-      String logFileString = (String) p.get("logFileString");
-      double maxConnTime =
+      minConns = Integer.parseInt( (String) p.get("minConns"));
+      maxConns = Integer.parseInt( (String) p.get("maxConns"));
+      logFileString = (String) p.get("logFileString");
+      maxConnTime =
           (new Double( (String) p.get("maxConnTime"))).doubleValue();
     }
-    catch (FileNotFoundException f) {}
-    catch (IOException e) {}
+    catch (FileNotFoundException f) {f.printStackTrace();}
+    catch (IOException e) {e.printStackTrace();}
   }
 
 /**
@@ -78,10 +77,16 @@ public class DB_AccessServlet extends HttpServlet{
         //check whether db connection already exists for this username, passwd
         myBroker = (DB_AccessAPI)dbConnMap.get(usrName+"_"+passwd);
         if(myBroker==null) { // put connection for this uname password in hashmap
-          myBroker = new
-           DB_ConnectionPool(dbDriver, dbServer, usrName, passwd,
-                              minConns, maxConns, logFileString, maxConnTime);
-          dbConnMap.put(usrName+"_"+passwd, myBroker);
+          try {
+            myBroker = new
+                DB_ConnectionPool(dbDriver, dbServer, usrName, passwd,
+                                  minConns, maxConns, logFileString, maxConnTime);
+            dbConnMap.put(usrName + "_" + passwd, myBroker);
+          }catch(IOException e) { // if connection failed, throw exception
+            DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
+            outputToApp.writeObject(exception);
+            outputToApp.close();
+          }
         }
 
         //receiving the name of the Function to be performed

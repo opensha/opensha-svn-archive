@@ -23,6 +23,7 @@ public class ServerDB_Access
 
   //used for debugging
   private static final boolean D = false;
+  private final static String SERVLET_URL  = "http://gravity.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
 
 
   /**
@@ -102,9 +103,7 @@ public class ServerDB_Access
     try{
 
       if(D) System.out.println("starting to make connection with servlet");
-      URL dbAccessServlet = new
-                             URL("https://gravity.usc.edu/UCERF/servlet/DB_AccessServlet");
-
+      URL dbAccessServlet = new URL(SERVLET_URL);
 
       URLConnection servletConnection = dbAccessServlet.openConnection();
       if(D) System.out.println("connection established");
@@ -140,6 +139,7 @@ public class ServerDB_Access
           ObjectInputStream(servletConnection.getInputStream());
 
       outputFromRemoteDB = inputToServlet.readObject();
+      if(outputFromRemoteDB instanceof Exception) throw (Exception)outputFromRemoteDB;
       inputToServlet.close();
     }catch (Exception e) {
       e.printStackTrace();

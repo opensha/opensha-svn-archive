@@ -15,6 +15,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 
 /**
  * <p>Title: AddNewReference.java </p>
@@ -93,6 +94,8 @@ public class AddNewReference extends JFrame implements ActionListener {
      referenceDAO.addReference(reference);
    }catch(InsertException insertException) { // if there is problem inserting the reference
       JOptionPane.showMessageDialog(this, insertException.getMessage());
+   }catch(DBConnectException connectException) {
+      JOptionPane.showMessageDialog(this, connectException.getMessage());
    }
   }
 
