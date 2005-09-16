@@ -808,14 +808,6 @@ public abstract class AttenuationRelationship
 
 
     /**
-     *  This function populates the hashtable of coefficients (if there
-     *  are any for the subclass).  The hashtable keys vary among
-     *  subclasses, but are generally the intensityMeasure name plus
-     *  other strings (separated by "/") that distinguish coefficient sets.
-     */
-    protected abstract void initCoefficients();
-
-    /**
      *  This creates the following parameters for subclasses: saParam; dampingParam,
      *  and pgaParam; the periodParam (one of saParam's independent parameters) is
      *  created and added in subclasses.  All these parameters are added to the

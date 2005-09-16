@@ -64,7 +64,7 @@ public class AS_2005_prelim_AttenRel
       865.1, 865.1, 865.1, 907.8, 994.5, 1053.5, 1085.7, 1032.5, 877.6, 748.2,
       654.3, 587.1, 503, 456.6, 410.5, 400, 400, 400, 400, 400, 400};
   private static double[] b_soil = {
-       -1.186, -1.186, -1.219, -1.273, -1.308, -1.346, -1.471, -1.624, -1.931,
+      -1.186, -1.186, -1.219, -1.273, -1.308, -1.346, -1.471, -1.624, -1.931,
       -2.188, -2.381, -2.518, -2.657, -2.669, -2.401, -1.955, -1.025, -0.299, 0,
       0, 0};
   private static double[] c0 = {
@@ -77,11 +77,11 @@ public class AS_2005_prelim_AttenRel
       2.5164, 2.2411, 2.0442, 1.9085, 1.3589, 1.0968, 0.5499, 0.0308, -0.0884,
       -0.2875, -0.3686};
   private static double[] c2 = {
-       -0.9841, -0.9704, -0.9771, -0.9969, -1.0286, -1.0637, -1.1423, -1.2036,
+      -0.9841, -0.9704, -0.9771, -0.9969, -1.0286, -1.0637, -1.1423, -1.2036,
       -1.1957, -1.1051, -1.0301, -0.9411, -0.883, -0.8539, -0.7629, -0.7397,
       -0.6657, -0.6195, -0.7102, -0.7218, -0.7683};
   private static double[] c3 = {
-       -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2,
+      -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2,
       -0.2,
       -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2};
   private static double[] c5 = {
@@ -98,7 +98,7 @@ public class AS_2005_prelim_AttenRel
       0.2071, 0.2327, 0.2282, 0.22, 0.2364, 0.2589, 0.268, 0.2012, 0.2527,
       0.2511, 0.1449, 0.0998};
   private static double[] c8 = {
-       -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09,
+      -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09,
       -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09,
       -0.09};
   private static double[] c9 = {
@@ -137,12 +137,11 @@ public class AS_2005_prelim_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rjb, rRup, aspectratio, rake, dip, mag, srcSiteA, depthTop;
+  private double vs30, rjb, rRup, aspectratio, rake, dip, mag, srcSiteA,
+      depthTop;
   private String stdDevType;
   private boolean parameterChange;
-  private double stdDev, mean;
-  // sigma, tau,lnSa, pgaRock,
-
+  private double mean, stdDev;
 
   // ?????????????????????????????????????
   protected final static Double MAG_WARN_MIN = new Double(4.5);
@@ -219,8 +218,9 @@ public class AS_2005_prelim_AttenRel
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
-    for(int i=0;i<period.length;i++)
-      indexFromPerHashMap.put(new Double(period[i]),new Integer(i));
+    for (int i = 0; i < period.length; i++) {
+      indexFromPerHashMap.put(new Double(period[i]), new Integer(i));
+    }
 
     initEqkRuptureParams();
     initPropagationEffectParams();
@@ -243,7 +243,7 @@ public class AS_2005_prelim_AttenRel
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
-    setFaultTypeFromRake(eqkRupture.getAveRake());
+//    setFaultTypeFromRake(eqkRupture.getAveRake());
     this.eqkRupture = eqkRupture;
     setPropagationEffectParams();
 
@@ -261,13 +261,11 @@ public class AS_2005_prelim_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+//    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
   }
-
-
 
   /**
    * This sets the two propagation-effect parameters (distanceRupParam and
@@ -287,7 +285,7 @@ public class AS_2005_prelim_AttenRel
 
       //need to set sourceSiteAngle param
 
-     }
+    }
   }
 
   /**
@@ -305,7 +303,8 @@ public class AS_2005_prelim_AttenRel
 
     StringBuffer key = new StringBuffer(im.getName());
     if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      return ((Integer)indexFromPerHashMap.get(periodParam.getValue())).intValue();
+      return ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
+          intValue();
     }
     return 0;
 
@@ -315,109 +314,28 @@ public class AS_2005_prelim_AttenRel
    * Calculates the mean of the exceedence probability distribution. <p>
    * @return    The mean value
    */
-  public double getMean() throws IMRException {
+  public double getMean() {
 
-    if(parameterChange)
+    // check if distance is beyond the user specified max
+    if (rRup > USER_MAX_DISTANCE) {
+      return VERY_SMALL_MEAN;
+    }
+
+    if (parameterChange) {
       calcMeanStdDev();
+    }
     return mean;
-  }
-
-  /**
-   * This calculates the mean (natural log) for a rock site
-   * @param mag magnidue
-   * @param dist distanceRup
-   * @param F    style of faulting factor (0, 0.5, or 1.0)
-   * @param HW  1 if on hanging wall; 0 otherwise
-   * @return  Mean for a rock site
-   */
-  private double calcRockMean(double mag, double dist, double F, int HW) {
-
-    //Norm's sub-equation terms (all but f5):
-    double f1, f3, f4, fHWM, fHWRrup;
-
-    double R = Math.sqrt(dist * dist + coeff.c4 * coeff.c4);
-
-    // Compute f1
-    if (mag <= c1) {
-      f1 = coeff.a1 + a2 * (mag - c1) + coeff.a12 * Math.pow(8.5 - mag, n) +
-          Math.log(R) * (coeff.a3 + a13 * (mag - c1));
-    }
-    else {
-      f1 = coeff.a1 + a4 * (mag - c1) + coeff.a12 * Math.pow(8.5 - mag, n) +
-          Math.log(R) * (coeff.a3 + a13 * (mag - c1));
-    }
-    /*
-     System.out.println( coeff.a1 );
-     System.out.println( a4 );
-     System.out.println( c1 );
-     System.out.println( coeff.a12 );
-     System.out.println( n );
-     System.out.println( coeff.a3 );
-     System.out.println( a13 );
-     */
-    // Compute f3, the style of faulting factor
-    if (mag <= 5.8) {
-      f3 = coeff.a5;
-    }
-    else if (mag > 5.8 && mag < c1) {
-      f3 = coeff.a5 + (coeff.a6 - coeff.a5) * (mag - 5.8) / (c1 - 5.8);
-    }
-    else {
-      f3 = coeff.a6;
-    }
-
-// Compute f4, compute the hanging wall effect
-
-    // only do these calculations if it's not going to be zeroed out
-    if (HW == (int) 1) {
-      if (mag <= 5.5) {
-        fHWM = 0.0;
-      }
-      else if (mag > 5.5 && mag < 6.5) {
-        fHWM = mag - 5.5;
-      }
-      else {
-        fHWM = 1.0;
-      }
-
-      if (dist <= 4.0) {
-        fHWRrup = 0;
-      }
-      else if (dist > 4 && dist <= 8) {
-        fHWRrup = coeff.a9 * (dist - 4) / 4;
-      }
-      else if (dist > 8 && dist <= 18) {
-        fHWRrup = coeff.a9;
-      }
-      else if (dist > 18 && dist <= 25) {
-        fHWRrup = coeff.a9 * (1 - (dist - 18) / 7);
-      }
-      else {
-        fHWRrup = 0;
-      }
-
-//          f4 = fHWM*fHWRrup;
-      return f1 + F * f3 + fHWM * fHWRrup;
-    }
-    else {
-      return f1 + F * f3;
-    }
-//            f4 = 0;   	// set it to anything since HW = 0
-
-//        return f1 + F*f3 + HW*f4;
   }
 
   /**
    * @return    The stdDev value
    */
-  public double getStdDev() throws IMRException {
+  public double getStdDev() {
 
-    if(parameterChange)
+    if (parameterChange) {
       this.calcMeanStdDev();
-
-
-
-
+    }
+    return stdDev;
   }
 
   public void setParamDefaults() {
@@ -584,8 +502,9 @@ public class AS_2005_prelim_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for(int i = 0; i < period.length; i++)
-      periodConstraint.addDouble( new Double(period[i]));
+    for (int i = 0; i < period.length; i++) {
+      periodConstraint.addDouble(new Double(period[i]));
+    }
     periodConstraint.setNonEditable();
     periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
                                               PERIOD_UNITS, null);
@@ -650,7 +569,6 @@ public class AS_2005_prelim_AttenRel
 
   }
 
-
   /**
    * get the name of this IMR
    *
@@ -659,8 +577,6 @@ public class AS_2005_prelim_AttenRel
   public String getName() {
     return NAME;
   }
-
-
 
   public void setIntensityMeasure(String intensityMeasureName) throws
       ParameterException {
@@ -672,54 +588,159 @@ public class AS_2005_prelim_AttenRel
   /**
    * This function calculates the Std-Dev and Mean
    */
-  private void calcMeanStdDev(){
-    try {
-      mag = ( (Double) magParam.getValue()).doubleValue();
-      rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
-      rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
-      vs30 = ( (Double) vs30Param.getValue()).doubleValue();
-      aspectratio = ( (Double) aspectRatioParam.getValue()).doubleValue();
-      rake = ( (Double) rakeParam.getValue()).doubleValue();
-      dip = ( (Double) dipParam.getValue()).doubleValue();
-    }
-    catch (NullPointerException e) {
-      throw new IMRException(C + ": getMean(): " + ERR);
-    }
-
-    // check if distance is beyond the user specified max
-    if (rRup > USER_MAX_DISTANCE) {
-      mean =  VERY_SMALL_MEAN;
-    }
-
- // return the result
-// return lnSa;
-
- //calculating the Std. Dev
- if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
-   stdDev = 0;
- }
- else {
-
-   // this is inefficient if the im has not been changed in any way
-   updateCoefficients();
-
-   double mag = ( (Double) magParam.getValue()).doubleValue();
-   if (mag <= 5.0)
-     stdDev = coeff.b5;
-
-   else if (mag > 5.0 && mag < 7.0)
-     stdDev = coeff.b5 - coeff.b6 * (mag - 5.0);
-   else
-     stdDev = coeff.b5 - 2 * coeff.b6;
-
- }
-
-
-
-    parameterChange = false;
+  private void calcMeanStdDev() {
+    double pgaRock = this.calcMean(iper,0.0,1100);
+    mean = this.calcMean(iper,pgaRock,vs30);
+    stdDev = this.calcStdDev(iper,pgaRock,vs30);
+    this.parameterChange = false;
   }
 
+  private double calcMean(int iper, double pgaRock, double vs30) {
 
+    double Frv, Fn, r, sum, taperM1, taperM2, ar1, hw1, t_hw, dAmp_dPGA;
+
+    //       Mechanism
+    if (rake > 22.5 && rake < 157.5) {
+      Frv = 1.0;
+    }
+    else {
+      Frv = 0.0;
+    }
+    if (rake < -22.5 && rake > -157.5) {
+      Fn = 1.0;
+    }
+    else {
+      Fn = 0.0;
+    }
+
+    //     Base Model
+    r = Math.sqrt(rRup * rRup + c0[iper] * c0[iper]);
+    sum = c1[iper] + (c2[iper] + c3[iper] * (7.5 - mag)) * Math.log(r) +
+        c5[iper] * (mag - 6.) + c6[iper] * (8.5 - mag) * (8.5 - mag);
+
+    //     Mech model
+    sum += c7[iper] * Frv + c9[iper] * Fn;
+
+    //     Set Taper 1
+    if (mag > 7.) {
+      taperM1 = 1.0;
+    }
+    else if (mag > 6.5) {
+      taperM1 = (mag - 6.5) * 2.0;
+    }
+    else {
+      taperM1 = 0.0;
+    }
+
+    //     Set Taper 2
+    if (mag > 6.5) {
+      taperM2 = 1.0;
+    }
+    else if (mag > 6.0) {
+      taperM2 = (mag - 6.0) * 2.0;
+    }
+    else {
+      taperM2 = 0.0;
+    }
+
+//     Aspect ratio model
+    ar1 = aspectratio;
+    if (ar1 > 20.) {
+      ar1 = 20.;
+    }
+    else if (ar1 < 1.5) {
+      ar1 = 1.5;
+    }
+
+    sum = sum + c8[iper] * (Math.log(ar1) - Math.log(1.5)) * taperM1;
+
+//     soil
+    double soilamp;
+    if (vs30 < vref[iper]) {
+      soilamp = c10[iper] * Math.log(vs30 / vref[iper]) -
+          b_soil[iper] * Math.log(c + pgaRock) +
+          b_soil[iper] * Math.log(pgaRock + c * Math.pow(vs30 / vref[iper], n));
+    }
+    else {
+      soilamp = (c10[iper] + b_soil[iper] * n) * Math.log(vs30 / vref[iper]);
+    }
+
+    sum = sum + soilamp;
+
+//     HW model
+    double angle1, taperTheta, t_fw;
+    hw1 = 0.0;
+    angle1 = Math.abs(srcSiteA);
+    if (angle1 > 90.) {
+      angle1 = 180. - srcSiteA;
+    }
+
+    if (angle1 < 20.) {
+      taperTheta = angle1 / 20.0;
+    }
+    else {
+      taperTheta = 1.0;
+    }
+
+    t_hw = (30. - rjb) / 30. * (90. - dip) / 45. * taperM2;
+    if (depthTop == 0.) {
+      t_fw = 0.;
+    }
+    else {
+      t_fw = 1. - rjb / (2. * depthTop + 1.);
+    }
+
+    if (srcSiteA > 0. && rjb < 30.) {
+      hw1 = c11[iper] * (t_hw * taperTheta + t_fw * (1. - taperTheta));
+    }
+    else if (srcSiteA < 0. && rjb < 2. * depthTop) {
+      hw1 = c11[iper] * t_fw;
+    }
+    else {
+      hw1 = 0.;
+    }
+
+    sum = sum + hw1;
+
+//         depth of rupture term
+    if (mag < 6.5) {
+      sum = sum + c12[iper] * (depthTop - 5.) * (1. - taperM2);
+    }
+
+    return sum;
+  }
+
+  private double calcStdDev(int iper, double pgaRock, double vs30) {
+    double sigma,tau;
+    sigma = sigma0[iper];
+    tau = tau0[iper];
+
+    if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
+      return 0;
+    }
+    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
+      return sigma;
+    }
+    else {
+      double dAmp_dPGA;
+      //     Compute parital derivative of ln(soil amp) w.r.t. ln(rock PGA)
+      if (vs30 >= vref[iper]) {
+        dAmp_dPGA = 0.;
+      }
+      else {
+        dAmp_dPGA = b_soil[iper] * pgaRock *
+            ( -1. / (pgaRock + 1.) + 1. / (pgaRock + vs30 / vref[iper]));
+      }
+      //     Set the tau for Sa including the effect of rockPGA tau
+      tau = Math.sqrt(tau0[iper] * tau0[iper] + Math.pow(dAmp_dPGA * tau0[0], 2) +
+                      2. * dAmp_dPGA * tau0[0] * tau0[iper] * tauCorr[iper]);
+
+      if (stdDevType.equals(STD_DEV_TYPE_INTER))return tau;
+
+      else return Math.pow(sigma * sigma + tau * tau, 2);
+    }
+
+  }
   /**
    * This listens for parameter changes and updates the primitive parameters accordingly
    * @param e ParameterChangeEvent
@@ -729,16 +750,36 @@ public class AS_2005_prelim_AttenRel
     String pName = e.getParameterName();
     Object val = e.getNewValue();
     parameterChange = true;
-    if(pName.equals(DistanceRupParameter.NAME))  rRup = ((Double) val).doubleValue();
-    else if (pName.equals(DistanceJBParameter.NAME))  rjb = ((Double) val).doubleValue();
-    else if (pName.equals(this.VS30_NAME))  vs30 = ((Double) val).doubleValue();
-    else if (pName.equals(this.MAG_NAME))  mag = ((Double) val).doubleValue();
-    else if (pName.equals(this.DIP_NAME))  dip = ((Double) val).doubleValue();
-    else if (pName.equals(this.RAKE_NAME))  rake = ((Double) val).doubleValue();
-    else if (pName.equals(this.ASPECT_RATIO_NAME))  aspectratio = ((Double) val).doubleValue();
-    else if (pName.equals(this.SRC_SITE_ANGLE_NAME))  srcSiteA = ((Double) val).doubleValue();
-    else if (pName.equals(this.RUP_TOP_NAME))  depthTop = ((Double) val).doubleValue();
-    else if (pName.equals(this.STD_DEV_TYPE_NAME))  stdDevType = (String) val;
+    if (pName.equals(DistanceRupParameter.NAME)) {
+      rRup = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(DistanceJBParameter.NAME)) {
+      rjb = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.VS30_NAME)) {
+      vs30 = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.MAG_NAME)) {
+      mag = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.DIP_NAME)) {
+      dip = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.RAKE_NAME)) {
+      rake = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.ASPECT_RATIO_NAME)) {
+      aspectratio = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.SRC_SITE_ANGLE_NAME)) {
+      srcSiteA = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.RUP_TOP_NAME)) {
+      depthTop = ( (Double) val).doubleValue();
+    }
+    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
+      stdDevType = (String) val;
+    }
 
   }
 
@@ -755,9 +796,5 @@ public class AS_2005_prelim_AttenRel
     srcSiteAngleParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
   }
-
-
-
-
 
 }
