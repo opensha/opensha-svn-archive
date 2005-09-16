@@ -291,6 +291,35 @@ public abstract class AttenuationRelationship
     // warning values are set in subclasses
 
 
+
+    /**
+     * Rake Parameter, reserved for representing the average rake of the earthquake
+     * rupture.  This parameter is created in the initEqkRuptureParams() method
+     * here.
+     */
+    protected DoubleParameter rakeParam = null;
+    public final static String RAKE_NAME = "Rake";
+    public final static String RAKE_UNITS = "degrees";
+    public final static String RAKE_INFO = "Average rake of earthquake rupture";
+    public final static Double RAKE_DEFAULT = new Double( "0" );
+    protected final static Double RAKE_MIN = new Double(-180);
+    protected final static Double RAKE_MAX = new Double(180);
+
+
+    /**
+     * Dip Parameter, reserved for representing the average rake of the earthquake
+     * rupture.  This parameter is created in the initEqkRuptureParams() method
+     * here.
+     */
+    protected DoubleParameter dipParam = null;
+    public final static String DIP_NAME = "Rake";
+    public final static String DIP_UNITS = "degrees";
+    public final static String DIP_INFO = "Average dip of earthquake rupture";
+    public final static Double DIP_DEFAULT = new Double( "90" );
+    protected final static Double DIP_MIN = new Double(0);
+    protected final static Double DIP_MAX = new Double(90);
+
+
     /**
      * Component Parameter, reserved for representing the component of shaking
      * (in 3D space); all of the "COMPONENT_*" class variables relate to this
@@ -858,9 +887,22 @@ public abstract class AttenuationRelationship
         magConstraint.setNonEditable();
         magParam = new WarningDoubleParameter( MAG_NAME, magConstraint);
         magParam.setInfo( MAG_INFO );
-
         // Warning constraint is created and added in subclass
-    }
+
+        // Dip Parameter:
+        DoubleConstraint dipConstraint = new DoubleConstraint(DIP_MIN, DIP_MAX);
+        dipConstraint.setNonEditable();
+        dipParam = new DoubleParameter( DIP_NAME, dipConstraint);
+        dipParam.setInfo( DIP_INFO );
+
+
+        // Rake Parameter:
+        DoubleConstraint rakeConstraint = new DoubleConstraint(RAKE_MIN, RAKE_MAX);
+        rakeConstraint.setNonEditable();
+        rakeParam = new DoubleParameter( RAKE_NAME, rakeConstraint);
+        rakeParam.setInfo( RAKE_INFO );
+
+   }
 
 
     /**

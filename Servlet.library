@@ -2,6 +2,6 @@
 <library>
   <!--JBuilder Library Definition File-->
   <fullname>Servlet</fullname>
-  <required>Tomcat 3.3 Servlet</required>
-  <lastmodsaved>1126196725409</lastmodsaved>
+  <required>Tomcat 4.1 Servlet</required>
+  <lastmodsaved>1126898516691</lastmodsaved>
 </library>
