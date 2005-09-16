@@ -20,7 +20,7 @@ GriddedHypoMagFreqDistAtLocAPI
 GriddedHypoMagFreqDistForecast
 
 	remove editable boolean
-	needs get/set methods for adjustable parameters.
+	needs get/set methods for adjustable parameters. (why do need Set method for the Adjustable parameters ?? - Nitin)
 	Add evenlyGriddedRegion with get, but no set method.
 	Make this abstract (ERF wrapper will be subclass)
 	Note that indexing on HypMagFreqDistAtLocs is exactly the same as for griddedRegion

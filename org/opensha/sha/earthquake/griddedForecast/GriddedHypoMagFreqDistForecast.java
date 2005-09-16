@@ -20,7 +20,7 @@ import java.util.ListIterator;
  * @author Nitin Gupta , Edward (Ned) Field, Vipin Gupta
  * @version 1.0
  */
-public class GriddedHypoMagFreqDistForecast
+public abstract class GriddedHypoMagFreqDistForecast
     implements HypoMagFreqDistAtLocAPI, ParameterChangeListener {
 
 
@@ -32,16 +32,12 @@ public class GriddedHypoMagFreqDistForecast
   //Adjustable parameters fro the given forecast model
   private ParameterList adjustableParameters;
   //Only update the forecast if parameters have been changed.
-  private boolean parameterChangeFlag = true;
+  protected boolean parameterChangeFlag = true;
 
-  //Only allows user to edit the timespan if this is true.
-  private boolean editable = true;
 
   //EvenlyGriddedGeographicAPI region
   protected EvenlyGriddedGeographicRegionAPI region;
 
-  public GriddedHypoMagFreqDistForecast() {
-  }
 
   /**
    * gets the Hypocenter Mag.
@@ -82,11 +78,11 @@ public class GriddedHypoMagFreqDistForecast
   }
 
   /**
-   * Sets the list of adjustable parameters
-   * @param paramList ParameterList list of adjustable parameters
+   * Allows the user to set the Adjustable Parameter for the Forecast
+   * @param parameters ParameterList
    */
-  public void setAdjustableParameters(ParameterList paramList){
-    adjustableParameters = paramList;
+  public void setAdjustableParameters(ParameterList parameters){
+    adjustableParameters = parameters;
   }
 
   /**
@@ -94,10 +90,10 @@ public class GriddedHypoMagFreqDistForecast
    *
    * @return int
    * @todo Implement this
-   *   org.opensha.sha.earthquake.GriddedHypoMagFreqDistAtLocAPI method
+   *   org.opensha.sha.earthquake.HypoMagFreqDistAtLocAPI method
    */
   public int getNumHypoMagFreqDistAtLocs() {
-    return 0;
+    return region.getNumGridLocs();
   }
 
 
@@ -111,7 +107,6 @@ public class GriddedHypoMagFreqDistForecast
    * @param  event
    */
   public void parameterChange(ParameterChangeEvent event) {
-    if(editable)
       parameterChangeFlag = true;
   }
 
@@ -128,8 +123,7 @@ public class GriddedHypoMagFreqDistForecast
    * @param timeSpan TimeSpan
    */
   public void setTimeSpan(TimeSpan timeSpan) {
-    if(editable)
-      this.timeSpan = timeSpan;
+     this.timeSpan = timeSpan;
   }
 
   /**
@@ -141,19 +135,11 @@ public class GriddedHypoMagFreqDistForecast
   }
 
   /**
-   *
+   * If any parameter has been changed then update the forecast.
    */
   public void updateForecast(){
     if(parameterChangeFlag){
 
     }
   }
-
-  /**
-   * This will unable the user to change Timespan and parameters.
-   */
-  public void makeParameterUneditable(){
-    this.editable =false;
-  }
-
 }
