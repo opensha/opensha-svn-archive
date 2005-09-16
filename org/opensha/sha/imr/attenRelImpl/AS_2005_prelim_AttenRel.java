@@ -139,7 +139,8 @@ public class AS_2005_prelim_AttenRel
   private int iper;
   private double vs30, rjb, rRup, aspectratio, rake, dip, mag, srcSiteA, depthTop;
   private String stdDevType;
-  private boolean paramChange;
+  private boolean parameterChange;
+  private double stdDev, mean;
   // sigma, tau,lnSa, pgaRock,
 
 
@@ -316,28 +317,9 @@ public class AS_2005_prelim_AttenRel
    */
   public double getMean() throws IMRException {
 
-
-    try {
-      mag = ( (Double) magParam.getValue()).doubleValue();
-      rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
-      rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
-      vs30 = ((Double) vs30Param.getValue()).doubleValue();
-      aspectratio = ( (Double) aspectRatioParam.getValue()).doubleValue();
-      rake = ( (Double) rakeParam.getValue()).doubleValue();
-      dip = ( (Double) dipParam.getValue()).doubleValue();
-   }
-    catch (NullPointerException e) {
-      throw new IMRException(C + ": getMean(): " + ERR);
-    }
-
-    // check if distance is beyond the user specified max
-    if (rRup > USER_MAX_DISTANCE) {
-      return VERY_SMALL_MEAN;
-    }
-
-
-    // return the result
-    return lnSa;
+    if(parameterChange)
+      calcMeanStdDev();
+    return mean;
   }
 
   /**
@@ -430,25 +412,12 @@ public class AS_2005_prelim_AttenRel
    */
   public double getStdDev() throws IMRException {
 
-    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
-      return 0;
-    }
-    else {
+    if(parameterChange)
+      this.calcMeanStdDev();
 
-      // this is inefficient if the im has not been changed in any way
-      updateCoefficients();
 
-      double mag = ( (Double) magParam.getValue()).doubleValue();
-      if (mag <= 5.0) {
-        return coeff.b5;
-      }
-      else if (mag > 5.0 && mag < 7.0) {
-        return (coeff.b5 - coeff.b6 * (mag - 5.0));
-      }
-      else {
-        return (coeff.b5 - 2 * coeff.b6);
-      }
-    }
+
+
   }
 
   public void setParamDefaults() {
@@ -693,11 +662,62 @@ public class AS_2005_prelim_AttenRel
 
 
 
-  public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException {
+  public void setIntensityMeasure(String intensityMeasureName) throws
+      ParameterException {
 
-      paramChange = true;
+    parameterChange = true;
+    super.setIntensityMeasure(intensityMeasureName);
+  }
 
+  /**
+   * This function calculates the Std-Dev and Mean
+   */
+  private void calcMeanStdDev(){
+    try {
+      mag = ( (Double) magParam.getValue()).doubleValue();
+      rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
+      rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
+      vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+      aspectratio = ( (Double) aspectRatioParam.getValue()).doubleValue();
+      rake = ( (Double) rakeParam.getValue()).doubleValue();
+      dip = ( (Double) dipParam.getValue()).doubleValue();
     }
+    catch (NullPointerException e) {
+      throw new IMRException(C + ": getMean(): " + ERR);
+    }
+
+    // check if distance is beyond the user specified max
+    if (rRup > USER_MAX_DISTANCE) {
+      mean =  VERY_SMALL_MEAN;
+    }
+
+ // return the result
+// return lnSa;
+
+ //calculating the Std. Dev
+ if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
+   stdDev = 0;
+ }
+ else {
+
+   // this is inefficient if the im has not been changed in any way
+   updateCoefficients();
+
+   double mag = ( (Double) magParam.getValue()).doubleValue();
+   if (mag <= 5.0)
+     stdDev = coeff.b5;
+
+   else if (mag > 5.0 && mag < 7.0)
+     stdDev = coeff.b5 - coeff.b6 * (mag - 5.0);
+   else
+     stdDev = coeff.b5 - 2 * coeff.b6;
+
+ }
+
+
+
+    parameterChange = false;
+  }
 
 
   /**
@@ -708,7 +728,7 @@ public class AS_2005_prelim_AttenRel
 
     String pName = e.getParameterName();
     Object val = e.getNewValue();
-
+    parameterChange = true;
     if(pName.equals(DistanceRupParameter.NAME))  rRup = ((Double) val).doubleValue();
     else if (pName.equals(DistanceJBParameter.NAME))  rjb = ((Double) val).doubleValue();
     else if (pName.equals(this.VS30_NAME))  vs30 = ((Double) val).doubleValue();
@@ -735,5 +755,9 @@ public class AS_2005_prelim_AttenRel
     srcSiteAngleParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
   }
+
+
+
+
 
 }
