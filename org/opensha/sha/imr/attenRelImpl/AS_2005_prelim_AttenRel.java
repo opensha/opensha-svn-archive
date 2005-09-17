@@ -355,7 +355,16 @@ public class AS_2005_prelim_AttenRel
     componentParam.setValue(COMPONENT_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     srcSiteAngleParam.setValue(SRC_SITE_ANGLE_DEFAULT);
-
+    vs30 = ((Double)vs30Param.getValue()).doubleValue();
+    rjb = ((Double)distanceJBParam.getValue()).doubleValue();
+    rRup = ((Double)distanceRupParam.getValue()).doubleValue();
+    aspectratio = ((Double)aspectRatioParam.getValue()).doubleValue();
+    rake = ((Double)rakeParam.getValue()).doubleValue();
+    dip = ((Double)dipParam.getValue()).doubleValue();
+    mag = ((Double)magParam.getValue()).doubleValue();
+    srcSiteA = ((Double)srcSiteAngleParam.getValue()).doubleValue();
+    depthTop = ((Double)rupTopDepthParam.getValue()).doubleValue();
+    stdDevType = (String)stdDevTypeParam.getValue();
   }
 
   /**

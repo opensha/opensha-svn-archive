@@ -166,7 +166,7 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static String SEA_NAME = "SEA (Spudich et al., 1999)";
     //protected final static String DAHLE_NAME = "Dahle et al. (1995)";
     protected final static String CS_NAME = "Choi & Stewart (2005)";
-    protected final static String AS2005_NAME ="Abrahamson & Silva (2005 prelim)";
+    protected final static String AS_2005_NAME ="Abrahamson & Silva (2005 prelim)";
 
 
     /**
@@ -185,6 +185,7 @@ public class AttenuationRelationshipApplet extends JApplet
     static {
         if ( imNames == null ) imNames = new HashMap();
         imNames.clear();
+
         imNames.put( BJF_NAME, BJF_CLASS_NAME );
         imNames.put( AS_NAME, AS_CLASS_NAME );
         imNames.put( C_NAME, C_CLASS_NAME );
@@ -195,7 +196,8 @@ public class AttenuationRelationshipApplet extends JApplet
         imNames.put( SM_NAME, SM_CLASS_NAME );
         imNames.put( SEA_NAME, SEA_CLASS_NAME );
         imNames.put( CS_NAME, CS_CLASS_NAME );
-        imNames.put( AS_2005_CLASS_NAME, AS2005_NAME );
+        imNames.put( AS_2005_NAME ,AS_2005_CLASS_NAME);
+
         //imNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
@@ -994,6 +996,7 @@ public class AttenuationRelationshipApplet extends JApplet
              */
             function = attenRel.getChoosenFunction();
           }catch(RuntimeException e){
+            //e.printStackTrace();
             JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Parameter Input",JOptionPane.ERROR_MESSAGE);
             return;
           }

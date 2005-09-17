@@ -312,7 +312,7 @@ public abstract class AttenuationRelationship
      * here.
      */
     protected DoubleParameter dipParam = null;
-    public final static String DIP_NAME = "Rake";
+    public final static String DIP_NAME = "Dip";
     public final static String DIP_UNITS = "degrees";
     public final static String DIP_INFO = "Average dip of earthquake rupture";
     public final static Double DIP_DEFAULT = new Double( "90" );
