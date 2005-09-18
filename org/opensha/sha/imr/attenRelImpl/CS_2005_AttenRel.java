@@ -198,7 +198,7 @@ public class CS_2005_AttenRel extends AttenuationRelationship
         }
 
         // get AS-1997 PGA for rock
-        as_1997_attenRel.setIntensityMeasure(pgaParam);
+        as_1997_attenRel.setIntensityMeasure(PGA_NAME);
         asRockPGA = as_1997_attenRel.getMean();
 
         // get the amp factor

@@ -50,7 +50,7 @@ public class AS_2005_prelim_AttenRel
 
   // Debugging stuff
   private final static String C = "AS_2005_prelim_AttenRel";
-  private final static boolean D = false;
+  private final static boolean D = true;
 
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2005 prelim)";
@@ -137,8 +137,7 @@ public class AS_2005_prelim_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rjb, rRup, aspectratio, rake, dip, mag, srcSiteA,
-      depthTop;
+  private double vs30, rjb, rRup, aspectratio, rake, dip, mag, srcSiteA, depthTop;
   private String stdDevType;
   private boolean parameterChange;
   private double mean, stdDev;
@@ -228,6 +227,7 @@ public class AS_2005_prelim_AttenRel
     initOtherParams();
 
     initIndependentParamLists(); // This must be called after the above
+    initPameterListeners();//add the change listeners to the parameters
 
   }
 
@@ -291,7 +291,7 @@ public class AS_2005_prelim_AttenRel
   /**
    * This function returns the array index for the coeffs corresponding to the chosen IMT
    */
-  protected int getCoeffIndex() throws ParameterException {
+  protected void setCoeffIndex() throws ParameterException {
 
     // Check that parameter exists
     if (im == null) {
@@ -301,12 +301,12 @@ public class AS_2005_prelim_AttenRel
           );
     }
 
-    StringBuffer key = new StringBuffer(im.getName());
     if (im.getName().equalsIgnoreCase(SA_NAME)) {
-      return ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
+      iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
           intValue();
     }
-    return 0;
+    else iper = 0;
+    parameterChange = true;
 
   }
 
@@ -355,6 +355,7 @@ public class AS_2005_prelim_AttenRel
     componentParam.setValue(COMPONENT_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     srcSiteAngleParam.setValue(SRC_SITE_ANGLE_DEFAULT);
+
     vs30 = ((Double)vs30Param.getValue()).doubleValue();
     rjb = ((Double)distanceJBParam.getValue()).doubleValue();
     rRup = ((Double)distanceRupParam.getValue()).doubleValue();
@@ -587,27 +588,64 @@ public class AS_2005_prelim_AttenRel
     return NAME;
   }
 
+  /**
+   *  Override parent method to update coeff index.
+   *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
+   *  but by finding the internally held one with the same name and then setting
+   *  its value (and the value of any of its independent parameters) to be equal
+   *  to that passed in.  PROBLEM: THE PRESENT IMPLEMENTATION ASSUMES THAT ALL THE
+   *  DEPENDENT PARAMETERS ARE OF TYPE DOUBLE - WE NEED TO RELAX THIS.
+   *
+   * @param  intensityMeasure  The new intensityMeasure Parameter
+   */
+  public void setIntensityMeasure( ParameterAPI intensityMeasure ) throws ParameterException, ConstraintException {
+    super.setIntensityMeasure(intensityMeasure);
+    setCoeffIndex();
+  }
+
+
+  /**
+   * Override parent method to update coeff index.
+   * This sets the intensityMeasure parameter as that which has the name
+   * passed in; no value (level) is set, nor are any of the IM's independent
+   * parameters set (since it's only given the name).
+   *
+   * @param  intensityMeasure  The new intensityMeasureParameter name
+   * @throws ParameterException
+   */
   public void setIntensityMeasure(String intensityMeasureName) throws
       ParameterException {
-
-    parameterChange = true;
     super.setIntensityMeasure(intensityMeasureName);
+    setCoeffIndex();
   }
 
   /**
-   * This function calculates the Std-Dev and Mean
+   * This function calculates the Std-Dev and Mean together so pgaRock is not
+   * computed twice
    */
   private void calcMeanStdDev() {
-    double pgaRock = this.calcMean(iper,0.0,1100);
-    mean = this.calcMean(iper,pgaRock,vs30);
-    stdDev = this.calcStdDev(iper,pgaRock,vs30);
-    this.parameterChange = false;
+    double pgaRock = Math.exp(calcMean(0,0.0,1100));
+    if(D)
+      System.out.println("PGA-Rock = "+pgaRock);
+    mean = calcMean(iper,pgaRock,vs30);
+    if(D)
+      System.out.println("Mean = "+mean);
+    stdDev = calcStdDev(iper,pgaRock,vs30);
+    if(D)
+      System.out.println("Std Dev = "+stdDev);
+    parameterChange = false;
   }
 
   private double calcMean(int iper, double pgaRock, double vs30) {
 
     double Frv, Fn, r, sum, taperM1, taperM2, ar1, hw1, t_hw, dAmp_dPGA;
 
+    if(D){
+      System.out.println("Before Mechanism");
+      System.out.println("Vs30 = "+vs30+" PGA-Rock ="+pgaRock+" Mag = "+mag+" rRup = "
+                         +rRup+" rake = "+rake);
+      System.out.println("iPer = "+iper);
+    }
     //       Mechanism
     if (rake > 22.5 && rake < 157.5) {
       Frv = 1.0;
@@ -627,8 +665,19 @@ public class AS_2005_prelim_AttenRel
     sum = c1[iper] + (c2[iper] + c3[iper] * (7.5 - mag)) * Math.log(r) +
         c5[iper] * (mag - 6.) + c6[iper] * (8.5 - mag) * (8.5 - mag);
 
+    if(D){
+      System.out.println("BaseModel");
+      System.out.println("Sum = "+sum +" rRup ="+rRup+" r ="+r+" c0[iper] ="+c0[iper]);
+
+    }
+
     //     Mech model
     sum += c7[iper] * Frv + c9[iper] * Fn;
+
+    if(D){
+      System.out.println("Mech Model");
+      System.out.println("Sum = "+sum+" Frv = "+Frv+" Fn ="+Fn);
+    }
 
     //     Set Taper 1
     if (mag > 7.) {
@@ -662,7 +711,11 @@ public class AS_2005_prelim_AttenRel
     }
 
     sum = sum + c8[iper] * (Math.log(ar1) - Math.log(1.5)) * taperM1;
-
+    if(D){
+      System.out.println("Aspect Ratio");
+      System.out.println("Sum = "+sum+" AR1 = "+ar1+" c8(iper)*(slog(ar1)-alog(1.5)) ="+
+          (c8[iper]*(Math.log(ar1) - Math.log(1.5)))+" TaperM1 = "+taperM1);
+    }
 //     soil
     double soilamp;
     if (vs30 < vref[iper]) {
@@ -711,11 +764,19 @@ public class AS_2005_prelim_AttenRel
 
     sum = sum + hw1;
 
+    if(D)
+      System.out.println("HW1 - Sum ="+sum);
+
+
 //         depth of rupture term
     if (mag < 6.5) {
       sum = sum + c12[iper] * (depthTop - 5.) * (1. - taperM2);
     }
 
+    if(D){
+      System.out.println("Depth of Rupture Term");
+      System.out.println("Sum = "+sum);
+    }
     return sum;
   }
 
@@ -746,10 +807,12 @@ public class AS_2005_prelim_AttenRel
 
       if (stdDevType.equals(STD_DEV_TYPE_INTER))return tau;
 
-      else return Math.pow(sigma * sigma + tau * tau, 2);
+      else return Math.sqrt(sigma * sigma + tau * tau);
     }
 
   }
+
+
   /**
    * This listens for parameter changes and updates the primitive parameters accordingly
    * @param e ParameterChangeEvent

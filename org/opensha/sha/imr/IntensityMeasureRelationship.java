@@ -220,7 +220,7 @@ public abstract class IntensityMeasureRelationship
     public void setIntensityMeasure( ParameterAPI intensityMeasure ) throws ParameterException, ConstraintException {
 
         if( isIntensityMeasureSupported( intensityMeasure ) ) {
-            setIntensityMeasure( intensityMeasure.getName() );
+            im = supportedIMParams.getParameter( intensityMeasure.getName() );
             ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
             while(it.hasNext()){
               ParameterAPI param = (ParameterAPI)it.next();

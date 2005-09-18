@@ -420,6 +420,9 @@ public class WarningDoubleParameter
         else if ( value == null ){
             if(D) System.out.println(S + "Setting allowed and recommended null value: ");
             this.value = null;
+            org.opensha.param.event.ParameterChangeEvent event = new org.opensha.param.event.ParameterChangeEvent(
+                       this, getName(), getValue(), value );
+            firePropertyChange( event );
         }
         else if ( !ignoreWarning && !isRecommended( value ) ) {
 
@@ -435,10 +438,7 @@ public class WarningDoubleParameter
             if(D) System.out.println(S + "Setting allowed and recommended value: ");
             this.value = value;
             org.opensha.param.event.ParameterChangeEvent event = new org.opensha.param.event.ParameterChangeEvent(
-                       this, getName(),
-                       getValue(), value
-                   );
-
+                       this, getName(), getValue(), value );
             firePropertyChange( event );
         }
         if(D) System.out.println(S + "Ending: ");
@@ -459,7 +459,8 @@ public class WarningDoubleParameter
     public void setValueIgnoreWarning( Object value ) throws ConstraintException, ParameterException {
         String S = C + ": setValueIgnoreWarning(): ";
         if(D) System.out.println(S + "Setting value ignoring warning and constraint: ");
-        this.value = value;
+//        this.value = value;
+        super.setValue(value);
     }
 
     /**

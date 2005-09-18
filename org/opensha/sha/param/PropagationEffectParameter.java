@@ -114,23 +114,6 @@ public abstract class PropagationEffectParameter
     /** Returns the EqkRupture associated with this Parameter */
     public EqkRupture getEqkRupture(){ return eqkRupture; }
 
-    /**
-     * Overides the calculation. Let's the programmer set the value as in the
-     * standard way as any other parameter. Site and EqkRupture values are
-     * ignored. Of course the constraints are still inquiried if the value is
-     * allowed. An ConstraintException excpetion is thrown if the value exceedes
-     * the constraint.
-     */
-	public void setValue(Object value) throws ConstraintException, ParameterException{
-        String S = C + ": setValue(): ";
-        if( !isAllowed(value) ) {
-            String err = S + "Value is not allowed: ";
-            if( value != null ) err += value.toString();
-            else err += "null value";
-            throw new ConstraintException(err);
-        }
-        this.value = value;
-    }
 
      /** function used to determine which GUI widget to use for editing this parameter in an Applet */
     public String getType() { return C; }
