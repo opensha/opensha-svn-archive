@@ -383,7 +383,19 @@ public final class RelativeLocation {
         return az;
     }
 
+    /**
+     * Helper method that calculates the angle between two locations
+     * on the earth.<p>
+     *
+     * @param loc1               location of first point
+     * @param loc2               location of second point
+     * @return                  angle between the two locations
+     */
 
+    public static double getAzimuth( Location loc1, Location loc2 ){
+      return getAzimuth( loc1.getLatitude(), loc1.getLongitude(),
+                         loc2.getLatitude(), loc2.getLongitude() );
+    }
 
 
 

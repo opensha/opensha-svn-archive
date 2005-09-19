@@ -284,4 +284,27 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
       }
       return surface;
     }
+
+    /**
+     * This returns the total length of the surface
+     * @return double
+     */
+    public double getSurfaceLength() {
+      if(data instanceof EvenlyGriddedSurface)
+        return ((EvenlyGriddedSurface)data).getGridSpacing() * (getNumCols()-1);
+      return Double.NaN;
+    }
+
+    /**
+     * This returns the surface width (down dip)
+     * @return double
+     */
+    public double getSurfaceWidth() {
+
+     if(data instanceof EvenlyGriddedSurface)
+       return ((EvenlyGriddedSurface)data).getGridSpacing() * (getNumRows()-1);
+     return Double.NaN;
+
+    }
+
 }

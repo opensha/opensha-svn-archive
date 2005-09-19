@@ -100,6 +100,10 @@ public abstract class IntensityMeasureRelationship
      */
     protected ParameterAPI im;
 
+    //this flag checks if intensity measure has been changed, if it is then make it
+    //true else false. It is initialized to false
+    protected boolean intensityMeasureChanged;
+
 
 
     /**
@@ -220,7 +224,7 @@ public abstract class IntensityMeasureRelationship
     public void setIntensityMeasure( ParameterAPI intensityMeasure ) throws ParameterException, ConstraintException {
 
         if( isIntensityMeasureSupported( intensityMeasure ) ) {
-            im = supportedIMParams.getParameter( intensityMeasure.getName() );
+            setIntensityMeasure( intensityMeasure.getName() );
             ListIterator it=((DependentParameterAPI)intensityMeasure).getIndependentParametersIterator();
             while(it.hasNext()){
               ParameterAPI param = (ParameterAPI)it.next();
@@ -241,7 +245,7 @@ public abstract class IntensityMeasureRelationship
     public void setIntensityMeasure( String intensityMeasureName ) throws ParameterException {
 
       im = supportedIMParams.getParameter( intensityMeasureName );
-
+      intensityMeasureChanged = true;
     }
 
     /**

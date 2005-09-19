@@ -731,6 +731,7 @@ public class HazardCurveServerModeApplication extends JFrame
         disaggCalc = null;
         calcThread = null;
       }catch(Exception e){
+        e.printStackTrace();
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
@@ -1111,11 +1112,12 @@ public class HazardCurveServerModeApplication extends JFrame
       try{
         hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
       }catch(Exception e){
+        e.printStackTrace();
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
         bugWindow.show();
         bugWindow.pack();
-        e.printStackTrace();
+
       }
       hazFunction = toggleHazFuncLogValues(hazFunction);
       hazFunction.setInfo(getParametersInfo());

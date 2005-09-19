@@ -229,4 +229,20 @@ public class EvenlyGriddedSurface extends GriddedSurface {
      return totalSubSurfaces;
     }
 
+    /**
+     * This returns the total length of the surface
+     * @return double
+     */
+    public double getSurfaceLength() {
+
+        return getGridSpacing() * (getNumCols()-1);
+    }
+
+    /**
+     * This returns the surface width (down dip)
+     * @return double
+     */
+    public double getSurfaceWidth() {
+      return getGridSpacing() * (getNumRows()-1);
+    }
 }

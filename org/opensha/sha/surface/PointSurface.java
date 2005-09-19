@@ -313,4 +313,22 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
             throw new ArrayIndexOutOfBoundsException( "PointSurface can only have one point, i.e. x=0, y=0." );
         }
     }
+
+    /**
+     * This returns the total length of the surface
+     * @return double
+     */
+    public double getSurfaceLength() {
+
+      return 0;
+    }
+
+    /**
+     * This returns the surface width (down dip)
+     * @return double
+     */
+    public double getSurfaceWidth() {
+      return 0;
+    }
+
 }

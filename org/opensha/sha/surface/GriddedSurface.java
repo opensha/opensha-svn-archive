@@ -201,6 +201,21 @@ public class GriddedSurface
         return b.toString();
     }
 
+    /**
+     * This returns the total length of the surface
+     * @return double
+     */
+    public double getSurfaceLength() {
+      return Double.NaN;
+    }
+
+    /**
+     * This returns the surface width (down dip)
+     * @return double
+     */
+    public double getSurfaceWidth() {
+      return Double.NaN;
+    }
 
 
     /**

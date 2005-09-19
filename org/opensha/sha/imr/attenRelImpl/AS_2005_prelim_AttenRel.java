@@ -49,7 +49,7 @@ public class AS_2005_prelim_AttenRel
 
   // Debugging stuff
   private final static String C = "AS_2005_prelim_AttenRel";
-  private final static boolean D = true;
+  private final static boolean D = false;
 
   // Name of IMR
   public final static String NAME = "Abrahamson & Silva (2005 prelim)";
@@ -136,7 +136,7 @@ public class AS_2005_prelim_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rjb, rRup, aspectratio, rake, dip, mag, srcSiteA, depthTop;
+  private double vs30, rjb, rRup,distRupJB_Fraction, aspectratio, rake, dip, mag, srcSiteA, depthTop;
   private String stdDevType;
   private boolean parameterChange;
   private double mean, stdDev;
@@ -196,8 +196,8 @@ public class AS_2005_prelim_AttenRel
    * Joyner-Boore Distance parameter, used as a proxy for computing their
    * hanging-wall term from a site and eqkRupture.
    */
-  private DistanceJBParameter distanceJBParam = null;
-  private final static Double DISTANCE_JB_DEFAULT = new Double(0);
+  private DistRupMinusJB_OverRupParameter distRupMinusJB_OverRupParam = null;
+  private final static Double DISTANCE_RUP_MINUS_JB_DEFAULT = new Double(0);
   // No waring constraint needed for this
 
 
@@ -242,6 +242,17 @@ public class AS_2005_prelim_AttenRel
   public void setEqkRupture(EqkRupture eqkRupture) throws InvalidRangeException {
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
+    rakeParam.setValue(eqkRupture.getAveRake());
+        GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+    dipParam.setValue(surface.getAveDip());
+    double depth = surface.getLocation(0,0).getDepth();
+    rupTopDepthParam.setValue(depth);
+    // for point surface
+    if(surface.size() == 1)
+      aspectRatioParam.setValue(1.0);
+    else
+      aspectRatioParam.setValue(surface.getSurfaceLength()/surface.getSurfaceWidth());
+
 //    setFaultTypeFromRake(eqkRupture.getAveRake());
     this.eqkRupture = eqkRupture;
     setPropagationEffectParams();
@@ -260,7 +271,7 @@ public class AS_2005_prelim_AttenRel
    */
   public void setSite(Site site) throws ParameterException {
 
-//    siteTypeParam.setValue(site.getParameter(SITE_TYPE_NAME).getValue());
+    vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -280,9 +291,25 @@ public class AS_2005_prelim_AttenRel
     if ( (this.site != null) && (this.eqkRupture != null)) {
 
       distanceRupParam.setValue(eqkRupture, site);
-      distanceJBParam.setValue(eqkRupture, site);
+      distRupMinusJB_OverRupParam.setValue(eqkRupture, site);
 
-      //need to set sourceSiteAngle param
+      // set the srcSiteAngle parameter (could make a subclass of
+      // PropagationEffectParameter later if others use this
+      GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+      Location fltLoc1 = surface.getLocation(0,0);
+      Location fltLoc2 = surface.getLocation(0,surface.getNumCols()-1);
+      double angle1 = RelativeLocation.getAzimuth(fltLoc1,fltLoc2);
+      double minDist = Double.MAX_VALUE, dist;
+      int minDistLocIndex = -1;
+      for(int i = 0; i < surface.getNumCols(); i++) {
+        dist = RelativeLocation.getApproxHorzDistance(site.getLocation(), surface.getLocation(0,i));
+        if(dist < minDist) {
+          minDist = dist;
+          minDistLocIndex=i;
+        }
+      }
+      double angle2 = RelativeLocation.getAzimuth(surface.getLocation(0,minDistLocIndex),site.getLocation());
+      srcSiteAngleParam.setValue(angle2-angle1);
 
     }
   }
@@ -306,6 +333,7 @@ public class AS_2005_prelim_AttenRel
     }
     else iper = 0;
     parameterChange = true;
+    intensityMeasureChanged = false;
 
   }
 
@@ -314,6 +342,8 @@ public class AS_2005_prelim_AttenRel
    * @return    The mean value
    */
   public double getMean() {
+    if(intensityMeasureChanged)
+      setCoeffIndex();
 
     // check if distance is beyond the user specified max
     if (rRup > USER_MAX_DISTANCE) {
@@ -330,9 +360,11 @@ public class AS_2005_prelim_AttenRel
    * @return    The stdDev value
    */
   public double getStdDev() {
+    if(intensityMeasureChanged)
+      setCoeffIndex();
 
     if (parameterChange) {
-      this.calcMeanStdDev();
+      calcMeanStdDev();
     }
     return stdDev;
   }
@@ -350,7 +382,7 @@ public class AS_2005_prelim_AttenRel
     aspectRatioParam.setValue(ASPECT_RATIO_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
-    distanceJBParam.setValue(DISTANCE_JB_DEFAULT);
+    distRupMinusJB_OverRupParam.setValue(this.DISTANCE_RUP_MINUS_JB_DEFAULT);
     saParam.setValue(SA_DEFAULT);
     periodParam.setValue(PERIOD_DEFAULT);
     dampingParam.setValue(DAMPING_DEFAULT);
@@ -360,7 +392,7 @@ public class AS_2005_prelim_AttenRel
     srcSiteAngleParam.setValue(SRC_SITE_ANGLE_DEFAULT);
 
     vs30 = ((Double)vs30Param.getValue()).doubleValue();
-    rjb = ((Double)distanceJBParam.getValue()).doubleValue();
+    rjb = ((Double)distRupMinusJB_OverRupParam.getValue()).doubleValue();
     rRup = ((Double)distanceRupParam.getValue()).doubleValue();
     aspectratio = ((Double)aspectRatioParam.getValue()).doubleValue();
     rake = ((Double)rakeParam.getValue()).doubleValue();
@@ -383,7 +415,7 @@ public class AS_2005_prelim_AttenRel
     // params that the mean depends upon
     meanIndependentParams.clear();
     meanIndependentParams.addParameter(distanceRupParam);
-    meanIndependentParams.addParameter(distanceJBParam);
+    meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
     meanIndependentParams.addParameter(vs30Param);
     meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(rakeParam);
@@ -484,10 +516,9 @@ public class AS_2005_prelim_AttenRel
     distanceRupParam.setWarningConstraint(warn);
     distanceRupParam.setNonEditable();
 
-    //create distanceJBParam
-    distanceJBParam = new DistanceJBParameter();
-    distanceJBParam.setWarningConstraint(warn);
-    distanceJBParam.setNonEditable();
+    //create distRupMinusJB_OverRupParam
+    distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
+    distRupMinusJB_OverRupParam.setNonEditable();
 
     // create srcSiteAngleParam
     DoubleConstraint c3 = new DoubleConstraint(SRC_SITE_ANGLE_MIN,
@@ -498,7 +529,7 @@ public class AS_2005_prelim_AttenRel
     srcSiteAngleParam.setNonEditable();
 
     propagationEffectParams.addParameter(distanceRupParam);
-    propagationEffectParams.addParameter(distanceJBParam);
+    propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
     propagationEffectParams.addParameter(srcSiteAngleParam);
 
   }
@@ -591,36 +622,6 @@ public class AS_2005_prelim_AttenRel
     return NAME;
   }
 
-  /**
-   *  Override parent method to update coeff index.
-   *  Sets the intensityMeasure parameter, not as a  pointer to that passed in,
-   *  but by finding the internally held one with the same name and then setting
-   *  its value (and the value of any of its independent parameters) to be equal
-   *  to that passed in.  PROBLEM: THE PRESENT IMPLEMENTATION ASSUMES THAT ALL THE
-   *  DEPENDENT PARAMETERS ARE OF TYPE DOUBLE - WE NEED TO RELAX THIS.
-   *
-   * @param  intensityMeasure  The new intensityMeasure Parameter
-   */
-  public void setIntensityMeasure( ParameterAPI intensityMeasure ) throws ParameterException, ConstraintException {
-    super.setIntensityMeasure(intensityMeasure);
-    setCoeffIndex();
-  }
-
-
-  /**
-   * Override parent method to update coeff index.
-   * This sets the intensityMeasure parameter as that which has the name
-   * passed in; no value (level) is set, nor are any of the IM's independent
-   * parameters set (since it's only given the name).
-   *
-   * @param  intensityMeasure  The new intensityMeasureParameter name
-   * @throws ParameterException
-   */
-  public void setIntensityMeasure(String intensityMeasureName) throws
-      ParameterException {
-    super.setIntensityMeasure(intensityMeasureName);
-    setCoeffIndex();
-  }
 
   /**
    * This function calculates the Std-Dev and Mean together so pgaRock is not
@@ -642,6 +643,8 @@ public class AS_2005_prelim_AttenRel
   private double calcMean(int iper, double pgaRock, double vs30) {
 
     double Frv, Fn, r, sum, taperM1, taperM2, ar1, hw1, t_hw, dAmp_dPGA;
+
+    rjb = rRup - distRupJB_Fraction*rRup;
 
     if(D){
       System.out.println("Before Mechanism");
@@ -828,8 +831,8 @@ public class AS_2005_prelim_AttenRel
     parameterChange = true;
     if (pName.equals(DistanceRupParameter.NAME))
       rRup = ( (Double) val).doubleValue();
-    else if (pName.equals(DistanceJBParameter.NAME))
-      rjb = ( (Double) val).doubleValue();
+    else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME))
+      distRupJB_Fraction = ( (Double) val).doubleValue();
     else if (pName.equals(this.VS30_NAME))
       vs30 = ( (Double) val).doubleValue();
     else if (pName.equals(this.MAG_NAME))
@@ -846,6 +849,8 @@ public class AS_2005_prelim_AttenRel
       depthTop = ( (Double) val).doubleValue();
     else if (pName.equals(this.STD_DEV_TYPE_NAME))
       stdDevType = (String) val;
+    else if(pName.equals(this.PERIOD_NAME) && intensityMeasureChanged)
+      setCoeffIndex();
   }
 
   /**
@@ -855,7 +860,7 @@ public class AS_2005_prelim_AttenRel
   private void initPameterListeners() {
 
     distanceRupParam.addParameterChangeListener(this);
-    distanceJBParam.addParameterChangeListener(this);
+    distRupMinusJB_OverRupParam.addParameterChangeListener(this);
     vs30Param.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
@@ -864,6 +869,7 @@ public class AS_2005_prelim_AttenRel
     rupTopDepthParam.addParameterChangeListener(this);
     srcSiteAngleParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
+    periodParam.addParameterChangeListener(this);
   }
 
 }
