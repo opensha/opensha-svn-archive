@@ -5,6 +5,8 @@ drop table Paleo_Event_References;
 drop table Paleo_Event;
 drop table Combined_Events_References;
 drop table Combined_Events_Info;
+drop trigger Paleo_Site_Trigger;
+drop sequence Paleo_Site_Sequence;
 drop table Paleo_Site;
 drop trigger Site_type_Trigger;
 drop sequence Site_type_Sequence;
@@ -331,6 +333,22 @@ CREATE TABLE Paleo_Site (
   FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id)
 );
+
+
+create sequence Paleo_Site_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Paleo_Site_Trigger
+before insert on Paleo_Site 
+for each row
+begin
+if :new.Site_Id  is null then
+select  Paleo_Site_Sequence.nextval into :new.Site_Id  from dual;
+end if;
+end;
+/
 
 
 

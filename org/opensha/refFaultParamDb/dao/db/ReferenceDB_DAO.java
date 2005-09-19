@@ -97,6 +97,22 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   }
 
   /**
+   * Get the reference info based on short citation
+   *
+   * @param shortCitation
+   * @return
+   * @throws QueryException
+   */
+  public Reference getReference(String shortCitation) throws QueryException {
+    Reference reference=null;
+    String condition  =  " where "+SHORT_CITATION+"='"+shortCitation+"'";
+    ArrayList referenceList = query(condition);
+    if(referenceList.size()>0) reference = (Reference)referenceList.get(0);
+    return reference;
+  }
+
+
+  /**
    * Remove a reference from the table
    *
    * @param referenceId

@@ -74,6 +74,8 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private final static int WIDTH = 400;
   private final static int HEIGHT = 700;
 
+  private final static String MSG_COMMENTS_MISSING = "Please Enter Comments";
+
 
   // input parameters declaration
   private StringParameter siteNameParam;
@@ -176,11 +178,24 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    */
   private void putSiteInDatabase() {
     PaleoSite paleoSite = new PaleoSite();
+    // set the site Id to update a existing site
+    /**
+     * There is always insertion operation in database. Even in case of update,
+     * a new row is entered into database but site id is retained. This insertion allows
+     * us to hold the multiple versions.
+     */
+    if(this.isEdit) paleoSite.setSiteId(this.paleoSiteVO.getSiteId());
+
     paleoSite.setSiteName((String)this.siteNameParam.getValue());
-    paleoSite.setEntryComments((String)this.commentsParam.getValue());
-    paleoSite.setFaultName((String)this.assocWithFaultParam.getValue());
-    paleoSite.setGeneralComments((String)this.commentsParam.getValue());
+    String comments = (String)this.commentsParam.getValue();
+    if(comments==null || comments.trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, MSG_COMMENTS_MISSING);
+      return;
+    }
+    paleoSite.setGeneralComments(comments);
     paleoSite.setOldSiteId((String)this.oldSiteIdParam.getValue());
+    paleoSite.setEntryComments(comments);
+    paleoSite.setFaultName((String)this.assocWithFaultParam.getValue());
     paleoSite.setReferenceShortCitation((String)this.siteReferenceParam.getValue());
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
     paleoSite.setSiteContributor(SessionInfo.getContributor());
@@ -263,11 +278,11 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    */
   private void initParametersAndEditors() throws Exception {
     // parameter so that user can enter the site name
-   siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME);
+   siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME," ");
    siteNameParamEditor = new StringParameterEditor(siteNameParam);
 
     // parameter so that user can enter a site Id
-   oldSiteIdParam = new StringParameter(OLD_SITE_ID_PARAM_NAME);
+   oldSiteIdParam = new StringParameter(OLD_SITE_ID_PARAM_NAME," ");
    oldSiteIdParamEditor = new StringParameterEditor(oldSiteIdParam);
 
    // site location parameter
@@ -304,7 +319,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     this.siteReferenceParamEditor = new ConstrainedStringParameterEditor(siteReferenceParam);
 
    // user comments
-   this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME);
+   this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME," ");
    this.commentsParamEditor = new CommentsParameterEditor(commentsParam);
 
 

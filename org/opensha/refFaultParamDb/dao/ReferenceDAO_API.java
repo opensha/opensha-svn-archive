@@ -32,6 +32,12 @@ public interface ReferenceDAO_API {
   public Reference getReference(int referenceId) throws QueryException;
 
   /**
+   * Get the reference info based on short citation
+   */
+  public Reference getReference(String shortCitation) throws QueryException;
+
+
+  /**
    * Remove this reference from the list
    * @param referenceId
    */
