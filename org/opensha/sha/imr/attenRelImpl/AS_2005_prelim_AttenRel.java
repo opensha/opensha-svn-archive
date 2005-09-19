@@ -18,10 +18,9 @@ import org.opensha.util.*;
  * <b>Title:</b> AS_1997_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Abrahmson and Silva (1997, Seismological Research Letters, vol
- * 68, num 1, pp 94-127) <p>
+ * developed by Abrahmson and Silva (2005 <p>
  *
- * Supported Intensity-Measure Parameters:<p>
+ * Supported Intensity-Measure Parameters:  BELOW NEEDS TO BE UPDATED<p>
  * <UL>
  * <LI>pgaParam - Peak Ground Acceleration
  * <LI>saParam - Response Spectral Acceleration
@@ -822,6 +821,7 @@ public class AS_2005_prelim_AttenRel
    * @param e ParameterChangeEvent
    */
   public void parameterChange(ParameterChangeEvent e) {
+
 
     String pName = e.getParameterName();
     Object val = e.getNewValue();
