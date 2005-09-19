@@ -338,6 +338,10 @@ public class AS_2005_prelim_AttenRel
     return stdDev;
   }
 
+  /**
+   * Allows the user to set the default parameter values for the selected Attenuation
+   * Relationship.
+   */
   public void setParamDefaults() {
 
     vs30Param.setValue(VS30_DEFAULT);
@@ -822,39 +826,32 @@ public class AS_2005_prelim_AttenRel
     String pName = e.getParameterName();
     Object val = e.getNewValue();
     parameterChange = true;
-    if (pName.equals(DistanceRupParameter.NAME)) {
+    if (pName.equals(DistanceRupParameter.NAME))
       rRup = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(DistanceJBParameter.NAME)) {
+    else if (pName.equals(DistanceJBParameter.NAME))
       rjb = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.VS30_NAME)) {
+    else if (pName.equals(this.VS30_NAME))
       vs30 = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.MAG_NAME)) {
+    else if (pName.equals(this.MAG_NAME))
       mag = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.DIP_NAME)) {
+    else if (pName.equals(this.DIP_NAME))
       dip = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.RAKE_NAME)) {
+    else if (pName.equals(this.RAKE_NAME))
       rake = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.ASPECT_RATIO_NAME)) {
+    else if (pName.equals(this.ASPECT_RATIO_NAME))
       aspectratio = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.SRC_SITE_ANGLE_NAME)) {
+    else if (pName.equals(this.SRC_SITE_ANGLE_NAME))
       srcSiteA = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.RUP_TOP_NAME)) {
+    else if (pName.equals(this.RUP_TOP_NAME))
       depthTop = ( (Double) val).doubleValue();
-    }
-    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
+    else if (pName.equals(this.STD_DEV_TYPE_NAME))
       stdDevType = (String) val;
-    }
-
   }
 
+  /**
+   * Adds the parameter change listeners. This allows to listen to when-ever the
+   * parameter is changed.
+   */
   private void initPameterListeners() {
 
     distanceRupParam.addParameterChangeListener(this);
