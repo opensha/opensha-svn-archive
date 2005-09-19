@@ -35,6 +35,7 @@ import org.opensha.refFaultParamDb.dao.PaleoSiteDAO_API;
 import org.opensha.refFaultParamDb.dao.FaultDAO_API;
 import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
 import org.opensha.refFaultParamDb.vo.Fault;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 
 
 /**
@@ -63,9 +64,9 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private final static String LAT_PARAM_NAME="Site Latitude";
   private final static String LON_PARAM_NAME="Site Longitude";
   private final static String ELEVATION_PARAM_NAME="Site Elevation";
-  private final static Double DEFAULT_LAT_VAL=new Double(34.00);
-  private final static Double DEFAULT_LON_VAL=new Double(-118.0);
-  private final static Double DEFAULT_ELEVATION_VAL=new Double(2.0);
+  private final static double DEFAULT_LAT_VAL=34.00;
+  private final static double DEFAULT_LON_VAL=-118.0;
+  private final static double DEFAULT_ELEVATION_VAL=2.0;
 
   private final static String TITLE = "Add/Edit Paleo Site";
   private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
@@ -127,6 +128,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    * @param paleoSite
    */
   public AddEditSiteCharacteristics(boolean isEdit, PaleoSite paleoSite) {
+    this.isEdit = isEdit;
     if(isEdit) this.paleoSiteVO = paleoSite;
     try {
       // initialize the parameters and editors
@@ -212,9 +214,12 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     paleoSite.setSiteLat2((float)location2.getLatitude());
     paleoSite.setSiteLon2((float)location2.getLongitude());
     paleoSite.setSiteElevation2((float)location2.getDepth());
-
-    // add the paleo site to the database
-    paleoSiteDAO.addPaleoSite(paleoSite);
+    try {
+      // add the paleo site to the database
+      paleoSiteDAO.addPaleoSite(paleoSite);
+    }catch(InsertException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage());
+    }
   }
 
   /**
@@ -277,49 +282,83 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    * Initialize all the parameters and the editors
    */
   private void initParametersAndEditors() throws Exception {
+
+    String defaultSiteName, defaultOldSiteId, defaultFaultName, defaultSiteType;
+    String defaultSiteRepresentation, defaultComments, dafaultReference;
+    Location defaultLocation1, defaultLocation2;
+
+    // get various lists from the database
+    ArrayList faultNamesList = getFaultNames();
+    ArrayList siteTypes = getSiteTypes();
+    ArrayList siteRepresentations = getSiteRepresentations();
+    ArrayList referencesList = this.getAvailableReferences();
+
+    if(this.isEdit) { // if site is to be edit, default values are current values for that site
+      defaultSiteName = this.paleoSiteVO.getSiteName();
+      defaultOldSiteId = paleoSiteVO.getOldSiteId();
+      defaultFaultName = paleoSiteVO.getFaultName();
+      defaultSiteType = paleoSiteVO.getSiteTypeName();
+      defaultSiteRepresentation = paleoSiteVO.getRepresentativeStrandName();
+      defaultComments = paleoSiteVO.getGeneralComments();
+      dafaultReference = paleoSiteVO.getReferenceShortCitation();
+      defaultLocation1 = new Location(paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon1(),
+                                      paleoSiteVO.getSiteElevation1());
+      defaultLocation2 = new Location(this.paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon2(),
+                                      paleoSiteVO.getSiteElevation2());
+    } else { // if a new site has to be added, set some default values
+      defaultSiteName =" ";
+      defaultOldSiteId = " ";
+      defaultFaultName = (String)faultNamesList.get(0);
+      defaultSiteType = (String)siteTypes.get(0);
+      defaultSiteRepresentation = (String)siteRepresentations.get(0);
+      defaultComments = " ";
+      dafaultReference = (String)referencesList.get(0);
+      defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
+                                      this.DEFAULT_ELEVATION_VAL);
+      defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
+                                      this.DEFAULT_ELEVATION_VAL);
+    }
+
+
     // parameter so that user can enter the site name
-   siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME," ");
-   siteNameParamEditor = new StringParameterEditor(siteNameParam);
+    siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME, defaultSiteName);
+    siteNameParamEditor = new StringParameterEditor(siteNameParam);
 
     // parameter so that user can enter a site Id
-   oldSiteIdParam = new StringParameter(OLD_SITE_ID_PARAM_NAME," ");
+   oldSiteIdParam = new StringParameter(OLD_SITE_ID_PARAM_NAME,defaultOldSiteId);
    oldSiteIdParamEditor = new StringParameterEditor(oldSiteIdParam);
 
    // site location parameter
-   siteLocationParam = createLocationParam();
+   siteLocationParam = createLocationParam(defaultLocation1);
    siteLocationParamEditor = new LocationParameterEditor(siteLocationParam,true);
 
    // second site location, in "Between Locations" is selected as the Site type
-   siteLocationParam2 = createLocationParam();
+   siteLocationParam2 = createLocationParam(defaultLocation2);
    siteLocationParamEditor2 = new LocationParameterEditor(siteLocationParam2,true);
 
-   // choose the fault with which this site is associateda
-   ArrayList faultNamesList = getFaultNames();
+   // choose the fault with which this site is associated
    assocWithFaultParam = new StringParameter(ASSOCIATED_WITH_FAULT_PARAM_NAME, faultNamesList,
-                                              (String)faultNamesList.get(0));
+                                              defaultFaultName);
    assocWithFaultParamEditor = new ConstrainedStringParameterEditor(assocWithFaultParam);
 
    // available study types
-   ArrayList siteTypes = getSiteTypes();
    siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME, siteTypes,
-                                       (String)siteTypes.get(0));
+                                       defaultSiteType);
    siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
    siteTypeParam.addParameterChangeListener(this);
 
    // how representative is this site?
-   ArrayList siteRepresentations = getSiteRepresentations();
    siteRepresentationParam = new StringParameter(SITE_REPRESENTATION_PARAM_NAME, siteRepresentations,
-                                              (String)siteRepresentations.get(0));
+                                              defaultSiteRepresentation);
    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
 
    // references for this site
-   ArrayList referencesList = this.getAvailableReferences();
    this.siteReferenceParam = new StringParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
-       referencesList, (String)referencesList.get(0));
+       referencesList, dafaultReference);
     this.siteReferenceParamEditor = new ConstrainedStringParameterEditor(siteReferenceParam);
 
    // user comments
-   this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME," ");
+   this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME,defaultComments);
    this.commentsParamEditor = new CommentsParameterEditor(commentsParam);
 
 
@@ -332,22 +371,22 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    * @throws ParameterException
    * @throws ConstraintException
    */
-  private LocationParameter createLocationParam() throws InvalidRangeException,
+  private LocationParameter createLocationParam(Location loc) throws InvalidRangeException,
       ParameterException, ConstraintException {
     //creating the Location parameterlist for the Site
     DoubleParameter siteLocLatParam = new DoubleParameter(LAT_PARAM_NAME,
-        Location.MIN_LAT,Location.MAX_LAT,LAT_LON_UNITS,DEFAULT_LAT_VAL);
+        Location.MIN_LAT,Location.MAX_LAT,LAT_LON_UNITS,new Double(loc.getLatitude()));
     DoubleParameter siteLocLonParam = new DoubleParameter(LON_PARAM_NAME,
-        Location.MIN_LON,Location.MAX_LON,LAT_LON_UNITS,DEFAULT_LON_VAL);
+        Location.MIN_LON,Location.MAX_LON,LAT_LON_UNITS, new Double(loc.getLongitude()));
     DoubleParameter siteLocElevationParam = new DoubleParameter(ELEVATION_PARAM_NAME,
-        Location.MIN_DEPTH, Double.MAX_VALUE, ELEVATION_UNITS,DEFAULT_ELEVATION_VAL);
+        Location.MIN_DEPTH, Double.MAX_VALUE, ELEVATION_UNITS, new Double(loc.getDepth()));
     ParameterList siteLocParamList = new ParameterList();
     siteLocParamList.addParameter(siteLocLatParam);
     siteLocParamList.addParameter(siteLocLonParam);
     siteLocParamList.addParameter(siteLocElevationParam);
-    Location siteLoc = new Location(DEFAULT_LAT_VAL.doubleValue(),
-                                    DEFAULT_LON_VAL.doubleValue(),
-                                    DEFAULT_ELEVATION_VAL.doubleValue());
+    Location siteLoc = new Location(loc.getLatitude(),
+                                    loc.getLongitude(),
+                                    loc.getDepth());
 
     // Site Location(Lat/lon/)
     return (new LocationParameter(SITE_LOCATION_PARAM_NAME,siteLocParamList,
