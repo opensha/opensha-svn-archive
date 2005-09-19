@@ -32,6 +32,15 @@ drop table Contributors;
 drop trigger Reference_Trigger;
 drop sequence Reference_Sequence;
 drop table Reference;
+drop table Site_Representations;
+
+CREATE TABLE Site_Representations(
+  Site_Representation_Id INTEGER NOT NULL,
+  Site_Representation_Name VARCHAR(255) NOT NULL UNIQUE,
+  PRIMARY KEY (Site_Representation_Id)
+);
+
+
 
 
 
@@ -82,6 +91,7 @@ end;
 /
 
 
+
 CREATE TABLE Est_Type (
   Est_Type_Id INTEGER NOT NULL,
   Est_Name VARCHAR(45) NOT NULL UNIQUE,
@@ -89,12 +99,6 @@ CREATE TABLE Est_Type (
   PRIMARY KEY(Est_Type_Id)
 );
 
-insert into Est_Type values(1,'NormalEstimate',sysdate);
-insert into Est_Type values(2,'LogNormalEstimate',sysdate);
-insert into Est_Type values(3,'PDF_Estimate',sysdate);
-insert into Est_Type values(4,'FractileListEstimate',sysdate);
-insert into Est_Type values(5,'IntegerEstimate',sysdate);
-insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
 
 
 
@@ -149,8 +153,6 @@ CREATE TABLE Log_Type (
 );
 
 
-insert into Log_Type values(1, '10');
-insert into Log_Type values(2, 'E');
 
 CREATE TABLE Log_Normal_Est (
   Est_Id INTEGER NOT NULL,
@@ -477,4 +479,37 @@ CREATE TABLE Event_Sequence_Event_List (
   FOREIGN KEY(Sequence_Id, Sequence_Contributor_Id, Sequence_Entry_Date)
    REFERENCES Event_Sequence(Sequence_Id, Contributor_Id, Entry_Date)  
 );
+
+
+
+insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 1','Full Bibliographic Reference 1');
+insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 2','Full Bibliographic Reference 2');
+insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 3','Full Bibliographic Reference 3');
+insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 4','Full Bibliographic Reference 4');
+
+
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (1, 'Entire Fault');
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (2, 'Most Significant Strand');
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (3, 'One of Several Strands');
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (4, 'Unknown');
+
+insert into Contributors(Contributor_Id, Contributor_name) values (1, 'fault_sandbox');
+
+insert into Est_Type values(1,'NormalEstimate',sysdate);
+insert into Est_Type values(2,'LogNormalEstimate',sysdate);
+insert into Est_Type values(3,'PDF_Estimate',sysdate);
+insert into Est_Type values(4,'FractileListEstimate',sysdate);
+insert into Est_Type values(5,'IntegerEstimate',sysdate);
+insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
+
+insert into Log_Type values(1, '10');
+insert into Log_Type values(2, 'E');
+
+insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Between Locations', 'Between Locations Site Type');
+insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Trench', 'Trench Site Type');
+insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Geologic', 'Geologic Site Type');
+insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Survey/Cultural', 'Survey/Cultural Site Type');
+
+commit;
+
 

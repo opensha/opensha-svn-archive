@@ -18,6 +18,16 @@ import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.exceptions.*;
 import org.opensha.exceptions.*;
 import org.opensha.exceptions.*;
+import org.opensha.refFaultParamDb.dao.SiteTypeDAO_API;
+import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.vo.SiteType;
+import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
+import org.opensha.refFaultParamDb.dao.SiteRepresentationDAO_API;
+import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 
 
 /**
@@ -78,7 +88,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private ConstrainedStringParameterEditor siteRepresentationParamEditor;
   private ConstrainedStringParameterEditor siteReferenceParamEditor;
   private CommentsParameterEditor commentsParamEditor;
-   private StringParameterEditor oldSiteIdParamEditor;
+  private StringParameterEditor oldSiteIdParamEditor;
 
 
   // various buttons in thos window
@@ -88,6 +98,12 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private JButton addNewReferenceButton = new JButton("Add New Reference");
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
+  // site type DAO
+  private SiteTypeDAO_API siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+  // references DAO
+  private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  // site representations DAO
+  private SiteRepresentationDAO_API siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddEditSiteCharacteristics() {
     try {
@@ -290,29 +306,29 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
 
   /**
   * Get the site representations.
-  * This is just a FAKE implementation. It should get the SITE REPRSENTATIONS
-  * from the database
+  * It gets the SITE REPRSENTATIONS from the database
   *
   * @return
   */
  private ArrayList getSiteRepresentations() {
+   ArrayList siteRepresentationVOs = siteRepresentationDAO.getAllSiteRepresentations();
    ArrayList siteRepresentations = new ArrayList();
-   siteRepresentations.add("Entire Fault");
-   siteRepresentations.add("Most Significant Strand");
-   siteRepresentations.add("One of Several Strands");
-   siteRepresentations.add("Unknown");
+   for(int i=0; i<siteRepresentationVOs.size(); ++i) {
+     siteRepresentations.add(((SiteRepresentation)siteRepresentationVOs.get(i)).getSiteRepresentationName());
+   }
    return siteRepresentations;
  }
 
  /**
-  * Get a list of available references.
-  *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
+  * Get a list of available references. It gets this from the database.
   * @return
   */
  private ArrayList getAvailableReferences() {
+   ArrayList referenceVOs = referenceDAO.getAllReferences();
    ArrayList referencesNamesList = new ArrayList();
-   referencesNamesList.add("Reference 1");
-   referencesNamesList.add("Reference 2");
+   for(int i=0; i<referenceVOs.size(); ++i) {
+     referencesNamesList.add(((Reference)referenceVOs.get(i)).getShortCitation());
+   }
    return referencesNamesList;
  }
 
@@ -331,17 +347,15 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
 
   /**
    * Get the study types.
-   * This is just a FAKE implementation. It should get all the SITE TYPES
-   * from the database
+   *  It gets all the SITE TYPES from the database
    *
    * @return
    */
   private ArrayList getSiteTypes() {
+    ArrayList siteTypeVOs = siteTypeDAO.getAllSiteTypes();
     ArrayList siteTypesList = new ArrayList();
-    siteTypesList.add(this.BETWEEN_LOCATIONS_SITE_TYPE);
-    siteTypesList.add("Trench");
-    siteTypesList.add("Geologic");
-    siteTypesList.add("Survey/Cultural");
+    for(int i=0; i<siteTypeVOs.size(); ++i)
+      siteTypesList.add(((SiteType)siteTypeVOs.get(i)).getSiteType());
     return siteTypesList;
   }
 }
