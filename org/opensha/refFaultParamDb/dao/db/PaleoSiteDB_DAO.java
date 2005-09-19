@@ -8,6 +8,7 @@ import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
+import org.opensha.refFaultParamDb.dao.*;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -41,6 +42,15 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private final static String OLD_SITE_ID="Old_Site_Id";
 
   private DB_AccessAPI dbAccess;
+  // site type DAO
+  private SiteTypeDB_DAO siteTypeDAO ;
+  // references DAO
+  private ReferenceDB_DAO referenceDAO ;
+  // site representations DAO
+  private SiteRepresentationDB_DAO siteRepresentationDAO;
+  // fault DAO
+  private FaultDB_DAO faultDAO;
+
 
 
   public PaleoSiteDB_DAO(DB_AccessAPI dbAccess) {
@@ -49,6 +59,17 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
 
   public void setDB_Connection(DB_AccessAPI dbAccess) {
    this.dbAccess = dbAccess;
+   if(siteTypeDAO==null) {
+     siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+     referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+     siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+     faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+   } else { // set the DB connection
+     siteTypeDAO.setDB_Connection(dbAccess);
+     referenceDAO.setDB_Connection(dbAccess);
+     siteRepresentationDAO.setDB_Connection(dbAccess);
+     faultDAO.setDB_Connection(dbAccess);
+   }
  }
 
  /**
@@ -58,19 +79,23 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   * @throws InsertException
   */
   public void addPaleoSite(PaleoSite paleoSite) throws InsertException {
+    int faultId = faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
+    int siteTypeId = siteTypeDAO.getSiteType(paleoSite.getSiteTypeName()).getSiteTypeId();
+    int siteRepresentationId = siteRepresentationDAO.getSiteRepresentation(paleoSite.getRepresentativeStrandName()).getSiteRepresentationId();
+
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
         ENTRY_DATE+","+ENTRY_COMMENTS+
         ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
         SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
         SITE_ELEVATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
-        " values ("+paleoSite.getSiteId()+","+paleoSite.getFaultId()+",sysdate"+
+        " values ("+paleoSite.getSiteId()+","+faultId+",sysdate"+
         ",'"+paleoSite.getEntryComments()+"',"+paleoSite.getSiteContributor().getId()+","+
-        paleoSite.getSiteType().getSiteTypeId()+",'"+paleoSite.getSiteName()+"',"+
+        siteTypeId+",'"+paleoSite.getSiteName()+"',"+
         paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+","+
         paleoSite.getSiteElevation1()+","+paleoSite.getSiteLat2()+","+
         paleoSite.getSiteLon2()+","+
-        paleoSite.getSiteElevation2()+","+paleoSite.getRepresentativeStrandIndex()+
+        paleoSite.getSiteElevation2()+","+siteRepresentationId+
         ",'"+paleoSite.getGeneralComments()+"',"+paleoSite.getOldSiteId()+")";
 
     try { dbAccess.insertUpdateOrDeleteData(sql); }
@@ -90,14 +115,19 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
    * @throws UpdateException
    */
   public boolean updatePaleoSite(int paleoSiteId, PaleoSite paleoSite) throws UpdateException {
+
+    int faultId = faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
+    int siteTypeId = siteTypeDAO.getSiteType(paleoSite.getSiteTypeName()).getSiteTypeId();
+    int siteRepresentationId = siteRepresentationDAO.getSiteRepresentation(paleoSite.getRepresentativeStrandName()).getSiteRepresentationId();
+
     String sql = "update "+TABLE_NAME+" set "+ENTRY_DATE+"=sysdate,"+
         CONTRIBUTOR_ID+"="+
         paleoSite.getSiteContributor().getId()+","+SITE_TYPE_ID+"="+
-        paleoSite.getSiteType().getSiteTypeId()+","+SITE_NAME+"='"+
+        siteTypeId+","+SITE_NAME+"='"+
         paleoSite.getSiteName()+"',"+SITE_LAT1+"="+paleoSite.getSiteLat1()+","+
         SITE_LON1+"="+paleoSite.getSiteLon1()+","+SITE_ELEVATION1+"="+
         paleoSite.getSiteElevation1()+","+REPRESENTATIVE_STRAND_INDEX+"="+
-        paleoSite.getRepresentativeStrandIndex()+","+GENERAL_COMMENTS+"='"+
+        siteRepresentationId+","+GENERAL_COMMENTS+"='"+
         paleoSite.getGeneralComments()+"',"+OLD_SITE_ID+"="+paleoSite.getOldSiteId()+
        " where "+SITE_ID+"="+paleoSiteId;
     try {
@@ -163,11 +193,11 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
       while(rs.next())  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
-        paleoSite.setFaultId(rs.getInt(FAULT_ID));
+        paleoSite.setFaultName(faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
         paleoSite.setEntryDate(rs.getDate(ENTRY_DATE));
         paleoSite.setEntryComments(rs.getString(ENTRY_COMMENTS));
         paleoSite.setSiteContributor(contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)));
-        paleoSite.setSiteType(siteTypeDAO.getSiteType(rs.getInt(SITE_TYPE_ID)));
+        paleoSite.setSiteTypeName(siteTypeDAO.getSiteType(rs.getInt(SITE_TYPE_ID)).getSiteType());
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         paleoSite.setSiteLat1(rs.getFloat(SITE_LAT1));
         paleoSite.setSiteLon1(rs.getFloat(SITE_LON1));
@@ -175,9 +205,9 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         paleoSite.setSiteLat2(rs.getFloat(SITE_LAT2));
         paleoSite.setSiteLon2(rs.getFloat(SITE_LON2));
         paleoSite.setSiteElevation2(rs.getFloat(SITE_ELEVATION2));
-        paleoSite.setRepresentativeStrandIndex(rs.getInt(REPRESENTATIVE_STRAND_INDEX));
+        paleoSite.setRepresentativeStrandName(siteRepresentationDAO.getSiteRepresentation(rs.getInt(REPRESENTATIVE_STRAND_INDEX)).getSiteRepresentationName());
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
-        paleoSite.setOldSiteId(rs.getInt(OLD_SITE_ID));
+        paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
         paleoSiteList.add(paleoSite);
       }
       rs.close();

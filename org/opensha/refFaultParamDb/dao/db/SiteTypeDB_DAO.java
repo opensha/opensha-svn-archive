@@ -99,6 +99,21 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   }
 
   /**
+  * Get the site type info for a particular site type name
+  * @param siteTypeName
+  * @return
+  */
+ public SiteType getSiteType(String siteTypeName) throws QueryException {
+   SiteType siteType=null;
+   String condition = " where "+SITE_TYPE_NAME+"='"+siteTypeName+"'";
+   ArrayList siteTypeList=query(condition);
+   if(siteTypeList.size()>0) siteType = (SiteType)siteTypeList.get(0);
+   return siteType;
+
+ }
+
+
+  /**
    * remove a site type from the database
    * @param siteTypeId
    * @return

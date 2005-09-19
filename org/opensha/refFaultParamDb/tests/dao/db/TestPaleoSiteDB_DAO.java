@@ -65,14 +65,14 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     PaleoSite paleoSite = new PaleoSite();
     paleoSite.setSiteId(1);
     paleoSite.setSiteContributor(contributor1);
-    paleoSite.setSiteType(siteType1);
+    paleoSite.setSiteTypeName(siteType1.getSiteType());
     paleoSite.setSiteName("Test1");
     paleoSite.setSiteLat1(32.1f);
     paleoSite.setSiteLon1(-117.0f);
     paleoSite.setSiteElevation1(0.5f);
-    paleoSite.setRepresentativeStrandIndex(1);
+    paleoSite.setRepresentativeStrandName("Most Significant Strand");
     paleoSite.setGeneralComments("Test comments");
-    paleoSite.setOldSiteId(1);
+    paleoSite.setOldSiteId("55-2");
 
     paleoSiteDB_DAO.addPaleoSite(paleoSite);
 
@@ -87,14 +87,14 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     try {
       paleoSite.setSiteContributor(contributor1);
       SiteType siteType2 = new SiteType(2,"paleosite",contributor1,"TestComments1");
-      paleoSite.setSiteType(siteType2);
+      paleoSite.setSiteTypeName(siteType2.getSiteType());
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
       fail("should not insert this paleosite as site type id 2 does not exist in sitetype table");
     }catch(InsertException e) {}
 
     paleoSite.setSiteId(3);
     paleoSite.setSiteContributor(contributor1);
-    paleoSite.setSiteType(siteType3);
+    paleoSite.setSiteTypeName(siteType3.getSiteType());
     paleoSiteDB_DAO.addPaleoSite(paleoSite);
   }
 
@@ -112,14 +112,14 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     //paleoSite.setEffectiveDate(new java.util.Date());
     assertEquals(1, actualReturn.getSiteId());
     assertEquals(contributorKey1, actualReturn.getSiteContributor().getId());
-    assertEquals(siteTypeKey1, actualReturn.getSiteType().getSiteTypeId());
+    assertEquals("geologic", actualReturn.getSiteTypeName());
     assertEquals("Test1",actualReturn.getSiteName());
     assertEquals(32.1,actualReturn.getSiteLat1(),.0001);
     assertEquals(-117.0,actualReturn.getSiteLon1(),.0001);
     assertEquals(0.5,actualReturn.getSiteElevation1(),.0001);
-    assertEquals(1, actualReturn.getRepresentativeStrandIndex());
+    assertEquals("Most Significant Strand", actualReturn.getRepresentativeStrandName());
     assertEquals("Test comments", actualReturn.getGeneralComments());
-    assertEquals(1, actualReturn.getOldSiteId());
+    assertEquals("1", actualReturn.getOldSiteId());
   }
 
   public void testUpdatePaleoSite() throws UpdateException {

@@ -12,10 +12,10 @@ import java.util.Date;
 
 public class PaleoSite {
   private int siteId=-1;
-  private int  faultId;
+  private String faultName;
   private Date entryDate;
   private Contributor siteContributor;
-  private SiteType siteType;
+  private String siteTypeName;
   private String siteName;
   private float siteLat1;
   private float siteLon1;
@@ -23,10 +23,11 @@ public class PaleoSite {
   private float siteLat2;
   private float siteLon2;
   private float siteElevation2;
-  private int representativeStrandIndex;
+  private String representativeStrandName;
   private String generalComments;
   private String entryComments;
-  private int oldSiteId;
+  private String oldSiteId;
+  private String referenceShortCitation;
 
   public PaleoSite() {
   }
@@ -34,23 +35,27 @@ public class PaleoSite {
   public void setSiteId(int siteId) { this.siteId = siteId; }
   public int getSiteId() { return this.siteId; }
 
+  public String getReferenceShortCitation() {
+    return this.referenceShortCitation;
+  }
+  public void setReferenceShortCitation(String shortCitation) {
+    this.referenceShortCitation = shortCitation;
+  }
 
   public Contributor getSiteContributor() { return this.siteContributor; }
   public void setSiteContributor(Contributor siteContributor) { this.siteContributor = siteContributor; }
 
-  public void setSiteType(SiteType siteType) { this.siteType = siteType; }
-  public SiteType getSiteType() { return this.siteType; }
+  public void setSiteTypeName(String siteTypeName) { this.siteTypeName = siteTypeName; }
+  public String getSiteTypeName() { return this.siteTypeName; }
 
   public void setSiteName(String siteName) { this.siteName = siteName;}
   public String getSiteName() { return this.siteName; }
 
+  public String getRepresentativeStrandName() { return this.representativeStrandName; }
+  public void setRepresentativeStrandName(String repStrandName) { this.representativeStrandName = repStrandName; }
 
-
-  public int getRepresentativeStrandIndex() { return this.representativeStrandIndex; }
-  public void setRepresentativeStrandIndex(int repStrandIndex) { this.representativeStrandIndex = repStrandIndex; }
-
-  public void setOldSiteId(int oldSiteId) { this.oldSiteId = oldSiteId; }
-  public int getOldSiteId() { return this.oldSiteId; }
+  public void setOldSiteId(String oldSiteId) { this.oldSiteId = oldSiteId; }
+  public String getOldSiteId() { return this.oldSiteId; }
   public float getSiteLon2() {
     return siteLon2;
   }
@@ -99,11 +104,11 @@ public class PaleoSite {
   public void setEntryDate(Date entryDate) {
     this.entryDate = entryDate;
   }
-  public int getFaultId() {
-    return faultId;
+  public String getFaultName() {
+    return this.faultName;
   }
-  public void setFaultId(int faultId) {
-    this.faultId = faultId;
+  public void setFaultName(String faultName) {
+    this.faultName = faultName;
   }
   public void setGeneralComments(String generalComments) {
     this.generalComments = generalComments;

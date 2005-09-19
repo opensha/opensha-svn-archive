@@ -39,6 +39,14 @@ public interface SiteTypeDAO_API {
   */
  public SiteType getSiteType(int siteTypeId) throws QueryException;
 
+ /**
+  * Get the site type info for a particular site type name
+  * @param siteTypeName
+  * @return
+  */
+ public SiteType getSiteType(String siteTypeName) throws QueryException;
+
+
 
  /**
   * Remove this SiteType from the list

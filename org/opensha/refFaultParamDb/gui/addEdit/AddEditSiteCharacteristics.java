@@ -28,6 +28,13 @@ import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
 import org.opensha.refFaultParamDb.dao.SiteRepresentationDAO_API;
 import org.opensha.refFaultParamDb.vo.SiteRepresentation;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
+import org.opensha.refFaultParamDb.dao.PaleoSiteDAO_API;
+import org.opensha.refFaultParamDb.dao.FaultDAO_API;
+import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
+import org.opensha.refFaultParamDb.vo.Fault;
 
 
 /**
@@ -104,8 +111,21 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   // site representations DAO
   private SiteRepresentationDAO_API siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+  // paleo site DAO
+  private PaleoSiteDAO_API paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
+  // fault DAO
+  private FaultDAO_API faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+  private boolean isEdit = false;
+  private PaleoSite paleoSiteVO;
 
-  public AddEditSiteCharacteristics() {
+  /**
+   * This constructor allows the editing of an existing site
+   *
+   * @param isEdit
+   * @param paleoSite
+   */
+  public AddEditSiteCharacteristics(boolean isEdit, PaleoSite paleoSite) {
+    if(isEdit) this.paleoSiteVO = paleoSite;
     try {
       // initialize the parameters and editors
       initParametersAndEditors();
@@ -125,11 +145,19 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     this.show();
   }
 
+  /**
+   * this constructor can be used if a new site has to be added
+   */
+  public AddEditSiteCharacteristics() {
+    this(false, null);
+  }
+
   // add action listeners on the buttons in this window
   private void addActionListeners() {
     this.addNewSiteButton.addActionListener(this);
     addNewReferenceButton.addActionListener(this);
     addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
+    okButton.addActionListener(this);
   }
 
   /**
@@ -140,6 +168,38 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     // if it is "Add New Site" request, pop up another window to fill the new site type
      if(event.getSource()==this.addNewSiteButton) new AddNewSiteType();
      else if(event.getSource() == addNewReferenceButton) new AddNewReference();
+     else if(event.getSource() == okButton) putSiteInDatabase();
+  }
+
+  /**
+   * Put the site into the database
+   */
+  private void putSiteInDatabase() {
+    PaleoSite paleoSite = new PaleoSite();
+    paleoSite.setSiteName((String)this.siteNameParam.getValue());
+    paleoSite.setEntryComments((String)this.commentsParam.getValue());
+    paleoSite.setFaultName((String)this.assocWithFaultParam.getValue());
+    paleoSite.setGeneralComments((String)this.commentsParam.getValue());
+    paleoSite.setOldSiteId((String)this.oldSiteIdParam.getValue());
+    paleoSite.setReferenceShortCitation((String)this.siteReferenceParam.getValue());
+    paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
+    paleoSite.setSiteContributor(SessionInfo.getContributor());
+    paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
+
+    // location 1
+    Location location1 = (Location)siteLocationParam.getValue();
+    paleoSite.setSiteLat1((float)location1.getLatitude());
+    paleoSite.setSiteLon1((float)location1.getLongitude());
+    paleoSite.setSiteElevation1((float)location1.getDepth());
+
+    //location 2
+    Location location2 = (Location)siteLocationParam2.getValue();
+    paleoSite.setSiteLat2((float)location2.getLatitude());
+    paleoSite.setSiteLon2((float)location2.getLongitude());
+    paleoSite.setSiteElevation2((float)location2.getDepth());
+
+    // add the paleo site to the database
+    paleoSiteDAO.addPaleoSite(paleoSite);
   }
 
   /**
@@ -333,15 +393,15 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
  }
 
  /**
-   * This is just a FAKE implemenetation. It should get all the FAULT NAMES
-   * from the database
+   *  It gets all the FAULT NAMES from the database
    * @return
    */
   private ArrayList getFaultNames() {
+    ArrayList faultVOs = faultDAO.getAllFaults();
     ArrayList faultNamesList = new ArrayList();
-    faultNamesList.add("Fault 1");
-    faultNamesList.add("Fault 2");
-    faultNamesList.add("Fault 3");
+    for(int i=0; i<faultVOs.size(); ++i) {
+      faultNamesList.add(((Fault)faultVOs.get(i)).getFaultName());
+    }
     return faultNamesList;
   }
 
