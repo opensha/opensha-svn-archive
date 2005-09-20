@@ -2,6 +2,12 @@
 -------------------------------------------------------------
 
 
+ERF2GriddedSeisRateCalc - Ned needs to look it over.
+
+
+Work on html-based help documentation
+
+
 HypoMagFreqDistAtLoc:
 
 	Remove editable and all set methods
