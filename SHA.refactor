@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE refactor PUBLIC "-//Borland Software Corporation//Refactor 1.0//EN" "http://www.borland.com/devsupport/jbuilder/dtds/refactor_1_0.dtd">
-<refactor>
-  <rename-class id="6AP03AAFBTDETCQZ8CNV6GY0" creation-time="Mon Sep 19 15:32:58.527 PDT 2005">
-    <old-class-name>org.opensha.sha.param.DistanceRupMinusJB_Parameter</old-class-name>
-    <new-class-name>org.opensha.sha.param.DistRupMinusJB_OverRupParameter</new-class-name>
-  </rename-class>
-</refactor>
