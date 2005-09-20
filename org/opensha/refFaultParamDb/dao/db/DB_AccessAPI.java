@@ -2,6 +2,7 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import com.sun.rowset.CachedRowSetImpl;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import java.sql.Date;
 
 /**
  * <p>Title: DB_AccessAPI</p>
@@ -48,5 +49,11 @@ public interface DB_AccessAPI {
    * @throws SQLException
    */
   public int insertUpdateOrDeleteData(String sql) throws java.sql.SQLException;
+
+  /**
+   * Get the sytem date from oracle database
+   * @return
+   */
+  public Date getSystemDate() throws java.sql.SQLException;
 
 }

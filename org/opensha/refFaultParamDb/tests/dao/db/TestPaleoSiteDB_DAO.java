@@ -122,25 +122,6 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     assertEquals("1", actualReturn.getOldSiteId());
   }
 
-  public void testUpdatePaleoSite() throws UpdateException {
-    Contributor contributor2 = new Contributor(2,"Test2");
-
-    PaleoSite paleoSite = (PaleoSite)paleoSiteDB_DAO.getPaleoSite(1).get(0);
-    paleoSite.setSiteContributor(contributor2);
-    try {
-      boolean status  = paleoSiteDB_DAO.updatePaleoSite(1,paleoSite);
-      this.assertFalse("cannot update paleosite as contributor id 2  does not exist", status);
-    }catch(UpdateException e) { }
-    paleoSite = (PaleoSite)paleoSiteDB_DAO.getPaleoSite(1).get(0);
-    paleoSite.setSiteName("UpdatePaleosite1");
-    boolean status = paleoSiteDB_DAO.updatePaleoSite(1, paleoSite);
-    assertTrue("paleosite with id=1 should be updated in the database",status);
-
-    PaleoSite actualReturn = (PaleoSite)paleoSiteDB_DAO.getPaleoSite(1).get(0);
-    assertNotNull("should not be null as paleosite exists with id = 1",actualReturn);
-    assertEquals("paloesite id 1 has name UpdatePaleosite1", "UpdatePaleosite1", actualReturn.getSiteName());
-  }
-
 
   public void testRemovePaleoSite() throws UpdateException {
     boolean status = paleoSiteDB_DAO.removePaleoSite(2);

@@ -9,6 +9,7 @@ import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.*;
+import java.sql.Date;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -23,6 +24,7 @@ import org.opensha.refFaultParamDb.dao.*;
 public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private final static String SEQUENCE_NAME = "Paleo_Site_Sequence";
   private final static String TABLE_NAME="Paleo_Site";
+  private final static String REFERNCES_TABLE_NAME = "Paleo_Site_References";
   private final static String SITE_ID="Site_Id";
   private final static String FAULT_ID="Fault_Id";
   private final static String ENTRY_DATE="Entry_Date";
@@ -80,75 +82,54 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   */
   public void addPaleoSite(PaleoSite paleoSite) throws InsertException {
     int paleoSiteId = paleoSite.getSiteId();
+    Date systemDate;
     try {
       if(paleoSiteId<=0)
         paleoSiteId = dbAccess.getNextSequenceNumber(SEQUENCE_NAME);
+      systemDate = dbAccess.getSystemDate();
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
+
     int faultId = faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
     int siteTypeId = siteTypeDAO.getSiteType(paleoSite.getSiteTypeName()).getSiteTypeId();
     int siteRepresentationId = siteRepresentationDAO.getSiteRepresentation(paleoSite.getRepresentativeStrandName()).getSiteRepresentationId();
-    int referenceId = referenceDAO.getReference(paleoSite.getReferenceShortCitation()).getReferenceId();
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
         ENTRY_DATE+","+ENTRY_COMMENTS+
         ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
         SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
         SITE_ELEVATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
-        GENERAL_COMMENTS+","+OLD_SITE_ID+","+REFERENCE_ID+") "+
-        " values ("+paleoSiteId+","+faultId+",sysdate"+
-        ",'"+paleoSite.getEntryComments()+"',"+paleoSite.getSiteContributor().getId()+","+
+        GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
+        " values ("+paleoSiteId+","+faultId+",'"+systemDate+
+        "','"+paleoSite.getEntryComments()+"',"+paleoSite.getSiteContributor().getId()+","+
         siteTypeId+",'"+paleoSite.getSiteName()+"',"+
         paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+","+
         paleoSite.getSiteElevation1()+","+paleoSite.getSiteLat2()+","+
         paleoSite.getSiteLon2()+","+
         paleoSite.getSiteElevation2()+","+siteRepresentationId+
-        ",'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"',"+
-        referenceId+")";
+        ",'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
 
-    try { dbAccess.insertUpdateOrDeleteData(sql); }
+    try {
+      dbAccess.insertUpdateOrDeleteData(sql);
+      ArrayList shortCitationList = paleoSite.getReferenceShortCitationList();
+      for(int i=0; i<shortCitationList.size(); ++i) {
+        int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
+        sql = "insert into "+this.REFERNCES_TABLE_NAME+"("+SITE_ID+","+
+            CONTRIBUTOR_ID+","+ENTRY_DATE+","+REFERENCE_ID+") "+
+            "values ("+paleoSiteId+","+paleoSite.getSiteContributor().getId()+",'"+
+            systemDate+"',"+referenceId+")";
+        dbAccess.insertUpdateOrDeleteData(sql);
+      }
+    }
     catch(SQLException e) {
-      //e.printStackTrace();
+      e.printStackTrace();
       throw new InsertException(e.getMessage());
     }
   }
 
 
   /**
-   * Update a paleo site
-   *
-   * @param paleoSiteId
-   * @param paleoSite
-   * @return
-   * @throws UpdateException
-   */
-  public boolean updatePaleoSite(int paleoSiteId, PaleoSite paleoSite) throws UpdateException {
-
-    int faultId = faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
-    int siteTypeId = siteTypeDAO.getSiteType(paleoSite.getSiteTypeName()).getSiteTypeId();
-    int siteRepresentationId = siteRepresentationDAO.getSiteRepresentation(paleoSite.getRepresentativeStrandName()).getSiteRepresentationId();
-    int referenceId = referenceDAO.getReference(paleoSite.getReferenceShortCitation()).getReferenceId();
-    String sql = "update "+TABLE_NAME+" set "+ENTRY_DATE+"=sysdate,"+
-        CONTRIBUTOR_ID+"="+
-        paleoSite.getSiteContributor().getId()+","+SITE_TYPE_ID+"="+
-        siteTypeId+","+SITE_NAME+"='"+
-        paleoSite.getSiteName()+"',"+SITE_LAT1+"="+paleoSite.getSiteLat1()+","+
-        SITE_LON1+"="+paleoSite.getSiteLon1()+","+SITE_ELEVATION1+"="+
-        paleoSite.getSiteElevation1()+","+REPRESENTATIVE_STRAND_INDEX+"="+
-        siteRepresentationId+","+GENERAL_COMMENTS+"='"+
-        paleoSite.getGeneralComments()+"',"+OLD_SITE_ID+"='"+paleoSite.getOldSiteId()+
-        "',"+REFERENCE_ID+"="+referenceId+" where "+SITE_ID+"="+paleoSiteId;
-    try {
-      int numRows = dbAccess.insertUpdateOrDeleteData(sql);
-      if(numRows==1) return true;
-    }
-    catch(SQLException e) { throw new UpdateException(e.getMessage()); }
-    return false;
-
-  }
-
-  /**
-   * Get a paleo site based on paleoSiteId
+   * Get paleo site data based on paleoSiteId
    * @param paleoSiteId
    * @return
    * @throws QueryException
@@ -192,7 +173,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
         SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
         SITE_ELEVATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
-        GENERAL_COMMENTS+","+OLD_SITE_ID+","+REFERENCE_ID+
+        GENERAL_COMMENTS+","+OLD_SITE_ID+
         " from "+TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
@@ -216,7 +197,19 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         paleoSite.setRepresentativeStrandName(siteRepresentationDAO.getSiteRepresentation(rs.getInt(REPRESENTATIVE_STRAND_INDEX)).getSiteRepresentationName());
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
-        paleoSite.setReferenceShortCitation(referenceDAO.getReference(rs.getInt(REFERENCE_ID)).getShortCitation());
+        // get all the refernces for this site
+        ArrayList referenceList = new ArrayList();
+        sql = "select "+REFERENCE_ID+" from "+this.REFERNCES_TABLE_NAME+
+            " where "+SITE_ID+"="+paleoSite.getSiteId()+" and "+
+            CONTRIBUTOR_ID+"="+rs.getInt(CONTRIBUTOR_ID)+" and "+
+            ENTRY_DATE+"='"+rs.getDate(ENTRY_DATE)+"'";
+        ResultSet referenceResultSet = dbAccess.queryData(sql);
+        while(referenceResultSet.next()) {
+          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+        }
+        referenceResultSet.close();
+        // set the references in the VO
+        paleoSite.setReferenceShortCitationList(referenceList);
         paleoSiteList.add(paleoSite);
       }
       rs.close();

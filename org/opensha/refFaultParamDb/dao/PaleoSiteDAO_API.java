@@ -22,14 +22,6 @@ public interface PaleoSiteDAO_API {
    */
   public void addPaleoSite(PaleoSite paleoSite) throws InsertException;
 
- /**
-  * Update the paleo site info
-  *
-  * @param paleoSiteId  Id of the paleo Site which need to be updated
-  * @param paleoSite  updated info about the paleosite
-  */
- public boolean updatePaleoSite(int paleoSiteId, PaleoSite paleoSite) throws UpdateException;
-
 
  /**
   * Get the paleo site info for a particular paleo site id

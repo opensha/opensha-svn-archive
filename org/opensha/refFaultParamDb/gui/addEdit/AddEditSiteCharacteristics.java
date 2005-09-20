@@ -75,7 +75,11 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private final static int WIDTH = 400;
   private final static int HEIGHT = 700;
 
+  // various messages
   private final static String MSG_COMMENTS_MISSING = "Please Enter Comments";
+  private final static String MSG_REFERENCES_MISSING = "Please choose atleast 1 reference";
+  private final static String MSG_INSERT_SUCCESS = "Site added sucessfully to the database";
+  private final static String MSG_UPDATE_SUCCESS = "Site updated sucessfully in the database";
 
 
   // input parameters declaration
@@ -85,7 +89,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private StringParameter assocWithFaultParam;
   private StringParameter siteTypeParam;
   private StringParameter siteRepresentationParam;
-  private StringParameter siteReferenceParam;
+  private StringListParameter siteReferenceParam;
   private StringParameter commentsParam;
   private StringParameter oldSiteIdParam;
 
@@ -96,7 +100,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private ConstrainedStringParameterEditor assocWithFaultParamEditor;
   private ConstrainedStringParameterEditor siteTypeParamEditor;
   private ConstrainedStringParameterEditor siteRepresentationParamEditor;
-  private ConstrainedStringParameterEditor siteReferenceParamEditor;
+  private ConstrainedStringListParameterEditor siteReferenceParamEditor;
   private CommentsParameterEditor commentsParamEditor;
   private StringParameterEditor oldSiteIdParamEditor;
 
@@ -162,6 +166,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     addNewReferenceButton.addActionListener(this);
     addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     okButton.addActionListener(this);
+    cancelButton.addActionListener(this);
   }
 
   /**
@@ -169,10 +174,16 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    * @param event
    */
   public void actionPerformed(ActionEvent event) {
+    Object source  = event.getSource();
     // if it is "Add New Site" request, pop up another window to fill the new site type
-     if(event.getSource()==this.addNewSiteButton) new AddNewSiteType();
-     else if(event.getSource() == addNewReferenceButton) new AddNewReference();
-     else if(event.getSource() == okButton) putSiteInDatabase();
+     if(source==this.addNewSiteButton) new AddNewSiteType();
+     else if(source == addNewReferenceButton) new AddNewReference();
+     else if(source == okButton) {
+       putSiteInDatabase();
+     }
+     else if (source==cancelButton) {
+       this.dispose();
+     }
   }
 
   /**
@@ -190,6 +201,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
 
     paleoSite.setSiteName((String)this.siteNameParam.getValue());
     String comments = (String)this.commentsParam.getValue();
+    // user must provide comments
     if(comments==null || comments.trim().equalsIgnoreCase("")) {
       JOptionPane.showMessageDialog(this, MSG_COMMENTS_MISSING);
       return;
@@ -198,7 +210,13 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     paleoSite.setOldSiteId((String)this.oldSiteIdParam.getValue());
     paleoSite.setEntryComments(comments);
     paleoSite.setFaultName((String)this.assocWithFaultParam.getValue());
-    paleoSite.setReferenceShortCitation((String)this.siteReferenceParam.getValue());
+    // see that user chooses at least 1 site reference
+    ArrayList siteReferences = (ArrayList)this.siteReferenceParam.getValue();
+    if(siteReferences==null || siteReferences.size()==0) {
+      JOptionPane.showMessageDialog(this, MSG_REFERENCES_MISSING);
+      return;
+    }
+    paleoSite.setReferenceShortCitationList((ArrayList)this.siteReferenceParam.getValue());
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
     paleoSite.setSiteContributor(SessionInfo.getContributor());
     paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
@@ -217,6 +235,13 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     try {
       // add the paleo site to the database
       paleoSiteDAO.addPaleoSite(paleoSite);
+
+      // show the success message to the user
+      String msg;
+      if(this.isEdit) msg = this.MSG_UPDATE_SUCCESS;
+      else msg = this.MSG_INSERT_SUCCESS;
+      JOptionPane.showMessageDialog(this,msg);
+      this.dispose();
     }catch(InsertException e) {
       JOptionPane.showMessageDialog(this, e.getMessage());
     }
@@ -284,7 +309,8 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private void initParametersAndEditors() throws Exception {
 
     String defaultSiteName, defaultOldSiteId, defaultFaultName, defaultSiteType;
-    String defaultSiteRepresentation, defaultComments, dafaultReference;
+    String defaultSiteRepresentation, defaultComments;
+    ArrayList dafaultReference;
     Location defaultLocation1, defaultLocation2;
 
     // get various lists from the database
@@ -300,7 +326,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       defaultSiteType = paleoSiteVO.getSiteTypeName();
       defaultSiteRepresentation = paleoSiteVO.getRepresentativeStrandName();
       defaultComments = paleoSiteVO.getGeneralComments();
-      dafaultReference = paleoSiteVO.getReferenceShortCitation();
+      dafaultReference = paleoSiteVO.getReferenceShortCitationList();
       defaultLocation1 = new Location(paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon1(),
                                       paleoSiteVO.getSiteElevation1());
       defaultLocation2 = new Location(this.paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon2(),
@@ -312,7 +338,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       defaultSiteType = (String)siteTypes.get(0);
       defaultSiteRepresentation = (String)siteRepresentations.get(0);
       defaultComments = " ";
-      dafaultReference = (String)referencesList.get(0);
+      dafaultReference = new ArrayList();
       defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
                                       this.DEFAULT_ELEVATION_VAL);
       defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
@@ -353,9 +379,9 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
 
    // references for this site
-   this.siteReferenceParam = new StringParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
+   this.siteReferenceParam = new StringListParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
        referencesList, dafaultReference);
-    this.siteReferenceParamEditor = new ConstrainedStringParameterEditor(siteReferenceParam);
+    this.siteReferenceParamEditor = new ConstrainedStringListParameterEditor(siteReferenceParam);
 
    // user comments
    this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME,defaultComments);
@@ -447,7 +473,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
  }
 
  /**
-   *  It gets all the FAULT NAMES from the database
+   * It gets all the FAULT NAMES from the database
    * @return
    */
   private ArrayList getFaultNames() {

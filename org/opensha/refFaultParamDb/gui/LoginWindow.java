@@ -138,6 +138,7 @@ public class LoginWindow extends JFrame implements ActionListener {
       SessionInfo.setUserName(this.usernameText.getText());
       SessionInfo.setContributorInfo();
       PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();
+      this.dispose();
     }
   }
 

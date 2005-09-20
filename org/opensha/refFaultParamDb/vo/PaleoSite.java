@@ -1,5 +1,6 @@
 package org.opensha.refFaultParamDb.vo;
 import java.util.Date;
+import java.util.ArrayList;
 
 /**
  * <p>Title: PaleoSite.java </p>
@@ -27,7 +28,7 @@ public class PaleoSite {
   private String generalComments;
   private String entryComments;
   private String oldSiteId;
-  private String referenceShortCitation;
+  private ArrayList referenceShortCitationList = new ArrayList();
 
   public PaleoSite() {
   }
@@ -35,11 +36,11 @@ public class PaleoSite {
   public void setSiteId(int siteId) { this.siteId = siteId; }
   public int getSiteId() { return this.siteId; }
 
-  public String getReferenceShortCitation() {
-    return this.referenceShortCitation;
+  public ArrayList getReferenceShortCitationList() {
+    return this.referenceShortCitationList;
   }
-  public void setReferenceShortCitation(String shortCitation) {
-    this.referenceShortCitation = shortCitation;
+  public void setReferenceShortCitationList(ArrayList shortCitationList) {
+    this.referenceShortCitationList = shortCitationList;
   }
 
   public Contributor getSiteContributor() { return this.siteContributor; }

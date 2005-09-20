@@ -90,6 +90,20 @@ public class ServerDB_Access
     }
   }
 
+
+  /**
+    * Get the system date
+    * @return
+    * @throws java.sql.SQLException
+    */
+   public Date getSystemDate() throws java.sql.SQLException {
+     String sql = "select sysdate from dual";
+     ResultSet result = queryData(sql);
+     result.next();
+     return result.getDate(1);
+   }
+
+
   /**
    * This function allows to establish connection with the DB existing on a
    * remote server, using a servlet.

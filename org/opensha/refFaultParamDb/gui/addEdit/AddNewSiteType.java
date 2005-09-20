@@ -42,6 +42,7 @@ public class AddNewSiteType extends JFrame implements ActionListener {
   private final static String NEW_SITE_TYPE_LABEL="Add New Site Type";
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
+  private final static String MSG_INSERT_SUCCESS = "Site type added sucessfully to the database";
 
   private SiteTypeDAO_API siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
 
@@ -73,6 +74,7 @@ public class AddNewSiteType extends JFrame implements ActionListener {
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
     if(source==okButton) addNewSiteType();
+    else if(source==cancelButton) this.dispose();
   }
 
   /**
@@ -93,6 +95,9 @@ public class AddNewSiteType extends JFrame implements ActionListener {
                                      siteTypeComments);
     try {
       siteTypeDAO.addSiteType(siteType);
+      // show the success message to the user
+      JOptionPane.showMessageDialog(this,MSG_INSERT_SUCCESS);
+      this.dispose();
     }  catch(InsertException insertException) { // if there is problem inserting the site type
       JOptionPane.showMessageDialog(this, insertException.getMessage());
     }catch(DBConnectException connectException) {

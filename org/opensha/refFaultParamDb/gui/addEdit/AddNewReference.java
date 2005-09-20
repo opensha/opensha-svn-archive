@@ -41,6 +41,7 @@ public class AddNewReference extends JFrame implements ActionListener {
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
   private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private final static String MSG_INSERT_SUCCESS = "Reference added sucessfully to the database";
 
   public AddNewReference() {
     initParamsAndEditors();
@@ -70,7 +71,7 @@ public class AddNewReference extends JFrame implements ActionListener {
     if(source == okButton) {
       // add the reference to the database
       addReferenceToDatabase();
-    }
+    }else if(source==cancelButton) this.dispose();
   }
 
   /**
@@ -92,6 +93,8 @@ public class AddNewReference extends JFrame implements ActionListener {
    try { // catch the insert exception
      Reference reference = new Reference(citation, fullBiblio);
      referenceDAO.addReference(reference);
+     JOptionPane.showMessageDialog(this, MSG_INSERT_SUCCESS);
+     this.dispose();
    }catch(InsertException insertException) { // if there is problem inserting the reference
       JOptionPane.showMessageDialog(this, insertException.getMessage());
    }catch(DBConnectException connectException) {
