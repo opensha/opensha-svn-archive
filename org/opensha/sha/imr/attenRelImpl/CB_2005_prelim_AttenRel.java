@@ -56,7 +56,30 @@ public class CB_2005_prelim_AttenRel
   private static double[] per = { 0, 0.2, 1 };
 
 
-  private static double[] C0_EPRI = { 0, 0.2, 1, };
+  private static double[] C0_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C0_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C1_EPRI = {-0.019, 0.461, -0.553};
+  private static double[] C1_PEN = { -0.052, -0.400, -0.550};
+  private static double[] C2_EPRI = { -0.439, -0.650, -0.622};
+  private static double[] C2_PEN = { -0.378, -0.575, -0.586};
+  private static double[] C3_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C3_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C4_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C4_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C5_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C5_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C6_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C6_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C7_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C7_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C8_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] C8_PEN = { 1.481, -0.112, -3.109};
+  private static double[] tau_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] tau_PEN = { 1.481, -0.112, -3.109};
+  private static double[] sigma_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] sigma_PEN = { 1.481, -0.112, -3.109};
+
+
 
   // fill in rest
 
