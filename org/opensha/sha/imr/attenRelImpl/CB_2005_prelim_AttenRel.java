@@ -13,10 +13,10 @@ import org.opensha.sha.surface.*;
 import org.opensha.calc.RelativeLocation;
 
 /**
- * <b>Title:</b> AS_2005_prelim_AttenRel<p>
+ * <b>Title:</b> CB_2005_prelim_AttenRel<p>
  *
  * <b>Description:</b> This implements the Attenuation Relationship
- * developed by Abrahmson and Silva (2005 <p>
+ * developed by Campbell & Bozorgnia (2005) <p>
  *
  * Supported Intensity-Measure Parameters:  BELOW NEEDS TO BE UPDATED<p>
  * <UL>
@@ -40,137 +40,74 @@ import org.opensha.calc.RelativeLocation;
  */
 
 
-public class AS_2005_prelim_AttenRel
+public class CB_2005_prelim_AttenRel
     extends AttenuationRelationship implements
     AttenuationRelationshipAPI,
     NamedObjectAPI, ParameterChangeListener {
 
   // Debugging stuff
-  private final static String C = "AS_2005_prelim_AttenRel";
+  private final static String C = "CB_2005_prelim_AttenRel";
   private final static boolean D = false;
 
   // Name of IMR
-  public final static String NAME = "Abrahamson & Silva (2005 prelim)";
+  public final static String NAME = "Campbell & Bozorgnia (2005 prelim)";
 
   // coefficients:
+  private static double[] per = { 0, 0.2, 1 };
 
-  private static double[] period = {
-      0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.075, 0.1, 0.15, 0.2, 0.25,
-      0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5};
-  private static double[] vref = {
-      865.1, 865.1, 865.1, 907.8, 994.5, 1053.5, 1085.7, 1032.5, 877.6, 748.2,
-      654.3, 587.1, 503, 456.6, 410.5, 400, 400, 400, 400, 400, 400};
-  private static double[] b_soil = {
-      -1.186, -1.186, -1.219, -1.273, -1.308, -1.346, -1.471, -1.624, -1.931,
-      -2.188, -2.381, -2.518, -2.657, -2.669, -2.401, -1.955, -1.025, -0.299, 0,
-      0, 0};
-  private static double[] c0 = {
-      6.4, 6.7, 6.6, 6.4, 6.7, 7.1, 8.3, 9.6, 10.3, 9.5, 8.7, 7.3, 6.8, 6.1,
-      3.8, 3.6,
-      2.7, 2.4, 3.9, 5.1, 6.1};
-  private static double[] c1 = {
-      1.283, 1.2474, 1.2808, 1.3632, 1.4936, 1.6645, 2.1555, 2.5918, 2.87,
-      2.7123,
-      2.5164, 2.2411, 2.0442, 1.9085, 1.3589, 1.0968, 0.5499, 0.0308, -0.0884,
-      -0.2875, -0.3686};
-  private static double[] c2 = {
-      -0.9841, -0.9704, -0.9771, -0.9969, -1.0286, -1.0637, -1.1423, -1.2036,
-      -1.1957, -1.1051, -1.0301, -0.9411, -0.883, -0.8539, -0.7629, -0.7397,
-      -0.6657, -0.6195, -0.7102, -0.7218, -0.7683};
-  private static double[] c3 = {
-      -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2,
-      -0.2,
-      -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2, -0.2};
-  private static double[] c5 = {
-      0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05,
-      0.05,
-      0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05};
-  private static double[] c6 = {
-      0.01, 0.0112, 0.0118, 0.0131, 0.0163, 0.0194, 0.0281, 0.0282, 0.0218,
-      0.0068,
-      -0.0056, -0.0158, -0.0293, -0.0469, -0.0687, -0.0874, -0.1146, -0.1282,
-      -0.1574, -0.1916, -0.1994};
-  private static double[] c7 = {
-      0.2601, 0.2491, 0.2511, 0.2512, 0.236, 0.2297, 0.1891, 0.1719, 0.1894,
-      0.2071, 0.2327, 0.2282, 0.22, 0.2364, 0.2589, 0.268, 0.2012, 0.2527,
-      0.2511, 0.1449, 0.0998};
-  private static double[] c8 = {
-      -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09,
-      -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09, -0.09,
-      -0.09};
-  private static double[] c9 = {
-      0.213, 0.1986, 0.2084, 0.2389, 0.2495, 0.2748, 0.2351, 0.2122, 0.1978,
-      0.1531, 0.0514, -0.0102, -0.0246, -0.0299, -0.0193, 0.0178, -0.0019,
-      0.0336, 0.1418, 0.321, 0.2559};
-  private static double[] c10 = {
-      0.9475, 0.949, 0.9898, 1.054, 1.0943, 1.1456, 1.3126, 1.4806, 1.8391,
-      2.1163, 2.319, 2.4505, 2.5833, 2.558, 2.1441, 1.533, 0.3399, -0.5625,
-      -0.8821, -0.8508, -0.7994};
-  private static double[] c11 = {
-      0.0647, 0.0546, 0.0557, 0.0583, 0.064, 0.0694, 0.0628, 0.0566, 0.0458,
-      0.0286, 0.0511, 0.05, 0.0491, 0.0385, 0.0227, 0.0294, 0.0222, 0.0667,
-      0.0262, 0.0272, 0.0073};
-  private static double[] c12 = {
-      0.0245, 0.0245, 0.0248, 0.0254, 0.0259, 0.0274, 0.0291, 0.0291,
-      0.0314, 0.029, 0.0288, 0.0277, 0.0181, 0.019, 0.0077, -0.003, -0.0189,
-      -0.0264, -0.0275, -0.0385, -0.0377};
-  private static double[] sigma0 = {
-      0.5065, 0.509, 0.5106, 0.5176, 0.5249, 0.5313, 0.5476, 0.558, 0.556,
-      0.5465, 0.5458,
-      0.5521, 0.5499, 0.5604, 0.5809, 0.598, 0.6156, 0.6159, 0.5719, 0.58,
-      0.5889};
-  private static double[] tau0 = {
-      0.3281, 0.326, 0.3304, 0.3443, 0.3573, 0.3796, 0.4044, 0.4008, 0.3929,
-      0.3657,
-      0.3507, 0.336, 0.3504, 0.377, 0.3535, 0.3614, 0.3795, 0.4161, 0.4935,
-      0.4882, 0.5652};
-  private static double[] tauCorr = {
-      1.0, 0.99, 0.99, 0.98, 0.97, 0.95, 0.93, 0.92, 0.92, 0.92, 0.91, 0.89,
-      0.85, 0.82,
-      0.68, 0.57, 0.45, 0.28, 0.28, 0.17, 0.17};
 
-  private static double n = 1.18, c = 1.88;
+  private static double[] C0_EPRI = { 0, 0.2, 1, };
+
+  // fill in rest
+
+
+
+
+
+
+
+
 
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rjb, rRup,distRupJB_Fraction, aspectratio, rake, dip, mag, srcSiteA, depthTop;
-  private String stdDevType;
+  private double vs30, rjb, rRup,distRupJB_Fraction, rake, mag, depthTop, depthTo2pt5kmPerSec;
+  private String stdDevType, nonLinearAmpModel;
+  private boolean magSaturation;
   private boolean parameterChange;
-  private double mean, stdDev;
 
   // ?????????????????????????????????????
   protected final static Double MAG_WARN_MIN = new Double(4.5);
   protected final static Double MAG_WARN_MAX = new Double(8.5);
   protected final static Double DISTANCE_RUP_WARN_MIN = new Double(0.0);
   protected final static Double DISTANCE_RUP_WARN_MAX = new Double(200.0);
-  protected final static Double VS30_WARN_MIN = new Double(180.0);
-  protected final static Double VS30_WARN_MAX = new Double(3500.0);
+  protected final static Double VS30_WARN_MIN = new Double(120.0);
+  protected final static Double VS30_WARN_MAX = new Double(2000.0);
+  protected final static Double DEPTH_2pt5_WARN_MIN = new Double(0);
+  protected final static Double DEPTH_2pt5_WARN_MAX = new Double(7000);
+
 
   /**
-   * srcSiteAngle parameter - .  This is created in the
-   * initPropEffectParams method.
+   * nonLinearAmpModelParam, a StringParameter that represents the type of
+   * nonlinearity model.
    */
-  protected DoubleParameter srcSiteAngleParam = null;
-  public final static String SRC_SITE_ANGLE_NAME = "Source_Site Angle";
-  public final static String SRC_SITE_ANGLE_UNITS = "degrees";
-  public final static String SRC_SITE_ANGLE_INFO = "Difference between directions defined by closest point"+
-                                                  " on trace to site and the average strike of fault";
-  public final static Double SRC_SITE_ANGLE_DEFAULT = new Double(90);
-  protected final static Double SRC_SITE_ANGLE_MIN = new Double( -360);
-  protected final static Double SRC_SITE_ANGLE_MAX = new Double(360);
+  protected StringParameter nonLinearAmpModelParam = null;
+  public final static String NONLIN_MODEL_TYPE_NAME = "Nonlinear Model";
+  public final static String NONLIN_MODEL_TYPE_INFO = "Type of nonlinear amplification model";
+  public final static String NONLIN_MODEL_TYPE_PEN = "PEN";
+  public final static String NONLIN_MODEL_TYPE_EPRI = "EPRI";
+  public final static String NONLIN_MODEL_TYPE_DEFAULT = NONLIN_MODEL_TYPE_PEN;
+
+
 
   /**
-   * aspectRatio parameter - Rupture aspect ratio.  This is created in the
-   * initEqkRuptureParams method.
+   * magSaturationParam, a BooleanParameter that represents the type of
+   * mag saturation model.
    */
-  protected DoubleParameter aspectRatioParam = null;
-  public final static String ASPECT_RATIO_NAME = "Rupture Apsect Ratio";
-  public final static String ASPECT_RATIO_INFO =
-      "Rupture length over down-dip width";
-  public final static Double ASPECT_RATIO_DEFAULT = new Double(1);
-  protected final static Double ASPECT_RATIO_MIN = new Double(Double.MIN_VALUE);
-  protected final static Double ASPECT_RATIO_MAX = new Double(Double.MAX_VALUE);
+  protected BooleanParameter magSaturationParam = null;
+  public final static String MAG_SATURATION_NAME = "Mag Saturation";
+  public final static String MAG_SATURATION_INFO = "Applies the magnitude-saturation option (c-prime rather than c coeff)";
+  public final static Boolean MAG_SATURATION_DEFAULT = new Boolean(false);
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
@@ -194,7 +131,7 @@ public class AS_2005_prelim_AttenRel
   /**
    *  This initializes several ParameterList objects.
    */
-  public AS_2005_prelim_AttenRel(ParameterChangeWarningListener warningListener) {
+  public CB_2005_prelim_AttenRel(ParameterChangeWarningListener warningListener) {
 
     super();
 
@@ -202,8 +139,8 @@ public class AS_2005_prelim_AttenRel
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
-    for (int i = 0; i < period.length; i++) {
-      indexFromPerHashMap.put(new Double(period[i]), new Integer(i));
+    for (int i = 0; i < per.length; i++) {
+      indexFromPerHashMap.put(new Double(per[i]), new Integer(i));
     }
 
     initEqkRuptureParams();
@@ -233,11 +170,6 @@ public class AS_2005_prelim_AttenRel
     dipParam.setValue(surface.getAveDip());
     double depth = surface.getLocation(0,0).getDepth();
     rupTopDepthParam.setValue(depth);
-    // for point surface
-    if(surface.size() == 1)
-      aspectRatioParam.setValue(1.0);
-    else
-      aspectRatioParam.setValue(surface.getSurfaceLength()/surface.getSurfaceWidth());
 
 //    setFaultTypeFromRake(eqkRupture.getAveRake());
     this.eqkRupture = eqkRupture;
@@ -279,24 +211,6 @@ public class AS_2005_prelim_AttenRel
       distanceRupParam.setValue(eqkRupture, site);
       distRupMinusJB_OverRupParam.setValue(eqkRupture, site);
 
-      // set the srcSiteAngle parameter (could make a subclass of
-      // PropagationEffectParameter later if others use this
-      GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
-      Location fltLoc1 = surface.getLocation(0,0);
-      Location fltLoc2 = surface.getLocation(0,surface.getNumCols()-1);
-      double angle1 = RelativeLocation.getAzimuth(fltLoc1,fltLoc2);
-      double minDist = Double.MAX_VALUE, dist;
-      int minDistLocIndex = -1;
-      for(int i = 0; i < surface.getNumCols(); i++) {
-        dist = RelativeLocation.getApproxHorzDistance(site.getLocation(), surface.getLocation(0,i));
-        if(dist < minDist) {
-          minDist = dist;
-          minDistLocIndex=i;
-        }
-      }
-      double angle2 = RelativeLocation.getAzimuth(surface.getLocation(0,minDistLocIndex),site.getLocation());
-      srcSiteAngleParam.setValue(angle2-angle1);
-
     }
   }
 
@@ -336,11 +250,15 @@ public class AS_2005_prelim_AttenRel
       return VERY_SMALL_MEAN;
     }
 
-    if (parameterChange) {
-      calcMeanStdDev();
-    }
-    return mean;
+    if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI))
+      return getMean_EPRI(iper, vs30, rjb, distRupJB_Fraction, rake, mag,
+                          depthTop, depthTo2pt5kmPerSec, stdDevType, magSaturation);
+    else
+      return Double.NaN;  // FINISH THIS
   }
+
+
+
 
   /**
    * @return    The stdDev value
@@ -349,11 +267,11 @@ public class AS_2005_prelim_AttenRel
     if(intensityMeasureChanged)
       setCoeffIndex();
 
-    if (parameterChange) {
-      calcMeanStdDev();
-    }
-    return stdDev;
-  }
+    if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI))
+      return getStdDev_EPRI(iper, stdDevType);
+    else
+      return Double.NaN;  // FINISH THIS
+   }
 
   /**
    * Allows the user to set the default parameter values for the selected Attenuation
@@ -365,7 +283,7 @@ public class AS_2005_prelim_AttenRel
     magParam.setValue(MAG_DEFAULT);
     rakeParam.setValue(RAKE_DEFAULT);
     dipParam.setValue(DIP_DEFAULT);
-    aspectRatioParam.setValue(ASPECT_RATIO_DEFAULT);
+    nonLinearAmpModelParam.setValue(this.NONLIN_MODEL_TYPE_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
     distRupMinusJB_OverRupParam.setValue(this.DISTANCE_RUP_MINUS_JB_DEFAULT);
@@ -375,18 +293,19 @@ public class AS_2005_prelim_AttenRel
     pgaParam.setValue(PGA_DEFAULT);
     componentParam.setValue(COMPONENT_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
-    srcSiteAngleParam.setValue(SRC_SITE_ANGLE_DEFAULT);
+    magSaturationParam.setValue(MAG_SATURATION_DEFAULT);
+    depthTo2pt5kmPerSecParam.setValue(this.DEPTH_2pt5_DEFAULT);
 
     vs30 = ((Double)vs30Param.getValue()).doubleValue();
     rjb = ((Double)distRupMinusJB_OverRupParam.getValue()).doubleValue();
     rRup = ((Double)distanceRupParam.getValue()).doubleValue();
-    aspectratio = ((Double)aspectRatioParam.getValue()).doubleValue();
+    nonLinearAmpModel = (String)nonLinearAmpModelParam.getValue();
     rake = ((Double)rakeParam.getValue()).doubleValue();
-    dip = ((Double)dipParam.getValue()).doubleValue();
     mag = ((Double)magParam.getValue()).doubleValue();
-    srcSiteA = ((Double)srcSiteAngleParam.getValue()).doubleValue();
+    magSaturation = ((Boolean)magSaturationParam.getValue()).booleanValue();
     depthTop = ((Double)rupTopDepthParam.getValue()).doubleValue();
     stdDevType = (String)stdDevTypeParam.getValue();
+    depthTo2pt5kmPerSec = ((Double)depthTo2pt5kmPerSecParam.getValue()).doubleValue();
   }
 
   /**
@@ -403,24 +322,26 @@ public class AS_2005_prelim_AttenRel
     meanIndependentParams.addParameter(distanceRupParam);
     meanIndependentParams.addParameter(distRupMinusJB_OverRupParam);
     meanIndependentParams.addParameter(vs30Param);
+    meanIndependentParams.addParameter(depthTo2pt5kmPerSecParam);
     meanIndependentParams.addParameter(magParam);
     meanIndependentParams.addParameter(rakeParam);
-    meanIndependentParams.addParameter(dipParam);
-    meanIndependentParams.addParameter(componentParam);
-    meanIndependentParams.addParameter(aspectRatioParam);
     meanIndependentParams.addParameter(rupTopDepthParam);
-    meanIndependentParams.addParameter(srcSiteAngleParam);
+    meanIndependentParams.addParameter(componentParam);
+    meanIndependentParams.addParameter(magSaturationParam);
+    meanIndependentParams.addParameter(nonLinearAmpModelParam);
 
     // params that the stdDev depends upon
     stdDevIndependentParams.clear();
     stdDevIndependentParams.addParameter(stdDevTypeParam);
-    stdDevIndependentParams.addParameterList(meanIndependentParams);
+    stdDevIndependentParams.addParameter(componentParam);
+    stdDevIndependentParams.addParameter(nonLinearAmpModelParam);
 
     // params that the exceed. prob. depends upon
     exceedProbIndependentParams.clear();
-    exceedProbIndependentParams.addParameterList(stdDevIndependentParams);
-    exceedProbIndependentParams.addParameter(this.sigmaTruncTypeParam);
-    exceedProbIndependentParams.addParameter(this.sigmaTruncLevelParam);
+    exceedProbIndependentParams.addParameterList(meanIndependentParams);
+    exceedProbIndependentParams.addParameter(stdDevTypeParam);
+    exceedProbIndependentParams.addParameter(sigmaTruncTypeParam);
+    exceedProbIndependentParams.addParameter(sigmaTruncLevelParam);
 
     // params that the IML at exceed. prob. depends upon
     imlAtExceedProbIndependentParams.addParameterList(
@@ -444,8 +365,16 @@ public class AS_2005_prelim_AttenRel
     vs30Param.addParameterChangeWarningListener(warningListener);
     vs30Param.setNonEditable();
 
+    // create and add the warning constraint:
+    DoubleConstraint warn2 = new DoubleConstraint(DEPTH_2pt5_WARN_MIN, DEPTH_2pt5_WARN_MAX);
+    warn2.setNonEditable();
+    depthTo2pt5kmPerSecParam.setWarningConstraint(warn2);
+    depthTo2pt5kmPerSecParam.addParameterChangeWarningListener(warningListener);
+    depthTo2pt5kmPerSecParam.setNonEditable();
+
     siteParams.clear();
     siteParams.addParameter(vs30Param);
+    siteParams.addParameter(depthTo2pt5kmPerSecParam);
 
   }
 
@@ -466,19 +395,10 @@ public class AS_2005_prelim_AttenRel
     magParam.addParameterChangeWarningListener(warningListener);
     magParam.setNonEditable();
 
-    // create aspectRatioParam
-    DoubleConstraint c2 = new DoubleConstraint(ASPECT_RATIO_MIN,
-                                               ASPECT_RATIO_MAX);
-    aspectRatioParam = new DoubleParameter(ASPECT_RATIO_NAME, c2);
-    aspectRatioParam.setInfo(ASPECT_RATIO_INFO);
-    aspectRatioParam.setNonEditable();
-
     eqkRuptureParams.clear();
     eqkRuptureParams.addParameter(magParam);
     eqkRuptureParams.addParameter(rakeParam);
-    eqkRuptureParams.addParameter(dipParam);
     eqkRuptureParams.addParameter(rupTopDepthParam);
-    eqkRuptureParams.addParameter(aspectRatioParam);
   }
 
   /**
@@ -499,17 +419,6 @@ public class AS_2005_prelim_AttenRel
     distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
     distRupMinusJB_OverRupParam.setNonEditable();
 
-    // create srcSiteAngleParam
-    DoubleConstraint c3 = new DoubleConstraint(SRC_SITE_ANGLE_MIN,
-                                               SRC_SITE_ANGLE_MAX);
-    srcSiteAngleParam = new DoubleParameter(SRC_SITE_ANGLE_NAME, c3,
-                                            SRC_SITE_ANGLE_UNITS);
-    srcSiteAngleParam.setInfo(SRC_SITE_ANGLE_INFO);
-    srcSiteAngleParam.setNonEditable();
-
-    propagationEffectParams.addParameter(distanceRupParam);
-    propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
-    propagationEffectParams.addParameter(srcSiteAngleParam);
 
   }
 
@@ -525,8 +434,8 @@ public class AS_2005_prelim_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for (int i = 0; i < period.length; i++) {
-      periodConstraint.addDouble(new Double(period[i]));
+    for (int i = 0; i < per.length; i++) {
+      periodConstraint.addDouble(new Double(per[i]));
     }
     periodConstraint.setNonEditable();
     periodParam = new DoubleDiscreteParameter(PERIOD_NAME, periodConstraint,
@@ -586,9 +495,27 @@ public class AS_2005_prelim_AttenRel
     stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
     stdDevTypeParam.setNonEditable();
 
+    // make nonlinear model parameter
+    StringConstraint nonLinConstr = new StringConstraint();
+    nonLinConstr.addString(NONLIN_MODEL_TYPE_PEN);
+    nonLinConstr.addString(NONLIN_MODEL_TYPE_EPRI);
+    nonLinearAmpModelParam = new StringParameter(NONLIN_MODEL_TYPE_NAME,nonLinConstr,
+        NONLIN_MODEL_TYPE_DEFAULT);
+    nonLinearAmpModelParam.setInfo(NONLIN_MODEL_TYPE_INFO);
+    nonLinearAmpModelParam.setNonEditable();
+
+
+    // make magSaturationParam
+    magSaturationParam = new BooleanParameter(MAG_SATURATION_NAME,MAG_SATURATION_DEFAULT);
+    magSaturationParam.setInfo(MAG_SATURATION_INFO);
+    magSaturationParam.setNonEditable();
+
+
     // add these to the list
     otherParams.addParameter(componentParam);
     otherParams.addParameter(stdDevTypeParam);
+    otherParams.addParameter(nonLinearAmpModelParam);
+    otherParams.addParameter(magSaturationParam);
 
   }
 
@@ -602,199 +529,52 @@ public class AS_2005_prelim_AttenRel
   }
 
 
-  /**
-   * This function calculates the Std-Dev and Mean together so pgaRock is not
-   * computed twice
-   */
-  private void calcMeanStdDev() {
-    double pgaRock = Math.exp(calcMean(0,0.0,1100));
-    if(D)
-      System.out.println("PGA-Rock = "+pgaRock);
-    mean = calcMean(iper,pgaRock,vs30);
-    if(D)
-      System.out.println("Mean = "+mean);
-    stdDev = calcStdDev(iper,pgaRock,vs30);
-    if(D)
-      System.out.println("Std Dev = "+stdDev);
-    parameterChange = false;
-  }
 
-  private double calcMean(int iper, double pgaRock, double vs30) {
 
-    double Frv, Fn, r, sum, taperM1, taperM2, ar1, hw1, t_hw, dAmp_dPGA;
+  public double getMean_EPRI(int iper, double vs30, double rRup,
+                             double distRupJB_Fraction,
+                             double rake, double mag, double depthTop,
+                             double depthTo2pt5kmPerSec, String stdDevType,
+                             boolean magSaturation) {
 
-    rjb = rRup - distRupJB_Fraction*rRup;
+    double c = 1.38;
+    double n = 1.30;
 
-    if(D){
-      System.out.println("Before Mechanism");
-      System.out.println("Vs30 = "+vs30+" PGA-Rock ="+pgaRock+" Mag = "+mag+" rRup = "
-                         +rRup+" rake = "+rake);
-      System.out.println("iPer = "+iper);
-    }
+    double rjb, Frv, Fn;
+    rjb = rRup - distRupJB_Fraction * rRup;
+
     //       Mechanism
-    if (rake > 22.5 && rake < 157.5) {
+    if (rake > 30 && rake < 150) {
       Frv = 1.0;
     }
     else {
       Frv = 0.0;
     }
-    if (rake < -22.5 && rake > -157.5) {
+    if (rake < -30 && rake > -150) {
       Fn = 1.0;
     }
     else {
       Fn = 0.0;
     }
 
-    //     Base Model
-    r = Math.sqrt(rRup * rRup + c0[iper] * c0[iper]);
-    sum = c1[iper] + (c2[iper] + c3[iper] * (7.5 - mag)) * Math.log(r) +
-        c5[iper] * (mag - 6.) + c6[iper] * (8.5 - mag) * (8.5 - mag);
-
-    if(D){
-      System.out.println("BaseModel");
-      System.out.println("Sum = "+sum +" rRup ="+rRup+" r ="+r+" c0[iper] ="+c0[iper]);
-
-    }
-
-    //     Mech model
-    sum += c7[iper] * Frv + c9[iper] * Fn;
-
-    if(D){
-      System.out.println("Mech Model");
-      System.out.println("Sum = "+sum+" Frv = "+Frv+" Fn ="+Fn);
-    }
-
-    //     Set Taper 1
-    if (mag > 7.) {
-      taperM1 = 1.0;
-    }
-    else if (mag > 6.5) {
-      taperM1 = (mag - 6.5) * 2.0;
-    }
-    else {
-      taperM1 = 0.0;
-    }
-
-    //     Set Taper 2
-    if (mag > 6.5) {
-      taperM2 = 1.0;
-    }
-    else if (mag > 6.0) {
-      taperM2 = (mag - 6.0) * 2.0;
-    }
-    else {
-      taperM2 = 0.0;
-    }
-
-//     Aspect ratio model
-    ar1 = aspectratio;
-    if (ar1 > 20.) {
-      ar1 = 20.;
-    }
-    else if (ar1 < 1.5) {
-      ar1 = 1.5;
-    }
-
-    sum = sum + c8[iper] * (Math.log(ar1) - Math.log(1.5)) * taperM1;
-    if(D){
-      System.out.println("Aspect Ratio");
-      System.out.println("Sum = "+sum+" AR1 = "+ar1+" c8(iper)*(slog(ar1)-alog(1.5)) ="+
-          (c8[iper]*(Math.log(ar1) - Math.log(1.5)))+" TaperM1 = "+taperM1);
-    }
-//     soil
-    double soilamp;
-    if (vs30 < vref[iper]) {
-      soilamp = c10[iper] * Math.log(vs30 / vref[iper]) -
-          b_soil[iper] * Math.log(c + pgaRock) +
-          b_soil[iper] * Math.log(pgaRock + c * Math.pow(vs30 / vref[iper], n));
-    }
-    else {
-      soilamp = (c10[iper] + b_soil[iper] * n) * Math.log(vs30 / vref[iper]);
-    }
-
-    sum = sum + soilamp;
-
-//     HW model
-    double angle1, taperTheta, t_fw;
-    hw1 = 0.0;
-    angle1 = Math.abs(srcSiteA);
-    if (angle1 > 90.) {
-      angle1 = 180. - srcSiteA;
-    }
-
-    if (angle1 < 20.) {
-      taperTheta = angle1 / 20.0;
-    }
-    else {
-      taperTheta = 1.0;
-    }
-
-    t_hw = (30. - rjb) / 30. * (90. - dip) / 45. * taperM2;
-    if (depthTop == 0.) {
-      t_fw = 0.;
-    }
-    else {
-      t_fw = 1. - rjb / (2. * depthTop + 1.);
-    }
-
-    if (srcSiteA > 0. && rjb < 30.) {
-      hw1 = c11[iper] * (t_hw * taperTheta + t_fw * (1. - taperTheta));
-    }
-    else if (srcSiteA < 0. && rjb < 2. * depthTop) {
-      hw1 = c11[iper] * t_fw;
-    }
-    else {
-      hw1 = 0.;
-    }
-
-    sum = sum + hw1;
-
-    if(D)
-      System.out.println("HW1 - Sum ="+sum);
-
-
-//         depth of rupture term
-    if (mag < 6.5) {
-      sum = sum + c12[iper] * (depthTop - 5.) * (1. - taperM2);
-    }
-
-    if(D){
-      System.out.println("Depth of Rupture Term");
-      System.out.println("Sum = "+sum);
-    }
-    return sum;
+    return Double.NaN;
   }
 
-  private double calcStdDev(int iper, double pgaRock, double vs30) {
-    double sigma,tau;
-    sigma = sigma0[iper];
-    tau = tau0[iper];
 
-    if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
+  public double getStdDev_EPRI(int iper, String stdDevType) {
+
+    double s = sigma_EPRI[iper];
+    double t = tau_EPRI[iper];
+
+
+    if (stdDevType.equals(STD_DEV_TYPE_NONE))
       return 0;
-    }
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
-      return sigma;
-    }
-    else {
-      double dAmp_dPGA;
-      //     Compute parital derivative of ln(soil amp) w.r.t. ln(rock PGA)
-      if (vs30 >= vref[iper]) {
-        dAmp_dPGA = 0.;
-      }
-      else {
-        dAmp_dPGA = b_soil[iper] * pgaRock *
-            ( -1. / (pgaRock + 1.) + 1. / (pgaRock + vs30 / vref[iper]));
-      }
-      //     Set the tau for Sa including the effect of rockPGA tau
-      tau = Math.sqrt(tau0[iper] * tau0[iper] + Math.pow(dAmp_dPGA * tau0[0], 2) +
-                      2. * dAmp_dPGA * tau0[0] * tau0[iper] * tauCorr[iper]);
-
-      if (stdDevType.equals(STD_DEV_TYPE_INTER))return tau;
-
-      else return Math.sqrt(sigma * sigma + tau * tau);
-    }
-
+    else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+      return t;
+    else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+        return s;
+    else // it's total sigma
+      return Math.sqrt(t* t + s * s);
   }
 
 
@@ -814,16 +594,16 @@ public class AS_2005_prelim_AttenRel
       distRupJB_Fraction = ( (Double) val).doubleValue();
     else if (pName.equals(this.VS30_NAME))
       vs30 = ( (Double) val).doubleValue();
+    else if (pName.equals(this.DEPTH_2pt5_NAME))
+      depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
     else if (pName.equals(this.MAG_NAME))
       mag = ( (Double) val).doubleValue();
-    else if (pName.equals(this.DIP_NAME))
-      dip = ( (Double) val).doubleValue();
     else if (pName.equals(this.RAKE_NAME))
       rake = ( (Double) val).doubleValue();
-    else if (pName.equals(this.ASPECT_RATIO_NAME))
-      aspectratio = ( (Double) val).doubleValue();
-    else if (pName.equals(this.SRC_SITE_ANGLE_NAME))
-      srcSiteA = ( (Double) val).doubleValue();
+    else if (pName.equals(this.NONLIN_MODEL_TYPE_NAME))
+      nonLinearAmpModel = (String) val;
+    else if (pName.equals(this.MAG_SATURATION_NAME))
+      magSaturation = ( (Boolean) val).booleanValue();
     else if (pName.equals(this.RUP_TOP_NAME))
       depthTop = ( (Double) val).doubleValue();
     else if (pName.equals(this.STD_DEV_TYPE_NAME))
@@ -841,12 +621,13 @@ public class AS_2005_prelim_AttenRel
     distanceRupParam.addParameterChangeListener(this);
     distRupMinusJB_OverRupParam.addParameterChangeListener(this);
     vs30Param.addParameterChangeListener(this);
+    depthTo2pt5kmPerSecParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
     dipParam.addParameterChangeListener(this);
-    aspectRatioParam.addParameterChangeListener(this);
+    nonLinearAmpModelParam.addParameterChangeListener(this);
     rupTopDepthParam.addParameterChangeListener(this);
-    srcSiteAngleParam.addParameterChangeListener(this);
+    magSaturationParam.addParameterChangeListener(this);
     stdDevTypeParam.addParameterChangeListener(this);
     periodParam.addParameterChangeListener(this);
   }

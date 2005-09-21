@@ -95,6 +95,33 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
  * MAG_MIN - <i>see code</i><br>
  * MAG_MAX - <i>see code</i><p>
  *
+ * <b>rakeParam</b> - DoubleParameter representing the earthquake rupture  <b>Rake</b><br>
+ * RAKE_NAME = "Rake".  This parameter is created in the initProbEqkRuptureParams()
+ * method here.<br>
+ * RAKE_UNITS = "degrees"<br>
+ * RAKE_INFO = "Average rake of earthquake rupture"<br>
+ * RAKE_DEFAULT - <i>see code</i><br>
+ * RAKE_MIN - <i>see code</i><br>
+ * RAKE_MAX - <i>see code</i><p>
+ *
+ * <b>dipParam</b> - a DoubleParameter representing the earthquake rupture <b>Dip</b><br>
+ * DIP_NAME = "Dip".  This parameter is created in the initProbEqkRuptureParams()
+ * method here.<br>
+ * DIP_UNITS = "degrees"<br>
+ * DIP_INFO = "Average dip of earthquake rupture"<br>
+ * DIP_DEFAULT - <i>see code</i><br>
+ * DIP_MIN - <i>see code</i><br>
+ * DIP_MAX - <i>see code</i><p>
+ *
+ * <b>rupTopDepthParam</b> - a DoubleParameter representing the depth to the top of the earthquake rupture<br>
+ * RUP_TOP_NAME = "Rupture Top Depth".  This parameter is created in the initProbEqkRuptureParams()
+ * method here.<br>
+ * RUP_TOP_UNITS = "km"<br>
+ * RUP_TOP_INFO = "Depth to the top of the earthquake rupture"<br>
+ * RUP_TOP_DEFAULT - <i>see code</i><br>
+ * RUP_TOP_MIN - <i>see code</i><br>
+ * RUP_TOP_MAX - <i>see code</i><p>
+ *
  * <b>componentParam</b> - a StringParameter representing the <b>Components</b> of shaking
  * that the IMR supports.<br>
  * COMPONENT_NAME = "Component"<br>
@@ -115,6 +142,17 @@ import org.opensha.sha.earthquake.rupForecastImpl.PointEqkSource;
  * VS30_DEFAULT - <i>see code</i><br>
  * VS30_MIN = - <i>see code</i><br>
  * VS30_MAX = - <i>see code</i><p>
+ *
+ * <b>depthTo2pt5kmPerSecParam</b> - A WarningDoubleParameter representing the
+ * <b>depth to where shear-wave velocity = 2.5 km/sec</b>.  This parameter is created
+ * in the initSiteParams() method here, but the warning constraint must be created
+ * and added in subclasses.<br>
+ * DEPTH_2pt5_NAME = "Depth 2.5 km/sec"<br>
+ * DEPTH_2pt5_UNITS = "m"<br>
+ * DEPTH_2pt5_INFO = "The depth to where shear-wave velocity = 2.5 km/sec"<br>
+ * DEPTH_2pt5_DEFAULT - <i>see code</i><br>
+ * DEPTH_2pt5_MIN = - <i>see code</i><br>
+ * DEPTH_2pt5_MAX = - <i>see code</i><p>
  *
  * <b>stdDevTypeParam</b> - A StringParameter representing the various <b>types of standard
  * deviations</b> that an IMR might support; "Total" is the most common (see description
@@ -319,6 +357,20 @@ public abstract class AttenuationRelationship
     protected final static Double DIP_MIN = new Double(0);
     protected final static Double DIP_MAX = new Double(90);
 
+    /**
+     * rupTopDepth parameter - Depth to top of rupture.  This is created in the
+     * initEqkRuptureParams method.
+     */
+    protected DoubleParameter rupTopDepthParam = null;
+    public final static String RUP_TOP_NAME = "Rupture Top Depth";
+    public final static String RUP_TOP_UNITS = "km";
+    public final static String RUP_TOP_INFO =
+        "Depth to the top of the earthquake rupture";
+    public final static Double RUP_TOP_DEFAULT = new Double(0);
+    protected final static Double RUP_TOP_MIN = new Double(0);
+    protected final static Double RUP_TOP_MAX = new Double(Double.MAX_VALUE);
+
+
 
     /**
      * Component Parameter, reserved for representing the component of shaking
@@ -350,6 +402,22 @@ public abstract class AttenuationRelationship
     public final static Double VS30_DEFAULT = new Double( "760" );
     protected final static Double VS30_MIN = new Double(0.0);
     protected final static Double VS30_MAX = new Double(5000.0);
+    // warning values set in subclasses
+
+
+    /**
+     * Depth 2.5 km/sec Parameter, reserved for representing the depth to where
+     * shear-wave velocity = 2.5 km/sec ("Z2.5 (m)" in PEER's 2005 NGA flat file);
+     * This parameter is created in the initSiteParams() method here, but the
+     * warning constraint must be created and added in subclasses.
+     */
+    protected WarningDoubleParameter depthTo2pt5kmPerSecParam = null;
+    public final static String DEPTH_2pt5_NAME = "Depth 2.5 km/sec";
+    public final static String DEPTH_2pt5_UNITS = "m";
+    public final static String DEPTH_2pt5_INFO = "The depth to where shear-wave velocity = 2.5 km/sec";
+    public final static Double DEPTH_2pt5_DEFAULT = new Double( "0.0" );
+    protected final static Double DEPTH_2pt5_MIN = new Double(0.0);
+    protected final static Double DEPTH_2pt5_MAX = new Double(30000.0);
     // warning values set in subclasses
 
 
@@ -863,6 +931,12 @@ public abstract class AttenuationRelationship
         vs30Param = new WarningDoubleParameter( VS30_NAME, vs30Constraint, VS30_UNITS);
         vs30Param.setInfo( VS30_INFO );
 
+        // create the depth to 2.5 shear-wave velocity parameter
+        DoubleConstraint c = new DoubleConstraint(DEPTH_2pt5_MIN,DEPTH_2pt5_MAX);
+        c.setNonEditable();
+        depthTo2pt5kmPerSecParam = new WarningDoubleParameter(DEPTH_2pt5_NAME, c,DEPTH_2pt5_UNITS);;
+        depthTo2pt5kmPerSecParam.setInfo(DEPTH_2pt5_INFO);
+
     }
 
     /**
@@ -893,6 +967,14 @@ public abstract class AttenuationRelationship
         rakeConstraint.setNonEditable();
         rakeParam = new DoubleParameter( RAKE_NAME, rakeConstraint);
         rakeParam.setInfo( RAKE_INFO );
+
+        // create RupTopDepthParam
+        DoubleConstraint c = new DoubleConstraint(RUP_TOP_MIN, RUP_TOP_MAX);
+        rupTopDepthParam = new DoubleParameter(this.RUP_TOP_NAME, c,
+                                               this.RUP_TOP_UNITS);
+        rupTopDepthParam.setInfo(RUP_TOP_INFO);
+
+
 
    }
 
