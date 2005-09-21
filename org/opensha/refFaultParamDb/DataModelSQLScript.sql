@@ -536,6 +536,7 @@ insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'B
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Trench', 'Trench Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Geologic', 'Geologic Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Survey/Cultural', 'Survey/Cultural Site Type');
+insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Unknown', 'Unknown Site Type');
 
 commit;
 

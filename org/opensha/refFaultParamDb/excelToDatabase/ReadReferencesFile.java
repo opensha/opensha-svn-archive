@@ -19,7 +19,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 public class ReadReferencesFile {
   private final static String FILENAME = "org\\opensha\\refFaultParamDb\\References.txt";
-  ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   public ReadReferencesFile() {
     try {
       ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
