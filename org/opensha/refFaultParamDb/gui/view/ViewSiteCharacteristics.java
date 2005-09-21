@@ -291,7 +291,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   * @param paleoSite
   */
   private void setSiteInfo(String siteName)  {
-    int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE
     String siteType, siteRepresentation, faultName, references;
     Location location;
     if(siteName.equalsIgnoreCase(this.TEST_SITE)) { // test site
@@ -302,6 +301,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
       references = "Ref 1";
     }
     else { // paleo site information from the database
+      int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE
       PaleoSiteSummary paleoSiteSummary = (PaleoSiteSummary)this.paleoSiteSummaryList.get(index);
       paleoSite = this.paleoSiteDAO.getPaleoSite(paleoSiteSummary.getSiteId());
       faultName = paleoSite.getFaultName();

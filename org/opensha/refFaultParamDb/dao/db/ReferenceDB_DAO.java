@@ -129,7 +129,7 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   }
 
   /**
-   * Get a list of all the references
+   * Get a list of all the references ordered by short citation
    *
    * @return
    * @throws QueryException
@@ -141,7 +141,8 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();
     String sql = "select "+REFERENCE_ID+","+SHORT_CITATION+","+
-        this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+" "+condition;
+        this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+" "+condition+
+        " order by "+this.SHORT_CITATION;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
       while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID),
