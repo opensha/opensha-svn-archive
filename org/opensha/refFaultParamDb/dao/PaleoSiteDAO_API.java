@@ -28,7 +28,7 @@ public interface PaleoSiteDAO_API {
   * @param paleoSiteId
   * @return
   */
- public ArrayList getPaleoSite(int paleoSiteId) throws QueryException;
+ public PaleoSite getPaleoSite(int paleoSiteId) throws QueryException;
 
 
  /**
@@ -43,5 +43,17 @@ public interface PaleoSiteDAO_API {
   * @return ArrayList containing list of PaleoSite objects
   */
  public ArrayList getAllPaleoSites() throws QueryException;
+
+ /**
+  * It returns a list of PaleoSiteSummary objects. Each such object has a name
+  * and id. If there is no name corresponding to paleo site in the database,
+  * then this function gets the references for the paleo site and sets it as the name
+  * which can then be used subsequently.
+  *
+  * @return
+  * @throws QueryException
+  */
+ public ArrayList getAllPaleoSiteNames() throws QueryException;
+
 
 }

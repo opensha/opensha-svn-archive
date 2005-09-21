@@ -315,7 +315,7 @@ CREATE TABLE Paleo_Site (
   Entry_Comments VARCHAR(255) NOT NULL,
   Contributor_Id INTEGER NOT NULL,
   Site_Type_Id INTEGER NOT NULL,
-  Site_Name VARCHAR(255) NOT NULL,
+  Site_Name VARCHAR(255) NULL,
   Site_Lat1 FLOAT NOT NULL,
   Site_Lon1 FLOAT NOT NULL,
   Site_Elevation1 FLOAT NULL,

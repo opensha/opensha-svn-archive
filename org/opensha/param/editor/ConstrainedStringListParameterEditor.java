@@ -220,6 +220,7 @@ public class ConstrainedStringListParameterEditor
         if(index>=0) selectedIndices[i] = index;
         else new ConstraintException (selectItemsList.get(i).toString()+" is not allowed");
       }
+      ((JList)valueEditor).setSelectedIndices(selectedIndices);
     }
 
 

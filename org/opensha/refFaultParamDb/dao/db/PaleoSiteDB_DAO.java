@@ -10,6 +10,7 @@ import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.*;
 import java.sql.Date;
+import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -24,7 +25,7 @@ import java.sql.Date;
 public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private final static String SEQUENCE_NAME = "Paleo_Site_Sequence";
   private final static String TABLE_NAME="Paleo_Site";
-  private final static String REFERNCES_TABLE_NAME = "Paleo_Site_References";
+  private final static String REFERENCES_TABLE_NAME = "Paleo_Site_References";
   private final static String SITE_ID="Site_Id";
   private final static String FAULT_ID="Fault_Id";
   private final static String ENTRY_DATE="Entry_Date";
@@ -86,7 +87,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
     try {
       if(paleoSiteId<=0)
         paleoSiteId = dbAccess.getNextSequenceNumber(SEQUENCE_NAME);
-      systemDate = dbAccess.getSystemDate();
+        systemDate = dbAccess.getSystemDate();
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
@@ -114,7 +115,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
       ArrayList shortCitationList = paleoSite.getReferenceShortCitationList();
       for(int i=0; i<shortCitationList.size(); ++i) {
         int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
-        sql = "insert into "+this.REFERNCES_TABLE_NAME+"("+SITE_ID+","+
+        sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+SITE_ID+","+
             CONTRIBUTOR_ID+","+ENTRY_DATE+","+REFERENCE_ID+") "+
             "values ("+paleoSiteId+","+paleoSite.getSiteContributor().getId()+",'"+
             systemDate+"',"+referenceId+")";
@@ -134,10 +135,39 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
    * @return
    * @throws QueryException
    */
-  public ArrayList getPaleoSite(int paleoSiteId) throws QueryException {
+  public PaleoSite getPaleoSite(int paleoSiteId) throws QueryException {
     String condition = " where "+SITE_ID+"="+paleoSiteId;
-    return query(condition);
+    ArrayList paleoSiteList = query(condition);
+    PaleoSite paleoSite = null;
+    if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
+    return paleoSite;
   }
+
+  /**
+  * It returns a list of PaleoSiteSummary objects. Each such object has a name
+  * and id. If there is no name corresponding to paleo site in the database,
+  * then this function gets the references for the paleo site and sets it as the name
+  * which can then be used subsequently.
+  *
+  * @return
+  * @throws QueryException
+  */
+ public ArrayList getAllPaleoSiteNames() throws QueryException {
+   ArrayList paleoSiteSummaryList = new ArrayList();
+   String sql =  "select "+SITE_ID+","+SITE_NAME+" from "+TABLE_NAME+" order by "+this.SITE_NAME;
+   try {
+     ResultSet rs  = dbAccess.queryData(sql);
+     while(rs.next())  {
+       PaleoSiteSummary paleoSiteSummary = new PaleoSiteSummary();
+       paleoSiteSummary.setSiteId(rs.getInt(SITE_ID));
+       paleoSiteSummary.setSiteName(rs.getString(SITE_NAME));
+       paleoSiteSummaryList.add(paleoSiteSummary);
+     }
+     rs.close();
+   } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+   return paleoSiteSummaryList;
+ }
+
 
   /**
    * remove a paleo site from the database
@@ -199,7 +229,7 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
         // get all the refernces for this site
         ArrayList referenceList = new ArrayList();
-        sql = "select "+REFERENCE_ID+" from "+this.REFERNCES_TABLE_NAME+
+        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
             " where "+SITE_ID+"="+paleoSite.getSiteId()+" and "+
             CONTRIBUTOR_ID+"="+rs.getInt(CONTRIBUTOR_ID)+" and "+
             ENTRY_DATE+"='"+rs.getDate(ENTRY_DATE)+"'";

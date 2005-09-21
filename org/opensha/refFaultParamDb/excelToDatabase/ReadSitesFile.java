@@ -25,6 +25,7 @@ public class ReadSitesFile {
   private final static String STRAND_DEFAULT = "Unknown";
   private final static String SITE_TYPE_DAFULT = "Unknown";
   private final static float  SITE_ELEVATION_DEFAULT = 0.0f;
+  private final static String NONAME_SITENAME="no name";
   public ReadSitesFile() {
     try {
      ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
@@ -40,6 +41,8 @@ public class ReadSitesFile {
        tokenizer = new StringTokenizer(line,"|");
        paleoSite.setOldSiteId(tokenizer.nextToken().trim());
        paleoSite.setSiteName(tokenizer.nextToken().trim());
+       if(paleoSite.getSiteName().equalsIgnoreCase(NONAME_SITENAME))
+         paleoSite.setSiteName(" ");
        paleoSite.setFaultName(tokenizer.nextToken().trim());
        String references = tokenizer.nextToken().trim();
        paleoSite.setSiteLon1(Float.parseFloat(tokenizer.nextToken().trim()));

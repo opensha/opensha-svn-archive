@@ -45,7 +45,7 @@ public class FaultDB_DAO implements FaultDAO_API {
       Map.Entry entry = (Map.Entry)it.next();
       int id= ((Integer)entry.getValue()).intValue();
       if(id==faultId)
-        return new Fault(faultId, (String)entry.getValue());
+        return new Fault(faultId, (String)entry.getKey());
     }
     return null;
   }
