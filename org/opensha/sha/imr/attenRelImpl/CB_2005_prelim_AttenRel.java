@@ -62,33 +62,39 @@ public class CB_2005_prelim_AttenRel
   private static double[] C1_PEN = { -0.052, -0.400, -0.550};
   private static double[] C2_EPRI = { -0.439, -0.650, -0.622};
   private static double[] C2_PEN = { -0.378, -0.575, -0.586};
-  private static double[] C3_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C3_PEN = { 1.481, -0.112, -3.109};
-  private static double[] C4_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C4_PEN = { 1.481, -0.112, -3.109};
-  private static double[] C5_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C5_PEN = { 1.481, -0.112, -3.109};
-  private static double[] C6_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C6_PEN = { 1.481, -0.112, -3.109};
-  private static double[] C7_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C7_PEN = { 1.481, -0.112, -3.109};
-  private static double[] C8_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C8_PEN = { 1.481, -0.112, -3.109};
-  private static double[] tau_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] tau_PEN = { 1.481, -0.112, -3.109};
-  private static double[] sigma_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] sigma_PEN = { 1.481, -0.112, -3.109};
+  private static double[] C2_PRIME_EPRI = { -0.385, -0.650, -0.622};
+  private static double[] C2_PRIME_PEN = { -0.353, -0.575, -0.586};
 
-
-
-  // fill in rest
-
-
-
-
-
-
-
+  private static double[] C3_EPRI = { -2.570, -2.050, -2.246};
+  private static double[] C3_PEN = { -2.480, -1.914, -2.199};
+  private static double[] C4_EPRI = { 0.224, 0.123, 0.212};
+  private static double[] C4_PEN = { 0.218, 0.117, 0.207};
+  private static double[] C5_EPRI = {6.07,8.57,3.17};
+  private static double[] C5_PEN = { 6.41,9.48,3.21};
+  private static double[] C6_EPRI = {0.419,0.368,0.355};
+  private static double[] C6_PEN = { 0.409,0.333,0.359};
+  private static double[] C7_EPRI = { -0.107,-0.035,-0.150};
+  private static double[] C7_PEN = { -0.088,-0.007,-0.142};
+  private static double[] C8_EPRI = { 0.742,0.798,0.828};
+  private static double[] C8_PEN = { 0.687,0.668,0.825};
+  private static double[] C9_EPRI = { 0.988,1.305,1.429};
+  private static double[] C9_PEN = { 1.034,2.155,1.579};
+  private static double[] C10_EPRI = {0.046,0.071,0.146};
+  private static double[] C10_PEN = { 0.029,0.047,0.137};
+  private static double[] k1_EPRI = { 1035,1229,444};
+  private static double[] k1_PEN = { 865,748,401};
+  private static double[] k2_EPRI = {-1.140,-1.479,-1.700};
+  private static double[] k2_PEN = {-1.186,-2.188,-1.955};
+  private static double[] k3_EPRI = {1.346,1.312,1.179};
+  private static double[] k3_PEN = { 1.346,1.312,1.179};
+  private static double[] k4_EPRI = { 1.838,1.856,1.929};
+  private static double[] k4_PEN = { 1.838,1.856,1.929};
+  private static double[] sigma_EPRI = {0.475,0.524,0.568};
+  private static double[] sigma_PEN = { 0.473,0.522,0.568};
+  private static double[] tau_EPRI = {0.269,0.341,0.353};
+  private static double[] tau_PEN = { 0.250,0.310,0.352};
+  private static double[] sigma_ln_EPRI = {0.546,0.625,0.669};
+  private static double[] sigma_ln_PEN = { 0.535,0.607,0.668};
 
 
   private HashMap indexFromPerHashMap;
@@ -190,7 +196,6 @@ public class CB_2005_prelim_AttenRel
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     rakeParam.setValue(eqkRupture.getAveRake());
         GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
-    dipParam.setValue(surface.getAveDip());
     double depth = surface.getLocation(0,0).getDepth();
     rupTopDepthParam.setValue(depth);
 
@@ -213,6 +218,7 @@ public class CB_2005_prelim_AttenRel
   public void setSite(Site site) throws ParameterException {
 
     vs30Param.setValue(site.getParameter(this.VS30_NAME).getValue());
+    depthTo2pt5kmPerSecParam.setValue(site.getParameter(this.DEPTH_2pt5_NAME).getValue());
     this.site = site;
     setPropagationEffectParams();
 
@@ -274,8 +280,8 @@ public class CB_2005_prelim_AttenRel
     }
 
     if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI))
-      return getMean_EPRI(iper, vs30, rjb, distRupJB_Fraction, rake, mag,
-                          depthTop, depthTo2pt5kmPerSec, stdDevType, magSaturation);
+      return getMean_EPRI(iper, vs30, rRup, distRupJB_Fraction, rake, mag,
+                          depthTop, depthTo2pt5kmPerSec, magSaturation);
     else
       return Double.NaN;  // FINISH THIS
   }
@@ -305,7 +311,7 @@ public class CB_2005_prelim_AttenRel
     vs30Param.setValue(VS30_DEFAULT);
     magParam.setValue(MAG_DEFAULT);
     rakeParam.setValue(RAKE_DEFAULT);
-    dipParam.setValue(DIP_DEFAULT);
+
     nonLinearAmpModelParam.setValue(this.NONLIN_MODEL_TYPE_DEFAULT);
     rupTopDepthParam.setValue(RUP_TOP_DEFAULT);
     distanceRupParam.setValue(DISTANCE_RUP_DEFAULT);
@@ -320,7 +326,7 @@ public class CB_2005_prelim_AttenRel
     depthTo2pt5kmPerSecParam.setValue(this.DEPTH_2pt5_DEFAULT);
 
     vs30 = ((Double)vs30Param.getValue()).doubleValue();
-    rjb = ((Double)distRupMinusJB_OverRupParam.getValue()).doubleValue();
+    distRupJB_Fraction = ((Double)distRupMinusJB_OverRupParam.getValue()).doubleValue();
     rRup = ((Double)distanceRupParam.getValue()).doubleValue();
     nonLinearAmpModel = (String)nonLinearAmpModelParam.getValue();
     rake = ((Double)rakeParam.getValue()).doubleValue();
@@ -557,7 +563,7 @@ public class CB_2005_prelim_AttenRel
   public double getMean_EPRI(int iper, double vs30, double rRup,
                              double distRupJB_Fraction,
                              double rake, double mag, double depthTop,
-                             double depthTo2pt5kmPerSec, String stdDevType,
+                             double depthTo2pt5kmPerSec,
                              boolean magSaturation) {
 
     double c = 1.38;
@@ -647,7 +653,6 @@ public class CB_2005_prelim_AttenRel
     depthTo2pt5kmPerSecParam.addParameterChangeListener(this);
     magParam.addParameterChangeListener(this);
     rakeParam.addParameterChangeListener(this);
-    dipParam.addParameterChangeListener(this);
     nonLinearAmpModelParam.addParameterChangeListener(this);
     rupTopDepthParam.addParameterChangeListener(this);
     magSaturationParam.addParameterChangeListener(this);
