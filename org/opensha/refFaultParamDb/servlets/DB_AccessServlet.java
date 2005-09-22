@@ -18,6 +18,7 @@ import com.sun.rowset.CachedRowSetImpl;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
+import java.util.Enumeration;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -34,13 +35,14 @@ public class DB_AccessServlet extends HttpServlet{
   private int minConns, maxConns;
   private double maxConnTime;
   private final static String CONNECT_FAILURE_MSG = "Connection to the database server failed.\nCheck username/password or try again later";
-  private final static String propFilename = "/opt/install/jakarta-tomcat-4.1.24/webapps/UCERF/WEB-INF/DbConnection_Prop.dat";
+  private final static String PROP_NAME = "DbConnectionPropertiesFileName";
 
   public void init() throws ServletException {
-
-    Properties p = new Properties();
     try {
-      p.load(new FileInputStream(propFilename));
+      Properties p = new Properties();
+      String fileName = getInitParameter(PROP_NAME);
+      System.out.println("DBPropsfilename="+fileName);
+      p.load(new FileInputStream(fileName));
       dbDriver = (String) p.get("dbDriver");
       dbServer = (String) p.get("dbServer");
       minConns = Integer.parseInt( (String) p.get("minConns"));
@@ -48,10 +50,11 @@ public class DB_AccessServlet extends HttpServlet{
       logFileString = (String) p.get("logFileString");
       maxConnTime =
           (new Double( (String) p.get("maxConnTime"))).doubleValue();
+      System.out.println(dbDriver+","+dbServer+","+minConns+","+maxConns+","+logFileString);
     }
     catch (FileNotFoundException f) {f.printStackTrace();}
     catch (IOException e) {e.printStackTrace();}
-  }
+}
 
 /**
    *

@@ -31,8 +31,8 @@ public class ReadSitesFile {
      ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
      String line;
      StringTokenizer tokenizer;
-     SessionInfo.setUserName("fault_sandbox");
-     SessionInfo.setPassword("perry");
+     SessionInfo.setUserName("");
+     SessionInfo.setPassword("");
      SessionInfo.setContributorInfo();
      for (int i = 0; i < referencesList.size(); ++i) {
        line = (String)referencesList.get(i);
