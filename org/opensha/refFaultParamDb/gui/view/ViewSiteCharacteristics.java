@@ -58,6 +58,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   // input parameters declaration
   private StringParameter siteNameParam;
   public final static String TEST_SITE = "A Sample Site";
+  private final static String MSG_TEST_SITE_NOT_EDITABLE = "Sample site is non-editable";
 
 
   // input parameter editors
@@ -248,8 +249,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
  public void actionPerformed(ActionEvent event) {
    // if it is "Add New Site" request, pop up another window to fill the new site type
    Object source = event.getSource();
-    if(source==this.editSiteButton) // edit the paleo site
-       new AddEditSiteCharacteristics(true, this.paleoSite);
+    if(source==this.editSiteButton) {// edit the paleo site
+      if(paleoSite!=null)
+        new AddEditSiteCharacteristics(true, this.paleoSite);
+      else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
+    }
     else if(source == this.addInfoButton) {
      try {
        new AddSiteInfo(this.slipRateCheckBox.isSelected(),
@@ -299,6 +303,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
       faultName = "Fault1";
       location = new Location(34.00, -116, 0);
       references = "Ref 1";
+      paleoSite=null;
     }
     else { // paleo site information from the database
       int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE

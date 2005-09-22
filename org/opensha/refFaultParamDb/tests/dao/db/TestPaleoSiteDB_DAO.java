@@ -64,7 +64,6 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     // paleo site 1
     PaleoSite paleoSite = new PaleoSite();
     paleoSite.setSiteId(1);
-    paleoSite.setSiteContributor(contributor1);
     paleoSite.setSiteTypeName(siteType1.getSiteType());
     paleoSite.setSiteName("Test1");
     paleoSite.setSiteLat1(32.1f);
@@ -79,13 +78,11 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     try {
       paleoSite.setSiteId(2);
       Contributor contributor2 = new Contributor(2,"Test1");
-      paleoSite.setSiteContributor(contributor2);
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
       fail("should not insert this paleosite as contributor id 2 does not exist in contributor table");
     }catch(InsertException e) {}
 
     try {
-      paleoSite.setSiteContributor(contributor1);
       SiteType siteType2 = new SiteType(2,"paleosite",contributor1,"TestComments1");
       paleoSite.setSiteTypeName(siteType2.getSiteType());
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
@@ -93,7 +90,6 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     }catch(InsertException e) {}
 
     paleoSite.setSiteId(3);
-    paleoSite.setSiteContributor(contributor1);
     paleoSite.setSiteTypeName(siteType3.getSiteType());
     paleoSiteDB_DAO.addPaleoSite(paleoSite);
   }
@@ -111,7 +107,6 @@ public class TestPaleoSiteDB_DAO extends TestCase {
 
     //paleoSite.setEffectiveDate(new java.util.Date());
     assertEquals(1, actualReturn.getSiteId());
-    assertEquals(contributorKey1, actualReturn.getSiteContributor().getId());
     assertEquals("geologic", actualReturn.getSiteTypeName());
     assertEquals("Test1",actualReturn.getSiteName());
     assertEquals(32.1,actualReturn.getSiteLat1(),.0001);

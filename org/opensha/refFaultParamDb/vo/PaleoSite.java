@@ -14,8 +14,6 @@ import java.util.ArrayList;
 public class PaleoSite {
   private int siteId=-1;
   private String faultName;
-  private Date entryDate;
-  private Contributor siteContributor;
   private String siteTypeName;
   private String siteName;
   private float siteLat1;
@@ -43,8 +41,6 @@ public class PaleoSite {
     this.referenceShortCitationList = shortCitationList;
   }
 
-  public Contributor getSiteContributor() { return this.siteContributor; }
-  public void setSiteContributor(Contributor siteContributor) { this.siteContributor = siteContributor; }
 
   public void setSiteTypeName(String siteTypeName) { this.siteTypeName = siteTypeName; }
   public String getSiteTypeName() { return this.siteTypeName; }
@@ -98,12 +94,6 @@ public class PaleoSite {
   }
   public void setEntryComments(String entryComments) {
     this.entryComments = entryComments;
-  }
-  public Date getEntryDate() {
-    return entryDate;
-  }
-  public void setEntryDate(Date entryDate) {
-    this.entryDate = entryDate;
   }
   public String getFaultName() {
     return this.faultName;

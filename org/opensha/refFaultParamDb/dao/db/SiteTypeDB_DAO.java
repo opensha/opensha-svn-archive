@@ -22,7 +22,7 @@ public class SiteTypeDB_DAO implements SiteTypeDAO_API {
   private final static String TABLE_NAME="Site_Type";
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
-  private final static String SITE_TYPE_NAME="Site_Type";
+  public final static String SITE_TYPE_NAME="Site_Type";
   private final static String COMMENTS = "General_Comments";
   private DB_AccessAPI dbAccessAPI;
 

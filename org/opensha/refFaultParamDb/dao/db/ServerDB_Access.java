@@ -96,11 +96,23 @@ public class ServerDB_Access
     * @return
     * @throws java.sql.SQLException
     */
-   public Date getSystemDate() throws java.sql.SQLException {
-     String sql = "select sysdate from dual";
+   public String getSystemDate() throws java.sql.SQLException {
+     /*String sql = "select to_char(sysdate,'YYYY-MM-DD HH24:MI:SS') from dual";
      ResultSet result = queryData(sql);
      result.next();
-     return result.getDate(1);
+     return Timestamp.valueOf(result.getString(1));*/
+
+    String sql = "select to_char(sysdate) from dual";
+    ResultSet result = queryData(sql);
+    result.next();
+    return result.getString(1);
+
+
+    /*String sql = "select current_timestamp from dual";
+     ResultSet result = queryData(sql);
+     result.next();
+     return result.getTimestamp(1);*/
+
    }
 
 

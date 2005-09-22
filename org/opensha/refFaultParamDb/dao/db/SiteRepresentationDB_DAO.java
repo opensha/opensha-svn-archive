@@ -20,7 +20,7 @@ public class SiteRepresentationDB_DAO implements SiteRepresentationDAO_API {
 
   private final static String TABLE_NAME="Site_Representations";
   private final static String SITE_REPRESENTATION_ID="Site_Representation_Id";
-  private final static String SITE_REPRESENTATION_NAME="Site_Representation_Name";
+  public final static String SITE_REPRESENTATION_NAME="Site_Representation_Name";
   private DB_AccessAPI dbAccessAPI;
 
 

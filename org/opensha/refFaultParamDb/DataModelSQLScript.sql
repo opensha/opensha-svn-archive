@@ -1,3 +1,4 @@
+drop View Vw_Paleo_Site_Chars;
 drop table Event_Sequence_Event_List;
 drop table Event_Sequence_References;
 drop table Event_Sequence;
@@ -325,11 +326,13 @@ CREATE TABLE Paleo_Site (
   Representative_Strand_Index INTEGER NOT NULL,
   General_Comments VARCHAR(255) NULL,
   Old_Site_Id VARCHAR(20) NULL,
-  PRIMARY KEY(Site_Id, Entry_Date, Contributor_Id),
+  PRIMARY KEY(Site_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Site_Type_Id)
-     REFERENCES Site_Type(Site_Type_Id)
+     REFERENCES Site_Type(Site_Type_Id),
+  FOREIGN KEY(Representative_Strand_Index)
+     REFERENCES Site_Representations(Site_Representation_Id)
 );
 
 
@@ -352,13 +355,12 @@ end;
 CREATE TABLE Paleo_Site_References (
   Site_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
   Reference_Id INTEGER  NOT NULL,
-  PRIMARY KEY(Site_Id, Entry_Date, Contributor_Id, Reference_Id),
+  PRIMARY KEY(Site_Id, Entry_Date,Reference_Id),
   FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id),
-  FOREIGN KEY(Site_Id, Entry_Date, Contributor_Id) 
-     REFERENCES Paleo_Site(Site_Id, Entry_Date, Contributor_Id)
+  FOREIGN KEY(Site_Id, Entry_Date) 
+     REFERENCES Paleo_Site(Site_Id, Entry_Date)
 );
   
   
@@ -366,8 +368,7 @@ CREATE TABLE Paleo_Site_References (
 
 CREATE TABLE Combined_Events_Info (
   Info_Id INTEGER  NOT NULL,
-  Site_Id INTEGER  NOT NULL,
-  Site_Contributor_Id INTEGER  NOT NULL,  
+  Site_Id INTEGER  NOT NULL, 
   Site_Entry_Date date NOT NULL,  
   Entry_Date date NOT NULL,
   Entry_Comments VARCHAR(255) NOT NULL,
@@ -381,9 +382,9 @@ CREATE TABLE Combined_Events_Info (
   Info_Name VARCHAR(255) NOT NULL,
   General_Comments VARCHAR(255) NULL,
   Dated_Feature_Comments VARCHAR(255) NULL,
-  PRIMARY KEY(Info_Id, Entry_Date, Contributor_Id),
-  FOREIGN KEY (Site_Id, Site_Contributor_Id, Site_Entry_Date) 
-    REFERENCES Paleo_Site(Site_Id, Contributor_Id, Entry_Date),
+  PRIMARY KEY(Info_Id, Entry_Date),
+  FOREIGN KEY (Site_Id, Site_Entry_Date) 
+    REFERENCES Paleo_Site(Site_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Start_Time_Est_Id)
@@ -403,12 +404,11 @@ CREATE TABLE Combined_Events_Info (
 
 CREATE TABLE Combined_Events_References (
  combined_Events_Id INTEGER  NOT NULL,
- combined_Events_Contributor_Id INTEGER  NOT NULL,
  combined_Events_Entry_Date date NOT NULL,
  Reference_Id INTEGER  NOT NULL,
- PRIMARY KEY (combined_Events_Id, combined_Events_Contributor_Id, combined_Events_Entry_Date, Reference_Id),
- FOREIGN KEY (combined_Events_Id, combined_Events_Contributor_Id, combined_Events_Entry_Date)
-   REFERENCES Combined_Events_Info(Info_Id, Contributor_Id, Entry_Date),
+ PRIMARY KEY (combined_Events_Id, combined_Events_Entry_Date, Reference_Id),
+ FOREIGN KEY (combined_Events_Id,  combined_Events_Entry_Date)
+   REFERENCES Combined_Events_Info(Info_Id,  Entry_Date),
  FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id)
 );
@@ -418,8 +418,7 @@ CREATE TABLE Combined_Events_References (
 
 CREATE TABLE Paleo_Event (
   Event_Id INTEGER NOT NULL ,
-  Site_Id INTEGER  NOT NULL,
-  Site_Contributor_Id INTEGER  NOT NULL,  
+  Site_Id INTEGER  NOT NULL,  
   Site_Entry_Date date NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
   Event_Date_Est_Id INTEGER  NOT NULL,
@@ -435,8 +434,8 @@ CREATE TABLE Paleo_Event (
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY(Displacement_Est_Id)
      REFERENCES Est_Instances(Est_Id),
-  FOREIGN KEY (Site_Id, Site_Contributor_Id, Site_Entry_Date) 
-    REFERENCES Paleo_Site(Site_Id, Contributor_Id, Entry_Date)
+  FOREIGN KEY (Site_Id, Site_Entry_Date) 
+    REFERENCES Paleo_Site(Site_Id, Entry_Date)
 );
 
 
@@ -457,8 +456,7 @@ CREATE TABLE Paleo_Event_References (
 
 CREATE TABLE Event_Sequence (
   Sequence_Id INTEGER NOT NULL,
-  Site_Id INTEGER  NOT NULL,
-  Site_Contributor_Id INTEGER  NOT NULL,  
+  Site_Id INTEGER  NOT NULL,  
   Site_Entry_Date date NOT NULL,
   Contributor_Id INTEGER NOT NULL,
   Start_Time_Est_Id INTEGER NOT NULL,
@@ -474,8 +472,8 @@ CREATE TABLE Event_Sequence (
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY(End_Time_Est_Id)
      REFERENCES Est_Instances(Est_Id),
-  FOREIGN KEY (Site_Id, Site_Contributor_Id, Site_Entry_Date) 
-    REFERENCES Paleo_Site(Site_Id, Contributor_Id, Entry_Date)
+  FOREIGN KEY (Site_Id,  Site_Entry_Date) 
+    REFERENCES Paleo_Site(Site_Id,  Entry_Date)
 );
 
 CREATE TABLE Event_Sequence_References (
@@ -537,6 +535,25 @@ insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'T
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Geologic', 'Geologic Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Survey/Cultural', 'Survey/Cultural Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Unknown', 'Unknown Site Type');
+
+
+create VIEW Vw_Paleo_Site_Chars AS
+select ps.Site_Id as Site_Id,
+       ps.Fault_Id as Fault_Id, 
+       ps.Entry_Date as Entry_Date,
+       ps.Entry_Comments as Entry_Comments,
+       st.Site_Type Site_Type,
+       ps.Site_Name as Site_Name,
+       ps.Site_Lat1 as Site_Lat1,
+       ps.Site_Lon1 as Site_Lon1,
+       ps.Site_Elevation1 as Site_Elevation1,
+       ps.Site_Lat2 as Site_Lat2,
+       ps.Site_Lon2 as Site_Lon2,
+       ps.Site_Elevation2 as Site_Elevation2, 
+       sr.Site_Representation_Name as Site_Representation_Name,
+       ps.General_Comments as General_comments,
+       ps.Old_Site_Id as Old_site_Id 
+FROM  Paleo_Site ps, Site_Type st, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Site_type_id=st.site_type_id and ps.Representative_Strand_Index=sr.Site_Representation_Id;
 
 commit;
 

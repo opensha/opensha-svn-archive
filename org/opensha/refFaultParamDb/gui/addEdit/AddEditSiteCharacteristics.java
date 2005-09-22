@@ -218,7 +218,6 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     }
     paleoSite.setReferenceShortCitationList((ArrayList)this.siteReferenceParam.getValue());
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
-    paleoSite.setSiteContributor(SessionInfo.getContributor());
     paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
 
     // location 1

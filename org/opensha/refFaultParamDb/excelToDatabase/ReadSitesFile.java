@@ -31,8 +31,8 @@ public class ReadSitesFile {
      ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
      String line;
      StringTokenizer tokenizer;
-     SessionInfo.setUserName("");
-     SessionInfo.setPassword("");
+     SessionInfo.setUserName("fault_sandbox");
+     SessionInfo.setPassword("perry");
      SessionInfo.setContributorInfo();
      for (int i = 0; i < referencesList.size(); ++i) {
        line = (String)referencesList.get(i);
@@ -62,7 +62,6 @@ public class ReadSitesFile {
        StringTokenizer referencesTokenizer = new StringTokenizer(references,";");
        while(referencesTokenizer.hasMoreTokens()) referenceList.add(referencesTokenizer.nextToken().trim());
        paleoSite.setReferenceShortCitationList(referenceList);
-       paleoSite.setSiteContributor(SessionInfo.getContributor());
        /*for(int j=0; j< referenceList.size(); ++j) {
          String rf = (String)referenceList.get(j);
          Reference ref = referenceDAO.getReference(rf);
