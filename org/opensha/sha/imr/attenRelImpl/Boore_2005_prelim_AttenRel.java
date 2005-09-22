@@ -77,7 +77,7 @@ public class Boore_2005_prelim_AttenRel
   double[] sig2 = { 0.26, 0.253, 0.311, 0.235, 0.311, 0.433, -999 };
   //double[] sigt = { 0.555, 0.553, 0.608, 0.573, 0.649, 0.709, 0.241 };
 
-
+  private static final double MAX_MAG = 8.5;
   private HashMap indexFromPerHashMap;
 
   private int iper;
@@ -221,8 +221,12 @@ public class Boore_2005_prelim_AttenRel
     if (rjb > USER_MAX_DISTANCE) {
       return VERY_SMALL_MEAN;
     }
-
-    return getMean(iper, vs30, rjb, mag);
+    if(parameterChange){
+      // remember that pga4nl term uses coeff index 6
+      double pga4nl = getMean(6,vs30,rjb,mag,0.0);
+      return getMean(iper, vs30, rjb, mag,pga4nl);
+    }
+    return 0;
   }
 
 
@@ -446,12 +450,34 @@ public class Boore_2005_prelim_AttenRel
 
 
 
-  public double getMean(int iper, double vs30, double rjb, double mag) {
-
+  public double getMean(int iper, double vs30, double rjb, double mag, double pga4nl) {
 
     // remember that pga4ln term uses coeff index 6
+    double Fm,Fd,Fs;
+    if(mag <= MAX_MAG)
+      Fm=e01[iper] + e02[iper]*(mag - MAX_MAG) + e03[iper]*Math.pow((mag - MAX_MAG),2);
+    else
+      Fm = e01[iper] + e04[iper]*(mag - MAX_MAG);
 
-    return Double.NaN;
+    double r = Math.sqrt(rjb*rjb+h[iper]*h[iper]);
+    Fd = c01[iper]*Math.log(r/rref[iper]) + c02[iper]*(mag-mref[iper])
+        * Math.log(r/rref[iper]) + c03[iper]*(r - rref[iper]);
+
+    double bnl=0;
+    if(vs30 <= v1[iper])
+      bnl = b1[iper];
+    else if(vs30 <= v2[iper] && vs30 >v1[iper])
+      bnl = (b1[iper]-b2[iper])*Math.log(vs30/v2[iper])/Math.log(v1[iper]/v2[iper]) + b2[iper];
+    else if(vs30 <= vref[iper] && vs30 > v2[iper])
+      bnl = b2[iper]*Math.log(vs30/vref[iper])/Math.log(v2[iper]/vref[iper]);
+    else if(vs30 > vref[iper])
+      bnl = 0.0;
+
+    if(pga4nl <= 0.06)
+      Fs = blin[iper]*Math.log(vs30/vref[iper]) + bnl*Math.log(0.06/0.1);
+    else
+      Fs = blin[iper]*Math.log(vs30/vref[iper]) + bnl*Math.log(pga4nl/0.1) ;
+    return (Fm + Fd +Fs);
   }
 
 

@@ -230,11 +230,12 @@ public class CY_2005_prelim_AttenRel
     if (rRup > USER_MAX_DISTANCE) {
       return VERY_SMALL_MEAN;
     }
-
-    return getMean(iper, vs30, rRup, distRupJB_Fraction, dip, rake, mag,
-                          depthTop);
+    if(parameterChange){
+      return getMean(iper, vs30, rRup, distRupJB_Fraction, dip, rake, mag,
+                     depthTop);
+    }
+   return 0;
   }
-
 
 
 
@@ -473,10 +474,8 @@ public class CY_2005_prelim_AttenRel
 
 
 
-
-  public double getMean(int iper, double vs30, double rRup, double distRupJB_Fraction,
-                        double dip, double rake, double mag, double depthTop) {
-
+  private double getYref(int iper, double vs30, double rRup, double distRupJB_Fraction,
+                         double dip, double rake, double mag, double depthTop) {
     double rjb, SOF;
     rjb = rRup - distRupJB_Fraction * rRup;
 
@@ -487,8 +486,40 @@ public class CY_2005_prelim_AttenRel
     else {
       SOF = 0.0;
     }
+    double r = Math.sqrt(rRup * rRup + Math.pow(Math.exp(H[iper]), 2));
+    double r1 = Math.min(r, 0);
+    double r2 = Math.max(r / 50, 1);
+    double hw = Math.pow(Math.cos(dip), 2) * (1 - (rjb / (rRup + .0001)));
 
-    return Double.NaN;
+    double yRef = c1[iper] + c2[iper] * (mag - 6) +
+        cm[iper] * (Math.pow(Math.max(mc[iper] - mag, 0), 1.5)) +
+        Frv[iper] * SOF +
+        (c4[iper] + c5[iper] * (mag - 6)) * (Math.log(r1) + Math.log(r2) / 2) +
+        gamma[iper] * rRup +
+        Ftor[iper] * depthTop + Fhw[iper] * hw;
+    return yRef;
+  }
+
+
+  private double getMeanPGA_Rock(double vs30, double rRup,
+                                 double distRupJB_Fraction,
+                                 double dip, double rake, double mag,
+                                 double depthTop) {
+    double yRef = getYref(0,vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop);
+    double pgaRock = phi1[iper] * Math.log(vs30 / 1130) + phi2[iper] *
+        Math.exp(phi3[iper] * (vs30 - 360)) *
+        Math.log( (yRef + phi4[iper]) / phi4[iper]);
+    return Math.log(pgaRock);
+  }
+
+
+  public double getMean(int iper, double vs30, double rRup, double distRupJB_Fraction,
+                        double dip, double rake, double mag, double depthTop) {
+
+    double pgaRock = getMeanPGA_Rock(vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop);
+    double yRef = getYref(iper,vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop);
+
+    return (Math.log(yRef)+Math.log(pgaRock));
   }
 
 

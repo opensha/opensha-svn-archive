@@ -21,6 +21,7 @@ import org.opensha.param.event.*;
 import org.opensha.util.*;
 import org.opensha.sha.gui.controls.*;
 import org.opensha.sha.gui.infoTools.*;
+import org.opensha.sha.imr.attenRelImpl.*;
 
 
 /**
@@ -152,21 +153,8 @@ public class AttenuationRelationshipApplet extends JApplet
     //protected final static String DAHLE_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.DahleEtAl_1995_AttenRel";
     protected final static String  CS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CS_2005_AttenRel";
     protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
-    /**
-     *  Temp until figure out way to dynamically load classes during runtime
-     */
-    protected final static String BJF_NAME = "Boore, Joyner, & Fumal (1997)";
-    protected final static String AS_NAME = "Abrahamson & Silva (1997)";
-    protected final static String C_NAME = "Campbell (1997) w/ erratum (2000) changes";
-    protected final static String SCEMY_NAME = "Sadigh et al. (1997)";
-    protected final static String F_NAME = "Field (2000)";
-    protected final static String A_NAME = "Abrahamson (2000)";
-    protected final static String CB_NAME = "Campbell & Bozorgnia (2003)";
-    protected final static String SM_NAME = "ShakeMap (2003)";
-    protected final static String SEA_NAME = "SEA (Spudich et al., 1999)";
-    //protected final static String DAHLE_NAME = "Dahle et al. (1995)";
-    protected final static String CS_NAME = "Choi & Stewart (2005)";
-    protected final static String AS_2005_NAME ="Abrahamson & Silva (2005 prelim)";
+    protected final static String CY_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
+    protected final static String BOORE_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
 
 
     /**
@@ -186,18 +174,19 @@ public class AttenuationRelationshipApplet extends JApplet
         if ( imNames == null ) imNames = new HashMap();
         imNames.clear();
 
-        imNames.put( BJF_NAME, BJF_CLASS_NAME );
-        imNames.put( AS_NAME, AS_CLASS_NAME );
-        imNames.put( C_NAME, C_CLASS_NAME );
-        imNames.put( SCEMY_NAME, SCEMY_CLASS_NAME );
-        imNames.put( F_NAME, F_CLASS_NAME );
-        imNames.put( A_NAME, A_CLASS_NAME );
-        imNames.put( CB_NAME, CB_CLASS_NAME );
-        imNames.put( SM_NAME, SM_CLASS_NAME );
-        imNames.put( SEA_NAME, SEA_CLASS_NAME );
-        imNames.put( CS_NAME, CS_CLASS_NAME );
-        imNames.put( AS_2005_NAME ,AS_2005_CLASS_NAME);
-
+        imNames.put( BJF_1997_AttenRel.NAME, BJF_CLASS_NAME );
+        imNames.put( AS_1997_AttenRel.NAME, AS_CLASS_NAME );
+        imNames.put( Campbell_1997_AttenRel.NAME, C_CLASS_NAME );
+        imNames.put( SCEMY_1997_AttenRel.NAME, SCEMY_CLASS_NAME );
+        imNames.put( Field_2000_AttenRel.NAME, F_CLASS_NAME );
+        imNames.put( Abrahamson_2000_AttenRel.NAME, A_CLASS_NAME );
+        imNames.put( CB_2003_AttenRel.NAME, CB_CLASS_NAME );
+        imNames.put( ShakeMap_2003_AttenRel.NAME, SM_CLASS_NAME );
+        imNames.put( SEA_1999_AttenRel.NAME, SEA_CLASS_NAME );
+        imNames.put( CS_2005_AttenRel.NAME, CS_CLASS_NAME );
+        imNames.put( AS_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
+        imNames.put( CY_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
+        imNames.put( Boore_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
         //imNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
