@@ -56,31 +56,30 @@ public class CB_2005_prelim_AttenRel
   private static double[] per = { 0, 0.2, 1 };
 
 
-  private static double[] C0_EPRI = { 1.387, -0.394, -3.117};
-  private static double[] C0_PEN = { 1.481, -0.112, -3.109};
-  private static double[] C1_EPRI = {-0.019, 0.461, -0.553};
-  private static double[] C1_PEN = { -0.052, -0.400, -0.550};
-  private static double[] C2_EPRI = { -0.439, -0.650, -0.622};
-  private static double[] C2_PEN = { -0.378, -0.575, -0.586};
-  private static double[] C2_PRIME_EPRI = { -0.385, -0.650, -0.622};
-  private static double[] C2_PRIME_PEN = { -0.353, -0.575, -0.586};
-
-  private static double[] C3_EPRI = { -2.570, -2.050, -2.246};
-  private static double[] C3_PEN = { -2.480, -1.914, -2.199};
-  private static double[] C4_EPRI = { 0.224, 0.123, 0.212};
-  private static double[] C4_PEN = { 0.218, 0.117, 0.207};
-  private static double[] C5_EPRI = {6.07,8.57,3.17};
-  private static double[] C5_PEN = { 6.41,9.48,3.21};
-  private static double[] C6_EPRI = {0.419,0.368,0.355};
-  private static double[] C6_PEN = { 0.409,0.333,0.359};
-  private static double[] C7_EPRI = { -0.107,-0.035,-0.150};
-  private static double[] C7_PEN = { -0.088,-0.007,-0.142};
-  private static double[] C8_EPRI = { 0.742,0.798,0.828};
-  private static double[] C8_PEN = { 0.687,0.668,0.825};
-  private static double[] C9_EPRI = { 0.988,1.305,1.429};
-  private static double[] C9_PEN = { 1.034,2.155,1.579};
-  private static double[] C10_EPRI = {0.046,0.071,0.146};
-  private static double[] C10_PEN = { 0.029,0.047,0.137};
+  private static double[] c0_EPRI = { 1.387, -0.394, -3.117};
+  private static double[] c0_PEN = { 1.481, -0.112, -3.109};
+  private static double[] c1_EPRI = {-0.019, 0.461, -0.553};
+  private static double[] c1_PEN = { -0.052, -0.400, -0.550};
+  private static double[] c2_EPRI = { -0.439, -0.650, -0.622};
+  private static double[] c2_PEN = { -0.378, -0.575, -0.586};
+  private static double[] c2prime_EPRI = { -0.385, -0.650, -0.622};
+  private static double[] c2prime_PEN = { -0.353, -0.575, -0.586};
+  private static double[] c3_EPRI = { -2.570, -2.050, -2.246};
+  private static double[] c3_PEN = { -2.480, -1.914, -2.199};
+  private static double[] c4_EPRI = { 0.224, 0.123, 0.212};
+  private static double[] c4_PEN = { 0.218, 0.117, 0.207};
+  private static double[] c5_EPRI = {6.07,8.57,3.17};
+  private static double[] c5_PEN = { 6.41,9.48,3.21};
+  private static double[] c6_EPRI = {0.419,0.368,0.355};
+  private static double[] c6_PEN = { 0.409,0.333,0.359};
+  private static double[] c7_EPRI = { -0.107,-0.035,-0.150};
+  private static double[] c7_PEN = { -0.088,-0.007,-0.142};
+  private static double[] c8_EPRI = { 0.742,0.798,0.828};
+  private static double[] c8_PEN = { 0.687,0.668,0.825};
+  private static double[] c9_EPRI = { 0.988,1.305,1.429};
+  private static double[] c9_PEN = { 1.034,2.155,1.579};
+  private static double[] c10_EPRI = {0.046,0.071,0.146};
+  private static double[] c10_PEN = { 0.029,0.047,0.137};
   private static double[] k1_EPRI = { 1035,1229,444};
   private static double[] k1_PEN = { 865,748,401};
   private static double[] k2_EPRI = {-1.140,-1.479,-1.700};
@@ -271,7 +270,7 @@ public class CB_2005_prelim_AttenRel
    * @return    The mean value
    */
   public double getMean() {
-    if(intensityMeasureChanged)
+    if (intensityMeasureChanged)
       setCoeffIndex();
 
     // check if distance is beyond the user specified max
@@ -279,11 +278,21 @@ public class CB_2005_prelim_AttenRel
       return VERY_SMALL_MEAN;
     }
 
-    if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI))
+    if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI)) {
+      double pgar = getMean_EPRI(0, 1130, rRup, distRupJB_Fraction, rake, mag,
+                                 depthTop, depthTo2pt5kmPerSec, magSaturation,
+                                 0);
       return getMean_EPRI(iper, vs30, rRup, distRupJB_Fraction, rake, mag,
-                          depthTop, depthTo2pt5kmPerSec, magSaturation);
-    else
-      return Double.NaN;  // FINISH THIS
+                          depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
+    }
+    else {
+      double pgar = getMean_PEN(0, 1130, rRup, distRupJB_Fraction, rake, mag,
+                                 depthTop, depthTo2pt5kmPerSec, magSaturation,
+                                 0);
+      return getMean_PEN(iper, vs30, rRup, distRupJB_Fraction, rake, mag,
+                          depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
+
+    }
   }
 
 
@@ -299,7 +308,7 @@ public class CB_2005_prelim_AttenRel
     if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI))
       return getStdDev_EPRI(iper, stdDevType);
     else
-      return Double.NaN;  // FINISH THIS
+      return getStdDev_PEN(iper, stdDevType);
    }
 
   /**
@@ -557,36 +566,157 @@ public class CB_2005_prelim_AttenRel
     return NAME;
   }
 
+  public double getMean_PEN(int iper, double vs30, double rRup,
+                             double distRupJB_Fraction,
+                             double rake, double mag, double depthTop,
+                             double depthTo2pt5kmPerSec,
+                             boolean magSaturation, double pgar) {
 
+    double c = 1.38;
+    double n = 1.30;
+
+    double rjb, Frv, Fn, SR, Ff,F1;
+    rjb = rRup - distRupJB_Fraction * rRup;
+
+    //       Mechanism
+    if (rake > 30 && rake < 150) Frv = 1.0;
+    else  Frv = 0.0;
+
+    if (rake < -30 && rake > -150)   Fn = 1.0;
+    else Fn = 0.0;
+
+
+    if(depthTop < 1) Ff = depthTop;
+    else Ff = 1;
+
+    //Mag dependence
+    if (mag <= 6.5)
+      F1 = c0_PEN[iper] + c1_PEN[iper] * mag;
+    else{
+      if(magSaturation)
+        F1 = c0_PEN[iper] + c1_PEN[iper] * mag + c2prime_PEN[iper] * (mag - 6.5);
+      else
+        F1 = c0_PEN[iper] + c1_PEN[iper] * mag + c2_PEN[iper] * (mag - 6.5);
+    }
+
+
+    //Distance dependence
+    double F2 = (c3_PEN[iper] + c4_PEN[iper]*mag)*Math.log(Math.sqrt(rRup*rRup + c5_PEN[iper]*c5_PEN[iper]));
+
+    //Faulting Style dependence
+    double F3 = c6_PEN[iper]*Frv*Ff+ c7_PEN[iper]*Fn;
+
+
+    //Hanging Wall dependence
+    double FhwM,FhwR,FhwH;
+    if(rjb == 0) FhwR = 1;
+    else FhwR = distRupJB_Fraction;
+
+    if(mag <= 6) FhwM = 0;
+    else if(mag < 6.5 && mag < 6) FhwM = (mag-6)/0.5;
+    else FhwM = 1;
+
+    if(depthTop >=20) FhwH = 0;
+    else FhwH = (20-depthTop)/20;
+
+    double F4=c8_PEN[iper]*Frv*FhwR*FhwM*FhwH;
+
+
+    //Shallow site condition dependence
+    double F5;
+    if(vs30 > k1_PEN[iper])
+      F5 = c9_PEN[iper]*Math.log(vs30/k1_PEN[iper])+
+          k2_PEN[iper]*(Math.log(pgar+c*(Math.pow((vs30/k1_PEN[iper]),2))))-
+          Math.log(pgar+c);
+    else
+      F5=  (c9_PEN[iper]+k2_PEN[iper]*n)*Math.log(vs30/k1_PEN[iper]);
+
+
+    //Sediment depth dependence
+    double F6;
+    if(depthTo2pt5kmPerSec < 1) F6=c10_PEN[iper]*(depthTo2pt5kmPerSec-1);
+    else if(depthTo2pt5kmPerSec >=1 && depthTo2pt5kmPerSec <=3) F6=0;
+    else F6=k3_PEN[iper]*(Math.exp(-10))-Math.exp(-3.333*depthTo2pt5kmPerSec)+
+        k4_PEN[iper]*(Math.exp(-0.75)-Math.exp(-0.25*depthTo2pt5kmPerSec));
+
+    return (F1+F2+F3+F4+F5+F6);
+  }
 
 
   public double getMean_EPRI(int iper, double vs30, double rRup,
                              double distRupJB_Fraction,
                              double rake, double mag, double depthTop,
                              double depthTo2pt5kmPerSec,
-                             boolean magSaturation) {
+                             boolean magSaturation, double pgar) {
 
     double c = 1.38;
     double n = 1.30;
 
-    double rjb, Frv, Fn;
+    double rjb, Frv, Fn, SR, Ff,F1;
     rjb = rRup - distRupJB_Fraction * rRup;
 
     //       Mechanism
-    if (rake > 30 && rake < 150) {
-      Frv = 1.0;
-    }
-    else {
-      Frv = 0.0;
-    }
-    if (rake < -30 && rake > -150) {
-      Fn = 1.0;
-    }
-    else {
-      Fn = 0.0;
+    if (rake > 30 && rake < 150) Frv = 1.0;
+    else  Frv = 0.0;
+
+    if (rake < -30 && rake > -150)   Fn = 1.0;
+    else Fn = 0.0;
+
+
+    if(depthTop < 1) Ff = depthTop;
+    else Ff = 1;
+
+    //Mag dependence
+    if (mag <= 6.5)
+      F1 = c0_EPRI[iper] + c1_EPRI[iper] * mag;
+    else{
+      if(magSaturation)
+        F1 = c0_EPRI[iper] + c1_EPRI[iper] * mag + c2prime_EPRI[iper] * (mag - 6.5);
+      else
+        F1 = c0_EPRI[iper] + c1_EPRI[iper] * mag + c2_EPRI[iper] * (mag - 6.5);
     }
 
-    return Double.NaN;
+
+    //Distance dependence
+    double F2 = (c3_EPRI[iper] + c4_EPRI[iper]*mag)*Math.log(Math.sqrt(rRup*rRup + c5_EPRI[iper]*c5_EPRI[iper]));
+
+    //Faulting Style dependence
+    double F3 = c6_EPRI[iper]*Frv*Ff+ c7_EPRI[iper]*Fn;
+
+
+    //Hanging Wall dependence
+    double FhwM,FhwR,FhwH;
+    if(rjb == 0) FhwR = 1;
+    else FhwR = distRupJB_Fraction;
+
+    if(mag <= 6) FhwM = 0;
+    else if(mag < 6.5 && mag < 6) FhwM = (mag-6)/0.5;
+    else FhwM = 1;
+
+    if(depthTop >=20) FhwH = 0;
+    else FhwH = (20-depthTop)/20;
+
+    double F4=c8_EPRI[iper]*Frv*FhwR*FhwM*FhwH;
+
+
+    //Shallow site condition dependence
+    double F5;
+    if(vs30 > k1_EPRI[iper])
+      F5 = c9_EPRI[iper]*Math.log(vs30/k1_EPRI[iper])+
+          k2_EPRI[iper]*(Math.log(pgar+c*(Math.pow((vs30/k1_EPRI[iper]),2))))-
+          Math.log(pgar+c);
+    else
+      F5=  (c9_EPRI[iper]+k2_EPRI[iper]*n)*Math.log(vs30/k1_EPRI[iper]);
+
+
+    //Sediment depth dependence
+    double F6;
+    if(depthTo2pt5kmPerSec < 1) F6=c10_EPRI[iper]*(depthTo2pt5kmPerSec-1);
+    else if(depthTo2pt5kmPerSec >=1 && depthTo2pt5kmPerSec <=3) F6=0;
+    else F6=k3_EPRI[iper]*(Math.exp(-10))-Math.exp(-3.333*depthTo2pt5kmPerSec)+
+        k4_EPRI[iper]*(Math.exp(-0.75)-Math.exp(-0.25*depthTo2pt5kmPerSec));
+
+    return (F1+F2+F3+F4+F5+F6);
   }
 
 
@@ -594,6 +724,23 @@ public class CB_2005_prelim_AttenRel
 
     double s = sigma_EPRI[iper];
     double t = tau_EPRI[iper];
+
+
+    if (stdDevType.equals(STD_DEV_TYPE_NONE))
+      return 0;
+    else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+      return t;
+    else if (stdDevType.equals(STD_DEV_TYPE_INTER))
+        return s;
+    else // it's total sigma
+      return Math.sqrt(t* t + s * s);
+  }
+
+
+  public double getStdDev_PEN(int iper, String stdDevType) {
+
+    double s = sigma_PEN[iper];
+    double t = tau_PEN[iper];
 
 
     if (stdDevType.equals(STD_DEV_TYPE_NONE))

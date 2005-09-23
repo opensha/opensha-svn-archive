@@ -155,6 +155,7 @@ public class AttenuationRelationshipApplet extends JApplet
     protected final static String AS_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
     protected final static String CY_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
     protected final static String BOORE_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
+    protected final static String CB_2005_CLASS_NAME="org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
 
 
     /**
@@ -186,6 +187,7 @@ public class AttenuationRelationshipApplet extends JApplet
         imNames.put( CS_2005_AttenRel.NAME, CS_CLASS_NAME );
         imNames.put( AS_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
         imNames.put( CY_2005_prelim_AttenRel.NAME ,CY_2005_CLASS_NAME);
+        imNames.put( CB_2005_prelim_AttenRel.NAME ,CB_2005_CLASS_NAME);
         imNames.put( Boore_2005_prelim_AttenRel.NAME ,BOORE_2005_CLASS_NAME);
         //imNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 

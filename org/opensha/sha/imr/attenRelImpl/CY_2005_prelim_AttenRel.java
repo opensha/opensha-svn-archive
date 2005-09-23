@@ -72,7 +72,7 @@ public class CY_2005_prelim_AttenRel
   double[] tau = { 0.331, 0.345, 0.374, 0.396, 0.391, 0.363, 0.351, 0.349, 0.394, 0.395, 0.399, 0.396, 0.356, 0.355, 0.373, 0.422, 0.549};
   double[] sigma = { 0.493, 0.501, 0.512, 0.526, 0.531, 0.533, 0.527, 0.540, 0.539, 0.551, 0.560, 0.572, 0.580, 0.595, 0.612, 0.614, 0.575};
   // double[] total Sigma, 0.594, 0.608, 0.634, 0.658, 0.660, 0.645, 0.633, 0.642, 0.667, 0.678, 0.687, 0.696, 0.680, 0.693, 0.716, 0.745, 0.795
-
+  protected final static Double PERIOD_DEFAULT = new Double( 1.0 );
 
   private HashMap indexFromPerHashMap;
 
@@ -487,7 +487,7 @@ public class CY_2005_prelim_AttenRel
       SOF = 0.0;
     }
     double r = Math.sqrt(rRup * rRup + Math.pow(Math.exp(H[iper]), 2));
-    double r1 = Math.min(r, 0);
+    double r1 = Math.min(r, 50);
     double r2 = Math.max(r / 50, 1);
     double hw = Math.pow(Math.cos(dip), 2) * (1 - (rjb / (rRup + .0001)));
 
@@ -505,7 +505,7 @@ public class CY_2005_prelim_AttenRel
                                  double distRupJB_Fraction,
                                  double dip, double rake, double mag,
                                  double depthTop) {
-    double yRef = getYref(0,vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop);
+    double yRef = Math.exp(getYref(0,vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop));
     double pgaRock = phi1[iper] * Math.log(vs30 / 1130) + phi2[iper] *
         Math.exp(phi3[iper] * (vs30 - 360)) *
         Math.log( (yRef + phi4[iper]) / phi4[iper]);
@@ -519,7 +519,7 @@ public class CY_2005_prelim_AttenRel
     double pgaRock = getMeanPGA_Rock(vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop);
     double yRef = getYref(iper,vs30,rRup,distRupJB_Fraction,dip,rake,mag,depthTop);
 
-    return (Math.log(yRef)+Math.log(pgaRock));
+    return (yRef+pgaRock);
   }
 
 

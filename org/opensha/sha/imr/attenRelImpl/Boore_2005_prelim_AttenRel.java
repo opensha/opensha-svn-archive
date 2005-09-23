@@ -377,6 +377,17 @@ public class Boore_2005_prelim_AttenRel
     periodParam.setInfo(PERIOD_INFO);
     periodParam.setNonEditable();
 
+    //Create PGV Parameter (pgvParam):
+    DoubleConstraint pgvConstraint = new DoubleConstraint(PGV_MIN, PGV_MAX);
+    pgvConstraint.setNonEditable();
+    pgvParam = new WarningDoubleParameter(PGV_NAME, pgvConstraint, PGV_UNITS);
+    pgvParam.setInfo(PGV_INFO);
+    DoubleConstraint warn = new DoubleConstraint(PGV_WARN_MIN, PGV_WARN_MAX);
+    warn.setNonEditable();
+    pgvParam.setWarningConstraint(warn);
+    pgvParam.setNonEditable();
+
+
     // Set damping constraint as non editable since no other options exist
     dampingConstraint.setNonEditable();
 
