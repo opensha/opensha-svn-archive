@@ -261,7 +261,13 @@ public class SiteTranslator
       else  param.setValue(new Double(basinDepth/1000));
       return true;
     }
-
+    // Depth 2.5 km/sec Parameter
+    else if (param.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
+      // set Depth 2.5 km/sec in kms
+      if (Double.isNaN(basinDepth)) param.setValue(null);
+      else param.setValue(new Double(basinDepth / 1000));
+      return true;
+    }
     // ShakeMap_2003_AttenRel.WILLS_SITE_NAME
     else if (param.getName().equals(ShakeMap_2003_AttenRel.WILLS_SITE_NAME)) {
 
