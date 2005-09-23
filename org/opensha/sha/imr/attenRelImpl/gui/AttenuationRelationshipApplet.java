@@ -185,8 +185,8 @@ public class AttenuationRelationshipApplet extends JApplet
         imNames.put( SEA_1999_AttenRel.NAME, SEA_CLASS_NAME );
         imNames.put( CS_2005_AttenRel.NAME, CS_CLASS_NAME );
         imNames.put( AS_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
-        imNames.put( CY_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
-        imNames.put( Boore_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
+        imNames.put( CY_2005_prelim_AttenRel.NAME ,CY_2005_CLASS_NAME);
+        imNames.put( Boore_2005_prelim_AttenRel.NAME ,BOORE_2005_CLASS_NAME);
         //imNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
 
         try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
