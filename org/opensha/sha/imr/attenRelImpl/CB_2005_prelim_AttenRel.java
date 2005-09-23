@@ -279,16 +279,16 @@ public class CB_2005_prelim_AttenRel
     }
 
     if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI)) {
-      double pgar = getMean_EPRI(0, 1130, rRup, distRupJB_Fraction, rake, mag,
+      double pgar = Math.exp(getMean_EPRI(0, 1100, rRup, distRupJB_Fraction, rake, mag,
                                  depthTop, depthTo2pt5kmPerSec, magSaturation,
-                                 0);
+                                 0));
       return getMean_EPRI(iper, vs30, rRup, distRupJB_Fraction, rake, mag,
                           depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
     }
     else {
-      double pgar = getMean_PEN(0, 1130, rRup, distRupJB_Fraction, rake, mag,
+      double pgar = Math.exp(getMean_PEN(0, 1100, rRup, distRupJB_Fraction, rake, mag,
                                  depthTop, depthTo2pt5kmPerSec, magSaturation,
-                                 0);
+                                 0));
       return getMean_PEN(iper, vs30, rRup, distRupJB_Fraction, rake, mag,
                           depthTop, depthTo2pt5kmPerSec, magSaturation, pgar);
 
@@ -457,6 +457,9 @@ public class CB_2005_prelim_AttenRel
     distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
     distRupMinusJB_OverRupParam.setNonEditable();
 
+
+    propagationEffectParams.addParameter(distanceRupParam);
+    propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
 
   }
 

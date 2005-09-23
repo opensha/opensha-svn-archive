@@ -380,6 +380,8 @@ public class CY_2005_prelim_AttenRel
     distRupMinusJB_OverRupParam = new DistRupMinusJB_OverRupParameter();
     distRupMinusJB_OverRupParam.setNonEditable();
 
+    propagationEffectParams.addParameter(distanceRupParam);
+    propagationEffectParams.addParameter(distRupMinusJB_OverRupParam);
 
   }
 

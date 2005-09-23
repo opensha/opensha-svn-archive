@@ -97,7 +97,7 @@ public class Boore_2005_prelim_AttenRel
   /**
    * The DistanceRupParameter, closest distance to fault surface.
    */
-  private DistanceRupParameter distanceJBParam = null;
+  private DistanceJBParameter distanceJBParam = null;
   private final static Double DISTANCE_JB_DEFAULT = new Double(0);
 
 
@@ -223,7 +223,7 @@ public class Boore_2005_prelim_AttenRel
     }
     if(parameterChange){
       // remember that pga4nl term uses coeff index 6
-      double pga4nl = getMean(6,vs30,rjb,mag,0.0);
+      double pga4nl = Math.exp(getMean(6,vs30,rjb,mag,0.0));
       return getMean(iper, vs30, rjb, mag,pga4nl);
     }
     return 0;
@@ -346,13 +346,15 @@ public class Boore_2005_prelim_AttenRel
    */
   protected void initPropagationEffectParams() {
 
-    distanceJBParam = new DistanceRupParameter();
+    distanceJBParam = new DistanceJBParameter();
     distanceJBParam.addParameterChangeWarningListener(warningListener);
     DoubleConstraint warn = new DoubleConstraint(DISTANCE_JB_WARN_MIN,
                                                  DISTANCE_JB_WARN_MAX);
     warn.setNonEditable();
     distanceJBParam.setWarningConstraint(warn);
     distanceJBParam.setNonEditable();
+
+    propagationEffectParams.addParameter(distanceJBParam);
 
   }
 
