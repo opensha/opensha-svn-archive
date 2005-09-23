@@ -316,7 +316,6 @@ public class Boore_2005_prelim_AttenRel
 
     siteParams.clear();
     siteParams.addParameter(vs30Param);
-
   }
 
   /**
