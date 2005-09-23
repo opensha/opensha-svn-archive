@@ -51,7 +51,8 @@ public class EvenlyGriddedCircularGeographicRegion
 
 
   /**
-   * default constructor
+   * Class constructor that accepts the circle center-location, circle radius,
+   * grid spacing for creation of a EvenlyGriddedCircularGeographicRegion.
    *
    * @param centerLoc - the location of the circle center
    * @param radius - radius of the region (km)
@@ -105,6 +106,34 @@ public class EvenlyGriddedCircularGeographicRegion
     //for retreiving the any location or index in the gridded region.
     setGridSpacing(gridSpacing);
   }
+
+
+  /**
+   * Class constructor that accepts the circle center-location, circle radius,grid spacing
+   * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
+   * in this region from passed in EvenlyGriddedGeographicRegionAPI,
+   * for creation of a EvenlyGriddedCircularGeographicRegion.
+   * This method is helpful as avoid creating same location more then once and just
+   * refer to the location object in the passed in EvenlyGriddedGeographicRegionAPI.
+   *
+   * This class constructor allows the user to create list of locations for this
+   * EvenlyGriddedGeographic object from passed in EvenlyGriddedGeographicRegionAPI.
+   * Please refer to EvenlyGriddedGeographicRegionAPI for more details.
+   *
+   * @param centerLoc - the location of the circle center
+   * @param radius - radius of the region (km)
+   * @param gridSpacing - grid spacing (degree)
+   * @param region EvenlyGriddedGeographicRegionAPI
+   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
+   * @see EvenlyGriddedGeographicRegionAPI
+   */
+  public EvenlyGriddedCircularGeographicRegion(Location centerLoc, double radius, double gridSpacing,
+      EvenlyGriddedGeographicRegionAPI region) {
+    this(centerLoc,radius,gridSpacing);
+    createRegionLocationsList(region);
+  }
+
+
 
   /**
    * This method checks whether the given location is within the region by seeing whether

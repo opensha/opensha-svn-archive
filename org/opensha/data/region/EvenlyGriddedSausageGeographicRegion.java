@@ -71,7 +71,9 @@ public class EvenlyGriddedSausageGeographicRegion
 
 
   /**
-   *
+   * Class constructor that accepts the list of locations as corner points on the
+   * line around which sausage region is to be created, circle radius,grid spacing
+   * for creation of a EvenlyGriddedSausageGeographicRegion.
    * @param locList LocationList : Locations of the end points on the lines
    * @param radius double Maximum distance for which locations in this sausage
    * region are to be considered.
@@ -83,6 +85,36 @@ public class EvenlyGriddedSausageGeographicRegion
   public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing) {
     createEvenlyGriddedSausageGeographicRegion(locList,radius,gridSpacing) ;
   }
+
+
+  /**
+   * Class constructor that accepts the list of locations as corner points on the
+   * line around which sausage region is to be created, radius,grid spacing
+   * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
+   * in this region from passed in EvenlyGriddedGeographicRegionAPI,
+   * for creation of a EvenlyGriddedSausageGeographicRegion.
+   *
+   * This method is helpful as avoid creating same location more then once and just
+   * refer to the location object in the passed in EvenlyGriddedGeographicRegionAPI.
+   *
+   * This class constructor allows the user to create list of locations for this
+   * EvenlyGriddedGeographic object from passed in EvenlyGriddedGeographicRegionAPI.
+   * Please refer to EvenlyGriddedGeographicRegionAPI for more details.
+   *
+   * @param locList LocationList : Locations of the end points on the lines
+   * @param radius double Maximum distance for which locations in this sausage
+   * region are to be considered.
+   * @param gridSpacing double Grid Spacing in degrees
+   * @param region EvenlyGriddedGeographicRegionAPI
+   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
+   * @see EvenlyGriddedGeographicRegionAPI
+   */
+  public EvenlyGriddedSausageGeographicRegion(LocationList locList, double radius, double gridSpacing,
+      EvenlyGriddedGeographicRegionAPI region) {
+    this(locList,radius,gridSpacing);
+    createRegionLocationsList(region);
+  }
+
 
 
   /**

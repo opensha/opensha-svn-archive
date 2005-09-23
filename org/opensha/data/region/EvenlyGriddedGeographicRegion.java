@@ -67,12 +67,84 @@ public class EvenlyGriddedGeographicRegion
   public EvenlyGriddedGeographicRegion(){}
 
   /**
-   * default class constructor
+   * Class constructor that accepts the region boundary loactions and grid spacing for the
+   * region.
+   * @param locList LocationList Region boundary locations
+   * @param gridSpacing double GridSpacing
    */
   public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing) {
     //sets the region min/max lat/lon aswell creates the region boundary.
     createEvenlyGriddedGeographicRegion(locList,gridSpacing);
   }
+
+
+  /**
+   * Class constructor that accepts the region boundary loactions,grid spacing
+   * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
+   * in this region from passed in EvenlyGriddedGeographicRegionAPI, for the
+   * region.
+   *
+   * This class constructor allows the user to create list of locations for this
+   * EvenlyGriddedGeographic object from passed in EvenlyGriddedGeographicRegionAPI.
+   * Please refer to EvenlyGriddedGeographicRegionAPI for more details.
+   *
+   * @param locList LocationList LocationList Region boundary locations
+   * @param gridSpacing double GridSpacing
+   * @param region EvenlyGriddedGeographicRegionAPI
+   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
+   * @see EvenlyGriddedGeographicRegionAPI
+   */
+  public EvenlyGriddedGeographicRegion(LocationList locList, double gridSpacing,
+      EvenlyGriddedGeographicRegionAPI region) {
+    this(locList,gridSpacing);
+    createRegionLocationsList(region);
+  }
+
+  /**
+   * This function allows the user to create list of location in the region from
+   * another EvenlyGriddedGeographic region.
+   * If the region passed in as the argument to this function is smaller and do not
+   * cover the this EvenlyGriddedRegion then this list of locations for the region
+   * can have "null" object. Once user has created the region locations using this
+   * function then care must be taken to look for "null" objects in the list explicitly.
+   *
+   * This function creates the list of locations for this EvenlyGriddedRegion, with
+   * each location being corresponding to the location in the passed in EvenlyGriddedGeographic region.
+   * But if this region does not completely lies within the range of the passed in region
+   * then some of its locations can be null, if user uses this method to create the
+   * list of locations for a given region.
+   * User has to dealt with the null location objects explicitly.
+   *
+   * If user passes in the region to this function that do not overlap with bounds
+   * of this region then all the locations in the list of locations for this region
+   * will be null.
+   * If passed in region overlaps with this region then locations within the list
+   * of locations will be null for the part of this that does not overlap with passed
+   * in region.
+   *
+   * This method is helpful as avoid creating same location more then once and just
+   * refer to the location object in the passed in EvenlyGriddedGeographicRegionAPI.
+   *
+   * @param region EvenlyGriddedGeographicRegionAPI EvenGriddedGeographicRegion.
+   * Locations created will be locations in this passed in region. So locations
+   * will be added to list only for that part of region that overlaps with this
+   * passed in region.
+   *
+   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
+   * @see EvenlyGriddedGeographicRegionAPI
+   */
+  public LocationList createRegionLocationsList(EvenlyGriddedGeographicRegionAPI region){
+    int numLocations = this.getNumGridLocs();
+
+    for(int i=0;i<numLocations;++i){
+      Location loc = this.getNearestGridLocation(i,region);
+      gridLocsList.addLocation(loc);
+    }
+    return gridLocsList;
+  }
+
+
+
 
 
   /**

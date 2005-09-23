@@ -32,7 +32,8 @@ public class EvenlyGriddedRectangularGeographicRegion
 
   /**
    *
-   * class constructor
+   * Class constructor that accepts the minLat, maxLat,minLon,maxLon,grid spacing
+   * for creation of a EvenlyGriddedRectangularGeographicRegion.
    * @param minLat Min Latitude for the EvenlyGridded Rectangular Region
    * @param maxLat Max Latitude for the EvenlyGridded Rectangular Region
    * @param minLon Min Longitude for the EvenlyGridded Rectangular Region
@@ -72,6 +73,42 @@ public class EvenlyGriddedRectangularGeographicRegion
     if (D) System.out.println("numLatGridPoints=" + numLatGridPoints +
                               "; numLonGridPoints=" + numLonGridPoints);
   }
+
+  /**
+   * Class constructor that accepts the minLat, maxLat,minLon,maxLon,grid spacing
+   * and EvenlyGriddedGeographicRegionAPI,for creating the list of locations
+   * in this region from passed in EvenlyGriddedGeographicRegionAPI, for creation
+   * of a EvenlyGriddedRectangularGeographicRegion.
+   *
+   * This method is helpful as avoid creating same location more then once and just
+   * refer to the location object in the passed in EvenlyGriddedGeographicRegionAPI.
+   *
+   * This class constructor allows the user to create list of locations for this
+   * EvenlyGriddedGeographic object from passed in EvenlyGriddedGeographicRegionAPI.
+   * Please refer to EvenlyGriddedGeographicRegionAPI for more details.
+   *
+   * @param minLat Min Latitude for the EvenlyGridded Rectangular Region
+   * @param maxLat Max Latitude for the EvenlyGridded Rectangular Region
+   * @param minLon Min Longitude for the EvenlyGridded Rectangular Region
+   * @param maxLon Max Longitude for the EvenlyGridded Rectangular Region
+   * @param gridSpacing double GridSpacing in degrees
+   * @param region EvenlyGriddedGeographicRegionAPI
+   * @throws RegionConstraintException if Min Lat/Lon is greater then Max Lat/Lon
+   *
+   * @see EvenlyGriddedGeographicRegionAPI.createRegionLocationsList(EvenlyGriddedGeographicRegionAPI)
+   * @see EvenlyGriddedGeographicRegionAPI
+   */
+  public EvenlyGriddedRectangularGeographicRegion(double minLat, double maxLat,
+                                                  double minLon, double maxLon,
+                                                  double gridSpacing,
+                                               EvenlyGriddedGeographicRegionAPI
+                                               region) throws
+      RegionConstraintException{
+    this(minLat, maxLat, minLon,maxLon,gridSpacing);
+    createRegionLocationsList(region);
+  }
+
+
 
   /**
    * It samples out the grids location points based on the grid spacing(in degrees)
