@@ -9,8 +9,6 @@ import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
-import org.opensha.sha.surface.*;
-import org.opensha.calc.RelativeLocation;
 
 /**
  * <b>Title:</b> Boore_2005_prelim_AttenRel<p>
@@ -54,27 +52,48 @@ public class Boore_2005_prelim_AttenRel
 
   // coefficients:
   // note that index 0 is for PGV, and that the last index (6) is for his pga4nl term (rock-PGA for computing amp factor)
-  double[] period = { -1, 0, 0.1, 0.2, 1, 3, -2 };
-  double[] e01 = { 4.73642, -0.92027, -0.36995, 0.01688, -1.00316, -2.27419, -0.96409 };
-  double[] e02 = { 0.46374, 0.28115, 0.06284, 0.19353, 0.70367, 0.78311, 0.29795 };
-  double[] e03 = { -0.1324, -0.21409, -0.24453, -0.26457, -0.25927, -0.46006, -0.20341 };
-  double[] e04 = { 0, 0, 0, 0, 0.30832, 0.9588, 0 };
-  double[] mh = { 8.5, 7, 7, 7, 7, 7, 7 };
-  double[] c01 = { -0.7468, -0.5641, -0.5404, -0.6379, -0.7478, -0.7986, -0.55 };
-  double[] c02 = { 0, 0, 0, 0, 0, 0, 0 };
-  double[] c03 = { -0.00622, -0.01151, -0.01359, -0.00967, -0.00322, -0.00196, -0.01151 };
-  double[] mref = { 6, 6, 6, 6, 6, 6, 6 };
-  double[] rref = { 5, 5, 5, 5, 5, 5, 5 };
-  double[] h = { 4.4, 3.2, 3.4, 4.6, 4, 5, 3 };
-  double[] blin = { -0.6, -0.36, -0.25, -0.31, -0.7, -0.74, 0 };
-  double[] vref = { 760, 760, 760, 760, 760, 760, 760 };
-  double[] b1 = { -0.5, -0.64, -0.6, -0.52, -0.44, -0.34, 0 };
-  double[] b2 = { -0.06, -0.14, -0.13, -0.19, 0, 0, 0 };
-  double[] v1 = { 180, 180, 180, 180, 180, 180, 180 };
-  double[] v2 = { 300, 300, 300, 300, 300, 300, 300 };
-  double[] pga_low = { 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06 };
-  double[] sig1 = { 0.49, 0.49, 0.523, 0.523, 0.571, 0.562, -999 };
-  double[] sig2 = { 0.26, 0.253, 0.311, 0.235, 0.311, 0.433, -999 };
+  double[] period = {
+       -1, 0, 0.1, 0.2, 1, 3, -2};
+  double[] e01 = {
+      4.73642, -0.92027, -0.36995, 0.01688, -1.00316, -2.27419, -0.96409};
+  double[] e02 = {
+      0.46374, 0.28115, 0.06284, 0.19353, 0.70367, 0.78311, 0.29795};
+  double[] e03 = {
+       -0.1324, -0.21409, -0.24453, -0.26457, -0.25927, -0.46006, -0.20341};
+  double[] e04 = {
+      0, 0, 0, 0, 0.30832, 0.9588, 0};
+  double[] mh = {
+      8.5, 7, 7, 7, 7, 7, 7};
+  double[] c01 = {
+       -0.7468, -0.5641, -0.5404, -0.6379, -0.7478, -0.7986, -0.55};
+  double[] c02 = {
+      0, 0, 0, 0, 0, 0, 0};
+  double[] c03 = {
+       -0.00622, -0.01151, -0.01359, -0.00967, -0.00322, -0.00196, -0.01151};
+  double[] mref = {
+      6, 6, 6, 6, 6, 6, 6};
+  double[] rref = {
+      5, 5, 5, 5, 5, 5, 5};
+  double[] h = {
+      4.4, 3.2, 3.4, 4.6, 4, 5, 3};
+  double[] blin = {
+       -0.6, -0.36, -0.25, -0.31, -0.7, -0.74, 0};
+  double[] vref = {
+      760, 760, 760, 760, 760, 760, 760};
+  double[] b1 = {
+       -0.5, -0.64, -0.6, -0.52, -0.44, -0.34, 0};
+  double[] b2 = {
+       -0.06, -0.14, -0.13, -0.19, 0, 0, 0};
+  double[] v1 = {
+      180, 180, 180, 180, 180, 180, 180};
+  double[] v2 = {
+      300, 300, 300, 300, 300, 300, 300};
+  double[] pga_low = {
+      0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06};
+  double[] sig1 = {
+      0.49, 0.49, 0.523, 0.523, 0.571, 0.562, -999};
+  double[] sig2 = {
+      0.26, 0.253, 0.311, 0.235, 0.311, 0.433, -999};
   //double[] sigt = { 0.555, 0.553, 0.608, 0.573, 0.649, 0.709, 0.241 };
 
   private static final double MAX_MAG = 8.5;
@@ -93,13 +112,11 @@ public class Boore_2005_prelim_AttenRel
   protected final static Double VS30_WARN_MIN = new Double(120.0);
   protected final static Double VS30_WARN_MAX = new Double(2000.0);
 
-
   /**
    * The DistanceRupParameter, closest distance to fault surface.
    */
   private DistanceJBParameter distanceJBParam = null;
   private final static Double DISTANCE_JB_DEFAULT = new Double(0);
-
 
   // for issuing warnings:
   private transient ParameterChangeWarningListener warningListener = null;
@@ -107,7 +124,8 @@ public class Boore_2005_prelim_AttenRel
   /**
    *  This initializes several ParameterList objects.
    */
-  public Boore_2005_prelim_AttenRel(ParameterChangeWarningListener warningListener) {
+  public Boore_2005_prelim_AttenRel(ParameterChangeWarningListener
+                                    warningListener) {
 
     super();
 
@@ -115,7 +133,7 @@ public class Boore_2005_prelim_AttenRel
 
     initSupportedIntensityMeasureParams();
     indexFromPerHashMap = new HashMap();
-    for (int i = 1; i < period.length-1; i++) {
+    for (int i = 1; i < period.length - 1; i++) {
       indexFromPerHashMap.put(new Double(period[i]), new Integer(i));
     }
 
@@ -125,7 +143,7 @@ public class Boore_2005_prelim_AttenRel
     initOtherParams();
 
     initIndependentParamLists(); // This must be called after the above
-    initPameterListeners();//add the change listeners to the parameters
+    initPameterListeners(); //add the change listeners to the parameters
 
   }
 
@@ -197,12 +215,16 @@ public class Boore_2005_prelim_AttenRel
           );
     }
 
-    if(im.getName().equalsIgnoreCase(PGV_NAME))
+    if (im.getName().equalsIgnoreCase(PGV_NAME)) {
       iper = 0;
-    else if (im.getName().equalsIgnoreCase(PGA_NAME))
+    }
+    else if (im.getName().equalsIgnoreCase(PGA_NAME)) {
       iper = 1;
-    else
-      iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).intValue();
+    }
+    else {
+      iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
+          intValue();
+    }
 
     parameterChange = true;
     intensityMeasureChanged = false;
@@ -214,33 +236,32 @@ public class Boore_2005_prelim_AttenRel
    * @return    The mean value
    */
   public double getMean() {
-    if(intensityMeasureChanged)
+    if (intensityMeasureChanged) {
       setCoeffIndex();
+    }
 
     // check if distance is beyond the user specified max
     if (rjb > USER_MAX_DISTANCE) {
       return VERY_SMALL_MEAN;
     }
-    if(parameterChange){
+    if (parameterChange) {
       // remember that pga4nl term uses coeff index 6
-      double pga4nl = Math.exp(getMean(6,vs30,rjb,mag,0.0));
-      return getMean(iper, vs30, rjb, mag,pga4nl);
+      double pga4nl = Math.exp(getMean(6, vs30, rjb, mag, 0.0));
+      return getMean(iper, vs30, rjb, mag, pga4nl);
     }
     return 0;
   }
-
-
-
 
   /**
    * @return    The stdDev value
    */
   public double getStdDev() {
-    if(intensityMeasureChanged)
+    if (intensityMeasureChanged) {
       setCoeffIndex();
+    }
 
     return getStdDev(iper, stdDevType);
-   }
+  }
 
   /**
    * Allows the user to set the default parameter values for the selected Attenuation
@@ -258,10 +279,10 @@ public class Boore_2005_prelim_AttenRel
     pgvParam.setValue(PGV_DEFAULT);
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
 
-    vs30 = ((Double)vs30Param.getValue()).doubleValue();
-    rjb = ((Double)distanceJBParam.getValue()).doubleValue();
-    mag = ((Double)magParam.getValue()).doubleValue();
-    stdDevType = (String)stdDevTypeParam.getValue();
+    vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+    rjb = ( (Double) distanceJBParam.getValue()).doubleValue();
+    mag = ( (Double) magParam.getValue()).doubleValue();
+    stdDevType = (String) stdDevTypeParam.getValue();
   }
 
   /**
@@ -369,7 +390,7 @@ public class Boore_2005_prelim_AttenRel
 
     // Create saParam's "Period" independent parameter:
     DoubleDiscreteConstraint periodConstraint = new DoubleDiscreteConstraint();
-    for (int i = 1; i < period.length-1; i++) {
+    for (int i = 1; i < period.length - 1; i++) {
       periodConstraint.addDouble(new Double(period[i]));
     }
     periodConstraint.setNonEditable();
@@ -387,7 +408,6 @@ public class Boore_2005_prelim_AttenRel
     warn.setNonEditable();
     pgvParam.setWarningConstraint(warn);
     pgvParam.setNonEditable();
-
 
     // Set damping constraint as non editable since no other options exist
     dampingConstraint.setNonEditable();
@@ -443,7 +463,6 @@ public class Boore_2005_prelim_AttenRel
     stdDevTypeParam.setInfo(STD_DEV_TYPE_INFO);
     stdDevTypeParam.setNonEditable();
 
-
     // add these to the list
     otherParams.addParameter(componentParam);
     otherParams.addParameter(stdDevTypeParam);
@@ -459,52 +478,64 @@ public class Boore_2005_prelim_AttenRel
     return NAME;
   }
 
-
-
-
-  public double getMean(int iper, double vs30, double rjb, double mag, double pga4nl) {
+  public double getMean(int iper, double vs30, double rjb, double mag,
+                        double pga4nl) {
 
     // remember that pga4ln term uses coeff index 6
-    double Fm,Fd,Fs;
-    if(mag <= MAX_MAG)
-      Fm=e01[iper] + e02[iper]*(mag - MAX_MAG) + e03[iper]*Math.pow((mag - MAX_MAG),2);
-    else
-      Fm = e01[iper] + e04[iper]*(mag - MAX_MAG);
+    double Fm, Fd, Fs;
+    if (mag <= MAX_MAG) {
+      Fm = e01[iper] + e02[iper] * (mag - MAX_MAG) +
+          e03[iper] * Math.pow( (mag - MAX_MAG), 2);
+    }
+    else {
+      Fm = e01[iper] + e04[iper] * (mag - MAX_MAG);
+    }
 
-    double r = Math.sqrt(rjb*rjb+h[iper]*h[iper]);
-    Fd = c01[iper]*Math.log(r/rref[iper]) + c02[iper]*(mag-mref[iper])
-        * Math.log(r/rref[iper]) + c03[iper]*(r - rref[iper]);
+    double r = Math.sqrt(rjb * rjb + h[iper] * h[iper]);
+    Fd = c01[iper] * Math.log(r / rref[iper]) + c02[iper] * (mag - mref[iper])
+        * Math.log(r / rref[iper]) + c03[iper] * (r - rref[iper]);
 
-    double bnl=0;
-    if(vs30 <= v1[iper])
+    double bnl = 0;
+    if (vs30 <= v1[iper]) {
       bnl = b1[iper];
-    else if(vs30 <= v2[iper] && vs30 >v1[iper])
-      bnl = (b1[iper]-b2[iper])*Math.log(vs30/v2[iper])/Math.log(v1[iper]/v2[iper]) + b2[iper];
-    else if(vs30 <= vref[iper] && vs30 > v2[iper])
-      bnl = b2[iper]*Math.log(vs30/vref[iper])/Math.log(v2[iper]/vref[iper]);
-    else if(vs30 > vref[iper])
+    }
+    else if (vs30 <= v2[iper] && vs30 > v1[iper]) {
+      bnl = (b1[iper] - b2[iper]) * Math.log(vs30 / v2[iper]) /
+          Math.log(v1[iper] / v2[iper]) + b2[iper];
+    }
+    else if (vs30 <= vref[iper] && vs30 > v2[iper]) {
+      bnl = b2[iper] * Math.log(vs30 / vref[iper]) /
+          Math.log(v2[iper] / vref[iper]);
+    }
+    else if (vs30 > vref[iper]) {
       bnl = 0.0;
+    }
 
-    if(pga4nl <= 0.06)
-      Fs = blin[iper]*Math.log(vs30/vref[iper]) + bnl*Math.log(0.06/0.1);
-    else
-      Fs = blin[iper]*Math.log(vs30/vref[iper]) + bnl*Math.log(pga4nl/0.1) ;
-    return (Fm + Fd +Fs);
+    if (pga4nl <= 0.06) {
+      Fs = blin[iper] * Math.log(vs30 / vref[iper]) + bnl * Math.log(0.06 / 0.1);
+    }
+    else {
+      Fs = blin[iper] * Math.log(vs30 / vref[iper]) +
+          bnl * Math.log(pga4nl / 0.1);
+    }
+    return (Fm + Fd + Fs);
   }
-
 
   public double getStdDev(int iper, String stdDevType) {
 
-     if (stdDevType.equals(STD_DEV_TYPE_NONE))
+    if (stdDevType.equals(STD_DEV_TYPE_NONE)) {
       return 0;
-    else if (stdDevType.equals(STD_DEV_TYPE_INTRA))
+    }
+    else if (stdDevType.equals(STD_DEV_TYPE_INTRA)) {
       return sig2[iper];
-    else if (stdDevType.equals(STD_DEV_TYPE_INTER))
-        return sig1[iper];
-    else // it's total sigma
-      return Math.sqrt(sig1[iper]*sig1[iper] + sig2[iper]*sig2[iper]);
+    }
+    else if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
+      return sig1[iper];
+    }
+    else { // it's total sigma
+      return Math.sqrt(sig1[iper] * sig1[iper] + sig2[iper] * sig2[iper]);
+    }
   }
-
 
   /**
    * This listens for parameter changes and updates the primitive parameters accordingly
@@ -512,20 +543,24 @@ public class Boore_2005_prelim_AttenRel
    */
   public void parameterChange(ParameterChangeEvent e) {
 
-
     String pName = e.getParameterName();
     Object val = e.getNewValue();
     parameterChange = true;
-    if (pName.equals(DistanceJBParameter.NAME))
+    if (pName.equals(DistanceJBParameter.NAME)) {
       rjb = ( (Double) val).doubleValue();
-    else if (pName.equals(this.VS30_NAME))
+    }
+    else if (pName.equals(this.VS30_NAME)) {
       vs30 = ( (Double) val).doubleValue();
-    else if (pName.equals(this.MAG_NAME))
+    }
+    else if (pName.equals(this.MAG_NAME)) {
       mag = ( (Double) val).doubleValue();
-    else if (pName.equals(this.STD_DEV_TYPE_NAME))
+    }
+    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
       stdDevType = (String) val;
-    else if(pName.equals(this.PERIOD_NAME) && intensityMeasureChanged)
+    }
+    else if (pName.equals(this.PERIOD_NAME) && intensityMeasureChanged) {
       setCoeffIndex();
+    }
   }
 
   /**

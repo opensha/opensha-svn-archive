@@ -2,6 +2,7 @@ package org.opensha.sha.imr.attenRelImpl;
 
 import java.util.*;
 
+import org.opensha.calc.*;
 import org.opensha.data.*;
 import org.opensha.exceptions.*;
 import org.opensha.param.*;
@@ -10,7 +11,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.surface.*;
-import org.opensha.calc.RelativeLocation;
 
 /**
  * <b>Title:</b> AS_2005_prelim_AttenRel<p>
@@ -134,7 +134,8 @@ public class AS_2005_prelim_AttenRel
   private HashMap indexFromPerHashMap;
 
   private int iper;
-  private double vs30, rjb, rRup,distRupJB_Fraction, aspectratio, rake, dip, mag, srcSiteA, depthTop;
+  private double vs30, rjb, rRup, distRupJB_Fraction, aspectratio, rake, dip,
+      mag, srcSiteA, depthTop;
   private String stdDevType;
   private boolean parameterChange;
   private double mean, stdDev;
@@ -154,8 +155,9 @@ public class AS_2005_prelim_AttenRel
   protected DoubleParameter srcSiteAngleParam = null;
   public final static String SRC_SITE_ANGLE_NAME = "Source_Site Angle";
   public final static String SRC_SITE_ANGLE_UNITS = "degrees";
-  public final static String SRC_SITE_ANGLE_INFO = "Difference between directions defined by closest point"+
-                                                  " on trace to site and the average strike of fault";
+  public final static String SRC_SITE_ANGLE_INFO =
+      "Difference between directions defined by closest point" +
+      " on trace to site and the average strike of fault";
   public final static Double SRC_SITE_ANGLE_DEFAULT = new Double(90);
   protected final static Double SRC_SITE_ANGLE_MIN = new Double( -360);
   protected final static Double SRC_SITE_ANGLE_MAX = new Double(360);
@@ -212,7 +214,7 @@ public class AS_2005_prelim_AttenRel
     initOtherParams();
 
     initIndependentParamLists(); // This must be called after the above
-    initPameterListeners();//add the change listeners to the parameters
+    initPameterListeners(); //add the change listeners to the parameters
 
   }
 
@@ -229,15 +231,18 @@ public class AS_2005_prelim_AttenRel
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     rakeParam.setValue(eqkRupture.getAveRake());
-        GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+    GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
     dipParam.setValue(surface.getAveDip());
-    double depth = surface.getLocation(0,0).getDepth();
+    double depth = surface.getLocation(0, 0).getDepth();
     rupTopDepthParam.setValue(depth);
     // for point surface
-    if(surface.size() == 1)
+    if (surface.size() == 1) {
       aspectRatioParam.setValue(1.0);
-    else
-      aspectRatioParam.setValue(surface.getSurfaceLength()/surface.getSurfaceWidth());
+    }
+    else {
+      aspectRatioParam.setValue(surface.getSurfaceLength() /
+                                surface.getSurfaceWidth());
+    }
 
 //    setFaultTypeFromRake(eqkRupture.getAveRake());
     this.eqkRupture = eqkRupture;
@@ -282,20 +287,22 @@ public class AS_2005_prelim_AttenRel
       // set the srcSiteAngle parameter (could make a subclass of
       // PropagationEffectParameter later if others use this
       GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
-      Location fltLoc1 = surface.getLocation(0,0);
-      Location fltLoc2 = surface.getLocation(0,surface.getNumCols()-1);
-      double angle1 = RelativeLocation.getAzimuth(fltLoc1,fltLoc2);
+      Location fltLoc1 = surface.getLocation(0, 0);
+      Location fltLoc2 = surface.getLocation(0, surface.getNumCols() - 1);
+      double angle1 = RelativeLocation.getAzimuth(fltLoc1, fltLoc2);
       double minDist = Double.MAX_VALUE, dist;
       int minDistLocIndex = -1;
-      for(int i = 0; i < surface.getNumCols(); i++) {
-        dist = RelativeLocation.getApproxHorzDistance(site.getLocation(), surface.getLocation(0,i));
-        if(dist < minDist) {
+      for (int i = 0; i < surface.getNumCols(); i++) {
+        dist = RelativeLocation.getApproxHorzDistance(site.getLocation(),
+            surface.getLocation(0, i));
+        if (dist < minDist) {
           minDist = dist;
-          minDistLocIndex=i;
+          minDistLocIndex = i;
         }
       }
-      double angle2 = RelativeLocation.getAzimuth(surface.getLocation(0,minDistLocIndex),site.getLocation());
-      srcSiteAngleParam.setValue(angle2-angle1);
+      double angle2 = RelativeLocation.getAzimuth(surface.getLocation(0,
+          minDistLocIndex), site.getLocation());
+      srcSiteAngleParam.setValue(angle2 - angle1);
 
     }
   }
@@ -317,7 +324,9 @@ public class AS_2005_prelim_AttenRel
       iper = ( (Integer) indexFromPerHashMap.get(periodParam.getValue())).
           intValue();
     }
-    else iper = 0;
+    else {
+      iper = 0;
+    }
     parameterChange = true;
     intensityMeasureChanged = false;
 
@@ -328,8 +337,9 @@ public class AS_2005_prelim_AttenRel
    * @return    The mean value
    */
   public double getMean() {
-    if(intensityMeasureChanged)
+    if (intensityMeasureChanged) {
       setCoeffIndex();
+    }
 
     // check if distance is beyond the user specified max
     if (rRup > USER_MAX_DISTANCE) {
@@ -346,8 +356,9 @@ public class AS_2005_prelim_AttenRel
    * @return    The stdDev value
    */
   public double getStdDev() {
-    if(intensityMeasureChanged)
+    if (intensityMeasureChanged) {
       setCoeffIndex();
+    }
 
     if (parameterChange) {
       calcMeanStdDev();
@@ -377,16 +388,16 @@ public class AS_2005_prelim_AttenRel
     stdDevTypeParam.setValue(STD_DEV_TYPE_DEFAULT);
     srcSiteAngleParam.setValue(SRC_SITE_ANGLE_DEFAULT);
 
-    vs30 = ((Double)vs30Param.getValue()).doubleValue();
-    rjb = ((Double)distRupMinusJB_OverRupParam.getValue()).doubleValue();
-    rRup = ((Double)distanceRupParam.getValue()).doubleValue();
-    aspectratio = ((Double)aspectRatioParam.getValue()).doubleValue();
-    rake = ((Double)rakeParam.getValue()).doubleValue();
-    dip = ((Double)dipParam.getValue()).doubleValue();
-    mag = ((Double)magParam.getValue()).doubleValue();
-    srcSiteA = ((Double)srcSiteAngleParam.getValue()).doubleValue();
-    depthTop = ((Double)rupTopDepthParam.getValue()).doubleValue();
-    stdDevType = (String)stdDevTypeParam.getValue();
+    vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+    rjb = ( (Double) distRupMinusJB_OverRupParam.getValue()).doubleValue();
+    rRup = ( (Double) distanceRupParam.getValue()).doubleValue();
+    aspectratio = ( (Double) aspectRatioParam.getValue()).doubleValue();
+    rake = ( (Double) rakeParam.getValue()).doubleValue();
+    dip = ( (Double) dipParam.getValue()).doubleValue();
+    mag = ( (Double) magParam.getValue()).doubleValue();
+    srcSiteA = ( (Double) srcSiteAngleParam.getValue()).doubleValue();
+    depthTop = ( (Double) rupTopDepthParam.getValue()).doubleValue();
+    stdDevType = (String) stdDevTypeParam.getValue();
   }
 
   /**
@@ -601,21 +612,23 @@ public class AS_2005_prelim_AttenRel
     return NAME;
   }
 
-
   /**
    * This function calculates the Std-Dev and Mean together so pgaRock is not
    * computed twice
    */
   private void calcMeanStdDev() {
-    double pgaRock = Math.exp(calcMean(0,0.0,1100));
-    if(D)
-      System.out.println("PGA-Rock = "+pgaRock);
-    mean = calcMean(iper,pgaRock,vs30);
-    if(D)
-      System.out.println("Mean = "+mean);
-    stdDev = calcStdDev(iper,pgaRock,vs30);
-    if(D)
-      System.out.println("Std Dev = "+stdDev);
+    double pgaRock = Math.exp(calcMean(0, 0.0, 1100));
+    if (D) {
+      System.out.println("PGA-Rock = " + pgaRock);
+    }
+    mean = calcMean(iper, pgaRock, vs30);
+    if (D) {
+      System.out.println("Mean = " + mean);
+    }
+    stdDev = calcStdDev(iper, pgaRock, vs30);
+    if (D) {
+      System.out.println("Std Dev = " + stdDev);
+    }
     parameterChange = false;
   }
 
@@ -623,13 +636,14 @@ public class AS_2005_prelim_AttenRel
 
     double Frv, Fn, r, sum, taperM1, taperM2, ar1, hw1, t_hw, dAmp_dPGA;
 
-    rjb = rRup - distRupJB_Fraction*rRup;
+    rjb = rRup - distRupJB_Fraction * rRup;
 
-    if(D){
+    if (D) {
       System.out.println("Before Mechanism");
-      System.out.println("Vs30 = "+vs30+" PGA-Rock ="+pgaRock+" Mag = "+mag+" rRup = "
-                         +rRup+" rake = "+rake);
-      System.out.println("iPer = "+iper);
+      System.out.println("Vs30 = " + vs30 + " PGA-Rock =" + pgaRock + " Mag = " +
+                         mag + " rRup = "
+                         + rRup + " rake = " + rake);
+      System.out.println("iPer = " + iper);
     }
     //       Mechanism
     if (rake > 22.5 && rake < 157.5) {
@@ -650,18 +664,19 @@ public class AS_2005_prelim_AttenRel
     sum = c1[iper] + (c2[iper] + c3[iper] * (7.5 - mag)) * Math.log(r) +
         c5[iper] * (mag - 6.) + c6[iper] * (8.5 - mag) * (8.5 - mag);
 
-    if(D){
+    if (D) {
       System.out.println("BaseModel");
-      System.out.println("Sum = "+sum +" rRup ="+rRup+" r ="+r+" c0[iper] ="+c0[iper]);
+      System.out.println("Sum = " + sum + " rRup =" + rRup + " r =" + r +
+                         " c0[iper] =" + c0[iper]);
 
     }
 
     //     Mech model
     sum += c7[iper] * Frv + c9[iper] * Fn;
 
-    if(D){
+    if (D) {
       System.out.println("Mech Model");
-      System.out.println("Sum = "+sum+" Frv = "+Frv+" Fn ="+Fn);
+      System.out.println("Sum = " + sum + " Frv = " + Frv + " Fn =" + Fn);
     }
 
     //     Set Taper 1
@@ -696,10 +711,12 @@ public class AS_2005_prelim_AttenRel
     }
 
     sum = sum + c8[iper] * (Math.log(ar1) - Math.log(1.5)) * taperM1;
-    if(D){
+    if (D) {
       System.out.println("Aspect Ratio");
-      System.out.println("Sum = "+sum+" AR1 = "+ar1+" c8(iper)*(slog(ar1)-alog(1.5)) ="+
-          (c8[iper]*(Math.log(ar1) - Math.log(1.5)))+" TaperM1 = "+taperM1);
+      System.out.println("Sum = " + sum + " AR1 = " + ar1 +
+                         " c8(iper)*(slog(ar1)-alog(1.5)) =" +
+                         (c8[iper] * (Math.log(ar1) - Math.log(1.5))) +
+                         " TaperM1 = " + taperM1);
     }
 //     soil
     double soilamp;
@@ -749,24 +766,24 @@ public class AS_2005_prelim_AttenRel
 
     sum = sum + hw1;
 
-    if(D)
-      System.out.println("HW1 - Sum ="+sum);
-
+    if (D) {
+      System.out.println("HW1 - Sum =" + sum);
+    }
 
 //         depth of rupture term
     if (mag < 6.5) {
       sum = sum + c12[iper] * (depthTop - 5.) * (1. - taperM2);
     }
 
-    if(D){
+    if (D) {
       System.out.println("Depth of Rupture Term");
-      System.out.println("Sum = "+sum);
+      System.out.println("Sum = " + sum);
     }
     return sum;
   }
 
   private double calcStdDev(int iper, double pgaRock, double vs30) {
-    double sigma,tau;
+    double sigma, tau;
     sigma = sigma0[iper];
     tau = tau0[iper];
 
@@ -790,13 +807,16 @@ public class AS_2005_prelim_AttenRel
       tau = Math.sqrt(tau0[iper] * tau0[iper] + Math.pow(dAmp_dPGA * tau0[0], 2) +
                       2. * dAmp_dPGA * tau0[0] * tau0[iper] * tauCorr[iper]);
 
-      if (stdDevType.equals(STD_DEV_TYPE_INTER))return tau;
+      if (stdDevType.equals(STD_DEV_TYPE_INTER)) {
+        return tau;
+      }
 
-      else return Math.sqrt(sigma * sigma + tau * tau);
+      else {
+        return Math.sqrt(sigma * sigma + tau * tau);
+      }
     }
 
   }
-
 
   /**
    * This listens for parameter changes and updates the primitive parameters accordingly
@@ -804,32 +824,42 @@ public class AS_2005_prelim_AttenRel
    */
   public void parameterChange(ParameterChangeEvent e) {
 
-
     String pName = e.getParameterName();
     Object val = e.getNewValue();
     parameterChange = true;
-    if (pName.equals(DistanceRupParameter.NAME))
+    if (pName.equals(DistanceRupParameter.NAME)) {
       rRup = ( (Double) val).doubleValue();
-    else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME))
+    }
+    else if (pName.equals(DistRupMinusJB_OverRupParameter.NAME)) {
       distRupJB_Fraction = ( (Double) val).doubleValue();
-    else if (pName.equals(this.VS30_NAME))
+    }
+    else if (pName.equals(this.VS30_NAME)) {
       vs30 = ( (Double) val).doubleValue();
-    else if (pName.equals(this.MAG_NAME))
+    }
+    else if (pName.equals(this.MAG_NAME)) {
       mag = ( (Double) val).doubleValue();
-    else if (pName.equals(this.DIP_NAME))
+    }
+    else if (pName.equals(this.DIP_NAME)) {
       dip = ( (Double) val).doubleValue();
-    else if (pName.equals(this.RAKE_NAME))
+    }
+    else if (pName.equals(this.RAKE_NAME)) {
       rake = ( (Double) val).doubleValue();
-    else if (pName.equals(this.ASPECT_RATIO_NAME))
+    }
+    else if (pName.equals(this.ASPECT_RATIO_NAME)) {
       aspectratio = ( (Double) val).doubleValue();
-    else if (pName.equals(this.SRC_SITE_ANGLE_NAME))
+    }
+    else if (pName.equals(this.SRC_SITE_ANGLE_NAME)) {
       srcSiteA = ( (Double) val).doubleValue();
-    else if (pName.equals(this.RUP_TOP_NAME))
+    }
+    else if (pName.equals(this.RUP_TOP_NAME)) {
       depthTop = ( (Double) val).doubleValue();
-    else if (pName.equals(this.STD_DEV_TYPE_NAME))
+    }
+    else if (pName.equals(this.STD_DEV_TYPE_NAME)) {
       stdDevType = (String) val;
-    else if(pName.equals(this.PERIOD_NAME) && intensityMeasureChanged)
+    }
+    else if (pName.equals(this.PERIOD_NAME) && intensityMeasureChanged) {
       setCoeffIndex();
+    }
   }
 
   /**
