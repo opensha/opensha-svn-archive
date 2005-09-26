@@ -20,7 +20,7 @@ import org.opensha.sha.fault.*;
  * @version 1.0
  */
 public class GenericAfterHypoMagFreqDistForecast
-    extends STEP_AftershockHypoMagForecast {
+    extends STEP_AftershockForecast {
 
   private double a_valueGeneric = -1.67;
   private double b_valueGeneric = 0.91;
@@ -32,14 +32,15 @@ public class GenericAfterHypoMagFreqDistForecast
   int numGridLocs;
 
   //public GenericAfterHypoMagFreqDistForecast() {
-  public GenericAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock) {
+  public GenericAfterHypoMagFreqDistForecast
+      (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI backGroundRatesGrid,
+       RegionDefaults rDefs) {
       /**
        * initialise the aftershock zone and mainshock for this model
        */
-
-    //this.setMainShock(mainshock);
+    this.setMainShock(mainshock);
     this.set_AftershockZoneRadius();
-    this.calcAfterShockZone();
+    this.calcTypeI_AftershockZone();
 
 
     EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();

@@ -5,7 +5,7 @@ import org.opensha.data.region.CircularGeographicRegion;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
-import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockHypoMagForecast;
+import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
 
 /**
  * <p>Title: </p>
@@ -21,7 +21,7 @@ import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockHypoMagForecast
  */
 public class AftershockZone_Calc {
 
-  public AftershockZone_Calc(STEP_AftershockHypoMagForecast aftershockModel,
+  public AftershockZone_Calc(STEP_AftershockForecast aftershockModel,
                              ObsEqkRupList previousAftershocks,
                              ObsEqkRupList newObsEvents) {
    // calc_AftershockZone(aftershockModel, previousAftershocks, newObsEvents);

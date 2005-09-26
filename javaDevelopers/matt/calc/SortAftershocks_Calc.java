@@ -1,6 +1,6 @@
 package javaDevelopers.matt.calc;
 
-import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockHypoMagForecast;
+import org.opensha.sha.earthquake.griddedForecast.STEP_AftershockForecast;
 import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupList;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
@@ -20,7 +20,7 @@ import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
  * @version 1.0
  */
 public class SortAftershocks_Calc {
-  private STEP_AftershockHypoMagForecast aftershockModel;  // this is the new event
+  private STEP_AftershockForecast aftershockModel;  // this is the new event
   //private AftershockModelList previousMainshockModels,newEventModels;
 
   /*public SortAftershocks_Calc(AfterShockModelList newEventModels,

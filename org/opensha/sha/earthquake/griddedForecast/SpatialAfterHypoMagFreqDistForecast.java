@@ -26,8 +26,10 @@ public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFre
   private ArrayList rjParms;
   private ReasenbergJonesGriddedParms_Calc rjcalc;
 
-  public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock) {
-    super(mainShock);
+  public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock,
+                                             EvenlyGriddedGeographicRegionAPI
+                                              backGroundRatesGrid, RegionDefaults rDefs) {
+    super(mainShock,backGroundRatesGrid,rDefs);
   }
 
   /**

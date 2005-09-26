@@ -22,26 +22,45 @@ import org.opensha.sha.magdist.*;
  * @author not attributable
  * @version 1.0
  */
-public abstract class STEP_AftershockHypoMagForecast
+public abstract class STEP_AftershockForecast
     extends AfterShockHypoMagFreqDistForecast {
 
-  public double minForecastMag = 4.0;
-  private double maxForecastMag = 8.0;
-  private double deltaMag = 0.1;
+
+  public double minForecastMag;
+  private double maxForecastMag;
+  private double deltaMag;
   private int numHypoLocation;
   private double[] grid_aVal, grid_bVal, grid_cVal, grid_pVal, grid_kVal;
   private double[] node_CompletenessMag;
   private SimpleFaultData mainshockFault;
   public boolean useFixed_cValue = true;
   private boolean hasExternalFaultModel = false;
-  public double addToMc = .2;
+  public double addToMc;
   private double zoneRadius;
-  public ObsEqkRupList newObsEventList;
-  private double gridSpacing = 0.05;
+  private double gridSpacing;
   private double forecastEndTime, forecastStartTime;
   private ArrayList griddedMagFreqDistForecast;
   private boolean isStatic = false, isPrimary = true,
       isSecondary = false, useSeqAndSpatial = false;
+  private ObsEqkRupList newAftershocksInZone;
+
+
+  /**
+     * STEP_AftershockForecast
+     */
+    public STEP_AftershockForecast() {
+  }
+
+  /**
+   * setRegionDefaults
+   */
+  public void setRegionDefaults(RegionDefaults rDefs) {
+    this.minForecastMag = rDefs.minForecastMag;
+    this.maxForecastMag = rDefs.maxForecastMag;
+    this.deltaMag = rDefs.deltaForecastMag;
+    this.addToMc = rDefs.addToMc;
+    this.gridSpacing = rDefs.gridSpacing;
+  }
 
   /**
    * set_useSeqAndSpatial
@@ -155,8 +174,8 @@ public abstract class STEP_AftershockHypoMagForecast
    * This should contain All new events - this is the list that will
    * be used to look for new aftershocks.
    */
-  public void setNewObsEventsList(ObsEqkRupList newObsEventList) {
-  }
+  //public void setNewObsEventsList(ObsEqkRupList newObsEventList) {
+  //}
 
   /**
    * set_PreviousAftershocks
@@ -185,9 +204,20 @@ public abstract class STEP_AftershockHypoMagForecast
   /**
    * calcTypeI_AftershockZone
    */
-  private void calcTypeI_AftershockZone() {
-  }
+  public void calcTypeI_AftershockZone() {
 
+    if (hasExternalFaultModel) {
+      // This needs to be set up to read an external fault model.
+    }
+    else{
+      ObsEqkRupture mainshock = this.getMainShock();
+      Location mainshockLocation = mainshock.getHypocenterLocation();
+      EvenlyGriddedCircularGeographicRegion aftershockZone =
+          new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
+          zoneRadius, gridSpacing);
+      this.setAfterShockZone(aftershockZone);
+    }
+  }
 
   /**
    * This will calculate the appropriate afershock zone based on the availability
@@ -198,39 +228,22 @@ public abstract class STEP_AftershockHypoMagForecast
    * This will also set the aftershock list.
    */
 
-  public void calcAfterShockZone() {
-
-    ObsEqkRupList eventsInZoneList = new ObsEqkRupList();
-    ObsEqkRupList allEventsList = new ObsEqkRupList();
-    allEventsList.addAllObsEqkRupEvents(this.get_NewObsEventsList());
-    allEventsList.addAllObsEqkRupEvents(this.get_PreviousAftershockList());
-
+  public void calcTypeII_AfterShockZone(ObsEqkRupList aftershockList) {
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
     }
     else {
-      ObsEqkRupture mainshock = this.getMainShock();
-      Location mainshockLocation = mainshock.getHypocenterLocation();
-      /** EvenlyGriddedCircularGeographicRegion aftershockZone =
-         new EvenlyGriddedCircularGeographicRegion(mainshockLocation, zoneRadius);
-      eventsInZoneList = allEventsList.getObsEqkRupsInside(aftershockZone);
-      if (eventsInZoneList.size() > 100) {
         STEP_TypeIIAftershockZone_Calc typeIIcalc = new
-            STEP_TypeIIAftershockZone_Calc(eventsInZoneList, this);
+            STEP_TypeIIAftershockZone_Calc(aftershockList, this);
         EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
             get_TypeIIAftershockZone();
        this.setAfterShockZone(typeII_Zone);
-       // eventsInZoneList.getObsEqkRupsInside(typeII_Zone);
       }
-      else
-        this.setAfterShockZone(aftershockZone);
-       */
-    }
   }
 
 
 
-   /**
+  /**
     * set_ForecastStartTime
     */
    public void set_ForecastStartTime(double timeStart) {
@@ -273,7 +286,12 @@ public abstract class STEP_AftershockHypoMagForecast
     }
   }
 
-
+  /**
+   * setHasExternalFaultModel
+   */
+  public void setHasExternalFaultModel(boolean hasExternalFaultModel) {
+    this.hasExternalFaultModel = hasExternalFaultModel;
+  }
 
   /**
    * Set the fault surface that will be used do define a Type II
@@ -378,17 +396,24 @@ public abstract class STEP_AftershockHypoMagForecast
   }
 
   /**
+   * getHasExternalFaultModel
+   */
+  public boolean getHasExternalFaultModel() {
+    return this.hasExternalFaultModel;
+  }
+
+  /**
    * get_NewObsEventsList
    */
-  public ObsEqkRupList get_NewObsEventsList() {
-    return newObsEventList;
-  }
+  //public ObsEqkRupList get_NewObsEventsList() {
+  //  return newObsEventList;
+  //}
 
   /**
    * get_PreviousAftershockList
    */
-  public ObsEqkRupList get_PreviousAftershockList() {
-    return newObsEventList;
-  }
+  //public ObsEqkRupList get_PreviousAftershockList() {
+  //  return newObsEventList;
+  //}
 
 }

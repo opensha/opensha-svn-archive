@@ -22,7 +22,7 @@ import org.opensha.sha.fault.*;
  * @version 1.0
  */
 public class SmoothKVal_Calc {
-  private  STEP_AftershockHypoMagForecast aftershockModel;
+  private  STEP_AftershockForecast aftershockModel;
   private  EvenlyGriddedGeographicRegionAPI aftershockZone;
   private double global_aVal, global_bVal, global_Mc;
   private ObsEqkRupture mainshock;

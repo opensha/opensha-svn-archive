@@ -70,14 +70,14 @@ public class STEP_main {
      * BackgroundRatesList
      */
 
-    EvenlyGriddedGeographicRegionAPI backGroundRatesGrid;
+    EvenlyGriddedGeographicRegionAPI backGroundRatesGrid = null;
 
     /**
      * now loop over all new events and assign them as an aftershock to
      * a previous event if appropriate (loop thru all existing mainshocks)
      */
     ObsEqkRupture newEvent, mainshock;
-    STEP_AftershockHypoMagForecast mainshockModel, foundMsModel, staticModel;
+    STEP_AftershockForecast mainshockModel, foundMsModel, staticModel;
     ListIterator newIt = newObsEqkRuptureList.listIterator();
     boolean isAftershock = false;
     int indexNum, maxMagInd = -1;
@@ -90,7 +90,7 @@ public class STEP_main {
 
       for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
         mainshockModel =
-            (STEP_AftershockHypoMagForecast)STEP_AftershockForecastList.get(msLoop);
+            (STEP_AftershockForecast)STEP_AftershockForecastList.get(msLoop);
         mainshock = mainshockModel.getMainShock();
         msMag = mainshock.getMag();
 
@@ -118,7 +118,7 @@ public class STEP_main {
           if (msMag > maxMag) {
             if (maxMagInd > -1){
               staticModel =
-            (STEP_AftershockHypoMagForecast)STEP_AftershockForecastList.get(msLoop);
+            (STEP_AftershockForecast)STEP_AftershockForecastList.get(msLoop);
               staticModel.set_isStatic(true);
             }
             maxMagInd = msLoop;
@@ -129,15 +129,15 @@ public class STEP_main {
       // mainshock - if one has been found
       if (maxMagInd > -1) {
         foundMsModel =
-            (STEP_AftershockHypoMagForecast)STEP_AftershockForecastList.get(maxMagInd);
+            (STEP_AftershockForecast)STEP_AftershockForecastList.get(maxMagInd);
         foundMsModel.addToAftershockList(newEvent);
       }
 
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= rDefs.minMagForMainshock) {
-      STEP_AftershockHypoMagForecast newGenForecastMod =
-           new GenericAfterHypoMagFreqDistForecast(newEvent);
+      STEP_AftershockForecast newGenForecastMod =
+           new GenericAfterHypoMagFreqDistForecast(newEvent,backGroundRatesGrid,rDefs);
 
         // if the new event is already an aftershock to something else
         // set it as a secondary event.
@@ -148,6 +148,7 @@ public class STEP_main {
           newGenForecastMod.set_isPrimary(true);
         }
 
+
         // add the new event to the list of mainshocks and increment the number
         // of total mainshocks (for the loop)
         STEP_AftershockForecastList.add(newGenForecastMod);
@@ -155,6 +156,21 @@ public class STEP_main {
 
       }
     }
+
+    /**
+     * Next loop over the list of all forecast model objects and create
+     * a forecast for each object
+     */
+
+    int numAftershockModels = STEP_AftershockForecastList.size();
+    STEP_AftershockForecast forecastModel;
+
+    for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
+      forecastModel =
+          (STEP_AftershockForecast)STEP_AftershockForecastList.get(modelLoop);
+      //UpdateSTEP_Forecast(forecastModel);
+    }
+
 
 
   }

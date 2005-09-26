@@ -25,7 +25,7 @@ public class STEP_TypeIIAftershockZone_Calc {
   private LocationList faultSegments;
   private double zoneRadius, gridSpacing;
 
-  public STEP_TypeIIAftershockZone_Calc(ObsEqkRupList newObsEventsList, STEP_AftershockHypoMagForecast aftershockModel) {
+  public STEP_TypeIIAftershockZone_Calc(ObsEqkRupList newObsEventsList, STEP_AftershockForecast aftershockModel) {
     ObsEqkRupture mainshock = aftershockModel.getMainShock();
     Location mainshockLoc = mainshock.getHypocenterLocation();
     double gridSpacing = aftershockModel.get_GridSpacing();

@@ -36,6 +36,10 @@ public class RegionDefaults {
   public static double searchLongMin = -124.6;
   public static double searchLongMax = -112;
 
+  public static double gridSpacing = 0.05;
+
+  public static double addToMc = 0.02;
+
 
 
 

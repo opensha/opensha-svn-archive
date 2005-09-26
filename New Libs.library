@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  <!--JBuilder Library Definition File-->
+  <fullname>New Libs</fullname>
+  <class>
+    <path>[lib/xsdlib.jar]</path>
+    <path>[lib/ojdbc14.jar]</path>
+    <path>[lib/mail.jar]</path>
+    <path>[lib/xml-apis.jar]</path>
+    <path>[lib/log4j-1.2.4.jar]</path>
+    <path>[lib/jta-spec1_0_1.jar]</path>
+    <path>[lib/jh.jar]</path>
+    <path>[lib/jaxrpc-impl.jar]</path>
+    <path>[lib/jax-qname.jar]</path>
+    <path>[lib/jaxrpc-api.jar]</path>
+    <path>[lib/relaxngDatatype.jar]</path>
+    <path>[lib/xercesImpl.jar]</path>
+    <path>[lib/dom4j.jar]</path>
+    <path>[lib/xmlParserAPIs.jar]</path>
+    <path>[lib/saaj-api.jar]</path>
+    <path>[lib/jaas.jar]</path>
+    <path>[lib/commons-collections.jar]</path>
+    <path>[lib/saaj-impl.jar]</path>
+    <path>[lib/rowset.jar]</path>
+    <path>[lib/commons-logging.jar]</path>
+    <path>[lib/xercesSamples.jar]</path>
+    <path>[lib/commons-beanutils.jar]</path>
+    <path>[lib/namespace.jar]</path>
+    <path>[lib/activation.jar]</path>
+  </class>
+  <lastmodsaved>1126133650700</lastmodsaved>
+</library>

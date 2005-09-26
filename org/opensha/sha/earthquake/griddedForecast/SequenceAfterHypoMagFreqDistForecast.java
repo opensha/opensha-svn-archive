@@ -24,9 +24,11 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
   private double[] grid_Seq_kVal, grid_Seq_aVal, grid_Seq_bVal, grid_Seq_cVal, grid_Seq_pVal;
   public MaxLikeOmori_Calc omoriCalc;
 
-  public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock) {
+  public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock,
+                                              EvenlyGriddedGeographicRegionAPI
+                                              backGroundRatesGrid, RegionDefaults rDefs) {
     //pass mainShock object to generic model (this will initialise the aftershock zone
-    super(mainShock);
+    super(mainShock,backGroundRatesGrid,rDefs);
 
     //EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
     // numGridLocs = aftershockZone.getNumGridLocs();

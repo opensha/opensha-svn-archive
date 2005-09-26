@@ -19,11 +19,11 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
  */
 public class IsAftershockToMainshock_Calc {
   private ObsEqkRupture newEvent;
-  private STEP_AftershockHypoMagForecast mainshockModel;
+  private STEP_AftershockForecast mainshockModel;
   private boolean isInZone;
 
   public IsAftershockToMainshock_Calc(ObsEqkRupture newEvent,
-                                      STEP_AftershockHypoMagForecast
+                                      STEP_AftershockForecast
                                       mainshockModel) {
     Calc_IsAftershockToMainshock();
   }
