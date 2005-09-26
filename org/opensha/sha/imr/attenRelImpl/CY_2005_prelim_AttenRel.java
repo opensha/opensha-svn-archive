@@ -541,29 +541,23 @@ public class CY_2005_prelim_AttenRel
     return yRef;
   }
 
-  private double getMeanPGA_Rock(double vs30, double rRup,
-                                 double distRupJB_Fraction,
-                                 double dip, double rake, double mag,
-                                 double depthTop) {
-    double yRef = Math.exp(getYref(0, vs30, rRup, distRupJB_Fraction, dip, rake,
-                                   mag, depthTop));
-    double pgaRock = phi1[iper] * Math.log(vs30 / 1130) + phi2[iper] *
-        Math.exp(phi3[iper] * (vs30 - 360)) *
-        Math.log( (yRef + phi4[iper]) / phi4[iper]);
-    return Math.log(pgaRock);
+  private double getLnAmp(double vs30, double yRef) {
+    return phi1[iper] * Math.log(vs30 / 1130) +
+        phi2[iper] * Math.exp(phi3[iper] * (vs30 - 360)) *
+        Math.log( (Math.exp(yRef) + phi4[iper]) / phi4[iper]);
   }
+
 
   public double getMean(int iper, double vs30, double rRup,
                         double distRupJB_Fraction,
                         double dip, double rake, double mag, double depthTop) {
 
-    double pgaRock = getMeanPGA_Rock(vs30, rRup, distRupJB_Fraction, dip, rake,
-                                     mag, depthTop);
     double yRef = getYref(iper, vs30, rRup, distRupJB_Fraction, dip, rake, mag,
                           depthTop);
 
-    return (yRef + pgaRock);
+    return yRef + getLnAmp(vs30,yRef);
   }
+
 
   public double getStdDev(int iper, String stdDevType) {
 

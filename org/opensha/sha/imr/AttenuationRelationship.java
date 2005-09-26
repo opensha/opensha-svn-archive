@@ -365,7 +365,7 @@ public abstract class AttenuationRelationship
       "Depth to the top of the earthquake rupture";
   public final static Double RUP_TOP_DEFAULT = new Double(0);
   protected final static Double RUP_TOP_MIN = new Double(0);
-  protected final static Double RUP_TOP_MAX = new Double(Double.MAX_VALUE);
+  protected final static Double RUP_TOP_MAX = new Double(20);
 
   /**
    * Component Parameter, reserved for representing the component of shaking

@@ -172,7 +172,7 @@ public class AS_2005_prelim_AttenRel
       "Rupture length over down-dip width";
   public final static Double ASPECT_RATIO_DEFAULT = new Double(1);
   protected final static Double ASPECT_RATIO_MIN = new Double(Double.MIN_VALUE);
-  protected final static Double ASPECT_RATIO_MAX = new Double(Double.MAX_VALUE);
+  protected final static Double ASPECT_RATIO_MAX = new Double(200);
 
   /**
    * The DistanceRupParameter, closest distance to fault surface.
