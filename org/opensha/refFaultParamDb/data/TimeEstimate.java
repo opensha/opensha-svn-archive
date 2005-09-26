@@ -12,7 +12,7 @@ import org.opensha.data.estimate.Estimate;
 
 public class TimeEstimate implements TimeAPI {
   private Estimate estimate;
-  private int era;
+  private String era;
   private boolean isKa; // whether ka is selected or user is providing calendar year estimate
   private int zeroYear;
 
@@ -25,7 +25,7 @@ public class TimeEstimate implements TimeAPI {
     isKa = true;
   }
 
-  public void setForCalendarYear(Estimate estimate, int era) {
+  public void setForCalendarYear(Estimate estimate, String era) {
     this.estimate = estimate;
     this.era = era;
     isKa = false;
@@ -35,7 +35,7 @@ public class TimeEstimate implements TimeAPI {
     return isKa;
   }
 
-  public int getEra() {
+  public String getEra() {
     return era;
   }
 
