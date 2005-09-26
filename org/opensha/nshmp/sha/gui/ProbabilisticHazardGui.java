@@ -105,14 +105,20 @@ public class ProbabilisticHazardGui
     this.getContentPane().add(screenPanel, BorderLayout.CENTER);
 
     applicationInfoText.setText(
-        "This application can be used for obtaining hazard " +
+        "This application allows user for obtaining hazard " +
         "curves, uniform hazard response spectra " +
-        "and design parameters for the design documents.\n\n" +
+        "and design parameters for the design parameters for "+
+        "sites in 50 states of the United States, Puerto Rico and the "+
+        "U.S. Virgin Islands. Additionally, design "+
+        "parameters are available for Guam and American Samoa. "+
+        "Ground motion maps are also included in PDF format.\n\n" +
         "Maps are also included for obtaining values of " +
         "spectral acceleration at selected periods." +
         "Data for uniform hazard response spectra and hazard curves may be obtained by use of " +
-        "latitude and longitude or zip code to locate a site. Correct application of the " +
-        "data obtained from the use of this program and/or maps is the responsibility of the user.");
+        "latitude and longitude or zip code to locate a site.\n\n "+
+        "Correct application of the " +
+        "data obtained from the use of this program and/or maps is the responsibility of the user. "+
+          "This software is not a substitute for technical knowledge of seismic design and/or analysis.");
     this.setTitle("Seismic Hazard Curves and Uniform Hazard Response Spectra");
     this.setSize(new Dimension(576, 378));
     //screenPanel.setSize(new Dimension(600, 500));
