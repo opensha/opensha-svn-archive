@@ -6,6 +6,12 @@ drop table Paleo_Event_References;
 drop table Paleo_Event;
 drop table Combined_Events_References;
 drop table Combined_Events_Info;
+drop table Time_Estimate_Info;
+drop table Exact_Time_Info;
+drop trigger Time_Instances_Trigger;
+drop sequence Time_Instances_Sequence;
+drop table Time_Instances;
+drop table Time_Type;
 drop table Paleo_Site_References;
 drop trigger Paleo_Site_Trigger;
 drop sequence Paleo_Site_Sequence;
@@ -363,8 +369,68 @@ CREATE TABLE Paleo_Site_References (
      REFERENCES Paleo_Site(Site_Id, Entry_Date)
 );
   
-  
-  
+
+
+CREATE TABLE Time_Type (
+  Time_Type_Id INTEGER NOT NULL,
+  Time_Type_Description VARCHAR(255) NOT NULL UNIQUE,
+  Entry_Date date NOT NULL,
+  PRIMARY KEY(Time_Type_Id)
+);
+
+
+CREATE TABLE Time_Instances (
+  Time_Id INTEGER NOT NULL,
+  Time_Type_Id INTEGER  NOT NULL,
+  Comments VARCHAR(255) NULL,
+  PRIMARY KEY(Time_Id),
+  FOREIGN KEY(Time_Type_Id) 
+    REFERENCES Time_Type(Time_Type_Id)
+);
+
+create sequence Time_Instances_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Time_Instances_Trigger
+before insert on Time_Instances 
+for each row
+begin
+if :new.Time_Id is null then
+select Time_Instances_Sequence.nextval into :new.Time_Id from dual;
+end if;
+end;
+/
+
+CREATE TABLE Exact_Time_Info (
+   Time_Instance_Id INTEGER NOT NULL,
+   Year INTEGER NOT NULL,
+   Month INTEGER NOT NULL,
+   Day INTEGER NOT NULL,
+   Hour INTEGER NOT NULL,
+   Minute INTEGER NOT NULL,
+   Second INTEGER NOT NULL,
+   Era VARCHAR(2) NOT NULL,
+   PRIMARY KEY(Time_Instance_Id),
+   FOREIGN KEY(Time_Instance_Id) 
+      REFERENCES Time_Instances(Time_Id)
+);
+
+CREATE TABLE Time_Estimate_Info(
+   Time_Instance_Id INTEGER NOT NULL,
+   Time_Est_Id INTEGER NOT NULL,
+   Is_Ka char(1) NOT NULL,
+   Era VARCHAR(2) NULL,
+   Zero_Year INTEGER NULL,
+   PRIMARY KEY(Time_Instance_Id),
+   FOREIGN KEY(Time_Instance_Id) 
+      REFERENCES Time_Instances(Time_Id),
+   FOREIGN KEY(Time_Est_Id)
+      REFERENCES Est_Instances(Est_Id)
+);
+
+
 
 CREATE TABLE Combined_Events_Info (
   Info_Id INTEGER  NOT NULL,
@@ -373,8 +439,8 @@ CREATE TABLE Combined_Events_Info (
   Entry_Date date NOT NULL,
   Entry_Comments VARCHAR(255) NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
-  Start_Time_Est_Id INTEGER  NOT NULL,
-  End_Time_Est_Id INTEGER  NOT NULL,
+  Start_Time_Id INTEGER  NOT NULL,
+  End_Time_Id INTEGER  NOT NULL,
   Total_Slip_Est_Id INTEGER  NOT NULL,
   Slip_Rate_Est_Id INTEGER  NOT NULL,
   Num_Events_Est_Id INTEGER  NOT NULL,
@@ -387,10 +453,10 @@ CREATE TABLE Combined_Events_Info (
     REFERENCES Paleo_Site(Site_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
-  FOREIGN KEY(Start_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
-  FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Start_Time_Id)
+     REFERENCES Time_Instances(Time_Id),
+  FOREIGN KEY(End_Time_Id)
+     REFERENCES Time_Instances(Time_Id),
   FOREIGN KEY(Total_Slip_Est_Id)
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY(Slip_Rate_Est_Id)
@@ -535,6 +601,10 @@ insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'T
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Geologic', 'Geologic Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Survey/Cultural', 'Survey/Cultural Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Unknown', 'Unknown Site Type');
+
+
+insert into Time_Type values (1, 'Exact Time', sysdate);
+insert into Time_Type values (2, 'Time Estimate', sysdate);
 
 
 create VIEW Vw_Paleo_Site_Chars AS

@@ -24,8 +24,8 @@ public class ServerDB_Access
 
   //used for debugging
   private static final boolean D = false;
-  //private final static String SERVLET_URL  = "http://gravity.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
-  private final static String SERVLET_URL = "http://136.177.30.208:8080/UCERF/servlet/DB_AccessServlet";
+  private final static String SERVLET_URL  = "http://gravity.usc.edu:8080/UCERF/servlet/DB_AccessServlet";
+  //private final static String SERVLET_URL = "http://136.177.30.208:8080/UCERF/servlet/DB_AccessServlet";
 
   /**
    * Gets the next unique sequence number to be insertd in the table.
@@ -33,7 +33,6 @@ public class ServerDB_Access
    * @param sequenceName String
    * @return int
    * @throws SQLException
-   * @todo Implement this javaDevelopers.vipin.dao.db.DB_AccessAPI method
    */
   public int getNextSequenceNumber(String sequenceName) throws SQLException {
 

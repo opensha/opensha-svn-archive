@@ -5,7 +5,6 @@ import java.util.StringTokenizer;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 /**
  * <p>Title:ReadReferencesFile.java </p>
@@ -25,8 +24,6 @@ public class ReadReferencesFile {
       ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
       String line;
       StringTokenizer tokenizer;
-      SessionInfo.setUserName("");
-      SessionInfo.setPassword("");
       for (int i = 0; i < referencesList.size(); ++i) {
         line = (String)referencesList.get(i);
         tokenizer = new StringTokenizer(line,";");
@@ -39,11 +36,6 @@ public class ReadReferencesFile {
     }catch(Exception e) {
       e.printStackTrace();
     }
-  }
-
-
-  public static void main(String[] args) {
-    new ReadReferencesFile();
   }
 
 }

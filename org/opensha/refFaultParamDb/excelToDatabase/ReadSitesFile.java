@@ -3,7 +3,6 @@ package org.opensha.refFaultParamDb.excelToDatabase;
 import org.opensha.refFaultParamDb.dao.db.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.Reference;
 
@@ -31,9 +30,6 @@ public class ReadSitesFile {
      ArrayList referencesList = org.opensha.util.FileUtils.loadFile(FILENAME);
      String line;
      StringTokenizer tokenizer;
-     SessionInfo.setUserName("");
-     SessionInfo.setPassword("");
-     SessionInfo.setContributorInfo();
      for (int i = 0; i < referencesList.size(); ++i) {
        line = (String)referencesList.get(i);
        // make the paleoSite VO
@@ -75,10 +71,6 @@ public class ReadSitesFile {
      e.printStackTrace();
    }
 
-  }
-
-  public static void main(String[] args) {
-    ReadSitesFile readSitesFile1 = new ReadSitesFile();
   }
 
 }

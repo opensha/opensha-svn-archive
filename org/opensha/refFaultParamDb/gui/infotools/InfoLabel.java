@@ -181,13 +181,12 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForExactTime(ExactTime exactTime) {
-    GregorianCalendar calendar = exactTime.getGregorianCalendar();
     return "<html><b>"+TIME+":&nbsp;</b>Exact Time"+"<br>"+
-        "<b>Year:&nbsp;</b>"+calendar.get(GregorianCalendar.YEAR)+exactTime.getEraAsString()+"<br>"+
-        "<b>Month:&nbsp;</b>"+calendar.get(GregorianCalendar.MONTH)+"<br>"+
-        "<b>Date:&nbsp;</b>"+calendar.get(GregorianCalendar.DATE)+"<br>"+
-        "<b>Hour:&nbsp;</b>"+calendar.get(GregorianCalendar.HOUR)+"<br>"+
-        "<b>Second:&nbsp;</b>"+calendar.get(GregorianCalendar.SECOND)+"<br></html>";
+        "<b>Year:&nbsp;</b>"+exactTime.getYear()+exactTime.getEra()+"<br>"+
+        "<b>Month:&nbsp;</b>"+exactTime.getMonth()+"<br>"+
+        "<b>Date:&nbsp;</b>"+exactTime.getDay()+"<br>"+
+        "<b>Hour:&nbsp;</b>"+exactTime.getHour()+"<br>"+
+        "<b>Second:&nbsp;</b>"+exactTime.getSecond()+"<br></html>";
   }
 
   /**

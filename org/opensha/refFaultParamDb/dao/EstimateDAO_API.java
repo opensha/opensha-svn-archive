@@ -34,6 +34,6 @@ public interface EstimateDAO_API {
 
   public String getEstimateTypeName();
 
-   public void setDB_Connection(DB_AccessAPI dbAccessAPI);
+  public void setDB_Connection(DB_AccessAPI dbAccessAPI);
 
 }

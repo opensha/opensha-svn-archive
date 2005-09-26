@@ -46,7 +46,4 @@ public class TimeEstimate implements TimeAPI {
   public int getZeroYear() {
     return zeroYear;
   }
-
-
-
 }
