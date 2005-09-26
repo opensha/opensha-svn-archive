@@ -159,10 +159,11 @@ public class AttenuationRelationshipApplet extends JApplet
 
 
     /**
-     *  Hashmap that maps picklist attenRel string names to the real fully qualified
+     *  ArrayList that maps picklist attenRel string names to the real fully qualified
      *  class names
      */
-    protected static HashMap imNames = new HashMap();
+    protected static ArrayList attenRelClasses = new ArrayList();
+    protected static ArrayList imNames = new ArrayList();
 
 
     /**
@@ -172,27 +173,41 @@ public class AttenuationRelationshipApplet extends JApplet
      *  loader to load these
      */
     static {
-        if ( imNames == null ) imNames = new HashMap();
-        imNames.clear();
+      imNames.add(AS_2005_prelim_AttenRel.NAME);
+      attenRelClasses.add(AS_2005_CLASS_NAME);
+      imNames.add(CY_2005_prelim_AttenRel.NAME);
+      attenRelClasses.add(CY_2005_CLASS_NAME);
+      imNames.add(CB_2005_prelim_AttenRel.NAME);
+      attenRelClasses.add(CB_2005_CLASS_NAME);
+      imNames.add(Boore_2005_prelim_AttenRel.NAME);
+      attenRelClasses.add(BOORE_2005_CLASS_NAME);
+      imNames.add(BJF_1997_AttenRel.NAME);
+      attenRelClasses.add(BJF_CLASS_NAME);
+      imNames.add(AS_1997_AttenRel.NAME);
+      attenRelClasses.add(AS_CLASS_NAME);
+      imNames.add(Campbell_1997_AttenRel.NAME);
+      attenRelClasses.add(C_CLASS_NAME);
+      imNames.add(SCEMY_1997_AttenRel.NAME);
+      attenRelClasses.add(SCEMY_CLASS_NAME);
+      imNames.add(Field_2000_AttenRel.NAME);
+      attenRelClasses.add(F_CLASS_NAME);
+      imNames.add(Abrahamson_2000_AttenRel.NAME);
+      attenRelClasses.add(A_CLASS_NAME);
+      imNames.add(CB_2003_AttenRel.NAME);
+      attenRelClasses.add(CB_CLASS_NAME);
+      imNames.add(ShakeMap_2003_AttenRel.NAME);
+      attenRelClasses.add(SM_CLASS_NAME);
+      imNames.add(SEA_1999_AttenRel.NAME);
+      attenRelClasses.add(SEA_CLASS_NAME);
+      imNames.add(CS_2005_AttenRel.NAME);
+      attenRelClasses.add(CS_CLASS_NAME);
 
-        imNames.put( BJF_1997_AttenRel.NAME, BJF_CLASS_NAME );
-        imNames.put( AS_1997_AttenRel.NAME, AS_CLASS_NAME );
-        imNames.put( Campbell_1997_AttenRel.NAME, C_CLASS_NAME );
-        imNames.put( SCEMY_1997_AttenRel.NAME, SCEMY_CLASS_NAME );
-        imNames.put( Field_2000_AttenRel.NAME, F_CLASS_NAME );
-        imNames.put( Abrahamson_2000_AttenRel.NAME, A_CLASS_NAME );
-        imNames.put( CB_2003_AttenRel.NAME, CB_CLASS_NAME );
-        imNames.put( ShakeMap_2003_AttenRel.NAME, SM_CLASS_NAME );
-        imNames.put( SEA_1999_AttenRel.NAME, SEA_CLASS_NAME );
-        imNames.put( CS_2005_AttenRel.NAME, CS_CLASS_NAME );
-        imNames.put( AS_2005_prelim_AttenRel.NAME ,AS_2005_CLASS_NAME);
-        imNames.put( CY_2005_prelim_AttenRel.NAME ,CY_2005_CLASS_NAME);
-        imNames.put( CB_2005_prelim_AttenRel.NAME ,CB_2005_CLASS_NAME);
-        imNames.put( Boore_2005_prelim_AttenRel.NAME ,BOORE_2005_CLASS_NAME);
-        //imNames.put( DAHLE_NAME, DAHLE_CLASS_NAME );
+        //imNames.add( DAHLE_NAME, DAHLE_CLASS_NAME );
 
-        try { UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName()); }
-        catch ( Exception e ) {}
+        try {
+          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }
+        catch (Exception e) {}
     }
 
 
@@ -407,7 +422,7 @@ public class AttenuationRelationshipApplet extends JApplet
 
         boolean first = true;
         String firstImr = "";
-        Iterator it = this.imNames.keySet().iterator();
+        Iterator it = this.imNames.iterator();
         while ( it.hasNext() )
 
             if ( first ) {
@@ -707,8 +722,8 @@ public class AttenuationRelationshipApplet extends JApplet
         // Clear the current traces
         //Plot needs to be cleared only if X or Y axis are changed, not otherwise
         if(newGraph)  clearPlot(true);
-
-        attenRel = attenRels.setImr( currentAttenuationRelationshipName, this );
+        int currentSelectedAttenRelIndex = this.imNames.indexOf(currentAttenuationRelationshipName);
+        attenRel = attenRels.setImr( currentSelectedAttenRelIndex, this );
 
         sheetPanel.removeAll();
         sheetPanel.add( attenRel.getIndependentsEditor(),

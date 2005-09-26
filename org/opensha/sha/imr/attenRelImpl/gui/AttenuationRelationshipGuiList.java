@@ -20,54 +20,56 @@ import java.util.*;
  */
 public class AttenuationRelationshipGuiList {
 
+  protected final static String C = "IMRGuiList";
+  protected final static boolean D = false;
 
-    protected final static String C = "IMRGuiList";
-    protected final static boolean D = false;
+  /** This is the hash map containing all the instanciated IMRGuiBeans. */
+  private HashMap attenRelGuis = new HashMap();
 
-    /** This is the hash map containing all the instanciated IMRGuiBeans. */
-    private HashMap attenRelGuis = new HashMap();
+  /** This is the current selected IMR contained within an IMRGuiBean.  */
+  private AttenuationRelationshipGuiBean currentGui = null;
 
-    /** This is the current selected IMR contained within an IMRGuiBean.  */
-    private AttenuationRelationshipGuiBean currentGui = null;
+  /**
+   *  Constructor for the IMRGuiList object
+   */
+  public AttenuationRelationshipGuiList() {}
 
+  /**
+   *  Sets the IMR attribute of the IMRGuiList object.In this function if the
+   *  IMR exists and is already the selected one it returns what has been
+   *  selected. If it is not the current it looks inside the hash map to see
+   *  if it has already been instanciated and returns that then if not it
+   *  creates a new IMRGuiBean from the IMR name adds it to the list sets it
+   *  as the current and returns it.
+   *
+   * @param  imName  This is the fully qualified package and class name of
+   *      the IMR to implement.
+   * @param  applet   The main application that uses this list needed to
+   *      create the IMRGuiBean.
+   * @return          Description of the Return Value
+   */
+  public AttenuationRelationshipGuiBean setImr(int index,
+                                               AttenuationRelationshipApplet
+                                               applet) {
 
-    /**
-     *  Constructor for the IMRGuiList object
-     */
-    public AttenuationRelationshipGuiList() { }
-
-
-    /**
-     *  Sets the IMR attribute of the IMRGuiList object.In this function if the
-     *  IMR exists and is already the selected one it returns what has been
-     *  selected. If it is not the current it looks inside the hash map to see
-     *  if it has already been instanciated and returns that then if not it
-     *  creates a new IMRGuiBean from the IMR name adds it to the list sets it
-     *  as the current and returns it.
-     *
-     * @param  imName  This is the fully qualified package and class name of
-     *      the IMR to implement.
-     * @param  applet   The main application that uses this list needed to
-     *      create the IMRGuiBean.
-     * @return          Description of the Return Value
-     */
-    public AttenuationRelationshipGuiBean setImr( String imName, AttenuationRelationshipApplet applet ) {
-
-        if ( ( currentGui != null )  && ( currentGui.getName().equals( imName ) ) )  return currentGui;
-        else if ( attenRelGuis.containsKey( imName ) ) {
-            currentGui = ( AttenuationRelationshipGuiBean ) attenRelGuis.get( imName );
-            return currentGui;
-        }
-        else {
-
-            String className = AttenuationRelationshipApplet.imNames.get( imName ).toString();
-            AttenuationRelationshipGuiBean bean = new AttenuationRelationshipGuiBean( className, imName, applet );
-            attenRelGuis.put( imName, bean );
-            currentGui = bean;
-            return currentGui;
-
-        }
+    String imName = (String) AttenuationRelationshipApplet.imNames.get(index);
+    if ( (currentGui != null) && (currentGui.getName().equals(imName)))return
+        currentGui;
+    else if (attenRelGuis.containsKey(imName)) {
+      currentGui = (AttenuationRelationshipGuiBean) attenRelGuis.get(imName);
+      return currentGui;
+    }
+    else {
+      String className = (String) AttenuationRelationshipApplet.attenRelClasses.
+          get(index);
+      AttenuationRelationshipGuiBean bean = new AttenuationRelationshipGuiBean(
+          className, imName, applet);
+      attenRelGuis.put(imName, bean);
+      currentGui = bean;
+      return currentGui;
 
     }
+
+  }
 
 }
