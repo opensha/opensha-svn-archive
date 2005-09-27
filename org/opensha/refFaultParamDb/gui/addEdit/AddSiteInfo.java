@@ -2,6 +2,11 @@ package org.opensha.refFaultParamDb.gui.addEdit;
 
 import java.awt.*;
 import javax.swing.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.dao.db.TimeInstanceDB_DAO;
+import org.opensha.refFaultParamDb.dao.TimeInstanceDAO_API;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -13,7 +18,7 @@ import javax.swing.*;
  * @version 1.0
  */
 
-public class AddSiteInfo extends JFrame {
+public class AddSiteInfo extends JFrame implements ActionListener{
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane infoSplitPane = new JSplitPane();
   private JButton okButton = new JButton();
@@ -29,6 +34,7 @@ public class AddSiteInfo extends JFrame {
   private final static int W = 775;
   private final static int H = 650;
   private final static String TITLE = "Add Data for this Site";
+  private TimeInstanceDAO_API timeInstanceDAO = new TimeInstanceDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddSiteInfo(boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible)  {
@@ -43,11 +49,53 @@ public class AddSiteInfo extends JFrame {
     this.isDisplacementVisible = isDisplacementVisible;
     this.isNumEventsVisible = isNumEventsVisible;
     jbInit();
+    addActionListeners();
     this.setSize(W,H);
     setTitle(TITLE);
     this.setLocationRelativeTo(null);
     show();
   }
+
+  /**
+   * Add the action listeners on the buttons
+   */
+  private void addActionListeners() {
+    this.okButton.addActionListener(this);
+    this.cancelButton.addActionListener(this);
+  }
+
+  public void actionPerformed(ActionEvent event) {
+    Object source = event.getSource();
+    if(source==this.cancelButton) this.dispose();
+    else if(source==this.okButton) {
+      try {
+        putSiteInfoInDatabase(); // put site info in database
+      }catch(Exception e){
+        JOptionPane.showMessageDialog(this, e.getMessage());
+      }
+    }
+  }
+
+  /**
+   * Put the site info in the database
+   */
+  private void putSiteInfoInDatabase() {
+    // first save the timespan
+    saveTimeSpan();
+  }
+
+  /**
+   * Save the timespan in the database
+   */
+  private void saveTimeSpan() {
+    // put start time in database
+    int startTimeId = timeInstanceDAO.addTimeInstance(addEditTimeSpan.getStartTime());
+    //put end time in database
+    int endTimeId = timeInstanceDAO.addTimeInstance(addEditTimeSpan.getEndTime());
+  }
+
+
+
 
   /**
    * intialize the GUI components

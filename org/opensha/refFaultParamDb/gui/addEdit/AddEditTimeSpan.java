@@ -12,6 +12,10 @@ import org.opensha.param.StringListParameter;
 import org.opensha.param.editor.ConstrainedStringListParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.data.TimeAPI;
 
 /**
  * <p>Title: AddNewTimeSpan</p>
@@ -31,8 +35,8 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   private final static String ADD_REFERENCE_TEXT="Add Reference";
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
-
   private final static String TITLE = "Add Time Span";
+  private final static String MSG_REF_MISSING = "Select atleast 1 reference for the timespan";
 
   // various parameters
    private StringParameter timeSpanCommentsParam;
@@ -52,6 +56,8 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   private JButton addNewReferenceButton = new JButton(ADD_REFERENCE_TEXT);
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
+  // references DAO
+  private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddEditTimeSpan() {
     try {
@@ -121,16 +127,43 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
 
   /**
    * Get a list of available references.
-   *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
    * @return
    */
   private ArrayList getAvailableReferences() {
-    ArrayList referencesNamesList = new ArrayList();
-    referencesNamesList.add("Reference 1");
-    referencesNamesList.add("Reference 2");
-    return referencesNamesList;
-
+    return referenceDAO.getAllShortCitations();
   }
 
+  /**
+   * Get the start time for this time span
+   * @return
+   */
+  public TimeAPI getStartTime() {
+    TimeAPI startTime = this.startTimeBean.getSelectedTime();
+    setReferencesAndDatingComments(startTime);
+    return startTime;
+  }
 
+  /**
+   * Set references and dating comments
+   * @param timeAPI
+   * @throws java.lang.RuntimeException
+   */
+  private void setReferencesAndDatingComments(TimeAPI timeAPI) throws
+      RuntimeException {
+    timeAPI.setDatingComments((String)this.timeSpanCommentsParam.getValue());
+    ArrayList references = (ArrayList)this.timeSpanReferencesParam.getValue();
+    if(references==null || references.size()==0)
+      throw new RuntimeException(MSG_REF_MISSING);
+    timeAPI.setReferencesList(references);
+  }
+
+  /**
+   * Get the end time for this time span
+   * @return
+   */
+  public TimeAPI getEndTime() {
+    TimeAPI endTime = this.endTimeBean.getSelectedTime();
+    setReferencesAndDatingComments(endTime);
+    return endTime;
+  }
 }

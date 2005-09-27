@@ -56,7 +56,7 @@ public class ExactTimeDB_DAO {
         MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+")"+
         " values ("+timeInstanceId+","+exactTime.getYear()+","+
         exactTime.getMonth()+","+exactTime.getDay()+","+exactTime.getHour()+","+
-        exactTime.getMinute()+","+exactTime.getSecond()+"'"+exactTime.getEra()+"')";
+        exactTime.getMinute()+","+exactTime.getSecond()+",'"+exactTime.getEra()+"')";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();

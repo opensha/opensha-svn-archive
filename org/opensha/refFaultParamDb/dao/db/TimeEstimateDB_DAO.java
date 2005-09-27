@@ -64,6 +64,7 @@ public class TimeEstimateDB_DAO  {
     }
     //insert into estimateInstance
     int estimateInstanceId = estimateInstanceDAO.addEstimateInstance(estimateInstance);
+
     // insert into time estimate table
     String sql = "insert into "+TABLE_NAME+"("+ TIME_INSTANCE_ID+","+TIME_EST_ID+","+
         IS_KA+","+ERA+","+ZERO_YEAR+")"+

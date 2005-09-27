@@ -463,12 +463,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   * @return
   */
  private ArrayList getAvailableReferences() {
-   ArrayList referenceVOs = referenceDAO.getAllReferences();
-   ArrayList referencesNamesList = new ArrayList();
-   for(int i=0; i<referenceVOs.size(); ++i) {
-     referencesNamesList.add(((Reference)referenceVOs.get(i)).getShortCitation());
-   }
-   return referencesNamesList;
+   return referenceDAO.getAllShortCitations();
  }
 
  /**

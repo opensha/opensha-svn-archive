@@ -47,4 +47,11 @@ public interface ReferenceDAO_API {
    * Returns a list of all References
    */
   public ArrayList getAllReferences() throws QueryException;
+
+  /**
+   * Returns a list of all short citations
+   * @return
+   * @throws QueryException
+   */
+  public ArrayList getAllShortCitations() throws QueryException;
 }

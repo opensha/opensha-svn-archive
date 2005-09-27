@@ -138,6 +138,22 @@ public class ReferenceDB_DAO implements ReferenceDAO_API {
     return query(" ");
   }
 
+  /**
+   * Returns a list of all short citations
+   * @return
+   * @throws QueryException
+   */
+  public ArrayList getAllShortCitations() throws QueryException {
+    ArrayList referenceVOs = getAllReferences();
+    ArrayList referencesNamesList = new ArrayList();
+    for(int i=0; i<referenceVOs.size(); ++i) {
+      referencesNamesList.add(((Reference)referenceVOs.get(i)).getShortCitation());
+    }
+    return referencesNamesList;
+
+  }
+
+
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();
     String sql = "select "+REFERENCE_ID+","+SHORT_CITATION+","+
