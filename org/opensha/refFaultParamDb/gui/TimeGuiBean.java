@@ -9,6 +9,10 @@ import java.awt.*;
 import org.opensha.param.event.*;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.data.ExactTime;
+import org.opensha.refFaultParamDb.data.TimeEstimate;
+import org.opensha.data.estimate.Estimate;
 
 /**
  * <p>Title: TimeGuiBean.java </p>
@@ -211,5 +215,45 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     this.yearUnitsParamEditor.setVisible(isVisible);
   }
 
+  /**
+   * Get the the time selected by the user. User can choose exact time or
+   * a time estimate.
+   */
+  public TimeAPI getSelectedTime() {
+    String timeOptionChosen = (String)timeOptionsParam.getValue();
+    TimeAPI timeAPI;
+    if(timeOptionChosen.equalsIgnoreCase(this.EXACT)) {
+      timeAPI = getExactTime();
+    } else {
+      timeAPI = getTimeEstimate();
+    }
+    return timeAPI;
+  }
 
+  /**
+   * Get  exact time as specified by the user
+   * @return
+   */
+  private TimeAPI getExactTime() {
+   ExactTime exactTime = this.exactTimeGuiBean.getExactTime();
+   exactTime.setEra((String)this.eraParam.getValue());
+   return exactTime;
+  }
+
+  /**
+   * Get the time estimate as specified by the user
+   * @return
+   */
+  private TimeEstimate getTimeEstimate() {
+    estimateParamEditor.setEstimateInParameter();
+    TimeEstimate timeEstimate = new TimeEstimate();
+    String yearUnitsVal = (String)this.yearUnitsParam.getValue();
+    if(yearUnitsVal.equalsIgnoreCase(this.KA)) // if user is entering the Ka values
+      timeEstimate.setForKaUnits((Estimate)estimateParameter.getValue(),
+                                 ((Integer)this.zeroYearParam.getValue()).intValue());
+    else // if user chooses to enter time estimate in terms of calendar years
+      timeEstimate.setForCalendarYear((Estimate)estimateParameter.getValue(),
+                                      (String)this.eraParam.getValue());
+    return timeEstimate;
+  }
 }

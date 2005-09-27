@@ -27,11 +27,32 @@ public class ExactTime extends TimeAPI {
   public ExactTime(int year, int month, int day, int hour, int minute, int second, String era) {
     // adjust month as gregorian calendar months go from 0 to 11
     gregorianCalendar = new GregorianCalendar(year, month-1, day, hour, minute, second);
-    this.era = era;
+    setEra(era);
   }
+
+
+  /**
+   *
+   * @param year
+   * @param month
+   * @param day
+   * @param hour
+   * @param minute
+   * @param second
+   */
+  public ExactTime(int year, int month, int day, int hour, int minute, int second) {
+    // adjust month as gregorian calendar months go from 0 to 11
+    gregorianCalendar = new GregorianCalendar(year, month-1, day, hour, minute, second);
+  }
+
+
 
   public String getEra() {
     return era;
+  }
+
+  public void setEra(String era) {
+    this.era = era;
   }
 
   public int getYear() {
@@ -53,6 +74,5 @@ public class ExactTime extends TimeAPI {
   public int getSecond() {
     return gregorianCalendar.get(GregorianCalendar.SECOND);
   }
-
 
 }

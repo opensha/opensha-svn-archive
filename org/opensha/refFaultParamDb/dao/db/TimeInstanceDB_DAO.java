@@ -112,6 +112,16 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
   }
 
   /**
+   * Get the exact time instance from database
+   * @param timeInstanceId
+   * @return
+   */
+  private ExactTime getExactTimeFromDatabase(int timeInstanceId) {
+     ExactTimeDB_DAO exactTimeDAO = new ExactTimeDB_DAO(this.dbAccessAPI);
+     return exactTimeDAO.getExactTime(timeInstanceId);
+  }
+
+  /**
    * Add  time estimate to the database
    * @param timeInstanceId
    * @param timeInstance
@@ -119,6 +129,17 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
   private void addTimeEstimateToDatabase(int timeInstanceId, TimeEstimate timeInstance) {
     TimeEstimateDB_DAO timeEstimateDAO = new TimeEstimateDB_DAO(this.dbAccessAPI);
     timeEstimateDAO.addTimeEstimate(timeInstanceId, timeInstance);
+  }
+
+  /**
+   * Get the time estimate based on id
+   *
+   * @param timeInstanceId
+   * @return
+   */
+  private TimeEstimate getTimeEstimateFromDatabase(int timeInstanceId) {
+    TimeEstimateDB_DAO timeEstimateDAO = new TimeEstimateDB_DAO(this.dbAccessAPI);
+    return timeEstimateDAO.getTimeEstimate(timeInstanceId);
   }
 
   /**
@@ -184,26 +205,48 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
     return false;
   }
 
-
+  /**
+   * Query the tables to get the time data based on the query condition
+   *
+   * @param condition
+   * @return
+   * @throws QueryException
+   */
   private ArrayList query(String condition) throws QueryException {
-  ArrayList estimateInstancesList = new ArrayList();
-  String sql = "select "+TIME_ID+","+TIME_TYPE_ID+","+COMMENTS+" from "+
-      TABLE_NAME+" "+condition;
-  try {
-    ResultSet rs  = dbAccessAPI.queryData(sql);
-    TimeTypeDB_DAO timeTypeDB_DAO = new TimeTypeDB_DAO(dbAccessAPI);
-    /*while(rs.next())  {
-      TimeAPI timeAPI;
-      String timeTypeName = timeTypeDB_DAO.getTimeType(rs.getInt(TIME_TYPE_ID));
-      EstimateDAO_API estimateDAO_API = getEstimateDAO_API(estimateTypeName);
-      Estimate estimate = estimateDAO_API.getEstimate(rs.getInt(EST_ID));
-      estimate.setComments(rs.getString(COMMENTS));
-      estimateInstances.setEstimate(estimate);
-      estimateInstancesList.add(estimateInstances);
-    }*/
-    rs.close();
-  } catch(SQLException e) { throw new QueryException(e.getMessage()); }
-  return estimateInstancesList;
-}
+    ArrayList timeInstancesList = new ArrayList();
+    String sql = "select "+TIME_ID+","+TIME_TYPE_ID+","+COMMENTS+" from "+
+        TABLE_NAME+" "+condition;
+    try {
+      ResultSet rs  = dbAccessAPI.queryData(sql);
+      TimeTypeDB_DAO timeTypeDB_DAO = new TimeTypeDB_DAO(dbAccessAPI);
+      ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(dbAccessAPI);
+      while(rs.next())  {
+        TimeAPI timeAPI;
+        String timeTypeName = timeTypeDB_DAO.getTimeType(rs.getInt(TIME_TYPE_ID));
+
+        if(timeTypeName.equalsIgnoreCase(TimeTypeDB_DAO.EXACT_TIME)) // get exact time from database
+          timeAPI = getExactTimeFromDatabase(rs.getInt(this.TIME_ID));
+          // get time estimate from database
+        else timeAPI = getTimeEstimateFromDatabase(rs.getInt(this.TIME_ID));
+
+        timeAPI.setDatingComments(rs.getString(COMMENTS));
+
+        // get the references list for this time
+        ArrayList referenceList = new ArrayList();
+        sql = "select "+REFERENCE_ID+","+TIME_ID +" from "+this.REFERENCES_TABLE_NAME+
+            " where "+TIME_ID+"="+rs.getInt(this.TIME_ID);
+        ResultSet referenceResultSet = dbAccessAPI.queryData(sql);
+        while(referenceResultSet.next()) {
+          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+        }
+        referenceResultSet.close();
+        // set the references in the VO
+        timeAPI.setReferencesList(referenceList);
+        timeInstancesList.add(timeAPI);
+      }
+      rs.close();
+    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    return timeInstancesList;
+  }
 
 }

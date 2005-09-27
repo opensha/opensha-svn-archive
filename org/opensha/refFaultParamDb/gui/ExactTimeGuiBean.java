@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.gui;
 import org.opensha.param.*;
 import org.opensha.param.editor.*;
+import org.opensha.refFaultParamDb.data.ExactTime;
 /**
  * <p>Title: ExactTimeGuiBean.java </p>
  * <p>Description: This GUI allows the user to enter all the information
@@ -63,5 +64,19 @@ public class ExactTimeGuiBean extends ParameterListEditor{
     parameterList.addParameter(secondParam);
   }
 
+  /**
+   * Return the exact time
+   * @return
+   */
+  public ExactTime getExactTime() {
+    int year =((Integer)yearParam.getValue()).intValue();
+    int month = ((Integer)monthParam.getValue()).intValue();
+    int day = ((Integer)dayParam.getValue()).intValue();
+    int hour = ((Integer)hourParam.getValue()).intValue();
+    int minute = ((Integer)minuteParam.getValue()).intValue();
+    int second = ((Integer)secondParam.getValue()).intValue();
+    ExactTime exactTime = new ExactTime(year, month, day, hour, minute, second);
+    return exactTime;
+  }
 
 }
