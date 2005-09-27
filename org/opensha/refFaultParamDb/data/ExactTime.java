@@ -10,7 +10,7 @@ import java.util.GregorianCalendar;
  * @version 1.0
  */
 
-public class ExactTime implements TimeAPI {
+public class ExactTime extends TimeAPI {
   private GregorianCalendar gregorianCalendar;
   private String era;
 

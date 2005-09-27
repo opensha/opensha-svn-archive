@@ -8,6 +8,7 @@ drop table Combined_Events_References;
 drop table Combined_Events_Info;
 drop table Time_Estimate_Info;
 drop table Exact_Time_Info;
+drop table Time_Instances_References;
 drop trigger Time_Instances_Trigger;
 drop sequence Time_Instances_Sequence;
 drop table Time_Instances;
@@ -402,6 +403,17 @@ select Time_Instances_Sequence.nextval into :new.Time_Id from dual;
 end if;
 end;
 /
+
+CREATE TABLE Time_Instances_References (
+  Time_Id INTEGER NOT NULL,
+  Reference_Id INTEGER NOT NULL,
+  PRIMARY KEY(Time_Id, Reference_Id),
+  FOREIGN KEY(Reference_Id)
+     REFERENCES Reference(Reference_Id),
+  FOREIGN KEY(Time_Id)
+     REFERENCES Time_Instances(Time_Id)
+);
+  
 
 CREATE TABLE Exact_Time_Info (
    Time_Instance_Id INTEGER NOT NULL,

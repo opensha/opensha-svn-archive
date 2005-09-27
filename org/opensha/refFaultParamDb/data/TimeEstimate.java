@@ -10,7 +10,7 @@ import org.opensha.data.estimate.Estimate;
  * @version 1.0
  */
 
-public class TimeEstimate implements TimeAPI {
+public class TimeEstimate extends TimeAPI {
   private Estimate estimate;
   private String era;
   private boolean isKa; // whether ka is selected or user is providing calendar year estimate

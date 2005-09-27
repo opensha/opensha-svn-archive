@@ -1,5 +1,7 @@
 package org.opensha.refFaultParamDb.data;
 
+import java.util.ArrayList;
+
 /**
  * <p>Title: TimeAPI.java </p>
  * <p>Description: API for specifying the times. IT is used for specifying the
@@ -10,8 +12,25 @@ package org.opensha.refFaultParamDb.data;
  * @version 1.0
  */
 
-public interface TimeAPI {
+public class TimeAPI {
   // constant values for AD/BC
   public final static String AD = "AD";
   public final static String BC = "BC";
+
+  private ArrayList referencesList;
+  private String datingComments;
+  public String getDatingComments() {
+    return datingComments;
+  }
+  public ArrayList getReferencesList() {
+    return referencesList;
+  }
+  public void setDatingComments(String datingComments) {
+    this.datingComments = datingComments;
+  }
+  public void setReferencesList(ArrayList referencesList) {
+    this.referencesList = referencesList;
+  }
+
+
 }
