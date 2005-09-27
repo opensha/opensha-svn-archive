@@ -457,7 +457,6 @@ CREATE TABLE Combined_Events_Info (
   Slip_Rate_Est_Id INTEGER  NOT NULL,
   Num_Events_Est_Id INTEGER  NOT NULL,
   Aseismic_Slip_Factor_Est_Id INTEGER  NOT NULL,
-  Info_Name VARCHAR(255) NOT NULL,
   General_Comments VARCHAR(255) NULL,
   Dated_Feature_Comments VARCHAR(255) NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
@@ -490,6 +489,21 @@ CREATE TABLE Combined_Events_References (
  FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id)
 );
+
+create sequence Combined_Events_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Combined_Events_Trigger
+before insert on Combined_Events_Info 
+for each row
+begin
+if :new.Info_Id is null then
+select Combined_Events_Sequence.nextval into :new.Info_Id from dual;
+end if;
+end;
+/
  
   	
  
