@@ -97,7 +97,7 @@ public class TimeEstimateDB_DAO  {
    * @return
    * @throws UpdateException
    */
-  public boolean removeEstimate(int timeInstanceId) throws UpdateException {
+  public boolean removeTimeEstimate(int timeInstanceId) throws UpdateException {
     String sql = "delete from "+TABLE_NAME+"  where "+TIME_INSTANCE_ID+"="+timeInstanceId;
      try {
        int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);

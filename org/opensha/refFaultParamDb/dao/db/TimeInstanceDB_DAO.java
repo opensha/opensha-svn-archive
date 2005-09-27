@@ -21,10 +21,12 @@ import org.opensha.refFaultParamDb.dao.TimeInstanceDAO_API;
 
 public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
   private final static String TABLE_NAME="Time_Instances";
+  private final static String REFERENCES_TABLE_NAME = "Time_Instances_References";
   private final static String SEQUENCE_NAME="Time_Instances_Sequence";
   private final static String TIME_ID="Time_Id";
   private final static String TIME_TYPE_ID="Time_Type_Id";
   private final static String COMMENTS="Comments";
+  private final static String REFERENCE_ID="Reference_Id";
   private DB_AccessAPI dbAccessAPI;
 
   /**
@@ -70,6 +72,19 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
         addExactTimeToDatabase(timeInstanceId, (ExactTime)timeInstance );
       // add time estimate to database
       else addTimeEstimateToDatabase(timeInstanceId,(TimeEstimate)timeInstance);
+
+        // add the time references to the database
+      ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(dbAccessAPI);
+      ArrayList shortCitationList = timeInstance.getReferencesList();
+      for(int i=0; i<shortCitationList.size(); ++i) {
+        int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
+        sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+TIME_ID+
+            ","+REFERENCE_ID+") "+
+            "values ("+timeInstanceId+","+referenceId+")";
+        dbAccessAPI.insertUpdateOrDeleteData(sql);
+      }
+
+
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
@@ -87,6 +102,16 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
   }
 
   /**
+   * Remove exact time instance from the database
+   * @param timeInstanceId
+   * @return
+   */
+  private boolean removeExactTimeFromDatabase(int timeInstanceId) {
+    ExactTimeDB_DAO exactTimeDAO = new ExactTimeDB_DAO(this.dbAccessAPI);
+    return exactTimeDAO.removeTime(timeInstanceId);
+  }
+
+  /**
    * Add  time estimate to the database
    * @param timeInstanceId
    * @param timeInstance
@@ -94,6 +119,16 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
   private void addTimeEstimateToDatabase(int timeInstanceId, TimeEstimate timeInstance) {
     TimeEstimateDB_DAO timeEstimateDAO = new TimeEstimateDB_DAO(this.dbAccessAPI);
     timeEstimateDAO.addTimeEstimate(timeInstanceId, timeInstance);
+  }
+
+  /**
+   * Remove the time estimate from the database
+   * @param timeInstanceId
+   * @return
+   */
+  private boolean removeTimeEstimateFromDatabase(int timeInstanceId) {
+    TimeEstimateDB_DAO timeEstimateDAO = new TimeEstimateDB_DAO(this.dbAccessAPI);
+    return timeEstimateDAO.removeTimeEstimate(timeInstanceId);
   }
 
   /**
@@ -118,47 +153,56 @@ public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
    * @throws UpdateException
    */
   public boolean removeTimeInstance(int timeInstanceId) throws UpdateException {
-    /*String sql = "select "+TIME_ID+","+TIME_TYPE_ID+","+COMMENTS+" from "+
+    String sql = "select "+TIME_ID+","+TIME_TYPE_ID+","+COMMENTS+" from "+
         TABLE_NAME+" where "+TIME_ID+"="+timeInstanceId;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
-      EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbAccessAPI);
+      TimeTypeDB_DAO timeTypeDB_DAO = new TimeTypeDB_DAO(dbAccessAPI);
       while(rs.next())  {
-        String estimateTypeName = estimateTypeDB_DAO.getEstimateType(rs.getInt(EST_TYPE_ID)).getEstimateName();
+        String timeTypeName = timeTypeDB_DAO.getTimeType(rs.getInt(TIME_TYPE_ID));
+
         // delete from specific table for each time type
-        EstimateDAO_API estimateDAO_API = getEstimateDAO_API(estimateTypeName);
-        estimateDAO_API.removeEstimate(estimateInstanceId);
+
+        // remove exact time from database
+        if(timeTypeName.equalsIgnoreCase(TimeTypeDB_DAO.EXACT_TIME))
+          this.removeExactTimeFromDatabase(timeInstanceId);
+          // remove time estimate from the database
+        else this.removeTimeEstimateFromDatabase(timeInstanceId);
+
+        // remove from the references table
+        String referencesDelSql = "delete from "+this.REFERENCES_TABLE_NAME+ " where "+
+                                  TIME_ID+" ="+timeInstanceId;
+        dbAccessAPI.insertUpdateOrDeleteData(referencesDelSql);
+
         //remove from master table of time instances
-        String delSql = "delete from "+TABLE_NAME+" where "+EST_ID+"="+estimateInstanceId;
+        String delSql = "delete from "+TABLE_NAME+" where "+TIME_ID+"="+timeInstanceId;
         int numRows = dbAccessAPI.insertUpdateOrDeleteData(delSql);
         if(numRows==1) return true;
       }
       rs.close();
-    } catch(SQLException e) { throw new QueryException(e.getMessage()); }*/
+    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return false;
   }
 
 
   private ArrayList query(String condition) throws QueryException {
   ArrayList estimateInstancesList = new ArrayList();
-  /*String sql = "select "+EST_ID+","+EST_TYPE_ID+","+UNITS+","+COMMENTS+" from "+
+  String sql = "select "+TIME_ID+","+TIME_TYPE_ID+","+COMMENTS+" from "+
       TABLE_NAME+" "+condition;
   try {
     ResultSet rs  = dbAccessAPI.queryData(sql);
-    EstimateTypeDB_DAO estimateTypeDB_DAO = new EstimateTypeDB_DAO(dbAccessAPI);
-    while(rs.next())  {
-      EstimateInstances estimateInstances = new EstimateInstances();
-      estimateInstances.setUnits(rs.getString(UNITS));
-      estimateInstances.setEstimateInstanceId(rs.getInt(EST_ID));
-      String estimateTypeName = estimateTypeDB_DAO.getEstimateType(rs.getInt(EST_TYPE_ID)).getEstimateName();
+    TimeTypeDB_DAO timeTypeDB_DAO = new TimeTypeDB_DAO(dbAccessAPI);
+    /*while(rs.next())  {
+      TimeAPI timeAPI;
+      String timeTypeName = timeTypeDB_DAO.getTimeType(rs.getInt(TIME_TYPE_ID));
       EstimateDAO_API estimateDAO_API = getEstimateDAO_API(estimateTypeName);
       Estimate estimate = estimateDAO_API.getEstimate(rs.getInt(EST_ID));
       estimate.setComments(rs.getString(COMMENTS));
       estimateInstances.setEstimate(estimate);
       estimateInstancesList.add(estimateInstances);
-    }
+    }*/
     rs.close();
-  } catch(SQLException e) { throw new QueryException(e.getMessage()); }*/
+  } catch(SQLException e) { throw new QueryException(e.getMessage()); }
   return estimateInstancesList;
 }
 
