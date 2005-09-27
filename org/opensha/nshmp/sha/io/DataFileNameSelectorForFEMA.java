@@ -50,7 +50,9 @@ public class DataFileNameSelectorForFEMA {
 
     if (selectedEdition.equals(GlobalConstants.FEMA_273_DATA) ||
         selectedEdition.equals(GlobalConstants.FEMA_356_DATA) ||
-        selectedEdition.equals(GlobalConstants.IEBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IEBC_2003) ||
+        selectedEdition.equals(GlobalConstants.FEMA_310_DATA) ||
+        selectedEdition.equals(GlobalConstants.SCI_ASCE)) {
       if (spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)) {
         String fileName = "1997-AK-MCE-R1a.rnd";
         return filePath + fileName;
@@ -68,7 +70,9 @@ public class DataFileNameSelectorForFEMA {
                                       String spectraType) {
     if (selectedEdition.equals(GlobalConstants.FEMA_273_DATA) ||
         selectedEdition.equals(GlobalConstants.FEMA_356_DATA) ||
-        selectedEdition.equals(GlobalConstants.IEBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IEBC_2003)||
+        selectedEdition.equals(GlobalConstants.FEMA_310_DATA) ||
+        selectedEdition.equals(GlobalConstants.SCI_ASCE)) {
       if (spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)) {
         String fileName = "1997-HI-MCE-R1a.rnd";
         return filePath + fileName;
@@ -86,7 +90,9 @@ public class DataFileNameSelectorForFEMA {
                                         double lon, String spectraType) {
     if (selectedEdition.equals(GlobalConstants.FEMA_273_DATA) ||
         selectedEdition.equals(GlobalConstants.FEMA_356_DATA) ||
-        selectedEdition.equals(GlobalConstants.IEBC_2003)) {
+        selectedEdition.equals(GlobalConstants.IEBC_2003)||
+        selectedEdition.equals(GlobalConstants.FEMA_310_DATA) ||
+        selectedEdition.equals(GlobalConstants.SCI_ASCE)) {
       if (lon >= -125 && lon <= -111 && lat >= 32 && lat <= 43) {
         if (spectraType.equals(GlobalConstants.MCE_GROUND_MOTION)) {
           String fileName = "1997-CANV-MCE-R2.rnd";

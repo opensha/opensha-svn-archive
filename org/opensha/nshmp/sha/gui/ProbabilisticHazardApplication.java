@@ -430,8 +430,8 @@ public class ProbabilisticHazardApplication
     else if (selectedAnalysisOption.equals(GlobalConstants.NEHRP)) {
       guiBeanAPI = new NEHRP_GuiBean(this);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
-      guiBeanAPI = new FEMA_GuiBean(this);
+    else if (selectedAnalysisOption.equals(GlobalConstants.NFPA)) {
+      guiBeanAPI = new NFPA_GuiBean(this);
     }
     else if (selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE)) {
       guiBeanAPI = new IBC_GuiBean(this);
@@ -440,8 +440,8 @@ public class ProbabilisticHazardApplication
                                            INTL_RESIDENTIAL_CODE)) {
       guiBeanAPI = new IRC_GuiBean(this);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA)) {
-      guiBeanAPI = new ASCE7_NFPA_GuiBean(this);
+    else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
+      guiBeanAPI = new ASCE7_GuiBean(this);
     }
     if (guiBeanAPI != null) {
       parametersScrollPane.getViewport().add(guiBeanAPI.getGuiBean(),BorderLayout.CENTER);

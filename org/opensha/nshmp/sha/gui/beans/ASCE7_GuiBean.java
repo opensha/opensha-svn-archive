@@ -15,10 +15,10 @@ import org.opensha.exceptions.RegionConstraintException;
  * @author Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-public class ASCE7_NFPA_GuiBean
+public class ASCE7_GuiBean
     extends NEHRP_GuiBean {
 
-  public ASCE7_NFPA_GuiBean(ProbabilisticHazardApplicationAPI api) {
+  public ASCE7_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
   }
 
@@ -65,7 +65,7 @@ public class ASCE7_NFPA_GuiBean
       AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.ASCE_NFPA);
+        getSupportedGeographicalRegions(GlobalConstants.ASCE_7);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);

@@ -19,10 +19,10 @@ import org.opensha.exceptions.RegionConstraintException;
  * @author Ned Field, Nitin Gupta and E.V.Leyendecker
  * @version 1.0
  */
-public class FEMA_GuiBean
+public class NFPA_GuiBean
     extends NEHRP_GuiBean {
 
-  public FEMA_GuiBean(ProbabilisticHazardApplicationAPI api) {
+  public NFPA_GuiBean(ProbabilisticHazardApplicationAPI api) {
     super(api);
     dataGenerator = new DataGenerator_FEMA();
   }
@@ -59,7 +59,9 @@ public class FEMA_GuiBean
     ArrayList supportedEditionList = new ArrayList();
 
     supportedEditionList.add(GlobalConstants.FEMA_273_DATA);
+    supportedEditionList.add(GlobalConstants.FEMA_310_DATA);
     supportedEditionList.add(GlobalConstants.FEMA_356_DATA);
+    supportedEditionList.add(GlobalConstants.SCI_ASCE);
     supportedEditionList.add(GlobalConstants.IEBC_2003);
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
@@ -109,7 +111,7 @@ public class FEMA_GuiBean
       AnalysisOptionNotSupportedException {
 
     ArrayList supportedRegionList = RegionUtil.
-        getSupportedGeographicalRegions(GlobalConstants.FEMA_IEBC_2003);
+        getSupportedGeographicalRegions(GlobalConstants.NFPA);
     datasetGui.createGeographicRegionSelectionParameter(supportedRegionList);
     datasetGui.getGeographicRegionSelectionParameter().
         addParameterChangeListener(this);

@@ -64,6 +64,7 @@ public final class GlobalConstants {
   public static final String FEMA_310_DATA = "FEMA 310";
   public static final String FEMA_356_DATA =
       "FEMA 356, Prestandard for Siesmic Rehab of Bldgs";
+  public static final String  SCI_ASCE = "SCI/ASCE 31-03, Seismic evaluation of existing buildings";
   public static final String ASCE_PRESTANDARD = "ASCE PreStandard";
   public static final String IEBC_2003 =
       "2003 International Existing Building Code";
@@ -79,6 +80,7 @@ public final class GlobalConstants {
   public static final String INTL_BUILDING_CODE = "International Building Code";
   public static final String INTL_RESIDENTIAL_CODE =
       "International Residential Code";
+  public static final String NFPA_5000 = "NFPA 5000 Building Construction and Safety Code";
   //public static final String INTL_EXIST_CODE =
   //  "International Existing Building Code";
   //public static final String NFPA_5000 =
@@ -88,11 +90,11 @@ public final class GlobalConstants {
 
 
 
-  public static final String ASCE_NFPA =
-      "ASCE 7 and NFPA 5000 building construction and safety codes";
+  public static final String ASCE_7 =
+      "ASCE 7 Standard, minimum design loads for buildings and other structures";
 
-  public static final String FEMA_IEBC_2003 =
-      "Fema(273 and 356) and Intl. existing building code";
+  public static final String NFPA =
+      "NFPA 5000 Building Construction and Safety Code";
 
 
   public static final String PROB_HAZ_CURVES_INFO =
@@ -132,7 +134,7 @@ public final class GlobalConstants {
       "The user may calculate seismic design parameters " +
       "and response spectra (both for period and displacement), " +
       "for Site Class A through E.";
-  public static final String FEMA_IEBC_2003_INFO =
+  /*public static final String NFPA_INFO =
       "FEMA 273, MCE Guidelines for the Seismic " +
       "Rehabilitation of Buildings  - " +
       "This option may be used for FEMA 273,  " +
@@ -155,7 +157,16 @@ public final class GlobalConstants {
       "Building Code.  The user may calculate seismic " +
       "design parameters and response spectra " +
       "(both for period and displacement), " +
-      "for Site Class A through E.";
+      "for Site Class A through E.";*/
+
+
+  public static final String NFPA_INFO = "NFPA 5000 Building Construction and Safety Code " +
+          "- This option may be used for the 2000 edition " +
+          "of the  NFPA 5000 Building Construction and " +
+          "Safety Code.  The user may calculate seismic " +
+          "design parameters and response spectra (both " +
+          "for period and displacement), for Site Class A through E.\n" ;
+
 
   public static final String INTL_RESIDENTIAL_CODE_INFO =
       "International Residential Code  - " +
@@ -164,12 +175,7 @@ public final class GlobalConstants {
       "International Residential Code.  The " +
       "user may determine the Seismic Design " +
       "Categories for the default Site Class D.";
-  public static final String ASCE_NFPA_INFO = "NFPA 5000 Building Construction and Safety Code " +
-          "- This option may be used for the 2000 edition " +
-          "of the  NFPA 5000 Building Construction and " +
-          "Safety Code.  The user may calculate seismic " +
-          "design parameters and response spectra (both " +
-          "for period and displacement), for Site Class A through E.\n" +
+  public static final String ASCE_7_INFO =
           "ASCE 7 Standard, Minimum Design Loads for " +
           "Buildings and Other Structures  - This option " +
           "may be used for the 1998 and 2002 editions " +
@@ -435,11 +441,12 @@ public final class GlobalConstants {
     supportedAnalysisOption.add(PROB_HAZ_CURVES);
     supportedAnalysisOption.add(PROB_UNIFORM_HAZ_RES);
     supportedAnalysisOption.add(NEHRP);
-    supportedAnalysisOption.add(FEMA_IEBC_2003);
+    supportedAnalysisOption.add(NFPA);
     supportedAnalysisOption.add(INTL_BUILDING_CODE);
     supportedAnalysisOption.add(INTL_RESIDENTIAL_CODE);
     //supportedAnalysisOption.add(INTL_EXIST_CODE);
-    supportedAnalysisOption.add(ASCE_NFPA);
+    supportedAnalysisOption.add(NFPA);
+    supportedAnalysisOption.add(ASCE_7);
     return supportedAnalysisOption;
   }
 
@@ -459,8 +466,8 @@ public final class GlobalConstants {
     else if (selectedAnalysisOption.equals(NEHRP)) {
       return NEHRP_INFO;
     }
-    else if (selectedAnalysisOption.equals(FEMA_IEBC_2003)) {
-      return FEMA_IEBC_2003_INFO;
+    else if (selectedAnalysisOption.equals(NFPA)) {
+      return NFPA_INFO;
     }
     /*else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_356)) {
      this.explainationText.setText("FEMA 356, Prestandard and Commentary for " +
@@ -487,8 +494,8 @@ public final class GlobalConstants {
                                     "(both for period and displacement), " +
                                     "for Site Class A through E.");
          }*/
-    else if (selectedAnalysisOption.equals(ASCE_NFPA)) {
-      return ASCE_NFPA_INFO;
+    else if (selectedAnalysisOption.equals(ASCE_7)) {
+      return ASCE_7_INFO;
     }
     /*else if (selectedAnalysisOption.equals(GlobalConstants.ASCE_7)) {
       this.explainationText.setText(
@@ -510,8 +517,8 @@ public final class GlobalConstants {
    */
   public static String getAllExplainationsForAnalysisOption(){
    return PROB_HAZ_CURVES_INFO+"\n\n"+PROB_UNIFORM_HAZ_RES_INFO+"\n\n"+
-       NEHRP_INFO+"\n\n"+FEMA_IEBC_2003_INFO+"\n\n"+INTL_BUILDING_CODE_INFO+"\n\n"+
-       INTL_RESIDENTIAL_CODE_INFO+"\n\n"+ASCE_NFPA_INFO;
+       NEHRP_INFO+"\n\n"+NFPA_INFO+"\n\n"+INTL_BUILDING_CODE_INFO+"\n\n"+
+       INTL_RESIDENTIAL_CODE_INFO+"\n\n"+ASCE_7_INFO;
 
   }
 

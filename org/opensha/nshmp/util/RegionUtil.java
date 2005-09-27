@@ -25,7 +25,8 @@ public final class RegionUtil {
       selectedAnalysisOption) throws AnalysisOptionNotSupportedException {
     ArrayList supportedRegionList = new ArrayList();
     if (selectedAnalysisOption.equals(GlobalConstants.NEHRP) ||
-        selectedAnalysisOption.equals(GlobalConstants.ASCE_NFPA) ||
+        selectedAnalysisOption.equals(GlobalConstants.ASCE_7) ||
+        selectedAnalysisOption.equals(GlobalConstants.NFPA) ||
         selectedAnalysisOption.equals(GlobalConstants.INTL_BUILDING_CODE) ||
         selectedAnalysisOption.equals(GlobalConstants.INTL_RESIDENTIAL_CODE)) {
       supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
@@ -52,11 +53,11 @@ public final class RegionUtil {
       supportedRegionList.add(GlobalConstants.ST_THOMAS);
       supportedRegionList.add(GlobalConstants.VIEQUES);
     }
-    else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
+    /*else if (selectedAnalysisOption.equals(GlobalConstants.FEMA_IEBC_2003)) {
       supportedRegionList.add(GlobalConstants.CONTER_48_STATES);
       supportedRegionList.add(GlobalConstants.ALASKA);
       supportedRegionList.add(GlobalConstants.HAWAII);
-    }
+    }*/
     else {
       throw new AnalysisOptionNotSupportedException(
           "This " + selectedAnalysisOption +
