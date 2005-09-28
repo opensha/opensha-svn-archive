@@ -1,5 +1,7 @@
 package javaDevelopers.matt.calc;
 
+import java.util.GregorianCalendar;
+
 /**
  * <p>Title: </p>
  *
@@ -29,6 +31,8 @@ public class RegionDefaults {
   public static double deltaForecastMag = 0.1;
 
   public static double forecastLengthDays = 1;
+  public static boolean startForecastAtCurrentTime = true;
+  public static GregorianCalendar forecastStartTime;  // set this if startForecastAtCurrentTime is False
   public static double daysFromQDM_Cat = 7;
 
   public static double searchLatMin = 32.0;

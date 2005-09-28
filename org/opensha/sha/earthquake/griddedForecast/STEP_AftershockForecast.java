@@ -25,7 +25,6 @@ import org.opensha.sha.magdist.*;
 public abstract class STEP_AftershockForecast
     extends AfterShockHypoMagFreqDistForecast {
 
-
   public double minForecastMag;
   private double maxForecastMag;
   private double deltaMag;
@@ -38,18 +37,19 @@ public abstract class STEP_AftershockForecast
   public double addToMc;
   private double zoneRadius;
   private double gridSpacing;
-  private GregorianCalendar forecastEndTime, forecastStartTime;
+  private GregorianCalendar forecastEndTime, currentTime;
   private ArrayList griddedMagFreqDistForecast;
   private boolean isStatic = false, isPrimary = true,
       isSecondary = false, useSeqAndSpatial = false;
   private ObsEqkRupList newAftershocksInZone;
   private RegionDefaults rDefs;
-
+  private TimeSpan timeSpan;
+  double daysSinceMainshockStart, daysSinceMainshockEnd;
 
   /**
-     * STEP_AftershockForecast
-     */
-    public STEP_AftershockForecast() {
+   * STEP_AftershockForecast
+   */
+  public STEP_AftershockForecast() {
   }
 
   /**
@@ -57,10 +57,10 @@ public abstract class STEP_AftershockForecast
    */
   public void setRegionDefaults(RegionDefaults rDefs) {
     /**this.minForecastMag = rDefs.minForecastMag;
-    this.maxForecastMag = rDefs.maxForecastMag;
-    this.deltaMag = rDefs.deltaForecastMag;
-    this.addToMc = rDefs.addToMc;
-    this.gridSpacing = rDefs.gridSpacing; */
+         this.maxForecastMag = rDefs.maxForecastMag;
+         this.deltaMag = rDefs.deltaForecastMag;
+         this.addToMc = rDefs.addToMc;
+         this.gridSpacing = rDefs.gridSpacing; */
     this.rDefs = rDefs;
   }
 
@@ -116,8 +116,6 @@ public abstract class STEP_AftershockForecast
   public void setUseFixed_cVal(boolean fix_cVal) {
     useFixed_cValue = fix_cVal;
   }
-
-
 
   /**
    * set_addToMcConstant
@@ -187,8 +185,6 @@ public abstract class STEP_AftershockForecast
   public void set_PreviousAftershocks(ObsEqkRupList previousAftershockList) {
   }
 
-
-
   /**
    * set_AftershockZoneRadius
    * set the radius based on Wells and Coppersmith
@@ -206,12 +202,13 @@ public abstract class STEP_AftershockForecast
   /**
    * calcTypeI_AftershockZone
    */
-  public void calcTypeI_AftershockZone(EvenlyGriddedGeographicRegionAPI backGroundRatesGrid) {
+  public void calcTypeI_AftershockZone(EvenlyGriddedGeographicRegionAPI
+                                       backGroundRatesGrid) {
 
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
     }
-    else{
+    else {
       ObsEqkRupture mainshock = this.getMainShock();
       Location mainshockLocation = mainshock.getHypocenterLocation();
       EvenlyGriddedCircularGeographicRegion aftershockZone =
@@ -238,76 +235,100 @@ public abstract class STEP_AftershockForecast
    */
 
   public void calcTypeII_AfterShockZone(ObsEqkRupList aftershockList,
-                                        EvenlyGriddedGeographicRegionAPI backGroundRatesGrid) {
+                                        EvenlyGriddedGeographicRegionAPI
+                                        backGroundRatesGrid) {
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
     }
     else {
-        STEP_TypeIIAftershockZone_Calc typeIIcalc = new
-            STEP_TypeIIAftershockZone_Calc(aftershockList, this);
-        EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
-            get_TypeIIAftershockZone();
-       typeII_Zone.createRegionLocationsList(backGroundRatesGrid);
-       this.setAfterShockZone(typeII_Zone);
-       LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();
-       String faultName = "typeIIfault";
-       // add the synthetic fault to the fault trace
-       // do not add the 2nd element as it is the same as the 3rd (the mainshock location)
-       FaultTrace fault_trace = new FaultTrace(faultName);
-       fault_trace.addLocation(faultPoints.getLocationAt(0));
-       fault_trace.addLocation(faultPoints.getLocationAt(1));
-       fault_trace.addLocation(faultPoints.getLocationAt(3));
-       set_FaultSurface(fault_trace);
-      }
+      STEP_TypeIIAftershockZone_Calc typeIIcalc = new
+          STEP_TypeIIAftershockZone_Calc(aftershockList, this);
+      EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
+          get_TypeIIAftershockZone();
+      typeII_Zone.createRegionLocationsList(backGroundRatesGrid);
+      this.setAfterShockZone(typeII_Zone);
+      LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();
+      String faultName = "typeIIfault";
+      // add the synthetic fault to the fault trace
+      // do not add the 2nd element as it is the same as the 3rd (the mainshock location)
+      FaultTrace fault_trace = new FaultTrace(faultName);
+      fault_trace.addLocation(faultPoints.getLocationAt(0));
+      fault_trace.addLocation(faultPoints.getLocationAt(1));
+      fault_trace.addLocation(faultPoints.getLocationAt(3));
+      set_FaultSurface(fault_trace);
+    }
   }
 
 
 
   /**
-    * set_ForecastStartTime
-    */
-   public void set_ForecastStartTime(GregorianCalendar timeStart) {
-     forecastStartTime = timeStart;
-   }
-
-
-   /**
-       * set_ForecastStartTime
-       */
-      public void set_ForecastStartTime() {
-        Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone(
-           "UTC"));
-        int year = curTime.get(Calendar.YEAR);
-        int month = curTime.get(Calendar.MONTH);
-        int day = curTime.get(Calendar.DAY_OF_MONTH);
-        int hour24 = curTime.get(Calendar.HOUR_OF_DAY);
-        int min = curTime.get(Calendar.MINUTE);
-        int sec = curTime.get(Calendar.SECOND);
-
-        GregorianCalendar forecastStartTime = new GregorianCalendar(year,month,day,hour24,min,sec);
-      }
-  /**
-   * set_ForecastEndTime
+   * set_CurrentTime
+   * this sets the forecast start time as the current time.
    */
-  public void set_ForecastEndTime(GregorianCalendar timeEnd) {
-    forecastEndTime = timeEnd;
+  private void set_CurrentTime() {
+    Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone(
+        "UTC"));
+    int year = curTime.get(Calendar.YEAR);
+    int month = curTime.get(Calendar.MONTH);
+    int day = curTime.get(Calendar.DAY_OF_MONTH);
+    int hour24 = curTime.get(Calendar.HOUR_OF_DAY);
+    int min = curTime.get(Calendar.MINUTE);
+    int sec = curTime.get(Calendar.SECOND);
+
+    GregorianCalendar currentTime = new GregorianCalendar(year, month,
+        day, hour24, min, sec);
+  }
+
+
+  /**
+   * calcTimeSpan
+   */
+  public void calcTimeSpan() {
+    String durationUnits = "DAYS";
+    String timePrecision = "SECONDS";
+    TimeSpan timeSpan = new TimeSpan(timePrecision,durationUnits);
+
+    if (rDefs.startForecastAtCurrentTime) {
+      set_CurrentTime();
+      timeSpan.setStartTime(currentTime);
+      timeSpan.setDuration(rDefs.forecastLengthDays);
+    }
+    else{
+      timeSpan.setStartTime(rDefs.forecastStartTime);
+      timeSpan.setDuration(rDefs.forecastLengthDays);
+    }
+    this.setTimeSpan(timeSpan);
   }
 
   /**
-   * set_ForecastEndTime
+   * setDaysSinceMainshock
    */
-  public void set_ForecastEndTime() {
-    int year = forecastStartTime.get(Calendar.YEAR);
-    int month = forecastStartTime.get(Calendar.MONTH);
-    int day = forecastStartTime.get(Calendar.DAY_OF_MONTH);
-    int hour24 = forecastStartTime.get(Calendar.HOUR_OF_DAY);
-    int min = forecastStartTime.get(Calendar.MINUTE);
-    int sec = forecastStartTime.get(Calendar.SECOND);
-    GregorianCalendar forecastEndTime = new GregorianCalendar(year,month,day,hour24,min,sec);
-    //forecastEndTime.add(Calendar.DAY_OF_MONTH)
+  public void setDaysSinceMainshock() {
+    String durationUnits = "DAYS";
+    GregorianCalendar startDate = timeSpan.getStartTimeCalendar();
+    double duration = timeSpan.getDuration(durationUnits);
+    ObsEqkRupture mainshock = this.getMainShock();
+    GregorianCalendar mainshockDate = mainshock.getOriginTime();
+    double startInMils = startDate.getTimeInMillis();
+    double mainshockInMils = mainshockDate.getTimeInMillis();
+    double timeDiffMils = startInMils - mainshockInMils;
+    daysSinceMainshockStart = timeDiffMils/1000.0/60.0/60.0/24.0;
+    daysSinceMainshockEnd = daysSinceMainshockStart + duration;
   }
 
+  /**
+   * getDaysSinceMainshockStart
+   */
+  public double getDaysSinceMainshockStart() {
+    return daysSinceMainshockStart;
+  }
 
+  /**
+   * getDaysSinceMainshockEnd
+   */
+  public double getDaysSinceMainshockEnd() {
+    return daysSinceMainshockEnd;
+  }
 
 
   /**
@@ -388,8 +409,6 @@ public abstract class STEP_AftershockForecast
     return this.useSeqAndSpatial;
   }
 
-
-
   /**
    * get_GridSpacing
    */
@@ -452,21 +471,6 @@ public abstract class STEP_AftershockForecast
   public boolean getHasExternalFaultModel() {
     return this.hasExternalFaultModel;
   }
-
-  /**
-   * getForecastStartTime
-   */
-  public GregorianCalendar getForecastStartTime() {
-    return forecastStartTime;
-  }
-
-  /**
-   * getForecastEndTime
-   */
-  public GregorianCalendar getForecastEndTime() {
-    return forecastEndTime;
-  }
-
 
 
   /**

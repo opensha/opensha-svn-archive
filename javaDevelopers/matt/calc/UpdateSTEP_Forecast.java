@@ -139,8 +139,9 @@ public class UpdateSTEP_Forecast {
     rjParms[2] = forecastModelGen.get_p_valueGeneric();
     double[] kVal_GenGrid = forecastModelGen.getGridded_k_value_generic();
     double[] timeParms = new double[2];
-    //timeParms[0] = forecastModelGen.getForecastStartTime();
-    //timeParms[1] = forecastModelGen.getForecastEndTime();
+    forecastModelGen.calcTimeSpan();
+    timeParms[0] = forecastModelGen.getDaysSinceMainshockStart();
+    timeParms[1] = forecastModelGen.getDaysSinceMainshockEnd();
 
     OmoriRate_Calc omoriRateCalc = new OmoriRate_Calc();
     for (int nodeLoop = 0; nodeLoop < numGridNodes; ++nodeLoop){
