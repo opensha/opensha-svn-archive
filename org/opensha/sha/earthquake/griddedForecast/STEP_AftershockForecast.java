@@ -158,18 +158,6 @@ public abstract class STEP_AftershockForecast
   }
 
   /**
-   * addToAftershockList
-   *
-   * I am not sure if this is done correctly
-   */
-  public void addToAftershockList(ObsEqkRupture newAftershock) {
-    ObsEqkRupList aftershocks = this.getAfterShocks();
-    aftershocks.addObsEqkEvent(newAftershock);
-    // DO I NEED TO DO THIS SET???
-    this.setAfterShocks(aftershocks);
-  }
-
-  /**
    * setNewObsEventsList
    * This should contain All new events - this is the list that will
    * be used to look for new aftershocks.
@@ -215,7 +203,7 @@ public abstract class STEP_AftershockForecast
           new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
           zoneRadius, gridSpacing);
       aftershockZone.createRegionLocationsList(backGroundRatesGrid);
-      this.setAfterShockZone(aftershockZone);
+      this.region = aftershockZone;
 
       // make a fault that is only a single point.
       String faultName = "typeIfault";
@@ -246,7 +234,7 @@ public abstract class STEP_AftershockForecast
       EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
           get_TypeIIAftershockZone();
       typeII_Zone.createRegionLocationsList(backGroundRatesGrid);
-      this.setAfterShockZone(typeII_Zone);
+      this.region = typeII_Zone;
       LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();
       String faultName = "typeIIfault";
       // add the synthetic fault to the fault trace

@@ -19,8 +19,8 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
 public class AfterShockHypoMagFreqDistForecast
     extends GriddedHypoMagFreqDistForecast {
 
-  private ObsEqkRupture mainShock;
-  private ObsEqkRupList afterShocks;
+  protected ObsEqkRupture mainShock;
+  protected ObsEqkRupList afterShocks;
 
   /**
    * Class no-arg constructor
@@ -75,12 +75,13 @@ public class AfterShockHypoMagFreqDistForecast
   }
 
   /**
-   * Allows the user to set the AfterShockZone for the given forecast model.
-   * @param afterShockZone EvenlyGriddedGeographicRegionAPI
+   * addToAftershockList
    */
-  public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI afterShockZone) {
-    this.region = afterShockZone;
+  public void addToAftershockList(ObsEqkRupture newAftershock) {
+    afterShocks.addObsEqkEvent(newAftershock);
   }
+
+
 
   /**
    * Sets the mainshock event for the given forecast model.
