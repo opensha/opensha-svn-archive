@@ -12,7 +12,7 @@ package org.opensha.sha.earthquake.griddedForecast;
  *
  * @version 1.0
  */
-public interface HypoMagFreqDistAtLocAPI {
+public interface HypoMagFreqDistAtMultLocsAPI {
 
 
 
@@ -26,6 +26,6 @@ public interface HypoMagFreqDistAtLocAPI {
    */
   public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation);
 
-  public int getNumHypoMagFreqDistAtLocs();
+  public int getNumHypoLocs();
 
 }

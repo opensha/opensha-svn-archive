@@ -6,6 +6,8 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
+import org.opensha.sha.earthquake.ERF_API;
+import org.opensha.data.region.GeographicRegion;
 
 /**
  * <p>Title: GriddedHypoMagFreqForecast</p>
@@ -20,8 +22,8 @@ import java.util.ListIterator;
  * @author Nitin Gupta , Edward (Ned) Field, Vipin Gupta
  * @version 1.0
  */
-public abstract class GriddedHypoMagFreqDistForecast
-    implements HypoMagFreqDistAtLocAPI, ParameterChangeListener {
+public  class GriddedHypoMagFreqDistForecast
+    implements ERF_API, HypoMagFreqDistAtMultLocsAPI, ParameterChangeListener {
 
 
 
@@ -54,6 +56,18 @@ public abstract class GriddedHypoMagFreqDistForecast
 
 
   /**
+   * This function finds whether a particular location lies in applicable
+   * region of the forecast
+   *
+   * @param loc : location
+   * @return: True if this location is within forecast's applicable region, else false
+   */
+  public boolean isLocWithinApplicableRegion(Location loc){
+    return region.isLocationInside(loc);
+  }
+
+
+  /**
    * Gets the EvenlyGriddedGeographic Region
    * @return EvenlyGriddedGeographicRegionAPI
    */
@@ -61,11 +75,21 @@ public abstract class GriddedHypoMagFreqDistForecast
     return region;
   }
 
+
+
+  /**
+   * Get the region for which this forecast is applicable
+   * @return : Geographic region object specifying the applicable region of forecast
+   */
+  public GeographicRegion getApplicableRegion() {
+    return (GeographicRegion)region;
+  }
+
   /**
    * Returns the adjustable parameters list
    * @return ParameterList
    */
-  public ParameterList getAdjustableParameters(){
+  public ParameterList getAdjustableParameterList(){
     return adjustableParameters;
   }
 
@@ -73,16 +97,25 @@ public abstract class GriddedHypoMagFreqDistForecast
    * Returns the adjustable parameters as the ListIterator
    * @return ListIterator
    */
-  public ListIterator getAdjustablrParametersIterator(){
+  public ListIterator getAdjustableParamsIterator(){
     return adjustableParameters.getParametersIterator();
   }
 
   /**
-   * Allows the user to set the Adjustable Parameter for the Forecast
-   * @param parameters ParameterList
+   * Return the name for this class
+   *
+   * @return : return the name for this class
    */
-  public void setAdjustableParameters(ParameterList parameters){
-    adjustableParameters = parameters;
+  public String getName() {
+    return null;
+  }
+
+  /**
+   * Update and save the serialized forecast into the file
+   */
+  public String updateAndSaveForecast(){
+    throw new UnsupportedOperationException(
+        "updateAndSaveForecast() not supported");
   }
 
   /**
@@ -92,7 +125,7 @@ public abstract class GriddedHypoMagFreqDistForecast
    * @todo Implement this
    *   org.opensha.sha.earthquake.HypoMagFreqDistAtLocAPI method
    */
-  public int getNumHypoMagFreqDistAtLocs() {
+  public int getNumHypoLocs() {
     return region.getNumGridLocs();
   }
 
@@ -124,14 +157,6 @@ public abstract class GriddedHypoMagFreqDistForecast
    */
   public void setTimeSpan(TimeSpan timeSpan) {
      this.timeSpan = timeSpan;
-  }
-
-  /**
-   *
-   * @param numHypoLocation int
-   */
-  public void setNumHypoLocation(int numHypoLocation) {
-    this.numHypoLocation = numHypoLocation;
   }
 
   /**

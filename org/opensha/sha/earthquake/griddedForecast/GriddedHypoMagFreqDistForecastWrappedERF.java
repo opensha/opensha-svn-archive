@@ -24,8 +24,6 @@ public class GriddedHypoMagFreqDistForecastWrappedERF
    */
   public GriddedHypoMagFreqDistForecastWrappedERF(EqkRupForecastAPI eqkRupForecast) {
     this.eqkRupForecast = eqkRupForecast;
-    this.setTimeSpan(eqkRupForecast.getTimeSpan());
-    this.setAdjustableParameters(eqkRupForecast.getAdjustableParameterList());
   }
 
   /**
