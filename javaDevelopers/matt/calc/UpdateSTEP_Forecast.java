@@ -48,7 +48,7 @@ public class UpdateSTEP_Forecast {
      */
     updateAftershockZone();
 
-    numGridNodes = forecastModelGen.getNumHypoMagFreqDistAtLocs();
+    numGridNodes = forecastModelGen.getNumHypoLocs();
 
     if (gridIsUpdated) {
       updateGenericModelParms();
