@@ -17,7 +17,7 @@ public class HypoMagFreqDistAtLoc {
 
   private Location location;
   private IncrementalMagFreqDist[] magFreqDist;
-  private FocalMechanism[] focalMechanism;
+  private FocalMechanism[] focalMechanism = null;
 
   /**
    * Class Constructor.
