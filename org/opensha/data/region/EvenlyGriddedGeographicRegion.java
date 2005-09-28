@@ -345,7 +345,7 @@ public class EvenlyGriddedGeographicRegion
    * @see EvenlyGriddedGeographicRegionAPI.getGridLocation(int)
    */
   public Location getGridLocation(int index) {
-    if(index < 0 || index > (locList.size() -1))
+    if(index < 0 || index > (getNumGridLocs() -1))
       return null;
     LocationList locList = getGridLocationsList();
     Location loc = locList.getLocationAt(index);

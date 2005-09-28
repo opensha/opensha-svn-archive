@@ -98,7 +98,7 @@ public final class GlobalConstants {
 
 
   public static final String PROB_HAZ_CURVES_INFO =
-      "Probabilistic Hazard Curves  - " +
+      "<b>USGS Probabilistic Hazard Curves  - </b>" +
       "This option allows the user to obtain " +
       "hazard curves for a number of acceleration " +
       "parameters, such as peak ground acceleration " +
@@ -108,7 +108,7 @@ public final class GlobalConstants {
       "Puerto Rico and the Virgin Islands - 2003.";
 
   public static final String PROB_UNIFORM_HAZ_RES_INFO =
-      "Probabilistic Uniform Hazard Response Spectra  - " +
+      "<b>USGS Probabilistic Uniform Hazard Response Spectra - </b> " +
       "This option allows the user to obtain uniform hazard " +
       "response spectra for 2% probabililty of " +
       "exceedance in 50 years, 10% probability of " +
@@ -118,9 +118,9 @@ public final class GlobalConstants {
       "states - 1996 and 2002, Alaska - 1998, Hawaii - 1998, " +
       "Puerto Rico and the Virgin Islands - 2003. ";
   public static final String NEHRP_INFO =
-      "NEHRP Recommended Provisions for Seismic " +
+      "<b>NEHRP Recommended Provisions for Seismic " +
       "Regulations for New Buildings and Other " +
-      "Structures  - This option may be used for " +
+      "Structures </b> - This option may be used for " +
       "the 1997, 2000, and 2003 editions of the  " +
       "NEHRP Recommended Provisions for Seismic " +
       "Regulations for New Buildings and Other Structures.  " +
@@ -128,7 +128,7 @@ public final class GlobalConstants {
       "and response spectra (both for period and displacement), " +
       "for Site Class A through E.";
   public static final String INTL_BUILDING_CODE_INFO =
-      "International Building Code  - This " +
+      "<b>International Building Code </b> - This " +
       "option may be used for the 2000 and 2003 " +
       "editions of the  International Building Code.  " +
       "The user may calculate seismic design parameters " +
@@ -160,8 +160,8 @@ public final class GlobalConstants {
       "for Site Class A through E.";*/
 
 
-  public static final String NFPA_INFO = "NFPA 5000 Building Construction and Safety Code " +
-          "- This option may be used for the 2000 edition " +
+  public static final String NFPA_INFO = "<b>NFPA 5000 Building Construction and Safety Code -</b> " +
+          "This option may be used for the 2000 edition " +
           "of the  NFPA 5000 Building Construction and " +
           "Safety Code.  The user may calculate seismic " +
           "design parameters and response spectra (both " +
@@ -169,15 +169,15 @@ public final class GlobalConstants {
 
 
   public static final String INTL_RESIDENTIAL_CODE_INFO =
-      "International Residential Code  - " +
+      "<b>International Residential Code - </b>" +
       "This option may be used for the 2000, " +
       "2003, and 2004 editions of the  " +
       "International Residential Code.  The " +
       "user may determine the Seismic Design " +
       "Categories for the default Site Class D.";
   public static final String ASCE_7_INFO =
-          "ASCE 7 Standard, Minimum Design Loads for " +
-          "Buildings and Other Structures  - This option " +
+          "<b>ASCE 7 Standard, Minimum Design Loads for " +
+          "Buildings and Other Structures </b> - This option " +
           "may be used for the 1998 and 2002 editions " +
           "of the ASCE 7 Standard,  Minimum Design Loads " +
           "for Buildings and Other Structures.  " +
@@ -211,6 +211,15 @@ public final class GlobalConstants {
       "coefficient tables depending on the analysis option selected. The user may\n" +
       "see the difference by comparing the tables for the 1997 and 2000 editions\n " +
       "of the NEHRP Provisions.";
+
+  public static final String SUMMARY_INFO ="<b>Summary- </b>"+
+      "The user may perform an analysis for a site by selecting from the options listed "+
+      "with the types of analysis dependent on the option selected. In most cases "+
+      "the site location may be secified by latitude-longitude (recommended) or "+
+      "zipcode. However, locations in Puerto Rico and Virgin islands may only be located "+
+      "by latitude-longitude. The brief description of the options are intended to "+
+      "provide information for the knowledgeable user. The description are not a substitute "+
+      "for technical knowledge of seismic design and/or analysis.";
 
   public final static String SITE_ERROR =
       "Check the Site Class selection. A Site Class \n" +
@@ -516,10 +525,12 @@ public final class GlobalConstants {
    * @return String
    */
   public static String getAllExplainationsForAnalysisOption(){
-   return PROB_HAZ_CURVES_INFO+"\n\n"+PROB_UNIFORM_HAZ_RES_INFO+"\n\n"+
-       NEHRP_INFO+"\n\n"+NFPA_INFO+"\n\n"+INTL_BUILDING_CODE_INFO+"\n\n"+
-       INTL_RESIDENTIAL_CODE_INFO+"\n\n"+ASCE_7_INFO;
-
+    return  "<html>"+SUMMARY_INFO +"<p>"+"<ul><b>List of options based on "+
+       "Probabilistic Calculations.</b>"+"<li>"+PROB_HAZ_CURVES_INFO+
+       "<li>"+PROB_UNIFORM_HAZ_RES_INFO+"</ul><b>List of options based on design "+
+       "documents for new buildings.</b>"+"<p>"+"<ul>"+
+       "<li>"+NEHRP_INFO+"<li>"+NFPA_INFO+"<li>"+INTL_BUILDING_CODE_INFO+"<li>"+
+       INTL_RESIDENTIAL_CODE_INFO+"<li>"+ASCE_7_INFO+"</ul></html>";
   }
 
 }

@@ -490,7 +490,7 @@ public class ERF2GriddedSeisRatesCalc {
 
     try {
       EvenlyGriddedRectangularGeographicRegion region =
-          new EvenlyGriddedRectangularGeographicRegion(33.00, 38.30, -123.00,
+          new EvenlyGriddedRectangularGeographicRegion(32.00, 38.30, -123.00,
           -115.00, 0.1);
       double[] rates = erf2griddedseisratescalc.getTotalSeisRateAtEachLocationInRegion(5.0, frankelForecast,
           region);

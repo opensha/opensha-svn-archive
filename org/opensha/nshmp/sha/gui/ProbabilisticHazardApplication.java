@@ -50,6 +50,14 @@ public class ProbabilisticHazardApplication
   JMenuItem fileSaveMenu = new JMenuItem();
   JMenuItem fileAddProjNameMenu = new JMenuItem();
   JMenuItem helpAnalysisOptionExplainationMenu = new JMenuItem();
+  JMenu helpSiteLocationNotes = new JMenu();
+  JMenu helpUS_TerritoryNotes = new JMenu();
+  JMenuItem helpAbout = new JMenuItem();
+  JMenuItem siteLocNotesLatLonAcc = new JMenuItem();
+  JMenuItem siteLocNotesZipCodeCaution = new JMenuItem();
+  JMenuItem usTerrPuertoRico = new JMenuItem();
+  JMenuItem usTerrGuam = new JMenuItem();
+
 
   // height and width of the applet
   private final static int W = 900;
@@ -143,7 +151,13 @@ public class ProbabilisticHazardApplication
     filePrintMenu.setText("Print");
     fileAddProjNameMenu.setText("Add Name & Date");
     helpAnalysisOptionExplainationMenu.setText("Analysis Option Explaination");
-
+    helpSiteLocationNotes.setText("Site Location Notes");
+    helpUS_TerritoryNotes.setText("U.S. Territory Notes");
+    helpAbout.setText("About");
+    siteLocNotesLatLonAcc.setText("Latitude-Longitude Accuracy");
+    siteLocNotesZipCodeCaution.setText("Zip Code Caution");
+    usTerrGuam.setText("Guam/Tutuila Region Message");
+    usTerrPuertoRico.setText("Puerto Rico/Virgin Islands");
     fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         fileExitMenu_actionPerformed(e);
@@ -173,6 +187,51 @@ public class ProbabilisticHazardApplication
             helpAnalysisOptionExplainationMenu_actionPerformed(e);
           }
     });
+
+    siteLocNotesLatLonAcc.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        siteLocNotesLatLonAcc_actionPerformed(e);
+      }
+    });
+
+    siteLocNotesZipCodeCaution.addActionListener(new java.awt.event.
+                                                 ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        siteLocNotesZipCodeCaution_actionPerformed(e);
+      }
+    });
+
+    helpAbout.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        helpAbout_actionPerformed(e);
+      }
+    });
+
+    usTerrPuertoRico.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        usTerrPuertoRico_actionPerformed(e);
+      }
+    });
+
+    usTerrGuam.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        usTerrGuam_actionPerformed(e);
+      }
+    });
+
+    usTerrGuam.addActionListener(new java.awt.event.ActionListener() {
+         public void actionPerformed(ActionEvent e) {
+           usTerrGuam_actionPerformed(e);
+         }
+    });
+
+    usTerrGuam.addActionListener(new java.awt.event.ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+       usTerrGuam_actionPerformed(e);
+     }
+   });
+
+
 
     jPanel1.setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -234,6 +293,13 @@ public class ProbabilisticHazardApplication
     fileMenu.add(filePrintMenu);
     fileMenu.add(fileExitMenu);
     helpMenu.add(helpAnalysisOptionExplainationMenu);
+    helpMenu.add(helpSiteLocationNotes);
+    helpMenu.add(helpUS_TerritoryNotes);
+    helpMenu.add(helpAbout);
+    helpSiteLocationNotes.add(siteLocNotesLatLonAcc);
+    helpSiteLocationNotes.add(siteLocNotesZipCodeCaution);
+    helpUS_TerritoryNotes.add(usTerrPuertoRico);
+    helpUS_TerritoryNotes.add(usTerrGuam);
     mainSplitPane.add(dataSplitPane, JSplitPane.RIGHT);
     parametersScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     parametersScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -354,6 +420,7 @@ public class ProbabilisticHazardApplication
       analysisOptionExpFrame.setSize(500, 350);
       analysisOptionExpFrame.getContentPane().setLayout(new GridBagLayout());
       analysisText = new JTextPane();
+      analysisText.setContentType("text/html");
       analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
       analysisText.setEditable(false);
       analysisScrollPane = new JScrollPane();
@@ -370,6 +437,63 @@ public class ProbabilisticHazardApplication
     }
     analysisOptionExpFrame.show();
   }
+
+  /**
+   * Help | Explaination to all the Analysis Options
+   *
+   * @param actionEvent ActionEvent
+   */
+  void siteLocNotesLatLonAcc_actionPerformed(ActionEvent
+      actionEvent) {
+
+  }
+
+
+  /**
+   * Help | Explaination to all the Analysis Options
+   *
+   * @param actionEvent ActionEvent
+   */
+  void siteLocNotesZipCodeCaution_actionPerformed(ActionEvent
+      actionEvent) {
+
+  }
+
+  /**
+   * Help | Explaination to all the Analysis Options
+   *
+   * @param actionEvent ActionEvent
+   */
+  void helpAbout_actionPerformed(ActionEvent
+      actionEvent) {
+
+
+  }
+
+
+  /**
+   * Help | Explaination to all the Analysis Options
+   *
+   * @param actionEvent ActionEvent
+   */
+  void usTerrPuertoRico_actionPerformed(ActionEvent
+                                                  actionEvent) {
+
+
+  }
+
+
+  /**
+   * Help | Explaination to all the Analysis Options
+   *
+   * @param actionEvent ActionEvent
+   */
+  void usTerrGuam_actionPerformed(ActionEvent
+                                  actionEvent) {
+
+  }
+
+
   /**
    * File | Print action performed.
    *
