@@ -81,7 +81,6 @@ public class ProbabilisticHazardApplication
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   private JDialog frame;
   private JTextPane explainationText;
-  private JDialog analysisOptionExpFrame;
   private JTextPane analysisText;
   private JScrollPane analysisScrollPane;
 
@@ -403,38 +402,39 @@ public class ProbabilisticHazardApplication
   void helpAnalysisOptionExplainationMenu_actionPerformed(ActionEvent
       actionEvent) {
 
-    if(analysisOptionExpFrame == null){
-      //Panel Parent
-      Container parent = this;
-      /*
-       This loops over all the parent of this class until the parent is Frame(applet)
-            this is required for the passing in the JDialog to keep the focus on the adjustable params
-            frame
-       */
-      while (! (parent instanceof JFrame) && parent != null) {
-        parent = parent.getParent();
-      }
-
-      analysisOptionExpFrame = new JDialog( (JFrame) parent);
-      analysisOptionExpFrame.setModal(true);
-      analysisOptionExpFrame.setSize(500, 350);
-      analysisOptionExpFrame.getContentPane().setLayout(new GridBagLayout());
-      analysisText = new JTextPane();
-      analysisText.setContentType("text/html");
-      analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
-      analysisText.setEditable(false);
-      analysisScrollPane = new JScrollPane();
-      analysisScrollPane.getViewport().add(analysisText, null);
-
-      analysisOptionExpFrame.getContentPane().add(analysisScrollPane,
-                                                  new GridBagConstraints(0, 0, 1, 1,
-          1.0, 1.0
-          , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-          new Insets(4, 4, 4, 4), 0, 0));
-      analysisOptionExpFrame.setLocation( (getSize().width - analysisOptionExpFrame.getWidth()) / 3,
-                                         (getSize().height - analysisOptionExpFrame.getHeight()) / 3);
-     analysisOptionExpFrame.setTitle("Analysis Options Explaination");
+    JDialog analysisOptionExpFrame;
+    //Panel Parent
+    Container parent = this;
+    /*
+     This loops over all the parent of this class until the parent is Frame(applet)
+          this is required for the passing in the JDialog to keep the focus on the adjustable params
+          frame
+     */
+    while (! (parent instanceof JFrame) && parent != null) {
+      parent = parent.getParent();
     }
+
+    analysisOptionExpFrame = new JDialog( (JFrame) parent);
+    analysisOptionExpFrame.setModal(true);
+    analysisOptionExpFrame.setSize(500, 350);
+    analysisOptionExpFrame.getContentPane().setLayout(new GridBagLayout());
+    analysisText = new JTextPane();
+    analysisText.setContentType("text/html");
+    analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
+    analysisText.setEditable(false);
+    analysisScrollPane = new JScrollPane();
+    analysisScrollPane.getViewport().add(analysisText, null);
+
+    analysisOptionExpFrame.getContentPane().add(analysisScrollPane,
+                                                new GridBagConstraints(0, 0, 1, 1,
+        1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(4, 4, 4, 4), 0, 0));
+    analysisOptionExpFrame.setLocation( (getSize().width -
+                                         analysisOptionExpFrame.getWidth()) / 3,
+                                       (getSize().height -
+                                        analysisOptionExpFrame.getHeight()) / 3);
+    analysisOptionExpFrame.setTitle("Analysis Options Explaination");
     analysisOptionExpFrame.show();
   }
 
@@ -444,8 +444,42 @@ public class ProbabilisticHazardApplication
    * @param actionEvent ActionEvent
    */
   void siteLocNotesLatLonAcc_actionPerformed(ActionEvent
-      actionEvent) {
+                                             actionEvent) {
+    JDialog analysisOptionExpFrame;
+    //Panel Parent
+    Container parent = this;
+    /*
+     This loops over all the parent of this class until the parent is Frame(applet)
+     this is required for the passing in the JDialog to keep the focus on the adjustable params
+     frame
+     */
+    while (! (parent instanceof JFrame) && parent != null) {
+      parent = parent.getParent();
+    }
 
+    analysisOptionExpFrame = new JDialog( (JFrame) parent);
+    analysisOptionExpFrame.setModal(true);
+    analysisOptionExpFrame.setSize(500, 350);
+    analysisOptionExpFrame.getContentPane().setLayout(new GridBagLayout());
+    analysisText = new JTextPane();
+    analysisText.setContentType("text/html");
+    analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
+    analysisText.setEditable(false);
+    analysisScrollPane = new JScrollPane();
+    analysisScrollPane.getViewport().add(analysisText, null);
+
+    analysisOptionExpFrame.getContentPane().add(analysisScrollPane,
+                                                new GridBagConstraints(0, 0, 1,
+        1,
+        1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(4, 4, 4, 4), 0, 0));
+    analysisOptionExpFrame.setLocation( (getSize().width -
+                                         analysisOptionExpFrame.getWidth()) / 3,
+                                       (getSize().height -
+                                        analysisOptionExpFrame.getHeight()) / 3);
+    analysisOptionExpFrame.setTitle("Analysis Options Explaination");
+    analysisOptionExpFrame.show();
   }
 
 

@@ -60,9 +60,9 @@ public class CB_2005_prelim_AttenRel
   private static double[] c0_PEN = {
       1.481, -0.112, -3.109};
   private static double[] c1_EPRI = {
-       -0.019, 0.461, -0.553};
+       -0.019, 0.461, 0.553};
   private static double[] c1_PEN = {
-       -0.052, -0.400, -0.550};
+       -0.052, 0.400, 0.550};
   private static double[] c2_EPRI = {
        -0.439, -0.650, -0.622};
   private static double[] c2_PEN = {
@@ -767,8 +767,7 @@ public class CB_2005_prelim_AttenRel
     }
     else {
       if (magSaturation) {
-        F1 = c0_EPRI[iper] + c1_EPRI[iper] * mag +
-            c2prime_EPRI[iper] * (mag - 6.5);
+        F1 = c0_EPRI[iper] + c1_EPRI[iper] * mag + c2prime_EPRI[iper] * (mag - 6.5);
       }
       else {
         F1 = c0_EPRI[iper] + c1_EPRI[iper] * mag + c2_EPRI[iper] * (mag - 6.5);
