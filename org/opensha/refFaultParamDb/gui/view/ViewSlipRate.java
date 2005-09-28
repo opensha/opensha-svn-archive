@@ -28,11 +28,8 @@ import org.opensha.data.estimate.Estimate;
  * @version 1.0
  */
 
-public class ViewSlipRate extends LabeledBoxPanel implements ActionListener {
+public class ViewSlipRate extends LabeledBoxPanel {
   private final static String SLIP_RATE_TITLE = "Slip Rate";
-  // edit buttons
-  private JButton editSlipRateButton = new JButton("Edit");
-  private final static String EDIT_TITLE = "Edit Slip Rate";
 
   // various labels to provide the information
   private InfoLabel slipRateEstimateLabel = new InfoLabel();
@@ -46,7 +43,6 @@ public class ViewSlipRate extends LabeledBoxPanel implements ActionListener {
     try {
       viewSlipRateForTimePeriod();
       setTitle(this.SLIP_RATE_TITLE);
-      editSlipRateButton.addActionListener(this);
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -84,11 +80,6 @@ public class ViewSlipRate extends LabeledBoxPanel implements ActionListener {
 
     // add the slip rate info the panel
     int yPos = 0;
-    add(this.editSlipRateButton,
-        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 0.0
-                               , GridBagConstraints.EAST,
-                               GridBagConstraints.NONE, new Insets(0, 0, 0, 0),
-                               0, 0));
     add(slipRateEstimatePanel, new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(0, 0, 0, 0), 0, 0));
@@ -106,23 +97,4 @@ public class ViewSlipRate extends LabeledBoxPanel implements ActionListener {
                                                 new Insets(0, 0, 0, 0), 0, 0));
 
   }
-
-  /**
-   * This function is called when edit button is clicked
-   * @param event
-   */
-  public void actionPerformed(ActionEvent event) {
-    JFrame frame= new JFrame(EDIT_TITLE);
-    AddEditSlipRate addEditSlipRate =  new AddEditSlipRate();
-    Container contentPane = frame.getContentPane();
-    contentPane.setLayout(GUI_Utils.gridBagLayout);
-    contentPane.add(addEditSlipRate, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER,
-        GridBagConstraints.BOTH,
-        new Insets(0, 0, 0, 0), 0, 0));
-    frame.setSize(300,750);
-    frame.setLocationRelativeTo(null);
-    frame.show();
-  }
-
 }

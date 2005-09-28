@@ -1,7 +1,6 @@
 package org.opensha.refFaultParamDb.gui.infotools;
 
 import org.opensha.refFaultParamDb.vo.Contributor;
-import org.opensha.refFaultParamDb.dao.ContributorDAO_API;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
@@ -50,7 +49,7 @@ public class SessionInfo {
     * Get the contributor info from database based on username and password
     */
    public static void setContributorInfo() {
-     ContributorDAO_API contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
+     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
      contributor = contributorDAO.getContributor(userName);
    }
 

@@ -13,6 +13,8 @@ import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.data.estimate.Estimate;
 
 
 /**
@@ -26,7 +28,7 @@ import java.awt.event.ActionEvent;
  * @version 1.0
  */
 
-public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
+public class AddEditSlipRate extends LabeledBoxPanel  {
   // SLIP RATE
   private final static String SLIP_RATE_PARAM_NAME="Slip Rate Estimate";
   private final static String SLIP_RATE_COMMENTS_PARAM_NAME="Slip Rate Comments";
@@ -39,23 +41,17 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
   private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
+  private final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";
 
   // parameters
-  private StringListParameter slipRateReferencesParam;
   private EstimateParameter slipRateEstimateParam;
   private EstimateParameter aSeismicSlipFactorParam;
   private StringParameter slipRateCommentsParam;
 
   // parameter editors
-  private ConstrainedStringListParameterEditor slipRateReferencesParamEditor;
   private ConstrainedEstimateParameterEditor slipRateEstimateParamEditor;
   private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
   private CommentsParameterEditor slipRateCommentsParamEditor;
-
-
- // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add Reference");
-  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
   private final static String SLIP_RATE_PARAMS_TITLE = "Slip Rate Params";
 
@@ -64,21 +60,12 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
     try {
       this.setLayout(GUI_Utils.gridBagLayout);
       this.addSlipRateInfoParameters();
-      addNewReferenceButton.setToolTipText(addNewReferenceToolTipText);
-      addNewReferenceButton.addActionListener(this);
     }catch(Exception e) {
       e.printStackTrace();
     }
 
   }
 
-  /**
-   * When user chooses to add a new reference
-   * @param event
-   */
-  public void actionPerformed(ActionEvent event) {
-    if(event.getSource() == addNewReferenceButton) new AddNewReference();
-  }
 
 
   /**
@@ -94,10 +81,6 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
     aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, true);
-    // references
-    ArrayList availableReferences = getAvailableReferences();
-    this.slipRateReferencesParam = new StringListParameter(this.SLIP_RATE_REFERENCES_PARAM_NAME, availableReferences);
-    slipRateReferencesParamEditor = new ConstrainedStringListParameterEditor(slipRateReferencesParam);
     // slip rate comments
     slipRateCommentsParam = new StringParameter(this.SLIP_RATE_COMMENTS_PARAM_NAME);
     slipRateCommentsParamEditor = new CommentsParameterEditor(slipRateCommentsParam);
@@ -114,19 +97,6 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
                                     GridBagConstraints.BOTH,
                                     new Insets(0, 0, 0, 0), 0, 0));
 
-    this.add(slipRateReferencesParamEditor,
-             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.BOTH,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-
-    this.add(addNewReferenceButton,
-             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 0.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.NONE,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-
-
     this.add(slipRateCommentsParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
@@ -137,18 +107,33 @@ public class AddEditSlipRate extends LabeledBoxPanel implements ActionListener {
     setTitle(this.SLIP_RATE_PARAMS_TITLE);
    }
 
+
    /**
-   * Get a list of available references.
-   *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
-   * @return
-   */
-private ArrayList getAvailableReferences() {
-  ArrayList referencesNamesList = new ArrayList();
-  referencesNamesList.add("Reference 1");
-  referencesNamesList.add("Reference 2");
-  return referencesNamesList;
+    * Get the slip rate estimate along with units
+    * @return
+    */
+   public EstimateInstances getSlipRateEstimate() {
+     this.slipRateEstimateParamEditor.setEstimateInParameter();
+     return new EstimateInstances((Estimate)this.slipRateEstimateParam.getValue(),
+                                  this.SLIP_RATE_UNITS);
+   }
 
-}
+   /**
+    * Get aseismic slip factor estimate along with units
+    * @return
+    */
+   public EstimateInstances getAseismicEstimate() {
+     this.aSeismicSlipFactorParamEditor.setEstimateInParameter();
+     return new EstimateInstances((Estimate)this.aSeismicSlipFactorParam.getValue(),
+                                 ASEISMIC_SLIP_FACTOR_UNITS);
+   }
 
+   /**
+    * Return the slip rate comments
+    * @return
+    */
+   public String getSlipRateComments() {
+     return (String)this.slipRateCommentsParam.getValue();
+   }
 
 }

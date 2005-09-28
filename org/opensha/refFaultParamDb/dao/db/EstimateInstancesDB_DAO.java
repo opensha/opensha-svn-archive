@@ -1,6 +1,5 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.dao.EstimateInstancesDAO_API;
 import org.opensha.refFaultParamDb.*;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.dao.exception.*;
@@ -20,7 +19,7 @@ import org.opensha.util.ClassUtils;
  * @version 1.0
  */
 
-public class EstimateInstancesDB_DAO implements EstimateInstancesDAO_API {
+public class EstimateInstancesDB_DAO {
   private final static String TABLE_NAME="Est_Instances";
   private final static String SEQUENCE_NAME="Est_Instances_Sequence";
   private final static String EST_ID="Est_Id";

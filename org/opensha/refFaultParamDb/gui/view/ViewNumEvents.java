@@ -28,11 +28,9 @@ import java.awt.event.ActionListener;
  * @version 1.0
  */
 
-public class ViewNumEvents extends LabeledBoxPanel implements ActionListener {
+public class ViewNumEvents extends LabeledBoxPanel {
   private final static String NUM_EVENTS_TITLE = "Number of Events";
-  // edit buttons
-  private JButton editNumEventsButton = new JButton("Edit");
-  private final static String EDIT_TITLE = "Edit Num Events";
+
 
   private InfoLabel numEventsEstimateLabel = new InfoLabel();
   private InfoLabel referencesLabel = new InfoLabel();
@@ -44,7 +42,6 @@ public class ViewNumEvents extends LabeledBoxPanel implements ActionListener {
     try {
       viewNumEventsForTimePeriod();
       setTitle(this.NUM_EVENTS_TITLE);
-      editNumEventsButton.addActionListener(this);
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -84,8 +81,6 @@ public class ViewNumEvents extends LabeledBoxPanel implements ActionListener {
 
    // add the slip rate info the panel
    int yPos=0;
-   add(this.editNumEventsButton,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 0.0
-       ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
    add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
    add(commentsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
@@ -93,25 +88,5 @@ public class ViewNumEvents extends LabeledBoxPanel implements ActionListener {
    add(referencesPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
  }
-
- /**
-  * This function is called when edit button is clicked
-  * @param event
-  */
- public void actionPerformed(ActionEvent event) {
-   JFrame frame= new JFrame(EDIT_TITLE);
-   AddEditNumEvents addEditNumEvents =  new AddEditNumEvents();
-   Container contentPane = frame.getContentPane();
-   contentPane.setLayout(GUI_Utils.gridBagLayout);
-   contentPane.add(addEditNumEvents, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-       , GridBagConstraints.CENTER,
-       GridBagConstraints.BOTH,
-       new Insets(0, 0, 0, 0), 0, 0));
-   frame.pack();
-   frame.setSize(300,750);
-   frame.setLocationRelativeTo(null);
-   frame.show();
- }
-
 
 }

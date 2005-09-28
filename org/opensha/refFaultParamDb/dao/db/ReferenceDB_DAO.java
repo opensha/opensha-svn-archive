@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.exception.*;
-import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
 
 /**
  * <p>Title:ReferenceDB_DAO.java</p>
@@ -16,7 +15,7 @@ import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
  * @version 1.0
  */
 
-public class ReferenceDB_DAO implements ReferenceDAO_API {
+public class ReferenceDB_DAO {
   private final static String SEQUENCE_NAME="Reference_Sequence";
   private final static String TABLE_NAME="Reference";
   private final static String REFERENCE_ID="Reference_Id";

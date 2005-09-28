@@ -5,8 +5,9 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.dao.db.TimeInstanceDB_DAO;
-import org.opensha.refFaultParamDb.dao.TimeInstanceDAO_API;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -34,11 +35,16 @@ public class AddSiteInfo extends JFrame implements ActionListener{
   private final static int W = 775;
   private final static int H = 650;
   private final static String TITLE = "Add Data for this Site";
-  private TimeInstanceDAO_API timeInstanceDAO = new TimeInstanceDB_DAO(DB_AccessAPI.dbConnection);
+  private final static String MSG_DB_OPERATION_SUCCESS = "Site Info successfully inserted into the database";
+  private int siteId;
+  private String siteEntryDate;
+  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 
-  public AddSiteInfo(boolean isSlipVisible, boolean isDisplacementVisible,
+  public AddSiteInfo(int siteId, String siteEntryDate,
+                     boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible)  {
-
+    this.siteId = siteId;
+    this.siteEntryDate = siteEntryDate;
     // only one of slip rate or cumulative displacement is allowed
     if(isSlipVisible && isDisplacementVisible)
       throw new RuntimeException(SLIP_OR_DISP_MSG);
@@ -70,6 +76,8 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     else if(source==this.okButton) {
       try {
         putSiteInfoInDatabase(); // put site info in database
+        JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
+        this.dispose();
       }catch(Exception e){
         JOptionPane.showMessageDialog(this, e.getMessage());
       }
@@ -80,21 +88,35 @@ public class AddSiteInfo extends JFrame implements ActionListener{
    * Put the site info in the database
    */
   private void putSiteInfoInDatabase() {
-    // first save the timespan
-    saveTimeSpan();
+    CombinedEventsInfo combinedEventsInfo = new CombinedEventsInfo();
+    // set the time span info
+    combinedEventsInfo.setStartTime(addEditTimeSpan.getStartTime());
+    combinedEventsInfo.setEndTime(addEditTimeSpan.getEndTime());
+    combinedEventsInfo.setShortCitationList(addEditTimeSpan.getTimeSpanShortCitationList());
+    combinedEventsInfo.setDatedFeatureComments(addEditTimeSpan.getTimeSpanComments());
+    // set the site
+    combinedEventsInfo.setSiteEntryDate(this.siteEntryDate);
+    combinedEventsInfo.setSiteId(this.siteId);
+    // set the slip rate info
+    if (isSlipVisible) {
+      combinedEventsInfo.setSlipRateComments(this.addEditSlipRate.getSlipRateComments());
+      combinedEventsInfo.setASeismicSlipFactorEstimate(this.addEditSlipRate.getAseismicEstimate());
+      combinedEventsInfo.setSlipRateEstimate(this.addEditSlipRate.getSlipRateEstimate());
+    }
+    // set the diplacement info
+    if(this.isDisplacementVisible) {
+      combinedEventsInfo.setDisplacementComments(this.addEditCumDisp.getDisplacementComments());
+      combinedEventsInfo.setASeismicSlipFactorEstimate(addEditCumDisp.getAseismicEstimate());
+      combinedEventsInfo.setDisplacementEstimate(addEditCumDisp.getDisplacementEstimate());
+    }
+    //set the num events info
+    if(this.isNumEventsVisible) {
+      combinedEventsInfo.setNumEventsComments(this.addEditNumEvents.getNumEventsComments());
+      combinedEventsInfo.setNumEventsEstimate(this.addEditNumEvents.getNumEventsEstimate());
+    }
+
+    combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
   }
-
-  /**
-   * Save the timespan in the database
-   */
-  private void saveTimeSpan() {
-    // put start time in database
-    int startTimeId = timeInstanceDAO.addTimeInstance(addEditTimeSpan.getStartTime());
-    //put end time in database
-    int endTimeId = timeInstanceDAO.addTimeInstance(addEditTimeSpan.getEndTime());
-  }
-
-
 
 
   /**

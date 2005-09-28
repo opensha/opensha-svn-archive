@@ -1,6 +1,5 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.dao.SiteRepresentationDAO_API;
 import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 import java.util.ArrayList;
 import java.sql.SQLException;
@@ -16,7 +15,7 @@ import java.sql.ResultSet;
  * @version 1.0
  */
 
-public class SiteRepresentationDB_DAO implements SiteRepresentationDAO_API {
+public class SiteRepresentationDB_DAO  {
 
   private final static String TABLE_NAME="Site_Representations";
   private final static String SITE_REPRESENTATION_ID="Site_Representation_Id";

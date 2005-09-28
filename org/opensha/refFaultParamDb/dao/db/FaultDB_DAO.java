@@ -1,6 +1,5 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.dao.FaultDAO_API;
 import org.opensha.refFaultParamDb.vo.Fault;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +15,7 @@ import java.util.Map;
  * @version 1.0
  */
 
-public class FaultDB_DAO implements FaultDAO_API {
+public class FaultDB_DAO  {
 
   private final static HashMap faultNameIdMapping = new HashMap();
   private DB_AccessAPI dbAccessAPI;

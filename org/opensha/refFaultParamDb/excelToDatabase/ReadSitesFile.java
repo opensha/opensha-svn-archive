@@ -48,7 +48,6 @@ public class ReadSitesFile {
        paleoSite.setSiteLat2(paleoSite.getSiteLat1());
        paleoSite.setSiteElevation2(SITE_ELEVATION_DEFAULT);
        paleoSite.setGeneralComments(COMMENTS_DEFAULT);
-       paleoSite.setEntryComments(COMMENTS_DEFAULT);
        paleoSite.setRepresentativeStrandName(STRAND_DEFAULT);
        paleoSite.setSiteTypeName(SITE_TYPE_DAFULT);
        //parse the references

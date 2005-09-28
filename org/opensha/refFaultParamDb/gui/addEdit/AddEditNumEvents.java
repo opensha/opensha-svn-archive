@@ -18,6 +18,8 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.editor.ArbitrarilyDiscretizedFuncParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.data.estimate.IntegerEstimate;
 
 /**
  * <p>Title: </p>
@@ -28,40 +30,33 @@ import java.awt.event.ActionEvent;
  * @version 1.0
  */
 
-public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChangeListener,ActionListener {
+public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChangeListener {
   // Number of events parameter
   private final static String NUM_EVENTS_PARAM_NAME="Number of Events";
   private final static String MIN_EVENTS_PARAM_NAME="Min # of Events";
   private final static String MAX_EVENTS_PARAM_NAME="Max # of Events";
   private final static String NUM_EVENTS_COMMENTS_PARAM_NAME="Comments";
-  private final static String NUM_EVENTS_REFERENCES_PARAM_NAME="Choose References";
   private final static String NUM_EVENTS_LIST_HEADER="# of Events";
   private final static String PROB_HEADER="Prob. this is correct # events";
   private final static String EVENT_PROB_PARAM_NAME= "Events Prob";
   private final static int NUM_EVENTS_MIN=0;
   private final static int NUM_EVENTS_MAX=Integer.MAX_VALUE;
+  private final static String NUM_EVENTS_UNITS=" ";
 
 
   // various parameters
-  private StringListParameter numEventsReferencesParam;
   private IntegerParameter minEventsParam;
   private IntegerParameter maxEventsParam;
   private StringParameter numEventsCommentsParam;
   private ArbitrarilyDiscretizedFuncParameter eventsProbParameter;
 
   // parameter editors
-  private ConstrainedStringListParameterEditor numEventsReferencesParamEditor;
   private IntegerParameterEditor minEventsParamEditor;
   private IntegerParameterEditor maxEventsParamEditor;
   private CommentsParameterEditor numEventsCommentsParamEditor;
   private ArbitrarilyDiscretizedFuncParameterEditor eventsProbParameterEditor;
 
   private ArbitrarilyDiscretizedFunc eventProbs = new ArbitrarilyDiscretizedFunc();
-
-  // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add Reference");
-  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
-
   private final static String NUM_EVENTS_PARAMS_TITLE = "Num Events Params";
 
   public AddEditNumEvents() {
@@ -69,20 +64,12 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
        this.setLayout(GUI_Utils.gridBagLayout);
        addNumEventsParameters();
        updateNumEventsList();
-       addNewReferenceButton.addActionListener(this);
-       addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     }catch(Exception e) {
       e.printStackTrace();
     }
   }
 
-  /**
-  * When user chooses to add a new reference
-  * @param event
-  */
- public void actionPerformed(ActionEvent event) {
-   if(event.getSource() == addNewReferenceButton) new AddNewReference();
- }
+
 
 
   /**
@@ -106,11 +93,6 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    eventsProbParameterEditor = new ArbitrarilyDiscretizedFuncParameterEditor(eventsProbParameter);
    eventsProbParameterEditor.setXEnabled(false); // user cannot type in the X values
 
-   // references
-   ArrayList availableReferences = getAvailableReferences();
-   this.numEventsReferencesParam = new StringListParameter(this.NUM_EVENTS_REFERENCES_PARAM_NAME, availableReferences);
-   numEventsReferencesParamEditor = new ConstrainedStringListParameterEditor(numEventsReferencesParam);
-
    // comments
    numEventsCommentsParam = new StringParameter(this.NUM_EVENTS_COMMENTS_PARAM_NAME);
    numEventsCommentsParamEditor = new CommentsParameterEditor(numEventsCommentsParam);
@@ -123,31 +105,12 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
    add(eventsProbParameterEditor, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-   add(numEventsReferencesParamEditor, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
-   this.add(this.addNewReferenceButton,
-            new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                                  , GridBagConstraints.CENTER,
-                                  GridBagConstraints.NONE,
-                                  new Insets(0, 0, 0, 0), 0, 0));
    add(numEventsCommentsParamEditor, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
 
    setTitle(this.NUM_EVENTS_PARAMS_TITLE);
  }
 
- /**
-  * Get a list of available references.
-  *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
-  * @return
-  */
- private ArrayList getAvailableReferences() {
-   ArrayList referencesNamesList = new ArrayList();
-   referencesNamesList.add("Reference 1");
-   referencesNamesList.add("Reference 2");
-   return referencesNamesList;
-
- }
 
  /**
   *  This method is called whenever a min or max is changed so that num events list
@@ -173,5 +136,24 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    eventsProbParameterEditor.refreshParamEditor();
   }
 
+  /**
+   * Get the comments for num events estimate
+   *
+   * @return
+   */
+  public String getNumEventsComments() {
+    return (String)this.numEventsCommentsParam.getValue();
+  }
+
+  /**
+   * Get the num events estimate
+   *
+   * @return
+   */
+  public EstimateInstances getNumEventsEstimate() {
+     ArbitrarilyDiscretizedFunc eventProb = (ArbitrarilyDiscretizedFunc)this.eventsProbParameter.getValue();
+     IntegerEstimate numEventsEstimate = new IntegerEstimate(eventProb,false);
+     return new EstimateInstances(numEventsEstimate, this.NUM_EVENTS_UNITS);
+   }
 
 }

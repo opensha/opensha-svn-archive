@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class ViewTimeSpan extends LabeledBoxPanel implements ActionListener{
+public class ViewTimeSpan extends LabeledBoxPanel{
 
   // start time header
   private final static String START_TIME_PARAM_NAME="Start Time:";
@@ -40,9 +40,7 @@ public class ViewTimeSpan extends LabeledBoxPanel implements ActionListener{
   // dating comments params
   StringParameter datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
   CommentsParameterEditor datedFeatureCommentsParamEditor;
-  // edit button
-  private JButton editTimeSpanButton = new JButton("Edit");
-  private final static String EDIT_TITLE = "Edit Timespan";
+
   private InfoLabel startTimeLabel = new InfoLabel();
   private InfoLabel endTimeLabel = new InfoLabel();
   private InfoLabel referencesLabel = new InfoLabel();
@@ -82,8 +80,6 @@ public class ViewTimeSpan extends LabeledBoxPanel implements ActionListener{
 
     // add start time, end time and comments to the GUI
     int yPos = 0;
-    add(this.editTimeSpanButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 0.0
-        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
     add(startTimePanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(endTimePanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -92,7 +88,6 @@ public class ViewTimeSpan extends LabeledBoxPanel implements ActionListener{
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(referencesPanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    editTimeSpanButton.addActionListener(this);
   }
 
   /**
@@ -111,25 +106,5 @@ public class ViewTimeSpan extends LabeledBoxPanel implements ActionListener{
     this.datedFeatureCommentsParam.setValue(datingComments);
     this.datedFeatureCommentsParamEditor.refreshParamEditor();
   }
-
-  /**
- * This function is called when edit button is clicked
- * @param event
- */
-public void actionPerformed(ActionEvent event) {
-  JFrame frame= new JFrame(EDIT_TITLE);
-  AddEditTimeSpan addEditTimespan =  new AddEditTimeSpan();
-  Container contentPane = frame.getContentPane();
-  contentPane.setLayout(GUI_Utils.gridBagLayout);
-  contentPane.add(addEditTimespan, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-      , GridBagConstraints.CENTER,
-      GridBagConstraints.BOTH,
-      new Insets(0, 0, 0, 0), 0, 0));
-  frame.pack();
-  frame.setSize(600,600);
-  frame.setLocationRelativeTo(null);
-  frame.show();
-}
-
 
 }

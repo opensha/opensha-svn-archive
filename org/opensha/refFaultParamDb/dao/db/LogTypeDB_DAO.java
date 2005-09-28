@@ -1,6 +1,5 @@
 package org.opensha.refFaultParamDb.dao.db;
 
-import org.opensha.refFaultParamDb.dao.LogTypeDAO_API;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
@@ -14,7 +13,7 @@ import org.opensha.refFaultParamDb.dao.exception.QueryException;
  * @version 1.0
  */
 
-public class LogTypeDB_DAO implements LogTypeDAO_API {
+public class LogTypeDB_DAO  {
 
   private final static String TABLE_NAME="Log_Type";
   private final static String LOG_TYPE_ID="Log_Type_Id";

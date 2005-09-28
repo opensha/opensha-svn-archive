@@ -2,7 +2,6 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import org.opensha.refFaultParamDb.dao.FaultModelDAO_API;
 import org.opensha.refFaultParamDb.vo.FaultModel;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
  */
 
 
-public class FaultModelDB_DAO implements FaultModelDAO_API {
+public class FaultModelDB_DAO  {
   private final static String SEQUENCE_NAME="Fault_Model_Sequence";
   private final static String TABLE_NAME="Fault_Model";
   private final static String FAULT_MODEL_ID="Fault_Model_Id";

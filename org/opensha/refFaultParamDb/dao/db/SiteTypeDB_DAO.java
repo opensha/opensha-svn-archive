@@ -2,7 +2,6 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import org.opensha.refFaultParamDb.dao.SiteTypeDAO_API;
 import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import java.util.ArrayList;
  */
 
 
-public class SiteTypeDB_DAO implements SiteTypeDAO_API {
+public class SiteTypeDB_DAO  {
   private final static String SEQUENCE_NAME="Site_Type_Sequence";
   private final static String TABLE_NAME="Site_Type";
   private final static String SITE_TYPE_ID="Site_Type_Id";

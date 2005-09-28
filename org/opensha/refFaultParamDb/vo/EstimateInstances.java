@@ -17,6 +17,12 @@ public class EstimateInstances {
 
   public EstimateInstances() {
   }
+
+  public EstimateInstances(Estimate estimate, String units) {
+   setEstimate(estimate);
+   setUnits(units);
+  }
+
   public Estimate getEstimate() {
     return estimate;
   }

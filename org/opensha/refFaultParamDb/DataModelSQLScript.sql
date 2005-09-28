@@ -5,6 +5,8 @@ drop table Event_Sequence;
 drop table Paleo_Event_References;
 drop table Paleo_Event;
 drop table Combined_Events_References;
+drop sequence Combined_Events_Sequence;
+drop trigger Combined_Events_Trigger;
 drop table Combined_Events_Info;
 drop table Time_Estimate_Info;
 drop table Exact_Time_Info;
@@ -320,7 +322,6 @@ CREATE TABLE Paleo_Site (
   Site_Id INTEGER NOT NULL,
   Fault_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
-  Entry_Comments VARCHAR(255) NOT NULL,
   Contributor_Id INTEGER NOT NULL,
   Site_Type_Id INTEGER NOT NULL,
   Site_Name VARCHAR(255) NULL,
@@ -449,15 +450,16 @@ CREATE TABLE Combined_Events_Info (
   Site_Id INTEGER  NOT NULL, 
   Site_Entry_Date date NOT NULL,  
   Entry_Date date NOT NULL,
-  Entry_Comments VARCHAR(255) NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
   Start_Time_Id INTEGER  NOT NULL,
   End_Time_Id INTEGER  NOT NULL,
-  Total_Slip_Est_Id INTEGER  NOT NULL,
-  Slip_Rate_Est_Id INTEGER  NOT NULL,
-  Num_Events_Est_Id INTEGER  NOT NULL,
-  Aseismic_Slip_Factor_Est_Id INTEGER  NOT NULL,
-  General_Comments VARCHAR(255) NULL,
+  Total_Slip_Est_Id INTEGER  NULL,
+  Slip_Rate_Est_Id INTEGER  NULL,
+  Num_Events_Est_Id INTEGER  NULL,
+  Aseismic_Slip_Factor_Est_Id INTEGER  NULL,
+  Slip_Rate_Comments VARCHAR(255) NULL,
+  Total_Slip_Comments VARCHAR(255) NULL,
+  Num_Events_Comments VARCHAR(255) NULL, 	
   Dated_Feature_Comments VARCHAR(255) NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
@@ -504,8 +506,6 @@ select Combined_Events_Sequence.nextval into :new.Info_Id from dual;
 end if;
 end;
 /
- 
-  	
  
 
 CREATE TABLE Paleo_Event (
@@ -637,7 +637,6 @@ create VIEW Vw_Paleo_Site_Chars AS
 select ps.Site_Id as Site_Id,
        ps.Fault_Id as Fault_Id, 
        ps.Entry_Date as Entry_Date,
-       ps.Entry_Comments as Entry_Comments,
        st.Site_Type Site_Type,
        ps.Site_Name as Site_Name,
        ps.Site_Lat1 as Site_Lat1,

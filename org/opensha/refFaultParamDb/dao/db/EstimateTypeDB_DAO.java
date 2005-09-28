@@ -2,7 +2,6 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.EstimateTypeDAO_API;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.EstimateType;
@@ -16,7 +15,7 @@ import org.opensha.refFaultParamDb.vo.EstimateType;
  * @version 1.0
  */
 
-public class EstimateTypeDB_DAO implements EstimateTypeDAO_API {
+public class EstimateTypeDB_DAO  {
 
   private final static String TABLE_NAME="Est_Type";
   private final static String EST_TYPE_ID="Est_Type_Id";

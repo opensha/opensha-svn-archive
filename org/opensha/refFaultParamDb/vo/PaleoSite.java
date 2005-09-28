@@ -24,11 +24,19 @@ public class PaleoSite {
   private float siteElevation2;
   private String representativeStrandName;
   private String generalComments;
-  private String entryComments;
   private String oldSiteId;
+  private String entryDate;
   private ArrayList referenceShortCitationList = new ArrayList();
 
   public PaleoSite() {
+  }
+
+  public String getEntryDate() {
+    return this.entryDate;
+  }
+
+  public void setEntryDate(String entryDate) {
+    this.entryDate = entryDate;
   }
 
   public void setSiteId(int siteId) { this.siteId = siteId; }
@@ -88,12 +96,6 @@ public class PaleoSite {
   }
   public void setSiteElevation2(float siteElevation2) {
     this.siteElevation2 = siteElevation2;
-  }
-  public String getEntryComments() {
-    return entryComments;
-  }
-  public void setEntryComments(String entryComments) {
-    this.entryComments = entryComments;
   }
   public String getFaultName() {
     return this.faultName;

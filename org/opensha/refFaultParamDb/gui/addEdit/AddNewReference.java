@@ -12,7 +12,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
@@ -40,7 +39,7 @@ public class AddNewReference extends JFrame implements ActionListener {
   private final static String NEW_SITE_TYPE_LABEL="Add Reference";
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
-  private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String MSG_INSERT_SUCCESS = "Reference added sucessfully to the database";
 
   public AddNewReference() {

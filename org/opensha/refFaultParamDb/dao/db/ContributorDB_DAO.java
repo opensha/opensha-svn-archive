@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.dao.exception.*;
-import org.opensha.refFaultParamDb.dao.ContributorDAO_API;
 
 /**
  * <p>Title:ContributorDB_DAO.java</p>
@@ -16,7 +15,7 @@ import org.opensha.refFaultParamDb.dao.ContributorDAO_API;
  * @version 1.0
  */
 
-public class ContributorDB_DAO implements ContributorDAO_API {
+public class ContributorDB_DAO  {
   private final static String SEQUENCE_NAME="Contributors_Sequence";
   private final static String TABLE_NAME="Contributors";
   private final static String CONTRIBUTOR_ID="Contributor_Id";

@@ -2,7 +2,6 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.opensha.refFaultParamDb.dao.QFault2002B_DAO_API;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.QFault2002B;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
@@ -17,7 +16,7 @@ import org.opensha.refFaultParamDb.dao.exception.QueryException;
  * @version 1.0
  */
 
-public class QFault2002B_DB_DAO implements QFault2002B_DAO_API {
+public class QFault2002B_DB_DAO  {
 
   private final static String TABLE_NAME="QFault_2002B";
   private final static String SECTION_ID="Section_Id";

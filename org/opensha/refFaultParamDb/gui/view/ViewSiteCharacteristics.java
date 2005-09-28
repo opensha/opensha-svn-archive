@@ -16,7 +16,6 @@ import org.opensha.data.Location;
 import org.opensha.refFaultParamDb.gui.addEdit.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
-import org.opensha.refFaultParamDb.dao.PaleoSiteDAO_API;
 import org.opensha.refFaultParamDb.dao.db.*;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
@@ -87,7 +86,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private SiteSelectionAPI siteSelectionListener;
 
   //dao
-  private PaleoSiteDAO_API paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
 
 
   public ViewSiteCharacteristics(SiteSelectionAPI siteSelectionListener) {
@@ -256,9 +255,13 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     }
     else if(source == this.addInfoButton) {
      try {
-       new AddSiteInfo(this.slipRateCheckBox.isSelected(),
+        if(paleoSite!=null)
+          new AddSiteInfo(this.paleoSite.getSiteId(),
+                       this.paleoSite.getEntryDate(),
+                       this.slipRateCheckBox.isSelected(),
                        this.cumDispCheckBox.isSelected(),
                        this.numEventsCheckBox.isSelected());
+     else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
      }catch(Exception e) {
        JOptionPane.showMessageDialog(this, e.getMessage());
      }

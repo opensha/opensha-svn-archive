@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
 import org.opensha.refFaultParamDb.data.*;
-import org.opensha.refFaultParamDb.dao.TimeInstanceDAO_API;
 
 /**
  * <p>Title: TimeInstanceDB_DAO.java </p>
@@ -19,7 +18,7 @@ import org.opensha.refFaultParamDb.dao.TimeInstanceDAO_API;
  * @version 1.0
  */
 
-public class TimeInstanceDB_DAO  implements TimeInstanceDAO_API  {
+public class TimeInstanceDB_DAO  {
   private final static String TABLE_NAME="Time_Instances";
   private final static String REFERENCES_TABLE_NAME = "Time_Instances_References";
   private final static String SEQUENCE_NAME="Time_Instances_Sequence";

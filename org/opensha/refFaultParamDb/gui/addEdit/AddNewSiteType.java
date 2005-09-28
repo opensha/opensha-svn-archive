@@ -11,7 +11,6 @@ import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
-import org.opensha.refFaultParamDb.dao.SiteTypeDAO_API;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
@@ -44,7 +43,7 @@ public class AddNewSiteType extends JFrame implements ActionListener {
   private JButton cancelButton = new JButton("Cancel");
   private final static String MSG_INSERT_SUCCESS = "Site type added sucessfully to the database";
 
-  private SiteTypeDAO_API siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddNewSiteType() {
     //intialize the parameters and editors

@@ -18,21 +18,16 @@ import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.exceptions.*;
 import org.opensha.exceptions.*;
 import org.opensha.exceptions.*;
-import org.opensha.refFaultParamDb.dao.SiteTypeDAO_API;
 import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
-import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
-import org.opensha.refFaultParamDb.dao.SiteRepresentationDAO_API;
 import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
-import org.opensha.refFaultParamDb.dao.PaleoSiteDAO_API;
-import org.opensha.refFaultParamDb.dao.FaultDAO_API;
 import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
 import org.opensha.refFaultParamDb.vo.Fault;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
@@ -113,15 +108,15 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
   // site type DAO
-  private SiteTypeDAO_API siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
   // references DAO
-  private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   // site representations DAO
-  private SiteRepresentationDAO_API siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
   // paleo site DAO
-  private PaleoSiteDAO_API paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
+  private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   // fault DAO
-  private FaultDAO_API faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+  private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
   private boolean isEdit = false;
   private PaleoSite paleoSiteVO;
 
@@ -208,7 +203,6 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     }
     paleoSite.setGeneralComments(comments);
     paleoSite.setOldSiteId((String)this.oldSiteIdParam.getValue());
-    paleoSite.setEntryComments(comments);
     paleoSite.setFaultName((String)this.assocWithFaultParam.getValue());
     // see that user chooses at least 1 site reference
     ArrayList siteReferences = (ArrayList)this.siteReferenceParam.getValue();

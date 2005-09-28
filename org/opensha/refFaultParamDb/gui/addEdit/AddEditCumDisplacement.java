@@ -13,6 +13,8 @@ import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.gui.LabeledBoxPanel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.data.estimate.Estimate;
 
 /**
  * <p>Title: AddEditCumDisplacement.java </p>
@@ -25,36 +27,32 @@ import java.awt.event.ActionEvent;
  * @version 1.0
  */
 
-public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionListener{
+public class AddEditCumDisplacement extends LabeledBoxPanel{
   // ASEISMICE SLIP FACTOR
   private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
+   private final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
 
    // CUMULATIVE DISPLACEMENT
   private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Cumulative Displacement Estimate";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
-  private final static String CUMULATIVE_DISPLACEMENT_REFERENCES_PARAM_NAME="Choose References";
-  private final static String CUMULATIVE_DISPLACEMENT_UNITS = "mm";
+  private final static String CUMULATIVE_DISPLACEMENT_UNITS = "m";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 
   // various parameters
- private StringListParameter cumDisplacementReferencesParam;
  private EstimateParameter aSeismicSlipFactorParam;
  private EstimateParameter cumDisplacementParam;
  private StringParameter displacementCommentsParam;
 
  // parameter editors
- private ConstrainedStringListParameterEditor cumDisplacementReferencesParamEditor;
  private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
  private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
  private CommentsParameterEditor displacementCommentsParamEditor;
 
  // various buttons in this window
-  private JButton addNewReferenceButton = new JButton("Add Reference");
-  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
-  private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
+   private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
 
  /**
   * Add Cum displacement parameters
@@ -63,20 +61,10 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionLis
    try {
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
-     this.addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
-     addNewReferenceButton.addActionListener(this);
    }catch(Exception e) {
      e.printStackTrace();
    }
   }
-
-  /**
-  * When user chooses to add a new reference
-  * @param event
-  */
- public void actionPerformed(ActionEvent event) {
-   if(event.getSource() == addNewReferenceButton) new AddNewReference();
- }
 
 
   /**
@@ -101,12 +89,6 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionLis
         CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME);
     displacementCommentsParamEditor = new CommentsParameterEditor(displacementCommentsParam);
 
-    // references
-    ArrayList availableReferences = getAvailableReferences();
-    this.cumDisplacementReferencesParam = new StringListParameter(this.
-        CUMULATIVE_DISPLACEMENT_REFERENCES_PARAM_NAME, availableReferences);
-    cumDisplacementReferencesParamEditor = new ConstrainedStringListParameterEditor(cumDisplacementReferencesParam);
-
 
     int yPos=0;
     this.add(cumDisplacementParamEditor,
@@ -120,18 +102,6 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionLis
                                     GridBagConstraints.BOTH,
                                     new Insets(0, 0, 0, 0), 0, 0));
 
-    this.add(cumDisplacementReferencesParamEditor,
-             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                                    , GridBagConstraints.CENTER,
-                                    GridBagConstraints.BOTH,
-                                    new Insets(0, 0, 0, 0), 0, 0));
-
-    this.add(this.addNewReferenceButton,
-            new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                                   , GridBagConstraints.CENTER,
-                                   GridBagConstraints.NONE,
-                                   new Insets(0, 0, 0, 0), 0, 0));
-
 
     this.add(displacementCommentsParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -143,19 +113,34 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements ActionLis
     setTitle(this.CUM_DISPLACEMENT_PARAMS_TITLE);
   }
 
+
   /**
-   * Get a list of available references.
-   *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
+   * Get the displacement estimate
    * @return
    */
-  private ArrayList getAvailableReferences() {
-    ArrayList referencesNamesList = new ArrayList();
-    referencesNamesList.add("Reference 1");
-    referencesNamesList.add("Reference 2");
-    return referencesNamesList;
+  public EstimateInstances getDisplacementEstimate() {
+    this.cumDisplacementParamEditor.setEstimateInParameter();
+    return new EstimateInstances((Estimate)cumDisplacementParam.getValue(),
+                                 CUMULATIVE_DISPLACEMENT_UNITS);
 
   }
 
+  /**
+   * Get aseismic slip factor estimate
+   * @return
+   */
+  public EstimateInstances getAseismicEstimate() {
+    this.aSeismicSlipFactorParamEditor.setEstimateInParameter();
+    return new EstimateInstances((Estimate)this.aSeismicSlipFactorParam.getValue(),
+                                 ASEISMIC_SLIP_FACTOR_UNITS);
+  }
 
+  /**
+   * Get the displacement comments
+   * @return
+   */
+  public String getDisplacementComments() {
+    return (String)this.displacementCommentsParam.getValue();
+  }
 
 }

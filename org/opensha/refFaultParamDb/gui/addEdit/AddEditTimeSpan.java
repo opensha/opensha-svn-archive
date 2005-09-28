@@ -12,7 +12,6 @@ import org.opensha.param.StringListParameter;
 import org.opensha.param.editor.ConstrainedStringListParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import org.opensha.refFaultParamDb.dao.ReferenceDAO_API;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.data.TimeAPI;
@@ -57,7 +56,7 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   // references DAO
-  private ReferenceDAO_API referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddEditTimeSpan() {
     try {
@@ -165,5 +164,22 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
     TimeAPI endTime = this.endTimeBean.getSelectedTime();
     setReferencesAndDatingComments(endTime);
     return endTime;
+  }
+
+  /**
+   * Return a list of selected short citations
+   *
+   * @return
+   */
+  public ArrayList getTimeSpanShortCitationList() {
+    return (ArrayList)timeSpanReferencesParam.getValue();
+  }
+
+  /**
+   * Get the comments about this timespan
+   * @return
+   */
+  public String getTimeSpanComments() {
+    return (String)timeSpanCommentsParam.getValue();
   }
 }

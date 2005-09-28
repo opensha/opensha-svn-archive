@@ -2,7 +2,6 @@ package org.opensha.refFaultParamDb.dao.db;
 
 import java.sql.SQLException;
 import java.sql.ResultSet;
-import org.opensha.refFaultParamDb.dao.PaleoSiteDAO_API;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.vo.SiteType;
@@ -24,7 +23,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
  */
 
 
-public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
+public class PaleoSiteDB_DAO  {
   private final static String SEQUENCE_NAME = "Paleo_Site_Sequence";
   private final static String TABLE_NAME="Paleo_Site";
   private final static String VIEW_NAME = "Vw_Paleo_Site_Chars";
@@ -32,7 +31,6 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private final static String SITE_ID="Site_Id";
   private final static String FAULT_ID="Fault_Id";
   private final static String ENTRY_DATE="Entry_Date";
-  private final static String ENTRY_COMMENTS="Entry_Comments";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String SITE_NAME="Site_Name";
@@ -101,13 +99,12 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
 
 
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
-        ENTRY_DATE+","+ENTRY_COMMENTS+
-        ","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
+        ENTRY_DATE+","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
         SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
         SITE_ELEVATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+faultId+",'"+systemDate+
-        "','"+paleoSite.getEntryComments()+"',"+SessionInfo.getContributor().getId()+","+
+        "',"+SessionInfo.getContributor().getId()+","+
         siteTypeId+",'"+paleoSite.getSiteName()+"',"+
         paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+","+
         paleoSite.getSiteElevation1()+","+paleoSite.getSiteLat2()+","+
@@ -205,7 +202,6 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
     String sql =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
-        ","+ENTRY_COMMENTS+
         ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LAT1+","+
         SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
         SITE_ELEVATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
@@ -218,8 +214,8 @@ public class PaleoSiteDB_DAO implements PaleoSiteDAO_API {
       while(rs.next())  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
+        paleoSite.setEntryDate(rs.getString(ENTRY_DATE));
         paleoSite.setFaultName(faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
-        paleoSite.setEntryComments(rs.getString(ENTRY_COMMENTS));
         paleoSite.setSiteTypeName(rs.getString(SiteTypeDB_DAO.SITE_TYPE_NAME));
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         paleoSite.setSiteLat1(rs.getFloat(SITE_LAT1));
