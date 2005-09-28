@@ -130,4 +130,11 @@ public class STEP_TypeIIAftershockZone_Calc {
     return typeIIAftershockZone;
   }
 
+  /**
+   * getTypeIIFaultModel
+   */
+  public LocationList getTypeIIFaultModel() {
+    return faultSegments;
+  }
+
 }

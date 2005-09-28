@@ -163,12 +163,12 @@ public class STEP_main {
      */
 
     int numAftershockModels = STEP_AftershockForecastList.size();
-    STEP_AftershockForecast forecastModel;
+    GenericAfterHypoMagFreqDistForecast forecastModel;
 
     for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
       forecastModel =
-          (STEP_AftershockForecast)STEP_AftershockForecastList.get(modelLoop);
-      //UpdateSTEP_Forecast(forecastModel);
+          (GenericAfterHypoMagFreqDistForecast)STEP_AftershockForecastList.get(modelLoop);
+      //UpdateSTEP_Forecast(forecastModel,backGroundRatesGrid);
     }
 
 

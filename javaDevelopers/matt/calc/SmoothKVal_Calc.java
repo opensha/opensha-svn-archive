@@ -24,13 +24,15 @@ import org.opensha.sha.fault.*;
 public class SmoothKVal_Calc {
   private  STEP_AftershockForecast aftershockModel;
   private  EvenlyGriddedGeographicRegionAPI aftershockZone;
-  private double global_aVal, global_bVal, global_Mc;
+  private double global_aVal, global_bVal, global_Mc, mainshockMag, numInd;
+  private double seq_kVal;
   private ObsEqkRupture mainshock;
   private FaultTrace faultTrace;
-  private double[] nodeTaper_k;
+  private double[] nodeTaperGen_k, nodeTaperSeq_k, nodePerc;
+  private int numLocs;
+
 
   public SmoothKVal_Calc() {
-
   }
 
   /**
@@ -46,10 +48,10 @@ public class SmoothKVal_Calc {
    SimpleFaultData mainshockFault = aftershockModel.get_FaultModel();
    mainshock = aftershockModel.getMainShock();
    faultTrace = mainshockFault.getFaultTrace();
+   mainshockMag = mainshock.getMag();
 
    //now do the calculations
-   set_k_value();
-
+   setNodePerc();
  }
 
  /**
@@ -73,18 +75,17 @@ public class SmoothKVal_Calc {
 **/
 
       /**
-     * set_k_value
-     * This will taper the generic k value.  Each grid node will be assigned
-     * a k value based on the distance from the fault.
+     * setNodePerc
+     * This will taper assign a percentage of the k value that should
+     * be assigned to each grid node.
      */
-    private void set_k_value() {
+    private void setNodePerc() {
       double sumInvDist = 0;
 
-      int numLocs = aftershockZone.getNumGridLocs();
-      nodeTaper_k =  new double[numLocs];
+      numLocs = aftershockZone.getNumGridLocs();
       double[] nodeDistFromFault = new double[numLocs];
       double[] invDist = new double[numLocs];
-      double[] nodePerc = new double[numLocs];
+      nodePerc = new double[numLocs];
 
       //get the iterator of all the locations within that region
       ListIterator it = aftershockZone.getGridLocationsIterator();
@@ -109,21 +110,57 @@ public class SmoothKVal_Calc {
         nodePerc[indLoop] = invDist[indLoop] / sumInvDist;
       }
 
+      numInd = ind;
 
-      double mainshockMag = mainshock.getMag();
-      double rightSide = global_aVal + global_bVal * (mainshockMag - global_Mc);
-      double generic_k = Math.pow(10,rightSide);
-      for (int indLoop = 0; indLoop < ind -1; ++indLoop) {
-           nodeTaper_k[indLoop] = generic_k * nodePerc[indLoop];
-      }
     }
 
   /**
-   * get_Smooth_kVal
+   * setSeq_kVal
    */
-  public double[] get_Smooth_kVal() {
-    return nodeTaper_k;
+  public void setSeq_kVal(double seq_kVal) {
+    this.seq_kVal = seq_kVal;
+    calcSeqGrid_kVal();
   }
+
+  /**
+   * calcGenGrid_kVal
+   */
+  private void calcGenGrid_kVal() {
+    double rightSide = global_aVal + global_bVal * (mainshockMag - global_Mc);
+      double generic_k = Math.pow(10,rightSide);
+      nodeTaperGen_k =  new double[numLocs];
+
+      for (int indLoop = 0; indLoop < numInd -1; ++indLoop) {
+           nodeTaperGen_k[indLoop] = generic_k * nodePerc[indLoop];
+      }
+
+  }
+
+  /**
+   * calcSeqGrid_kVal
+   */
+  private void calcSeqGrid_kVal() {
+    nodeTaperSeq_k =  new double[numLocs];
+    for (int indLoop = 0; indLoop < numInd -1; ++indLoop) {
+           nodeTaperSeq_k[indLoop] = seq_kVal * nodePerc[indLoop];
+      }
+  }
+
+  /**
+   * get_SmoothGen_kVal
+   */
+  public double[] get_SmoothGen_kVal() {
+    calcGenGrid_kVal();
+    return nodeTaperGen_k;
+  }
+
+  /**
+   * get_SmoothSeq_kVal
+   */
+  public double[] get_SmoothSeq_kVal() {
+    return nodeTaperSeq_k;
+  }
+
 
 
 }

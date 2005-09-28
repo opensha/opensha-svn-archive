@@ -38,11 +38,12 @@ public abstract class STEP_AftershockForecast
   public double addToMc;
   private double zoneRadius;
   private double gridSpacing;
-  private double forecastEndTime, forecastStartTime;
+  private GregorianCalendar forecastEndTime, forecastStartTime;
   private ArrayList griddedMagFreqDistForecast;
   private boolean isStatic = false, isPrimary = true,
       isSecondary = false, useSeqAndSpatial = false;
   private ObsEqkRupList newAftershocksInZone;
+  private RegionDefaults rDefs;
 
 
   /**
@@ -55,11 +56,12 @@ public abstract class STEP_AftershockForecast
    * setRegionDefaults
    */
   public void setRegionDefaults(RegionDefaults rDefs) {
-    this.minForecastMag = rDefs.minForecastMag;
+    /**this.minForecastMag = rDefs.minForecastMag;
     this.maxForecastMag = rDefs.maxForecastMag;
     this.deltaMag = rDefs.deltaForecastMag;
     this.addToMc = rDefs.addToMc;
-    this.gridSpacing = rDefs.gridSpacing;
+    this.gridSpacing = rDefs.gridSpacing; */
+    this.rDefs = rDefs;
   }
 
   /**
@@ -204,7 +206,7 @@ public abstract class STEP_AftershockForecast
   /**
    * calcTypeI_AftershockZone
    */
-  public void calcTypeI_AftershockZone() {
+  public void calcTypeI_AftershockZone(EvenlyGriddedGeographicRegionAPI backGroundRatesGrid) {
 
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
@@ -215,7 +217,14 @@ public abstract class STEP_AftershockForecast
       EvenlyGriddedCircularGeographicRegion aftershockZone =
           new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
           zoneRadius, gridSpacing);
+      aftershockZone.createRegionLocationsList(backGroundRatesGrid);
       this.setAfterShockZone(aftershockZone);
+
+      // make a fault that is only a single point.
+      String faultName = "typeIfault";
+      FaultTrace fault_trace = new FaultTrace(faultName);
+      fault_trace.addLocation(mainshock.getHypocenterLocation());
+      set_FaultSurface(fault_trace);
     }
   }
 
@@ -228,7 +237,8 @@ public abstract class STEP_AftershockForecast
    * This will also set the aftershock list.
    */
 
-  public void calcTypeII_AfterShockZone(ObsEqkRupList aftershockList) {
+  public void calcTypeII_AfterShockZone(ObsEqkRupList aftershockList,
+                                        EvenlyGriddedGeographicRegionAPI backGroundRatesGrid) {
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
     }
@@ -237,7 +247,17 @@ public abstract class STEP_AftershockForecast
             STEP_TypeIIAftershockZone_Calc(aftershockList, this);
         EvenlyGriddedSausageGeographicRegion typeII_Zone = typeIIcalc.
             get_TypeIIAftershockZone();
+       typeII_Zone.createRegionLocationsList(backGroundRatesGrid);
        this.setAfterShockZone(typeII_Zone);
+       LocationList faultPoints = typeIIcalc.getTypeIIFaultModel();
+       String faultName = "typeIIfault";
+       // add the synthetic fault to the fault trace
+       // do not add the 2nd element as it is the same as the 3rd (the mainshock location)
+       FaultTrace fault_trace = new FaultTrace(faultName);
+       fault_trace.addLocation(faultPoints.getLocationAt(0));
+       fault_trace.addLocation(faultPoints.getLocationAt(1));
+       fault_trace.addLocation(faultPoints.getLocationAt(3));
+       set_FaultSurface(fault_trace);
       }
   }
 
@@ -246,16 +266,49 @@ public abstract class STEP_AftershockForecast
   /**
     * set_ForecastStartTime
     */
-   public void set_ForecastStartTime(double timeStart) {
+   public void set_ForecastStartTime(GregorianCalendar timeStart) {
      forecastStartTime = timeStart;
    }
+
+
+   /**
+       * set_ForecastStartTime
+       */
+      public void set_ForecastStartTime() {
+        Calendar curTime = new GregorianCalendar(TimeZone.getTimeZone(
+           "UTC"));
+        int year = curTime.get(Calendar.YEAR);
+        int month = curTime.get(Calendar.MONTH);
+        int day = curTime.get(Calendar.DAY_OF_MONTH);
+        int hour24 = curTime.get(Calendar.HOUR_OF_DAY);
+        int min = curTime.get(Calendar.MINUTE);
+        int sec = curTime.get(Calendar.SECOND);
+
+        GregorianCalendar forecastStartTime = new GregorianCalendar(year,month,day,hour24,min,sec);
+      }
+  /**
+   * set_ForecastEndTime
+   */
+  public void set_ForecastEndTime(GregorianCalendar timeEnd) {
+    forecastEndTime = timeEnd;
+  }
 
   /**
    * set_ForecastEndTime
    */
-  public void set_ForecastEndTime(double timeEnd) {
-    forecastEndTime = timeEnd;
+  public void set_ForecastEndTime() {
+    int year = forecastStartTime.get(Calendar.YEAR);
+    int month = forecastStartTime.get(Calendar.MONTH);
+    int day = forecastStartTime.get(Calendar.DAY_OF_MONTH);
+    int hour24 = forecastStartTime.get(Calendar.HOUR_OF_DAY);
+    int min = forecastStartTime.get(Calendar.MINUTE);
+    int sec = forecastStartTime.get(Calendar.SECOND);
+    GregorianCalendar forecastEndTime = new GregorianCalendar(year,month,day,hour24,min,sec);
+    //forecastEndTime.add(Calendar.DAY_OF_MONTH)
   }
+
+
+
 
   /**
    * calc_GriddedForecastRates
@@ -263,8 +316,8 @@ public abstract class STEP_AftershockForecast
   public void calc_GriddedForecastRates() {
     double[] rjParms = new double[3];
     double[] timeParms = new double[2];
-    timeParms[0] = forecastStartTime;
-    timeParms[1] = forecastEndTime;
+    //timeParms[0] = forecastStartTime;
+    //timeParms[1] = forecastEndTime;
     EvenlyGriddedGeographicRegionAPI aftershockZone =
         this.getAfterShockZone();
     int numGridNodes = aftershockZone.getNumGridLocs();
@@ -299,14 +352,12 @@ public abstract class STEP_AftershockForecast
    * This will not be used in a spatially varying model.
    */
 
-  public void set_FaultSurface() {
-    String faultName = "";
-    FaultTrace fault_trace = new FaultTrace(faultName);
+  public void set_FaultSurface(FaultTrace fault_trace) {
     mainshockFault = new SimpleFaultData();
     mainshockFault.setAveDip(90.0);
-
-    //STILL NEED TO SET THE DIMENSIONS OF THE FAULT TRACE.
     mainshockFault.setFaultTrace(fault_trace);
+    mainshockFault.setLowerSeismogenicDepth(rDefs.lowerSeismoDepth);
+    mainshockFault.setUpperSeismogenicDepth(rDefs.upperSeismoDepth);
   }
 
   /**
@@ -401,6 +452,22 @@ public abstract class STEP_AftershockForecast
   public boolean getHasExternalFaultModel() {
     return this.hasExternalFaultModel;
   }
+
+  /**
+   * getForecastStartTime
+   */
+  public GregorianCalendar getForecastStartTime() {
+    return forecastStartTime;
+  }
+
+  /**
+   * getForecastEndTime
+   */
+  public GregorianCalendar getForecastEndTime() {
+    return forecastEndTime;
+  }
+
+
 
   /**
    * get_NewObsEventsList

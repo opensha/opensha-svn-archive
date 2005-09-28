@@ -40,6 +40,11 @@ public class RegionDefaults {
 
   public static double addToMc = 0.02;
 
+  // this is for defining the fault surface for the aftershock zone.
+  // 2D for now so the values are the same.
+  public static double lowerSeismoDepth = 10.0;
+  public static double upperSeismoDepth = 10.0;
+
 
 
 

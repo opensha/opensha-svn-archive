@@ -28,9 +28,12 @@ public class OmoriRate_Calc {
   private double time_end;
   private double eventRate;
 
+  public OmoriRate_Calc(){
+  }
 
   public OmoriRate_Calc(double[] rjParms, double[] timeParms) {
-    set_OmoriParms(rjParms, timeParms);
+    setTimeParms(timeParms);
+    set_OmoriParms(rjParms);
   }
 
   /**
@@ -39,13 +42,20 @@ public class OmoriRate_Calc {
    * set the begin time and end time for the calculations
    * do the calculation
    */
-  public void set_OmoriParms(double[] rjParms, double[] timeParms) {
+  public void set_OmoriParms(double[] rjParms) {
     k_value = rjParms[0];
     c_value = rjParms[1];
     p_value = rjParms[2];
+
+    calc_OmoriRate();
+  }
+
+  /**
+   * setTimeParms
+   */
+  public void setTimeParms(double[] timeParms) {
     time_start = timeParms[0];
     time_end = timeParms[1];
-    calc_OmoriRate();
   }
 
   /**

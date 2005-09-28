@@ -30,17 +30,20 @@ public class GenericAfterHypoMagFreqDistForecast
   private SimpleFaultData mainshockFault;
   private double[] grid_Gen_kVal, grid_Gen_aVal, grid_Gen_bVal, grid_Gen_cVal, grid_Gen_pVal;
   int numGridLocs;
+  private double[] rateForecastGrid;
 
   //public GenericAfterHypoMagFreqDistForecast() {
   public GenericAfterHypoMagFreqDistForecast
       (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI backGroundRatesGrid,
        RegionDefaults rDefs) {
+
+    this.setRegionDefaults(rDefs);
       /**
        * initialise the aftershock zone and mainshock for this model
        */
     this.setMainShock(mainshock);
     this.set_AftershockZoneRadius();
-    this.calcTypeI_AftershockZone();
+    this.calcTypeI_AftershockZone(backGroundRatesGrid);
 
 
     EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
@@ -50,6 +53,13 @@ public class GenericAfterHypoMagFreqDistForecast
      grid_Gen_cVal = new double[numGridLocs];
      grid_Gen_pVal = new double[numGridLocs];
      grid_Gen_kVal = new double[numGridLocs];
+
+    this.calc_GenNodeCompletenessMag();
+    this.set_Gridded_Gen_bValue();
+    this.set_Gridded_Gen_cValue();
+    this.set_Gridded_Gen_kValue();
+    this.set_Gridded_Gen_pValue();
+
   }
 
   /**
@@ -71,7 +81,7 @@ public class GenericAfterHypoMagFreqDistForecast
   public void set_Gridded_Gen_kValue() {
     SmoothKVal_Calc smooth_k = new SmoothKVal_Calc();
     smooth_k.setAftershockModel(this);
-    grid_Gen_kVal = smooth_k.get_Smooth_kVal();
+    grid_Gen_kVal = smooth_k.get_SmoothGen_kVal();
   }
 
   /**
@@ -103,6 +113,13 @@ public class GenericAfterHypoMagFreqDistForecast
   }
 
   /**
+   * set_GriddedRateForecast
+   */
+  public void set_GriddedRateForecast(double[] rateForecastGrid) {
+    this.rateForecastGrid = rateForecastGrid;
+  }
+
+  /**
    * get_a_valueGeneric
    */
   public double get_a_valueGeneric() {
@@ -131,6 +148,13 @@ public class GenericAfterHypoMagFreqDistForecast
   }
 
   /**
+   * getGridded_k_value_generic
+   */
+  public double[] getGridded_k_value_generic() {
+    return grid_Gen_kVal;
+  }
+
+  /**
    * get_GenNodeCompletenessMag
    */
   public double get_genNodeCompletenessMag() {
@@ -146,5 +170,11 @@ public class GenericAfterHypoMagFreqDistForecast
     genNodeCompletenessMag = minForecastMag;
   }
 
+  /**
+   * getRateForecastGrid
+   */
+  public double[] getRateForecastGrid() {
+    return rateForecastGrid;
+  }
 
 }

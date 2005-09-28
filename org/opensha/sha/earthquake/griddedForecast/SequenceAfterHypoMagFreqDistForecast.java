@@ -1,9 +1,9 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import javaDevelopers.matt.calc.*;
-import java.util.*;
+
+import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 
 /**
  * <p>Title: </p>
@@ -19,7 +19,7 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
  */
 public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFreqDistForecast {
   private double seqNodeCompletenessMag;
-  private double aVal_Sequence, bVal_Sequence, pVal_Sequence, cVal_Sequence;
+  private double aVal_Sequence, bVal_Sequence, pVal_Sequence, cVal_Sequence, kVal_Sequence;
   //int numGridLocs;
   private double[] grid_Seq_kVal, grid_Seq_aVal, grid_Seq_bVal, grid_Seq_cVal, grid_Seq_pVal;
   public MaxLikeOmori_Calc omoriCalc;
@@ -48,6 +48,8 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
   public void set_SequenceRJParms() {
     ObsEqkRupList aftershockList = this.getAfterShocks();
     MaxLikeGR_Calc.setMags(aftershockList);
+    aVal_Sequence = MaxLikeGR_Calc.get_aValueMaxLike();
+    bVal_Sequence = MaxLikeGR_Calc.get_bValueMaxLike();
   }
 
   /**
@@ -62,18 +64,34 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
       omoriCalc.set_AfterShockListFixed_c(aftershockListComplete);
     else
       omoriCalc.set_AfterShockList(aftershockListComplete);
+
+    pVal_Sequence = omoriCalc.get_p_value();
+    cVal_Sequence = omoriCalc.get_c_value();
+    kVal_Sequence = omoriCalc.get_k_value();
+  }
+
+  /**
+   * fillGridWithParms
+   */
+  public void fillGridWithSeqParms() {
+    this.set_Gridded_Seq_aValue();
+    this.set_Gridded_Seq_bValue();
+    this.set_Gridded_Seq_cValue();
+    this.set_Gridded_Seq_kValue();
+    this.set_Gridded_Seq_pValue();
   }
 
   /**
   * set_k_value
-  * This will taper the generic k value.  Each grid node will be assigned
+  * This will taper the  k value.  Each grid node will be assigned
   * a k value based on the distance from the fault.
   */
 
   public void set_Gridded_Seq_kValue() {
     SmoothKVal_Calc smooth_k = new SmoothKVal_Calc();
     smooth_k.setAftershockModel(this);
-    grid_Seq_kVal = smooth_k.get_Smooth_kVal();
+    smooth_k.setSeq_kVal(this.kVal_Sequence);
+    grid_Seq_kVal = smooth_k.get_SmoothSeq_kVal();
   }
 
   /**
@@ -119,7 +137,6 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
    * get_aValSequence
    */
   public double get_aValSequence() {
-    aVal_Sequence = MaxLikeGR_Calc.get_aValueMaxLike();
     return aVal_Sequence;
   }
 
@@ -127,7 +144,6 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
    * get_bValSequence
    */
   public double get_bValSequence() {
-    bVal_Sequence = MaxLikeGR_Calc.get_bValueMaxLike();
     return bVal_Sequence;
   }
 
@@ -135,7 +151,6 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
    * get_pValSequence
    */
   public double get_pValSequence() {
-    pVal_Sequence = omoriCalc.get_p_value();
     return pVal_Sequence;
   }
 
@@ -143,7 +158,6 @@ public class SequenceAfterHypoMagFreqDistForecast extends GenericAfterHypoMagFre
    * get_cVal_Sequence
    */
   public double get_cVal_Sequence() {
-    cVal_Sequence = omoriCalc.get_c_value();
     return cVal_Sequence;
   }
 

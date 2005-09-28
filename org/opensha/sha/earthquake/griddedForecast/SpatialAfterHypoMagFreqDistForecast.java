@@ -34,6 +34,7 @@ public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFre
 
   /**
    * calc_GriddedRJParms
+   * this calculates a, b, c, p, k and completeness magnitude for all grid nodes.
    */
   public void calc_GriddedRJParms() {
 
@@ -48,6 +49,18 @@ public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFre
     // returns an array list with all parms in it
     rjParms = rjcalc.getAllGriddedVals();
 
+  }
+
+  /**
+   * setAllGridedRJ_Parms
+   */
+  public void setAllGridedRJ_Parms() {
+    grid_Spa_aValue = (double[])rjParms.get(1);
+    grid_Spa_bValue = (double[])rjParms.get(2);
+    grid_Spa_pValue = (double[])rjParms.get(3);
+    grid_Spa_cValue = (double[])rjParms.get(5);
+    grid_Spa_kValue = (double[])rjParms.get(4);
+    spaNodeCompletenessMag = (double[])rjParms.get(6);
   }
 
   /**
@@ -135,6 +148,12 @@ public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFre
     return grid_Spa_cValue;
   }
 
+  /**
+   * getGriddedCompletenessMag
+   */
+  public double[] getGriddedCompletenessMag() {
+    return spaNodeCompletenessMag;
+  }
 
 }
 
