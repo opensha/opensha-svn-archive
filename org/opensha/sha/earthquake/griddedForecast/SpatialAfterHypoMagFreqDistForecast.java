@@ -18,19 +18,39 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
  * @author not attributable
  * @version 1.0
  */
-public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFreqDistForecast{
+public class SpatialAfterHypoMagFreqDistForecast extends AfterShockHypoMagFreqDistForecast{
   private double[] spaNodeCompletenessMag;
   private int numGridLocs;
   private double[] grid_Spa_kValue, grid_Spa_aValue, grid_Spa_bValue, grid_Spa_cValue, grid_Spa_pValue;
   public MaxLikeOmori_Calc omoriCalc;
   private ArrayList rjParms;
   private ReasenbergJonesGriddedParms_Calc rjcalc;
+  private RegionDefaults rDefs;
+  private EvenlyGriddedGeographicRegionAPI aftershockZone;
+  private ObsEqkRupList aftershocks;
 
-  public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock,
+  public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
                                              EvenlyGriddedGeographicRegionAPI
-                                              backGroundRatesGrid, RegionDefaults rDefs) {
-    super(mainShock,backGroundRatesGrid,rDefs);
+                                              aftershockZone, RegionDefaults rDefs,
+       ObsEqkRupList aftershocks) {
+
+     this.rDefs = rDefs;
+    /**
+     * initialise the aftershock zone and mainshock for this model
+     */
+    this.setMainShock(mainshock);
+    this.setAfterShockZone(aftershockZone);
+    this.setAfterShocks(aftershocks);
+
   }
+
+/**
+  public SpatialAfterHypoMagFreqDistForecast(ObsEqkRupture mainShock,
+                                               EvenlyGriddedGeographicRegionAPI
+                                                backGroundRatesGrid, RegionDefaults rDefs) {
+      super(mainShock,backGroundRatesGrid,rDefs);
+  }
+ */
 
   /**
    * calc_GriddedRJParms
@@ -38,14 +58,14 @@ public class SpatialAfterHypoMagFreqDistForecast extends SequenceAfterHypoMagFre
    */
   public void calc_GriddedRJParms() {
 
-    EvenlyGriddedGeographicRegionAPI gridNodes = this.getAfterShockZone();
-    ObsEqkRupList aftershockList = this.getAfterShocks();
-    if (this.useFixed_cValue){
-      rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList);
+    if (rDefs.useFixed_cValue){
+      rjcalc = new ReasenbergJonesGriddedParms_Calc(this.aftershockZone, this.aftershocks);
     }
     else {
-       rjcalc = new ReasenbergJonesGriddedParms_Calc(gridNodes, aftershockList, this.useFixed_cValue);
+       rjcalc = new ReasenbergJonesGriddedParms_Calc(this.aftershockZone, this.aftershocks,
+           rDefs.useFixed_cValue);
     }
+
     // returns an array list with all parms in it
     rjParms = rjcalc.getAllGriddedVals();
 

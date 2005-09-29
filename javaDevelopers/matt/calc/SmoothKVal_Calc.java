@@ -57,6 +57,7 @@ public class SmoothKVal_Calc {
  /**
    * setAftershockModel
    *
+   */
   public void setAftershockModel(SequenceAfterHypoMagFreqDistForecast aftershockModel) {
     aftershockZone = aftershockModel.getAfterShockZone();
 
@@ -69,10 +70,10 @@ public class SmoothKVal_Calc {
     faultTrace = mainshockFault.getFaultTrace();
 
     //now do the calculations
-    set_k_value();
+    //set_k_value();
 
  }
-**/
+
 
       /**
      * setNodePerc

@@ -49,6 +49,8 @@ public class RegionDefaults {
   public static double lowerSeismoDepth = 10.0;
   public static double upperSeismoDepth = 10.0;
 
+  public static boolean useFixed_cValue = true;
+
 
 
 

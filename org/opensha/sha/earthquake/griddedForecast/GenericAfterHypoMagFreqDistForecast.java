@@ -6,7 +6,6 @@ import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.fault.*;
 
-
 /**
  * <p>Title: </p>
  *
@@ -20,7 +19,7 @@ import org.opensha.sha.fault.*;
  * @version 1.0
  */
 public class GenericAfterHypoMagFreqDistForecast
-    extends STEP_AftershockForecast {
+    extends AfterShockHypoMagFreqDistForecast {
 
   private double a_valueGeneric = -1.67;
   private double b_valueGeneric = 0.91;
@@ -28,20 +27,47 @@ public class GenericAfterHypoMagFreqDistForecast
   private double p_valueGeneric = 1.08;
   private double genNodeCompletenessMag;
   private SimpleFaultData mainshockFault;
-  private double[] grid_Gen_kVal, grid_Gen_aVal, grid_Gen_bVal, grid_Gen_cVal, grid_Gen_pVal;
+  private double[] grid_Gen_kVal, grid_Gen_aVal, grid_Gen_bVal, grid_Gen_cVal,
+      grid_Gen_pVal;
   int numGridLocs;
   private double[] rateForecastGrid;
+  private RegionDefaults rDefs;
 
-  //public GenericAfterHypoMagFreqDistForecast() {
   public GenericAfterHypoMagFreqDistForecast
-      (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI backGroundRatesGrid,
+      (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI aftershockZone,
        RegionDefaults rDefs) {
 
-    this.setRegionDefaults(rDefs);
-      /**
-       * initialise the aftershock zone and mainshock for this model
-       */
+    this.rDefs = rDefs;
+    /**
+     * initialise the aftershock zone and mainshock for this model
+     */
     this.setMainShock(mainshock);
+    this.setAfterShockZone(aftershockZone);
+    numGridLocs = aftershockZone.getNumGridLocs();
+    grid_Gen_aVal = new double[numGridLocs];
+    grid_Gen_bVal = new double[numGridLocs];
+    grid_Gen_cVal = new double[numGridLocs];
+    grid_Gen_pVal = new double[numGridLocs];
+    grid_Gen_kVal = new double[numGridLocs];
+
+    this.calc_GenNodeCompletenessMag();
+    this.set_Gridded_Gen_bValue();
+    this.set_Gridded_Gen_cValue();
+    this.set_Gridded_Gen_kValue();
+    this.set_Gridded_Gen_pValue();
+
+  }
+
+  /**
+     public GenericAfterHypoMagFreqDistForecast
+   (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI backGroundRatesGrid,
+       RegionDefaults rDefs) {
+
+    this.setRegionDefaults(rDefs); */
+  /**
+   * initialise the aftershock zone and mainshock for this model
+   */
+  /**  this.setMainShock(mainshock);
     this.set_AftershockZoneRadius();
     this.calcTypeI_AftershockZone(backGroundRatesGrid);
 
@@ -60,6 +86,14 @@ public class GenericAfterHypoMagFreqDistForecast
     this.set_Gridded_Gen_kValue();
     this.set_Gridded_Gen_pValue();
 
+     }  */
+
+
+  /**
+   * setRegionDefaults
+   */
+  public void setRegionDefaults(RegionDefaults rDefs) {
+    this.rDefs = rDefs;
   }
 
   /**
@@ -73,10 +107,10 @@ public class GenericAfterHypoMagFreqDistForecast
   }
 
   /**
-  * set_Gridded_kValue
-  * This will taper the generic k value.  Each grid node will be assigned
-  * a k value based on the distance from the fault.
-  */
+   * set_Gridded_kValue
+   * This will taper the generic k value.  Each grid node will be assigned
+   * a k value based on the distance from the fault.
+   */
 
   public void set_Gridded_Gen_kValue() {
     SmoothKVal_Calc smooth_k = new SmoothKVal_Calc();
@@ -88,28 +122,28 @@ public class GenericAfterHypoMagFreqDistForecast
    * set_Gridded_aValue
    */
   public void set_Gridded_Gen_aValue() {
-    java.util.Arrays.fill(grid_Gen_aVal,a_valueGeneric);
+    java.util.Arrays.fill(grid_Gen_aVal, a_valueGeneric);
   }
 
   /**
    * set_Gridded_bValue
    */
   public void set_Gridded_Gen_bValue() {
-    java.util.Arrays.fill(grid_Gen_bVal,b_valueGeneric);
+    java.util.Arrays.fill(grid_Gen_bVal, b_valueGeneric);
   }
 
   /**
    * set_Gridded_pValue
    */
   public void set_Gridded_Gen_pValue() {
-    java.util.Arrays.fill(grid_Gen_pVal,p_valueGeneric);
+    java.util.Arrays.fill(grid_Gen_pVal, p_valueGeneric);
   }
 
   /**
    * set_Gridded_cValue
    */
   public void set_Gridded_Gen_cValue() {
-    java.util.Arrays.fill(grid_Gen_cVal,c_valueGeneric);
+    java.util.Arrays.fill(grid_Gen_cVal, c_valueGeneric);
   }
 
   /**
@@ -118,6 +152,22 @@ public class GenericAfterHypoMagFreqDistForecast
   public void set_GriddedRateForecast(double[] rateForecastGrid) {
     this.rateForecastGrid = rateForecastGrid;
   }
+
+  /**
+   * set_FaultModel
+   */
+  public void set_FaultModel(SimpleFaultData mainshockFault) {
+     this.mainshockFault = mainshockFault;
+  }
+
+
+  /**
+   * get_FaultModel
+   */
+  public SimpleFaultData get_FaultModel() {
+    return mainshockFault;
+  }
+
 
   /**
    * get_a_valueGeneric
@@ -167,7 +217,7 @@ public class GenericAfterHypoMagFreqDistForecast
    */
 
   public void calc_GenNodeCompletenessMag() {
-    genNodeCompletenessMag = minForecastMag;
+    genNodeCompletenessMag = rDefs.minForecastMag;
   }
 
   /**
