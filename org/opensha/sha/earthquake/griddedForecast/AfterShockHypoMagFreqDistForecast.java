@@ -19,6 +19,7 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
 public class AfterShockHypoMagFreqDistForecast
     extends GriddedHypoMagFreqDistForecast {
 
+
   protected ObsEqkRupture mainShock;
   protected ObsEqkRupList afterShocks;
 

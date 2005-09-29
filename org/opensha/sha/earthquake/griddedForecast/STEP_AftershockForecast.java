@@ -56,11 +56,6 @@ public abstract class STEP_AftershockForecast
    * setRegionDefaults
    */
   public void setRegionDefaults(RegionDefaults rDefs) {
-    /**this.minForecastMag = rDefs.minForecastMag;
-         this.maxForecastMag = rDefs.maxForecastMag;
-         this.deltaMag = rDefs.deltaForecastMag;
-         this.addToMc = rDefs.addToMc;
-         this.gridSpacing = rDefs.gridSpacing; */
     this.rDefs = rDefs;
   }
 
