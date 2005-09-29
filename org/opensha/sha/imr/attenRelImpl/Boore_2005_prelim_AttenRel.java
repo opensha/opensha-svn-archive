@@ -96,7 +96,6 @@ public class Boore_2005_prelim_AttenRel
       0.26, 0.253, 0.311, 0.235, 0.311, 0.433, -999};
   //double[] sigt = { 0.555, 0.553, 0.608, 0.573, 0.649, 0.709, 0.241 };
 
-  private static final double MAX_MAG = 8.5;
   private HashMap indexFromPerHashMap;
 
   private int iper;
@@ -483,12 +482,12 @@ public class Boore_2005_prelim_AttenRel
 
     // remember that pga4ln term uses coeff index 6
     double Fm, Fd, Fs;
-    if (mag <= MAX_MAG) {
-      Fm = e01[iper] + e02[iper] * (mag - MAX_MAG) +
-          e03[iper] * Math.pow( (mag - MAX_MAG), 2);
+    if (mag <= mh[iper]) {
+      Fm = e01[iper] + e02[iper] * (mag - mh[iper]) +
+          e03[iper] * Math.pow( (mag - mh[iper]), 2);
     }
     else {
-      Fm = e01[iper] + e04[iper] * (mag - MAX_MAG);
+      Fm = e01[iper] + e04[iper] * (mag - mh[iper]);
     }
 
     double r = Math.sqrt(rjb * rjb + h[iper] * h[iper]);
