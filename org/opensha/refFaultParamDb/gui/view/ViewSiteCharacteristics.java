@@ -294,7 +294,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
 
  /**
   * Set the paleo site info based on selected Paleo Site
-  * THIS IS A FAKE IMPLEMENTATION. NEEDS TO BE DONE CORRECTLY
   * @param paleoSite
   */
   private void setSiteInfo(String siteName)  {
@@ -333,7 +332,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     // site references
     this.siteReferencesLabel.setTextAsHTML(this.SITE_REFERENCES_PARAM_NAME, references);
     // call the listener
-    siteSelectionListener.siteSelected(siteName); // call the listening class
+    siteSelectionListener.siteSelected(this.paleoSite); // call the listening class
   }
 
 

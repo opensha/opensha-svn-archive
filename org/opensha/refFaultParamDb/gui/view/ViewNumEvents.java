@@ -33,7 +33,6 @@ public class ViewNumEvents extends LabeledBoxPanel {
 
 
   private InfoLabel numEventsEstimateLabel = new InfoLabel();
-  private InfoLabel referencesLabel = new InfoLabel();
   private StringParameter commentsParam = new StringParameter("Num Events Comments");
   private CommentsParameterEditor commentsParamEditor;
 
@@ -55,10 +54,8 @@ public class ViewNumEvents extends LabeledBoxPanel {
    * @param comments
    * @param references
    */
-  public void setInfo(IntegerEstimate numEventsEstimate, String comments,
-                      ArrayList references) {
+  public void setInfo(IntegerEstimate numEventsEstimate, String comments) {
     numEventsEstimateLabel.setTextAsHTML(numEventsEstimate);
-    referencesLabel.setTextAsHTML(references);
     commentsParam.setValue(comments);
     commentsParamEditor.refreshParamEditor();
   }
@@ -76,16 +73,11 @@ public class ViewNumEvents extends LabeledBoxPanel {
    commentsParamEditor.setEnabled(false);
 
 
-   // references
-   JPanel referencesPanel = GUI_Utils.getPanel(this.referencesLabel, "References");
-
    // add the slip rate info the panel
    int yPos=0;
    add(slipRateEstimatePanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
    add(commentsParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
-   add(referencesPanel,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
  }
 

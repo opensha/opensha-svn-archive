@@ -34,7 +34,6 @@ public class ViewSlipRate extends LabeledBoxPanel {
   // various labels to provide the information
   private InfoLabel slipRateEstimateLabel = new InfoLabel();
   private InfoLabel aSesimicSlipFactorLabel = new InfoLabel();
-  private InfoLabel referencesLabel = new InfoLabel();
   private StringParameter commentsParam = new StringParameter("Slip Rate Comments");
   private CommentsParameterEditor commentsParameterEditor;
 
@@ -57,10 +56,9 @@ public class ViewSlipRate extends LabeledBoxPanel {
    * @param references
    */
   public void setInfo(Estimate slipRateEstimate, Estimate aSeismicSlipFactorEstimate,
-                      String comments, ArrayList references) {
+                      String comments) {
     slipRateEstimateLabel.setTextAsHTML(slipRateEstimate);
     aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate);
-    referencesLabel.setTextAsHTML(references);
     commentsParam.setValue(comments);
     commentsParameterEditor.refreshParamEditor();
   }
@@ -76,7 +74,6 @@ public class ViewSlipRate extends LabeledBoxPanel {
                                     "Aseismic Slip Factor(0-1, 1=all aseismic)");
     commentsParameterEditor = new CommentsParameterEditor(commentsParam);
     commentsParameterEditor.setEnabled(false);
-    JPanel referencesPanel = GUI_Utils.getPanel(referencesLabel, "References");
 
     // add the slip rate info the panel
     int yPos = 0;
@@ -91,10 +88,5 @@ public class ViewSlipRate extends LabeledBoxPanel {
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.BOTH,
                                               new Insets(0, 0, 0, 0), 0, 0));
-    add(referencesPanel, new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 0, 0), 0, 0));
-
   }
 }

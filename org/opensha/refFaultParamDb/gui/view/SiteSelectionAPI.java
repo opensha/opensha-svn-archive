@@ -1,5 +1,7 @@
 package org.opensha.refFaultParamDb.gui.view;
 
+import org.opensha.refFaultParamDb.vo.PaleoSite;
+
 /**
  * <p>Title: SiteSelectionAPI.java </p>
  * <p>Description: this API is implemented by any class which needs to listen
@@ -13,7 +15,7 @@ package org.opensha.refFaultParamDb.gui.view;
 public interface SiteSelectionAPI {
   /**
    * Whenever a user selects a site, this function is called in the listener class
-   * @param siteName
+   * @param siteId
    */
-  public void siteSelected(String siteName);
+  public void siteSelected(PaleoSite paleoSite);
 }

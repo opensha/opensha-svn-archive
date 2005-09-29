@@ -100,8 +100,8 @@ public class CombinedEventsInfoDB_DAO {
     // put asesimic slipfactor estimate in database
     int aSeismicEstId = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimate());
     if(aSeismicEstId!=-1) {
-     estColNames += ASEISMIC_SLIP_FACTOR_EST_ID;
-     estColVals += aSeismicEstId;
+     estColNames += ASEISMIC_SLIP_FACTOR_EST_ID+",";
+     estColVals += aSeismicEstId+",";
    }
 
 
@@ -112,13 +112,14 @@ public class CombinedEventsInfoDB_DAO {
 
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
-        START_TIME_ID+","+END_TIME_ID+","+estColNames+","+
+        START_TIME_ID+","+END_TIME_ID+","+estColNames+
         SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
         DATED_FEATURE_COMMENTS+") values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
         SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+","+
-        estColVals+",'"+slipRateComments+"','"+totalSlipComments+"','"+numEventsComments+"','"+
+        estColVals+"'"+slipRateComments+"','"+totalSlipComments+"','"+numEventsComments+"','"+
         combinedEventsInfo.getDatedFeatureComments()+"')";
+
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
       // now insert the references in the combined info references table
@@ -184,7 +185,7 @@ public class CombinedEventsInfoDB_DAO {
         START_TIME_ID+","+END_TIME_ID+","+TOTAL_SLIP_EST_ID+","+
         SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+ASEISMIC_SLIP_FACTOR_EST_ID+","+
         SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
-        DATED_FEATURE_COMMENTS+" from "+this.TABLE_NAME+" where "+condition;
+        DATED_FEATURE_COMMENTS+" from "+this.TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;
@@ -236,7 +237,10 @@ public class CombinedEventsInfoDB_DAO {
         combinedInfoList.add(combinedEventsInfo);
       }
       rs.close();
-    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    } catch(SQLException e) {
+      e.printStackTrace();
+      throw new QueryException(e.getMessage());
+    }
     return combinedInfoList;
 
 

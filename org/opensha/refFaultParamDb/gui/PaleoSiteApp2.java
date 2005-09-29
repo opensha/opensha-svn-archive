@@ -19,6 +19,14 @@ import org.opensha.gui.TitledBorderPanel;
 import org.opensha.refFaultParamDb.gui.view.*;
 import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
 import java.awt.event.*;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
+import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.data.function.DiscretizedFunc;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.exceptions.*;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -32,7 +40,7 @@ import java.awt.event.*;
  * @version 1.0
  */
 
-public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
+public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, ParameterChangeListener {
 
   private final static int WIDTH = 925;
   private final static int HEIGHT = 800;
@@ -71,7 +79,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
    private ViewCumDisplacement displacementPanel;
    private ViewNumEvents numEventsPanel= new ViewNumEvents() ;
 
+   private ArrayList combinedEventsInfoList;
+   private PaleoSite paleoSite;
+   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 
+   private final static String NOT_AVAILABLE = "Not Available";
 
   /**
    * Constructor.
@@ -82,8 +94,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
     try {
       setTitle(TITLE);
       jbInit();
+      addTimeSpansPanel();
       addSitesPanel(); // add the available sites from database for viewing
-      addAvailableTimeSpans(); // add the available timespans for this site
       viewDisplacementForTimePeriod(); // add displacement for the time period
       pack();
       setSize(WIDTH, HEIGHT);
@@ -98,31 +110,125 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
   /**
    * Add the available time spans for this site
    */
-  private void addAvailableTimeSpans() {
+  private void addTimeSpansPanel() {
     availableTimeSpansPanel = new LabeledBoxPanel(this.gridBagLayout);
     availableTimeSpansPanel.setTitle(DATA_SPECIFIC_TO_TIME_INTERVALS);
-    // get all the start times associated with this site
-    ArrayList timeSpans = getAllTimeSpans();
-    timeSpanParam = new StringParameter(TIMESPAN_PARAM_NAME, timeSpans,
-                                        (String) timeSpans.get(0));
-    timeSpanParamEditor = new ConstrainedStringParameterEditor(timeSpanParam);
-    availableTimeSpansPanel.add(timeSpanParamEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     timeSpanSelectionSplitPane.add(availableTimeSpansPanel, JSplitPane.TOP);
 }
 
+  private void makeTimeSpanParamAndEditor() throws ConstraintException {
+    // remove the editor if it already exists
+    if(timeSpanParamEditor!=null) availableTimeSpansPanel.remove(timeSpanParamEditor);
+    // get all the start and end times associated with this site
+    ArrayList timeSpans = getAllTimeSpans();
+    timeSpanParam = new StringParameter(TIMESPAN_PARAM_NAME, timeSpans,
+                                        (String) timeSpans.get(0));
+    timeSpanParam.addParameterChangeListener(this);
+    timeSpanParamEditor = new ConstrainedStringParameterEditor(timeSpanParam);
+    availableTimeSpansPanel.add(timeSpanParamEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
+      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    viewInfoBasedOnSelectedTimeSpan();
+  }
+
   /**
-   * this is JUST A FAKE IMPLEMENTATION. IT SHOULD GET ALL START TIMES FROM
-   * the DATABASE
+   * Get all the timespans from the database.
+   *
+   *
    * @return
    */
   private ArrayList getAllTimeSpans() {
-    ArrayList timeSpansList = new ArrayList();
-    timeSpansList.add("TimeSpan 1");
-    timeSpansList.add("TimeSpan 2");
+    ArrayList timeSpansList = new ArrayList();;
+    if (isTestSite()) {
+      timeSpansList.add("TimeSpan 1");
+      timeSpansList.add("TimeSpan 2");
+    } else if(!isValidSiteAndInfoAvailable()) {
+          // this is a valid site but info available for this
+      timeSpansList.add(this.NOT_AVAILABLE);
+    } else {
+      for(int i=0; i<combinedEventsInfoList.size(); ++i) {
+        // valid site and info available for the site
+        CombinedEventsInfo combinedEventsInfo = (CombinedEventsInfo)combinedEventsInfoList.get(i);
+        timeSpansList.add((i+1)+". (Start Time="+getTimeString(combinedEventsInfo.getStartTime())+") "+
+            "(End Time="+getTimeString(combinedEventsInfo.getEndTime())+")");
+      }
+    }
     return timeSpansList;
-
   }
+
+
+  /**
+   * whether the current site selected by user is a test site
+   * @return
+   */
+  private boolean isTestSite() {
+    return (combinedEventsInfoList == null &&  // if it is test site
+        (paleoSite==null || paleoSite.getSiteName().equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)));
+  }
+
+  private boolean isValidSiteAndInfoAvailable() {
+    return (combinedEventsInfoList != null && combinedEventsInfoList.size()>0);
+  }
+
+
+  public void parameterChange(ParameterChangeEvent event) {
+    String paramName = event.getParameterName();
+    if(paramName.equalsIgnoreCase(TIMESPAN_PARAM_NAME)) viewInfoBasedOnSelectedTimeSpan();
+  }
+
+  /**
+   * View information or the selected time span
+   */
+  private void viewInfoBasedOnSelectedTimeSpan() {
+    ArrayList allowedStrings = timeSpanParam.getAllowedStrings();
+    String timeSpan = (String)timeSpanParam.getValue();
+    int index = allowedStrings.indexOf(timeSpan);
+    CombinedEventsInfo combinedEventsInfo ;
+    if(this.isValidSiteAndInfoAvailable())
+       combinedEventsInfo = (CombinedEventsInfo)this.combinedEventsInfoList.get(index);
+    else combinedEventsInfo = null;
+    viewSlipRateForTimePeriod(combinedEventsInfo);
+    viewNumEventsForTimePeriod(combinedEventsInfo);
+    viewTimeSpanInfo(combinedEventsInfo);
+  }
+
+
+  /**
+   * Get the timespan as a string value which can be displayed in the StringParameter
+   * @param startTime
+   * @param endTime
+   * @return
+   */
+  private String getTimeString(TimeAPI time) {
+    String timeString="";
+    if(time instanceof ExactTime) { // if it is exact time
+      ExactTime exactTime = (ExactTime)time;
+      timeString+="Exact Time:"+exactTime.getMonth()+"/"+exactTime.getDay()+"/"+
+          exactTime.getYear()+exactTime.getEra()+" "+exactTime.getHour()+":"+exactTime.getMinute()+":"+
+          exactTime.getSecond();
+    } else if(time instanceof TimeEstimate) { // if it is time estimate
+      TimeEstimate timeEstimate = (TimeEstimate) time;
+      Estimate estimate = timeEstimate.getEstimate();
+      if (timeEstimate.isKaSelected()) // if user entered ka values
+        timeString += "Time Estimate:Units=ka,Zero Year=" +
+            timeEstimate.getZeroYear();
+      else  timeString += "Time Estimate:Units=Calendar years";
+      if (estimate instanceof NormalEstimate) // for normal estimate
+        timeString+=estimate.getName()+":Mean="+estimate.getMean()+","+
+            "StdDev="+estimate.getStdDev();
+      else if(estimate instanceof LogNormalEstimate)  // if estimate is of log normal type
+        timeString+=estimate.getName()+":Linear Median="+
+            ((LogNormalEstimate)estimate).getLinearMedian()+","+
+            "StdDev="+estimate.getStdDev();
+      else if (estimate instanceof DiscretizedFuncEstimate) {
+        DiscretizedFunc func = ((DiscretizedFuncEstimate)estimate).getValues();
+        timeString +=  estimate.getName()+":"+func.getXAxisName()+" "+func.getYAxisName();
+        for(int i=0; i<func.getNum(); ++i)
+          timeString+=  ","+func.getX(i)+" "+func.getY(i)+"";
+      }
+    }
+    return timeString;
+  }
+
 
   /**
    * Add all the components to the GUI
@@ -184,8 +290,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
   /**
    * display the slip Rate info for the selected time period
    */
-  private void viewSlipRateForTimePeriod(String siteName) {
-    if(siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+  private void viewSlipRateForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
+    if(this.isTestSite()) {
       // FAKE DATA FOR TEST SITE
       // Slip Rate Estimate
       LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
@@ -193,14 +299,14 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
       // comments
       String comments = "Perinent comments will be displayed here";
-      // references
-      ArrayList references = new ArrayList();
-      references.add("Ref 1");
-      references.add("Ref 2");
-      slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments,
-                            references);
-    } else { // information not available yet
-      this.slipRatePanel.setInfo(null, null, null, null);
+      slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments);
+    } else if(this.isValidSiteAndInfoAvailable() &&
+              combinedEventsInfo.getSlipRateEstimate()!=null)  { // information available FOR THIS SITE
+        this.slipRatePanel.setInfo(combinedEventsInfo.getSlipRateEstimate().getEstimate(),
+                                   combinedEventsInfo.getASeismicSlipFactorEstimate().getEstimate(),
+                                   combinedEventsInfo.getSlipRateComments());
+    } else { // valid site but no info available
+      slipRatePanel.setInfo(null, null, null);
     }
 
   }
@@ -219,8 +325,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
   /**
    * display the Num events info for the selected time period
    */
-  private void viewNumEventsForTimePeriod(String siteName) {
-    if(siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+  private void viewNumEventsForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
+    if(isTestSite()) {
       // Num Events Estimate
       // FAKE DATA FOR TEST SITE
       ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
@@ -232,12 +338,13 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       func.setYAxisName("Prob this is correct #");
       IntegerEstimate numEventsEstimate = new IntegerEstimate(func, false);
       String comments = "Pertinent comments will be displayed here";
-      ArrayList references = new ArrayList();
-      references.add("Ref 5");
-      references.add("Ref 7");
-      this.numEventsPanel.setInfo(numEventsEstimate, comments , references);
-    } else { // information not available yet
-      this.numEventsPanel.setInfo(null, null, null);
+      this.numEventsPanel.setInfo(numEventsEstimate, comments);
+    }else if(this.isValidSiteAndInfoAvailable() && combinedEventsInfo.getNumEventsEstimate()!=null) {
+        numEventsPanel.setInfo((IntegerEstimate)combinedEventsInfo.getNumEventsEstimate().getEstimate(),
+                               combinedEventsInfo.getNumEventsComments());
+    }
+    else { // information not available yet
+      this.numEventsPanel.setInfo(null, null);
     }
   }
 
@@ -245,18 +352,26 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
   * Whenever a user selects a site, this function is called in the listener class
   * @param siteName
   */
-  public void siteSelected(String siteName) {
-    viewSlipRateForTimePeriod(siteName);
-    viewNumEventsForTimePeriod(siteName);
-    viewTimeSpanInfo(siteName);
+  public void siteSelected(PaleoSite paleoSite) {
+    this.paleoSite = paleoSite;
+    String siteName;
+    if(paleoSite==null) { // for test site
+      siteName = ViewSiteCharacteristics.TEST_SITE;
+      combinedEventsInfoList = null;
+    }
+    else { // for actual sites from database
+      siteName = paleoSite.getSiteName();
+      this.combinedEventsInfoList = combinedEventsInfoDAO.getCombinedEventsInfoList(paleoSite.getSiteId());
+    }
+    makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
   }
 
 
   /**
    * Add the start and end time estimate parameters
    */
-  private void viewTimeSpanInfo(String siteName) {
-    if (siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
+  private void viewTimeSpanInfo(CombinedEventsInfo combinedEventsInfo) {
+    if (isTestSite()) {
       // FAKE DATA FOR TEST SITE
       ExactTime endTime = new ExactTime(1857, 1, 15, 10, 56, 21, TimeAPI.AD);
       TimeEstimate startTime = new TimeEstimate();
@@ -267,6 +382,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI {
       references.add("Ref 1");
       // timeSpan panel which will contain start time and end time
       this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references);
+    } else if(this.isValidSiteAndInfoAvailable()){
+      timeSpanPanel.setTimeSpan(combinedEventsInfo.getStartTime(),
+                                combinedEventsInfo.getEndTime(),
+                                combinedEventsInfo.getDatedFeatureComments(),
+                                combinedEventsInfo.getShortCitationList());
     }
     else {
       this.timeSpanPanel.setTimeSpan(null, null, null, null);

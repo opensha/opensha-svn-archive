@@ -18,6 +18,7 @@ import org.opensha.param.StringParameter;
 import org.opensha.gui.TitledBorderPanel;
 import org.opensha.refFaultParamDb.gui.view.*;
 import java.awt.event.*;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
 
 /**
  * <p>Title: PaleoSiteApp.java </p>
@@ -172,6 +173,7 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
     sequenceSplitPane.setDividerLocation(540);
   }
 
+
   /**
    * Add the panel to display the available paleo sites in the database
    */
@@ -202,16 +204,10 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
       NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
       // comments
       String comments = "Perinent comments will be displayed here";
-      // references
-      ArrayList references = new ArrayList();
-      references.add("Ref 1");
-      references.add("Ref 2");
-      slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments,
-                            references);
+      slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments);
     } else { // information not available yet
-      this.slipRatePanel.setInfo(null, null, null, null);
+      this.slipRatePanel.setInfo(null, null, null);
     }
-
   }
 
 
@@ -257,12 +253,9 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
       func.setYAxisName("Prob this is correct #");
       IntegerEstimate numEventsEstimate = new IntegerEstimate(func, false);
       String comments = "Pertinent comments will be displayed here";
-      ArrayList references = new ArrayList();
-      references.add("Ref 5");
-      references.add("Ref 7");
-      this.numEventsPanel.setInfo(numEventsEstimate, comments , references);
+      this.numEventsPanel.setInfo(numEventsEstimate, comments);
     } else { // information not available yet
-      this.numEventsPanel.setInfo(null, null, null);
+      this.numEventsPanel.setInfo(null, null);
     }
   }
 
@@ -270,12 +263,12 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
   * Whenever a user selects a site, this function is called in the listener class
   * @param siteName
   */
-  public void siteSelected(String siteName) {
-    viewSlipRateForTimePeriod(siteName);
-    viewNumEventsForTimePeriod(siteName);
-    viewTimeSpanInfo(siteName);
-    viewIndividualEvent(siteName);
-    this.viewSequence(siteName);
+  public void siteSelected(PaleoSite paleoSite) {
+    viewSlipRateForTimePeriod(paleoSite.getSiteName());
+    viewNumEventsForTimePeriod(paleoSite.getSiteName());
+    viewTimeSpanInfo(paleoSite.getSiteName());
+    viewIndividualEvent(paleoSite.getSiteName());
+    this.viewSequence(paleoSite.getSiteName());
   }
 
 
