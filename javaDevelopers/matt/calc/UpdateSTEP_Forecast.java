@@ -54,7 +54,7 @@ public class UpdateSTEP_Forecast {
       updateGenericModelParms();
     }
 
-    if ( forecastModelGen instanceof SequenceAfterHypoMagFreqDistForecast){
+   /** if ( forecastModelGen instanceof SequenceAfterHypoMagFreqDistForecast){
       SequenceAfterHypoMagFreqDistForecast forecastModelSeq =
           (SequenceAfterHypoMagFreqDistForecast) forecastModelGen;
       updateSequenceModelParms();
@@ -64,7 +64,7 @@ public class UpdateSTEP_Forecast {
       SpatialAfterHypoMagFreqDistForecast forecastModelSpa =
           (SpatialAfterHypoMagFreqDistForecast) forecastModelGen;
       updateSpatialModelParms();
-    }
+    }  */
 
   }
 
@@ -73,11 +73,11 @@ public class UpdateSTEP_Forecast {
    */
   public void updateAftershockZone() {
     int numAftershocks = aftershocks.size();
-    boolean hasExternalFault = forecastModelGen.getHasExternalFaultModel();
-    if ((numAftershocks >= 100) && (hasExternalFault = false)) {
+  //  boolean hasExternalFault = forecastModelGen.getHasExternalFaultModel();
+ /**   if ((numAftershocks >= 100) && (hasExternalFault = false)) {
       forecastModelGen.calcTypeII_AfterShockZone(aftershocks, backgroundRatesGrid);
       gridIsUpdated = true;
-    }
+    } */
   }
 
   /**
@@ -116,7 +116,7 @@ public class UpdateSTEP_Forecast {
    */
   public void setBackGroundGrid(EvenlyGriddedGeographicRegionAPI backgroundRatesGrid) {
     this.backgroundRatesGrid = backgroundRatesGrid;
-    forecastModelGen.calcTypeI_AftershockZone(backgroundRatesGrid);
+   // forecastModelGen.calcTypeI_AftershockZone(backgroundRatesGrid);
     updateAftershockZone();
   }
 
@@ -139,9 +139,9 @@ public class UpdateSTEP_Forecast {
     rjParms[2] = forecastModelGen.get_p_valueGeneric();
     double[] kVal_GenGrid = forecastModelGen.getGridded_k_value_generic();
     double[] timeParms = new double[2];
-    forecastModelGen.calcTimeSpan();
-    timeParms[0] = forecastModelGen.getDaysSinceMainshockStart();
-    timeParms[1] = forecastModelGen.getDaysSinceMainshockEnd();
+  //  forecastModelGen.calcTimeSpan();
+  //  timeParms[0] = forecastModelGen.getDaysSinceMainshockStart();
+  //  timeParms[1] = forecastModelGen.getDaysSinceMainshockEnd();
 
     OmoriRate_Calc omoriRateCalc = new OmoriRate_Calc();
     for (int nodeLoop = 0; nodeLoop < numGridNodes; ++nodeLoop){

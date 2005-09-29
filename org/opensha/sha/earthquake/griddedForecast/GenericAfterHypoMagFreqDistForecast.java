@@ -90,6 +90,15 @@ public class GenericAfterHypoMagFreqDistForecast
 
 
   /**
+   * This sets the aftershock zone
+   * @param aftershockZone EvenlyGriddedGeographicRegionAPI
+   */
+  public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI aftershockZone) {
+    this.region = aftershockZone;
+  }
+
+
+  /**
    * setRegionDefaults
    */
   public void setRegionDefaults(RegionDefaults rDefs) {

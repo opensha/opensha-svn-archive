@@ -80,6 +80,14 @@ public class SequenceAfterHypoMagFreqDistForecast
      }  */
 
 
+  /**
+   * This sets the aftershock zone
+   * @param aftershockZone EvenlyGriddedGeographicRegionAPI
+   */
+  public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI aftershockZone) {
+    this.region = aftershockZone;
+  }
+
 
   /**
    * set_SequenceRJParms
