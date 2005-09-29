@@ -76,14 +76,32 @@ public class CombinedEventsInfoDB_DAO {
     // get the end time Id
     int endTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getEndTime());
 
+    String estColNames=" ", estColVals=" ";
     // put displacement estimate into database
     int totalSlipEstId = getEstimateId(combinedEventsInfo.getDisplacementEstimate());
+    if(totalSlipEstId!=-1) {
+      estColNames += TOTAL_SLIP_EST_ID+",";
+      estColVals += totalSlipEstId+",";
+    }
     // put slip rate estimate into database
     int slipRateEstId = getEstimateId(combinedEventsInfo.getSlipRateEstimate());
+    if(slipRateEstId!=-1) {
+     estColNames += SLIP_RATE_EST_ID+",";
+     estColVals += slipRateEstId+",";
+   }
     // put num events estimates into database
     int numEventsEstId = getEstimateId(combinedEventsInfo.getNumEventsEstimate());
+    if(numEventsEstId!=-1) {
+     estColNames += NUM_EVENTS_EST_ID+",";
+     estColVals += numEventsEstId+",";
+    }
     // put asesimic slipfactor estimate in database
     int aSeismicEstId = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimate());
+    if(aSeismicEstId!=-1) {
+     estColNames += ASEISMIC_SLIP_FACTOR_EST_ID;
+     estColVals += aSeismicEstId;
+   }
+
 
     // comments to be put in database
     String totalSlipComments= getComments(combinedEventsInfo.getDisplacementComments());
@@ -92,14 +110,12 @@ public class CombinedEventsInfoDB_DAO {
 
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
-        START_TIME_ID+","+END_TIME_ID+","+TOTAL_SLIP_EST_ID+","+
-        SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+ASEISMIC_SLIP_FACTOR_EST_ID+","+
+        START_TIME_ID+","+END_TIME_ID+","+estColNames+","+
         SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
         DATED_FEATURE_COMMENTS+") values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
         SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+","+
-        totalSlipEstId+","+slipRateEstId+","+numEventsEstId+","+aSeismicEstId+",'"+
-        slipRateComments+"','"+totalSlipComments+"','"+numEventsComments+"','"+
+        estColVals+",'"+slipRateComments+"','"+totalSlipComments+"','"+numEventsComments+"','"+
         combinedEventsInfo.getDatedFeatureComments()+"')";
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
