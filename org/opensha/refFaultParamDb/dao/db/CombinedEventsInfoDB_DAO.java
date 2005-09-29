@@ -6,6 +6,8 @@ import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
+import java.sql.ResultSet;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
 
 /**
  * <p>Title: CombinedEventsInfoDB_DAO.java </p>
@@ -156,6 +158,88 @@ public class CombinedEventsInfoDB_DAO {
     int estId = -1;
     if(estInstance!=null) estId = estimateInstancesDAO.addEstimateInstance(estInstance);
     return estId;
+  }
+
+  /**
+   * Get the combined events info list for a particular site
+   *
+   * @param siteId
+   * @return
+   */
+  public ArrayList getCombinedEventsInfoList(int siteId) {
+    String condition = " where "+SITE_ID+"="+siteId;
+    return query(condition);
+  }
+
+  /**
+   * Query the combined info table based on condition
+   *
+   * @param condition
+   * @return
+   */
+  private ArrayList query(String condition) {
+    ArrayList combinedInfoList = new ArrayList();
+    String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
+        "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
+        START_TIME_ID+","+END_TIME_ID+","+TOTAL_SLIP_EST_ID+","+
+        SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+ASEISMIC_SLIP_FACTOR_EST_ID+","+
+        SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
+        DATED_FEATURE_COMMENTS+" from "+this.TABLE_NAME+" where "+condition;
+    try {
+      ResultSet rs  = dbAccess.queryData(sql);
+      int estId;
+      while(rs.next())  {
+        CombinedEventsInfo combinedEventsInfo = new  CombinedEventsInfo();
+        combinedEventsInfo.setInfoId(rs.getInt(INFO_ID));
+        combinedEventsInfo.setEntryDate(rs.getString(ENTRY_DATE));
+        combinedEventsInfo.setSiteId(rs.getInt(SITE_ID));
+        combinedEventsInfo.setSiteEntryDate(rs.getString(SITE_ENTRY_DATE));
+        combinedEventsInfo.setStartTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(START_TIME_ID)));
+        combinedEventsInfo.setEndTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(END_TIME_ID)));
+        combinedEventsInfo.setDatedFeatureComments(rs.getString(DATED_FEATURE_COMMENTS));
+        // set total slip if it is not null in database
+        estId = rs.getInt(TOTAL_SLIP_EST_ID);
+        if(!rs.wasNull()) {
+          combinedEventsInfo.setDisplacementEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
+          combinedEventsInfo.setDisplacementComments(rs.getString(TOTAL_SLIP_COMMENTS));
+        }
+        //set slip rate
+        estId = rs.getInt(SLIP_RATE_EST_ID);
+        if(!rs.wasNull()) {
+         combinedEventsInfo.setSlipRateEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
+         combinedEventsInfo.setSlipRateComments(rs.getString(SLIP_RATE_COMMENTS));
+       }
+       // set num events estimate
+       estId = rs.getInt(NUM_EVENTS_EST_ID);
+       if(!rs.wasNull()) {
+         combinedEventsInfo.setNumEventsEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
+         combinedEventsInfo.setNumEventsComments(rs.getString(NUM_EVENTS_COMMENTS));
+       }
+       //set asesimic slip factor estimate
+       estId = rs.getInt(ASEISMIC_SLIP_FACTOR_EST_ID);
+       if(!rs.wasNull()) {
+         combinedEventsInfo.setASeismicSlipFactorEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
+       }
+
+        // get all the refernces for this site
+        ArrayList referenceList = new ArrayList();
+        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
+            " where "+COMBINED_EVENTS_ID+"="+combinedEventsInfo.getInfoId()+" and "+
+            COMBINED_EVENTS_ENTRY_DATE+"='"+combinedEventsInfo.getEntryDate()+"'";
+        ResultSet referenceResultSet = dbAccess.queryData(sql);
+        while(referenceResultSet.next()) {
+          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+        }
+        referenceResultSet.close();
+        // set the references in the VO
+        combinedEventsInfo.setShortCitationList(referenceList);
+        combinedInfoList.add(combinedEventsInfo);
+      }
+      rs.close();
+    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    return combinedInfoList;
+
+
   }
 
 }

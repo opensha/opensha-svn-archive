@@ -27,10 +27,24 @@ public class CombinedEventsInfo {
   private String displacementComments;
   private String datedFeatureComments;
   private ArrayList shortCitationList;
+  private String entryDate;
+  private int infoId;
 
   /*
    * Various  set/get methods
    */
+  public String getEntryDate() {
+    return this.entryDate;
+  }
+  public void setEntryDate(String entryDate) {
+    this.entryDate = entryDate;
+  }
+  public int getInfoId() {
+    return this.infoId;
+  }
+  public void setInfoId(int infoId) {
+    this.infoId = infoId;
+  }
 
   public ArrayList getShortCitationList() {
     return this.shortCitationList;
