@@ -20,6 +20,7 @@ public abstract class Estimate {
   protected final static String EST_MSG_INVLID_RANGE = "Error: All Y values must be >= 0 and <=1";
   protected final static String EST_MSG_FIRST_LAST_Y_ZERO = "Error: First and Last Y values must be 0";
   protected final static String MSG_INVALID_STDDEV = "Error: Standard devivation must be positive.";
+  protected final static String MSG_ALL_Y_ZERO = "Error: At least one Y value must be > 0.";
   protected String comments="";
   protected double minX, maxX;
   protected String units;

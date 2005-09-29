@@ -68,6 +68,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
         if (val < 0)throw new InvalidParamValException(EST_MSG_Y_POSITIVE);
         sum += val;
       }
+      if(sum==0) throw new InvalidParamValException(MSG_ALL_Y_ZERO);
       // normalize the function
       for (int i = 0; i < num; ++i) {
         val = func.getY(i);

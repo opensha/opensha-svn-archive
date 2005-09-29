@@ -76,7 +76,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
 
   // panels for viewing slip rate, displacement and num events
    private ViewSlipRate slipRatePanel = new ViewSlipRate();
-   private ViewCumDisplacement displacementPanel;
+   private ViewCumDisplacement displacementPanel = new ViewCumDisplacement();
    private ViewNumEvents numEventsPanel= new ViewNumEvents() ;
 
    private ArrayList combinedEventsInfoList;
@@ -96,7 +96,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       jbInit();
       addTimeSpansPanel();
       addSitesPanel(); // add the available sites from database for viewing
-      viewDisplacementForTimePeriod(); // add displacement for the time period
       pack();
       setSize(WIDTH, HEIGHT);
       this.setLocationRelativeTo(null);
@@ -188,6 +187,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     else combinedEventsInfo = null;
     viewSlipRateForTimePeriod(combinedEventsInfo);
     viewNumEventsForTimePeriod(combinedEventsInfo);
+    viewDisplacementForTimePeriod(combinedEventsInfo);
     viewTimeSpanInfo(combinedEventsInfo);
   }
 
@@ -262,6 +262,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.TOP);
     infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
     timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
+    slipDisplacementSplitPane.add(displacementPanel, JSplitPane.BOTTOM);
+    slipDisplacementSplitPane.setDividerLocation(450);
     topSplitPane.setDividerLocation(625);
     mainSplitPane.setDividerLocation(212);
     timeSpanSelectionSplitPane.setDividerLocation(75);
@@ -315,10 +317,24 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   /**
    * Display the displacement info for the selected time period
    */
-  private void viewDisplacementForTimePeriod() {
-    this.displacementPanel = new ViewCumDisplacement();
-    slipDisplacementSplitPane.add(displacementPanel, JSplitPane.BOTTOM);
-    slipDisplacementSplitPane.setDividerLocation(450);
+  private void viewDisplacementForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
+    if(this.isTestSite()) {
+     // FAKE DATA FOR TEST SITE
+     // Slip Rate Estimate
+     LogNormalEstimate diplacementEstimate = new LogNormalEstimate(1.5, 0.25);
+     // Aseismic slip rate estimate
+     NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+     // comments
+     String comments = "Perinent comments will be displayed here";
+     displacementPanel.setInfo(diplacementEstimate, aSiemsicSlipEstimate, comments);
+   } else if(this.isValidSiteAndInfoAvailable() &&
+             combinedEventsInfo.getDisplacementEstimate()!=null)  { // information available FOR THIS SITE
+       this.displacementPanel.setInfo(combinedEventsInfo.getDisplacementEstimate().getEstimate(),
+                                  combinedEventsInfo.getASeismicSlipFactorEstimate().getEstimate(),
+                                  combinedEventsInfo.getDisplacementComments());
+   } else { // valid site but no info available
+     displacementPanel.setInfo(null, null, null);
+   }
 
   }
 

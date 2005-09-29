@@ -15,6 +15,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Dimension;
 import java.awt.Insets;
 import javax.swing.JLabel;
+import java.awt.*;
 
 /**
  * <b>Title:</b> ArbitrarilyDiscretizedFuncParameterEditor<p>
@@ -182,36 +183,41 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
         if( keyTypeProcessing == true ) return;
         focusLostProcessing = true;
 
-        String xValsStr = this.xValsTextArea.getText();
-        String yValsStr = this.yValsTextArea.getText();
-
-        // set the value in ArbitrarilyDiscretizedFunc
-        ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)model.getValue();
-        function.clear();
-        StringTokenizer xStringTokenizer = new StringTokenizer(xValsStr,"\n");
-        StringTokenizer yStringTokenizer = new StringTokenizer(yValsStr,"\n");
-
-
-        while(xStringTokenizer.hasMoreTokens()){
-          double tempX_Val=0;
-          double tempY_Val=0;
-          try{
-            tempX_Val = Double.parseDouble(xStringTokenizer.nextToken());
-            tempY_Val = Double.parseDouble(yStringTokenizer.nextToken());
-          }catch(Exception ex){
-            JOptionPane.showMessageDialog(this, XY_VALID_MSG);
-            return;
-          }
-          function.set(tempX_Val,tempY_Val);
-        }
-
-        if(yStringTokenizer.hasMoreTokens()) {
-          JOptionPane.showMessageDialog(this, ONE_XY_VAL_MSG);
-        }
-        refreshParamEditor();
+        setValueInParameter();
         focusLostProcessing = false;
         if(D) System.out.println(S + "Ending");
       }
+
+    private void setValueInParameter() throws DataPoint2DException,
+        HeadlessException, NumberFormatException {
+      String xValsStr = this.xValsTextArea.getText();
+      String yValsStr = this.yValsTextArea.getText();
+
+      // set the value in ArbitrarilyDiscretizedFunc
+      ArbitrarilyDiscretizedFunc function = (ArbitrarilyDiscretizedFunc)model.getValue();
+      function.clear();
+      StringTokenizer xStringTokenizer = new StringTokenizer(xValsStr,"\n");
+      StringTokenizer yStringTokenizer = new StringTokenizer(yValsStr,"\n");
+
+
+      while(xStringTokenizer.hasMoreTokens()){
+        double tempX_Val=0;
+        double tempY_Val=0;
+        try{
+          tempX_Val = Double.parseDouble(xStringTokenizer.nextToken());
+          tempY_Val = Double.parseDouble(yStringTokenizer.nextToken());
+        }catch(Exception ex){
+          JOptionPane.showMessageDialog(this, XY_VALID_MSG);
+          return;
+        }
+        function.set(tempX_Val,tempY_Val);
+      }
+
+      if(yStringTokenizer.hasMoreTokens()) {
+        JOptionPane.showMessageDialog(this, ONE_XY_VAL_MSG);
+      }
+      refreshParamEditor();
+    }
 
     /** Sets the parameter to be edited. */
     public void setParameter(ParameterAPI model) {
@@ -228,7 +234,6 @@ public class ArbitrarilyDiscretizedFuncParameterEditor extends ParameterEditor
             this.nameLabel.setToolTipText( info );
         }
         else this.nameLabel.setToolTipText( null);
-
         if(D) System.out.println(S.concat("Ending"));
     }
 
