@@ -31,6 +31,10 @@ public class AttenuationRelationshipsInstance {
   public final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
   public final static String USGS04_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
   public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
+  public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
+  public final static String CY_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
+  public final static String Boore_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
+
   //arrayList to store the supported AttenRel Class Names with their full package structure.
   ArrayList supportedAttenRelClasses = new ArrayList();
 
@@ -50,6 +54,9 @@ public class AttenuationRelationshipsInstance {
     supportedAttenRelClasses.add(SM_CLASS_NAME);
     supportedAttenRelClasses.add(USGS04_CLASS_NAME);
     supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(CY_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);
   }
 
   /**
@@ -92,6 +99,7 @@ public class AttenuationRelationshipsInstance {
         System.out.println(S + e.toString());
         throw new RuntimeException( S + e.toString() );
       } catch ( InvocationTargetException e ) {
+        //e.printStackTrace();
         System.out.println(S + e.toString());
         throw new RuntimeException( S + e.toString() );
       } catch ( IllegalAccessException e ) {

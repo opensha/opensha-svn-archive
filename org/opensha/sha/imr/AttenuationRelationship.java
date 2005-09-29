@@ -943,9 +943,11 @@ public abstract class AttenuationRelationship
 
     // create the depth to 2.5 shear-wave velocity parameter
     DoubleConstraint c = new DoubleConstraint(DEPTH_2pt5_MIN, DEPTH_2pt5_MAX);
+    c.setNullAllowed(true);
     c.setNonEditable();
     depthTo2pt5kmPerSecParam = new WarningDoubleParameter(DEPTH_2pt5_NAME, c,
-        DEPTH_2pt5_UNITS); ;
+        DEPTH_2pt5_UNITS);
+
     depthTo2pt5kmPerSecParam.setInfo(DEPTH_2pt5_INFO);
 
   }

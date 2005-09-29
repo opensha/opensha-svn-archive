@@ -194,6 +194,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
       basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
           latMin.doubleValue(),latMax.doubleValue(),0.5)).get(0)).doubleValue();
     }catch(Exception ee){
+      //ee.printStackTrace();
       JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
       return;
     }
