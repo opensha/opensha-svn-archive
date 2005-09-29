@@ -42,7 +42,7 @@ public class GenericAfterHypoMagFreqDistForecast
      * initialise the aftershock zone and mainshock for this model
      */
     this.setMainShock(mainshock);
-    this.setAfterShockZone(aftershockZone);
+    this.region = aftershockZone;
     numGridLocs = aftershockZone.getNumGridLocs();
     grid_Gen_aVal = new double[numGridLocs];
     grid_Gen_bVal = new double[numGridLocs];

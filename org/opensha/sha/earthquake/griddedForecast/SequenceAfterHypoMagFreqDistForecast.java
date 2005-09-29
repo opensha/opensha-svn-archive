@@ -40,7 +40,7 @@ public class SequenceAfterHypoMagFreqDistForecast
      * initialise the aftershock zone and mainshock for this model
      */
     this.setMainShock(mainshock);
-    this.setAfterShockZone(aftershockZone);
+    region = aftershockZone;
     this.setAfterShocks(aftershocks);
 
     numGridLocs = aftershockZone.getNumGridLocs();
