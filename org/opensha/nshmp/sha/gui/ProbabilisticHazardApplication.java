@@ -445,6 +445,17 @@ public class ProbabilisticHazardApplication
    */
   void siteLocNotesLatLonAcc_actionPerformed(ActionEvent
                                              actionEvent) {
+
+    String infoMsg = "The user should use values of the latitude and longitude "+
+        "with sufficient accuracy to locate the site. For guidance, a latitude "+
+        "increment of 0.1 degreee is about 11km. The longitude increment varies "+
+        "but in the central part of the 48 states an increment of 0.1 degree is "+
+      " about 9 km.";
+    showMsgBox(infoMsg,"Latitude-Longitude Caution", 350,150) ;
+  }
+
+
+  private void showMsgBox(String infoMsg, String heading,int width, int height){
     JDialog analysisOptionExpFrame;
     //Panel Parent
     Container parent = this;
@@ -459,28 +470,31 @@ public class ProbabilisticHazardApplication
 
     analysisOptionExpFrame = new JDialog( (JFrame) parent);
     analysisOptionExpFrame.setModal(true);
-    analysisOptionExpFrame.setSize(500, 350);
+    analysisOptionExpFrame.setSize(width, height);
     analysisOptionExpFrame.getContentPane().setLayout(new GridBagLayout());
     analysisText = new JTextPane();
     analysisText.setContentType("text/html");
-    analysisText.setText(GlobalConstants.getAllExplainationsForAnalysisOption());
+    analysisText.setBackground(UIManager.getColor("Panel.background"));
+    analysisText.setText(infoMsg);
     analysisText.setEditable(false);
-    analysisScrollPane = new JScrollPane();
-    analysisScrollPane.getViewport().add(analysisText, null);
 
-    analysisOptionExpFrame.getContentPane().add(analysisScrollPane,
+    analysisOptionExpFrame.getContentPane().add(analysisText,
                                                 new GridBagConstraints(0, 0, 1,
         1,
         1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(4, 4, 4, 4), 0, 0));
     analysisOptionExpFrame.setLocation( (getSize().width -
-                                         analysisOptionExpFrame.getWidth()) / 3,
+                                         analysisOptionExpFrame.getWidth()) / 2,
                                        (getSize().height -
-                                        analysisOptionExpFrame.getHeight()) / 3);
-    analysisOptionExpFrame.setTitle("Analysis Options Explaination");
+                                        analysisOptionExpFrame.getHeight()) / 2);
+    analysisOptionExpFrame.setTitle(heading);
     analysisOptionExpFrame.show();
+
   }
+
+
+
 
 
   /**
@@ -490,7 +504,13 @@ public class ProbabilisticHazardApplication
    */
   void siteLocNotesZipCodeCaution_actionPerformed(ActionEvent
       actionEvent) {
-
+  String infoMsg = "In some regions, there can be substantial variation "+
+      "between the spectral values at a zip code centroid and those at individual "+
+      "structures at some sites and excessively conservative designs at other sites.\n\n"+
+      "For those regions where substantial variation in projected ground motion may occur "+
+      "across a zip code designers should consider using latitude and longitude as a reference "+
+      "for site location when determining ground motion parameters.";
+    showMsgBox(infoMsg,"Zip Code Caution",380,150) ;
   }
 
   /**
@@ -511,8 +531,16 @@ public class ProbabilisticHazardApplication
    * @param actionEvent ActionEvent
    */
   void usTerrPuertoRico_actionPerformed(ActionEvent
-                                                  actionEvent) {
-
+                                        actionEvent) {
+    String infoMsg = "Region values for Puerto Rico and the U.S. Virgin Islands are constant, "+
+        "although there are variations within the region, for Editions through 2000. In these "+
+        "cases the latitude, longitude and zip code boxes are labeled \"Not Available\". Do not "+
+        "enter latitude-longitude or zip code values. Simply click on \"Calculate Ss and S1\" "+
+        "to obtain values in these cases.\n\nLatitude and Longitude values, are registered for "+
+        "Puerto Rico and the U.S.Virgin Islands beginning with the 2003 Edition. In these cases the "+
+        "latitude and longitude boxes are empty and site locations must be entered to obtain site values. "+
+        "Values are not yet available for Zip Codes.";
+    showMsgBox(infoMsg,"PRVI Region Message",440,150);
 
   }
 
@@ -524,7 +552,11 @@ public class ProbabilisticHazardApplication
    */
   void usTerrGuam_actionPerformed(ActionEvent
                                   actionEvent) {
-
+    String infoMsg = "Regional values for Guam and Tutuilla are constant for each region. "+
+        "In these cases the latitude, longitude, and zip code boxes are labeled \"Not Available\". "+
+        "Do not enter latitude,longitude and zip code values. Simply click on "+
+        "\"Calculate Ss and S1\" to obtain values in these cases.";
+    showMsgBox(infoMsg,"Guam/Tutuila Region Message",350,150);
   }
 
 
@@ -623,7 +655,9 @@ public class ProbabilisticHazardApplication
       if(date !=null)
         data +="Date = "+date +"\n\n";
     }
+
     dataTextArea.setText(data+dataInfo);
+    dataTextArea.setEditable(false);
   }
 
   /**

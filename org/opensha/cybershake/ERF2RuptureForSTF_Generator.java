@@ -291,30 +291,36 @@ public class ERF2RuptureForSTF_Generator {
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
+        boolean rupInside = false;
         //looping over all the rupture pt locations and if any of those lies
         //within the provided distance range then include the rupture in the list.
         while (it.hasNext()) {
           Location ptLoc = (Location) it.next();
           if (region.isLocationInside(ptLoc)) {
-            double lat = ptLoc.getLatitude();
-            double lon = ptLoc.getLongitude();
-            double depth = ptLoc.getDepth();
-            if (lat < minLat)
-              minLat = lat;
-            if (lat > maxLat)
-              maxLat = lat;
-            if (lon < minLon)
-              minLon = lon;
-            if (lon > maxLon)
-              maxLon = lon;
-            if (depth > maxDepth)
-              maxDepth = depth;
+            rupInside = true;
+            break;
           }
+        }
+        it = rupSurface.getAllByRowsIterator();
+        while (it.hasNext() && rupInside) {
+          Location ptLoc = (Location) it.next();
+          double lat = ptLoc.getLatitude();
+          double lon = ptLoc.getLongitude();
+          double depth = ptLoc.getDepth();
+          if (lat < minLat)
+            minLat = lat;
+          if (lat > maxLat)
+            maxLat = lat;
+          if (lon < minLon)
+            minLon = lon;
+          if (lon > maxLon)
+            maxLon = lon;
+          if (depth > maxDepth)
+            maxDepth = depth;
         }
       }
     }
     return new RectangularGeographicRegion(minLat, maxLat, minLon, maxLon);
-
   }
 
   /**
@@ -372,13 +378,13 @@ public class ERF2RuptureForSTF_Generator {
     locList.addLocation(new Location(34.009092 , -118.48939));
 
     ListIterator it = locList.listIterator();
-    /*FileWriter fw = null;
+    FileWriter fw = null;
     try {
       fw = new FileWriter("SiteDistanceBounds.txt");
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
-    }*/
+    }
     while (it.hasNext()) {
       Location loc = (Location) it.next();
 
@@ -388,8 +394,8 @@ public class ERF2RuptureForSTF_Generator {
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
 
       //calling the function to generate the rupture files with directory name.
-      calc.getEqkRupturesAsStringNearSite("Temp");
-      /*RectangularGeographicRegion region = null;
+      //calc.getEqkRupturesAsStringNearSite("Temp");
+      RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
         double maxDepth = calc.getMaxDepthForRuptureInRegionBounds();
@@ -425,14 +431,14 @@ public class ERF2RuptureForSTF_Generator {
       }
       catch (IOException ex4) {
         ex4.printStackTrace() ;
-      }*/
+      }
     }
-   /* try {
+    try {
       fw.close();
     }
     catch (IOException ex3) {
       ex3.printStackTrace();
-    }*/
+    }
   }
 
   /**
