@@ -108,7 +108,24 @@ public final class MapUtil {
     }
     else if (selectedRegion.equals(GlobalConstants.CONTER_48_STATES) &&
              selectedDataEdition.equals(GlobalConstants.data_2002)) {
-      //still have to get the data for these maps
+      mapInfo.add("MAP I-2883, SHEET 1 - Peak Horizontal Acceleration"+
+                  " with 10% Probability of Exceedance in 50 Years.");
+      mapInfo.add("MAP I-2883, SHEET 2 - Peak Horizontal Acceleration"+
+                  " with 2% Probability of Exceedance in 50 Years.");
+      mapInfo.add("MAP I-2883, SHEET 3 - Horizontal Spectral Response Acceleration for " +
+                  "0.2 Second Period (5% Damping) with 10% Probability of Exceedance in 50 Years");
+      mapInfo.add("MAP I-2883, SHEET 4 - Horizontal Spectral Response Acceleration for " +
+                  "0.2 Second Period (5% Damping) with 2% Probability of Exceedance in 50 Years");
+      mapInfo.add("MAP I-2883, SHEET 5 - Horizontal Spectral Response Acceleration for " +
+                  "1.0 Second Period (5% Damping) with 10% Probability of Exceedance in 50 Years");
+      mapInfo.add("MAP   I-2883, SHEET 6 - Horizontal Spectral Response Acceleration for " +
+                  "1.0 Second Period (5% Damping) with 2% Probability of Exceedance in 50 Years");
+      mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh1-US-pga-10-050.pdf");
+      mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh2-US-pga-02-050.pdf");
+      mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh3-US-0_2sec-10-050.pdf");
+      mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh4-US-0_2sec-02-050.pdf");
+      mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh5-US-1_0sec-10-050.pdf");
+      mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh6-US-1_0sec-02-050.pdf");
     }
     else if (selectedRegion.equals(GlobalConstants.ALASKA) &&
         selectedDataEdition.equals(GlobalConstants.data_1998)){
@@ -267,6 +284,50 @@ public final class MapUtil {
       mapFiles.add(mapURL_Path+"IBC-2000-2003-Figure-1615-8hi.pdf");
       mapFiles.add(mapURL_Path+"IBC-2000-2003-Figure-1615-9_10prgu.pdf");
       mapFiles.add(mapURL_Path+"IBC-2000-2003-Figure-1615-9_10prgu.pdf");
+    } else if(selectedDataEdition.equals(GlobalConstants.IBC_2006)) {
+      mapInfo.add("Figure 1613.5(1) - MCE Ground Motion for the Conterminous United States of"+
+                  " 0.2 sec Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(2) - MCE Ground Motion for the Conterminous United States of"+
+                  "1 .0 sec Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(3) - MCE Ground Motion for Region 1(California/Western Nevada) of"+
+                  " 0.2 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(4) - MCE Ground Motion for Region 1(California/Western Nevada) of" +
+                  "1.0 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(5) - MCE Ground Motion for Region 2(Salt Lake City Area)of"+
+                  " 0.2 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(6) - MCE Ground Motion for Region 2 (Salt Lake City Area)of" +
+                  " 1.0 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5( 7) - MCE Ground Motion for Region 3(New Madrid Area) of"+
+                  " 0.2 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(8) - MCE Ground Motion for Region 3(New Madrid Area) of"+
+                  " 1.0 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(9) - MCE Ground Motion for Region 4(Charleston, SC Area) of"+
+                  " 0.2 and 1.0 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(10) - MCE Ground Motion for Hawaii of" +
+                  " 0.2 and 1.0 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(11) - MCE Ground Motion for Alaska of" +
+                  " 0.2 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(12) - MCE Ground Motion for Alaska of"+
+                  " 1.0 sec period Spectral Response Acceleration");
+      mapInfo.add("Figure 1613.5(13) - MCE Ground Motion for Puerto Rico, Culebra, Vieques,St. Thomas, St. John, and St. Croix of"+
+                  " 0.2 and 1.0 sec period Spectral Acceleration");
+      mapInfo.add("Figure 1613.5(14) - MCE Ground Motion for Guam and Tutuila of"+
+                  " 0.2 and 1.0 sec period Spectral Acceleration");
+
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(01).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(02).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(03).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(04).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(05).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(06).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(07).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(08).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(09).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(10).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(11).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(12).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(13).pdf");
+      mapFiles.add(mapURL_Path+"IBC-2006-Figure1613_5(14).pdf");
     }
     else if(selectedDataEdition.equals(GlobalConstants.IRC_2000) ||
         selectedDataEdition.equals(GlobalConstants.IRC_2003)){

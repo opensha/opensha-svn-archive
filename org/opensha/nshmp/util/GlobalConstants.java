@@ -53,8 +53,8 @@ public final class GlobalConstants {
   public static final String ASCE_2005 = "2005 ASCE 7 Standard";
   public static final String IBC_2000 = "2000 International Building Code";
   public static final String IBC_2003 = "2003 International Building Code";
-  public static final String IBC_2004 = "2004 International Building Code";
-  public static final String IBC_2006 = "2006 International Building Code";
+  public static final String IBC_2004 = "2004 International Building Code - Supplement";
+  public static final String IBC_2006 = "2006 International Building Code - Proposed";
   public static final String IRC_2000 = "2000 International Residential Code";
   public static final String IRC_2003 = "2003 International Residential Code";
   public static final String IRC_2004 = "2004 International Residential Code";

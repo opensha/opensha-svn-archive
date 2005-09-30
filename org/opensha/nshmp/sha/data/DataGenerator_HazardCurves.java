@@ -8,6 +8,7 @@ import org.opensha.data.function.*;
 import org.opensha.nshmp.exceptions.*;
 import org.opensha.nshmp.sha.data.api.*;
 import org.opensha.nshmp.util.*;
+import org.opensha.nshmp.sha.calc.HazardCurveCalculator;
 
 /**
  * <p>Title: DataGenerator_HazardCurves</p>
@@ -38,7 +39,7 @@ public class DataGenerator_HazardCurves
   private ArbitrarilyDiscretizedFunc hazardCurveFunction;
 
   private final static double EXP_TIME = 50.0;
-
+  private final static double FREQ_OF_EXCEED_WARNING = 10E-4;
   private static DecimalFormat percentageFormat = new DecimalFormat("0.00");
   private static DecimalFormat saValFormat = new DecimalFormat("0.0000");
   private static DecimalFormat annualExceedanceFormat = new DecimalFormat(
@@ -157,6 +158,8 @@ public class DataGenerator_HazardCurves
         annualExceedanceFormat.format(fex) +
         "\t\t" + returnPd + "\t" + percentageFormat.format(probExceed) + "\t" +
         expTime + "\n";
+    if(fex<FREQ_OF_EXCEED_WARNING)
+      dataInfo+="\n"+HazardCurveCalculator.EXCEED_PROB_TEXT+"\n";
   }
 
   /**

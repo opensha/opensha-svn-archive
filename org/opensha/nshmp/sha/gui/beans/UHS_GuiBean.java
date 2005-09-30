@@ -36,33 +36,25 @@ public class UHS_GuiBean
   //Dataset selection Gui instance
   protected DataSetSelectionGuiBean datasetGui;
   protected LocationGuiBean locGuiBean;
-  JSplitPane mainSplitPane = new JSplitPane();
-  JSplitPane locationSplitPane = new JSplitPane();
-  JSplitPane buttonsSplitPane = new JSplitPane();
-  JPanel regionPanel = new JPanel();
-  JPanel basicParamsPanel = new JPanel();
-  JPanel responseSpectraButtonPanel = new JPanel();
-  JButton uhsButton = new JButton();
-  JButton approxUHSButton = new JButton();
-  JButton viewUHSButton = new JButton();
-  Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
-  TitledBorder responseSpecBorder = new TitledBorder(border9,
-      "Approximate UHS and UHS-based Design Spectra");
+  private JSplitPane mainSplitPane = new JSplitPane();
+  private JSplitPane locationSplitPane = new JSplitPane();
+  private JPanel regionPanel = new JPanel();
+  private JPanel basicParamsPanel = new JPanel();
+  private JButton uhsButton = new JButton();
+  private JButton viewUHSButton = new JButton();
+  private Border border9 = BorderFactory.createLineBorder(new Color(80,80,140),1);
 
-  TitledBorder basicParamBorder = new TitledBorder(border9,
+  private TitledBorder basicParamBorder = new TitledBorder(border9,
       "Uniform Hazard Spectra (UHS)");
-  TitledBorder regionBorder = new TitledBorder(border9,
+  private TitledBorder regionBorder = new TitledBorder(border9,
                                                "Region and DataSet Selection");
-  JButton smSpecButton = new JButton();
-  JButton sdSpecButton = new JButton();
-  JButton viewButton = new JButton();
 
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
-  GridBagLayout gridBagLayout2 = new GridBagLayout();
-  GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
 
-  GridBagLayout gridBagLayout4 = new GridBagLayout();
-  BorderLayout borderLayout1 = new BorderLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private BorderLayout borderLayout1 = new BorderLayout();
 
   //creating the Ground Motion selection parameter
   protected StringParameter groundMotionParam;
@@ -72,7 +64,7 @@ public class UHS_GuiBean
   protected DataGeneratorAPI_UHS dataGenerator = new DataGenerator_UHS();
 
   //site coeffiecient window instance
-  SiteCoefficientInfoWindow siteCoefficientWindow;
+  private SiteCoefficientInfoWindow siteCoefficientWindow;
 
   //instance of the application using this GUI bean
   protected ProbabilisticHazardApplicationAPI application;
@@ -113,7 +105,7 @@ public class UHS_GuiBean
         bugWindow.pack();
       }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
-      locationSplitPane.setDividerLocation(155);
+      locationSplitPane.setDividerLocation(200);
       jbInit();
 
     }
@@ -176,7 +168,6 @@ public class UHS_GuiBean
     this.setLayout(borderLayout1);
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     locationSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    buttonsSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     basicParamsPanel.setLayout(gridBagLayout4);
     basicParamsPanel.setBorder(basicParamBorder);
     basicParamBorder.setTitleColor(Color.RED);
@@ -188,45 +179,10 @@ public class UHS_GuiBean
       }
     });
 
-    approxUHSButton.setText("Calc approx.");
-    approxUHSButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        approxUHSButton_actionPerformed(actionEvent);
-      }
-    });
-
-
     viewUHSButton.setText("View UHS");
     viewUHSButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent actionEvent) {
         viewUHSButton_actionPerformed(actionEvent);
-      }
-    });
-    responseSpectraButtonPanel.setBorder(responseSpecBorder);
-    responseSpecBorder.setTitleColor(Color.RED);
-    responseSpectraButtonPanel.setLayout(gridBagLayout3);
-
-
-    smSpecButton.setText("Calc SM spec.");
-    smSpecButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        smSpecButton_actionPerformed(actionEvent);
-      }
-    });
-
-    sdSpecButton.setActionCommand("sdSpecButton");
-    sdSpecButton.setText("Calc SD spec.");
-    sdSpecButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        sdSpecButton_actionPerformed(actionEvent);
-      }
-    });
-
-    viewButton.setActionCommand("viewButton");
-    viewButton.setText("View spec.");
-    viewButton.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent actionEvent) {
-        viewButton_actionPerformed(actionEvent);
       }
     });
 
@@ -235,57 +191,29 @@ public class UHS_GuiBean
     regionPanel.setLayout(gridBagLayout2);
 
     mainSplitPane.add(locationSplitPane, JSplitPane.TOP);
-    mainSplitPane.add(buttonsSplitPane, JSplitPane.BOTTOM);
+    mainSplitPane.add(basicParamsPanel, JSplitPane.BOTTOM);
     locationSplitPane.add(regionPanel, JSplitPane.TOP);
 
-    buttonsSplitPane.add(basicParamsPanel, JSplitPane.TOP);
-    buttonsSplitPane.add(responseSpectraButtonPanel, JSplitPane.BOTTOM);
-
-    responseSpectraButtonPanel.add(viewButton,
-                                   new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 0, 0));
-
-    responseSpectraButtonPanel.add(smSpecButton,
-                                   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets( 2, 2, 2, 2), 0, 0));
-
-    responseSpectraButtonPanel.add(sdSpecButton,
-                                   new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.NORTH, GridBagConstraints.NONE,
-        new Insets( 2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(uhsButton, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(2, 2, 2, 2), 0, 0));
     basicParamsPanel.add(viewUHSButton,
-                         new GridBagConstraints(2, 1, 1, 1, 1.0, 1.0
+                         new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
                                                 new Insets(2, 2, 2, 2), 0,
                                                 0));
-    basicParamsPanel.add(approxUHSButton,
-                         new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.NONE,
-                                                new Insets(2, 2, 2, 2), 0, 0));
     this.add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    mainSplitPane.setDividerLocation(300);
-    buttonsSplitPane.setDividerLocation(120);
+    mainSplitPane.setDividerLocation(350);
     setButtonsEnabled(false);
     createGroundMotionParameter();
     basicParamsPanel.setMinimumSize(new Dimension(0,0));
     regionPanel.setMinimumSize(new Dimension(0,0));
-    responseSpectraButtonPanel.setMinimumSize(new Dimension(0,0));
     this.updateUI();
   }
 
   protected void setButtonsEnabled(boolean enableButtons) {
-    approxUHSButton.setEnabled(enableButtons);
     viewUHSButton.setEnabled(enableButtons);
-    smSpecButton.setEnabled(enableButtons);
-    sdSpecButton.setEnabled(enableButtons);
-    viewButton.setEnabled(enableButtons);
     if(enableButtons == false)
       siteCoeffWindowShow= false;
   }
@@ -518,8 +446,6 @@ public class UHS_GuiBean
       dataGenerator.setFa(siteCoefficientWindow.getFa());
       dataGenerator.setFv(siteCoefficientWindow.getFv());
       dataGenerator.setSiteClass(siteCoefficientWindow.getSelectedSiteClass());
-      smSpecButton.setEnabled(true);
-      sdSpecButton.setEnabled(true);
       siteCoeffWindowShow = true;
     }
   }
@@ -530,63 +456,6 @@ public class UHS_GuiBean
    */
   protected void viewUHSButton_actionPerformed(ActionEvent actionEvent) {
     viewCurves();
-  }
-
-  protected void approxUHSButton_actionPerformed(ActionEvent actionEvent) {
-    try {
-      dataGenerator.calculateApproxUHS();
-    }
-    catch (RemoteException e) {
-      JOptionPane.showMessageDialog(this,
-                                    e.getMessage() + "\n" +
-                                    "Please check your network connection",
-                                    "Server Connection Error",
-                                    JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-    application.setDataInWindow(getData());
-    approxUHS_Calculated = true;
-  }
-
-  protected void smSpecButton_actionPerformed(ActionEvent actionEvent) {
-    setSiteCoeff();
-    try {
-      dataGenerator.calculateSMSpectrum();
-    }
-    catch (RemoteException e) {
-      JOptionPane.showMessageDialog(this,
-                                    e.getMessage() + "\n" +
-                                    "Please check your network connection",
-                                    "Server Connection Error",
-                                    JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-
-    application.setDataInWindow(getData());
-    if (!viewButton.isEnabled()) {
-      viewButton.setEnabled(true);
-    }
-    smSpectrumCalculated = true;
-  }
-
-  protected void sdSpecButton_actionPerformed(ActionEvent actionEvent) {
-    setSiteCoeff();
-    try {
-      dataGenerator.calculateSDSpectrum();
-    }
-    catch (RemoteException e) {
-      JOptionPane.showMessageDialog(this,
-                                    e.getMessage() + "\n" +
-                                    "Please check your network connection",
-                                    "Server Connection Error",
-                                    JOptionPane.ERROR_MESSAGE);
-      return;
-    }
-    application.setDataInWindow(getData());
-    if (!viewButton.isEnabled()) {
-      viewButton.setEnabled(true);
-    }
-    sdSpectrumCalculated = true;
   }
 
   /**
