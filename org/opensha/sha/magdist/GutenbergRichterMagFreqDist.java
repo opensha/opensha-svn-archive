@@ -61,6 +61,19 @@ public class GutenbergRichterMagFreqDist extends IncrementalMagFreqDist {
    }
 
 
+   /**
+    * constructor: this is sameas parent class constructor
+    * @param min
+    * @param max
+    * @param num
+    * using the min, max and num we calculate the delta
+    */
+
+   public GutenbergRichterMagFreqDist(double bValue, double totCumRate, double min,double max,int num)
+                         throws DiscretizedFuncException,InvalidRangeException{
+     super(min,max,num);
+     this.setAllButTotMoRate(min,max,totCumRate, bValue);
+   }
 
 
    /**

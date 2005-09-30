@@ -22,7 +22,7 @@ import org.opensha.data.region.GeographicRegion;
  * @author Nitin Gupta , Edward (Ned) Field, Vipin Gupta
  * @version 1.0
  */
-public  class GriddedHypoMagFreqDistForecast
+public abstract  class GriddedHypoMagFreqDistForecast
     implements ERF_API, HypoMagFreqDistAtMultLocsAPI, ParameterChangeListener {
 
 
@@ -40,19 +40,6 @@ public  class GriddedHypoMagFreqDistForecast
   //EvenlyGriddedGeographicAPI region
   protected EvenlyGriddedGeographicRegionAPI region;
 
-
-  /**
-   * gets the Hypocenter Mag.
-   *
-   * @param ithLocation int : Index of the location in the region
-   * @return HypoMagFreqDistAtLoc Object using which user can retrieve the
-   *   Magnitude Frequency Distribution.
-   * @todo Implement this
-   *   org.opensha.sha.earthquake.GriddedHypoMagFreqDistAtLocAPI method
-   */
-  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-    return null;
-  }
 
 
   /**

@@ -16,7 +16,7 @@ import org.opensha.sha.earthquake.observedEarthquake.*;
  * @author Nitin Gupta, Vipin Gupta and Edward (Ned) Field
  * @version 1.0
  */
-public class AfterShockHypoMagFreqDistForecast
+public abstract class AfterShockHypoMagFreqDistForecast
     extends GriddedHypoMagFreqDistForecast {
 
 
@@ -29,19 +29,6 @@ public class AfterShockHypoMagFreqDistForecast
   public AfterShockHypoMagFreqDistForecast() {
   }
 
-  /**
-   * Class constructor
-   * @param mainShock ObsEqkRupture main shock event
-   * @param afterShocks ObsEqkRupList list of aftershocks
-   * @param afterShockZone EvenlyGriddedGeographicRegionAPI AfterShockZone
-   */
-  public AfterShockHypoMagFreqDistForecast(ObsEqkRupture mainShock,
-                                          ObsEqkRupList afterShocks,
-                                          EvenlyGriddedGeographicRegionAPI afterShockZone){
-    this.mainShock = mainShock;
-    this.afterShocks = afterShocks;
-    this.region = afterShockZone;
-  }
 
   /**
    * Gets the Aftershock list for the forecast model.
