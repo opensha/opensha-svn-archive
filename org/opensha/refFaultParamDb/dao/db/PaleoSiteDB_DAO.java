@@ -205,7 +205,7 @@ public class PaleoSiteDB_DAO  {
         ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LAT1+","+
         SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
         SITE_ELEVATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
-        GENERAL_COMMENTS+","+OLD_SITE_ID+
+        GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
         " from "+VIEW_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
@@ -227,6 +227,7 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setRepresentativeStrandName(rs.getString(SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME));
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
+        paleoSite.setContributorName(rs.getString(ContributorDB_DAO.CONTRIBUTOR_NAME));
         // get all the refernces for this site
         ArrayList referenceList = new ArrayList();
         sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+

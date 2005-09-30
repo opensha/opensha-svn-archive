@@ -27,10 +27,16 @@ public class PaleoSite {
   private String oldSiteId;
   private String entryDate;
   private ArrayList referenceShortCitationList = new ArrayList();
+  private String contributorName;
 
   public PaleoSite() {
   }
-
+  public void setContributorName(String  contributorName) {
+    this.contributorName=contributorName;
+  }
+  public String getContributorName() {
+    return this.contributorName;
+  }
   public String getEntryDate() {
     return this.entryDate;
   }

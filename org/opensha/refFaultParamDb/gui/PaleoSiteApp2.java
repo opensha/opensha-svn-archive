@@ -210,8 +210,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       Estimate estimate = timeEstimate.getEstimate();
       if (timeEstimate.isKaSelected()) // if user entered ka values
         timeString += "Time Estimate:Units=ka,Zero Year=" +
-            timeEstimate.getZeroYear();
-      else  timeString += "Time Estimate:Units=Calendar years";
+            timeEstimate.getZeroYear()+":";
+      else  timeString += "Time Estimate:Units=Calendar years"+":";
       if (estimate instanceof NormalEstimate) // for normal estimate
         timeString+=estimate.getName()+":Mean="+estimate.getMean()+","+
             "StdDev="+estimate.getStdDev();
@@ -220,10 +220,16 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
             ((LogNormalEstimate)estimate).getLinearMedian()+","+
             "StdDev="+estimate.getStdDev();
       else if (estimate instanceof DiscretizedFuncEstimate) {
-        DiscretizedFunc func = ((DiscretizedFuncEstimate)estimate).getValues();
-        timeString +=  estimate.getName()+":"+func.getXAxisName()+" "+func.getYAxisName();
+        DiscretizedFunc func = ( (DiscretizedFuncEstimate) estimate).getValues();
+        timeString += estimate.getName() + ":";
+        for (int i = 0; i < func.getNum(); ++i)
+          timeString += func.getX(i) + ",";
+      }
+      else if (estimate instanceof FractileListEstimate) {
+        DiscretizedFunc func = ((FractileListEstimate)estimate).getValues();
+        timeString +=  estimate.getName()+":";
         for(int i=0; i<func.getNum(); ++i)
-          timeString+=  ","+func.getX(i)+" "+func.getY(i)+"";
+          timeString+=  func.getX(i)+",";
       }
     }
     return timeString;

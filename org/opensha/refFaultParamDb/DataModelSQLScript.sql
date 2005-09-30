@@ -647,8 +647,9 @@ select ps.Site_Id as Site_Id,
        ps.Site_Elevation2 as Site_Elevation2, 
        sr.Site_Representation_Name as Site_Representation_Name,
        ps.General_Comments as General_comments,
-       ps.Old_Site_Id as Old_site_Id 
-FROM  Paleo_Site ps, Site_Type st, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Site_type_id=st.site_type_id and ps.Representative_Strand_Index=sr.Site_Representation_Id;
+       ps.Old_Site_Id as Old_site_Id,
+       contrib.Contributor_Name as Contributor_Name
+FROM  Paleo_Site ps, Site_Type st, Contributors contrib, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Site_type_id=st.site_type_id and ps.Representative_Strand_Index=sr.Site_Representation_Id and ps.Contributor_Id=contrib.Contributor_Id;
 
 commit;
 

@@ -6,6 +6,7 @@ import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.data.*;
 import java.util.GregorianCalendar;
 import java.util.ArrayList;
+import org.opensha.data.function.DiscretizedFuncAPI;
 
 /**
  * <p>Title: InfoLabel.java </p>
@@ -145,6 +146,8 @@ public class InfoLabel extends JLabel {
       text = getTextForLogNormalEstimate((LogNormalEstimate)estimate);
     else if(estimate instanceof DiscretizedFuncEstimate)
       text = getTextForDiscretizedFuncEstimate((DiscretizedFuncEstimate)estimate);
+    else if(estimate instanceof FractileListEstimate)
+      text = getTextForFractileListEstimate((FractileListEstimate)estimate);
     return text;
   }
 
@@ -251,5 +254,21 @@ public class InfoLabel extends JLabel {
         text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
     return text;
   }
+
+  /**
+  * Information for Fractile List estimate
+  *
+  * @param estimate
+  * @return
+  */
+ private String getTextForFractileListEstimate(FractileListEstimate estimate) {
+   DiscretizedFunc func = estimate.getValues();
+   String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
+       "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
+   for(int i=0; i<func.getNum(); ++i)
+       text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
+   return text;
+ }
+
 
 }

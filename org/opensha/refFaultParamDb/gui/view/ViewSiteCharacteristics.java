@@ -45,6 +45,8 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private final static String NUM_EVENTS_INFO = "Number of Events";
   private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events & Sequences";
   private final static String NO_SITE_NAME="No Site Name-";
+  private final static String CONTRIBUTOR_PARAM_NAME = "Last Updated by";
+  private final static String ENTRY_DATE_PARAM_NAME = "Last Updated on";
   // various types of information that can be provided by the user
   private JCheckBox slipRateCheckBox, cumDispCheckBox, numEventsCheckBox,
       individualEventsCheckBox;
@@ -67,6 +69,8 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private InfoLabel siteTypeLabel= new InfoLabel();
   private InfoLabel siteRepresentationLabel= new InfoLabel();
   private InfoLabel siteReferencesLabel = new InfoLabel();
+  private InfoLabel lastEntryDateLabel = new InfoLabel();
+  private InfoLabel contributorNameLabel = new InfoLabel();
   private LabeledBoxPanel iHaveInfoOnPanel;
 
   // various buttons in thos window
@@ -221,6 +225,21 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
                               , GridBagConstraints.CENTER,
                               GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
                               0, 0));
+    // entry date
+    addEditSitePanel.add(this.lastEntryDateLabel,
+       new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                              , GridBagConstraints.CENTER,
+                              GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
+                              0, 0));
+
+
+    // contributor
+    addEditSitePanel.add(this.contributorNameLabel,
+       new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                              , GridBagConstraints.CENTER,
+                              GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
+                              0, 0));
+
 
 
     // QFault entries for this site
@@ -298,6 +317,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   */
   private void setSiteInfo(String siteName)  {
     String siteType, siteRepresentation, faultName, references;
+    String lastEntryDate, lastUpdatedBy;
     Location location;
     if(siteName.equalsIgnoreCase(this.TEST_SITE)) { // test site
       siteType = "Trench";
@@ -306,6 +326,8 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
       location = new Location(34.00, -116, 0);
       references = "Ref 1";
       paleoSite=null;
+      lastEntryDate = "Not Available";
+      lastUpdatedBy="Test";
     }
     else { // paleo site information from the database
       int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE
@@ -316,6 +338,8 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
                               paleoSite.getSiteElevation1());
       siteType = paleoSite.getSiteTypeName();
       siteRepresentation = paleoSite.getRepresentativeStrandName();
+      lastEntryDate = paleoSite.getEntryDate();
+      lastUpdatedBy=paleoSite.getContributorName();
       ArrayList referenceList = paleoSite.getReferenceShortCitationList();
       references="";
       for(int i=0; i<referenceList.size();++i) {
@@ -331,6 +355,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     siteRepresentationLabel.setTextAsHTML(SITE_REPRESENTATION_PARAM_NAME,siteRepresentation);
     // site references
     this.siteReferencesLabel.setTextAsHTML(this.SITE_REFERENCES_PARAM_NAME, references);
+    // last entry date
+    this.lastEntryDateLabel.setTextAsHTML(this.ENTRY_DATE_PARAM_NAME, lastEntryDate);
+    // last entry by
+    this.contributorNameLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, lastUpdatedBy);
     // call the listener
     siteSelectionListener.siteSelected(this.paleoSite); // call the listening class
   }
@@ -358,7 +386,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    int numSites = paleoSiteSummaryList.size();
    String siteName;
    PaleoSiteSummary paleoSiteSummary;
-   System.out.println("num sites="+numSites);
    for(int i=0; i<numSites; ++i) {
      paleoSiteSummary = (PaleoSiteSummary)paleoSiteSummaryList.get(i);
      siteName = paleoSiteSummary.getSiteName().trim();

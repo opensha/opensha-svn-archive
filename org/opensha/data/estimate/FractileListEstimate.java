@@ -31,7 +31,6 @@ public class FractileListEstimate extends Estimate {
   private final static String MEDIAN_UNDEFINED = "Invalid Y values as median is undefined"+
        " for these set of Y values. ";
 
-
    /**
     * Construnctor - Accepts the ArbDiscrEmpiricalDistFunc of X and Y values.
     * The values specified should follow the constraints as specified in
@@ -58,8 +57,10 @@ public class FractileListEstimate extends Estimate {
      int numValues = func.getNum();
      // check that 0²Y²1
      double y;
+     double sum=0;
      for(int i = 0; i<numValues;++i) {
        y = func.getY(i);
+       sum+=y;
        if(y<0 || y>1) throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
      }
      this.func = (ArbDiscrEmpiricalDistFunc)func.deepClone();
@@ -123,7 +124,7 @@ public class FractileListEstimate extends Estimate {
      throw new java.lang.UnsupportedOperationException("Method getMode() not supported.");
   }
 
-  public DiscretizedFuncAPI getValues() {
+  public DiscretizedFunc getValues() {
     return this.func;
   }
 

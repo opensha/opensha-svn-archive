@@ -19,7 +19,7 @@ public class ContributorDB_DAO  {
   private final static String SEQUENCE_NAME="Contributors_Sequence";
   private final static String TABLE_NAME="Contributors";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
-  private final static String CONTRIBUTOR_NAME="Contributor_Name";
+  public final static String CONTRIBUTOR_NAME="Contributor_Name";
   private DB_AccessAPI dbAccessAPI;
 
   /**

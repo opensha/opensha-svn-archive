@@ -135,4 +135,11 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   */
  public void setTolerance(double tol) {this.tol = tol;}
 
+ /**
+  * Get the function in which values are stored
+  * @return
+  */
+ public DiscretizedFunc getFunc() { return this.func;}
+
+
 }
