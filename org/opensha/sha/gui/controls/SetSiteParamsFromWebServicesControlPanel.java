@@ -116,9 +116,9 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
 
     // get latitude and longitude
    Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
-   Double lonMax = new Double(lonMin.doubleValue());
+   Double lonMax = new Double(lonMin.doubleValue()+0.5);
    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
-   Double latMax = new Double(latMin.doubleValue());
+   Double latMax = new Double(latMin.doubleValue()+0.5);
    String willsClass = "NA";
    double basinDepth = Double.NaN;
    try{
@@ -130,6 +130,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
                                                            latMin.doubleValue(),latMax.doubleValue(),
                                                            0.5)).get(0)).doubleValue();
    }catch(Exception ee){
+     //ee.printStackTrace();
      JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
      return;
    }
@@ -182,9 +183,9 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
   void setSelectedIMRButton_actionPerformed(ActionEvent e) {
     // get latitude and longitude
     Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
-    Double lonMax = new Double(lonMin.doubleValue());
+    Double lonMax = new Double(lonMin.doubleValue()+0.5);
     Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
-    Double latMax = new Double(latMin.doubleValue());
+    Double latMax = new Double(latMin.doubleValue()+0.5);
     String willsClass = "NA";
     double basinDepth = Double.NaN;
     try{
@@ -194,7 +195,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
       basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
           latMin.doubleValue(),latMax.doubleValue(),0.5)).get(0)).doubleValue();
     }catch(Exception ee){
-      //ee.printStackTrace();
+      ee.printStackTrace();
       JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
       return;
     }

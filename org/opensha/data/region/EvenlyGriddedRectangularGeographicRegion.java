@@ -3,6 +3,7 @@ package org.opensha.data.region;
 import org.opensha.data.LocationList;
 import org.opensha.data.Location;
 import org.opensha.exceptions.RegionConstraintException;
+import java.util.ListIterator;
 
 
 /**
@@ -276,6 +277,10 @@ public class EvenlyGriddedRectangularGeographicRegion
     try {
       geoReg = new EvenlyGriddedRectangularGeographicRegion(39.0, 39.99, 120.,
           121.0, .1);
+      ListIterator lit =  geoReg.getGridLocationsIterator();
+      while(lit.hasNext()){
+        System.out.println((Location)lit.next());
+      }
     }
     catch (RegionConstraintException ex) {
     }
