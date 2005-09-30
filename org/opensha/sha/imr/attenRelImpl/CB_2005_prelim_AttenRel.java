@@ -624,6 +624,13 @@ public class CB_2005_prelim_AttenRel
     double c = 1.88;
     double n = 1.18;
 
+/*
+    System.out.println("iper=" + iper +", vs30="+ vs30 +", rRup="+ rRup +", (rRup-rJB)/rRup="+
+                       distRupJB_Fraction+", rake="+ rake+", mag="+ mag+", depthTop="+
+                       depthTop+", depthTo2pt5kmPerSec="+ depthTo2pt5kmPerSec+", magSaturation=" +
+                       magSaturation +", pgar="+ pgar+", nonLinModel=PEN");
+*/
+
     double rjb, Frv, Fn, SR, Ff, F1;
     rjb = rRup - distRupJB_Fraction * rRup;
 
@@ -721,6 +728,12 @@ public class CB_2005_prelim_AttenRel
       F6 = k3_PEN[iper] * (Math.exp( -10) - Math.exp( -3.333 * depthTo2pt5kmPerSec)) +
            k4_PEN[iper] * (Math.exp( -0.75) - Math.exp( -0.25 * depthTo2pt5kmPerSec));
     }
+/*
+double temp = Math.exp(F1 + F2 + F3 + F4 + F5 + F6);
+System.out.println("F1="+(float)F1 +", F2="+ (float)F2 +", F3="+ (float)F3 +
+                       ", F4="+ (float)F4 +", F5="+ (float)F5 +", F6="+ (float)F6+
+        "meanIML="+(float)temp);
+*/
     return (F1 + F2 + F3 + F4 + F5 + F6);
   }
 
