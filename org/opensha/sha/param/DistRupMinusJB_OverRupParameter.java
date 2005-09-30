@@ -99,9 +99,12 @@ public class DistRupMinusJB_OverRupParameter
 
             }
             totalDist = Math.sqrt( minRupDistance );
-            double fract = (totalDist - minHorzDistance)/totalDist;
-            this.setValueIgnoreWarning( new Double( fract ));
-
+            if(totalDist == 0)
+              this.setValueIgnoreWarning( new Double( 0 ));
+            else{
+              double fract = (totalDist - minHorzDistance) / totalDist;
+              this.setValueIgnoreWarning(new Double(fract));
+            }
         }
         else this.value = null;
 
