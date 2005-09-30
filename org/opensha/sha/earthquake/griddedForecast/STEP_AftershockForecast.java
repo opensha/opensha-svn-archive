@@ -22,7 +22,7 @@ import org.opensha.sha.magdist.*;
  * @author not attributable
  * @version 1.0
  */
-public abstract class STEP_AftershockForecast
+public class STEP_AftershockForecast
     extends AfterShockHypoMagFreqDistForecast {
 
   public double minForecastMag;
@@ -49,7 +49,8 @@ public abstract class STEP_AftershockForecast
   /**
    * STEP_AftershockForecast
    */
-  public STEP_AftershockForecast() {
+  public STEP_AftershockForecast(ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI aftershockZone,
+       RegionDefaults rDefs) {
   }
 
   /**

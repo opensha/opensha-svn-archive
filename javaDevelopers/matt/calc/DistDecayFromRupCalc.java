@@ -1,13 +1,13 @@
 package javaDevelopers.matt.calc;
 
-import org.opensha.data.Location;
-import java.util.ListIterator;
-import org.opensha.calc.RelativeLocation;
-import org.opensha.sha.earthquake.observedEarthquake.ObsEqkRupture;
-import org.opensha.sha.surface.EvenlyGriddedSurface;
-import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
-import org.opensha.sha.fault.FaultTrace;
+import java.util.*;
+
+import org.opensha.calc.*;
+import org.opensha.data.*;
+import org.opensha.data.region.*;
+import org.opensha.sha.earthquake.observedEarthquake.*;
+import org.opensha.sha.fault.*;
+import org.opensha.sha.surface.*;
 
 /**
  * <p>Title: </p>
@@ -22,10 +22,12 @@ import org.opensha.sha.fault.FaultTrace;
  * @version 1.0
  */
 public final class DistDecayFromRupCalc {
+  private static double decayParam = 2.0;
+
   public DistDecayFromRupCalc() {
   }
 
-  public double[] getDensity(FaultTrace faultTrace,
+  public static double[] getDensity(FaultTrace faultTrace,
                              EvenlyGriddedGeographicRegionAPI aftershockZone) {
     double[] nodePerc = null;
     double sumInvDist = 0;
@@ -38,17 +40,18 @@ public final class DistDecayFromRupCalc {
     //get the iterator of all the locations within that region
     ListIterator zoneIT = aftershockZone.getGridLocationsIterator();
     int ind = 0;
-    // this may not be correct
     double totDistFromFault = 0;
+
+    // get the summed squared distance to all nodes from the fault trace
     while (zoneIT.hasNext()) {
       nodeDistFromFault[ind++] =
           faultTrace.getHorzDistToClosestLocation( (Location) zoneIT.next());
       totDistFromFault = totDistFromFault +
-          Math.pow(nodeDistFromFault[ind - 1], 2.0);
+          Math.pow(nodeDistFromFault[ind - 1], decayParam);
     }
     for (int indLoop = 0; indLoop < numLocs; ++indLoop) {
       invDist[indLoop] = totDistFromFault /
-          Math.pow(nodeDistFromFault[indLoop], 2.0);
+          Math.pow(nodeDistFromFault[indLoop], decayParam);
       sumInvDist = sumInvDist + invDist[indLoop];
     }
 
@@ -64,7 +67,7 @@ public final class DistDecayFromRupCalc {
    * This will taper assign a percentage of the k value that should
    * be assigned to each grid node.
    */
-  public double[] getDensity(ObsEqkRupture mainshock,
+  public static double[] getDensity(ObsEqkRupture mainshock,
                              EvenlyGriddedGeographicRegionAPI aftershockZone) {
     Location pointRupture;
     double[] nodePerc = null;
@@ -80,29 +83,33 @@ public final class DistDecayFromRupCalc {
     nodePerc = new double[numLocs];
 
     if (mainshock.getRuptureSurface() == null) {
+      // this is a point source fault so get the sum squared distance
+      // from all grid nodes to the point source.
       pointRupture = mainshock.getHypocenterLocation();
       while (zoneIT.hasNext()) {
         nodeDistFromFault[ind++] =
             RelativeLocation.getApproxHorzDistance(pointRupture,
             (Location) zoneIT.next());
         totDistFromFault = totDistFromFault +
-            Math.pow(nodeDistFromFault[ind - 1], 2.0);
+            Math.pow(nodeDistFromFault[ind - 1], decayParam);
       }
     }
     else {
+      // this is a rupture surface.  get  the sum squared distance from
+      // all grid nodes to the rupture surface.
       GriddedSurfaceAPI ruptureSurface = mainshock.getRuptureSurface();
 
       while (zoneIT.hasNext()) {
         nodeDistFromFault[ind++] = getRupDist(ruptureSurface,
                                               (Location) zoneIT.next());
         totDistFromFault = totDistFromFault +
-            Math.pow(nodeDistFromFault[ind - 1], 2.0);
+            Math.pow(nodeDistFromFault[ind - 1], decayParam);
       }
     }
 
     for (int indLoop = 0; indLoop < numLocs; ++indLoop) {
       invDist[indLoop] = totDistFromFault /
-          Math.pow(nodeDistFromFault[indLoop], 2.0);
+          Math.pow(nodeDistFromFault[indLoop], decayParam);
       sumInvDist = sumInvDist + invDist[indLoop];
     }
 
@@ -116,7 +123,7 @@ public final class DistDecayFromRupCalc {
   /**
    * getRupDist
    */
-  private double getRupDist(GriddedSurfaceAPI ruptureSurface, Location gridLoc) {
+  private static double getRupDist(GriddedSurfaceAPI ruptureSurface, Location gridLoc) {
     int ind = 0;
     double nodeDistFromRup, minDistFromRup = 0;
     ListIterator rupIT = ruptureSurface.listIterator();
@@ -134,6 +141,22 @@ public final class DistDecayFromRupCalc {
       }
     }
     return minDistFromRup;
+  }
+
+  /**
+   * setDecayParam
+   * set the exponent to be used for calculating the decay.  Default is 2.
+   */
+  public void setDecayParam(double decayParam) {
+    this.decayParam = decayParam;
+  }
+
+  /**
+   * getDecayParam
+   * return the exponent that is used for calculating the decay.
+   */
+  public double getDecayParam() {
+    return this.decayParam;
   }
 
 }

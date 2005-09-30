@@ -136,8 +136,8 @@ public class STEP_main {
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= rDefs.minMagForMainshock) {
-      GenericAfterHypoMagFreqDistForecast newGenForecastMod =
-           new GenericAfterHypoMagFreqDistForecast(newEvent,backGroundRatesGrid,rDefs);
+      STEP_AftershockForecast newForecastMod =
+           new STEP_AftershockForecast(newEvent,backGroundRatesGrid,rDefs);
 
         // if the new event is already an aftershock to something else
         // set it as a secondary event.
@@ -151,7 +151,7 @@ public class STEP_main {
 
         // add the new event to the list of mainshocks and increment the number
         // of total mainshocks (for the loop)
-        STEP_AftershockForecastList.add(newGenForecastMod);
+        STEP_AftershockForecastList.add(newForecastMod);
         ++numMainshocks;
 
       }
