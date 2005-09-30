@@ -21,6 +21,7 @@ import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.nshmp.param.editor.EditableConstrainedStringParameterEditor;
 
 /**
  * <p>Title:ProbHazCurvesGuiBean</p>
@@ -79,9 +80,9 @@ public class ProbHazCurvesGuiBean
   private static final String EXP_TIME_PARAM_NAME = "Exposure Time";
 
   private JPanel singleHazardValEditorPanel;
-  private ConstrainedStringParameterEditor returnPdEditor;
-  private ConstrainedStringParameterEditor exceedProbEditor;
-  private ConstrainedStringParameterEditor expTimeEditor;
+  private EditableConstrainedStringParameterEditor returnPdEditor;
+  private EditableConstrainedStringParameterEditor exceedProbEditor;
+  private EditableConstrainedStringParameterEditor expTimeEditor;
 
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
@@ -195,9 +196,9 @@ public class ProbHazCurvesGuiBean
     expTimeParam.addParameterChangeListener(this);
 
     try{
-      returnPdEditor = new ConstrainedStringParameterEditor(returnPeriodParam);
-      exceedProbEditor = new ConstrainedStringParameterEditor(exceedProbParam);
-      expTimeEditor = new ConstrainedStringParameterEditor(expTimeParam);
+      returnPdEditor = new EditableConstrainedStringParameterEditor(returnPeriodParam);
+      exceedProbEditor = new EditableConstrainedStringParameterEditor(exceedProbParam);
+      expTimeEditor = new EditableConstrainedStringParameterEditor(expTimeParam);
 
       singleHazardValEditorPanel = new JPanel();
       singleHazardValEditorPanel.setLayout(new GridBagLayout());
