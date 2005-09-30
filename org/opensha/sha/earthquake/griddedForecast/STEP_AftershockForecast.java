@@ -44,13 +44,50 @@ public class STEP_AftershockForecast
   private ObsEqkRupList newAftershocksInZone;
   private RegionDefaults rDefs;
   private TimeSpan timeSpan;
-  double daysSinceMainshockStart, daysSinceMainshockEnd;
+  private double daysSinceMainshockStart, daysSinceMainshockEnd;
+  private EvenlyGriddedGeographicRegionAPI backgroundRatesGrid;
+  private double[] kScaler;
 
   /**
    * STEP_AftershockForecast
    */
-  public STEP_AftershockForecast(ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI aftershockZone,
-       RegionDefaults rDefs) {
+  public STEP_AftershockForecast(ObsEqkRupture mainshock,
+                                 EvenlyGriddedGeographicRegionAPI
+                                 backgroundRatesGrid,
+                                 RegionDefaults rDefs) {
+    this.mainShock = mainshock;
+    this.backgroundRatesGrid = backgroundRatesGrid;
+    this.rDefs = rDefs;
+
+    /**
+     * initialise the aftershock zone and mainshock for this model
+     */
+    this.set_AftershockZoneRadius();
+    this.calcTypeI_AftershockZone();
+    EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
+
+    GenericAfterHypoMagFreqDistForecast genElement =
+        new GenericAfterHypoMagFreqDistForecast(this.mainShock,aftershockZone,this.rDefs);
+    //int numZoneGridLocs = aftershockZone.getNumGridLocs();
+    double[] kScaler = DistDecayFromRupCalc.getDensity(this.mainShock,aftershockZone);
+    genElement.set_kScaler(kScaler);
+  }
+
+  /**
+   * createSequenceElement
+   */
+  public void createSequenceElement() {
+    SequenceAfterHypoMagFreqDistForecast seqElement =
+        new SequenceAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.rDefs,this.getAfterShocks());
+    seqElement.set_kScaler(kScaler);
+  }
+
+  /**
+   * createSpatialElement
+   */
+  public void createSpatialElement() {
+    SpatialAfterHypoMagFreqDistForecast spatialElement =
+        new SpatialAfterHypoMagFreqDistForecast(this.mainShock,this.getAfterShockZone(),this.rDefs,this.getAfterShocks());
   }
 
   /**
@@ -186,8 +223,7 @@ public class STEP_AftershockForecast
   /**
    * calcTypeI_AftershockZone
    */
-  public void calcTypeI_AftershockZone(EvenlyGriddedGeographicRegionAPI
-                                       backGroundRatesGrid) {
+  public void calcTypeI_AftershockZone() {
 
     if (hasExternalFaultModel) {
       // This needs to be set up to read an external fault model.
@@ -198,14 +234,14 @@ public class STEP_AftershockForecast
       EvenlyGriddedCircularGeographicRegion aftershockZone =
           new EvenlyGriddedCircularGeographicRegion(mainshockLocation,
           zoneRadius, gridSpacing);
-      aftershockZone.createRegionLocationsList(backGroundRatesGrid);
+      aftershockZone.createRegionLocationsList(backgroundRatesGrid);
       this.region = aftershockZone;
 
       // make a fault that is only a single point.
-      String faultName = "typeIfault";
-      FaultTrace fault_trace = new FaultTrace(faultName);
-      fault_trace.addLocation(mainshock.getHypocenterLocation());
-      set_FaultSurface(fault_trace);
+      //String faultName = "typeIfault";
+      //FaultTrace fault_trace = new FaultTrace(faultName);
+      //fault_trace.addLocation(mainshock.getHypocenterLocation());
+      //set_FaultSurface(fault_trace);
     }
   }
 
@@ -239,11 +275,9 @@ public class STEP_AftershockForecast
       fault_trace.addLocation(faultPoints.getLocationAt(0));
       fault_trace.addLocation(faultPoints.getLocationAt(1));
       fault_trace.addLocation(faultPoints.getLocationAt(3));
-      set_FaultSurface(fault_trace);
+      //set_FaultSurface(fault_trace);
     }
   }
-
-
 
   /**
    * set_CurrentTime
@@ -263,21 +297,20 @@ public class STEP_AftershockForecast
         day, hour24, min, sec);
   }
 
-
   /**
    * calcTimeSpan
    */
   public void calcTimeSpan() {
     String durationUnits = "DAYS";
     String timePrecision = "SECONDS";
-    TimeSpan timeSpan = new TimeSpan(timePrecision,durationUnits);
+    TimeSpan timeSpan = new TimeSpan(timePrecision, durationUnits);
 
     if (rDefs.startForecastAtCurrentTime) {
       set_CurrentTime();
       timeSpan.setStartTime(currentTime);
       timeSpan.setDuration(rDefs.forecastLengthDays);
     }
-    else{
+    else {
       timeSpan.setStartTime(rDefs.forecastStartTime);
       timeSpan.setDuration(rDefs.forecastLengthDays);
     }
@@ -296,7 +329,7 @@ public class STEP_AftershockForecast
     double startInMils = startDate.getTimeInMillis();
     double mainshockInMils = mainshockDate.getTimeInMillis();
     double timeDiffMils = startInMils - mainshockInMils;
-    daysSinceMainshockStart = timeDiffMils/1000.0/60.0/60.0/24.0;
+    daysSinceMainshockStart = timeDiffMils / 1000.0 / 60.0 / 60.0 / 24.0;
     daysSinceMainshockEnd = daysSinceMainshockStart + duration;
   }
 
@@ -313,7 +346,6 @@ public class STEP_AftershockForecast
   public double getDaysSinceMainshockEnd() {
     return daysSinceMainshockEnd;
   }
-
 
   /**
    * calc_GriddedForecastRates
@@ -357,13 +389,13 @@ public class STEP_AftershockForecast
    * This will not be used in a spatially varying model.
    */
 
-  public void set_FaultSurface(FaultTrace fault_trace) {
+  /**public void set_FaultSurface(FaultTrace fault_trace) {
     mainshockFault = new SimpleFaultData();
     mainshockFault.setAveDip(90.0);
     mainshockFault.setFaultTrace(fault_trace);
     mainshockFault.setLowerSeismogenicDepth(rDefs.lowerSeismoDepth);
     mainshockFault.setUpperSeismogenicDepth(rDefs.upperSeismoDepth);
-  }
+  } */
 
   /**
    * get_minForecastMag
@@ -455,7 +487,6 @@ public class STEP_AftershockForecast
   public boolean getHasExternalFaultModel() {
     return this.hasExternalFaultModel;
   }
-
 
   /**
    * get_NewObsEventsList

@@ -29,6 +29,7 @@ public class SequenceAfterHypoMagFreqDistForecast
   public MaxLikeOmori_Calc omoriCalc;
   private RegionDefaults rDefs;
   private SimpleFaultData mainshockFault;
+  private double[] kScaler;
 
   public SequenceAfterHypoMagFreqDistForecast(ObsEqkRupture mainshock,
                                               EvenlyGriddedGeographicRegionAPI
@@ -128,6 +129,14 @@ public class SequenceAfterHypoMagFreqDistForecast
     this.set_Gridded_Seq_kValue();
     this.set_Gridded_Seq_pValue();
   }
+
+  /**
+     * set_kScaler
+     */
+    public void set_kScaler(double[] kScaler) {
+      this.kScaler = kScaler;
+  }
+
 
   /**
    * set_k_value

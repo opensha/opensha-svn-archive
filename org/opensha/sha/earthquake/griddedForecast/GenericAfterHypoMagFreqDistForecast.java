@@ -30,7 +30,7 @@ public class GenericAfterHypoMagFreqDistForecast
   private double[] grid_Gen_kVal, grid_Gen_aVal, grid_Gen_bVal, grid_Gen_cVal,
       grid_Gen_pVal;
   int numGridLocs;
-  private double[] rateForecastGrid;
+  private double[] rateForecastGrid, kScaler;
   private RegionDefaults rDefs;
 
   public GenericAfterHypoMagFreqDistForecast
@@ -113,6 +113,13 @@ public class GenericAfterHypoMagFreqDistForecast
     b_valueGeneric = rjParms[1];
     c_valueGeneric = rjParms[2];
     p_valueGeneric = rjParms[3];
+  }
+
+  /**
+   * set_kScaler
+   */
+  public void set_kScaler(double[] kScaler) {
+    this.kScaler = kScaler;
   }
 
   /**
