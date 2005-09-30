@@ -621,8 +621,8 @@ public class CB_2005_prelim_AttenRel
                             double depthTo2pt5kmPerSec,
                             boolean magSaturation, double pgar) {
 
-    double c = 1.38;
-    double n = 1.30;
+    double c = 1.88;
+    double n = 1.18;
 
     double rjb, Frv, Fn, SR, Ff, F1;
     rjb = rRup - distRupJB_Fraction * rRup;
@@ -681,7 +681,7 @@ public class CB_2005_prelim_AttenRel
     if (mag <= 6) {
       FhwM = 0;
     }
-    else if (mag < 6.5 && mag < 6) {
+    else if (mag < 6.5) {
       FhwM = (mag - 6) / 0.5;
     }
     else {
@@ -699,10 +699,10 @@ public class CB_2005_prelim_AttenRel
 
     //Shallow site condition dependence
     double F5;
-    if (vs30 > k1_PEN[iper]) {
+    if (vs30 < k1_PEN[iper]) {
       F5 = c9_PEN[iper] * Math.log(vs30 / k1_PEN[iper]) +
           k2_PEN[iper] *
-          (Math.log(pgar + c * (Math.pow( (vs30 / k1_PEN[iper]), 2)))) -
+          (Math.log(pgar + c * (Math.pow( (vs30 / k1_PEN[iper]), n)))) -
           Math.log(pgar + c);
     }
     else {
@@ -714,16 +714,13 @@ public class CB_2005_prelim_AttenRel
     if (depthTo2pt5kmPerSec < 1) {
       F6 = c10_PEN[iper] * (depthTo2pt5kmPerSec - 1);
     }
-    else if (depthTo2pt5kmPerSec >= 1 && depthTo2pt5kmPerSec <= 3) {
+    else if (depthTo2pt5kmPerSec <= 3) {
       F6 = 0;
     }
     else {
-      F6 = k3_PEN[iper] * (Math.exp( -10)) -
-          Math.exp( -3.333 * depthTo2pt5kmPerSec) +
-          k4_PEN[iper] *
-          (Math.exp( -0.75) - Math.exp( -0.25 * depthTo2pt5kmPerSec));
+      F6 = k3_PEN[iper] * (Math.exp( -10) - Math.exp( -3.333 * depthTo2pt5kmPerSec)) +
+           k4_PEN[iper] * (Math.exp( -0.75) - Math.exp( -0.25 * depthTo2pt5kmPerSec));
     }
-
     return (F1 + F2 + F3 + F4 + F5 + F6);
   }
 
@@ -793,7 +790,7 @@ public class CB_2005_prelim_AttenRel
     if (mag <= 6) {
       FhwM = 0;
     }
-    else if (mag < 6.5 && mag < 6) {
+    else if (mag < 6.5) {
       FhwM = (mag - 6) / 0.5;
     }
     else {
@@ -811,10 +808,10 @@ public class CB_2005_prelim_AttenRel
 
     //Shallow site condition dependence
     double F5;
-    if (vs30 > k1_EPRI[iper]) {
+    if (vs30 < k1_EPRI[iper]) {
       F5 = c9_EPRI[iper] * Math.log(vs30 / k1_EPRI[iper]) +
           k2_EPRI[iper] *
-          (Math.log(pgar + c * (Math.pow( (vs30 / k1_EPRI[iper]), 2)))) -
+          (Math.log(pgar + c * (Math.pow( (vs30 / k1_EPRI[iper]), n)))) -
           Math.log(pgar + c);
     }
     else {
@@ -826,14 +823,12 @@ public class CB_2005_prelim_AttenRel
     if (depthTo2pt5kmPerSec < 1) {
       F6 = c10_EPRI[iper] * (depthTo2pt5kmPerSec - 1);
     }
-    else if (depthTo2pt5kmPerSec >= 1 && depthTo2pt5kmPerSec <= 3) {
+    else if (depthTo2pt5kmPerSec <= 3) {
       F6 = 0;
     }
     else {
-      F6 = k3_EPRI[iper] * (Math.exp( -10)) -
-          Math.exp( -3.333 * depthTo2pt5kmPerSec) +
-          k4_EPRI[iper] *
-          (Math.exp( -0.75) - Math.exp( -0.25 * depthTo2pt5kmPerSec));
+      F6 = k3_EPRI[iper] * (Math.exp( -10) - Math.exp( -3.333 * depthTo2pt5kmPerSec)) +
+          k4_EPRI[iper] * (Math.exp( -0.75) - Math.exp( -0.25 * depthTo2pt5kmPerSec));
     }
 
     return (F1 + F2 + F3 + F4 + F5 + F6);
