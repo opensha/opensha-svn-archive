@@ -29,6 +29,7 @@ public class CombinedEventsInfo {
   private ArrayList shortCitationList;
   private String entryDate;
   private int infoId;
+  private String contributorName;
 
   /*
    * Various  set/get methods
@@ -38,6 +39,12 @@ public class CombinedEventsInfo {
   }
   public void setEntryDate(String entryDate) {
     this.entryDate = entryDate;
+  }
+  public void setContributorName(String contributorName) {
+    this.contributorName = contributorName;
+  }
+  public String getContributorName() {
+    return this.contributorName;
   }
   public int getInfoId() {
     return this.infoId;

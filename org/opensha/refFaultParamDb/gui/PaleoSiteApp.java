@@ -286,13 +286,12 @@ public class PaleoSiteApp extends JFrame implements SiteSelectionAPI {
       references.add("Ref 4");
       references.add("Ref 1");
       // timeSpan panel which will contain start time and end time
-      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references);
+      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references,null,null);
     }
     else {
-      this.timeSpanPanel.setTimeSpan(null, null, null, null);
+      this.timeSpanPanel.setTimeSpan(null, null, null, null,null,null);
     }
   }
-
 
 }
 

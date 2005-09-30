@@ -46,6 +46,7 @@ public class CombinedEventsInfoDB_DAO {
   private TimeInstanceDB_DAO timeInstanceDAO;
   private EstimateInstancesDB_DAO estimateInstancesDAO;
   private ReferenceDB_DAO referenceDAO;
+  private ContributorDB_DAO contributorDAO;
 
   public CombinedEventsInfoDB_DAO(DB_AccessAPI dbAccess) {
     setDB_Connection(dbAccess);
@@ -56,6 +57,7 @@ public class CombinedEventsInfoDB_DAO {
     timeInstanceDAO = new TimeInstanceDB_DAO(dbAccess);
     estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
     referenceDAO = new ReferenceDB_DAO(dbAccess);
+    contributorDAO = new ContributorDB_DAO(dbAccess);
   }
 
 
@@ -185,7 +187,7 @@ public class CombinedEventsInfoDB_DAO {
         START_TIME_ID+","+END_TIME_ID+","+TOTAL_SLIP_EST_ID+","+
         SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+ASEISMIC_SLIP_FACTOR_EST_ID+","+
         SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
-        DATED_FEATURE_COMMENTS+" from "+this.TABLE_NAME+condition;
+        this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+" from "+this.TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;
@@ -222,6 +224,8 @@ public class CombinedEventsInfoDB_DAO {
          combinedEventsInfo.setASeismicSlipFactorEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
        }
 
+        // get the contributor info
+        combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
         // get all the refernces for this site
         ArrayList referenceList = new ArrayList();
         sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+

@@ -403,15 +403,17 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       references.add("Ref 4");
       references.add("Ref 1");
       // timeSpan panel which will contain start time and end time
-      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references);
+      this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references,null, null);
     } else if(this.isValidSiteAndInfoAvailable()){
       timeSpanPanel.setTimeSpan(combinedEventsInfo.getStartTime(),
                                 combinedEventsInfo.getEndTime(),
                                 combinedEventsInfo.getDatedFeatureComments(),
-                                combinedEventsInfo.getShortCitationList());
+                                combinedEventsInfo.getShortCitationList(),
+                                combinedEventsInfo.getEntryDate(),
+                                combinedEventsInfo.getContributorName());
     }
     else {
-      this.timeSpanPanel.setTimeSpan(null, null, null, null);
+      this.timeSpanPanel.setTimeSpan(null, null, null, null,null,null);
     }
   }
 

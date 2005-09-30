@@ -376,7 +376,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
  }
 
  /**
-  *  It gets all the site names from the database
+  * It gets all the site names from the database
   * @return
   */
  private ArrayList getSiteNames() {

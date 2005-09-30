@@ -37,13 +37,19 @@ public class ViewTimeSpan extends LabeledBoxPanel{
   private final static String TIME_SPAN_PARAM_NAME="TimeSpan";
   // dated feature comments
   private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Dating Methodology";
+  // entry date
+  private final static String ENTRY_DATE_PARAM_NAME="Entry Date";
+  //contribbutor
+  private final static String CONTRIBUTOR_PARAM_NAME="Contributor";
   // dating comments params
-  StringParameter datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
-  CommentsParameterEditor datedFeatureCommentsParamEditor;
+  private StringParameter datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
+  private CommentsParameterEditor datedFeatureCommentsParamEditor;
 
   private InfoLabel startTimeLabel = new InfoLabel();
   private InfoLabel endTimeLabel = new InfoLabel();
   private InfoLabel referencesLabel = new InfoLabel();
+  private InfoLabel entryDateLabel = new InfoLabel();
+  private InfoLabel contributorLabel = new InfoLabel();
 
   /**
    *
@@ -80,6 +86,10 @@ public class ViewTimeSpan extends LabeledBoxPanel{
 
     // add start time, end time and comments to the GUI
     int yPos = 0;
+    add(this.entryDateLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    add(this.contributorLabel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(startTimePanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(endTimePanel,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -99,10 +109,12 @@ public class ViewTimeSpan extends LabeledBoxPanel{
    * @param datingComments
    */
   public void setTimeSpan(TimeAPI startTime, TimeAPI endTime, String datingComments,
-                          ArrayList references) {
+                          ArrayList references, String entryDate, String contributorName) {
     this.startTimeLabel.setTextAsHTML(startTime);
     this.endTimeLabel.setTextAsHTML(endTime);
     this.referencesLabel.setTextAsHTML(references);
+    this.contributorLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, contributorName);
+    this.entryDateLabel.setTextAsHTML(this.ENTRY_DATE_PARAM_NAME, entryDate);
     this.datedFeatureCommentsParam.setValue(datingComments);
     this.datedFeatureCommentsParamEditor.refreshParamEditor();
   }
