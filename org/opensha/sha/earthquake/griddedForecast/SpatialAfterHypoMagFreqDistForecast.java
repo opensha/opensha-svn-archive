@@ -183,4 +183,8 @@ public class SpatialAfterHypoMagFreqDistForecast
     return spaNodeCompletenessMag;
   }
 
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+    return null;
+  }
+
 }

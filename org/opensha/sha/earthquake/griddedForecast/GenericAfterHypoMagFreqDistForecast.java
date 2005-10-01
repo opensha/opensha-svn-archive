@@ -20,6 +20,9 @@ import org.opensha.sha.fault.*;
  */
 public class GenericAfterHypoMagFreqDistForecast
     extends AfterShockHypoMagFreqDistForecast {
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+    return null;
+  }
 
   private double a_valueGeneric = -1.67;
   private double b_valueGeneric = 0.91;

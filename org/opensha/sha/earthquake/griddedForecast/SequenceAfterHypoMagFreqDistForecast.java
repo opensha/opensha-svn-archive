@@ -241,4 +241,8 @@ public class SequenceAfterHypoMagFreqDistForecast
     return seqNodeCompletenessMag;
   }
 
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+    return null;
+  }
+
 }

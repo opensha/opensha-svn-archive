@@ -24,6 +24,9 @@ import org.opensha.sha.magdist.*;
  */
 public class STEP_AftershockForecast
     extends AfterShockHypoMagFreqDistForecast {
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+    return null;
+  }
 
   public double minForecastMag;
   private double maxForecastMag;
