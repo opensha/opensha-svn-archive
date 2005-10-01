@@ -18,6 +18,7 @@ import org.opensha.data.Location;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.SystemPropertiesUtils;
+import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
 
 /**
  * <p>Title:SetSiteParamsFromWebServicesControlPanel </p>
@@ -116,19 +117,19 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
 
     // get latitude and longitude
    Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
-   Double lonMax = new Double(lonMin.doubleValue()+0.5);
+   Double lonMax = new Double(lonMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
-   Double latMax = new Double(latMin.doubleValue()+0.5);
+   Double latMax = new Double(latMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
    String willsClass = "NA";
    double basinDepth = Double.NaN;
    try{
    // get the vs 30 and basin depth from cvm
    willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
                                                       latMin.doubleValue(),latMax.doubleValue(),
-                                                      0.5)).get(0);
+                                                      WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0);
    basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
                                                            latMin.doubleValue(),latMax.doubleValue(),
-                                                           0.5)).get(0)).doubleValue();
+                                                           WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0)).doubleValue();
    }catch(Exception ee){
      //ee.printStackTrace();
      JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
@@ -183,17 +184,17 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
   void setSelectedIMRButton_actionPerformed(ActionEvent e) {
     // get latitude and longitude
     Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
-    Double lonMax = new Double(lonMin.doubleValue()+0.5);
+    Double lonMax = new Double(lonMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
     Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
-    Double latMax = new Double(latMin.doubleValue()+0.5);
+    Double latMax = new Double(latMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
     String willsClass = "NA";
     double basinDepth = Double.NaN;
     try{
       // get the vs 30 and basin depth from cvm
       willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-          latMin.doubleValue(),latMax.doubleValue(),0.5)).get(0);
+          latMin.doubleValue(),latMax.doubleValue(),WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0);
       basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-          latMin.doubleValue(),latMax.doubleValue(),0.5)).get(0)).doubleValue();
+          latMin.doubleValue(),latMax.doubleValue(),WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0)).doubleValue();
     }catch(Exception ee){
       ee.printStackTrace();
       JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
