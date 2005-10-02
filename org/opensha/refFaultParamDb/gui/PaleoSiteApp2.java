@@ -248,7 +248,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     infoForTimeSpanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    slipDisplacementSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    slipDisplacementSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timeSpanSelectionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     statusTextArea.setEnabled(false);
     statusTextArea.setEditable(false);
@@ -265,16 +265,16 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
     infoForTimeSpanSplitPane.add(slipDisplacementSplitPane, JSplitPane.LEFT);
     statusScrollPane.getViewport().add(statusTextArea, null);
-    slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.TOP);
+    slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.LEFT);
     infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
     timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
-    slipDisplacementSplitPane.add(displacementPanel, JSplitPane.BOTTOM);
-    slipDisplacementSplitPane.setDividerLocation(450);
+    slipDisplacementSplitPane.add(displacementPanel, JSplitPane.RIGHT);
+    slipDisplacementSplitPane.setDividerLocation(170);
     topSplitPane.setDividerLocation(625);
-    mainSplitPane.setDividerLocation(212);
+    mainSplitPane.setDividerLocation(170);
     timeSpanSelectionSplitPane.setDividerLocation(75);
-    infoForTimeSpanSplitPane.setDividerLocation(212);
-    timespanSplitPane.setDividerLocation(212);
+    infoForTimeSpanSplitPane.setDividerLocation(345);
+    timespanSplitPane.setDividerLocation(170);
   }
 
   /**

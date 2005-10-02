@@ -60,6 +60,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
     try {
       this.setLayout(GUI_Utils.gridBagLayout);
       this.addSlipRateInfoParameters();
+      this.setMinimumSize(new Dimension(0, 0));
     }catch(Exception e) {
       e.printStackTrace();
     }

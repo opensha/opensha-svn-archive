@@ -64,6 +64,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
        this.setLayout(GUI_Utils.gridBagLayout);
        addNumEventsParameters();
        updateNumEventsList();
+       this.setMinimumSize(new Dimension(0, 0));
     }catch(Exception e) {
       e.printStackTrace();
     }

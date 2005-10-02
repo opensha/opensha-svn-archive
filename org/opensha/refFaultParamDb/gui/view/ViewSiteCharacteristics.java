@@ -282,20 +282,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
                        this.numEventsCheckBox.isSelected());
      else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
      }catch(Exception e) {
+       e.printStackTrace();
        JOptionPane.showMessageDialog(this, e.getMessage());
      }
     }
-    // if user is providing information about the slip rate, disable the cum disp. check box
-    else if(source == this.slipRateCheckBox) {
-      if(slipRateCheckBox.isSelected()) this.cumDispCheckBox.setEnabled(false);
-      else cumDispCheckBox.setEnabled(true);
-    }
-    // if user is providing information about the cum disp., disable the slip rate check box
-   else if(source == this.cumDispCheckBox) {
-     if(cumDispCheckBox.isSelected()) this.slipRateCheckBox.setEnabled(false);
-     else slipRateCheckBox.setEnabled(true);
-   }
-
  }
 
 

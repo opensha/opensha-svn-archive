@@ -61,6 +61,8 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
    try {
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
+     this.setMinimumSize(new Dimension(0, 0));
+
    }catch(Exception e) {
      e.printStackTrace();
    }
