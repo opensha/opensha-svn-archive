@@ -718,7 +718,7 @@ public class CB_2005_prelim_AttenRel
 
     //Sediment depth dependence
     double F6;
-    if (depthTo2pt5kmPerSec < 1) {
+    if (depthTo2pt5kmPerSec <= 1) {
       F6 = c10_PEN[iper] * (depthTo2pt5kmPerSec - 1);
     }
     else if (depthTo2pt5kmPerSec <= 3) {
@@ -833,7 +833,7 @@ System.out.println("F1="+(float)F1 +", F2="+ (float)F2 +", F3="+ (float)F3 +
 
     //Sediment depth dependence
     double F6;
-    if (depthTo2pt5kmPerSec < 1) {
+    if (depthTo2pt5kmPerSec <= 1) {
       F6 = c10_EPRI[iper] * (depthTo2pt5kmPerSec - 1);
     }
     else if (depthTo2pt5kmPerSec <= 3) {

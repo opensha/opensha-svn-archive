@@ -118,7 +118,7 @@ public final class MapUtil {
                   "0.2 Second Period (5% Damping) with 2% Probability of Exceedance in 50 Years");
       mapInfo.add("MAP I-2883, SHEET 5 - Horizontal Spectral Response Acceleration for " +
                   "1.0 Second Period (5% Damping) with 10% Probability of Exceedance in 50 Years");
-      mapInfo.add("MAP   I-2883, SHEET 6 - Horizontal Spectral Response Acceleration for " +
+      mapInfo.add("MAP I-2883, SHEET 6 - Horizontal Spectral Response Acceleration for " +
                   "1.0 Second Period (5% Damping) with 2% Probability of Exceedance in 50 Years");
       mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh1-US-pga-10-050.pdf");
       mapFiles.add(mapURL_Path +"USGS-2002-Map2883I-sh2-US-pga-02-050.pdf");
