@@ -2,6 +2,8 @@ drop View Vw_Paleo_Site_Chars;
 drop table Event_Sequence_Event_List;
 drop table Event_Sequence_References;
 drop table Event_Sequence;
+drop sequence Paleo_Event_Sequence;
+drop trigger Paleo_Event_Trigger;
 drop table Paleo_Event_References;
 drop table Paleo_Event;
 drop table Combined_Events_References;
@@ -523,7 +525,7 @@ CREATE TABLE Paleo_Event (
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Event_Date_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Time_Instances(Time_Id),
   FOREIGN KEY(Displacement_Est_Id)
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
@@ -568,6 +570,7 @@ CREATE TABLE Event_Sequence (
   Start_Time_Est_Id INTEGER NOT NULL,
   End_Time_Est_Id INTEGER  NOT NULL,
   Entry_Date date NOT NULL, 
+   Contributor_Id INTEGER  NOT NULL,
   General_Comments VARCHAR(255) NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)

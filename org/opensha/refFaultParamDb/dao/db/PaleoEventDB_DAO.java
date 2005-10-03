@@ -33,6 +33,8 @@ public class PaleoEventDB_DAO {
   private final static String SEQUENCE_NAME = "Paleo_Event_Sequence";
   private final static String REFERENCES_TABLE_NAME ="Paleo_Event_References";
   private final static String REFERENCE_ID = "Reference_Id";
+  private final static String PALEO_EVENT_ENTRY_DATE ="Paleo_Event_Entry_Date";
+  private final static String PALEO_EVENT_ID="Paleo_Event_Id";
 
   private final static String SHARED_DISPLACEMENT = "Y";
   private final static String NON_SHARED_DISPLACEMENT = "N";
@@ -51,6 +53,7 @@ public class PaleoEventDB_DAO {
    this.dbAccess = dbAccess;
    referenceDAO = new ReferenceDB_DAO(dbAccess);
    timeInstanceDAO = new TimeInstanceDB_DAO(dbAccess);
+   estimateInstancesDAO = new EstimateInstancesDB_DAO(this.dbAccess);
   }
 
   /**
@@ -86,7 +89,7 @@ public class PaleoEventDB_DAO {
         IS_SHARED_DISPLACEMENT +","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
         " values ("+paleoEventId+",'"+paleoEvent.getEventName()+"',"+paleoEvent.getSiteId()+
         ",'"+paleoEvent.getSiteEntryDate()+"',"+SessionInfo.getContributor().getId()+
-        ","+eventTimeEstId+",'"+displacementType+"',"+displacementEstId+","+
+        ","+eventTimeEstId+",'"+displacementType+"',"+displacementEstId+
         ",'"+systemDate+"','"+paleoEvent.getComments()+"')";
 
     try {
@@ -96,8 +99,8 @@ public class PaleoEventDB_DAO {
       ArrayList shortCitationList = paleoEvent.getShortCitationsList();
       for(int i=0; i<shortCitationList.size(); ++i) {
         int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
-        sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+EVENT_ID+
-            ","+ENTRY_DATE+","+REFERENCE_ID+") "+
+        sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+PALEO_EVENT_ID+
+            ","+PALEO_EVENT_ENTRY_DATE+","+REFERENCE_ID+") "+
             "values ("+paleoEventId+",'"+
             systemDate+"',"+referenceId+")";
         dbAccess.insertUpdateOrDeleteData(sql);
@@ -123,7 +126,7 @@ public class PaleoEventDB_DAO {
       if(i!=eventNames.size()-1) values= values+",";
     }
     values = values+")";
-    String sql = "eventNamesselect "+this.DISPLACEMENT_EST_ID+" from "+this.TABLE_NAME+
+    String sql = "select "+this.DISPLACEMENT_EST_ID+" from "+this.TABLE_NAME+
         " where "+this.EVENT_NAME+" in "+values;
     int dispEstId = -1;
     try {
@@ -136,6 +139,7 @@ public class PaleoEventDB_DAO {
     }catch(SQLException sqlException) {
       throw new QueryException(sqlException.getMessage());
     }
+
     return dispEstId;
   }
 

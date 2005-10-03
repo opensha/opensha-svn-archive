@@ -17,6 +17,8 @@ import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.dao.exception.InsertException;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -68,7 +70,8 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   private final static String MSG_SHARED_EVENTS_MISSING = "Choose atleast 1 event to share the displacement";
   private final static String MSG_EVENTS_DO_NOT_SHARE_DISPLACEMENT=
       "The selected event set for shared displacement is invalid.\nThese events do not share same displacement";
-  //slip rate constants
+  private final static String MSG_PALEO_EVENT_ADD_SUCCESS = "Paleo Event added successfully to the database";
+//slip rate constants
   private final static String SLIP_RATE_UNITS = "mm/yr";
   private final static double SLIP_RATE_MIN = 0;
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
@@ -264,7 +267,14 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource() ;
     if(source == addNewReferenceButton) new AddNewReference();
-    else if(source == okButton) addEventToDatabase();
+    else if(source == okButton) {
+      try {
+        addEventToDatabase();
+        JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
+      }catch(InsertException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+      }
+    }
     else if(source == cancelButton) this.dispose();
   }
 
@@ -316,7 +326,10 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
     paleoEvent.setComments((String)this.commentsParam.getValue());
     paleoEvent.setSiteId(this.siteId);
     paleoEvent.setSiteEntryDate(this.siteEntryDate);
-    paleoEvent.setEventTime(this.eventTimeEst.getSelectedTime());
+    TimeAPI eventTime = this.eventTimeEst.getSelectedTime();
+    eventTime.setDatingComments(paleoEvent.getComments());
+    eventTime.setReferencesList(paleoEvent.getShortCitationsList());
+    paleoEvent.setEventTime(eventTime);
     this.paleoEventDAO.addPaleoevent(paleoEvent);
   }
 
