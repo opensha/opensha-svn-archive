@@ -11,6 +11,12 @@ import org.opensha.param.event.*;
 import java.awt.event.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
+import org.opensha.refFaultParamDb.vo.PaleoEvent;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.data.estimate.Estimate;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -37,6 +43,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
 
   // various parameter names
   private final static String EVENT_NAME_PARAM_NAME = "Event Name";
+  private final static String EVENT_NAME_PARAM_DEFAULT = "Enter Event Name";
   private final static String COMMENTS_PARAM_NAME = "Comments";
   private final static String REFERENCES_PARAM_NAME = "Choose References";
   private final static String DATE_ESTIMATE_PARAM_NAME = "Event Time Estimate";
@@ -54,7 +61,13 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   // add new reference button
   private JButton addNewReferenceButton = new JButton("Add Reference");
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
-
+  private final static String MSG_NO_EVENT_EXIST_TO_SHARE_DISPLACEMENT =
+      "No other event exists in database for this site. So, displacement cannot be shared";
+  private final static String MSG_EVENT_NAME_MISSING = "Please enter event name";
+  private final static String MSG_REFERENCE_MISSING = "Choose atleast 1 reference";
+  private final static String MSG_SHARED_EVENTS_MISSING = "Choose atleast 1 event to share the displacement";
+  private final static String MSG_EVENTS_DO_NOT_SHARE_DISPLACEMENT=
+      "The selected event set for shared displacement is invalid.\nThese events do not share same displacement";
   //slip rate constants
   private final static String SLIP_RATE_UNITS = "mm/yr";
   private final static double SLIP_RATE_MIN = 0;
@@ -62,7 +75,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
 
   // diplacement parameter list editor title
   private final static String DISPLACEMENT_TITLE = "Shared Slip";
-  private final static String TITLE = "Add/Edit Event";
+  private final static String TITLE = "Add Event";
 
   // various parameter types
   private StringParameter eventNameParam;
@@ -83,9 +96,17 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   private final static int WIDTH = 600;
   private final static int HEIGHT = 700;
 
-
-  public AddEditIndividualEvent() {
+  // references DAO
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  // paleo event DAO
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
+  private ArrayList paleoEvents; // saves a list of all paleo events for this site
+  private int siteId; // site id for which this paleo event will be added
+  private String siteEntryDate; // site entry dat for which paleo event is to be added
+  public AddEditIndividualEvent(int siteId, String siteEntryDate) {
     try {
+      this.siteId = siteId;
+      this.siteEntryDate = siteEntryDate;
       // initialize the GUI
       jbInit();
       // add Parameters and editors
@@ -111,7 +132,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
   private void initParamsAndEditors() throws Exception {
 
     // event name parameter
-    eventNameParam = new StringParameter(this.EVENT_NAME_PARAM_NAME);
+    eventNameParam = new StringParameter(this.EVENT_NAME_PARAM_NAME, EVENT_NAME_PARAM_DEFAULT);
     eventNameParamEditor = new StringParameterEditor(eventNameParam);
 
     // comments param
@@ -134,13 +155,16 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
     // whether displacement is shared with other events
     this.displacementSharedParam = new BooleanParameter(this.DISPLACEMENT_SHARED_PARAM_NAME, new Boolean(false));
     displacementSharedParam.addParameterChangeListener(this);
+    ParameterList paramList  = new ParameterList();
+    paramList.addParameter(displacementSharedParam);
 
     // event name parameter with which dispalcement is shared(only if displacement is shared)
     ArrayList eventNamesList = getEventNamesList();
-    this.sharedEventParam = new StringListParameter(SHARED_EVENT_PARAM_NAME, eventNamesList);
-    ParameterList paramList  = new ParameterList();
-    paramList.addParameter(displacementSharedParam);
-    paramList.addParameter(sharedEventParam);
+    if(eventNamesList!=null && eventNamesList.size()>0) {
+      this.sharedEventParam = new StringListParameter(SHARED_EVENT_PARAM_NAME,
+          eventNamesList);
+      paramList.addParameter(sharedEventParam);
+    }
     displacementParamListEditor = new ParameterListEditor(paramList);
     displacementParamListEditor.setTitle(DISPLACEMENT_TITLE);
 
@@ -151,15 +175,10 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
 
   /**
   * Get a list of available references.
-  *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
   * @return
   */
  private ArrayList getAvailableReferences() {
-   ArrayList referencesNamesList = new ArrayList();
-   referencesNamesList.add("Reference 1");
-   referencesNamesList.add("Reference 2");
-   return referencesNamesList;
-
+   return referenceDAO.getAllShortCitations();
  }
 
 
@@ -168,10 +187,12 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
    * @return
    */
   private ArrayList getEventNamesList() {
-    ArrayList eventList = new ArrayList();
-    eventList.add("Test Event 1");
-    eventList.add("Test Event 2");
-    return eventList;
+    paleoEvents = paleoEventDAO.getAllEvents(siteId);
+    ArrayList eventNames = new ArrayList();
+    for(int i=0; i<paleoEvents.size(); ++i) {
+      eventNames.add(((PaleoEvent)paleoEvents.get(i)).getEventName());
+    }
+    return eventNames;
   }
 
   /**
@@ -224,7 +245,15 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
    * @param isVisible
    */
   private void setSharedEventVisible(boolean isVisible) {
-    this.displacementParamListEditor.setParameterVisible(this.SHARED_EVENT_PARAM_NAME, isVisible);
+    if(this.paleoEvents!=null && paleoEvents.size()>0)
+      this.displacementParamListEditor.setParameterVisible(this.SHARED_EVENT_PARAM_NAME, isVisible);
+    else if(isVisible) {
+      displacementSharedParam.removeParameterChangeListener(this);
+      this.displacementSharedParam.setValue(new Boolean(false));
+      this.displacementParamListEditor.getParameterEditor(DISPLACEMENT_SHARED_PARAM_NAME).refreshParamEditor();
+      displacementSharedParam.addParameterChangeListener(this);
+      JOptionPane.showMessageDialog(this,MSG_NO_EVENT_EXIST_TO_SHARE_DISPLACEMENT);
+    }
   }
 
   /**
@@ -233,7 +262,62 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
    * @param event
    */
   public void actionPerformed(ActionEvent event) {
-    if(event.getSource() == addNewReferenceButton) new AddNewReference();
+    Object source = event.getSource() ;
+    if(source == addNewReferenceButton) new AddNewReference();
+    else if(source == okButton) addEventToDatabase();
+    else if(source == cancelButton) this.dispose();
+  }
+
+  /**
+   * Add event to the database
+   */
+  private void addEventToDatabase() {
+    PaleoEvent paleoEvent = new PaleoEvent();
+    // make sure that user entered event name
+    String eventName = (String)this.eventNameParam.getValue();
+    if(eventName.trim().equalsIgnoreCase("") ||
+       eventName.trim().equalsIgnoreCase(this.EVENT_NAME_PARAM_DEFAULT)) {
+      JOptionPane.showMessageDialog(this, MSG_EVENT_NAME_MISSING);
+      return;
+    }
+    paleoEvent.setEventName(eventName);
+    // make sure that user choose a reference
+    ArrayList reference = (ArrayList)this.referencesParam.getValue();
+    if(reference==null || reference.size()==0) {
+      JOptionPane.showMessageDialog(this, MSG_REFERENCE_MISSING);
+      return;
+    }
+    paleoEvent.setShortCitationsList(reference);
+
+    // if displacement is shared, make sure that user selects atleast 1 event
+    boolean isDispShared = ((Boolean)this.displacementSharedParam.getValue()).booleanValue();
+    ArrayList sharedEventNames=null;
+    paleoEvent.setDisplacementShared(isDispShared);
+    if(isDispShared) {
+      sharedEventNames = (ArrayList)this.sharedEventParam.getValue();
+      if(sharedEventNames==null || sharedEventNames.size()==0) {
+        JOptionPane.showMessageDialog(this, MSG_SHARED_EVENTS_MISSING);
+        return;
+      } // now check that user has selected valid events to share displacement
+      else{
+        int dispEstId = paleoEventDAO.checkSameDisplacement(sharedEventNames);
+        if(dispEstId<=0) {
+          JOptionPane.showMessageDialog(this,
+                                        MSG_EVENTS_DO_NOT_SHARE_DISPLACEMENT);
+          return;
+        } else paleoEvent.setDisplacementEstId(dispEstId);
+      }
+    } else { // if displacement is not shared, set displacement estimate in the paleo-event
+      this.slipEstParamEditor.setEstimateInParameter();
+      paleoEvent.setDisplacementEst(
+          new EstimateInstances((Estimate)this.slipEstParam.getValue(), this.SLIP_RATE_UNITS));
+    }
+    // set other properties of the paleo event
+    paleoEvent.setComments((String)this.commentsParam.getValue());
+    paleoEvent.setSiteId(this.siteId);
+    paleoEvent.setSiteEntryDate(this.siteEntryDate);
+    paleoEvent.setEventTime(this.eventTimeEst.getSelectedTime());
+    this.paleoEventDAO.addPaleoevent(paleoEvent);
   }
 
   /**
@@ -244,10 +328,6 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
     cancelButton.addActionListener(this);
     this.addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     addNewReferenceButton.addActionListener(this);
-  }
-
-  public static void main(String args[]) {
-    AddEditIndividualEvent eventInfo = new AddEditIndividualEvent();
   }
 
   //static initializer for setting look & feel

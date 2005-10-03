@@ -20,11 +20,31 @@ public class PaleoEvent {
   private String contributorName;
   private TimeAPI eventTime;
   private int displacementEstId;
-  private String entryDte;
+  private EstimateInstances displacementEst;
+  private String entryDate;
   private String comments;
   private ArrayList shortCitationsList;
+  private int eventId;
+  private boolean displacementShared;
+
 
   public PaleoEvent() {
+  }
+
+  public void setDisplacementShared(boolean displacementShared) {
+    this.displacementShared = displacementShared;
+  }
+
+  public boolean isDisplacementShared() {
+    return this.displacementShared;
+  }
+
+  public int getEventId() {
+    return this.eventId;
+  }
+
+  public void setEventId(int eventId) {
+    this.eventId = eventId;
   }
 
   public String getSiteEntryDate() {
@@ -44,8 +64,8 @@ public class PaleoEvent {
   public int getDisplacementEstId() {
     return displacementEstId;
   }
-  public String getEntryDte() {
-    return entryDte;
+  public String getEntryDate() {
+    return entryDate;
   }
   public String getEventName() {
     return eventName;
@@ -71,8 +91,8 @@ public class PaleoEvent {
   public void setEventName(String eventName) {
     this.eventName = eventName;
   }
-  public void setEntryDte(String entryDte) {
-    this.entryDte = entryDte;
+  public void setEntryDate(String entryDate) {
+    this.entryDate = entryDate;
   }
   public void setDisplacementEstId(int displacementEst) {
     this.displacementEstId = displacementEst;
@@ -82,6 +102,12 @@ public class PaleoEvent {
   }
   public void setComments(String comments) {
     this.comments = comments;
+  }
+  public EstimateInstances getDisplacementEst() {
+    return displacementEst;
+  }
+  public void setDisplacementEst(EstimateInstances displacementEst) {
+    this.displacementEst = displacementEst;
   }
 
 

@@ -510,7 +510,7 @@ end;
 
 CREATE TABLE Paleo_Event (
   Event_Id INTEGER NOT NULL ,
-  Event_Name VARCHAR(255) NOT NULL,
+  Event_Name VARCHAR(255) NOT NULL UNIQUE,
   Site_Id INTEGER  NOT NULL,  
   Site_Entry_Date date NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
@@ -518,6 +518,7 @@ CREATE TABLE Paleo_Event (
   Displacement_Est_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
   General_Comments VARCHAR(255) NULL,
+  Is_Shared_Displacement VARCHAR(2) NOT NULL,
   PRIMARY KEY(Event_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),

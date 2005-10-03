@@ -11,7 +11,6 @@ import org.opensha.param.event.*;
 import java.awt.event.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.gui.LabeledBoxPanel;
-import org.opensha.refFaultParamDb.gui.addEdit.AddNewReference;
 import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
 import org.opensha.refFaultParamDb.gui.addEdit.AddEditIndividualEvent;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
@@ -33,8 +32,6 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 
 public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterChangeListener,
     ActionListener {
-  private JButton editButton  = new JButton("Edit");
-  private JButton addButton  = new JButton("Add New Event");
 
   // various parameter names
   private final static String EVENT_NAME_PARAM_NAME = "Event Name";
@@ -92,7 +89,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
                                          (String)eventNamesList.get(0));
     eventNameParam.addParameterChangeListener(this);
     eventNameParamEditor = new ConstrainedStringParameterEditor(eventNameParam);
-    add(eventNameParamEditor ,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    add(eventNameParamEditor ,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
     eventNameParamEditor.refreshParamEditor();
     this.updateUI();
@@ -124,9 +121,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    * Add all the event information to theGUI
    */
   private void addEditorstoGUI() {
-    add(this.editButton ,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-    int yPos=2;
+    int yPos=1;
     add(GUI_Utils.getPanel(timeEstLabel,TIME_ESTIMATE_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     add(GUI_Utils.getPanel(slipEstLabel,SLIP_ESTIMATE_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -225,20 +220,13 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    */
   public void actionPerformed(ActionEvent event) {
      Object source = event.getSource();
-     if(source==addButton || source==editButton) new AddEditIndividualEvent();
   }
 
   /**
    * add the action listeners to the buttons
    */
   private void addActionListeners() {
-    addButton.addActionListener(this);
-    editButton.addActionListener(this);
-  }
 
-  public static void main(String args[]) {
-    ViewIndividualEvent eventInfo = new ViewIndividualEvent();
   }
-
 
 }

@@ -5,6 +5,8 @@ import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import java.sql.SQLException;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
+import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import java.sql.ResultSet;
 
 /**
  * <p>Title: PaleoEventDB_DAO.java </p>
@@ -27,15 +29,19 @@ public class PaleoEventDB_DAO {
   private final static String DISPLACEMENT_EST_ID = "Displacement_Est_Id";
   private final static String ENTRY_DATE  = "Entry_Date";
   private final static String GENERAL_COMMENTS = "General_Comments";
+  private final static String IS_SHARED_DISPLACEMENT = "Is_Shared_Displacement";
   private final static String SEQUENCE_NAME = "Paleo_Event_Sequence";
-
   private final static String REFERENCES_TABLE_NAME ="Paleo_Event_References";
   private final static String REFERENCE_ID = "Reference_Id";
+
+  private final static String SHARED_DISPLACEMENT = "Y";
+  private final static String NON_SHARED_DISPLACEMENT = "N";
 
   private DB_AccessAPI dbAccess;
   // references DAO
   private ReferenceDB_DAO referenceDAO ;
   private TimeInstanceDB_DAO timeInstanceDAO;
+  private EstimateInstancesDB_DAO estimateInstancesDAO;
 
   public PaleoEventDB_DAO(DB_AccessAPI dbAccess) {
     setDB_Connection(dbAccess);
@@ -54,22 +60,33 @@ public class PaleoEventDB_DAO {
   * @throws InsertException
   */
   public void addPaleoevent(PaleoEvent paleoEvent) throws InsertException {
-    int paleoEventId, eventTimeEstId;
-    String systemDate;
+    int paleoEventId, eventTimeEstId, displacementEstId;
+    String systemDate,displacementType;
     try {
         paleoEventId = dbAccess.getNextSequenceNumber(SEQUENCE_NAME);
         systemDate = dbAccess.getSystemDate();
         eventTimeEstId = timeInstanceDAO.addTimeInstance(paleoEvent.getEventTime());
+        if(paleoEvent.isDisplacementShared()) {
+       // if displacement is shared, it is assumed that displacement id is  already set
+          displacementEstId = paleoEvent.getDisplacementEstId();
+          displacementType = this.SHARED_DISPLACEMENT;
+        }
+        else {
+          // if displacement is not shared, add the time estimate and get the estimate Id
+          displacementEstId = this.estimateInstancesDAO.addEstimateInstance(
+              paleoEvent.getDisplacementEst());
+          displacementType = this.NON_SHARED_DISPLACEMENT;
+        }
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
 
     String sql = "insert into "+TABLE_NAME+"("+ EVENT_ID+","+EVENT_NAME+","+
         SITE_ID+","+SITE_ENTRY_DATE+","+CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
-        DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
+        IS_SHARED_DISPLACEMENT +","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
         " values ("+paleoEventId+",'"+paleoEvent.getEventName()+"',"+paleoEvent.getSiteId()+
         ",'"+paleoEvent.getSiteEntryDate()+"',"+SessionInfo.getContributor().getId()+
-        ","+eventTimeEstId+","+paleoEvent.getDisplacementEstId()+","+
+        ","+eventTimeEstId+",'"+displacementType+"',"+displacementEstId+","+
         ",'"+systemDate+"','"+paleoEvent.getComments()+"')";
 
     try {
@@ -87,9 +104,103 @@ public class PaleoEventDB_DAO {
       }
     }
     catch(SQLException e) {
-      e.printStackTrace();
       throw new InsertException(e.getMessage());
     }
+  }
+
+  /**
+   * Check whether the passed in event names share the same displacement.
+   * If they share same displacement, the diplacement id is returned else
+   * -1 is returned
+   *
+   * @param eventNames
+   * @return
+   */
+  public int checkSameDisplacement(ArrayList eventNames) {
+    String values ="(";
+    for(int i=0; i<eventNames.size();++i) {
+      values = values + "'" + (String) eventNames.get(i) + "'";
+      if(i!=eventNames.size()-1) values= values+",";
+    }
+    values = values+")";
+    String sql = "eventNamesselect "+this.DISPLACEMENT_EST_ID+" from "+this.TABLE_NAME+
+        " where "+this.EVENT_NAME+" in "+values;
+    int dispEstId = -1;
+    try {
+      ResultSet rs = dbAccess.queryData(sql);
+      while (rs.next()) {
+        if (dispEstId != -1 && dispEstId != rs.getInt(DISPLACEMENT_EST_ID))
+          return -1;
+        dispEstId = rs.getInt(DISPLACEMENT_EST_ID);
+      }
+    }catch(SQLException sqlException) {
+      throw new QueryException(sqlException.getMessage());
+    }
+    return dispEstId;
+  }
+
+  /**
+   * Get a list of all events for this site
+   * It returns an ArrayList of PaleoEvent objects
+   * @param siteId
+   * @return
+   */
+  public ArrayList getAllEvents(int siteId)  throws QueryException {
+     String condition = " where "+this.SITE_ID+"="+siteId;
+     return query(condition);
+  }
+
+
+  /**
+   * Query the paleo event table to get paleo events based on the condition
+   * @param condition
+   * @return
+   */
+  private ArrayList query(String condition) {
+    ArrayList paleoEventList = new ArrayList();
+    String sql = "select "+EVENT_ID+","+EVENT_NAME+","+
+        SITE_ID+","+SITE_ENTRY_DATE+","+CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
+        IS_SHARED_DISPLACEMENT+","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+" from "+
+        this.TABLE_NAME+" "+condition;
+    try {
+     ResultSet rs  = dbAccess.queryData(sql);
+     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccess);
+     while(rs.next())  {
+       // create paleo event
+       PaleoEvent paleoEvent= new PaleoEvent();
+       paleoEvent.setEventId(rs.getInt(EVENT_ID));
+       paleoEvent.setEventName(rs.getString(EVENT_NAME));
+       paleoEvent.setSiteId(rs.getInt(this.SITE_ID));
+       paleoEvent.setSiteEntryDate(rs.getString(this.SITE_ENTRY_DATE));
+       paleoEvent.setContributorName(contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)).getName());
+       paleoEvent.setEventTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(EVENT_DATE_EST_ID)));
+       paleoEvent.setDisplacementEstId(rs.getInt(DISPLACEMENT_EST_ID));
+       paleoEvent.setEntryDate(rs.getString(ENTRY_DATE));
+       paleoEvent.setComments(rs.getString(GENERAL_COMMENTS));
+       boolean isSharedDisplacement = false;
+       if(rs.getString(IS_SHARED_DISPLACEMENT).equalsIgnoreCase(this.SHARED_DISPLACEMENT))
+         isSharedDisplacement = true;
+       paleoEvent.setDisplacementShared(isSharedDisplacement);
+
+       // get all the references for this site
+       ArrayList referenceList = new ArrayList();
+       sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
+           " where "+EVENT_ID+"="+paleoEvent.getEventId()+" and "+
+           ENTRY_DATE+"='"+paleoEvent.getEntryDate()+"'";
+       ResultSet referenceResultSet = dbAccess.queryData(sql);
+       while(referenceResultSet.next()) {
+         referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+       }
+       referenceResultSet.close();
+       // set the references in the VO
+       paleoEvent.setShortCitationsList(referenceList);
+       paleoEventList.add(paleoEvent);
+     }
+     rs.close();
+   } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+
+    return paleoEventList;
+
   }
 
 

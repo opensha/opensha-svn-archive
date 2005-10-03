@@ -43,7 +43,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
   private final static String NUM_EVENTS_INFO = "Number of Events";
-  private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events & Sequences";
+  private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
   private final static String NO_SITE_NAME="No Site Name-";
   private final static String CONTRIBUTOR_PARAM_NAME = "Last Updated by";
   private final static String ENTRY_DATE_PARAM_NAME = "Last Updated on";
@@ -134,12 +134,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(2, 2, 2, 2), 0, 0));
-    /*iHaveInfoOnPanel.add(individualEventsCheckBox,
+    iHaveInfoOnPanel.add(individualEventsCheckBox,
                          new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(2, 2, 2, 2), 0, 0));
-    */
      iHaveInfoOnPanel.add(addInfoButton,
                          new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
@@ -274,12 +273,18 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     }
     else if(source == this.addInfoButton) {
      try {
-        if(paleoSite!=null)
-          new AddSiteInfo(this.paleoSite.getSiteId(),
-                       this.paleoSite.getEntryDate(),
-                       this.slipRateCheckBox.isSelected(),
-                       this.cumDispCheckBox.isSelected(),
-                       this.numEventsCheckBox.isSelected());
+        if(paleoSite!=null) {
+          if(slipRateCheckBox.isSelected() ||
+             this.cumDispCheckBox.isSelected() ||
+             numEventsCheckBox.isSelected())
+            new AddSiteInfo(this.paleoSite.getSiteId(),
+                            this.paleoSite.getEntryDate(),
+                            this.slipRateCheckBox.isSelected(),
+                            this.cumDispCheckBox.isSelected(),
+                            this.numEventsCheckBox.isSelected());
+          if(this.individualEventsCheckBox.isSelected())
+            new AddEditIndividualEvent(paleoSite.getSiteId(), paleoSite.getEntryDate());
+        }
      else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
      }catch(Exception e) {
        e.printStackTrace();

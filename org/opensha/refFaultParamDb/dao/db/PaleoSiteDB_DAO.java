@@ -209,8 +209,6 @@ public class PaleoSiteDB_DAO  {
         " from "+VIEW_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
-      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccess);
-      SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(dbAccess);
       while(rs.next())  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
