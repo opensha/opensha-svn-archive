@@ -629,7 +629,7 @@ public class CB_2005_prelim_AttenRel
                        distRupJB_Fraction+", rake="+ rake+", mag="+ mag+", depthTop="+
                        depthTop+", depthTo2pt5kmPerSec="+ depthTo2pt5kmPerSec+", magSaturation=" +
                        magSaturation +", pgar="+ pgar+", nonLinModel=PEN");
-*/
+ */
 
     double rjb, Frv, Fn, SR, Ff, F1;
     rjb = rRup - distRupJB_Fraction * rRup;
@@ -709,8 +709,8 @@ public class CB_2005_prelim_AttenRel
     if (vs30 < k1_PEN[iper]) {
       F5 = c9_PEN[iper] * Math.log(vs30 / k1_PEN[iper]) +
           k2_PEN[iper] *
-          (Math.log(pgar + c * (Math.pow( (vs30 / k1_PEN[iper]), n)))) -
-          Math.log(pgar + c);
+          (Math.log(pgar + c * Math.pow((vs30 / k1_PEN[iper]), n)) -
+          Math.log(pgar + c));
     }
     else {
       F5 = (c9_PEN[iper] + k2_PEN[iper] * n) * Math.log(vs30 / k1_PEN[iper]);
@@ -733,7 +733,7 @@ double temp = Math.exp(F1 + F2 + F3 + F4 + F5 + F6);
 System.out.println("F1="+(float)F1 +", F2="+ (float)F2 +", F3="+ (float)F3 +
                        ", F4="+ (float)F4 +", F5="+ (float)F5 +", F6="+ (float)F6+
         "meanIML="+(float)temp);
-*/
+ */
     return (F1 + F2 + F3 + F4 + F5 + F6);
   }
 
@@ -823,10 +823,9 @@ System.out.println("F1="+(float)F1 +", F2="+ (float)F2 +", F3="+ (float)F3 +
     double F5;
     if (vs30 < k1_EPRI[iper]) {
       F5 = c9_EPRI[iper] * Math.log(vs30 / k1_EPRI[iper]) +
-          k2_EPRI[iper] *
-          (Math.log(pgar + c * (Math.pow( (vs30 / k1_EPRI[iper]), n)))) -
-          Math.log(pgar + c);
-    }
+                k2_EPRI[iper] *
+                (Math.log(pgar + c * Math.pow((vs30 / k1_EPRI[iper]), n)) -
+                 Math.log(pgar + c));    }
     else {
       F5 = (c9_EPRI[iper] + k2_EPRI[iper] * n) * Math.log(vs30 / k1_EPRI[iper]);
     }

@@ -68,7 +68,7 @@ public class AttenuationRelationshipGuiBean
      *  Number of points to calculate between x-axis min and x-axis max, i.e.
      *  the constraint range of the choosen x-axis independent variable
      */
-    public final static int NUM = 101;
+    public final static int NUM = 401;
 
     /**
      *  Search path for finding editors in non-default packages.
