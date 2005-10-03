@@ -510,16 +510,15 @@ end;
 
 CREATE TABLE Paleo_Event (
   Event_Id INTEGER NOT NULL ,
+  Event_Name VARCHAR(255) NOT NULL,
   Site_Id INTEGER  NOT NULL,  
   Site_Entry_Date date NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
   Event_Date_Est_Id INTEGER  NOT NULL,
   Displacement_Est_Id INTEGER NOT NULL,
-  Event_Name VARCHAR(255) NOT NULL,
   Entry_Date date NOT NULL,
-  Entry_Comments VARCHAR(255) NOT NULL,
   General_Comments VARCHAR(255) NULL,
-  PRIMARY KEY(Event_Id, Contributor_Id, Entry_Date),
+  PRIMARY KEY(Event_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Event_Date_Est_Id)
@@ -533,31 +532,43 @@ CREATE TABLE Paleo_Event (
 
 CREATE TABLE Paleo_Event_References (
  Paleo_Event_Id INTEGER  NOT NULL,
- Paleo_Event_Contributor_Id INTEGER  NOT NULL,
  Paleo_Event_Entry_Date DATE NOT NULL,
  Reference_Id INTEGER  NOT NULL,
- PRIMARY KEY (Paleo_Event_Id, Paleo_Event_Contributor_Id, Paleo_Event_Entry_Date, Reference_Id),
- FOREIGN KEY (Paleo_Event_Id, Paleo_Event_Contributor_Id, Paleo_Event_Entry_Date)
-   REFERENCES Paleo_Event(Event_Id, Contributor_Id, Entry_Date),
+ PRIMARY KEY (Paleo_Event_Id, Paleo_Event_Entry_Date, Reference_Id),
+ FOREIGN KEY (Paleo_Event_Id,  Paleo_Event_Entry_Date)
+   REFERENCES Paleo_Event(Event_Id, Entry_Date),
  FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id)
 );
+
+create sequence Paleo_Event_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Paleo_Event_Trigger
+before insert on Paleo_Event 
+for each row
+begin
+if :new.Event_Id is null then
+select Paleo_Event_Sequence.nextval into :new.Event_Id from dual;
+end if;
+end;
+/
 
 
 
 
 CREATE TABLE Event_Sequence (
   Sequence_Id INTEGER NOT NULL,
+  Sequence_Name VARCHAR(255) NOT NULL,
   Site_Id INTEGER  NOT NULL,  
   Site_Entry_Date date NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
   Start_Time_Est_Id INTEGER NOT NULL,
   End_Time_Est_Id INTEGER  NOT NULL,
-  Sequence_Name VARCHAR(255) NOT NULL,
-  Entry_Date date NOT NULL,
-  Entry_Comments VARCHAR(255) NOT NULL, 
+  Entry_Date date NOT NULL, 
   General_Comments VARCHAR(255) NOT NULL,
-  PRIMARY KEY(Sequence_Id, Contributor_Id, Entry_Date),  
+  PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Start_Time_Est_Id)
@@ -570,12 +581,11 @@ CREATE TABLE Event_Sequence (
 
 CREATE TABLE Event_Sequence_References (
   Event_Sequence_Id INTEGER  NOT NULL,
-  Event_Sequence_Contributor_Id INTEGER  NOT NULL,
   Event_Sequence_Entry_Date DATE NOT NULL,
   Reference_Id INTEGER  NOT NULL,
-  PRIMARY KEY (Event_Sequence_Id, Event_Sequence_Contributor_Id, Event_Sequence_Entry_Date, Reference_Id),
-  FOREIGN KEY (Event_Sequence_Id, Event_Sequence_Contributor_Id, Event_Sequence_Entry_Date)
-    REFERENCES Event_Sequence(Sequence_Id, Contributor_Id, Entry_Date),
+  PRIMARY KEY (Event_Sequence_Id, Event_Sequence_Entry_Date, Reference_Id),
+  FOREIGN KEY (Event_Sequence_Id, Event_Sequence_Entry_Date)
+    REFERENCES Event_Sequence(Sequence_Id, Entry_Date),
   FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id)
 ); 
@@ -583,18 +593,16 @@ CREATE TABLE Event_Sequence_References (
 
 CREATE TABLE Event_Sequence_Event_List (
   Event_Id INTEGER  NOT NULL,
-  Event_Contributor_Id  INTEGER  NOT NULL, 
   Event_Entry_Date DATE NOT NULL,
   Sequence_Id INTEGER  NOT NULL,
-  Sequence_Contributor_Id  INTEGER  NOT NULL, 
   Sequence_Entry_Date date NOT NULL,
   Missed_Prob FLOAT NOT NULL,
   Event_Index_In_Sequence INTEGER  NOT NULL,
-  PRIMARY KEY(Event_Id, Event_Contributor_Id, Event_Entry_Date, Sequence_Id, Sequence_Contributor_Id, Sequence_Entry_Date),
-  FOREIGN KEY(Event_Id, Event_Contributor_Id, Event_Entry_Date)
-   REFERENCES Paleo_Event(Event_Id, Contributor_Id, Entry_Date),
-  FOREIGN KEY(Sequence_Id, Sequence_Contributor_Id, Sequence_Entry_Date)
-   REFERENCES Event_Sequence(Sequence_Id, Contributor_Id, Entry_Date)  
+  PRIMARY KEY(Event_Id, Event_Entry_Date, Sequence_Id,  Sequence_Entry_Date),
+  FOREIGN KEY(Event_Id,  Event_Entry_Date)
+   REFERENCES Paleo_Event(Event_Id,  Entry_Date),
+  FOREIGN KEY(Sequence_Id, Sequence_Entry_Date)
+   REFERENCES Event_Sequence(Sequence_Id, Entry_Date)  
 );
 
 
