@@ -320,7 +320,7 @@ public class CB_2005_prelim_AttenRel
 
     // do the following here in case vs30 changed after null value set
     if(Double.isNaN(depthTo2pt5kmPerSec)){
-      if(vs30 < 2500)
+      if(vs30 <= 2500)
         depthTo2pt5kmPerSec = 1;
       else
         depthTo2pt5kmPerSec = 0;
@@ -346,6 +346,8 @@ public class CB_2005_prelim_AttenRel
 
     }
   }
+
+
 
   /**
    * @return    The stdDev value
