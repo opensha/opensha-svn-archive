@@ -122,6 +122,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
 
 
+    //resetting the Parameter change Listeners on the AttenuationRelationship
+    //parameters. This allows the Server version of our application to listen to the
+    //parameter changes.
+    ((AttenuationRelationship)imr).resetParameterEventListeners();
+
 
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();

@@ -994,6 +994,17 @@ public abstract class AttenuationRelationship
   protected abstract void initPropagationEffectParams();
 
   /**
+   * Adds the Listeners to the parameters so that Attenuation can listen
+   * to any kind of changes to parameter values.
+   */
+  protected  void initParameterEventListeners(){};
+
+  /**
+   * Allows to reset the change listeners on the parameters
+   */
+  public void resetParameterEventListeners(){};
+
+  /**
    * This creates the otherParams list.
    * These are any parameters that the exceedance probability depends upon that is
    * not a supported IMT (or one of their independent parameters) and is not contained

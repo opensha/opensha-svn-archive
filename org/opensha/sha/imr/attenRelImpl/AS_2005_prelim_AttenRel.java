@@ -214,7 +214,7 @@ public class AS_2005_prelim_AttenRel
     initOtherParams();
 
     initIndependentParamLists(); // This must be called after the above
-    initPameterListeners(); //add the change listeners to the parameters
+    initParameterEventListeners(); //add the change listeners to the parameters
 
   }
 
@@ -863,10 +863,30 @@ public class AS_2005_prelim_AttenRel
   }
 
   /**
+   * Allows to reset the change listeners on the parameters
+   */
+  public void resetParameterEventListeners(){
+    distanceRupParam.removeParameterChangeListener(this);
+    distRupMinusJB_OverRupParam.removeParameterChangeListener(this);
+    vs30Param.removeParameterChangeListener(this);
+    magParam.removeParameterChangeListener(this);
+    rakeParam.removeParameterChangeListener(this);
+    dipParam.removeParameterChangeListener(this);
+    aspectRatioParam.removeParameterChangeListener(this);
+    rupTopDepthParam.removeParameterChangeListener(this);
+    srcSiteAngleParam.removeParameterChangeListener(this);
+    stdDevTypeParam.removeParameterChangeListener(this);
+    periodParam.removeParameterChangeListener(this);
+
+    this.initParameterEventListeners();
+
+  }
+
+  /**
    * Adds the parameter change listeners. This allows to listen to when-ever the
    * parameter is changed.
    */
-  private void initPameterListeners() {
+  protected void initParameterEventListeners() {
 
     distanceRupParam.addParameterChangeListener(this);
     distRupMinusJB_OverRupParam.addParameterChangeListener(this);

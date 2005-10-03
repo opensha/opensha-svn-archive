@@ -92,6 +92,11 @@ public class ScenarioShakeMapCalculator {
      */
     for(int i=0;i<size;++i){ //iterate over all the selected AttenuationRelationships
       AttenuationRelationship attenRel = (AttenuationRelationship)selectedAttenRels.get(i);
+      //resetting the Parameter change Listeners on the AttenuationRelationship
+      //parameters. This allows the Server version of our application to listen to the
+      //parameter changes.
+      attenRel.resetParameterEventListeners();
+
       if(isProbAtIML) //if Prob@IML set the Intensity Measure Level
         attenRel.setIntensityMeasureLevel(new Double(value));
       else{

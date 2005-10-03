@@ -102,6 +102,11 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
     ArbitrarilyDiscretizedFunc sourceHazFunc = (ArbitrarilyDiscretizedFunc) hazFunction.deepClone();
 
+    //resetting the Parameter change Listeners on the AttenuationRelationship
+    //parameters. This allows the Server version of our application to listen to the
+    //parameter changes.
+    ((AttenuationRelationship)imr).resetParameterEventListeners();
+
     //System.out.println("hazFunction: "+hazFunction.toString());
 
     // declare some varibles used in the calculation
