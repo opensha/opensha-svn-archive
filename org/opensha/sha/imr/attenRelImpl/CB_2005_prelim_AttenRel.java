@@ -318,6 +318,14 @@ public class CB_2005_prelim_AttenRel
       return VERY_SMALL_MEAN;
     }
 
+    // do the following here in case vs30 changed after null value set
+    if(Double.isNaN(depthTo2pt5kmPerSec)){
+      if(vs30 < 2500)
+        depthTo2pt5kmPerSec = 1;
+      else
+        depthTo2pt5kmPerSec = 0;
+    }
+
     if (nonLinearAmpModel.equals(this.NONLIN_MODEL_TYPE_EPRI)) {
       double pgar = Math.exp(getMean_EPRI(0, 1100, rRup, distRupJB_Fraction,
                                           rake, mag,
@@ -903,7 +911,10 @@ System.out.println("F1="+(float)F1 +", F2="+ (float)F2 +", F3="+ (float)F3 +
       vs30 = ( (Double) val).doubleValue();
     }
     else if (pName.equals(this.DEPTH_2pt5_NAME)) {
-      depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
+      if(val == null)
+        depthTo2pt5kmPerSec = Double.NaN;
+      else
+        depthTo2pt5kmPerSec = ( (Double) val).doubleValue();
     }
     else if (pName.equals(this.MAG_NAME)) {
       mag = ( (Double) val).doubleValue();

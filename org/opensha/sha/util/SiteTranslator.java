@@ -264,7 +264,7 @@ public class SiteTranslator
     // Depth 2.5 km/sec Parameter
     else if (param.getName().equals(AttenuationRelationship.DEPTH_2pt5_NAME)) {
       // set Depth 2.5 km/sec in kms
-      if (Double.isNaN(basinDepth)) param.setValue(new Double(1.0));
+      if (Double.isNaN(basinDepth)) param.setValue(null);
       else param.setValue(new Double(basinDepth / 1000));
       return true;
     }
