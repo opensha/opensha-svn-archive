@@ -101,7 +101,7 @@ public class StringParameter
 
 
     /**
-     *  Sets the name, vector of string converted to a constraint, amd value.
+     * Sets the name, vector of string converted to a constraint, amd value.
      *
      * @param  name                     Name of the parametet
      * @param  strings                  vector of allowed values converted to a
@@ -116,7 +116,7 @@ public class StringParameter
 
 
     /**
-     *  Sets the name, constraint, and value.
+     * Sets the name, constraint, and value.
      *
      * @param  name                     Name of the parametet
      * @param  constraint               List of allowed values

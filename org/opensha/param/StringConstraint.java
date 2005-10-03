@@ -9,7 +9,7 @@ import org.opensha.exceptions.EditableException;
  * <b>Title:</b> StringConstraint<p>
  *
  * <b>Description:</b> This constraint contains a list of possible allowed
- * string values. These can tipically be presented in a GUI picklist. This is
+ * string values. These can typically be presented in a GUI picklist. This is
  * the same fucntionality for all DiscreteParameterConstraints.
  *
  * @author     Sid Hellman, Steven W. Rock

@@ -21,7 +21,8 @@ import org.opensha.nshmp.sha.gui.infoTools.*;
 import org.opensha.nshmp.util.*;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
-
+import org.opensha.nshmp.param.EditableStringConstraint;
+import org.opensha.nshmp.param.editor.EditableConstrainedStringParameterEditor;
 
 
 /**
@@ -81,9 +82,9 @@ public class ProbHazCurvesGuiBean
   private static final String EXP_TIME_PARAM_NAME = "Exposure Time";
 
   private JPanel singleHazardValEditorPanel;
-  private ConstrainedStringParameterEditor returnPdEditor;
-  private ConstrainedStringParameterEditor exceedProbEditor;
-  private ConstrainedStringParameterEditor expTimeEditor;
+  private EditableConstrainedStringParameterEditor returnPdEditor;
+  private EditableConstrainedStringParameterEditor exceedProbEditor;
+  private EditableConstrainedStringParameterEditor expTimeEditor;
 
   //instance of the application using this GUI bean
   private ProbabilisticHazardApplicationAPI application;
@@ -168,18 +169,19 @@ public class ProbHazCurvesGuiBean
 
   private void createSingleHazardValEditor() {
     ArrayList supportedReturnPds = GlobalConstants.getSupportedReturnPeriods();
-    StringConstraint returnPdConstraint = new StringConstraint(
+    EditableStringConstraint returnPdConstraint = new EditableStringConstraint(
         supportedReturnPds);
     StringParameter returnPeriodParam = new StringParameter(
         RETURN_PERIOD_PARAM_NAME, returnPdConstraint,
         "Years", (String) supportedReturnPds.get(0));
 
     ArrayList exceedProbsList = GlobalConstants.getSupportedExceedanceProb();
+    EditableStringConstraint exceedProbParamConstraint = new EditableStringConstraint(exceedProbsList);
     StringParameter exceedProbParam = new StringParameter(
-        PROB_EXCEED_PARAM_NAME, exceedProbsList, (String) exceedProbsList.get(0));
+        PROB_EXCEED_PARAM_NAME, exceedProbParamConstraint, (String) exceedProbsList.get(0));
 
     ArrayList supportedExpTimeList = GlobalConstants.getSupportedExposureTime();
-    StringConstraint expTimeConstraint = new StringConstraint(
+    EditableStringConstraint expTimeConstraint = new EditableStringConstraint(
         supportedExpTimeList);
     StringParameter expTimeParam = new StringParameter(
         EXP_TIME_PARAM_NAME, expTimeConstraint,
@@ -197,9 +199,9 @@ public class ProbHazCurvesGuiBean
     expTimeParam.addParameterChangeListener(this);
 
     try{
-      returnPdEditor = new ConstrainedStringParameterEditor(returnPeriodParam);
-      exceedProbEditor = new ConstrainedStringParameterEditor(exceedProbParam);
-      expTimeEditor = new ConstrainedStringParameterEditor(expTimeParam);
+      returnPdEditor = new EditableConstrainedStringParameterEditor(returnPeriodParam);
+      exceedProbEditor = new EditableConstrainedStringParameterEditor(exceedProbParam);
+      expTimeEditor = new EditableConstrainedStringParameterEditor(expTimeParam);
 
       singleHazardValEditorPanel = new JPanel();
       singleHazardValEditorPanel.setLayout(new GridBagLayout());
@@ -584,9 +586,16 @@ public class ProbHazCurvesGuiBean
 
     if (!returnPdSelected) {
       try {
-        dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(Double.
-            parseDouble(exceedProbVal),
-            Double.parseDouble(expTimeVal), isLogInterpolation);
+        double exceedProb = Double.parseDouble(exceedProbVal);
+        double expTime = Double.parseDouble(expTimeVal);
+        dataGenerator.calcSingleValueHazardCurveUsingPEandExptime(exceedProb,
+            expTime, isLogInterpolation);
+      }
+      catch(NumberFormatException eee){
+        JOptionPane.showMessageDialog(this,"Please enter a valid Exceed Prob. "+
+                                      "and Exposure Time","Input Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
       }
       catch (RemoteException ee) {
         JOptionPane.showMessageDialog(this,
@@ -599,9 +608,14 @@ public class ProbHazCurvesGuiBean
     }
     else {
       try {
-        dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(Double.
-            parseDouble(returnPeriod),
+        double returnPd = Double.parseDouble(returnPeriod);
+        dataGenerator.calcSingleValueHazardCurveUsingReturnPeriod(returnPd,
             isLogInterpolation);
+      }
+      catch(NumberFormatException eee){
+        JOptionPane.showMessageDialog(this,"Please enter a valid Return Pd","Input Error",
+            JOptionPane.ERROR_MESSAGE);
+        return;
       }
       catch (RemoteException ee) {
         JOptionPane.showMessageDialog(this,
