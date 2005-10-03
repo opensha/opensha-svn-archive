@@ -65,8 +65,8 @@ public class Field_2000_AttenRel
   protected final static Double BASIN_DEPTH_DEFAULT = new Double(0.0);
   protected final static Double BASIN_DEPTH_MIN = new Double(0);
   protected final static Double BASIN_DEPTH_MAX = new Double(30);
-  protected final static Double BASIN_DEPTH_WARN_MIN = new Double(0);
-  protected final static Double BASIN_DEPTH_WARN_MAX = new Double(10);
+  //protected final static Double BASIN_DEPTH_WARN_MIN = new Double(0);
+  //protected final static Double BASIN_DEPTH_WARN_MAX = new Double(10);
 
   // warning constraint fields:
   protected final static Double VS30_WARN_MIN = new Double(180.0);

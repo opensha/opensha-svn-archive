@@ -413,7 +413,7 @@ public abstract class AttenuationRelationship
   public final static String DEPTH_2pt5_INFO =
       "The depth to where shear-wave velocity = 2.5 km/sec";
   public final static Double DEPTH_2pt5_DEFAULT = new Double("1.0");
-  protected final static Double DEPTH_2pt5_MIN = new Double(1.0);
+  protected final static Double DEPTH_2pt5_MIN = new Double(0.0);
   protected final static Double DEPTH_2pt5_MAX = new Double(30000.0);
   // warning values set in subclasses
 
@@ -947,9 +947,7 @@ public abstract class AttenuationRelationship
     c.setNonEditable();
     depthTo2pt5kmPerSecParam = new WarningDoubleParameter(DEPTH_2pt5_NAME, c,
         DEPTH_2pt5_UNITS);
-
     depthTo2pt5kmPerSecParam.setInfo(DEPTH_2pt5_INFO);
-
   }
 
   /**
