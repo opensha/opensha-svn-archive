@@ -44,12 +44,13 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
   private final static String NUM_EVENTS_INFO = "Number of Events";
   private final static String INDIVIDUAL_EVENTS_INFO = "Individual Events";
+  private final static String SEQUENCE_INFO = "Sequence Info";
   private final static String NO_SITE_NAME="No Site Name-";
   private final static String CONTRIBUTOR_PARAM_NAME = "Last Updated by";
   private final static String ENTRY_DATE_PARAM_NAME = "Last Updated on";
   // various types of information that can be provided by the user
   private JCheckBox slipRateCheckBox, cumDispCheckBox, numEventsCheckBox,
-      individualEventsCheckBox;
+      individualEventsCheckBox, sequenceCheckBox;
 
   private final static String DATED_FEATURE_COMMENTS_PARAM_NAME="Description of Timespan";
 
@@ -119,6 +120,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
     cumDispCheckBox = new JCheckBox(this.CUMULATIVE_DISPLACEMENT_INFO);
     numEventsCheckBox = new JCheckBox(this.NUM_EVENTS_INFO);
     individualEventsCheckBox = new JCheckBox(this.INDIVIDUAL_EVENTS_INFO);
+    sequenceCheckBox = new JCheckBox(this.SEQUENCE_INFO);
     slipRateCheckBox.addActionListener(this);
     cumDispCheckBox.addActionListener(this);
     int yPos=0;
@@ -139,7 +141,12 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(2, 2, 2, 2), 0, 0));
-     iHaveInfoOnPanel.add(addInfoButton,
+    iHaveInfoOnPanel.add(sequenceCheckBox,
+                         new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.CENTER,
+                                                GridBagConstraints.BOTH,
+                                                new Insets(2, 2, 2, 2), 0, 0));
+    iHaveInfoOnPanel.add(addInfoButton,
                          new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.NONE,
@@ -276,12 +283,14 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
         if(paleoSite!=null) {
           if(slipRateCheckBox.isSelected() ||
              this.cumDispCheckBox.isSelected() ||
-             numEventsCheckBox.isSelected())
+             numEventsCheckBox.isSelected()||
+             this.sequenceCheckBox.isSelected())
             new AddSiteInfo(this.paleoSite.getSiteId(),
                             this.paleoSite.getEntryDate(),
                             this.slipRateCheckBox.isSelected(),
                             this.cumDispCheckBox.isSelected(),
-                            this.numEventsCheckBox.isSelected());
+                            this.numEventsCheckBox.isSelected(),
+                            this.sequenceCheckBox.isSelected());
           if(this.individualEventsCheckBox.isSelected())
             new AddEditIndividualEvent(paleoSite.getSiteId(), paleoSite.getEntryDate());
         }

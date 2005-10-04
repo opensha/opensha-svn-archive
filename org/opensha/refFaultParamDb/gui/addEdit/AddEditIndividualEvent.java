@@ -270,7 +270,6 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
     else if(source == okButton) {
       try {
         addEventToDatabase();
-        JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
       }catch(InsertException e) {
         JOptionPane.showMessageDialog(this, e.getMessage());
       }
@@ -331,6 +330,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
     eventTime.setReferencesList(paleoEvent.getShortCitationsList());
     paleoEvent.setEventTime(eventTime);
     this.paleoEventDAO.addPaleoevent(paleoEvent);
+    JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
   }
 
   /**

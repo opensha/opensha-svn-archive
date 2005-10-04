@@ -50,6 +50,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private final static String TIMESPAN_PARAM_NAME = "TimeSpans";
   private final static String DATA_SPECIFIC_TO_TIME_INTERVALS =
       "Data currently in this database";
+  private final static String SLIP_DISP_NUMEVENTS_TITLE = "Slip Rate, Displacement and Num Events";
+  private final static String EVENTS_SEQUENCES_TITLE = "Events & Sequences";
 
   // various parameters
   private ViewSiteCharacteristics viewPaleoSites;
@@ -65,9 +67,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private JSplitPane timespanSplitPane = new JSplitPane();
   private JSplitPane timeSpanSelectionSplitPane = new JSplitPane();
   private JSplitPane slipDisplacementSplitPane = new JSplitPane();
+  private JSplitPane eventSequencesSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
+  private JTabbedPane tabbedPane = new JTabbedPane();
 
   // panel to display the start time/end time and comments
   private ViewTimeSpan timeSpanPanel = new ViewTimeSpan();
@@ -78,6 +82,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    private ViewSlipRate slipRatePanel = new ViewSlipRate();
    private ViewCumDisplacement displacementPanel = new ViewCumDisplacement();
    private ViewNumEvents numEventsPanel= new ViewNumEvents() ;
+   private ViewIndividualEvent individualEventPanel = new ViewIndividualEvent();
+   private ViewSequences sequencesPanel = new ViewSequences();
 
    private ArrayList combinedEventsInfoList;
    private PaleoSite paleoSite;
@@ -247,6 +253,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     infoForTimeSpanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+    this.eventSequencesSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     slipDisplacementSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timeSpanSelectionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -258,7 +265,9 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     //mainSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
-    mainSplitPane.add(timeSpanSelectionSplitPane, JSplitPane.RIGHT);
+    tabbedPane.add(SLIP_DISP_NUMEVENTS_TITLE, timeSpanSelectionSplitPane);
+    tabbedPane.add(EVENTS_SEQUENCES_TITLE, this.eventSequencesSplitPane);
+    mainSplitPane.add(tabbedPane, JSplitPane.RIGHT);
     timeSpanSelectionSplitPane.add(timespanSplitPane, JSplitPane.BOTTOM);
     timespanSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
     //mainSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
@@ -269,6 +278,9 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
     timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
     slipDisplacementSplitPane.add(displacementPanel, JSplitPane.RIGHT);
+    eventSequencesSplitPane.add(this.individualEventPanel, JSplitPane.LEFT);
+    eventSequencesSplitPane.add(this.sequencesPanel, JSplitPane.RIGHT);
+    eventSequencesSplitPane.setDividerLocation(375);
     slipDisplacementSplitPane.setDividerLocation(170);
     topSplitPane.setDividerLocation(625);
     mainSplitPane.setDividerLocation(170);
@@ -386,6 +398,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       this.combinedEventsInfoList = combinedEventsInfoDAO.getCombinedEventsInfoList(paleoSite.getSiteId());
     }
     makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
+    this.individualEventPanel.setSite(paleoSite); // view the events for this site
   }
 
 

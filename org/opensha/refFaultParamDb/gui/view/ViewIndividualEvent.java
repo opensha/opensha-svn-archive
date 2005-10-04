@@ -19,6 +19,10 @@ import org.opensha.data.estimate.LogNormalEstimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.vo.PaleoSite;
+import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.vo.PaleoEvent;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -30,8 +34,7 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
  * @version 1.0
  */
 
-public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterChangeListener,
-    ActionListener {
+public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterChangeListener {
 
   // various parameter names
   private final static String EVENT_NAME_PARAM_NAME = "Event Name";
@@ -44,6 +47,8 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private final static String TITLE = "Individual Events";
   private final static String TEST_EVENT1 = "Test Event 1";
   private final static String TEST_EVENT2 = "Test Event 2";
+  private final static String SHARED = "Shared";
+  private final static String NOT_SHARED = "Not Shared";
 
   // information displayed for selected event
   private StringParameter eventNameParam;
@@ -56,8 +61,10 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   // various parameter editors
   private ConstrainedStringParameterEditor eventNameParamEditor;
   // site name
-  private String siteName=null;
-
+  private PaleoSite paleoSite=null;
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
+  private ArrayList paleoEventsList;
+  private ArrayList eventNamesList;
 
   public ViewIndividualEvent() {
     try {
@@ -66,8 +73,6 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
       createEventListParameterEditor();
       // add the parameter editors to the GUI componenets
       addEditorstoGUI();
-      // add the action listeners to the button
-      addActionListeners();
       // set the title
       this.setTitle(TITLE);
     }
@@ -107,14 +112,31 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    * @return
    */
   private ArrayList getEventNamesList() {
-    ArrayList eventList = new ArrayList();
-    if(siteName!=null && siteName.equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE)) {
-      eventList.add(TEST_EVENT1);
-      eventList.add(TEST_EVENT2);
+    paleoEventsList = null;
+    eventNamesList = new ArrayList();
+    if(isTestSite()) {
+      eventNamesList.add(TEST_EVENT1);
+      eventNamesList.add(TEST_EVENT2);
     } else {
-      eventList.add(InfoLabel.NOT_AVAILABLE);
+      paleoEventsList=paleoEventDAO.getAllEvents(paleoSite.getSiteId());
+      if(paleoEventsList==null || paleoEventsList.size()==0) // if no event exists for this site
+        eventNamesList.add(InfoLabel.NOT_AVAILABLE);
+      else {
+        // make a list of event names
+        for(int i=0; i<paleoEventsList.size(); ++i)
+          eventNamesList.add(((PaleoEvent)paleoEventsList.get(i)).getEventName());
+      }
     }
-    return eventList;
+    return eventNamesList;
+  }
+
+  /**
+   * If selected site is a test site
+   *
+   * @return
+   */
+  private boolean isTestSite() {
+    return paleoSite==null || paleoSite.getSiteName().equalsIgnoreCase(ViewSiteCharacteristics.TEST_SITE);
   }
 
   /**
@@ -151,8 +173,8 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    * Set the site chosen by the user. Only show the events for the selected site.
    * @param siteName
    */
-  public void setSite(String siteName) {
-    this.siteName = siteName;
+  public void setSite(PaleoSite paleoSite) {
+    this.paleoSite = paleoSite;
     createEventListParameterEditor();
   }
 
@@ -164,8 +186,8 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private void setEventInfo(String eventName) {
     // just set some fake implementation right now
     // event time estimate
-    if(eventName.equalsIgnoreCase(this.TEST_EVENT1) ||
-       eventName.equalsIgnoreCase(this.TEST_EVENT2)) {
+    if(this.isTestSite() && (eventName.equalsIgnoreCase(this.TEST_EVENT1) ||
+       eventName.equalsIgnoreCase(this.TEST_EVENT2))) {
       TimeEstimate startTime = new TimeEstimate();
       startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
       // comments
@@ -185,11 +207,22 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
       updateLabels(startTime, slipRateEstimate, comments, references,
                    displacement,
                    eventsList);
-    }else {
+    }else if(this.paleoEventsList!=null && this.paleoEventsList.size()!=0) {
+      int index  = this.eventNamesList.indexOf(eventName);
+      PaleoEvent paleoEvent = (PaleoEvent)paleoEventsList.get(index);
+      ArrayList sharingEventNames = this.paleoEventDAO.getEventNames(paleoEvent.getDisplacementEstId());
+      String displacement = this.NOT_SHARED;
+      if(sharingEventNames!=null && sharingEventNames.size()>0)
+        displacement = SHARED;
+      else   sharingEventNames = null;
+      updateLabels(paleoEvent.getEventTime(), paleoEvent.getDisplacementEst().getEstimate(),
+                   paleoEvent.getComments(), paleoEvent.getShortCitationsList(),
+                   displacement,sharingEventNames);
+
+    } else {
       updateLabels(null, null, null, null,
                    null,
                    null);
-
     }
   }
 
@@ -210,22 +243,6 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
     displacementSharedLabel.setTextAsHTML(displacement);
     sharedEventLabel.setTextAsHTML(sharingEvents);
     referencesLabel.setTextAsHTML(references);
-
-  }
-
-  /**
-   * This function is called when a button is clicked on this screen
-   *
-   * @param event
-   */
-  public void actionPerformed(ActionEvent event) {
-     Object source = event.getSource();
-  }
-
-  /**
-   * add the action listeners to the buttons
-   */
-  private void addActionListeners() {
 
   }
 

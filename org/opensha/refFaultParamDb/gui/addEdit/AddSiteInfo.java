@@ -21,17 +21,21 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 
 public class AddSiteInfo extends JFrame implements ActionListener{
   private JSplitPane mainSplitPane = new JSplitPane();
-  private JSplitPane infoSplitPane1 = new JSplitPane();
-  private JSplitPane infoSplitPane2 = new JSplitPane();
   private JButton okButton = new JButton();
   private JButton cancelButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private boolean isSlipVisible, isDisplacementVisible, isNumEventsVisible;
+  private boolean isSlipVisible, isDisplacementVisible, isNumEventsVisible, isSequenceVisible;
   private AddEditNumEvents addEditNumEvents;
   private AddEditSlipRate addEditSlipRate;
   private AddEditCumDisplacement addEditCumDisp;
+  private AddEditSequence addEditSequence;
   private AddEditTimeSpan addEditTimeSpan;
-  private final static String ATLEAT_ONE_MSG = "Atleast one of Slip, Cumulative Displacement or Num events should be specified";
+  private JTabbedPane tabbedPane = new JTabbedPane();
+  private final static String NUM_EVENTS_TITLE = "Num Events Est";
+  private final static String SLIP_RATE_TITLE = "Slip Rate Est";
+  private final static String DISPLACEMENT_TITLE = "Displacement Est";
+  private final static String SEQUENCE_TITLE = "Sequence";
+  private final static String ATLEAT_ONE_MSG = "Atleast one of Slip, Cumulative Displacement, Num events or Sequence should be specified";
   private final static int W = 900;
   private final static int H = 650;
   private final static String TITLE = "Add Data for this Site";
@@ -42,18 +46,20 @@ public class AddSiteInfo extends JFrame implements ActionListener{
 
   public AddSiteInfo(int siteId, String siteEntryDate,
                      boolean isSlipVisible, boolean isDisplacementVisible,
-                     boolean isNumEventsVisible)  {
+                     boolean isNumEventsVisible, boolean isSequenceVisible)  {
     this.siteId = siteId;
     this.siteEntryDate = siteEntryDate;
     // user should provide info about at least one of slip, cum disp or num events
-    if(!isSlipVisible && !isDisplacementVisible && !isNumEventsVisible)
+    if(!isSlipVisible && !isDisplacementVisible && !isNumEventsVisible && !isSequenceVisible)
       throw new RuntimeException(ATLEAT_ONE_MSG);
     this.isSlipVisible = isSlipVisible;
+    this.isDisplacementVisible = isDisplacementVisible;
+    this.isNumEventsVisible = isNumEventsVisible;
+    this.isSequenceVisible = isSequenceVisible;
     if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
     if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
     if(isNumEventsVisible) this.addEditNumEvents = new AddEditNumEvents();
-    this.isDisplacementVisible = isDisplacementVisible;
-    this.isNumEventsVisible = isNumEventsVisible;
+    if(this.isSequenceVisible) this.addEditSequence = new AddEditSequence();
     jbInit();
     addActionListeners();
     this.setSize(W,H);
@@ -127,8 +133,6 @@ public class AddSiteInfo extends JFrame implements ActionListener{
   private void jbInit(){
     this.getContentPane().setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    infoSplitPane1.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    infoSplitPane2.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     okButton.setText("OK");
     cancelButton.setText("Cancel");
     this.getContentPane().add(mainSplitPane,
@@ -144,55 +148,19 @@ public class AddSiteInfo extends JFrame implements ActionListener{
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 22, 11, 175), 8, 0));
 
-    JSplitPane splitPane = null;
     String constraints = "";
     this.mainSplitPane.setDividerLocation(W / 2);
     addEditTimeSpan = new AddEditTimeSpan();
     mainSplitPane.add(addEditTimeSpan, JSplitPane.LEFT);
-
-    if (isNumEventsVisible && isDisplacementVisible && isSlipVisible) {
-      // if user wants to put data for all the 3, add 2 additional split panes
-      mainSplitPane.add(infoSplitPane1, JSplitPane.RIGHT);
-      infoSplitPane1.add(infoSplitPane2, JSplitPane.LEFT);
-      infoSplitPane1.add(this.addEditNumEvents, JSplitPane.RIGHT);
-      infoSplitPane2.add(this.addEditSlipRate, JSplitPane.LEFT);
-      infoSplitPane2.add(this.addEditCumDisp, JSplitPane.RIGHT);
-      mainSplitPane.setDividerLocation(W/2);
-      infoSplitPane1.setDividerLocation(W/3);
-      infoSplitPane2.setDividerLocation(W/6);
-    }
-    else if ( (isNumEventsVisible && isDisplacementVisible) ||
-             (isNumEventsVisible && isSlipVisible) ||
-             (isDisplacementVisible && isSlipVisible)) {
-      // if user wants to add data for just 2, only add 1 additional split pane
-      mainSplitPane.add(infoSplitPane1, JSplitPane.RIGHT);
-
-      if(isNumEventsVisible && isDisplacementVisible)  {
-        infoSplitPane1.add(this.addEditCumDisp, JSplitPane.LEFT);
-        infoSplitPane1.add(this.addEditNumEvents, JSplitPane.RIGHT);
-      }
-
-      if(isNumEventsVisible && isSlipVisible)  {
-        infoSplitPane1.add(this.addEditSlipRate, JSplitPane.LEFT);
-        infoSplitPane1.add(this.addEditNumEvents, JSplitPane.RIGHT);
-      }
-
-      if(isDisplacementVisible && isSlipVisible)  {
-        infoSplitPane1.add(this.addEditCumDisp, JSplitPane.LEFT);
-        infoSplitPane1.add(this.addEditSlipRate, JSplitPane.RIGHT);
-      }
-      mainSplitPane.setDividerLocation(W/2);
-      infoSplitPane1.setDividerLocation(W/4);
-    }
-    else {
-      // no need to add another split pane, if user just wants to enter 1 parameter
-      if (isNumEventsVisible) // if num events estimate is visible
-        mainSplitPane.add(this.addEditNumEvents, JSplitPane.RIGHT);
-      else if (this.isSlipVisible) // if slip rate estimate is visible
-        mainSplitPane.add(this.addEditSlipRate, JSplitPane.RIGHT);
-      else if (this.isDisplacementVisible) // if displacement is visible
-        mainSplitPane.add(this.addEditCumDisp, JSplitPane.RIGHT);
-      mainSplitPane.setDividerLocation(W/2);
-    }
+    mainSplitPane.add(this.tabbedPane, JSplitPane.RIGHT);
+    if (this.isSlipVisible) // if slip rate estimate is visible
+      tabbedPane.add(this.SLIP_RATE_TITLE, this.addEditSlipRate);
+    if (this.isDisplacementVisible) // if displacement is visible
+      tabbedPane.add(this.DISPLACEMENT_TITLE, this.addEditCumDisp);
+    if (isNumEventsVisible) // if num events estimate is visible
+      tabbedPane.add(this.NUM_EVENTS_TITLE, addEditNumEvents);
+    if(this.isSequenceVisible) // if sequence is visible
+      tabbedPane.add(SEQUENCE_TITLE, this.addEditSequence);
+    mainSplitPane.setDividerLocation(W/2);
   }
 }

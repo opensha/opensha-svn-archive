@@ -29,15 +29,12 @@ public class PaleoEventDB_DAO {
   private final static String DISPLACEMENT_EST_ID = "Displacement_Est_Id";
   private final static String ENTRY_DATE  = "Entry_Date";
   private final static String GENERAL_COMMENTS = "General_Comments";
-  private final static String IS_SHARED_DISPLACEMENT = "Is_Shared_Displacement";
   private final static String SEQUENCE_NAME = "Paleo_Event_Sequence";
   private final static String REFERENCES_TABLE_NAME ="Paleo_Event_References";
   private final static String REFERENCE_ID = "Reference_Id";
   private final static String PALEO_EVENT_ENTRY_DATE ="Paleo_Event_Entry_Date";
   private final static String PALEO_EVENT_ID="Paleo_Event_Id";
 
-  private final static String SHARED_DISPLACEMENT = "Y";
-  private final static String NON_SHARED_DISPLACEMENT = "N";
 
   private DB_AccessAPI dbAccess;
   // references DAO
@@ -64,7 +61,7 @@ public class PaleoEventDB_DAO {
   */
   public void addPaleoevent(PaleoEvent paleoEvent) throws InsertException {
     int paleoEventId, eventTimeEstId, displacementEstId;
-    String systemDate,displacementType;
+    String systemDate;
     try {
         paleoEventId = dbAccess.getNextSequenceNumber(SEQUENCE_NAME);
         systemDate = dbAccess.getSystemDate();
@@ -72,13 +69,11 @@ public class PaleoEventDB_DAO {
         if(paleoEvent.isDisplacementShared()) {
        // if displacement is shared, it is assumed that displacement id is  already set
           displacementEstId = paleoEvent.getDisplacementEstId();
-          displacementType = this.SHARED_DISPLACEMENT;
         }
         else {
           // if displacement is not shared, add the time estimate and get the estimate Id
           displacementEstId = this.estimateInstancesDAO.addEstimateInstance(
               paleoEvent.getDisplacementEst());
-          displacementType = this.NON_SHARED_DISPLACEMENT;
         }
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
@@ -86,10 +81,10 @@ public class PaleoEventDB_DAO {
 
     String sql = "insert into "+TABLE_NAME+"("+ EVENT_ID+","+EVENT_NAME+","+
         SITE_ID+","+SITE_ENTRY_DATE+","+CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
-        IS_SHARED_DISPLACEMENT +","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
+        ","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
         " values ("+paleoEventId+",'"+paleoEvent.getEventName()+"',"+paleoEvent.getSiteId()+
         ",'"+paleoEvent.getSiteEntryDate()+"',"+SessionInfo.getContributor().getId()+
-        ","+eventTimeEstId+",'"+displacementType+"',"+displacementEstId+
+        ","+eventTimeEstId+","+displacementEstId+
         ",'"+systemDate+"','"+paleoEvent.getComments()+"')";
 
     try {
@@ -156,6 +151,24 @@ public class PaleoEventDB_DAO {
 
 
   /**
+   * Get a list of all event names sharing the given displacement estimate Id
+   * @param displacementEstId
+   * @return
+   * @throws QueryException
+   */
+  public ArrayList getEventNames(int displacementEstId) throws QueryException {
+    ArrayList eventNames = new ArrayList();
+    String sql = "select "+this.EVENT_NAME+" from "+this.TABLE_NAME+" where "+
+        this.DISPLACEMENT_EST_ID+"="+displacementEstId;
+    try {
+      ResultSet rs = dbAccess.queryData(sql);
+      while(rs.next()) eventNames.add(rs.getString(this.EVENT_NAME));
+    }catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    return eventNames;
+  }
+
+
+  /**
    * Query the paleo event table to get paleo events based on the condition
    * @param condition
    * @return
@@ -163,8 +176,10 @@ public class PaleoEventDB_DAO {
   private ArrayList query(String condition) {
     ArrayList paleoEventList = new ArrayList();
     String sql = "select "+EVENT_ID+","+EVENT_NAME+","+
-        SITE_ID+","+SITE_ENTRY_DATE+","+CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
-        IS_SHARED_DISPLACEMENT+","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+" from "+
+        SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
+        CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
+        DISPLACEMENT_EST_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
+        GENERAL_COMMENTS+" from "+
         this.TABLE_NAME+" "+condition;
     try {
      ResultSet rs  = dbAccess.queryData(sql);
@@ -179,18 +194,15 @@ public class PaleoEventDB_DAO {
        paleoEvent.setContributorName(contributorDAO.getContributor(rs.getInt(CONTRIBUTOR_ID)).getName());
        paleoEvent.setEventTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(EVENT_DATE_EST_ID)));
        paleoEvent.setDisplacementEstId(rs.getInt(DISPLACEMENT_EST_ID));
+       paleoEvent.setDisplacementEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(DISPLACEMENT_EST_ID)));
        paleoEvent.setEntryDate(rs.getString(ENTRY_DATE));
        paleoEvent.setComments(rs.getString(GENERAL_COMMENTS));
-       boolean isSharedDisplacement = false;
-       if(rs.getString(IS_SHARED_DISPLACEMENT).equalsIgnoreCase(this.SHARED_DISPLACEMENT))
-         isSharedDisplacement = true;
-       paleoEvent.setDisplacementShared(isSharedDisplacement);
 
        // get all the references for this site
        ArrayList referenceList = new ArrayList();
        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
-           " where "+EVENT_ID+"="+paleoEvent.getEventId()+" and "+
-           ENTRY_DATE+"='"+paleoEvent.getEntryDate()+"'";
+           " where "+this.PALEO_EVENT_ID+"="+paleoEvent.getEventId()+" and "+
+           this.PALEO_EVENT_ENTRY_DATE+"='"+paleoEvent.getEntryDate()+"'";
        ResultSet referenceResultSet = dbAccess.queryData(sql);
        while(referenceResultSet.next()) {
          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());

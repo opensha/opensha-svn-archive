@@ -61,7 +61,7 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
       // insert into log normal table
     String sql = "insert into "+TABLE_NAME+"("+ EST_ID+","+MEDIAN+","+
         STD_DEV+","+LOG_TYPE_ID+")"+
-        " values ("+estimateInstanceId+","+estimate.getMedian()+","+
+        " values ("+estimateInstanceId+","+logNormalEstimate.getLinearMedian()+","+
         estimate.getStdDev()+","+logTypeId+")";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {

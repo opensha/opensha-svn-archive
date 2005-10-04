@@ -24,7 +24,7 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
  * @version 1.0
  */
 
-public class ViewSequences extends LabeledBoxPanel implements ParameterChangeListener, ActionListener {
+public class ViewSequences extends LabeledBoxPanel implements ParameterChangeListener {
 
   // various parameter names
   private final static String SEQUENCE_NAME_PARAM_NAME = "Sequence Name";
@@ -38,9 +38,6 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
   // test sequence names
   private final static String TEST_SEQUENCE1 = "Test Sequence 1";
   private final static String TEST_SEQUENCE2 = "Test Sequence 2";
-
-  // edit button
-  private JButton editButton = new JButton("Edit");
 
   // labels to show the information
   private InfoLabel sequenceProbLabel = new InfoLabel();
@@ -63,8 +60,6 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
      createSequencesListParameterEditor();
      // add the parameter editors to the GUI componenets
      addEditorstoGUI();
-     // add the action listeners to the button
-     addActionListeners();
      // set the title
      this.setTitle(TITLE);
    }
@@ -86,7 +81,7 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
                                          (String)sequenceNamesList.get(0));
     sequenceNameParam.addParameterChangeListener(this);
     sequenceNamesEditor = new ConstrainedStringParameterEditor(sequenceNameParam);
-    add(sequenceNamesEditor ,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    add(sequenceNamesEditor ,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2), 0, 0));
     sequenceNamesEditor.refreshParamEditor();
     this.updateUI();
@@ -115,9 +110,7 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
   * Add all the event information to theGUI
   */
  private void addEditorstoGUI() {
-   add(this.editButton ,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-       ,GridBagConstraints.EAST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-   int yPos=2;
+   int yPos=1;
    add(GUI_Utils.getPanel(this.sequenceProbLabel,this.SEQUENCE_PROB_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
    add(GUI_Utils.getPanel(this.eventsLabel,this.EVENTS_PARAM_NAME) ,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
@@ -213,28 +206,5 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
    eventsLabel.setTextAsHTML(eventsInthisSequence);
    referencesLabel.setTextAsHTML(references);
  }
-
- /**
-  * This function is called when a button is clicked on this screen
-  *
-  * @param event
-  */
- public void actionPerformed(ActionEvent event) {
-    Object source = event.getSource();
-    if( source==editButton) new AddEditSequence();
- }
-
- /**
-  * add the action listeners to the buttons
-  */
- private void addActionListeners() {
-   editButton.addActionListener(this);
- }
-
-
-
-  public static void main(String[] args) {
-    ViewSequences viewSequences1 = new ViewSequences();
-  }
 
 }

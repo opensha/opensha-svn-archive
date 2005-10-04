@@ -12,6 +12,7 @@ import org.opensha.param.editor.*;
 import org.opensha.param.editor.estimate.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.gui.LabeledBoxPanel;
 
 /**
  * <p>Title: SequenceInformation.java </p>
@@ -23,25 +24,20 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
  * @version 1.0
  */
 
-public class AddEditSequence extends JFrame implements ActionListener,
+public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     ParameterChangeListener {
-  private JPanel mainPanel = new JPanel();
-  private JSplitPane mainSplitPane = new JSplitPane();
-  private JPanel sequenceParamsPanel = new JPanel();
-  private JSplitPane eventSplitPane = new JSplitPane();
-  private JButton okButton = new JButton();
-  private JButton cancelButton = new JButton();
 
-  private BorderLayout borderLayout1 = new BorderLayout();
+  private JButton addAnotherSequenceButton = new JButton("Add Another Sequence");
+  private JButton sequenceWeightsButton = new JButton("Assign Weights to Sequences");
+
 
   // TITLE
-  private final static String TITLE = "Add/Edit Sequence";
+  private final static String TITLE = "Add Sequence";
 
   // various parameter names
   private final static String SEQUENCE_NAME_PARAM_NAME = "Sequence Name";
   private final static String SEQUENCE_PROB_PARAM_NAME = "Sequence Prob.";
   private final static String COMMENTS_PARAM_NAME = "Comments";
-  private final static String REFERENCES_PARAM_NAME = "Choose References";
   private final static String MISSED_EVENTS_PROB_PARAM_NAME = "Probability of missed events";
   private final static String EVENTS_PARAM_NAME = "Events in Sequence";
 
@@ -59,7 +55,6 @@ public class AddEditSequence extends JFrame implements ActionListener,
   // various parameter types
   private StringParameter sequenceNameParam;
   private DoubleParameter sequenceProbParam;
-  private StringListParameter referencesParam;
   private StringParameter commentsParam;
   private StringListParameter eventsParam;
   private ParameterList missedEventsProbParamList;
@@ -67,33 +62,19 @@ public class AddEditSequence extends JFrame implements ActionListener,
   // various parameter editors
   private StringParameterEditor sequenceNameParamEditor;
   private DoubleParameterEditor sequenceProbParamEditor;
-  private ConstrainedStringListParameterEditor referencesParamEditor;
   private CommentsParameterEditor commentsParamEditor;
   private ConstrainedStringListParameterEditor eventsParamEditor;
   private ParameterListEditor missedEventsProbParamEditor;
 
-  // add new reference button
-  private JButton addNewReferenceButton = new JButton("Add Reference");
-  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
-
-
-  // width and height for this window
-  private final static int WIDTH = 700;
-  private final static int HEIGHT = 650;
-
   public AddEditSequence() {
     try {
-      // intiliaze he GUI components
-      jbInit();
+      this.setLayout(GUI_Utils.gridBagLayout);
       // add Parameters and editors
       initParamsAndEditors();
       // add the action listeners to the button
       addActionListeners();
       // set the title
       this.setTitle(TITLE);
-      setSize(WIDTH, HEIGHT);
-      this.setLocationRelativeTo(null);
-      show();
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -109,10 +90,6 @@ public class AddEditSequence extends JFrame implements ActionListener,
    // comments param
    commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME);
    commentsParamEditor = new CommentsParameterEditor(commentsParam);
-
-   // references param
-   referencesParam = new StringListParameter(this.REFERENCES_PARAM_NAME, getAvailableReferences());
-   this.referencesParamEditor = new ConstrainedStringListParameterEditor(referencesParam);
 
    // sequence probability
    this.sequenceProbParam = new DoubleParameter(this.SEQUENCE_PROB_PARAM_NAME, SEQUENCE_PROB_MIN, SEQUENCE_PROB_MAX);
@@ -131,20 +108,6 @@ public class AddEditSequence extends JFrame implements ActionListener,
     addEditorstoGUI();
   }
 
-  /**
- * Get a list of available references.
- *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
- * @return
- */
-private ArrayList getAvailableReferences() {
-  ArrayList referencesNamesList = new ArrayList();
-  referencesNamesList.add("Reference 1");
-  referencesNamesList.add("Reference 2");
-  return referencesNamesList;
-
-}
-
-
 
   /**
    * If user selects/deselects an event in missed events list, then add/remove to the
@@ -161,7 +124,7 @@ private ArrayList getAvailableReferences() {
    */
   private void constructMissedEventsProbEditor() {
     if(missedEventsProbParamEditor!=null)
-      eventSplitPane.remove(missedEventsProbParamEditor); // remove this from the splitpane
+      this.remove(missedEventsProbParamEditor); // remove this from the splitpane
     ArrayList selectedEvents = (ArrayList)eventsParam.getValue();
     missedEventsProbParamList = new ParameterList();
     int numEvents = 0;
@@ -182,8 +145,10 @@ private ArrayList getAvailableReferences() {
 
     missedEventsProbParamEditor  = new ParameterListEditor(missedEventsProbParamList);
     missedEventsProbParamEditor.setTitle(MISSED_EVENTS_PROB_PARAM_NAME);
-    eventSplitPane.add(missedEventsProbParamEditor, JSplitPane.RIGHT);
-    eventSplitPane.setDividerLocation(300);
+    this.add(missedEventsProbParamEditor, new GridBagConstraints(0, 4, 1, 3, 0.0, 0.0
+           ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2,2,2,2), 0, 0));
+    this.validate();
+    this.repaint();
   }
 
 
@@ -213,48 +178,43 @@ private ArrayList getAvailableReferences() {
    * Add the parameter editors to the GUI
    */
   private void addEditorstoGUI() {
-    eventSplitPane.add(eventsParamEditor, JSplitPane.LEFT);
     int yPos=0;
     // sequence name
-    sequenceParamsPanel.add(sequenceNameParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+    this.add(sequenceNameParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     //sequence prob
-    sequenceParamsPanel.add(sequenceProbParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+    add(sequenceProbParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     // comments
-    sequenceParamsPanel.add(commentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+    add(commentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    // references
-    sequenceParamsPanel.add(this.referencesParamEditor,  new GridBagConstraints(1, 0, 1, 2, 1.0, 1.0
+
+    // events for this site
+    add(eventsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    // add new reference
-    sequenceParamsPanel.add(this.addNewReferenceButton,  new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+
+    // add another sequence
+   add(this.addAnotherSequenceButton,  new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0
+           ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+    //add sequence weights
+   add(this.sequenceWeightsButton,  new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0
+           ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2,2,2,2), 0, 0));
+
 
  }
-
-
-  /**
-   * This function is called when a button is clicked on this screen
-   *
-   * @param event
-   */
-  public void actionPerformed(ActionEvent event) {
-   /* else if(event.getSource()==this.okButton ||
-      event.getSource()==this.cancelButton) this.di
-    */
-    if(event.getSource() == addNewReferenceButton) new AddNewReference();
-  }
 
 
   /**
    * add the action listeners to the buttons
    */
   private void addActionListeners() {
-    okButton.addActionListener(this);
-    cancelButton.addActionListener(this);
-    addNewReferenceButton.addActionListener(this);
-    addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
+    addAnotherSequenceButton.addActionListener(this);
+    this.sequenceWeightsButton.addActionListener(this);
+  }
+
+
+  public void actionPerformed(ActionEvent event) {
+
   }
 
 
@@ -287,30 +247,4 @@ private ArrayList getAvailableReferences() {
     }
   }
 
-
-  public static void main(String[] args) {
-    AddEditSequence sequenceInformation = new AddEditSequence();
-  }
-
-
-  // initialize the GUI components
-  private void jbInit() throws Exception {
-    this.getContentPane().setLayout(borderLayout1);
-    mainPanel.setLayout(GUI_Utils.gridBagLayout);
-    mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    okButton.setText("OK");
-    cancelButton.setText("Cancel");
-    sequenceParamsPanel.setLayout(GUI_Utils.gridBagLayout);
-    this.getContentPane().add(mainPanel, BorderLayout.CENTER);
-    mainPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(3, 4, 0, 3), 360, 414));
-    mainSplitPane.add(sequenceParamsPanel, JSplitPane.TOP);
-    mainSplitPane.add(eventSplitPane, JSplitPane.BOTTOM);
-    mainPanel.add(okButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 190, 11, 0), 32, 5));
-    mainPanel.add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(7, 40, 11, 156), 14, 5));
-    mainSplitPane.setDividerLocation(260);
-    eventSplitPane.setDividerLocation(300);
-  }
 }
