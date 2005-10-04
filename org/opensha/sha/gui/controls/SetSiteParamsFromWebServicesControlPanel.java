@@ -19,6 +19,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.util.SystemPropertiesUtils;
 import org.opensha.sha.gui.servlets.siteEffect.WillsSiteClass;
+import org.opensha.data.LocationList;
 
 /**
  * <p>Title:SetSiteParamsFromWebServicesControlPanel </p>
@@ -116,37 +117,42 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
   void setAllIMRButton_actionPerformed(ActionEvent e) {
 
     // get latitude and longitude
-   Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
-   Double lonMax = new Double(lonMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
-   Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
-   Double latMax = new Double(latMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
-   String willsClass = "NA";
-   double basinDepth = Double.NaN;
-   try{
-   // get the vs 30 and basin depth from cvm
-   willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-                                                      latMin.doubleValue(),latMax.doubleValue(),
-                                                      WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0);
-   basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-                                                           latMin.doubleValue(),latMax.doubleValue(),
-                                                           WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0)).doubleValue();
-   }catch(Exception ee){
-     //ee.printStackTrace();
-     JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
-     return;
-   }
+    Double lon = (Double) siteGuiBean.getParameterListEditor().getParameterList().
+        getParameter(Site_GuiBean.LONGITUDE).getValue();
+    Double lat = (Double) siteGuiBean.getParameterListEditor().getParameterList().
+        getParameter(Site_GuiBean.LATITUDE).getValue();
+    LocationList locList = new LocationList();
+    locList.addLocation(new Location(lat.doubleValue(), lon.doubleValue()));
 
-   // do for all IMRS
-   ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
-   int num = imrObjects.size();
-   for(int i=0; i<num; ++i)
-     setSiteParamsInIMR((AttenuationRelationshipAPI)imrObjects.get(i),
-                        lonMin.doubleValue(), latMin.doubleValue(),
-                        willsClass, basinDepth);
+    String willsClass = "NA";
+    double basinDepth = Double.NaN;
+    try {
+      // get the vs 30 and basin depth from cvm
+      willsClass = (String) (ConnectToCVM.getWillsSiteTypeFromCVM(locList)).get(
+          0);
+      basinDepth = ( (Double) (ConnectToCVM.getBasinDepthFromCVM(locList)).get(
+          0)).doubleValue();
+    }
+    catch (Exception ee) {
+      ee.printStackTrace();
+      JOptionPane.showMessageDialog(this,
+          "Server is down for maintenance, please try again later",
+                                    "Server Problem",
+                                    JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
 
-   // reflect the new parameter value in GUI
-   this.siteGuiBean.getParameterListEditor().refreshParamEditor();
-   this.dispose();
+    // do for all IMRS
+    ArrayList imrObjects = this.imrGuiBean.getSupportedIMRs();
+    int num = imrObjects.size();
+    for (int i = 0; i < num; ++i)
+      setSiteParamsInIMR( (AttenuationRelationshipAPI) imrObjects.get(i),
+                         lon.doubleValue(), lat.doubleValue(),
+                         willsClass, basinDepth);
+
+    // reflect the new parameter value in GUI
+    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
+    this.dispose();
   }
 
 
@@ -183,18 +189,16 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    */
   void setSelectedIMRButton_actionPerformed(ActionEvent e) {
     // get latitude and longitude
-    Double lonMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
-    Double lonMax = new Double(lonMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
-    Double latMin = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
-    Double latMax = new Double(latMin.doubleValue()+2*WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE);
+    Double lon = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LONGITUDE).getValue();
+    Double lat = (Double)siteGuiBean.getParameterListEditor().getParameterList() .getParameter(Site_GuiBean.LATITUDE).getValue();
+    LocationList locList = new LocationList();
+    locList.addLocation(new Location(lat.doubleValue(),lon.doubleValue()));
     String willsClass = "NA";
     double basinDepth = Double.NaN;
     try{
       // get the vs 30 and basin depth from cvm
-      willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-          latMin.doubleValue(),latMax.doubleValue(),WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0);
-      basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(lonMin.doubleValue(),lonMax.doubleValue(),
-          latMin.doubleValue(),latMax.doubleValue(),WillsSiteClass.GRID_SPACING_FOR_VS30_IN_FILE)).get(0)).doubleValue();
+      willsClass = (String)(ConnectToCVM.getWillsSiteTypeFromCVM(locList)).get(0);
+      basinDepth = ((Double)(ConnectToCVM.getBasinDepthFromCVM(locList)).get(0)).doubleValue();
     }catch(Exception ee){
       ee.printStackTrace();
       JOptionPane.showMessageDialog(this,"Server is down for maintenance, please try again later","Server Problem",JOptionPane.INFORMATION_MESSAGE);
@@ -202,7 +206,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     }
     // do for selected IMR
     AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
-    setSiteParamsInIMR(imr, lonMin.doubleValue(), latMin.doubleValue(),
+    setSiteParamsInIMR(imr, lon.doubleValue(), lon.doubleValue(),
                               willsClass, basinDepth);
     // reflect the new parameter value in GUI
    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
