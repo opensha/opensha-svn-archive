@@ -148,7 +148,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.*;
  * in the initSiteParams() method here, but the warning constraint must be created
  * and added in subclasses.<br>
  * DEPTH_2pt5_NAME = "Depth 2.5 km/sec"<br>
- * DEPTH_2pt5_UNITS = "m"<br>
+ * DEPTH_2pt5_UNITS = "km"<br>
  * DEPTH_2pt5_INFO = "The depth to where shear-wave velocity = 2.5 km/sec"<br>
  * DEPTH_2pt5_DEFAULT - <i>see code</i><br>
  * DEPTH_2pt5_MIN = - <i>see code</i><br>
