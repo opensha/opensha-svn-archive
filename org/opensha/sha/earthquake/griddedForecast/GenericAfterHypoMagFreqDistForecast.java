@@ -1,10 +1,14 @@
 package org.opensha.sha.earthquake.griddedForecast;
 
 import javaDevelopers.matt.calc.*;
-
+import org.opensha.sha.earthquake.griddedForecast.*;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.observedEarthquake.*;
 import org.opensha.sha.fault.*;
+import org.opensha.sha.magdist.*;
+import org.opensha.data.Location;
+import org.opensha.data.function.EvenlyDiscretizedFunc;
+import java.util.ArrayList;
 
 /**
  * <p>Title: </p>
@@ -19,10 +23,7 @@ import org.opensha.sha.fault.*;
  * @version 1.0
  */
 public class GenericAfterHypoMagFreqDistForecast
-    extends AfterShockHypoMagFreqDistForecast {
-  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
-    return null;
-  }
+    extends STEP_AftershockForecast {
 
   private double a_valueGeneric = -1.67;
   private double b_valueGeneric = 0.91;
@@ -35,12 +36,14 @@ public class GenericAfterHypoMagFreqDistForecast
   int numGridLocs;
   private double[] rateForecastGrid, kScaler;
   private RegionDefaults rDefs;
+  private double dayStart, dayEnd;
+  private ArrayList gridMagForecast;
+  private HypoMagFreqDistAtLoc magDistLoc;
 
   public GenericAfterHypoMagFreqDistForecast
       (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI aftershockZone,
-       RegionDefaults rDefs) {
+       double[] kScaler) {
 
-    this.rDefs = rDefs;
     /**
      * initialise the aftershock zone and mainshock for this model
      */
@@ -56,57 +59,14 @@ public class GenericAfterHypoMagFreqDistForecast
     this.calc_GenNodeCompletenessMag();
     this.set_Gridded_Gen_bValue();
     this.set_Gridded_Gen_cValue();
-    this.set_Gridded_Gen_kValue();
     this.set_Gridded_Gen_pValue();
 
-  }
-
-  /**
-     public GenericAfterHypoMagFreqDistForecast
-   (ObsEqkRupture mainshock, EvenlyGriddedGeographicRegionAPI backGroundRatesGrid,
-       RegionDefaults rDefs) {
-
-    this.setRegionDefaults(rDefs); */
-  /**
-   * initialise the aftershock zone and mainshock for this model
-   */
-  /**  this.setMainShock(mainshock);
-    this.set_AftershockZoneRadius();
-    this.calcTypeI_AftershockZone(backGroundRatesGrid);
-
-
-    EvenlyGriddedGeographicRegionAPI aftershockZone = this.getAfterShockZone();
-     numGridLocs = aftershockZone.getNumGridLocs();
-     grid_Gen_aVal = new double[numGridLocs];
-     grid_Gen_bVal = new double[numGridLocs];
-     grid_Gen_cVal = new double[numGridLocs];
-     grid_Gen_pVal = new double[numGridLocs];
-     grid_Gen_kVal = new double[numGridLocs];
-
-    this.calc_GenNodeCompletenessMag();
-    this.set_Gridded_Gen_bValue();
-    this.set_Gridded_Gen_cValue();
+    this.set_kScaler(kScaler);
     this.set_Gridded_Gen_kValue();
-    this.set_Gridded_Gen_pValue();
 
-     }  */
-
-
-  /**
-   * This sets the aftershock zone
-   * @param aftershockZone EvenlyGriddedGeographicRegionAPI
-   */
-  public void setAfterShockZone(EvenlyGriddedGeographicRegionAPI aftershockZone) {
-    this.region = aftershockZone;
   }
 
 
-  /**
-   * setRegionDefaults
-   */
-  public void setRegionDefaults(RegionDefaults rDefs) {
-    this.rDefs = rDefs;
-  }
 
   /**
    * set_GenReasenbergJonesParms
@@ -132,9 +92,16 @@ public class GenericAfterHypoMagFreqDistForecast
    */
 
   public void set_Gridded_Gen_kValue() {
-    SmoothKVal_Calc smooth_k = new SmoothKVal_Calc();
-    smooth_k.setAftershockModel(this);
-    grid_Gen_kVal = smooth_k.get_SmoothGen_kVal();
+
+    double rightSide = a_valueGeneric + b_valueGeneric *
+        (this.mainShock.getMag() - this.genNodeCompletenessMag);
+    double generic_k = Math.pow(10, rightSide);
+    int numInd = kScaler.length;
+
+    for (int indLoop = 0; indLoop < numInd - 1; ++indLoop) {
+      grid_Gen_kVal[indLoop] = generic_k * this.kScaler[indLoop];
+    }
+
   }
 
   /**
@@ -172,20 +139,90 @@ public class GenericAfterHypoMagFreqDistForecast
     this.rateForecastGrid = rateForecastGrid;
   }
 
-  /**
-   * set_FaultModel
-   */
-  public void set_FaultModel(SimpleFaultData mainshockFault) {
-     this.mainshockFault = mainshockFault;
-  }
-
 
   /**
-   * get_FaultModel
+   * calcGenMagForecast
+   * this will calculate  the incremental forecast and return it in an arraylist
    */
-  public SimpleFaultData get_FaultModel() {
-    return mainshockFault;
+  private ArrayList getGenMagForecast() {
+    double[] rjParms = new double[4];
+    double[] forecastDays = new double[2];
+    int numNodes = grid_Gen_kVal.length;
+    double totalForecast;
+    double[] magForecast;
+    OmoriRate_Calc omoriCalc = new OmoriRate_Calc();
+    forecastDays[0] = this.dayStart;
+    forecastDays[1] = this.dayEnd;
+    rjParms[1] = grid_Gen_cVal[0];
+    rjParms[2] = grid_Gen_pVal[0];
+    omoriCalc.setTimeParms(forecastDays);
+    int numForecastMags = 1 +
+        (int) ( (this.maxForecastMag - this.minForecastMag) /
+               this.deltaForecastMag);
+    magForecast = new double[numForecastMags];
+
+    for (int nodeLoop = 0; nodeLoop < numNodes; numNodes++) {
+      rjParms[0] = grid_Gen_kVal[nodeLoop];
+      omoriCalc.set_OmoriParms(rjParms);
+      // first get the total number of events given by omori for the time period
+      totalForecast = omoriCalc.get_OmoriRate();
+
+      GutenbergRichterMagFreqDist GR_Dist =
+          new GutenbergRichterMagFreqDist(this.a_valueGeneric, totalForecast,
+                                          this.minForecastMag,
+                                          this.maxForecastMag, numForecastMags);
+      // calculate the incremental forecast for each mag
+      for (int magLoop = 0; magLoop < numForecastMags; magLoop++) {
+        magForecast[magLoop] = GR_Dist.getIncrRate(magLoop);
+      }
+      // add the array of doubles ( each forecast mag) to the list of forecasts
+      // for all grid nodes
+      gridMagForecast.add(magForecast);
+    }
+    return gridMagForecast;
   }
+
+  /**
+   * calcHypoMagFreqDist
+   * this calculates the forecast and places it into a
+   * HypoMagFreqDistForecastAtLoc object
+   */
+  public HypoMagFreqDistAtLoc getHypoMagFreqDist(int gridIndex) {
+    double[] rjParms = new double[4];
+    double[] forecastDays = new double[2];
+    //int numNodes = grid_Gen_kVal.length;
+    double totalForecast;
+    ;
+    OmoriRate_Calc omoriCalc = new OmoriRate_Calc();
+    forecastDays[0] = this.dayStart;
+    forecastDays[1] = this.dayEnd;
+    rjParms[1] = grid_Gen_cVal[0];
+    rjParms[2] = grid_Gen_pVal[0];
+    omoriCalc.setTimeParms(forecastDays);
+    int numForecastMags = 1 +
+        (int) ( (this.maxForecastMag - this.minForecastMag) /
+               this.deltaForecastMag);
+    //for (int nodeLoop = 0; nodeLoop < numNodes; numNodes++) {
+      rjParms[0] = grid_Gen_kVal[gridIndex];
+      omoriCalc.set_OmoriParms(rjParms);
+      // first get the total number of events given by omori for the time period
+      totalForecast = omoriCalc.get_OmoriRate();
+
+      GutenbergRichterMagFreqDist GR_Dist =
+          new GutenbergRichterMagFreqDist(this.a_valueGeneric, totalForecast,
+                                          this.minForecastMag,
+                                          this.maxForecastMag, numForecastMags);
+      // this must be added to an array so that it can be added to
+      // HypoMagFreqDistAtLoc
+      IncrementalMagFreqDist[] dist = new IncrementalMagFreqDist[1];
+      dist[0] = GR_Dist;
+      Location gridLoc;
+      gridLoc = this.region.getGridLocation(gridIndex);
+      return magDistLoc = new HypoMagFreqDistAtLoc(dist,
+          gridLoc);
+    //}
+  }
+
 
 
   /**
@@ -245,5 +282,10 @@ public class GenericAfterHypoMagFreqDistForecast
   public double[] getRateForecastGrid() {
     return rateForecastGrid;
   }
+
+  public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+    return null;
+  }
+
 
 }

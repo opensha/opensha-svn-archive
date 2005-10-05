@@ -2,6 +2,9 @@
 <library>
   <!--JBuilder Library Definition File-->
   <fullname>Servlet</fullname>
+  <class>
+    <path>[../../opt/JBuilderX/thirdparty/jakarta-tomcat-4.1.27-LE-jdk14/common/lib/servlet.jar]</path>
+  </class>
   <required>Tomcat 4.1 Servlet</required>
-  <lastmodsaved>1126898516691</lastmodsaved>
+  <lastmodsaved>1128535434315</lastmodsaved>
 </library>

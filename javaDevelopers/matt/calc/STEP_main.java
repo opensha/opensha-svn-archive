@@ -29,6 +29,7 @@ public class STEP_main {
     RegionDefaults rDefs = new RegionDefaults();
 
      calc_STEP();
+
   }
 
 
@@ -163,16 +164,17 @@ public class STEP_main {
      */
 
     int numAftershockModels = STEP_AftershockForecastList.size();
-    GenericAfterHypoMagFreqDistForecast forecastModel;
+    STEP_CombineForecastModels forecastModel;
 
     for (int modelLoop = 0; modelLoop < numAftershockModels; ++modelLoop){
       forecastModel =
-          (GenericAfterHypoMagFreqDistForecast)STEP_AftershockForecastList.get(modelLoop);
-      //UpdateSTEP_Forecast(forecastModel,backGroundRatesGrid);
+          (STEP_CombineForecastModels)STEP_AftershockForecastList.get(modelLoop);
+      //UpdateSTEP_Forecast(forecastModel);
     }
 
 
 
   }
+
 
 }

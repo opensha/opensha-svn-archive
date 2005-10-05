@@ -48,8 +48,8 @@ public class STEP_CombineForecastModels
   private EvenlyGriddedGeographicRegionAPI backgroundRatesGrid;
   private double[] kScaler;
   private GenericAfterHypoMagFreqDistForecast genElement;
-  private SequenceAfterHypoMagFreqDistForecast seqElement;
-  private SpatialAfterHypoMagFreqDistForecast spaElement;
+  private SequenceAfterHypoMagFreqDistForecast seqElement = null;
+  private SpatialAfterHypoMagFreqDistForecast spaElement = null;
 
   /**
    * STEP_AftershockForecast
@@ -118,12 +118,6 @@ public class STEP_CombineForecastModels
     this.rDefs = rDefs;
   }
 
-  /**
-   * set_useSeqAndSpatial
-   */
-  public void set_useSeqAndSpatial(boolean useSeqAndSpatial) {
-    this.useSeqAndSpatial = useSeqAndSpatial;
-  }
 
   /**
    * calc_NodeCompletenessMag
@@ -368,34 +362,7 @@ public class STEP_CombineForecastModels
     return daysSinceMainshockEnd;
   }
 
-  /**
-   * calc_GriddedForecastRates
-   */
-  public void calc_GriddedForecastRates() {
-    double[] rjParms = new double[3];
-    double[] timeParms = new double[2];
-    //timeParms[0] = forecastStartTime;
-    //timeParms[1] = forecastEndTime;
-    EvenlyGriddedGeographicRegionAPI aftershockZone =
-        this.getAfterShockZone();
-    int numGridNodes = aftershockZone.getNumGridLocs();
 
-    double[] singleGridMagFreqDist = new double[numGridNodes];
-    ArrayList griddedMagFreqDistForecast = new ArrayList(numGridNodes);
-
-    for (int gridLoop = 0; gridLoop < numGridNodes; ++gridLoop) {
-      rjParms[0] = grid_kVal[gridLoop];
-      rjParms[1] = grid_cVal[gridLoop];
-      rjParms[2] = grid_pVal[gridLoop];
-      OmoriRate_Calc calcOmoriRate = new OmoriRate_Calc(rjParms, timeParms);
-      double totalForecastEvents = calcOmoriRate.get_OmoriRate();
-      GutenbergRichterRate_Calc calcGR_Rate =
-          new GutenbergRichterRate_Calc(grid_bVal[gridLoop],
-                                        totalForecastEvents);
-      singleGridMagFreqDist = calcGR_Rate.get_ForecastedRates();
-      griddedMagFreqDistForecast.add(singleGridMagFreqDist);
-    }
-  }
 
   /**
    * setHasExternalFaultModel
@@ -530,6 +497,8 @@ public class STEP_CombineForecastModels
    return this.spaElement;
  }
 
-
+ public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
+     return null;
+  }
 
 }
