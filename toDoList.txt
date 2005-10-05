@@ -1,6 +1,7 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Create a save option that creates a pdf with both an image and the metadata (preserving any color coding in the latter).  This could be used for both maps and XY plots.
 
 ERF2GriddedSeisRateCalc - Ned needs to look it over.
 
