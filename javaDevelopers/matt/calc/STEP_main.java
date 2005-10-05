@@ -77,7 +77,7 @@ public class STEP_main {
      * a previous event if appropriate (loop thru all existing mainshocks)
      */
     ObsEqkRupture newEvent, mainshock;
-    STEP_AftershockForecast mainshockModel, foundMsModel, staticModel;
+    STEP_CombineForecastModels mainshockModel, foundMsModel, staticModel;
     ListIterator newIt = newObsEqkRuptureList.listIterator();
     boolean isAftershock = false;
     int indexNum, maxMagInd = -1;
@@ -90,7 +90,7 @@ public class STEP_main {
 
       for (int msLoop = 0; msLoop < numMainshocks; ++msLoop) {
         mainshockModel =
-            (STEP_AftershockForecast)STEP_AftershockForecastList.get(msLoop);
+            (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
         mainshock = mainshockModel.getMainShock();
         msMag = mainshock.getMag();
 
@@ -118,7 +118,7 @@ public class STEP_main {
           if (msMag > maxMag) {
             if (maxMagInd > -1){
               staticModel =
-            (STEP_AftershockForecast)STEP_AftershockForecastList.get(msLoop);
+            (STEP_CombineForecastModels)STEP_AftershockForecastList.get(msLoop);
               staticModel.set_isStatic(true);
             }
             maxMagInd = msLoop;
@@ -129,15 +129,15 @@ public class STEP_main {
       // mainshock - if one has been found
       if (maxMagInd > -1) {
         foundMsModel =
-            (STEP_AftershockForecast)STEP_AftershockForecastList.get(maxMagInd);
+            (STEP_CombineForecastModels)STEP_AftershockForecastList.get(maxMagInd);
         foundMsModel.addToAftershockList(newEvent);
       }
 
       // add the new event to the list of mainshocks if it is greater than
       // magnitude 3.0 (or what ever mag is defined)
       if (newMag >= rDefs.minMagForMainshock) {
-      STEP_AftershockForecast newForecastMod =
-           new STEP_AftershockForecast(newEvent,backGroundRatesGrid,rDefs);
+      STEP_CombineForecastModels newForecastMod =
+           new STEP_CombineForecastModels(newEvent,backGroundRatesGrid,rDefs);
 
         // if the new event is already an aftershock to something else
         // set it as a secondary event.
