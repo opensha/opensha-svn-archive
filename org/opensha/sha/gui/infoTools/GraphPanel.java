@@ -17,6 +17,16 @@ import org.jfree.util.ShapeUtils;
 
 import org.opensha.data.function.*;
 import org.opensha.gui.plot.jfreechart.*;
+import com.lowagie.text.pdf.PdfWriter;
+import java.io.FileOutputStream;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.pdf.DefaultFontMapper;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
+
 
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.util.*;
@@ -582,7 +592,7 @@ public class GraphPanel extends JPanel {
     setLegend =new SimpleAttributeSet();
     setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
                            Boolean.TRUE);
-    Document doc = metadataText.getStyledDocument();
+    javax.swing.text.Document doc = metadataText.getStyledDocument();
     try {
 
       /**
@@ -934,10 +944,60 @@ public class GraphPanel extends JPanel {
    */
   public void save() throws IOException {
     if(graphOn)
+      //saveAsPDF();
       chartPanel.doSaveAs();
     else
       DataUtil.save(this,pointsTextArea.getText());
   }
+
+
+  /**
+   * Allows the user to save the chart contents and metadata as PDF.
+   * This allows to preserve the color coding of the metadata.
+   * @throws IOException
+   */
+ /* public void saveAsPDF() throws IOException{
+    JFreeChart chart = chartPanel.getChart();
+    int width = chartPanel.getWidth();
+    int height = chartPanel.getHeight();
+    int textLength = metadataText.getStyledDocument().getLength();
+    int totalLength = textLength + height;
+    String fileName = "tempPdf";
+
+    // step 1
+    Document document = new Document(new com.lowagie.text.Rectangle(width, height));
+    try {
+      // step 2
+      PdfWriter writer;
+      writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+      // step 3
+      document.open();
+      // step 4
+      PdfContentByte cb = writer.getDirectContent();
+      PdfTemplate tp = cb.createTemplate(width, totalLength);
+      Graphics2D g2d = tp.createGraphics(width, totalLength, new DefaultFontMapper());
+      Rectangle2D r2d = new Rectangle2D.Double(0, 0, width, height);
+      chartPanel.getChart().draw(g2d, r2d);
+      try {
+        document.add(new com.lowagie.text.Paragraph(metadataText.
+            getStyledDocument().getText(0,
+                                        metadataText.getStyledDocument().
+                                        getLength())));
+
+      }
+      catch (BadLocationException ex) {
+      }
+      catch (DocumentException ex) {
+      }
+      g2d.dispose();
+      cb.addTemplate(tp, 0, 0);
+    }
+    catch (DocumentException de) {
+      de.printStackTrace();
+    }
+    // step 5
+    document.close();
+  }*/
 
 
   /**
