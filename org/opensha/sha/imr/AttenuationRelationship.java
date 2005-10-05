@@ -409,7 +409,7 @@ public abstract class AttenuationRelationship
    */
   protected WarningDoubleParameter depthTo2pt5kmPerSecParam = null;
   public final static String DEPTH_2pt5_NAME = "Depth 2.5 km/sec";
-  public final static String DEPTH_2pt5_UNITS = "m";
+  public final static String DEPTH_2pt5_UNITS = "km";
   public final static String DEPTH_2pt5_INFO =
       "The depth to where shear-wave velocity = 2.5 km/sec";
   public final static Double DEPTH_2pt5_DEFAULT = new Double("1.0");
