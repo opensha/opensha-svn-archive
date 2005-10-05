@@ -48,7 +48,7 @@ public class Boore_2005_prelim_AttenRel
   private final static boolean D = false;
 
   // Name of IMR
-  public final static String NAME = "Boore (2005 prelim)";
+  public final static String NAME = "Boore & Atkinson (2005 prelim)";
 
   // coefficients:
   // note that index 0 is for PGV, and that the last index (6) is for his pga4nl term (rock-PGA for computing amp factor)
