@@ -13,6 +13,8 @@ import org.opensha.param.editor.estimate.*;
 import org.opensha.refFaultParamDb.gui.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.gui.LabeledBoxPanel;
+import org.opensha.refFaultParamDb.vo.EventSequence;
+import java.util.Iterator;
 
 /**
  * <p>Title: SequenceInformation.java </p>
@@ -36,10 +38,20 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
 
   // various parameter names
   private final static String SEQUENCE_NAME_PARAM_NAME = "Sequence Name";
-  private final static String SEQUENCE_PROB_PARAM_NAME = "Sequence Prob.";
   private final static String COMMENTS_PARAM_NAME = "Comments";
   private final static String MISSED_EVENTS_PROB_PARAM_NAME = "Probability of missed events";
   private final static String EVENTS_PARAM_NAME = "Events in Sequence";
+  private final static String SEQUENCE_PROB_PARAM_NAME = "Prob of occurence of Seq ";
+  private final static String SEQUENCE_PROB_TITLE = "Sequence Probabilities";
+
+  // parameter default values
+  private final static String SEQUENCE_NAME_PARAM_DEFAULT = "Enter Sequence Name";
+  private final static String COMMENTS_PARAM_DEFAULT = "Enter Comments";
+
+  // messages to be shown to user
+  private final static String MSG_MISSING_SEQUENCE_NAME="Please enter sequence name";
+  private final static String MSG_MISSING_EVENT_NAMES="Please select atleast 1 event in this sequence";
+  private final static String MSG_NEED_TO_SAVE_CURRRENT_SEQ = "Do you want to save current sequence?";
 
   // constants for making missed events prob parameters
   private final static String BEFORE = "Before";
@@ -54,17 +66,19 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
 
   // various parameter types
   private StringParameter sequenceNameParam;
-  private DoubleParameter sequenceProbParam;
   private StringParameter commentsParam;
   private StringListParameter eventsParam;
   private ParameterList missedEventsProbParamList;
+  private ParameterList sequenceProbParamList;
 
   // various parameter editors
   private StringParameterEditor sequenceNameParamEditor;
-  private DoubleParameterEditor sequenceProbParamEditor;
   private CommentsParameterEditor commentsParamEditor;
   private ConstrainedStringListParameterEditor eventsParamEditor;
   private ParameterListEditor missedEventsProbParamEditor;
+  private ParameterListEditor sequenceProbEditor;
+
+  private ArrayList sequenceList = new ArrayList();
 
   public AddEditSequence() {
     try {
@@ -84,16 +98,12 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private void initParamsAndEditors() throws Exception {
 
    // sequence name parameter
-   sequenceNameParam = new StringParameter(this.SEQUENCE_NAME_PARAM_NAME);
+   sequenceNameParam = new StringParameter(this.SEQUENCE_NAME_PARAM_NAME, SEQUENCE_NAME_PARAM_DEFAULT);
    sequenceNameParamEditor = new StringParameterEditor(sequenceNameParam);
 
    // comments param
-   commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME);
+   commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME, this.COMMENTS_PARAM_DEFAULT);
    commentsParamEditor = new CommentsParameterEditor(commentsParam);
-
-   // sequence probability
-   this.sequenceProbParam = new DoubleParameter(this.SEQUENCE_PROB_PARAM_NAME, SEQUENCE_PROB_MIN, SEQUENCE_PROB_MAX);
-   sequenceProbParamEditor = new ConstrainedDoubleParameterEditor(sequenceProbParam);
 
    // select events in this sequence
    ArrayList eventList = getAvailableEvents();
@@ -105,7 +115,9 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
    constructMissedEventsProbEditor();
 
    // add the parameter editors to the GUI componenets
-    addEditorstoGUI();
+   addEditorstoGUI();
+
+
   }
 
 
@@ -147,8 +159,8 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     missedEventsProbParamEditor.setTitle(MISSED_EVENTS_PROB_PARAM_NAME);
     this.add(missedEventsProbParamEditor, new GridBagConstraints(0, 4, 1, 3, 0.0, 0.0
            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2,2,2,2), 0, 0));
-    this.validate();
-    this.repaint();
+   this.validate();
+   this.repaint();
   }
 
 
@@ -182,9 +194,6 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     // sequence name
     this.add(sequenceNameParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    //sequence prob
-    add(sequenceProbParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     // comments
     add(commentsParamEditor,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
@@ -214,13 +223,83 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
 
 
   public void actionPerformed(ActionEvent event) {
+    Object source = event.getSource();
+    try {
+      if (source == this.addAnotherSequenceButton) {
+        saveCurrentSequence();
+        this.removeAll(); // remove parameters for current sequence
+        initParamsAndEditors(); // add parameters so that user can emter another sequence
+      }
+      else if (source == this.sequenceWeightsButton) {
+        int option = JOptionPane.showConfirmDialog(this,
+            MSG_NEED_TO_SAVE_CURRRENT_SEQ, this.TITLE,
+            JOptionPane.OK_CANCEL_OPTION);
+        if (option == JOptionPane.OK_OPTION)
+          saveCurrentSequence();
+        this.removeAll(); // remove all the parameters
+        addProbParams(); // add params so that user can enter probability for each sequence
+        }
+    } catch(Exception e) {
+      JOptionPane.showMessageDialog(this, e.getMessage());
+    }
+  }
 
+  /**
+   * Add the parameters so that user can enter probability for each sequence
+   */
+  private void addProbParams() {
+    sequenceProbParamList = new ParameterList();
+    int numSequences = this.sequenceList.size();
+    Double seqProbDefault = new Double(1.0/numSequences);
+    for(int i=0; i<numSequences; ++i) {
+      // sequence probability
+      DoubleParameter sequenceProbParam = new DoubleParameter(this.SEQUENCE_PROB_PARAM_NAME+i,
+          SEQUENCE_PROB_MIN, SEQUENCE_PROB_MAX, seqProbDefault);
+      sequenceProbParamList.addParameter(sequenceProbParam);
+    }
+    this.sequenceProbEditor = new ParameterListEditor(sequenceProbParamList);
+    sequenceProbEditor.setTitle(SEQUENCE_PROB_TITLE);
+    this.add(sequenceProbEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    this.validate();
+    this.repaint();
+  }
+
+
+  /**
+   * Save the current sequence in the sequence list
+   */
+  private void saveCurrentSequence() {
+    EventSequence sequence = new EventSequence();
+    String sequenceName = ((String)this.sequenceNameParam.getValue()).trim();
+    // check that user entered sequence name
+    if(sequenceName.equalsIgnoreCase("") ||
+       sequenceName.equalsIgnoreCase(this.SEQUENCE_NAME_PARAM_DEFAULT))
+      throw new RuntimeException(MSG_MISSING_SEQUENCE_NAME);
+    // check that user picked atleast 1 event for the sequence
+    ArrayList selectedEvents = (ArrayList)eventsParam.getValue();
+    if(selectedEvents == null || selectedEvents.size()==0)
+      throw new RuntimeException(MSG_MISSING_EVENT_NAMES);
+    // ietrator over all the missed events prob parameters
+    Iterator paramsIterator = missedEventsProbParamList.getParametersIterator();
+    ArrayList missingProbs = new ArrayList();
+    double missedProbs[] = new double[selectedEvents.size()+1];
+    int i=0;
+    while(paramsIterator.hasNext()) {
+      missedProbs[i++] = ((Double)((ParameterAPI)paramsIterator.next()).getValue()).doubleValue();
+    }
+    sequence.setComments((String)this.commentsParam.getValue());
+    sequence.setEventsParam(selectedEvents);
+    sequence.setSequenceName(sequenceName);
+    sequence.setMissedEventsProbList(missedProbs);
+    // add the sequence to the list
+    this.sequenceList.add(sequence);
   }
 
 
  /**
   * Get a list of available events.
-  *  THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
+  * THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
   * @return
   */
  private ArrayList getAvailableEvents() {
