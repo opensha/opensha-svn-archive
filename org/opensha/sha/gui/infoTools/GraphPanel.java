@@ -17,15 +17,12 @@ import org.jfree.util.ShapeUtils;
 
 import org.opensha.data.function.*;
 import org.opensha.gui.plot.jfreechart.*;
-import com.lowagie.text.pdf.PdfWriter;
-import java.io.FileOutputStream;
+//import com.lowagie.text.pdf.PdfWriter;
+//import java.io.FileOutputStream;
 
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.pdf.DefaultFontMapper;
-import com.lowagie.text.pdf.PdfContentByte;
-import com.lowagie.text.pdf.PdfTemplate;
-import com.lowagie.text.pdf.PdfWriter;
+//import com.lowagie.text.Document;
+//import com.lowagie.text.DocumentException;
+//import com.lowagie.text.pdf.*;
 
 
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
@@ -34,7 +31,7 @@ import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import java.io.IOException;
 import java.util.Properties;
-import java.io.File;
+//import java.io.File;
 
 
 
@@ -956,7 +953,7 @@ public class GraphPanel extends JPanel {
    * This allows to preserve the color coding of the metadata.
    * @throws IOException
    */
- /* public void saveAsPDF() throws IOException{
+  /*public void saveAsPDF() throws IOException{
     JFreeChart chart = chartPanel.getChart();
     int width = chartPanel.getWidth();
     int height = chartPanel.getHeight();
@@ -979,6 +976,7 @@ public class GraphPanel extends JPanel {
       Rectangle2D r2d = new Rectangle2D.Double(0, 0, width, height);
       chartPanel.getChart().draw(g2d, r2d);
       try {
+        //PdfDocument doc = new PdfDocument();
         document.add(new com.lowagie.text.Paragraph(metadataText.
             getStyledDocument().getText(0,
                                         metadataText.getStyledDocument().
