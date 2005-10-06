@@ -18,6 +18,8 @@ public class EventSequence {
   private String comments;
   private ArrayList eventsParam;
   private double[] missedEventsProbs;
+  private int siteId;
+  private String siteEntryDate;
 
   public EventSequence() {
   }
@@ -51,5 +53,18 @@ public class EventSequence {
   public void setSequenceProb(double sequenceProb) {
     this.sequenceProb = sequenceProb;
   }
+  public String getSiteEntryDate() {
+    return siteEntryDate;
+  }
+  public int getSiteId() {
+    return siteId;
+  }
+  public void setSiteEntryDate(String siteEntryDate) {
+    this.siteEntryDate = siteEntryDate;
+  }
+  public void setSiteId(int siteId) {
+    this.siteId = siteId;
+  }
+
 
 }

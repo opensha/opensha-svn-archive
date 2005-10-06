@@ -156,7 +156,7 @@ public class PaleoEventDB_DAO {
    * @return
    * @throws QueryException
    */
-  public ArrayList getEventNames(int displacementEstId) throws QueryException {
+  public ArrayList getEventNamesForDisplacement(int displacementEstId) throws QueryException {
     ArrayList eventNames = new ArrayList();
     String sql = "select "+this.EVENT_NAME+" from "+this.TABLE_NAME+" where "+
         this.DISPLACEMENT_EST_ID+"="+displacementEstId;

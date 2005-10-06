@@ -210,7 +210,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
     }else if(this.paleoEventsList!=null && this.paleoEventsList.size()!=0) {
       int index  = this.eventNamesList.indexOf(eventName);
       PaleoEvent paleoEvent = (PaleoEvent)paleoEventsList.get(index);
-      ArrayList sharingEventNames = this.paleoEventDAO.getEventNames(paleoEvent.getDisplacementEstId());
+      ArrayList sharingEventNames = this.paleoEventDAO.getEventNamesForDisplacement(paleoEvent.getDisplacementEstId());
       String displacement = this.NOT_SHARED;
       if(sharingEventNames!=null && sharingEventNames.size()>0)
         displacement = SHARED;

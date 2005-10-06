@@ -15,6 +15,9 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.vo.EventSequence;
 import java.util.Iterator;
+import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.vo.PaleoEvent;
 
 /**
  * <p>Title: SequenceInformation.java </p>
@@ -52,6 +55,7 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private final static String MSG_MISSING_SEQUENCE_NAME="Please enter sequence name";
   private final static String MSG_MISSING_EVENT_NAMES="Please select atleast 1 event in this sequence";
   private final static String MSG_NEED_TO_SAVE_CURRRENT_SEQ = "Do you want to save current sequence?";
+  private final static String MSG_NO_EVENT="Cannot add sequence as no event exists for this site in database";
 
   // constants for making missed events prob parameters
   private final static String BEFORE = "Before";
@@ -79,9 +83,14 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private ParameterListEditor sequenceProbEditor;
 
   private ArrayList sequenceList = new ArrayList();
+  private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
+  private int siteId;
+  private String siteEntryDate;
 
-  public AddEditSequence() {
-    try {
+
+  public AddEditSequence(int siteId, String siteEntryDate) {
+      this.siteId = siteId;
+      this.siteEntryDate = siteEntryDate;
       this.setLayout(GUI_Utils.gridBagLayout);
       // add Parameters and editors
       initParamsAndEditors();
@@ -89,24 +98,28 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
       addActionListeners();
       // set the title
       this.setTitle(TITLE);
-    }
-    catch(Exception e) {
-      e.printStackTrace();
-    }
   }
 
-  private void initParamsAndEditors() throws Exception {
+  private void initParamsAndEditors()  {
 
    // sequence name parameter
-   sequenceNameParam = new StringParameter(this.SEQUENCE_NAME_PARAM_NAME, SEQUENCE_NAME_PARAM_DEFAULT);
-   sequenceNameParamEditor = new StringParameterEditor(sequenceNameParam);
+   try {
+     sequenceNameParam = new StringParameter(this.SEQUENCE_NAME_PARAM_NAME,
+                                             SEQUENCE_NAME_PARAM_DEFAULT);
+     sequenceNameParamEditor = new StringParameterEditor(sequenceNameParam);
 
-   // comments param
-   commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME, this.COMMENTS_PARAM_DEFAULT);
-   commentsParamEditor = new CommentsParameterEditor(commentsParam);
+     // comments param
+     commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME,
+                                         this.COMMENTS_PARAM_DEFAULT);
+     commentsParamEditor = new CommentsParameterEditor(commentsParam);
+   }catch(Exception e) {
+     e.printStackTrace();
+   }
 
    // select events in this sequence
    ArrayList eventList = getAvailableEvents();
+   if(eventList==null || eventList.size()==0)
+     throw new RuntimeException(MSG_NO_EVENT);
    this.eventsParam = new StringListParameter(this.EVENTS_PARAM_NAME, eventList);
    eventsParam.addParameterChangeListener(this);
    eventsParamEditor = new ConstrainedStringListParameterEditor(eventsParam);
@@ -292,6 +305,8 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     sequence.setEventsParam(selectedEvents);
     sequence.setSequenceName(sequenceName);
     sequence.setMissedEventsProbList(missedProbs);
+    sequence.setSiteId(this.siteId);
+    sequence.setSiteEntryDate(this.siteEntryDate);
     // add the sequence to the list
     this.sequenceList.add(sequence);
   }
@@ -299,20 +314,31 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
 
  /**
   * Get a list of available events.
-  * THIS IS JUST A FAKE IMPLEMENTATION. IT SHOULD GET THIS FROM THE DATABASE.
   * @return
   */
  private ArrayList getAvailableEvents() {
+   ArrayList eventsInfoList = this.paleoEventDAO.getAllEvents(this.siteId);
    ArrayList eventNamesList = new ArrayList();
-   eventNamesList.add("Event 1");
-   eventNamesList.add("Event 2");
-   eventNamesList.add("Event 3");
-   /*eventNamesList.add("Event 4");
-   eventNamesList.add("Event 5");
-   eventNamesList.add("Event 6");*/
+   for(int i=0; i<eventsInfoList.size(); ++i)
+     eventNamesList.add(((PaleoEvent)eventsInfoList.get(i)).getEventName());
    return eventNamesList;
  }
 
+ /**
+  * Return a ArrayList where each element is  a EventSequence object
+  * @return
+  */
+ public ArrayList getAllSequences() {
+   // set the sequence probabilities
+   Iterator it = this.sequenceProbParamList.getParametersIterator();
+   int i=0;
+   while(it.hasNext()) {
+     DoubleParameter param =  (DoubleParameter)it.next();
+     ((EventSequence)this.sequenceList.get(i)).setSequenceProb(((Double)param.getValue()).doubleValue());
+     ++i;
+   }
+   return sequenceList;
+ }
 
 
 

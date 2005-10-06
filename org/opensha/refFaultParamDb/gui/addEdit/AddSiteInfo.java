@@ -59,7 +59,13 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
     if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
     if(isNumEventsVisible) this.addEditNumEvents = new AddEditNumEvents();
-    if(this.isSequenceVisible) this.addEditSequence = new AddEditSequence();
+    try {
+      if (this.isSequenceVisible)
+        this.addEditSequence = new AddEditSequence(siteId, siteEntryDate);
+    }catch(RuntimeException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage());
+      this.isSequenceVisible = false;
+    }
     jbInit();
     addActionListeners();
     this.setSize(W,H);
