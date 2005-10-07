@@ -6,7 +6,6 @@ import java.lang.reflect.*;
 import java.io.*;
 
 import org.opensha.data.Location;
-import org.opensha.data.region.SitesInGriddedRectangularRegion;
 import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.imr.*;
 import org.opensha.util.*;
@@ -14,6 +13,8 @@ import org.opensha.param.event.ParameterChangeWarningListener;
 import org.opensha.param.WarningParameterAPI;
 import org.opensha.param.event.ParameterChangeWarningEvent;
 import org.opensha.param.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.calc.RelativeLocation;
 
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;
@@ -21,12 +22,14 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.data.LocationList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
 
 
 /**
  * <p>Title: ObsExceedProbCalculator</p>
  *
- * <p>Description: </p>
+ * <p>Description: This class calculates the ExceedProb from the output SA values
+ * from CyberShake and compares it with the given attenuation relationship application.</p>
  *
  * @author Nitin Gupta, Vipin Gupta, and Ned Field
  * @version 1.0
@@ -42,13 +45,17 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   private AttenuationRelationshipAPI attenRel; //Attenunation Relationship to be used.
 
   private String imt;
+  private String period;
   private String defaultSiteType; //in case we are not able to get the site type for any site
   //in the region.
 
   //Cybershake SA values
-  private ArrayList saVals;
+  private ArbitrarilyDiscretizedFunc xyVals;
   private  Frankel02_AdjustableEqkRupForecast frankelForecast = null;
+  //one of the ruptures in Frankel-02 code
   private EqkRupture rupture;
+  //approx Dist to 4 corners to the rupture
+  private double approxDist;
 
 
   private void parseFile(String fileName) throws FileNotFoundException,IOException{
@@ -68,10 +75,45 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
         else if(j==1) setRupture(line) ; // set the rupture params
         else if(j==2) setIMR(line); // set the imr
         else if(j==3) setIMT(line);  // set the IMT
-
+        else if(j==4) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
+        else if(j==5) setSAVals(line);
         ++j;
       }
+  }
 
+  /**
+   * Setting the SA vals for the Exceed Prob.
+   * @param str String
+   */
+  private void setSAVals(String str) {
+    StringTokenizer tokenizer = new StringTokenizer(str);
+    xyVals = new ArbitrarilyDiscretizedFunc();
+    while(tokenizer.hasMoreTokens())
+      xyVals.set(Double.parseDouble(tokenizer.nextToken().trim()),1.0);
+  }
+
+  /**
+   * Calculates the Exceed Prob Vals for the given Cybershake SA vals
+   */
+  private void calcObsExceedProbVals(){
+    int numVals= xyVals.getNum();
+    for(int i=0;i<numVals;++i){
+      double val = 1-i/numVals;
+      xyVals.set(i,val);
+    }
+  }
+
+  private void calcApproxDistance(){
+    GriddedSurfaceAPI surface = rupture.getRuptureSurface();
+    Location loc1 = surface.getLocation(0,0);
+    Location loc2 = surface.getLocation(0,surface.getNumCols());
+    Location loc3 = surface.getLocation(surface.getNumRows(),0);
+    Location loc4 = surface.getLocation(surface.getNumRows(),surface.getNumCols());
+    double dist1 = RelativeLocation.getApproxHorzDistance(loc,loc1);
+    double dist2 = RelativeLocation.getApproxHorzDistance(loc,loc2);
+    double dist3 = RelativeLocation.getApproxHorzDistance(loc,loc3);
+    double dist4 = RelativeLocation.getApproxHorzDistance(loc,loc4);
+    approxDist = (dist1+dist2+dist3+dist4)/4;
   }
 
   /**
@@ -163,7 +205,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
                            attenRel.getName());
         System.exit(0);
       }
-      imt += "-"+period;
+      this.period = ""+period;
     }
   }
 
@@ -237,10 +279,34 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   }
 
 
-
+  /**
+   * Creates the ObsExceedProbFile
+   */
   private void createObsExceedProbFile(){
 
-
+    try{
+      FileWriter fw = new FileWriter("AttenuationRelationship_Cybershake_test.txt");
+      fw.write("# Note :rupture is a thrust or reverse fault, so set that correctly in the IMRs.\n");
+      fw.write("Site Latitude = "+loc.getLatitude()+"\n");
+      fw.write("Site Longitude = "+loc.getLongitude()+"\n");
+      fw.write("Site Approx. Distance from Rupture = "+ approxDist+"\n");
+      fw.write("Rupture Magnitude = "+rupture.getMag()+"\n");
+      fw.write("Attenuation Relationship Name = "+attenRel.getName()+"\n");
+      fw.write("Attenuation Relationship XAxis ="+imt+"\n");
+      if(period !=null || !period.trim().equals(""))
+        fw.write("SA Period ="+period+"\n");
+      ListIterator it = attenRel.getSiteParamsIterator();
+      while(it.hasNext()){
+       ParameterAPI param = (ParameterAPI)it.next();
+       fw.write(param.getName()+" = "+param.getValue()+"\n");
+      }
+      fw.write("\n\n");
+      fw.write("Cybershake SA-Values(XAxis Vals) \t Observed Exceed=-Prob Vals");
+      fw.write(xyVals.toString()+"\n");
+      fw.close();
+    }catch(IOException e){
+      e.printStackTrace();
+    }
   }
 
 
@@ -297,6 +363,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
 
     ObsExceedProbCalculator calc = new ObsExceedProbCalculator();
+    calc.createERFInstance();
     try {
       calc.parseFile(args[0]);
     }
@@ -310,7 +377,9 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
       System.exit(0);
     }
 
-//    ObsExceedProbCalculator.getSiteParamsForRegion();
+    calc.calcApproxDistance();
+    calc.calcObsExceedProbVals();
+    calc.setSiteParam();
     calc.createObsExceedProbFile();
   }
 }

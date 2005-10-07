@@ -1,11 +1,11 @@
-# This is an input file for the PagerShakeMapCalc java program
+# This is an input file for the ObsExceedProbCalculator java program
 #
 # all lines that start with "#" are ignored (can be removed); the  
 # order of the other lines is important!
 #
-# Define Location
+# Define Location (Pasadena)
 # Lat  Lon  
-35.0  -122.0
+34.148427  -118.17119
 #
 # Define earthquake rupture parameters as
 # SourceIndex RuptureIndex 
