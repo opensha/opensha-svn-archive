@@ -40,5 +40,4 @@ public class NEHRP_Record
       ex.printStackTrace();
     }
   }
-
 }

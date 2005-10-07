@@ -378,13 +378,13 @@ public class ERF2RuptureForSTF_Generator {
     locList.addLocation(new Location(34.009092 , -118.48939));
 
     ListIterator it = locList.listIterator();
-    FileWriter fw = null;
+   /* FileWriter fw = null;
     try {
       fw = new FileWriter("SiteDistanceBounds.txt");
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
-    }
+    }*/
     while (it.hasNext()) {
       Location loc = (Location) it.next();
 
@@ -394,8 +394,8 @@ public class ERF2RuptureForSTF_Generator {
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
 
       //calling the function to generate the rupture files with directory name.
-      //calc.getEqkRupturesAsStringNearSite("Temp");
-      RectangularGeographicRegion region = null;
+      calc.getEqkRupturesAsStringNearSite("Temp");
+      /*RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
         double maxDepth = calc.getMaxDepthForRuptureInRegionBounds();
@@ -431,14 +431,14 @@ public class ERF2RuptureForSTF_Generator {
       }
       catch (IOException ex4) {
         ex4.printStackTrace() ;
-      }
+      }*/
     }
-    try {
+    /*try {
       fw.close();
     }
     catch (IOException ex3) {
       ex3.printStackTrace();
-    }
+    }*/
   }
 
   /**
@@ -517,7 +517,7 @@ public class ERF2RuptureForSTF_Generator {
 
 
   /**
-   * Returns the gridspacing for the Latitudes
+   * Returns the gridspacing between the 2 locations on the surface
    * @return double
    */
   private double getGridSpacing(GriddedSurfaceAPI surface) {
@@ -525,8 +525,8 @@ public class ERF2RuptureForSTF_Generator {
       return ((EvenlyGriddedSurface)surface).getGridSpacing();
     else{
       Location loc1 = surface.getLocation(0, 0);
-      Location loc2 = surface.getLocation(1, 0);
-      return Math.abs(loc2.getLatitude() - loc1.getLatitude());
+      Location loc2 = surface.getLocation(0, 1);
+      return RelativeLocation.getHorzDistance(loc1,loc2);
     }
   }
 

@@ -20,7 +20,6 @@ import org.opensha.nshmp.util.ui.*;
  */
 public class HazardCurveCalculator {
 
-  private static final String Hazard_Curve_Title = "Hazard Curve for PGA";
 
   private float gridSpacing;
 
@@ -57,7 +56,7 @@ public class HazardCurveCalculator {
     gridSpacing = siteSaVals.getGridSpacing();
     //set the info for the function being added
     String info = "";
-    info += Hazard_Curve_Title + "\n";
+    info += hazCurveType+ "\n";
 
     info += "Latitude = " + latLonFormat.format(latitude) + "\n";
     info += "Longitude = " + latLonFormat.format(longitude) + "\n";
@@ -95,7 +94,7 @@ public class HazardCurveCalculator {
         lat, lon, hazCurveType);
     //set the info for the function being added
     String info = "";
-    info += Hazard_Curve_Title + "\n";
+    info += hazCurveType+ "\n";
 
     info += "Zip Code - " + zipCode + "\n";
     info += "Zip Code Latitude = " + latLonFormat.format(lat) + "\n";
