@@ -450,7 +450,6 @@ public final class GlobalConstants {
     supportedAnalysisOption.add(PROB_HAZ_CURVES);
     supportedAnalysisOption.add(PROB_UNIFORM_HAZ_RES);
     supportedAnalysisOption.add(NEHRP);
-    supportedAnalysisOption.add(NFPA);
     supportedAnalysisOption.add(INTL_BUILDING_CODE);
     supportedAnalysisOption.add(INTL_RESIDENTIAL_CODE);
     //supportedAnalysisOption.add(INTL_EXIST_CODE);

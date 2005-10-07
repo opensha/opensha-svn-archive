@@ -60,11 +60,11 @@ public class DataFileNameSelectorForUHS {
 
   private String getFileNameForPRVI(String selectedEdition, String spectraType) {
     if (spectraType.equals(GlobalConstants.PE_2)) {
-      String fileName = "2003-PVRI-UHS-02-050-R1a.rnd";
+      String fileName = "2003-PRVI-UHS-02-050-R1a.rnd";
       return filePath + fileName;
     }
     else if (spectraType.equals(GlobalConstants.PE_10)) {
-      String fileName = "2003-PVRI-UHS-10-050-R1a.rnd";
+      String fileName = "2003-PRVI-UHS-10-050-R1a.rnd";
       return filePath + fileName;
     }
     return null;
@@ -111,7 +111,7 @@ public class DataFileNameSelectorForUHS {
           String fileName = "1996-CANV-UHS-05-050-R2a.rnd";
           return filePath + fileName;
         }
-        else if (spectraType.equals(GlobalConstants.PE_5)) {
+        else if (spectraType.equals(GlobalConstants.PE_10)) {
           String fileName = "1996-CANV-UHS-10-050-R2a.rnd";
           return filePath + fileName;
         }

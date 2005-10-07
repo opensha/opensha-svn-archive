@@ -140,8 +140,8 @@ public class UHS_SACalculator {
         DataDisplayFormatter.createFunctionInfoString(funcList,
         GlobalConstants.SITE_CLASS_B);
     //adding the info for the PGA function
-    info +=
-        getPGAInfo( (ArbitrarilyDiscretizedFunc) funcList.get(2), spectraType);
+    //info +=
+      //  getPGAInfo( (ArbitrarilyDiscretizedFunc) funcList.get(2), spectraType);
 
     return info;
   }
@@ -182,8 +182,8 @@ public class UHS_SACalculator {
         DataDisplayFormatter.createFunctionInfoString(funcList,
         GlobalConstants.SITE_CLASS_B);
     //adding the info for the PGA function
-    info +=
-        getPGAInfo( (ArbitrarilyDiscretizedFunc) funcList.get(2), spectraType);
+    //info +=
+      //  getPGAInfo( (ArbitrarilyDiscretizedFunc) funcList.get(2), spectraType);
     return info;
 
   }

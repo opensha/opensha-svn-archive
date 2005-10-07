@@ -72,15 +72,15 @@ public class DataFileNameSelectorForHazardCurves {
   private String getFileNameForPRVI(String selectedEdition,
                                     String selectedHazardCurveType) {
     if (selectedHazardCurveType.equals(GlobalConstants.PGA)) {
-      String fileName = "2003-PVRI-HAZ-0_0sec-R3a.rnd";
+      String fileName = "2003-PRVI-HAZ-0_0sec-R3a.rnd";
       return filePath + fileName;
     }
     else if (selectedHazardCurveType.equals(GlobalConstants.IMT_POINT_TWO_SEC)) {
-      String fileName = "2003-PVRI-HAZ-0_2sec-R3a.rnd";
+      String fileName = "2003-PRVI-HAZ-0_2sec-R3a.rnd";
       return filePath + fileName;
     }
     else if (selectedHazardCurveType.equals(GlobalConstants.IMT_ONE_SEC)) {
-      String fileName = "2003-PVRI-HAZ-1_0sec-R3a.rnd";
+      String fileName = "2003-PRVI-HAZ-1_0sec-R3a.rnd";
       return filePath + fileName;
     }
     return null;

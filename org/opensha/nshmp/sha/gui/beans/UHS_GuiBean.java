@@ -468,12 +468,5 @@ public class UHS_GuiBean
     window.show();
   }
 
-  /**
-   *
-   * @param actionEvent ActionEvent
-   */
-  protected void viewButton_actionPerformed(ActionEvent actionEvent) {
-    viewCurves();
-  }
 
 }

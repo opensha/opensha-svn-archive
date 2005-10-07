@@ -58,11 +58,11 @@ public class NFPA_GuiBean
 
     ArrayList supportedEditionList = new ArrayList();
 
+    supportedEditionList.add(GlobalConstants.SCI_ASCE);
+    supportedEditionList.add(GlobalConstants.IEBC_2003);
     supportedEditionList.add(GlobalConstants.FEMA_273_DATA);
     supportedEditionList.add(GlobalConstants.FEMA_310_DATA);
     supportedEditionList.add(GlobalConstants.FEMA_356_DATA);
-    supportedEditionList.add(GlobalConstants.SCI_ASCE);
-    supportedEditionList.add(GlobalConstants.IEBC_2003);
     datasetGui.createEditionSelectionParameter(supportedEditionList);
     datasetGui.getEditionSelectionParameter().addParameterChangeListener(this);
     selectedEdition = datasetGui.getSelectedDataSetEdition();

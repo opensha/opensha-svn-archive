@@ -344,7 +344,7 @@ public class ProbabilisticHazardApplication
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     setSize(W,H);
     this.setLocation( (d.width - this.getSize().width) / 2, 0);
-    mainSplitPane.setDividerLocation(410);
+    mainSplitPane.setDividerLocation(390);
     dataSplitPane.setDividerLocation(414);
     buttonPanel.updateUI();
     contentPane.updateUI();
