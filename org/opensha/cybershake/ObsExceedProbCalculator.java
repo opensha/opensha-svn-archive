@@ -17,14 +17,10 @@ import org.opensha.param.*;
 
 import org.opensha.sha.util.SiteTranslator;
 import org.opensha.param.ParameterAPI;
-import org.opensha.data.XYZ_DataSetAPI;
-import org.opensha.sha.param.PropagationEffect;
-import org.opensha.sha.calc.ScenarioShakeMapCalculator;
 
-import java.text.DecimalFormat;
-import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.data.LocationList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 
 
 /**
@@ -51,6 +47,8 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
   //Cybershake SA values
   private ArrayList saVals;
+  private  Frankel02_AdjustableEqkRupForecast frankelForecast = null;
+  private EqkRupture rupture;
 
 
   private void parseFile(String fileName) throws FileNotFoundException,IOException{
@@ -87,8 +85,9 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     loc = new Location(lat,lon);
   }
 
-  private void setRupture(String str) {
 
+  private void setRupture(String str) {
+    rupture = frankelForecast.getRupture(sourceIndex, ruptureIndex);
   }
 
   private void setIMR(String str) {
@@ -265,21 +264,37 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   }
 
 
+  private void createERFInstance(){
+    frankelForecast = new
+        Frankel02_AdjustableEqkRupForecast();
+
+    frankelForecast.getAdjustableParameterList().getParameter(
+        Frankel02_AdjustableEqkRupForecast.
+        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
+                                 BACK_SEIS_INCLUDE);
+
+    frankelForecast.getAdjustableParameterList().getParameter(
+        Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
+        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+
+    frankelForecast.getAdjustableParameterList().getParameter(
+        Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_NAME).setValue(
+            frankelForecast.FAULT_MODEL_STIRLING);
+    frankelForecast.getAdjustableParameterList().getParameter(
+        Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(
+            new Double(5.0));
+
+    frankelForecast.getTimeSpan().setDuration(1.0);
+    frankelForecast.updateForecast();
+  }
+
 
   /**
    * Main Methid to run the application
    * @param args String[]
    */
   public static void main(String[] args) {
-    /*if (args.length != 1) {
-      System.out.println("Must provide the input file name\n");
-      System.out.println("Usage :\n\t" +
-          "java -jar [jarfileName] [inputFileName]\n\n");
-      System.out.println("jarfileName : Name of the executable jar file, by default it is PagerShakeMapCalc.jar");
-      System.out.println(
-          "inputFileName :Name of the input file,For eg: see \"inputFile.txt\". ");
-      System.exit(0);
-    }*/
+
 
     ObsExceedProbCalculator calc = new ObsExceedProbCalculator();
     try {
