@@ -23,6 +23,7 @@ import org.opensha.data.LocationList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.data.function.DiscretizedFuncAPI;
 
 
 /**
@@ -42,10 +43,9 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    */
   private Location loc; //Geographic Location
   private int sourceIndex, ruptureIndex; //EqkRupture
-  private AttenuationRelationshipAPI attenRel; //Attenunation Relationship to be used.
 
   private String imt;
-  private String period;
+  private double period;
   private String defaultSiteType; //in case we are not able to get the site type for any site
   //in the region.
 
@@ -56,6 +56,28 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   private EqkRupture rupture;
   //approx Dist to 4 corners to the rupture
   private double approxDist;
+  private String willsClass = "NA";
+  private double basinDepth = Double.NaN;
+
+  /**
+   *  The object class names for all the supported attenuation ralations (IMRs)
+   *  Temp until figure out way to dynamically load classes during runtime
+   */
+  public final static String AS_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_1997_AttenRel";
+  public final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
+  public final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
+  public final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
+  public final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  public final static String CB_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
+  public final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
+  public final static String USGS04_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
+  public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
+  public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
+  public final static String CY_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
+  public final static String Boore_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
+
+  //arrayList to store the supported AttenRel Class Names with their full package structure.
+  ArrayList supportedAttenRelClasses = new ArrayList();
 
 
   private void parseFile(String fileName) throws FileNotFoundException,IOException{
@@ -73,10 +95,9 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
         //
         if(j==0) getLocation(line); // first line sets the region Params
         else if(j==1) setRupture(line) ; // set the rupture params
-        else if(j==2) setIMR(line); // set the imr
-        else if(j==3) setIMT(line);  // set the IMT
-        else if(j==4) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
-        else if(j==5) setSAVals(line);
+        else if(j==2) setIMT(line);  // set the IMT
+        else if(j==3) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
+        else if(j==4) setSAVals(line);
         ++j;
       }
   }
@@ -103,18 +124,6 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     }
   }
 
-  private void calcApproxDistance(){
-    GriddedSurfaceAPI surface = rupture.getRuptureSurface();
-    Location loc1 = surface.getLocation(0,0);
-    Location loc2 = surface.getLocation(0,surface.getNumCols());
-    Location loc3 = surface.getLocation(surface.getNumRows(),0);
-    Location loc4 = surface.getLocation(surface.getNumRows(),surface.getNumCols());
-    double dist1 = RelativeLocation.getApproxHorzDistance(loc,loc1);
-    double dist2 = RelativeLocation.getApproxHorzDistance(loc,loc2);
-    double dist3 = RelativeLocation.getApproxHorzDistance(loc,loc3);
-    double dist4 = RelativeLocation.getApproxHorzDistance(loc,loc4);
-    approxDist = (dist1+dist2+dist3+dist4)/4;
-  }
 
   /**
    * Setting the Region parameters
@@ -132,8 +141,20 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     rupture = frankelForecast.getRupture(sourceIndex, ruptureIndex);
   }
 
-  private void setIMR(String str) {
-    createIMRClassInstance(str.trim());
+  private void setIMR() {
+    //adds all the AttenRel classes to the ArrayList
+    supportedAttenRelClasses.add(AS_CLASS_NAME);
+    supportedAttenRelClasses.add(C_CLASS_NAME);
+    supportedAttenRelClasses.add(SCEMY_CLASS_NAME);
+    supportedAttenRelClasses.add(F_CLASS_NAME);
+    supportedAttenRelClasses.add(A_CLASS_NAME);
+    supportedAttenRelClasses.add(CB_CLASS_NAME);
+    supportedAttenRelClasses.add(SM_CLASS_NAME);
+    supportedAttenRelClasses.add(USGS04_CLASS_NAME);
+    supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(CY_2005_PRELIM_CLASS_NAME);
+    supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);
   }
 
 
@@ -154,17 +175,18 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   *
   */
 
-  private void createIMRClassInstance(String AttenRelClassName){
-    String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
+  private AttenuationRelationshipAPI createIMRClassInstance(String AttenRelClassName){
+    //String attenRelClassPackage = "org.opensha.sha.imr.attenRelImpl.";
       try {
         Class listenerClass = Class.forName( "org.opensha.param.event.ParameterChangeWarningListener" );
         Object[] paramObjects = new Object[]{ this };
         Class[] params = new Class[]{ listenerClass };
-        Class imrClass = Class.forName(attenRelClassPackage+AttenRelClassName);
+        Class imrClass = Class.forName(AttenRelClassName);
         Constructor con = imrClass.getConstructor( params );
-        attenRel = (AttenuationRelationshipAPI)con.newInstance( paramObjects );
+        AttenuationRelationshipAPI attenRel = (AttenuationRelationshipAPI)con.newInstance( paramObjects );
         //setting the Attenuation with the default parameters
         attenRel.setParamDefaults();
+        return attenRel;
       } catch ( ClassCastException e ) {
         e.printStackTrace();
       } catch ( ClassNotFoundException e ) {
@@ -178,16 +200,30 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
       } catch ( InstantiationException e ) {
         e.printStackTrace();
       }
+      return null;
   }
+
+
 
 
   /**
    * Setting the intensity Measure in the Attenuation Relationship
    * @param str String
    */
-  private void setIMT(String str) {
+  public void setIMT(String str){
     StringTokenizer tokenizer = new StringTokenizer(str);
     imt = tokenizer.nextToken().trim();
+    if(imt.equalsIgnoreCase("SA")){
+      double period = Double.parseDouble(tokenizer.nextToken());
+      this.period = period;
+    }
+  }
+
+  /**
+   * Sets the IMT in the AttenuationRelationship
+   * @param attenRel AttenuationRelationshipAPI
+   */
+  private void setIMT(AttenuationRelationshipAPI attenRel) {
     try{
       attenRel.setIntensityMeasure(imt);
     }catch(Exception e){
@@ -195,7 +231,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
       System.exit(0);
     }
     if(imt.equalsIgnoreCase("SA")){
-      double period = Double.parseDouble(tokenizer.nextToken());
+
       try{
         attenRel.getParameter(AttenuationRelationship.PERIOD_NAME).setValue(new
             Double(period));
@@ -205,7 +241,6 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
                            attenRel.getName());
         System.exit(0);
       }
-      this.period = ""+period;
     }
   }
 
@@ -234,7 +269,8 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    * @param willsClass
    * @param basinDepth
    */
-  private void setSiteParamsInIMR(String willsClass, double basinDepth) {
+  private void setSiteParamsInIMR(AttenuationRelationshipAPI attenRel,
+                                  String willsClass, double basinDepth) {
 
     Iterator it = attenRel.getSiteParamsIterator(); // get site params for this IMR
     SiteTranslator siteTranslator = new SiteTranslator();
@@ -261,8 +297,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   void setSiteParam() {
     LocationList locList = new LocationList();
     locList.addLocation(new Location(loc.getLatitude(),loc.getLongitude()));
-    String willsClass = "NA";
-    double basinDepth = Double.NaN;
+
     // get the vs 30 and basin depth from cvm
     try {
       willsClass = (String) (ConnectToCVM.getWillsSiteTypeFromCVM(locList)).get(
@@ -275,7 +310,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     }
     if(willsClass.equals("NA"))
       willsClass = defaultSiteType;
-    setSiteParamsInIMR(willsClass, basinDepth);
+
   }
 
 
@@ -286,31 +321,58 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
     try{
       FileWriter fw = new FileWriter("AttenuationRelationship_Cybershake_test.txt");
-      fw.write("# Note :rupture is a thrust or reverse fault, so set that correctly in the IMRs.\n");
-      fw.write("Site Latitude = "+loc.getLatitude()+"\n");
-      fw.write("Site Longitude = "+loc.getLongitude()+"\n");
-      fw.write("Site Approx. Distance from Rupture = "+ approxDist+"\n");
-      fw.write("Rupture Magnitude = "+rupture.getMag()+"\n");
-      fw.write("Attenuation Relationship Name = "+attenRel.getName()+"\n");
-      fw.write("Attenuation Relationship XAxis ="+imt+"\n");
-      if(period !=null || !period.trim().equals(""))
-        fw.write("SA Period ="+period+"\n");
-      ListIterator it = attenRel.getSiteParamsIterator();
-      while(it.hasNext()){
-       ParameterAPI param = (ParameterAPI)it.next();
-       fw.write(param.getName()+" = "+param.getValue()+"\n");
+      for(int i=0;i<this.supportedAttenRelClasses.size();++i){
+        String attenRel = (String)supportedAttenRelClasses.get(i);
+        AttenuationRelationshipAPI imr = this.createIMRClassInstance(attenRel);
+        this.setIMT(imr);
+        setSiteParamsInIMR(imr,willsClass, basinDepth);
+        imr.setEqkRupture(rupture);
+        DiscretizedFuncAPI arb = initX_Values();
+        imr.getExceedProbabilities(arb);
+        toggleHazFuncLogValues(arb);
+        fw.write("#Exceed Prob Vals for :"+imr.getName()+"\n");
+        fw.write(xyVals.toString()+"\n\n");
       }
-      fw.write("\n\n");
-      fw.write("Cybershake SA-Values(XAxis Vals) \t Observed Exceed=-Prob Vals");
+      this.calcObsExceedProbVals();
+      fw.write("#Observed Exceed Prob. Values in the Cybershake\n");
       fw.write(xyVals.toString()+"\n");
+
       fw.close();
     }catch(IOException e){
       e.printStackTrace();
     }
   }
 
+  /**
+   * set x values in log space for Hazard Function to be passed to IMR
+   * if the selected IMT are SA , PGA , PGV or FaultDispl
+   * It accepts 1 parameters
+   *
+   * @param originalFunc :  this is the function with X values set
+   */
+  private DiscretizedFuncAPI initX_Values(){
+    DiscretizedFuncAPI arb = new ArbitrarilyDiscretizedFunc();
+      for(int i=0;i<xyVals.getNum();++i)
+        arb.set(Math.log(xyVals.getX(i)),1);
+      return arb;
+  }
 
 
+  /**
+   * set x values back from the log space to the original linear values
+   * for Hazard Function after completion of the Hazard Calculations
+   * if the selected IMT are SA , PGA or PGV
+   * It accepts 1 parameters
+   *
+   * @param hazFunction :  this is the function with X values set
+   */
+  private ArbitrarilyDiscretizedFunc toggleHazFuncLogValues(DiscretizedFuncAPI arb){
+
+      for(int i=0; i<arb.getNum(); ++i)
+        xyVals.set(i, arb.getY(i));
+      return xyVals;
+
+  }
 
   /**
    *  Function that must be implemented by all Listeners for
@@ -365,6 +427,15 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     ObsExceedProbCalculator calc = new ObsExceedProbCalculator();
     calc.createERFInstance();
     try {
+      calc.parseFile("/Users/nitingupta/projects/sha_new/org/opensha/cybershake/CyberShakeInputFile.txt");
+    }
+    catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+    }
+    catch (IOException ex) {
+      ex.printStackTrace();
+    }
+    /*try {
       calc.parseFile(args[0]);
     }
     catch (FileNotFoundException ex) {
@@ -375,10 +446,8 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
       System.out.println("Unable to parse the input file"+ args[0]);
       System.out.println("Please provide correct input file.");
       System.exit(0);
-    }
-
-    calc.calcApproxDistance();
-    calc.calcObsExceedProbVals();
+    }*/
+    calc.setIMR();
     calc.setSiteParam();
     calc.createObsExceedProbFile();
   }
