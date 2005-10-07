@@ -86,6 +86,8 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private PaleoEventDB_DAO paleoEventDAO = new PaleoEventDB_DAO(DB_AccessAPI.dbConnection);
   private int siteId;
   private String siteEntryDate;
+  ArrayList eventsInfoList ;
+  ArrayList eventNamesList;
 
 
   public AddEditSequence(int siteId, String siteEntryDate) {
@@ -129,8 +131,6 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
 
    // add the parameter editors to the GUI componenets
    addEditorstoGUI();
-
-
   }
 
 
@@ -302,7 +302,15 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
       missedProbs[i++] = ((Double)((ParameterAPI)paramsIterator.next()).getValue()).doubleValue();
     }
     sequence.setComments((String)this.commentsParam.getValue());
-    sequence.setEventsParam(selectedEvents);
+    // set the selected events info in the sequence
+    ArrayList selectedEventsInfoList  = new ArrayList();
+    int index;
+    for(i=0; i<selectedEvents.size(); ++i) {
+      String eventName = (String)selectedEvents.get(i);
+      index = selectedEvents.indexOf(eventName);
+      selectedEventsInfoList.add(this.eventsInfoList.get(index));
+    }
+    sequence.setEventsParam(selectedEventsInfoList);
     sequence.setSequenceName(sequenceName);
     sequence.setMissedEventsProbList(missedProbs);
     sequence.setSiteId(this.siteId);
@@ -317,8 +325,8 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   * @return
   */
  private ArrayList getAvailableEvents() {
-   ArrayList eventsInfoList = this.paleoEventDAO.getAllEvents(this.siteId);
-   ArrayList eventNamesList = new ArrayList();
+  eventsInfoList = this.paleoEventDAO.getAllEvents(this.siteId);
+  eventNamesList = new ArrayList();
    for(int i=0; i<eventsInfoList.size(); ++i)
      eventNamesList.add(((PaleoEvent)eventsInfoList.get(i)).getEventName());
    return eventNamesList;

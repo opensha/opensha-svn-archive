@@ -81,7 +81,7 @@ public class PaleoEventDB_DAO {
 
     String sql = "insert into "+TABLE_NAME+"("+ EVENT_ID+","+EVENT_NAME+","+
         SITE_ID+","+SITE_ENTRY_DATE+","+CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
-        ","+DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
+        DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
         " values ("+paleoEventId+",'"+paleoEvent.getEventName()+"',"+paleoEvent.getSiteId()+
         ",'"+paleoEvent.getSiteEntryDate()+"',"+SessionInfo.getContributor().getId()+
         ","+eventTimeEstId+","+displacementEstId+
@@ -147,6 +147,15 @@ public class PaleoEventDB_DAO {
   public ArrayList getAllEvents(int siteId)  throws QueryException {
      String condition = " where "+this.SITE_ID+"="+siteId;
      return query(condition);
+  }
+
+  public PaleoEvent getEvent(int eventId) throws QueryException {
+    String condition = " where "+this.EVENT_ID+"="+eventId;
+    ArrayList paleoEventList = query(condition);
+    PaleoEvent paleoEvent = null;
+    if(paleoEventList.size()>0) paleoEvent = (PaleoEvent)paleoEventList.get(0);
+    return paleoEvent;
+
   }
 
 

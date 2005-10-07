@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.vo;
 
 import java.util.ArrayList;
+import org.opensha.refFaultParamDb.data.TimeAPI;
 
 /**
  * <p>Title: EventSequence.java </p>
@@ -20,6 +21,10 @@ public class EventSequence {
   private double[] missedEventsProbs;
   private int siteId;
   private String siteEntryDate;
+  private int sequenceId;
+  private String sequenceEntryDate;
+  private TimeAPI startTime;
+  private TimeAPI endTime;
 
   public EventSequence() {
   }
@@ -65,6 +70,29 @@ public class EventSequence {
   public void setSiteId(int siteId) {
     this.siteId = siteId;
   }
-
+  public String getSequenceEntryDate() {
+    return sequenceEntryDate;
+  }
+  public int getSequenceId() {
+    return sequenceId;
+  }
+  public void setSequenceEntryDate(String sequenceEntryDate) {
+    this.sequenceEntryDate = sequenceEntryDate;
+  }
+  public void setSequenceId(int sequenceId) {
+    this.sequenceId = sequenceId;
+  }
+  public TimeAPI getStartTime() {
+    return startTime;
+  }
+  public void setStartTime(TimeAPI startTime) {
+    this.startTime = startTime;
+  }
+  public void setEndTime(TimeAPI endTime) {
+    this.endTime = endTime;
+  }
+  public TimeAPI getEndTime() {
+    return endTime;
+  }
 
 }

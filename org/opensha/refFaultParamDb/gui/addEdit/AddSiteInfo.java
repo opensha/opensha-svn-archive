@@ -8,6 +8,8 @@ import org.opensha.refFaultParamDb.dao.db.TimeInstanceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
+import java.util.ArrayList;
+import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -43,7 +45,7 @@ public class AddSiteInfo extends JFrame implements ActionListener{
   private int siteId;
   private String siteEntryDate;
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
-
+  private EventSequenceDB_DAO eventSequenceDAO = new EventSequenceDB_DAO(DB_AccessAPI.dbConnection);
   public AddSiteInfo(int siteId, String siteEntryDate,
                      boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible, boolean isSequenceVisible)  {
@@ -87,7 +89,11 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     if(source==this.cancelButton) this.dispose();
     else if(source==this.okButton) {
       try {
-        putSiteInfoInDatabase(); // put site info in database
+        if(this.isSlipVisible || this.isDisplacementVisible ||
+           this.isNumEventsVisible)
+          putSiteInfoInDatabase(); // put site info in database
+        if(this.isSequenceVisible)
+          putSequenceInDatabase();
         JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
         this.dispose();
       }catch(Exception e){
@@ -130,6 +136,14 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
   }
 
+  /**
+   * Put the sequences in the database
+   */
+  private void putSequenceInDatabase() {
+    ArrayList sequences  = this.addEditSequence.getAllSequences();
+    eventSequenceDAO.addEventSequence(sequences, this.addEditTimeSpan.getStartTime(),
+                                      this.addEditTimeSpan.getEndTime());
+  }
 
   /**
    * intialize the GUI components

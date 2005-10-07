@@ -1,6 +1,8 @@
 drop View Vw_Paleo_Site_Chars;
 drop table Event_Sequence_Event_List;
 drop table Event_Sequence_References;
+drop trigger Event_Sequence_Trigger;
+drop sequence Event_Sequence_Sequence;
 drop table Event_Sequence;
 drop sequence Paleo_Event_Sequence;
 drop trigger Paleo_Event_Trigger;
@@ -559,28 +561,42 @@ end;
 /
 
 
-
-
 CREATE TABLE Event_Sequence (
   Sequence_Id INTEGER NOT NULL,
-  Sequence_Name VARCHAR(255) NOT NULL,
+  Sequence_Name VARCHAR(255) NOT NULL UNIQUE,
   Site_Id INTEGER  NOT NULL,  
   Site_Entry_Date date NOT NULL,
   Start_Time_Est_Id INTEGER NOT NULL,
   End_Time_Est_Id INTEGER  NOT NULL,
   Entry_Date date NOT NULL, 
-   Contributor_Id INTEGER  NOT NULL,
+  Contributor_Id INTEGER  NOT NULL,
   General_Comments VARCHAR(255) NOT NULL,
+  Sequence_Probability FLOAT NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Start_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Time_Instances(Time_Id),
   FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Time_Instances(Time_Id),
   FOREIGN KEY (Site_Id,  Site_Entry_Date) 
     REFERENCES Paleo_Site(Site_Id,  Entry_Date)
 );
+
+CREATE SEQUENCE Event_Sequence_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+CREATE TRIGGER Event_Sequence_Trigger
+before insert on Event_Sequence
+for each row
+begin
+if :new.Sequence_Id is null then
+select Event_Sequence_Sequence.nextval into :new.Sequence_Id from dual;
+end if;
+end;
+/
 
 CREATE TABLE Event_Sequence_References (
   Event_Sequence_Id INTEGER  NOT NULL,
@@ -601,7 +617,7 @@ CREATE TABLE Event_Sequence_Event_List (
   Sequence_Entry_Date date NOT NULL,
   Missed_Prob FLOAT NOT NULL,
   Event_Index_In_Sequence INTEGER  NOT NULL,
-  PRIMARY KEY(Event_Id, Event_Entry_Date, Sequence_Id,  Sequence_Entry_Date),
+  PRIMARY KEY(Sequence_Id,  Sequence_Entry_Date, Event_Index_In_Sequence),
   FOREIGN KEY(Event_Id,  Event_Entry_Date)
    REFERENCES Paleo_Event(Event_Id,  Entry_Date),
   FOREIGN KEY(Sequence_Id, Sequence_Entry_Date)
