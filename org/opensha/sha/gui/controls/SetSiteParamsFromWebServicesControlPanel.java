@@ -147,7 +147,6 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     int num = imrObjects.size();
     for (int i = 0; i < num; ++i)
       setSiteParamsInIMR( (AttenuationRelationshipAPI) imrObjects.get(i),
-                         lon.doubleValue(), lat.doubleValue(),
                          willsClass, basinDepth);
 
     // reflect the new parameter value in GUI
@@ -164,8 +163,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
    * @param willsClass
    * @param basinDepth
    */
-  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, double lon,
-                             double lat, String willsClass, double basinDepth) {
+  private void setSiteParamsInIMR(AttenuationRelationshipAPI imr, String willsClass, double basinDepth) {
 
     Iterator it = imr.getSiteParamsIterator(); // get site params for this IMR
     while(it.hasNext()) {
@@ -206,8 +204,7 @@ public class SetSiteParamsFromWebServicesControlPanel extends JFrame {
     }
     // do for selected IMR
     AttenuationRelationshipAPI imr =   this.imrGuiBean.getSelectedIMR_Instance();
-    setSiteParamsInIMR(imr, lon.doubleValue(), lon.doubleValue(),
-                              willsClass, basinDepth);
+    setSiteParamsInIMR(imr,willsClass, basinDepth);
     // reflect the new parameter value in GUI
    this.siteGuiBean.getParameterListEditor().refreshParamEditor();
    this.dispose();
