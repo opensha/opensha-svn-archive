@@ -24,7 +24,7 @@ import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_Adjustable
 
 
 /**
- * <p>Title: PagerShakeMapCalc</p>
+ * <p>Title: ObsExceedProbCalculator</p>
  *
  * <p>Description: </p>
  *
