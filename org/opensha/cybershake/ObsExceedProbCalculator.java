@@ -24,6 +24,8 @@ import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.surface.GriddedSurfaceAPI;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.data.Site;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 
 
 /**
@@ -67,12 +69,12 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   public final static String C_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Campbell_1997_AttenRel";
   public final static String SCEMY_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.SCEMY_1997_AttenRel";
   public final static String F_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Field_2000_AttenRel";
-  public final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
+  //public final static String A_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Abrahamson_2000_AttenRel";
   public final static String CB_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2003_AttenRel";
   public final static String SM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.ShakeMap_2003_AttenRel";
   public final static String USGS04_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.USGS_Combined_2004_AttenRel";
   public final static String AS_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.AS_2005_prelim_AttenRel";
-  public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
+  //public final static String CB_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CB_2005_prelim_AttenRel";
   public final static String CY_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.CY_2005_prelim_AttenRel";
   public final static String Boore_2005_PRELIM_CLASS_NAME = "org.opensha.sha.imr.attenRelImpl.Boore_2005_prelim_AttenRel";
 
@@ -119,7 +121,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   private void calcObsExceedProbVals(){
     int numVals= xyVals.getNum();
     for(int i=0;i<numVals;++i){
-      double val = 1-i/numVals;
+      double val = 1-((double)i)/numVals;
       xyVals.set(i,val);
     }
   }
@@ -138,7 +140,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
 
   private void setRupture(String str) {
-    rupture = frankelForecast.getRupture(sourceIndex, ruptureIndex);
+    rupture =  frankelForecast.getRupture(sourceIndex, ruptureIndex);
   }
 
   private void setIMR() {
@@ -147,12 +149,12 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     supportedAttenRelClasses.add(C_CLASS_NAME);
     supportedAttenRelClasses.add(SCEMY_CLASS_NAME);
     supportedAttenRelClasses.add(F_CLASS_NAME);
-    supportedAttenRelClasses.add(A_CLASS_NAME);
+   // supportedAttenRelClasses.add(A_CLASS_NAME);
     supportedAttenRelClasses.add(CB_CLASS_NAME);
     supportedAttenRelClasses.add(SM_CLASS_NAME);
     supportedAttenRelClasses.add(USGS04_CLASS_NAME);
     supportedAttenRelClasses.add(AS_2005_PRELIM_CLASS_NAME);
-    supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
+   // supportedAttenRelClasses.add(CB_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(CY_2005_PRELIM_CLASS_NAME);
     supportedAttenRelClasses.add(Boore_2005_PRELIM_CLASS_NAME);
   }
@@ -274,8 +276,10 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
     Iterator it = attenRel.getSiteParamsIterator(); // get site params for this IMR
     SiteTranslator siteTranslator = new SiteTranslator();
+    Site site = new Site(loc);
     while(it.hasNext()) {
       ParameterAPI tempParam = (ParameterAPI)it.next();
+      site.addParameter(tempParam);
       //adding the site Params from the CVM, if site is out the range of CVM then it
       //sets the site with whatever site Parameter Value user has choosen in the application
       boolean flag = siteTranslator.setParameterValue(tempParam,willsClass,basinDepth);
@@ -286,6 +290,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
         System.out.println(message);
       }
     }
+    attenRel.setSite(site);
 
   }
 
