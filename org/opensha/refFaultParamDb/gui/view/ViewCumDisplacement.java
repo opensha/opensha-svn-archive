@@ -26,7 +26,14 @@ import javax.swing.JPanel;
 
 public class ViewCumDisplacement extends LabeledBoxPanel  {
   private final static String DISPLACEMENT_TITLE = "Displacement";
-  // various labels to provide the information
+  private final static String DISPLACEMENT_PANEL_TITLE = "Displacement Estimate(m)";
+  private final String ASEISMIC_SLIP_PANEL_TITLE = "Aseismic Slip Factor(0-1, 1=all aseismic)";
+
+  private final static String DISPLACEMENT = "Displacement";
+  private final static String ASEISMIC_SLIP_FACTOR = "Aseismic Slip Factor";
+  private final static String PROB = "Probability";
+
+// various labels to provide the information
   private InfoLabel displacementEstimateLabel = new InfoLabel();
   private InfoLabel aSesimicSlipFactorLabel = new InfoLabel();
   private StringParameter commentsParam = new StringParameter("Displacement Comments");
@@ -52,8 +59,8 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
    */
   public void setInfo(Estimate displacementEstimate, Estimate aSeismicSlipFactorEstimate,
                       String comments) {
-    displacementEstimateLabel.setTextAsHTML(displacementEstimate);
-    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate);
+    displacementEstimateLabel.setTextAsHTML(displacementEstimate, DISPLACEMENT, PROB);
+    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, this.ASEISMIC_SLIP_FACTOR, PROB);
     commentsParam.setValue(comments);
     commentsParameterEditor.refreshParamEditor();
   }
@@ -64,9 +71,9 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
   private void viewDisplacementForTimePeriod() throws Exception {
 
     JPanel displacementEstimatePanel = GUI_Utils.getPanel(displacementEstimateLabel,
-                                            "Displacement Estimate(m)");
+                                            DISPLACEMENT_PANEL_TITLE);
     JPanel aseismicPanel = GUI_Utils.getPanel(aSesimicSlipFactorLabel,
-                                    "Aseismic Slip Factor(0-1, 1=all aseismic)");
+                                    ASEISMIC_SLIP_PANEL_TITLE);
     commentsParameterEditor = new CommentsParameterEditor(commentsParam);
     commentsParameterEditor.setEnabled(false);
 

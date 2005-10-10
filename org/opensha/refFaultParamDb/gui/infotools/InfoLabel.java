@@ -24,6 +24,8 @@ public class InfoLabel extends JLabel {
   private final static String ESTIMATE_TYPE = "Estimate Type";
   private final static String TIME = "Time";
   public final static String NOT_AVAILABLE = "Not Available";
+  private final static String TIME_VAL = "Time Val";
+  private final static String PROB = "Prob";
 
   /**
    * default constructor
@@ -114,9 +116,9 @@ public class InfoLabel extends JLabel {
    *
    * @param estimate
    */
-  public InfoLabel(Estimate estimate) {
+  public InfoLabel(Estimate estimate, String xAxisName, String yAxisName) {
     this();
-    setTextAsHTML(estimate);
+    setTextAsHTML(estimate,  xAxisName, yAxisName);
   }
 
   /**
@@ -125,10 +127,10 @@ public class InfoLabel extends JLabel {
    * @param estimate
    */
 
-  public void setTextAsHTML(Estimate estimate) {
+  public void setTextAsHTML(Estimate estimate, String xAxisName, String yAxisName) {
     String text;
     if(estimate==null) text = "<html>"+NOT_AVAILABLE+"</html>";
-    else  text="<html>"+getTextForEstimate(estimate)+"</html>";
+    else  text="<html>"+getTextForEstimate(estimate, xAxisName, yAxisName)+"</html>";
     setText(text);
   }
 
@@ -138,16 +140,24 @@ public class InfoLabel extends JLabel {
    * @param estimate
    * @return
    */
-  private String getTextForEstimate(Estimate estimate) {
+  private String getTextForEstimate(Estimate estimate, String xAxisName, String yAxisName) {
     String text = "";
     if(estimate instanceof NormalEstimate)
       text = getTextForNormalEstimate((NormalEstimate)estimate);
     else if(estimate instanceof LogNormalEstimate)
       text = getTextForLogNormalEstimate((LogNormalEstimate)estimate);
-    else if(estimate instanceof DiscretizedFuncEstimate)
-      text = getTextForDiscretizedFuncEstimate((DiscretizedFuncEstimate)estimate);
-    else if(estimate instanceof FractileListEstimate)
-      text = getTextForFractileListEstimate((FractileListEstimate)estimate);
+    else if(estimate instanceof DiscretizedFuncEstimate) {
+      DiscretizedFuncEstimate discretizedFunEstimate = (DiscretizedFuncEstimate)estimate;
+      discretizedFunEstimate.getValues().setXAxisName(xAxisName);
+      discretizedFunEstimate.getValues().setYAxisName(yAxisName);
+      text = getTextForDiscretizedFuncEstimate( discretizedFunEstimate );
+    }
+    else if(estimate instanceof FractileListEstimate) {
+      FractileListEstimate fractileListEstimate  = (FractileListEstimate) estimate;
+      fractileListEstimate.getValues().setXAxisName(xAxisName);
+      fractileListEstimate.getValues().setYAxisName(yAxisName);
+      text = getTextForFractileListEstimate( fractileListEstimate );
+    }
     return text;
   }
 
@@ -206,11 +216,11 @@ public class InfoLabel extends JLabel {
       text = "<html><b>"+TIME+":&nbsp;</b>Time Estimate"+"<br>"+
           "<html><b>Units:&nbsp;</b>ka"+"<br>"+
           "<b>Zero Year:&nbsp;</b>"+timeEstimate.getZeroYear()+"AD<br>"+
-          getTextForEstimate(timeEstimate.getEstimate())+"</html>";
+          getTextForEstimate(timeEstimate.getEstimate(), TIME_VAL, PROB)+"</html>";
     } else { // if calendar year is selected for estimate
       text = "<html><b>"+TIME+":&nbsp;</b>Time Estimate"+"<br>"+
        "<html><b>Units:&nbsp;</b>Calendar Years"+"<br>"+
-       getTextForEstimate(timeEstimate.getEstimate())+"</html>";
+       getTextForEstimate(timeEstimate.getEstimate(), TIME_VAL, PROB)+"</html>";
     }
     return text;
   }

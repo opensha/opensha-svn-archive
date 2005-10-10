@@ -49,6 +49,8 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private final static String TEST_EVENT2 = "Test Event 2";
   private final static String SHARED = "Shared";
   private final static String NOT_SHARED = "Not Shared";
+  private final static String SLIP = "Slip";
+  private final static String PROB = "Prob";
 
   // information displayed for selected event
   private StringParameter eventNameParam;
@@ -239,7 +241,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
                             ArrayList references, String displacement, ArrayList sharingEvents) {
     commentsLabel.setTextAsHTML(comments);
     timeEstLabel.setTextAsHTML(eventTime);
-    slipEstLabel.setTextAsHTML(slipEstimate);
+    slipEstLabel.setTextAsHTML(slipEstimate, SLIP, PROB);
     displacementSharedLabel.setTextAsHTML(displacement);
     sharedEventLabel.setTextAsHTML(sharingEvents);
     referencesLabel.setTextAsHTML(references);

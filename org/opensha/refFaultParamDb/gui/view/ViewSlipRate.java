@@ -30,6 +30,12 @@ import org.opensha.data.estimate.Estimate;
 
 public class ViewSlipRate extends LabeledBoxPanel {
   private final static String SLIP_RATE_TITLE = "Slip Rate";
+  private final static String SLIP_RATE_PANEL_TITLE = "Slip Rate Estimate(mm/yr)";
+  private final static String ASEISMIC_PANEL_TITLE = "Aseismic Slip Factor(0-1, 1=all aseismic)";
+
+  private final static String SLIP_RATE = "Slip Rate";
+  private final static String ASEISMIC_SLIP_FACTOR = "Aseismic Slip Factor";
+  private final static String PROB = "Probability";
 
   // various labels to provide the information
   private InfoLabel slipRateEstimateLabel = new InfoLabel();
@@ -57,8 +63,8 @@ public class ViewSlipRate extends LabeledBoxPanel {
    */
   public void setInfo(Estimate slipRateEstimate, Estimate aSeismicSlipFactorEstimate,
                       String comments) {
-    slipRateEstimateLabel.setTextAsHTML(slipRateEstimate);
-    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate);
+    slipRateEstimateLabel.setTextAsHTML(slipRateEstimate, SLIP_RATE, PROB);
+    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, this.ASEISMIC_SLIP_FACTOR, PROB);
     commentsParam.setValue(comments);
     commentsParameterEditor.refreshParamEditor();
   }
@@ -67,11 +73,11 @@ public class ViewSlipRate extends LabeledBoxPanel {
    * display the slip Rate info for the selected time period
    */
   private void viewSlipRateForTimePeriod() throws Exception {
-
     JPanel slipRateEstimatePanel = GUI_Utils.getPanel(slipRateEstimateLabel,
-                                            "Slip Rate Estimate(mm/yr)");
+                                            SLIP_RATE_PANEL_TITLE);
+
     JPanel aseismicPanel = GUI_Utils.getPanel(aSesimicSlipFactorLabel,
-                                    "Aseismic Slip Factor(0-1, 1=all aseismic)");
+                                    ASEISMIC_PANEL_TITLE);
     commentsParameterEditor = new CommentsParameterEditor(commentsParam);
     commentsParameterEditor.setEnabled(false);
 

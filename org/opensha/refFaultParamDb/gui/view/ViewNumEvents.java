@@ -30,8 +30,9 @@ import java.awt.event.ActionListener;
 
 public class ViewNumEvents extends LabeledBoxPanel {
   private final static String NUM_EVENTS_TITLE = "Number of Events";
-
-
+  private final static String NUM_EVENTS_PANEL_TITLE = "Num Events Estimate";
+  private final static String NUM_EVENTS = "# of Events";
+  private final static String PROB = "Prob";
   private InfoLabel numEventsEstimateLabel = new InfoLabel();
   private StringParameter commentsParam = new StringParameter("Num Events Comments");
   private CommentsParameterEditor commentsParamEditor;
@@ -55,7 +56,7 @@ public class ViewNumEvents extends LabeledBoxPanel {
    * @param references
    */
   public void setInfo(IntegerEstimate numEventsEstimate, String comments) {
-    numEventsEstimateLabel.setTextAsHTML(numEventsEstimate);
+    numEventsEstimateLabel.setTextAsHTML(numEventsEstimate, NUM_EVENTS, PROB);
     commentsParam.setValue(comments);
     commentsParamEditor.refreshParamEditor();
   }
@@ -66,7 +67,8 @@ public class ViewNumEvents extends LabeledBoxPanel {
  private void viewNumEventsForTimePeriod() throws Exception {
 
 
-   JPanel slipRateEstimatePanel = GUI_Utils.getPanel(numEventsEstimateLabel, "Num Events Estimate");
+
+   JPanel slipRateEstimatePanel = GUI_Utils.getPanel(numEventsEstimateLabel, NUM_EVENTS_PANEL_TITLE);
 
    // comments
    commentsParamEditor = new CommentsParameterEditor(commentsParam);

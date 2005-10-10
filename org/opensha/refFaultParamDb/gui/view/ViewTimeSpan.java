@@ -41,6 +41,7 @@ public class ViewTimeSpan extends LabeledBoxPanel{
   private final static String ENTRY_DATE_PARAM_NAME="Entry Date";
   //contribbutor
   private final static String CONTRIBUTOR_PARAM_NAME="Contributor";
+  private final static String REFERENCES_PANEL_TITLE = "References";
   // dating comments params
   private StringParameter datedFeatureCommentsParam = new StringParameter(this.DATED_FEATURE_COMMENTS_PARAM_NAME);
   private CommentsParameterEditor datedFeatureCommentsParamEditor;
@@ -82,7 +83,8 @@ public class ViewTimeSpan extends LabeledBoxPanel{
       e.printStackTrace();
     }
 
-    JPanel referencesPanel = GUI_Utils.getPanel(referencesLabel, "References");
+
+    JPanel referencesPanel = GUI_Utils.getPanel(referencesLabel, REFERENCES_PANEL_TITLE);
 
     // add start time, end time and comments to the GUI
     int yPos = 0;

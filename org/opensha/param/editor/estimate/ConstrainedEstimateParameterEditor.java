@@ -335,6 +335,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
    // parameters for min/max/preferred user choice
   minX_Param = new DoubleParameter(MIN_X_PARAM_NAME, DEFAULT_MIN_X_PARAM_VAL);
+
   maxX_Param = new DoubleParameter(MAX_X_PARAM_NAME, DEFAULT_MAX_X_PARAM_VAL);
   prefferedX_Param = new DoubleParameter(PREF_X_PARAM_NAME, DEFAULT_PREFERRED_X_PARAM_VAL);
 
