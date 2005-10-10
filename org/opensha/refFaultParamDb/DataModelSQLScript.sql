@@ -460,8 +460,8 @@ CREATE TABLE Combined_Events_Info (
   Total_Slip_Est_Id INTEGER  NULL,
   Slip_Rate_Est_Id INTEGER  NULL,
   Num_Events_Est_Id INTEGER  NULL,
-  Slip_Aseismic_Slip_Factor_Est_Id INTEGER  NULL,
-  Disp_Aseismic_Slip_Factor_Est_Id INTEGER  NULL,
+  Slip_Aseismic_Est_Id INTEGER  NULL,
+  Disp_Aseismic_Est_Id INTEGER  NULL,
   Slip_Rate_Comments VARCHAR(255) NULL,
   Total_Slip_Comments VARCHAR(255) NULL,
   Num_Events_Comments VARCHAR(255) NULL, 	
@@ -481,7 +481,9 @@ CREATE TABLE Combined_Events_Info (
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY(Num_Events_Est_Id)
      REFERENCES Est_Instances(Est_Id),
-  FOREIGN KEY(Aseismic_Slip_Factor_Est_Id)
+  FOREIGN KEY(Slip_Aseismic_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Disp_Aseismic_Est_Id)
      REFERENCES Est_Instances(Est_Id)
 );
 

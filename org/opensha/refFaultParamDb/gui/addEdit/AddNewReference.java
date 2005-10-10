@@ -15,6 +15,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 
 /**
  * <p>Title: AddNewReference.java </p>
@@ -25,7 +26,7 @@ import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
  * @version 1.0
  */
 
-public class AddNewReference extends JFrame implements ActionListener {
+public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private final static String CITATION_PARAM_NAME="Short Citation";
   private final static String CITATION_PARAM_DEFAULT="e.g. Knight & Dey (1988)";
   private final static String BIBLIO_PARAM_NAME="Full Bibliographic Ref";
@@ -92,6 +93,7 @@ public class AddNewReference extends JFrame implements ActionListener {
    try { // catch the insert exception
      Reference reference = new Reference(citation, fullBiblio);
      referenceDAO.addReference(reference);
+     this.sendEventToListeners(reference);
      JOptionPane.showMessageDialog(this, MSG_INSERT_SUCCESS);
      this.dispose();
    }catch(InsertException insertException) { // if there is problem inserting the reference

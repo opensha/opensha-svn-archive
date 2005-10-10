@@ -31,8 +31,8 @@ public class CombinedEventsInfoDB_DAO {
   private final static String TOTAL_SLIP_EST_ID = "Total_Slip_Est_Id";
   private final static String SLIP_RATE_EST_ID= "Slip_Rate_Est_Id";
   private final static String NUM_EVENTS_EST_ID = "Num_Events_Est_Id";
-  private final static String SLIP_ASEISMIC_SLIP_FACTOR_EST_ID="Slip_Aseismic_Slip_Factor_Est_Id";
-  private final static String DISP_ASEISMIC_SLIP_FACTOR_EST_ID="Disp_Aseismic_Slip_Factor_Est_Id";
+  private final static String SLIP_ASEISMIC_SLIP_FACTOR_EST_ID="Slip_Aseismic_Est_Id";
+  private final static String DISP_ASEISMIC_SLIP_FACTOR_EST_ID="Disp_Aseismic_Est_Id";
   private final static String SLIP_RATE_COMMENTS="Slip_Rate_Comments";
   private final static String TOTAL_SLIP_COMMENTS="Total_Slip_Comments";
   private final static String NUM_EVENTS_COMMENTS = "Num_Events_Comments";

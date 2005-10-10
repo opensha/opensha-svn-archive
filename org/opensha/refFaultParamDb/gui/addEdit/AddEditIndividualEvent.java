@@ -19,6 +19,7 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -30,7 +31,7 @@ import org.opensha.refFaultParamDb.dao.exception.InsertException;
  * @version 1.0
  */
 
-public class AddEditIndividualEvent extends JFrame implements ParameterChangeListener,
+public class AddEditIndividualEvent extends DbAdditionFrame implements ParameterChangeListener,
     ActionListener {
   private JPanel topPanel = new JPanel();
   private JSplitPane estimatesSplitPane = new JSplitPane();
@@ -331,6 +332,7 @@ public class AddEditIndividualEvent extends JFrame implements ParameterChangeLis
     paleoEvent.setEventTime(eventTime);
     this.paleoEventDAO.addPaleoevent(paleoEvent);
     JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
+    this.sendEventToListeners(paleoEvent);
   }
 
   /**

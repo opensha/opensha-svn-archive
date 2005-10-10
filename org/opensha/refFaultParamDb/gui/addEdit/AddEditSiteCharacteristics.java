@@ -31,6 +31,9 @@ import org.opensha.refFaultParamDb.dao.db.PaleoSiteDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.FaultDB_DAO;
 import org.opensha.refFaultParamDb.vo.Fault;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 
 
 /**
@@ -43,7 +46,8 @@ import org.opensha.refFaultParamDb.dao.exception.InsertException;
  * @version 1.0
  */
 
-public class AddEditSiteCharacteristics extends JFrame implements ActionListener, ParameterChangeListener {
+public class AddEditSiteCharacteristics extends DbAdditionFrame implements ActionListener,
+    ParameterChangeListener, DbAdditionListener {
 
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
@@ -119,6 +123,9 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
   private boolean isEdit = false;
   private PaleoSite paleoSiteVO;
+  private AddNewSiteType addNewSiteType;
+  private AddNewReference addNewReference;
+  private LabeledBoxPanel labeledBoxPanel;
 
   /**
    * This constructor allows the editing of an existing site
@@ -134,6 +141,10 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       initParametersAndEditors();
       // add the editors and buttons to the window
       jbInit();
+      // make parameter and editor for site type
+      makeSiteTypeParamAndEditor();
+      // make parameter and editor for reference
+      makeReferenceParamAndEditor();
       this.setTitle(TITLE);
       // add listeners for the buttons in this window
       addActionListeners();
@@ -171,8 +182,14 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
   public void actionPerformed(ActionEvent event) {
     Object source  = event.getSource();
     // if it is "Add New Site" request, pop up another window to fill the new site type
-     if(source==this.addNewSiteButton) new AddNewSiteType();
-     else if(source == addNewReferenceButton) new AddNewReference();
+     if(source==this.addNewSiteButton) {
+       addNewSiteType = new AddNewSiteType();
+       addNewSiteType.addDbAdditionSuccessListener(this);
+     }
+     else if(source == addNewReferenceButton)  { // add new reference to the database
+       addNewReference = new AddNewReference();
+       addNewReference.addDbAdditionSuccessListener(this);
+     }
      else if(source == okButton) {
        putSiteInDatabase();
      }
@@ -234,17 +251,55 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       if(this.isEdit) msg = this.MSG_UPDATE_SUCCESS;
       else msg = this.MSG_INSERT_SUCCESS;
       JOptionPane.showMessageDialog(this,msg);
+      this.sendEventToListeners(paleoSite);
       this.dispose();
     }catch(InsertException e) {
       JOptionPane.showMessageDialog(this, e.getMessage());
     }
   }
 
+  // make site type param and editor
+  private void makeSiteTypeParamAndEditor() {
+    if(siteTypeParamEditor!=null) labeledBoxPanel.remove(siteTypeParamEditor);
+    ArrayList siteTypes = getSiteTypes();
+    String defaultSiteType;
+    if(this.isEdit)
+       defaultSiteType = paleoSiteVO.getSiteTypeName();
+    else defaultSiteType = (String)siteTypes.get(0);
+    // available study types
+    siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME, siteTypes,
+                                        defaultSiteType);
+    siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
+    siteTypeParam.addParameterChangeListener(this);
+    // site types
+   labeledBoxPanel.add(siteTypeParamEditor,  new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
+       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+  }
+
+  // make reference param and editor
+  private void makeReferenceParamAndEditor() {
+
+    if(this.siteReferenceParamEditor!=null) this.labeledBoxPanel.remove(siteReferenceParamEditor);
+    ArrayList referencesList = this.getAvailableReferences();
+     ArrayList dafaultReference;
+     if(this.isEdit) dafaultReference = paleoSiteVO.getReferenceShortCitationList();
+     else dafaultReference = new ArrayList();
+
+   // references for this site
+    this.siteReferenceParam = new StringListParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
+        referencesList, dafaultReference);
+    this.siteReferenceParamEditor = new ConstrainedStringListParameterEditor(siteReferenceParam);
+
+    // references
+   labeledBoxPanel.add(this.siteReferenceParamEditor,  new GridBagConstraints(0, 8, 2, 1, 1.0, 1.0
+      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+  }
+
   /**
    * Add the editors and buttons to the window
    */
   private void jbInit() {
-    LabeledBoxPanel labeledBoxPanel = new LabeledBoxPanel(GUI_Utils.gridBagLayout);
+    labeledBoxPanel = new LabeledBoxPanel(GUI_Utils.gridBagLayout);
     labeledBoxPanel.setTitle(TITLE);
     int yPos = 0;
     // site name editor
@@ -259,9 +314,6 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     // associated with fault
     labeledBoxPanel.add(assocWithFaultParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    // site types
-    labeledBoxPanel.add(siteTypeParamEditor,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // add new site type
     labeledBoxPanel.add(addNewSiteButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
@@ -274,9 +326,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
     // comments
      labeledBoxPanel.add(this.commentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
          ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-    // references
-   labeledBoxPanel.add(this.siteReferenceParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
-       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+     ++yPos; // this postion taken by references param editor
    // references
    labeledBoxPanel.add(this.addNewReferenceButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
@@ -303,14 +353,12 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
 
     String defaultSiteName, defaultOldSiteId, defaultFaultName, defaultSiteType;
     String defaultSiteRepresentation, defaultComments;
-    ArrayList dafaultReference;
     Location defaultLocation1, defaultLocation2;
 
     // get various lists from the database
     ArrayList faultNamesList = getFaultNames();
-    ArrayList siteTypes = getSiteTypes();
     ArrayList siteRepresentations = getSiteRepresentations();
-    ArrayList referencesList = this.getAvailableReferences();
+
 
     if(this.isEdit) { // if site is to be edit, default values are current values for that site
       defaultSiteName = this.paleoSiteVO.getSiteName();
@@ -319,7 +367,6 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       defaultSiteType = paleoSiteVO.getSiteTypeName();
       defaultSiteRepresentation = paleoSiteVO.getRepresentativeStrandName();
       defaultComments = paleoSiteVO.getGeneralComments();
-      dafaultReference = paleoSiteVO.getReferenceShortCitationList();
       defaultLocation1 = new Location(paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon1(),
                                       paleoSiteVO.getSiteElevation1());
       defaultLocation2 = new Location(this.paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon2(),
@@ -328,10 +375,8 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       defaultSiteName =" ";
       defaultOldSiteId = " ";
       defaultFaultName = (String)faultNamesList.get(0);
-      defaultSiteType = (String)siteTypes.get(0);
       defaultSiteRepresentation = (String)siteRepresentations.get(0);
       defaultComments = " ";
-      dafaultReference = new ArrayList();
       defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
                                       this.DEFAULT_ELEVATION_VAL);
       defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
@@ -360,28 +405,16 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
                                               defaultFaultName);
    assocWithFaultParamEditor = new ConstrainedStringParameterEditor(assocWithFaultParam);
 
-   // available study types
-   siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME, siteTypes,
-                                       defaultSiteType);
-   siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
-   siteTypeParam.addParameterChangeListener(this);
-
    // how representative is this site?
    siteRepresentationParam = new StringParameter(SITE_REPRESENTATION_PARAM_NAME, siteRepresentations,
                                               defaultSiteRepresentation);
    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
 
-   // references for this site
-   this.siteReferenceParam = new StringListParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
-       referencesList, dafaultReference);
-    this.siteReferenceParamEditor = new ConstrainedStringListParameterEditor(siteReferenceParam);
 
    // user comments
    this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME,defaultComments);
    this.commentsParamEditor = new CommentsParameterEditor(commentsParam);
-
-
-  }
+ }
 
   /**
    * create location parameter
@@ -475,7 +508,7 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
 
   /**
    * Get the study types.
-   *  It gets all the SITE TYPES from the database
+   * It gets all the SITE TYPES from the database
    *
    * @return
    */
@@ -486,4 +519,17 @@ public class AddEditSiteCharacteristics extends JFrame implements ActionListener
       siteTypesList.add(((SiteType)siteTypeVOs.get(i)).getSiteType());
     return siteTypesList;
   }
+
+  /**
+   * This function is called whenever a new site type/ new Reference is added
+   * to the database
+   *
+   * @param event
+   */
+   public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
+     Object source  = event.getSource();
+     if(source==this.addNewSiteType) makeSiteTypeParamAndEditor();
+     else if(source == this.addNewReference) makeReferenceParamAndEditor();
+     this.labeledBoxPanel.updateUI();
+   }
 }

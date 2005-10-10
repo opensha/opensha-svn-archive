@@ -10,6 +10,7 @@ import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -21,7 +22,7 @@ import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
  * @version 1.0
  */
 
-public class AddSiteInfo extends JFrame implements ActionListener{
+public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private JSplitPane mainSplitPane = new JSplitPane();
   private JButton okButton = new JButton();
   private JButton cancelButton = new JButton();
@@ -134,6 +135,7 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     }
 
     combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
+    this.sendEventToListeners(combinedEventsInfo);
   }
 
   /**
@@ -143,6 +145,7 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     ArrayList sequences  = this.addEditSequence.getAllSequences();
     eventSequenceDAO.addEventSequence(sequences, this.addEditTimeSpan.getStartTime(),
                                       this.addEditTimeSpan.getEndTime());
+    this.sendEventToListeners(sequences);
   }
 
   /**

@@ -16,6 +16,7 @@ import org.opensha.refFaultParamDb.vo.SiteType;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 
 /**
  * <p>Title: AddNewSiteType.java </p>
@@ -26,7 +27,7 @@ import org.opensha.refFaultParamDb.dao.exception.InsertException;
  * @version 1.0
  */
 
-public class AddNewSiteType extends JFrame implements ActionListener {
+public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
   private final static String SITE_TYPE_NAME_PARAM_NAME="Site Type Name";
   private final static String SITE_TYPE_COMMENTS_PARAM_NAME="Site Type Comments";
   private final static String SITE_TYPE_NAME_PARAM_DEFAULT="Enter Name Here";
@@ -96,6 +97,7 @@ public class AddNewSiteType extends JFrame implements ActionListener {
       siteTypeDAO.addSiteType(siteType);
       // show the success message to the user
       JOptionPane.showMessageDialog(this,MSG_INSERT_SUCCESS);
+      this.sendEventToListeners(siteType);
       this.dispose();
     }  catch(InsertException insertException) { // if there is problem inserting the site type
       JOptionPane.showMessageDialog(this, insertException.getMessage());
