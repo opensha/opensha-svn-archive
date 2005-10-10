@@ -20,6 +20,9 @@ import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
+import org.opensha.exceptions.*;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -32,7 +35,7 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
  */
 
 public class AddEditIndividualEvent extends DbAdditionFrame implements ParameterChangeListener,
-    ActionListener {
+    ActionListener, DbAdditionListener {
   private JPanel topPanel = new JPanel();
   private JSplitPane estimatesSplitPane = new JSplitPane();
   private JSplitPane mainSplitPane = new JSplitPane();
@@ -107,6 +110,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private ArrayList paleoEvents; // saves a list of all paleo events for this site
   private int siteId; // site id for which this paleo event will be added
   private String siteEntryDate; // site entry dat for which paleo event is to be added
+  private AddNewReference addNewReference;
+  private LabeledBoxPanel commentsReferencesPanel;
   public AddEditIndividualEvent(int siteId, String siteEntryDate) {
     try {
       this.siteId = siteId;
@@ -143,10 +148,6 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     commentsParam = new StringParameter(this.COMMENTS_PARAM_NAME);
     commentsParamEditor = new CommentsParameterEditor(commentsParam);
 
-    // references param
-    referencesParam = new StringListParameter(this.REFERENCES_PARAM_NAME, this.getAvailableReferences());
-    referencesParamEditor = new ConstrainedStringListParameterEditor(referencesParam);
-
     // date param
     ArrayList dateAllowedEstList = EstimateConstraint.createConstraintForDateEstimates();
 
@@ -174,6 +175,17 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
 
     // add the parameter editors to the GUI componenets
     addEditorstoGUI();
+
+    makeReferencesParamAndEditor();
+  }
+
+  private void makeReferencesParamAndEditor() throws ConstraintException {
+    if(referencesParamEditor!=null) commentsReferencesPanel.remove(referencesParamEditor);
+    // references param
+    referencesParam = new StringListParameter(this.REFERENCES_PARAM_NAME, this.getAvailableReferences());
+    referencesParamEditor = new ConstrainedStringListParameterEditor(referencesParam);
+    commentsReferencesPanel.add(this.referencesParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
   }
 
 
@@ -217,12 +229,10 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     estimatesSplitPane.add(slipPanel, JSplitPane.RIGHT);
 
     // comments and references
-    LabeledBoxPanel commentsReferencesPanel = new LabeledBoxPanel(gridBagLayout1);
+    commentsReferencesPanel = new LabeledBoxPanel(gridBagLayout1);
     commentsReferencesPanel.setTitle(COMMENTS_REFERENCES_TITLE);
     this.detailedEventInfoSplitPane.add(commentsReferencesPanel, JSplitPane.RIGHT);
     commentsReferencesPanel.add(this.commentsParamEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    commentsReferencesPanel.add(this.referencesParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     commentsReferencesPanel.add(this.addNewReferenceButton,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
                  ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
@@ -267,7 +277,10 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
    */
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource() ;
-    if(source == addNewReferenceButton) new AddNewReference();
+    if(source == addNewReferenceButton)  {
+      addNewReference  = new AddNewReference();
+      addNewReference.addDbAdditionSuccessListener(this);
+    }
     else if(source == okButton) {
       try {
         addEventToDatabase();
@@ -380,5 +393,13 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     estimatesSplitPane.setDividerLocation(WIDTH/3);
     mainSplitPane.setDividerLocation(50);
     detailedEventInfoSplitPane.setDividerLocation(WIDTH*2/3);
+  }
+
+  public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
+    Object source = event.getSource();
+    if(source == this.addNewReference) {
+      makeReferencesParamAndEditor();
+      this.commentsReferencesPanel.updateUI();
+    }
   }
 }

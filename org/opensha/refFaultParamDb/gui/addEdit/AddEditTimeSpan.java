@@ -15,6 +15,9 @@ import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
+import org.opensha.exceptions.*;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 
 /**
  * <p>Title: AddNewTimeSpan</p>
@@ -23,7 +26,7 @@ import org.opensha.refFaultParamDb.data.TimeAPI;
  * @version 1.0
  */
 
-public class AddEditTimeSpan extends JPanel implements ActionListener {
+public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditionListener {
   // start time estimate param
   private final static String START_TIME_PARAM_NAME="Start Time";
   // end time estimate param
@@ -54,6 +57,7 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   private JPanel referencesPanel = new JPanel();
   private JButton addNewReferenceButton = new JButton(ADD_REFERENCE_TEXT);
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private AddNewReference addNewReference;
 
   // references DAO
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
@@ -75,7 +79,10 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   * @param event
   */
  public void actionPerformed(ActionEvent event) {
-   if(event.getSource() == addNewReferenceButton) new AddNewReference();
+   if(event.getSource() == addNewReferenceButton)  {
+     addNewReference = new AddNewReference();
+     addNewReference.addDbAdditionSuccessListener(this);
+   }
  }
 
 
@@ -96,14 +103,30 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
    timeSpanCommentsParamEditor = new CommentsParameterEditor(timeSpanCommentsParam);
    commentsPanel.add(timeSpanCommentsParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+   // make param and editor for references
+   makeReferencesParamAndEditor();
 
+ }
+
+ /**
+  * make param and editor for references
+  *
+  * @throws ConstraintException
+  */
+ private void makeReferencesParamAndEditor() throws ConstraintException {
+   if(timeSpanReferencesParamEditor!=null)
+     referencesPanel.remove(timeSpanReferencesParamEditor);
    // references
    ArrayList availableReferences = getAvailableReferences();
-   this.timeSpanReferencesParam = new StringListParameter(this.TIMESPAN_REFERENCES_PARAM_NAME, availableReferences);
-   timeSpanReferencesParamEditor = new ConstrainedStringListParameterEditor(timeSpanReferencesParam);
-   referencesPanel.add(timeSpanReferencesParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-
+   this.timeSpanReferencesParam = new StringListParameter(this.
+       TIMESPAN_REFERENCES_PARAM_NAME, availableReferences);
+   timeSpanReferencesParamEditor = new ConstrainedStringListParameterEditor(
+       timeSpanReferencesParam);
+   referencesPanel.add(timeSpanReferencesParamEditor,
+                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.BOTH,
+                                              new Insets(0, 0, 0, 0), 0, 0));
  }
 
 
@@ -182,4 +205,17 @@ public class AddEditTimeSpan extends JPanel implements ActionListener {
   public String getTimeSpanComments() {
     return (String)timeSpanCommentsParam.getValue();
   }
+
+  /**
+  * This function is called whenever a new site type/ new Reference is added
+  * to the database
+  *
+  * @param event
+  */
+  public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
+    Object source  = event.getSource();
+    if(source == this.addNewReference) makeReferencesParamAndEditor();
+    referencesPanel.updateUI();
+  }
+
 }

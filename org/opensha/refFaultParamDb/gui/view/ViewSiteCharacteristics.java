@@ -19,6 +19,8 @@ import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.dao.db.*;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
+import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -30,7 +32,8 @@ import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
  * @version 1.0
  */
 
-public class ViewSiteCharacteristics extends JPanel implements ActionListener, ParameterChangeListener {
+public class ViewSiteCharacteristics extends JPanel implements ActionListener,
+    ParameterChangeListener, DbAdditionListener {
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
   private final static String SITE_LOCATION_PARAM_NAME="Site Location";
@@ -89,6 +92,9 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
 
   // class listening to site change events
   private SiteSelectionAPI siteSelectionListener;
+  private AddEditSiteCharacteristics addEditSiteChars;
+  private AddSiteInfo addSiteInfo;
+  private AddEditIndividualEvent addEditIndividualEvent;
 
   //dao
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
@@ -274,9 +280,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    // if it is "Add New Site" request, pop up another window to fill the new site type
    Object source = event.getSource();
     if(source==this.editSiteButton) {// edit the paleo site
-      if(paleoSite!=null)
-        new AddEditSiteCharacteristics(true, this.paleoSite);
-      else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
+      if(paleoSite!=null) {
+        addEditSiteChars = new AddEditSiteCharacteristics(true, this.paleoSite);
+        addEditSiteChars.addDbAdditionSuccessListener(this);
+      }else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
     }
     else if(source == this.addInfoButton) {
      try {
@@ -284,15 +291,20 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
           if(slipRateCheckBox.isSelected() ||
              this.cumDispCheckBox.isSelected() ||
              numEventsCheckBox.isSelected()||
-             this.sequenceCheckBox.isSelected())
-            new AddSiteInfo(this.paleoSite.getSiteId(),
+             this.sequenceCheckBox.isSelected()) {
+             addSiteInfo = new AddSiteInfo(this.paleoSite.getSiteId(),
                             this.paleoSite.getEntryDate(),
                             this.slipRateCheckBox.isSelected(),
                             this.cumDispCheckBox.isSelected(),
                             this.numEventsCheckBox.isSelected(),
                             this.sequenceCheckBox.isSelected());
-          if(this.individualEventsCheckBox.isSelected())
-            new AddEditIndividualEvent(paleoSite.getSiteId(), paleoSite.getEntryDate());
+            addSiteInfo.addDbAdditionSuccessListener(this);
+          }
+          if(this.individualEventsCheckBox.isSelected()) {
+            addEditIndividualEvent = new AddEditIndividualEvent(paleoSite.getSiteId(),
+                                       paleoSite.getEntryDate());
+            addEditIndividualEvent.addDbAdditionSuccessListener(this);
+          }
         }
      else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
      }catch(Exception e) {
@@ -398,6 +410,15 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener, P
    }
    siteNamesList.add(ADD_SITE);
    return siteNamesList;
+ }
+
+ /**
+  * This function is called whenever new info is added for a site into the database.
+  * @param event
+  */
+ public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
+   String siteName = (String) this.siteNameParam.getValue();
+   this.setSiteInfo(siteName);
  }
 
 }
