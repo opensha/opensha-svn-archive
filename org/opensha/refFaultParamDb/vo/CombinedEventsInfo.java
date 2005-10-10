@@ -21,7 +21,8 @@ public class CombinedEventsInfo {
   private EstimateInstances displacementEstimate;
   private EstimateInstances slipRateEstimate;
   private EstimateInstances numEventsEstimate;
-  private EstimateInstances aSeismicSlipFactorEstimate;
+  private EstimateInstances aSeismicSlipFactorEstimateForSlip;
+  private EstimateInstances aSeismicSlipFactorEstimateForDisp;
   private String slipRateComments;
   private String numEventsComments;
   private String displacementComments;
@@ -59,8 +60,11 @@ public class CombinedEventsInfo {
   public void setShortCitationList(ArrayList shortCitationList) {
     this.shortCitationList = shortCitationList;
   }
-  public EstimateInstances getASeismicSlipFactorEstimate() {
-    return aSeismicSlipFactorEstimate;
+  public EstimateInstances getASeismicSlipFactorEstimateForSlip() {
+    return aSeismicSlipFactorEstimateForSlip;
+  }
+  public EstimateInstances getASeismicSlipFactorEstimateForDisp() {
+    return aSeismicSlipFactorEstimateForDisp;
   }
   public String getDatedFeatureComments() {
     return datedFeatureComments;
@@ -125,9 +129,12 @@ public class CombinedEventsInfo {
   public void setDatedFeatureComments(String datedFeatureComments) {
     this.datedFeatureComments = datedFeatureComments;
   }
-  public void setASeismicSlipFactorEstimate(EstimateInstances aSeismicSlipFactorEstimate) {
-    this.aSeismicSlipFactorEstimate = aSeismicSlipFactorEstimate;
+  public void setASeismicSlipFactorEstimateForSlip(EstimateInstances aSeismicSlipFactorEstimateForSlip) {
+    this.aSeismicSlipFactorEstimateForSlip = aSeismicSlipFactorEstimateForSlip;
   }
+  public void setASeismicSlipFactorEstimateForDisp(EstimateInstances aSeismicSlipFactorEstimateForDisp) {
+   this.aSeismicSlipFactorEstimateForDisp = aSeismicSlipFactorEstimateForDisp;
+ }
   public void setSiteId(int siteId) {
     this.siteId = siteId;
   }

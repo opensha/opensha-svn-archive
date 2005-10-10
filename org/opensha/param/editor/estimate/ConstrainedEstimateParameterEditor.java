@@ -579,7 +579,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
        viewEstimate();
      }catch(Exception ex) {
        JOptionPane.showMessageDialog(this,ex.getMessage());
-       ex.printStackTrace();
      }
    } else if (e.getSource()==this.button) {
      frame.pack();

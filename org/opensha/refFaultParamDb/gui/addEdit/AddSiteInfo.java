@@ -93,7 +93,7 @@ public class AddSiteInfo extends JFrame implements ActionListener{
            this.isNumEventsVisible)
           putSiteInfoInDatabase(); // put site info in database
         if(this.isSequenceVisible)
-          putSequenceInDatabase();
+          putSequenceInDatabase(); // put sequence info in the database
         JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
         this.dispose();
       }catch(Exception e){
@@ -118,13 +118,13 @@ public class AddSiteInfo extends JFrame implements ActionListener{
     // set the slip rate info
     if (isSlipVisible) {
       combinedEventsInfo.setSlipRateComments(this.addEditSlipRate.getSlipRateComments());
-      combinedEventsInfo.setASeismicSlipFactorEstimate(this.addEditSlipRate.getAseismicEstimate());
+      combinedEventsInfo.setASeismicSlipFactorEstimateForSlip(this.addEditSlipRate.getAseismicEstimate());
       combinedEventsInfo.setSlipRateEstimate(this.addEditSlipRate.getSlipRateEstimate());
     }
     // set the diplacement info
     if(this.isDisplacementVisible) {
       combinedEventsInfo.setDisplacementComments(this.addEditCumDisp.getDisplacementComments());
-      combinedEventsInfo.setASeismicSlipFactorEstimate(addEditCumDisp.getAseismicEstimate());
+      combinedEventsInfo.setASeismicSlipFactorEstimateForDisp(addEditCumDisp.getAseismicEstimate());
       combinedEventsInfo.setDisplacementEstimate(addEditCumDisp.getDisplacementEstimate());
     }
     //set the num events info

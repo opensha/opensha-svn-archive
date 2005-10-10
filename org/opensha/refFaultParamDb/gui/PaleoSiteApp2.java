@@ -323,7 +323,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     } else if(this.isValidSiteAndInfoAvailable() &&
               combinedEventsInfo.getSlipRateEstimate()!=null)  { // information available FOR THIS SITE
         this.slipRatePanel.setInfo(combinedEventsInfo.getSlipRateEstimate().getEstimate(),
-                                   combinedEventsInfo.getASeismicSlipFactorEstimate().getEstimate(),
+                                   combinedEventsInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
                                    combinedEventsInfo.getSlipRateComments());
     } else { // valid site but no info available
       slipRatePanel.setInfo(null, null, null);
@@ -348,7 +348,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    } else if(this.isValidSiteAndInfoAvailable() &&
              combinedEventsInfo.getDisplacementEstimate()!=null)  { // information available FOR THIS SITE
        this.displacementPanel.setInfo(combinedEventsInfo.getDisplacementEstimate().getEstimate(),
-                                  combinedEventsInfo.getASeismicSlipFactorEstimate().getEstimate(),
+                                  combinedEventsInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
                                   combinedEventsInfo.getDisplacementComments());
    } else { // valid site but no info available
      displacementPanel.setInfo(null, null, null);

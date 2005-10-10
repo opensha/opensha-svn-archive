@@ -31,7 +31,8 @@ public class CombinedEventsInfoDB_DAO {
   private final static String TOTAL_SLIP_EST_ID = "Total_Slip_Est_Id";
   private final static String SLIP_RATE_EST_ID= "Slip_Rate_Est_Id";
   private final static String NUM_EVENTS_EST_ID = "Num_Events_Est_Id";
-  private final static String ASEISMIC_SLIP_FACTOR_EST_ID="Aseismic_Slip_Factor_Est_Id";
+  private final static String SLIP_ASEISMIC_SLIP_FACTOR_EST_ID="Slip_Aseismic_Slip_Factor_Est_Id";
+  private final static String DISP_ASEISMIC_SLIP_FACTOR_EST_ID="Disp_Aseismic_Slip_Factor_Est_Id";
   private final static String SLIP_RATE_COMMENTS="Slip_Rate_Comments";
   private final static String TOTAL_SLIP_COMMENTS="Total_Slip_Comments";
   private final static String NUM_EVENTS_COMMENTS = "Num_Events_Comments";
@@ -99,12 +100,21 @@ public class CombinedEventsInfoDB_DAO {
      estColNames += NUM_EVENTS_EST_ID+",";
      estColVals += numEventsEstId+",";
     }
-    // put asesimic slipfactor estimate in database
-    int aSeismicEstId = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimate());
-    if(aSeismicEstId!=-1) {
-     estColNames += ASEISMIC_SLIP_FACTOR_EST_ID+",";
-     estColVals += aSeismicEstId+",";
+    // put asesimic slip factor estimate for slip in database
+    int aSeismicEstIdForSlip = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimateForSlip());
+    if(aSeismicEstIdForSlip!=-1) {
+     estColNames += SLIP_ASEISMIC_SLIP_FACTOR_EST_ID+",";
+     estColVals += aSeismicEstIdForSlip+",";
    }
+   // put asesimic slip factor estimate for displacement in database
+   int aSeismicEstIdForDisp = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimateForDisp());
+   if(aSeismicEstIdForDisp!=-1) {
+    estColNames += DISP_ASEISMIC_SLIP_FACTOR_EST_ID+",";
+    estColVals += aSeismicEstIdForDisp+",";
+  }
+
+
+
 
 
     // comments to be put in database
@@ -185,9 +195,10 @@ public class CombinedEventsInfoDB_DAO {
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
         START_TIME_ID+","+END_TIME_ID+","+TOTAL_SLIP_EST_ID+","+
-        SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+ASEISMIC_SLIP_FACTOR_EST_ID+","+
-        SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
-        this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+" from "+this.TABLE_NAME+condition;
+        SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+SLIP_ASEISMIC_SLIP_FACTOR_EST_ID+","+
+        DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+
+        NUM_EVENTS_COMMENTS+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+" from "+
+        this.TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;
@@ -218,11 +229,17 @@ public class CombinedEventsInfoDB_DAO {
          combinedEventsInfo.setNumEventsEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
          combinedEventsInfo.setNumEventsComments(rs.getString(NUM_EVENTS_COMMENTS));
        }
-       //set asesimic slip factor estimate
-       estId = rs.getInt(ASEISMIC_SLIP_FACTOR_EST_ID);
+       //set asesimic slip factor estimate for slip
+       estId = rs.getInt(SLIP_ASEISMIC_SLIP_FACTOR_EST_ID);
        if(!rs.wasNull()) {
-         combinedEventsInfo.setASeismicSlipFactorEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
+         combinedEventsInfo.setASeismicSlipFactorEstimateForSlip(this.estimateInstancesDAO.getEstimateInstance(estId));
        }
+       //set aseismic slip factor estimate for displacement
+       estId = rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID);
+       if(!rs.wasNull()) {
+         combinedEventsInfo.setASeismicSlipFactorEstimateForDisp(this.estimateInstancesDAO.getEstimateInstance(estId));
+       }
+
 
         // get the contributor info
         combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
@@ -246,8 +263,6 @@ public class CombinedEventsInfoDB_DAO {
       throw new QueryException(e.getMessage());
     }
     return combinedInfoList;
-
-
   }
 
 }
