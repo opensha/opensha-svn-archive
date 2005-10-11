@@ -47,6 +47,7 @@ public class ERF2RuptureForSTF_Generator {
 
   //to see if the rupture is within the circular distance of the given Site.
   private CircularGeographicRegion region;
+  private final static double DEFAULT_GRID_SPACING_FOR_POINT_SURFACE = 1.0;
 
 
 
@@ -163,14 +164,12 @@ public class ERF2RuptureForSTF_Generator {
       siteFw.write("#SourceIndex   RuptureIndex    Probability\n");
 
       int numSources = eqkRupForecast.getNumSources();
-
       //Going over each and every source in the forecast
       for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
 
         // get the ith source
         ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
         int numRuptures = source.getNumRuptures();
-
         //going over all the ruptures in the source
         for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
 
@@ -523,6 +522,7 @@ public class ERF2RuptureForSTF_Generator {
   private double getGridSpacing(GriddedSurfaceAPI surface) {
     if(surface instanceof EvenlyGriddedSurface)
       return ((EvenlyGriddedSurface)surface).getGridSpacing();
+    else if(surface instanceof PointSurface) return DEFAULT_GRID_SPACING_FOR_POINT_SURFACE;
     else{
       Location loc1 = surface.getLocation(0, 0);
       Location loc2 = surface.getLocation(0, 1);

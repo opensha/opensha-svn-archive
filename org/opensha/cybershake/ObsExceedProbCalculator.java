@@ -60,6 +60,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
   private double approxDist;
   private String willsClass = "NA";
   private double basinDepth = Double.NaN;
+  private final static double CM_S2_TO_G_CONVERSION_FACTOR = 980.0;
 
   /**
    *  The object class names for all the supported attenuation ralations (IMRs)
@@ -112,7 +113,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
     StringTokenizer tokenizer = new StringTokenizer(str);
     xyVals = new ArbitrarilyDiscretizedFunc();
     while(tokenizer.hasMoreTokens())
-      xyVals.set(Double.parseDouble(tokenizer.nextToken().trim()),1.0);
+      xyVals.set(Double.parseDouble(tokenizer.nextToken().trim())/CM_S2_TO_G_CONVERSION_FACTOR,1.0); // convert cm/s*s to G
   }
 
   /**
