@@ -44,7 +44,6 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    * Parameters from the input file
    */
   private Location loc; //Geographic Location
-  private int sourceIndex, ruptureIndex; //EqkRupture
 
   private String imt;
   private double period;
@@ -90,6 +89,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
       fileLines = FileUtils.loadFile(fileName);
 
       int j = 0;
+      String component1Line=null;
       for(int i=0; i<fileLines.size(); ++i) {
         String line = ((String)fileLines.get(i)).trim();
         // if it is comment skip to next line
@@ -100,7 +100,8 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
         else if(j==1) setRupture(line) ; // set the rupture params
         else if(j==2) setIMT(line);  // set the IMT
         else if(j==3) setDefaultWillsSiteType(line); // default site to use if site parameters are not known for a site
-        else if(j==4) setSAVals(line);
+        else if(j==4) component1Line = line;
+        else if(j==5) setSAVals(component1Line, line);
         ++j;
       }
   }
@@ -109,11 +110,17 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
    * Setting the SA vals for the Exceed Prob.
    * @param str String
    */
-  private void setSAVals(String str) {
-    StringTokenizer tokenizer = new StringTokenizer(str);
+  private void setSAVals(String component1Str, String component2Str) {
+    StringTokenizer component1Tokenizer = new StringTokenizer(component1Str);
+    StringTokenizer component2Tokenizer = new StringTokenizer(component2Str);
+    double comp1=0.0, comp2, avg;
     xyVals = new ArbitrarilyDiscretizedFunc();
-    while(tokenizer.hasMoreTokens())
-      xyVals.set(Double.parseDouble(tokenizer.nextToken().trim())/CM_S2_TO_G_CONVERSION_FACTOR,1.0); // convert cm/s*s to G
+    while(component1Tokenizer.hasMoreTokens()) {
+      comp1 = Double.parseDouble(component1Tokenizer.nextToken().trim());
+      comp2 = Double.parseDouble(component2Tokenizer.nextToken().trim());
+      avg = Math.sqrt(comp1 * comp1 + comp2 * comp2);
+      xyVals.set(avg / CM_S2_TO_G_CONVERSION_FACTOR, 1.0); // convert cm/s*s to G
+    }
   }
 
   /**
@@ -141,6 +148,9 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
 
   private void setRupture(String str) {
+    StringTokenizer tokenizer = new StringTokenizer(str);
+    int  sourceIndex = Integer.parseInt(tokenizer.nextToken());
+    int ruptureIndex = Integer.parseInt(tokenizer.nextToken());
     rupture =  frankelForecast.getRupture(sourceIndex, ruptureIndex);
   }
 
@@ -420,6 +430,7 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
     frankelForecast.getTimeSpan().setDuration(1.0);
     frankelForecast.updateForecast();
+
   }
 
 
