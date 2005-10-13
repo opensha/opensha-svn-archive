@@ -76,7 +76,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       "The selected event set for shared displacement is invalid.\nThese events do not share same displacement";
   private final static String MSG_PALEO_EVENT_ADD_SUCCESS = "Paleo Event added successfully to the database";
 //slip rate constants
-  private final static String SLIP_RATE_UNITS = "mm/yr";
+  private final static String SLIP_RATE_UNITS = "meters";
   private final static double SLIP_RATE_MIN = 0;
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 

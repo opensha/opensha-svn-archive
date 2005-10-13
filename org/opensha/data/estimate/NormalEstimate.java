@@ -20,7 +20,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  */
 
 public class NormalEstimate extends Estimate {
-  public final static String NAME  =  "Normal";
+  public final static String NAME  =  "Normal(Gaussian)";
   private double mean=Double.NaN;
   private double stdDev=Double.NaN;
 

@@ -51,6 +51,9 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private final static String NO_SITE_NAME="No Site Name-";
   private final static String CONTRIBUTOR_PARAM_NAME = "Last Updated by";
   private final static String ENTRY_DATE_PARAM_NAME = "Last Updated on";
+  private final static String MSG_ADD_DATA_ALREADY_OPEN = "Add Data window is already open";
+  private final static String MSG_EVENT_ALREADY_OPEN = "Add Events Data window is already open";
+
   // various types of information that can be provided by the user
   private JCheckBox slipRateCheckBox, cumDispCheckBox, numEventsCheckBox,
       individualEventsCheckBox, sequenceCheckBox;
@@ -83,6 +86,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private JButton qFaultsEntriesButton = new JButton("Show QFault entries");
   private JButton eventSequenceButton = new JButton("Events and Seq.");
   private JButton addInfoButton = new JButton("Add Data");
+  private JSplitPane splitPane = new JSplitPane();
 
   private JPanel addEditSitePanel = new TitledBorderPanel("Site Characteristics");
 
@@ -166,31 +170,19 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     int yPos = 0;
     setLayout(GUI_Utils.gridBagLayout);
     addEditSitePanel.setLayout(GUI_Utils.gridBagLayout);
+    splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     // site name editor
     this.setMinimumSize(new Dimension(0, 0));
-    add(addEditSitePanel, new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                                                 , GridBagConstraints.CENTER,
-                                                 GridBagConstraints.BOTH,
-                                                 new Insets(2, 2, 2, 2), 0, 0));
-    addEditSiteCharacteristicsPanel();
-
-    //adding the Events and Sequence button
-    // various timespans
-    /*add(eventSequenceButton,
-        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-                               , GridBagConstraints.CENTER,
-                               GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2),
-                               0, 0));
-
-    //making the disabled for now
-    eventSequenceButton.setEnabled(false);*/
-
-    //adding the options so that user can provide the info
-    add(this.iHaveInfoOnPanel,
-        new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+    add(splitPane, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
                                , GridBagConstraints.CENTER,
                                GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
                                0, 0));
+    splitPane.add(addEditSitePanel, JSplitPane.TOP);
+    addEditSiteCharacteristicsPanel();
+
+    //adding the options so that user can provide the info
+    splitPane.add(this.iHaveInfoOnPanel, JSplitPane.BOTTOM);
+    splitPane.setDividerLocation(375);
   }
 
   private void addEditSiteCharacteristicsPanel() {
@@ -292,6 +284,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
              this.cumDispCheckBox.isSelected() ||
              numEventsCheckBox.isSelected()||
              this.sequenceCheckBox.isSelected()) {
+             if(addSiteInfo!=null && addSiteInfo.isVisible()) {
+               JOptionPane.showMessageDialog(this, MSG_ADD_DATA_ALREADY_OPEN);
+               return;
+             }
              addSiteInfo = new AddSiteInfo(this.paleoSite.getSiteId(),
                             this.paleoSite.getEntryDate(),
                             this.slipRateCheckBox.isSelected(),
@@ -301,6 +297,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
             addSiteInfo.addDbAdditionSuccessListener(this);
           }
           if(this.individualEventsCheckBox.isSelected()) {
+            if(addEditIndividualEvent!=null && addEditIndividualEvent.isVisible()) {
+              JOptionPane.showMessageDialog(this, MSG_EVENT_ALREADY_OPEN);
+              return;
+            }
             addEditIndividualEvent = new AddEditIndividualEvent(paleoSite.getSiteId(),
                                        paleoSite.getEntryDate());
             addEditIndividualEvent.addDbAdditionSuccessListener(this);

@@ -635,9 +635,9 @@ insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Sh
 insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 4','Full Bibliographic Reference 4');
 
 
-insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (1, 'Entire Fault');
-insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (2, 'Most Significant Strand');
-insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (3, 'One of Several Strands');
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (1, 'Most Significant Strand');
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (2, 'One of Several Strands');
+insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (3, 'Entire Fault');
 insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (4, 'Unknown');
 
 insert into Contributors(Contributor_Id, Contributor_name) values (1, 'fault_sandbox');
@@ -652,10 +652,10 @@ insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
 insert into Log_Type values(1, '10');
 insert into Log_Type values(2, 'E');
 
-insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Between Locations', 'Between Locations Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Trench', 'Trench Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Geologic', 'Geologic Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Survey/Cultural', 'Survey/Cultural Site Type');
+insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Between Locations', 'Between Locations Site Type');
 insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'Unknown', 'Unknown Site Type');
 
 

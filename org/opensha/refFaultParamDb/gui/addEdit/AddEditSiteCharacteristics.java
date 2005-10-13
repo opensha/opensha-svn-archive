@@ -51,7 +51,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
 
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
-  private final static String OLD_SITE_ID_PARAM_NAME="Old Site Id";
+  private final static String OLD_SITE_ID_PARAM_NAME="QFault Site Id";
   private final static String SITE_LOCATION_PARAM_NAME="Site Location";
   private final static String COMMENTS_PARAM_NAME = "Comments";
   private final static String CHOOSE_REFERENCE_PARAM_NAME = "Choose Reference";
@@ -70,7 +70,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private final static String TITLE = "Add/Edit Paleo Site";
   private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
   private final static String LAT_LON_UNITS = "Decimal Degrees";
-  private final static String ELEVATION_UNITS = "km";
+  private final static String ELEVATION_UNITS = "meters";
   private final static int WIDTH = 400;
   private final static int HEIGHT = 700;
 

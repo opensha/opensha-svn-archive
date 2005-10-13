@@ -26,27 +26,21 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
  * @version 1.0
  */
 
-public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditionListener {
+public class AddEditTimeSpan extends JPanel  {
   // start time estimate param
   private final static String START_TIME_PARAM_NAME="Start Time";
   // end time estimate param
   private final static String END_TIME_PARAM_NAME="End Time";
   private final static String TIMESPAN_COMMENTS_PARAM_NAME="Dating Methodology";
   private final static String TIMESPAN_COMMENTS_DEFAULT="Summary of dating techniques and dated features";
-  private final static String TIMESPAN_REFERENCES_PARAM_NAME="Choose References";
-  private final static String ADD_REFERENCE_TEXT="Add Reference";
-  private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
 
   private final static String TITLE = "Add Time Span";
-  private final static String MSG_REF_MISSING = "Select atleast 1 reference for the timespan";
 
   // various parameters
    private StringParameter timeSpanCommentsParam;
-   private StringListParameter timeSpanReferencesParam;
 
    // parameter editors
    private CommentsParameterEditor timeSpanCommentsParamEditor;
-   private ConstrainedStringListParameterEditor timeSpanReferencesParamEditor;
 
 
   // time gui bean
@@ -54,19 +48,13 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
   private TimeGuiBean endTimeBean;
   private JSplitPane timSpanSplitPane = new JSplitPane();
   private JPanel commentsPanel = new JPanel();
-  private JPanel referencesPanel = new JPanel();
-  private JButton addNewReferenceButton = new JButton(ADD_REFERENCE_TEXT);
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private AddNewReference addNewReference;
 
-  // references DAO
-  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   public AddEditTimeSpan() {
     try {
       jbInit();
       addTimeEstimateParametersAndEditors();
-      addNewReferenceButton.addActionListener(this);
     }
     catch (Exception ex) {
       ex.printStackTrace();
@@ -74,16 +62,7 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
     this.setVisible(true);
   }
 
-  /**
-  * When user chooses to add a new reference
-  * @param event
-  */
- public void actionPerformed(ActionEvent event) {
-   if(event.getSource() == addNewReferenceButton)  {
-     addNewReference = new AddNewReference();
-     addNewReference.addDbAdditionSuccessListener(this);
-   }
- }
+
 
 
   /**
@@ -96,64 +75,31 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
    endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME);
    timSpanSplitPane.add(startTimeBean, JSplitPane.LEFT);
    timSpanSplitPane.add(endTimeBean, JSplitPane.RIGHT);
-   timSpanSplitPane.setDividerLocation(220);
+   timSpanSplitPane.setDividerLocation(325);
 
    // timespan comments
    timeSpanCommentsParam = new StringParameter(TIMESPAN_COMMENTS_PARAM_NAME);
    timeSpanCommentsParamEditor = new CommentsParameterEditor(timeSpanCommentsParam);
    commentsPanel.add(timeSpanCommentsParamEditor, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-   // make param and editor for references
-   makeReferencesParamAndEditor();
-
  }
 
- /**
-  * make param and editor for references
-  *
-  * @throws ConstraintException
-  */
- private void makeReferencesParamAndEditor() throws ConstraintException {
-   if(timeSpanReferencesParamEditor!=null)
-     referencesPanel.remove(timeSpanReferencesParamEditor);
-   // references
-   ArrayList availableReferences = getAvailableReferences();
-   this.timeSpanReferencesParam = new StringListParameter(this.
-       TIMESPAN_REFERENCES_PARAM_NAME, availableReferences);
-   timeSpanReferencesParamEditor = new ConstrainedStringListParameterEditor(
-       timeSpanReferencesParam);
-   referencesPanel.add(timeSpanReferencesParamEditor,
-                       new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(0, 0, 0, 0), 0, 0));
- }
+
 
 
   private void jbInit() throws Exception {
     setLayout(gridBagLayout1);
-    addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
+
     this.setMinimumSize(new Dimension(0, 0));
     add(timSpanSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(3, 3, 0, 4), 374, 432));
     this.add(commentsPanel,  new GridBagConstraints(0, 1, 1, 2, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 3, 3, 0), 256, 90));
-    this.add(referencesPanel,  new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 7, 0, 4), 270, 56));
-    this.add(addNewReferenceButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 12, 3, 15), 0, 0));
     timSpanSplitPane.setOrientation(timSpanSplitPane.HORIZONTAL_SPLIT);
     commentsPanel.setLayout(gridBagLayout1);
-    referencesPanel.setLayout(gridBagLayout1);
   }
 
-  /**
-   * Get a list of available references.
-   * @return
-   */
-  private ArrayList getAvailableReferences() {
-    return referenceDAO.getAllShortCitations();
-  }
+
 
   /**
    * Get the start time for this time span
@@ -161,7 +107,7 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
    */
   public TimeAPI getStartTime() {
     TimeAPI startTime = this.startTimeBean.getSelectedTime();
-    setReferencesAndDatingComments(startTime);
+    setDatingComments(startTime);
     return startTime;
   }
 
@@ -170,13 +116,9 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
    * @param timeAPI
    * @throws java.lang.RuntimeException
    */
-  private void setReferencesAndDatingComments(TimeAPI timeAPI) throws
+  private void setDatingComments(TimeAPI timeAPI) throws
       RuntimeException {
     timeAPI.setDatingComments((String)this.timeSpanCommentsParam.getValue());
-    ArrayList references = (ArrayList)this.timeSpanReferencesParam.getValue();
-    if(references==null || references.size()==0)
-      throw new RuntimeException(MSG_REF_MISSING);
-    timeAPI.setReferencesList(references);
   }
 
   /**
@@ -185,17 +127,8 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
    */
   public TimeAPI getEndTime() {
     TimeAPI endTime = this.endTimeBean.getSelectedTime();
-    setReferencesAndDatingComments(endTime);
+    setDatingComments(endTime);
     return endTime;
-  }
-
-  /**
-   * Return a list of selected short citations
-   *
-   * @return
-   */
-  public ArrayList getTimeSpanShortCitationList() {
-    return (ArrayList)timeSpanReferencesParam.getValue();
   }
 
   /**
@@ -204,18 +137,6 @@ public class AddEditTimeSpan extends JPanel implements ActionListener, DbAdditio
    */
   public String getTimeSpanComments() {
     return (String)timeSpanCommentsParam.getValue();
-  }
-
-  /**
-  * This function is called whenever a new site type/ new Reference is added
-  * to the database
-  *
-  * @param event
-  */
-  public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
-    Object source  = event.getSource();
-    if(source == this.addNewReference) makeReferencesParamAndEditor();
-    referencesPanel.updateUI();
   }
 
 }

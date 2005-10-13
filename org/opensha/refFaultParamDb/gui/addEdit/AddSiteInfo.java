@@ -11,6 +11,7 @@ import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.data.TimeAPI;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -28,6 +29,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private JButton cancelButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private boolean isSlipVisible, isDisplacementVisible, isNumEventsVisible, isSequenceVisible;
+  private ArrayList referenceList;
   private AddEditNumEvents addEditNumEvents;
   private AddEditSlipRate addEditSlipRate;
   private AddEditCumDisplacement addEditCumDisp;
@@ -47,11 +49,15 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private String siteEntryDate;
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
   private EventSequenceDB_DAO eventSequenceDAO = new EventSequenceDB_DAO(DB_AccessAPI.dbConnection);
+
   public AddSiteInfo(int siteId, String siteEntryDate,
                      boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible, boolean isSequenceVisible)  {
+
+    // show window to get the reference
+    JDialog referencesDialog = new ChooseReference(this);
+
     this.siteId = siteId;
-    this.siteEntryDate = siteEntryDate;
     // user should provide info about at least one of slip, cum disp or num events
     if(!isSlipVisible && !isDisplacementVisible && !isNumEventsVisible && !isSequenceVisible)
       throw new RuntimeException(ATLEAT_ONE_MSG);
@@ -59,6 +65,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     this.isDisplacementVisible = isDisplacementVisible;
     this.isNumEventsVisible = isNumEventsVisible;
     this.isSequenceVisible = isSequenceVisible;
+
+    this.siteEntryDate = siteEntryDate;
     if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
     if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
     if(isNumEventsVisible) this.addEditNumEvents = new AddEditNumEvents();
@@ -75,6 +83,12 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     setTitle(TITLE);
     this.setLocationRelativeTo(null);
     show();
+
+  }
+
+  public void setReference(String reference) {
+    referenceList = new ArrayList();
+    referenceList.add(reference);
   }
 
   /**
@@ -87,8 +101,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
-    if(source==this.cancelButton) this.dispose();
-    else if(source==this.okButton) {
+    if(source==this.cancelButton) this.dispose(); // cancel button is clicked
+    else if(source==this.okButton) { // ok button is clicked
       try {
         if(this.isSlipVisible || this.isDisplacementVisible ||
            this.isNumEventsVisible)
@@ -109,9 +123,13 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private void putSiteInfoInDatabase() {
     CombinedEventsInfo combinedEventsInfo = new CombinedEventsInfo();
     // set the time span info
-    combinedEventsInfo.setStartTime(addEditTimeSpan.getStartTime());
-    combinedEventsInfo.setEndTime(addEditTimeSpan.getEndTime());
-    combinedEventsInfo.setShortCitationList(addEditTimeSpan.getTimeSpanShortCitationList());
+    TimeAPI startTime  = addEditTimeSpan.getStartTime();
+    startTime.setReferencesList(this.referenceList);
+    TimeAPI endTime  = addEditTimeSpan.getEndTime();
+    endTime.setReferencesList(this.referenceList);
+    combinedEventsInfo.setStartTime(startTime);
+    combinedEventsInfo.setEndTime(endTime);
+    combinedEventsInfo.setShortCitationList(referenceList);
     combinedEventsInfo.setDatedFeatureComments(addEditTimeSpan.getTimeSpanComments());
     // set the site
     combinedEventsInfo.setSiteEntryDate(this.siteEntryDate);
@@ -170,9 +188,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
                               new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 22, 11, 175), 8, 0));
-
     String constraints = "";
-    this.mainSplitPane.setDividerLocation(W / 2);
     addEditTimeSpan = new AddEditTimeSpan();
     mainSplitPane.add(addEditTimeSpan, JSplitPane.LEFT);
     mainSplitPane.add(this.tabbedPane, JSplitPane.RIGHT);
@@ -184,6 +200,6 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
       tabbedPane.add(this.NUM_EVENTS_TITLE, addEditNumEvents);
     if(this.isSequenceVisible) // if sequence is visible
       tabbedPane.add(SEQUENCE_TITLE, this.addEditSequence);
-    mainSplitPane.setDividerLocation(W/2);
+    mainSplitPane.setDividerLocation(2*W/3);
   }
 }

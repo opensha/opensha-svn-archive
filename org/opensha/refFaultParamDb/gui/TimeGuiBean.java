@@ -88,10 +88,10 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     timeOptionsParam.addParameterChangeListener(this);
     timeOptionsParamEditor = new ConstrainedStringParameterEditor(timeOptionsParam);
     // GUI bean so that user can provide exact time
-    exactTimeGuiBean = new ExactTimeGuiBean(EXACT+" "+title);
+    exactTimeGuiBean = new ExactTimeGuiBean(" ");
     // param and editor to allow user to fill the time estimate values
     ArrayList allowedDateEstimates  = EstimateConstraint.createConstraintForDateEstimates();
-    estimateParameter = new EstimateParameter(ESTIMATE+" "+title, 0,
+    estimateParameter = new EstimateParameter(" ", 0,
                                               Double.MAX_VALUE, allowedDateEstimates);
     estimateParamEditor = new ConstrainedEstimateParameterEditor(estimateParameter,true,false);
     /**
