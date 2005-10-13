@@ -153,11 +153,27 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       for(int i=0; i<combinedEventsInfoList.size(); ++i) {
         // valid site and info available for the site
         CombinedEventsInfo combinedEventsInfo = (CombinedEventsInfo)combinedEventsInfoList.get(i);
-        timeSpansList.add((i+1)+". (Start Time="+getTimeString(combinedEventsInfo.getStartTime())+") "+
-            "(End Time="+getTimeString(combinedEventsInfo.getEndTime())+")");
+        ArrayList shortcitationList  = combinedEventsInfo.getShortCitationList();
+
+        timeSpansList.add((i+1)+". "+"(Reference="+
+                          getReferencesAsString(shortcitationList)+")(Start Time="+
+                          getTimeString(combinedEventsInfo.getStartTime())+") "+
+                          "(End Time="+getTimeString(combinedEventsInfo.getEndTime())+")");
       }
     }
     return timeSpansList;
+  }
+
+  /**
+   * convert reference list to string of references
+   * @param references
+   * @return
+   */
+  private String getReferencesAsString(ArrayList references) {
+    String str = "";
+    for(int i=0; i<references.size(); ++i)
+      str+=references.get(i)+";";
+    return str;
   }
 
 
