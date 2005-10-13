@@ -24,7 +24,7 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
  * @version 1.0
  */
 
-public class ChooseReference extends JDialog implements ActionListener,
+public class ChooseReference extends JFrame implements ActionListener,
     DbAdditionListener {
   private final static String TIMESPAN_REFERENCES_PARAM_NAME="Choose References";
   private final static String ADD_REFERENCE_TEXT="Add Reference";
@@ -42,6 +42,7 @@ public class ChooseReference extends JDialog implements ActionListener,
 
   public ChooseReference(AddSiteInfo addSiteInfo) {
     this.setLocationRelativeTo(null);
+    this.setDefaultCloseOperation(this.DO_NOTHING_ON_CLOSE);
     this.addSiteInfo = addSiteInfo;
     addActionListeners();
     addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
@@ -51,8 +52,6 @@ public class ChooseReference extends JDialog implements ActionListener,
       e.printStackTrace();
     }
     pack();
-    setModal(true);
-    show();
   }
 
   /**
@@ -78,6 +77,7 @@ public class ChooseReference extends JDialog implements ActionListener,
       this.dispose();
     } else if (source==cancelButton) {
       addSiteInfo.dispose();
+      this.dispose();
     }
   }
 
@@ -134,5 +134,7 @@ public class ChooseReference extends JDialog implements ActionListener,
   public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
     Object source  = event.getSource();
     if(source == this.addNewReference) makeReferencesParamAndEditor();
+    this.validate();
+    this.repaint();
   }
 }

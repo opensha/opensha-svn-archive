@@ -54,8 +54,6 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
                      boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible, boolean isSequenceVisible)  {
 
-    // show window to get the reference
-    JDialog referencesDialog = new ChooseReference(this);
 
     this.siteId = siteId;
     // user should provide info about at least one of slip, cum disp or num events
@@ -83,12 +81,17 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     setTitle(TITLE);
     this.setLocationRelativeTo(null);
     show();
+    // show window to get the reference
+    JFrame referencesDialog = new ChooseReference(this);
+    referencesDialog.show();
+    this.setEnabled(false);
 
   }
 
   public void setReference(String reference) {
     referenceList = new ArrayList();
     referenceList.add(reference);
+    this.setEnabled(true);
   }
 
   /**

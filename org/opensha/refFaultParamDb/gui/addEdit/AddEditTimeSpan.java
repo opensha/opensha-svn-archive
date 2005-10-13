@@ -89,7 +89,6 @@ public class AddEditTimeSpan extends JPanel  {
 
   private void jbInit() throws Exception {
     setLayout(gridBagLayout1);
-
     this.setMinimumSize(new Dimension(0, 0));
     add(timSpanSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(3, 3, 0, 4), 374, 432));
