@@ -55,7 +55,7 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private final static String MSG_MISSING_SEQUENCE_NAME="Please enter sequence name";
   private final static String MSG_MISSING_EVENT_NAMES="Please select atleast 1 event in this sequence";
   private final static String MSG_NEED_TO_SAVE_CURRRENT_SEQ = "Do you want to save current sequence?";
-  private final static String MSG_NO_EVENT="Cannot add sequence as no event exists for this site in database";
+  private final static String MSG_NO_EVENT="First add events for this site and then add sequences";
 
   // constants for making missed events prob parameters
   private final static String BEFORE = "Before";

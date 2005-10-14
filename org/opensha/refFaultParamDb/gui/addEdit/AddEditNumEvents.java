@@ -22,7 +22,7 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.IntegerEstimate;
 
 /**
- * <p>Title: </p>
+ * <p>Title: AddEditNumEvents.java </p>
  * <p>Description: </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>

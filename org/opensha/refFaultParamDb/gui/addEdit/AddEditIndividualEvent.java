@@ -23,6 +23,7 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.exceptions.*;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
+import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -40,8 +41,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private JSplitPane estimatesSplitPane = new JSplitPane();
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane detailedEventInfoSplitPane = new JSplitPane();
-  private JButton okButton = new JButton();
-  private JButton cancelButton = new JButton();
+  private JButton okButton = new JButton("Add Another Event");
+  private JButton cancelButton = new JButton("Close");
   private JPanel eventSummaryPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -66,15 +67,15 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
 
   // add new reference button
   private JButton addNewReferenceButton = new JButton("Add Reference");
+  private JButton viewAllRefsButton = new JButton("View All References");
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
-  private final static String MSG_NO_EVENT_EXIST_TO_SHARE_DISPLACEMENT =
-      "No other event exists in database for this site. So, displacement cannot be shared";
   private final static String MSG_EVENT_NAME_MISSING = "Please enter event name";
   private final static String MSG_REFERENCE_MISSING = "Choose atleast 1 reference";
   private final static String MSG_SHARED_EVENTS_MISSING = "Choose atleast 1 event to share the displacement";
   private final static String MSG_EVENTS_DO_NOT_SHARE_DISPLACEMENT=
       "The selected event set for shared displacement is invalid.\nThese events do not share same displacement";
   private final static String MSG_PALEO_EVENT_ADD_SUCCESS = "Paleo Event added successfully to the database";
+  private final static String MSG_NEED_TO_SAVE_CURR_EVENT = "Do you want to save current event to database?";
 //slip rate constants
   private final static String SLIP_RATE_UNITS = "meters";
   private final static double SLIP_RATE_MIN = 0;
@@ -91,16 +92,16 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private EstimateParameter slipEstParam;
   private BooleanParameter displacementSharedParam;
   private StringListParameter sharedEventParam;
-  private StringListParameter referencesParam;
+  private StringParameter referencesParam;
 
   // various parameter editors
   private StringParameterEditor eventNameParamEditor;
   private CommentsParameterEditor commentsParamEditor;
   private ConstrainedEstimateParameterEditor slipEstParamEditor;
   private ParameterListEditor displacementParamListEditor;
-  private ConstrainedStringListParameterEditor referencesParamEditor;
+  private ConstrainedStringParameterEditor referencesParamEditor;
 
-  private final static int WIDTH = 600;
+  private final static int WIDTH = 700;
   private final static int HEIGHT = 700;
 
   // references DAO
@@ -182,8 +183,10 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private void makeReferencesParamAndEditor() throws ConstraintException {
     if(referencesParamEditor!=null) commentsReferencesPanel.remove(referencesParamEditor);
     // references param
-    referencesParam = new StringListParameter(this.REFERENCES_PARAM_NAME, this.getAvailableReferences());
-    referencesParamEditor = new ConstrainedStringListParameterEditor(referencesParam);
+    ArrayList referenceList = this.getAvailableReferences();
+    referencesParam = new StringParameter(this.REFERENCES_PARAM_NAME, referenceList,
+                                          (String)referenceList.get(0));
+    referencesParamEditor = new ConstrainedStringParameterEditor(referencesParam);
     commentsReferencesPanel.add(this.referencesParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
   }
@@ -222,12 +225,11 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     // event slip and whether slip is shared
     LabeledBoxPanel slipPanel = new LabeledBoxPanel(gridBagLayout1);
     slipPanel.setTitle(SLIP_TITLE);
-    slipPanel.add(slipEstParamEditor,  new GridBagConstraints(0, 0, 1, 2, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    slipPanel.add(displacementParamListEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+    slipPanel.add(displacementParamListEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+           ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    slipPanel.add(slipEstParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     estimatesSplitPane.add(slipPanel, JSplitPane.RIGHT);
-
     // comments and references
     commentsReferencesPanel = new LabeledBoxPanel(gridBagLayout1);
     commentsReferencesPanel.setTitle(COMMENTS_REFERENCES_TITLE);
@@ -235,6 +237,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     commentsReferencesPanel.add(this.commentsParamEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     commentsReferencesPanel.add(this.addNewReferenceButton,  new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0
+                 ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
+    commentsReferencesPanel.add(this.viewAllRefsButton,  new GridBagConstraints(0, 3, 1, 1, 1.0, 0.0
                  ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
     // event name
     eventSummaryPanel.add(eventNameParamEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
@@ -259,14 +263,14 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
    * @param isVisible
    */
   private void setSharedEventVisible(boolean isVisible) {
-    if(this.paleoEvents!=null && paleoEvents.size()>0)
-      this.displacementParamListEditor.setParameterVisible(this.SHARED_EVENT_PARAM_NAME, isVisible);
-    else if(isVisible) {
-      displacementSharedParam.removeParameterChangeListener(this);
-      this.displacementSharedParam.setValue(new Boolean(false));
-      this.displacementParamListEditor.getParameterEditor(DISPLACEMENT_SHARED_PARAM_NAME).refreshParamEditor();
-      displacementSharedParam.addParameterChangeListener(this);
-      JOptionPane.showMessageDialog(this,MSG_NO_EVENT_EXIST_TO_SHARE_DISPLACEMENT);
+    if(this.paleoEvents!=null && paleoEvents.size()>0) {
+      this.displacementParamListEditor.setParameterVisible(this.
+          SHARED_EVENT_PARAM_NAME, isVisible);
+      this.slipEstParamEditor.setVisible(!isVisible);
+    }
+    else {
+      this.displacementParamListEditor.setVisible(false);
+       this.slipEstParamEditor.setVisible(true);
     }
   }
 
@@ -288,7 +292,21 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
         JOptionPane.showMessageDialog(this, e.getMessage());
       }
     }
-    else if(source == cancelButton) this.dispose();
+    else if(source == cancelButton) { // close the window
+      int option = JOptionPane.showConfirmDialog(this,MSG_NEED_TO_SAVE_CURR_EVENT);
+      if(option==JOptionPane.OK_OPTION) {// ask user whether current event need to be saved to DB
+        try {
+          addEventToDatabase();
+          this.dispose();
+        }
+        catch (InsertException e) {
+          JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+      }else if(option == JOptionPane.NO_OPTION) {
+        this.dispose();
+      }
+    }
+    else if(source == viewAllRefsButton) new ViewAllReferences();
   }
 
   /**
@@ -356,6 +374,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     cancelButton.addActionListener(this);
     this.addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     addNewReferenceButton.addActionListener(this);
+    viewAllRefsButton.addActionListener(this);
   }
 
   //static initializer for setting look & feel
@@ -374,8 +393,6 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
    * @throws java.lang.Exception
    */
   private void jbInit() throws Exception {
-    cancelButton.setText("Cancel");
-    okButton.setText("OK");
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     topPanel.setLayout(gridBagLayout2);
     this.getContentPane().setLayout(borderLayout1);

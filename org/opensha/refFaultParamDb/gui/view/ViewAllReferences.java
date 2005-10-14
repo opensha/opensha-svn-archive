@@ -1,0 +1,113 @@
+package org.opensha.refFaultParamDb.gui.view;
+
+import javax.swing.*;
+import java.awt.*;
+import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import java.util.ArrayList;
+import org.opensha.refFaultParamDb.vo.Reference;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ * <p>Title: ViewAllReferences.java </p>
+ * <p>Description: View a list of all the references (both short citation as well as
+ * full bibliographic reference) in the database. </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+
+public class ViewAllReferences extends JFrame implements ActionListener {
+  private final static String columnNames[] = {"Short Citation", "Full Bibliographic Reference" };
+  private JLabel referencesLabel = new JLabel();
+  private JTable referencesTable;
+  private JButton refreshButton = new JButton();
+  private JButton closeButton = new JButton();
+  private JScrollPane referencesScrollPane = new JScrollPane();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  // references DAO
+  private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+
+  public ViewAllReferences() {
+    try {
+
+      jbInit();
+      makeReferencesTable();
+      addActionListeners();
+      pack();
+      this.setLocationRelativeTo(null);
+      show();
+    }
+    catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void actionPerformed(ActionEvent event) {
+    Object source = event.getSource();
+    if(source == this.closeButton) this.dispose();
+    else if(source == this.refreshButton) makeReferencesTable();
+  }
+
+  private void addActionListeners() {
+    refreshButton.addActionListener(this);
+    this.closeButton.addActionListener(this);
+  }
+
+  private void makeReferencesTable() {
+    if(referencesTable!=null) this.referencesScrollPane.remove(referencesTable);
+    referencesTable = new JTable(new ChatTableModel(getReferencesInfo(), this.columnNames));
+    referencesScrollPane.getViewport().add(referencesTable, null);
+  }
+
+  /**
+   * Get all the references from the database
+   * @return
+   */
+  private Object[][] getReferencesInfo() {
+    ArrayList allReferences = referenceDAO.getAllReferences();
+    int numRefs = allReferences.size();
+    Object[][] tableData = new Object[numRefs][2];
+    for(int i=0; i<numRefs; ++i) {
+      Reference ref = (Reference)allReferences.get(i);
+      tableData[i][0] = ref.getShortCitation();
+      tableData[i][1] = ref.getFullBiblioReference();
+    }
+    return tableData;
+  }
+
+
+  private void jbInit() throws Exception {
+    referencesLabel.setFont(new java.awt.Font("Dialog", 1, 15));
+    referencesLabel.setForeground(new Color(100, 100, 130));
+    referencesLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    referencesLabel.setText("All References");
+    this.getContentPane().setLayout(gridBagLayout1);
+    refreshButton.setText("Refresh");
+    closeButton.setText("Close");
+    this.getContentPane().add(referencesLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+            ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(10, 10, 0, 15), 273, 10));
+    this.getContentPane().add(refreshButton,  new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(6, 51, 0, 8), 11, 1));
+    this.getContentPane().add(closeButton,  new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(10, 158, 8, 0), 40, 7));
+    this.getContentPane().add(referencesScrollPane,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 8), -73, -44));
+  }
+}
+
+/**
+ * Extends the DefaultTableModel, but makes all cells uneditable.
+ */
+class ChatTableModel extends DefaultTableModel {
+  public ChatTableModel(Object[][] data, Object[] columnNames) {
+    super(data,columnNames);
+  }
+
+  public boolean isCellEditable(int row, int column) {
+    return false;
+  }
+}

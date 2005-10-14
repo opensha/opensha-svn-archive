@@ -14,6 +14,7 @@ import org.opensha.exceptions.ConstraintException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 
 /**
  * <p>Title: ChooseReference.java </p>
@@ -27,9 +28,9 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 public class ChooseReference extends JFrame implements ActionListener,
     DbAdditionListener {
   private final static String TIMESPAN_REFERENCES_PARAM_NAME="Choose References";
-  private final static String ADD_REFERENCE_TEXT="Add Reference";
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
-  private JButton addNewReferenceButton = new JButton(ADD_REFERENCE_TEXT);
+  private JButton addNewReferenceButton = new JButton("Add Reference");
+  private JButton viewAllRefButtons = new JButton("View All References");
   private AddNewReference addNewReference;
   private ConstrainedStringParameterEditor referencesParamEditor;
   private StringParameter referencesParam;
@@ -60,6 +61,7 @@ public class ChooseReference extends JFrame implements ActionListener,
   private void addActionListeners() {
     addNewReferenceButton.addActionListener(this);
     this.okButton.addActionListener(this);
+    viewAllRefButtons.addActionListener(this);
     this.cancelButton.addActionListener(this);
   }
 
@@ -78,6 +80,8 @@ public class ChooseReference extends JFrame implements ActionListener,
     } else if (source==cancelButton) {
       addSiteInfo.dispose();
       this.dispose();
+    } else if(source == this.viewAllRefButtons) {
+      ViewAllReferences viewAllRefs = new ViewAllReferences();
     }
   }
 
@@ -86,6 +90,9 @@ public class ChooseReference extends JFrame implements ActionListener,
     contentPane.setLayout(GUI_Utils.gridBagLayout);
     makeReferencesParamAndEditor();
     int yPos=1;
+
+    contentPane.add(viewAllRefButtons,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
     contentPane.add(addNewReferenceButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
     contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0

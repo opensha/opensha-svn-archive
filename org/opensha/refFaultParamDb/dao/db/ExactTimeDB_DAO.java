@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.data.ExactTime;
-import java.util.GregorianCalendar;
 /**
  * <p>Title: ExactTimeDB_DAO.java </p>
  * <p>Description: This class allows to put/get exact time from database </p>

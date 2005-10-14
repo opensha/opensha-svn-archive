@@ -38,7 +38,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 
   // ASEISMIC SLIP FACTOR
-  private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
+  private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate(0-1, 1=all aseismic)";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
   private final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";

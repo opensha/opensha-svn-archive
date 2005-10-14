@@ -4,7 +4,6 @@ import java.awt.Color;
 import org.opensha.data.estimate.*;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.refFaultParamDb.data.*;
-import java.util.GregorianCalendar;
 import java.util.ArrayList;
 import org.opensha.data.function.DiscretizedFuncAPI;
 

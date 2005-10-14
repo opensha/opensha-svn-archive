@@ -301,9 +301,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
               JOptionPane.showMessageDialog(this, MSG_EVENT_ALREADY_OPEN);
               return;
             }
-            addEditIndividualEvent = new AddEditIndividualEvent(paleoSite.getSiteId(),
-                                       paleoSite.getEntryDate());
-            addEditIndividualEvent.addDbAdditionSuccessListener(this);
+           showIndividualEventWindow();
           }
         }
      else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
@@ -417,8 +415,19 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   * @param event
   */
  public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {
+   Object source = event.getSource();
+   if(source == addEditIndividualEvent) {
+     addEditIndividualEvent.dispose();
+     showIndividualEventWindow();
+   }
    String siteName = (String) this.siteNameParam.getValue();
    this.setSiteInfo(siteName);
  }
+
+private void showIndividualEventWindow() {
+   addEditIndividualEvent = new AddEditIndividualEvent(paleoSite.getSiteId(),
+                                     paleoSite.getEntryDate());
+  addEditIndividualEvent.addDbAdditionSuccessListener(this);
+}
 
 }

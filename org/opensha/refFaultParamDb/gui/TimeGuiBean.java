@@ -13,6 +13,8 @@ import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.data.estimate.Estimate;
+import java.util.GregorianCalendar;
+import java.util.Calendar;
 
 /**
  * <p>Title: TimeGuiBean.java </p>
@@ -116,7 +118,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    eraParamEditor = new ConstrainedStringParameterEditor(eraParam);
 
    // ZERO year param
-   this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, Integer.MAX_VALUE, AD, YEAR1950);
+   this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, (new GregorianCalendar()).get(Calendar.YEAR), AD, YEAR1950);
    zeroYearParamEditor = new IntegerParameterEditor(zeroYearParam);
 
   }

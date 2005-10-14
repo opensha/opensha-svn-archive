@@ -65,16 +65,18 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     this.isSequenceVisible = isSequenceVisible;
 
     this.siteEntryDate = siteEntryDate;
-    if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
-    if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
-    if(isNumEventsVisible) this.addEditNumEvents = new AddEditNumEvents();
     try {
       if (this.isSequenceVisible)
         this.addEditSequence = new AddEditSequence(siteId, siteEntryDate);
     }catch(RuntimeException e) {
       JOptionPane.showMessageDialog(this, e.getMessage());
       this.isSequenceVisible = false;
+      this.dispose();
+      return;
     }
+    if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
+    if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
+    if(isNumEventsVisible) this.addEditNumEvents = new AddEditNumEvents();
     jbInit();
     addActionListeners();
     this.setSize(W,H);

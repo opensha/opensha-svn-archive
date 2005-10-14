@@ -334,7 +334,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       // Aseismic slip rate estimate
       NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
       // comments
-      String comments = "Perinent comments will be displayed here";
+      String comments = "Pertinent comments will be displayed here";
       slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments);
     } else if(this.isValidSiteAndInfoAvailable() &&
               combinedEventsInfo.getSlipRateEstimate()!=null)  { // information available FOR THIS SITE
@@ -359,7 +359,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
      // Aseismic slip rate estimate
      NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
      // comments
-     String comments = "Perinent comments will be displayed here";
+     String comments = "Pertinent comments will be displayed here";
      displacementPanel.setInfo(diplacementEstimate, aSiemsicSlipEstimate, comments);
    } else if(this.isValidSiteAndInfoAvailable() &&
              combinedEventsInfo.getDisplacementEstimate()!=null)  { // information available FOR THIS SITE

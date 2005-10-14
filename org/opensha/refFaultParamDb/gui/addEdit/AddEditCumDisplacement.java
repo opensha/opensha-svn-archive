@@ -29,7 +29,7 @@ import org.opensha.data.estimate.Estimate;
 
 public class AddEditCumDisplacement extends LabeledBoxPanel{
   // ASEISMICE SLIP FACTOR
-  private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate";
+  private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate(0-1, 1=all aseismic)";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
    private final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
