@@ -169,7 +169,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private final static String MSG_IS_NORMAL_OK =
        "It seems that Normal(Gaussian) distribution can be used here instead of Min/Max/Preferred. \n"+
        "Do you want to use Normal(Gaussian) ?";
-
+   private final static String MSG_VALUE_MISSING_SUFFIX = " value is missing ";
 
    public ConstrainedEstimateParameterEditor() {
    }
@@ -606,8 +606,17 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * Set the estimate paramter value to be normal estimate
   */
  private Estimate setNormalEstimate() {
-   double mean = ((Double)meanParam.getValue()).doubleValue();
-   double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   // first check that user typed in the mean value
+   Double meanParamVal = (Double)meanParam.getValue();
+   if(meanParamVal==null)
+     throw new RuntimeException(meanParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+   double mean = meanParamVal.doubleValue();
+   // check that usr entered the standard deviation value
+   Double stdDevVal = (Double)stdDevParam.getValue();
+   if(stdDevVal==null)
+      throw new RuntimeException(stdDevParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+   double stdDev = stdDevVal.doubleValue();
+   // create Normal(Gaussian) estimate
    NormalEstimate estimate = new NormalEstimate(mean, stdDev);
    if(this.showMinMaxTruncationParams) {
      double minX = ( (Double)this.minNormalEstimateParam.getValue()).
@@ -629,8 +638,17 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * Set the estimate paramter value to be lognormal estimate
   */
  private Estimate setLogNormalEstimate() {
-   double linearMedian = ((Double)linearMedianParam.getValue()).doubleValue();
-   double stdDev = ((Double)stdDevParam.getValue()).doubleValue();
+   // check that user entered linear median value
+   Double linearMedianVal = (Double)linearMedianParam.getValue();
+   if(linearMedianVal==null)
+     throw new RuntimeException(linearMedianParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+   double linearMedian = linearMedianVal.doubleValue();
+   // check that user entered std dev value
+   Double stdDevVal = (Double)stdDevParam.getValue();
+   if(stdDevVal==null)
+     throw new RuntimeException(stdDevParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+   double stdDev =stdDevVal.doubleValue();
+   // create instance of log normal estimate
    LogNormalEstimate estimate = new LogNormalEstimate(linearMedian, stdDev);
    if(this.logBaseParam.getValue().equals(this.LOG_BASE_10_NAME))
      estimate.setIsBase10(true);
@@ -657,7 +675,10 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * Set the estimate paramter value to be discrete vlaue estimate
   */
  private Estimate setDiscreteValueEstimate() {
-   DiscreteValueEstimate estimate = new DiscreteValueEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
+   ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
+   if(val.getNum()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
+         this.MSG_VALUE_MISSING_SUFFIX);
+   DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
    return estimate;
  }
 
@@ -668,7 +689,10 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * Set the estimate paramter value to be integer estimate
   */
  private Estimate setIntegerEstimate() {
-   IntegerEstimate estimate = new IntegerEstimate((ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue(), false);
+   ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
+   if(val.getNum()==0)
+      throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+this.MSG_VALUE_MISSING_SUFFIX);
+   IntegerEstimate estimate = new IntegerEstimate(val, true);
    return estimate;
  }
 
@@ -676,7 +700,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * Set the estimate paramter value to be Pdf estimate
   */
  private Estimate setPDF_Estimate() {
-   PDF_Estimate estimate = new PDF_Estimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), false);
+   PDF_Estimate estimate = new PDF_Estimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), true);
    return estimate;
  }
 
@@ -691,32 +715,76 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    minX = getValueForParameter(minX_Param);
    maxX = getValueForParameter(maxX_Param);
    prefX = getValueForParameter(prefferedX_Param);
+   // check that user typed in atleast one of minX, maxX or prefX
+   if(Double.isNaN(minX) && Double.isNaN(maxX) && Double.isNaN(prefX)) {
+     throw new RuntimeException("Enter atleast one of "+minX_Param.getName()+","+
+                                maxX_Param.getName()+" or "+prefferedX_Param.getName());
+   }
    minProb = getValueForParameter(minProbParam);
    maxProb = getValueForParameter(maxProbParam);
    prefProb = getValueForParameter(prefferedProbParam);
+   // check that if user entered minX, then minProb was also entered
+   checkValidVals(minX, minProb, minX_Param.getName(), minProbParam.getName());
+   // check that if user entered maxX, then maxProb was also entered
+   checkValidVals(maxX, maxProb, maxX_Param.getName(), maxProbParam.getName());
+   // check that if user entered prefX, then prefProb was also entered
+   checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
+
+   if(Double.isNaN(minX)) {
+     minX = Double.NEGATIVE_INFINITY;
+     minProb = 0;
+   }
+   if(Double.isNaN(maxX)) {
+     maxX = Double.POSITIVE_INFINITY;
+     maxProb = 0;
+   }
+   if(Double.isNaN(prefX)) {
+     prefX = (minX+maxX)/2;
+     prefProb = 0;
+   }
 
    // if min/max/pref is symmetric, ask the user whether normal distribution can be used
    if(!(Double.isNaN(minX) || Double.isNaN(maxX) || Double.isNaN(prefX) ||
         Double.isNaN(minProb) || Double.isNaN(maxProb) || Double.isNaN(prefProb))) { //
+     if((minX>prefX) || (minX>maxX) || (prefX>maxX))
+       throw new RuntimeException(prefferedX_Param.getName()+" should be greater than/equal to "+minX_Param.getName()+
+                                  "\n"+maxX_Param.getName()+" should be greater than/equal to "+prefferedX_Param.getName());
      double diffX1 = prefX - minX;
      double diffX2 = maxX - prefX;
      double diffProb1 = prefProb - minProb;
-     double diffProb2 = maxProb - prefProb;
+     double diffProb2 = prefProb - maxProb;
      if(diffX1==diffX2 && diffProb1==diffProb2 &&
         chooseEstimateParam.getAllowedStrings().contains(NormalEstimate.NAME)) { // it is symmetric
         // ask the user if normal distribution can be used
         int option = JOptionPane.showConfirmDialog(this, MSG_IS_NORMAL_OK);
         if(option==JOptionPane.OK_OPTION) {
           this.chooseEstimateParam.setValue(NormalEstimate.NAME);
-          return null;
+          throw new RuntimeException("Changing to Normal Estimate");
         }
      }
    }
-   empiricalFunc.set(((Double)this.minX_Param.getValue()).doubleValue(), ((Double)this.minProbParam.getValue()).doubleValue());
-   empiricalFunc.set(((Double)this.maxX_Param.getValue()).doubleValue(), ((Double)this.maxProbParam.getValue()).doubleValue());
-   empiricalFunc.set(((Double)this.prefferedX_Param.getValue()).doubleValue(), ((Double)this.prefferedProbParam.getValue()).doubleValue());
+   empiricalFunc.set(minX, minProb);
+   empiricalFunc.set(maxX, maxProb);
+   empiricalFunc.set(prefX, prefProb);
    FractileListEstimate estimate = new FractileListEstimate(empiricalFunc);
    return estimate;
+ }
+
+ /**
+  * Check that if usr entered X value, then prob value is also entered.
+  * Similarly, a check is also made that if prob is entered, x val must be entered as well.
+  * If any check fails RuntimException is thrown
+  * @param xVal
+  * @param probVal
+  * @param xParamName
+  * @param probParamName
+  */
+ private void checkValidVals(double xVal, double probVal, String xParamName,
+                             String probParamName) {
+   if(Double.isNaN(xVal) && !Double.isNaN(probVal))
+     throw new RuntimeException("If " + xParamName +" is empty, "+probParamName+" is not allowed");
+   if(!Double.isNaN(xVal) && Double.isNaN(probVal))
+     throw new RuntimeException(probParamName+this.MSG_VALUE_MISSING_SUFFIX);
  }
 
  private double getValueForParameter(Parameter param) {

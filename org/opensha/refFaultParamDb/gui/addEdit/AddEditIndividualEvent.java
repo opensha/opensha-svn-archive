@@ -323,12 +323,14 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     }
     paleoEvent.setEventName(eventName);
     // make sure that user choose a reference
-    ArrayList reference = (ArrayList)this.referencesParam.getValue();
-    if(reference==null || reference.size()==0) {
+    String reference = (String)this.referencesParam.getValue();
+    if(reference==null) {
       JOptionPane.showMessageDialog(this, MSG_REFERENCE_MISSING);
       return;
     }
-    paleoEvent.setShortCitationsList(reference);
+    ArrayList referenceList = new ArrayList();
+    referenceList.add(reference);
+    paleoEvent.setShortCitationsList(referenceList);
 
     // if displacement is shared, make sure that user selects atleast 1 event
     boolean isDispShared = ((Boolean)this.displacementSharedParam.getValue()).booleanValue();
@@ -349,7 +351,12 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
         } else paleoEvent.setDisplacementEstId(dispEstId);
       }
     } else { // if displacement is not shared, set displacement estimate in the paleo-event
-      this.slipEstParamEditor.setEstimateInParameter();
+      try {
+        this.slipEstParamEditor.setEstimateInParameter();
+      }catch(RuntimeException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage());
+        return;
+      }
       paleoEvent.setDisplacementEst(
           new EstimateInstances((Estimate)this.slipEstParam.getValue(), this.SLIP_RATE_UNITS));
     }
@@ -357,7 +364,13 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     paleoEvent.setComments((String)this.commentsParam.getValue());
     paleoEvent.setSiteId(this.siteId);
     paleoEvent.setSiteEntryDate(this.siteEntryDate);
-    TimeAPI eventTime = this.eventTimeEst.getSelectedTime();
+    TimeAPI eventTime=null;
+    try {
+      eventTime = this.eventTimeEst.getSelectedTime();
+    }catch(RuntimeException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage());
+       return;
+    }
     eventTime.setDatingComments(paleoEvent.getComments());
     eventTime.setReferencesList(paleoEvent.getShortCitationsList());
     paleoEvent.setEventTime(eventTime);

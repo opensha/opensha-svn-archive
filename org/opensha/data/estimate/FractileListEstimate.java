@@ -27,6 +27,7 @@ import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 public class FractileListEstimate extends Estimate {
   public final static String NAME  =  "Min, Max and Preferred";
+  private final static double tol = 1e-6;
   private ArbDiscrEmpiricalDistFunc func=null;
   private final static String MEDIAN_UNDEFINED = "Invalid Y values as median is undefined"+
        " for these set of Y values. ";
@@ -63,6 +64,8 @@ public class FractileListEstimate extends Estimate {
        sum+=y;
        if(y<0 || y>1) throw new InvalidParamValException(EST_MSG_INVLID_RANGE);
      }
+     if(Math.abs(sum-1)>tol)
+       throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
      this.func = (ArbDiscrEmpiricalDistFunc)func.deepClone();
    }
 

@@ -59,7 +59,7 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
         sum += val;
       }
       // make sure sum is close to 1.0
-      if ( Math.abs(sum-1.0) <= tol)
+      if ( Math.abs(sum-1.0) > tol)
         throw new InvalidParamValException(EST_MSG_NOT_NORMALIZED);
     }
     else { // sum y vals and check positivity
