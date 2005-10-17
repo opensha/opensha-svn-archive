@@ -1,47 +1,22 @@
 package org.opensha.nshmp.sha.data;
 
-import java.net.*;
-import java.rmi.*;
-
-import org.opensha.data.function.*;
-import org.opensha.nshmp.exceptions.*;
-import org.opensha.nshmp.sha.calc.api.*;
-import org.opensha.nshmp.sha.calc.remote.api.*;
-import org.opensha.nshmp.util.*;
+import java.rmi.RemoteException;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.nshmp.exceptions.ZipCodeErrorException;
+import org.opensha.data.function.DiscretizedFuncList;
 
 /**
- * <p>Title: HazardDataMiner</p>
- *
- * <p>Description: This class computes the Ss and S1 based on the location inputs
- * provided by the user in the application.</p>
- *
- * @author Ned Field, Nitin Gupta and E.V.Leyendecker
+ * <p>Title: HazardDataMinerAPI.java </p>
+ * <p>Description: This interface is implemented by the classes which connect
+ * to server to get calculation results from the server. One of the class
+ * connects to the RMI while the other connects with the servlet.</p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author not attributable
  * @version 1.0
  */
-public class HazardDataMiner implements HazardDataMinerAPI{
 
-  /**
-   * Class default constructor
-   */
-  public HazardDataMiner() {
-  }
-
-  private HazardDataCalcAPI getHazardDataCalcObject() throws RemoteException {
-    try {
-      RemoteHazardDataCalcFactoryAPI remoteDataCalc = (
-          RemoteHazardDataCalcFactoryAPI)
-          Naming.lookup(GlobalConstants.registrationName);
-      HazardDataCalcAPI calc = remoteDataCalc.getRemoteHazardDataCalc();
-      return calc;
-    }
-    catch (MalformedURLException e) {
-      e.printStackTrace();
-    }
-    catch (NotBoundException ee) {
-      ee.printStackTrace();
-    }
-    return null;
-  }
+public interface HazardDataMinerAPI {
 
   /**
    *
@@ -50,12 +25,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @param expTime double
    * @return double
    */
-  public double getExceedProb(
-      double fex, double expTime) throws RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeExceedProb(fex, expTime);
-  }
+  public double getExceedProb(double fex, double expTime) throws RemoteException ;
 
   /**
    *
@@ -64,10 +34,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return double
    */
   public double getReturnPeriod(double exceedProb, double expTime) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeReturnPeriod(exceedProb, expTime);
-  }
+      RemoteException ;
 
   /**
    * Gets the Basic Hazard Curve using the Lat and Lon
@@ -79,12 +46,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    */
   public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
       String dataEdition, double lat, double lon,
-      String hazCurveType) throws RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeHazardCurve(geographicRegion, dataEdition, lat, lon,
-                                   hazCurveType);
-  }
+      String hazCurveType) throws RemoteException ;
 
   /**
    * Gets the Basic Hazard Curve using the Lat and Lon
@@ -97,12 +59,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public ArbitrarilyDiscretizedFunc getBasicHazardcurve(String geographicRegion,
       String dataEdition, String zipCode,
       String hazCurveType) throws
-      ZipCodeErrorException, RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeHazardCurve(geographicRegion, dataEdition, zipCode,
-                                   hazCurveType);
-  }
+      ZipCodeErrorException, RemoteException ;
 
   /**
    * Gets the Ss and S1 when location is provided using the Lat and Lon
@@ -114,11 +71,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                             String dataEdition, double lat,
-                                            double lon) throws RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSsS1(geographicRegion, dataEdition, lat, lon);
-  }
+                                            double lon) throws RemoteException ;
 
   /**
    *
@@ -133,12 +86,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
                                             String dataEdition, double lat,
                                             double lon,
                                             String selectedSpectraType) throws
-      RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSsS1(geographicRegion, dataEdition, lat, lon,
-                            selectedSpectraType);
-  }
+      RemoteException ;
 
   /**
    *
@@ -152,12 +100,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public DiscretizedFuncList getSA(String geographicRegion,
                                    String dataEdition, double lat,
                                    double lon, String selectedSpectraType) throws
-      RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSA(geographicRegion, dataEdition, lat, lon,
-                          selectedSpectraType);
-  }
+      RemoteException;
 
   /**
    * Gets the Ss and S1 when location is provided using the zipCode
@@ -170,11 +113,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public DiscretizedFuncList getSA(String geographicRegion,
                                    String dataEdition, String zipCode,
                                    String spectraType) throws
-      ZipCodeErrorException, RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSA(geographicRegion, dataEdition, zipCode, spectraType);
-  }
+      ZipCodeErrorException, RemoteException ;
 
   /**
    * Gets the Ss and S1 when location is provided using the zipCode
@@ -187,11 +126,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                             String dataEdition, String zipCode,
                                             String spectraType) throws
-      ZipCodeErrorException, RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSsS1(geographicRegion, dataEdition, zipCode, spectraType);
-  }
+      ZipCodeErrorException, RemoteException ;
 
   /**
    * Gets the Ss and S1 when location is provided using the zipCode
@@ -203,11 +138,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion,
                                             String dataEdition, String zipCode) throws
-      ZipCodeErrorException, RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSsS1(geographicRegion, dataEdition, zipCode);
-  }
+      ZipCodeErrorException, RemoteException ;
 
   /**
    * Gets the Ss and S1 when geographic region provided is  a territory.
@@ -215,11 +146,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return ArbitrarilyDiscretizedFunc
    */
   public ArbitrarilyDiscretizedFunc getSsS1(String geographicRegion) throws
-      RemoteException {
-
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSsS1(geographicRegion);
-  }
+      RemoteException ;
 
   /**
    *
@@ -231,10 +158,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public ArbitrarilyDiscretizedFunc getSDSsS1(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSDSsS1(func, fa, fv, siteClass);
-  }
+      RemoteException ;
 
   /**
    *
@@ -246,10 +170,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public ArbitrarilyDiscretizedFunc getSMSsS1(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSMSsS1(func, fa, fv, siteClass);
-  }
+      RemoteException ;
 
   /**
    *
@@ -260,10 +181,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    */
   public DiscretizedFuncList getSMSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSMSpectrum(func, fa, fv, siteClass);
-  }
+      RemoteException ;
 
   /**
    *
@@ -274,10 +192,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    */
   public DiscretizedFuncList getSDSpectrum(ArbitrarilyDiscretizedFunc func,
                                            float fa, float fv, String siteClass) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSDSpectrum(func, fa, fv, siteClass);
-  }
+      RemoteException;
 
   /**
    *
@@ -285,10 +200,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList getMapSpectrum(ArbitrarilyDiscretizedFunc func) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeMapSpectrum(func);
-  }
+      RemoteException ;
 
   /**
    *
@@ -300,10 +212,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public DiscretizedFuncList getSM_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSM_UHSpectrum(func, fa, fv, siteClass);
-  }
+      RemoteException ;
 
   /**
    *
@@ -315,10 +224,7 @@ public class HazardDataMiner implements HazardDataMinerAPI{
   public DiscretizedFuncList getSD_UHSpectrum(ArbitrarilyDiscretizedFunc func,
                                               float fa, float fv,
                                               String siteClass) throws
-      RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeSD_UHSpectrum(func, fa, fv, siteClass);
-  }
+      RemoteException ;
 
   /**
    *
@@ -326,9 +232,8 @@ public class HazardDataMiner implements HazardDataMinerAPI{
    * @return DiscretizedFuncList
    */
   public DiscretizedFuncList getApprox_UHSpectrum(ArbitrarilyDiscretizedFunc
-                                                  func) throws RemoteException {
-    HazardDataCalcAPI calc = getHazardDataCalcObject();
-    return calc.computeApproxUHSpectrum(func);
-  }
+                                                  func) throws RemoteException ;
+
+
 
 }

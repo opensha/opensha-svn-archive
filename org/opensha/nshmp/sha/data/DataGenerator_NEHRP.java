@@ -93,7 +93,7 @@ public class DataGenerator_NEHRP
    */
   public void calculateSsS1() throws RemoteException {
 
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion);
     String location = "Spectral values are constant for the region";
     createMetadataForPlots(location);
@@ -108,7 +108,7 @@ public class DataGenerator_NEHRP
    */
   public void calculateSsS1(double lat, double lon) throws RemoteException {
 
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
         dataEdition,
         lat, lon);
@@ -126,7 +126,7 @@ public class DataGenerator_NEHRP
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
       RemoteException {
 
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
         dataEdition,
         zipCode);
@@ -148,7 +148,7 @@ public class DataGenerator_NEHRP
    */
   public void calculateSMSsS1() throws RemoteException {
 
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSMSsS1(saFunction, faVal,
         fvVal, siteClass);
     addDataInfo(function.getInfo());
@@ -160,7 +160,7 @@ public class DataGenerator_NEHRP
    */
   public void calculatedSDSsS1() throws RemoteException {
 
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     ArbitrarilyDiscretizedFunc function = miner.getSDSsS1(saFunction, faVal,
         fvVal, siteClass);
     addDataInfo(function.getInfo());
@@ -171,7 +171,7 @@ public class DataGenerator_NEHRP
    *
    */
   public void calculateMapSpectrum() throws RemoteException {
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getMapSpectrum(saFunction);
     addDataInfo(functions.getInfo());
     getFunctionsForMapSpectrum(functions);
@@ -322,7 +322,7 @@ public class DataGenerator_NEHRP
    *
    */
   public void calculateSMSpectrum() throws RemoteException {
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSMSpectrum(saFunction, faVal,
         fvVal, siteClass);
     addDataInfo(functions.getInfo());
@@ -333,7 +333,7 @@ public class DataGenerator_NEHRP
    *
    */
   public void calculateSDSpectrum() throws RemoteException {
-    HazardDataMiner miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMiner();
     DiscretizedFuncList functions = miner.getSDSpectrum(saFunction, faVal,
         fvVal, siteClass);
     addDataInfo(functions.getInfo());

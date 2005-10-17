@@ -1,0 +1,55 @@
+package org.opensha.nshmp.sha.calc.servlet;
+
+import java.util.ArrayList;
+import org.opensha.nshmp.sha.calc.HazardDataCalc;
+import java.lang.reflect.Method;
+
+/**
+ * <p>Title: HazardDataCalcServletHelper.java </p>
+ * <p>Description: This class gets the function name and parameters and then
+ * calls the corresponding function in HazardDataCalc using reflection. </p>
+ * <p>Copyright: Copyright (c) 2002</p>
+ * <p>Company: </p>
+ * @author not attributable
+ * @version 1.0
+ */
+public class HazardDataCalcServletHelper {
+  public Object getResult(String methodName, ArrayList objectsList) {
+    try {
+      HazardDataCalc hazardDataCalc = new HazardDataCalc();
+      Method method = hazardDataCalc.getClass().getMethod(methodName,
+          getClasses(objectsList));
+      return method.invoke(hazardDataCalc, getObjects(objectsList));
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Make object array from the arraylist
+   * @param objectList
+   * @return
+   */
+  private Object[] getObjects(ArrayList objectList) {
+    Object[] objects  = new Object[objectList.size()];
+    for(int i=0; i<objectList.size(); ++i)
+      objects[i] = objectList.get(i);
+    return objects;
+  }
+  /**
+   * Return clas[] for passed object list
+   * @param objectList
+   * @return
+   */
+  private Class[] getClasses(ArrayList objectList) {
+    Class []classTypes = new Class[objectList.size()];
+    for(int i=0; i<objectList.size(); ++i) {
+      Object obj = objectList.get(i);
+      if(obj instanceof Double) classTypes[i] = Double.TYPE;
+      else if(obj instanceof Float) classTypes[i] = Float.TYPE;
+      else classTypes[i] = obj.getClass();
+    }
+    return classTypes;
+  }
+}
