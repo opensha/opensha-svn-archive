@@ -66,18 +66,21 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     * Mean parameter for Normal distribution
     */
    private DoubleParameter meanParam;
-   private final static String MEAN_PARAM_NAME="Mean";
+   private final static String MEAN_PARAM_NAME_PREFIX="Mean ";
+   private String meanParamName;
    /**
     * Std Dev parameter for normal/lognormal distribution
     */
    private DoubleParameter stdDevParam;
-   private final static String STD_DEV_PARAM_NAME="Std Dev";
+   private final static String STD_DEV_PARAM_NAME_PREFIX="Std Dev ";
+   private String stdDevParamName;
 
    /**
     * Linear Median parameter for lognormal distribution
     */
    private DoubleParameter linearMedianParam;
-   private final static String LINEAR_MEDIAN_PARAM_NAME="Linear Median";
+   private final static String LINEAR_MEDIAN_PARAM_NAME_PREFIX="Linear Median ";
+   private String linearMedianParamName;
 
    /**
     * Min/Max  values that can be set into Normal/LogNormal estimate
@@ -108,10 +111,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
  // for X and Y vlaues for Discrete Value estimate and Min/Max/Preferred Estimate
    private ArbitrarilyDiscretizedFuncParameter arbitrarilyDiscFuncParam;
-   private final static String XY_PARAM_NAME = "Values";
+   private final static String XY_PARAM_NAME_SUFFIX = " Values";
+   private String xyParamName;
 
    private EvenlyDiscretizedFuncParameter evenlyDiscFuncParam;
-   private final static String PDF_PARAM_NAME = "PDF Vals";
+   private final static String PDF_PARAM_NAME_SUFFIX = " PDF Vals";
+   private String pdfParamName;
 
    //private JButton setEstimateButton ;
    private JButton viewEstimateButton;
@@ -120,17 +125,20 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     * Min, Max, Preferred
     */
    private DoubleParameter minX_Param;
-   private final static String MIN_X_PARAM_NAME="Min";
+   private final static String MIN_X_PARAM_NAME_PREFIX="Min ";
+   private String minXParamName;
    private DoubleParameter maxX_Param ;
-   private final static String MAX_X_PARAM_NAME="Max";
+   private final static String MAX_X_PARAM_NAME_PREFIX="Max ";
+   private String maxXParamName;
    private DoubleParameter prefferedX_Param ;
-   private final static String PREF_X_PARAM_NAME="Preferred";
+   private final static String PREF_X_PARAM_NAME_PREFIX="Preferred ";
+   private String preferredXParamName;
    private DoubleParameter minProbParam;
-   private final static String MIN_PROB_PARAM_NAME="Min";
+   private String minProbParamName;
    private DoubleParameter maxProbParam ;
-   private final static String MAX_PROB_PARAM_NAME="Max";
+   private String maxProbParamName;
    private DoubleParameter prefferedProbParam ;
-   private final static String PREF_PROB_PARAM_NAME="Preferred";
+   private String prefferedProbParamName;
    private ParameterListEditor xValsParamListEditor;
    private ParameterListEditor probValsParamListEditor;
 
@@ -138,7 +146,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
 
    // title of Parameter List Editor
-   public static final String X_TITLE = new String("Values");
+   public static final String X_TITLE_SUFFIX = new String(" Values");
    // title of Parameter List Editor
    public static final String PROB_TITLE = new String("Probability this value is correct");
 
@@ -170,7 +178,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
        "It seems that Normal(Gaussian) distribution can be used here instead of Min/Max/Preferred. \n"+
        "Do you want to use Normal(Gaussian) ?";
    private final static String MSG_VALUE_MISSING_SUFFIX = " value is missing ";
-
+   private String paramNamesPrefix;
    public ConstrainedEstimateParameterEditor() {
    }
 
@@ -184,6 +192,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
                                              boolean showMinMaxTruncationParams){
 
      this.showEditorAsPanel = showEditorAsPanel;
+     this.paramNamesPrefix  = paramNamesPrefix;
      this.showMinMaxTruncationParams = showMinMaxTruncationParams;
      try {
        this.jbInit();
@@ -268,21 +277,25 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     // Starting
     String S = C + ": initControlsParamListAndEditor(): ";
     if ( D ) System.out.println( S + "Starting:" );
-
-
-    meanParam = new DoubleParameter(MEAN_PARAM_NAME);
-    stdDevParam = new DoubleParameter(STD_DEV_PARAM_NAME);
-    linearMedianParam = new DoubleParameter(LINEAR_MEDIAN_PARAM_NAME);
+    String estimateParamName = this.estimateParam.getName();
+    this.meanParamName = this.MEAN_PARAM_NAME_PREFIX+estimateParamName;
+    meanParam = new DoubleParameter(meanParamName);
+    this.stdDevParamName = this.STD_DEV_PARAM_NAME_PREFIX+estimateParamName;
+    stdDevParam = new DoubleParameter(stdDevParamName);
+    this.linearMedianParamName = this.LINEAR_MEDIAN_PARAM_NAME_PREFIX+estimateParamName;
+    linearMedianParam = new DoubleParameter(linearMedianParamName);
 
     ArbitrarilyDiscretizedFunc arbitraryDiscretizedFunc = new ArbitrarilyDiscretizedFunc();
-    arbitraryDiscretizedFunc.setXAxisName("Exact Value");
+    arbitraryDiscretizedFunc.setXAxisName("Exact "+estimateParamName);
     arbitraryDiscretizedFunc.setYAxisName("Probability this is correct");
-    arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(XY_PARAM_NAME, arbitraryDiscretizedFunc);
+    this.xyParamName = estimateParamName+this.XY_PARAM_NAME_SUFFIX;
+    arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(xyParamName, arbitraryDiscretizedFunc);
 
     EvenlyDiscretizedFunc evenlyDiscretizedFunc = new EvenlyDiscretizedFunc(1.0,4.0,7);
-    evenlyDiscretizedFunc.setXAxisName("Value");
+    evenlyDiscretizedFunc.setXAxisName(estimateParamName+" Value");
     evenlyDiscretizedFunc.setYAxisName("Probability");
-    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(PDF_PARAM_NAME, evenlyDiscretizedFunc);
+    this.pdfParamName = estimateParamName+this.PDF_PARAM_NAME_SUFFIX;
+    evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(pdfParamName, evenlyDiscretizedFunc);
     // list of available estimates
     estimateConstraint = (EstimateConstraint)estimateParam.getConstraint();
     ArrayList allowedEstimatesList = estimateConstraint.getAllowedEstimateList();
@@ -321,22 +334,26 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setTitle(title);
 
    // parameters for min/max/preferred user choice
-  minX_Param = new DoubleParameter(MIN_X_PARAM_NAME);
-
-  maxX_Param = new DoubleParameter(MAX_X_PARAM_NAME);
-  prefferedX_Param = new DoubleParameter(PREF_X_PARAM_NAME);
+  this.minXParamName = this.MIN_X_PARAM_NAME_PREFIX+estimateParamName;
+  minX_Param = new DoubleParameter(minXParamName);
+  this.maxXParamName = this.MAX_X_PARAM_NAME_PREFIX+estimateParamName;
+  maxX_Param = new DoubleParameter(maxXParamName);
+  this.preferredXParamName = this.PREF_X_PARAM_NAME_PREFIX+estimateParamName;
+  prefferedX_Param = new DoubleParameter(preferredXParamName);
 
   ParameterList xValsParamList = new ParameterList();
   xValsParamList.addParameter(minX_Param);
   xValsParamList.addParameter(maxX_Param);
   xValsParamList.addParameter(prefferedX_Param);
   xValsParamListEditor = new ParameterListEditor(xValsParamList);
-  xValsParamListEditor.setTitle(this.X_TITLE);
+  xValsParamListEditor.setTitle(estimateParamName+this.X_TITLE_SUFFIX);
 
-
-  minProbParam = new DoubleParameter(MIN_PROB_PARAM_NAME);
-  maxProbParam = new DoubleParameter(MAX_PROB_PARAM_NAME);
-  prefferedProbParam = new DoubleParameter(PREF_PROB_PARAM_NAME);
+  this.minProbParamName = "Probability of "+this.minXParamName;
+  minProbParam = new DoubleParameter(minProbParamName);
+  this.maxProbParamName = "Probability of "+this.maxXParamName;
+  maxProbParam = new DoubleParameter(maxProbParamName);
+  this.prefferedProbParamName = "Probability of "+this.preferredXParamName;
+  prefferedProbParam = new DoubleParameter(prefferedProbParamName);
   ParameterList probParamList = new ParameterList();
   probParamList.addParameter(minProbParam);
   probParamList.addParameter(maxProbParam);
@@ -356,7 +373,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    //minConstraintLabel= new JLabel(this.MIN_CONSTRAINT_LABEL+constraintMin);
    //maxConstraintLabel= new JLabel(this.MAX_CONSTRAINT_LABEL+constraintMax);
    //editor.setToolTipText(minConstraintLabel.getText()+","+maxConstraintLabel.getText());
-   editor.setToolTipText(this.estimateParam.getInfo()+"::"+constraintMinText+","+constraintMaxText);
+   //editor.setToolTipText(this.estimateParam.getInfo()+"::"+constraintMinText+","+constraintMaxText);
  }
 
  /**
@@ -436,12 +453,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    */
   private void setParamsForFractileListEstimate() {
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-    editor.setParameterVisible(MEAN_PARAM_NAME, false);
-    editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
-    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+    editor.setParameterVisible(meanParamName, false);
+    editor.setParameterVisible(stdDevParamName, false);
+    editor.setParameterVisible(linearMedianParamName, false);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-    editor.setParameterVisible(PDF_PARAM_NAME, false);
-    editor.setParameterVisible(XY_PARAM_NAME, false);
+    editor.setParameterVisible(this.pdfParamName, false);
+    editor.setParameterVisible(this.xyParamName, false);
      if(this.showMinMaxTruncationParams) {
        editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
        editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
@@ -458,12 +475,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    */
   private void setParamsForNormalEstimate() {
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-   editor.setParameterVisible(MEAN_PARAM_NAME, true);
-   editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
-   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+   editor.setParameterVisible(meanParamName, true);
+   editor.setParameterVisible(stdDevParamName, true);
+   editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(PDF_PARAM_NAME, false);
-   editor.setParameterVisible(XY_PARAM_NAME, false);
+   editor.setParameterVisible(pdfParamName, false);
+   editor.setParameterVisible(xyParamName, false);
    if(this.showMinMaxTruncationParams) {
      editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, true);
      editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
@@ -480,12 +497,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    */
   private void setParamsForLogNormalEstimate() {
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-    editor.setParameterVisible(MEAN_PARAM_NAME, false);
-    editor.setParameterVisible(STD_DEV_PARAM_NAME, true);
-    editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, true);
+    editor.setParameterVisible(meanParamName, false);
+    editor.setParameterVisible(stdDevParamName, true);
+    editor.setParameterVisible(linearMedianParamName, true);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
-    editor.setParameterVisible(PDF_PARAM_NAME, false);
-    editor.setParameterVisible(XY_PARAM_NAME, false);
+    editor.setParameterVisible(pdfParamName, false);
+    editor.setParameterVisible(xyParamName, false);
     if(this.showMinMaxTruncationParams) {
       editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
       editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, true);
@@ -502,12 +519,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   */
  private void setParamsForPDF_Estimate() {
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-   editor.setParameterVisible(MEAN_PARAM_NAME, false);
-   editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
-   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+   editor.setParameterVisible(meanParamName, false);
+   editor.setParameterVisible(stdDevParamName, false);
+   editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(PDF_PARAM_NAME, true);
-   editor.setParameterVisible(XY_PARAM_NAME, false);
+   editor.setParameterVisible(pdfParamName, true);
+   editor.setParameterVisible(xyParamName, false);
    if(this.showMinMaxTruncationParams) {
      editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
      editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
@@ -536,12 +553,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   */
  private void setParamsForXY_Estimate() {
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
-   editor.setParameterVisible(MEAN_PARAM_NAME, false);
-   editor.setParameterVisible(STD_DEV_PARAM_NAME, false);
-   editor.setParameterVisible(LINEAR_MEDIAN_PARAM_NAME, false);
+   editor.setParameterVisible(meanParamName, false);
+   editor.setParameterVisible(stdDevParamName, false);
+   editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
-   editor.setParameterVisible(PDF_PARAM_NAME, false);
-   editor.setParameterVisible(XY_PARAM_NAME, true);
+   editor.setParameterVisible(pdfParamName, false);
+   editor.setParameterVisible(xyParamName, true);
    if(this.showMinMaxTruncationParams) {
      editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
      editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
@@ -730,18 +747,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    // check that if user entered prefX, then prefProb was also entered
    checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
 
-   if(Double.isNaN(minX)) {
-     minX = Double.NEGATIVE_INFINITY;
-     minProb = 0;
-   }
-   if(Double.isNaN(maxX)) {
-     maxX = Double.POSITIVE_INFINITY;
-     maxProb = 0;
-   }
-   if(Double.isNaN(prefX)) {
-     prefX = (minX+maxX)/2;
-     prefProb = 0;
-   }
 
    // if min/max/pref is symmetric, ask the user whether normal distribution can be used
    if(!(Double.isNaN(minX) || Double.isNaN(maxX) || Double.isNaN(prefX) ||
@@ -763,6 +768,20 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
         }
      }
    }
+
+   if(Double.isNaN(minX)) {
+     minX = Double.NEGATIVE_INFINITY;
+     minProb = 0;
+   }
+   if(Double.isNaN(maxX)) {
+     maxX = Double.POSITIVE_INFINITY;
+     maxProb = 0;
+   }
+   if(Double.isNaN(prefX)) {
+     prefX = (minX+maxX)/2;
+     prefProb = 0;
+   }
+
    empiricalFunc.set(minX, minProb);
    empiricalFunc.set(maxX, maxProb);
    empiricalFunc.set(prefX, prefProb);
@@ -816,7 +835,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   * test the parameter editor
   * @param args
   */
-  public static void main(String args[]) {
+ /* public static void main(String args[]) {
     JFrame frame = new JFrame();
     frame.getContentPane().setLayout(new GridBagLayout());
     EstimateParameter estimateParam = new EstimateParameter("Test", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, EstimateConstraint.createConstraintForAllEstimates());
@@ -825,6 +844,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();
     frame.show();
-  }
+  }*/
 
 }
