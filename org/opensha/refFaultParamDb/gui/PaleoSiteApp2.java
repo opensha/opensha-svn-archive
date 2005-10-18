@@ -52,6 +52,9 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       "Data currently in this database";
   private final static String SLIP_DISP_NUMEVENTS_TITLE = "Slip Rate, Displacement and Num Events";
   private final static String EVENTS_SEQUENCES_TITLE = "Events & Sequences";
+  private final static String SLIP_RATE_TITLE = "Slip Rate";
+  private final static String DISPLACEMENT_TITLE = "Displacement";
+  private final static String NUM_EVENTS_TITLE = "Num Events";
 
   // various parameters
   private ViewSiteCharacteristics viewPaleoSites;
@@ -66,12 +69,12 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private JSplitPane infoForTimeSpanSplitPane = new JSplitPane();
   private JSplitPane timespanSplitPane = new JSplitPane();
   private JSplitPane timeSpanSelectionSplitPane = new JSplitPane();
-  private JSplitPane slipDisplacementSplitPane = new JSplitPane();
   private JSplitPane eventSequencesSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
-  private JTabbedPane tabbedPane = new JTabbedPane();
+  private JTabbedPane eventSequenceTabbedPane = new JTabbedPane();
+  private JTabbedPane slipDispNumEventsTabbedPane = new JTabbedPane();
 
   // panel to display the start time/end time and comments
   private ViewTimeSpan timeSpanPanel = new ViewTimeSpan();
@@ -133,6 +136,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     availableTimeSpansPanel.add(timeSpanParamEditor,new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     viewInfoBasedOnSelectedTimeSpan();
+    availableTimeSpansPanel.updateUI();
   }
 
   /**
@@ -267,11 +271,9 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     this.getContentPane().setLayout(borderLayout2);
     mainPanel.setLayout(borderLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    infoForTimeSpanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     this.eventSequencesSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-    slipDisplacementSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timeSpanSelectionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     statusTextArea.setEnabled(false);
     statusTextArea.setEditable(false);
@@ -281,28 +283,25 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     //mainSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
-    tabbedPane.add(SLIP_DISP_NUMEVENTS_TITLE, timeSpanSelectionSplitPane);
-    tabbedPane.add(EVENTS_SEQUENCES_TITLE, this.eventSequencesSplitPane);
-    mainSplitPane.add(tabbedPane, JSplitPane.RIGHT);
+    eventSequenceTabbedPane.add(SLIP_DISP_NUMEVENTS_TITLE, timeSpanSelectionSplitPane);
+    eventSequenceTabbedPane.add(EVENTS_SEQUENCES_TITLE, this.eventSequencesSplitPane);
+    mainSplitPane.add(eventSequenceTabbedPane, JSplitPane.RIGHT);
     timeSpanSelectionSplitPane.add(timespanSplitPane, JSplitPane.BOTTOM);
-    timespanSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
+    timespanSplitPane.add(slipDispNumEventsTabbedPane, JSplitPane.RIGHT);
     //mainSplitPane.add(infoForTimeSpanSplitPane, JSplitPane.RIGHT);
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
-    infoForTimeSpanSplitPane.add(slipDisplacementSplitPane, JSplitPane.LEFT);
     statusScrollPane.getViewport().add(statusTextArea, null);
-    slipDisplacementSplitPane.add(slipRatePanel, JSplitPane.LEFT);
-    infoForTimeSpanSplitPane.add(numEventsPanel, JSplitPane.RIGHT);
     timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
-    slipDisplacementSplitPane.add(displacementPanel, JSplitPane.RIGHT);
     eventSequencesSplitPane.add(this.individualEventPanel, JSplitPane.LEFT);
     eventSequencesSplitPane.add(this.sequencesPanel, JSplitPane.RIGHT);
     eventSequencesSplitPane.setDividerLocation(375);
-    slipDisplacementSplitPane.setDividerLocation(170);
     topSplitPane.setDividerLocation(625);
-    mainSplitPane.setDividerLocation(170);
+    mainSplitPane.setDividerLocation(200);
     timeSpanSelectionSplitPane.setDividerLocation(75);
-    infoForTimeSpanSplitPane.setDividerLocation(345);
-    timespanSplitPane.setDividerLocation(170);
+    timespanSplitPane.setDividerLocation(300);
+    slipDispNumEventsTabbedPane.add(SLIP_RATE_TITLE, slipRatePanel);
+    slipDispNumEventsTabbedPane.add(DISPLACEMENT_TITLE, displacementPanel);
+    slipDispNumEventsTabbedPane.add(NUM_EVENTS_TITLE, numEventsPanel);
   }
 
   /**

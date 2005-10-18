@@ -70,9 +70,9 @@ public class AddEditTimeSpan extends JPanel  {
   */
  private void addTimeEstimateParametersAndEditors() throws Exception{
    // start time estimate
-   startTimeBean = new TimeGuiBean(this.START_TIME_PARAM_NAME);
+   startTimeBean = new TimeGuiBean(this.START_TIME_PARAM_NAME, false);
    //end time estimate
-   endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME);
+   endTimeBean = new TimeGuiBean(this.END_TIME_PARAM_NAME, true);
    timSpanSplitPane.add(startTimeBean, JSplitPane.LEFT);
    timSpanSplitPane.add(endTimeBean, JSplitPane.RIGHT);
    timSpanSplitPane.setDividerLocation(325);

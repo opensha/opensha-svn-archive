@@ -69,7 +69,7 @@ public class IntegerParameterEditor extends ParameterEditor
         if ( ( obj != null ) && ( valueEditor != null ) )
             ((IntegerTextField) valueEditor).setText(obj.toString());
         else if ( valueEditor != null )
-            ((IntegerTextField) valueEditor).setText("");
+            ((IntegerTextField) valueEditor).setText(" ");
 
 
         if(D) System.out.println(S.concat("Ending"));
@@ -126,7 +126,7 @@ public class IntegerParameterEditor extends ParameterEditor
 
             try {
                 Integer d = null;
-                if( !value.equals( "" ) ) d = new Integer(value);
+                if( !value.trim().equals( "" ) ) d = new Integer(value);
                 setValue(d);
                 refreshParamEditor();
                 valueEditor.validate();
@@ -138,7 +138,7 @@ public class IntegerParameterEditor extends ParameterEditor
                 Object obj = getValue();
                 if( obj != null )
                     ((IntegerTextField) valueEditor).setText(obj.toString());
-                else ((IntegerTextField) valueEditor).setText( "" );
+                else ((IntegerTextField) valueEditor).setText( " " );
 
                 if( !catchConstraint ){ this.unableToSetValue(value); }
                 keyTypeProcessing = false;
@@ -172,7 +172,7 @@ public class IntegerParameterEditor extends ParameterEditor
         try {
 
             Integer d = null;
-            if( !value.equals( "" ) ) d = new Integer(value);
+            if( !value.trim().equals( "" ) ) d = new Integer(value);
             setValue(d);
             refreshParamEditor();
             valueEditor.validate();
@@ -184,7 +184,7 @@ public class IntegerParameterEditor extends ParameterEditor
             Object obj = getValue();
             if( obj != null )
                 ((IntegerTextField) valueEditor).setText(obj.toString());
-            else ((IntegerTextField) valueEditor).setText( "" );
+            else ((IntegerTextField) valueEditor).setText( " " );
 
             if( !catchConstraint ){ this.unableToSetValue(value); }
             focusLostProcessing = false;
@@ -232,7 +232,7 @@ public class IntegerParameterEditor extends ParameterEditor
         if ( obj != null )
             ((IntegerTextField) valueEditor).setText( obj.toString() );
 
-        else ((IntegerTextField) valueEditor).setText( "" );
+        else ((IntegerTextField) valueEditor).setText( " " );
 
     }
 }

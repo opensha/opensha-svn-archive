@@ -63,7 +63,6 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
     try {
        this.setLayout(GUI_Utils.gridBagLayout);
        addNumEventsParameters();
-       updateNumEventsList();
        this.setMinimumSize(new Dimension(0, 0));
     }catch(Exception e) {
       e.printStackTrace();
@@ -79,11 +78,11 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
  private void addNumEventsParameters() throws Exception {
 
    // min number of events
-   minEventsParam = new IntegerParameter(this.MIN_EVENTS_PARAM_NAME, NUM_EVENTS_MIN, NUM_EVENTS_MAX, new Integer(1));
+   minEventsParam = new IntegerParameter(this.MIN_EVENTS_PARAM_NAME, NUM_EVENTS_MIN, NUM_EVENTS_MAX);
    minEventsParam.addParameterChangeListener(this);
    minEventsParamEditor = new IntegerParameterEditor(minEventsParam);
    // max number of events
-   maxEventsParam = new IntegerParameter(this.MAX_EVENTS_PARAM_NAME, NUM_EVENTS_MIN, NUM_EVENTS_MAX, new Integer(2));
+   maxEventsParam = new IntegerParameter(this.MAX_EVENTS_PARAM_NAME, NUM_EVENTS_MIN, NUM_EVENTS_MAX);
    maxEventsParam.addParameterChangeListener(this);
    maxEventsParamEditor = new IntegerParameterEditor(maxEventsParam);
 
@@ -126,8 +125,18 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
   * Update the  num events list
   */
  private void updateNumEventsList() {
-   int min = ((Integer)minEventsParam.getValue()).intValue();
-   int max = ((Integer)maxEventsParam.getValue()).intValue();
+   Integer minVal = (Integer)minEventsParam.getValue();
+   if(minVal==null) {
+     JOptionPane.showMessageDialog(this, minEventsParam.getName() + " is missing");
+     return;
+   }
+   int min = minVal.intValue();
+   Integer maxVal = (Integer)maxEventsParam.getValue();
+   if(maxVal==null) {
+    JOptionPane.showMessageDialog(this, maxEventsParam.getName() + " is missing");
+    return;
+  }
+   int max = maxVal.intValue();
    String text="";
    eventProbs.clear();
    for(int i=min; i<=max; ++i) {

@@ -169,6 +169,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private boolean showEditorAsPanel = false;
 
    private EstimateConstraint estimateConstraint;
+   private String xAxisName;
 
    /**
     * Whether to show the min/max cut off parameters for normal/log normal estimates
@@ -183,16 +184,18 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    }
 
     public ConstrainedEstimateParameterEditor(ParameterAPI model) {
-      this(model, false, true);
+      this(model, false, true, null);
     }
 
    //constructor taking the Parameter as the input argument
    public ConstrainedEstimateParameterEditor(ParameterAPI model,
                                              boolean showEditorAsPanel,
-                                             boolean showMinMaxTruncationParams){
+                                             boolean showMinMaxTruncationParams,
+                                             String xAxisName){
 
      this.showEditorAsPanel = showEditorAsPanel;
      this.paramNamesPrefix  = paramNamesPrefix;
+     this.xAxisName = xAxisName;
      this.showMinMaxTruncationParams = showMinMaxTruncationParams;
      try {
        this.jbInit();
@@ -277,7 +280,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     // Starting
     String S = C + ": initControlsParamListAndEditor(): ";
     if ( D ) System.out.println( S + "Starting:" );
-    String estimateParamName = this.estimateParam.getName();
+    String estimateParamName = "";
+    if (this.xAxisName!=null) estimateParamName = xAxisName;
     this.meanParamName = this.MEAN_PARAM_NAME_PREFIX+estimateParamName;
     meanParam = new DoubleParameter(meanParamName);
     this.stdDevParamName = this.STD_DEV_PARAM_NAME_PREFIX+estimateParamName;
@@ -292,7 +296,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     arbitrarilyDiscFuncParam = new ArbitrarilyDiscretizedFuncParameter(xyParamName, arbitraryDiscretizedFunc);
 
     EvenlyDiscretizedFunc evenlyDiscretizedFunc = new EvenlyDiscretizedFunc(1.0,4.0,7);
-    evenlyDiscretizedFunc.setXAxisName(estimateParamName+" Value");
+    evenlyDiscretizedFunc.setXAxisName(estimateParamName);
     evenlyDiscretizedFunc.setYAxisName("Probability");
     this.pdfParamName = estimateParamName+this.PDF_PARAM_NAME_SUFFIX;
     evenlyDiscFuncParam = new EvenlyDiscretizedFuncParameter(pdfParamName, evenlyDiscretizedFunc);

@@ -56,6 +56,7 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   private final static String MSG_MISSING_EVENT_NAMES="Please select atleast 1 event in this sequence";
   private final static String MSG_NEED_TO_SAVE_CURRRENT_SEQ = "Do you want to save current sequence?";
   private final static String MSG_NO_EVENT="First add events for this site and then add sequences";
+  private final static String MSG_EVENT_PROBS_NOT_ONE = "Missed Event Probabilites do not sum up to 1";
 
   // constants for making missed events prob parameters
   private final static String BEFORE = "Before";
@@ -67,6 +68,8 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
   // Sequence Prob constraints
   private final static double SEQUENCE_PROB_MIN = 0;
   private final static double SEQUENCE_PROB_MAX = 1;
+
+  private final static double tolerance = 1e-6; // tolerance to check probabilties sum
 
   // various parameter types
   private StringParameter sequenceNameParam;
@@ -274,6 +277,20 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     sequenceProbEditor.setTitle(SEQUENCE_PROB_TITLE);
     this.add(sequenceProbEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    // show the events with in each sequence when user is assigning weights to the sequences
+    JTextArea sequenceInfo = new  JTextArea();
+    for(int i=0; i<numSequences; ++i ) {
+      EventSequence sequence = (EventSequence)sequenceList.get(i);
+      sequenceInfo.append("Events in Sequence "+i+":\n");
+      ArrayList events = sequence.getEventsParam();
+      for(int j=0; j<events.size(); ++j) {
+        sequenceInfo.append(((PaleoEvent)events.get(j)).getEventName()+",");
+      }
+      sequenceInfo.append("\n\n");
+    }
+    sequenceInfo.setEnabled(false);
+    this.add(new JScrollPane(sequenceInfo),  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     this.validate();
     this.repaint();
   }
@@ -298,9 +315,13 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     ArrayList missingProbs = new ArrayList();
     double missedProbs[] = new double[selectedEvents.size()+1];
     int i=0;
+    double sumProb = 0.0;
     while(paramsIterator.hasNext()) {
-      missedProbs[i++] = ((Double)((ParameterAPI)paramsIterator.next()).getValue()).doubleValue();
+      missedProbs[i] = ((Double)((ParameterAPI)paramsIterator.next()).getValue()).doubleValue();
+      sumProb += missedProbs[i++];
     }
+    if(Math.abs(sumProb-1)>tolerance)
+      throw new RuntimeException(MSG_EVENT_PROBS_NOT_ONE);
     sequence.setComments((String)this.commentsParam.getValue());
     // set the selected events info in the sequence
     ArrayList selectedEventsInfoList  = new ArrayList();

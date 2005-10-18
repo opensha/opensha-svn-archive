@@ -193,12 +193,20 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForExactTime(ExactTime exactTime) {
-    return "<html><b>"+TIME+":&nbsp;</b>Exact Time"+"<br>"+
-        "<b>Year:&nbsp;</b>"+exactTime.getYear()+exactTime.getEra()+"<br>"+
-        "<b>Month:&nbsp;</b>"+exactTime.getMonth()+"<br>"+
-        "<b>Date:&nbsp;</b>"+exactTime.getDay()+"<br>"+
-        "<b>Hour:&nbsp;</b>"+exactTime.getHour()+"<br>"+
-        "<b>Second:&nbsp;</b>"+exactTime.getSecond()+"<br></html>";
+    int month = exactTime.getMonth();
+    if(month!=0) { // it i not "NOW"
+      return "<html><b>" + TIME + ":&nbsp;</b>Exact Time" + "<br>" +
+          "<b>Year:&nbsp;</b>" + exactTime.getYear() + exactTime.getEra() +
+          "<br>" +
+          "<b>Month:&nbsp;</b>" + exactTime.getMonth() + "<br>" +
+          "<b>Date:&nbsp;</b>" + exactTime.getDay() + "<br>" +
+          "<b>Hour:&nbsp;</b>" + exactTime.getHour() + "<br>" +
+          "<b>Second:&nbsp;</b>" + exactTime.getSecond() + "<br></html>";
+    } else { // represent "NOW"
+      return "<html><b>" + TIME + ":&nbsp;</b>Now" + "<br>" +
+           "<b>Publication Year:&nbsp;</b>" + exactTime.getYear() + exactTime.getEra() +
+           "<br></html>";
+    }
   }
 
   /**

@@ -42,15 +42,20 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
   private final static String KA = "ka";
   private final static Integer YEAR1950 = new Integer(1950);
   private StringParameter eraParam;
+  private final static String YEARS = "Years";
+  private final static String PUBLICATION_YEAR_PARAM_NAME = "Publication Year";
+  private IntegerParameter publicationYearParam;
 
   // editors
   private ConstrainedStringParameterEditor yearUnitsParamEditor;
   private IntegerParameterEditor zeroYearParamEditor;
   private ConstrainedStringParameterEditor eraParamEditor;
+  private IntegerParameterEditor publicationYearParamEditor; // needed to represent "NOW"
 
   private final static String TIME_OPTIONS_PARAM_NAME = "Type of Time";
   private final static String ESTIMATE = "Estimate";
   private final static String EXACT="Exact";
+  private final static String NOW = "Now";
 
 
   // GUI bean to provide the exact time
@@ -63,9 +68,10 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
   // parameter editors
   private ConstrainedEstimateParameterEditor estimateParamEditor;
   private ConstrainedStringParameterEditor timeOptionsParamEditor;
-
-  public TimeGuiBean(String title) {
+  private boolean isNowAllowed; // whether "Now" is allowed
+  public TimeGuiBean(String title, boolean isNowAllowed) {
     try {
+      this.isNowAllowed = isNowAllowed;
       this.title = title;
       // intialize the parameters and editors
       initParamListAndEditors();
@@ -95,7 +101,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     ArrayList allowedDateEstimates  = EstimateConstraint.createConstraintForDateEstimates();
     estimateParameter = new EstimateParameter(" ", 0,
                                               Double.MAX_VALUE, allowedDateEstimates);
-    estimateParamEditor = new ConstrainedEstimateParameterEditor(estimateParameter,true,false);
+    estimateParamEditor = new ConstrainedEstimateParameterEditor(estimateParameter,true,false, YEARS);
     /**
     * Parameters for Date Estimate [ isCorrected, units(ka/calendar year),
     *  era, 0th year (in case it is ka)]
@@ -121,6 +127,10 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    this.zeroYearParam = new IntegerParameter(this.ZERO_YEAR_PARAM_NAME, 0, (new GregorianCalendar()).get(Calendar.YEAR), AD, YEAR1950);
    zeroYearParamEditor = new IntegerParameterEditor(zeroYearParam);
 
+   // publication year param needed for representing "NOW"
+   this.publicationYearParam = new IntegerParameter(this.PUBLICATION_YEAR_PARAM_NAME, 0, (new GregorianCalendar()).get(Calendar.YEAR), AD);
+   publicationYearParamEditor = new IntegerParameterEditor(publicationYearParam);
+
   }
 
 
@@ -138,6 +148,8 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.zeroYearParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
+    add(this.publicationYearParamEditor,new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.exactTimeGuiBean, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     add(this.estimateParamEditor, new GridBagConstraints( 0, yPos++, 1, 1, 1.0, 1.0
@@ -153,6 +165,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     ArrayList availableTimes = new ArrayList();
     availableTimes.add(ESTIMATE);
     availableTimes.add(EXACT);
+    if(isNowAllowed) availableTimes.add(NOW);
     return availableTimes;
   }
 
@@ -193,9 +206,16 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     if(timeOptionChosen.equalsIgnoreCase(this.EXACT)) {
       setParametersVisibleForEstimateTime(false);
       setParametersVisibleForExactTime(true);
+      this.publicationYearParamEditor.setVisible(false);
     } else if(timeOptionChosen.equalsIgnoreCase(this.ESTIMATE)) {
        setParametersVisibleForExactTime(false);
-      setParametersVisibleForEstimateTime(true);
+       setParametersVisibleForEstimateTime(true);
+       this.publicationYearParamEditor.setVisible(false);
+       setDateParamsVisibleBasedOnUnits();
+    } else if(timeOptionChosen.equalsIgnoreCase(this.NOW)) {
+      setParametersVisibleForExactTime(false);
+      setParametersVisibleForEstimateTime(false);
+      this.publicationYearParamEditor.setVisible(true);
     }
   }
 
@@ -205,7 +225,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    */
   private void setParametersVisibleForExactTime(boolean isVisible) {
     this.exactTimeGuiBean.setVisible(isVisible);
-    this.yearUnitsParamEditor.setVisible(!isVisible);
+    eraParamEditor.setVisible( isVisible);
   }
 
   /**
@@ -215,6 +235,8 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
   private void setParametersVisibleForEstimateTime(boolean isVisible) {
     this.estimateParamEditor.setVisible(isVisible);
     this.yearUnitsParamEditor.setVisible(isVisible);
+    eraParamEditor.setVisible( isVisible);
+    zeroYearParamEditor.setVisible(isVisible);
   }
 
   /**
@@ -226,8 +248,12 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     TimeAPI timeAPI;
     if(timeOptionChosen.equalsIgnoreCase(this.EXACT)) {
       timeAPI = getExactTime();
-    } else {
+    } else if(timeOptionChosen.equalsIgnoreCase(this.ESTIMATE)){
       timeAPI = getTimeEstimate();
+    } else { // "Now" is selected
+      Integer pubYearVal = (Integer)this.publicationYearParam.getValue();
+      if(pubYearVal==null) throw new RuntimeException(publicationYearParam+" is missing");
+      timeAPI = new ExactTime(pubYearVal.intValue(), 0, 0, 0, 0, 0, AD);
     }
     return timeAPI;
   }

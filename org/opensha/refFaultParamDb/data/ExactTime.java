@@ -11,7 +11,7 @@ import java.util.GregorianCalendar;
  */
 
 public class ExactTime extends TimeAPI {
-  private GregorianCalendar gregorianCalendar;
+  int year, month, day, hour, minute, second;
   private String era;
 
   /**
@@ -26,7 +26,7 @@ public class ExactTime extends TimeAPI {
    */
   public ExactTime(int year, int month, int day, int hour, int minute, int second, String era) {
     // adjust month as gregorian calendar months go from 0 to 11
-    gregorianCalendar = new GregorianCalendar(year, month-1, day, hour, minute, second);
+    this(year, month, day, hour, minute, second);
     setEra(era);
   }
 
@@ -41,11 +41,13 @@ public class ExactTime extends TimeAPI {
    * @param second
    */
   public ExactTime(int year, int month, int day, int hour, int minute, int second) {
-    // adjust month as gregorian calendar months go from 0 to 11
-    gregorianCalendar = new GregorianCalendar(year, month-1, day, hour, minute, second);
+   this.year = year;
+   this.month = month;
+   this.day = day;
+   this.hour = hour;
+   this.minute = minute;
+   this.second = second;
   }
-
-
 
   public String getEra() {
     return era;
@@ -56,23 +58,23 @@ public class ExactTime extends TimeAPI {
   }
 
   public int getYear() {
-    return gregorianCalendar.get(GregorianCalendar.YEAR);
+    return this.year;
   }
   public int getMonth() {
      // adjust month as gregorian calendar months go from 0 to 11
-    return gregorianCalendar.get(GregorianCalendar.MONTH)+1;
+    return this.month;
   }
   public int getDay() {
-    return gregorianCalendar.get(GregorianCalendar.DATE);
+    return this.day;
   }
   public int getHour() {
-    return gregorianCalendar.get(GregorianCalendar.HOUR);
+    return this.hour;
   }
   public int getMinute() {
-    return gregorianCalendar.get(GregorianCalendar.MINUTE);
+    return this.month;
   }
   public int getSecond() {
-    return gregorianCalendar.get(GregorianCalendar.SECOND);
+    return this.second;
   }
 
 }

@@ -36,13 +36,16 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     protected final static boolean D = false;
 
     private DoubleParameter minParam ;
-    private final static String MIN_PARAM_NAME="Min X value";
+    private String minParamName;
+    private final static String MIN_PARAM_NAME_PREFIX="Min ";
     private DoubleParameter maxParam ;
-    private final static String MAX_PARAM_NAME="Max X value";
+    private String maxParamName;
+    private final static String MAX_PARAM_NAME_PREFIX="Max ";
     private IntegerParameter numParam;
-    private final static String NUM_PARAM_NAME="Number of X values";
+    private String numParamName;
+    private final static String NUM_PARAM_NAME_PREFIX="Number of ";
 
-    private final static String EDITOR_TITLE = "Evenly Discretized XY Vals";
+    private final static String EDITOR_TITLE = "Create table of Evenly Discretized Vals";
 
     private final static String  ONE_Y_VAL_MSG = "Each line should have just " +
         "one Y value";
@@ -73,6 +76,8 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
     // y scroll pane
     private JScrollPane yScrollPane;
     private EvenlyDiscretizedFunc function;
+    private String xAxisName = "";
+    private String yAxisName = "";
 
     /** No-Arg constructor calls parent constructor */
     public EvenlyDiscretizedFuncParameterEditor() {
@@ -120,16 +125,16 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       // make the params editor
       function = (EvenlyDiscretizedFunc)param.getValue();
 
-      String xLabelText = "";
-      String yLabelText = "";
+      xAxisName = "";
+      yAxisName = "";
       if(function!=null) {
-        if(function.getXAxisName()!=null) xLabelText = function.getXAxisName();
-        if(function.getYAxisName()!=null) yLabelText = function.getYAxisName();
+        if(function.getXAxisName()!=null) xAxisName = function.getXAxisName();
+        if(function.getYAxisName()!=null) yAxisName = function.getYAxisName();
       }
 
       // labels to be displayed on header of text area
-      JLabel xLabel = new JLabel(xLabelText);
-      JLabel yLabel = new JLabel(yLabelText);
+      JLabel xLabel = new JLabel(xAxisName);
+      JLabel yLabel = new JLabel(yAxisName);
 
 
       initParamListAndEditor();
@@ -173,9 +178,9 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       String S = C + ": initControlsParamListAndEditor(): ";
       if (D)
         System.out.println(S + "Starting:");
-      minParam = new DoubleParameter(MIN_PARAM_NAME, new  Double(function.getMinX()));
-      maxParam = new DoubleParameter(MAX_PARAM_NAME, new Double(function.getMaxX()));
-      numParam = new IntegerParameter(NUM_PARAM_NAME, new Integer(function.getNum()));
+      minParam = new DoubleParameter(MIN_PARAM_NAME_PREFIX+xAxisName);
+      maxParam = new DoubleParameter(MAX_PARAM_NAME_PREFIX+xAxisName);
+      numParam = new IntegerParameter(NUM_PARAM_NAME_PREFIX+xAxisName);
 
       // put all the parameters in the parameter list
       parameterList = new ParameterList();
@@ -215,9 +220,25 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
      * Set the X values in the text area based on user specified min/max/num
      */
     private void setXValues() {
-      double min = ((Double)minParam.getValue()).doubleValue();
-      double max = ((Double)maxParam.getValue()).doubleValue();
-      int num = ((Integer)numParam.getValue()).intValue();
+      Double minVal = (Double)minParam.getValue();
+      String isMissing = " is missing";
+      if(minVal==null) {
+        JOptionPane.showMessageDialog(this, minParam.getName()+isMissing);
+        return;
+      }
+      double min = minVal.doubleValue();
+      Double maxVal = (Double)maxParam.getValue();
+      if(maxVal==null) {
+        JOptionPane.showMessageDialog(this, maxParam.getName()+isMissing);
+        return;
+      }
+      double max = maxVal.doubleValue();
+      Integer numVal = (Integer)numParam.getValue();
+      if(numVal==null) {
+        JOptionPane.showMessageDialog(this, numParam.getName()+isMissing);
+        return;
+      }
+      int num = numVal.intValue();
       function.set(min, max, num);
       String xStr = "";
       String yStr = "";

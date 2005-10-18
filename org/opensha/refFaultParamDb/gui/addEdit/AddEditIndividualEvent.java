@@ -56,6 +56,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private final static String DATE_ESTIMATE_PARAM_NAME = "Event Time Estimate";
   private final static String SLIP_ESTIMATE_PARAM_NAME = "Event Slip Estimate";
   private final static String SLIP_TITLE = "Event Slip";
+  private final static String SLIP = "Slip";
   private final static String DISPLACEMENT_SHARED_PARAM_NAME = "Slip Shared With Other Events";
   private final static String SHARED_EVENT_PARAM_NAME = "Names of Events Sharing Slip";
   private final static String COMMENTS_REFERENCES_TITLE="Comments & References";
@@ -77,9 +78,9 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private final static String MSG_PALEO_EVENT_ADD_SUCCESS = "Paleo Event added successfully to the database";
   private final static String MSG_NEED_TO_SAVE_CURR_EVENT = "Do you want to save current event to database?";
 //slip rate constants
-  private final static String SLIP_RATE_UNITS = "meters";
-  private final static double SLIP_RATE_MIN = 0;
-  private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
+  private final static String SLIP_UNITS = "meters";
+  private final static double SLIP_MIN = 0;
+  private final static double SLIP_MAX = Double.POSITIVE_INFINITY;
 
   // diplacement parameter list editor title
   private final static String DISPLACEMENT_TITLE = "Shared Slip";
@@ -88,7 +89,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   // various parameter types
   private StringParameter eventNameParam;
   private StringParameter commentsParam;
-  private TimeGuiBean eventTimeEst = new TimeGuiBean(DATE_ESTIMATE_PARAM_NAME);
+  private TimeGuiBean eventTimeEst = new TimeGuiBean(DATE_ESTIMATE_PARAM_NAME, false);
   private EstimateParameter slipEstParam;
   private BooleanParameter displacementSharedParam;
   private StringListParameter sharedEventParam;
@@ -155,8 +156,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     // slip rate param
     ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
     this.slipEstParam = new EstimateParameter(this.SLIP_ESTIMATE_PARAM_NAME,
-      SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
-    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true,false);
+      SLIP_UNITS, SLIP_MIN, SLIP_MAX, allowedEstimates);
+    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true,false, SLIP);
 
     // whether displacement is shared with other events
     this.displacementSharedParam = new BooleanParameter(this.DISPLACEMENT_SHARED_PARAM_NAME, new Boolean(false));
@@ -358,7 +359,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
         return;
       }
       paleoEvent.setDisplacementEst(
-          new EstimateInstances((Estimate)this.slipEstParam.getValue(), this.SLIP_RATE_UNITS));
+          new EstimateInstances((Estimate)this.slipEstParam.getValue(), this.SLIP_UNITS));
     }
     // set other properties of the paleo event
     paleoEvent.setComments((String)this.commentsParam.getValue());

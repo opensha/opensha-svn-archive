@@ -30,12 +30,14 @@ import org.opensha.data.estimate.Estimate;
 public class AddEditCumDisplacement extends LabeledBoxPanel{
   // ASEISMICE SLIP FACTOR
   private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate(0-1, 1=all aseismic)";
+   private final static String ASEISMIC_SLIP_FACTOR_="Aseismic Slip Factor";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
    private final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
 
    // CUMULATIVE DISPLACEMENT
   private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Cumulative Displacement Estimate";
+  private final static String CUMULATIVE_DISPLACEMENT="Cumulative Disp";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
   private final static String CUMULATIVE_DISPLACEMENT_UNITS = "m";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
@@ -81,11 +83,11 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
         CUMULATIVE_DISPLACEMENT_PARAM_NAME,
         CUMULATIVE_DISPLACEMENT_UNITS, CUMULATIVE_DISPLACEMENT_MIN,
         CUMULATIVE_DISPLACEMENT_MAX, allowedEstimates);
-    cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam,true, true);
+    cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam,true, true, CUMULATIVE_DISPLACEMENT);
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
-    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, true);
+    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, true, ASEISMIC_SLIP_FACTOR_);
     // comments parameter editor
     displacementCommentsParam = new StringParameter(this.
         CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME);
