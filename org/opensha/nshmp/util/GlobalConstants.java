@@ -17,6 +17,7 @@ public final class GlobalConstants {
 
   //data files path
   public final static String DATA_FILE_PATH = "/opt/install/jakarta-tomcat-4.1.24/webapps/USGS/WEB-INF/datafiles/USGS_DataFiles/";
+  //public final static String DATA_FILE_PATH = "/Users/nitingupta/projects/USGS_DataFiles/USGS_DataFiles/";
   public final static String registrationName =
       "rmi://gravity.usc.edu:1099/USGS_HazardDataCalc_FactoryServer";
 

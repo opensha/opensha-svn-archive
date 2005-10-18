@@ -20,7 +20,7 @@ import java.net.URLConnection;
  * @version 1.0
  */
 
-public class HazardDataMinerServletMode {
+public class HazardDataMinerServletMode implements HazardDataMinerAPI {
   private final static String SERVLET_PATH = "http://gravity.usc.edu/USGS/servlet/HazardCalcServlet";
   public final static String COMPUTE_EXCEED_PROB = "computeExceedProb";
   public final static String COMPUTE_RETURN_PERIOD = "computeReturnPeriod";

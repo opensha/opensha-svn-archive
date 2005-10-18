@@ -37,7 +37,7 @@ public class DataGenerator_FEMA
    */
   public void calculateSsS1(double lat, double lon) throws RemoteException {
 
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
         dataEdition,
         lat, lon, selectedSpectraType);
@@ -54,7 +54,7 @@ public class DataGenerator_FEMA
   public void calculateSsS1(String zipCode) throws ZipCodeErrorException,
       RemoteException {
 
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getSsS1(geographicRegion,
         dataEdition,
         zipCode, selectedSpectraType);

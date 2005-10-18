@@ -90,7 +90,7 @@ public class DataGenerator_UHS
    * @default class constructor
    */
   public void calculateApproxUHS() throws RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getApprox_UHSpectrum(pgaFunction);
     addDataInfo(functions.getInfo());
     getFunctionsForApprox_UHSpectrum(functions);
@@ -217,7 +217,7 @@ public class DataGenerator_UHS
    *
    */
   public void calculateSMSpectrum() throws RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getSM_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
     addDataInfo(functions.getInfo());
@@ -228,7 +228,7 @@ public class DataGenerator_UHS
    *
    */
   public void calculateSDSpectrum() throws RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList functions = miner.getSD_UHSpectrum(pgaFunction, faVal,
         fvVal, siteClass);
     addDataInfo(functions.getInfo());
@@ -282,7 +282,7 @@ public class DataGenerator_UHS
    */
   public void calculateUHS(String zipCode) throws ZipCodeErrorException,
       RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
                                                zipCode, selectedSpectraType);
     String location = "ZipCode - " + zipCode;
@@ -302,7 +302,7 @@ public class DataGenerator_UHS
    */
   public void calculateUHS(double lat, double lon) throws RemoteException {
 
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     DiscretizedFuncList funcList = miner.getSA(geographicRegion, dataEdition,
                                                lat, lon, selectedSpectraType);
     String location = "Lat - " + lat + "  Lon - " + lon;

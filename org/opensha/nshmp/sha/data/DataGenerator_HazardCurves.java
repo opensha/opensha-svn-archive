@@ -60,7 +60,7 @@ public class DataGenerator_HazardCurves
    */
   public void calculateHazardCurve(double lat, double lon, String hazCurveType) throws
       RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getBasicHazardcurve(
         geographicRegion, dataEdition,
         lat, lon, hazCurveType);
@@ -87,7 +87,7 @@ public class DataGenerator_HazardCurves
    */
   public void calculateHazardCurve(String zipCode, String hazCurveType) throws
       ZipCodeErrorException, RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     ArbitrarilyDiscretizedFunc function = miner.getBasicHazardcurve(
         geographicRegion, dataEdition,
         zipCode, hazCurveType);
@@ -117,7 +117,7 @@ public class DataGenerator_HazardCurves
 
   public void calcSingleValueHazardCurveUsingReturnPeriod(double returnPeriod,
       boolean logInterpolation) throws RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     double fex = 1 / returnPeriod;
     double exceedProb = miner.getExceedProb(fex, EXP_TIME);
     double saVal = 0.0;
@@ -133,7 +133,7 @@ public class DataGenerator_HazardCurves
 
   public void calcSingleValueHazardCurveUsingPEandExptime(double probExceed,
       double expTime, boolean logInterpolation) throws RemoteException {
-    HazardDataMinerAPI miner = new HazardDataMiner();
+    HazardDataMinerAPI miner = new HazardDataMinerServletMode();
     double returnPd = miner.getReturnPeriod(probExceed, expTime);
     double fex = 1 / returnPd;
     double saVal = 0.0;
