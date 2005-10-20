@@ -19,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import java.util.Enumeration;
+import java.util.ArrayList;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -110,6 +111,12 @@ public class DB_AccessServlet extends HttpServlet{
           int key = myBroker.insertUpdateOrDeleteData(query);
           outputToApp.writeObject(new Integer(key));
         }
+        // inserting spatial data into database
+        else if(functionToPerform.equals(DB_AccessAPI.INSERT_UPDATE_SPATIAL)){
+          ArrayList geomteryObjectList = (ArrayList)inputFromApp.readObject();
+          int key = myBroker.insertUpdateOrDeleteData(query, geomteryObjectList);
+          outputToApp.writeObject(new Integer(key));
+       }
         //reading the data form the database
         else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY)){
           CachedRowSetImpl resultSet= myBroker.queryData(query);
