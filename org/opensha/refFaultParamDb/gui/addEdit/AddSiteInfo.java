@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -90,7 +91,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
 
   }
 
-  public void setReference(String reference) {
+  public void setReference(Reference reference) {
     referenceList = new ArrayList();
     referenceList.add(reference);
     this.setEnabled(true);
@@ -134,7 +135,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     endTime.setReferencesList(this.referenceList);
     combinedEventsInfo.setStartTime(startTime);
     combinedEventsInfo.setEndTime(endTime);
-    combinedEventsInfo.setShortCitationList(referenceList);
+    combinedEventsInfo.setReferenceList(referenceList);
     combinedEventsInfo.setDatedFeatureComments(addEditTimeSpan.getTimeSpanComments());
     // set the site
     combinedEventsInfo.setSiteEntryDate(this.siteEntryDate);

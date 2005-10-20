@@ -58,13 +58,11 @@ CREATE TABLE Site_Representations(
 );
 
 
-
-
-
 CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
-  Short_Citation VARCHAR(255) NOT NULL UNIQUE,
-  Full_Bibliographic_Reference VARCHAR(255) NOT NULL UNIQUE,
+  Ref_Auth VARCHAR(1000) NOT NULL,
+  Ref_Year INTEGER NOT NULL, 
+  Full_Bibliographic_Reference VARCHAR(4000) NOT NULL UNIQUE,
   PRIMARY KEY(Reference_Id)
 );
 
@@ -234,7 +232,7 @@ CREATE TABLE Fault_Section (
   Contributor_Id INTEGER NOT NULL,
   Name VARCHAR(255) NOT NULL,
   Entry_Date date NOT NULL,
-  Comments VARCHAR(255) NULL,
+  Comments VARCHAR(1000) NULL,
   Fault_Trace VARCHAR(255) NOT NULL,
   Aseismic_Slip_Factor_Est INTEGER  NOT NULL,
   PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
@@ -300,7 +298,7 @@ CREATE TABLE Site_Type (
   Site_Type_Id INTEGER NOT NULL ,
   Contributor_Id INTEGER NOT NULL,
   Site_Type VARCHAR(255) NOT NULL UNIQUE,
-  General_Comments VARCHAR(255) NULL,
+  General_Comments VARCHAR(1000) NULL,
   PRIMARY KEY(Site_Type_Id),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id)
@@ -329,14 +327,12 @@ CREATE TABLE Paleo_Site (
   Contributor_Id INTEGER NOT NULL,
   Site_Type_Id INTEGER NOT NULL,
   Site_Name VARCHAR(255) NULL,
-  Site_Lat1 FLOAT NOT NULL,
-  Site_Lon1 FLOAT NOT NULL,
+  Site1 MDSYS.SDO_GEOMETRY,
   Site_Elevation1 FLOAT NULL,
-  Site_Lat2 FLOAT NULL,
-  Site_Lon2 FLOAT NULL,
+  Site2 MDSYS.SDO_GEOMETRY,
   Site_Elevation2 FLOAT NULL, 
   Representative_Strand_Index INTEGER NOT NULL,
-  General_Comments VARCHAR(255) NULL,
+  General_Comments VARCHAR(1000) NULL,
   Old_Site_Id VARCHAR(20) NULL,
   PRIMARY KEY(Site_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
@@ -388,7 +384,7 @@ CREATE TABLE Time_Type (
 CREATE TABLE Time_Instances (
   Time_Id INTEGER NOT NULL,
   Time_Type_Id INTEGER  NOT NULL,
-  Comments VARCHAR(255) NULL,
+  Comments VARCHAR(1000) NULL,
   PRIMARY KEY(Time_Id),
   FOREIGN KEY(Time_Type_Id) 
     REFERENCES Time_Type(Time_Type_Id)
@@ -462,9 +458,9 @@ CREATE TABLE Combined_Events_Info (
   Num_Events_Est_Id INTEGER  NULL,
   Slip_Aseismic_Est_Id INTEGER  NULL,
   Disp_Aseismic_Est_Id INTEGER  NULL,
-  Slip_Rate_Comments VARCHAR(255) NULL,
-  Total_Slip_Comments VARCHAR(255) NULL,
-  Num_Events_Comments VARCHAR(255) NULL, 	
+  Slip_Rate_Comments VARCHAR(1000) NULL,
+  Total_Slip_Comments VARCHAR(1000) NULL,
+  Num_Events_Comments VARCHAR(1000) NULL, 	
   Dated_Feature_Comments VARCHAR(255) NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
@@ -524,7 +520,7 @@ CREATE TABLE Paleo_Event (
   Event_Date_Est_Id INTEGER  NOT NULL,
   Displacement_Est_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
-  General_Comments VARCHAR(255) NULL,
+  General_Comments VARCHAR(1000) NULL,
   PRIMARY KEY(Event_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
@@ -573,7 +569,7 @@ CREATE TABLE Event_Sequence (
   End_Time_Est_Id INTEGER  NOT NULL,
   Entry_Date date NOT NULL, 
   Contributor_Id INTEGER  NOT NULL,
-  General_Comments VARCHAR(255) NOT NULL,
+  General_Comme255VARCHAR(1000) NOT NULL,
   Sequence_Probability FLOAT NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)
@@ -680,6 +676,10 @@ select ps.Site_Id as Site_Id,
        ps.Old_Site_Id as Old_site_Id,
        contrib.Contributor_Name as Contributor_Name
 FROM  Paleo_Site ps, Site_Type st, Contributors contrib, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Site_type_id=st.site_type_id and ps.Representative_Strand_Index=sr.Site_Representation_Id and ps.Contributor_Id=contrib.Contributor_Id;
+
+INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference)
+select Ref_Auth, Ref_Year, Ref_Tx from QFault_References;
+
 
 commit;
 

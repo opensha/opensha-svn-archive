@@ -19,7 +19,8 @@ public class ReferenceDB_DAO {
   private final static String SEQUENCE_NAME="Reference_Sequence";
   private final static String TABLE_NAME="Reference";
   private final static String REFERENCE_ID="Reference_Id";
-  private final static String SHORT_CITATION="Short_Citation";
+  private final static String REF_YEAR="Ref_Year";
+  private final static String REF_AUTH = "Ref_Auth";
   private final static String FULL_BIBLIOGRAPHIC_REFERENCE="Full_Bibliographic_Reference";
   private DB_AccessAPI dbAccessAPI;
 
@@ -50,10 +51,10 @@ public class ReferenceDB_DAO {
      throw new InsertException(e.getMessage());
    }
 
-    String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+SHORT_CITATION+
-        ","+this.FULL_BIBLIOGRAPHIC_REFERENCE+")"+
-        " values ("+referenceId+",'"+reference.getShortCitation()+"','"+
-        reference.getFullBiblioReference()+"')";
+    String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+REF_AUTH+","+
+        REF_YEAR+","+this.FULL_BIBLIOGRAPHIC_REFERENCE+")"+
+        " values ("+referenceId+",'"+reference.getRefAuth()+"',"+
+        reference.getRefYear()+",'"+reference.getFullBiblioReference()+"')";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
@@ -69,8 +70,9 @@ public class ReferenceDB_DAO {
    * @throws UpdateException
    */
   public boolean updateReference(int referenceId, Reference reference) throws UpdateException {
-    String sql = "update "+TABLE_NAME+" set "+SHORT_CITATION+"= '"+
-        reference.getShortCitation()+"', "+this.FULL_BIBLIOGRAPHIC_REFERENCE+" = '"+
+    String sql = "update "+TABLE_NAME+" set "+REF_AUTH+"= '"+
+        reference.getRefAuth()+"',"+ this.REF_YEAR+"="+reference.getRefYear()+","+
+        this.FULL_BIBLIOGRAPHIC_REFERENCE+"='"+
         reference.getFullBiblioReference()+"' where "+REFERENCE_ID+"="+referenceId;
     try {
       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
@@ -94,22 +96,6 @@ public class ReferenceDB_DAO {
     if(referenceList.size()>0) reference = (Reference)referenceList.get(0);
     return reference;
   }
-
-  /**
-   * Get the reference info based on short citation
-   *
-   * @param shortCitation
-   * @return
-   * @throws QueryException
-   */
-  public Reference getReference(String shortCitation) throws QueryException {
-    Reference reference=null;
-    String condition  =  " where "+SHORT_CITATION+"='"+shortCitation+"'";
-    ArrayList referenceList = query(condition);
-    if(referenceList.size()>0) reference = (Reference)referenceList.get(0);
-    return reference;
-  }
-
 
   /**
    * Remove a reference from the table
@@ -137,31 +123,18 @@ public class ReferenceDB_DAO {
     return query(" ");
   }
 
-  /**
-   * Returns a list of all short citations
-   * @return
-   * @throws QueryException
-   */
-  public ArrayList getAllShortCitations() throws QueryException {
-    ArrayList referenceVOs = getAllReferences();
-    ArrayList referencesNamesList = new ArrayList();
-    for(int i=0; i<referenceVOs.size(); ++i) {
-      referencesNamesList.add(((Reference)referenceVOs.get(i)).getShortCitation());
-    }
-    return referencesNamesList;
-
-  }
-
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();
-    String sql = "select "+REFERENCE_ID+","+SHORT_CITATION+","+
-        this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+" "+condition+
-        " order by "+this.SHORT_CITATION;
+    String sql = "select "+REFERENCE_ID+","+this.REF_YEAR+","+
+        this.REF_AUTH+","+ this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+
+        " "+condition+" order by "+this.REF_AUTH;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
       while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID),
-            rs.getString(this.SHORT_CITATION), rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE)));
+            rs.getString(this.REF_AUTH),
+            rs.getInt(this.REF_YEAR),
+            rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE)));
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return referenceList;

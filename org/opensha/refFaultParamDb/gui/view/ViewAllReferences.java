@@ -70,11 +70,12 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private Object[][] getReferencesInfo() {
     ArrayList allReferences = referenceDAO.getAllReferences();
     int numRefs = allReferences.size();
-    Object[][] tableData = new Object[numRefs][2];
+    Object[][] tableData = new Object[numRefs][3];
     for(int i=0; i<numRefs; ++i) {
       Reference ref = (Reference)allReferences.get(i);
-      tableData[i][0] = ref.getShortCitation();
-      tableData[i][1] = ref.getFullBiblioReference();
+      tableData[i][0] = ref.getRefAuth();
+      tableData[i][1] = new Integer(ref.getRefYear());
+      tableData[i][2] = ref.getFullBiblioReference();
     }
     return tableData;
   }

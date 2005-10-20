@@ -19,6 +19,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.EventSequence;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: ViewSequences.java </p>
@@ -219,10 +220,14 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
         PaleoEvent paleoEvent = (PaleoEvent)paleoEventsList.get(i);
         eventNames.add(paleoEvent.getEventName());
       }
+      ArrayList refList = eventSequence.getStartTime().getReferencesList();
+      ArrayList refSummaryList = new ArrayList();
+      for(int i=0; i<refList.size(); ++i)
+        refSummaryList.add(((Reference)refList.get(i)).getSummary());
       updateLabels(eventSequence.getSequenceProb(), eventNames,
                    eventSequence.getMissedEventsProbs(), eventSequence.getComments(),
                    eventSequence.getStartTime(), eventSequence.getEndTime(),
-                   eventSequence.getStartTime().getReferencesList());
+                   refSummaryList);
    }
    else {
      updateLabels(Double.NaN, null, null, null,

@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -114,9 +115,9 @@ public class PaleoSiteDB_DAO  {
 
     try {
       dbAccess.insertUpdateOrDeleteData(sql);
-      ArrayList shortCitationList = paleoSite.getReferenceShortCitationList();
-      for(int i=0; i<shortCitationList.size(); ++i) {
-        int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
+      ArrayList referenceList = paleoSite.getReferenceList();
+      for(int i=0; i<referenceList.size(); ++i) {
+        int referenceId = ((Reference)referenceList.get(i)).getReferenceId();
         sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+SITE_ID+
             ","+ENTRY_DATE+","+REFERENCE_ID+") "+
             "values ("+paleoSiteId+",'"+
@@ -233,11 +234,11 @@ public class PaleoSiteDB_DAO  {
             ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"'";
         ResultSet referenceResultSet = dbAccess.queryData(sql);
         while(referenceResultSet.next()) {
-          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)));
         }
         referenceResultSet.close();
         // set the references in the VO
-        paleoSite.setReferenceShortCitationList(referenceList);
+        paleoSite.setReferenceList(referenceList);
         paleoSiteList.add(paleoSite);
       }
       rs.close();

@@ -126,6 +126,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private AddNewSiteType addNewSiteType;
   private AddNewReference addNewReference;
   private LabeledBoxPanel labeledBoxPanel;
+  private ArrayList referenceList;
+  private ArrayList referenceSummaryList;
 
   /**
    * This constructor allows the editing of an existing site
@@ -227,7 +229,11 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       JOptionPane.showMessageDialog(this, MSG_REFERENCES_MISSING);
       return;
     }
-    paleoSite.setReferenceShortCitationList((ArrayList)this.siteReferenceParam.getValue());
+    ArrayList refList = new ArrayList();
+    for(int i=0; i<siteReferences.size(); ++i) {
+      refList.add((Reference)siteReferences.get(i));
+    }
+    paleoSite.setReferenceList(refList);
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
     paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
 
@@ -281,11 +287,16 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
 
     if(this.siteReferenceParamEditor!=null) this.labeledBoxPanel.remove(siteReferenceParamEditor);
     ArrayList referencesList = this.getAvailableReferences();
-     ArrayList dafaultReference;
-     if(this.isEdit) dafaultReference = paleoSiteVO.getReferenceShortCitationList();
-     else dafaultReference = new ArrayList();
+    ArrayList dafaultReference;
+    if(this.isEdit) {
+      dafaultReference = new ArrayList();
+      ArrayList refList = paleoSiteVO.getReferenceList();
+      for(int i=0; i<refList.size(); ++i)
+        dafaultReference.add(((Reference)refList.get(i)).getSummary());
+    }
+    else dafaultReference = new ArrayList();
 
-   // references for this site
+      // references for this site
     this.siteReferenceParam = new StringListParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
         referencesList, dafaultReference);
     this.siteReferenceParamEditor = new ConstrainedStringListParameterEditor(siteReferenceParam);
@@ -486,12 +497,17 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
  }
 
  /**
-  * Get a list of available references. It gets this from the database.
-  * @return
-  */
- private ArrayList getAvailableReferences() {
-   return referenceDAO.getAllShortCitations();
- }
+ * Get a list of available references.
+ * @return
+ */
+private ArrayList getAvailableReferences() {
+  this.referenceList  = referenceDAO.getAllReferences();
+  this.referenceSummaryList = new ArrayList();
+  for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
+    referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());
+  return referenceSummaryList;
+}
+
 
  /**
    * It gets all the FAULT NAMES from the database

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.EstimateDAO_API;
 import org.opensha.refFaultParamDb.data.*;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: TimeInstanceDB_DAO.java </p>
@@ -74,9 +75,9 @@ public class TimeInstanceDB_DAO  {
 
         // add the time references to the database
       ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(dbAccessAPI);
-      ArrayList shortCitationList = timeInstance.getReferencesList();
-      for(int i=0; i<shortCitationList.size(); ++i) {
-        int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
+      ArrayList referenceList = timeInstance.getReferencesList();
+      for(int i=0; i<referenceList.size(); ++i) {
+        int referenceId = ((Reference)referenceList.get(i)).getReferenceId();
         sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+TIME_ID+
             ","+REFERENCE_ID+") "+
             "values ("+timeInstanceId+","+referenceId+")";
@@ -236,7 +237,7 @@ public class TimeInstanceDB_DAO  {
             " where "+TIME_ID+"="+rs.getInt(this.TIME_ID);
         ResultSet referenceResultSet = dbAccessAPI.queryData(sql);
         while(referenceResultSet.next()) {
-          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)));
         }
         referenceResultSet.close();
         // set the references in the VO

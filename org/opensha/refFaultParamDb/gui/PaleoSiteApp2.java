@@ -27,6 +27,7 @@ import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 import org.opensha.exceptions.*;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -157,10 +158,10 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       for(int i=0; i<combinedEventsInfoList.size(); ++i) {
         // valid site and info available for the site
         CombinedEventsInfo combinedEventsInfo = (CombinedEventsInfo)combinedEventsInfoList.get(i);
-        ArrayList shortcitationList  = combinedEventsInfo.getShortCitationList();
+        ArrayList referenceList  = combinedEventsInfo.getReferenceList();
 
         timeSpansList.add((i+1)+". "+"(Reference="+
-                          getReferencesAsString(shortcitationList)+")(Start Time="+
+                          getReferencesAsString(referenceList)+")(Start Time="+
                           getTimeString(combinedEventsInfo.getStartTime())+") "+
                           "(End Time="+getTimeString(combinedEventsInfo.getEndTime())+")");
       }
@@ -176,7 +177,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private String getReferencesAsString(ArrayList references) {
     String str = "";
     for(int i=0; i<references.size(); ++i)
-      str+=references.get(i)+";";
+      str+=((Reference)references.get(i)).getSummary()+";";
     return str;
   }
 
@@ -434,10 +435,15 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       // timeSpan panel which will contain start time and end time
       this.timeSpanPanel.setTimeSpan(startTime, endTime, comments, references,null, null);
     } else if(this.isValidSiteAndInfoAvailable()){
+      ArrayList refList =  combinedEventsInfo.getReferenceList();
+      ArrayList summaryList = new ArrayList();
+      for(int i=0 ; i<refList.size(); ++i)
+        summaryList.add(((Reference)refList.get(i)).getSummary());
+
       timeSpanPanel.setTimeSpan(combinedEventsInfo.getStartTime(),
                                 combinedEventsInfo.getEndTime(),
                                 combinedEventsInfo.getDatedFeatureComments(),
-                                combinedEventsInfo.getShortCitationList(),
+                                summaryList,
                                 combinedEventsInfo.getEntryDate(),
                                 combinedEventsInfo.getContributorName());
     }

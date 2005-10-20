@@ -8,6 +8,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: CombinedEventsInfoDB_DAO.java </p>
@@ -135,9 +136,9 @@ public class CombinedEventsInfoDB_DAO {
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
       // now insert the references in the combined info references table
-     ArrayList shortCitationList = combinedEventsInfo.getShortCitationList();
-     for(int i=0; i<shortCitationList.size(); ++i) {
-       int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
+     ArrayList referenceList = combinedEventsInfo.getReferenceList();
+     for(int i=0; i<referenceList.size(); ++i) {
+       int referenceId =((Reference)referenceList.get(i)).getReferenceId();
        sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+COMBINED_EVENTS_ID+
            ","+COMBINED_EVENTS_ENTRY_DATE+","+REFERENCE_ID+") "+
            "values ("+infoId+",'"+
@@ -250,11 +251,11 @@ public class CombinedEventsInfoDB_DAO {
             COMBINED_EVENTS_ENTRY_DATE+"='"+combinedEventsInfo.getEntryDate()+"'";
         ResultSet referenceResultSet = dbAccess.queryData(sql);
         while(referenceResultSet.next()) {
-          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)));
         }
         referenceResultSet.close();
         // set the references in the VO
-        combinedEventsInfo.setShortCitationList(referenceList);
+        combinedEventsInfo.setReferenceList(referenceList);
         combinedInfoList.add(combinedEventsInfo);
       }
       rs.close();

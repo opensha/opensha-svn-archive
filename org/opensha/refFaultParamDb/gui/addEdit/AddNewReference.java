@@ -16,6 +16,10 @@ import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
+import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
+import org.opensha.param.IntegerParameter;
+import org.opensha.param.editor.IntegerParameterEditor;
 
 /**
  * <p>Title: AddNewReference.java </p>
@@ -27,19 +31,25 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
  */
 
 public class AddNewReference extends DbAdditionFrame implements ActionListener {
-  private final static String CITATION_PARAM_NAME="Short Citation";
-  private final static String CITATION_PARAM_DEFAULT="e.g. Knight & Dey (1988)";
+  private final static String AUTHOR_PARAM_NAME="Short Citation";
+  private final static String AUTHOR_PARAM_DEFAULT="e.g. Knight & Dey";
   private final static String BIBLIO_PARAM_NAME="Full Bibliographic Ref";
   private final static String BIBLIO_PARAM_DEFAULT="Enter full citation here";
-  private final static String SHORT_CITATION_MSG = "Short Citation is missing";
-  private final static String FULL_BIBLIO_MSG = "Full Bibliographic Reference is missing";
-  private StringParameter citationParam;
+  private final static String YEAR_PARAM_NAME="Year";
+  private final static Integer YEAR_PARAM_DEFAULT=new Integer(1998);
+  private final static String MSG_AUTHOR = "Author is missing";
+  private final static String MSG_FULL_BIBLIO = "Full Bibliographic Reference is missing";
+  private final static String MSG_YEAR = "Year is missing";
+  private StringParameter authorParam;
   private StringParameter biblioParam;
-  private StringParameterEditor citationParameterEditor;
-  private StringParameterEditor biblioParameterEditor;
+  private IntegerParameter yearParam;
+  private StringParameterEditor authorParameterEditor;
+  private CommentsParameterEditor biblioParameterEditor;
+  private IntegerParameterEditor yearParamEditor;
   private final static String NEW_SITE_TYPE_LABEL="Add Reference";
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
+  private JButton viewAllRefsButton = new JButton("View All References");
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String MSG_INSERT_SUCCESS = "Reference added sucessfully to the database";
 
@@ -49,7 +59,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
     addActionListeners();
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
-    setSize(200,200);
+    setSize(400,400);
     this.setLocationRelativeTo(null);
     this.show();
   }
@@ -60,6 +70,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private void addActionListeners() {
     okButton.addActionListener(this);
     this.cancelButton.addActionListener(this);
+    viewAllRefsButton.addActionListener(this);
   }
 
   /**
@@ -72,26 +83,30 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
       // add the reference to the database
       addReferenceToDatabase();
     }else if(source==cancelButton) this.dispose();
+    else if(source == viewAllRefsButton) {
+       new ViewAllReferences();
+    }
   }
 
   /**
    * Add the reference to the database
    */
   private void addReferenceToDatabase() {
-    String citation = (String)this.citationParam.getValue();
+    String author = (String)this.authorParam.getValue();
     String fullBiblio = (String)this.biblioParam.getValue();
+    int year = ((Integer)this.yearParam.getValue()).intValue();
     // check that usr has provided both short citation as well as full Biblio reference
-    if(citation==null || citation.trim().equalsIgnoreCase("")) {
-     JOptionPane.showMessageDialog(this, this.SHORT_CITATION_MSG);
+    if(author==null || author.trim().equalsIgnoreCase("")) {
+     JOptionPane.showMessageDialog(this, this.MSG_AUTHOR);
      return;
    }
    if(fullBiblio==null || fullBiblio.trim().equalsIgnoreCase("")) {
-     JOptionPane.showMessageDialog(this, this.FULL_BIBLIO_MSG);
+     JOptionPane.showMessageDialog(this, this.MSG_FULL_BIBLIO);
      return;
    }
 
    try { // catch the insert exception
-     Reference reference = new Reference(citation, fullBiblio);
+     Reference reference = new Reference(author, year, fullBiblio);
      referenceDAO.addReference(reference);
      this.sendEventToListeners(reference);
      JOptionPane.showMessageDialog(this, MSG_INSERT_SUCCESS);
@@ -110,30 +125,37 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
     Container contentPane = this.getContentPane();
     contentPane.setLayout(GUI_Utils.gridBagLayout);
     int yPos = 0;
-    // short citation parameter
-    contentPane.add(citationParameterEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+    // author parameter
+    contentPane.add(authorParameterEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+    // year parameter
+    contentPane.add(this.yearParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // full bibliographic information
     contentPane.add(biblioParameterEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+    contentPane.add(this.viewAllRefsButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     // ok/cancel button
     contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     contentPane.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
   }
 
   /**
    * initialize parameters and editors
    */
   private void initParamsAndEditors() {
-    citationParam = new StringParameter(CITATION_PARAM_NAME, CITATION_PARAM_DEFAULT);
+    authorParam = new StringParameter(AUTHOR_PARAM_NAME, AUTHOR_PARAM_DEFAULT);
     biblioParam = new StringParameter(BIBLIO_PARAM_NAME, BIBLIO_PARAM_DEFAULT);
-    citationParameterEditor = null;
+    this.yearParam = new IntegerParameter(this.YEAR_PARAM_NAME, YEAR_PARAM_DEFAULT);
+    authorParameterEditor = null;
     biblioParameterEditor = null;
     try {
-      citationParameterEditor = new StringParameterEditor(citationParam);
-      biblioParameterEditor = new StringParameterEditor(biblioParam);
+      authorParameterEditor = new StringParameterEditor(authorParam);
+      biblioParameterEditor = new CommentsParameterEditor(biblioParam);
+      yearParamEditor = new IntegerParameterEditor(yearParam);
     }
     catch (Exception ex) {
       ex.printStackTrace();

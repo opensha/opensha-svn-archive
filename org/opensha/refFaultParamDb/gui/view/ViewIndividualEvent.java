@@ -23,6 +23,7 @@ import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -217,8 +218,12 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
       if(sharingEventNames!=null && sharingEventNames.size()>0)
         displacement = SHARED;
       else   sharingEventNames = null;
+      ArrayList refList =  paleoEvent.getReferenceList();
+      ArrayList summaryList = new ArrayList();
+      for(int i=0 ; i<refList.size(); ++i)
+        summaryList.add(((Reference)refList.get(i)).getSummary());
       updateLabels(paleoEvent.getEventTime(), paleoEvent.getDisplacementEst().getEstimate(),
-                   paleoEvent.getComments(), paleoEvent.getShortCitationsList(),
+                   paleoEvent.getComments(), summaryList,
                    displacement,sharingEventNames);
 
     } else {

@@ -17,7 +17,7 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
  */
 
 public class ReadReferencesFile {
-  private final static String FILENAME = "org\\opensha\\refFaultParamDb\\References.txt";
+  /*private final static String FILENAME = "org\\opensha\\refFaultParamDb\\References.txt";
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   public ReadReferencesFile() {
     try {
@@ -36,6 +36,6 @@ public class ReadReferencesFile {
     }catch(Exception e) {
       e.printStackTrace();
     }
-  }
+  }*/
 
 }

@@ -26,7 +26,7 @@ public class PaleoSite {
   private String generalComments;
   private String oldSiteId;
   private String entryDate;
-  private ArrayList referenceShortCitationList = new ArrayList();
+  private ArrayList referenceList = new ArrayList();
   private String contributorName;
 
   public PaleoSite() {
@@ -48,13 +48,12 @@ public class PaleoSite {
   public void setSiteId(int siteId) { this.siteId = siteId; }
   public int getSiteId() { return this.siteId; }
 
-  public ArrayList getReferenceShortCitationList() {
-    return this.referenceShortCitationList;
+  public ArrayList getReferenceList() {
+    return this.referenceList;
   }
-  public void setReferenceShortCitationList(ArrayList shortCitationList) {
-    this.referenceShortCitationList = shortCitationList;
+  public void setReferenceList(ArrayList referenceList) {
+    this.referenceList = referenceList;
   }
-
 
   public void setSiteTypeName(String siteTypeName) { this.siteTypeName = siteTypeName; }
   public String getSiteTypeName() { return this.siteTypeName; }

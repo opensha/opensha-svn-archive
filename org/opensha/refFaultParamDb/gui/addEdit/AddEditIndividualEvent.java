@@ -24,6 +24,7 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.exceptions.*;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -114,6 +115,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private String siteEntryDate; // site entry dat for which paleo event is to be added
   private AddNewReference addNewReference;
   private LabeledBoxPanel commentsReferencesPanel;
+  private ArrayList referenceSummaryList;
+  private ArrayList referenceList;
   public AddEditIndividualEvent(int siteId, String siteEntryDate) {
     try {
       this.siteId = siteId;
@@ -198,7 +201,11 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   * @return
   */
  private ArrayList getAvailableReferences() {
-   return referenceDAO.getAllShortCitations();
+   this.referenceList  = referenceDAO.getAllReferences();
+   this.referenceSummaryList = new ArrayList();
+   for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
+     referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());
+   return referenceSummaryList;
  }
 
 
@@ -329,9 +336,10 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       JOptionPane.showMessageDialog(this, MSG_REFERENCE_MISSING);
       return;
     }
+    int index = this.referenceSummaryList.indexOf(reference);
     ArrayList referenceList = new ArrayList();
-    referenceList.add(reference);
-    paleoEvent.setShortCitationsList(referenceList);
+    referenceList.add(this.referenceList.get(index));
+    paleoEvent.setReferenceList(referenceList);
 
     // if displacement is shared, make sure that user selects atleast 1 event
     boolean isDispShared = ((Boolean)this.displacementSharedParam.getValue()).booleanValue();
@@ -373,7 +381,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
        return;
     }
     eventTime.setDatingComments(paleoEvent.getComments());
-    eventTime.setReferencesList(paleoEvent.getShortCitationsList());
+    eventTime.setReferencesList(paleoEvent.getReferenceList());
     paleoEvent.setEventTime(eventTime);
     this.paleoEventDAO.addPaleoevent(paleoEvent);
     JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);

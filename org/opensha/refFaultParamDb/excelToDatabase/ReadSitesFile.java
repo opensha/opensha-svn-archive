@@ -17,7 +17,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
  */
 
 public class ReadSitesFile {
-  private final static String FILENAME = "org\\opensha\\refFaultParamDb\\PaleoSites.txt";
+  /*private final static String FILENAME = "org\\opensha\\refFaultParamDb\\PaleoSites.txt";
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String COMMENTS_DEFAULT = "Site Information provided by Chris Wills from Excel file";
@@ -57,19 +57,19 @@ public class ReadSitesFile {
        StringTokenizer referencesTokenizer = new StringTokenizer(references,";");
        while(referencesTokenizer.hasMoreTokens()) referenceList.add(referencesTokenizer.nextToken().trim());
        paleoSite.setReferenceShortCitationList(referenceList);
-       /*for(int j=0; j< referenceList.size(); ++j) {
-         String rf = (String)referenceList.get(j);
-         Reference ref = referenceDAO.getReference(rf);
-         if(ref==null) {
-           System.out.println(rf + " does not exist");
-         }
-       }*/
+       //for(int j=0; j< referenceList.size(); ++j) {
+       //  String rf = (String)referenceList.get(j);
+       //  Reference ref = referenceDAO.getReference(rf);
+       //  if(ref==null) {
+       //    System.out.println(rf + " does not exist");
+       //  }
+       //}
       paleoSiteDAO.addPaleoSite(paleoSite);
      }
    }catch(Exception e) {
      e.printStackTrace();
    }
 
-  }
+  }*/
 
 }

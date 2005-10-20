@@ -23,7 +23,7 @@ public class PaleoEvent {
   private EstimateInstances displacementEst;
   private String entryDate;
   private String comments;
-  private ArrayList shortCitationsList;
+  private ArrayList referenceList;
   private int eventId;
   private boolean displacementShared;
 
@@ -73,8 +73,8 @@ public class PaleoEvent {
   public TimeAPI getEventTime() {
     return eventTime;
   }
-  public ArrayList getShortCitationsList() {
-    return shortCitationsList;
+  public ArrayList getReferenceList() {
+    return this.referenceList;
   }
   public int getSiteId() {
     return siteId;
@@ -82,8 +82,8 @@ public class PaleoEvent {
   public void setSiteId(int siteId) {
     this.siteId = siteId;
   }
-  public void setShortCitationsList(ArrayList shortCitationsList) {
-    this.shortCitationsList = shortCitationsList;
+  public void setReferenceList(ArrayList referenceList) {
+    this.referenceList = referenceList;
   }
   public void setEventTime(TimeAPI eventTime) {
     this.eventTime = eventTime;

@@ -21,6 +21,7 @@ import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -354,10 +355,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       siteRepresentation = paleoSite.getRepresentativeStrandName();
       lastEntryDate = paleoSite.getEntryDate();
       lastUpdatedBy=paleoSite.getContributorName();
-      ArrayList referenceList = paleoSite.getReferenceShortCitationList();
+      ArrayList referenceList = paleoSite.getReferenceList();
       references="";
       for(int i=0; i<referenceList.size();++i) {
-        references = references+(String)referenceList.get(i)+";";
+        references = references+((Reference)referenceList.get(i)).getSummary()+
+            ";";
       }
     }
     siteLocationLabel.setTextAsHTML(SITE_LOCATION_PARAM_NAME,location.getLatitude()+","+location.getLongitude());

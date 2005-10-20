@@ -15,6 +15,7 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: ChooseReference.java </p>
@@ -36,7 +37,9 @@ public class ChooseReference extends JFrame implements ActionListener,
   private StringParameter referencesParam;
   private JButton okButton = new JButton("OK");
   private JButton cancelButton = new JButton("Cancel");
-  AddSiteInfo addSiteInfo;
+  private AddSiteInfo addSiteInfo;
+  private ArrayList referenceSummaryList;
+  private ArrayList referenceList;
 
   // references DAO
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
@@ -75,7 +78,8 @@ public class ChooseReference extends JFrame implements ActionListener,
       addNewReference = new AddNewReference();
       addNewReference.addDbAdditionSuccessListener(this);
     } else if(source == okButton) {
-      addSiteInfo.setReference((String)this.referencesParam.getValue());
+      int index = this.referenceSummaryList.indexOf((String)this.referencesParam.getValue());
+      addSiteInfo.setReference((Reference)referenceList.get(index));
       this.dispose();
     } else if (source==cancelButton) {
       addSiteInfo.dispose();
@@ -128,8 +132,13 @@ public class ChooseReference extends JFrame implements ActionListener,
    * @return
    */
   private ArrayList getAvailableReferences() {
-    return referenceDAO.getAllShortCitations();
+    this.referenceList  = referenceDAO.getAllReferences();
+    this.referenceSummaryList = new ArrayList();
+    for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
+      referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());
+    return referenceSummaryList;
   }
+
 
 
   /**

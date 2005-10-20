@@ -16,7 +16,6 @@ import java.util.ArrayList;
 public class Timespan {
   private TimeAPI startTime;
   private TimeAPI endTime;
-  private ArrayList references;
   private String datingMethodology;
 
   public Timespan() {
@@ -28,9 +27,6 @@ public class Timespan {
   public TimeAPI getEndTime() {
     return endTime;
   }
-  public ArrayList getReferences() {
-    return references;
-  }
   public TimeAPI getStartTime() {
     return startTime;
   }
@@ -40,9 +36,7 @@ public class Timespan {
   public void setEndTime(TimeAPI endTime) {
     this.endTime = endTime;
   }
-  public void setReferences(ArrayList references) {
-    this.references = references;
-  }
+
   public void setStartTime(TimeAPI startTime) {
     this.startTime = startTime;
   }

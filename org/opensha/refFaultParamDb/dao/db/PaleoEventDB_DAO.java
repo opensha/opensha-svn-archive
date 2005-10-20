@@ -7,6 +7,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import java.sql.ResultSet;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: PaleoEventDB_DAO.java </p>
@@ -91,9 +92,9 @@ public class PaleoEventDB_DAO {
       // insert into paleo event table
       dbAccess.insertUpdateOrDeleteData(sql);
       //add the references (for this paleo event) into the database
-      ArrayList shortCitationList = paleoEvent.getShortCitationsList();
-      for(int i=0; i<shortCitationList.size(); ++i) {
-        int referenceId = referenceDAO.getReference((String)shortCitationList.get(i)).getReferenceId();
+      ArrayList referenceList = paleoEvent.getReferenceList();
+      for(int i=0; i<referenceList.size(); ++i) {
+        int referenceId = ((Reference)referenceList.get(i)).getReferenceId();
         sql = "insert into "+this.REFERENCES_TABLE_NAME+"("+PALEO_EVENT_ID+
             ","+PALEO_EVENT_ENTRY_DATE+","+REFERENCE_ID+") "+
             "values ("+paleoEventId+",'"+
@@ -214,11 +215,11 @@ public class PaleoEventDB_DAO {
            this.PALEO_EVENT_ENTRY_DATE+"='"+paleoEvent.getEntryDate()+"'";
        ResultSet referenceResultSet = dbAccess.queryData(sql);
        while(referenceResultSet.next()) {
-         referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)).getShortCitation());
+         referenceList.add(this.referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)));
        }
        referenceResultSet.close();
        // set the references in the VO
-       paleoEvent.setShortCitationsList(referenceList);
+       paleoEvent.setReferenceList(referenceList);
        paleoEventList.add(paleoEvent);
      }
      rs.close();

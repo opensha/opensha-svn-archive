@@ -27,7 +27,7 @@ public class CombinedEventsInfo {
   private String numEventsComments;
   private String displacementComments;
   private String datedFeatureComments;
-  private ArrayList shortCitationList;
+  private ArrayList referenceList;
   private String entryDate;
   private int infoId;
   private String contributorName;
@@ -54,11 +54,11 @@ public class CombinedEventsInfo {
     this.infoId = infoId;
   }
 
-  public ArrayList getShortCitationList() {
-    return this.shortCitationList;
+  public ArrayList getReferenceList() {
+    return this.referenceList;
   }
-  public void setShortCitationList(ArrayList shortCitationList) {
-    this.shortCitationList = shortCitationList;
+  public void setReferenceList(ArrayList referenceList) {
+    this.referenceList = referenceList;
   }
   public EstimateInstances getASeismicSlipFactorEstimateForSlip() {
     return aSeismicSlipFactorEstimateForSlip;

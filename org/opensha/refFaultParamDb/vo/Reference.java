@@ -12,19 +12,21 @@ package org.opensha.refFaultParamDb.vo;
 public class Reference {
 
   private int referenceId=-1; // reference ID
-  private String shortCitation; // short citation
+  private String refAuth; // short citation
+  private int refYear;
   private String fullBiblioReference; // full bibliographic reference
 
   public Reference() {
   }
 
-  public Reference(int referenceId, String shortCitation, String fullBiblioReference) {
-    this(shortCitation, fullBiblioReference);
+  public Reference(int referenceId, String author, int year, String fullBiblioReference) {
+    this(author, year, fullBiblioReference);
     setReferenceId(referenceId);
   }
 
-  public Reference(String shortCitation, String fullBiblioReference) {
-    this.setShortCitation(shortCitation);
+  public Reference(String author, int year, String fullBiblioReference) {
+    this.setRefAuth(author);
+    this.setRefYear(year);
     this.setFullBiblioReference(fullBiblioReference);
   }
 
@@ -41,10 +43,20 @@ public class Reference {
   public void setFullBiblioReference(String fullBiblioReference) {
     this.fullBiblioReference = fullBiblioReference;
   }
-  public String getShortCitation() {
-    return shortCitation;
+  public String getRefAuth() {
+    return refAuth;
   }
-  public void setShortCitation(String shortCitation) {
-    this.shortCitation = shortCitation;
+  public void setRefAuth(String refAuth) {
+    this.refAuth = refAuth;
   }
+  public void setRefYear(int refYear) {
+    this.refYear = refYear;
+  }
+  public int getRefYear() {
+    return refYear;
+  }
+  public String getSummary() {
+    return this.refAuth+" ("+refYear+")";
+  }
+
 }
