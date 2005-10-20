@@ -3,6 +3,7 @@ package org.opensha.refFaultParamDb.dao.db;
 import com.sun.rowset.CachedRowSetImpl;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 
 /**
  * <p>Title: DB_AccessAPI</p>
@@ -20,6 +21,7 @@ public interface DB_AccessAPI {
    */
   public static final String SEQUENCE_NUMBER = "get sequence number";
   public static final String INSERT_UPDATE_QUERY = "insert/update/delete query";
+  public static final String INSERT_UPDATE_SPATIAL = "insert/update spatial";
   public static final String SELECT_QUERY = "select query";
   /*public static final DB_AccessAPI dbConnection = new DB_ConnectionPool(GUI_Utils.getUserName(),
       GUI_Utils.getPassword());*/
@@ -49,6 +51,16 @@ public interface DB_AccessAPI {
    * @throws SQLException
    */
   public int insertUpdateOrDeleteData(String sql) throws java.sql.SQLException;
+
+  /**
+   * Insert/Update/Delete record in the database.
+   * This method should be used when one of the columns in the database is a spatial column
+   * @param sql String
+   * @return int
+   * @throws SQLException
+   */
+  public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException;
+
 
   /**
    * Get the sytem date from oracle database

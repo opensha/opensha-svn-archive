@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.net.URLConnection;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import java.util.ArrayList;
 
 
 /**
@@ -37,7 +38,7 @@ public class ServerDB_Access
   public int getNextSequenceNumber(String sequenceName) throws SQLException {
 
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
-                                                   SEQUENCE_NUMBER, sequenceName);
+                                                   SEQUENCE_NUMBER, sequenceName, null);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -57,7 +58,7 @@ public class ServerDB_Access
    */
   public int insertUpdateOrDeleteData(String sql) throws SQLException {
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
-        INSERT_UPDATE_QUERY, sql);
+        INSERT_UPDATE_QUERY, sql, null);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -65,8 +66,27 @@ public class ServerDB_Access
       int key = ( (Integer) dataFromServlet).intValue();
       return key;
     }
-
   }
+
+  /**
+     * Insert/Update/Delete record in the database.
+     * This method should be used when one of the columns in the database is a spatial column
+     * @param sql String
+     * @return int
+     * @throws SQLException
+     */
+    public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException {
+      Object dataFromServlet = openServletConnection(DB_AccessAPI.
+          INSERT_UPDATE_SPATIAL, sql, geometryList);
+      if (dataFromServlet instanceof SQLException) {
+        throw (SQLException) dataFromServlet;
+      }
+      else {
+        int key = ( (Integer) dataFromServlet).intValue();
+        return key;
+      }
+    }
+
 
   /**
    * Query the databse and returns the Results in a CachedRowset object.
@@ -79,7 +99,7 @@ public class ServerDB_Access
   public CachedRowSetImpl queryData(String sql) throws SQLException {
 
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
-                                                   SELECT_QUERY, sql);
+                                                   SELECT_QUERY, sql, null);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -88,6 +108,8 @@ public class ServerDB_Access
       return rowSet;
     }
   }
+
+
 
 
   /**
@@ -123,7 +145,8 @@ public class ServerDB_Access
    * @param sql String : SQL statement
    * @return Object : Object returned from the servlet
    */
-  private Object openServletConnection(String sqlFunction, String sql){
+  private Object openServletConnection(String sqlFunction, String sql,
+                                       ArrayList geometryList){
 
     Object outputFromRemoteDB = null;
     try{
@@ -154,6 +177,8 @@ public class ServerDB_Access
       outputToServlet.writeObject(sqlFunction);
       //sending the actual query to be performed in the database
       outputToServlet.writeObject(sql);
+      // send the geomtery objects in case of spatial columns
+      if(geometryList!=null) outputToServlet.writeObject(geometryList);
 
 
       outputToServlet.flush();

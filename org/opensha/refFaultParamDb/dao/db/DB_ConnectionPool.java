@@ -6,6 +6,9 @@ import java.text.*;
 import java.util.Date;
 import com.sun.rowset.CachedRowSetImpl;
 import java.util.Properties;
+import oracle.spatial.geometry.JGeometry;
+import oracle.sql.STRUCT;
+import java.util.ArrayList;
 
 
 /**
@@ -735,8 +738,6 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
     ResultSet result = queryData(sql);
     result.next();
     return result.getString(1);
-
-
     /*String sql = "select current_timestamp from dual";
      ResultSet result = queryData(sql);
      result.next();
@@ -791,5 +792,27 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
        freeConnection(conn);
        return crs;
      }
+
+     /**
+      * Insert/Update/Delete record in the database.
+      * This method should be used when one of the columns in the database is a spatial column
+      * @param sql String
+      * @return int
+      * @throws SQLException
+      */
+     public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException {
+       Connection conn = getConnection();
+       PreparedStatement ps = conn.prepareStatement(sql);
+       //convert JGeometry instance to DB STRUCT
+       for(int i=0; i<geometryList.size(); ++i)  {
+         STRUCT obj = JGeometry.store((JGeometry)geometryList.get(i), conn);
+         ps.setObject(1, obj);
+       }
+       boolean success = ps.execute();
+       freeConnection(conn);
+       if(success) return 1;
+       else return 0;
+     }
+
 
    } // End class

@@ -13,6 +13,8 @@ import java.sql.Timestamp;
 import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.Reference;
+import oracle.spatial.geometry.JGeometry;
+import oracle.sql.STRUCT;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -35,16 +37,13 @@ public class PaleoSiteDB_DAO  {
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String SITE_NAME="Site_Name";
-  private final static String SITE_LAT1="Site_Lat1";
-  private final static String SITE_LON1="Site_Lon1";
-  private final static String SITE_ELEVATION1="Site_Elevation1";
-  private final static String SITE_LAT2="Site_Lat2";
-  private final static String SITE_LON2="Site_Lon2";
-  private final static String SITE_ELEVATION2="Site_Elevation2";
+  private final static String SITE_LOCATION1="Site_Location1";
+  private final static String SITE_LOCATION2="Site_Location2";
   private final static String REPRESENTATIVE_STRAND_INDEX="Representative_Strand_Index";
   private final static String GENERAL_COMMENTS="General_Comments";
   private final static String OLD_SITE_ID="Old_Site_Id";
   private final static String REFERENCE_ID="Reference_Id";
+  private final static int SRID=8307;
 
   private DB_AccessAPI dbAccess;
   // site type DAO
@@ -98,23 +97,28 @@ public class PaleoSiteDB_DAO  {
     int siteTypeId = siteTypeDAO.getSiteType(paleoSite.getSiteTypeName()).getSiteTypeId();
     int siteRepresentationId = siteRepresentationDAO.getSiteRepresentation(paleoSite.getRepresentativeStrandName()).getSiteRepresentationId();
 
-
+    JGeometry location1 = new JGeometry(paleoSite.getSiteLon1(),
+                                        paleoSite.getSiteLat1(),
+                                        paleoSite.getSiteElevation1(),
+                                        SRID);
+    JGeometry location2 = new JGeometry(paleoSite.getSiteLon2(),
+                                        paleoSite.getSiteLat2(),
+                                        paleoSite.getSiteElevation2(),
+                                        SRID);
+    ArrayList geomteryObjectList = new ArrayList();
+    geomteryObjectList.add(location1);
+    geomteryObjectList.add(location2);
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
-        ENTRY_DATE+","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LAT1+","+
-        SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
-        SITE_ELEVATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
+        ENTRY_DATE+","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LOCATION1+","+
+        SITE_LOCATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+faultId+",'"+systemDate+
         "',"+SessionInfo.getContributor().getId()+","+
-        siteTypeId+",'"+paleoSite.getSiteName()+"',"+
-        paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1()+","+
-        paleoSite.getSiteElevation1()+","+paleoSite.getSiteLat2()+","+
-        paleoSite.getSiteLon2()+","+
-        paleoSite.getSiteElevation2()+","+siteRepresentationId+
+        siteTypeId+",'"+paleoSite.getSiteName()+"',?,?,"+siteRepresentationId+
         ",'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
 
     try {
-      dbAccess.insertUpdateOrDeleteData(sql);
+      dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
       ArrayList referenceList = paleoSite.getReferenceList();
       for(int i=0; i<referenceList.size(); ++i) {
         int referenceId = ((Reference)referenceList.get(i)).getReferenceId();
@@ -203,9 +207,8 @@ public class PaleoSiteDB_DAO  {
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
     String sql =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
-        ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LAT1+","+
-        SITE_LON1+","+SITE_ELEVATION1+","+SITE_LAT2+","+SITE_LON2+","+
-        SITE_ELEVATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
+        ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LOCATION1+","+
+        SITE_LOCATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
         " from "+VIEW_NAME+condition;
     try {
@@ -217,12 +220,21 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setFaultName(faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
         paleoSite.setSiteTypeName(rs.getString(SiteTypeDB_DAO.SITE_TYPE_NAME));
         paleoSite.setSiteName(rs.getString(SITE_NAME));
-        paleoSite.setSiteLat1(rs.getFloat(SITE_LAT1));
-        paleoSite.setSiteLon1(rs.getFloat(SITE_LON1));
-        paleoSite.setSiteElevation1(rs.getFloat(SITE_ELEVATION1));
-        paleoSite.setSiteLat2(rs.getFloat(SITE_LAT2));
-        paleoSite.setSiteLon2(rs.getFloat(SITE_LON2));
-        paleoSite.setSiteElevation2(rs.getFloat(SITE_ELEVATION2));
+        // location 1
+        STRUCT st1 = (STRUCT) rs.getObject(SITE_LOCATION1);
+        JGeometry location1 = JGeometry.load(st1);
+        double []point1 = location1.getPoint();
+        //location 2
+        STRUCT st2 = (STRUCT) rs.getObject(SITE_LOCATION2);
+        JGeometry location2 = JGeometry.load(st2);
+        double []point2 = location2.getPoint();
+
+        paleoSite.setSiteLat1((float)point1[1]);
+        paleoSite.setSiteLon1((float)point1[0]);
+        paleoSite.setSiteElevation1((float)point1[2]);
+        paleoSite.setSiteLat2((float)point2[1]);
+        paleoSite.setSiteLon2((float)point2[0]);
+        paleoSite.setSiteElevation2((float)point2[2]);
         paleoSite.setRepresentativeStrandName(rs.getString(SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME));
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
