@@ -20,6 +20,8 @@ drop sequence Time_Instances_Sequence;
 drop table Time_Instances;
 drop table Time_Type;
 drop table Paleo_Site_References;
+drop index Paleo_Site_Location1_Index;
+drop index Paleo_Site_Location2_Index;
 drop trigger Paleo_Site_Trigger;
 drop sequence Paleo_Site_Sequence;
 drop table Paleo_Site;
@@ -62,7 +64,7 @@ CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
   Ref_Auth VARCHAR(1000) NOT NULL,
   Ref_Year INTEGER NOT NULL, 
-  Full_Bibliographic_Reference VARCHAR(4000) NOT NULL UNIQUE,
+  Full_Bibliographic_Reference VARCHAR(4000) NOT NULL,
   PRIMARY KEY(Reference_Id)
 );
 
@@ -341,6 +343,30 @@ CREATE TABLE Paleo_Site (
      REFERENCES Site_Representations(Site_Representation_Id)
 );
 
+insert into user_sdo_geom_metadata VALUES (
+  'Paleo_Site', 
+  'Site_Location1',
+   MDSYS.SDO_DIM_ARRAY(
+	MDSYS.SDO_DIM_ELEMENT('X', -360, 360, 0.000001),
+	MDSYS.SDO_DIM_ELEMENT('Y', -360, 360, 0.000001),
+	MDSYS.SDO_DIM_ELEMENT('Z', 0, 10000, 0.000001)),
+   8307);
+
+insert into user_sdo_geom_metadata VALUES (
+  'Paleo_Site', 
+  'Site_Location2',
+   MDSYS.SDO_DIM_ARRAY(
+	MDSYS.SDO_DIM_ELEMENT('X', -360, 360, 0.000001),
+	MDSYS.SDO_DIM_ELEMENT('Y', -360, 360, 0.000001),
+	MDSYS.SDO_DIM_ELEMENT('Z', 0, 10000, 0.000001)),
+   8307);
+
+
+CREATE index Paleo_Site_Location1_Index on Paleo_Site(Site_Location1)
+indextype is MDSYS.SPATIAL_INDEX parameters ('LAYER_GTYPE=point');
+
+CREATE index Paleo_Site_Location2_Index on Paleo_Site(Site_Location2)
+indextype is MDSYS.SPATIAL_INDEX parameters ('LAYER_GTYPE=point');
 
 create sequence Paleo_Site_Sequence
 start with 1
@@ -567,7 +593,7 @@ CREATE TABLE Event_Sequence (
   End_Time_Est_Id INTEGER  NOT NULL,
   Entry_Date date NOT NULL, 
   Contributor_Id INTEGER  NOT NULL,
-  General_Comme255VARCHAR(1000) NOT NULL,
+  General_Comments VARCHAR(1000) NOT NULL,
   Sequence_Probability FLOAT NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)
@@ -623,10 +649,10 @@ CREATE TABLE Event_Sequence_Event_List (
 
 
 
-insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 1','Full Bibliographic Reference 1');
-insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 2','Full Bibliographic Reference 2');
-insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 3','Full Bibliographic Reference 3');
-insert into Reference (Short_Citation, Full_Bibliographic_Reference) values ('Short Citation 4','Full Bibliographic Reference 4');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 1', 2001, 'Full Bibliographic Reference 1');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 2', 2002, 'Full Bibliographic Reference 2');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 3', 2003, 'Full Bibliographic Reference 3');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 4', 2004, 'Full Bibliographic Reference 4');
 
 
 insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (1, 'Most Significant Strand');
@@ -635,6 +661,7 @@ insert into Site_Representations(Site_Representation_Id,Site_Representation_Name
 insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (4, 'Unknown');
 
 insert into Contributors(Contributor_Id, Contributor_name) values (1, 'fault_sandbox');
+insert into Contributors(Contributor_Id, Contributor_name) values (2, 'vipin');
 
 insert into Est_Type values(1,'NormalEstimate',sysdate);
 insert into Est_Type values(2,'LogNormalEstimate',sysdate);
@@ -663,12 +690,8 @@ select ps.Site_Id as Site_Id,
        ps.Entry_Date as Entry_Date,
        st.Site_Type Site_Type,
        ps.Site_Name as Site_Name,
-       ps.Site_Lat1 as Site_Lat1,
-       ps.Site_Lon1 as Site_Lon1,
-       ps.Site_Elevation1 as Site_Elevation1,
-       ps.Site_Lat2 as Site_Lat2,
-       ps.Site_Lon2 as Site_Lon2,
-       ps.Site_Elevation2 as Site_Elevation2, 
+       ps.Site_Location1 as Site_Location1,
+       ps.Site_Location2 as Site_Location2,
        sr.Site_Representation_Name as Site_Representation_Name,
        ps.General_Comments as General_comments,
        ps.Old_Site_Id as Old_site_Id,
@@ -676,7 +699,7 @@ select ps.Site_Id as Site_Id,
 FROM  Paleo_Site ps, Site_Type st, Contributors contrib, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Site_type_id=st.site_type_id and ps.Representative_Strand_Index=sr.Site_Representation_Id and ps.Contributor_Id=contrib.Contributor_Id;
 
 INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference)
-select Ref_Auth, Ref_Year, Ref_Tx from QFault_References;
+select Ref_Auth, to_number(Ref_Year), Reference_Tx from QFault_References;
 
 
 commit;

@@ -1,4 +1,4 @@
-dbDriver       oracle.jdbc.driver.OracleDriver
+dbDriver      oracle.jdbc.driver.OracleDriver
 dbServer      jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
 minConns      2
 maxConns      7

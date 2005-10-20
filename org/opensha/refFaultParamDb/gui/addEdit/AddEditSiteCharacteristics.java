@@ -231,7 +231,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     }
     ArrayList refList = new ArrayList();
     for(int i=0; i<siteReferences.size(); ++i) {
-      refList.add((Reference)siteReferences.get(i));
+      int index = this.referenceSummaryList.indexOf(siteReferences.get(i));
+      refList.add(this.referenceList.get(index));
     }
     paleoSite.setReferenceList(refList);
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());

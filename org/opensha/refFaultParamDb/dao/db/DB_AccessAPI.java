@@ -1,7 +1,7 @@
 package org.opensha.refFaultParamDb.dao.db;
 
 import com.sun.rowset.CachedRowSetImpl;
-import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 
@@ -23,9 +23,9 @@ public interface DB_AccessAPI {
   public static final String INSERT_UPDATE_QUERY = "insert/update/delete query";
   public static final String INSERT_UPDATE_SPATIAL = "insert/update spatial";
   public static final String SELECT_QUERY = "select query";
-  /*public static final DB_AccessAPI dbConnection = new DB_ConnectionPool(GUI_Utils.getUserName(),
-      GUI_Utils.getPassword());*/
-  public static final DB_AccessAPI dbConnection = new ServerDB_Access();
+  public static final DB_AccessAPI dbConnection = new DB_ConnectionPool(SessionInfo.getUserName(),
+      SessionInfo.getPassword());
+  //public static final DB_AccessAPI dbConnection = new ServerDB_Access();
 
   /**
    * Gets the next unique sequence number to be insertd in the table.
@@ -35,7 +35,6 @@ public interface DB_AccessAPI {
    */
   public int getNextSequenceNumber(String sequenceName) throws java.sql.
       SQLException;
-
   /**
    * Query the databse and returns the Results in a CachedRowset object.
    * @param sql String

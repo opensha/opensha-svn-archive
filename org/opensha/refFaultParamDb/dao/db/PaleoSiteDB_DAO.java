@@ -15,6 +15,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.vo.Reference;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
+import java.util.HashMap;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -221,6 +222,9 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setSiteTypeName(rs.getString(SiteTypeDB_DAO.SITE_TYPE_NAME));
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         // location 1
+        /*HashMap map = new HashMap();
+        map.put("MDSYS.SDO_POINT_TYPE", new STRUCT());
+        Integer test = (Integer)rs.getObject(SITE_LOCATION1, map);*/
         STRUCT st1 = (STRUCT) rs.getObject(SITE_LOCATION1);
         JGeometry location1 = JGeometry.load(st1);
         double []point1 = location1.getPoint();

@@ -806,7 +806,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
        //convert JGeometry instance to DB STRUCT
        for(int i=0; i<geometryList.size(); ++i)  {
          STRUCT obj = JGeometry.store((JGeometry)geometryList.get(i), conn);
-         ps.setObject(1, obj);
+         ps.setObject(i+1, obj);
        }
        boolean success = ps.execute();
        freeConnection(conn);

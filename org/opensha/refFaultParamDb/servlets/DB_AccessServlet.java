@@ -30,7 +30,8 @@ import java.util.ArrayList;
  * @version 1.0
  */
 public class DB_AccessServlet extends HttpServlet{
-
+  //GOLDEN: jdbc:oracle:thin:@gldwebdb.cr.usgs.gov:1521:EQCATS
+  //PASADENA: jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
   private HashMap dbConnMap = new HashMap();
   private String dbDriver, dbServer, logFileString;
   private int minConns, maxConns;
