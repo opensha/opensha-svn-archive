@@ -109,6 +109,26 @@ public class ServerDB_Access
     }
   }
 
+  /**
+     * Query the databse and returns the Results in a  object which contains CachedRowSet
+     * as well as JGeomtery objects.
+     * @param sql String
+     * @return CachedRowSetImpl
+     * @throws SQLException
+     */
+ public SpatialQueryResult queryData(String sql, ArrayList spatialColumnNames)
+     throws java.sql.SQLException {
+   Object dataFromServlet = openServletConnection(DB_AccessAPI.
+                                                   SELECT_QUERY_SPATIAL, sql, spatialColumnNames);
+    if (dataFromServlet instanceof SQLException) {
+      throw (SQLException) dataFromServlet;
+    }
+    else {
+      SpatialQueryResult spatialQueryResult = (SpatialQueryResult) dataFromServlet;
+      return spatialQueryResult;
+    }
+  }
+
 
   /**
     * Get the system date

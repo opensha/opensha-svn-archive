@@ -794,6 +794,44 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
      }
 
      /**
+      * Query the databse and returns the Results in a  object which contains CachedRowSet
+      * as well as JGeomtery objects.
+      * @param sql String
+      * @return CachedRowSetImpl
+      * @throws SQLException
+      */
+  public SpatialQueryResult queryData(String sql, ArrayList spatialColumnNames)
+      throws java.sql.SQLException {
+    Connection conn = getConnection();
+    Statement stat = conn.createStatement();
+    //gets the resultSet after running the query
+    ResultSet result = stat.executeQuery(sql);
+    SpatialQueryResult queryResult = new SpatialQueryResult();
+    // create  JGeomtery objects
+    while(result.next()) {
+      ArrayList geomteryObjectsList = new ArrayList();
+      for (int i = 0; i < spatialColumnNames.size(); ++i) {
+        STRUCT st1 = (STRUCT) result.getObject( (String) spatialColumnNames.get(
+            i));
+        JGeometry geometry = JGeometry.load(st1);
+        geomteryObjectsList.add(geometry);
+      }
+      queryResult.add(geomteryObjectsList);
+    }
+    result.close();
+    ResultSet result1 = stat.executeQuery(sql);
+    // create CachedRowSet and populate
+    CachedRowSetImpl crs = new CachedRowSetImpl();
+    crs.populate(result1);
+    queryResult.setCachedRowSet(crs);
+    result1.close();
+    stat.close();
+    freeConnection(conn);
+    return queryResult;
+  }
+
+
+     /**
       * Insert/Update/Delete record in the database.
       * This method should be used when one of the columns in the database is a spatial column
       * @param sql String

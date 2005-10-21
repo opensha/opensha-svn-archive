@@ -20,8 +20,6 @@ drop sequence Time_Instances_Sequence;
 drop table Time_Instances;
 drop table Time_Type;
 drop table Paleo_Site_References;
-drop index Paleo_Site_Location1_Index;
-drop index Paleo_Site_Location2_Index;
 drop trigger Paleo_Site_Trigger;
 drop sequence Paleo_Site_Sequence;
 drop table Paleo_Site;
@@ -147,17 +145,17 @@ end;
 
 CREATE TABLE Normal_Est (
   Est_Id INTEGER  NOT NULL,
-  Mean FLOAT NOT NULL,
-  Std_Dev FLOAT NOT NULL,
+  Mean NUMBER(9,3) NOT NULL,
+  Std_Dev NUMBER(9,3) NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
 );
 
 CREATE TABLE XY_Est (
-  X FLOAT NOT NULL,
+  X NUMBER(9,3) NOT NULL,
   Est_Id INTEGER NOT NULL,
-  Y FLOAT NULL,
+  Y NUMBER(9,3) NULL,
   PRIMARY KEY(X, Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
@@ -174,8 +172,8 @@ CREATE TABLE Log_Type (
 CREATE TABLE Log_Normal_Est (
   Est_Id INTEGER NOT NULL,
   Log_Type_Id INTEGER NOT NULL,
-  Median FLOAT NOT NULL,
-  Std_Dev FLOAT NOT NULL,
+  Median NUMBER(9,3) NOT NULL,
+  Std_Dev NUMBER(9,3) NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id),
@@ -185,8 +183,8 @@ CREATE TABLE Log_Normal_Est (
 
 CREATE TABLE PDF_Est (
   Est_Id INTEGER  NOT NULL,
-  Min_X FLOAT NOT NULL,
-  Delta_X FLOAT NOT NULL,
+  Min_X NUMBER(9,3) NOT NULL,
+  Delta_X NUMBER(9,3) NOT NULL,
   Num INTEGER  NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
@@ -342,31 +340,6 @@ CREATE TABLE Paleo_Site (
   FOREIGN KEY(Representative_Strand_Index)
      REFERENCES Site_Representations(Site_Representation_Id)
 );
-
-insert into user_sdo_geom_metadata VALUES (
-  'Paleo_Site', 
-  'Site_Location1',
-   MDSYS.SDO_DIM_ARRAY(
-	MDSYS.SDO_DIM_ELEMENT('X', -360, 360, 0.000001),
-	MDSYS.SDO_DIM_ELEMENT('Y', -360, 360, 0.000001),
-	MDSYS.SDO_DIM_ELEMENT('Z', 0, 10000, 0.000001)),
-   8307);
-
-insert into user_sdo_geom_metadata VALUES (
-  'Paleo_Site', 
-  'Site_Location2',
-   MDSYS.SDO_DIM_ARRAY(
-	MDSYS.SDO_DIM_ELEMENT('X', -360, 360, 0.000001),
-	MDSYS.SDO_DIM_ELEMENT('Y', -360, 360, 0.000001),
-	MDSYS.SDO_DIM_ELEMENT('Z', 0, 10000, 0.000001)),
-   8307);
-
-
-CREATE index Paleo_Site_Location1_Index on Paleo_Site(Site_Location1)
-indextype is MDSYS.SPATIAL_INDEX parameters ('LAYER_GTYPE=point');
-
-CREATE index Paleo_Site_Location2_Index on Paleo_Site(Site_Location2)
-indextype is MDSYS.SPATIAL_INDEX parameters ('LAYER_GTYPE=point');
 
 create sequence Paleo_Site_Sequence
 start with 1
@@ -594,7 +567,7 @@ CREATE TABLE Event_Sequence (
   Entry_Date date NOT NULL, 
   Contributor_Id INTEGER  NOT NULL,
   General_Comments VARCHAR(1000) NOT NULL,
-  Sequence_Probability FLOAT NOT NULL,
+  Sequence_Probability NUMBER(9,3) NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
@@ -638,7 +611,7 @@ CREATE TABLE Event_Sequence_Event_List (
   Event_Entry_Date DATE NOT NULL,
   Sequence_Id INTEGER  NOT NULL,
   Sequence_Entry_Date date NOT NULL,
-  Missed_Prob FLOAT NOT NULL,
+  Missed_Prob NUMBER(9,3) NOT NULL,
   Event_Index_In_Sequence INTEGER  NOT NULL,
   PRIMARY KEY(Sequence_Id,  Sequence_Entry_Date, Event_Index_In_Sequence),
   FOREIGN KEY(Event_Id,  Event_Entry_Date)

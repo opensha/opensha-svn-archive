@@ -23,6 +23,7 @@ public interface DB_AccessAPI {
   public static final String INSERT_UPDATE_QUERY = "insert/update/delete query";
   public static final String INSERT_UPDATE_SPATIAL = "insert/update spatial";
   public static final String SELECT_QUERY = "select query";
+  public static final String SELECT_QUERY_SPATIAL = "select query spatial";
   public static final DB_AccessAPI dbConnection = new DB_ConnectionPool(SessionInfo.getUserName(),
       SessionInfo.getPassword());
   //public static final DB_AccessAPI dbConnection = new ServerDB_Access();
@@ -42,6 +43,16 @@ public interface DB_AccessAPI {
    * @throws SQLException
    */
   public CachedRowSetImpl queryData(String sql) throws java.sql.SQLException;
+
+  /**
+  * Query the databse and returns the Results in a  object which contains CachedRowSet
+  * as well as JGeomtery objects.
+  * @param sql String
+  * @return CachedRowSetImpl
+  * @throws SQLException
+  */
+  public SpatialQueryResult queryData(String sql, ArrayList spatialColumnNames) throws java.sql.SQLException;
+
 
   /**
    * Insert/Update/Delete record in the database.

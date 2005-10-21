@@ -20,6 +20,7 @@ import java.util.HashMap;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import java.util.Enumeration;
 import java.util.ArrayList;
+import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -123,6 +124,13 @@ public class DB_AccessServlet extends HttpServlet{
           CachedRowSetImpl resultSet= myBroker.queryData(query);
           outputToApp.writeObject(resultSet);
         }
+        //reading the data form the database
+        else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY_SPATIAL)){
+          ArrayList geomteryObjectList = (ArrayList)inputFromApp.readObject();
+          SpatialQueryResult resultSet= myBroker.queryData(query, geomteryObjectList);
+          outputToApp.writeObject(resultSet);
+        }
+
         outputToApp.close();
       }
       catch(SQLException e){

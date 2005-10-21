@@ -162,7 +162,7 @@ public class PaleoSiteDB_DAO  {
   */
  public ArrayList getAllPaleoSiteNames() throws QueryException {
    ArrayList paleoSiteSummaryList = new ArrayList();
-   String sql =  "select "+SITE_ID+","+SITE_NAME+" from "+TABLE_NAME+" order by "+this.SITE_NAME;
+   String sql =  "select "+SITE_ID+","+SITE_NAME+" from "+this.VIEW_NAME+" order by "+this.SITE_NAME;
    try {
      ResultSet rs  = dbAccess.queryData(sql);
      while(rs.next())  {
@@ -212,8 +212,13 @@ public class PaleoSiteDB_DAO  {
         SITE_LOCATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
         " from "+VIEW_NAME+condition;
+    ArrayList spatialColumnNames = new ArrayList();
+    spatialColumnNames.add(SITE_LOCATION1);
+    spatialColumnNames.add(SITE_LOCATION2);
     try {
-      ResultSet rs  = dbAccess.queryData(sql);
+      SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sql, spatialColumnNames);
+      ResultSet rs = spatialQueryResult.getCachedRowSet();
+      int i=0;
       while(rs.next())  {
         PaleoSite paleoSite = new PaleoSite();
         paleoSite.setSiteId(rs.getInt(SITE_ID));
@@ -225,12 +230,13 @@ public class PaleoSiteDB_DAO  {
         /*HashMap map = new HashMap();
         map.put("MDSYS.SDO_POINT_TYPE", new STRUCT());
         Integer test = (Integer)rs.getObject(SITE_LOCATION1, map);*/
-        STRUCT st1 = (STRUCT) rs.getObject(SITE_LOCATION1);
-        JGeometry location1 = JGeometry.load(st1);
+        ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
+        //STRUCT st1 = (STRUCT) rs.getObject(SITE_LOCATION1);
+        JGeometry location1 =(JGeometry) geometries.get(0);
         double []point1 = location1.getPoint();
         //location 2
-        STRUCT st2 = (STRUCT) rs.getObject(SITE_LOCATION2);
-        JGeometry location2 = JGeometry.load(st2);
+        //STRUCT st2 = (STRUCT) rs.getObject(SITE_LOCATION2);
+        JGeometry location2 = (JGeometry) geometries.get(1);
         double []point2 = location2.getPoint();
 
         paleoSite.setSiteLat1((float)point1[1]);
