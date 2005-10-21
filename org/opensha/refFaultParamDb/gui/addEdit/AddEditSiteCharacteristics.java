@@ -239,13 +239,21 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
 
     // location 1
-    Location location1 = (Location)siteLocationParam.getValue();
+    ParameterList location1ParamList = ((ParameterListParameter)siteLocationParam.getLocationParameter()).getParameter();
+    Location location1 = new Location(
+        ((Double)location1ParamList.getValue(this.LAT_PARAM_NAME)).doubleValue(),
+        ((Double)location1ParamList.getValue(this.LON_PARAM_NAME)).doubleValue(),
+        ((Double)location1ParamList.getValue(this.ELEVATION_PARAM_NAME)).doubleValue());
     paleoSite.setSiteLat1((float)location1.getLatitude());
     paleoSite.setSiteLon1((float)location1.getLongitude());
     paleoSite.setSiteElevation1((float)location1.getDepth());
 
     //location 2
-    Location location2 = (Location)siteLocationParam2.getValue();
+    ParameterList location2ParamList = ((ParameterListParameter)siteLocationParam2.getLocationParameter()).getParameter();
+    Location location2 = new Location(
+        ((Double)location2ParamList.getValue(this.LAT_PARAM_NAME)).doubleValue(),
+        ((Double)location2ParamList.getValue(this.LON_PARAM_NAME)).doubleValue(),
+        ((Double)location2ParamList.getValue(this.ELEVATION_PARAM_NAME)).doubleValue());
     paleoSite.setSiteLat2((float)location2.getLatitude());
     paleoSite.setSiteLon2((float)location2.getLongitude());
     paleoSite.setSiteElevation2((float)location2.getDepth());
