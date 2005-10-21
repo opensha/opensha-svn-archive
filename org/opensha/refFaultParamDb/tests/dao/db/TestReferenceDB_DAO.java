@@ -44,9 +44,9 @@ public class TestReferenceDB_DAO extends TestCase {
 
 
   public void testAddReference() throws InsertException {
-    Reference reference1 = new Reference("Test1",2005, "FullBiblio1");
-    Reference reference2 = new Reference("Test2",2005, "FullBiblio2");
-    Reference reference3 = new Reference("Test3",2005, "FullBiblio3");
+    Reference reference1 = new Reference("Test1","2005", "FullBiblio1");
+    Reference reference2 = new Reference("Test2","2005", "FullBiblio2");
+    Reference reference3 = new Reference("Test3","2005", "FullBiblio3");
     primaryKey1 = referenceDB_DAO.addReference(reference1);
     primaryKey2 = referenceDB_DAO.addReference(reference3);
     assertTrue(primaryKey1!=primaryKey2);
@@ -67,10 +67,10 @@ public class TestReferenceDB_DAO extends TestCase {
   }
 
   public void testUpdateReference() throws UpdateException {
-    Reference reference = new Reference(7879,"Test2",2005, "Bib2");
+    Reference reference = new Reference(7879,"Test2","2005", "Bib2");
     boolean status  = referenceDB_DAO.updateReference(7879, reference);
     this.assertFalse("cannot update reference with 7879 as it does not exist", status);
-    reference = new Reference(primaryKey1,"TestTest1",2005, "Bib2");
+    reference = new Reference(primaryKey1,"TestTest1","2005", "Bib2");
     status = referenceDB_DAO.updateReference(primaryKey1, reference);
     assertTrue("reference with id="+primaryKey1+ " should be updated in the database",status);
     Reference actualReturn = referenceDB_DAO.getReference(primaryKey1);

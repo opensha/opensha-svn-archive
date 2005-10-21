@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class SpatialQueryResult {
+public class SpatialQueryResult implements java.io.Serializable{
   private CachedRowSetImpl cachedRowSetImpl;
   private ArrayList geomteryObjectsList = new ArrayList();
 

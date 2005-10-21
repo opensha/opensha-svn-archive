@@ -13,18 +13,18 @@ public class Reference {
 
   private int referenceId=-1; // reference ID
   private String refAuth; // short citation
-  private int refYear;
+  private String refYear;
   private String fullBiblioReference; // full bibliographic reference
 
   public Reference() {
   }
 
-  public Reference(int referenceId, String author, int year, String fullBiblioReference) {
+  public Reference(int referenceId, String author, String year, String fullBiblioReference) {
     this(author, year, fullBiblioReference);
     setReferenceId(referenceId);
   }
 
-  public Reference(String author, int year, String fullBiblioReference) {
+  public Reference(String author, String year, String fullBiblioReference) {
     this.setRefAuth(author);
     this.setRefYear(year);
     this.setFullBiblioReference(fullBiblioReference);
@@ -49,10 +49,10 @@ public class Reference {
   public void setRefAuth(String refAuth) {
     this.refAuth = refAuth;
   }
-  public void setRefYear(int refYear) {
+  public void setRefYear(String refYear) {
     this.refYear = refYear;
   }
-  public int getRefYear() {
+  public String getRefYear() {
     return refYear;
   }
   public String getSummary() {

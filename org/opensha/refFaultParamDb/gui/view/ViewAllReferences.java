@@ -9,6 +9,8 @@ import org.opensha.refFaultParamDb.vo.Reference;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * <p>Title: ViewAllReferences.java </p>
@@ -21,7 +23,7 @@ import javax.swing.table.DefaultTableModel;
  */
 
 public class ViewAllReferences extends JFrame implements ActionListener {
-  private final static String columnNames[] = {"Short Citation", "Full Bibliographic Reference" };
+  private final static String columnNames[] = {"Author", "Year", "Full Bibliographic Reference" };
   private JLabel referencesLabel = new JLabel();
   private JTable referencesTable;
   private JButton refreshButton = new JButton();
@@ -60,6 +62,9 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private void makeReferencesTable() {
     if(referencesTable!=null) this.referencesScrollPane.remove(referencesTable);
     referencesTable = new JTable(new ChatTableModel(getReferencesInfo(), this.columnNames));
+    referencesTable.setRowHeight(referencesTable.getRowHeight()+40);
+    referencesTable.setRowSelectionAllowed(false);
+    referencesTable.getColumnModel().getColumn(2).setCellRenderer(new TextAreaRenderer());
     referencesScrollPane.getViewport().add(referencesTable, null);
   }
 
@@ -74,7 +79,7 @@ public class ViewAllReferences extends JFrame implements ActionListener {
     for(int i=0; i<numRefs; ++i) {
       Reference ref = (Reference)allReferences.get(i);
       tableData[i][0] = ref.getRefAuth();
-      tableData[i][1] = new Integer(ref.getRefYear());
+      tableData[i][1] = ref.getRefYear();
       tableData[i][2] = ref.getFullBiblioReference();
     }
     return tableData;
@@ -98,7 +103,26 @@ public class ViewAllReferences extends JFrame implements ActionListener {
     this.getContentPane().add(referencesScrollPane,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 10, 0, 8), -73, -44));
   }
+
 }
+
+ class TextAreaRenderer extends JScrollPane implements TableCellRenderer {
+   private JTextArea textArea = new JTextArea();
+   public TextAreaRenderer() {
+     this.getViewport().add(textArea, null);
+   }
+
+   public Component getTableCellRendererComponent(JTable jTable,
+       Object obj, boolean isSelected, boolean hasFocus, int row,
+       int column) {
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    textArea.setText((String)obj);
+    return this;
+   }
+ }
+
+
 
 /**
  * Extends the DefaultTableModel, but makes all cells uneditable.

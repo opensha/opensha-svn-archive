@@ -106,7 +106,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
    }
 
    try { // catch the insert exception
-     Reference reference = new Reference(author, year, fullBiblio);
+     Reference reference = new Reference(author, ""+year, fullBiblio);
      referenceDAO.addReference(reference);
      this.sendEventToListeners(reference);
      JOptionPane.showMessageDialog(this, MSG_INSERT_SUCCESS);

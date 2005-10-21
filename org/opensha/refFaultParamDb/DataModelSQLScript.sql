@@ -60,9 +60,10 @@ CREATE TABLE Site_Representations(
 
 CREATE TABLE Reference (
   Reference_Id INTEGER NOT NULL,
-  Ref_Auth VARCHAR(1000) NOT NULL,
-  Ref_Year INTEGER NOT NULL, 
-  Full_Bibliographic_Reference VARCHAR(4000) NOT NULL,
+  QFault_Reference_Id INTEGER NULL, 
+  Ref_Auth VARCHAR(1000) NULL,
+  Ref_Year VARCHAR(50) NULL, 
+  Full_Bibliographic_Reference VARCHAR(4000) NULL,
   PRIMARY KEY(Reference_Id)
 );
 
@@ -622,10 +623,10 @@ CREATE TABLE Event_Sequence_Event_List (
 
 
 
-insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 1', 2001, 'Full Bibliographic Reference 1');
-insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 2', 2002, 'Full Bibliographic Reference 2');
-insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 3', 2003, 'Full Bibliographic Reference 3');
-insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 4', 2004, 'Full Bibliographic Reference 4');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 1', '2001', 'Full Bibliographic Reference 1');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 2', '2002', 'Full Bibliographic Reference 2');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 3', '2003', 'Full Bibliographic Reference 3');
+insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 4', '2004', 'Full Bibliographic Reference 4');
 
 
 insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (1, 'Most Significant Strand');
@@ -671,8 +672,8 @@ select ps.Site_Id as Site_Id,
        contrib.Contributor_Name as Contributor_Name
 FROM  Paleo_Site ps, Site_Type st, Contributors contrib, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Site_type_id=st.site_type_id and ps.Representative_Strand_Index=sr.Site_Representation_Id and ps.Contributor_Id=contrib.Contributor_Id;
 
-INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference)
-select Ref_Auth, to_number(Ref_Year), Reference_Tx from QFault_References;
+INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference, QFault_Reference_Id)
+select Ref_Auth, Ref_Year, Reference_Tx, Ref_Num from QFault_References;
 
 
 commit;

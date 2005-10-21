@@ -133,7 +133,7 @@ public class ReferenceDB_DAO {
       ResultSet rs  = dbAccessAPI.queryData(sql);
       while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID),
             rs.getString(this.REF_AUTH),
-            rs.getInt(this.REF_YEAR),
+            rs.getString(this.REF_YEAR),
             rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE)));
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
