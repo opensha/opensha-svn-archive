@@ -207,16 +207,21 @@ public class PaleoSiteDB_DAO  {
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
-    String sql =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+    String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
         ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
         " from "+VIEW_NAME+condition;
+    String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
+    ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
+    GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
+    " from "+VIEW_NAME+condition;
+
     ArrayList spatialColumnNames = new ArrayList();
     spatialColumnNames.add(SITE_LOCATION1);
     spatialColumnNames.add(SITE_LOCATION2);
     try {
-      SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sql, spatialColumnNames);
+      SpatialQueryResult spatialQueryResult  = dbAccess.queryData(sqlWithSpatialColumnNames, sqlWithNoSpatialColumnNames, spatialColumnNames);
       ResultSet rs = spatialQueryResult.getCachedRowSet();
       int i=0;
       while(rs.next())  {
@@ -251,7 +256,7 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setContributorName(rs.getString(ContributorDB_DAO.CONTRIBUTOR_NAME));
         // get all the refernces for this site
         ArrayList referenceList = new ArrayList();
-        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
+        String sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
             " where "+SITE_ID+"="+paleoSite.getSiteId()+" and "+
             ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"'";
         ResultSet referenceResultSet = dbAccess.queryData(sql);

@@ -800,12 +800,14 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
       * @return CachedRowSetImpl
       * @throws SQLException
       */
-  public SpatialQueryResult queryData(String sql, ArrayList spatialColumnNames)
+  public SpatialQueryResult queryData(String sqlWithSpatialColumnNames,
+                                      String sqlWithNoSpatialColumnNames,
+                                      ArrayList spatialColumnNames)
       throws java.sql.SQLException {
     Connection conn = getConnection();
     Statement stat = conn.createStatement();
     //gets the resultSet after running the query
-    ResultSet result = stat.executeQuery(sql);
+    ResultSet result = stat.executeQuery(sqlWithSpatialColumnNames);
     SpatialQueryResult queryResult = new SpatialQueryResult();
     // create  JGeomtery objects
     while(result.next()) {
@@ -819,7 +821,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
       queryResult.add(geomteryObjectsList);
     }
     result.close();
-    ResultSet result1 = stat.executeQuery(sql);
+    ResultSet result1 = stat.executeQuery(sqlWithNoSpatialColumnNames);
     // create CachedRowSet and populate
     CachedRowSetImpl crs = new CachedRowSetImpl();
     crs.populate(result1);

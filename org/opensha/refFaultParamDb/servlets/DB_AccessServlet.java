@@ -126,8 +126,10 @@ public class DB_AccessServlet extends HttpServlet{
         }
         //reading the data form the database
         else if(functionToPerform.equals(DB_AccessAPI.SELECT_QUERY_SPATIAL)){
+          String sqlWithNoSaptialColumnNames = (String)inputFromApp.readObject();
           ArrayList geomteryObjectList = (ArrayList)inputFromApp.readObject();
-          SpatialQueryResult resultSet= myBroker.queryData(query, geomteryObjectList);
+          SpatialQueryResult resultSet= myBroker.queryData(query,
+              sqlWithNoSaptialColumnNames, geomteryObjectList);
           outputToApp.writeObject(resultSet);
         }
 

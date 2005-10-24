@@ -51,7 +51,9 @@ public interface DB_AccessAPI {
   * @return CachedRowSetImpl
   * @throws SQLException
   */
-  public SpatialQueryResult queryData(String sql, ArrayList spatialColumnNames) throws java.sql.SQLException;
+  public SpatialQueryResult queryData(String sqlWithSpatialColumnNames,
+                                     String  sqlWithNoSpatialColumnNames,
+                                     ArrayList spatialColumnNames) throws java.sql.SQLException;
 
 
   /**

@@ -8,6 +8,7 @@ import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import oracle.spatial.geometry.JGeometry;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
+import java.awt.geom.Point2D;
 
 /**
  * <p>Title: FaultSection2002DB_DAO.java </p>
@@ -65,18 +66,24 @@ public class FaultSection2002DB_DAO {
    */
    private ArrayList query(String condition) {
      ArrayList faultSectionList = new ArrayList();
-     String sql =  "select "+FAULT_ID+","+SECTION_NAME+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
+     String sqlWithSpatialColumnName =  "select "+FAULT_ID+","+SECTION_NAME+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
+         FAULT_MODEL+","+COMMENTS+","+AVE_LT_SLIP_RATE_EST+","+
+         FAULT_GEOM+","+
+         AVE_DIP_EST+","+AVE_UPPER_SD_EST+","+AVE_LOWER_SD_EST+","
+         +SECTION_ID+","+NSHM02_ID+" from "+
+         this.TABLE_NAME+condition;
+
+     String sqlWithNoSpatialColumnName =  "select "+FAULT_ID+","+SECTION_NAME+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
        FAULT_MODEL+","+COMMENTS+","+AVE_LT_SLIP_RATE_EST+","+
        AVE_DIP_EST+","+AVE_UPPER_SD_EST+","+AVE_LOWER_SD_EST+","
        +SECTION_ID+","+NSHM02_ID+" from "+
        this.TABLE_NAME+condition;
-   System.out.println(sql);
    try {
-     //ArrayList spatialColumnList = new ArrayList();
-     //spatialColumnList.add(FAULT_GEOM);
-     //SpatialQueryResult spatialQueryResult = dbAccessAPI.queryData(sql, spatialColumnList);
-     //ResultSet rs = spatialQueryResult.getCachedRowSet();
-     ResultSet rs = dbAccessAPI.queryData(sql);
+     ArrayList spatialColumnList = new ArrayList();
+     spatialColumnList.add(FAULT_GEOM);
+     SpatialQueryResult spatialQueryResult = dbAccessAPI.queryData(sqlWithSpatialColumnName, sqlWithNoSpatialColumnName, spatialColumnList);
+     ResultSet rs = spatialQueryResult.getCachedRowSet();
+     //ResultSet rs = dbAccessAPI.queryData(sql);
      int i=0;
      while(rs.next())  {
        FaultSection2002 faultSection = new FaultSection2002();
@@ -91,14 +98,16 @@ public class FaultSection2002DB_DAO {
        faultSection.setAveLowerSeisDepth(rs.getFloat(AVE_LOWER_SD_EST));
        faultSection.setSectionId(rs.getString(SECTION_ID));
        faultSection.setNshm02Id(rs.getString(NSHM02_ID));
-       /*JGeometry faultTraceGeom  = (JGeometry)spatialQueryResult.getGeometryObjectsList(i++).get(0);
+       JGeometry faultTraceGeom  = (JGeometry)spatialQueryResult.getGeometryObjectsList(i++).get(0);
        int numPoints = faultTraceGeom.getNumPoints();
-       FaultTrace faultTrace = new FaultTrace(SECTION_NAME);
+       System.out.println(faultSection.getSectionName());
+       FaultTrace faultTrace = new FaultTrace(rs.getString(SECTION_NAME));
+       Point2D points[] = faultTraceGeom.getJavaPoints();
+      // System.out.println(points.length);
        for(int j=0; j<numPoints; ++j) {
-        double[]points = faultTraceGeom.getPoint();
-        faultTrace.addLocation(new Location(points[1], points[0], points[2]));
+        faultTrace.addLocation(new Location(points[j].getY(), points[j].getX()));
        }
-       faultSection.setFaultTrace(faultTrace);*/
+       //faultSection.setFaultTrace(faultTrace);
        faultSectionList.add(faultSection);
      }
    }catch(SQLException e) {

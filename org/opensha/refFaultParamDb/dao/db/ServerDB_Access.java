@@ -38,7 +38,7 @@ public class ServerDB_Access
   public int getNextSequenceNumber(String sequenceName) throws SQLException {
 
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
-                                                   SEQUENCE_NUMBER, sequenceName, null);
+                                                   SEQUENCE_NUMBER, sequenceName, null, null);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -58,7 +58,7 @@ public class ServerDB_Access
    */
   public int insertUpdateOrDeleteData(String sql) throws SQLException {
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
-        INSERT_UPDATE_QUERY, sql, null);
+        INSERT_UPDATE_QUERY, sql, null, null);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -77,7 +77,7 @@ public class ServerDB_Access
      */
     public int insertUpdateOrDeleteData(String sql, ArrayList geometryList) throws java.sql.SQLException {
       Object dataFromServlet = openServletConnection(DB_AccessAPI.
-          INSERT_UPDATE_SPATIAL, sql, geometryList);
+          INSERT_UPDATE_SPATIAL, sql, null, geometryList);
       if (dataFromServlet instanceof SQLException) {
         throw (SQLException) dataFromServlet;
       }
@@ -99,7 +99,7 @@ public class ServerDB_Access
   public CachedRowSetImpl queryData(String sql) throws SQLException {
 
     Object dataFromServlet = openServletConnection(DB_AccessAPI.
-                                                   SELECT_QUERY, sql, null);
+                                                   SELECT_QUERY, sql, null, null);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -116,10 +116,15 @@ public class ServerDB_Access
      * @return CachedRowSetImpl
      * @throws SQLException
      */
- public SpatialQueryResult queryData(String sql, ArrayList spatialColumnNames)
+ public SpatialQueryResult queryData(String sqlWithSpatialColumnName,
+                                    String sqlWithNoSpatialColumnName,
+                                    ArrayList spatialColumnNames)
      throws java.sql.SQLException {
    Object dataFromServlet = openServletConnection(DB_AccessAPI.
-                                                   SELECT_QUERY_SPATIAL, sql, spatialColumnNames);
+                                                   SELECT_QUERY_SPATIAL,
+                                                   sqlWithSpatialColumnName,
+                                                   sqlWithNoSpatialColumnName,
+                                                   spatialColumnNames);
     if (dataFromServlet instanceof SQLException) {
       throw (SQLException) dataFromServlet;
     }
@@ -164,6 +169,7 @@ public class ServerDB_Access
    * @return Object : Object returned from the servlet
    */
   private Object openServletConnection(String sqlFunction, String sql,
+                                       String sql1,
                                        ArrayList geometryList){
 
     Object outputFromRemoteDB = null;
@@ -195,6 +201,7 @@ public class ServerDB_Access
       outputToServlet.writeObject(sqlFunction);
       //sending the actual query to be performed in the database
       outputToServlet.writeObject(sql);
+      if(sql1!=null) outputToServlet.writeObject(sql1);
       // send the geomtery objects in case of spatial columns
       if(geometryList!=null) outputToServlet.writeObject(geometryList);
 
