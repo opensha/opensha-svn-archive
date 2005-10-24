@@ -23,7 +23,7 @@ public class FaultSection2002 {
   private float aveLowerSeisDepth;
   private String sectionId;
   private String nshm02Id;
-  //private FaultTrace faultTrace;
+  private FaultTrace faultTrace;
 
   public FaultSection2002() {
   }
@@ -51,9 +51,9 @@ public class FaultSection2002 {
   public String getFaultModel() {
     return faultModel;
   }
- /* public FaultTrace getFaultTrace() {
+  public FaultTrace getFaultTrace() {
     return faultTrace;
-  }*/
+  }
   public String getNshm02Id() {
     return nshm02Id;
   }
@@ -87,9 +87,9 @@ public class FaultSection2002 {
   public void setFaultModel(String faultModel) {
     this.faultModel = faultModel;
   }
-  /*public void setFaultTrace(FaultTrace faultTrace) {
+  public void setFaultTrace(FaultTrace faultTrace) {
     this.faultTrace = faultTrace;
-  }*/
+  }
   public void setNshm02Id(String nshm02Id) {
     this.nshm02Id = nshm02Id;
   }

@@ -98,16 +98,14 @@ public class FaultSection2002DB_DAO {
        faultSection.setAveLowerSeisDepth(rs.getFloat(AVE_LOWER_SD_EST));
        faultSection.setSectionId(rs.getString(SECTION_ID));
        faultSection.setNshm02Id(rs.getString(NSHM02_ID));
+       FaultTrace faultTrace = new FaultTrace(rs.getString(SECTION_NAME));
        JGeometry faultTraceGeom  = (JGeometry)spatialQueryResult.getGeometryObjectsList(i++).get(0);
        int numPoints = faultTraceGeom.getNumPoints();
-       System.out.println(faultSection.getSectionName());
-       FaultTrace faultTrace = new FaultTrace(rs.getString(SECTION_NAME));
-       Point2D points[] = faultTraceGeom.getJavaPoints();
-      // System.out.println(points.length);
+       double[] ordinatesArray = faultTraceGeom.getOrdinatesArray();
        for(int j=0; j<numPoints; ++j) {
-        faultTrace.addLocation(new Location(points[j].getY(), points[j].getX()));
+        faultTrace.addLocation(new Location(ordinatesArray[2*j+1], ordinatesArray[2*j]));
        }
-       //faultSection.setFaultTrace(faultTrace);
+       faultSection.setFaultTrace(faultTrace);
        faultSectionList.add(faultSection);
      }
    }catch(SQLException e) {

@@ -38,8 +38,8 @@ public class Read2002FaultSections {
                  "\n");
         fw.write("\tComments=" + faultSection.getComments() + ",entryDate=" +
                  faultSection.getEntryDate() + "\n");
-        /*fw.write("\tFault Trace=" + faultSection.getFaultTrace().toString() +
-                 "\n\n\n");*/
+        fw.write("\tFault Trace=" + faultSection.getFaultTrace().toString() +
+                 "\n\n\n");
       }
       fw.close();
     }catch(Exception e) {
