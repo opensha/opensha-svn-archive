@@ -13,22 +13,22 @@ import java.util.Date;
 public class EstimateType {
   private int estimateTypeId;
   private String estimateName;
-  private Date effectiveDate;
+  private String effectiveDate;
 
   public EstimateType() {
   }
 
-  public EstimateType(int estimateTypeId, String estimateName, Date effectiveDate) {
+  public EstimateType(int estimateTypeId, String estimateName, String effectiveDate) {
     setEstimateTypeId(estimateTypeId);
     setEstimateName(estimateName);
     setEffectiveDate(effectiveDate);
   }
 
-  public Date getEffectiveDate() {
+  public String getEffectiveDate() {
     return effectiveDate;
   }
 
-  public void setEffectiveDate(Date effectiveDate) {
+  public void setEffectiveDate(String effectiveDate) {
     this.effectiveDate = effectiveDate;
   }
   public String getEstimateName() {

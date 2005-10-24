@@ -77,11 +77,12 @@ public class EstimateTypeDB_DAO  {
 
   private ArrayList query(String condition) throws QueryException {
    ArrayList estimateTypeList = new ArrayList();
-   String sql =  "select "+EST_TYPE_ID+","+EST_NAME+","+EFFECTIVE_DATE+" from "+TABLE_NAME+condition;
+   String sql =  "select "+EST_TYPE_ID+","+EST_NAME+",to_char("+EFFECTIVE_DATE+") as "+
+       EFFECTIVE_DATE +" from "+TABLE_NAME+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) estimateTypeList.add(new EstimateType(rs.getInt(EST_TYPE_ID),
-           rs.getString(EST_NAME),rs.getDate(EFFECTIVE_DATE)));
+           rs.getString(EST_NAME),rs.getString(EFFECTIVE_DATE)));
      rs.close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
    return estimateTypeList;

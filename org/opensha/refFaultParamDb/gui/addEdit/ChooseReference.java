@@ -132,7 +132,7 @@ public class ChooseReference extends JFrame implements ActionListener,
    * @return
    */
   private ArrayList getAvailableReferences() {
-    this.referenceList  = referenceDAO.getAllReferences();
+    this.referenceList  = referenceDAO.getAllReferenesSummary();
     this.referenceSummaryList = new ArrayList();
     for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
       referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());

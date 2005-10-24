@@ -123,6 +123,24 @@ public class ReferenceDB_DAO {
     return query(" ");
   }
 
+  public ArrayList getAllReferenesSummary() throws QueryException {
+    ArrayList referenceList = new ArrayList();
+    String sql = "select "+REFERENCE_ID+","+this.REF_YEAR+","+
+        this.REF_AUTH+" from "+TABLE_NAME+" order by "+this.REF_AUTH;
+    try {
+      ResultSet rs  = dbAccessAPI.queryData(sql);
+      while(rs.next())  {
+        Reference referenceSummary = new Reference();
+        referenceSummary.setRefAuth(rs.getString(this.REF_AUTH));
+        referenceSummary.setReferenceId(rs.getInt(REFERENCE_ID));
+        referenceSummary.setRefYear(rs.getString(this.REF_YEAR));
+        referenceList.add(referenceSummary);
+      }
+      rs.close();
+    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+    return referenceList;
+  }
+
 
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();

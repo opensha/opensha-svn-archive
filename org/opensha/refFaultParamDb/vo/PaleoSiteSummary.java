@@ -2,7 +2,7 @@ package org.opensha.refFaultParamDb.vo;
 
 /**
  * <p>Title: PaleoSiteSummary.java </p>
- * <p>Description: It contins a site id and name from paleo site database</p>
+ * <p>Description: It contains a site id and name from paleo site database</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
