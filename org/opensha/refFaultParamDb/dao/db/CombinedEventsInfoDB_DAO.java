@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 
 /**
  * <p>Title: CombinedEventsInfoDB_DAO.java </p>
@@ -29,14 +32,6 @@ public class CombinedEventsInfoDB_DAO {
   private final static String CONTRIBUTOR_ID ="Contributor_Id";
   private final static String START_TIME_ID = "Start_Time_Id";
   private final static String END_TIME_ID="End_Time_Id";
-  private final static String TOTAL_SLIP_EST_ID = "Total_Slip_Est_Id";
-  private final static String SLIP_RATE_EST_ID= "Slip_Rate_Est_Id";
-  private final static String NUM_EVENTS_EST_ID = "Num_Events_Est_Id";
-  private final static String SLIP_ASEISMIC_SLIP_FACTOR_EST_ID="Slip_Aseismic_Est_Id";
-  private final static String DISP_ASEISMIC_SLIP_FACTOR_EST_ID="Disp_Aseismic_Est_Id";
-  private final static String SLIP_RATE_COMMENTS="Slip_Rate_Comments";
-  private final static String TOTAL_SLIP_COMMENTS="Total_Slip_Comments";
-  private final static String NUM_EVENTS_COMMENTS = "Num_Events_Comments";
   private final static String DATED_FEATURE_COMMENTS = "Dated_Feature_Comments";
   //table for references
   private final static String REFERENCES_TABLE_NAME = "Combined_Events_References";
@@ -49,6 +44,9 @@ public class CombinedEventsInfoDB_DAO {
   private EstimateInstancesDB_DAO estimateInstancesDAO;
   private ReferenceDB_DAO referenceDAO;
   private ContributorDB_DAO contributorDAO;
+  private CombinedDisplacementInfoDB_DAO combinedDispInfoDB_DAO;
+  private CombinedNumEventsInfoDB_DAO combinedNumEventsInfoDB_DAO;
+  private CombinedSlipRateInfoDB_DAO combinedSlipRateInfoDB_DAO;
 
   public CombinedEventsInfoDB_DAO(DB_AccessAPI dbAccess) {
     setDB_Connection(dbAccess);
@@ -60,6 +58,9 @@ public class CombinedEventsInfoDB_DAO {
     estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
     referenceDAO = new ReferenceDB_DAO(dbAccess);
     contributorDAO = new ContributorDB_DAO(dbAccess);
+    combinedDispInfoDB_DAO = new CombinedDisplacementInfoDB_DAO(dbAccess);
+    combinedNumEventsInfoDB_DAO = new CombinedNumEventsInfoDB_DAO(dbAccess);
+    combinedSlipRateInfoDB_DAO = new CombinedSlipRateInfoDB_DAO(dbAccess);
   }
 
 
@@ -82,59 +83,25 @@ public class CombinedEventsInfoDB_DAO {
     // get the end time Id
     int endTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getEndTime());
 
-    String estColNames=" ", estColVals=" ";
-    // put displacement estimate into database
-    int totalSlipEstId = getEstimateId(combinedEventsInfo.getDisplacementEstimate());
-    if(totalSlipEstId!=-1) {
-      estColNames += TOTAL_SLIP_EST_ID+",";
-      estColVals += totalSlipEstId+",";
-    }
-    // put slip rate estimate into database
-    int slipRateEstId = getEstimateId(combinedEventsInfo.getSlipRateEstimate());
-    if(slipRateEstId!=-1) {
-     estColNames += SLIP_RATE_EST_ID+",";
-     estColVals += slipRateEstId+",";
-   }
-    // put num events estimates into database
-    int numEventsEstId = getEstimateId(combinedEventsInfo.getNumEventsEstimate());
-    if(numEventsEstId!=-1) {
-     estColNames += NUM_EVENTS_EST_ID+",";
-     estColVals += numEventsEstId+",";
-    }
-    // put asesimic slip factor estimate for slip in database
-    int aSeismicEstIdForSlip = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimateForSlip());
-    if(aSeismicEstIdForSlip!=-1) {
-     estColNames += SLIP_ASEISMIC_SLIP_FACTOR_EST_ID+",";
-     estColVals += aSeismicEstIdForSlip+",";
-   }
-   // put asesimic slip factor estimate for displacement in database
-   int aSeismicEstIdForDisp = getEstimateId(combinedEventsInfo.getASeismicSlipFactorEstimateForDisp());
-   if(aSeismicEstIdForDisp!=-1) {
-    estColNames += DISP_ASEISMIC_SLIP_FACTOR_EST_ID+",";
-    estColVals += aSeismicEstIdForDisp+",";
-  }
-
-
-
-
-
-    // comments to be put in database
-    String totalSlipComments= getComments(combinedEventsInfo.getDisplacementComments());
-    String slipRateComments=getComments(combinedEventsInfo.getSlipRateComments());
-    String numEventsComments=getComments(combinedEventsInfo.getNumEventsComments());
-
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
-        START_TIME_ID+","+END_TIME_ID+","+estColNames+
-        SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+NUM_EVENTS_COMMENTS+","+
+        START_TIME_ID+","+END_TIME_ID+","+
         DATED_FEATURE_COMMENTS+") values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
-        SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+","+
-        estColVals+"'"+slipRateComments+"','"+totalSlipComments+"','"+numEventsComments+"','"+
+        SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+",'"+
         combinedEventsInfo.getDatedFeatureComments()+"')";
 
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
+     // add displacement info
+     CombinedDisplacementInfo combinedDispInfo = combinedEventsInfo.getCombinedDisplacementInfo();
+     if(combinedDispInfo!=null) this.combinedDispInfoDB_DAO.addDisplacementInfo(infoId, systemDate, combinedDispInfo);
+     // add slip rate info
+     CombinedSlipRateInfo combinedSlipRateInfo = combinedEventsInfo.getCombinedSlipRateInfo();
+     if(combinedSlipRateInfo!=null) this.combinedSlipRateInfoDB_DAO.addSlipRateInfo(infoId, systemDate, combinedSlipRateInfo);
+     // add num events info
+     CombinedNumEventsInfo combinedNumEventsInfo = combinedEventsInfo.getCombinedNumEventsInfo();
+     if(combinedNumEventsInfo!=null) this.combinedNumEventsInfoDB_DAO.addNumEventsInfo(infoId, systemDate, combinedNumEventsInfo);
       // now insert the references in the combined info references table
      ArrayList referenceList = combinedEventsInfo.getReferenceList();
      for(int i=0; i<referenceList.size(); ++i) {
@@ -152,16 +119,6 @@ public class CombinedEventsInfoDB_DAO {
    }
   }
 
-  /**
-   * Get the comments. If comments are null ,return " "
-   * @param comments
-   * @return
-   */
-  private String getComments(String comments) {
-    String comm = " ";
-    if(comments ==null) comm=comments;
-    return comm;
-  }
 
   /**
    * It inserts the estInstance (if it is not null) and returns the id of the inserted row.
@@ -195,10 +152,7 @@ public class CombinedEventsInfoDB_DAO {
     ArrayList combinedInfoList = new ArrayList();
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
-        START_TIME_ID+","+END_TIME_ID+","+TOTAL_SLIP_EST_ID+","+
-        SLIP_RATE_EST_ID+","+NUM_EVENTS_EST_ID+","+SLIP_ASEISMIC_SLIP_FACTOR_EST_ID+","+
-        DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+SLIP_RATE_COMMENTS+","+TOTAL_SLIP_COMMENTS+","+
-        NUM_EVENTS_COMMENTS+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+" from "+
+        START_TIME_ID+","+END_TIME_ID+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+" from "+
         this.TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
@@ -212,36 +166,15 @@ public class CombinedEventsInfoDB_DAO {
         combinedEventsInfo.setStartTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(START_TIME_ID)));
         combinedEventsInfo.setEndTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(END_TIME_ID)));
         combinedEventsInfo.setDatedFeatureComments(rs.getString(DATED_FEATURE_COMMENTS));
-        // set total slip if it is not null in database
-        estId = rs.getInt(TOTAL_SLIP_EST_ID);
-        if(!rs.wasNull()) {
-          combinedEventsInfo.setDisplacementEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
-          combinedEventsInfo.setDisplacementComments(rs.getString(TOTAL_SLIP_COMMENTS));
-        }
-        //set slip rate
-        estId = rs.getInt(SLIP_RATE_EST_ID);
-        if(!rs.wasNull()) {
-         combinedEventsInfo.setSlipRateEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
-         combinedEventsInfo.setSlipRateComments(rs.getString(SLIP_RATE_COMMENTS));
-       }
-       // set num events estimate
-       estId = rs.getInt(NUM_EVENTS_EST_ID);
-       if(!rs.wasNull()) {
-         combinedEventsInfo.setNumEventsEstimate(this.estimateInstancesDAO.getEstimateInstance(estId));
-         combinedEventsInfo.setNumEventsComments(rs.getString(NUM_EVENTS_COMMENTS));
-       }
-       //set asesimic slip factor estimate for slip
-       estId = rs.getInt(SLIP_ASEISMIC_SLIP_FACTOR_EST_ID);
-       if(!rs.wasNull()) {
-         combinedEventsInfo.setASeismicSlipFactorEstimateForSlip(this.estimateInstancesDAO.getEstimateInstance(estId));
-       }
-       //set aseismic slip factor estimate for displacement
-       estId = rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID);
-       if(!rs.wasNull()) {
-         combinedEventsInfo.setASeismicSlipFactorEstimateForDisp(this.estimateInstancesDAO.getEstimateInstance(estId));
-       }
-
-
+        // set displacement
+        combinedEventsInfo.setCombinedDisplacementInfo(
+            this.combinedDispInfoDB_DAO.getDisplacementInfo(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
+        // set num events info
+        combinedEventsInfo.setCombinedNumEventsInfo(
+            this.combinedNumEventsInfoDB_DAO.getCombinedNumEventsInfo(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
+        // set slip rate info
+        combinedEventsInfo.setCombinedSlipRateInfo(
+            this.combinedSlipRateInfoDB_DAO.getCombinedSlipRateInfo(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
         // get the contributor info
         combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
         // get all the refernces for this site

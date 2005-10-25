@@ -13,6 +13,9 @@ import org.opensha.refFaultParamDb.dao.db.EventSequenceDB_DAO;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -142,20 +145,26 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     combinedEventsInfo.setSiteId(this.siteId);
     // set the slip rate info
     if (isSlipVisible) {
-      combinedEventsInfo.setSlipRateComments(this.addEditSlipRate.getSlipRateComments());
-      combinedEventsInfo.setASeismicSlipFactorEstimateForSlip(this.addEditSlipRate.getAseismicEstimate());
-      combinedEventsInfo.setSlipRateEstimate(this.addEditSlipRate.getSlipRateEstimate());
+      CombinedSlipRateInfo combinedSlipRateInfo = new CombinedSlipRateInfo();
+      combinedSlipRateInfo.setSlipRateComments(this.addEditSlipRate.getSlipRateComments());
+      combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(this.addEditSlipRate.getAseismicEstimate());
+      combinedSlipRateInfo.setSlipRateEstimate(this.addEditSlipRate.getSlipRateEstimate());
+      combinedEventsInfo.setCombinedSlipRateInfo(combinedSlipRateInfo);
     }
     // set the diplacement info
     if(this.isDisplacementVisible) {
-      combinedEventsInfo.setDisplacementComments(this.addEditCumDisp.getDisplacementComments());
-      combinedEventsInfo.setASeismicSlipFactorEstimateForDisp(addEditCumDisp.getAseismicEstimate());
-      combinedEventsInfo.setDisplacementEstimate(addEditCumDisp.getDisplacementEstimate());
+      CombinedDisplacementInfo combinedDisplacementInfo = new CombinedDisplacementInfo();
+      combinedDisplacementInfo.setDisplacementComments(this.addEditCumDisp.getDisplacementComments());
+      combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(addEditCumDisp.getAseismicEstimate());
+      combinedDisplacementInfo.setDisplacementEstimate(addEditCumDisp.getDisplacementEstimate());
+      combinedEventsInfo.setCombinedDisplacementInfo(combinedDisplacementInfo);
     }
     //set the num events info
     if(this.isNumEventsVisible) {
-      combinedEventsInfo.setNumEventsComments(this.addEditNumEvents.getNumEventsComments());
-      combinedEventsInfo.setNumEventsEstimate(this.addEditNumEvents.getNumEventsEstimate());
+      CombinedNumEventsInfo combinedNumEventsInfo = new CombinedNumEventsInfo();
+      combinedNumEventsInfo.setNumEventsComments(this.addEditNumEvents.getNumEventsComments());
+      combinedNumEventsInfo.setNumEventsEstimate(this.addEditNumEvents.getNumEventsEstimate());
+      combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
     }
 
     combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);

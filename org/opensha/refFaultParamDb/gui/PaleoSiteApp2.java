@@ -28,6 +28,9 @@ import org.opensha.exceptions.*;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -337,10 +340,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       String comments = "Pertinent comments will be displayed here";
       slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments);
     } else if(this.isValidSiteAndInfoAvailable() &&
-              combinedEventsInfo.getSlipRateEstimate()!=null)  { // information available FOR THIS SITE
-        this.slipRatePanel.setInfo(combinedEventsInfo.getSlipRateEstimate().getEstimate(),
-                                   combinedEventsInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
-                                   combinedEventsInfo.getSlipRateComments());
+              combinedEventsInfo.getCombinedSlipRateInfo()!=null)  { // information available FOR THIS SITE
+      CombinedSlipRateInfo combinedSlipRateInfo = combinedEventsInfo.getCombinedSlipRateInfo();
+      this.slipRatePanel.setInfo(combinedSlipRateInfo.getSlipRateEstimate().getEstimate(),
+                                   combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
+                                   combinedSlipRateInfo.getSlipRateComments());
     } else { // valid site but no info available
       slipRatePanel.setInfo(null, null, null);
     }
@@ -362,10 +366,11 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
      String comments = "Pertinent comments will be displayed here";
      displacementPanel.setInfo(diplacementEstimate, aSiemsicSlipEstimate, comments);
    } else if(this.isValidSiteAndInfoAvailable() &&
-             combinedEventsInfo.getDisplacementEstimate()!=null)  { // information available FOR THIS SITE
-       this.displacementPanel.setInfo(combinedEventsInfo.getDisplacementEstimate().getEstimate(),
-                                  combinedEventsInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
-                                  combinedEventsInfo.getDisplacementComments());
+             combinedEventsInfo.getCombinedDisplacementInfo()!=null)  { // information available FOR THIS SITE
+     CombinedDisplacementInfo combinedDisplacementInfo = combinedEventsInfo.getCombinedDisplacementInfo();
+     this.displacementPanel.setInfo(combinedDisplacementInfo.getDisplacementEstimate().getEstimate(),
+                                  combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
+                                  combinedDisplacementInfo.getDisplacementComments());
    } else { // valid site but no info available
      displacementPanel.setInfo(null, null, null);
    }
@@ -389,9 +394,10 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       IntegerEstimate numEventsEstimate = new IntegerEstimate(func, false);
       String comments = "Pertinent comments will be displayed here";
       this.numEventsPanel.setInfo(numEventsEstimate, comments);
-    }else if(this.isValidSiteAndInfoAvailable() && combinedEventsInfo.getNumEventsEstimate()!=null) {
-        numEventsPanel.setInfo((IntegerEstimate)combinedEventsInfo.getNumEventsEstimate().getEstimate(),
-                               combinedEventsInfo.getNumEventsComments());
+    }else if(this.isValidSiteAndInfoAvailable() && combinedEventsInfo.getCombinedNumEventsInfo()!=null) {
+      CombinedNumEventsInfo combinedNumEventsInfo =combinedEventsInfo.getCombinedNumEventsInfo();
+      numEventsPanel.setInfo((IntegerEstimate)combinedNumEventsInfo.getNumEventsEstimate().getEstimate(),
+                               combinedNumEventsInfo.getNumEventsComments());
     }
     else { // information not available yet
       this.numEventsPanel.setInfo(null, null);

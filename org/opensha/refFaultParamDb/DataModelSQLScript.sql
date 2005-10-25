@@ -11,6 +11,9 @@ drop table Paleo_Event;
 drop table Combined_Events_References;
 drop sequence Combined_Events_Sequence;
 drop trigger Combined_Events_Trigger;
+drop table Combined_Events_Slip_Rate_Info;
+drop table Combined_Events_Displacement_Info;
+drop table Combined_Events_Num_Events_Info;
 drop table Combined_Events_Info;
 drop table Time_Estimate_Info;
 drop table Exact_Time_Info;
@@ -450,15 +453,7 @@ CREATE TABLE Combined_Events_Info (
   Entry_Date date NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
   Start_Time_Id INTEGER  NOT NULL,
-  End_Time_Id INTEGER  NOT NULL,
-  Total_Slip_Est_Id INTEGER  NULL,
-  Slip_Rate_Est_Id INTEGER  NULL,
-  Num_Events_Est_Id INTEGER  NULL,
-  Slip_Aseismic_Est_Id INTEGER  NULL,
-  Disp_Aseismic_Est_Id INTEGER  NULL,
-  Slip_Rate_Comments VARCHAR(1000) NULL,
-  Total_Slip_Comments VARCHAR(1000) NULL,
-  Num_Events_Comments VARCHAR(1000) NULL, 	
+  End_Time_Id INTEGER  NOT NULL,	
   Dated_Feature_Comments VARCHAR(255) NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
@@ -480,6 +475,39 @@ CREATE TABLE Combined_Events_Info (
   FOREIGN KEY(Disp_Aseismic_Est_Id)
      REFERENCES Est_Instances(Est_Id)
 );
+
+CREATE TABLE Combined_Slip_Rate_Info (
+ Info_Id INTEGER  NOT NULL,
+ Entry_Date date NOT NULL,
+ Slip_Rate_Est_Id INTEGER  NULL,
+ Slip_Aseismic_Est_Id INTEGER  NULL,
+ Slip_Rate_Comments VARCHAR(1000) NULL,
+ PRIMARY KEY(Info_Id, Entry_Date),
+ FOREIGN KEY(Info_Id, Entry_Date)
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date)
+);
+
+CREATE TABLE Combined_Displacement_Info (
+ Info_Id INTEGER  NOT NULL,
+ Entry_Date date NOT NULL,
+ Total_Slip_Est_Id INTEGER  NULL,
+ Disp_Aseismic_Est_Id INTEGER  NULL,
+ Total_Slip_Comments VARCHAR(1000) NULL,
+ PRIMARY KEY(Info_Id, Entry_Date),
+ FOREIGN KEY(Info_Id, Entry_Date)
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date)
+);
+
+CREATE TABLE Combined_Num_Events_Info (
+ Info_Id INTEGER  NOT NULL,
+ Entry_Date date NOT NULL,
+ Num_Events_Est_Id INTEGER  NULL,
+ Num_Events_Comments VARCHAR(1000) NULL, 
+ PRIMARY KEY(Info_Id, Entry_Date),
+ FOREIGN KEY(Info_Id, Entry_Date)
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date)
+);
+
 
 
 CREATE TABLE Combined_Events_References (
@@ -559,52 +587,17 @@ end;
 
 
 CREATE TABLE Event_Sequence (
+  Sequence_Id INTEGER  NOT NULL,
+  Entry_Date date NOT NULL,
   Sequence_Id INTEGER NOT NULL,
   Sequence_Name VARCHAR(255) NOT NULL UNIQUE,
-  Site_Id INTEGER  NOT NULL,  
-  Site_Entry_Date date NOT NULL,
-  Start_Time_Est_Id INTEGER NOT NULL,
-  End_Time_Est_Id INTEGER  NOT NULL,
-  Entry_Date date NOT NULL, 
-  Contributor_Id INTEGER  NOT NULL,
   General_Comments VARCHAR(1000) NOT NULL,
   Sequence_Probability NUMBER(9,3) NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
-  FOREIGN KEY(Start_Time_Est_Id)
-     REFERENCES Time_Instances(Time_Id),
-  FOREIGN KEY(End_Time_Est_Id)
-     REFERENCES Time_Instances(Time_Id),
-  FOREIGN KEY (Site_Id,  Site_Entry_Date) 
-    REFERENCES Paleo_Site(Site_Id,  Entry_Date)
+  FOREIGN KEY(Sequence_Id, Entry_Date)
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date)
 );
 
-CREATE SEQUENCE Event_Sequence_Sequence
-start with 1
-increment by 1
-nomaxvalue;
-
-CREATE TRIGGER Event_Sequence_Trigger
-before insert on Event_Sequence
-for each row
-begin
-if :new.Sequence_Id is null then
-select Event_Sequence_Sequence.nextval into :new.Sequence_Id from dual;
-end if;
-end;
-/
-
-CREATE TABLE Event_Sequence_References (
-  Event_Sequence_Id INTEGER  NOT NULL,
-  Event_Sequence_Entry_Date DATE NOT NULL,
-  Reference_Id INTEGER  NOT NULL,
-  PRIMARY KEY (Event_Sequence_Id, Event_Sequence_Entry_Date, Reference_Id),
-  FOREIGN KEY (Event_Sequence_Id, Event_Sequence_Entry_Date)
-    REFERENCES Event_Sequence(Sequence_Id, Entry_Date),
-  FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id)
-); 
 
 
 CREATE TABLE Event_Sequence_Event_List (
