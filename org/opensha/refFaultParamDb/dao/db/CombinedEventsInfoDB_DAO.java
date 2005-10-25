@@ -41,7 +41,6 @@ public class CombinedEventsInfoDB_DAO {
 
   private DB_AccessAPI dbAccess;
   private TimeInstanceDB_DAO timeInstanceDAO;
-  private EstimateInstancesDB_DAO estimateInstancesDAO;
   private ReferenceDB_DAO referenceDAO;
   private ContributorDB_DAO contributorDAO;
   private CombinedDisplacementInfoDB_DAO combinedDispInfoDB_DAO;
@@ -55,7 +54,6 @@ public class CombinedEventsInfoDB_DAO {
   public void setDB_Connection(DB_AccessAPI dbAccess) {
     this.dbAccess = dbAccess;
     timeInstanceDAO = new TimeInstanceDB_DAO(dbAccess);
-    estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
     referenceDAO = new ReferenceDB_DAO(dbAccess);
     contributorDAO = new ContributorDB_DAO(dbAccess);
     combinedDispInfoDB_DAO = new CombinedDisplacementInfoDB_DAO(dbAccess);
@@ -119,17 +117,6 @@ public class CombinedEventsInfoDB_DAO {
    }
   }
 
-
-  /**
-   * It inserts the estInstance (if it is not null) and returns the id of the inserted row.
-   * If estInstance is null, it returns -1 as the index
-   * @param estInstance
-   */
-  private int getEstimateId(EstimateInstances estInstance) {
-    int estId = -1;
-    if(estInstance!=null) estId = estimateInstancesDAO.addEstimateInstance(estInstance);
-    return estId;
-  }
 
   /**
    * Get the combined events info list for a particular site
