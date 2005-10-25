@@ -22,6 +22,7 @@ import org.opensha.data.TimeSpan;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
+import java.io.FileWriter;
 
 
 /**
@@ -822,6 +823,14 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   }
 
   /**
+   * Returns the GR Fault Sources from the Frankel-02 ERF
+   * @return ArrayList
+   */
+  public ArrayList getAllGR_FaultSources(){
+    return grFaultSources;
+  }
+
+  /**
    *  This assumes the second file differs only in the max mag (third column)
    */
   private void makeGridSources(String fileName1, double wt1, String fileName2, double wt2) {
@@ -1093,13 +1102,22 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 
      Frankel02_AdjustableEqkRupForecast frankCast = new Frankel02_AdjustableEqkRupForecast();
      frankCast.updateForecast();
-     System.out.println("num sources="+frankCast.getNumSources());
-     int n;
-     for(int i=0; i<frankCast.getNumSources(); i++) {
-       n=i+1;
-//       System.out.println(n+"th source: "+frankCast.getSource(i).getName());
-       System.out.println(frankCast.getSource(i).getName());
+     try {
+       frankCast.writeRuptureTraces();
      }
+     catch (IOException ex1) {
+       ex1.printStackTrace();
+       System.exit(0);
+     }
+
+//     System.out.println("num sources="+frankCast.getNumSources());
+/*     ArrayList srcs = frankCast.getAllGR_FaultSources();
+     for(int i=0; i<srcs.size(); i++) {
+//       System.out.println(n+"th source: "+frankCast.getSource(i).getName());
+         ProbEqkSource src = (ProbEqkSource) srcs.get(i);
+       System.out.println(i+"\t"+src.getName());
+     }
+ */
 /*
      double totRate=0, totProb=1, prob;
      int i,j, totRup;
@@ -1125,4 +1143,123 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 */
   }
 
+  public void writeRuptureTraces() throws IOException {
+    String filename1 = "javaDevelopers/ned/NSHMP02_CA_Traces_SS.txt";
+    String filename2 = "javaDevelopers/ned/NSHMP02_CA_Traces_N.txt";
+    String filename3 = "javaDevelopers/ned/NSHMP02_CA_Traces_RV.txt";
+    FileWriter fw1 = new FileWriter(filename1);
+    FileWriter fw2 = new FileWriter(filename2);
+    FileWriter fw3 = new FileWriter(filename3);
+    ProbEqkSource src;
+    GriddedSurfaceAPI surf;
+    Location loc;
+    double rake;
+    int i,n;
+    for(i=0; i < 155;i++) {
+      src = (ProbEqkSource) charFaultSources.get(i);
+//      System.out.println(i+"\t"+src.getName());
+      rake = src.getRupture(src.getNumRuptures()-1).getAveRake();
+      if (rake == 0) fw1.write("#"+src.getName()+"\n");
+      else if (rake == -90) fw2.write("#"+src.getName()+"\n");
+      else if (rake == 90) fw3.write("#"+src.getName()+"\n");
+      else System.out.println("ERROR!!!!!!!!!!!");
+      System.out.println(i+"  "+src.getName());
+      surf = src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
+      for(n=0;n<surf.getNumCols();n++){
+        loc = surf.getLocation(0,n);
+        if (rake == 0)
+          fw1.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+        else if (rake == -90)
+          fw2.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+        else if (rake == 90)
+          fw3.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+       else
+         System.out.println("ERROR!!!!!!!!!!!");
+      }
+    }
+
+    // extract non-redundant WG02 ruptures
+    int others1[] = {155, 162, 169, 174, 180, 186, 193, 199, 205, 211, 221,
+        233, 242,248, 254, 260, 261, 262, 263, 270, 277, 285, 286, 287, 299,
+        300, 312, 323, 330, 337, 343, 353, 362, 369};
+    for(i=0; i < others1.length;i++) {
+      src = (ProbEqkSource) charFaultSources.get(others1[i]);
+      System.out.println(others1[i]+"\t"+src.getName());
+      rake = src.getRupture(src.getNumRuptures()-1).getAveRake();
+      if (rake == 0) fw1.write("#"+src.getName()+"\n");
+      else if (rake == -90) fw2.write("#"+src.getName()+"\n");
+      else if (rake == 90) fw3.write("#"+src.getName()+"\n");
+      else System.out.println("ERROR!!!!!!!!!!!");
+      surf = src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
+      for(n=0;n<surf.getNumCols();n++){
+        loc = surf.getLocation(0,n);
+        if (rake == 0)
+          fw1.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+        else if (rake == -90)
+          fw2.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+        else if (rake == 90)
+          fw3.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+       else
+         System.out.println("ERROR!!!!!!!!!!!");
+      }
+    }
+
+
+    // get (from gr list) the only ones not covered in the above char list
+    int others2[] = {94,105};
+    // 94 =	Sierra Madre-San Fernando (mp.sierramad-sf) 1  GR
+    // 105=	Maacama-garberville (jl0.maacama-s) 1  GR
+    for(i=0; i < others2.length;i++) {
+      src = (ProbEqkSource) grFaultSources.get(others2[i]);
+      System.out.println(others2[i]+"\t"+src.getName());
+      rake = src.getRupture(src.getNumRuptures()-1).getAveRake();
+      if (rake == 0) fw1.write("#"+src.getName()+"\n");
+      else if (rake == -90) fw2.write("#"+src.getName()+"\n");
+      else if (rake == 90) fw3.write("#"+src.getName()+"\n");
+      else System.out.println("ERROR!!!!!!!!!!!");
+      surf = src.getRupture(src.getNumRuptures()-1).getRuptureSurface();
+      for(n=0;n<surf.getNumCols();n++){
+        loc = surf.getLocation(0,n);
+        if (rake == 0)
+          fw1.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+        else if (rake == -90)
+          fw2.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+        else if (rake == 90)
+          fw3.write( (float) loc.getLongitude() + "\t" +
+                    (float) loc.getLatitude()
+                    + "\t" + (float) loc.getDepth() + "\n");
+       else
+         System.out.println("ERROR!!!!!!!!!!!");
+      }
+    }
+
+    // write our creeping section data (no rupture exents entire length)
+    System.out.println("113\tSAF - creeping segment");
+    fw1.write("#SAF - creeping segment\n" +
+              "-121.506\t36.8237\n" +
+              "-121.289\t36.6829\n" +
+              "-120.872\t36.2939\n" +
+              "-120.561\t36.0019\n");
+
+    fw1.close();
+    fw2.close();
+    fw3.close();
+
+  }
 }
