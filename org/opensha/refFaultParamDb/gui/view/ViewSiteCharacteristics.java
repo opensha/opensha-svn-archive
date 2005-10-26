@@ -108,6 +108,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   public ViewSiteCharacteristics(SiteSelectionAPI siteSelectionListener) {
     try {
       this.siteSelectionListener = siteSelectionListener;
+      addEditSitePanel.setLayout(GUI_Utils.gridBagLayout);
       // initialize parameters and editors
       initParametersAndEditors();
       // add user provided info choices
@@ -170,7 +171,6 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private void jbInit() {
     int yPos = 0;
     setLayout(GUI_Utils.gridBagLayout);
-    addEditSitePanel.setLayout(GUI_Utils.gridBagLayout);
     splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     // site name editor
     this.setMinimumSize(new Dimension(0, 0));
@@ -195,13 +195,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                                                GridBagConstraints.NONE,
                                                new Insets(2, 2, 2, 2), 0, 0));
 
-
-    addEditSitePanel.add(siteNameParamEditor,
-                         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0,
-                                                1.0
-                                                , GridBagConstraints.CENTER,
-                                                GridBagConstraints.BOTH,
-                                                new Insets(2, 2, 2, 2), 0, 0));
+    ++siteYPos; // increment because site names editor exists at this place
     // site location
     addEditSitePanel.add(siteLocationLabel,
                          new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
@@ -318,11 +312,20 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   * Initialize all the parameters and the editors
   */
  private void initParametersAndEditors() throws Exception {
+   if(siteNameParamEditor!=null) addEditSitePanel.remove(siteNameParamEditor);
    // available site names in the database
   ArrayList availableSites = getSiteNames();
   siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME, availableSites, (String)availableSites.get(0));
   siteNameParamEditor = new ConstrainedStringParameterEditor(siteNameParam);
   siteNameParam.addParameterChangeListener(this);
+
+  addEditSitePanel.add(siteNameParamEditor,
+                       new GridBagConstraints(0, 1, 1, 1, 1.0,
+                                              1.0
+                                              , GridBagConstraints.CENTER,
+                                              GridBagConstraints.BOTH,
+                                              new Insets(2, 2, 2, 2), 0, 0));
+
   setSiteInfo((String)availableSites.get(0));
  }
 
@@ -385,7 +388,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    if(paramName.equalsIgnoreCase(this.SITE_NAME_PARAM_NAME)) {
      String siteName = (String) this.siteNameParam.getValue();
      // if add site is selected, show window to add a site
-     if(siteName.equalsIgnoreCase(this.ADD_SITE)) new AddEditSiteCharacteristics();
+     if(siteName.equalsIgnoreCase(this.ADD_SITE)) {
+       addEditSiteChars = new AddEditSiteCharacteristics();
+       addEditSiteChars.addDbAdditionSuccessListener(this);
+     }
      else setSiteInfo(siteName);
    }
 
@@ -423,7 +429,15 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
      showIndividualEventWindow();
    }
    String siteName = (String) this.siteNameParam.getValue();
-   this.setSiteInfo(siteName);
+   if(siteName.equalsIgnoreCase(this.ADD_SITE)) {
+     try {
+       initParametersAndEditors();
+       this.updateUI();
+     }catch(Exception e) {
+       e.printStackTrace();
+     }
+   }
+   else this.setSiteInfo(siteName);
  }
 
 private void showIndividualEventWindow() {

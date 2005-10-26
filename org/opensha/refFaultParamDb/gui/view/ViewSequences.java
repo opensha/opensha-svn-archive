@@ -41,10 +41,6 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
   private final static String EVENTS_PARAM_NAME = "Events in Sequence";
   private final static String TITLE = "Sequences";
 
-  // test sequence names
-  private final static String TEST_SEQUENCE1 = "Test Sequence 1";
-  private final static String TEST_SEQUENCE2 = "Test Sequence 2";
-
   // labels to show the information
   private InfoLabel sequenceProbLabel = new InfoLabel();
   private InfoLabel eventsLabel = new InfoLabel();

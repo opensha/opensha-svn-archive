@@ -65,13 +65,14 @@ public class CombinedDisplacementInfoDB_DAO {
    * @return
    */
   public CombinedDisplacementInfo getDisplacementInfo(int infoId, String entryDate) {
-    CombinedDisplacementInfo combinedDisplacementInfo = new CombinedDisplacementInfo();
+    CombinedDisplacementInfo combinedDisplacementInfo =null;
      String sql = "select "+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+
          TOTAL_SLIP_EST_ID+","+TOTAL_SLIP_COMMENTS+" from "+this.TABLE_NAME+
          " where "+INFO_ID+"="+infoId+" and "+ENTRY_DATE+"='"+entryDate+"'";
      try {
        ResultSet rs = dbAccess.queryData(sql);
        while(rs.next()) {
+         combinedDisplacementInfo = new CombinedDisplacementInfo();
          combinedDisplacementInfo.setDisplacementComments(rs.getString(TOTAL_SLIP_COMMENTS));
          combinedDisplacementInfo.setDisplacementEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(TOTAL_SLIP_EST_ID)));
          combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(estimateInstancesDAO.getEstimateInstance(rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID)));

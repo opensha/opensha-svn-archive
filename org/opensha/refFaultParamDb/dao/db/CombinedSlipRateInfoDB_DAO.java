@@ -66,13 +66,14 @@ public class CombinedSlipRateInfoDB_DAO {
    * @return
    */
   public CombinedSlipRateInfo getCombinedSlipRateInfo(int infoId, String entryDate) {
-    CombinedSlipRateInfo combinedSlipRateInfo = new CombinedSlipRateInfo();
+    CombinedSlipRateInfo combinedSlipRateInfo = null;
     String sql = "select "+SLIP_ASEISMIC_SLIP_FACTOR_EST_ID+","+
         SLIP_RATE_EST_ID+","+SLIP_RATE_COMMENTS+" from "+this.TABLE_NAME+
         " where "+INFO_ID+"="+infoId+" and "+ENTRY_DATE+"='"+entryDate+"'";
     try {
       ResultSet rs = dbAccess.queryData(sql);
       while(rs.next()) {
+        combinedSlipRateInfo = new CombinedSlipRateInfo();
         combinedSlipRateInfo.setSlipRateComments(rs.getString(SLIP_RATE_COMMENTS));
         combinedSlipRateInfo.setSlipRateEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(SLIP_RATE_EST_ID)));
         combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(estimateInstancesDAO.getEstimateInstance(rs.getInt(SLIP_ASEISMIC_SLIP_FACTOR_EST_ID)));

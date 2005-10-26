@@ -6,6 +6,8 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.FaultSection2002;
 import java.io.FileWriter;
+import org.opensha.sha.fault.FaultTrace;
+import org.opensha.data.Location;
 
 /**
  * <p>Title: Read2002FaultSections.java </p>
@@ -20,12 +22,24 @@ import java.io.FileWriter;
 public class Read2002FaultSections {
   private FaultSection2002DB_DAO faultSection2002DAO = new FaultSection2002DB_DAO(DB_AccessAPI.dbConnection);
   private final static String OUT_FILENAME = "FaultSections2002.txt";
+  private final static String DIP_FILENAME = "DipForFaultSections2002.txt";
   public Read2002FaultSections() {
     ArrayList faultSections  = faultSection2002DAO.getAllFaultSections();
     try {
       FileWriter fw = new FileWriter(OUT_FILENAME);
+      FileWriter fwDip = new FileWriter(DIP_FILENAME);
       for (int i = 0; i < faultSections.size(); ++i) {
         FaultSection2002 faultSection = (FaultSection2002) faultSections.get(i);
+       fw.write("#"+faultSection.getSectionName()+"\n");
+        FaultTrace faultTrace = faultSection.getFaultTrace();
+        int numFaultTraceLocations = faultTrace.getNumLocations();
+        double upperSeisDepth = faultSection.getAveUpperSeisDepth();
+        for(int j=0; j<numFaultTraceLocations; ++j) {
+          Location loc = faultTrace.getLocationAt(j);
+          fw.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+upperSeisDepth+"\n");
+        }
+        fwDip.write(faultSection.getSectionName()+","+faultSection.getAveDip()+"\n");
+/*
         fw.write("Section Name=" + faultSection.getSectionName() + "\n");
         fw.write("\tFaultId=" + faultSection.getFaultId() +
                  ",SectionId=" + faultSection.getSectionId() +
@@ -39,9 +53,10 @@ public class Read2002FaultSections {
         fw.write("\tComments=" + faultSection.getComments() + ",entryDate=" +
                  faultSection.getEntryDate() + "\n");
         fw.write("\tFault Trace=" + faultSection.getFaultTrace().toString() +
-                 "\n\n\n");
+                 "\n\n\n");*/
       }
       fw.close();
+      fwDip.close();
     }catch(Exception e) {
       e.printStackTrace();
     }

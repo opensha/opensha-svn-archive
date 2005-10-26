@@ -32,6 +32,7 @@ import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.EventSequence;
+import org.opensha.refFaultParamDb.vo.PaleoEvent;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -357,18 +358,26 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     if(this.isTestSite()) {
       // FAKE DATA FOR TEST SITE
       ArrayList fakeSeqList = new ArrayList();
+
       EventSequence seq1 = new EventSequence();
       EventSequence seq2 = new EventSequence();
       fakeSeqList.add(seq1);
       fakeSeqList.add(seq2);
+
+      seq1.setSequenceName("Test Sequence 1");
+      seq2.setSequenceName("Test Sequence 2");
       // comments
       String comments = "Comments about this sequence";
       seq1.setComments(comments);
       seq2.setComments(comments);
       // events in this sequence
+      PaleoEvent event1 = new PaleoEvent();
+      event1.setEventName("Event 5");
+      PaleoEvent event2 = new PaleoEvent();
+      event2.setEventName("Event 6");
       ArrayList eventsList = new ArrayList();
-      eventsList.add("Event 5");
-      eventsList.add("Event 6");
+      eventsList.add(event1);
+      eventsList.add(event2);
       seq1.setEventsParam(eventsList);
       seq2.setEventsParam(eventsList);
       // sequence prob

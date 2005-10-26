@@ -62,12 +62,13 @@ public class CombinedNumEventsInfoDB_DAO {
    * @return
    */
   public CombinedNumEventsInfo getCombinedNumEventsInfo(int infoId, String entryDate) {
-    CombinedNumEventsInfo combinedNumEventsInfo = new CombinedNumEventsInfo();
+    CombinedNumEventsInfo combinedNumEventsInfo = null;
      String sql = "select "+NUM_EVENTS_EST_ID+","+NUM_EVENTS_COMMENTS+" from "+this.TABLE_NAME+
          " where "+INFO_ID+"="+infoId+" and "+ENTRY_DATE+"='"+entryDate+"'";
      try {
        ResultSet rs = dbAccess.queryData(sql);
        while(rs.next()) {
+         combinedNumEventsInfo = new CombinedNumEventsInfo();
          combinedNumEventsInfo.setNumEventsComments(rs.getString(NUM_EVENTS_COMMENTS));
          combinedNumEventsInfo.setNumEventsEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(NUM_EVENTS_EST_ID)));
        }
