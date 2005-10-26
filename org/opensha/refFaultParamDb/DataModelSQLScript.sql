@@ -1,5 +1,7 @@
 drop View Vw_Paleo_Site_Chars;
 drop table Event_Sequence_Event_List;
+drop trigger Event_Sequence_Trigger;
+drop sequence Event_Sequence_Sequence;
 drop table Event_Sequence;
 drop sequence Paleo_Event_Sequence;
 drop trigger Paleo_Event_Trigger;
@@ -585,14 +587,30 @@ end;
 
 CREATE TABLE Event_Sequence (
   Sequence_Id INTEGER  NOT NULL,
+  Info_Id INTEGER NOT NULL, 
   Entry_Date date NOT NULL,
   Sequence_Name VARCHAR(255) NOT NULL UNIQUE,
   General_Comments VARCHAR(1000) NOT NULL,
   Sequence_Probability NUMBER(9,3) NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
-  FOREIGN KEY(Sequence_Id, Entry_Date)
+  FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date)
 );
+
+create sequence Event_Sequence_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Event_Sequence_Trigger
+before insert on Event_Sequence
+for each row
+begin
+if :new.Sequence_Id is null then
+select Event_Sequence_Sequence.nextval into :new.Sequence_Id from dual;
+end if;
+end;
+/
 
 
 

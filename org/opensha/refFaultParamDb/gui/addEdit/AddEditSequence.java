@@ -334,8 +334,6 @@ public class AddEditSequence extends LabeledBoxPanel implements ActionListener,
     sequence.setEventsParam(selectedEventsInfoList);
     sequence.setSequenceName(sequenceName);
     sequence.setMissedEventsProbList(missedProbs);
-    sequence.setSiteId(this.siteId);
-    sequence.setSiteEntryDate(this.siteEntryDate);
     // add the sequence to the list
     this.sequenceList.add(sequence);
   }

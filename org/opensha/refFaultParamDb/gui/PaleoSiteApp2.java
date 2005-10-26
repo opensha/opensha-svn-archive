@@ -31,6 +31,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.EventSequence;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -54,11 +55,12 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private final static String TIMESPAN_PARAM_NAME = "TimeSpans";
   private final static String DATA_SPECIFIC_TO_TIME_INTERVALS =
       "Data currently in this database";
-  private final static String SLIP_DISP_NUMEVENTS_TITLE = "Slip Rate, Displacement and Num Events";
-  private final static String EVENTS_SEQUENCES_TITLE = "Events & Sequences";
+  private final static String SLIP_DISP_NUMEVENTS_SEQUENCES_TITLE = "Slip Rate, Displacement and Num Events";
+  private final static String EVENTS_TITLE = "Events";
   private final static String SLIP_RATE_TITLE = "Slip Rate";
   private final static String DISPLACEMENT_TITLE = "Displacement";
   private final static String NUM_EVENTS_TITLE = "Num Events";
+  private final static String SEQUENCE_TITLE = "Sequences";
 
   // various parameters
   private ViewSiteCharacteristics viewPaleoSites;
@@ -73,7 +75,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private JSplitPane infoForTimeSpanSplitPane = new JSplitPane();
   private JSplitPane timespanSplitPane = new JSplitPane();
   private JSplitPane timeSpanSelectionSplitPane = new JSplitPane();
-  private JSplitPane eventSequencesSplitPane = new JSplitPane();
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane statusScrollPane = new JScrollPane();
   private JTextArea statusTextArea = new JTextArea();
@@ -218,6 +219,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     viewSlipRateForTimePeriod(combinedEventsInfo);
     viewNumEventsForTimePeriod(combinedEventsInfo);
     viewDisplacementForTimePeriod(combinedEventsInfo);
+    viewSequencesForTimePeriod(combinedEventsInfo);
     viewTimeSpanInfo(combinedEventsInfo);
   }
 
@@ -276,7 +278,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     mainPanel.setLayout(borderLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     timespanSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    this.eventSequencesSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     topSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     timeSpanSelectionSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
     statusTextArea.setEnabled(false);
@@ -287,8 +288,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     topSplitPane.add(mainPanel, JSplitPane.TOP);
     mainPanel.add(mainSplitPane, BorderLayout.CENTER);
     //mainSplitPane.add(timespanSplitPane, JSplitPane.LEFT);
-    eventSequenceTabbedPane.add(SLIP_DISP_NUMEVENTS_TITLE, timeSpanSelectionSplitPane);
-    eventSequenceTabbedPane.add(EVENTS_SEQUENCES_TITLE, this.eventSequencesSplitPane);
+    eventSequenceTabbedPane.add(SLIP_DISP_NUMEVENTS_SEQUENCES_TITLE, timeSpanSelectionSplitPane);
+    eventSequenceTabbedPane.add(EVENTS_TITLE, this.individualEventPanel);
     mainSplitPane.add(eventSequenceTabbedPane, JSplitPane.RIGHT);
     timeSpanSelectionSplitPane.add(timespanSplitPane, JSplitPane.BOTTOM);
     timespanSplitPane.add(slipDispNumEventsTabbedPane, JSplitPane.RIGHT);
@@ -296,9 +297,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     topSplitPane.add(statusScrollPane, JSplitPane.BOTTOM);
     statusScrollPane.getViewport().add(statusTextArea, null);
     timespanSplitPane.add(timeSpanPanel, JSplitPane.LEFT);
-    eventSequencesSplitPane.add(this.individualEventPanel, JSplitPane.LEFT);
-    eventSequencesSplitPane.add(this.sequencesPanel, JSplitPane.RIGHT);
-    eventSequencesSplitPane.setDividerLocation(375);
     topSplitPane.setDividerLocation(625);
     mainSplitPane.setDividerLocation(200);
     timeSpanSelectionSplitPane.setDividerLocation(75);
@@ -306,6 +304,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     slipDispNumEventsTabbedPane.add(SLIP_RATE_TITLE, slipRatePanel);
     slipDispNumEventsTabbedPane.add(DISPLACEMENT_TITLE, displacementPanel);
     slipDispNumEventsTabbedPane.add(NUM_EVENTS_TITLE, numEventsPanel);
+    slipDispNumEventsTabbedPane.add(SEQUENCE_TITLE, sequencesPanel);
   }
 
   /**
@@ -350,6 +349,46 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     }
 
   }
+
+  /**
+   * display the sequences for the selected time period
+   */
+  private void viewSequencesForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
+    if(this.isTestSite()) {
+      // FAKE DATA FOR TEST SITE
+      ArrayList fakeSeqList = new ArrayList();
+      EventSequence seq1 = new EventSequence();
+      EventSequence seq2 = new EventSequence();
+      fakeSeqList.add(seq1);
+      fakeSeqList.add(seq2);
+      // comments
+      String comments = "Comments about this sequence";
+      seq1.setComments(comments);
+      seq2.setComments(comments);
+      // events in this sequence
+      ArrayList eventsList = new ArrayList();
+      eventsList.add("Event 5");
+      eventsList.add("Event 6");
+      seq1.setEventsParam(eventsList);
+      seq2.setEventsParam(eventsList);
+      // sequence prob
+      double sequenceProb=0.5;
+      seq1.setSequenceProb(sequenceProb);
+      seq2.setSequenceProb(sequenceProb);
+      // missed events prob
+      double[] missedEventProb = {0.1,0.5, 0.4};
+      seq1.setMissedEventsProbList(missedEventProb);
+      seq2.setMissedEventsProbList(missedEventProb);
+      sequencesPanel.setSequenceList(fakeSeqList);
+    } else if(this.isValidSiteAndInfoAvailable() &&
+              combinedEventsInfo.getEventSequence()!=null)  { // information available FOR THIS SITE
+      this.sequencesPanel.setSequenceList(combinedEventsInfo.getEventSequence());
+    } else { // valid site but no info available
+      sequencesPanel.setSequenceList(null);
+    }
+
+  }
+
 
 
   /**
@@ -421,7 +460,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     }
     makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
     this.individualEventPanel.setSite(paleoSite); // view the events for this site
-    this.sequencesPanel.setSite(paleoSite); // view the sequences for this site
   }
 
 

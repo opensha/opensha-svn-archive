@@ -26,6 +26,7 @@ public class CombinedEventsInfo {
   private CombinedSlipRateInfo combinedSlipRateInfo;
   private CombinedDisplacementInfo combinedDisplacementInfo;
   private CombinedNumEventsInfo combinedNumEventsInfo;
+  private ArrayList eventSequenceList;
 
   /*
    * Various  set/get methods
@@ -110,5 +111,10 @@ public class CombinedEventsInfo {
   public void setCombinedSlipRateInfo(CombinedSlipRateInfo combinedSlipRateInfo) {
     this.combinedSlipRateInfo = combinedSlipRateInfo;
   }
-
+  public ArrayList getEventSequence() {
+    return eventSequenceList;
+  }
+  public void setEventSequenceList(ArrayList eventSequenceList) {
+    this.eventSequenceList = eventSequenceList;
+  }
 }

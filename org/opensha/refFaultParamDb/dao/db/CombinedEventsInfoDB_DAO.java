@@ -46,6 +46,7 @@ public class CombinedEventsInfoDB_DAO {
   private CombinedDisplacementInfoDB_DAO combinedDispInfoDB_DAO;
   private CombinedNumEventsInfoDB_DAO combinedNumEventsInfoDB_DAO;
   private CombinedSlipRateInfoDB_DAO combinedSlipRateInfoDB_DAO;
+  private EventSequenceDB_DAO eventSequenceDAO;
 
   public CombinedEventsInfoDB_DAO(DB_AccessAPI dbAccess) {
     setDB_Connection(dbAccess);
@@ -59,6 +60,7 @@ public class CombinedEventsInfoDB_DAO {
     combinedDispInfoDB_DAO = new CombinedDisplacementInfoDB_DAO(dbAccess);
     combinedNumEventsInfoDB_DAO = new CombinedNumEventsInfoDB_DAO(dbAccess);
     combinedSlipRateInfoDB_DAO = new CombinedSlipRateInfoDB_DAO(dbAccess);
+    eventSequenceDAO = new EventSequenceDB_DAO(dbAccess);
   }
 
 
@@ -100,7 +102,11 @@ public class CombinedEventsInfoDB_DAO {
      // add num events info
      CombinedNumEventsInfo combinedNumEventsInfo = combinedEventsInfo.getCombinedNumEventsInfo();
      if(combinedNumEventsInfo!=null) this.combinedNumEventsInfoDB_DAO.addNumEventsInfo(infoId, systemDate, combinedNumEventsInfo);
-      // now insert the references in the combined info references table
+     // add the events sequences
+     ArrayList eventSequenceList = combinedEventsInfo.getEventSequence();
+     if(eventSequenceList!=null && eventSequenceList.size()!=0)
+       this.eventSequenceDAO.addEventSequence(infoId, systemDate, eventSequenceList);
+     // now insert the references in the combined info references table
      ArrayList referenceList = combinedEventsInfo.getReferenceList();
      for(int i=0; i<referenceList.size(); ++i) {
        int referenceId =((Reference)referenceList.get(i)).getReferenceId();
@@ -162,9 +168,12 @@ public class CombinedEventsInfoDB_DAO {
         // set slip rate info
         combinedEventsInfo.setCombinedSlipRateInfo(
             this.combinedSlipRateInfoDB_DAO.getCombinedSlipRateInfo(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
+        // set the sequences info
+        combinedEventsInfo.setEventSequenceList(
+            this.eventSequenceDAO.getSequences(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
         // get the contributor info
         combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
-        // get all the refernces for this site
+        // get all the references for this site
         ArrayList referenceList = new ArrayList();
         sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
             " where "+COMBINED_EVENTS_ID+"="+combinedEventsInfo.getInfoId()+" and "+

@@ -19,12 +19,6 @@ public class EventSequence {
   private String comments;
   private ArrayList eventsParam;
   private double[] missedEventsProbs;
-  private int siteId;
-  private String siteEntryDate;
-  private int sequenceId;
-  private String sequenceEntryDate;
-  private TimeAPI startTime;
-  private TimeAPI endTime;
 
   public EventSequence() {
   }
@@ -58,41 +52,4 @@ public class EventSequence {
   public void setSequenceProb(double sequenceProb) {
     this.sequenceProb = sequenceProb;
   }
-  public String getSiteEntryDate() {
-    return siteEntryDate;
-  }
-  public int getSiteId() {
-    return siteId;
-  }
-  public void setSiteEntryDate(String siteEntryDate) {
-    this.siteEntryDate = siteEntryDate;
-  }
-  public void setSiteId(int siteId) {
-    this.siteId = siteId;
-  }
-  public String getSequenceEntryDate() {
-    return sequenceEntryDate;
-  }
-  public int getSequenceId() {
-    return sequenceId;
-  }
-  public void setSequenceEntryDate(String sequenceEntryDate) {
-    this.sequenceEntryDate = sequenceEntryDate;
-  }
-  public void setSequenceId(int sequenceId) {
-    this.sequenceId = sequenceId;
-  }
-  public TimeAPI getStartTime() {
-    return startTime;
-  }
-  public void setStartTime(TimeAPI startTime) {
-    this.startTime = startTime;
-  }
-  public void setEndTime(TimeAPI endTime) {
-    this.endTime = endTime;
-  }
-  public TimeAPI getEndTime() {
-    return endTime;
-  }
-
 }

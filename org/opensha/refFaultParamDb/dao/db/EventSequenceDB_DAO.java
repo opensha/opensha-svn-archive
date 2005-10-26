@@ -26,25 +26,19 @@ public class EventSequenceDB_DAO {
   private final static String TABLE_SEQUENCE_NAME = "Event_Sequence_Sequence";
   private final static String SEQUENCE_ID = "Sequence_Id";
   private final static String SEQUENCE_NAME = "Sequence_Name";
-  private final static String SITE_ID = "Site_Id";
-  private final static String SITE_ENTRY_DATE = "Site_Entry_Date";
-  private final static String START_TIME_EST_ID = "Start_Time_Est_Id";
+  private final static String INFO_ID = "Info_Id";
   private final static String SEQUENCE_PROB = "Sequence_Probability";
-  private final static String END_TIME_EST_ID = "End_Time_Est_Id";
   private final static String ENTRY_DATE = "Entry_Date";
-  private final static String CONTRIBUTOR_ID = "Contributor_Id";
   private final static String GENERAL_COMMENT = "General_Comments";
   // reference table name and attribute names
-  private final static String REFERENCE_TABLE_NAME = "Event_Sequence_References";
   private final static String EVENT_SEQUENCE_ID = "Event_Sequence_Id";
   private final static String EVENT_SEQUENCE_ENTRY_DATE  = "Event_Sequence_Entry_Date";
-  private final static String REFERENCE_ID = "Reference_Id";
   // table name which saves the all the events within a sequence
   private final static String SEQUENCE_EVENT_LIST_TABLE_NAME = "Event_Sequence_Event_List";
   private final static String EVENT_ID = "Event_Id";
   private final static String EVENT_ENTRY_DATE = "Event_Entry_Date";
   private final static String SEQUENCE_ENTRY_DATE = "Sequence_Entry_Date";
-  private final static String MISSED_PROB = "MISSED_PROB";
+  private final static String MISSED_PROB = "Missed_Prob";
   private final static String EVENT_INDEX_IN_SEQUENCE="Event_Index_In_Sequence";
 
   private DB_AccessAPI dbAccess; // database connection
@@ -66,13 +60,9 @@ public class EventSequenceDB_DAO {
    * @param startTime
    * @param endTime
    */
-  public void addEventSequence(ArrayList sequenceList,
-                               TimeAPI startTime,
-                               TimeAPI endTime) {
+  public void addEventSequence(int infoId, String entryDate,
+                               ArrayList sequenceList) {
     try {
-      // put the start time and end time into the database
-      int startTimeId = timeInstanceDAO.addTimeInstance(startTime);
-      int endTimeId = timeInstanceDAO.addTimeInstance(endTime);
       // loop over each sequence in the list and put it in database
       for(int i=0; i<sequenceList.size(); ++i) {
         EventSequence eventSequence = (EventSequence)sequenceList.get(i);
@@ -80,12 +70,10 @@ public class EventSequenceDB_DAO {
         String systemDate = dbAccess.getSystemDate();
         // put sequence in database
         String sql = "insert into "+TABLE_NAME+ "("+SEQUENCE_ID+","+SEQUENCE_NAME+
-            ","+SITE_ID+","+SITE_ENTRY_DATE+","+START_TIME_EST_ID+","+
-            END_TIME_EST_ID+","+ENTRY_DATE+","+SEQUENCE_PROB+","+CONTRIBUTOR_ID+","+GENERAL_COMMENT+
+            ","+INFO_ID+","+ENTRY_DATE+","+SEQUENCE_PROB+","+GENERAL_COMMENT+
             ") values ("+sequenceId+",'"+eventSequence.getSequenceName()+"',"+
-            eventSequence.getSiteId()+",'"+eventSequence.getSiteEntryDate()+"',"+
-            startTimeId+","+endTimeId+",'"+systemDate+"',"+eventSequence.getSequenceProb()+","+
-            SessionInfo.getContributor().getId()+",'"+eventSequence.getComments()+"')";
+            infoId+",'"+entryDate+"','"+systemDate+"',"+eventSequence.getSequenceProb()+
+            ",'"+eventSequence.getComments()+"')";
         dbAccess.insertUpdateOrDeleteData(sql);
         //put references for this sequence in the database
        /* ArrayList shortCitationList = startTime.getReferencesList();
@@ -133,8 +121,9 @@ public class EventSequenceDB_DAO {
    * @param siteId
    * @return
    */
-  public ArrayList getSequences(int siteId) {
-    String condition = " where "+this.SITE_ID+"="+siteId;
+  public ArrayList getSequences(int infoId, String entryDate) {
+    String condition = " where "+this.INFO_ID+"="+infoId+" and "+this.ENTRY_DATE+
+        "='"+entryDate+"'";
     return query(condition);
   }
 
@@ -146,10 +135,9 @@ public class EventSequenceDB_DAO {
  private ArrayList query(String condition) {
    ArrayList sequenceList = new ArrayList();
    String sql = "select "+SEQUENCE_ID+","+SEQUENCE_NAME+
-            ","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
-            START_TIME_EST_ID+","+END_TIME_EST_ID+",to_char("+ENTRY_DATE+") as "+
-            ENTRY_DATE+","+SEQUENCE_PROB+","+CONTRIBUTOR_ID+","+
-            GENERAL_COMMENT+" from "+ this.TABLE_NAME+" "+condition;
+            ","+INFO_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
+            SEQUENCE_PROB+","+ GENERAL_COMMENT+" from "+
+            this.TABLE_NAME+" "+condition;
    try {
     ResultSet rs  = dbAccess.queryData(sql);
     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbAccess);
@@ -157,19 +145,13 @@ public class EventSequenceDB_DAO {
     while(rs.next())  {
       // create event sequence
       EventSequence eventSequence = new EventSequence();
-      eventSequence.setSequenceId(rs.getInt(SEQUENCE_ID));
       eventSequence.setSequenceName(rs.getString(SEQUENCE_NAME));
-      eventSequence.setSiteId(rs.getInt(SITE_ID));
-      eventSequence.setSiteEntryDate(rs.getString(SITE_ENTRY_DATE));
-      eventSequence.setStartTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(START_TIME_EST_ID)));
-      eventSequence.setEndTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(END_TIME_EST_ID)));
-      eventSequence.setSequenceEntryDate(rs.getString(ENTRY_DATE));
       eventSequence.setSequenceProb(rs.getFloat(SEQUENCE_PROB));
       eventSequence.setComments(rs.getString(GENERAL_COMMENT));
       // get a list of all the events and missed event probs forming this sequence
       sql = "select "+EVENT_ID+","+MISSED_PROB+" from "+ SEQUENCE_EVENT_LIST_TABLE_NAME+
-          " where "+SEQUENCE_ID+"="+eventSequence.getSequenceId()+" and "+
-          SEQUENCE_ENTRY_DATE+"='"+eventSequence.getSequenceEntryDate()+"' order by "+
+          " where "+SEQUENCE_ID+"="+rs.getInt(SEQUENCE_ID)+" and "+
+          SEQUENCE_ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"' order by "+
           EVENT_INDEX_IN_SEQUENCE;
       ResultSet eventsResults = dbAccess.queryData(sql);
       ArrayList events  = new ArrayList();

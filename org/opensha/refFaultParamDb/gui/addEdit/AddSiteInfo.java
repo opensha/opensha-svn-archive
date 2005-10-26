@@ -52,7 +52,6 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private int siteId;
   private String siteEntryDate;
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
-  private EventSequenceDB_DAO eventSequenceDAO = new EventSequenceDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddSiteInfo(int siteId, String siteEntryDate,
                      boolean isSlipVisible, boolean isDisplacementVisible,
@@ -114,10 +113,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     else if(source==this.okButton) { // ok button is clicked
       try {
         if(this.isSlipVisible || this.isDisplacementVisible ||
-           this.isNumEventsVisible)
+           this.isNumEventsVisible || this.isSequenceVisible)
           putSiteInfoInDatabase(); // put site info in database
-        if(this.isSequenceVisible)
-          putSequenceInDatabase(); // put sequence info in the database
         JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
         this.dispose();
       }catch(Exception e){
@@ -166,20 +163,15 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
       combinedNumEventsInfo.setNumEventsEstimate(this.addEditNumEvents.getNumEventsEstimate());
       combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
     }
+    // set the sequence info
+    if(this.isSequenceVisible) {
+      combinedEventsInfo.setEventSequenceList(addEditSequence.getAllSequences());
+    }
 
     combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
     this.sendEventToListeners(combinedEventsInfo);
   }
 
-  /**
-   * Put the sequences in the database
-   */
-  private void putSequenceInDatabase() {
-    ArrayList sequences  = this.addEditSequence.getAllSequences();
-    eventSequenceDAO.addEventSequence(sequences, this.addEditTimeSpan.getStartTime(),
-                                      this.addEditTimeSpan.getEndTime());
-    this.sendEventToListeners(sequences);
-  }
 
   /**
    * intialize the GUI components
