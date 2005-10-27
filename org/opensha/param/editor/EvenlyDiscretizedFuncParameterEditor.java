@@ -320,7 +320,28 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
      * the new parameter value.
      */
     public void refreshParamEditor() {
-      editor.refreshParamEditor();
+      if(model==null || model.getValue()==null) return;
+      EvenlyDiscretizedFunc func = (EvenlyDiscretizedFunc)model.getValue();
+      this.minParam.setValue(func.getMinX());
+      this.maxParam.setValue(func.getMaxX());
+      this.numParam.setValue(new Integer(func.getNum()));
+      if ( func != null ) { // show X, Y values from the function
+        this.xTextArea.setText("");
+        this.yTextArea.setText("");
+        int num = func.getNum();
+        String xText = "";
+        String yText= "";
+        for(int i=0; i<num; ++i) {
+          xText += func.getX(i)  + "\n";
+          yText += func.getY(i)  + "\n";
+        }
+        xTextArea.setText(xText);
+        yTextArea.setText(yText);
+      }
+      else {
+        xTextArea.setText("");
+        yTextArea.setText("");
+      }
       this.repaint();
     }
 

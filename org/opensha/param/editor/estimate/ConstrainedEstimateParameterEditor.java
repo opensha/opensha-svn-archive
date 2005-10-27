@@ -192,7 +192,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
                                              boolean showEditorAsPanel,
                                              boolean showMinMaxTruncationParams,
                                              String xAxisName){
-
+     this.model = model;
      this.showEditorAsPanel = showEditorAsPanel;
      this.paramNamesPrefix  = paramNamesPrefix;
      this.xAxisName = xAxisName;
@@ -245,13 +245,80 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
         , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
     //container.add(this.estimateInfo,new GridBagConstraints( 0, 3, 2, 1, 1.0, 0.0
     //    , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 5, 5, 5, 5 ), 0, 0 ) );
-
     setEstimateParams((String)chooseEstimateParam.getValue());
-    this.refreshParamEditor();
+    if(model!=null) {
+      Estimate estimate = (Estimate) model.getValue();
+      if (estimate != null)
+        setEstimateValue(estimate);
+    }
+    editor.refreshParamEditor();
+    this.updateUI();
     // All done
     if ( D ) System.out.println( S + "Ending:" );
   }
 
+  private void setEstimateValue(Estimate estimate) {
+    if(estimate instanceof NormalEstimate)
+      setNormalEstimateVals((NormalEstimate)estimate);
+    else if (estimate instanceof LogNormalEstimate)
+      setLogNormalEstimateVals((LogNormalEstimate)estimate);
+    else if (estimate instanceof FractileListEstimate)
+       setFractileListVals((FractileListEstimate)estimate);
+    else if (estimate instanceof PDF_Estimate)
+      setPDF_EstimateVals((PDF_Estimate)estimate);
+    else if (estimate instanceof DiscreteValueEstimate)
+      setDiscreteEstimateVals((DiscreteValueEstimate)estimate);
+    else if (estimate instanceof IntegerEstimate)
+      setIntegerEstimateVals((IntegerEstimate)estimate);
+
+  }
+
+  // set the value in normal estimate
+  private void setNormalEstimateVals(NormalEstimate normalEstimate) {
+    this.chooseEstimateParam.setValue(NormalEstimate.NAME);
+    this.meanParam.setValue(normalEstimate.getMean());
+    this.stdDevParam.setValue(normalEstimate.getStdDev());
+    this.minNormalEstimateParam.setValue(normalEstimate.getMinX());
+    this.maxNormalEstimateParam.setValue(normalEstimate.getMaxX());
+  }
+
+  // set the parameter value in log normal estimate
+  private void setLogNormalEstimateVals(LogNormalEstimate logNormalEstimate) {
+    this.chooseEstimateParam.setValue(LogNormalEstimate.NAME);
+    this.linearMedianParam.setValue(logNormalEstimate.getLinearMedian());
+    this.stdDevParam.setValue(logNormalEstimate.getStdDev());
+    this.minLogNormalEstimateParam.setValue(logNormalEstimate.getMinX());
+    this.maxLogNormalEstimateParam.setValue(logNormalEstimate.getMaxX());
+    if(logNormalEstimate.getIsBase10())
+      this.logBaseParam.setValue(this.LOG_BASE_10_NAME);
+    else logBaseParam.setValue(this.NATURAL_LOG_NAME);
+  }
+
+  // set the estimate in fractile list estimate
+  private void setFractileListVals(FractileListEstimate fractileListEstimate) {
+    DiscretizedFunc func = fractileListEstimate.getValues();
+    this.minX_Param.setValue(func.getX(0));
+    this.prefferedX_Param.setValue(func.getX(1));
+    this.maxX_Param.setValue(func.getX(2));
+    this.minProbParam.setValue(func.getY(0));
+    this.prefferedProbParam.setValue(func.getY(1));
+    this.maxProbParam.setValue(func.getY(2));
+  }
+
+  // set the values in discrete value estimate
+  private void setDiscreteEstimateVals(DiscreteValueEstimate discreteValEst) {
+    this.arbitrarilyDiscFuncParam.setValue(discreteValEst.getValues());
+  }
+
+  // set the values in integer estimate
+  private void setIntegerEstimateVals(IntegerEstimate integerEst) {
+    this.arbitrarilyDiscFuncParam.setValue(integerEst.getValues());
+  }
+
+  // set the values in pdf estimate
+  private void setPDF_EstimateVals(PDF_Estimate pdfEst) {
+    this.evenlyDiscFuncParam.setValue(pdfEst.getValues());
+  }
 
   protected void jbInit() {
     this.setMinimumSize(new Dimension(0, 0));
@@ -266,6 +333,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    * the new parameter value.
    */
   public void refreshParamEditor() {
+    if(model!=null) {
+      Estimate estimate = (Estimate)this.model.getValue();
+      if (estimate != null)
+        setEstimateValue(estimate);
+    }
     editor.refreshParamEditor();
     this.updateUI();
     if(frame!=null)
@@ -370,10 +442,10 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    //setEstimateButton.addActionListener(this);
    viewEstimateButton.addActionListener(this);
 
-   double constraintMin = estimateConstraint.getMin().doubleValue();
-   double constraintMax = estimateConstraint.getMax().doubleValue();
-   String constraintMinText = this.MIN_CONSTRAINT_LABEL+constraintMin;
-   String constraintMaxText = this.MAX_CONSTRAINT_LABEL+constraintMax;
+   //double constraintMin = estimateConstraint.getMin().doubleValue();
+   //double constraintMax = estimateConstraint.getMax().doubleValue();
+   //String constraintMinText = this.MIN_CONSTRAINT_LABEL+constraintMin;
+   //String constraintMaxText = this.MAX_CONSTRAINT_LABEL+constraintMax;
    //minConstraintLabel= new JLabel(this.MIN_CONSTRAINT_LABEL+constraintMin);
    //maxConstraintLabel= new JLabel(this.MAX_CONSTRAINT_LABEL+constraintMax);
    //editor.setToolTipText(minConstraintLabel.getText()+","+maxConstraintLabel.getText());
@@ -421,7 +493,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     // based on user selection of estimates, make the parameters visible/invisible
     if(event.getParameterName().equalsIgnoreCase(CHOOSE_ESTIMATE_PARAM_NAME)) {
       setEstimateParams( (String) chooseEstimateParam.getValue());
-      this.refreshParamEditor();
+      editor.refreshParamEditor();
+      this.updateUI();
     }
   }
 

@@ -28,6 +28,7 @@ public class PaleoSite {
   private String entryDate;
   private ArrayList referenceList = new ArrayList();
   private String contributorName;
+  private EstimateInstances dipEstimate;
 
   public PaleoSite() {
   }
@@ -113,5 +114,11 @@ public class PaleoSite {
   }
   public String getGeneralComments() {
     return generalComments;
+  }
+  public EstimateInstances getDipEstimate() {
+    return dipEstimate;
+  }
+  public void setDipEstimate(EstimateInstances dipEstimate) {
+    this.dipEstimate = dipEstimate;
   }
 }

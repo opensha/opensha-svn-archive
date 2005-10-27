@@ -160,6 +160,7 @@ public class EstimateConstraint extends DoubleConstraint {
           // if this object is among list of allowed estimates, check min/max value
           Double estimateMinValue = new Double(estimate.getMinX());
           Double estimateMaxValue = new Double(estimate.getMaxX());
+          if(min==null && max==null) return true;
           if(min!=null && max!=null && estimateMinValue.compareTo(min)>=0 &&  estimateMaxValue.compareTo(max)<=0)
             return true;
           break;

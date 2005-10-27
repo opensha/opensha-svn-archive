@@ -69,7 +69,7 @@ public class EstimateParameter extends DependentParameter
     */
    public EstimateParameter( String name, EstimateConstraint constraint,
                              String units, Estimate value ) throws ConstraintException {
-       super( name, null, units, value );
+       super( name, constraint, units, value );
    }
 
 

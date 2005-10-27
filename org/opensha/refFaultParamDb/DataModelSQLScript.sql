@@ -335,13 +335,16 @@ CREATE TABLE Paleo_Site (
   Representative_Strand_Index INTEGER NOT NULL,
   General_Comments VARCHAR(1000) NULL,
   Old_Site_Id VARCHAR(20) NULL,
+  Dip_Est_Id INTEGER NULL,
   PRIMARY KEY(Site_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
   FOREIGN KEY(Site_Type_Id)
      REFERENCES Site_Type(Site_Type_Id),
   FOREIGN KEY(Representative_Strand_Index)
-     REFERENCES Site_Representations(Site_Representation_Id)
+     REFERENCES Site_Representations(Site_Representation_Id),
+  FOREIGN KEY(Dip_Est_Id)
+     REFERENCES Est_Instances(Est_Id)
 );
 
 create sequence Paleo_Site_Sequence
@@ -669,6 +672,7 @@ create VIEW Vw_Paleo_Site_Chars AS
 select ps.Site_Id as Site_Id,
        ps.Fault_Id as Fault_Id, 
        ps.Entry_Date as Entry_Date,
+       ps.Dip_Est_Id as Dip_Est_Id,
        st.Site_Type Site_Type,
        ps.Site_Name as Site_Name,
        ps.Site_Location1 as Site_Location1,

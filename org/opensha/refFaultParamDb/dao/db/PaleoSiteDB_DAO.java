@@ -16,6 +16,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
 import oracle.spatial.geometry.JGeometry;
 import oracle.sql.STRUCT;
 import java.util.HashMap;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: PaleoSiteDB_DAO.java </p>
@@ -44,6 +45,7 @@ public class PaleoSiteDB_DAO  {
   private final static String GENERAL_COMMENTS="General_Comments";
   private final static String OLD_SITE_ID="Old_Site_Id";
   private final static String REFERENCE_ID="Reference_Id";
+  private final static String DIP_EST_ID = "Dip_Est_Id";
   private final static int SRID=8307;
 
   private DB_AccessAPI dbAccess;
@@ -53,6 +55,8 @@ public class PaleoSiteDB_DAO  {
   private ReferenceDB_DAO referenceDAO ;
   // site representations DAO
   private SiteRepresentationDB_DAO siteRepresentationDAO;
+  // estimate instance DAO
+  private EstimateInstancesDB_DAO estimateInstancesDAO;
   // fault DAO
   private FaultDB_DAO faultDAO;
 
@@ -64,17 +68,11 @@ public class PaleoSiteDB_DAO  {
 
   public void setDB_Connection(DB_AccessAPI dbAccess) {
    this.dbAccess = dbAccess;
-   if(siteTypeDAO==null) {
-     siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
-     referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
-     siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
-     faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
-   } else { // set the DB connection
-     siteTypeDAO.setDB_Connection(dbAccess);
-     referenceDAO.setDB_Connection(dbAccess);
-     siteRepresentationDAO.setDB_Connection(dbAccess);
-     faultDAO.setDB_Connection(dbAccess);
-   }
+   siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+   referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+   siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+   faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+   estimateInstancesDAO = new EstimateInstancesDB_DAO(DB_AccessAPI.dbConnection);
  }
 
  /**
@@ -109,13 +107,20 @@ public class PaleoSiteDB_DAO  {
     ArrayList geomteryObjectList = new ArrayList();
     geomteryObjectList.add(location1);
     geomteryObjectList.add(location2);
+    String dipColName="", dipVal="";
+    EstimateInstances dipEst = paleoSite.getDipEstimate();
+    if(dipEst!=null) {
+      dipColName = this.DIP_EST_ID+",";
+      int id = this.estimateInstancesDAO.addEstimateInstance(dipEst);
+      dipVal=""+id+",";
+    }
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
         ENTRY_DATE+","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LOCATION1+","+
-        SITE_LOCATION2+","+REPRESENTATIVE_STRAND_INDEX+","+
+        SITE_LOCATION2+","+dipColName+REPRESENTATIVE_STRAND_INDEX+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+faultId+",'"+systemDate+
         "',"+SessionInfo.getContributor().getId()+","+
-        siteTypeId+",'"+paleoSite.getSiteName()+"',?,?,"+siteRepresentationId+
+        siteTypeId+",'"+paleoSite.getSiteName()+"',?,?,"+dipVal+siteRepresentationId+
         ",'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
 
     try {
@@ -210,11 +215,11 @@ public class PaleoSiteDB_DAO  {
     String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
         ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
-        GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
+        DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
         " from "+VIEW_NAME+condition;
     String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
     ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
-    GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
+    DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
     " from "+VIEW_NAME+condition;
 
     ArrayList spatialColumnNames = new ArrayList();
@@ -232,15 +237,10 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setSiteTypeName(rs.getString(SiteTypeDB_DAO.SITE_TYPE_NAME));
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         // location 1
-        /*HashMap map = new HashMap();
-        map.put("MDSYS.SDO_POINT_TYPE", new STRUCT());
-        Integer test = (Integer)rs.getObject(SITE_LOCATION1, map);*/
         ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
-        //STRUCT st1 = (STRUCT) rs.getObject(SITE_LOCATION1);
         JGeometry location1 =(JGeometry) geometries.get(0);
         double []point1 = location1.getPoint();
         //location 2
-        //STRUCT st2 = (STRUCT) rs.getObject(SITE_LOCATION2);
         JGeometry location2 = (JGeometry) geometries.get(1);
         double []point2 = location2.getPoint();
 
@@ -251,6 +251,9 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setSiteLon2((float)point2[0]);
         paleoSite.setSiteElevation2((float)point2[2]);
         paleoSite.setRepresentativeStrandName(rs.getString(SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME));
+        int dipEstId = rs.getInt(this.DIP_EST_ID);
+        if(!rs.wasNull()) paleoSite.setDipEstimate(this.estimateInstancesDAO.getEstimateInstance(dipEstId));
+
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
         paleoSite.setContributorName(rs.getString(ContributorDB_DAO.CONTRIBUTOR_NAME));

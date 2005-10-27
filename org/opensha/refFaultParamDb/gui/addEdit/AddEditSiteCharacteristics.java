@@ -34,6 +34,11 @@ import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
+import org.opensha.param.estimate.EstimateParameter;
+import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.param.estimate.EstimateConstraint;
+import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 
 /**
@@ -57,6 +62,9 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private final static String CHOOSE_REFERENCE_PARAM_NAME = "Choose Reference";
   private final static String ASSOCIATED_WITH_FAULT_PARAM_NAME="Associated With Fault";
   private final static String SITE_TYPE_PARAM_NAME="Site Type";
+  private final static String DIP_PARAM_NAME = "Dip Estimate";
+  private final static String DIP_NAME = "Dip";
+  private final static String DIP_UNITS = "Degrees";
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
 
   // params for entering a site
@@ -71,14 +79,18 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
   private final static String LAT_LON_UNITS = "Decimal Degrees";
   private final static String ELEVATION_UNITS = "meters";
-  private final static int WIDTH = 400;
+  private final static int WIDTH = 600;
   private final static int HEIGHT = 700;
+  private final static double DIP_MIN =0.0;
+  private final static double DIP_MAX =90.0;
 
   // various messages
   private final static String MSG_COMMENTS_MISSING = "Please Enter Comments";
   private final static String MSG_REFERENCES_MISSING = "Please choose atleast 1 reference";
   private final static String MSG_INSERT_SUCCESS = "Site added sucessfully to the database";
   private final static String MSG_UPDATE_SUCCESS = "Site updated sucessfully in the database";
+  private final static String MSG_DIP_INCORRECT = "Dip Value is incorrect/missing.\n"+
+     " Due to put the site into database anyway?";
 
 
   // input parameters declaration
@@ -91,6 +103,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private StringListParameter siteReferenceParam;
   private StringParameter commentsParam;
   private StringParameter oldSiteIdParam;
+  private EstimateParameter dipEstParam;
 
   // input parameter editors
   private StringParameterEditor siteNameParamEditor;
@@ -102,6 +115,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private ConstrainedStringListParameterEditor siteReferenceParamEditor;
   private CommentsParameterEditor commentsParamEditor;
   private StringParameterEditor oldSiteIdParamEditor;
+  private ConstrainedEstimateParameterEditor dipEstParamEditor;
 
 
   // various buttons in thos window
@@ -126,6 +140,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private AddNewSiteType addNewSiteType;
   private AddNewReference addNewReference;
   private LabeledBoxPanel labeledBoxPanel;
+  private LabeledBoxPanel labeledBoxPanel2;
   private ArrayList referenceList;
   private ArrayList referenceSummaryList;
 
@@ -237,6 +252,13 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     paleoSite.setReferenceList(refList);
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
     paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
+    try {
+      this.dipEstParamEditor.setEstimateInParameter();
+      paleoSite.setDipEstimate(new EstimateInstances((Estimate)this.dipEstParam.getValue(), DIP_UNITS));
+    }catch(Exception e){
+      int option = JOptionPane.showConfirmDialog(this, MSG_DIP_INCORRECT, this.TITLE, JOptionPane.YES_NO_OPTION);
+      if(option == JOptionPane.NO_OPTION) return;
+    }
 
     // location 1
     ParameterList location1ParamList = ((ParameterListParameter)siteLocationParam.getLocationParameter()).getParameter();
@@ -311,7 +333,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     this.siteReferenceParamEditor = new ConstrainedStringListParameterEditor(siteReferenceParam);
 
     // references
-   labeledBoxPanel.add(this.siteReferenceParamEditor,  new GridBagConstraints(0, 8, 2, 1, 1.0, 1.0
+   labeledBoxPanel2.add(this.siteReferenceParamEditor,  new GridBagConstraints(0, 3, 2, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
   }
 
@@ -321,6 +343,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private void jbInit() {
     labeledBoxPanel = new LabeledBoxPanel(GUI_Utils.gridBagLayout);
     labeledBoxPanel.setTitle(TITLE);
+    labeledBoxPanel2 = new LabeledBoxPanel(GUI_Utils.gridBagLayout);
+    labeledBoxPanel2.setTitle(TITLE);
     int yPos = 0;
     // site name editor
     labeledBoxPanel.add(siteNameParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
@@ -340,28 +364,37 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     // site location 2
     labeledBoxPanel.add(siteLocationParamEditor2,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
+    yPos = 0;
+    // sdip estimate
+    labeledBoxPanel2.add(this.dipEstParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // how representative is this site
-    labeledBoxPanel.add(siteRepresentationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+    labeledBoxPanel2.add(siteRepresentationParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     // comments
-     labeledBoxPanel.add(this.commentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
+     labeledBoxPanel2.add(this.commentsParamEditor,  new GridBagConstraints(0, yPos++, 2, 1, 1.0, 1.0
          ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
      ++yPos; // this postion taken by references param editor
    // references
-   labeledBoxPanel.add(this.addNewReferenceButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+   labeledBoxPanel2.add(this.addNewReferenceButton,  new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
    // ok button
-   labeledBoxPanel.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
+   labeledBoxPanel2.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
    // cancel button
-   labeledBoxPanel.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+   labeledBoxPanel2.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
        ,GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
 
     Container contentPane = this.getContentPane();
     contentPane.setLayout(GUI_Utils.gridBagLayout);
-    contentPane.add(labeledBoxPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+    JSplitPane splitPane = new JSplitPane();
+    splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+    splitPane.add(labeledBoxPanel, JSplitPane.LEFT);
+    splitPane.add(labeledBoxPanel2, JSplitPane.RIGHT);
+    splitPane.setDividerLocation(this.WIDTH/2);
+    contentPane.add(splitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-
   }
 
 
@@ -378,7 +411,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     // get various lists from the database
     ArrayList faultNamesList = getFaultNames();
     ArrayList siteRepresentations = getSiteRepresentations();
-
+    Estimate dipEstVal=null;
 
     if(this.isEdit) { // if site is to be edit, default values are current values for that site
       defaultSiteName = this.paleoSiteVO.getSiteName();
@@ -391,6 +424,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
                                       paleoSiteVO.getSiteElevation1());
       defaultLocation2 = new Location(this.paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon2(),
                                       paleoSiteVO.getSiteElevation2());
+      if(paleoSiteVO.getDipEstimate()!=null)
+        dipEstVal = paleoSiteVO.getDipEstimate().getEstimate();
     } else { // if a new site has to be added, set some default values
       defaultSiteName =" ";
       defaultOldSiteId = " ";
@@ -401,6 +436,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
                                       this.DEFAULT_ELEVATION_VAL);
       defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
                                       this.DEFAULT_ELEVATION_VAL);
+      dipEstVal=null;
     }
 
 
@@ -429,8 +465,14 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    siteRepresentationParam = new StringParameter(SITE_REPRESENTATION_PARAM_NAME, siteRepresentations,
                                               defaultSiteRepresentation);
    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
-
-
+   // dip estimate
+   ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
+   EstimateConstraint estConstraint = new EstimateConstraint(allowedEstimates);
+   this.dipEstParam = new EstimateParameter(DIP_PARAM_NAME,
+                                            estConstraint,
+                                            DIP_UNITS,
+                                            dipEstVal);
+   dipEstParamEditor  = new ConstrainedEstimateParameterEditor(dipEstParam, true, true, DIP_NAME);
    // user comments
    this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME,defaultComments);
    this.commentsParamEditor = new CommentsParameterEditor(commentsParam);
