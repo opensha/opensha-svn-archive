@@ -50,7 +50,6 @@ public class AddEditTimeSpan extends JPanel  {
   private JPanel commentsPanel = new JPanel();
 
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
-
   public AddEditTimeSpan() {
     try {
       jbInit();
@@ -62,7 +61,9 @@ public class AddEditTimeSpan extends JPanel  {
     this.setVisible(true);
   }
 
-
+  public void setNowYearVal(int nowYearVal) {
+    endTimeBean.setNowYearVal(nowYearVal);
+  }
 
 
   /**

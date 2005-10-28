@@ -306,7 +306,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       // check that user has entered correct number of Y values
       if(yIndex!=function.getNum())
         JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
-      refreshParamEditor();
+      //refreshParamEditor();
       focusLostProcessing = false;
       if(D) System.out.println(S + "Ending");
     }

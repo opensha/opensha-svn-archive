@@ -85,6 +85,10 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     }
   }
 
+  public void setNowYearVal(int year) {
+    this.publicationYearParam.setValue(new Integer(year));
+    this.publicationYearParamEditor.refreshParamEditor();
+  }
 
 
   // intialize the various parameters and editors
@@ -130,7 +134,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
    // publication year param needed for representing "NOW"
    this.publicationYearParam = new IntegerParameter(this.PUBLICATION_YEAR_PARAM_NAME, 0, (new GregorianCalendar()).get(Calendar.YEAR), AD);
    publicationYearParamEditor = new IntegerParameterEditor(publicationYearParam);
-
+   publicationYearParamEditor.setEnabled(false);
   }
 
 

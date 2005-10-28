@@ -96,6 +96,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   public void setReference(Reference reference) {
     referenceList = new ArrayList();
     referenceList.add(reference);
+    int pubYear = Integer.parseInt(reference.getRefYear());
+    this.addEditTimeSpan.setNowYearVal(pubYear);
     this.setEnabled(true);
   }
 
