@@ -242,7 +242,9 @@ public class InfoLabel extends JLabel {
   private String getTextForNormalEstimate(NormalEstimate estimate) {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Mean:&nbsp;</b>"+estimate.getMean()+"<br>"+
-        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev();
+        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev()+"<br>"+
+        "<b>Left Truncation:&nbsp;</b>"+estimate.getMinX()+"<br>"+
+        "<b>Right Truncation:&nbsp;</b>"+estimate.getMaxX();
   }
 
   /**
@@ -254,7 +256,10 @@ public class InfoLabel extends JLabel {
   private String getTextForLogNormalEstimate(LogNormalEstimate estimate) {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Linear Median:&nbsp;</b>"+estimate.getLinearMedian()+"<br>"+
-        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev();
+        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev()+"<br>"+
+        "<b>Left Truncation:&nbsp;</b>"+estimate.getMinX()+"<br>"+
+        "<b>right Truncation:&nbsp;</b>"+estimate.getMaxX();
+
   }
 
   /**

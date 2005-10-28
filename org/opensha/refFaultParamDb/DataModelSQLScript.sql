@@ -150,6 +150,8 @@ CREATE TABLE Normal_Est (
   Est_Id INTEGER  NOT NULL,
   Mean NUMBER(9,3) NOT NULL,
   Std_Dev NUMBER(9,3) NOT NULL,
+  Min_X NUMBER(9,3) NULL,
+  Max_X NUMBER(9,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
@@ -177,6 +179,8 @@ CREATE TABLE Log_Normal_Est (
   Log_Type_Id INTEGER NOT NULL,
   Median NUMBER(9,3) NOT NULL,
   Std_Dev NUMBER(9,3) NOT NULL,
+  Min_X NUMBER(9,3) NULL,
+  Max_X NUMBER(9,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id),

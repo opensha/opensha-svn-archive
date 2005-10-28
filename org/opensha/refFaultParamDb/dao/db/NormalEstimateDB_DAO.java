@@ -22,6 +22,8 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
   private final static String EST_ID="Est_Id";
   private final static String MEAN="MEAN";
   private final static String STD_DEV="STD_DEV";
+  private final static String MIN_X = "Min_X";
+  private final static String MAX_X = "Max_X";
   private DB_AccessAPI dbAccessAPI;
   public final static String EST_TYPE_NAME="NormalEstimate";
   private final static String ERR_MSG = "This class just deals with Normal Estimates";
@@ -49,9 +51,21 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
   */
   public void addEstimate(int estimateInstanceId, Estimate estimate) throws InsertException {
     if(!(estimate instanceof NormalEstimate)) throw new InsertException(ERR_MSG);
-    String sql = "insert into "+TABLE_NAME+"("+ EST_ID+","+MEAN+","+
+    String colNames="", colVals="";
+    NormalEstimate normalEstimate = (NormalEstimate)estimate;
+    double minX = normalEstimate.getMinX();
+    if(!Double.isInfinite(minX)) {
+      colNames +=MIN_X+",";
+      colVals +=minX+",";
+    }
+    double maxX = normalEstimate.getMaxX();
+    if(!Double.isInfinite(maxX)) {
+      colNames +=MAX_X+",";
+      colVals +=maxX+",";
+    }
+    String sql = "insert into "+TABLE_NAME+"("+ EST_ID+","+colNames+MEAN+","+
         STD_DEV+")"+
-        " values ("+estimateInstanceId+","+estimate.getMean()+","+
+        " values ("+estimateInstanceId+","+colVals+estimate.getMean()+","+
         estimate.getStdDev()+")";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
@@ -97,10 +111,20 @@ public class NormalEstimateDB_DAO implements EstimateDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
    ArrayList estimateList = new ArrayList();
-   String sql = "select "+EST_ID+","+MEAN+","+STD_DEV+" from "+TABLE_NAME+" "+condition;
+   String sql = "select "+EST_ID+","+MEAN+","+STD_DEV+","+MIN_X+","+MAX_X+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
-     while(rs.next()) estimateList.add(new NormalEstimate(rs.getFloat(MEAN), rs.getFloat(STD_DEV)));
+     while(rs.next()) {
+       NormalEstimate normalEstimate = new NormalEstimate(rs.getFloat(MEAN),
+                                           rs.getFloat(STD_DEV));
+       double minX = rs.getFloat(this.MIN_X);
+       if(rs.wasNull()) minX = Double.NEGATIVE_INFINITY;
+       double maxX = rs.getFloat(this.MAX_X);
+       if(rs.wasNull()) maxX = Double.POSITIVE_INFINITY;
+       normalEstimate.setMinMaxX(minX, maxX);
+       estimateList.add(normalEstimate);
+
+     }
      rs.close();
    } catch(SQLException e) { throw new QueryException(e.getMessage()); }
    return estimateList;

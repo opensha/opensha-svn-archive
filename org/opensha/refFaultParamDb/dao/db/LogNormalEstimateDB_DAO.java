@@ -23,6 +23,8 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
   private final static String MEDIAN="Median";
   private final static String STD_DEV="Std_Dev";
   private final static String LOG_TYPE_ID = "Log_Type_Id";
+  private final static String MIN_X = "Min_X";
+  private final static String MAX_X = "Max_X";
   private DB_AccessAPI dbAccessAPI;
   public final static String EST_TYPE_NAME="LogNormalEstimate";
   private final static String ERR_MSG = "This class just deals with Log Normal Estimates";
@@ -58,10 +60,22 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
     if(logNormalEstimate.getIsBase10())
       logTypeId = logTypeDB_DAO.getLogTypeId(LogTypeDB_DAO.LOG_BASE_10);
     else logTypeId = logTypeDB_DAO.getLogTypeId(LogTypeDB_DAO.LOG_BASE_E);
+    String colNames="", colVals="";
+    double minX = logNormalEstimate.getMinX();
+    if(minX!=0) {
+      colNames +=MIN_X+",";
+      colVals +=minX+",";
+    }
+    double maxX = logNormalEstimate.getMaxX();
+    if(!Double.isInfinite(maxX)) {
+      colNames +=MAX_X+",";
+      colVals +=maxX+",";
+    }
+
       // insert into log normal table
-    String sql = "insert into "+TABLE_NAME+"("+ EST_ID+","+MEDIAN+","+
+    String sql = "insert into "+TABLE_NAME+"("+ EST_ID+","+colNames+MEDIAN+","+
         STD_DEV+","+LOG_TYPE_ID+")"+
-        " values ("+estimateInstanceId+","+logNormalEstimate.getLinearMedian()+","+
+        " values ("+estimateInstanceId+","+colVals+logNormalEstimate.getLinearMedian()+","+
         estimate.getStdDev()+","+logTypeId+")";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
@@ -107,7 +121,7 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
 
   private ArrayList query(String condition) throws QueryException {
    ArrayList estimateList = new ArrayList();
-   String sql = "select "+EST_ID+","+MEDIAN+","+STD_DEV+","+LOG_TYPE_ID+" from "+TABLE_NAME+" "+condition;
+   String sql = "select "+EST_ID+","+MEDIAN+","+MIN_X+","+MAX_X+","+STD_DEV+","+LOG_TYPE_ID+" from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {
@@ -116,6 +130,11 @@ public class LogNormalEstimateDB_DAO implements EstimateDAO_API {
        String logBase = this.logTypeDB_DAO.getLogBase(rs.getInt(LOG_TYPE_ID));
        if(logBase.equalsIgnoreCase(LogTypeDB_DAO.LOG_BASE_10)) estimate.setIsBase10(true);
        else estimate.setIsBase10(false);
+       double minX = rs.getFloat(this.MIN_X);
+       if(rs.wasNull()) minX = 0;
+       double maxX = rs.getFloat(this.MAX_X);
+       if(rs.wasNull()) maxX = Double.POSITIVE_INFINITY;
+       estimate.setMinMaxX(minX, maxX);
        estimateList.add(estimate);
      }
      rs.close();
