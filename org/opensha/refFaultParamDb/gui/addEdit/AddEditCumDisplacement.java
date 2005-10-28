@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 
 /**
  * <p>Title: AddEditCumDisplacement.java </p>
@@ -52,6 +53,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
  private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
  private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
  private CommentsParameterEditor displacementCommentsParamEditor;
+ private SenseOfMotion_MeasuredCompPanel senseOfMotionMeasuredCompPanel;
 
  // various buttons in this window
    private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
@@ -61,6 +63,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
   */
  public AddEditCumDisplacement() {
    try {
+     senseOfMotionMeasuredCompPanel = new SenseOfMotion_MeasuredCompPanel();
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
      this.setMinimumSize(new Dimension(0, 0));
@@ -107,6 +110,12 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
                                     new Insets(0, 0, 0, 0), 0, 0));
 
 
+    this.add(senseOfMotionMeasuredCompPanel,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
     this.add(displacementCommentsParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
@@ -117,12 +126,23 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
     setTitle(this.CUM_DISPLACEMENT_PARAMS_TITLE);
   }
 
+ public CombinedDisplacementInfo getCombinedDisplacementInfo() {
+   CombinedDisplacementInfo combinedDisplacementInfo = new CombinedDisplacementInfo();
+   combinedDisplacementInfo.setDisplacementComments(getDisplacementComments());
+   combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(getAseismicEstimate());
+   combinedDisplacementInfo.setDisplacementEstimate(getDisplacementEstimate());
+   combinedDisplacementInfo.setMeasuredComponentRake(this.senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
+   combinedDisplacementInfo.setSenseOfMotionRake(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
+   return combinedDisplacementInfo;
+ }
+
+
 
   /**
    * Get the displacement estimate
    * @return
    */
-  public EstimateInstances getDisplacementEstimate() {
+  private EstimateInstances getDisplacementEstimate() {
     this.cumDisplacementParamEditor.setEstimateInParameter();
     return new EstimateInstances((Estimate)cumDisplacementParam.getValue(),
                                  CUMULATIVE_DISPLACEMENT_UNITS);
@@ -133,7 +153,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
    * Get aseismic slip factor estimate
    * @return
    */
-  public EstimateInstances getAseismicEstimate() {
+  private EstimateInstances getAseismicEstimate() {
     this.aSeismicSlipFactorParamEditor.setEstimateInParameter();
     return new EstimateInstances((Estimate)this.aSeismicSlipFactorParam.getValue(),
                                  ASEISMIC_SLIP_FACTOR_UNITS);
@@ -143,7 +163,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
    * Get the displacement comments
    * @return
    */
-  public String getDisplacementComments() {
+  private String getDisplacementComments() {
     return (String)this.displacementCommentsParam.getValue();
   }
 

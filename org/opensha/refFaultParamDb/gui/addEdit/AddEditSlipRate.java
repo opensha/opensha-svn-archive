@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 
 
 /**
@@ -54,12 +55,14 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
   private ConstrainedEstimateParameterEditor slipRateEstimateParamEditor;
   private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
   private CommentsParameterEditor slipRateCommentsParamEditor;
+  private SenseOfMotion_MeasuredCompPanel senseOfMotionMeasuredCompPanel;
 
   private final static String SLIP_RATE_PARAMS_TITLE = "Slip Rate Params";
 
 
   public AddEditSlipRate() {
     try {
+      senseOfMotionMeasuredCompPanel = new SenseOfMotion_MeasuredCompPanel();
       this.setLayout(GUI_Utils.gridBagLayout);
       this.addSlipRateInfoParameters();
       this.setMinimumSize(new Dimension(0, 0));
@@ -100,6 +103,12 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
                                     GridBagConstraints.BOTH,
                                     new Insets(0, 0, 0, 0), 0, 0));
 
+    this.add(senseOfMotionMeasuredCompPanel,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
     this.add(slipRateCommentsParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
@@ -111,11 +120,20 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
    }
 
 
+   public CombinedSlipRateInfo getCombinedSlipRateInfo() {
+     CombinedSlipRateInfo combinedSlipRateInfo = new CombinedSlipRateInfo();
+     combinedSlipRateInfo.setSlipRateComments(getSlipRateComments());
+     combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(getAseismicEstimate());
+     combinedSlipRateInfo.setSlipRateEstimate(getSlipRateEstimate());
+     combinedSlipRateInfo.setMeasuredComponentRake(this.senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
+     combinedSlipRateInfo.setSenseOfMotionRake(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
+     return combinedSlipRateInfo;
+   }
    /**
     * Get the slip rate estimate along with units
     * @return
     */
-   public EstimateInstances getSlipRateEstimate() {
+   private  EstimateInstances getSlipRateEstimate() {
      this.slipRateEstimateParamEditor.setEstimateInParameter();
      return new EstimateInstances((Estimate)this.slipRateEstimateParam.getValue(),
                                   this.SLIP_RATE_UNITS);
@@ -125,7 +143,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
     * Get aseismic slip factor estimate along with units
     * @return
     */
-   public EstimateInstances getAseismicEstimate() {
+   private EstimateInstances getAseismicEstimate() {
      this.aSeismicSlipFactorParamEditor.setEstimateInParameter();
      return new EstimateInstances((Estimate)this.aSeismicSlipFactorParam.getValue(),
                                  ASEISMIC_SLIP_FACTOR_UNITS);
@@ -135,7 +153,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
     * Return the slip rate comments
     * @return
     */
-   public String getSlipRateComments() {
+   private String getSlipRateComments() {
      return (String)this.slipRateCommentsParam.getValue();
    }
 

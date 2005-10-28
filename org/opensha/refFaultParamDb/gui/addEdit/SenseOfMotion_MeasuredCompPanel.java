@@ -50,6 +50,8 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
     this.setLayout(GUI_Utils.gridBagLayout);
     initParamListAndEditor();
     addEditorsToGUI();
+    setSOM_RakeParamVisibility();
+    this.setMeasuredCompRakeVisibility();
   }
 
   private void initParamListAndEditor() {
@@ -170,6 +172,7 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
       somRakeParamEditor.setEnabled(false);
       if(value.equalsIgnoreCase(UNKNOWN)) somRakeParam.setValue(null);
       else somRakeParam.setValue(somRakeMapping.get(value));
+      somRakeParamEditor.refreshParamEditor();
     }
   }
 
@@ -184,6 +187,7 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
       measuredCompRakeParamEditor.setEnabled(false);
       if(value.equalsIgnoreCase(UNKNOWN)) measuredCompRakeParam.setValue(null);
       else measuredCompRakeParam.setValue(measuredCompsRakeMapping.get(value));
+      measuredCompRakeParamEditor.refreshParamEditor();
     }
   }
 

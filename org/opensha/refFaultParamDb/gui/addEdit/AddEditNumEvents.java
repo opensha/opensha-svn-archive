@@ -20,6 +20,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.IntegerEstimate;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 
 /**
  * <p>Title: AddEditNumEvents.java </p>
@@ -146,12 +147,19 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    eventsProbParameterEditor.refreshParamEditor();
   }
 
+
+  public CombinedNumEventsInfo getCombinedNumEventsInfo(){
+    CombinedNumEventsInfo combinedNumEventsInfo = new CombinedNumEventsInfo();
+    combinedNumEventsInfo.setNumEventsComments(getNumEventsComments());
+    combinedNumEventsInfo.setNumEventsEstimate(getNumEventsEstimate());
+    return combinedNumEventsInfo;
+  }
   /**
    * Get the comments for num events estimate
    *
    * @return
    */
-  public String getNumEventsComments() {
+  private String getNumEventsComments() {
     return (String)this.numEventsCommentsParam.getValue();
   }
 
@@ -160,7 +168,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    *
    * @return
    */
-  public EstimateInstances getNumEventsEstimate() {
+  private EstimateInstances getNumEventsEstimate() {
      ArbitrarilyDiscretizedFunc eventProb = (ArbitrarilyDiscretizedFunc)this.eventsProbParameter.getValue();
      IntegerEstimate numEventsEstimate = new IntegerEstimate(eventProb,false);
      return new EstimateInstances(numEventsEstimate, this.NUM_EVENTS_UNITS);

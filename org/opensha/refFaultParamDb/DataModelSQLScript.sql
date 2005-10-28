@@ -474,6 +474,8 @@ CREATE TABLE Combined_Slip_Rate_Info (
  Slip_Rate_Est_Id INTEGER  NULL,
  Slip_Aseismic_Est_Id INTEGER  NULL,
  Slip_Rate_Comments VARCHAR(1000) NULL,
+ Sense_of_Motion NUMBER(9,3) NULL,
+ Measured_Slip_Comp NUMBER(9,3) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
@@ -489,6 +491,8 @@ CREATE TABLE Combined_Displacement_Info (
  Total_Slip_Est_Id INTEGER  NULL,
  Disp_Aseismic_Est_Id INTEGER  NULL,
  Total_Slip_Comments VARCHAR(1000) NULL,
+ Sense_of_Motion NUMBER(9,3) NULL,
+ Measured_Slip_Comp NUMBER(9,3) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date),

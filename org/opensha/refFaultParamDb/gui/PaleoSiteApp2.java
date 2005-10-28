@@ -33,6 +33,7 @@ import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.EventSequence;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -331,22 +332,24 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    */
   private void viewSlipRateForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
     if(this.isTestSite()) {
+      CombinedSlipRateInfo combinedSlipRateInfo = new CombinedSlipRateInfo();
       // FAKE DATA FOR TEST SITE
       // Slip Rate Estimate
       LogNormalEstimate slipRateEstimate = new LogNormalEstimate(1.5, 0.25);
+      combinedSlipRateInfo.setSlipRateEstimate(new EstimateInstances(slipRateEstimate,"units"));
       // Aseismic slip rate estimate
       NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+      combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(new EstimateInstances(aSiemsicSlipEstimate,"units"));
       // comments
       String comments = "Pertinent comments will be displayed here";
-      slipRatePanel.setInfo(slipRateEstimate, aSiemsicSlipEstimate, comments);
+      combinedSlipRateInfo.setSlipRateComments(comments);
+      slipRatePanel.setInfo(combinedSlipRateInfo);
     } else if(this.isValidSiteAndInfoAvailable() &&
               combinedEventsInfo.getCombinedSlipRateInfo()!=null)  { // information available FOR THIS SITE
       CombinedSlipRateInfo combinedSlipRateInfo = combinedEventsInfo.getCombinedSlipRateInfo();
-      this.slipRatePanel.setInfo(combinedSlipRateInfo.getSlipRateEstimate().getEstimate(),
-                                   combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
-                                   combinedSlipRateInfo.getSlipRateComments());
+      this.slipRatePanel.setInfo(combinedSlipRateInfo);
     } else { // valid site but no info available
-      slipRatePanel.setInfo(null, null, null);
+      slipRatePanel.setInfo(null);
     }
 
   }
@@ -405,22 +408,24 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    */
   private void viewDisplacementForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
     if(this.isTestSite()) {
+      CombinedDisplacementInfo combinedDisplacementInfo = new CombinedDisplacementInfo();
      // FAKE DATA FOR TEST SITE
      // Slip Rate Estimate
      LogNormalEstimate diplacementEstimate = new LogNormalEstimate(1.5, 0.25);
+     combinedDisplacementInfo.setDisplacementEstimate(new EstimateInstances(diplacementEstimate,"units"));
      // Aseismic slip rate estimate
      NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+     combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(new EstimateInstances(aSiemsicSlipEstimate,"units"));
      // comments
      String comments = "Pertinent comments will be displayed here";
-     displacementPanel.setInfo(diplacementEstimate, aSiemsicSlipEstimate, comments);
+     combinedDisplacementInfo.setDisplacementComments(comments);
+     displacementPanel.setInfo(combinedDisplacementInfo);
    } else if(this.isValidSiteAndInfoAvailable() &&
              combinedEventsInfo.getCombinedDisplacementInfo()!=null)  { // information available FOR THIS SITE
      CombinedDisplacementInfo combinedDisplacementInfo = combinedEventsInfo.getCombinedDisplacementInfo();
-     this.displacementPanel.setInfo(combinedDisplacementInfo.getDisplacementEstimate().getEstimate(),
-                                  combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
-                                  combinedDisplacementInfo.getDisplacementComments());
+     displacementPanel.setInfo(combinedDisplacementInfo);
    } else { // valid site but no info available
-     displacementPanel.setInfo(null, null, null);
+     displacementPanel.setInfo(null);
    }
 
   }

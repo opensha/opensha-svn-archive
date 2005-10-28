@@ -14,6 +14,8 @@ public class CombinedSlipRateInfo {
   private EstimateInstances slipRateEstimate;
   private EstimateInstances aSeismicSlipFactorEstimateForSlip;
   private String slipRateComments;
+  private double senseOfMotionRake;
+  private double measuredComponentRake;
 
    public CombinedSlipRateInfo() {
    }
@@ -26,6 +28,12 @@ public class CombinedSlipRateInfo {
   public EstimateInstances getSlipRateEstimate() {
     return slipRateEstimate;
   }
+  public double getSenseOfMotionRake() {
+    return this.senseOfMotionRake;
+  }
+  public double getMeasuredComponentRake() {
+    return this.measuredComponentRake;
+  }
   public void setASeismicSlipFactorEstimateForSlip(EstimateInstances aSeismicSlipFactorEstimateForSlip) {
     this.aSeismicSlipFactorEstimateForSlip = aSeismicSlipFactorEstimateForSlip;
   }
@@ -34,6 +42,12 @@ public class CombinedSlipRateInfo {
   }
   public void setSlipRateEstimate(EstimateInstances slipRateEstimate) {
     this.slipRateEstimate = slipRateEstimate;
+  }
+  public void setMeasuredComponentRake(double measuredComponentRake) {
+    this.measuredComponentRake = measuredComponentRake;
+  }
+  public void setSenseOfMotionRake(double senseOfMotionRake) {
+    this.senseOfMotionRake = senseOfMotionRake;
   }
 
 

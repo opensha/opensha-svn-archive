@@ -22,6 +22,8 @@ public class CombinedDisplacementInfoDB_DAO {
   private final static String TOTAL_SLIP_EST_ID = "Total_Slip_Est_Id";
   private final static String DISP_ASEISMIC_SLIP_FACTOR_EST_ID="Disp_Aseismic_Est_Id";
   private final static String TOTAL_SLIP_COMMENTS="Total_Slip_Comments";
+  private final static String SENSE_OF_MOTION = "Sense_of_Motion";
+  private final static String MEASURED_SLIP_COMP = "Measured_Slip_Comp";
   private DB_AccessAPI dbAccess;
   private EstimateInstancesDB_DAO estimateInstancesDAO;
 
@@ -47,9 +49,21 @@ public class CombinedDisplacementInfoDB_DAO {
     int displacementId =  estimateInstancesDAO.addEstimateInstance(combinedDispInfo.getDisplacementEstimate());
     String comments = combinedDispInfo.getDisplacementComments();
     if(comments==null) comments="";
+
+    double somRake = combinedDispInfo.getSenseOfMotionRake();
+    double measuredCompRake = combinedDispInfo.getMeasuredComponentRake();
+    String colNames="", colVals="";
+    if(!Double.isNaN(somRake)) { // check whether user entered Sense of motion rake
+      colNames += this.SENSE_OF_MOTION+",";
+      colVals += somRake+",";
+    }
+    if(!Double.isNaN(measuredCompRake)) { // check whether user entered measured comp rake
+      colNames += this.MEASURED_SLIP_COMP+",";
+      colVals += measuredCompRake+",";
+    }
     String sql = "insert into "+TABLE_NAME+"("+TOTAL_SLIP_EST_ID+","+
-        DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+TOTAL_SLIP_COMMENTS+","+
-        INFO_ID+","+ENTRY_DATE+") values ("+displacementId+","+aSeisId+",'"+
+        colNames+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+TOTAL_SLIP_COMMENTS+","+
+        INFO_ID+","+ENTRY_DATE+") values ("+displacementId+","+colVals+aSeisId+",'"+
         comments+"',"+infoId+",'"+entryDate+"')";
     try {
       dbAccess.insertUpdateOrDeleteData(sql);
@@ -66,8 +80,9 @@ public class CombinedDisplacementInfoDB_DAO {
    */
   public CombinedDisplacementInfo getDisplacementInfo(int infoId, String entryDate) {
     CombinedDisplacementInfo combinedDisplacementInfo =null;
-     String sql = "select "+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+
-         TOTAL_SLIP_EST_ID+","+TOTAL_SLIP_COMMENTS+" from "+this.TABLE_NAME+
+    String sql = "select "+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+SENSE_OF_MOTION+","+
+        this.MEASURED_SLIP_COMP+","+TOTAL_SLIP_EST_ID+","+TOTAL_SLIP_COMMENTS+
+        " from "+this.TABLE_NAME+
          " where "+INFO_ID+"="+infoId+" and "+ENTRY_DATE+"='"+entryDate+"'";
      try {
        ResultSet rs = dbAccess.queryData(sql);
@@ -76,6 +91,12 @@ public class CombinedDisplacementInfoDB_DAO {
          combinedDisplacementInfo.setDisplacementComments(rs.getString(TOTAL_SLIP_COMMENTS));
          combinedDisplacementInfo.setDisplacementEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(TOTAL_SLIP_EST_ID)));
          combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(estimateInstancesDAO.getEstimateInstance(rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID)));
+         double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION);
+         if(rs.wasNull()) senseOfMotionRake=Double.NaN;
+         double measuredCompRake = rs.getFloat(MEASURED_SLIP_COMP);
+         if(rs.wasNull()) measuredCompRake = Double.NaN;
+         combinedDisplacementInfo.setSenseOfMotionRake(senseOfMotionRake);
+         combinedDisplacementInfo.setMeasuredComponentRake(measuredCompRake);
        }
      }
      catch (SQLException ex) {

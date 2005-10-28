@@ -103,6 +103,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private ParameterListEditor displacementParamListEditor;
   private ConstrainedStringParameterEditor referencesParamEditor;
 
+
   private final static int WIDTH = 700;
   private final static int HEIGHT = 700;
 

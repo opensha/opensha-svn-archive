@@ -142,25 +142,17 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     combinedEventsInfo.setSiteId(this.siteId);
     // set the slip rate info
     if (isSlipVisible) {
-      CombinedSlipRateInfo combinedSlipRateInfo = new CombinedSlipRateInfo();
-      combinedSlipRateInfo.setSlipRateComments(this.addEditSlipRate.getSlipRateComments());
-      combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(this.addEditSlipRate.getAseismicEstimate());
-      combinedSlipRateInfo.setSlipRateEstimate(this.addEditSlipRate.getSlipRateEstimate());
+      CombinedSlipRateInfo combinedSlipRateInfo = addEditSlipRate.getCombinedSlipRateInfo();
       combinedEventsInfo.setCombinedSlipRateInfo(combinedSlipRateInfo);
     }
     // set the diplacement info
     if(this.isDisplacementVisible) {
-      CombinedDisplacementInfo combinedDisplacementInfo = new CombinedDisplacementInfo();
-      combinedDisplacementInfo.setDisplacementComments(this.addEditCumDisp.getDisplacementComments());
-      combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(addEditCumDisp.getAseismicEstimate());
-      combinedDisplacementInfo.setDisplacementEstimate(addEditCumDisp.getDisplacementEstimate());
+      CombinedDisplacementInfo combinedDisplacementInfo = addEditCumDisp.getCombinedDisplacementInfo();
       combinedEventsInfo.setCombinedDisplacementInfo(combinedDisplacementInfo);
     }
     //set the num events info
     if(this.isNumEventsVisible) {
-      CombinedNumEventsInfo combinedNumEventsInfo = new CombinedNumEventsInfo();
-      combinedNumEventsInfo.setNumEventsComments(this.addEditNumEvents.getNumEventsComments());
-      combinedNumEventsInfo.setNumEventsEstimate(this.addEditNumEvents.getNumEventsEstimate());
+      CombinedNumEventsInfo combinedNumEventsInfo = addEditNumEvents.getCombinedNumEventsInfo();
       combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
     }
     // set the sequence info
