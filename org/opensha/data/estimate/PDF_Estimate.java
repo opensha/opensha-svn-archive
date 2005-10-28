@@ -43,6 +43,11 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
  public void setValues(DiscretizedFunc newFunc, boolean isNormalized) {
    if(!(newFunc instanceof EvenlyDiscretizedFunc))
      throw new InvalidParamValException(MSG_EVENLY_DISCRETIZED_ALLOWED);
+   int num = newFunc.getNum();
+   double lastY = newFunc.getY(num-1);
+   double firstY = newFunc.getY(0);
+   if(firstY!=0 || lastY!=0) throw new InvalidParamValException(this.EST_MSG_FIRST_LAST_Y_ZERO);
+
    super.setValues(newFunc, isNormalized);
    //normalizeForUnitArea(); // normalize so that PDF has unit area
  }
