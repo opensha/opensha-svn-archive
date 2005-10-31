@@ -33,4 +33,18 @@ public class GUI_Utils {
          ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
      return panel;
    }
+
+   /**
+   * Get Bordered Panel
+   *
+   * @param infoLabel
+   * @param borderTitle
+   * @return
+   */
+   public static JPanel getPanel(String borderTitle) {
+     JPanel panel = new TitledBorderPanel(borderTitle+":");
+     panel.setLayout(gridBagLayout);
+     return panel;
+   }
+
 }

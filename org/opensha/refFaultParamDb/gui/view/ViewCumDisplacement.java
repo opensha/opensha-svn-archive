@@ -35,12 +35,15 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
   private final static String ASEISMIC_SLIP_FACTOR = "Aseismic Slip Factor";
   private final static String PROB = "Probability";
   private final static String RAKE = "Rake";
+  private final static String QUALITATIVE = "Qualitative";
 
 // various labels to provide the information
   private InfoLabel displacementEstimateLabel = new InfoLabel();
   private InfoLabel aSesimicSlipFactorLabel = new InfoLabel();
-  private InfoLabel senseOfMotionLabel = new InfoLabel();
-  private InfoLabel measuredCompLabel = new InfoLabel();
+  private InfoLabel senseOfMotionRakeLabel = new InfoLabel();
+  private InfoLabel measuredCompRakeLabel = new InfoLabel();
+  private InfoLabel senseOfMotionQualLabel = new InfoLabel();
+  private InfoLabel measuredCompQualLabel = new InfoLabel();
   private StringParameter commentsParam = new StringParameter("Displacement Comments");
   private CommentsParameterEditor commentsParameterEditor;
 
@@ -60,12 +63,14 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
    * @param combinedDisplacementInfo
    */
   public void setInfo(CombinedDisplacementInfo combinedDisplacementInfo) {
-    if(combinedDisplacementInfo ==null) setInfo(null, null, null, Double.NaN, Double.NaN);
+    if(combinedDisplacementInfo ==null) setInfo(null, null, null, Double.NaN, null,Double.NaN,  null);
     else setInfo(combinedDisplacementInfo.getDisplacementEstimate().getEstimate(),
                                  combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
                                  combinedDisplacementInfo.getDisplacementComments(),
                                  combinedDisplacementInfo.getSenseOfMotionRake(),
-                                 combinedDisplacementInfo.getMeasuredComponentRake()
+                                 combinedDisplacementInfo.getSenseOfMotionQual(),
+                                 combinedDisplacementInfo.getMeasuredComponentRake(),
+                                 combinedDisplacementInfo.getMeasuredComponentQual()
                                  );
   }
   /**
@@ -77,18 +82,21 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
    * @param references
    */
   private void setInfo(Estimate displacementEstimate, Estimate aSeismicSlipFactorEstimate,
-                      String comments, double rakeForSenseOfMotion, double rakeForMeasuredSlipComp) {
+                      String comments, double rakeForSenseOfMotion, String senseOfMotionQual,
+                      double rakeForMeasuredSlipComp, String measuredSlipQual) {
     displacementEstimateLabel.setTextAsHTML(displacementEstimate, DISPLACEMENT, PROB);
     aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, this.ASEISMIC_SLIP_FACTOR, PROB);
     commentsParam.setValue(comments);
     commentsParameterEditor.refreshParamEditor();
-    if(Double.isNaN(rakeForSenseOfMotion)) // check whether measured comp of slip is available
-      this.measuredCompLabel.setTextAsHTML(this.RAKE, null);
-    else this.measuredCompLabel.setTextAsHTML(this.RAKE, ""+rakeForMeasuredSlipComp);
-    // check whether sense of motion is available
+    if(Double.isNaN(rakeForMeasuredSlipComp)) // check whether measured comp of slip is available
+      this.measuredCompRakeLabel.setTextAsHTML(this.RAKE, null);
+    else this.measuredCompRakeLabel.setTextAsHTML(this.RAKE, ""+rakeForMeasuredSlipComp);
+    this.measuredCompQualLabel.setTextAsHTML(this.QUALITATIVE, measuredSlipQual);
+// check whether sense of motion is available
     if(Double.isNaN(rakeForSenseOfMotion))
-      senseOfMotionLabel.setTextAsHTML(this.RAKE, null);
-    else this.senseOfMotionLabel.setTextAsHTML(this.RAKE, ""+rakeForSenseOfMotion);
+      senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, null);
+    else this.senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, ""+rakeForSenseOfMotion);
+    this.senseOfMotionQualLabel.setTextAsHTML(this.QUALITATIVE, senseOfMotionQual);
   }
 
   /**
@@ -100,10 +108,23 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
                                             DISPLACEMENT_PANEL_TITLE);
     JPanel aseismicPanel = GUI_Utils.getPanel(aSesimicSlipFactorLabel,
                                     ASEISMIC_SLIP_PANEL_TITLE);
-    JPanel senseOfMotionPanel = GUI_Utils.getPanel(this.senseOfMotionLabel,
-       this.SENSE_OF_MOTION_TITLE);
-   JPanel measuredSlipCompPanel = GUI_Utils.getPanel(this.measuredCompLabel,
-       this.MEASURED_COMP_SLIP_TITLE);
+    JPanel senseOfMotionPanel = GUI_Utils.getPanel(this.SENSE_OF_MOTION_TITLE);
+    JPanel measuredSlipCompPanel = GUI_Utils.getPanel(this.MEASURED_COMP_SLIP_TITLE);
+
+    // sense of motion panel
+    senseOfMotionPanel.add(this.senseOfMotionRakeLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), 0, 0));
+    senseOfMotionPanel.add(this.senseOfMotionQualLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), 0, 0));
+    // measured component of slip panel
+    measuredSlipCompPanel.add(this.measuredCompRakeLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), 0, 0));
+    measuredSlipCompPanel.add(this.measuredCompQualLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), 0, 0));
 
     commentsParameterEditor = new CommentsParameterEditor(commentsParam);
     commentsParameterEditor.setEnabled(false);

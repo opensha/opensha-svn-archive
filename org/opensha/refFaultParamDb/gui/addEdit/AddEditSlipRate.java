@@ -114,10 +114,8 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
                                     , GridBagConstraints.CENTER,
                                     GridBagConstraints.BOTH,
                                     new Insets(0, 0, 0, 0), 0, 0));
-
-
     setTitle(this.SLIP_RATE_PARAMS_TITLE);
-   }
+  }
 
 
    public CombinedSlipRateInfo getCombinedSlipRateInfo() {
@@ -126,9 +124,12 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
      combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(getAseismicEstimate());
      combinedSlipRateInfo.setSlipRateEstimate(getSlipRateEstimate());
      combinedSlipRateInfo.setMeasuredComponentRake(this.senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
+     combinedSlipRateInfo.setMeasuredComponentQual(senseOfMotionMeasuredCompPanel.getMeasuredCompQual());
      combinedSlipRateInfo.setSenseOfMotionRake(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
+     combinedSlipRateInfo.setSenseOfMotionQual(senseOfMotionMeasuredCompPanel.getSenseOfMotionQual());
      return combinedSlipRateInfo;
    }
+
    /**
     * Get the slip rate estimate along with units
     * @return

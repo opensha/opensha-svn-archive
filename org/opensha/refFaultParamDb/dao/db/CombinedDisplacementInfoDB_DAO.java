@@ -22,8 +22,11 @@ public class CombinedDisplacementInfoDB_DAO {
   private final static String TOTAL_SLIP_EST_ID = "Total_Slip_Est_Id";
   private final static String DISP_ASEISMIC_SLIP_FACTOR_EST_ID="Disp_Aseismic_Est_Id";
   private final static String TOTAL_SLIP_COMMENTS="Total_Slip_Comments";
-  private final static String SENSE_OF_MOTION = "Sense_of_Motion";
-  private final static String MEASURED_SLIP_COMP = "Measured_Slip_Comp";
+  private final static String SENSE_OF_MOTION_RAKE = "Sense_of_Motion_Rake";
+  private final static String SENSE_OF_MOTION_QUAL = "Sense_of_Motion_Qual";
+  private final static String MEASURED_SLIP_COMP_RAKE = "Measured_Slip_Comp_Rake";
+  private final static String MEASURED_SLIP_COMP_QUAL = "Measured_Slip_Comp_Qual";
+
   private DB_AccessAPI dbAccess;
   private EstimateInstancesDB_DAO estimateInstancesDAO;
 
@@ -52,15 +55,26 @@ public class CombinedDisplacementInfoDB_DAO {
 
     double somRake = combinedDispInfo.getSenseOfMotionRake();
     double measuredCompRake = combinedDispInfo.getMeasuredComponentRake();
+    String somQual = combinedDispInfo.getSenseOfMotionQual();
+    String measuredCompQual = combinedDispInfo.getMeasuredComponentQual();
     String colNames="", colVals="";
     if(!Double.isNaN(somRake)) { // check whether user entered Sense of motion rake
-      colNames += this.SENSE_OF_MOTION+",";
+      colNames += this.SENSE_OF_MOTION_RAKE+",";
       colVals += somRake+",";
     }
+    if(somQual!=null) {
+      colNames+=this.SENSE_OF_MOTION_QUAL+",";
+      colVals += "'"+somQual+"',";
+    }
     if(!Double.isNaN(measuredCompRake)) { // check whether user entered measured comp rake
-      colNames += this.MEASURED_SLIP_COMP+",";
+      colNames += this.MEASURED_SLIP_COMP_RAKE+",";
       colVals += measuredCompRake+",";
     }
+    if(measuredCompQual!=null) {
+      colNames += this.MEASURED_SLIP_COMP_QUAL+",";
+      colVals +="'"+measuredCompQual+"',";
+    }
+
     String sql = "insert into "+TABLE_NAME+"("+TOTAL_SLIP_EST_ID+","+
         colNames+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+TOTAL_SLIP_COMMENTS+","+
         INFO_ID+","+ENTRY_DATE+") values ("+displacementId+","+colVals+aSeisId+",'"+
@@ -80,8 +94,9 @@ public class CombinedDisplacementInfoDB_DAO {
    */
   public CombinedDisplacementInfo getDisplacementInfo(int infoId, String entryDate) {
     CombinedDisplacementInfo combinedDisplacementInfo =null;
-    String sql = "select "+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+SENSE_OF_MOTION+","+
-        this.MEASURED_SLIP_COMP+","+TOTAL_SLIP_EST_ID+","+TOTAL_SLIP_COMMENTS+
+    String sql = "select "+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+SENSE_OF_MOTION_RAKE+","+
+        SENSE_OF_MOTION_QUAL+","+this.MEASURED_SLIP_COMP_RAKE+","+this.MEASURED_SLIP_COMP_QUAL+
+        ","+TOTAL_SLIP_EST_ID+","+TOTAL_SLIP_COMMENTS+
         " from "+this.TABLE_NAME+
          " where "+INFO_ID+"="+infoId+" and "+ENTRY_DATE+"='"+entryDate+"'";
      try {
@@ -91,12 +106,20 @@ public class CombinedDisplacementInfoDB_DAO {
          combinedDisplacementInfo.setDisplacementComments(rs.getString(TOTAL_SLIP_COMMENTS));
          combinedDisplacementInfo.setDisplacementEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(TOTAL_SLIP_EST_ID)));
          combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(estimateInstancesDAO.getEstimateInstance(rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID)));
-         double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION);
+         // sense of motion
+         double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION_RAKE);
          if(rs.wasNull()) senseOfMotionRake=Double.NaN;
-         double measuredCompRake = rs.getFloat(MEASURED_SLIP_COMP);
+         String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
+         if(rs.wasNull()) senseOfMotionQual=null;
+         //measured component of slip
+         double measuredCompRake = rs.getFloat(MEASURED_SLIP_COMP_RAKE);
          if(rs.wasNull()) measuredCompRake = Double.NaN;
+         String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);
+         if(rs.wasNull()) measuedCompQual=null;
          combinedDisplacementInfo.setSenseOfMotionRake(senseOfMotionRake);
+         combinedDisplacementInfo.setSenseOfMotionQual(senseOfMotionQual);
          combinedDisplacementInfo.setMeasuredComponentRake(measuredCompRake);
+         combinedDisplacementInfo.setMeasuredComponentQual(measuedCompQual);
        }
      }
      catch (SQLException ex) {

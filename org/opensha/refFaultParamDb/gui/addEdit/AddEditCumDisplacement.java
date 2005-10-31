@@ -132,7 +132,9 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
    combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(getAseismicEstimate());
    combinedDisplacementInfo.setDisplacementEstimate(getDisplacementEstimate());
    combinedDisplacementInfo.setMeasuredComponentRake(this.senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
+   combinedDisplacementInfo.setMeasuredComponentQual(senseOfMotionMeasuredCompPanel.getMeasuredCompQual());
    combinedDisplacementInfo.setSenseOfMotionRake(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
+   combinedDisplacementInfo.setSenseOfMotionQual(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionQual());
    return combinedDisplacementInfo;
  }
 

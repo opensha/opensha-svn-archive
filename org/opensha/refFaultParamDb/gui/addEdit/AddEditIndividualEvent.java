@@ -64,7 +64,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
 
   //date estimate related constants
   private final static double TIME_ESTIMATE_MIN=0;
-  private final static double TIME_ESTIMATE_MAX=Double.MAX_VALUE;
+  private final static double TIME_ESTIMATE_MAX=Double.POSITIVE_INFINITY;
   private final static String TIME_ESTIMATE_UNITS="years";
 
   // add new reference button

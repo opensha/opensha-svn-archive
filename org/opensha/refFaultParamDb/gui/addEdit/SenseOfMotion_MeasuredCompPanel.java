@@ -42,10 +42,6 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
   private ConstrainedStringParameterEditor measuredCompParamEditor;
   private DoubleParameterEditor measuredCompRakeParamEditor;
 
-  // hashmap to mantain mapping between qualitative and rake
-  private HashMap measuredCompsRakeMapping;
-  private HashMap somRakeMapping;
-
   public SenseOfMotion_MeasuredCompPanel() {
     this.setLayout(GUI_Utils.gridBagLayout);
     initParamListAndEditor();
@@ -104,12 +100,6 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
     measuredComps.add("Vertical");
     measuredComps.add("Horizontal,Trace-Parallel");
     measuredComps.add("Horizontal,Trace-NORMAL");
-    // map the qualitative to actual rake values
-    measuredCompsRakeMapping = new HashMap();
-    measuredCompsRakeMapping.put("Vertical", new Double(90.0));
-    measuredCompsRakeMapping.put("Horizontal,Trace-Parallel", new Double(0));
-    measuredCompsRakeMapping.put("Horizontal,Trace-NORMAL", new Double(-90.0));
-
     return measuredComps;
   }
 
@@ -133,20 +123,6 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
     somList.add("N-LL");
     somList.add("R-RL");
     somList.add("R-LL");
-    // map the qualitative to actual rake values
-    somRakeMapping = new HashMap();
-    somRakeMapping.put("R", new Double(0.0));
-    somRakeMapping.put("N", new Double(90.0));
-    somRakeMapping.put("RL", new Double(180.0));
-    somRakeMapping.put("LL", new Double(90.0));
-    somRakeMapping.put("RL-N", new Double(60.0));
-    somRakeMapping.put("LL-N", new Double(0.0));
-    somRakeMapping.put("RL-R", new Double(0.0));
-    somRakeMapping.put("LL-R", new Double(90.0));
-    somRakeMapping.put("N-RL", new Double(-90.0));
-    somRakeMapping.put("N-LL", new Double(-90.0));
-    somRakeMapping.put("R-RL", new Double(180.0));
-    somRakeMapping.put("R-LL", new Double(-180.0));
     return somList;
   }
 
@@ -167,13 +143,8 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
    */
   private void setSOM_RakeParamVisibility() {
     String value = (String)this.somParam.getValue();
-    if(value.equalsIgnoreCase(this.RAKE)) this.somRakeParamEditor.setEnabled(true);
-    else {
-      somRakeParamEditor.setEnabled(false);
-      if(value.equalsIgnoreCase(UNKNOWN)) somRakeParam.setValue(null);
-      else somRakeParam.setValue(somRakeMapping.get(value));
-      somRakeParamEditor.refreshParamEditor();
-    }
+    if(value.equalsIgnoreCase(this.RAKE)) this.somRakeParamEditor.setVisible(true);
+    else somRakeParamEditor.setVisible(false);
   }
 
   /**
@@ -182,34 +153,52 @@ public class SenseOfMotion_MeasuredCompPanel extends JPanel implements Parameter
    */
   private void setMeasuredCompRakeVisibility() {
     String value = (String)this.measuredCompParam.getValue();
-    if(value.equalsIgnoreCase(this.RAKE)) this.measuredCompRakeParamEditor.setEnabled(true);
-    else {
-      measuredCompRakeParamEditor.setEnabled(false);
-      if(value.equalsIgnoreCase(UNKNOWN)) measuredCompRakeParam.setValue(null);
-      else measuredCompRakeParam.setValue(measuredCompsRakeMapping.get(value));
-      measuredCompRakeParamEditor.refreshParamEditor();
-    }
+    if(value.equalsIgnoreCase(this.RAKE)) this.measuredCompRakeParamEditor.setVisible(true);
+    else measuredCompRakeParamEditor.setVisible(false);
   }
 
   /**
    * Get the measured component rake
-   * If it Unknown, Double.Nan is returned
+   * If it not Rake, Double.Nan is returned
    * @return
    */
   public double getMeasuredCompRake() {
     String value = (String)this.measuredCompParam.getValue();
-    if(value.equalsIgnoreCase(UNKNOWN)) return Double.NaN;
+    if(!value.equalsIgnoreCase(RAKE)) return Double.NaN;
     else return ((Double)this.measuredCompRakeParam.getValue()).doubleValue();
   }
 
   /**
+  * Get the measured component qualitative value
+  * If it Unknown or if rake is provided, null is returned
+  * @return
+  */
+ public String getMeasuredCompQual() {
+   String value = (String)this.measuredCompParam.getValue();
+   if(value.equalsIgnoreCase(RAKE) || value.equalsIgnoreCase(UNKNOWN)) return null;
+   return value;
+ }
+
+
+  /**
    * Get the Sense of Motion rake
-   * If it is unknown, Double.Nan is returned
+   * If it is not rake, Double.Nan is returned
    * @return
    */
   public double getSenseOfMotionRake() {
     String value = (String)this.somParam.getValue();
-    if(value.equalsIgnoreCase(UNKNOWN)) return Double.NaN;
+    if(!value.equalsIgnoreCase(RAKE)) return Double.NaN;
     else return ((Double)this.somRakeParam.getValue()).doubleValue();
   }
+
+  /**
+  * Get the Sense of Motion qualitative value
+  * If it Unknown or if rake is provided, null is returned
+  * @return
+  */
+ public String getSenseOfMotionQual() {
+   String value = (String)this.somParam.getValue();
+   if(value.equalsIgnoreCase(RAKE) || value.equalsIgnoreCase(UNKNOWN)) return null;
+   return value;
+ }
 }
