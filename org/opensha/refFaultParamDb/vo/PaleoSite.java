@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class PaleoSite {
   private int siteId=-1;
   private String faultName;
-  private String siteTypeName;
+  private ArrayList siteTypeNames;
   private String siteName;
   private float siteLat1;
   private float siteLon1;
@@ -56,8 +56,8 @@ public class PaleoSite {
     this.referenceList = referenceList;
   }
 
-  public void setSiteTypeName(String siteTypeName) { this.siteTypeName = siteTypeName; }
-  public String getSiteTypeName() { return this.siteTypeName; }
+  public void setSiteTypeNames(ArrayList siteTypeNames) { this.siteTypeNames = siteTypeNames; }
+  public ArrayList getSiteTypeNames() { return this.siteTypeNames; }
 
   public void setSiteName(String siteName) { this.siteName = siteName;}
   public String getSiteName() { return this.siteName; }

@@ -98,7 +98,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private LocationParameter siteLocationParam;
   private LocationParameter siteLocationParam2;
   private StringParameter assocWithFaultParam;
-  private StringParameter siteTypeParam;
+  private StringListParameter siteTypeParam;
   private StringParameter siteRepresentationParam;
   private StringListParameter siteReferenceParam;
   private StringParameter commentsParam;
@@ -110,7 +110,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private LocationParameterEditor siteLocationParamEditor;
   private LocationParameterEditor siteLocationParamEditor2;
   private ConstrainedStringParameterEditor assocWithFaultParamEditor;
-  private ConstrainedStringParameterEditor siteTypeParamEditor;
+  private ConstrainedStringListParameterEditor siteTypeParamEditor;
   private ConstrainedStringParameterEditor siteRepresentationParamEditor;
   private ConstrainedStringListParameterEditor siteReferenceParamEditor;
   private CommentsParameterEditor commentsParamEditor;
@@ -251,7 +251,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     }
     paleoSite.setReferenceList(refList);
     paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
-    paleoSite.setSiteTypeName((String)this.siteTypeParam.getValue());
+    paleoSite.setSiteTypeNames((ArrayList)this.siteTypeParam.getValue());
     try {
       this.dipEstParamEditor.setEstimateInParameter();
       paleoSite.setDipEstimate(new EstimateInstances((Estimate)this.dipEstParam.getValue(), DIP_UNITS));
@@ -299,14 +299,17 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private void makeSiteTypeParamAndEditor() {
     if(siteTypeParamEditor!=null) labeledBoxPanel.remove(siteTypeParamEditor);
     ArrayList siteTypes = getSiteTypes();
-    String defaultSiteType;
+    ArrayList defaultSiteType;
     if(this.isEdit)
-       defaultSiteType = paleoSiteVO.getSiteTypeName();
-    else defaultSiteType = (String)siteTypes.get(0);
+       defaultSiteType = paleoSiteVO.getSiteTypeNames();
+    else {
+      defaultSiteType = new ArrayList() ;
+      defaultSiteType.add(siteTypes.get(0));
+    }
     // available study types
-    siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME, siteTypes,
+    siteTypeParam = new StringListParameter(SITE_TYPE_PARAM_NAME, siteTypes,
                                         defaultSiteType);
-    siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
+    siteTypeParamEditor = new ConstrainedStringListParameterEditor(siteTypeParam);
     siteTypeParam.addParameterChangeListener(this);
     // site types
    labeledBoxPanel.add(siteTypeParamEditor,  new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
@@ -404,7 +407,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    */
   private void initParametersAndEditors() throws Exception {
 
-    String defaultSiteName, defaultOldSiteId, defaultFaultName, defaultSiteType;
+    String defaultSiteName, defaultOldSiteId, defaultFaultName;
     String defaultSiteRepresentation, defaultComments;
     Location defaultLocation1, defaultLocation2;
 
@@ -417,7 +420,6 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       defaultSiteName = this.paleoSiteVO.getSiteName();
       defaultOldSiteId = paleoSiteVO.getOldSiteId();
       defaultFaultName = paleoSiteVO.getFaultName();
-      defaultSiteType = paleoSiteVO.getSiteTypeName();
       defaultSiteRepresentation = paleoSiteVO.getRepresentativeStrandName();
       defaultComments = paleoSiteVO.getGeneralComments();
       defaultLocation1 = new Location(paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon1(),
@@ -525,8 +527,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    *
    */
   private void setSecondLocationVisible() {
-    String selectedSiteType =  (String)this.siteTypeParam.getValue();
-    if(selectedSiteType.equalsIgnoreCase(this.BETWEEN_LOCATIONS_SITE_TYPE))
+    ArrayList selectedSiteType =  (ArrayList)this.siteTypeParam.getValue();
+    if(selectedSiteType.contains(this.BETWEEN_LOCATIONS_SITE_TYPE))
       this.siteLocationParamEditor2.setVisible(true);
     else this.siteLocationParamEditor2.setVisible(false);
   }

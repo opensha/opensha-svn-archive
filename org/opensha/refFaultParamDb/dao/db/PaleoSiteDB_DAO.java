@@ -37,7 +37,6 @@ public class PaleoSiteDB_DAO  {
   private final static String FAULT_ID="Fault_Id";
   private final static String ENTRY_DATE="Entry_Date";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
-  private final static String SITE_TYPE_ID="Site_Type_Id";
   private final static String SITE_NAME="Site_Name";
   private final static String SITE_LOCATION1="Site_Location1";
   private final static String SITE_LOCATION2="Site_Location2";
@@ -46,6 +45,8 @@ public class PaleoSiteDB_DAO  {
   private final static String OLD_SITE_ID="Old_Site_Id";
   private final static String REFERENCE_ID="Reference_Id";
   private final static String DIP_EST_ID = "Dip_Est_Id";
+  private final static String PALEO_SITE_STUDY_TABLE_NAME = "Paleo_Site_Study";
+  private final static String SITE_TYPE_ID = "Site_Type_Id";
   private final static int SRID=8307;
 
   private DB_AccessAPI dbAccess;
@@ -93,7 +94,6 @@ public class PaleoSiteDB_DAO  {
     }
 
     int faultId = faultDAO.getFault(paleoSite.getFaultName()).getFaultId();
-    int siteTypeId = siteTypeDAO.getSiteType(paleoSite.getSiteTypeName()).getSiteTypeId();
     int siteRepresentationId = siteRepresentationDAO.getSiteRepresentation(paleoSite.getRepresentativeStrandName()).getSiteRepresentationId();
 
     JGeometry location1 = new JGeometry(paleoSite.getSiteLon1(),
@@ -115,16 +115,17 @@ public class PaleoSiteDB_DAO  {
       dipVal=""+id+",";
     }
     String sql = "insert into "+TABLE_NAME+"("+ SITE_ID+","+FAULT_ID+","+
-        ENTRY_DATE+","+CONTRIBUTOR_ID+","+SITE_TYPE_ID+","+SITE_NAME+","+SITE_LOCATION1+","+
+        ENTRY_DATE+","+CONTRIBUTOR_ID+","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+dipColName+REPRESENTATIVE_STRAND_INDEX+","+
         GENERAL_COMMENTS+","+OLD_SITE_ID+") "+
         " values ("+paleoSiteId+","+faultId+",'"+systemDate+
-        "',"+SessionInfo.getContributor().getId()+","+
-        siteTypeId+",'"+paleoSite.getSiteName()+"',?,?,"+dipVal+siteRepresentationId+
+        "',"+SessionInfo.getContributor().getId()+
+        ",'"+paleoSite.getSiteName()+"',?,?,"+dipVal+siteRepresentationId+
         ",'"+paleoSite.getGeneralComments()+"','"+paleoSite.getOldSiteId()+"')";
 
     try {
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
+      // put the site references into another table
       ArrayList referenceList = paleoSite.getReferenceList();
       for(int i=0; i<referenceList.size(); ++i) {
         int referenceId = ((Reference)referenceList.get(i)).getReferenceId();
@@ -132,6 +133,15 @@ public class PaleoSiteDB_DAO  {
             ","+ENTRY_DATE+","+REFERENCE_ID+") "+
             "values ("+paleoSiteId+",'"+
             systemDate+"',"+referenceId+")";
+        dbAccess.insertUpdateOrDeleteData(sql);
+      }
+      // put site types (study types) into another table
+      ArrayList siteTypeNames = paleoSite.getSiteTypeNames();
+      for(int i=0; i<siteTypeNames.size(); ++i) {
+        int siteTypeId = siteTypeDAO.getSiteType((String)siteTypeNames.get(i)).getSiteTypeId();
+        sql = "insert into "+this.PALEO_SITE_STUDY_TABLE_NAME+"("+SITE_ID+","+
+            ENTRY_DATE+","+SITE_TYPE_ID+") values ("+paleoSiteId+",'"+systemDate+
+            "',"+siteTypeId+")";
         dbAccess.insertUpdateOrDeleteData(sql);
       }
     }
@@ -213,12 +223,12 @@ public class PaleoSiteDB_DAO  {
   private ArrayList query(String condition) throws QueryException {
     ArrayList paleoSiteList = new ArrayList();
     String sqlWithSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
-        ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SITE_LOCATION1+","+
+        ","+SITE_NAME+","+SITE_LOCATION1+","+
         SITE_LOCATION2+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
         DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
         " from "+VIEW_NAME+condition;
     String sqlWithNoSpatialColumnNames =  "select "+SITE_ID+","+FAULT_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+
-    ","+SiteTypeDB_DAO.SITE_TYPE_NAME+","+SITE_NAME+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
+    ","+SITE_NAME+","+SiteRepresentationDB_DAO.SITE_REPRESENTATION_NAME+","+
     DIP_EST_ID+","+GENERAL_COMMENTS+","+OLD_SITE_ID+","+ContributorDB_DAO.CONTRIBUTOR_NAME+
     " from "+VIEW_NAME+condition;
 
@@ -234,7 +244,18 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setSiteId(rs.getInt(SITE_ID));
         paleoSite.setEntryDate(rs.getString(ENTRY_DATE));
         paleoSite.setFaultName(faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
-        paleoSite.setSiteTypeName(rs.getString(SiteTypeDB_DAO.SITE_TYPE_NAME));
+
+        // get all the study types for this site
+        String sql = "select "+SITE_TYPE_ID+" from "+this.PALEO_SITE_STUDY_TABLE_NAME+
+            " where "+this.SITE_ID+"="+paleoSite.getSiteId()+" and "+
+            ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"'";;
+        ResultSet studyTypeResultSet = dbAccess.queryData(sql);
+        ArrayList studyTypes = new ArrayList();
+        while(studyTypeResultSet.next()) {
+          studyTypes.add(this.siteTypeDAO.getSiteType(studyTypeResultSet.getInt(SITE_TYPE_ID)).getSiteType());
+        }
+        paleoSite.setSiteTypeNames(studyTypes);
+
         paleoSite.setSiteName(rs.getString(SITE_NAME));
         // location 1
         ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
@@ -257,9 +278,9 @@ public class PaleoSiteDB_DAO  {
         paleoSite.setGeneralComments(rs.getString(GENERAL_COMMENTS));
         paleoSite.setOldSiteId(rs.getString(OLD_SITE_ID));
         paleoSite.setContributorName(rs.getString(ContributorDB_DAO.CONTRIBUTOR_NAME));
-        // get all the refernces for this site
+        // get all the references for this site
         ArrayList referenceList = new ArrayList();
-        String sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
+        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
             " where "+SITE_ID+"="+paleoSite.getSiteId()+" and "+
             ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"'";
         ResultSet referenceResultSet = dbAccess.queryData(sql);

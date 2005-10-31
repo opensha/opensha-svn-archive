@@ -354,7 +354,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       faultName = paleoSite.getFaultName();
       location = new Location(paleoSite.getSiteLat1(), paleoSite.getSiteLon1(),
                               paleoSite.getSiteElevation1());
-      siteType = paleoSite.getSiteTypeName();
+      ArrayList studyTypes = paleoSite.getSiteTypeNames();
+      siteType ="";
+      for(int i=0; i<studyTypes.size(); ++i)
+        siteType+=studyTypes.get(i)+",";
+
       siteRepresentation = paleoSite.getRepresentativeStrandName();
       lastEntryDate = paleoSite.getEntryDate();
       lastUpdatedBy=paleoSite.getContributorName();
