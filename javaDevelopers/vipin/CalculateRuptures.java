@@ -163,7 +163,7 @@ public class CalculateRuptures {
       LocationList locList = (LocationList)this.faultTraceMapping.get(faultName);
       for(int i=0; i<locList.size(); ++i) {
         // if we are able to find a nearby fault whose distance is less that cutoof distance
-        if(RelativeLocation.getTotalDistance(loc, locList.getLocationAt(i))<=interFaultCutOffDistance) {
+        if(RelativeLocation.getHorzDistance(loc, locList.getLocationAt(i))<=interFaultCutOffDistance) {
           adjacentFaultNames.add(faultName);
           break;
         }
