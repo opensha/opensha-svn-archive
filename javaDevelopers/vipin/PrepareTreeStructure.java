@@ -143,6 +143,7 @@ public class PrepareTreeStructure {
     Iterator sectionNearestNodeMapIt= sectionNearestNodeMap.keySet().iterator();
     while(sectionNearestNodeMapIt.hasNext()) {
       String sectionName = (String)sectionNearestNodeMapIt.next();
+      if(secondaryLinksDoneSections.contains(sectionName)) return;
       addSecondaryLinks(sectionName, secondaryLinksDoneSections);
       SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
       sectionNodeDist.getNode().addSecondayLink(sectionNodeDist.getSectionNode());
