@@ -16,14 +16,10 @@ public class Node {
   private int id;
   private Location loc;
   private String faultSectionName;
-  private ArrayList next; // locations connecting with this node.
-  private boolean isRoot;
+  private Node primaryLink;
+  private ArrayList secondaryLinks; // locations connecting with this node.
 
   public Node() {
-  }
-
-  public boolean isRoot() {
-    return isRoot;
   }
 
 
@@ -32,6 +28,10 @@ public class Node {
     this.setFaultSectionName(faultSecName);
     this.setLoc(loc);
     setId(id);
+  }
+
+  public int getId() {
+    return this.id;
   }
 
   public void setId(int id) {
@@ -46,8 +46,12 @@ public class Node {
     return loc;
   }
 
-  public ArrayList getNext() {
-    return next;
+  public Node getPrimaryLink() {
+    return this.primaryLink;
+  }
+
+  public ArrayList getSecondaryLinks() {
+    return this.secondaryLinks;
   }
 
   public void setFaultSectionName(String faultSectionName) {
@@ -58,23 +62,20 @@ public class Node {
     this.loc = loc;
   }
 
-  public void addNext(Node nextNode) {
-    if(this.next==null) this.next = new ArrayList();
-    next.add(nextNode);
+  public void addPrimaryLink(Node primaryLink) {
+    this.primaryLink = primaryLink;
+  }
+
+  public void addSecondayLink(Node secondayLink) {
+    if(this.secondaryLinks==null) this.secondaryLinks = new ArrayList();
+    secondaryLinks.add(secondayLink);
   }
 
   /**
-   * Get all the nodes connected with this node
-   * @return
+   * Remove all the children except the first one
    */
-  public ArrayList getAllNodes() {
-    ArrayList nodes = new ArrayList();
-    addNodes(nodes, this);
-    return nodes;
+  public void removeSecondayLinks() {
+    if(secondaryLinks!=null)  secondaryLinks.clear();
   }
 
-  public void addNodes(ArrayList nodes, Node node) {
-    nodes.add(node);
-    for(int i=0; next!=null && i<next.size(); ++i) addNodes(nodes, (Node)node.next.get(i));
-  }
 }
