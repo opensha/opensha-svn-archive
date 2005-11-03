@@ -26,8 +26,8 @@ public class PrepareTreeStructure {
   private final static double RUP_OFFSET=5;
   private final static int DISCRETIZATION=5;
 
-  public final static String FAULT_SECTIONS_OUT_FILENAME = "FaultSectionsConnect.txt";
-  public final static String RUP_OUT_FILENAME = "Ruptures.txt";
+  public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
+  public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures.txt";
   private HashMap faultTree ;
   private ArrayList rupList;
   private double rupLength;
