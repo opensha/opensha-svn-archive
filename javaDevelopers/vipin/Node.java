@@ -62,7 +62,7 @@ public class Node {
     this.loc = loc;
   }
 
-  public void addPrimaryLink(Node primaryLink) {
+  public void setPrimaryLink(Node primaryLink) {
     this.primaryLink = primaryLink;
   }
 
