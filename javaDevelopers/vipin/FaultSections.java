@@ -50,7 +50,7 @@ public class FaultSections {
       String line = ((String)fileLines.get(i)).trim();
       if(line.equalsIgnoreCase("")) continue;
       if(line.startsWith("#")) { // if it is new fault name
-        if(faultName!=null) faultMap.put(faultName, locList);
+        if(faultName!=null) faultMap.put(faultName, sort(locList));
         faultName = line.substring(1);
         locList = new LocationList();
       }
@@ -62,7 +62,25 @@ public class FaultSections {
         locList.addLocation(new Location(lat, lon, depth));
       }
     }
+    // put the last section into the list
+    faultMap.put(faultName, sort(locList));
 
+  }
+
+  /**
+   * Check that latitude of first location <= lattitude for last location
+   * This can help in better visualization of ruptures
+   *
+   * @param locList
+   */
+  private LocationList sort(LocationList locList) {
+    int numLocs = locList.size();
+    if(numLocs>1) {
+      double lat1 = locList.getLocationAt(0).getLatitude();
+      double lat2 = locList.getLocationAt(numLocs-1).getLatitude();
+      if(lat2<lat1) locList.reverse();
+    }
+    return locList;
   }
 
   /**

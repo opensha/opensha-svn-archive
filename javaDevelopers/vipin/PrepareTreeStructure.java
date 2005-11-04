@@ -77,11 +77,50 @@ public class PrepareTreeStructure {
 
   }
 
+  /**
+   * Sort the fault sections by lat of first location of the fault trace
+   * @return
+   */
+ private ArrayList sortFaultSectionsByLocation() {
+   ArrayList sortedSectionNames = new ArrayList();
+   ArrayList sortedLats = new ArrayList();
+   Iterator it = faultTree.keySet().iterator();
+   // save the section names and lat of first location into arraylists
+   while(it.hasNext()) {
+     String  faultSectionName = (String) it.next();
+     sortedSectionNames.add(faultSectionName);
+     double lat = ((Node)faultTree.get(faultSectionName)).getLoc().getLatitude();
+     sortedLats.add(new Double(lat));
+   }
+   // now sort the lat arrayList and change fault names simulataneously
+   for(int i=0; i<sortedLats.size(); ++i) {
+     double minLat = ((Double)sortedLats.get(i)).doubleValue();
+     int index = i;
+     for(int j=i+1; j<sortedLats.size();++j)  {
+       double lat = ((Double)sortedLats.get(j)).doubleValue();
+       if(lat<minLat) {
+         index = j;
+         minLat=lat;
+       }
+     }
+     // swap for sorting
+     Object obj = sortedLats.remove(index);
+     sortedLats.add(i, obj);
+     String faultName = (String)sortedSectionNames.remove(index);
+     sortedSectionNames.add(i, faultName);
+   }
+   return sortedSectionNames;
+
+ }
 
   private void findAllRuptures()  {
+    // SORT THE FAULT SECTIONS BASED ON THE LATITUDES OF FIRST POINT of Fault trace.
+    // It will help in better visualization so that there are few jumps in viz
+    ArrayList sortedSectionNames = sortFaultSectionsByLocation();
+
     try {
       // now attach fault sections with other sections which are within cutoff distance
-      Iterator it = faultTree.keySet().iterator();
+      Iterator it = sortedSectionNames.iterator();
       // do for all fault sections
       int i=1;
       while (it.hasNext()) {
@@ -216,11 +255,11 @@ public class PrepareTreeStructure {
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
       // if rupture does not exist already, then add it
       if(!rupList.contains(multiSectionRup)) rupList.add(multiSectionRup);
-      nodesList = new ArrayList();
+     /* nodesList = new ArrayList();
       nodesList.add(node);
       rupLen=0.0;
       traverse(node, nodesList, 0.0);
-      nodesList.remove(node);
+      nodesList.remove(node);*/
     } else { // if more locations are required to complete the rup Length
 
       // first select the primary link
