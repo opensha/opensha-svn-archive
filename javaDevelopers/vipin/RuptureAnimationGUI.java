@@ -126,7 +126,7 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
   private void addRendererForRupture(int secondaryPlotIndex) {
     StandardXYItemRenderer xyItemRenderer = new StandardXYItemRenderer();
     plot.setSecondaryRenderer(secondaryPlotIndex, xyItemRenderer);
-    xyItemRenderer.setPaint(Color.white);
+    xyItemRenderer.setPaint(Color.black);
   }
 
 
