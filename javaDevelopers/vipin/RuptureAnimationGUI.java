@@ -18,6 +18,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.border.EtchedBorder;
 import org.opensha.data.LocationList;
 import org.opensha.exceptions.*;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -29,7 +31,7 @@ import org.opensha.exceptions.*;
  * @version 1.0
  */
 
-public class RuptureAnimationGUI extends JFrame {
+public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListener {
   private JPanel displayPanel = new JPanel();
   private JButton showRupsButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -45,6 +47,11 @@ public class RuptureAnimationGUI extends JFrame {
    // build the plot
   private XYPlot plot = new XYPlot(null, xAxis, yAxis, new StandardXYItemRenderer());
   private int faultSectionCounter;
+  private Thread animationThread;
+  private int rupCount=0;
+  private FileReader frRups;
+  private BufferedReader brRups;
+  private ChartPanel chartPanel;
 
 
   public RuptureAnimationGUI() {
@@ -52,6 +59,10 @@ public class RuptureAnimationGUI extends JFrame {
       jbInit();
       loadFaultSections(); // load the fault sections
       addGraphPanel(); // show the fault sections using JFreechart
+      this.showRupsButton.addActionListener(this);
+      frRups = new FileReader(PrepareTreeStructure.RUP_OUT_FILENAME);
+      brRups = new BufferedReader(frRups); // buffered reader
+      brRups.readLine(); // skip first line as it just contains number of ruptures
       pack();
       show();
     }
@@ -60,21 +71,85 @@ public class RuptureAnimationGUI extends JFrame {
     }
   }
 
-  private void addGraphPanel() {
+  /**
+   * when user click on button to view the ruptures
+   * @param event
+   */
+  public void actionPerformed(ActionEvent event) {
+    Object source = event.getSource();
+    if(source == this.showRupsButton) showRuptures();
+  }
 
+  /**
+   * Show the ruptures animation. It makes a new thread to do the animation
+   */
+  private void showRuptures() {
+    animationThread = new Thread(this);
+    animationThread.start();
+  }
+
+  /**
+   * Thread runs this to create a animation  for ruptures
+   */
+  public void run() {
+    try {
+      LocationList locList=null;
+      String line = brRups.readLine().trim();
+      double lat, lon;
+      while(line!=null) {
+        line=line.trim();
+        if(!line.equalsIgnoreCase("")) { // if line is not a blank line
+          if(line.startsWith("#"))  { // this is new rupture name
+            if(rupCount>0)  {
+              addLocationListToPlot(locList, faultSectionCounter+1);
+              addRendererForRupture(faultSectionCounter+1); // add renderer to ruptures
+              this.addGraphPanel();
+              Thread.sleep(1000);
+            }
+            locList = new LocationList();
+            rupCount++;
+          } else { // location on a rupture
+            StringTokenizer tokenizer = new StringTokenizer(line,",");
+            lat = Double.parseDouble(tokenizer.nextToken());
+            lon = Double.parseDouble(tokenizer.nextToken());
+            locList.addLocation(new Location(lat,lon,0.0));
+          }
+        }
+        line=brRups.readLine();
+      }
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  private void addRendererForRupture(int secondaryPlotIndex) {
+    StandardXYItemRenderer xyItemRenderer = new StandardXYItemRenderer();
+    plot.setSecondaryRenderer(secondaryPlotIndex, xyItemRenderer);
+    xyItemRenderer.setPaint(Color.white);
+  }
+
+
+  private void addGraphPanel() {
     JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
     chart.setBackgroundPaint( lightBlue );
     xAxis.setAutoRangeIncludesZero( false );
     yAxis.setAutoRangeIncludesZero( false );
-    // Put into a panel
-    ChartPanel chartPanel = new ChartPanel(chart, true, true, true, true, false);
-    chartPanel.setBorder( BorderFactory.createEtchedBorder( EtchedBorder.LOWERED ) );
-    chartPanel.setMouseZoomable(true);
-    chartPanel.setDisplayToolTips(true);
-    chartPanel.setHorizontalAxisTrace(false);
-    chartPanel.setVerticalAxisTrace(false);
-    displayPanel.add(chartPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+
+    if(chartPanel!=null) // if chart panel already exists, just chnage jfreechart instance in it
+      chartPanel.setChart(chart);
+    else { // add chart panel for first time
+      // Put into a panel
+      chartPanel = new ChartPanel(chart, true, true, true, true, false);
+      chartPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.
+          LOWERED));
+      chartPanel.setMouseZoomable(true);
+      chartPanel.setDisplayToolTips(true);
+      chartPanel.setHorizontalAxisTrace(false);
+      chartPanel.setVerticalAxisTrace(false);
+      displayPanel.add(chartPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 3, 0, 3), 0, 0));
+    }
 
   }
 
@@ -102,7 +177,7 @@ public class RuptureAnimationGUI extends JFrame {
         if(!line.equalsIgnoreCase("")) { // if line is not a blank line
           if(line.startsWith("#"))  { // this is new fault section name
             col=0;
-            if(faultSectionCounter>0)  addFaultSectionToPlot(locList, faultSectionCounter);
+            if(faultSectionCounter>0)  addLocationListToPlot(locList, faultSectionCounter);
             locList = new LocationList();
             faultSectionCounter++;
 
@@ -116,7 +191,7 @@ public class RuptureAnimationGUI extends JFrame {
         line=br.readLine();
       }
       // add the last fault section to the plot
-      addFaultSectionToPlot(locList, faultSectionCounter);
+      addLocationListToPlot(locList, faultSectionCounter);
       br.close();
       fr.close();
     }catch(Exception e) {
@@ -134,7 +209,7 @@ public class RuptureAnimationGUI extends JFrame {
    * @throws java.lang.ClassCastException
    * @throws java.lang.ArrayIndexOutOfBoundsException
    */
-  private void addFaultSectionToPlot(LocationList locList,
+  private void addLocationListToPlot(LocationList locList,
                                      int faultSectionCounter) throws
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
     GriddedSurface griddedSurface = new GriddedSurface(1, locList.size());
