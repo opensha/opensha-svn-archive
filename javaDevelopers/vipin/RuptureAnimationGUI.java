@@ -31,7 +31,7 @@ import java.awt.event.ActionEvent;
  * @version 1.0
  */
 
-public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListener {
+public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runnable {
   private JPanel displayPanel = new JPanel();
   private JButton showRupsButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -44,15 +44,24 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
   private final static Color lightBlue = new Color( 200, 200, 230 );
   private NumberAxis yAxis = new NumberAxis( Y_AXIS_LABEL );
   private NumberAxis xAxis = new NumberAxis( X_AXIS_LABEL );
+  private final static int TIME_DELAY = 200;
    // build the plot
-  private XYPlot plot = new XYPlot(null, xAxis, yAxis, new StandardXYItemRenderer());
-  private int faultSectionCounter;
-  private Thread animationThread;
-  private int rupCount=0;
+  private  XYPlot plot = new XYPlot(null, xAxis, yAxis, new StandardXYItemRenderer());
+  private  int faultSectionCounter=0;
+  private  int rupCount=0;
   private FileReader frRups;
   private BufferedReader brRups;
   private ChartPanel chartPanel;
 
+  //static initializer for setting look & feel
+  static {
+    String osName = System.getProperty("os.name");
+    try {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    }
+    catch(Exception e) {
+    }
+  }
 
   public RuptureAnimationGUI() {
     try {
@@ -71,6 +80,7 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
     }
   }
 
+
   /**
    * when user click on button to view the ruptures
    * @param event
@@ -84,7 +94,7 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
    * Show the ruptures animation. It makes a new thread to do the animation
    */
   private void showRuptures() {
-    animationThread = new Thread(this);
+    Thread animationThread = new Thread(this);
     animationThread.start();
   }
 
@@ -101,10 +111,11 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
         if(!line.equalsIgnoreCase("")) { // if line is not a blank line
           if(line.startsWith("#"))  { // this is new rupture name
             if(rupCount>0)  {
-              addLocationListToPlot(locList, faultSectionCounter+1);
-              addRendererForRupture(faultSectionCounter+1); // add renderer to ruptures
+              System.out.println("Rupture#"+rupCount+","+locList.toString());
+              addLocationListToPlot(locList, faultSectionCounter);
+              addRendererForRupture(faultSectionCounter); // add renderer to ruptures
               this.addGraphPanel();
-              Thread.sleep(1000);
+              Thread.sleep(TIME_DELAY);
             }
             locList = new LocationList();
             rupCount++;
@@ -123,14 +134,16 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
   }
 
 
-  private void addRendererForRupture(int secondaryPlotIndex) {
+   private void addRendererForRupture(int index) {
     StandardXYItemRenderer xyItemRenderer = new StandardXYItemRenderer();
-    plot.setSecondaryRenderer(secondaryPlotIndex, xyItemRenderer);
     xyItemRenderer.setPaint(Color.black);
+    xyItemRenderer.setStroke(new BasicStroke((float)2.0));
+    if(index==0) plot.setRenderer(xyItemRenderer);
+    else plot.setSecondaryRenderer(index-1, xyItemRenderer);
   }
 
 
-  private void addGraphPanel() {
+   private void addGraphPanel() {
     JFreeChart chart = new JFreeChart(TITLE, JFreeChart.DEFAULT_TITLE_FONT, plot, false );
     chart.setBackgroundPaint( lightBlue );
     xAxis.setAutoRangeIncludesZero( false );
@@ -163,21 +176,21 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
    * Load the fault sections to be displayed in the window
    */
   private void  loadFaultSections() {
-    try {
+   try {
       LocationList locList=null;
       // read from fault sections file
       FileReader fr = new FileReader(FAULT_SECTION_FILE_NAME);
       BufferedReader br = new BufferedReader(fr);
       String line = br.readLine().trim();
       double lat, lon;
-      int col=0,
-      faultSectionCounter=0;
+      int col=0;
+      faultSectionCounter=-1;
       while(line!=null) {
         line=line.trim();
         if(!line.equalsIgnoreCase("")) { // if line is not a blank line
           if(line.startsWith("#"))  { // this is new fault section name
             col=0;
-            if(faultSectionCounter>0)  addLocationListToPlot(locList, faultSectionCounter);
+            if(faultSectionCounter>=0)  addLocationListToPlot(locList, faultSectionCounter);
             locList = new LocationList();
             faultSectionCounter++;
 
@@ -191,7 +204,7 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
         line=br.readLine();
       }
       // add the last fault section to the plot
-      addLocationListToPlot(locList, faultSectionCounter);
+      addLocationListToPlot(locList, faultSectionCounter++);
       br.close();
       fr.close();
     }catch(Exception e) {
@@ -209,16 +222,15 @@ public class RuptureAnimationGUI extends JFrame implements Runnable, ActionListe
    * @throws java.lang.ClassCastException
    * @throws java.lang.ArrayIndexOutOfBoundsException
    */
-  private void addLocationListToPlot(LocationList locList,
-                                     int faultSectionCounter) throws
+   private void addLocationListToPlot(LocationList locList,
+                                     int index) throws
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
     GriddedSurface griddedSurface = new GriddedSurface(1, locList.size());
     for (int i = 0; i < locList.size(); ++i)
       griddedSurface.set(0, i, locList.getLocationAt(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);
-    if(faultSectionCounter==0)
-      plot.setDataset(griddedDataSet);
-    else plot.setSecondaryDataset(faultSectionCounter-1, griddedDataSet);
+    if(index==0) plot.setDataset(griddedDataSet);
+    else plot.setSecondaryDataset(index-1, griddedDataSet);
   }
 
   /**

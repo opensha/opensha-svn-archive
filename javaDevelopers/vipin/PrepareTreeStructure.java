@@ -21,13 +21,14 @@ import org.opensha.data.Location;
 
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
-  private final static double MIN_RUP_LENGTH = 15;
-  private final static double MAX_RUP_LENGTH = 750;
+  // rupture length ranges from min to max in increments of RUP_OFFSET
+  private final static double MIN_RUP_LENGTH = 50;
+  private final static double MAX_RUP_LENGTH = 50;
   private final static double RUP_OFFSET=5;
-  private final static int DISCRETIZATION=5;
+  private final static int DISCRETIZATION=5; // fault section discretization
 
   public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
-  public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures.txt";
+  public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_50km.txt";
   private HashMap faultTree ;
   private ArrayList rupList;
   private double rupLength;
@@ -37,13 +38,13 @@ public class PrepareTreeStructure {
     FaultSections faultSections = new FaultSections();
     HashMap faultTraceMapping = faultSections.getAllFaultSections(); // get all the fault sections
     createTreesForFaultSections(faultTraceMapping); // discretize the section in 5km
-    /*findAllRuptures(faultTraceMapping);
-    System.out.println("Total ruptures="+rupList.size());*/
+    findAllRuptures();
+    System.out.println("Total ruptures="+rupList.size());
     try {
       // write ruptures to file
-      /*FileWriter fwRupFile = new FileWriter(RUP_OUT_FILENAME);
+      FileWriter fwRupFile = new FileWriter(RUP_OUT_FILENAME);
       writeRupsToFile(fwRupFile);
-      fwRupFile.close();*/
+      fwRupFile.close();
       // write fault sections to file
       FileWriter fw = new FileWriter(FAULT_SECTIONS_OUT_FILENAME);
       writeFaultSectionsToFile(fw, faultTraceMapping);
@@ -82,14 +83,15 @@ public class PrepareTreeStructure {
       // now attach fault sections with other sections which are within cutoff distance
       Iterator it = faultTree.keySet().iterator();
       // do for all fault sections
+      int i=1;
       while (it.hasNext()) {
         String faultSectionName = (String) it.next();
-        System.out.println(faultSectionName);
+        System.out.println((i++)+"\t"+faultSectionName);
         //fw.write("#" + faultSectionName + "\n");
         //fwRupFile.write("#" + faultSectionName + "\n");
         addSecondaryLinks(faultSectionName, new ArrayList());
         // find the ruptures for various rupture lengths
-        for(rupLength=MIN_RUP_LENGTH; rupLength<MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
+        for(rupLength=MIN_RUP_LENGTH; rupLength<=MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
           getRuptures(faultSectionName);
         removeSecondaryLinks();
       }

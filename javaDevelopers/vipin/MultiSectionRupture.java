@@ -29,7 +29,9 @@ public class MultiSectionRupture {
    * @param rup
    * @return
    */
-  public boolean equals(MultiSectionRupture rup) {
+  public boolean equals(Object obj) {
+    if(! (obj instanceof MultiSectionRupture)) return false;
+    MultiSectionRupture rup = (MultiSectionRupture) obj;
     ArrayList rupNodesList = rup.getNodesList();
     // check that number of points in both ruptures are same
     if(this.nodeList.size()!=rupNodesList.size()) return false;
