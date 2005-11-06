@@ -19,7 +19,7 @@ public final class MapUtil {
   public static ArrayList mapFiles;
 
   //link to the directory where all the map files are located
-  public static final String mapURL_Path = "http://gravity.usc.edu/USGS/NSHMP_mapfiles/";
+  public static final String mapURL_Path = "http://gldwork.cr.usgs.gov/GroundMotionTool/dataFiles/";
 
 
   /**
