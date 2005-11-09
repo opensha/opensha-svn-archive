@@ -118,8 +118,10 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private LabeledBoxPanel commentsReferencesPanel;
   private ArrayList referenceSummaryList;
   private ArrayList referenceList;
+  private SenseOfMotion_MeasuredCompPanel senseOfMotionMeasuredCompPanel;
   public AddEditIndividualEvent(int siteId, String siteEntryDate) {
     try {
+      senseOfMotionMeasuredCompPanel = new SenseOfMotion_MeasuredCompPanel();
       this.siteId = siteId;
       this.siteEntryDate = siteEntryDate;
       // initialize the GUI
@@ -237,7 +239,12 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     slipPanel.add(displacementParamListEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
     slipPanel.add(slipEstParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
+    slipPanel.add(senseOfMotionMeasuredCompPanel,
+                  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+                                         , GridBagConstraints.CENTER,
+                                         GridBagConstraints.BOTH,
+                                         new Insets(0, 0, 0, 0), 0, 0));
     estimatesSplitPane.add(slipPanel, JSplitPane.RIGHT);
     // comments and references
     commentsReferencesPanel = new LabeledBoxPanel(gridBagLayout1);
@@ -276,10 +283,12 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       this.displacementParamListEditor.setParameterVisible(this.
           SHARED_EVENT_PARAM_NAME, isVisible);
       this.slipEstParamEditor.setVisible(!isVisible);
+      senseOfMotionMeasuredCompPanel.setVisible(!isVisible);
     }
     else {
       this.displacementParamListEditor.setVisible(false);
-       this.slipEstParamEditor.setVisible(true);
+      this.slipEstParamEditor.setVisible(true);
+      this.senseOfMotionMeasuredCompPanel.setVisible(true);
     }
   }
 

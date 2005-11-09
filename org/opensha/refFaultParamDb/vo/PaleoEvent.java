@@ -26,7 +26,10 @@ public class PaleoEvent {
   private ArrayList referenceList;
   private int eventId;
   private boolean displacementShared;
-
+  private double senseOfMotionRake=Double.NaN;
+  private String senseOfMotionQual;
+  private double measuredComponentRake=Double.NaN;
+  private String measuredComponentQual;
 
   public PaleoEvent() {
   }
@@ -46,15 +49,12 @@ public class PaleoEvent {
   public void setEventId(int eventId) {
     this.eventId = eventId;
   }
-
   public String getSiteEntryDate() {
     return this.siteEntryDate;
   }
-
   public void setSiteEntryDate(String siteEntryDate) {
     this.siteEntryDate = siteEntryDate;
   }
-
   public String getComments() {
     return comments;
   }
@@ -109,6 +109,22 @@ public class PaleoEvent {
   public void setDisplacementEst(EstimateInstances displacementEst) {
     this.displacementEst = displacementEst;
   }
-
-
+  public  String getSenseOfMotionQual() {
+    return this.senseOfMotionQual;
+  }
+  public String getMeasuredComponentQual() {
+    return this.measuredComponentQual;
+  }
+  public void setMeasuredComponentRake(double measuredComponentRake) {
+    this.measuredComponentRake = measuredComponentRake;
+  }
+  public void setSenseOfMotionRake(double senseOfMotionRake) {
+    this.senseOfMotionRake = senseOfMotionRake;
+  }
+  public void setMeasuredComponentQual(String measuredComponentQual) {
+    this.measuredComponentQual = measuredComponentQual;
+  }
+  public void setSenseOfMotionQual(String senseOfMotionQual) {
+    this.senseOfMotionQual = senseOfMotionQual;
+  }
 }
