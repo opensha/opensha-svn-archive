@@ -130,6 +130,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
    */
   private void putSiteInfoInDatabase() {
     CombinedEventsInfo combinedEventsInfo = new CombinedEventsInfo();
+    // it is not expert opinion. this is publication info
+    combinedEventsInfo.setIsExpertOpinion(false);
     // set the time span info
     TimeAPI startTime  = addEditTimeSpan.getStartTime();
     startTime.setReferencesList(this.referenceList);

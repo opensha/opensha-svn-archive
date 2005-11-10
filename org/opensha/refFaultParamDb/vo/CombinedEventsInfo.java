@@ -27,12 +27,19 @@ public class CombinedEventsInfo {
   private CombinedDisplacementInfo combinedDisplacementInfo;
   private CombinedNumEventsInfo combinedNumEventsInfo;
   private ArrayList eventSequenceList;
+  private boolean isExpertOpinion=false;
 
   /*
    * Various  set/get methods
    */
   public String getEntryDate() {
     return this.entryDate;
+  }
+  public boolean getIsExpertOpinion() {
+    return isExpertOpinion;
+  }
+  public void setIsExpertOpinion(boolean isExpertOpinion) {
+    this.isExpertOpinion = isExpertOpinion;
   }
   public void setEntryDate(String entryDate) {
     this.entryDate = entryDate;

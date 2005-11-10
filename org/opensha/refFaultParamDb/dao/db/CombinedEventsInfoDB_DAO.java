@@ -38,6 +38,9 @@ public class CombinedEventsInfoDB_DAO {
   private final static String COMBINED_EVENTS_ID = "Combined_Events_Id";
   private final static String COMBINED_EVENTS_ENTRY_DATE="Combined_Events_Entry_Date";
   private final static String REFERENCE_ID= "Reference_Id";
+  private final static String IS_EXPERT_OPINION = "Is_Expert_Opinion";
+  private final static String NO = "N";
+  private final static String YES = "Y";
 
   private DB_AccessAPI dbAccess;
   private TimeInstanceDB_DAO timeInstanceDAO;
@@ -82,14 +85,17 @@ public class CombinedEventsInfoDB_DAO {
     int startTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getStartTime());
     // get the end time Id
     int endTimeId = timeInstanceDAO.addTimeInstance(combinedEventsInfo.getEndTime());
+    String expertOpinion = NO;
+    if(combinedEventsInfo.getIsExpertOpinion()) expertOpinion= YES;
+
 
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
         START_TIME_ID+","+END_TIME_ID+","+
-        DATED_FEATURE_COMMENTS+") values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
+        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+") values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
         SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+",'"+
-        combinedEventsInfo.getDatedFeatureComments()+"')";
+        combinedEventsInfo.getDatedFeatureComments()+"','"+expertOpinion+"')";
 
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
@@ -145,8 +151,9 @@ public class CombinedEventsInfoDB_DAO {
     ArrayList combinedInfoList = new ArrayList();
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
-        START_TIME_ID+","+END_TIME_ID+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+" from "+
-        this.TABLE_NAME+condition;
+        START_TIME_ID+","+END_TIME_ID+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
+        ","+IS_EXPERT_OPINION+" from "+this.TABLE_NAME+condition;
+    System.out.println(sql);
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;
@@ -173,6 +180,10 @@ public class CombinedEventsInfoDB_DAO {
             this.eventSequenceDAO.getSequences(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));
         // get the contributor info
         combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
+        if(rs.getString(IS_EXPERT_OPINION).equalsIgnoreCase(YES))
+         combinedEventsInfo.setIsExpertOpinion(true);
+       else combinedEventsInfo.setIsExpertOpinion(false);
+
         // get all the references for this site
         ArrayList referenceList = new ArrayList();
         sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
@@ -183,6 +194,7 @@ public class CombinedEventsInfoDB_DAO {
           referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)));
         }
         referenceResultSet.close();
+
         // set the references in the VO
         combinedEventsInfo.setReferenceList(referenceList);
         combinedInfoList.add(combinedEventsInfo);
