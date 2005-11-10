@@ -336,15 +336,13 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     String eventName = (String)this.eventNameParam.getValue();
     if(eventName.trim().equalsIgnoreCase("") ||
        eventName.trim().equalsIgnoreCase(this.EVENT_NAME_PARAM_DEFAULT)) {
-      JOptionPane.showMessageDialog(this, MSG_EVENT_NAME_MISSING);
-      return;
+      throw new InsertException(MSG_EVENT_NAME_MISSING);
     }
     paleoEvent.setEventName(eventName);
     // make sure that user choose a reference
     String reference = (String)this.referencesParam.getValue();
     if(reference==null) {
-      JOptionPane.showMessageDialog(this, MSG_REFERENCE_MISSING);
-      return;
+      throw new InsertException(MSG_REFERENCE_MISSING);
     }
     int index = this.referenceSummaryList.indexOf(reference);
     ArrayList referenceList = new ArrayList();
@@ -358,23 +356,19 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     if(isDispShared) {
       sharedEventNames = (ArrayList)this.sharedEventParam.getValue();
       if(sharedEventNames==null || sharedEventNames.size()==0) {
-        JOptionPane.showMessageDialog(this, MSG_SHARED_EVENTS_MISSING);
-        return;
+        throw new InsertException(MSG_SHARED_EVENTS_MISSING);
       } // now check that user has selected valid events to share displacement
       else{
         int dispEstId = paleoEventDAO.checkSameDisplacement(sharedEventNames);
         if(dispEstId<=0) {
-          JOptionPane.showMessageDialog(this,
-                                        MSG_EVENTS_DO_NOT_SHARE_DISPLACEMENT);
-          return;
+          throw new InsertException(MSG_EVENTS_DO_NOT_SHARE_DISPLACEMENT);
         } else paleoEvent.setDisplacementEstId(dispEstId);
       }
     } else { // if displacement is not shared, set displacement estimate in the paleo-event
       try {
         this.slipEstParamEditor.setEstimateInParameter();
       }catch(RuntimeException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage());
-        return;
+        throw new InsertException(e.getMessage());
       }
       paleoEvent.setDisplacementEst(
           new EstimateInstances((Estimate)this.slipEstParam.getValue(), this.SLIP_UNITS));
@@ -387,12 +381,15 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     try {
       eventTime = this.eventTimeEst.getSelectedTime();
     }catch(RuntimeException e) {
-      JOptionPane.showMessageDialog(this, e.getMessage());
-       return;
+      throw new InsertException( e.getMessage());
     }
     eventTime.setDatingComments(paleoEvent.getComments());
     eventTime.setReferencesList(paleoEvent.getReferenceList());
     paleoEvent.setEventTime(eventTime);
+    paleoEvent.setMeasuredComponentQual(senseOfMotionMeasuredCompPanel.getMeasuredCompQual());
+    paleoEvent.setMeasuredComponentRake(senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
+    paleoEvent.setSenseOfMotionQual(senseOfMotionMeasuredCompPanel.getSenseOfMotionQual());
+    paleoEvent.setSenseOfMotionRake(senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
     this.paleoEventDAO.addPaleoevent(paleoEvent);
     JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
     this.sendEventToListeners(paleoEvent);

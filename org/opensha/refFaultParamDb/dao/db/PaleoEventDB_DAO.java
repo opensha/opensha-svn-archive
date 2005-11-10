@@ -35,7 +35,10 @@ public class PaleoEventDB_DAO {
   private final static String REFERENCE_ID = "Reference_Id";
   private final static String PALEO_EVENT_ENTRY_DATE ="Paleo_Event_Entry_Date";
   private final static String PALEO_EVENT_ID="Paleo_Event_Id";
-
+  private final static String SENSE_OF_MOTION_RAKE = "Sense_of_Motion_Rake";
+  private final static String SENSE_OF_MOTION_QUAL = "Sense_of_Motion_Qual";
+  private final static String MEASURED_SLIP_COMP_RAKE = "Measured_Slip_Comp_Rake";
+  private final static String MEASURED_SLIP_COMP_QUAL = "Measured_Slip_Comp_Qual";
 
   private DB_AccessAPI dbAccess;
   // references DAO
@@ -80,13 +83,37 @@ public class PaleoEventDB_DAO {
       throw new InsertException(e.getMessage());
     }
 
+
+    double somRake = paleoEvent.getSenseOfMotionRake();
+    double measuredCompRake = paleoEvent.getMeasuredComponentRake();
+    String somQual = paleoEvent.getSenseOfMotionQual();
+    String measuredCompQual = paleoEvent.getMeasuredComponentQual();
+    String colNames="", colVals="";
+    if(!Double.isNaN(somRake)) { // check whether user entered Sense of motion rake
+      colNames += this.SENSE_OF_MOTION_RAKE+",";
+      colVals += somRake+",";
+    }
+    if(somQual!=null) {
+      colNames+=this.SENSE_OF_MOTION_QUAL+",";
+      colVals += "'"+somQual+"',";
+    }
+    if(!Double.isNaN(measuredCompRake)) { // check whether user entered measured comp rake
+      colNames += this.MEASURED_SLIP_COMP_RAKE+",";
+      colVals += measuredCompRake+",";
+    }
+    if(measuredCompQual!=null) {
+      colNames += this.MEASURED_SLIP_COMP_QUAL+",";
+      colVals +="'"+measuredCompQual+"',";
+    }
+
+
     String sql = "insert into "+TABLE_NAME+"("+ EVENT_ID+","+EVENT_NAME+","+
         SITE_ID+","+SITE_ENTRY_DATE+","+CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
-        DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+GENERAL_COMMENTS+")"+
+        DISPLACEMENT_EST_ID+","+ENTRY_DATE+","+colNames+GENERAL_COMMENTS+")"+
         " values ("+paleoEventId+",'"+paleoEvent.getEventName()+"',"+paleoEvent.getSiteId()+
         ",'"+paleoEvent.getSiteEntryDate()+"',"+SessionInfo.getContributor().getId()+
         ","+eventTimeEstId+","+displacementEstId+
-        ",'"+systemDate+"','"+paleoEvent.getComments()+"')";
+        ",'"+systemDate+"',"+colVals+"'"+paleoEvent.getComments()+"')";
 
     try {
       // insert into paleo event table
@@ -189,7 +216,8 @@ public class PaleoEventDB_DAO {
         SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
         DISPLACEMENT_EST_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
-        GENERAL_COMMENTS+" from "+
+        GENERAL_COMMENTS+","+SENSE_OF_MOTION_RAKE+","+
+        SENSE_OF_MOTION_QUAL+","+this.MEASURED_SLIP_COMP_RAKE+","+this.MEASURED_SLIP_COMP_QUAL+" from "+
         this.TABLE_NAME+" "+condition;
     try {
      ResultSet rs  = dbAccess.queryData(sql);
@@ -220,6 +248,22 @@ public class PaleoEventDB_DAO {
        referenceResultSet.close();
        // set the references in the VO
        paleoEvent.setReferenceList(referenceList);
+
+       // sense of motion
+        double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION_RAKE);
+        if(rs.wasNull()) senseOfMotionRake=Double.NaN;
+        String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
+        if(rs.wasNull()) senseOfMotionQual=null;
+        //measured component of slip
+        double measuredCompRake = rs.getFloat(MEASURED_SLIP_COMP_RAKE);
+        if(rs.wasNull()) measuredCompRake = Double.NaN;
+        String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);
+        if(rs.wasNull()) measuedCompQual=null;
+        paleoEvent.setSenseOfMotionRake(senseOfMotionRake);
+        paleoEvent.setSenseOfMotionQual(senseOfMotionQual);
+        paleoEvent.setMeasuredComponentRake(measuredCompRake);
+        paleoEvent.setMeasuredComponentQual(measuedCompQual);
+
        paleoEventList.add(paleoEvent);
      }
      rs.close();
@@ -228,7 +272,4 @@ public class PaleoEventDB_DAO {
     return paleoEventList;
 
   }
-
-
-
 }

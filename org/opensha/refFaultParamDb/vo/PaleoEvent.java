@@ -127,4 +127,10 @@ public class PaleoEvent {
   public void setSenseOfMotionQual(String senseOfMotionQual) {
     this.senseOfMotionQual = senseOfMotionQual;
   }
+  public double getMeasuredComponentRake() {
+    return measuredComponentRake;
+  }
+  public double getSenseOfMotionRake() {
+    return senseOfMotionRake;
+  }
 }

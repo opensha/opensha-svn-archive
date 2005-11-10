@@ -569,6 +569,10 @@ CREATE TABLE Paleo_Event (
   Displacement_Est_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
   General_Comments VARCHAR(1000) NULL,
+  Sense_of_Motion_Rake NUMBER(9,3) NULL,
+  Sense_of_Motion_Qual VARCHAR(255) NULL,
+  Measured_Slip_Comp_Rake NUMBER(9,3) NULL,
+  Measured_Slip_Comp_Qual VARCHAR(255) NULL,
   PRIMARY KEY(Event_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
      REFERENCES Contributors(Contributor_Id),
