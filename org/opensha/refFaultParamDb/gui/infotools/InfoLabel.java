@@ -156,6 +156,9 @@ public class InfoLabel extends JLabel {
       fractileListEstimate.getValues().setXAxisName(xAxisName);
       fractileListEstimate.getValues().setYAxisName(yAxisName);
       text = getTextForFractileListEstimate( fractileListEstimate );
+    } else if(estimate instanceof MinMaxPrefEstimate) {
+      MinMaxPrefEstimate minMaxPrefEstimate = (MinMaxPrefEstimate) estimate;
+      text = getTextForMinMaxPrefEstimate(minMaxPrefEstimate, xAxisName, yAxisName);
     }
     return text;
   }
@@ -289,6 +292,53 @@ public class InfoLabel extends JLabel {
        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
    for(int i=0; i<func.getNum(); ++i)
        text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
+   return text;
+ }
+
+ /**
+  * Information for min/max/pref estimate
+  *
+  * @param estimate
+  * @return
+  */
+ private String getTextForMinMaxPrefEstimate(MinMaxPrefEstimate estimate,
+                                             String xAxisName, String yAxisName) {
+   String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
+       "<b>"+xAxisName+"&nbsp;&nbsp;"+yAxisName+"</b> <br>";
+   double minX = estimate.getMinX();
+   double maxX = estimate.getMaxX();
+   double prefX = estimate.getPrefX();
+   double minProb = estimate.getMinProb();
+   double maxProb = estimate.getMaxProb();
+   double prefProb = estimate.getPrefProb();
+
+   String minXStr="", maxXStr="", prefXStr="", minProbStr="", maxProbStr="", prefProbStr="";
+   // min X
+   if(!Double.isNaN(minX)) minXStr=""+minX;
+   else minXStr = ""+this.NOT_AVAILABLE;
+     // max X
+   if(!Double.isNaN(maxX)) maxXStr=""+maxX;
+   else maxXStr = ""+this.NOT_AVAILABLE;
+     // pref X
+   if(!Double.isNaN(prefX)) prefXStr=""+prefX;
+   else prefXStr = ""+this.NOT_AVAILABLE;
+     // min Prob
+   if(!Double.isNaN(minProb)) minProbStr=""+minProb;
+   else minProbStr = ""+this.NOT_AVAILABLE;
+     // max Prob
+   if(!Double.isNaN(maxProb)) maxProbStr=""+maxProb;
+   else maxProbStr = ""+this.NOT_AVAILABLE;
+     // pref Prob
+   if(!Double.isNaN(prefProb)) prefProbStr=""+prefProb;
+   else prefProbStr = ""+this.NOT_AVAILABLE;
+
+   text+=  "Min "+xAxisName+":&nbsp;&nbsp;"+minXStr+"<br>";
+   text+=  "Min "+yAxisName+":&nbsp;&nbsp;"+minProbStr+"<br><br>";
+   text+=  "Max "+xAxisName+":&nbsp;&nbsp;"+maxXStr+"<br>";
+   text+=  "Max "+yAxisName+":&nbsp;&nbsp;"+maxProbStr+"<br><br>";
+   text+=  "Pref "+xAxisName+":&nbsp;&nbsp;"+prefXStr+"<br>";
+   text+=  "Pref "+yAxisName+":&nbsp;&nbsp;"+prefProbStr+"<br><br>";
+
    return text;
  }
 

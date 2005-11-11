@@ -264,6 +264,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
       setLogNormalEstimateVals((LogNormalEstimate)estimate);
     else if (estimate instanceof FractileListEstimate)
        setFractileListVals((FractileListEstimate)estimate);
+    else if(estimate instanceof MinMaxPrefEstimate)
+      setMinMaxPrefVals((MinMaxPrefEstimate)estimate);
     else if (estimate instanceof PDF_Estimate)
       setPDF_EstimateVals((PDF_Estimate)estimate);
     else if (estimate instanceof DiscreteValueEstimate)
@@ -303,6 +305,17 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.minProbParam.setValue(func.getY(0));
     this.prefferedProbParam.setValue(func.getY(1));
     this.maxProbParam.setValue(func.getY(2));
+  }
+
+  // set the estimate in min/max/pref estimate
+  private void setMinMaxPrefVals(MinMaxPrefEstimate minMaxPrefEstimate) {
+    this.minX_Param.setValue(minMaxPrefEstimate.getMinX());
+    this.prefferedX_Param.setValue(minMaxPrefEstimate.getPrefX());
+    this.maxX_Param.setValue(minMaxPrefEstimate.getMaxX());
+    this.minProbParam.setValue(minMaxPrefEstimate.getMinProb());
+    this.prefferedProbParam.setValue(minMaxPrefEstimate.getPrefProb());
+    this.maxProbParam.setValue(minMaxPrefEstimate.getMaxProb());
+
   }
 
   // set the values in discrete value estimate
@@ -518,15 +531,23 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     // for Fractile List Estimate
     else if(estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
       setParamsForFractileListEstimate();
+    else if(estimateName.equalsIgnoreCase(MinMaxPrefEstimate.NAME))
+      setParamsForMinMaxPrefEstimate();
     // For PDF Estimate
     else if(estimateName.equalsIgnoreCase(PDF_Estimate.NAME))
       setParamsForPDF_Estimate();
 
   }
 
+  /**
+   * make the parameters vfisible/invisible for Min/Max/Pref estimate
+   */
+  private void setParamsForMinMaxPrefEstimate() {
+    setParamsForFractileListEstimate();
+  }
 
   /**
-   * make the parameters visible/invisible for min/max/preferred estimate
+   * make the parameters visible/invisible for FractileListEstimate estimate
    */
   private void setParamsForFractileListEstimate() {
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
@@ -683,6 +704,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      estimate = setNormalEstimate();
    else if (estimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
      estimate = setLogNormalEstimate();
+   else if (estimateName.equalsIgnoreCase(MinMaxPrefEstimate.NAME))
+   estimate = setMinMaxPrefEstimate();
    else if (estimateName.equalsIgnoreCase(FractileListEstimate.NAME))
      estimate = setFractileListEstimate();
    else if (estimateName.equalsIgnoreCase(IntegerEstimate.NAME))
@@ -799,13 +822,59 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
  }
 
 
+ private Estimate setMinMaxPrefEstimate() {
+   double minX, maxX, prefX, minProb, maxProb, prefProb;
+   minX = getValueForParameter(minX_Param);
+   maxX = getValueForParameter(maxX_Param);
+   prefX = getValueForParameter(prefferedX_Param);
+   // check that user typed in atleast one of minX, maxX or prefX
+   if(Double.isNaN(minX) && Double.isNaN(maxX) && Double.isNaN(prefX)) {
+     throw new RuntimeException("Enter atleast one of "+minX_Param.getName()+","+
+                                maxX_Param.getName()+" or "+prefferedX_Param.getName());
+   }
+   minProb = getValueForParameter(minProbParam);
+   maxProb = getValueForParameter(maxProbParam);
+   prefProb = getValueForParameter(prefferedProbParam);
+   // check that if user entered minX, then minProb was also entered
+   checkValidVals(minX, minProb, minX_Param.getName(), minProbParam.getName());
+   // check that if user entered maxX, then maxProb was also entered
+   checkValidVals(maxX, maxProb, maxX_Param.getName(), maxProbParam.getName());
+   // check that if user entered prefX, then prefProb was also entered
+   checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
 
+
+   // if min/max/pref is symmetric, ask the user whether normal distribution can be used
+   if(!(Double.isNaN(minX) || Double.isNaN(maxX) || Double.isNaN(prefX) ||
+        Double.isNaN(minProb) || Double.isNaN(maxProb) || Double.isNaN(prefProb))) { //
+     if((minX>prefX) || (minX>maxX) || (prefX>maxX))
+       throw new RuntimeException(prefferedX_Param.getName()+" should be greater than/equal to "+minX_Param.getName()+
+                                  "\n"+maxX_Param.getName()+" should be greater than/equal to "+prefferedX_Param.getName());
+     double diffX1 = prefX - minX;
+     double diffX2 = maxX - prefX;
+     double diffProb1 = prefProb - minProb;
+     double diffProb2 = prefProb - maxProb;
+     if(diffX1==diffX2 && diffProb1==diffProb2 &&
+        chooseEstimateParam.getAllowedStrings().contains(NormalEstimate.NAME)) { // it is symmetric
+        // ask the user if normal distribution can be used
+        int option = JOptionPane.showConfirmDialog(this, MSG_IS_NORMAL_OK);
+        if(option==JOptionPane.OK_OPTION) {
+          this.chooseEstimateParam.setValue(NormalEstimate.NAME);
+          throw new RuntimeException("Changing to Normal Estimate");
+        }
+     }
+   }
+   MinMaxPrefEstimate estimate = new MinMaxPrefEstimate(minX, maxX, prefX,
+       minProb, maxProb, prefProb);
+   return estimate;
+
+ }
  /**
    * Set the estimate paramter value to be min/max/preferred estimate
    */
  private Estimate setFractileListEstimate() {
    ArbDiscrEmpiricalDistFunc empiricalFunc = new ArbDiscrEmpiricalDistFunc();
-   double minX, maxX, prefX, minProb, maxProb, prefProb;
+   throw new RuntimeException("setFractileListEstimate() not supported");
+   /*double minX, maxX, prefX, minProb, maxProb, prefProb;
    minX = getValueForParameter(minX_Param);
    maxX = getValueForParameter(maxX_Param);
    prefX = getValueForParameter(prefferedX_Param);
@@ -847,23 +916,27 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    }
 
    if(Double.isNaN(minX)) {
-     minX = Double.NEGATIVE_INFINITY;
+     minX = estimateConstraint.getMin().doubleValue();
      minProb = 0;
-   }
+   } else
    if(Double.isNaN(maxX)) {
-     maxX = Double.POSITIVE_INFINITY;
+     maxX = estimateConstraint.getMax().doubleValue();
      maxProb = 0;
    }
    if(Double.isNaN(prefX)) {
      prefX = (minX+maxX)/2;
      prefProb = 0;
-   }
+   }*/
 
-   empiricalFunc.set(minX, minProb);
+   /* if(!Double.isNaN(minX)) empiricalFunc.set(minX, minProb);
+    if(!Double.isNaN(maxX)) empiricalFunc.set(maxX, maxProb);
+    if(!Double.isNaN(prefX)) empiricalFunc.set(prefX, prefProb); */
+
+   /*empiricalFunc.set(minX, minProb);
    empiricalFunc.set(maxX, maxProb);
    empiricalFunc.set(prefX, prefProb);
    FractileListEstimate estimate = new FractileListEstimate(empiricalFunc);
-   return estimate;
+   return estimate;*/
  }
 
  /**

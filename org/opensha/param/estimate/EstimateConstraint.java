@@ -202,7 +202,7 @@ public class EstimateConstraint extends DoubleConstraint {
       allowedEstimateTypes.add(NormalEstimate.NAME);
       allowedEstimateTypes.add(LogNormalEstimate.NAME);
       allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
-      allowedEstimateTypes.add(FractileListEstimate.NAME);
+      allowedEstimateTypes.add(MinMaxPrefEstimate.NAME);
       allowedEstimateTypes.add(PDF_Estimate.NAME);
       return allowedEstimateTypes;
     }
@@ -230,7 +230,7 @@ public class EstimateConstraint extends DoubleConstraint {
      allowedEstimateTypes.add(LogNormalEstimate.NAME);
      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
      allowedEstimateTypes.add(IntegerEstimate.NAME);
-     allowedEstimateTypes.add(FractileListEstimate.NAME);
+     allowedEstimateTypes.add(MinMaxPrefEstimate.NAME);
      allowedEstimateTypes.add(PDF_Estimate.NAME);
      return allowedEstimateTypes;
    }
@@ -244,7 +244,7 @@ public class EstimateConstraint extends DoubleConstraint {
      ArrayList allowedEstimateTypes = new ArrayList();
      allowedEstimateTypes.add(NormalEstimate.NAME);
      allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
-     allowedEstimateTypes.add(FractileListEstimate.NAME);
+     allowedEstimateTypes.add(MinMaxPrefEstimate.NAME);
      allowedEstimateTypes.add(PDF_Estimate.NAME);
      return allowedEstimateTypes;
 

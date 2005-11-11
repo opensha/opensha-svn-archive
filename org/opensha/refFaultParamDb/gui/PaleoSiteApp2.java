@@ -264,6 +264,15 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
         timeString +=  estimate.getName()+":";
         for(int i=0; i<func.getNum(); ++i)
           timeString+=  func.getX(i)+",";
+      } else if (estimate instanceof MinMaxPrefEstimate) {
+        MinMaxPrefEstimate minMaxPrefEst =  (MinMaxPrefEstimate) estimate;
+        timeString += minMaxPrefEst.getName() + ":";
+        if(!Double.isNaN(minMaxPrefEst.getMinX()))
+          timeString +=   "Min="+minMaxPrefEst.getMinX()+",";
+        if(!Double.isNaN(minMaxPrefEst.getMaxX()))
+          timeString +=   "Max="+minMaxPrefEst.getMaxX()+",";
+        if(!Double.isNaN(minMaxPrefEst.getPrefX()))
+          timeString +=  "Pref="+minMaxPrefEst.getPrefX()+",";
       }
     }
     return timeString;

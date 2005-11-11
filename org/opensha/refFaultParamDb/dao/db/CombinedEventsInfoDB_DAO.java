@@ -153,7 +153,6 @@ public class CombinedEventsInfoDB_DAO {
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
         START_TIME_ID+","+END_TIME_ID+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
         ","+IS_EXPERT_OPINION+" from "+this.TABLE_NAME+condition;
-    System.out.println(sql);
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;

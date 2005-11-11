@@ -37,6 +37,7 @@ drop table Fault_Section;
 drop trigger Section_Source_Trigger;
 drop sequence Section_Source_Sequence;
 drop table Section_Source;
+drop table Min_Max_Pref_Est;
 drop table PDF_Est;
 drop table Log_Normal_Est;
 drop table Log_type;
@@ -198,6 +199,20 @@ CREATE TABLE PDF_Est (
   FOREIGN KEY(Est_Id)
     REFERENCES Est_Instances(Est_Id)
 );
+
+CREATE TABLE Min_Max_Pref_Est (
+  Est_Id INTEGER  NOT NULL,
+  Min_X NUMBER(9,3) NULL,
+  Max_X NUMBER(9,3) NULL,
+  Pref_X NUMBER(9,3) NULL,
+  Min_Prob NUMBER(9,3) NULL,
+  Max_Prob NUMBER(9,3) NULL,
+  Pref_Prob NUMBER(9,3) NULL,
+  PRIMARY KEY(Est_Id),
+  FOREIGN KEY(Est_Id)
+    REFERENCES Est_Instances(Est_Id)
+);
+
 
 
 
@@ -678,6 +693,7 @@ insert into Est_Type values(3,'PDF_Estimate',sysdate);
 insert into Est_Type values(4,'FractileListEstimate',sysdate);
 insert into Est_Type values(5,'IntegerEstimate',sysdate);
 insert into Est_Type values(6,'DiscreteValueEstimate',sysdate);
+insert into Est_Type values(7,'MinMaxPrefEstimate',sysdate);
 
 insert into Log_Type values(1, '10');
 insert into Log_Type values(2, 'E');
