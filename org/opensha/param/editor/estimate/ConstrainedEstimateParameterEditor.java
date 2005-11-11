@@ -298,6 +298,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
   // set the estimate in fractile list estimate
   private void setFractileListVals(FractileListEstimate fractileListEstimate) {
+    this.chooseEstimateParam.setValue(FractileListEstimate.NAME);
     DiscretizedFunc func = fractileListEstimate.getValues();
     this.minX_Param.setValue(func.getX(0));
     this.prefferedX_Param.setValue(func.getX(1));
@@ -305,16 +306,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.minProbParam.setValue(func.getY(0));
     this.prefferedProbParam.setValue(func.getY(1));
     this.maxProbParam.setValue(func.getY(2));
+    xValsParamListEditor.refreshParamEditor();
+    probValsParamListEditor.refreshParamEditor();
+
   }
 
   // set the estimate in min/max/pref estimate
   private void setMinMaxPrefVals(MinMaxPrefEstimate minMaxPrefEstimate) {
+    this.chooseEstimateParam.setValue(MinMaxPrefEstimate.NAME);
     this.minX_Param.setValue(minMaxPrefEstimate.getMinX());
     this.prefferedX_Param.setValue(minMaxPrefEstimate.getPrefX());
     this.maxX_Param.setValue(minMaxPrefEstimate.getMaxX());
     this.minProbParam.setValue(minMaxPrefEstimate.getMinProb());
     this.prefferedProbParam.setValue(minMaxPrefEstimate.getPrefProb());
     this.maxProbParam.setValue(minMaxPrefEstimate.getMaxProb());
+    xValsParamListEditor.refreshParamEditor();
+    probValsParamListEditor.refreshParamEditor();
 
   }
 
@@ -835,13 +842,14 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    minProb = getValueForParameter(minProbParam);
    maxProb = getValueForParameter(maxProbParam);
    prefProb = getValueForParameter(prefferedProbParam);
-   // check that if user entered minX, then minProb was also entered
-   checkValidVals(minX, minProb, minX_Param.getName(), minProbParam.getName());
-   // check that if user entered maxX, then maxProb was also entered
-   checkValidVals(maxX, maxProb, maxX_Param.getName(), maxProbParam.getName());
-   // check that if user entered prefX, then prefProb was also entered
-   checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
-
+   if(!Double.isNaN(minProb) || !Double.isNaN(maxProb) || !Double.isNaN(prefProb)) {
+     // check that if user entered minX, then minProb was also entered
+     checkValidVals(minX, minProb, minX_Param.getName(), minProbParam.getName());
+     // check that if user entered maxX, then maxProb was also entered
+     checkValidVals(maxX, maxProb, maxX_Param.getName(), maxProbParam.getName());
+     // check that if user entered prefX, then prefProb was also entered
+     checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
+   }
 
    // if min/max/pref is symmetric, ask the user whether normal distribution can be used
    if(!(Double.isNaN(minX) || Double.isNaN(maxX) || Double.isNaN(prefX) ||

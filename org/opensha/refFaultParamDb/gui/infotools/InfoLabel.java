@@ -303,8 +303,7 @@ public class InfoLabel extends JLabel {
   */
  private String getTextForMinMaxPrefEstimate(MinMaxPrefEstimate estimate,
                                              String xAxisName, String yAxisName) {
-   String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
-       "<b>"+xAxisName+"&nbsp;&nbsp;"+yAxisName+"</b> <br>";
+   String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>";
    double minX = estimate.getMinX();
    double maxX = estimate.getMaxX();
    double prefX = estimate.getPrefX();
@@ -333,11 +332,11 @@ public class InfoLabel extends JLabel {
    else prefProbStr = ""+this.NOT_AVAILABLE;
 
    text+=  "Min "+xAxisName+":&nbsp;&nbsp;"+minXStr+"<br>";
-   text+=  "Min "+yAxisName+":&nbsp;&nbsp;"+minProbStr+"<br><br>";
+   text+=  "Min "+yAxisName+":&nbsp;&nbsp;"+minProbStr+"<br>";
    text+=  "Max "+xAxisName+":&nbsp;&nbsp;"+maxXStr+"<br>";
-   text+=  "Max "+yAxisName+":&nbsp;&nbsp;"+maxProbStr+"<br><br>";
+   text+=  "Max "+yAxisName+":&nbsp;&nbsp;"+maxProbStr+"<br>";
    text+=  "Pref "+xAxisName+":&nbsp;&nbsp;"+prefXStr+"<br>";
-   text+=  "Pref "+yAxisName+":&nbsp;&nbsp;"+prefProbStr+"<br><br>";
+   text+=  "Pref "+yAxisName+":&nbsp;&nbsp;"+prefProbStr+"<br>";
 
    return text;
  }
