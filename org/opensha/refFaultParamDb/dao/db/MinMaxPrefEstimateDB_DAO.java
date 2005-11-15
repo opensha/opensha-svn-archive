@@ -149,7 +149,7 @@ public class MinMaxPrefEstimateDB_DAO implements EstimateDAO_API {
        if(rs.wasNull()) minX = Double.NaN;
        double maxX = rs.getFloat(this.MAX_X);
        if(rs.wasNull()) maxX = Double.NaN;
-       double prefX = rs.getFloat(this.MAX_X);
+       double prefX = rs.getFloat(this.PREF_X);
        if(rs.wasNull()) prefX = Double.NaN;
        double minProb = rs.getFloat(this.MIN_PROB);
        if(rs.wasNull()) minProb = Double.NaN;

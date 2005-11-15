@@ -67,12 +67,11 @@ public class EventSequenceDB_DAO {
       for(int i=0; i<sequenceList.size(); ++i) {
         EventSequence eventSequence = (EventSequence)sequenceList.get(i);
         int sequenceId = dbAccess.getNextSequenceNumber(TABLE_SEQUENCE_NAME);
-        String systemDate = dbAccess.getSystemDate();
         // put sequence in database
         String sql = "insert into "+TABLE_NAME+ "("+SEQUENCE_ID+","+SEQUENCE_NAME+
             ","+INFO_ID+","+ENTRY_DATE+","+SEQUENCE_PROB+","+GENERAL_COMMENT+
             ") values ("+sequenceId+",'"+eventSequence.getSequenceName()+"',"+
-            infoId+",'"+entryDate+"','"+systemDate+"',"+eventSequence.getSequenceProb()+
+            infoId+",'"+entryDate+"',"+eventSequence.getSequenceProb()+
             ",'"+eventSequence.getComments()+"')";
         dbAccess.insertUpdateOrDeleteData(sql);
         //put references for this sequence in the database
@@ -94,7 +93,7 @@ public class EventSequenceDB_DAO {
               EVENT_ID+","+EVENT_ENTRY_DATE+","+SEQUENCE_ID+","+
               SEQUENCE_ENTRY_DATE+","+MISSED_PROB+","+
               EVENT_INDEX_IN_SEQUENCE+") values ("+paleoEvent.getEventId()+",'"+
-              paleoEvent.getEntryDate()+"',"+sequenceId+",'"+systemDate+"',"+
+              paleoEvent.getEntryDate()+"',"+sequenceId+",'"+entryDate+"',"+
               missedProbs[j]+","+j+")";
           dbAccess.insertUpdateOrDeleteData(sql);
           if(j==(numEventsInSequence-1)) {
@@ -104,7 +103,7 @@ public class EventSequenceDB_DAO {
              EVENT_ID+","+EVENT_ENTRY_DATE+","+SEQUENCE_ID+","+
              SEQUENCE_ENTRY_DATE+","+MISSED_PROB+","+
              EVENT_INDEX_IN_SEQUENCE+") values ("+paleoEvent.getEventId()+",'"+
-             paleoEvent.getEntryDate()+"',"+sequenceId+",'"+systemDate+"',"+
+             paleoEvent.getEntryDate()+"',"+sequenceId+",'"+entryDate+"',"+
              missedProbs[j]+","+j+")";
             dbAccess.insertUpdateOrDeleteData(sql);
           }

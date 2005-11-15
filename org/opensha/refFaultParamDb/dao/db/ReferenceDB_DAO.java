@@ -53,8 +53,8 @@ public class ReferenceDB_DAO {
 
     String sql = "insert into "+TABLE_NAME+"("+ REFERENCE_ID+","+REF_AUTH+","+
         REF_YEAR+","+this.FULL_BIBLIOGRAPHIC_REFERENCE+")"+
-        " values ("+referenceId+",'"+reference.getRefAuth()+"',"+
-        reference.getRefYear()+",'"+reference.getFullBiblioReference()+"')";
+        " values ("+referenceId+",'"+reference.getRefAuth()+"','"+
+        reference.getRefYear()+"','"+reference.getFullBiblioReference()+"')";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
