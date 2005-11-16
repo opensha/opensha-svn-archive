@@ -3,7 +3,6 @@ package org.opensha.util;
 
 import java.io.*;
 import java.awt.*;
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 
@@ -27,27 +26,18 @@ public class DataUtil {
    * @param panel Component
    * @param dataToSave String
    */
-  public static void save(Component panel, String dataToSave) {
-    JFileChooser fileChooser = new JFileChooser();
-    int option = fileChooser.showSaveDialog(panel);
-    if (option == JFileChooser.APPROVE_OPTION) {
-      String fileName = fileChooser.getSelectedFile().getAbsolutePath();
-      if (!fileName.endsWith(".txt")) {
-        fileName = fileName + ".txt";
-      }
+  public static void save(String fileName, String dataToSave) {
+
       try {
         FileWriter fw = new FileWriter(fileName);
         fw.write(dataToSave);
         fw.close();
       }
       catch (IOException e) {
-        JOptionPane.showMessageDialog(panel, "Error creating file", "Error",
-                                      JOptionPane.ERROR_MESSAGE);
+        //JOptionPane.showMessageDialog(panel, "Error creating file", "Error",
+          //                            JOptionPane.ERROR_MESSAGE);
+          e.printStackTrace();
       }
-    }
-    else {
-      return;
-    }
   }
 
 

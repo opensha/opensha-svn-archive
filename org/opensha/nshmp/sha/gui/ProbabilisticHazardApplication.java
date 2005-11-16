@@ -570,7 +570,19 @@ public class ProbabilisticHazardApplication
   }
 
   private void save() {
-    DataUtil.save(this, guiBeanAPI.getData());
+    JFileChooser fileChooser = new JFileChooser();
+    int option = fileChooser.showSaveDialog(this);
+    String fileName = null;
+    if (option == JFileChooser.APPROVE_OPTION) {
+      fileName = fileChooser.getSelectedFile().getAbsolutePath();
+      if (!fileName.endsWith(".txt") ) {
+        fileName = fileName + ".txt";
+      }
+    }
+    else {
+      return;
+    }
+    DataUtil.save(fileName, guiBeanAPI.getData());
   }
 
   /**

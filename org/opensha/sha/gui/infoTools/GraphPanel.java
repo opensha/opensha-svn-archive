@@ -17,13 +17,19 @@ import org.jfree.util.ShapeUtils;
 
 import org.opensha.data.function.*;
 import org.opensha.gui.plot.jfreechart.*;
-//import com.lowagie.text.pdf.PdfWriter;
-//import java.io.FileOutputStream;
 
-//import com.lowagie.text.Document;
-//import com.lowagie.text.DocumentException;
-//import com.lowagie.text.pdf.*;
+/**
+ * Creating the PDF files for the storing the curves and metadata.
+ */
+import com.lowagie.text.pdf.PdfWriter;
+import java.io.FileOutputStream;
 
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.pdf.*;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.HeaderFooter;
 
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.util.*;
@@ -58,11 +64,6 @@ public class GraphPanel extends JPanel {
   Color[] defaultColor = {Color.red,Color.blue,Color.green,Color.darkGray,Color.magenta,Color.cyan,
     Color.orange,Color.pink,Color.yellow,Color.gray};
 
-  /**
-  * custom color scheme using which curves will be plotted
-  */
-  Color[] legendColor = null;
-  Paint[] legendPaint = null;
 
   private SimpleAttributeSet setLegend;
 
@@ -83,9 +84,8 @@ public class GraphPanel extends JPanel {
   //list containing Discretized function set
   private DiscretizedFuncList totalProbFuncs = new DiscretizedFuncList();
 
-  //variable to see how many datasets exists with different types of color coding scheme.
-  private int numDataset =0;
-
+  //checks if weighted function exists in the list of functions
+  private int weightedfuncListIndex;
 
   /**
    * for Y-log, 0 values will be converted to this small value
@@ -130,7 +130,8 @@ public class GraphPanel extends JPanel {
   private JTextArea pointsTextArea = new JTextArea();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
 
-
+  //This ArrayList stores the legend for various
+  private ArrayList legendString;
 
   /**
    * class constructor
@@ -494,7 +495,6 @@ public class GraphPanel extends JPanel {
     }
 
 
-
     plot = null;
     // build the plot
     plot = new XYPlot(null, xAxis, yAxis, null);
@@ -505,7 +505,6 @@ public class GraphPanel extends JPanel {
     plot.setRangeCrosshairLockedOnData(false);
     plot.setRangeCrosshairVisible(false);
     plot.setInsets(new Insets(10, 0, 0, tickFontSize+15));
-
 
 
     //total number of funtions that need to be plotted differently using different characterstics
@@ -590,6 +589,8 @@ public class GraphPanel extends JPanel {
     setLegend.addAttribute(StyleConstants.CharacterConstants.Bold,
                            Boolean.TRUE);
     javax.swing.text.Document doc = metadataText.getStyledDocument();
+
+    weightedfuncListIndex = -1;
     try {
 
       /**
@@ -600,8 +601,9 @@ public class GraphPanel extends JPanel {
       //total number of elements in the list containing individual functions and
       //weighted function list.
       int totalNumofFunctions = funcList.size();
+      legendString = new ArrayList();
       //getting the metadata associated with each function in the list
-      for(int i=0,j=0,plotPrefIndex=0;i<totalNumofFunctions;++i,++plotPrefIndex){
+      for(int i=0,plotPrefIndex=0;i<totalNumofFunctions;++i,++plotPrefIndex){
         String legend=null;
         //setting the font style for the legend
         setLegend =new SimpleAttributeSet();
@@ -617,8 +619,11 @@ public class GraphPanel extends JPanel {
 
           legend = new String(datasetName+"\n"+
                               listInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          legendString.add(legend);
           StyleConstants.setForeground(setLegend,Color.black);
           doc.insertString(doc.getLength(),legend,setLegend);
+          //index where the weighted function list exits if it does in the list of functions.
+          weightedfuncListIndex = legendString.size()-1;
           //checking if individual curves need to be plotted
           if(weightedList.areIndividualCurvesToPlot()){
             ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).setCurveName(datasetName+" Curves");
@@ -627,11 +632,11 @@ public class GraphPanel extends JPanel {
             String listFunctionsInfo = weightedList.getFunctionTraceInfo();
 
             legend = new String(listFunctionsInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legendString.add(legend);
             Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
             StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
-            j=j+weightedList.getNumWeightedFunctions();
-
+            ++plotPrefIndex;
           }
           //checking if fractiles need to be plotted
           if(weightedList.areFractilesToPlot()){
@@ -642,10 +647,11 @@ public class GraphPanel extends JPanel {
             String fractileListInfo = weightedList.getFractileInfo();
 
             legend = new String(fractileListInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legendString.add(legend);
             Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
             StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
-            j = j+weightedList.getNumFractileFunctions();
+            ++plotPrefIndex;
           }
           //checking if mean fractile need to be plotted
           if(weightedList.isMeanToPlot()){
@@ -655,10 +661,11 @@ public class GraphPanel extends JPanel {
             String meanInfo = weightedList.getMeanFunctionInfo();
 
             legend = new String(meanInfo+SystemPropertiesUtils.getSystemLineSeparator());
+            legendString.add(legend);
             Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
             StyleConstants.setForeground(setLegend,color);
             doc.insertString(doc.getLength(),legend,setLegend);
-            ++j;
+            ++plotPrefIndex;
            }
         }
         else{ //if element in the list are individual function then get their info and show as legend
@@ -667,14 +674,13 @@ public class GraphPanel extends JPanel {
           DiscretizedFuncAPI func = (DiscretizedFuncAPI)funcList.get(i);
           String functionInfo = func.getInfo();
           String name = func.getName();
-
           legend = new String(datasetName+"\n"+
                               name+"  "+SystemPropertiesUtils.getSystemLineSeparator()+
                               functionInfo+SystemPropertiesUtils.getSystemLineSeparator());
+          legendString.add(legend);
           Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
           StyleConstants.setForeground(setLegend,color);
           doc.insertString(doc.getLength(),legend,setLegend);
-          ++j;
         }
       }
     } catch (BadLocationException e) {
@@ -692,7 +698,6 @@ public class GraphPanel extends JPanel {
     pointsTextArea.setText(this.showDataInWindow(funcList,xAxisName,yAxisName));
     return ;
   }
-
 
   /**
    *
@@ -856,7 +861,8 @@ public class GraphPanel extends JPanel {
   /**
    * This sets the plotting prefences for the curves. It takes in the
    * list of PlotCurveCharacterstics and apply it to each curve in the list.
-   * @param plotPrefsList: List of PlotCurveCharacterstics for all curves
+   *
+   * @param plotPrefsList: List of PlotCurveCharacterstics for all curves.
    */
   public void setCurvePlottingCharacterstic(ArrayList plotPrefsList){
     curvePlottingCharacterstics = plotPrefsList;
@@ -913,10 +919,6 @@ public class GraphPanel extends JPanel {
 
     int numDiffColors = numColorArray.size();
 
-    //sets the num of datset with differnt color scheme.
-    this.numDataset = numDiffColors;
-    //creating the color array
-    int index=0;
     //looping over all the default colors to add those to the color array
     for(int i=0,defaultColorIndex =0;i<numDiffColors;++i,++defaultColorIndex){
       //if the number of curves to be drawn are more in number then default colors then start from first again
@@ -940,62 +942,95 @@ public class GraphPanel extends JPanel {
    * @throws IOException if there is an I/O error.
    */
   public void save() throws IOException {
-    if(graphOn)
-      //saveAsPDF();
-      chartPanel.doSaveAs();
-    else
-      DataUtil.save(this,pointsTextArea.getText());
-  }
 
+    JFileChooser fileChooser = new JFileChooser();
+    int option = fileChooser.showSaveDialog(this);
+    String fileName = null;
+    if (option == JFileChooser.APPROVE_OPTION) {
+      fileName = fileChooser.getSelectedFile().getAbsolutePath();
+      if (!fileName.endsWith(".pdf") && graphOn) {
+        fileName = fileName + ".pdf";
+      }
+      else if (!graphOn)
+        fileName = fileName + ".txt";
+    }
+    else {
+      return;
+    }
+
+    if (graphOn)
+      saveAsPDF(fileName);
+    //chartPanel.doSaveAs();
+    else
+      DataUtil.save(fileName, pointsTextArea.getText());
+  }
 
   /**
    * Allows the user to save the chart contents and metadata as PDF.
    * This allows to preserve the color coding of the metadata.
    * @throws IOException
    */
-  /*public void saveAsPDF() throws IOException{
-    JFreeChart chart = chartPanel.getChart();
+  public void saveAsPDF(String fileName) throws IOException {
     int width = chartPanel.getWidth();
     int height = chartPanel.getHeight();
     int textLength = metadataText.getStyledDocument().getLength();
     int totalLength = textLength + height;
-    String fileName = "tempPdf";
 
     // step 1
-    Document document = new Document(new com.lowagie.text.Rectangle(width, height));
+    Document metadataDocument = new Document(new com.lowagie.text.Rectangle(
+      width, height));
+    metadataDocument.addAuthor("OpenSHA");
+    metadataDocument.addCreationDate();
+    HeaderFooter footer = new HeaderFooter(new Phrase("Powered by OpenSHA"), true);
+    metadataDocument.setFooter(footer);
     try {
       // step 2
       PdfWriter writer;
-      writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+
+      writer = PdfWriter.getInstance(metadataDocument,
+                                     new FileOutputStream(fileName));
       // step 3
-      document.open();
+      metadataDocument.open();
       // step 4
       PdfContentByte cb = writer.getDirectContent();
-      PdfTemplate tp = cb.createTemplate(width, totalLength);
-      Graphics2D g2d = tp.createGraphics(width, totalLength, new DefaultFontMapper());
+      PdfTemplate tp = cb.createTemplate(width, height);
+      Graphics2D g2d = tp.createGraphics(width, height,
+                                         new DefaultFontMapper());
       Rectangle2D r2d = new Rectangle2D.Double(0, 0, width, height);
       chartPanel.getChart().draw(g2d, r2d);
-      try {
-        //PdfDocument doc = new PdfDocument();
-        document.add(new com.lowagie.text.Paragraph(metadataText.
-            getStyledDocument().getText(0,
-                                        metadataText.getStyledDocument().
-                                        getLength())));
-
-      }
-      catch (BadLocationException ex) {
-      }
-      catch (DocumentException ex) {
-      }
       g2d.dispose();
       cb.addTemplate(tp, 0, 0);
+      //starts the metadata from the new page.
+      metadataDocument.newPage();
+      int size = legendString.size();
+      for (int i = 0, legendColor = 0; i < size; ++i, ++legendColor) {
+        com.lowagie.text.Paragraph para = new com.lowagie.text.Paragraph();
+        //checks to see if the WeightFuncList exists in the list of functions
+        //then plot it in black else plot in the same as the legend
+        if (weightedfuncListIndex != -1 && weightedfuncListIndex == i) {
+          para.add(new Phrase( (String) legendString.get(i),
+                              FontFactory.getFont(
+                                  FontFactory.HELVETICA, 10, Font.PLAIN,
+                                  Color.black)));
+          --legendColor;
+        }
+        else {
+          para.add(new Phrase( (String) legendString.get(i),
+                              FontFactory.getFont(
+                                  FontFactory.HELVETICA, 10, Font.PLAIN,
+                                  ( (PlotCurveCharacterstics)
+                                   curvePlottingCharacterstics.get(legendColor)).
+                                  getCurveColor())));
+        }
+        metadataDocument.add(para);
+      }
     }
     catch (DocumentException de) {
       de.printStackTrace();
     }
     // step 5
-    document.close();
-  }*/
+    metadataDocument.close();
+  }
 
 
   /**
