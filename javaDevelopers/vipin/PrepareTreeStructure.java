@@ -22,9 +22,9 @@ import org.opensha.data.Location;
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
   // rupture length ranges from min to max in increments of RUP_OFFSET
-  private final static double MIN_RUP_LENGTH = 200;
-  private final static double MAX_RUP_LENGTH = 200;
-  private final static double RUP_OFFSET=5;
+  private final static double MIN_RUP_LENGTH = 150;
+  private final static double MAX_RUP_LENGTH = 150;
+  private final static double RUP_OFFSET=50;
   private final static int DISCRETIZATION=5; // fault section discretization
 
   public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
@@ -248,7 +248,18 @@ public class PrepareTreeStructure {
       ArrayList nodesList = new ArrayList();
       nodesList.add(node);
       traverse(node, nodesList, 0.0);
-      node=node.getPrimaryLink();
+      int offsetDist=0;
+      Location loc1 = node.getLoc();
+      Location loc2;
+      // find next node (location) based on rup offset
+      while(node !=null && offsetDist<this.RUP_OFFSET) {
+        node = node.getPrimaryLink();
+        if(node!=null) {
+          loc2 = node.getLoc();
+          offsetDist += RelativeLocation.getApproxHorzDistance(loc1, loc2);
+          loc1 = loc2;
+        }
+      }
     }
   }
 
@@ -294,7 +305,7 @@ public class PrepareTreeStructure {
       if(secondaryLinksDoneSections.contains(sectionName)) return;
       addSecondaryLinks(sectionName, secondaryLinksDoneSections);
       addToFaultSectionPrintOrder(sectionName);
-      System.out.println("\t"+sectionName);
+      //System.out.println("\t"+sectionName);
       SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
       sectionNodeDist.getNode().addSecondayLink(sectionNodeDist.getSectionNode());
     }
