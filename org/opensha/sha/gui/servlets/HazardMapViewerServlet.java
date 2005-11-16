@@ -205,6 +205,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
     String maxLat = paramList.getValue(GMT_MapGenerator.MAX_LAT_PARAM_NAME).toString();
     String minLon = paramList.getValue(GMT_MapGenerator.MIN_LON_PARAM_NAME).toString();
     String maxLon = paramList.getValue(GMT_MapGenerator.MAX_LON_PARAM_NAME).toString();
+
     double gridSpacing =((Double) paramList.getValue(GMT_MapGenerator.GRID_SPACING_PARAM_NAME)).doubleValue();
 
     //adding the xyz data set to the object of XYZ_DataSetAPI
@@ -261,11 +262,11 @@ public class HazardMapViewerServlet  extends HttpServlet {
     Collections.sort(latList);
     Collections.sort(lonList);
 
-
     //getting the indexes of the lat and lon( filled by the user)
    // from the list of Lat and Lons( for which we computed the dataset).
     int latListSize = latList.size();
     int lonListSize = lonList.size();
+
 
     int minLatIndex =0;
     int maxLatIndex =0;
@@ -275,13 +276,14 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     //using it to find the nearest Latitude to the min and max Latitude,
     //if they don't match perfectly from the list,
-    double gridSpacingForCloseValue = gridSpacing/2;
+    //double gridSpacingForCloseValue = gridSpacing/2;
 
+    //System.out.println("Close grid spacing ="+gridSpacingForCloseValue);
     //finding the nearest min and max lat. from the list of all lats in this dataset
     int i=0;
     //finding nearest Latitude to minLat
     for(;i<latListSize;++i){
-      if(Math.abs(minLatVal - ((Double)latList.get(i)).doubleValue()) < gridSpacingForCloseValue){
+      if(Math.abs(minLatVal - ((Double)latList.get(i)).doubleValue()) < gridSpacing){
          minLatIndex = i;
          break;
       }
@@ -289,7 +291,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     //finding nearest latitude to maxLat
     for(;i<latListSize;++i){
-      if(Math.abs(maxLatVal - ((Double)latList.get(i)).doubleValue()) < gridSpacingForCloseValue){
+      if(Math.abs(maxLatVal - ((Double)latList.get(i)).doubleValue()) < gridSpacing){
          maxLatIndex = i;
          break;
       }
@@ -301,11 +303,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
     //min Lon and max Lon as selected by user
     double minLonVal = Double.parseDouble(minLon);
     double maxLonVal = Double.parseDouble(maxLon);
+
     //finding the nearest min and max Lon. from the list of all lats in this dataset
     i=0;
     //finding nearest longitude to minLon
     for(;i<lonListSize;++i){
-      if(Math.abs(minLonVal - ((Double)lonList.get(i)).doubleValue()) < gridSpacingForCloseValue){
+      if(Math.abs(minLonVal - ((Double)lonList.get(i)).doubleValue()) < gridSpacing){
         minLonIndex = i;
         break;
       }
@@ -313,13 +316,12 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     //finding nearest longitude to maxLon
     for(;i<lonListSize;++i){
-      if(Math.abs(maxLonVal - ((Double)lonList.get(i)).doubleValue()) < gridSpacingForCloseValue){
+      if(Math.abs(maxLonVal - ((Double)lonList.get(i)).doubleValue()) < gridSpacing){
          maxLonIndex = i;
-         break;
+        break;
       }
     }
 
-    System.out.println("Indexes:"+minLatIndex+" "+maxLatIndex+" "+minLonIndex+" "+maxLonIndex);
 
     //Decimal format that establishes format of doubl vaule( to read the hazard
     //data files) which are at least upto 2 decimal places
@@ -375,6 +377,7 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     // return the XYZ Data set
     xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
+    int size = zVals.size();
     return xyzData;
   }
 }
