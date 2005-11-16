@@ -377,7 +377,6 @@ public class HazardMapViewerServlet  extends HttpServlet {
 
     // return the XYZ Data set
     xyzData = new ArbDiscretizedXYZ_DataSet(xVals,yVals,zVals);
-    int size = zVals.size();
     return xyzData;
   }
 }
