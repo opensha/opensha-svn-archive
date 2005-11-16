@@ -22,8 +22,8 @@ import org.opensha.data.Location;
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
   // rupture length ranges from min to max in increments of RUP_OFFSET
-  private final static double MIN_RUP_LENGTH = 50;
-  private final static double MAX_RUP_LENGTH = 50;
+  private final static double MIN_RUP_LENGTH = 200;
+  private final static double MAX_RUP_LENGTH = 200;
   private final static double RUP_OFFSET=5;
   private final static int DISCRETIZATION=5; // fault section discretization
 
@@ -293,6 +293,8 @@ public class PrepareTreeStructure {
       String sectionName = (String)sectionNearestNodeMapIt.next();
       if(secondaryLinksDoneSections.contains(sectionName)) return;
       addSecondaryLinks(sectionName, secondaryLinksDoneSections);
+      addToFaultSectionPrintOrder(sectionName);
+      System.out.println("\t"+sectionName);
       SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
       sectionNodeDist.getNode().addSecondayLink(sectionNodeDist.getSectionNode());
     }
@@ -301,7 +303,7 @@ public class PrepareTreeStructure {
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, double rupLen) {
 
-    if(rupLen>this.rupLength)  { // if rup length is found
+    if(rupLen>=this.rupLength)  { // if rup length is found
       // check if rupture already exists in the list
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
       // if rupture does not exist already, then add it
@@ -328,7 +330,6 @@ public class PrepareTreeStructure {
         nextNode = (Node)secondaryLinks.get(i);
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
-        addToFaultSectionPrintOrder(nextNode.getFaultSectionName());
         traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
         nodesList.remove(nextNode);
       }
