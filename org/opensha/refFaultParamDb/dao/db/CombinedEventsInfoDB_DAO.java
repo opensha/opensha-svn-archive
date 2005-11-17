@@ -39,6 +39,7 @@ public class CombinedEventsInfoDB_DAO {
   private final static String COMBINED_EVENTS_ENTRY_DATE="Combined_Events_Entry_Date";
   private final static String REFERENCE_ID= "Reference_Id";
   private final static String IS_EXPERT_OPINION = "Is_Expert_Opinion";
+  private final static String IS_RECORD_DELETED = "Is_Record_Deleted";
   private final static String NO = "N";
   private final static String YES = "Y";
 
@@ -92,10 +93,12 @@ public class CombinedEventsInfoDB_DAO {
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
         START_TIME_ID+","+END_TIME_ID+","+
-        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+") values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
+        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+","+this.IS_EXPERT_OPINION+") "+
+        "values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
         SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+",'"+
-        combinedEventsInfo.getDatedFeatureComments()+"','"+expertOpinion+"')";
+        combinedEventsInfo.getDatedFeatureComments()+"','"+expertOpinion+"','"+
+        this.NO+"')";
 
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
@@ -137,7 +140,8 @@ public class CombinedEventsInfoDB_DAO {
    * @return
    */
   public ArrayList getCombinedEventsInfoList(int siteId) {
-    String condition = " where "+SITE_ID+"="+siteId;
+    String condition = " where "+SITE_ID+"="+siteId+" and "+this.IS_RECORD_DELETED+
+        "='"+this.NO+"'";
     return query(condition);
   }
 

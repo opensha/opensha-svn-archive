@@ -44,7 +44,6 @@ public class DB_AccessServlet extends HttpServlet{
     try {
       Properties p = new Properties();
       String fileName = getInitParameter(PROP_NAME);
-      System.out.println("DBPropsfilename="+fileName);
       p.load(new FileInputStream(fileName));
       dbDriver = (String) p.get("dbDriver");
       dbServer = (String) p.get("dbServer");
@@ -53,7 +52,6 @@ public class DB_AccessServlet extends HttpServlet{
       logFileString = (String) p.get("logFileString");
       maxConnTime =
           (new Double( (String) p.get("maxConnTime"))).doubleValue();
-      System.out.println(dbDriver+","+dbServer+","+minConns+","+maxConns+","+logFileString);
     }
     catch (FileNotFoundException f) {f.printStackTrace();}
     catch (IOException e) {e.printStackTrace();}
@@ -132,7 +130,7 @@ public class DB_AccessServlet extends HttpServlet{
               sqlWithNoSaptialColumnNames, geomteryObjectList);
           outputToApp.writeObject(resultSet);
         }
-
+        inputFromApp.close();
         outputToApp.close();
       }
       catch(SQLException e){

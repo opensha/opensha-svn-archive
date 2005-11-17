@@ -485,6 +485,7 @@ CREATE TABLE Combined_Events_Info (
   End_Time_Id INTEGER  NOT NULL,	
   Dated_Feature_Comments VARCHAR(255) NULL,
   Is_Expert_Opinion char(1) NOT NULL,
+  Is_Record_Deleted char(1) NOT NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
     REFERENCES Paleo_Site(Site_Id, Entry_Date),
