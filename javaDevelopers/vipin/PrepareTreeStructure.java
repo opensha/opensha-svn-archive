@@ -22,10 +22,11 @@ import org.opensha.data.Location;
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
   // rupture length ranges from min to max in increments of RUP_OFFSET
-  private final static double MIN_RUP_LENGTH = 150;
-  private final static double MAX_RUP_LENGTH = 150;
-  private final static double RUP_OFFSET=50;
+  private final static double MIN_RUP_LENGTH = 50;
+  private final static double MAX_RUP_LENGTH = 50;
+  private final static double RUP_OFFSET=5;
   private final static int DISCRETIZATION=5; // fault section discretization
+  private final static Location LOCATION = new Location(31.5, -115.0);
 
   public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
   public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_50km.txt";
@@ -93,8 +94,9 @@ public class PrepareTreeStructure {
    while(it.hasNext()) {
      String  faultSectionName = (String) it.next();
      sortedSectionNames.add(faultSectionName);
-     double lat = ((Node)faultTree.get(faultSectionName)).getLoc().getLatitude();
-     sortedLats.add(new Double(lat));
+     Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
+     double distance = RelativeLocation.getApproxHorzDistance(loc, LOCATION);
+     sortedLats.add(new Double(distance));
    }
    // now sort the lat arrayList and change fault names simulataneously
    for(int i=0; i<sortedLats.size(); ++i) {

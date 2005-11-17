@@ -44,7 +44,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
   private final static Color lightBlue = new Color( 200, 200, 230 );
   private NumberAxis yAxis = new NumberAxis( Y_AXIS_LABEL );
   private NumberAxis xAxis = new NumberAxis( X_AXIS_LABEL );
-  private final static int TIME_DELAY = 800;
+  private final static int TIME_DELAY = 1000;
    // build the plot
   private  XYPlot plot = new XYPlot(null, xAxis, yAxis, new StandardXYItemRenderer());
   private  int faultSectionCounter=0;
