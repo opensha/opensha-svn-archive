@@ -580,6 +580,8 @@ public class HazardDataSetCalcCondorApp extends JApplet
        function = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
      //this connects to the servlet on web server to check if dataset name already exists
      //or computation have already been for these parameter settings.
+     if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
+     else maxDistance = new Double(distanceControlPanel.getDistance());
      Object obj= checkForHazardMapComputation();
      if(obj instanceof String){
        JOptionPane.showMessageDialog(this, (String)obj);
@@ -709,8 +711,6 @@ public class HazardDataSetCalcCondorApp extends JApplet
      for(int i = 0; i<function.getNum(); ++i) list.add(new String(""+function.getX(i)));
      toServlet.writeObject(list);
      // send the MAX DISTANCE
-     if(distanceControlPanel == null ) maxDistance = new Double(HazardCurveCalculator.MAX_DISTANCE_DEFAULT);
-     else maxDistance = new Double(distanceControlPanel.getDistance());
      toServlet.writeObject(maxDistance);
 
      //sending email address to the servlet
