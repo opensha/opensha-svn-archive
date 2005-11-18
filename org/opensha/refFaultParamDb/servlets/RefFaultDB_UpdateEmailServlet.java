@@ -19,7 +19,8 @@ import java.util.Properties;
 
 public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
   //static Strings to send the mails
-  String emailTo, smtpHost, emailSubject, emailFrom;
+  private String emailTo, smtpHost, emailSubject, emailFrom, emailEnabled;
+  private boolean isEmailEnabled;
   private final static String CONFIG_NAME = "EmailConfig";
 
   public void init() throws ServletException {
@@ -31,6 +32,8 @@ public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
       smtpHost = (String) p.get("SmtpHost");
       emailSubject =  (String) p.get("Subject");
       emailFrom =(String) p.get("EmailFrom");
+      isEmailEnabled = Boolean.valueOf((String) p.get("EmailEnabled")).booleanValue();
+      System.out.println(emailTo+","+smtpHost+","+smtpHost+","+emailSubject+","+emailSubject+","+isEmailEnabled);
     }
     catch (FileNotFoundException f) {f.printStackTrace();}
     catch (IOException e) {e.printStackTrace();}
@@ -48,8 +51,8 @@ public class RefFaultDB_UpdateEmailServlet extends HttpServlet {
       //getting the email content from the aplication
       String emailMessage = (String) inputFromApplet.readObject();
       inputFromApplet.close();
-
-      MailUtil.sendMail(smtpHost,emailFrom,emailTo,this.emailSubject,emailMessage);
+      if(isEmailEnabled) // send email to database curator
+        MailUtil.sendMail(smtpHost,emailFrom,emailTo,this.emailSubject,emailMessage);
       // report to the user whether the operation was successful or not
       // get an ouput stream from the applet
       ObjectOutputStream outputToApplet = new ObjectOutputStream(response.
