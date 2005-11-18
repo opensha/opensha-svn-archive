@@ -16,6 +16,8 @@ import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -118,6 +120,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
            this.isNumEventsVisible || this.isSequenceVisible)
           putSiteInfoInDatabase(); // put site info in database
         JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
+        ConnectToEmailServlet.sendEmail("New Site Info added for site Id="+this.siteId +" by "+SessionInfo.getUserName());
         this.dispose();
       }catch(Exception e){
         JOptionPane.showMessageDialog(this, e.getMessage());

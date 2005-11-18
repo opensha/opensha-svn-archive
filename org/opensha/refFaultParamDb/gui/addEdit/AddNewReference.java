@@ -20,6 +20,8 @@ import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.param.IntegerParameter;
 import org.opensha.param.editor.IntegerParameterEditor;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
 /**
  * <p>Title: AddNewReference.java </p>
@@ -110,6 +112,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
      referenceDAO.addReference(reference);
      this.sendEventToListeners(reference);
      JOptionPane.showMessageDialog(this, MSG_INSERT_SUCCESS);
+     ConnectToEmailServlet.sendEmail("New Reference "+fullBiblio +"added by "+SessionInfo.getUserName());
      this.dispose();
    }catch(InsertException insertException) { // if there is problem inserting the reference
       JOptionPane.showMessageDialog(this, insertException.getMessage());

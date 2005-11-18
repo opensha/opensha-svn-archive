@@ -17,6 +17,7 @@ import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
 /**
  * <p>Title: AddNewSiteType.java </p>
@@ -97,6 +98,7 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
       siteTypeDAO.addSiteType(siteType);
       // show the success message to the user
       JOptionPane.showMessageDialog(this,MSG_INSERT_SUCCESS);
+      ConnectToEmailServlet.sendEmail("New SiteType "+siteTypeName +"added by "+SessionInfo.getUserName());
       this.sendEventToListeners(siteType);
       this.dispose();
     }  catch(InsertException insertException) { // if there is problem inserting the site type

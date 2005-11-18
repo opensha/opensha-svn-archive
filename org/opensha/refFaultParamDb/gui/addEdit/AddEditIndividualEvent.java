@@ -25,6 +25,8 @@ import org.opensha.exceptions.*;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -392,6 +394,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     paleoEvent.setSenseOfMotionRake(senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
     this.paleoEventDAO.addPaleoevent(paleoEvent);
     JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
+    ConnectToEmailServlet.sendEmail("New Event "+ eventName+" added for siteId="+this.siteId+" by "+SessionInfo.getUserName());
     this.sendEventToListeners(paleoEvent);
   }
 

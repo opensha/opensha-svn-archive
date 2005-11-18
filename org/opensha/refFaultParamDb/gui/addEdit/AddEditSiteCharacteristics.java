@@ -39,6 +39,7 @@ import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
 
 /**
@@ -288,6 +289,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       if(this.isEdit) msg = this.MSG_UPDATE_SUCCESS;
       else msg = this.MSG_INSERT_SUCCESS;
       JOptionPane.showMessageDialog(this,msg);
+      if(this.isEdit) ConnectToEmailServlet.sendEmail("Site Characteristics for id "+ this.paleoSiteVO.getSiteId()+" updated by "+SessionInfo.getUserName());
+      else ConnectToEmailServlet.sendEmail("Site Characteristics added for a new site by "+SessionInfo.getUserName());
       this.sendEventToListeners(paleoSite);
       this.dispose();
     }catch(InsertException e) {
