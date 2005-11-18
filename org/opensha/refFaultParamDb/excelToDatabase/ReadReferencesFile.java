@@ -5,6 +5,7 @@ import java.util.StringTokenizer;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.dao.db.ReferenceDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import java.security.MessageDigest;
 
 /**
  * <p>Title:ReadReferencesFile.java </p>
@@ -38,4 +39,23 @@ public class ReadReferencesFile {
     }
   }*/
 
+  public final static void main(String[] args) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update("testing".getBytes());
+      byte[] b = md.digest();
+      System.out.println("byte length=" + b.length);
+      String str = new String(b);
+      System.out.println("Str length=" + str.length());
+      System.out.println(str);
+
+      MessageDigest md1 = MessageDigest.getInstance("MD5");
+      md1.update("testings".getBytes());
+      String str1 = new String(md1.digest());
+      System.out.println(str1.equalsIgnoreCase(str));
+
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
 }
