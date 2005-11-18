@@ -1,15 +1,7 @@
 package org.opensha.sha.calc;
 
 
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-import java.awt.Rectangle;
-import javax.swing.JOptionPane;
-import javax.swing.JLabel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.io.IOException;
+
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -17,8 +9,9 @@ import org.opensha.data.function.*;
 import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
-import org.opensha.util.FileUtils;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
+
+
 /**
  * <p>Title: HazardCurveCalculator </p>
  * <p>Description: This class calculates the Hazard curve based on the
