@@ -2,6 +2,8 @@ package org.opensha.refFaultParamDb.gui.login;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
 /**
  * <p>Title: RequestUserAccount.java </p>
@@ -12,7 +14,7 @@ import java.awt.*;
  * @version 1.0
  */
 
-public class RequestUserAccount extends JFrame {
+public class RequestUserAccount extends JFrame implements ActionListener {
   private JPanel mainPanel = new JPanel();
   private JLabel emailLabel = new JLabel();
   private JLabel firstNameLabel = new JLabel();
@@ -24,6 +26,11 @@ public class RequestUserAccount extends JFrame {
   private JTextField emailText = new JTextField();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private final static String EMAIL_MISSING = "Email is Missing";
+  private final static String FIRST_NAME_MISSING = "First Name is Missing";
+  private final static String LAST_NAME_MISSING = "Last Name is Missing";
+  private final static String ACCOUNT_REQUEST_SUCCESS = "Your account request has been received.\n"+
+      "Username and password will be emailed to you when after processing your request";
 
   public RequestUserAccount() {
     try {
@@ -59,6 +66,7 @@ public class RequestUserAccount extends JFrame {
     firstNameText.setText("");
     requestAccountButton.setForeground(new Color(80, 80, 133));
     requestAccountButton.setText("Request Account");
+    requestAccountButton.addActionListener(this);
     lastNameText.setText("");
     lastNameText.setForeground(new Color(80, 80, 133));
     emailText.setText("");
@@ -80,5 +88,35 @@ public class RequestUserAccount extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(14, 11, 10, 28), 172, 3));
     mainPanel.add(requestAccountButton,  new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 60, 25, 27), 11, 7));
+  }
+
+
+  public void actionPerformed(ActionEvent e) {
+    String email = this.emailText.getText().trim();
+    String firstName = this.firstNameText.getText().trim();
+    String lastName = this.lastNameText.getText().trim();
+    // check that user has entered first name
+    if(firstName.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.FIRST_NAME_MISSING);
+      return;
+    }
+    // check that usr has entered last name
+    if(lastName.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.LAST_NAME_MISSING);
+      return;
+    }
+    //check that user has entered email
+    if(email.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.EMAIL_MISSING);
+      return;
+    }
+
+    String message = "New account request by - "+"\n"+
+        "First Name:"+firstName+"\n"+
+        "Last Name:"+lastName+"\n"+
+        "Email:"+email;
+    ConnectToEmailServlet.sendEmail(message);
+    JOptionPane.showMessageDialog(this, ACCOUNT_REQUEST_SUCCESS);
+    this.dispose();
   }
 }
