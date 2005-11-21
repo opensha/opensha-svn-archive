@@ -48,7 +48,7 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
      * Creates a new Connection Broker after reading the JDBC info from the
      * data file.
      */
-    public DB_ConnectionPool(String userName, String passwd) {
+    public DB_ConnectionPool() {
       Properties p = new Properties();
       try {
         String fileSeparator = org.opensha.util.SystemPropertiesUtils.getSystemFileSeparator();
@@ -59,13 +59,14 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
         inpStream.close();
         String dbDriver = (String) p.get("dbDriver");
         String dbServer = (String) p.get("dbServer");
-        String dbLogin = userName;
-        String dbPassword = passwd;
+        String dbLogin = (String) p.get("userName");
+        String dbPassword = (String) p.get("password");
         int minConns = Integer.parseInt( (String) p.get("minConns"));
         int maxConns = Integer.parseInt( (String) p.get("maxConns"));
         String logFileString = (String) p.get("logFileString");
         double maxConnTime =
             (new Double( (String) p.get("maxConnTime"))).doubleValue();
+
         p.clear();
         setupBroker(dbDriver, dbServer, dbLogin, dbPassword, minConns,
                     maxConns, logFileString, maxConnTime, false,

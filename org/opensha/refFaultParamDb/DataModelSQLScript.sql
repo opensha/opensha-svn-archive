@@ -91,6 +91,10 @@ end;
 CREATE TABLE Contributors (
   Contributor_Id INTEGER NOT NULL,
   Contributor_Name VARCHAR(45) NOT NULL UNIQUE,
+  Password VARCHAR(45) NOT NULL,
+  First_Name VARCHAR(45) NOT NULL,
+  Last_Name  VARCHAR(45) NOT NULL,
+  Email VARCHAR(45) NOT NULL UNIQUE,
   PRIMARY KEY(Contributor_Id)
 );
 
@@ -673,6 +677,8 @@ CREATE TABLE Event_Sequence_Event_List (
 );
 
 
+insert into Contributors( Contributor_Name, Password, First_Name, Last_Name, Email ) values ('Admin', 'Admin', 'Admin', 'Admin', 'Admin'); 
+
 
 insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 1', '2001', 'Full Bibliographic Reference 1');
 insert into Reference (Ref_AUth, Ref_Year, Full_Bibliographic_Reference) values ('Short Citation 2', '2002', 'Full Bibliographic Reference 2');
@@ -685,8 +691,6 @@ insert into Site_Representations(Site_Representation_Id,Site_Representation_Name
 insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (3, 'Entire Fault');
 insert into Site_Representations(Site_Representation_Id,Site_Representation_Name) values (4, 'Unknown');
 
-insert into Contributors(Contributor_Id, Contributor_name) values (1, 'fault_sandbox');
-insert into Contributors(Contributor_Id, Contributor_name) values (2, 'vipin');
 
 insert into Est_Type values(1,'NormalEstimate',sysdate);
 insert into Est_Type values(2,'LogNormalEstimate',sysdate);

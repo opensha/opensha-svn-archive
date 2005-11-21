@@ -21,6 +21,7 @@ import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import java.util.Enumeration;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
+import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 
 /**
  * <p>Title: DB_AccessServlet</p>
@@ -33,25 +34,30 @@ import org.opensha.refFaultParamDb.dao.db.SpatialQueryResult;
 public class DB_AccessServlet extends HttpServlet{
   //GOLDEN: jdbc:oracle:thin:@gldwebdb.cr.usgs.gov:1521:EQCATS
   //PASADENA: jdbc:oracle:thin:@iron.gps.caltech.edu:1521:irondb
-  private HashMap dbConnMap = new HashMap();
-  private String dbDriver, dbServer, logFileString;
-  private int minConns, maxConns;
-  private double maxConnTime;
+
   private final static String CONNECT_FAILURE_MSG = "Connection to the database server failed.\nCheck username/password or try again later";
   private final static String PROP_NAME = "DbConnectionPropertiesFileName";
-
+  private DB_AccessAPI myBroker;
+  private ContributorDB_DAO contributorDAO;
   public void init() throws ServletException {
     try {
       Properties p = new Properties();
       String fileName = getInitParameter(PROP_NAME);
       p.load(new FileInputStream(fileName));
-      dbDriver = (String) p.get("dbDriver");
-      dbServer = (String) p.get("dbServer");
-      minConns = Integer.parseInt( (String) p.get("minConns"));
-      maxConns = Integer.parseInt( (String) p.get("maxConns"));
-      logFileString = (String) p.get("logFileString");
-      maxConnTime =
+      String dbDriver = (String) p.get("dbDriver");
+      String dbServer = (String) p.get("dbServer");
+      int minConns = Integer.parseInt( (String) p.get("minConns"));
+      int maxConns = Integer.parseInt( (String) p.get("maxConns"));
+      String logFileString = (String) p.get("logFileString");
+      double maxConnTime =
           (new Double( (String) p.get("maxConnTime"))).doubleValue();
+      String usrName = (String) p.get("username");
+      String password = (String)p.get("password");
+      myBroker = new
+                DB_ConnectionPool(dbDriver, dbServer, usrName, password,
+                                  minConns, maxConns, logFileString, maxConnTime);
+      contributorDAO = new ContributorDB_DAO(myBroker);
+
     }
     catch (FileNotFoundException f) {f.printStackTrace();}
     catch (IOException e) {e.printStackTrace();}
@@ -72,27 +78,18 @@ public class DB_AccessServlet extends HttpServlet{
           getInputStream());
       ObjectOutputStream outputToApp = new ObjectOutputStream(response.
         getOutputStream());
-      DB_AccessAPI myBroker;
       try {
         // get the username
         String usrName = (String)inputFromApp.readObject();
         // get the password
         String passwd = (String)inputFromApp.readObject();
-        //check whether db connection already exists for this username, passwd
-        myBroker = (DB_AccessAPI)dbConnMap.get(usrName+"_"+passwd);
-        if(myBroker==null) { // put connection for this uname password in hashmap
-          try {
-            myBroker = new
-                DB_ConnectionPool(dbDriver, dbServer, usrName, passwd,
-                                  minConns, maxConns, logFileString, maxConnTime);
-            dbConnMap.put(usrName + "_" + passwd, myBroker);
-          }catch(IOException e) { // if connection failed, throw exception
-            DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
-            outputToApp.writeObject(exception);
-            outputToApp.close();
-          }
+        // if this is a valid contributor
+        if(contributorDAO.isContributorValid(usrName, passwd)==null) {
+          inputFromApp.close();
+          DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
+          outputToApp.writeObject(exception);
+          outputToApp.close();
         }
-
         //receiving the name of the Function to be performed
         String functionToPerform = (String) inputFromApp.readObject();
         //receiving the query

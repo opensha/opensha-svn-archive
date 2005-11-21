@@ -51,7 +51,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
 
   public void testAddPaleoSite() throws InsertException {
     Contributor contributor1 = new Contributor("Test1");
-    contributorKey1 = contributorDB_DAO.addContributor(contributor1);
+    contributorKey1 = contributorDB_DAO.addContributor(contributor1,"testpass1");
     contributor1.setId(contributorKey1);
     SiteType siteType1 = new SiteType("geologic",contributor1,"Comments1");
     SiteType siteType3 = new SiteType("paleosite",contributor1,"Comments2");

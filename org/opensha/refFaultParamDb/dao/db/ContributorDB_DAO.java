@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.dao.exception.*;
+import java.security.MessageDigest;
 
 /**
  * <p>Title:ContributorDB_DAO.java</p>
@@ -20,6 +21,11 @@ public class ContributorDB_DAO  {
   private final static String TABLE_NAME="Contributors";
   private final static String CONTRIBUTOR_ID="Contributor_Id";
   public final static String CONTRIBUTOR_NAME="Contributor_Name";
+  private final static String FIRST_NAME = "First_Name";
+  private final static String LAST_NAME = "Last_Name";
+  private final static String EMAIL = "Email";
+  private final static String PASSWORD = "Password";
+
   private DB_AccessAPI dbAccessAPI;
 
   /**
@@ -41,22 +47,38 @@ public class ContributorDB_DAO  {
    * @return
    * @throws InsertException
    */
-  public int addContributor(Contributor contributor) throws InsertException {
+  public int addContributor(Contributor contributor, String password) throws InsertException {
     int contributorId = -1;
     try {
       contributorId = dbAccessAPI.getNextSequenceNumber(SEQUENCE_NAME);
    }catch(SQLException e) {
      throw new InsertException(e.getMessage());
    }
+   String passwordStr=getEnryptedPassword(password);
 
-    String sql = "insert into "+TABLE_NAME+"("+ CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+")"+
-        " values ("+contributorId+",'"+contributor.getName()+"')";
-    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
-    catch(SQLException e) {
-      //e.printStackTrace();
-      throw new InsertException(e.getMessage());
-    }
-    return contributorId;
+   // insert into the table
+   String sql = "insert into "+TABLE_NAME+"("+ CONTRIBUTOR_ID+","+CONTRIBUTOR_NAME+
+       ","+FIRST_NAME+","+LAST_NAME+","+EMAIL+","+PASSWORD+")"+
+       " values ("+contributorId+",'"+contributor.getName()+"','"+
+       contributor.getFirstName()+"','"+contributor.getLastName()+"','"+
+       contributor.getEmail()+"','"+passwordStr+"')";
+   try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
+   catch(SQLException e) {
+     //e.printStackTrace();
+     throw new InsertException(e.getMessage());
+   }
+   return contributorId;
+ }
+
+  private String getEnryptedPassword(String password) {
+    try {
+     MessageDigest md = MessageDigest.getInstance("MD5");
+     md.update(password.getBytes());
+     return new String(md.digest());
+   }catch(Exception e) {
+     e.printStackTrace();
+   }
+   return null;
   }
 
   /**
@@ -65,9 +87,9 @@ public class ContributorDB_DAO  {
    * @param contributor
    * @throws UpdateException
    */
-  public boolean updateContributor(int contributorId, Contributor contributor) throws UpdateException {
-    String sql = "update "+TABLE_NAME+" set "+CONTRIBUTOR_NAME+"= '"+
-        contributor.getName()+"' where "+CONTRIBUTOR_ID+"="+contributorId;
+  public boolean updatePassword(int contributorId, String password) throws UpdateException {
+    String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
+        getEnryptedPassword(password)+"' where "+CONTRIBUTOR_ID+"="+contributorId;
     try {
       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
@@ -104,6 +126,21 @@ public class ContributorDB_DAO  {
     return contributor;
   }
 
+  /**
+   * Whether the provided username/password is valid
+   * @param name
+   * @param password
+   * @return
+   */
+  public Contributor isContributorValid(String name, String password) {
+    Contributor contributor=null;
+    String condition  =  " where "+this.CONTRIBUTOR_NAME+"='"+name+"' and "+
+        this.PASSWORD+"='"+getEnryptedPassword(password)+"'";
+    ArrayList contributorList = query(condition);
+    if(contributorList.size()>0) return (Contributor)contributorList.get(0);
+    else return null;
+
+  }
 
   /**
    * Remove a contributor from the table

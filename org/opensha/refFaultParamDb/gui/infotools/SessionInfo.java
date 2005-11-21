@@ -50,7 +50,7 @@ public class SessionInfo {
     */
    public static void setContributorInfo() {
      ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
-     contributor = contributorDAO.getContributor(userName);
+     contributor = contributorDAO.isContributorValid(userName, password);
    }
 
    /**

@@ -10,6 +10,7 @@ import java.net.URLConnection;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import java.util.ArrayList;
+import java.io.IOException;
 
 
 /**
@@ -215,11 +216,14 @@ public class ServerDB_Access
           ObjectInputStream(servletConnection.getInputStream());
 
       outputFromRemoteDB = inputToServlet.readObject();
-      if(outputFromRemoteDB instanceof Exception) throw (Exception)outputFromRemoteDB;
+      if(outputFromRemoteDB instanceof Exception) throw (RuntimeException)outputFromRemoteDB;
       inputToServlet.close();
-    }catch (Exception e) {
+    }catch (IOException e) {
+      e.printStackTrace();
+    }catch(ClassNotFoundException e) {
       e.printStackTrace();
     }
+
     return outputFromRemoteDB;
   }
 

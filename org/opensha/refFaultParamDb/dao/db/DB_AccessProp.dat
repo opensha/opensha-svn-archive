@@ -4,3 +4,5 @@ minConns      2
 maxConns      7
 logFileString javaDevelopers/vipin/dao/db/DB_Log.log
 maxConnTime   .5
+userName	  fault_sandbox
+password      perry

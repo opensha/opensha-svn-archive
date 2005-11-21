@@ -52,7 +52,7 @@ public class TestFaultModelDB_DAO extends TestCase {
   public void testAddFaultModel() throws InsertException {
     Contributor contributor1 = new Contributor("Test1");
     Contributor contributor2 = new Contributor("Test2");
-    contributorKey1 = contributorDB_DAO.addContributor(contributor1);
+    contributorKey1 = contributorDB_DAO.addContributor(contributor1,"testpass1");
     contributor1.setId(contributorKey1);
 
     FaultModel faultModel1 = new FaultModel("usgs2002",contributor1);
@@ -84,7 +84,7 @@ public class TestFaultModelDB_DAO extends TestCase {
 
   public void testUpdateFaultModel() throws UpdateException {
     Contributor contributor2 = new Contributor("Test2");
-    contributorKey2 = contributorDB_DAO.addContributor(contributor2);
+    contributorKey2 = contributorDB_DAO.addContributor(contributor2,"testpass2");
     contributor2.setId(contributorKey2);
     FaultModel faultModel = new FaultModel("Test1",contributor2);
     boolean status  = faultModelDB_DAO.updateFaultModel(7878, faultModel);

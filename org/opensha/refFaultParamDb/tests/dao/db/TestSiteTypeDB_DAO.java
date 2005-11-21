@@ -50,7 +50,7 @@ public class TestSiteTypeDB_DAO extends TestCase {
   public void testAddSiteType() throws InsertException {
     Contributor contributor1 = new Contributor("Test1");
     Contributor contributor2 = new Contributor("Test2");
-    contributorKey1 = contributorDB_DAO.addContributor(contributor1);
+    contributorKey1 = contributorDB_DAO.addContributor(contributor1,"testpass1");
     contributor1.setId(contributorKey1);
 
     SiteType siteType1 = new SiteType("geologic",contributor1, "TestComments1");
@@ -83,7 +83,7 @@ public class TestSiteTypeDB_DAO extends TestCase {
 
   public void testUpdateSiteType() throws UpdateException {
     Contributor contributor2 = new Contributor("Test2");
-    contributorKey2 = contributorDB_DAO.addContributor(contributor2);
+    contributorKey2 = contributorDB_DAO.addContributor(contributor2,"testpass2");
     contributor2.setId(contributorKey2);
     SiteType siteType = new SiteType("SiteTest2",contributor2,"Comments1");
     boolean status  = siteTypeDB_DAO.updateSiteType(7878, siteType);

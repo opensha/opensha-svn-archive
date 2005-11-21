@@ -7,6 +7,7 @@ import java.net.*;
 import java.awt.event.*;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 
 /**
  * <p>Title: LoginWindow</p>
@@ -136,7 +137,12 @@ public class LoginWindow extends JFrame implements ActionListener {
     if(source==loginButton) { // if login button is clicked, save the username/passwd
       SessionInfo.setPassword(this.passwordText.getText());
       SessionInfo.setUserName(this.usernameText.getText());
-      SessionInfo.setContributorInfo();
+      try {
+        SessionInfo.setContributorInfo();
+      }catch(DBConnectException connectException) {
+        JOptionPane.showMessageDialog(this,"Invalid username/password");
+        return;
+      }
       PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();
       this.dispose();
     }

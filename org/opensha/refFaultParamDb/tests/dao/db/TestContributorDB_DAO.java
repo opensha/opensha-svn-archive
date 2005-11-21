@@ -47,8 +47,8 @@ public class TestContributorDB_DAO extends TestCase {
     Contributor contributor1 = new Contributor("Test1");
     Contributor contributor2 = new Contributor("Test2");
     Contributor contributor3 = new Contributor("Test3");
-    primaryKey1 = contributorDB_DAO.addContributor(contributor1);
-    primaryKey2 = contributorDB_DAO.addContributor(contributor3);
+    primaryKey1 = contributorDB_DAO.addContributor(contributor1,"testPass1");
+    primaryKey2 = contributorDB_DAO.addContributor(contributor3,"testPass3");
     assertTrue(primaryKey1!=primaryKey2);
   }
 
@@ -65,17 +65,6 @@ public class TestContributorDB_DAO extends TestCase {
     assertEquals("Test1", actualReturn.getName());
   }
 
-  public void testUpdateContributor() throws UpdateException {
-    Contributor contributor = new Contributor(7879,"Test2");
-    boolean status  = contributorDB_DAO.updateContributor(7879, contributor);
-    this.assertFalse("cannot update contributor with 7879 as it does not exist", status);
-    contributor = new Contributor(primaryKey1,"TestTest1");
-    status = contributorDB_DAO.updateContributor(primaryKey1, contributor);
-    assertTrue("contributor with id="+primaryKey1+ " should be updated in the database",status);
-    Contributor actualReturn = contributorDB_DAO.getContributor(primaryKey1);
-    assertNotNull("should not be null as contributor exists with id = "+primaryKey1,actualReturn);
-    assertEquals("contributor id "+primaryKey1+" has name test 1", "TestTest1", actualReturn.getName());
-  }
 
   public void testRemoveContributor() throws UpdateException {
     boolean status = contributorDB_DAO.removeContributor(7878);
