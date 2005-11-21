@@ -6,8 +6,8 @@ import org.opensha.refFaultParamDb.dao.db.DB_ConnectionPool;
 import org.opensha.refFaultParamDb.vo.Contributor;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
+ * <p>Title: AddContributorForDatabase.java </p>
+ * <p>Description: Add a new contributor to the database </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
