@@ -8,6 +8,10 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import java.net.URL;
+import java.net.URLConnection;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
 
 /**
  * <p>Title: GetAccountInfo.java </p>
@@ -30,6 +34,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
   private final static String MSG_EMAIL_MISSING = "Email address is missing";
   private final static String MSG_INVALID_EMAIL = "Invalid email address";
   private final static String MSG_SUCCESS = "Account Info emailed successfully";
+  private final static String SERVLET_ADDRESS = "http://gravity.usc.edu:8080/UCERF/servlet/UserAccountInfoServlet";
   private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
 
   public GetAccountInfo() {
@@ -92,9 +97,52 @@ public class GetAccountInfo extends JFrame implements ActionListener {
     String message = "Account info - "+"\n"+
         "user name:"+contributor.getName()+"\n"+
         "Password:"+password+"\n";
-    ConnectToEmailServlet.sendEmail(message);
+    sendEmail(message, email);
     JOptionPane.showMessageDialog(this, MSG_SUCCESS);
     this.dispose();
 
   }
+
+
+ /**
+  * Send email to database curator whenever a data is addded/removed/updated
+  * from the database.
+  *
+  * @param message
+  */
+ private void sendEmail(String message, String emailTo) {
+   try {
+     URL emailServlet = new URL(SERVLET_ADDRESS);
+
+     URLConnection servletConnection = emailServlet.openConnection();
+
+     // inform the connection that we will send output and accept input
+     servletConnection.setDoInput(true);
+     servletConnection.setDoOutput(true);
+     // Don't use a cached version of URL connection.
+     servletConnection.setUseCaches(false);
+     servletConnection.setDefaultUseCaches(false);
+     // Specify the content type that we will send binary data
+     servletConnection.setRequestProperty("Content-Type",
+                                          "application/octet-stream");
+     ObjectOutputStream toServlet = new
+         ObjectOutputStream(servletConnection.getOutputStream());
+     //sending the email message
+     toServlet.writeObject(emailTo);
+     toServlet.writeObject(message);
+     toServlet.flush();
+     toServlet.close();
+
+     // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+     ObjectInputStream fromServlet = new
+         ObjectInputStream(servletConnection.getInputStream());
+
+     String outputFromServlet = (String) fromServlet.readObject();
+     fromServlet.close();
+   }catch(Exception e) {
+     e.printStackTrace();
+   }
+ }
+
 }
