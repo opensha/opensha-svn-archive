@@ -2,6 +2,10 @@ package org.opensha.refFaultParamDb.gui.login;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 
 /**
  * <p>Title: ChangePassword.java </p>
@@ -12,7 +16,7 @@ import java.awt.*;
  * @version 1.0
  */
 
-public class ChangePassword extends JFrame {
+public class ChangePassword extends JFrame implements ActionListener {
   private JPanel mainPanel = new JPanel();
   private JLabel changePasswordLabel = new JLabel();
   private JLabel userNameLabel = new JLabel();
@@ -21,16 +25,27 @@ public class ChangePassword extends JFrame {
   private JLabel newPwdLabel = new JLabel();
   private JLabel confirmNewPwdLabel = new JLabel();
   private JPasswordField oldPwdText = new JPasswordField();
-  private JPasswordField oldPwdText1 = new JPasswordField();
-  private JPasswordField oldPwdText2 = new JPasswordField();
+  private JPasswordField newPwdText = new JPasswordField();
+  private JPasswordField confirmNewPwdText = new JPasswordField();
   private JButton changePasswordButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
+  private final static String MSG_USERNAME_MISSING = "Username is missing";
+  private final static String MSG_CURRENT_PWD_MISSING = "Current Password is missing";
+  private final static String MSG_NEW_PWD_MISSING = "New Password is missing";
+  private final static String MSG_NEW_PWDS_DIFFERENT = "New Passwords are different";
+  private final static String MSG_PWD_CHANGE_SUCCESS = "Password changed successful";
+  private final static String MSG_PWD_CHANGE_FAILED = "Password change failed\n"+
+      "Check username and current password";
+
+  private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
 
   public ChangePassword() {
     try {
       jbInit();
+      changePasswordButton.addActionListener(this);
       this.pack();
+      this.setLocationRelativeTo(null);
       this.show();
     }
     catch(Exception e) {
@@ -66,12 +81,12 @@ public class ChangePassword extends JFrame {
     oldPwdText.setFont(new java.awt.Font("Dialog", 1, 12));
     oldPwdText.setForeground(new Color(80, 80, 133));
     oldPwdText.setText("");
-    oldPwdText1.setText("");
-    oldPwdText1.setFont(new java.awt.Font("Dialog", 1, 12));
-    oldPwdText1.setForeground(new Color(80, 80, 133));
-    oldPwdText2.setText("");
-    oldPwdText2.setFont(new java.awt.Font("Dialog", 1, 12));
-    oldPwdText2.setForeground(new Color(80, 80, 133));
+    newPwdText.setText("");
+    newPwdText.setFont(new java.awt.Font("Dialog", 1, 12));
+    newPwdText.setForeground(new Color(80, 80, 133));
+    confirmNewPwdText.setText("");
+    confirmNewPwdText.setFont(new java.awt.Font("Dialog", 1, 12));
+    confirmNewPwdText.setForeground(new Color(80, 80, 133));
     changePasswordButton.setForeground(new Color(80, 80, 133));
     changePasswordButton.setText("Change Password");
     this.getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -87,13 +102,47 @@ public class ChangePassword extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(28, 16, 0, 23), 163, 3));
     mainPanel.add(oldPwdText,  new GridBagConstraints(1, 2, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(20, 16, 0, 23), 164, 4));
-    mainPanel.add(oldPwdText2,  new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
+    mainPanel.add(confirmNewPwdText,  new GridBagConstraints(1, 4, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(20, 16, 0, 23), 164, 4));
-    mainPanel.add(oldPwdText1,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
+    mainPanel.add(newPwdText,  new GridBagConstraints(1, 3, 1, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(21, 16, 0, 23), 164, 4));
     mainPanel.add(changePasswordButton,  new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(11, 37, 20, 23), 21, 4));
     mainPanel.add(changePasswordLabel,  new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2, 39, 0, 55), 148, 13));
+  }
+
+  public void actionPerformed(ActionEvent event) {
+    String userName = this.userNameText.getText().trim();
+    String oldPwd = this.oldPwdText.getText().trim();
+    String newPwd = this.newPwdText.getText().trim();
+    String confirmNewPwdText = this.confirmNewPwdText.getText().trim();
+    // check that username has been entered
+    if(userName.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_USERNAME_MISSING);
+      return;
+    }
+    // check that old password has been entered
+    if(oldPwd.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_CURRENT_PWD_MISSING);
+      return;
+    }
+    // check that new passwords have been entered
+    if(newPwd.equalsIgnoreCase("") || confirmNewPwdText.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_NEW_PWD_MISSING);
+      return;
+    }
+    // check that new passwords in both fields are same
+    if(!newPwd.equalsIgnoreCase(confirmNewPwdText)) {
+      JOptionPane.showMessageDialog(this, this.MSG_NEW_PWDS_DIFFERENT);
+      return;
+    }
+    boolean success =  contributorDAO.updatePassword(userName, oldPwd, newPwd);
+    if(success) {
+      JOptionPane.showMessageDialog(this, this.MSG_PWD_CHANGE_SUCCESS);
+      this.dispose();
+    } else {
+      JOptionPane.showMessageDialog(this, this.MSG_PWD_CHANGE_FAILED);
+    }
   }
 }

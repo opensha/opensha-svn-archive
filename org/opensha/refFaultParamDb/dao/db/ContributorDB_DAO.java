@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.Contributor;
 import org.opensha.refFaultParamDb.dao.exception.*;
 import java.security.MessageDigest;
+import java.util.Random;
 
 /**
  * <p>Title:ContributorDB_DAO.java</p>
@@ -87,15 +88,56 @@ public class ContributorDB_DAO  {
    * @param contributor
    * @throws UpdateException
    */
-  public boolean updatePassword(int contributorId, String password) throws UpdateException {
+  public boolean updatePassword(String userName, String oldPassword,
+                                String newPassword) throws UpdateException {
     String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
-        getEnryptedPassword(password)+"' where "+CONTRIBUTOR_ID+"="+contributorId;
+        getEnryptedPassword(newPassword)+"' where "+this.CONTRIBUTOR_NAME+"='"+
+        userName+"' and "+this.PASSWORD+"='"+getEnryptedPassword(oldPassword)+"'";
     try {
       int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
       if(numRows==1) return true;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
     return false;
+  }
+
+
+  /**
+   * reset the password for a contributor in the database
+   * @throws UpdateException
+   */
+  public String resetPassword(String userName) throws UpdateException {
+    String randomPass = getRandomPassword();
+    String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
+        getEnryptedPassword(randomPass)+"' where "+this.CONTRIBUTOR_NAME+"='"+
+        userName+"'";
+    try {
+      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
+      if(numRows==1) return randomPass;
+    }
+    catch(SQLException e) { throw new UpdateException(e.getMessage()); }
+    return null;
+  }
+
+  private int rand(int lo, int hi, Random rn) {
+    int n = hi - lo + 1;
+    int i = rn.nextInt() % n;
+    if (i < 0)
+      i = -i;
+    return lo + i;
+  }
+
+  /**
+   * Get random string
+   * @return
+   */
+  private String getRandomPassword() {
+    Random rn = new Random();
+    int n = rand(8, 12, rn);
+    byte b[] = new byte[n];
+    for (int i = 0; i < n; i++)
+      b[i] = (byte)rand('a', 'z', rn);
+    return new String(b, 0);
   }
 
 
@@ -125,6 +167,20 @@ public class ContributorDB_DAO  {
     if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
     return contributor;
   }
+
+  /**
+  * Get the contributor info for a particular contributor email address
+  * @param name username for the contributor
+  * @return
+  */
+ public Contributor getContributorByEmail(String emailAdd) throws QueryException {
+   Contributor contributor=null;
+   String condition  =  " where "+this.EMAIL+"='"+emailAdd+"'";
+   ArrayList contributorList = query(condition);
+   if(contributorList.size()>0) contributor = (Contributor)contributorList.get(0);
+   return contributor;
+ }
+
 
   /**
    * Whether the provided username/password is valid

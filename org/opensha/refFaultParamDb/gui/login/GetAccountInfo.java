@@ -2,6 +2,12 @@ package org.opensha.refFaultParamDb.gui.login;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import java.awt.event.ActionEvent;
+import org.opensha.refFaultParamDb.vo.Contributor;
+import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
 /**
  * <p>Title: GetAccountInfo.java </p>
@@ -13,7 +19,7 @@ import java.awt.*;
  * @version 1.0
  */
 
-public class GetAccountInfo extends JFrame {
+public class GetAccountInfo extends JFrame implements ActionListener {
   private JPanel jPanel1 = new JPanel();
   private JTextField emailText = new JTextField();
   private JLabel emailLabel = new JLabel();
@@ -21,11 +27,17 @@ public class GetAccountInfo extends JFrame {
   private JLabel forgotLabel = new JLabel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private final static String MSG_EMAIL_MISSING = "Email address is missing";
+  private final static String MSG_INVALID_EMAIL = "Invalid email address";
+  private final static String MSG_SUCCESS = "Account Info emailed successfully";
+  private ContributorDB_DAO contributorDAO = new ContributorDB_DAO(DB_AccessAPI.dbConnection);
 
   public GetAccountInfo() {
     try {
       jbInit();
+      emailAccountInfoButton.addActionListener(this);
       pack();
+      this.setLocationRelativeTo(null);
       show();
     }
     catch(Exception e) {
@@ -59,5 +71,30 @@ public class GetAccountInfo extends JFrame {
             ,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(14, 17, 0, 0), 73, 13));
     jPanel1.add(emailText,  new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0
             ,GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL, new Insets(15, 75, 0, 31), 184, 3));
+  }
+
+  public void actionPerformed(ActionEvent event) {
+    String email = this.emailText.getText().trim();
+    // check that email is not missing
+    if(email.equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_EMAIL_MISSING);
+      return;
+    }
+    Contributor contributor = this.contributorDAO.getContributorByEmail(email);
+    // check that this email address existed in the database
+    if(contributor==null) {
+      JOptionPane.showMessageDialog(this, this.MSG_INVALID_EMAIL);
+      return;
+    }
+    // reset the password
+    String password = contributorDAO.resetPassword(contributor.getName());
+    // email account info to the user
+    String message = "Account info - "+"\n"+
+        "user name:"+contributor.getName()+"\n"+
+        "Password:"+password+"\n";
+    ConnectToEmailServlet.sendEmail(message);
+    JOptionPane.showMessageDialog(this, MSG_SUCCESS);
+    this.dispose();
+
   }
 }

@@ -35,7 +35,9 @@ public class RequestUserAccount extends JFrame implements ActionListener {
   public RequestUserAccount() {
     try {
       jbInit();
+      requestAccountButton.addActionListener(this);
       pack();
+      this.setLocationRelativeTo(null);
       show();
     }
     catch(Exception e) {
@@ -66,7 +68,6 @@ public class RequestUserAccount extends JFrame implements ActionListener {
     firstNameText.setText("");
     requestAccountButton.setForeground(new Color(80, 80, 133));
     requestAccountButton.setText("Request Account");
-    requestAccountButton.addActionListener(this);
     lastNameText.setText("");
     lastNameText.setForeground(new Color(80, 80, 133));
     emailText.setText("");
