@@ -51,16 +51,16 @@ public class DB_AccessServlet extends HttpServlet{
       String logFileString = (String) p.get("logFileString");
       double maxConnTime =
           (new Double( (String) p.get("maxConnTime"))).doubleValue();
-      String usrName = (String) p.get("username");
+      String usrName = (String) p.get("userName");
       String password = (String)p.get("password");
       myBroker = new
                 DB_ConnectionPool(dbDriver, dbServer, usrName, password,
                                   minConns, maxConns, logFileString, maxConnTime);
       contributorDAO = new ContributorDB_DAO(myBroker);
-
     }
     catch (FileNotFoundException f) {f.printStackTrace();}
     catch (IOException e) {e.printStackTrace();}
+    catch (Exception e) { e.printStackTrace(); }
 }
 
 /**
@@ -84,12 +84,13 @@ public class DB_AccessServlet extends HttpServlet{
         // get the password
         String passwd = (String)inputFromApp.readObject();
         // if this is a valid contributor
-        if(contributorDAO.isContributorValid(usrName, passwd)==null) {
+        /*if(contributorDAO.isContributorValid(usrName, passwd)==null) {
           inputFromApp.close();
           DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
           outputToApp.writeObject(exception);
           outputToApp.close();
-        }
+          return;
+        }*/
         //receiving the name of the Function to be performed
         String functionToPerform = (String) inputFromApp.readObject();
         //receiving the query
@@ -138,6 +139,8 @@ public class DB_AccessServlet extends HttpServlet{
         ex.printStackTrace();
       }
       catch (IOException ex) {
+        ex.printStackTrace();
+      }catch(Exception ex) {
         ex.printStackTrace();
       }
     }

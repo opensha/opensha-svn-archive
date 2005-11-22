@@ -15,15 +15,15 @@ import org.opensha.refFaultParamDb.vo.Contributor;
  */
 
 public class AddContributorForDatabase {
-  private final static DB_AccessAPI dbConnPas= new DB_ConnectionPool();
+  private final static DB_AccessAPI dbConn= DB_AccessAPI.dbConnection;
 
   public static void main(String[] args) {
-    ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConnPas);
+    ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConn);
     Contributor contributor = new Contributor();
-    contributor.setEmail("fault_sandbox");
-    contributor.setFirstName("Fault");
-    contributor.setLastName("Sandbox");
-    contributor.setName("fault_sandbox");
+    contributor.setEmail("vgupta@usc.edu");
+    contributor.setFirstName("Vipin");
+    contributor.setLastName("Gupta");
+    contributor.setName("vgupta");
     String password = "";
     contributorDAO.addContributor(contributor,password);
   }
