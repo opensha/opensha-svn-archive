@@ -75,7 +75,8 @@ public class ContributorDB_DAO  {
     try {
      MessageDigest md = MessageDigest.getInstance("MD5");
      md.update(password.getBytes());
-     return new String(md.digest());
+     return new sun.misc.BASE64Encoder().encode(md.digest());
+     //return new String(md.digest());
    }catch(Exception e) {
      e.printStackTrace();
    }

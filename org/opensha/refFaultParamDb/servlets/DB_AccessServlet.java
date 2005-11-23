@@ -84,13 +84,13 @@ public class DB_AccessServlet extends HttpServlet{
         // get the password
         String passwd = (String)inputFromApp.readObject();
         // if this is a valid contributor
-        /*if(contributorDAO.isContributorValid(usrName, passwd)==null) {
+        if(contributorDAO.isContributorValid(usrName, passwd)==null) {
           inputFromApp.close();
           DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
           outputToApp.writeObject(exception);
           outputToApp.close();
           return;
-        }*/
+        }
         //receiving the name of the Function to be performed
         String functionToPerform = (String) inputFromApp.readObject();
         //receiving the query
