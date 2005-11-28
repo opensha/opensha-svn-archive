@@ -26,6 +26,7 @@ drop table Paleo_Site_References;
 drop trigger Paleo_Site_Trigger;
 drop sequence Paleo_Site_Sequence;
 drop table Paleo_Site;
+drop table Fault_Names; 
 drop trigger Site_type_Trigger;
 drop sequence Site_type_Sequence;
 drop table site_type;
@@ -347,6 +348,14 @@ end;
 /
 
 
+CREATE TABLE Fault_Names (
+  Fault_Id INTEGER NOT NULL,
+  Fault_Name VARCHAR(255) NOT NULL,
+  PRIMARY KEY(Fault_Id)
+);
+
+
+
 CREATE TABLE Paleo_Site (
   Site_Id INTEGER NOT NULL,
   Fault_Id INTEGER NOT NULL,
@@ -365,7 +374,9 @@ CREATE TABLE Paleo_Site (
   FOREIGN KEY(Representative_Strand_Index)
      REFERENCES Site_Representations(Site_Representation_Id),
   FOREIGN KEY(Dip_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY (Fault_Id)
+     REFERENCES Fault_Names(Fault_Id)
 );
 
 create sequence Paleo_Site_Sequence
@@ -730,6 +741,10 @@ FROM  Paleo_Site ps, Contributors contrib, Site_Representations sr, (select max(
 
 INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference, QFault_Reference_Id)
 select Ref_Auth, Ref_Year, Reference_Tx, Ref_Num from QFault_References;
+
+INSERT into Reference( Ref_Auth, Ref_Year,Full_Bibliographic_Reference) values
+  ('WGCEP-2007', 'Not published', 'WGCEP-2007');
+
 
 
 commit;

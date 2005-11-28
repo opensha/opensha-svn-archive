@@ -161,13 +161,13 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       jbInit();
       // make parameter and editor for site type
       makeSiteTypeParamAndEditor();
+      // show/not show second site location
+      setSecondLocationVisible();
       // make parameter and editor for reference
       makeReferenceParamAndEditor();
       this.setTitle(TITLE);
       // add listeners for the buttons in this window
       addActionListeners();
-      // show/not show second site location
-      setSecondLocationVisible();
     }catch(Exception e) {
       e.printStackTrace();
     }

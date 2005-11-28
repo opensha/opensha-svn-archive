@@ -187,7 +187,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   }
 
   private void addEditSiteCharacteristicsPanel() {
-    int siteYPos = 0;
+    int siteYPos = 1;
 
     // edit site button
     addEditSitePanel.add(editSiteButton, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
@@ -195,7 +195,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                                                GridBagConstraints.NONE,
                                                new Insets(2, 2, 2, 2), 0, 0));
 
-    ++siteYPos; // increment because site names editor exists at this place
+    //++siteYPos; // increment because site names editor exists at this place
     // site location
     addEditSitePanel.add(siteLocationLabel,
                          new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
@@ -320,7 +320,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   siteNameParam.addParameterChangeListener(this);
 
   addEditSitePanel.add(siteNameParamEditor,
-                       new GridBagConstraints(0, 1, 1, 1, 1.0,
+                       new GridBagConstraints(0, 0, 1, 1, 1.0,
                                               1.0
                                               , GridBagConstraints.CENTER,
                                               GridBagConstraints.BOTH,

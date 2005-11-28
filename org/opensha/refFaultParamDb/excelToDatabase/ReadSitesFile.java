@@ -17,13 +17,14 @@ import org.opensha.refFaultParamDb.vo.Reference;
  */
 
 public class ReadSitesFile {
-  /*private final static String FILENAME = "org\\opensha\\refFaultParamDb\\PaleoSites.txt";
+  private final static String FILENAME = "org\\opensha\\refFaultParamDb\\PaleoSites.txt";
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String COMMENTS_DEFAULT = "Site Information provided by Chris Wills from Excel file";
   private final static String STRAND_DEFAULT = "Unknown";
   private final static String SITE_TYPE_DAFULT = "Unknown";
   private final static float  SITE_ELEVATION_DEFAULT = 0.0f;
+  private final static int REFERENCE_ID_DEFAULT = 6530; // id for WGCEP-2007 reference
   private final static String NONAME_SITENAME="no name";
   public ReadSitesFile() {
     try {
@@ -49,14 +50,16 @@ public class ReadSitesFile {
        paleoSite.setSiteElevation2(SITE_ELEVATION_DEFAULT);
        paleoSite.setGeneralComments(COMMENTS_DEFAULT);
        paleoSite.setRepresentativeStrandName(STRAND_DEFAULT);
-       paleoSite.setSiteTypeName(SITE_TYPE_DAFULT);
+       ArrayList siteTypeNames = new ArrayList();
+       siteTypeNames.add(SITE_TYPE_DAFULT);
+       paleoSite.setSiteTypeNames(siteTypeNames);
        //parse the references
        ArrayList referenceList = new ArrayList();
+       referenceList.add(this.referenceDAO.getReference(this.REFERENCE_ID_DEFAULT));
         // there may be more than one references for this site
-
-       StringTokenizer referencesTokenizer = new StringTokenizer(references,";");
-       while(referencesTokenizer.hasMoreTokens()) referenceList.add(referencesTokenizer.nextToken().trim());
-       paleoSite.setReferenceShortCitationList(referenceList);
+       //StringTokenizer referencesTokenizer = new StringTokenizer(references,";");
+       //while(referencesTokenizer.hasMoreTokens()) referenceList.add(referencesTokenizer.nextToken().trim());
+       paleoSite.setReferenceList(referenceList);
        //for(int j=0; j< referenceList.size(); ++j) {
        //  String rf = (String)referenceList.get(j);
        //  Reference ref = referenceDAO.getReference(rf);
@@ -70,6 +73,6 @@ public class ReadSitesFile {
      e.printStackTrace();
    }
 
-  }*/
+  }
 
 }
