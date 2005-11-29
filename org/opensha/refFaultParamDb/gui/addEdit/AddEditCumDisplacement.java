@@ -45,24 +45,24 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 
   // various parameters
- private EstimateParameter aSeismicSlipFactorParam;
- private EstimateParameter cumDisplacementParam;
- private StringParameter displacementCommentsParam;
+  private EstimateParameter aSeismicSlipFactorParam;
+  private EstimateParameter cumDisplacementParam;
+  private StringParameter displacementCommentsParam;
 
- // parameter editors
- private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
- private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
- private CommentsParameterEditor displacementCommentsParamEditor;
- private SenseOfMotionPanel senseOfMotionPanel;
- private MeasuredCompPanel measuredCompPanel;
+  // parameter editors
+  private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
+  private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
+  private CommentsParameterEditor displacementCommentsParamEditor;
+  private SenseOfMotionPanel senseOfMotionPanel;
+  private MeasuredCompPanel measuredCompPanel;
 
- // various buttons in this window
-   private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
+  // various buttons in this window
+  private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
 
- /**
-  * Add Cum displacement parameters
-  */
- public AddEditCumDisplacement() {
+  /**
+   * Add Cum displacement parameters
+   */
+  public AddEditCumDisplacement() {
    try {
      senseOfMotionPanel = new SenseOfMotionPanel();
      measuredCompPanel = new MeasuredCompPanel();

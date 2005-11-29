@@ -12,6 +12,9 @@ import org.opensha.param.event.ParameterChangeEvent;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.HashMap;
+import org.opensha.param.estimate.EstimateParameter;
+import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
+import org.opensha.param.estimate.EstimateConstraint;
 
 /**
  * <p>Title: SenseOfMotion_MeasuredCompPanel.java </p>
@@ -25,16 +28,23 @@ import java.util.HashMap;
 
 public class SenseOfMotionPanel extends JPanel implements ParameterChangeListener {
   private final static String SOM_PARAM_NAME = "Sense of Motion";
-  private final static String SOM_RAKE_PARAM_NAME = "Rake for Sense of Motion";
-  private final static String RAKE = "Rake";
+  private final static String SOM_RAKE_PARAM_NAME = "Rake";
+  private final static String QUAL_PARAM_NAME = "Qualitative";
+  private final static String QUANTITATIVE = "Quantitative (Rake)";
+  private final static String QUALITATIVE = "Qualitative";
   private final static String UNKNOWN  = "Unknown";
+  private final static String BOTH = "Both";
+  private final static double RAKE_MIN = -180.0;
+  private final static double RAKE_MAX = 180.0;
 
   private StringParameter somParam; // Sense of motion pick list
-  private DoubleParameter somRakeParam; // sense of motion rake
+  private EstimateParameter somRakeEstParam; // sense of motion rake
+  private StringParameter somQualParam; //sense of motion qualitative param
 
   // parameter editors
   private ConstrainedStringParameterEditor somParamEditor;
-  private DoubleParameterEditor somRakeParamEditor;
+  private ConstrainedStringParameterEditor somQualParamEditor;
+  private ConstrainedEstimateParameterEditor somRakeEstParamEditor;
 
   public SenseOfMotionPanel() {
     this.setLayout(GUI_Utils.gridBagLayout);
@@ -51,9 +61,15 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
                                      (String) allowedSOMs.get(0));
       somParam.addParameterChangeListener(this);
       somParamEditor = new ConstrainedStringParameterEditor(somParam);
+      // qualitative sense of motion
+      ArrayList qualitativeSOMs = getAllowedQualitativeSOMs();
+      somQualParam = new StringParameter(QUAL_PARAM_NAME, qualitativeSOMs,
+                                     (String) qualitativeSOMs.get(0));
+      somQualParamEditor = new ConstrainedStringParameterEditor(somQualParam);
       // rake for sense of motion
-      somRakeParam = new DoubleParameter(SOM_RAKE_PARAM_NAME);
-      somRakeParamEditor = new DoubleParameterEditor(somRakeParam);
+      ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
+      somRakeEstParam = new EstimateParameter(SOM_RAKE_PARAM_NAME, RAKE_MIN, RAKE_MAX, allowedEstimates);
+      somRakeEstParamEditor = new ConstrainedEstimateParameterEditor(somRakeEstParam);
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -63,10 +79,29 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
     int yPos=0;
     this.add(somParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
-    this.add(somRakeParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+    this.add(somQualParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    this.add(somRakeEstParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
   }
 
+  private ArrayList getAllowedQualitativeSOMs() {
+    ArrayList somQualList = new ArrayList();
+    somQualList.add("R");
+    somQualList.add("N");
+    somQualList.add("RL");
+    somQualList.add("LL");
+    somQualList.add("RL-N");
+    somQualList.add("LL-N");
+    somQualList.add("RL-R");
+    somQualList.add("LL-R");
+    somQualList.add("N-RL");
+    somQualList.add("N-LL");
+    somQualList.add("R-RL");
+    somQualList.add("R-LL");
+    return somQualList;
+
+  }
   /**
    * Get the allowed values for Sense of Motion
    * @return
@@ -74,19 +109,9 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
   private ArrayList getAllowedSOMs() {
     ArrayList somList = new ArrayList();
     somList.add(UNKNOWN);
-    somList.add(RAKE);
-    somList.add("R");
-    somList.add("N");
-    somList.add("RL");
-    somList.add("LL");
-    somList.add("RL-N");
-    somList.add("LL-N");
-    somList.add("RL-R");
-    somList.add("LL-R");
-    somList.add("N-RL");
-    somList.add("N-LL");
-    somList.add("R-RL");
-    somList.add("R-LL");
+    somList.add(QUALITATIVE);
+    somList.add(this.QUANTITATIVE);
+    somList.add(BOTH);
     return somList;
   }
 
@@ -106,11 +131,13 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
    */
   private void setSOM_RakeParamVisibility() {
     String value = (String)this.somParam.getValue();
-    if(value.equalsIgnoreCase(this.RAKE)) this.somRakeParamEditor.setVisible(true);
-    else somRakeParamEditor.setVisible(false);
+    somRakeEstParamEditor.setVisible(false);
+    somQualParamEditor.setVisible(false);
+    if(value.equalsIgnoreCase(this.QUANTITATIVE) || value.equalsIgnoreCase(BOTH))
+      this.somRakeEstParamEditor.setVisible(true);
+    if(value.equalsIgnoreCase(this.QUALITATIVE) || value.equalsIgnoreCase(BOTH))
+      this.somQualParamEditor.setVisible(true);
   }
-
-
 
   /**
    * Get the Sense of Motion rake
@@ -119,8 +146,8 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
    */
   public double getSenseOfMotionRake() {
     String value = (String)this.somParam.getValue();
-    if(!value.equalsIgnoreCase(RAKE)) return Double.NaN;
-    else return ((Double)this.somRakeParam.getValue()).doubleValue();
+    if(!value.equalsIgnoreCase(QUANTITATIVE)) return Double.NaN;
+    else return ((Double)this.somRakeEstParam.getValue()).doubleValue();
   }
 
   /**
@@ -130,7 +157,7 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
   */
  public String getSenseOfMotionQual() {
    String value = (String)this.somParam.getValue();
-   if(value.equalsIgnoreCase(RAKE) || value.equalsIgnoreCase(UNKNOWN)) return null;
+   if(value.equalsIgnoreCase(QUANTITATIVE) || value.equalsIgnoreCase(UNKNOWN)) return null;
    return value;
  }
 }
