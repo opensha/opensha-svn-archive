@@ -15,7 +15,6 @@ public class CombinedDisplacementInfo {
   private EstimateInstances aSeismicSlipFactorEstimateForDisp;
   private String displacementComments;
   private double senseOfMotionRake=Double.NaN;
-  private double measuredComponentRake=Double.NaN;
   private String senseOfMotionQual;
   private String measuredComponentQual;
 
@@ -47,13 +46,6 @@ public class CombinedDisplacementInfo {
   }
   public double getSenseOfMotionRake() {
     return this.senseOfMotionRake;
-  }
-
-  public double getMeasuredComponentRake() {
-    return this.measuredComponentRake;
-  }
-  public void setMeasuredComponentRake(double measuredComponentRake) {
-    this.measuredComponentRake = measuredComponentRake;
   }
   public void setSenseOfMotionRake(double senseOfMotionRake) {
     this.senseOfMotionRake = senseOfMotionRake;

@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import org.opensha.gui.TitledBorderPanel;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: GUI_Utils.java </p>
@@ -17,7 +18,7 @@ import java.awt.Insets;
 
 public class GUI_Utils {
   public final static GridBagLayout gridBagLayout = new GridBagLayout();
-
+  public final static DecimalFormat decimalFormat = new DecimalFormat("0.0####");
 
   /**
    * Get Bordered Panel

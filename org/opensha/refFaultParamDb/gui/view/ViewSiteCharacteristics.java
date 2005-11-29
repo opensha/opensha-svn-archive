@@ -369,7 +369,8 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
             ";";
       }
     }
-    siteLocationLabel.setTextAsHTML(SITE_LOCATION_PARAM_NAME,location.getLatitude()+","+location.getLongitude());
+    siteLocationLabel.setTextAsHTML(SITE_LOCATION_PARAM_NAME,
+                                    GUI_Utils.decimalFormat.format(location.getLatitude())+","+ GUI_Utils.decimalFormat.format(location.getLongitude()));
     //  fault with which this site is associated
     assocWithFaultLabel.setTextAsHTML(ASSOCIATED_WITH_FAULT_PARAM_NAME,faultName);
     // site type for this site

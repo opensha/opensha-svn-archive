@@ -16,7 +16,6 @@ public class CombinedSlipRateInfo {
   private String slipRateComments;
   private double senseOfMotionRake=Double.NaN;
   private String senseOfMotionQual;
-  private double measuredComponentRake=Double.NaN;
   private String measuredComponentQual;
 
   public CombinedSlipRateInfo() {
@@ -39,9 +38,6 @@ public class CombinedSlipRateInfo {
   public double getSenseOfMotionRake() {
     return this.senseOfMotionRake;
   }
-  public double getMeasuredComponentRake() {
-    return this.measuredComponentRake;
-  }
   public void setASeismicSlipFactorEstimateForSlip(EstimateInstances aSeismicSlipFactorEstimateForSlip) {
     this.aSeismicSlipFactorEstimateForSlip = aSeismicSlipFactorEstimateForSlip;
   }
@@ -50,9 +46,6 @@ public class CombinedSlipRateInfo {
   }
   public void setSlipRateEstimate(EstimateInstances slipRateEstimate) {
     this.slipRateEstimate = slipRateEstimate;
-  }
-  public void setMeasuredComponentRake(double measuredComponentRake) {
-    this.measuredComponentRake = measuredComponentRake;
   }
   public void setSenseOfMotionRake(double senseOfMotionRake) {
     this.senseOfMotionRake = senseOfMotionRake;

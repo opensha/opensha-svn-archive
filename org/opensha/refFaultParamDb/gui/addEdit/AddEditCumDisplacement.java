@@ -53,7 +53,8 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
  private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
  private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
  private CommentsParameterEditor displacementCommentsParamEditor;
- private SenseOfMotion_MeasuredCompPanel senseOfMotionMeasuredCompPanel;
+ private SenseOfMotionPanel senseOfMotionPanel;
+ private MeasuredCompPanel measuredCompPanel;
 
  // various buttons in this window
    private final static String CUM_DISPLACEMENT_PARAMS_TITLE = "Cumulative Displacement Params";
@@ -63,7 +64,8 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
   */
  public AddEditCumDisplacement() {
    try {
-     senseOfMotionMeasuredCompPanel = new SenseOfMotion_MeasuredCompPanel();
+     senseOfMotionPanel = new SenseOfMotionPanel();
+     measuredCompPanel = new MeasuredCompPanel();
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
      this.setMinimumSize(new Dimension(0, 0));
@@ -98,6 +100,12 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
 
 
     int yPos=0;
+    this.add(this.measuredCompPanel,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
     this.add(cumDisplacementParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
@@ -110,7 +118,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
                                     new Insets(0, 0, 0, 0), 0, 0));
 
 
-    this.add(senseOfMotionMeasuredCompPanel,
+    this.add(senseOfMotionPanel,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
                                     GridBagConstraints.BOTH,
@@ -131,10 +139,9 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
    combinedDisplacementInfo.setDisplacementComments(getDisplacementComments());
    combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(getAseismicEstimate());
    combinedDisplacementInfo.setDisplacementEstimate(getDisplacementEstimate());
-   combinedDisplacementInfo.setMeasuredComponentRake(this.senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
-   combinedDisplacementInfo.setMeasuredComponentQual(senseOfMotionMeasuredCompPanel.getMeasuredCompQual());
-   combinedDisplacementInfo.setSenseOfMotionRake(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
-   combinedDisplacementInfo.setSenseOfMotionQual(this.senseOfMotionMeasuredCompPanel.getSenseOfMotionQual());
+   combinedDisplacementInfo.setMeasuredComponentQual(this.measuredCompPanel.getMeasuredComp());
+   combinedDisplacementInfo.setSenseOfMotionRake(this.senseOfMotionPanel.getSenseOfMotionRake());
+   combinedDisplacementInfo.setSenseOfMotionQual(this.senseOfMotionPanel.getSenseOfMotionQual());
    return combinedDisplacementInfo;
  }
 

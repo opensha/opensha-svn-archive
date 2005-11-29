@@ -120,10 +120,12 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private LabeledBoxPanel commentsReferencesPanel;
   private ArrayList referenceSummaryList;
   private ArrayList referenceList;
-  private SenseOfMotion_MeasuredCompPanel senseOfMotionMeasuredCompPanel;
+  private SenseOfMotionPanel senseOfMotionPanel;
+  private MeasuredCompPanel measuredCompPanel;
   public AddEditIndividualEvent(int siteId, String siteEntryDate) {
     try {
-      senseOfMotionMeasuredCompPanel = new SenseOfMotion_MeasuredCompPanel();
+      senseOfMotionPanel = new SenseOfMotionPanel();
+      measuredCompPanel = new MeasuredCompPanel();
       this.siteId = siteId;
       this.siteEntryDate = siteEntryDate;
       // initialize the GUI
@@ -240,10 +242,15 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     slipPanel.setTitle(SLIP_TITLE);
     slipPanel.add(displacementParamListEditor,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    slipPanel.add(slipEstParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    slipPanel.add(this.measuredCompPanel,
+                  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                                         , GridBagConstraints.CENTER,
+                                         GridBagConstraints.BOTH,
+                                         new Insets(0, 0, 0, 0), 0, 0));
+    slipPanel.add(slipEstParamEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2), 0, 0));
-    slipPanel.add(senseOfMotionMeasuredCompPanel,
-                  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+    slipPanel.add(senseOfMotionPanel,
+                  new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
                                          , GridBagConstraints.CENTER,
                                          GridBagConstraints.BOTH,
                                          new Insets(0, 0, 0, 0), 0, 0));
@@ -285,12 +292,14 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       this.displacementParamListEditor.setParameterVisible(this.
           SHARED_EVENT_PARAM_NAME, isVisible);
       this.slipEstParamEditor.setVisible(!isVisible);
-      senseOfMotionMeasuredCompPanel.setVisible(!isVisible);
+      senseOfMotionPanel.setVisible(!isVisible);
+      this.measuredCompPanel.setVisible(!isVisible);
     }
     else {
       this.displacementParamListEditor.setVisible(false);
       this.slipEstParamEditor.setVisible(true);
-      this.senseOfMotionMeasuredCompPanel.setVisible(true);
+      this.senseOfMotionPanel.setVisible(true);
+      this.measuredCompPanel.setVisible(true);
     }
   }
 
@@ -388,10 +397,9 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     eventTime.setDatingComments(paleoEvent.getComments());
     eventTime.setReferencesList(paleoEvent.getReferenceList());
     paleoEvent.setEventTime(eventTime);
-    paleoEvent.setMeasuredComponentQual(senseOfMotionMeasuredCompPanel.getMeasuredCompQual());
-    paleoEvent.setMeasuredComponentRake(senseOfMotionMeasuredCompPanel.getMeasuredCompRake());
-    paleoEvent.setSenseOfMotionQual(senseOfMotionMeasuredCompPanel.getSenseOfMotionQual());
-    paleoEvent.setSenseOfMotionRake(senseOfMotionMeasuredCompPanel.getSenseOfMotionRake());
+    paleoEvent.setMeasuredComponentQual(this.measuredCompPanel.getMeasuredComp());
+    paleoEvent.setSenseOfMotionQual(senseOfMotionPanel.getSenseOfMotionQual());
+    paleoEvent.setSenseOfMotionRake(senseOfMotionPanel.getSenseOfMotionRake());
     this.paleoEventDAO.addPaleoevent(paleoEvent);
     JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
     ConnectToEmailServlet.sendEmail("New Event "+ eventName+" added for siteId="+this.siteId+" by "+SessionInfo.getUserName());

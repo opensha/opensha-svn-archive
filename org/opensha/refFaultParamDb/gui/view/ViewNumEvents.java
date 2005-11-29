@@ -32,7 +32,7 @@ public class ViewNumEvents extends LabeledBoxPanel {
   private final static String NUM_EVENTS_TITLE = "Number of Events";
   private final static String NUM_EVENTS_PANEL_TITLE = "Num Events Estimate";
   private final static String NUM_EVENTS = "# of Events";
-  private final static String PROB = "Prob";
+  private final static String PROB = "Prob this is correct value";
   private InfoLabel numEventsEstimateLabel = new InfoLabel();
   private StringParameter commentsParam = new StringParameter("Num Events Comments");
   private CommentsParameterEditor commentsParamEditor;

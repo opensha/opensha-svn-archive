@@ -24,7 +24,7 @@ public class InfoLabel extends JLabel {
   private final static String TIME = "Time";
   public final static String NOT_AVAILABLE = "Not Available";
   private final static String TIME_VAL = "Time Val";
-  private final static String PROB = "Prob";
+  private final static String PROB = "Prob this is correct value";
 
   /**
    * default constructor
@@ -244,10 +244,10 @@ public class InfoLabel extends JLabel {
    */
   private String getTextForNormalEstimate(NormalEstimate estimate) {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
-        "<b>Mean:&nbsp;</b>"+estimate.getMean()+"<br>"+
-        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev()+"<br>"+
-        "<b>Left Truncation:&nbsp;</b>"+estimate.getMinX()+"<br>"+
-        "<b>Right Truncation:&nbsp;</b>"+estimate.getMaxX();
+        "<b>Mean:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMean())+"<br>"+
+        "<b>StdDev:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getStdDev())+"<br>"+
+        "<b>Left Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
+        "<b>Right Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX());
   }
 
   /**
@@ -258,10 +258,10 @@ public class InfoLabel extends JLabel {
    */
   private String getTextForLogNormalEstimate(LogNormalEstimate estimate) {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
-        "<b>Linear Median:&nbsp;</b>"+estimate.getLinearMedian()+"<br>"+
-        "<b>StdDev:&nbsp;</b>"+estimate.getStdDev()+"<br>"+
-        "<b>Left Truncation:&nbsp;</b>"+estimate.getMinX()+"<br>"+
-        "<b>right Truncation:&nbsp;</b>"+estimate.getMaxX();
+        "<b>Linear Median:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getLinearMedian())+"<br>"+
+        "<b>StdDev:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getStdDev())+"<br>"+
+        "<b>Left Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
+        "<b>right Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX());
 
   }
 
@@ -276,7 +276,9 @@ public class InfoLabel extends JLabel {
     String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
     for(int i=0; i<func.getNum(); ++i)
-        text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
+        text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+             GUI_Utils.decimalFormat.format(func.getY(i))+"<br>";
     return text;
   }
 
@@ -291,7 +293,9 @@ public class InfoLabel extends JLabel {
    String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
    for(int i=0; i<func.getNum(); ++i)
-       text+=  func.getX(i)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+func.getY(i)+"<br>";
+       text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
+           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+            GUI_Utils.decimalFormat.format(func.getY(i))+"<br>";
    return text;
  }
 
@@ -313,22 +317,22 @@ public class InfoLabel extends JLabel {
 
    String minXStr="", maxXStr="", prefXStr="", minProbStr="", maxProbStr="", prefProbStr="";
    // min X
-   if(!Double.isNaN(minX)) minXStr=""+minX;
+   if(!Double.isNaN(minX)) minXStr= GUI_Utils.decimalFormat.format(minX);
    else minXStr = ""+this.NOT_AVAILABLE;
      // max X
-   if(!Double.isNaN(maxX)) maxXStr=""+maxX;
+   if(!Double.isNaN(maxX)) maxXStr= GUI_Utils.decimalFormat.format(maxX);
    else maxXStr = ""+this.NOT_AVAILABLE;
      // pref X
-   if(!Double.isNaN(prefX)) prefXStr=""+prefX;
+   if(!Double.isNaN(prefX)) prefXStr= GUI_Utils.decimalFormat.format(prefX);
    else prefXStr = ""+this.NOT_AVAILABLE;
      // min Prob
-   if(!Double.isNaN(minProb)) minProbStr=""+minProb;
+   if(!Double.isNaN(minProb)) minProbStr= GUI_Utils.decimalFormat.format(minProb);
    else minProbStr = ""+this.NOT_AVAILABLE;
      // max Prob
-   if(!Double.isNaN(maxProb)) maxProbStr=""+maxProb;
+   if(!Double.isNaN(maxProb)) maxProbStr= GUI_Utils.decimalFormat.format(maxProb);
    else maxProbStr = ""+this.NOT_AVAILABLE;
      // pref Prob
-   if(!Double.isNaN(prefProb)) prefProbStr=""+prefProb;
+   if(!Double.isNaN(prefProb)) prefProbStr= GUI_Utils.decimalFormat.format(prefProb);
    else prefProbStr = ""+this.NOT_AVAILABLE;
 
    text+=  "Min "+xAxisName+":&nbsp;&nbsp;"+minXStr+"<br>";

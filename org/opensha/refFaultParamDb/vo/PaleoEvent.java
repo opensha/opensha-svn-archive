@@ -28,7 +28,6 @@ public class PaleoEvent {
   private boolean displacementShared;
   private double senseOfMotionRake=Double.NaN;
   private String senseOfMotionQual;
-  private double measuredComponentRake=Double.NaN;
   private String measuredComponentQual;
 
   public PaleoEvent() {
@@ -115,9 +114,6 @@ public class PaleoEvent {
   public String getMeasuredComponentQual() {
     return this.measuredComponentQual;
   }
-  public void setMeasuredComponentRake(double measuredComponentRake) {
-    this.measuredComponentRake = measuredComponentRake;
-  }
   public void setSenseOfMotionRake(double senseOfMotionRake) {
     this.senseOfMotionRake = senseOfMotionRake;
   }
@@ -126,9 +122,6 @@ public class PaleoEvent {
   }
   public void setSenseOfMotionQual(String senseOfMotionQual) {
     this.senseOfMotionQual = senseOfMotionQual;
-  }
-  public double getMeasuredComponentRake() {
-    return measuredComponentRake;
   }
   public double getSenseOfMotionRake() {
     return senseOfMotionRake;

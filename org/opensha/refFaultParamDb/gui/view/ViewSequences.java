@@ -35,7 +35,7 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
 
   // various parameter names
   private final static String SEQUENCE_NAME_PARAM_NAME = "Sequence Name";
-  private final static String SEQUENCE_PROB_PARAM_NAME = "Sequence Prob.";
+  private final static String SEQUENCE_PROB_PARAM_NAME = "Prob this is correct sequence";
   private final static String COMMENTS_PARAM_NAME = "Comments";
   private final static String MISSED_EVENTS_PROB_PARAM_NAME = "Probability of missed events";
   private final static String EVENTS_PARAM_NAME = "Events in Sequence";
@@ -184,14 +184,14 @@ public class ViewSequences extends LabeledBoxPanel implements ParameterChangeLis
    if(Double.isNaN(sequenceProb)) {
      sequenceProbLabel.setTextAsHTML((String)null);
    }
-   else sequenceProbLabel.setTextAsHTML(""+sequenceProb);
+   else sequenceProbLabel.setTextAsHTML( GUI_Utils.decimalFormat.format(sequenceProb));
    ArrayList missedProbInfoList = null;
    if(eventsInthisSequence!=null ) {
      missedProbInfoList = new ArrayList();
      ArrayList names = AddEditSequence.getNamesForMissedEventProbs(
          eventsInthisSequence);
      for (int i = 0; i < names.size(); ++i)
-       missedProbInfoList.add(names.get(i) + ": " + missedEventProbs[i]);
+       missedProbInfoList.add(names.get(i) + ": " +  GUI_Utils.decimalFormat.format(missedEventProbs[i]));
    }
    missedProbLabel.setTextAsHTML(missedProbInfoList);
    commentsLabel.setTextAsHTML(comments);

@@ -521,7 +521,6 @@ CREATE TABLE Combined_Slip_Rate_Info (
  Sense_of_Motion_Rake NUMBER(9,3) NULL,
  Sense_of_Motion_Qual VARCHAR(255) NULL,
  Measured_Slip_Comp_Rake NUMBER(9,3) NULL,
- Measured_Slip_Comp_Qual VARCHAR(255) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
@@ -539,7 +538,6 @@ CREATE TABLE Combined_Displacement_Info (
  Total_Slip_Comments VARCHAR(1000) NULL,
  Sense_of_Motion_Rake NUMBER(9,3) NULL,
  Sense_of_Motion_Qual VARCHAR(255) NULL,
- Measured_Slip_Comp_Rake NUMBER(9,3) NULL,
  Measured_Slip_Comp_Qual VARCHAR(255) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
@@ -603,7 +601,6 @@ CREATE TABLE Paleo_Event (
   General_Comments VARCHAR(1000) NULL,
   Sense_of_Motion_Rake NUMBER(9,3) NULL,
   Sense_of_Motion_Qual VARCHAR(255) NULL,
-  Measured_Slip_Comp_Rake NUMBER(9,3) NULL,
   Measured_Slip_Comp_Qual VARCHAR(255) NULL,
   PRIMARY KEY(Event_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)

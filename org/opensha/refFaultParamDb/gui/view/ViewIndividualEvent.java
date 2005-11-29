@@ -51,7 +51,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private final static String SHARED = "Shared";
   private final static String NOT_SHARED = "Not Shared";
   private final static String SLIP = "Slip";
-  private final static String PROB = "Prob";
+  private final static String PROB = "Prob this is correct value";
   private final static String SENSE_OF_MOTION_TITLE="Sense of Motion";
   private final static String MEASURED_COMP_SLIP_TITLE = "Measured Component of Slip";
   private final static String DISPLACEMENT = "Displacement";
@@ -67,7 +67,6 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private InfoLabel sharedEventLabel = new InfoLabel();
   private InfoLabel referencesLabel = new InfoLabel();
   private InfoLabel senseOfMotionRakeLabel = new InfoLabel();
-  private InfoLabel measuredCompRakeLabel = new InfoLabel();
   private InfoLabel senseOfMotionQualLabel = new InfoLabel();
   private InfoLabel measuredCompQualLabel = new InfoLabel();
 
@@ -168,9 +167,6 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(0, 0, 0, 0), 0, 0));
     // measured component of slip panel
-    measuredSlipCompPanel.add(this.measuredCompRakeLabel, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(0, 0, 0, 0), 0, 0));
     measuredSlipCompPanel.add(this.measuredCompQualLabel, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
         new Insets(0, 0, 0, 0), 0, 0));
@@ -243,7 +239,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
       eventsList.add("Event 11");
       updateLabels(startTime, slipRateEstimate, comments, references,
                    displacement,
-                   eventsList, Double.NaN, null, Double.NaN, null);
+                   eventsList, Double.NaN, null, null);
     }else if(this.paleoEventsList!=null && this.paleoEventsList.size()!=0) {
       int index  = this.eventNamesList.indexOf(eventName);
       PaleoEvent paleoEvent = (PaleoEvent)paleoEventsList.get(index);
@@ -259,13 +255,13 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
       updateLabels(paleoEvent.getEventTime(), paleoEvent.getDisplacementEst().getEstimate(),
                    paleoEvent.getComments(), summaryList,
                    displacement,sharingEventNames, paleoEvent.getSenseOfMotionRake(),
-                   paleoEvent.getSenseOfMotionQual(), paleoEvent.getMeasuredComponentRake(),
+                   paleoEvent.getSenseOfMotionQual(),
                    paleoEvent.getMeasuredComponentQual());
 
     } else {
       updateLabels(null, null, null, null,
                    null,
-                   null, Double.NaN, null, Double.NaN, null);
+                   null, Double.NaN, null,  null);
     }
   }
 
@@ -281,21 +277,18 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
   private void updateLabels(TimeAPI eventTime, Estimate slipEstimate, String comments,
                             ArrayList references, String displacement, ArrayList sharingEvents,
                             double rakeForSenseOfMotion, String senseOfMotionQual,
-                            double rakeForMeasuredSlipComp, String measuredSlipQual) {
+                            String measuredSlipQual) {
     commentsLabel.setTextAsHTML(comments);
     timeEstLabel.setTextAsHTML(eventTime);
     slipEstLabel.setTextAsHTML(slipEstimate, SLIP, PROB);
     displacementSharedLabel.setTextAsHTML(displacement);
     sharedEventLabel.setTextAsHTML(sharingEvents);
     referencesLabel.setTextAsHTML(references);
-    if(Double.isNaN(rakeForMeasuredSlipComp)) // check whether measured comp of slip is available
-      this.measuredCompRakeLabel.setTextAsHTML(this.RAKE, null);
-    else this.measuredCompRakeLabel.setTextAsHTML(this.RAKE, ""+rakeForMeasuredSlipComp);
     this.measuredCompQualLabel.setTextAsHTML(this.QUALITATIVE, measuredSlipQual);
 // check whether sense of motion is available
     if(Double.isNaN(rakeForSenseOfMotion))
       senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, null);
-    else this.senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, ""+rakeForSenseOfMotion);
+    else this.senseOfMotionRakeLabel.setTextAsHTML(this.RAKE,  GUI_Utils.decimalFormat.format(rakeForSenseOfMotion));
     this.senseOfMotionQualLabel.setTextAsHTML(this.QUALITATIVE, senseOfMotionQual);
 
 

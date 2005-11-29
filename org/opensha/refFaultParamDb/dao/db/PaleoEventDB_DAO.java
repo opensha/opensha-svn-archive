@@ -37,7 +37,6 @@ public class PaleoEventDB_DAO {
   private final static String PALEO_EVENT_ID="Paleo_Event_Id";
   private final static String SENSE_OF_MOTION_RAKE = "Sense_of_Motion_Rake";
   private final static String SENSE_OF_MOTION_QUAL = "Sense_of_Motion_Qual";
-  private final static String MEASURED_SLIP_COMP_RAKE = "Measured_Slip_Comp_Rake";
   private final static String MEASURED_SLIP_COMP_QUAL = "Measured_Slip_Comp_Qual";
 
   private DB_AccessAPI dbAccess;
@@ -85,7 +84,6 @@ public class PaleoEventDB_DAO {
 
 
     double somRake = paleoEvent.getSenseOfMotionRake();
-    double measuredCompRake = paleoEvent.getMeasuredComponentRake();
     String somQual = paleoEvent.getSenseOfMotionQual();
     String measuredCompQual = paleoEvent.getMeasuredComponentQual();
     String colNames="", colVals="";
@@ -96,10 +94,6 @@ public class PaleoEventDB_DAO {
     if(somQual!=null) {
       colNames+=this.SENSE_OF_MOTION_QUAL+",";
       colVals += "'"+somQual+"',";
-    }
-    if(!Double.isNaN(measuredCompRake)) { // check whether user entered measured comp rake
-      colNames += this.MEASURED_SLIP_COMP_RAKE+",";
-      colVals += measuredCompRake+",";
     }
     if(measuredCompQual!=null) {
       colNames += this.MEASURED_SLIP_COMP_QUAL+",";
@@ -217,7 +211,7 @@ public class PaleoEventDB_DAO {
         CONTRIBUTOR_ID+","+EVENT_DATE_EST_ID+","+
         DISPLACEMENT_EST_ID+",to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
         GENERAL_COMMENTS+","+SENSE_OF_MOTION_RAKE+","+
-        SENSE_OF_MOTION_QUAL+","+this.MEASURED_SLIP_COMP_RAKE+","+this.MEASURED_SLIP_COMP_QUAL+" from "+
+        SENSE_OF_MOTION_QUAL+","+this.MEASURED_SLIP_COMP_QUAL+" from "+
         this.TABLE_NAME+" "+condition;
     try {
      ResultSet rs  = dbAccess.queryData(sql);
@@ -255,13 +249,10 @@ public class PaleoEventDB_DAO {
         String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
         if(rs.wasNull()) senseOfMotionQual=null;
         //measured component of slip
-        double measuredCompRake = rs.getFloat(MEASURED_SLIP_COMP_RAKE);
-        if(rs.wasNull()) measuredCompRake = Double.NaN;
         String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);
         if(rs.wasNull()) measuedCompQual=null;
         paleoEvent.setSenseOfMotionRake(senseOfMotionRake);
         paleoEvent.setSenseOfMotionQual(senseOfMotionQual);
-        paleoEvent.setMeasuredComponentRake(measuredCompRake);
         paleoEvent.setMeasuredComponentQual(measuedCompQual);
 
        paleoEventList.add(paleoEvent);

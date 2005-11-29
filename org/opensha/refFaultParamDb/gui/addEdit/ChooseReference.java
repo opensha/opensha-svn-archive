@@ -28,7 +28,7 @@ import org.opensha.refFaultParamDb.vo.Reference;
 
 public class ChooseReference extends JFrame implements ActionListener,
     DbAdditionListener {
-  private final static String TIMESPAN_REFERENCES_PARAM_NAME="Choose References";
+  private final static String TIMESPAN_REFERENCES_PARAM_NAME="Choose Reference";
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";
   private JButton addNewReferenceButton = new JButton("Add Reference");
   private JButton viewAllRefButtons = new JButton("View All References");
