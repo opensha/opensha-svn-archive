@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: ViewAllReferences.java </p>
@@ -23,7 +24,7 @@ import javax.swing.table.TableCellRenderer;
  */
 
 public class ViewAllReferences extends JFrame implements ActionListener {
-  private final static String columnNames[] = {"Author", "Year", "Full Bibliographic Reference" };
+  private final static String columnNames[] = {"Author", "Year", "Full Bibliographic Reference", "Qfault Ref Id"};
   private JLabel referencesLabel = new JLabel();
   private JTable referencesTable;
   private JButton refreshButton = new JButton();
@@ -32,16 +33,19 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   // references DAO
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
+  private final static String MSG_MINUTE_TO_LOAD = " May take a minute to load ........";
+  private CalcProgressBar progressBar = new CalcProgressBar("Getting References", MSG_MINUTE_TO_LOAD);
 
   public ViewAllReferences() {
     try {
-
+      progressBar.setVisible(true);
       jbInit();
       makeReferencesTable();
       addActionListeners();
       pack();
       this.setLocationRelativeTo(null);
       show();
+      progressBar.setVisible(false);
     }
     catch(Exception e) {
       e.printStackTrace();
@@ -75,12 +79,13 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private Object[][] getReferencesInfo() {
     ArrayList allReferences = referenceDAO.getAllReferences();
     int numRefs = allReferences.size();
-    Object[][] tableData = new Object[numRefs][3];
+    Object[][] tableData = new Object[numRefs][columnNames.length];
     for(int i=0; i<numRefs; ++i) {
       Reference ref = (Reference)allReferences.get(i);
       tableData[i][0] = ref.getRefAuth();
       tableData[i][1] = ref.getRefYear();
       tableData[i][2] = ref.getFullBiblioReference();
+      tableData[i][3] = new Integer(ref.getQfaultReferenceId());
     }
     return tableData;
   }

@@ -22,6 +22,7 @@ public class ReferenceDB_DAO {
   private final static String REF_YEAR="Ref_Year";
   private final static String REF_AUTH = "Ref_Auth";
   private final static String FULL_BIBLIOGRAPHIC_REFERENCE="Full_Bibliographic_Reference";
+  private final static String QFAULT_REFERENCE_ID= "QFault_Reference_Id";
   private DB_AccessAPI dbAccessAPI;
 
   /**
@@ -145,14 +146,19 @@ public class ReferenceDB_DAO {
   private ArrayList query(String condition) throws QueryException {
     ArrayList referenceList = new ArrayList();
     String sql = "select "+REFERENCE_ID+","+this.REF_YEAR+","+
-        this.REF_AUTH+","+ this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+
+        this.REF_AUTH+","+ QFAULT_REFERENCE_ID+","+this.FULL_BIBLIOGRAPHIC_REFERENCE+" from "+TABLE_NAME+
         " "+condition+" order by "+this.REF_AUTH;
     try {
       ResultSet rs  = dbAccessAPI.queryData(sql);
-      while(rs.next()) referenceList.add(new Reference(rs.getInt(REFERENCE_ID),
-            rs.getString(this.REF_AUTH),
-            rs.getString(this.REF_YEAR),
-            rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE)));
+      while(rs.next())  {
+        Reference reference = new Reference(rs.getInt(REFERENCE_ID),
+                                            rs.getString(this.REF_AUTH),
+                                            rs.getString(this.REF_YEAR),
+                                            rs.getString(this.FULL_BIBLIOGRAPHIC_REFERENCE));
+        int qFaultRefId = rs.getInt(QFAULT_REFERENCE_ID);
+        if(!rs.wasNull()) reference.setQfaultReferenceId(qFaultRefId);
+        referenceList.add(reference);
+      }
       rs.close();
     } catch(SQLException e) { throw new QueryException(e.getMessage()); }
     return referenceList;

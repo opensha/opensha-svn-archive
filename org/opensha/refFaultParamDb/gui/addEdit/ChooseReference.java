@@ -48,7 +48,6 @@ public class ChooseReference extends JFrame implements ActionListener,
     this.setLocationRelativeTo(null);
     this.setDefaultCloseOperation(this.DO_NOTHING_ON_CLOSE);
     this.addSiteInfo = addSiteInfo;
-    closeButton.setEnabled(false);
     addActionListeners();
     addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     try {
@@ -83,7 +82,6 @@ public class ChooseReference extends JFrame implements ActionListener,
       addSiteInfo.setReference((Reference)referenceList.get(index));
       //this.dispose();
       okButton.setEnabled(false);
-      closeButton.setEnabled(true);
     } else if (source==closeButton) {
       //addSiteInfo.dispose();
       this.dispose();

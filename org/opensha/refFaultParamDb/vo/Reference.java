@@ -15,6 +15,7 @@ public class Reference {
   private String refAuth; // short citation
   private String refYear;
   private String fullBiblioReference; // full bibliographic reference
+  private int qfaultReferenceId = -1;
 
   public Reference() {
   }
@@ -36,7 +37,12 @@ public class Reference {
   public void setReferenceId(int referenceId) {
     this.referenceId = referenceId;
   }
-
+  public int getQfaultReferenceId() {
+    return this.qfaultReferenceId;
+  }
+  public void setQfaultReferenceId(int qfaultRefId) {
+    this.qfaultReferenceId = qfaultRefId;
+  }
   public String getFullBiblioReference() {
     return fullBiblioReference;
   }
