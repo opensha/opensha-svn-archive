@@ -15,6 +15,14 @@ import java.util.HashMap;
 import org.opensha.param.estimate.EstimateParameter;
 import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.estimate.EstimateConstraint;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JOptionPane;
+import org.opensha.data.estimate.NormalEstimate;
+import org.opensha.data.estimate.DiscreteValueEstimate;
+import org.opensha.data.estimate.MinMaxPrefEstimate;
+import org.opensha.data.estimate.PDF_Estimate;
 
 /**
  * <p>Title: SenseOfMotion_MeasuredCompPanel.java </p>
@@ -26,7 +34,7 @@ import org.opensha.param.estimate.EstimateConstraint;
  * @version 1.0
  */
 
-public class SenseOfMotionPanel extends JPanel implements ParameterChangeListener {
+public class SenseOfMotionPanel extends JPanel implements ParameterChangeListener, ActionListener {
   private final static String SOM_PARAM_NAME = "Sense of Motion";
   private final static String SOM_RAKE_PARAM_NAME = "Rake";
   private final static String QUAL_PARAM_NAME = "Qualitative";
@@ -36,6 +44,18 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
   private final static String BOTH = "Both";
   private final static double RAKE_MIN = -180.0;
   private final static double RAKE_MAX = 180.0;
+  private final static String RAKE_CONVENTION = "We use rake as defined by Aki & Richards, 1980; p.106:\n"+
+      "Rake is the angle, in degrees, between the strike and the slip direction, measured contra-clockwise from above.\n"+
+      "Rake may take values from [-180,180]:\n"+
+      "- rake is 0 for pure left lateral strike slip;\n"+
+      "- rake is 180 or -180 for pure right lateral strike slip;\n"+
+      "- rake is -90 for pure normal dip slip;\n"+
+      "- rake is 90 for pure reverse dip slip;\n"+
+      "- rake is in range [0 , 90] for reverse sinistral fault;\n"+
+      "- rake is in [90, 180] for reverse dextral faults\n"+
+      "- rake is in [-180, -90] for normal dextral faults\n"+
+      "- rake is in [-90, 0] for normal sinistral fault\n";
+
 
   private StringParameter somParam; // Sense of motion pick list
   private EstimateParameter somRakeEstParam; // sense of motion rake
@@ -45,11 +65,13 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
   private ConstrainedStringParameterEditor somParamEditor;
   private ConstrainedStringParameterEditor somQualParamEditor;
   private ConstrainedEstimateParameterEditor somRakeEstParamEditor;
+  private JButton rakeConventionButton = new JButton("Rake Conventions");
 
   public SenseOfMotionPanel() {
     this.setLayout(GUI_Utils.gridBagLayout);
     initParamListAndEditor();
     addEditorsToGUI();
+    rakeConventionButton.addActionListener(this);
     setSOM_RakeParamVisibility();
   }
 
@@ -67,12 +89,21 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
                                      (String) qualitativeSOMs.get(0));
       somQualParamEditor = new ConstrainedStringParameterEditor(somQualParam);
       // rake for sense of motion
-      ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
+      ArrayList allowedEstimates = getAllowedEstimatesForRake();
       somRakeEstParam = new EstimateParameter(SOM_RAKE_PARAM_NAME, RAKE_MIN, RAKE_MAX, allowedEstimates);
-      somRakeEstParamEditor = new ConstrainedEstimateParameterEditor(somRakeEstParam);
+      somRakeEstParamEditor = new ConstrainedEstimateParameterEditor(somRakeEstParam, true, false, SOM_RAKE_PARAM_NAME);
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  private ArrayList getAllowedEstimatesForRake() {
+    ArrayList allowedEstimateTypes = new ArrayList();
+    allowedEstimateTypes.add(NormalEstimate.NAME);
+    allowedEstimateTypes.add(DiscreteValueEstimate.NAME);
+    allowedEstimateTypes.add(MinMaxPrefEstimate.NAME);
+    allowedEstimateTypes.add(PDF_Estimate.NAME);
+    return allowedEstimateTypes;
   }
 
   private void addEditorsToGUI() {
@@ -80,6 +111,8 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
     this.add(somParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     this.add(somQualParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+    this.add(rakeConventionButton,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     this.add(somRakeEstParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
@@ -133,8 +166,11 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
     String value = (String)this.somParam.getValue();
     somRakeEstParamEditor.setVisible(false);
     somQualParamEditor.setVisible(false);
-    if(value.equalsIgnoreCase(this.QUANTITATIVE) || value.equalsIgnoreCase(BOTH))
+    rakeConventionButton.setVisible(false);
+    if(value.equalsIgnoreCase(this.QUANTITATIVE) || value.equalsIgnoreCase(BOTH)) {
       this.somRakeEstParamEditor.setVisible(true);
+      rakeConventionButton.setVisible(true);
+    }
     if(value.equalsIgnoreCase(this.QUALITATIVE) || value.equalsIgnoreCase(BOTH))
       this.somQualParamEditor.setVisible(true);
   }
@@ -159,5 +195,11 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
    String value = (String)this.somParam.getValue();
    if(value.equalsIgnoreCase(QUANTITATIVE) || value.equalsIgnoreCase(UNKNOWN)) return null;
    return value;
+ }
+
+ public void actionPerformed(ActionEvent actionEvent) {
+   Object source = actionEvent.getSource();
+   if(source==this.rakeConventionButton)
+     JOptionPane.showMessageDialog(this, RAKE_CONVENTION);
  }
 }

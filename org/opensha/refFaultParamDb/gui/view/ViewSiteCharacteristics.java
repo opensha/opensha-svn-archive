@@ -109,6 +109,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     try {
       this.siteSelectionListener = siteSelectionListener;
       addEditSitePanel.setLayout(GUI_Utils.gridBagLayout);
+      qFaultsEntriesButton.setEnabled(false);
       // initialize parameters and editors
       initParametersAndEditors();
       // add user provided info choices
