@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: CombinedDisplacementInfoDB_DAO.java </p>
@@ -51,15 +52,16 @@ public class CombinedDisplacementInfoDB_DAO {
     int displacementId =  estimateInstancesDAO.addEstimateInstance(combinedDispInfo.getDisplacementEstimate());
     String comments = combinedDispInfo.getDisplacementComments();
     if(comments==null) comments="";
-
-    double somRake = combinedDispInfo.getSenseOfMotionRake();
     String somQual = combinedDispInfo.getSenseOfMotionQual();
     String measuredCompQual = combinedDispInfo.getMeasuredComponentQual();
     String colNames="", colVals="";
-    if(!Double.isNaN(somRake)) { // check whether user entered Sense of motion rake
+    EstimateInstances somRake = combinedDispInfo.getSenseOfMotionRake();
+    if(somRake!=null) { // check whether user entered Sense of motion rake
       colNames += this.SENSE_OF_MOTION_RAKE+",";
-      colVals += somRake+",";
+      int rakeEstId = estimateInstancesDAO.addEstimateInstance(somRake);
+      colVals += rakeEstId+",";
     }
+
     if(somQual!=null) {
       colNames+=this.SENSE_OF_MOTION_QUAL+",";
       colVals += "'"+somQual+"',";
@@ -101,8 +103,9 @@ public class CombinedDisplacementInfoDB_DAO {
          combinedDisplacementInfo.setDisplacementEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(TOTAL_SLIP_EST_ID)));
          combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(estimateInstancesDAO.getEstimateInstance(rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID)));
          // sense of motion
-         double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION_RAKE);
-         if(rs.wasNull()) senseOfMotionRake=Double.NaN;
+         int senseOfMotionRakeId = rs.getInt(SENSE_OF_MOTION_RAKE);
+         EstimateInstances senseOfMotionRake =null;
+         if(!rs.wasNull()) senseOfMotionRake=this.estimateInstancesDAO.getEstimateInstance(senseOfMotionRakeId);
          String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
          if(rs.wasNull()) senseOfMotionQual=null;
          //measured component of slip

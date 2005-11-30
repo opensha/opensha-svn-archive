@@ -518,13 +518,15 @@ CREATE TABLE Combined_Slip_Rate_Info (
  Slip_Rate_Est_Id INTEGER  NULL,
  Slip_Aseismic_Est_Id INTEGER  NULL,
  Slip_Rate_Comments VARCHAR(1000) NULL,
- Sense_of_Motion_Rake NUMBER(9,3) NULL,
+ Sense_of_Motion_Rake INTEGER NULL,
  Sense_of_Motion_Qual VARCHAR(255) NULL,
  Measured_Slip_Comp_Rake NUMBER(9,3) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
  FOREIGN KEY(Slip_Rate_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+ FOREIGN KEY(Sense_of_Motion_Rake)
      REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Slip_Aseismic_Est_Id)
      REFERENCES Est_Instances(Est_Id)
@@ -536,13 +538,15 @@ CREATE TABLE Combined_Displacement_Info (
  Total_Slip_Est_Id INTEGER  NULL,
  Disp_Aseismic_Est_Id INTEGER  NULL,
  Total_Slip_Comments VARCHAR(1000) NULL,
- Sense_of_Motion_Rake NUMBER(9,3) NULL,
+ Sense_of_Motion_Rake INTEGER NULL,
  Sense_of_Motion_Qual VARCHAR(255) NULL,
  Measured_Slip_Comp_Qual VARCHAR(255) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
      REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
  FOREIGN KEY(Total_Slip_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+ FOREIGN KEY(Sense_of_Motion_Rake)
      REFERENCES Est_Instances(Est_Id),
  FOREIGN KEY(Disp_Aseismic_Est_Id)
      REFERENCES Est_Instances(Est_Id)
@@ -599,7 +603,7 @@ CREATE TABLE Paleo_Event (
   Displacement_Est_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
   General_Comments VARCHAR(1000) NULL,
-  Sense_of_Motion_Rake NUMBER(9,3) NULL,
+  Sense_of_Motion_Rake INTEGER NULL,
   Sense_of_Motion_Qual VARCHAR(255) NULL,
   Measured_Slip_Comp_Qual VARCHAR(255) NULL,
   PRIMARY KEY(Event_Id, Entry_Date),
@@ -608,6 +612,8 @@ CREATE TABLE Paleo_Event (
   FOREIGN KEY(Event_Date_Est_Id)
      REFERENCES Time_Instances(Time_Id),
   FOREIGN KEY(Displacement_Est_Id)
+     REFERENCES Est_Instances(Est_Id),
+  FOREIGN KEY(Sense_of_Motion_Rake)
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
     REFERENCES Paleo_Site(Site_Id, Entry_Date)

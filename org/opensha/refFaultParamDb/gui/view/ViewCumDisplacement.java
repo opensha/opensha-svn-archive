@@ -15,6 +15,7 @@ import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
 import org.opensha.data.estimate.Estimate;
 import javax.swing.JPanel;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: ViewCumDisplacement.java </p>
@@ -62,7 +63,7 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
    * @param combinedDisplacementInfo
    */
   public void setInfo(CombinedDisplacementInfo combinedDisplacementInfo) {
-    if(combinedDisplacementInfo ==null) setInfo(null, null, null, Double.NaN, null, null);
+    if(combinedDisplacementInfo ==null) setInfo(null, null, null, null, null, null);
     else setInfo(combinedDisplacementInfo.getDisplacementEstimate().getEstimate(),
                                  combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
                                  combinedDisplacementInfo.getDisplacementComments(),
@@ -80,17 +81,17 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
    * @param references
    */
   private void setInfo(Estimate displacementEstimate, Estimate aSeismicSlipFactorEstimate,
-                      String comments, double rakeForSenseOfMotion, String senseOfMotionQual,
+                      String comments, EstimateInstances rakeForSenseOfMotion, String senseOfMotionQual,
                       String measuredSlipQual) {
     displacementEstimateLabel.setTextAsHTML(displacementEstimate, DISPLACEMENT, PROB);
     aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, this.ASEISMIC_SLIP_FACTOR, PROB);
     commentsParam.setValue(comments);
     commentsParameterEditor.refreshParamEditor();
     this.measuredCompQualLabel.setTextAsHTML(this.QUALITATIVE, measuredSlipQual);
-// check whether sense of motion is available
-    if(Double.isNaN(rakeForSenseOfMotion))
-      senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, null);
-    else this.senseOfMotionRakeLabel.setTextAsHTML(this.RAKE,  GUI_Utils.decimalFormat.format(rakeForSenseOfMotion));
+    // check whether sense of motion is available
+    Estimate rakeEst = null;
+    if(rakeForSenseOfMotion!=null) rakeEst = rakeForSenseOfMotion.getEstimate();
+    this.senseOfMotionRakeLabel.setTextAsHTML(rakeEst, RAKE, PROB);
     this.senseOfMotionQualLabel.setTextAsHTML(this.QUALITATIVE, senseOfMotionQual);
   }
 

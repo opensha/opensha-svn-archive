@@ -51,6 +51,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private final static int H = 650;
   private final static String TITLE = "Add Data for this Site";
   private final static String MSG_DB_OPERATION_SUCCESS = "Site Info successfully inserted into the database";
+  private final static String MSG_NO_REFERENCE_CHOSEN = "Cannot add info to database as reference has not been chosen";
   private int siteId;
   private String siteEntryDate;
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
@@ -91,7 +92,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     // show window to get the reference
     JFrame referencesDialog = new ChooseReference(this);
     referencesDialog.show();
-    this.setEnabled(false);
+    //this.setEnabled(false);
 
   }
 
@@ -100,7 +101,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     referenceList.add(reference);
     int pubYear = Integer.parseInt(reference.getRefYear());
     this.addEditTimeSpan.setNowYearVal(pubYear);
-    this.setEnabled(true);
+    //this.setEnabled(true);
   }
 
   /**
@@ -118,6 +119,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
       try {
         if(this.isSlipVisible || this.isDisplacementVisible ||
            this.isNumEventsVisible || this.isSequenceVisible)
+          if(referenceList==null || referenceList.size()==0)
+            throw new RuntimeException(MSG_NO_REFERENCE_CHOSEN);
           putSiteInfoInDatabase(); // put site info in database
         JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
         ConnectToEmailServlet.sendEmail("New Site Info added for site Id="+this.siteId +" by "+SessionInfo.getUserName());

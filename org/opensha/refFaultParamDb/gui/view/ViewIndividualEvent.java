@@ -24,6 +24,7 @@ import org.opensha.refFaultParamDb.dao.db.PaleoEventDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: AddEditIndividualEvent.java </p>
@@ -239,7 +240,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
       eventsList.add("Event 11");
       updateLabels(startTime, slipRateEstimate, comments, references,
                    displacement,
-                   eventsList, Double.NaN, null, null);
+                   eventsList, null, null, null);
     }else if(this.paleoEventsList!=null && this.paleoEventsList.size()!=0) {
       int index  = this.eventNamesList.indexOf(eventName);
       PaleoEvent paleoEvent = (PaleoEvent)paleoEventsList.get(index);
@@ -261,7 +262,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
     } else {
       updateLabels(null, null, null, null,
                    null,
-                   null, Double.NaN, null,  null);
+                   null, null, null,  null);
     }
   }
 
@@ -276,7 +277,7 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
    */
   private void updateLabels(TimeAPI eventTime, Estimate slipEstimate, String comments,
                             ArrayList references, String displacement, ArrayList sharingEvents,
-                            double rakeForSenseOfMotion, String senseOfMotionQual,
+                            EstimateInstances rakeForSenseOfMotion, String senseOfMotionQual,
                             String measuredSlipQual) {
     commentsLabel.setTextAsHTML(comments);
     timeEstLabel.setTextAsHTML(eventTime);
@@ -285,10 +286,10 @@ public class ViewIndividualEvent extends LabeledBoxPanel implements ParameterCha
     sharedEventLabel.setTextAsHTML(sharingEvents);
     referencesLabel.setTextAsHTML(references);
     this.measuredCompQualLabel.setTextAsHTML(this.QUALITATIVE, measuredSlipQual);
-// check whether sense of motion is available
-    if(Double.isNaN(rakeForSenseOfMotion))
-      senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, null);
-    else this.senseOfMotionRakeLabel.setTextAsHTML(this.RAKE,  GUI_Utils.decimalFormat.format(rakeForSenseOfMotion));
+    Estimate rakeEst = null;
+    if(rakeForSenseOfMotion!=null) rakeEst = rakeForSenseOfMotion.getEstimate();
+    this.senseOfMotionRakeLabel.setTextAsHTML(rakeEst, RAKE, PROB);
+
     this.senseOfMotionQualLabel.setTextAsHTML(this.QUALITATIVE, senseOfMotionQual);
 
 

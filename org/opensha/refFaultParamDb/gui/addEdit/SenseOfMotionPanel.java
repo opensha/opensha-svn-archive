@@ -23,6 +23,8 @@ import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.data.estimate.DiscreteValueEstimate;
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.data.estimate.PDF_Estimate;
+import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: SenseOfMotion_MeasuredCompPanel.java </p>
@@ -180,10 +182,14 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
    * If it is not rake, Double.Nan is returned
    * @return
    */
-  public double getSenseOfMotionRake() {
+  public EstimateInstances getSenseOfMotionRake() {
     String value = (String)this.somParam.getValue();
-    if(!value.equalsIgnoreCase(QUANTITATIVE)) return Double.NaN;
-    else return ((Double)this.somRakeEstParam.getValue()).doubleValue();
+    if(!value.equalsIgnoreCase(QUANTITATIVE)) return null;
+    else {
+      this.somRakeEstParamEditor.setEstimateInParameter();
+      Estimate rakeEst =  (Estimate)this.somRakeEstParam.getValue();
+      return new EstimateInstances(rakeEst,"");
+    }
   }
 
   /**

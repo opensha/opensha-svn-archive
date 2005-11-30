@@ -2,6 +2,7 @@ package org.opensha.refFaultParamDb.vo;
 
 import java.util.ArrayList;
 import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.data.estimate.Estimate;
 
 /**
  * <p>Title: PaleoEvent.java </p>
@@ -26,7 +27,7 @@ public class PaleoEvent {
   private ArrayList referenceList;
   private int eventId;
   private boolean displacementShared;
-  private double senseOfMotionRake=Double.NaN;
+  private EstimateInstances senseOfMotionRake=null;
   private String senseOfMotionQual;
   private String measuredComponentQual;
 
@@ -114,7 +115,7 @@ public class PaleoEvent {
   public String getMeasuredComponentQual() {
     return this.measuredComponentQual;
   }
-  public void setSenseOfMotionRake(double senseOfMotionRake) {
+  public void setSenseOfMotionRake(EstimateInstances senseOfMotionRake) {
     this.senseOfMotionRake = senseOfMotionRake;
   }
   public void setMeasuredComponentQual(String measuredComponentQual) {
@@ -123,7 +124,7 @@ public class PaleoEvent {
   public void setSenseOfMotionQual(String senseOfMotionQual) {
     this.senseOfMotionQual = senseOfMotionQual;
   }
-  public double getSenseOfMotionRake() {
+  public EstimateInstances getSenseOfMotionRake() {
     return senseOfMotionRake;
   }
 }

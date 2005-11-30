@@ -1,5 +1,7 @@
 package org.opensha.refFaultParamDb.vo;
 
+import org.opensha.data.estimate.Estimate;
+
 /**
  * <p>Title: CombinedDisplacementInfo.java </p>
  * <p>Description: This class saves the information if the user wants to enter
@@ -14,7 +16,7 @@ public class CombinedDisplacementInfo {
   private EstimateInstances displacementEstimate;
   private EstimateInstances aSeismicSlipFactorEstimateForDisp;
   private String displacementComments;
-  private double senseOfMotionRake=Double.NaN;
+  private EstimateInstances senseOfMotionRake;
   private String senseOfMotionQual;
   private String measuredComponentQual;
 
@@ -44,10 +46,10 @@ public class CombinedDisplacementInfo {
   public void setASeismicSlipFactorEstimateForDisp(EstimateInstances aSeismicSlipFactorEstimateForDisp) {
     this.aSeismicSlipFactorEstimateForDisp = aSeismicSlipFactorEstimateForDisp;
   }
-  public double getSenseOfMotionRake() {
+  public EstimateInstances getSenseOfMotionRake() {
     return this.senseOfMotionRake;
   }
-  public void setSenseOfMotionRake(double senseOfMotionRake) {
+  public void setSenseOfMotionRake(EstimateInstances senseOfMotionRake) {
     this.senseOfMotionRake = senseOfMotionRake;
   }
   public void setMeasuredComponentQual(String measuredComponentQual) {

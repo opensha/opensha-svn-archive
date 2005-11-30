@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: PaleoEventDB_DAO.java </p>
@@ -81,16 +82,16 @@ public class PaleoEventDB_DAO {
     }catch(SQLException e) {
       throw new InsertException(e.getMessage());
     }
-
-
-    double somRake = paleoEvent.getSenseOfMotionRake();
     String somQual = paleoEvent.getSenseOfMotionQual();
     String measuredCompQual = paleoEvent.getMeasuredComponentQual();
     String colNames="", colVals="";
-    if(!Double.isNaN(somRake)) { // check whether user entered Sense of motion rake
+    EstimateInstances somRake = paleoEvent.getSenseOfMotionRake();
+    if(somRake!=null) { // check whether user entered Sense of motion rake
       colNames += this.SENSE_OF_MOTION_RAKE+",";
-      colVals += somRake+",";
+      int rakeEstId = estimateInstancesDAO.addEstimateInstance(somRake);
+      colVals += rakeEstId+",";
     }
+
     if(somQual!=null) {
       colNames+=this.SENSE_OF_MOTION_QUAL+",";
       colVals += "'"+somQual+"',";
@@ -244,16 +245,17 @@ public class PaleoEventDB_DAO {
        paleoEvent.setReferenceList(referenceList);
 
        // sense of motion
-        double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION_RAKE);
-        if(rs.wasNull()) senseOfMotionRake=Double.NaN;
-        String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
-        if(rs.wasNull()) senseOfMotionQual=null;
-        //measured component of slip
-        String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);
-        if(rs.wasNull()) measuedCompQual=null;
-        paleoEvent.setSenseOfMotionRake(senseOfMotionRake);
-        paleoEvent.setSenseOfMotionQual(senseOfMotionQual);
-        paleoEvent.setMeasuredComponentQual(measuedCompQual);
+       int senseOfMotionRakeId = rs.getInt(SENSE_OF_MOTION_RAKE);
+       EstimateInstances senseOfMotionRake =null;
+       if(!rs.wasNull()) senseOfMotionRake=this.estimateInstancesDAO.getEstimateInstance(senseOfMotionRakeId);
+       String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
+       if(rs.wasNull()) senseOfMotionQual=null;
+         //measured component of slip
+       String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);
+       if(rs.wasNull()) measuedCompQual=null;
+       paleoEvent.setSenseOfMotionRake(senseOfMotionRake);
+       paleoEvent.setSenseOfMotionQual(senseOfMotionQual);
+       paleoEvent.setMeasuredComponentQual(measuedCompQual);
 
        paleoEventList.add(paleoEvent);
      }

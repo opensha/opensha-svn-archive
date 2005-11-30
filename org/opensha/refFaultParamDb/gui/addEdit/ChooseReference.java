@@ -36,7 +36,7 @@ public class ChooseReference extends JFrame implements ActionListener,
   private ConstrainedStringParameterEditor referencesParamEditor;
   private StringParameter referencesParam;
   private JButton okButton = new JButton("OK");
-  private JButton cancelButton = new JButton("Cancel");
+  private JButton closeButton = new JButton("Close");
   private AddSiteInfo addSiteInfo;
   private ArrayList referenceSummaryList;
   private ArrayList referenceList;
@@ -48,6 +48,7 @@ public class ChooseReference extends JFrame implements ActionListener,
     this.setLocationRelativeTo(null);
     this.setDefaultCloseOperation(this.DO_NOTHING_ON_CLOSE);
     this.addSiteInfo = addSiteInfo;
+    closeButton.setEnabled(false);
     addActionListeners();
     addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     try {
@@ -65,7 +66,7 @@ public class ChooseReference extends JFrame implements ActionListener,
     addNewReferenceButton.addActionListener(this);
     this.okButton.addActionListener(this);
     viewAllRefButtons.addActionListener(this);
-    this.cancelButton.addActionListener(this);
+    this.closeButton.addActionListener(this);
   }
 
   /**
@@ -80,9 +81,11 @@ public class ChooseReference extends JFrame implements ActionListener,
     } else if(source == okButton) {
       int index = this.referenceSummaryList.indexOf((String)this.referencesParam.getValue());
       addSiteInfo.setReference((Reference)referenceList.get(index));
-      this.dispose();
-    } else if (source==cancelButton) {
-      addSiteInfo.dispose();
+      //this.dispose();
+      okButton.setEnabled(false);
+      closeButton.setEnabled(true);
+    } else if (source==closeButton) {
+      //addSiteInfo.dispose();
       this.dispose();
     } else if(source == this.viewAllRefButtons) {
       ViewAllReferences viewAllRefs = new ViewAllReferences();
@@ -101,7 +104,7 @@ public class ChooseReference extends JFrame implements ActionListener,
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
     contentPane.add(okButton,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
-    contentPane.add(cancelButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
+    contentPane.add(closeButton,  new GridBagConstraints(1, yPos++, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
   }
 

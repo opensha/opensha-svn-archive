@@ -418,16 +418,25 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private void viewDisplacementForTimePeriod(CombinedEventsInfo combinedEventsInfo) {
     if(this.isTestSite()) {
       CombinedDisplacementInfo combinedDisplacementInfo = new CombinedDisplacementInfo();
+      combinedDisplacementInfo.setMeasuredComponentQual("Total");
      // FAKE DATA FOR TEST SITE
      // Slip Rate Estimate
-     LogNormalEstimate diplacementEstimate = new LogNormalEstimate(1.5, 0.25);
+     MinMaxPrefEstimate diplacementEstimate = new MinMaxPrefEstimate(60, 150, 95, 0.2, 0.1, 0.7);
      combinedDisplacementInfo.setDisplacementEstimate(new EstimateInstances(diplacementEstimate,"units"));
      // Aseismic slip rate estimate
-     NormalEstimate aSiemsicSlipEstimate = new NormalEstimate(0.7, 0.5);
+     ArbitrarilyDiscretizedFunc func = new ArbitrarilyDiscretizedFunc();
+     func.set(0.0, 0.1);
+     func.set(0.5, 0.4);
+     func.set(0.6, 0.4);
+     func.set(1.0, 0.1);
+     DiscreteValueEstimate aSiemsicSlipEstimate = new DiscreteValueEstimate(func, true);
      combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(new EstimateInstances(aSiemsicSlipEstimate,"units"));
      // comments
      String comments = "Pertinent comments will be displayed here";
      combinedDisplacementInfo.setDisplacementComments(comments);
+     combinedDisplacementInfo.setSenseOfMotionQual("RL-R");
+     MinMaxPrefEstimate rakeEst = new MinMaxPrefEstimate(165, 180, 170, 0.4, 0.1, 0.5);
+     combinedDisplacementInfo.setSenseOfMotionRake(new EstimateInstances(rakeEst,""));
      displacementPanel.setInfo(combinedDisplacementInfo);
    } else if(this.isValidSiteAndInfoAvailable() &&
              combinedEventsInfo.getCombinedDisplacementInfo()!=null)  { // information available FOR THIS SITE

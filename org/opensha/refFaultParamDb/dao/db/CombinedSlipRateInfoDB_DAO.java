@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import org.opensha.refFaultParamDb.dao.exception.InsertException;
 import java.sql.ResultSet;
 import org.opensha.refFaultParamDb.dao.exception.QueryException;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: CombinedSlipRateInfoDB_DAO.java </p>
@@ -52,12 +53,13 @@ public class CombinedSlipRateInfoDB_DAO {
     String comments = combinedSlipRateInfo.getSlipRateComments();
     if(comments==null) comments="";
     String colNames="", colVals="";
-    double somRake = combinedSlipRateInfo.getSenseOfMotionRake();
     String somQual = combinedSlipRateInfo.getSenseOfMotionQual();
     String measuredCompQual = combinedSlipRateInfo.getMeasuredComponentQual();
-    if(!Double.isNaN(somRake)) { // check whether user entered Sense of motion rake
+    EstimateInstances somRake = combinedSlipRateInfo.getSenseOfMotionRake();
+    if(somRake!=null) { // check whether user entered Sense of motion rake
       colNames += this.SENSE_OF_MOTION_RAKE+",";
-      colVals += somRake+",";
+      int rakeEstId = estimateInstancesDAO.addEstimateInstance(somRake);
+      colVals += rakeEstId+",";
     }
     if(somQual!=null) {
       colNames+=this.SENSE_OF_MOTION_QUAL+",";
@@ -102,8 +104,9 @@ public class CombinedSlipRateInfoDB_DAO {
         combinedSlipRateInfo.setSlipRateEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(SLIP_RATE_EST_ID)));
         combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(estimateInstancesDAO.getEstimateInstance(rs.getInt(SLIP_ASEISMIC_SLIP_FACTOR_EST_ID)));
         // sense of motion
-        double senseOfMotionRake = rs.getFloat(SENSE_OF_MOTION_RAKE);
-        if(rs.wasNull()) senseOfMotionRake=Double.NaN;
+        int senseOfMotionRakeId = rs.getInt(SENSE_OF_MOTION_RAKE);
+        EstimateInstances senseOfMotionRake =null;
+        if(!rs.wasNull()) senseOfMotionRake=this.estimateInstancesDAO.getEstimateInstance(senseOfMotionRakeId);
         String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
         if(rs.wasNull()) senseOfMotionQual=null;
         String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);

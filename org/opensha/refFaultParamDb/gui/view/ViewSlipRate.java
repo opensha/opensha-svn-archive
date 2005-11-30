@@ -19,6 +19,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 
 /**
  * <p>Title: ViewSlipRate.java </p>
@@ -67,13 +68,13 @@ public class ViewSlipRate extends LabeledBoxPanel {
   * @param combinedDisplacementInfo
   */
  public void setInfo(CombinedSlipRateInfo combinedSlipRateInfo) {
-   if(combinedSlipRateInfo ==null) setInfo(null, null, null, Double.NaN, null, null);
+   if(combinedSlipRateInfo ==null) setInfo(null, null, null, null, null, null);
    else setInfo(combinedSlipRateInfo.getSlipRateEstimate().getEstimate(),
-                                combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
-                                combinedSlipRateInfo.getSlipRateComments(),
-                                combinedSlipRateInfo.getSenseOfMotionRake(),
-                                combinedSlipRateInfo.getSenseOfMotionQual(),
-                                combinedSlipRateInfo.getMeasuredComponentQual());
+                combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
+                combinedSlipRateInfo.getSlipRateComments(),
+                combinedSlipRateInfo.getSenseOfMotionRake(),
+                combinedSlipRateInfo.getSenseOfMotionQual(),
+                combinedSlipRateInfo.getMeasuredComponentQual());
  }
 
   /**
@@ -85,7 +86,7 @@ public class ViewSlipRate extends LabeledBoxPanel {
    * @param references
    */
   private void setInfo(Estimate slipRateEstimate, Estimate aSeismicSlipFactorEstimate,
-                       String comments, double rakeForSenseOfMotion, String senseOfMotionQual,
+                       String comments, EstimateInstances rakeForSenseOfMotion, String senseOfMotionQual,
                        String measuredSlipQual) {
    slipRateEstimateLabel.setTextAsHTML(slipRateEstimate, SLIP_RATE, PROB);
    aSesimicSlipFactorLabel.setTextAsHTML(aSeismicSlipFactorEstimate, this.ASEISMIC_SLIP_FACTOR, PROB);
@@ -93,9 +94,9 @@ public class ViewSlipRate extends LabeledBoxPanel {
    commentsParameterEditor.refreshParamEditor();
    this.measuredCompQualLabel.setTextAsHTML(this.QUALITATIVE, measuredSlipQual);
    // check whether sense of motion is available
-   if(Double.isNaN(rakeForSenseOfMotion))
-     senseOfMotionRakeLabel.setTextAsHTML(this.RAKE, null);
-   else this.senseOfMotionRakeLabel.setTextAsHTML(this.RAKE,  GUI_Utils.decimalFormat.format(rakeForSenseOfMotion));
+   Estimate rakeEst = null;
+   if(rakeForSenseOfMotion!=null) rakeEst = rakeForSenseOfMotion.getEstimate();
+   this.senseOfMotionRakeLabel.setTextAsHTML(rakeEst, RAKE, PROB);
    this.senseOfMotionQualLabel.setTextAsHTML(this.QUALITATIVE,  senseOfMotionQual);
  }
 

@@ -277,7 +277,7 @@ public class InfoLabel extends JLabel {
         "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
     for(int i=0; i<func.getNum(); ++i)
         text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
-            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
              GUI_Utils.decimalFormat.format(func.getY(i))+"<br>";
     return text;
   }
@@ -294,7 +294,7 @@ public class InfoLabel extends JLabel {
        "<b>"+func.getXAxisName()+"&nbsp;&nbsp;"+func.getYAxisName()+"</b> <br>";
    for(int i=0; i<func.getNum(); ++i)
        text+=   GUI_Utils.decimalFormat.format(func.getX(i))+
-           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+           "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
             GUI_Utils.decimalFormat.format(func.getY(i))+"<br>";
    return text;
  }
@@ -336,11 +336,11 @@ public class InfoLabel extends JLabel {
    else prefProbStr = ""+this.NOT_AVAILABLE;
 
    text+=  "Min "+xAxisName+":&nbsp;&nbsp;"+minXStr+"<br>";
-   text+=  "Min "+yAxisName+":&nbsp;&nbsp;"+minProbStr+"<br>";
+   text+=  ""+yAxisName+":&nbsp;&nbsp;"+minProbStr+"<br>";
    text+=  "Max "+xAxisName+":&nbsp;&nbsp;"+maxXStr+"<br>";
-   text+=  "Max "+yAxisName+":&nbsp;&nbsp;"+maxProbStr+"<br>";
+   text+=  ""+yAxisName+":&nbsp;&nbsp;"+maxProbStr+"<br>";
    text+=  "Pref "+xAxisName+":&nbsp;&nbsp;"+prefXStr+"<br>";
-   text+=  "Pref "+yAxisName+":&nbsp;&nbsp;"+prefProbStr+"<br>";
+   text+=  ""+yAxisName+":&nbsp;&nbsp;"+prefProbStr+"<br>";
 
    return text;
  }
