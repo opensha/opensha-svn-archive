@@ -3,13 +3,12 @@ package org.opensha.sha.gui.controls;
 import java.awt.*;
 import javax.swing.*;
 
-import org.opensha.param.DoubleParameter;
-import org.opensha.param.ParameterAPI;
-import org.opensha.param.ParameterConstraintAPI;
-import org.opensha.param.editor.DoubleParameterEditor;
-import org.opensha.param.event.ParameterChangeFailListener;
-import org.opensha.param.event.ParameterChangeFailEvent;
+import org.opensha.param.*;
+import org.opensha.param.editor.*;
+import org.opensha.param.event.*;
 import java.awt.event.*;
+import org.opensha.param.StringParameter;
+import java.util.ArrayList;
 
 
 /**
@@ -18,18 +17,37 @@ import java.awt.event.*;
  * to choose disaggregation or not. In addition, prob. can be input by the user</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
- * @author unascribed
+ * @author Nitin Gupta
  * @version 1.0
  */
 
 public class DisaggregationControlPanel extends JFrame
-    implements ParameterChangeFailListener{
-  private JCheckBox diaggregateCheckBox = new JCheckBox();
+    implements ParameterChangeFailListener, ParameterChangeListener{
+
+  private final static String DISAGGREGATION_PROB_PARAM_NAME = "Disaggregation Prob";
+  private final static String DISAGGREGATION_IML_PARAM_NAME = "Disaggregation IML";
+
 
   //Disaggregation Parameter
-  private DoubleParameter disaggregationParam =
-      new DoubleParameter("Disaggregation Prob", 0, 1, new Double(.01));
-  private DoubleParameterEditor disaggregationEditor=new DoubleParameterEditor();
+  private DoubleParameter disaggregationProbParam =
+      new DoubleParameter(DISAGGREGATION_PROB_PARAM_NAME, 0, 1, new Double(.01));
+
+  private DoubleParameter disaggregationIMLParam =
+     new DoubleParameter(DISAGGREGATION_IML_PARAM_NAME, 0, 11, new Double(.1));
+
+  private StringParameter disaggregationParameter ;
+
+  private final static String DISAGGREGATION_PARAM_NAME = "Diasaggregate";
+
+  public final static String NO_DISAGGREGATION = "No Disaggregation";
+  public final static String DISAGGREGATE_USING_PROB = "Probability";
+  public final static String DISAGGREGATE_USING_IML = "IML";
+
+
+  private ParameterListEditor paramListEditor;
+
+  private boolean isDisaggregationSelected;
+
 
   // applet which called this control panel
   DisaggregationControlPanelAPI parent;
@@ -38,14 +56,32 @@ public class DisaggregationControlPanel extends JFrame
   public DisaggregationControlPanel(DisaggregationControlPanelAPI parent,
                                     Component parentComponent) {
     try {
-      jbInit();
+
       this.parent= parent;
-      disaggregationParam.addParameterChangeFailListener(this);
-      disaggregationEditor.setParameter(disaggregationParam);
+
+      ArrayList disaggregateList = new ArrayList();
+      disaggregateList.add(NO_DISAGGREGATION);
+      disaggregateList.add(DISAGGREGATE_USING_PROB);
+      disaggregateList.add(DISAGGREGATE_USING_IML);
+
+      disaggregationParameter = new StringParameter(DISAGGREGATION_PARAM_NAME,disaggregateList,
+          (String)disaggregateList.get(0));
+      disaggregationParameter.addParameterChangeListener(this);
+      disaggregationProbParam.addParameterChangeFailListener(this);
+      disaggregationIMLParam.addParameterChangeFailListener(this);
+
+      ParameterList paramList = new ParameterList();
+      paramList.addParameter(disaggregationParameter);
+      paramList.addParameter(disaggregationProbParam);
+      paramList.addParameter(disaggregationIMLParam);
+
+      paramListEditor = new ParameterListEditor(paramList);
+      setParamsVisible((String)disaggregationParameter.getValue());
+      jbInit();
       // show the window at center of the parent component
       this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
                      parentComponent.getY()+parentComponent.getHeight()/2);
-      parent.setDisaggregationSelected(diaggregateCheckBox.isSelected());
+      parent.setDisaggregationSelected(isDisaggregationSelected);
 
     }
     catch(Exception e) {
@@ -55,22 +91,15 @@ public class DisaggregationControlPanel extends JFrame
 
   // initialize the gui components
   private void jbInit() throws Exception {
-    diaggregateCheckBox.setText("Disaggregrate");
-    diaggregateCheckBox.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        diaggregateCheckBox_actionPerformed(e);
-      }
-    });
-    this.getContentPane().setLayout(gridBagLayout1);
 
+    this.getContentPane().setLayout(gridBagLayout1);
+    this.getContentPane().add(paramListEditor,
+                              new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+        , GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+        new Insets(2, 2, 2, 2), 0, 0));
     this.setTitle("Disaggregation Control Panel");
-    this.getContentPane().add(diaggregateCheckBox,  new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.WEST, GridBagConstraints.BOTH, new Insets(15, 6, 18, 0), 15, 0));
-    this.getContentPane().add(this.disaggregationEditor,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
-          ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 1, 0, 0), 15, 0));
-    //diaggregateCheckBox.setSelected(false);
-    disaggregationEditor.setVisible(false);
-    this.setSize(320,70);
+    paramListEditor.setTitle("Set Disaggregation Params");
+    this.setSize(300,200);
   }
 
 
@@ -106,24 +135,78 @@ public class DisaggregationControlPanel extends JFrame
 
   }
 
-
   /**
-   * Only show disaggregration prob parameter when disaggregration is selected
-   * @param e
+   *
+   * @param e ParameterChangeEvent
    */
-  void diaggregateCheckBox_actionPerformed(ActionEvent e) {
-    parent.setDisaggregationSelected(diaggregateCheckBox.isSelected());
-    if(this.diaggregateCheckBox.isSelected()) disaggregationEditor.setVisible(true);
-    else disaggregationEditor.setVisible(false);
+  public void parameterChange (ParameterChangeEvent e){
+    String paramName = e.getParameterName();
+    if(paramName.equals(DISAGGREGATION_PARAM_NAME))
+      setParamsVisible((String)disaggregationParameter.getValue());
   }
 
+
+
+
+
   /**
-   * This function returns disaggregation prob value
-   * @return :double value of prob between 0 and 1
+   * Makes the parameters visible based on the choice of the user for Disaggregation
    */
-  public double getDisaggregationProb() {
-    return ((Double)disaggregationParam.getValue()).doubleValue();
+  private void setParamsVisible(String paramValue){
+    if(paramValue.equals(NO_DISAGGREGATION)){
+      paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
+          setVisible(false);
+      paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
+          setVisible(false);
+      isDisaggregationSelected = false;
+    }
+    else if(paramValue.equals(DISAGGREGATE_USING_PROB)){
+      paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
+          setVisible(true);
+      paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
+          setVisible(false);
+      isDisaggregationSelected = true;
+    }
+    else if(paramValue.equals(DISAGGREGATE_USING_IML)){
+      paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
+          setVisible(false);
+      paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
+          setVisible(true);
+      isDisaggregationSelected = true;
+    }
+
+    parent.setDisaggregationSelected(isDisaggregationSelected);
   }
+
+
+  /**
+   *
+   * @return String : Returns on wht basis Diaggregation is being done either
+   * using Probability or IML.
+   */
+  public String getDisaggregationParamValue(){
+    return (String)disaggregationParameter.getValue();
+  }
+
+
+  /**
+   * This function returns disaggregation prob value if disaggregation to be done
+   * based on Probability else it returns IML value if disaggregation to be done
+   * based on IML. If not disaggregation to be done , return -1.
+   */
+  public double getDisaggregationVal() {
+
+    if(isDisaggregationSelected){
+      String paramValue = getDisaggregationParamValue();
+      if(paramValue.equals(DISAGGREGATE_USING_PROB))
+        return ( (Double) disaggregationProbParam.getValue()).doubleValue();
+      else if(paramValue.equals(DISAGGREGATE_USING_IML))
+        return ( (Double) disaggregationIMLParam.getValue()).doubleValue();
+    }
+    return -1;
+  }
+
+
 
 
 }

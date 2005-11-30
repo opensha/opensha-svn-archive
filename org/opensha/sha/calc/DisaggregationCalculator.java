@@ -1,11 +1,7 @@
 package org.opensha.sha.calc;
 
 
-import javax.swing.JFrame;
-import javax.swing.JProgressBar;
-import java.awt.Rectangle;
-import javax.swing.JOptionPane;
-import javax.swing.JLabel;
+import java.util.*;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -16,7 +12,15 @@ import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.param.DistanceRupParameter;
-import org.opensha.sha.gui.infoTools.*;
+
+
+import org.opensha.sha.calc.sort.DisaggregationSourceInfo;
+import org.opensha.sha.calc.sort.DisaggregationSourceComparator;
+import java.io.FileWriter;
+import java.io.*;
+import org.opensha.data.Location;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.calc.RelativeLocation;
 
 
 /**
@@ -74,6 +78,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private int currRuptures = -1;
   private int totRuptures=0;
 
+  //gets the source Disagg info
+  private String sourceDisaggInfo;
+
 
   /**
    * creates the DisaggregationCalculator object
@@ -116,16 +123,19 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     if( D ) System.out.println(S + "STARTING DISAGGREGATION");
 
-    this.iml = iml;
     if( D ) System.out.println(S + "iml = " + iml);
 
     if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
 
+    ArrayList disaggSourceList = new ArrayList();
 
     //resetting the Parameter change Listeners on the AttenuationRelationship
     //parameters. This allows the Server version of our application to listen to the
     //parameter changes.
     ((AttenuationRelationship)imr).resetParameterEventListeners();
+    // set the maximum distance in the attenuation relationship
+     // (Note- other types of IMRs may not have this method so we should really check type here)
+     imr.setUserMaxDistance(MAX_DISTANCE);
 
 
     // get total number of sources
@@ -160,6 +170,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     for(int i=0;i < numSources ;i++) {
 
+      double sourceRate = 0;
       // get source and get its distance from the site
       ProbEqkSource source = eqkRupForecast.getSource(i);
       double distance = source.getMinDistance(site);
@@ -182,6 +193,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
           // get the rupture
           ProbEqkRupture rupture = source.getRupture(n);
+
 
           double qkProb = rupture.getProbability();
 
@@ -237,8 +249,23 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           Mbar += rate * mag;
           Dbar += rate * dist;
           Ebar += rate * epsilon;
-
+          sourceRate +=rate;
       }
+
+      DisaggregationSourceInfo disaggInfo = new DisaggregationSourceInfo(source.getName(), -sourceRate,i);
+      disaggSourceList.add(disaggInfo);
+    }
+
+    Collections.sort(disaggSourceList,new DisaggregationSourceComparator());
+    sourceDisaggInfo = "#Source-Id , Source-Name , Source-Rate , Total-Contribution-in-%\n";
+    int size = disaggSourceList.size();
+    for (int i = 0; i < size; ++i) {
+      DisaggregationSourceInfo disaggInfo = (DisaggregationSourceInfo)
+          disaggSourceList.get(i);
+      sourceDisaggInfo +=disaggInfo.getSourceId() + " ,  " + disaggInfo.getSourceName() +
+               "  , " +
+               disaggInfo.getSourceRate() + " ,  " +
+               ( -disaggInfo.getSourceRate() / totalRate * 100) + "\n";
     }
 
     Mbar /= totalRate;
@@ -274,6 +301,23 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
   }
+
+
+  /**
+   *
+   * Returns the disaggregated source list with following info ( in each line)
+   * 1)Source Id as given by OpenSHA
+   * 2)Name of the Source
+   * 3)Rate Contributed by that source
+   * 4)Percentage Contribution of the source in Hazard at the site.
+   *
+   * @return String
+   * @throws RemoteException
+   */
+  public String getDisaggregationSourceInfo() throws java.rmi.RemoteException{
+    return sourceDisaggInfo;
+  }
+
 
   /**
    * gets the number of current rupture being processed

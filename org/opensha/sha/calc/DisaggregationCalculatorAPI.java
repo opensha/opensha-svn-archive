@@ -43,6 +43,19 @@ public interface DisaggregationCalculatorAPI extends Remote{
   public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
 
   /**
+   *
+   * Returns the disaggregated source list with following info ( in each line)
+   * 1)Source Id as given by OpenSHA
+   * 2)Name of the Source
+   * 3)Rate Contributed by that source
+   * 4)Percentage Contribution of the source in Hazard at the site.
+   *
+   * @return String
+   * @throws RemoteException
+   */
+  public String getDisaggregationSourceInfo() throws java.rmi.RemoteException;
+
+  /**
    * gets the number of current rupture being processed
    * @return
    */

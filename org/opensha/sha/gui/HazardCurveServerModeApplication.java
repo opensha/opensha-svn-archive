@@ -74,6 +74,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.gui.infoTools.HazardCurveDisaggregationWindowAPI;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -96,7 +97,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
  */
 
 public class HazardCurveServerModeApplication extends JFrame
-    implements Runnable,  ParameterChangeListener,
+    implements Runnable,  ParameterChangeListener,HazardCurveDisaggregationWindowAPI,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
     ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI{
@@ -728,7 +729,7 @@ public class HazardCurveServerModeApplication extends JFrame
       try{
         computeHazardCurve();
         cancelCalcButton.setVisible(false);
-        disaggCalc = null;
+        //disaggCalc = null;
         calcThread = null;
       }catch(Exception e){
         e.printStackTrace();
@@ -1156,20 +1157,38 @@ public class HazardCurveServerModeApplication extends JFrame
         e.printStackTrace();
       }
       int num = hazFunction.getNum();
-      double disaggregationProb = this.disaggregationControlPanel.getDisaggregationProb();
-      //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-      if(disaggregationProb > hazFunction.getY(0) || disaggregationProb < hazFunction.getY(num-1))
-        JOptionPane.showMessageDialog(this,
-                                      new String("Chosen Probability is not"+
-                                      " within the range of the min and max prob."+
-                                      " in the Hazard Curve"),
-                                      "Disaggregation Prob. selection error message",
-                                      JOptionPane.OK_OPTION);
-      else{
-        //gets the Disaggregation data
-        double iml= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationProb);
-        try{
-          disaggCalc.disaggregate(Math.log(iml),site,imr,(EqkRupForecast)forecast);
+      double disaggregationVal = disaggregationControlPanel.getDisaggregationVal();
+      String disaggregationParamVal = disaggregationControlPanel.getDisaggregationParamValue();
+      double imlForDisaggregation = 0;
+      try{
+      if(disaggregationParamVal.equals(disaggregationControlPanel.DISAGGREGATE_USING_PROB)){
+          //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+        if(disaggregationVal > hazFunction.getY(0) || disaggregationVal < hazFunction.getY(num-1))
+          JOptionPane.showMessageDialog(this,
+                                        new String("Chosen Probability is not"+
+                                        " within the range of the min and max prob."+
+                                        " in the Hazard Curve"),
+                                        "Disaggregation error message",
+                                        JOptionPane.ERROR_MESSAGE);
+        else{
+          //gets the Disaggregation data
+          imlForDisaggregation= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
+        }
+
+      }
+      else if(disaggregationParamVal.equals(disaggregationControlPanel.DISAGGREGATE_USING_IML)){
+          //if selected IML is not within the range of the IML values chosen for Hazard Curve function
+        if(disaggregationVal < hazFunction.getX(0) || disaggregationVal > hazFunction.getX(num-1))
+          JOptionPane.showMessageDialog(this,
+                                        new String("Chosen IML is not"+
+                                        " within the range of the min and max IML values"+
+                                        " in the Hazard Curve"),
+                                        "Disaggregation error message",
+                                        JOptionPane.ERROR_MESSAGE);
+        else
+          imlForDisaggregation = disaggregationVal;
+      }
+          disaggCalc.disaggregate(Math.log(imlForDisaggregation),site,imr,(EqkRupForecast)forecast);
           disaggregationString=disaggCalc.getResultsString();
         }catch(Exception e){
           setButtonsEnable(true);
@@ -1178,11 +1197,11 @@ public class HazardCurveServerModeApplication extends JFrame
           bugWindow.pack();
           e.printStackTrace();
         }
-      }
+      //}
     }
     //displays the disaggregation string in the pop-up window
     if(disaggregationString !=null) {
-      HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, disaggregationString);
+      HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, this, disaggregationString);
       disaggregation.pack();
       disaggregation.show();
     }
@@ -2011,5 +2030,24 @@ public class HazardCurveServerModeApplication extends JFrame
     //making the buttons to be visible
     setButtonsEnable(true);
     cancelCalcButton.setVisible(false);
+  }
+
+  /**
+   * Returns the Source Disaggregated List
+   * @return String
+   */
+  public String getSourceDisaggregationInfo() {
+    try {
+      return disaggCalc.getDisaggregationSourceInfo();
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+      setButtonsEnable(true);
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+          getParametersInfo());
+      bugWindow.show();
+      bugWindow.pack();
+    }
+    return null;
   }
 }

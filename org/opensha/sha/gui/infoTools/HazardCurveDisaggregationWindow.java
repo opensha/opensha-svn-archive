@@ -21,10 +21,20 @@ public class HazardCurveDisaggregationWindow extends JFrame {
   private JTextPane jMessagePane = new JTextPane();
   private SimpleAttributeSet setMessage;
   Border border1;
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
+  JButton sourceListButton = new JButton();
+  JButton plotButton = new JButton();
+  private DisplayDataWindow dataWindow;
+
+  private HazardCurveDisaggregationWindowAPI application;
   BorderLayout borderLayout1 = new BorderLayout();
-  public HazardCurveDisaggregationWindow(Component parent, String s) {
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
+
+  public HazardCurveDisaggregationWindow(HazardCurveDisaggregationWindowAPI app,
+                                         Component parent, String s) {
+
     this.infoMessage=s;
+    application = app;
+
     try {
       jbInit();
       // show the window at center of the parent component
@@ -65,14 +75,56 @@ public class HazardCurveDisaggregationWindow extends JFrame {
     jMessagePane.setBorder(null);
     jMessagePane.setToolTipText("");
     jMessagePane.setEditable(false);
-    jMessagePanel.add(jMessagePane,   new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 0, 0, 5), 100, 263));
-    jMessagePanel.add(jMessageButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(8, 57, 5, 58), 0, 0));
-    this.getContentPane().add(jMessagePanel, BorderLayout.CENTER);
+    sourceListButton.setBackground(new Color(200, 200, 230));
+    sourceListButton.setForeground(new Color(80, 80, 133));
+    sourceListButton.setText("Source List");
+    sourceListButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        sourceListButton_actionPerformed(actionEvent);
+      }
+    });
+    plotButton.setBackground(new Color(200, 200, 230));
+    plotButton.setForeground(new Color(80, 80, 133));
+    plotButton.setText("Disagg. Plot");
+    plotButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        plotButton_actionPerformed(actionEvent);
+      }
+    });
+    this.getContentPane().add(jMessagePanel, java.awt.BorderLayout.CENTER);
+    jMessagePanel.add(jMessageButton,
+                      new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+                                             , GridBagConstraints.CENTER,
+                                             GridBagConstraints.NONE,
+                                             new Insets(4, 4, 4, 4), 35, 0));
+    jMessagePanel.add(sourceListButton,
+                      new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+                                             , GridBagConstraints.CENTER,
+                                             GridBagConstraints.NONE,
+                                             new Insets(4, 4, 4, 4), 13, 0));
+    jMessagePanel.add(plotButton, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(4, 4, 4, 4), 6, 0));
+    jMessagePanel.add(jMessagePane, new GridBagConstraints(0, 0, 3, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 0, 0, 0), 0, 0));
   }
 
   void jMessageButton_actionPerformed(ActionEvent e) {
    this.dispose();
+  }
+
+  public void sourceListButton_actionPerformed(ActionEvent actionEvent) {
+    String sourceDisaggregationList = application.getSourceDisaggregationInfo();
+    String title = "Source Disaggregation Result";
+    if(dataWindow == null)
+      dataWindow = new DisplayDataWindow(this,sourceDisaggregationList,title);
+    else
+      dataWindow.setDataInWindow(sourceDisaggregationList);
+    dataWindow.show();
+  }
+
+  public void plotButton_actionPerformed(ActionEvent actionEvent) {
+
   }
 }
