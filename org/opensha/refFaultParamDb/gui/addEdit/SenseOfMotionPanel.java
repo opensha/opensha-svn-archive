@@ -115,7 +115,7 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
     this.add(somQualParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
     this.add(rakeConventionButton,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 5), 0, 0));
     this.add(somRakeEstParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
   }
@@ -184,7 +184,7 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
    */
   public EstimateInstances getSenseOfMotionRake() {
     String value = (String)this.somParam.getValue();
-    if(!value.equalsIgnoreCase(QUANTITATIVE)) return null;
+    if(value.equalsIgnoreCase(QUALITATIVE)|| value.equalsIgnoreCase(UNKNOWN)) return null;
     else {
       this.somRakeEstParamEditor.setEstimateInParameter();
       Estimate rakeEst =  (Estimate)this.somRakeEstParam.getValue();
@@ -200,7 +200,7 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
  public String getSenseOfMotionQual() {
    String value = (String)this.somParam.getValue();
    if(value.equalsIgnoreCase(QUANTITATIVE) || value.equalsIgnoreCase(UNKNOWN)) return null;
-   return value;
+   return (String)somQualParam.getValue();
  }
 
  public void actionPerformed(ActionEvent actionEvent) {

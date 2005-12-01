@@ -80,6 +80,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private InfoLabel siteTypeLabel= new InfoLabel();
   private InfoLabel siteRepresentationLabel= new InfoLabel();
   private InfoLabel lastEntryDateLabel = new InfoLabel();
+  private InfoLabel sendEmailLabel = new InfoLabel("To change the above info, send email to perry@gps.caltech.edu");
   private InfoLabel contributorNameLabel = new InfoLabel();
   private LabeledBoxPanel iHaveInfoOnPanel;
 
@@ -207,9 +208,15 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                                                 new Insets(2, 2, 2, 2), 0, 0));
     // associated with fault
     addEditSitePanel.add(assocWithFaultLabel, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
-                                                    , GridBagConstraints.CENTER,
-                                                    GridBagConstraints.BOTH,
-                                                    new Insets(2, 2 , 2, 2), 0, 0));
+        , GridBagConstraints.CENTER,
+        GridBagConstraints.BOTH,
+        new Insets(2, 2 , 2, 2), 0, 0));
+    // send email to edit site location/association with fault
+    addEditSitePanel.add(sendEmailLabel,
+                         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.CENTER,
+                                                GridBagConstraints.BOTH,
+                                                new Insets(2, 2, 2, 2), 0, 0));
 
    ++siteYPos; // increment  because references param editor exists at this place
 
@@ -354,7 +361,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     referencesForSiteParamEditor = new ConstrainedStringParameterEditor(referencesForSiteParam);
     // site references
     addEditSitePanel.add(this.referencesForSiteParamEditor,
-                        new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+                        new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
                                                , GridBagConstraints.CENTER,
                                                GridBagConstraints.BOTH,
                                                new Insets(2, 2, 2, 2),

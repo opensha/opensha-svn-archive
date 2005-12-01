@@ -168,7 +168,7 @@ public class ChooseReference extends JFrame implements ActionListener,
                                             (String)siteTypes.get(0));
     siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
     // site types
-    this.getContentPane().add(siteTypeParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+    this.getContentPane().add(siteTypeParamEditor,  new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 }
 
@@ -193,7 +193,7 @@ public class ChooseReference extends JFrame implements ActionListener,
     siteRepresentationParam = new StringParameter(SITE_REPRESENTATION_PARAM_NAME, siteRepresentations,
                                                   (String)siteRepresentations.get(0));
     siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
-    this.getContentPane().add(siteRepresentationParamEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+    this.getContentPane().add(siteRepresentationParamEditor,  new GridBagConstraints(0, 2, 2, 1, 1.0, 1.0
       ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
   }

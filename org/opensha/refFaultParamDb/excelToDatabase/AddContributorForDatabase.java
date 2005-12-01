@@ -20,7 +20,7 @@ public class AddContributorForDatabase {
   public static void main(String[] args) {
     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConn);
     // add fault _sandbox
-    /*Contributor contributor = new Contributor();
+    Contributor contributor = new Contributor();
     contributor.setEmail("fault_sandbox@usc.edu");
     contributor.setFirstName("Fault");
     contributor.setLastName("Sandbox");
@@ -43,7 +43,7 @@ public class AddContributorForDatabase {
     contributor.setName("perry");
     password = "";
     contributorDAO.addContributor(contributor,password);
-    System.exit(0);*/
+    System.exit(0);
   }
 
 }
