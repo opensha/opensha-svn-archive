@@ -51,6 +51,7 @@ public class CombinedEventsInfoDB_DAO {
   private CombinedNumEventsInfoDB_DAO combinedNumEventsInfoDB_DAO;
   private CombinedSlipRateInfoDB_DAO combinedSlipRateInfoDB_DAO;
   private EventSequenceDB_DAO eventSequenceDAO;
+  private PaleoSitePublicationsDB_DAO paleoSitePublicationDAO;
 
   public CombinedEventsInfoDB_DAO(DB_AccessAPI dbAccess) {
     setDB_Connection(dbAccess);
@@ -65,6 +66,7 @@ public class CombinedEventsInfoDB_DAO {
     combinedNumEventsInfoDB_DAO = new CombinedNumEventsInfoDB_DAO(dbAccess);
     combinedSlipRateInfoDB_DAO = new CombinedSlipRateInfoDB_DAO(dbAccess);
     eventSequenceDAO = new EventSequenceDB_DAO(dbAccess);
+    paleoSitePublicationDAO = new PaleoSitePublicationsDB_DAO(dbAccess);
   }
 
 
@@ -102,6 +104,8 @@ public class CombinedEventsInfoDB_DAO {
 
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
+     // add site publication info
+     paleoSitePublicationDAO.addPaleoSitePublicationInfo(combinedEventsInfo.getPaleoSitePublication());
      // add displacement info
      CombinedDisplacementInfo combinedDispInfo = combinedEventsInfo.getCombinedDisplacementInfo();
      if(combinedDispInfo!=null) this.combinedDispInfoDB_DAO.addDisplacementInfo(infoId, systemDate, combinedDispInfo);
@@ -139,10 +143,10 @@ public class CombinedEventsInfoDB_DAO {
    * @param siteId
    * @return
    */
-  public ArrayList getCombinedEventsInfoList(int siteId) {
+  public ArrayList getCombinedEventsInfoList(int siteId, int referenceId) {
     String condition = " where "+SITE_ID+"="+siteId+" and "+this.IS_RECORD_DELETED+
         "='"+this.NO+"'";
-    return query(condition);
+    return query(condition, referenceId);
   }
 
   /**
@@ -151,7 +155,7 @@ public class CombinedEventsInfoDB_DAO {
    * @param condition
    * @return
    */
-  private ArrayList query(String condition) {
+  private ArrayList query(String condition, int referenceId) {
     ArrayList combinedInfoList = new ArrayList();
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
@@ -161,7 +165,25 @@ public class CombinedEventsInfoDB_DAO {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;
       while(rs.next())  {
+
+        // get all the references for this site
+        ArrayList referenceList = new ArrayList();
+        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
+            " where "+COMBINED_EVENTS_ID+"="+rs.getInt(INFO_ID)+" and "+
+            COMBINED_EVENTS_ENTRY_DATE+"='"+rs.getString(ENTRY_DATE)+"'";
+        ResultSet referenceResultSet = dbAccess.queryData(sql);
+        boolean found = false;
+        while(referenceResultSet.next()) {
+          int refId = referenceResultSet.getInt(REFERENCE_ID);
+          if(refId==referenceId) found = true;
+          referenceList.add(referenceDAO.getReference(refId));
+        }
+        referenceResultSet.close();
+        if(!found) continue;
+
         CombinedEventsInfo combinedEventsInfo = new  CombinedEventsInfo();
+        // set the references in the VO
+        combinedEventsInfo.setReferenceList(referenceList);
         combinedEventsInfo.setInfoId(rs.getInt(INFO_ID));
         combinedEventsInfo.setEntryDate(rs.getString(ENTRY_DATE));
         combinedEventsInfo.setSiteId(rs.getInt(SITE_ID));
@@ -187,19 +209,6 @@ public class CombinedEventsInfoDB_DAO {
          combinedEventsInfo.setIsExpertOpinion(true);
        else combinedEventsInfo.setIsExpertOpinion(false);
 
-        // get all the references for this site
-        ArrayList referenceList = new ArrayList();
-        sql = "select "+REFERENCE_ID+" from "+this.REFERENCES_TABLE_NAME+
-            " where "+COMBINED_EVENTS_ID+"="+combinedEventsInfo.getInfoId()+" and "+
-            COMBINED_EVENTS_ENTRY_DATE+"='"+combinedEventsInfo.getEntryDate()+"'";
-        ResultSet referenceResultSet = dbAccess.queryData(sql);
-        while(referenceResultSet.next()) {
-          referenceList.add(referenceDAO.getReference(referenceResultSet.getInt(REFERENCE_ID)));
-        }
-        referenceResultSet.close();
-
-        // set the references in the VO
-        combinedEventsInfo.setReferenceList(referenceList);
         combinedInfoList.add(combinedEventsInfo);
       }
       rs.close();

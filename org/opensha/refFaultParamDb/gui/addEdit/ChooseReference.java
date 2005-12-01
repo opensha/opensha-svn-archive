@@ -16,6 +16,10 @@ import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.dao.db.SiteTypeDB_DAO;
+import org.opensha.refFaultParamDb.dao.db.SiteRepresentationDB_DAO;
+import org.opensha.refFaultParamDb.vo.SiteType;
+import org.opensha.refFaultParamDb.vo.SiteRepresentation;
 
 /**
  * <p>Title: ChooseReference.java </p>
@@ -40,6 +44,17 @@ public class ChooseReference extends JFrame implements ActionListener,
   private AddSiteInfo addSiteInfo;
   private ArrayList referenceSummaryList;
   private ArrayList referenceList;
+  private final static String SITE_TYPE_PARAM_NAME="Site Type";
+  private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
+  private StringParameter siteTypeParam;
+  private StringParameter siteRepresentationParam;
+  private ConstrainedStringParameterEditor siteTypeParamEditor;
+  private ConstrainedStringParameterEditor siteRepresentationParamEditor;
+  // site type DAO
+  private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
+  // site representations DAO
+ private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+
 
   // references DAO
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
@@ -80,6 +95,8 @@ public class ChooseReference extends JFrame implements ActionListener,
     } else if(source == okButton) {
       int index = this.referenceSummaryList.indexOf((String)this.referencesParam.getValue());
       addSiteInfo.setReference((Reference)referenceList.get(index));
+      addSiteInfo.setSiteType((String)this.siteTypeParam.getValue());
+      addSiteInfo.setSiteRepresentativeStrandIndex((String)this.siteRepresentationParam.getValue());
       //this.dispose();
       okButton.setEnabled(false);
     } else if (source==closeButton) {
@@ -94,7 +111,9 @@ public class ChooseReference extends JFrame implements ActionListener,
     Container contentPane = this.getContentPane();
     contentPane.setLayout(GUI_Utils.gridBagLayout);
     makeReferencesParamAndEditor();
-    int yPos=1;
+    makeSiteTypeParamAndEditor();
+    makeSiteRepresentationParamAndEditor();
+    int yPos=3;
 
     contentPane.add(viewAllRefButtons,  new GridBagConstraints(0, yPos, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
@@ -139,6 +158,64 @@ public class ChooseReference extends JFrame implements ActionListener,
       referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());
     return referenceSummaryList;
   }
+
+  // make site type param and editor
+  private void makeSiteTypeParamAndEditor() {
+
+    ArrayList siteTypes = getSiteTypes();
+    // available study types
+    siteTypeParam = new StringParameter(SITE_TYPE_PARAM_NAME, siteTypes,
+                                            (String)siteTypes.get(0));
+    siteTypeParamEditor = new ConstrainedStringParameterEditor(siteTypeParam);
+    // site types
+    this.getContentPane().add(siteTypeParamEditor,  new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+}
+
+  /**
+   * Get the study types.
+   * It gets all the SITE TYPES from the database
+   *
+   * @return
+   */
+  private ArrayList getSiteTypes() {
+    ArrayList siteTypeVOs = siteTypeDAO.getAllSiteTypes();
+    ArrayList siteTypesList = new ArrayList();
+    for(int i=0; i<siteTypeVOs.size(); ++i)
+      siteTypesList.add(((SiteType)siteTypeVOs.get(i)).getSiteType());
+    return siteTypesList;
+  }
+
+  // representative strand index param and editor
+  private void makeSiteRepresentationParamAndEditor() {
+    ArrayList siteRepresentations = getSiteRepresentations();
+    // how representative is this site?
+    siteRepresentationParam = new StringParameter(SITE_REPRESENTATION_PARAM_NAME, siteRepresentations,
+                                                  (String)siteRepresentations.get(0));
+    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
+    this.getContentPane().add(siteRepresentationParamEditor,  new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0
+      ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
+  }
+
+
+
+  /**
+    * Get the site representations.
+    * It gets the SITE REPRSENTATIONS from the database
+    *
+    * @return
+    */
+   private ArrayList getSiteRepresentations() {
+     ArrayList siteRepresentationVOs = siteRepresentationDAO.getAllSiteRepresentations();
+     ArrayList siteRepresentations = new ArrayList();
+     for(int i=0; i<siteRepresentationVOs.size(); ++i) {
+       siteRepresentations.add(((SiteRepresentation)siteRepresentationVOs.get(i)).getSiteRepresentationName());
+     }
+     return siteRepresentations;
+   }
+
+
 
 
 

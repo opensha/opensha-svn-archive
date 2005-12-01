@@ -17,5 +17,5 @@ public interface SiteSelectionAPI {
    * Whenever a user selects a site, this function is called in the listener class
    * @param siteId
    */
-  public void siteSelected(PaleoSite paleoSite);
+  public void siteSelected(PaleoSite paleoSite, int referenceId);
 }

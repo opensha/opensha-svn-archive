@@ -18,6 +18,7 @@ import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 /**
  * <p>Title: AddSiteInfo.java </p>
@@ -54,6 +55,8 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private final static String MSG_NO_REFERENCE_CHOSEN = "Cannot add info to database as reference has not been chosen";
   private int siteId;
   private String siteEntryDate;
+  private String siteRepresentativeIndex;
+  private ArrayList siteTypes;
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 
   public AddSiteInfo(int siteId, String siteEntryDate,
@@ -94,6 +97,17 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     referencesDialog.show();
     //this.setEnabled(false);
 
+  }
+
+  // site type as given in the publication
+  public void setSiteType(String siteType) {
+    siteTypes = new ArrayList();
+    siteTypes.add(siteType);
+  }
+
+  // representative strand index as given in the publication
+  public void setSiteRepresentativeStrandIndex(String representativeStrandIndex) {
+    this.siteRepresentativeIndex = representativeStrandIndex;
   }
 
   public void setReference(Reference reference) {
@@ -150,6 +164,15 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     // set the site
     combinedEventsInfo.setSiteEntryDate(this.siteEntryDate);
     combinedEventsInfo.setSiteId(this.siteId);
+    // paleo site publication info
+    PaleoSitePublication paleoSitePub = new PaleoSitePublication();
+    paleoSitePub.setReference((Reference)this.referenceList.get(0));
+    paleoSitePub.setRepresentativeStrandName(this.siteRepresentativeIndex);
+    paleoSitePub.setSiteTypeNames(this.siteTypes);
+    paleoSitePub.setSiteId(this.siteId);
+    paleoSitePub.setSiteEntryDate(siteEntryDate);
+    combinedEventsInfo.setPaleoSitePublication(paleoSitePub);
+
     // set the slip rate info
     if (isSlipVisible) {
       CombinedSlipRateInfo combinedSlipRateInfo = addEditSlipRate.getCombinedSlipRateInfo();

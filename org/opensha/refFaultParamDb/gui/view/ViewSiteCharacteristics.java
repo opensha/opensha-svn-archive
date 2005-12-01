@@ -44,7 +44,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
   private final static String SITE_REFERENCES_PARAM_NAME="References";
   // various types of information that can be provided by the user
-  private final static String AVAILABLE_INFO_PARAM_NAME="I have data on";
+  private final static String AVAILABLE_INFO_PARAM_NAME="I have Publication data for";
   private final static String SLIP_RATE_INFO = "Slip Rate";
   private final static String CUMULATIVE_DISPLACEMENT_INFO = "Cumulative Displacement";
   private final static String NUM_EVENTS_INFO = "Number of Events";
@@ -370,7 +370,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
  private void setValuesBasedOnReference(String refName) {
    String siteType=null, siteRepresentation=null;
    String lastEntryDate=null, lastUpdatedBy=null;
-
+   int refId = -1;
    if(paleoSite==null) { // if it is a test site
      siteType = "Trench";
      siteRepresentation = "Most Significant Strand";
@@ -385,12 +385,13 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
            paleoSitePubList.get(i);
        String summary = paleoSitePub.getReference().getSummary();
        if (summary.equalsIgnoreCase(refName)) {
+         refId = paleoSitePub.getReference().getReferenceId();
          ArrayList studyTypes = paleoSitePub.getSiteTypeNames();
          siteType = "";
          for (int j = 0; j < studyTypes.size(); ++j)
            siteType += studyTypes.get(j) + ",";
          siteRepresentation = paleoSitePub.getRepresentativeStrandName();
-         lastEntryDate = paleoSite.getEntryDate();
+         lastEntryDate = paleoSitePub.getEntryDate();
          lastUpdatedBy = paleoSitePub.getContributorName();
        }
      }
@@ -405,7 +406,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    // last entry by
    this.contributorNameLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, lastUpdatedBy);
    // call the listener
-   siteSelectionListener.siteSelected(this.paleoSite); // call the listening class
+   siteSelectionListener.siteSelected(this.paleoSite, refId); // call the listening class
 
  }
 

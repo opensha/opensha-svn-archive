@@ -28,6 +28,7 @@ public class CombinedEventsInfo {
   private CombinedNumEventsInfo combinedNumEventsInfo;
   private ArrayList eventSequenceList;
   private boolean isExpertOpinion=false;
+  private PaleoSitePublication paleoSitePublication;
 
   /*
    * Various  set/get methods
@@ -123,5 +124,11 @@ public class CombinedEventsInfo {
   }
   public void setEventSequenceList(ArrayList eventSequenceList) {
     this.eventSequenceList = eventSequenceList;
+  }
+  public PaleoSitePublication getPaleoSitePublication() {
+    return paleoSitePublication;
+  }
+  public void setPaleoSitePublication(PaleoSitePublication paleoSitePublication) {
+    this.paleoSitePublication = paleoSitePublication;
   }
 }

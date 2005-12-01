@@ -166,8 +166,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
         CombinedEventsInfo combinedEventsInfo = (CombinedEventsInfo)combinedEventsInfoList.get(i);
         ArrayList referenceList  = combinedEventsInfo.getReferenceList();
 
-        timeSpansList.add((i+1)+". "+"(Reference="+
-                          getReferencesAsString(referenceList)+")(Start Time="+
+        timeSpansList.add((i+1)+". "+"(Start Time="+
                           getTimeString(combinedEventsInfo.getStartTime())+") "+
                           "(End Time="+getTimeString(combinedEventsInfo.getEndTime())+")");
       }
@@ -479,7 +478,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   * Whenever a user selects a site, this function is called in the listener class
   * @param siteName
   */
-  public void siteSelected(PaleoSite paleoSite) {
+  public void siteSelected(PaleoSite paleoSite, int referenceId) {
     this.paleoSite = paleoSite;
     String siteName;
     if(paleoSite==null) { // for test site
@@ -488,7 +487,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     }
     else { // for actual sites from database
       siteName = paleoSite.getSiteName();
-      this.combinedEventsInfoList = combinedEventsInfoDAO.getCombinedEventsInfoList(paleoSite.getSiteId());
+      this.combinedEventsInfoList = combinedEventsInfoDAO.getCombinedEventsInfoList(paleoSite.getSiteId(), referenceId);
     }
     makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
     this.individualEventPanel.setSite(paleoSite); // view the events for this site
