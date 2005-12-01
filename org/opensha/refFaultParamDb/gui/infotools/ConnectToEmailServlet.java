@@ -46,8 +46,6 @@ public class ConnectToEmailServlet {
       toServlet.flush();
       toServlet.close();
 
-      // Receive the "actual webaddress of all the gmt related files"
-      // from the servlet after it has received all the data
       ObjectInputStream fromServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 

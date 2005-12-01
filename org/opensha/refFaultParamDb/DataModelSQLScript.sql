@@ -1,4 +1,3 @@
-drop View Vw_Paleo_Site_Chars;
 drop table Event_Sequence_Event_List;
 drop trigger Event_Sequence_Trigger;
 drop sequence Event_Sequence_Sequence;
@@ -6,7 +5,6 @@ drop table Event_Sequence;
 drop sequence Paleo_Event_Sequence;
 drop trigger Paleo_Event_Trigger;
 drop table Paleo_Event_References;
-drop table Paleo_Site_Study;
 drop table Paleo_Event;
 drop table Combined_Events_References;
 drop sequence Combined_Events_Sequence;
@@ -22,7 +20,7 @@ drop trigger Time_Instances_Trigger;
 drop sequence Time_Instances_Sequence;
 drop table Time_Instances;
 drop table Time_Type;
-drop table Paleo_Site_References;
+drop table Paleo_Site_Publications;
 drop trigger Paleo_Site_Trigger;
 drop sequence Paleo_Site_Sequence;
 drop table Paleo_Site;
@@ -360,19 +358,13 @@ CREATE TABLE Paleo_Site (
   Site_Id INTEGER NOT NULL,
   Fault_Id INTEGER NOT NULL,
   Entry_Date date NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
   Site_Name VARCHAR(255) NULL,
   Site_Location1 MDSYS.SDO_GEOMETRY,
   Site_Location2 MDSYS.SDO_GEOMETRY,
-  Representative_Strand_Index INTEGER NOT NULL,
   General_Comments VARCHAR(1000) NULL,
   Old_Site_Id VARCHAR(20) NULL,
   Dip_Est_Id INTEGER NULL,
   PRIMARY KEY(Site_Id, Entry_Date),
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
-  FOREIGN KEY(Representative_Strand_Index)
-     REFERENCES Site_Representations(Site_Representation_Id),
   FOREIGN KEY(Dip_Est_Id)
      REFERENCES Est_Instances(Est_Id),
   FOREIGN KEY (Fault_Id)
@@ -394,26 +386,25 @@ end if;
 end;
 /
 
-CREATE TABLE Paleo_Site_Study (
+CREATE TABLE Paleo_Site_Publications (
   Site_Id INTEGER NOT NULL,
+  Site_Entry_Date date NOT NULL,
   Entry_Date date NOT NULL,
   Site_Type_Id INTEGER NOT NULL,
-  PRIMARY KEY(Site_Id, Entry_Date, Site_Type_Id),
-  FOREIGN KEY(Site_Type_Id)
-     REFERENCES Site_Type(Site_Type_Id),
-  FOREIGN KEY(Site_Id, Entry_Date)
-     REFERENCES Paleo_Site(Site_Id, Entry_date)
-);
-
-CREATE TABLE Paleo_Site_References (
-  Site_Id INTEGER NOT NULL,
-  Entry_Date date NOT NULL,
+  Representative_Strand_Index INTEGER NOT NULL,
   Reference_Id INTEGER  NOT NULL,
-  PRIMARY KEY(Site_Id, Entry_Date,Reference_Id),
+  Contributor_Id INTEGER  NOT NULL,
+  PRIMARY KEY(Site_Id, Site_Entry_date, Reference_Id, Entry_date),
   FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id),
-  FOREIGN KEY(Site_Id, Entry_Date) 
-     REFERENCES Paleo_Site(Site_Id, Entry_Date)
+  FOREIGN KEY(Representative_Strand_Index)
+     REFERENCES Site_Representations(Site_Representation_Id),
+  FOREIGN KEY(Site_Type_Id)
+     REFERENCES Site_Type(Site_Type_Id),
+  FOREIGN KEY(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id),
+  FOREIGN KEY(Site_Id, Site_Entry_Date)
+     REFERENCES Paleo_Site(Site_Id, Entry_date)
 );
   
 
@@ -728,19 +719,6 @@ insert into Time_Type values (1, 'Exact Time', sysdate);
 insert into Time_Type values (2, 'Time Estimate', sysdate);
 
 
-create VIEW Vw_Paleo_Site_Chars AS
-select ps.Site_Id as Site_Id,
-       ps.Fault_Id as Fault_Id, 
-       ps.Entry_Date as Entry_Date,
-       ps.Dip_Est_Id as Dip_Est_Id,
-       ps.Site_Name as Site_Name,
-       ps.Site_Location1 as Site_Location1,
-       ps.Site_Location2 as Site_Location2,
-       sr.Site_Representation_Name as Site_Representation_Name,
-       ps.General_Comments as General_comments,
-       ps.Old_Site_Id as Old_site_Id,
-       contrib.Contributor_Name as Contributor_Name
-FROM  Paleo_Site ps, Contributors contrib, Site_Representations sr, (select max(entry_date) as maxdate,site_id from paleo_site group by site_id) maxresults where ps.site_id=maxresults.site_id and ps.entry_date=maxresults.maxdate and ps.Representative_Strand_Index=sr.Site_Representation_Id and ps.Contributor_Id=contrib.Contributor_Id;
 
 INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference, QFault_Reference_Id)
 select Ref_Auth, Ref_Year, Reference_Tx, Ref_Num from QFault_References;

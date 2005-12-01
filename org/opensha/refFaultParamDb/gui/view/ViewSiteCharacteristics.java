@@ -22,6 +22,7 @@ import org.opensha.refFaultParamDb.vo.PaleoSiteSummary;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -66,17 +67,18 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
 
   // input parameters declaration
   private StringParameter siteNameParam;
+  private StringParameter referencesForSiteParam;
   public final static String TEST_SITE = "A Sample Site";
   private final static String MSG_TEST_SITE_NOT_EDITABLE = "Sample site is non-editable";
 
 
   // input parameter editors
   private ConstrainedStringParameterEditor siteNameParamEditor;
+  private ConstrainedStringParameterEditor referencesForSiteParamEditor;
   private InfoLabel siteLocationLabel = new InfoLabel();
   private InfoLabel assocWithFaultLabel = new InfoLabel();
   private InfoLabel siteTypeLabel= new InfoLabel();
   private InfoLabel siteRepresentationLabel= new InfoLabel();
-  private InfoLabel siteReferencesLabel = new InfoLabel();
   private InfoLabel lastEntryDateLabel = new InfoLabel();
   private InfoLabel contributorNameLabel = new InfoLabel();
   private LabeledBoxPanel iHaveInfoOnPanel;
@@ -111,7 +113,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       addEditSitePanel.setLayout(GUI_Utils.gridBagLayout);
       qFaultsEntriesButton.setEnabled(false);
       // initialize parameters and editors
-      initParametersAndEditors();
+      initSiteNamesParameterAndEditor();
       // add user provided info choices
       addUserProvidedInfoChoices();
       // add the editors to this window
@@ -191,10 +193,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     int siteYPos = 1;
 
     // edit site button
-    addEditSitePanel.add(editSiteButton, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+    /*addEditSitePanel.add(editSiteButton, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
                                                , GridBagConstraints.EAST,
                                                GridBagConstraints.NONE,
-                                               new Insets(2, 2, 2, 2), 0, 0));
+                                               new Insets(2, 2, 2, 2), 0, 0));*/
 
     //++siteYPos; // increment because site names editor exists at this place
     // site location
@@ -208,6 +210,9 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                                                     , GridBagConstraints.CENTER,
                                                     GridBagConstraints.BOTH,
                                                     new Insets(2, 2 , 2, 2), 0, 0));
+
+   ++siteYPos; // increment  because references param editor exists at this place
+
     // site types
     addEditSitePanel.add(siteTypeLabel, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
                                               , GridBagConstraints.CENTER,
@@ -219,12 +224,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                                , GridBagConstraints.CENTER,
                                GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
                                0, 0));
-    // site references
-   addEditSitePanel.add(this.siteReferencesLabel,
-       new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
-                              , GridBagConstraints.CENTER,
-                              GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
-                              0, 0));
+
     // entry date
     addEditSitePanel.add(this.lastEntryDateLabel,
        new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
@@ -269,7 +269,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    Object source = event.getSource();
     if(source==this.editSiteButton) {// edit the paleo site
       if(paleoSite!=null) {
-        addEditSiteChars = new AddEditSiteCharacteristics(true, this.paleoSite);
+        //addEditSiteChars = new AddEditSiteCharacteristics(true, this.paleoSite);
         addEditSiteChars.addDbAdditionSuccessListener(this);
       }else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
     }
@@ -312,41 +312,116 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   /**
   * Initialize all the parameters and the editors
   */
- private void initParametersAndEditors() throws Exception {
+ private void initSiteNamesParameterAndEditor() throws Exception {
    if(siteNameParamEditor!=null) addEditSitePanel.remove(siteNameParamEditor);
-   // available site names in the database
-  ArrayList availableSites = getSiteNames();
-  siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME, availableSites, (String)availableSites.get(0));
-  siteNameParamEditor = new ConstrainedStringParameterEditor(siteNameParam);
-  siteNameParam.addParameterChangeListener(this);
+     // available site names in the database
+   ArrayList availableSites = getSiteNames();
+   siteNameParam = new StringParameter(SITE_NAME_PARAM_NAME, availableSites, (String)availableSites.get(0));
+   siteNameParamEditor = new ConstrainedStringParameterEditor(siteNameParam);
+   siteNameParam.addParameterChangeListener(this);
 
-  addEditSitePanel.add(siteNameParamEditor,
-                       new GridBagConstraints(0, 0, 1, 1, 1.0,
-                                              1.0
-                                              , GridBagConstraints.CENTER,
-                                              GridBagConstraints.BOTH,
-                                              new Insets(2, 2, 2, 2), 0, 0));
+   addEditSitePanel.add(siteNameParamEditor,
+                        new GridBagConstraints(0, 0, 1, 1, 1.0,
+                                               1.0
+                                               , GridBagConstraints.CENTER,
+                                               GridBagConstraints.BOTH,
+                                               new Insets(2, 2, 2, 2), 0, 0));
 
-  setSiteInfo((String)availableSites.get(0));
+   setSiteInfo((String)availableSites.get(0));
  }
+
+
+ /**
+  * When a site is selected by the user choose the references for that site
+  *
+  */
+ private void initReferencesForSiteParameterAndEditor()  {
+   if(this.referencesForSiteParamEditor!=null) addEditSitePanel.remove(referencesForSiteParamEditor);
+   ArrayList pubNames = new ArrayList();
+   if(paleoSite!=null) { // if it is not a test site
+     ArrayList paleoSitePubList = paleoSite.getPaleoSitePubList();
+     for (int i = 0; i < paleoSitePubList.size(); ++i) {
+       pubNames.add( ( (PaleoSitePublication) paleoSitePubList.get(i)).
+                    getReference().getSummary());
+     }
+   } else { // add fake references for a test site
+     pubNames.add("Ref 1");
+     pubNames.add("Ref 2");
+   }
+   referencesForSiteParam = new StringParameter(this.SITE_REFERENCES_PARAM_NAME, pubNames,
+       (String)pubNames.get(0));
+    referencesForSiteParam.addParameterChangeListener(this);
+    referencesForSiteParamEditor = new ConstrainedStringParameterEditor(referencesForSiteParam);
+    // site references
+    addEditSitePanel.add(this.referencesForSiteParamEditor,
+                        new GridBagConstraints(0, 3, 1, 1, 1.0, 1.0
+                                               , GridBagConstraints.CENTER,
+                                               GridBagConstraints.BOTH,
+                                               new Insets(2, 2, 2, 2),
+                                               0, 0));
+   setValuesBasedOnReference((String)pubNames.get(0));
+ }
+
+ /**
+  * Set the site types, representative strand index whenever a reference is selected
+  * by the user
+  * @param refName
+  */
+ private void setValuesBasedOnReference(String refName) {
+   String siteType=null, siteRepresentation=null;
+   String lastEntryDate=null, lastUpdatedBy=null;
+
+   if(paleoSite==null) { // if it is a test site
+     siteType = "Trench";
+     siteRepresentation = "Most Significant Strand";
+     lastEntryDate = "Not Available";
+     lastUpdatedBy="Test";
+   }
+   else { // if it is a real site
+     ArrayList paleoSitePubList = paleoSite.getPaleoSitePubList();
+     ArrayList pubNames = new ArrayList();
+     for (int i = 0; i < paleoSitePubList.size(); ++i) {
+       PaleoSitePublication paleoSitePub = (PaleoSitePublication)
+           paleoSitePubList.get(i);
+       String summary = paleoSitePub.getReference().getSummary();
+       if (summary.equalsIgnoreCase(refName)) {
+         ArrayList studyTypes = paleoSitePub.getSiteTypeNames();
+         siteType = "";
+         for (int j = 0; j < studyTypes.size(); ++j)
+           siteType += studyTypes.get(j) + ",";
+         siteRepresentation = paleoSitePub.getRepresentativeStrandName();
+         lastEntryDate = paleoSite.getEntryDate();
+         lastUpdatedBy = paleoSitePub.getContributorName();
+       }
+     }
+   }
+
+   // site type for this site
+   siteTypeLabel.setTextAsHTML(SITE_TYPE_PARAM_NAME,siteType);
+   // Site representation
+   siteRepresentationLabel.setTextAsHTML(SITE_REPRESENTATION_PARAM_NAME,siteRepresentation);
+   // last entry date
+   this.lastEntryDateLabel.setTextAsHTML(this.ENTRY_DATE_PARAM_NAME, lastEntryDate);
+   // last entry by
+   this.contributorNameLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, lastUpdatedBy);
+   // call the listener
+   siteSelectionListener.siteSelected(this.paleoSite); // call the listening class
+
+ }
+
+
 
  /**
   * Set the paleo site info based on selected Paleo Site
   * @param paleoSite
   */
   private void setSiteInfo(String siteName)  {
-    String siteType, siteRepresentation, faultName, references;
-    String lastEntryDate, lastUpdatedBy;
+    String  faultName;
     Location location;
     if(siteName.equalsIgnoreCase(this.TEST_SITE)) { // test site
-      siteType = "Trench";
-      siteRepresentation = "Most Significant Strand";
       faultName = "Fault1";
       location = new Location(34.00, -116, 0);
-      references = "Ref 1";
       paleoSite=null;
-      lastEntryDate = "Not Available";
-      lastUpdatedBy="Test";
     }
     else { // paleo site information from the database
       int index = this.siteNamesList.indexOf(siteName)-1; // -1 IS NEEDED BECAUSE OF TEST SITE
@@ -355,42 +430,20 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       faultName = paleoSite.getFaultName();
       location = new Location(paleoSite.getSiteLat1(), paleoSite.getSiteLon1(),
                               paleoSite.getSiteElevation1());
-      ArrayList studyTypes = paleoSite.getSiteTypeNames();
-      siteType ="";
-      for(int i=0; i<studyTypes.size(); ++i)
-        siteType+=studyTypes.get(i)+",";
-
-      siteRepresentation = paleoSite.getRepresentativeStrandName();
-      lastEntryDate = paleoSite.getEntryDate();
-      lastUpdatedBy=paleoSite.getContributorName();
-      ArrayList referenceList = paleoSite.getReferenceList();
-      references="";
-      for(int i=0; i<referenceList.size();++i) {
-        references = references+((Reference)referenceList.get(i)).getSummary()+
-            ";";
-      }
     }
+
     siteLocationLabel.setTextAsHTML(SITE_LOCATION_PARAM_NAME,
-                                    GUI_Utils.decimalFormat.format(location.getLatitude())+","+ GUI_Utils.decimalFormat.format(location.getLongitude()));
-    //  fault with which this site is associated
+                                   GUI_Utils.decimalFormat.format(location.getLatitude())+","+ GUI_Utils.decimalFormat.format(location.getLongitude()));
+   //  fault with which this site is associated
     assocWithFaultLabel.setTextAsHTML(ASSOCIATED_WITH_FAULT_PARAM_NAME,faultName);
-    // site type for this site
-    siteTypeLabel.setTextAsHTML(SITE_TYPE_PARAM_NAME,siteType);
-    // Site representation
-    siteRepresentationLabel.setTextAsHTML(SITE_REPRESENTATION_PARAM_NAME,siteRepresentation);
-    // site references
-    this.siteReferencesLabel.setTextAsHTML(this.SITE_REFERENCES_PARAM_NAME, references);
-    // last entry date
-    this.lastEntryDateLabel.setTextAsHTML(this.ENTRY_DATE_PARAM_NAME, lastEntryDate);
-    // last entry by
-    this.contributorNameLabel.setTextAsHTML(this.CONTRIBUTOR_PARAM_NAME, lastUpdatedBy);
-    // call the listener
-    siteSelectionListener.siteSelected(this.paleoSite); // call the listening class
+    // set the references for this site
+    this.initReferencesForSiteParameterAndEditor();
   }
 
 
  public void parameterChange(ParameterChangeEvent event) {
    String paramName = event.getParameterName();
+   // if a  new site names is selected by the user
    if(paramName.equalsIgnoreCase(this.SITE_NAME_PARAM_NAME)) {
      String siteName = (String) this.siteNameParam.getValue();
      // if add site is selected, show window to add a site
@@ -400,7 +453,11 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
      }
      else setSiteInfo(siteName);
    }
-
+   // if user chooses a new reference
+   else if(paramName.equalsIgnoreCase(this.SITE_REFERENCES_PARAM_NAME)) {
+     String refName = (String)this.referencesForSiteParam.getValue();
+     setValuesBasedOnReference(refName);
+   }
  }
 
  /**
@@ -437,7 +494,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    String siteName = (String) this.siteNameParam.getValue();
    if(siteName.equalsIgnoreCase(this.ADD_SITE)) {
      try {
-       initParametersAndEditors();
+       this.initSiteNamesParameterAndEditor();
        this.updateUI();
      }catch(Exception e) {
        e.printStackTrace();

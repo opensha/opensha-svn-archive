@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 /**
  * <p>Title: ReadSitesFile.java </p>
@@ -49,17 +50,15 @@ public class ReadSitesFile {
        paleoSite.setSiteLat2(paleoSite.getSiteLat1());
        paleoSite.setSiteElevation2(SITE_ELEVATION_DEFAULT);
        paleoSite.setGeneralComments(COMMENTS_DEFAULT);
-       paleoSite.setRepresentativeStrandName(STRAND_DEFAULT);
        ArrayList siteTypeNames = new ArrayList();
        siteTypeNames.add(SITE_TYPE_DAFULT);
-       paleoSite.setSiteTypeNames(siteTypeNames);
-       //parse the references
-       ArrayList referenceList = new ArrayList();
-       referenceList.add(this.referenceDAO.getReference(this.REFERENCE_ID_DEFAULT));
-        // there may be more than one references for this site
-       //StringTokenizer referencesTokenizer = new StringTokenizer(references,";");
-       //while(referencesTokenizer.hasMoreTokens()) referenceList.add(referencesTokenizer.nextToken().trim());
-       paleoSite.setReferenceList(referenceList);
+       PaleoSitePublication paleoSitePub = new PaleoSitePublication();
+       paleoSitePub.setRepresentativeStrandName(STRAND_DEFAULT);
+       paleoSitePub.setSiteTypeNames(siteTypeNames);
+       paleoSitePub.setReference(referenceDAO.getReference(this.REFERENCE_ID_DEFAULT));
+       ArrayList paleoSitePubList = new ArrayList();
+       paleoSitePubList.add(paleoSitePub);
+       paleoSite.setPaleoSitePubList(paleoSitePubList);
        //for(int j=0; j< referenceList.size(); ++j) {
        //  String rf = (String)referenceList.get(j);
        //  Reference ref = referenceDAO.getReference(rf);

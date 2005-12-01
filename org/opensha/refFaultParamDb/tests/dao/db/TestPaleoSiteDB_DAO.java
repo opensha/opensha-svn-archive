@@ -66,12 +66,12 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     paleoSite.setSiteId(1);
     ArrayList siteTypes = new ArrayList();
     siteTypes.add(siteType1.getSiteType());
-    paleoSite.setSiteTypeNames(siteTypes);
+    //paleoSite.setSiteTypeNames(siteTypes);
     paleoSite.setSiteName("Test1");
     paleoSite.setSiteLat1(32.1f);
     paleoSite.setSiteLon1(-117.0f);
     paleoSite.setSiteElevation1(0.5f);
-    paleoSite.setRepresentativeStrandName("Most Significant Strand");
+    //paleoSite.setRepresentativeStrandName("Most Significant Strand");
     paleoSite.setGeneralComments("Test comments");
     paleoSite.setOldSiteId("55-2");
 
@@ -88,7 +88,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
       SiteType siteType2 = new SiteType(2,"paleosite",contributor1,"TestComments1");
       ArrayList siteTypes2 = new ArrayList();
       siteTypes2.add(siteType2.getSiteType());
-      paleoSite.setSiteTypeNames(siteTypes2);
+      //paleoSite.setSiteTypeNames(siteTypes2);
       paleoSiteDB_DAO.addPaleoSite(paleoSite);
       fail("should not insert this paleosite as site type id 2 does not exist in sitetype table");
     }catch(InsertException e) {}
@@ -96,7 +96,7 @@ public class TestPaleoSiteDB_DAO extends TestCase {
     paleoSite.setSiteId(3);
     ArrayList siteTypes3 = new ArrayList();
     siteTypes3.add(siteType3.getSiteType());
-    paleoSite.setSiteTypeNames(siteTypes3);
+    //paleoSite.setSiteTypeNames(siteTypes3);
     paleoSiteDB_DAO.addPaleoSite(paleoSite);
   }
 
@@ -113,12 +113,12 @@ public class TestPaleoSiteDB_DAO extends TestCase {
 
     //paleoSite.setEffectiveDate(new java.util.Date());
     assertEquals(1, actualReturn.getSiteId());
-    assertEquals("geologic", (String)actualReturn.getSiteTypeNames().get(0));
+    //assertEquals("geologic", (String)actualReturn.getSiteTypeNames().get(0));
     assertEquals("Test1",actualReturn.getSiteName());
     assertEquals(32.1,actualReturn.getSiteLat1(),.0001);
     assertEquals(-117.0,actualReturn.getSiteLon1(),.0001);
     assertEquals(0.5,actualReturn.getSiteElevation1(),.0001);
-    assertEquals("Most Significant Strand", actualReturn.getRepresentativeStrandName());
+    //assertEquals("Most Significant Strand", actualReturn.getRepresentativeStrandName());
     assertEquals("Test comments", actualReturn.getGeneralComments());
     assertEquals("1", actualReturn.getOldSiteId());
   }

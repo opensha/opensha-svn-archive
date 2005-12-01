@@ -35,15 +35,15 @@ public class AddContributorForDatabase {
     contributor.setName("vgupta");
     password = "";
     contributorDAO.addContributor(contributor,password);
-    System.exit(0);*/
-    Contributor contributor = new Contributor();
+    //System.exit(0);
+    contributor = new Contributor();
     contributor.setEmail("perry@gps.caltech.edu");
     contributor.setFirstName("Sue");
     contributor.setLastName("Perry");
     contributor.setName("perry");
-    String password = "";
+    password = "";
     contributorDAO.addContributor(contributor,password);
-    System.exit(0);
+    System.exit(0);*/
   }
 
 }

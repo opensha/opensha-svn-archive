@@ -14,7 +14,6 @@ import java.util.ArrayList;
 public class PaleoSite {
   private int siteId=-1;
   private String faultName;
-  private ArrayList siteTypeNames;
   private String siteName;
   private float siteLat1;
   private float siteLon1;
@@ -22,22 +21,23 @@ public class PaleoSite {
   private float siteLat2;
   private float siteLon2;
   private float siteElevation2;
-  private String representativeStrandName;
   private String generalComments;
   private String oldSiteId;
   private String entryDate;
-  private ArrayList referenceList = new ArrayList();
-  private String contributorName;
   private EstimateInstances dipEstimate;
+  private ArrayList paleoSitePubList = new ArrayList();
 
   public PaleoSite() {
   }
-  public void setContributorName(String  contributorName) {
-    this.contributorName=contributorName;
+
+  public void setPaleoSitePubList(ArrayList paleoSitePubList) {
+    this.paleoSitePubList = paleoSitePubList;
   }
-  public String getContributorName() {
-    return this.contributorName;
+
+  public ArrayList getPaleoSitePubList() {
+    return this.paleoSitePubList;
   }
+
   public String getEntryDate() {
     return this.entryDate;
   }
@@ -47,23 +47,12 @@ public class PaleoSite {
   }
 
   public void setSiteId(int siteId) { this.siteId = siteId; }
+
   public int getSiteId() { return this.siteId; }
-
-  public ArrayList getReferenceList() {
-    return this.referenceList;
-  }
-  public void setReferenceList(ArrayList referenceList) {
-    this.referenceList = referenceList;
-  }
-
-  public void setSiteTypeNames(ArrayList siteTypeNames) { this.siteTypeNames = siteTypeNames; }
-  public ArrayList getSiteTypeNames() { return this.siteTypeNames; }
 
   public void setSiteName(String siteName) { this.siteName = siteName;}
   public String getSiteName() { return this.siteName; }
 
-  public String getRepresentativeStrandName() { return this.representativeStrandName; }
-  public void setRepresentativeStrandName(String repStrandName) { this.representativeStrandName = repStrandName; }
 
   public void setOldSiteId(String oldSiteId) { this.oldSiteId = oldSiteId; }
   public String getOldSiteId() { return this.oldSiteId; }

@@ -40,6 +40,7 @@ import org.opensha.param.estimate.EstimateConstraint;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
+import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 
 /**
@@ -136,8 +137,6 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   // fault DAO
   private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
-  private boolean isEdit = false;
-  private PaleoSite paleoSiteVO;
   private AddNewSiteType addNewSiteType;
   private AddNewReference addNewReference;
   private LabeledBoxPanel labeledBoxPanel;
@@ -151,9 +150,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    * @param isEdit
    * @param paleoSite
    */
-  public AddEditSiteCharacteristics(boolean isEdit, PaleoSite paleoSite) {
-    this.isEdit = isEdit;
-    if(isEdit) this.paleoSiteVO = paleoSite;
+  public AddEditSiteCharacteristics() {
     try {
       // initialize the parameters and editors
       initParametersAndEditors();
@@ -175,13 +172,6 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     setSize(this.WIDTH, this.HEIGHT);
     this.setLocationRelativeTo(null);
     this.show();
-  }
-
-  /**
-   * this constructor can be used if a new site has to be added
-   */
-  public AddEditSiteCharacteristics() {
-    this(false, null);
   }
 
   // add action listeners on the buttons in this window
@@ -227,7 +217,6 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
      * a new row is entered into database but site id is retained. This insertion allows
      * us to hold the multiple versions.
      */
-    if(this.isEdit) paleoSite.setSiteId(this.paleoSiteVO.getSiteId());
 
     paleoSite.setSiteName((String)this.siteNameParam.getValue());
     String comments = (String)this.commentsParam.getValue();
@@ -245,14 +234,19 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       JOptionPane.showMessageDialog(this, MSG_REFERENCES_MISSING);
       return;
     }
-    ArrayList refList = new ArrayList();
+    ArrayList paleoSitePubList = new ArrayList();
+    String siteRep = (String)this.siteRepresentationParam.getValue();
+    ArrayList siteTypes = (ArrayList)this.siteTypeParam.getValue();
+
     for(int i=0; i<siteReferences.size(); ++i) {
       int index = this.referenceSummaryList.indexOf(siteReferences.get(i));
-      refList.add(this.referenceList.get(index));
+      PaleoSitePublication paleoSitePub = new PaleoSitePublication();
+      paleoSitePub.setReference((Reference)this.referenceList.get(index));
+      paleoSitePub.setRepresentativeStrandName(siteRep);
+      paleoSitePub.setSiteTypeNames(siteTypes);
+      paleoSitePubList.add(paleoSitePub);
     }
-    paleoSite.setReferenceList(refList);
-    paleoSite.setRepresentativeStrandName((String)this.siteRepresentationParam.getValue());
-    paleoSite.setSiteTypeNames((ArrayList)this.siteTypeParam.getValue());
+    paleoSite.setPaleoSitePubList(paleoSitePubList);
     try {
       this.dipEstParamEditor.setEstimateInParameter();
       paleoSite.setDipEstimate(new EstimateInstances((Estimate)this.dipEstParam.getValue(), DIP_UNITS));
@@ -285,12 +279,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
       paleoSiteDAO.addPaleoSite(paleoSite);
 
       // show the success message to the user
-      String msg;
-      if(this.isEdit) msg = this.MSG_UPDATE_SUCCESS;
-      else msg = this.MSG_INSERT_SUCCESS;
-      JOptionPane.showMessageDialog(this,msg);
-      if(this.isEdit) ConnectToEmailServlet.sendEmail("Site Characteristics for id "+ this.paleoSiteVO.getSiteId()+" updated by "+SessionInfo.getUserName());
-      else ConnectToEmailServlet.sendEmail("Site Characteristics added for a new site by "+SessionInfo.getUserName());
+      JOptionPane.showMessageDialog(this,MSG_INSERT_SUCCESS);
+      ConnectToEmailServlet.sendEmail("Site Characteristics added for a new site by "+SessionInfo.getUserName());
       this.sendEventToListeners(paleoSite);
       this.dispose();
     }catch(InsertException e) {
@@ -303,12 +293,9 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     if(siteTypeParamEditor!=null) labeledBoxPanel.remove(siteTypeParamEditor);
     ArrayList siteTypes = getSiteTypes();
     ArrayList defaultSiteType;
-    if(this.isEdit)
-       defaultSiteType = paleoSiteVO.getSiteTypeNames();
-    else {
-      defaultSiteType = new ArrayList() ;
-      defaultSiteType.add(siteTypes.get(0));
-    }
+
+    defaultSiteType = new ArrayList() ;
+    defaultSiteType.add(siteTypes.get(0));
     // available study types
     siteTypeParam = new StringListParameter(SITE_TYPE_PARAM_NAME, siteTypes,
                                         defaultSiteType);
@@ -325,13 +312,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     if(this.siteReferenceParamEditor!=null) this.labeledBoxPanel.remove(siteReferenceParamEditor);
     ArrayList referencesList = this.getAvailableReferences();
     ArrayList dafaultReference;
-    if(this.isEdit) {
-      dafaultReference = new ArrayList();
-      ArrayList refList = paleoSiteVO.getReferenceList();
-      for(int i=0; i<refList.size(); ++i)
-        dafaultReference.add(((Reference)refList.get(i)).getSummary());
-    }
-    else dafaultReference = new ArrayList();
+    dafaultReference = new ArrayList();
 
       // references for this site
     this.siteReferenceParam = new StringListParameter(this.CHOOSE_REFERENCE_PARAM_NAME,
@@ -419,30 +400,17 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     ArrayList siteRepresentations = getSiteRepresentations();
     Estimate dipEstVal=null;
 
-    if(this.isEdit) { // if site is to be edit, default values are current values for that site
-      defaultSiteName = this.paleoSiteVO.getSiteName();
-      defaultOldSiteId = paleoSiteVO.getOldSiteId();
-      defaultFaultName = paleoSiteVO.getFaultName();
-      defaultSiteRepresentation = paleoSiteVO.getRepresentativeStrandName();
-      defaultComments = paleoSiteVO.getGeneralComments();
-      defaultLocation1 = new Location(paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon1(),
-                                      paleoSiteVO.getSiteElevation1());
-      defaultLocation2 = new Location(this.paleoSiteVO.getSiteLat1(), paleoSiteVO.getSiteLon2(),
-                                      paleoSiteVO.getSiteElevation2());
-      if(paleoSiteVO.getDipEstimate()!=null)
-        dipEstVal = paleoSiteVO.getDipEstimate().getEstimate();
-    } else { // if a new site has to be added, set some default values
-      defaultSiteName =" ";
-      defaultOldSiteId = " ";
-      defaultFaultName = (String)faultNamesList.get(0);
-      defaultSiteRepresentation = (String)siteRepresentations.get(0);
-      defaultComments = " ";
-      defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
-                                      this.DEFAULT_ELEVATION_VAL);
-      defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
-                                      this.DEFAULT_ELEVATION_VAL);
-      dipEstVal=null;
-    }
+    // if a new site has to be added, set some default values
+    defaultSiteName =" ";
+    defaultOldSiteId = " ";
+    defaultFaultName = (String)faultNamesList.get(0);
+    defaultSiteRepresentation = (String)siteRepresentations.get(0);
+    defaultComments = " ";
+    defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
+                                    this.DEFAULT_ELEVATION_VAL);
+    defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
+                                    this.DEFAULT_ELEVATION_VAL);
+    dipEstVal=null;
 
 
     // parameter so that user can enter the site name
@@ -450,8 +418,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     siteNameParamEditor = new StringParameterEditor(siteNameParam);
 
     // parameter so that user can enter a site Id
-   oldSiteIdParam = new StringParameter(OLD_SITE_ID_PARAM_NAME,defaultOldSiteId);
-   oldSiteIdParamEditor = new StringParameterEditor(oldSiteIdParam);
+    oldSiteIdParam = new StringParameter(OLD_SITE_ID_PARAM_NAME,defaultOldSiteId);
+    oldSiteIdParamEditor = new StringParameterEditor(oldSiteIdParam);
 
    // site location parameter
    siteLocationParam = createLocationParam(defaultLocation1);
