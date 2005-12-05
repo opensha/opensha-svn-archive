@@ -511,10 +511,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
    else this.setSiteInfo(siteName);
  }
 
-private void showIndividualEventWindow() {
+ private void showIndividualEventWindow() {
    addEditIndividualEvent = new AddEditIndividualEvent(paleoSite.getSiteId(),
-                                     paleoSite.getEntryDate());
-  addEditIndividualEvent.addDbAdditionSuccessListener(this);
-}
+       paleoSite.getEntryDate());
+   addEditIndividualEvent.addDbAdditionSuccessListener(this);
+ }
 
 }
