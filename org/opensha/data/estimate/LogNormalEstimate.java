@@ -44,6 +44,13 @@ public class LogNormalEstimate extends Estimate {
     maxX = Double.POSITIVE_INFINITY;
   }
 
+  public String toString() {
+    return "Estimate Type="+getName()+"\n"+
+        "Linear Median="+ this.getLinearMedian()+"\n"+
+        "StdDev="+ getStdDev()+"\n"+
+        "Left Truncation="+ getMinX()+"\n"+
+        "Right Truncation="+ getMaxX();
+  }
 
 
   /**

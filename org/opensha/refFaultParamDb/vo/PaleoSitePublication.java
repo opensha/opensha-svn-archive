@@ -23,6 +23,16 @@ public class PaleoSitePublication {
 
   public PaleoSitePublication() {
   }
+
+  public String toString() {
+    String siteTypeStr= "";
+    for(int i=0; siteTypeNames!=null && i<siteTypeNames.size(); ++i)
+      siteTypeStr+=siteTypeNames.get(i);
+    return "Representative Strand Name="+representativeStrandName+"\n"+
+        "Site Types="+siteTypeStr+"\n"+
+        "Reference="+reference.getSummary();
+  }
+
   public String getContributorName() {
     return contributorName;
   }

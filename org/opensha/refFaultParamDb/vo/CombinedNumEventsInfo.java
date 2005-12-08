@@ -15,6 +15,14 @@ public class CombinedNumEventsInfo {
 
   public CombinedNumEventsInfo() {
   }
+
+  public String toString() {
+    String numEventsStr=null;
+    if(numEventsEstimate!=null) numEventsStr = numEventsEstimate.toString();
+    return "Num Events Estimate="+numEventsStr+"\n"+
+        "Comments="+numEventsComments;
+  }
+
   public String getNumEventsComments() {
     return numEventsComments;
   }

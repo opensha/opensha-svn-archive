@@ -43,6 +43,14 @@ public class FractileListEstimate extends Estimate {
      setValues(func);
    }
 
+   public String toString() {
+    String text =  "EstimateType="+getName()+"\n";
+    for(int i=0; func!=null && i<func.getNum(); ++i)
+      text+=   func.getX(i)+"\t"+func.getY(i)+"\n";
+    return text;
+  }
+
+
    /**
     * 1. y(i+1)>=y(i) - This is implied because ArbDiscrEmpiricalDistFunc enforces that.
     * 2. All Y >=0

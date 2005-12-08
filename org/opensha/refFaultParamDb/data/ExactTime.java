@@ -30,6 +30,16 @@ public class ExactTime extends TimeAPI {
     setEra(era);
   }
 
+  public String toString() {
+    return "Year="+year+" "+ era+"\n"+
+        "Month="+month+"\n"+
+        "Day="+day+"\n"+
+        "Hour="+hour+"\n"+
+        "Minute="+minute+"\n"+
+        "Second="+second+"\n"+
+        super.toString();
+  }
+
 
   /**
    *

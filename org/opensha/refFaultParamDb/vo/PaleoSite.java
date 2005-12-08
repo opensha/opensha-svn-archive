@@ -30,6 +30,27 @@ public class PaleoSite {
   public PaleoSite() {
   }
 
+
+  public String toString() {
+    String paleoSiteSubString="";
+    for(int i=0; paleoSitePubList!=null && i<paleoSitePubList.size();++i)
+      paleoSiteSubString+=((PaleoSitePublication)paleoSitePubList.get(i)).toString()+"\n";
+    String dipEstStr=null;
+    if(dipEstimate!=null) dipEstStr = dipEstimate.toString();
+    return "Fault Name="+faultName+"\n"+
+        "Site Name="+siteName+"\n"+
+        "Site Lat1="+siteLat1+"\n"+
+        "Site Lon1="+siteLon1+"\n"+
+        "Site Elevation1="+siteElevation1+"\n"+
+        "Site Lat2="+siteLat2+"\n"+
+        "Site Lon2="+siteLon2+"\n"+
+        "Site Elevation2="+siteElevation2+"\n"+
+        "Old Site Id="+oldSiteId+"\n"+
+        "General Comments="+generalComments+"\n"+
+        "Dip Estimate=("+dipEstStr+")\n"+
+        "References = ("+paleoSiteSubString+")";
+  }
+
   public void setPaleoSitePubList(ArrayList paleoSitePubList) {
     this.paleoSitePubList = paleoSitePubList;
   }

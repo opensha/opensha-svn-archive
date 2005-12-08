@@ -15,13 +15,27 @@ import org.opensha.data.estimate.Estimate;
 public class CombinedDisplacementInfo {
   private EstimateInstances displacementEstimate;
   private EstimateInstances aSeismicSlipFactorEstimateForDisp;
-  private String displacementComments;
   private EstimateInstances senseOfMotionRake;
   private String senseOfMotionQual;
   private String measuredComponentQual;
+  private String displacementComments;
 
   public CombinedDisplacementInfo() {
   }
+
+  public String toString() {
+    String dispEstStr=null, aSeismicSlipEstStr=null, rakeStr=null;
+    if(displacementEstimate!=null) dispEstStr = displacementEstimate.toString();
+    if(aSeismicSlipFactorEstimateForDisp!=null) aSeismicSlipEstStr = aSeismicSlipFactorEstimateForDisp.toString();
+    if(senseOfMotionRake!=null) rakeStr = senseOfMotionRake.toString();
+    return "Displacement Estimate="+dispEstStr+"\n"+
+        "Aseismic Slip Factor Estimate="+aSeismicSlipEstStr+"\n"+
+        "Sense of Motion Rake="+rakeStr+"\n"+
+        "Sense of Motion Qualitative="+senseOfMotionQual+"\n"+
+        "Measured Component Qualitative="+measuredComponentQual+"\n"+
+        "Displacement Comments="+displacementComments;
+  }
+
   public  String getSenseOfMotionQual() {
     return this.senseOfMotionQual;
   }

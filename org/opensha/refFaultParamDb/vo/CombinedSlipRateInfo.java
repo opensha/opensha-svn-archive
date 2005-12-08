@@ -22,6 +22,21 @@ public class CombinedSlipRateInfo {
 
   public CombinedSlipRateInfo() {
   }
+
+  public String toString() {
+    String slipRateStr=null, aSeismicSlipEstStr=null, rakeStr=null;
+    if(slipRateEstimate!=null) slipRateStr = slipRateEstimate.toString();
+    if(aSeismicSlipFactorEstimateForSlip!=null) aSeismicSlipEstStr = aSeismicSlipFactorEstimateForSlip.toString();
+    if(senseOfMotionRake!=null) rakeStr = senseOfMotionRake.toString();
+    return "Slip Rate Estimate="+slipRateStr+"\n"+
+        "Aseismic Slip Factor Estimate="+aSeismicSlipEstStr+"\n"+
+        "Sense of Motion Rake="+rakeStr+"\n"+
+        "Sense of Motion Qualitative="+senseOfMotionQual+"\n"+
+        "Measured Component Qualitative="+measuredComponentQual+"\n"+
+        "Slip rate Comments="+slipRateComments;
+  }
+
+
   public  String getSenseOfMotionQual() {
     return this.senseOfMotionQual;
   }

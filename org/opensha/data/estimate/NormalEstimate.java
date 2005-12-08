@@ -38,6 +38,14 @@ public class NormalEstimate extends Estimate {
   }
 
 
+  public String toString() {
+    return "Estimate Type="+getName()+"\n"+
+        "Mean="+ getMean()+"\n"+
+        "StdDev="+ getStdDev()+"\n"+
+        "Left Truncation="+ getMinX()+"\n"+
+        "Right Truncation="+ getMaxX();
+  }
+
   /**
    * This accepts minimum and maximum x-axis values that will be used as trunctions.
    *

@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.data;
 
 import java.util.ArrayList;
+import org.opensha.refFaultParamDb.vo.Reference;
 
 /**
  * <p>Title: TimeAPI.java </p>
@@ -30,5 +31,13 @@ public class TimeAPI {
   }
   public void setReferencesList(ArrayList referencesList) {
     this.referencesList = referencesList;
+  }
+
+  public String toString() {
+    String referenceString="";
+    for(int i=0; referencesList!=null && i<referencesList.size();++i)
+      referenceString+=((Reference)referencesList.get(i)).getSummary()+",";
+    return "Dating Comments="+ datingComments+"\n"+
+        "Time References="+referenceString;
   }
 }

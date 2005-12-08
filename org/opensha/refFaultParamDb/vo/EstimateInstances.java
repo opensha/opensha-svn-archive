@@ -18,6 +18,11 @@ public class EstimateInstances {
   public EstimateInstances() {
   }
 
+
+  public String toString() {
+    return estimate.toString();
+  }
+
   public EstimateInstances(Estimate estimate, String units) {
    setEstimate(estimate);
    setUnits(units);

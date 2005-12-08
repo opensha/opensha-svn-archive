@@ -19,7 +19,6 @@ public class CombinedEventsInfo {
   private TimeAPI startTime;
   private TimeAPI endTime;
   private String datedFeatureComments;
-  private ArrayList referenceList;
   private String entryDate;
   private int infoId;
   private String contributorName;
@@ -29,6 +28,37 @@ public class CombinedEventsInfo {
   private ArrayList eventSequenceList;
   private boolean isExpertOpinion=false;
   private PaleoSitePublication paleoSitePublication;
+  private ArrayList referenceList;
+
+  public String toString() {
+    String startTimeStr=null, endTimeStr=null, combinedSlipRateInfoStr=null;
+    String combinedDisplacementInfoStr=null, combinedNumEventsInfoStr=null, eventSequenceListStr=null;
+    String paleoSitePubStr=null;
+    if(startTime!=null) startTimeStr = startTime.toString();
+    if(endTime!=null) endTimeStr = endTime.toString();
+    if(combinedSlipRateInfo!=null) combinedSlipRateInfoStr = combinedSlipRateInfo.toString();
+    if(combinedDisplacementInfo!=null) combinedDisplacementInfoStr=combinedDisplacementInfo.toString();
+    if(combinedNumEventsInfo!=null) combinedNumEventsInfoStr = combinedNumEventsInfo.toString();
+    if(paleoSitePublication!=null) paleoSitePubStr = paleoSitePublication.toString();
+    // event sequence
+    for(int i=0; eventSequenceList!=null && i<eventSequenceList.size(); ++i) {
+      EventSequence eventSeq = (EventSequence)eventSequenceList.get(i);
+      eventSequenceListStr+="Sequence "+i+"\n"+eventSeq.toString()+"\n";
+    }
+
+    // return complete info
+    return "Site Id="+siteId+"\n"+
+        "Site Entry Date="+siteEntryDate+"\n"+
+        "Start Time="+startTimeStr+"\n"+
+        "End Time="+endTimeStr+"\n"+
+        "Dated Feature Comments="+datedFeatureComments+"\n"+
+        "Combined Slip Rate Info="+combinedSlipRateInfoStr+"\n"+
+        "Combined Displacement Info="+combinedDisplacementInfoStr+"\n"+
+        "Combined Num Events Info="+combinedNumEventsInfoStr+"\n"+
+        "Event Sequence="+eventSequenceListStr+"\n"+
+        "Is expert opinion="+isExpertOpinion+"\n"+
+        "Publication = "+paleoSitePubStr;
+  }
 
   /*
    * Various  set/get methods

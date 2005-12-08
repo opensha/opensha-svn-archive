@@ -19,6 +19,14 @@ public class TimeEstimate extends TimeAPI {
   public TimeEstimate() {
   }
 
+  public String toString() {
+    return "Time Estimate=("+estimate.toString()+")\n"+
+        "Era="+era+"\n"+
+        "Is Ka="+isKa+"\n"+
+        "Zero Year ="+zeroYear+"\n"+
+        super.toString();
+  }
+
   public void setForKaUnits(Estimate estimate, int zeroYear) {
     this.zeroYear = zeroYear;
     this.estimate = estimate;

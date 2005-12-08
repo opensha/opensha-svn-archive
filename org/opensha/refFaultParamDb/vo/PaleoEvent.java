@@ -20,18 +20,48 @@ public class PaleoEvent {
   private String siteEntryDate;
   private String contributorName;
   private TimeAPI eventTime;
+  private boolean displacementShared;
   private int displacementEstId;
   private EstimateInstances displacementEst;
-  private String entryDate;
-  private String comments;
-  private ArrayList referenceList;
-  private int eventId;
-  private boolean displacementShared;
   private EstimateInstances senseOfMotionRake=null;
   private String senseOfMotionQual;
   private String measuredComponentQual;
+  private String comments;
+  private ArrayList referenceList;
+  private String entryDate;
+  private int eventId;
+
 
   public PaleoEvent() {
+  }
+
+  /**
+   * toString() method implementation so that it can be sent in email when a
+   * event is added to the database
+   *
+   * @return
+   */
+  public String toString() {
+    String referenceString="";
+    for(int i=0; referenceList!=null && i<referenceList.size();++i)
+      referenceString+=((Reference)referenceList.get(i)).getSummary()+",";
+    String eventTimeStr=null, displacementEstStr=null, senseOfMotionRakeStr=null;
+    if(eventTime!=null) eventTimeStr=eventTime.toString();
+    if(displacementEst!=null) displacementEstStr = displacementEst.toString();
+    if(senseOfMotionRake!=null) senseOfMotionRakeStr = senseOfMotionRake.toString();
+    return "Event Name="+eventName+"\n"+
+        "Site Id="+siteId+"\n"+
+        "Site Entry date="+siteEntryDate+"\n"+
+        "Event Time=("+eventTimeStr+")\n"+
+        "Displacement Shared="+displacementShared+"\n"+
+        "Displacement Estimate Id="+displacementEstId+"\n"+
+        "Displacement Estimate=("+displacementEstStr+")\n"+
+        "Sense Of Motion Rake=("+senseOfMotionRakeStr+")\n"+
+        "Sense of Motion Qualitative="+senseOfMotionQual+"\n"+
+        "Measured Component Qualitative="+measuredComponentQual+"\n"+
+        "Comments="+comments+"\n"+
+        "Paleo Event References="+referenceString;
+
   }
 
   public void setDisplacementShared(boolean displacementShared) {
@@ -127,4 +157,6 @@ public class PaleoEvent {
   public EstimateInstances getSenseOfMotionRake() {
     return senseOfMotionRake;
   }
+
+
 }

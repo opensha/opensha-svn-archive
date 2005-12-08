@@ -40,6 +40,16 @@ public class MinMaxPrefEstimate extends Estimate{
     this.prefProb = prefProb;
   }
 
+  public String toString() {
+    return "Estimate Type="+getName()+"\n"+
+        "Min X="+minX+"\n"+
+        "Prob of Min X="+minProb+"\n"+
+        "Max X="+maxX+"\n"+
+        "Prob of Max X="+maxProb+"\n"+
+        "Pref X="+prefX+"\n"+
+        "Prob of Pref X="+prefProb;
+  }
+
 
   public double getMinX() { return this.minX; }
   public double getMaxX() { return this.maxX; }
