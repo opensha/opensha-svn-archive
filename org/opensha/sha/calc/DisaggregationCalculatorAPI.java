@@ -68,12 +68,26 @@ public interface DisaggregationCalculatorAPI extends Remote{
    */
   public int getTotRuptures() throws java.rmi.RemoteException;
 
+
   /**
    * Checks to see if disaggregation calculation for the selected site
    * have been completed.
    * @return
    */
   public boolean done() throws java.rmi.RemoteException;
+
+
+  /**
+   * Creates the disaggregation plot using the GMT and return Disaggregation plot
+   * image web address as the URL string.
+   * @param metadata String
+   * @return String
+   * @throws RemoteException
+   */
+  public String getDisaggregationPlotUsingServlet(String metadata) throws java.
+      rmi.RemoteException;
+
+
 
   /**
    *

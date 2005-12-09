@@ -22,6 +22,9 @@ import java.io.*;
 import org.opensha.data.Location;
 import org.opensha.sha.surface.GriddedSurfaceAPI;
 import org.opensha.calc.RelativeLocation;
+import java.net.URL;
+import org.opensha.data.XYZ_DataSetAPI;
+import java.net.URLConnection;
 
 
 /**
@@ -101,6 +104,10 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   //gets the source Disagg info
   private String sourceDisaggInfo;
 
+  //Disaggregation Plot Img Name
+  public static final String DISAGGREGATION_PLOT_IMG = "DisaggregationPlot.jpg";
+  //Address to the disaggregation plot img
+  private String disaggregationPlotImgWebAddr;
 
   /**
    * creates the DisaggregationCalculator object
@@ -301,7 +308,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
                (float)( -disaggInfo.getRate() / totalRate * 100) + "\n";
     }
 
-    try {
+    /*try {
       FileWriter fw = new FileWriter("Source_Rupture_OpenSHA.txt");
 
       String sourceRupDisaggregationInfo =
@@ -333,7 +340,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
-    }
+    }*/
 
     Mbar /= totalRate;
     Dbar /= totalRate;
@@ -497,22 +504,14 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     withinBoundsForPlt = true;
     iMag_plt     =  Math.round( (float) ((mag-MIN_MAG_plot)/deltaMag_plot) );
     iDist_plt    =  Math.round((float) ((dist-MIN_DIST_plot)/deltaDist_plot));
-    if (epsilon >= -40 && epsilon <= -2){
+    if (epsilon >= -40 && epsilon <= -2)
       iEpsilon_plt = 0;
-      System.out.println("Lower then Zero Epsilon");
-    }
-    else if (epsilon > -2 && epsilon <= -1){
+    else if (epsilon > -2 && epsilon <= -1)
       iEpsilon_plt = 1;
-      System.out.println("Lower then Zero Epsilon");
-    }
-    else if (epsilon > -1 && epsilon <= -0.5){
+    else if (epsilon > -1 && epsilon <= -0.5)
       iEpsilon_plt = 2;
-      System.out.println("Lower then Zero Epsilon");
-    }
-    else if (epsilon > -0.5 && epsilon <= 0){
+    else if (epsilon > -0.5 && epsilon <= 0)
       iEpsilon_plt = 3;
-      System.out.println("Lower then Zero Epsilon");
-    }
     else if (epsilon > 0 && epsilon <= 0.5)
       iEpsilon_plt = 4;
     else if (epsilon > 0.5 && epsilon <= 1.0)
@@ -528,11 +527,23 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   }
 
 
+  /**
+   * Gets the plot image for the Disaggregation
+   * @param metadata String
+   * @return String
+   */
+  public String getDisaggregationPlotUsingServlet(String metadata) throws java.
+      rmi.RemoteException {
+    ArrayList gmtScriptLines = createGMTScriptForDisaggregationPlot();
+    disaggregationPlotImgWebAddr = openServletConnection(gmtScriptLines, metadata);
+    return disaggregationPlotImgWebAddr;
+  }
+
 
   /**
    * Creates the GMT_Script lines
    */
-  private void createGMTScriptForDisaggregationPlot(){
+  private ArrayList createGMTScriptForDisaggregationPlot(){
     int numTicksToDrawForZAxis = 5;
     DecimalFormat format = new DecimalFormat("0.0");
     double gdZGridVal = Double.parseDouble(format.format(maxContrEpsilonForDisaggrPlot/(numTicksToDrawForZAxis)));
@@ -548,7 +559,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 0.5i \n"+
         "gmtset Y_ORIGIN 0.5i\n";
     String img_ps_file = "DisaggregationPlot.ps";
-    String img_jpg_file = "DisaggregationPlot.jpg";
+    String img_jpg_file = DISAGGREGATION_PLOT_IMG;
 
     String axisBoundaryTicksBounds = "-B"+deltaMag_plot+"/"+deltaDist_plot+"/"+gdZGridVal+"wsNEZ";
     String tickLabelsLines = "cat << END > temp_segments";
@@ -660,7 +671,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                            +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
                            " -K -O -G0/0/170 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-
     }
 
     gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile="+img_jpg_file +" -");
@@ -668,7 +678,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }catch(Exception e){
       e.printStackTrace();
     }
-    FileWriter fw = null;
+    /*FileWriter fw = null;
     try {
       fw = new FileWriter("OpenSHA_disaggrePlot");
       int size = gmtScriptLines.size();
@@ -678,8 +688,73 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
     catch (IOException ex) {
       ex.printStackTrace();
-    }
+    }*/
+    return gmtScriptLines;
+  }
 
+
+  /**
+   * sets up the connection with the servlet on the server (gravity.usc.edu)
+   */
+  private String openServletConnection(ArrayList gmtFileLines,
+                                       String metadata) throws RuntimeException{
+
+    String webaddr=null;
+    try{
+
+      if(D) System.out.println("starting to make connection with servlet");
+      URL gmtPlotServlet = new
+                             URL("http://gravity.usc.edu/OpenSHA/servlet/DisaggregationPlotServlet");
+
+
+      URLConnection servletConnection = gmtPlotServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the ArrayList of the gmt Script Lines
+      outputToServlet.writeObject(gmtFileLines);
+      //sending the contents of the Metadata file to the server.
+      outputToServlet.writeObject(metadata);
+
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      Object messageFromServlet = inputToServlet.readObject();
+      inputToServlet.close();
+      if(messageFromServlet instanceof String){
+        webaddr = (String) messageFromServlet;
+        if (D) System.out.println("Receiving the Input from the Servlet:" +
+                                  webaddr);
+      }
+      else
+        throw (RuntimeException)messageFromServlet;
+    }catch(RuntimeException e){
+      e.printStackTrace();
+     throw new RuntimeException(e.getMessage());
+    }catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Server is down , please try again later");
+    }
+    return webaddr;
   }
 
 

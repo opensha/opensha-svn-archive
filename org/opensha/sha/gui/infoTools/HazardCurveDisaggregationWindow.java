@@ -6,6 +6,8 @@ import javax.swing.text.*;
 import java.awt.event.*;
 import javax.swing.border.*;
 
+import org.opensha.sha.calc.DisaggregationCalculator;
+
 /**
  * <p>Title: HazardCurveDisaggregationWindow</p>
  * <p>Description: This class shows the Disaggregation Result in a seperate window</p>
@@ -125,6 +127,24 @@ public class HazardCurveDisaggregationWindow extends JFrame {
   }
 
   public void plotButton_actionPerformed(ActionEvent actionEvent) {
-
+    String disaggregationPlotWebAddr = null;
+    String metadata = null;
+    try {
+      disaggregationPlotWebAddr = application.getDisaggregationPlot();
+      metadata = application.getParametersInfoAsHTML();
+      metadata += "<br><p>Click:  " + "<a href=\"" + disaggregationPlotWebAddr +
+          "\">" + disaggregationPlotWebAddr + "</a>" +
+          "  to download files.</p>";
+    }
+    catch (RuntimeException e) {
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Server Problem",
+                                    JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    String imgName = disaggregationPlotWebAddr +
+        DisaggregationCalculator.DISAGGREGATION_PLOT_IMG;
+    //adding the image to the Panel and returning that to the applet
+    ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata,true);
   }
 }

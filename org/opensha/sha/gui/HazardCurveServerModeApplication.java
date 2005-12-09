@@ -1868,6 +1868,29 @@ public class HazardCurveServerModeApplication extends JFrame
   }
 
 
+  /**
+   *
+   * @returns the String containing the values selected for different parameters
+   */
+  public String getParametersInfoAsHTML(){
+
+    return "<br>"+ "IMR Param List:" +"<br>"+
+           "---------------"+"<br>"+
+        this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
+        "Site Param List: "+"<br>"+
+        "----------------"+"<br>"+
+        siteGuiBean.getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
+        "IMT Param List: "+"<br>"+
+        "---------------"+"<br>"+
+        imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
+        "Forecast Param List: "+"<br>"+
+        "--------------------"+"<br>"+
+        erfGuiBean.getERFParameterList().getParameterListMetadataString()+"<br><br>"+
+        "TimeSpan Param List: "+"<br>"+
+        "--------------------"+"<br>"+
+        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString()+"<br>";
+  }
+
  /**
   *
   * @returns the List for all the ArbitrarilyDiscretizedFunctions and Weighted Function list.
@@ -2030,6 +2053,27 @@ public class HazardCurveServerModeApplication extends JFrame
     //making the buttons to be visible
     setButtonsEnable(true);
     cancelCalcButton.setVisible(false);
+  }
+
+
+  /**
+   * Returns the Disaggregation plot image webaddr to be shown in the plot window.
+   * @return String
+   */
+  public String getDisaggregationPlot(){
+    try{
+      return disaggCalc.getDisaggregationPlotUsingServlet(this.
+          getParametersInfo());
+    }
+    catch (Exception ex) {
+      ex.printStackTrace();
+      setButtonsEnable(true);
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+          getParametersInfo());
+      bugWindow.show();
+      bugWindow.pack();
+    }
+    return null;
   }
 
   /**

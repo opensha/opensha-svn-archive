@@ -12,6 +12,19 @@ package org.opensha.sha.gui.infoTools;
  */
 public interface HazardCurveDisaggregationWindowAPI {
 
-  public String getSourceDisaggregationInfo();
+    /**
+     * Returns the Sorted Sources Disaggregation list based on
+     * @return String
+     */
+    public String getSourceDisaggregationInfo();
+
+    /**
+     * Returns the Disaggregation plot image webaddr.
+     * @return String
+     */
+    public String getDisaggregationPlot();
+
+    //gets the Parameters info for which Disaggregation generated.
+    public String getParametersInfoAsHTML();
 
 }
