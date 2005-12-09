@@ -400,9 +400,10 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     paleoEvent.setMeasuredComponentQual(this.measuredCompPanel.getMeasuredComp());
     paleoEvent.setSenseOfMotionQual(senseOfMotionPanel.getSenseOfMotionQual());
     paleoEvent.setSenseOfMotionRake(senseOfMotionPanel.getSenseOfMotionRake());
+    ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new event to database\n"+ paleoEvent.toString());
     this.paleoEventDAO.addPaleoevent(paleoEvent);
     JOptionPane.showMessageDialog(this, MSG_PALEO_EVENT_ADD_SUCCESS);
-    ConnectToEmailServlet.sendEmail("New Event "+ eventName+" added for siteId="+this.siteId+" by "+SessionInfo.getUserName());
+    ConnectToEmailServlet.sendEmail("New Event "+ eventName+" added successfully for siteId="+this.siteId+" by "+SessionInfo.getUserName());
     this.sendEventToListeners(paleoEvent);
   }
 

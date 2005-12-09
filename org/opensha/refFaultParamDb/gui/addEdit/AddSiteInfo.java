@@ -137,7 +137,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
             throw new RuntimeException(MSG_NO_REFERENCE_CHOSEN);
           putSiteInfoInDatabase(); // put site info in database
         JOptionPane.showMessageDialog(this, MSG_DB_OPERATION_SUCCESS);
-        ConnectToEmailServlet.sendEmail("New Site Info added for site Id="+this.siteId +" by "+SessionInfo.getUserName());
+        ConnectToEmailServlet.sendEmail("New Site Info added successfully for site Id="+this.siteId +" by "+SessionInfo.getUserName());
         this.dispose();
       }catch(Exception e){
         JOptionPane.showMessageDialog(this, e.getMessage());
@@ -192,7 +192,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     if(this.isSequenceVisible) {
       combinedEventsInfo.setEventSequenceList(addEditSequence.getAllSequences());
     }
-
+    ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new combined events info to database\n"+ combinedEventsInfo.toString());
     combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
     this.sendEventToListeners(combinedEventsInfo);
   }

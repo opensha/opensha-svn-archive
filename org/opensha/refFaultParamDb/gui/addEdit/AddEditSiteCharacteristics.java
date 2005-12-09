@@ -276,11 +276,11 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     paleoSite.setSiteElevation2((float)location2.getDepth());
     try {
       // add the paleo site to the database
+      ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new Site Characteristics to database\n"+ paleoSite.toString());
       paleoSiteDAO.addPaleoSite(paleoSite);
-
       // show the success message to the user
       JOptionPane.showMessageDialog(this,MSG_INSERT_SUCCESS);
-      ConnectToEmailServlet.sendEmail("Site Characteristics added for a new site by "+SessionInfo.getUserName());
+      ConnectToEmailServlet.sendEmail("Site Characteristics added successfully for a new site by "+SessionInfo.getUserName());
       this.sendEventToListeners(paleoSite);
       this.dispose();
     }catch(InsertException e) {

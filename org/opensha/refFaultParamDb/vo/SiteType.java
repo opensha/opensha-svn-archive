@@ -19,6 +19,11 @@ public class SiteType {
   public SiteType() {
   }
 
+  public String toString() {
+    return "Site Type="+this.siteType+"\n"+
+        "Comments="+this.comments;
+  }
+
   public SiteType(int siteTypeId, String siteTypeName, Contributor contributor,
                   String comments) {
     this(siteTypeName, contributor, comments);

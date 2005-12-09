@@ -109,10 +109,11 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
 
    try { // catch the insert exception
      Reference reference = new Reference(author, ""+year, fullBiblio);
+     ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new Reference to database\n"+reference.toString());
      referenceDAO.addReference(reference);
      this.sendEventToListeners(reference);
      JOptionPane.showMessageDialog(this, MSG_INSERT_SUCCESS);
-     ConnectToEmailServlet.sendEmail("New Reference "+fullBiblio +"added by "+SessionInfo.getUserName());
+     ConnectToEmailServlet.sendEmail("New Reference "+fullBiblio +" added sucessfully by "+SessionInfo.getUserName());
      this.dispose();
    }catch(InsertException insertException) { // if there is problem inserting the reference
       JOptionPane.showMessageDialog(this, insertException.getMessage());

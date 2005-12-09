@@ -95,10 +95,11 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
     SiteType siteType = new SiteType(siteTypeName, SessionInfo.getContributor(),
                                      siteTypeComments);
     try {
+      ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add New SiteType to database\n"+siteType.toString());
       siteTypeDAO.addSiteType(siteType);
       // show the success message to the user
       JOptionPane.showMessageDialog(this,MSG_INSERT_SUCCESS);
-      ConnectToEmailServlet.sendEmail("New SiteType "+siteTypeName +"added by "+SessionInfo.getUserName());
+      ConnectToEmailServlet.sendEmail("New SiteType "+siteTypeName +" added sucessfully by "+SessionInfo.getUserName());
       this.sendEventToListeners(siteType);
       this.dispose();
     }  catch(InsertException insertException) { // if there is problem inserting the site type

@@ -7,7 +7,6 @@ import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
 import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.Contributor;
-import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 import java.net.URL;
 import java.net.URLConnection;
 import java.io.ObjectOutputStream;

@@ -20,6 +20,12 @@ public class Reference {
   public Reference() {
   }
 
+  public String toString() {
+    return "Reference Author="+refAuth+"\n"+
+        "Reference Year="+refYear+"\n"+
+        "Full Bibliographic Ref="+this.fullBiblioReference;
+  }
+
   public Reference(int referenceId, String author, String year, String fullBiblioReference) {
     this(author, year, fullBiblioReference);
     setReferenceId(referenceId);
