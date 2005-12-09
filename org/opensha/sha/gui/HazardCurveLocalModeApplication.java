@@ -76,7 +76,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), "Problem occured "+
           "during initialization the ERF's. All parameters are set to default.");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       //e.printStackTrace();
       //throw new RuntimeException("Connection to ERF's failed");
@@ -104,7 +104,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
     }catch(Exception e){
 
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
  //     e.printStackTrace();
     }

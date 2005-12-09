@@ -15,7 +15,7 @@ import java.util.Comparator;
  * @author not attributable
  * @version 1.0
  */
-public class DisaggregationSourceComparator implements Comparator, java.io.Serializable {
+public class DisaggregationSourceRuptureComparator implements Comparator, java.io.Serializable {
 
   /**
    * Compares its two arguments for order. Returns a negative integer, zero, or
@@ -39,11 +39,11 @@ public class DisaggregationSourceComparator implements Comparator, java.io.Seria
    * @todo Implement this java.util.Comparator method
    */
   public int compare(Object object1, Object object2) {
-    DisaggregationSourceInfo sourceInfo1 = (DisaggregationSourceInfo)object1;
-    DisaggregationSourceInfo sourceInfo2 = (DisaggregationSourceInfo)object2;
-    if(sourceInfo1.getSourceRate() > sourceInfo2.getSourceRate())
+    DisaggregationSourceRuptureInfo sourceInfo1 = (DisaggregationSourceRuptureInfo)object1;
+    DisaggregationSourceRuptureInfo sourceInfo2 = (DisaggregationSourceRuptureInfo)object2;
+    if(sourceInfo1.getRate() > sourceInfo2.getRate())
       return -1;
-    else if(sourceInfo1.getSourceRate() == sourceInfo2.getSourceRate())
+    else if(sourceInfo1.getRate() == sourceInfo2.getRate())
       return 0;
     else
       return 1;

@@ -481,7 +481,7 @@ public class ERF2GriddedSeisRatesCalc {
                                  BACK_SEIS_INCLUDE);
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
-        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+        setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(10.0));
@@ -496,11 +496,11 @@ public class ERF2GriddedSeisRatesCalc {
           region);
              int size = rates.length;
              try {
-               FileWriter fw = new FileWriter("magRates.txt");
+               FileWriter fw = new FileWriter("magRates_With_BG.txt");
                for(int i=0;i<size;++i){
                  Location loc = region.getGridLocation(i);
                  //if(rates[i] !=0)
-                   fw.write(loc + "\t" + rates[i] + "" + "\n");
+                   fw.write(loc + "\t" + (float)rates[i] + "" + "\n");
                  //else
                    //System.out.println(loc + "\t" + rates[i] + "" + "\n");
                }

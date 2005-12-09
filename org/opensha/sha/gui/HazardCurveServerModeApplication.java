@@ -622,9 +622,9 @@ public class HazardCurveServerModeApplication extends JFrame
   static {
     String osName = System.getProperty("os.name");
     try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
+     // if(osName.startsWith("Mac OS"))
+       // UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
+      //else
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
