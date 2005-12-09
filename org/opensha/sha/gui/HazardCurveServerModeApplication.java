@@ -1888,7 +1888,7 @@ public class HazardCurveServerModeApplication extends JFrame
         erfGuiBean.getERFParameterList().getParameterListMetadataString()+"<br><br>"+
         "TimeSpan Param List: "+"<br>"+
         "--------------------"+"<br>"+
-        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString()+"<br>";
+        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString();
   }
 
  /**
