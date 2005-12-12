@@ -1110,6 +1110,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
        System.exit(0);
      }
 
+
+     int totSrc= frankCast.getNumSources();
+     for(int i=0; i<totSrc; i++){
+       ProbEqkSource src = (ProbEqkSource) frankCast.getSource(i);
+       System.out.println(i+"\t"+src.getName());
+     }
 //     System.out.println("num sources="+frankCast.getNumSources());
 /*     ArrayList srcs = frankCast.getAllGR_FaultSources();
      for(int i=0; i<srcs.size(); i++) {
