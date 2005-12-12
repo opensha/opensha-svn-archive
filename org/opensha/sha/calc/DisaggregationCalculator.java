@@ -619,58 +619,58 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
       gmtScriptLines.add("echo "+"\""+(String)dataArray.get(i)+"\""+" > junk_data ; psxyz junk_data "
                          +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib0"+
-          " -K -O -G215/38/3 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+          " -K -O -G0/0/170 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
       double barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-1);
       gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                          +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-          " -K -O -G252/94/62 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+          " -K -O -G0/0/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
 
       barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-2);
       gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                          +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-          " -K -O  -G252/180/158 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+          " -K -O  -G151/151/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
 
       barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-3);
       gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                          +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-          " -K -O  -G254/220/210 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+          " -K -O  -G217/217/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
 
       barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-4);
             gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                                +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                " -K -O  -G217/217/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+                " -K -O  -G254/220/210 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
 
       barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-5);
       gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                          +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                         " -K -O  -G151/151/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+                         " -K -O  -G252/180/158 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
       barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-6);
       gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                          +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                         " -K -O  -G0/0/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+                         " -K -O  -G252/94/62 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
       barHt = getBarWidth(data);
 
       data = (String)dataArray.get(i-7);
       if(i-7 == 0)//we don't have to add the "-O" option in the last line of GMT script.
         gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                            +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                           " -O -G0/0/170 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+                           " -O -G215/38/3 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
       else
         gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
                            +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                           " -K -O -G0/0/170 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
+                           " -K -O -G215/38/3 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
     }
 
     gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile="+img_jpg_file +" -");
