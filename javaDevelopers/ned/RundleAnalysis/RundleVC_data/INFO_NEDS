@@ -40,7 +40,10 @@ I created faultNames-Segments.txt from Table 1 in the paper.  This contains the 
 
 All other files (e.g., VC_faultNamesNumPts.txt & VC_faultTraces.txt) were made from my Java code or from the Igor analysis.
 
-The *Rand* files were cases where event times were randomized (which took a bit of hacking of the Java code because years went from ints to doubles)
+The *Rand* files were cases where event times were randomized (which took a bit of hacking of the Java code because years went from ints to doubles).
+
+	Note: I think there may be a problem here because "VC_segRandNumYearSlip.txt" 
+	does not seem compatible with the other files.
 
 John told me that events at the beginning are safe to use.
 
