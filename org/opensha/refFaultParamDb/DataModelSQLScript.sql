@@ -132,7 +132,7 @@ CREATE TABLE Est_Instances (
   Comments VARCHAR(255) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Type_Id) 
-    REFERENCES Est_Type(Est_Type_Id)
+    REFERENCES Est_Type(Est_Type_Id) ON DELETE CASCADE
 );
 
 create sequence Est_Instances_Sequence
@@ -159,7 +159,7 @@ CREATE TABLE Normal_Est (
   Max_X NUMBER(9,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
+    REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE XY_Est (
@@ -168,7 +168,7 @@ CREATE TABLE XY_Est (
   Y NUMBER(9,3) NULL,
   PRIMARY KEY(X, Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
+    REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Log_Type (
@@ -188,9 +188,9 @@ CREATE TABLE Log_Normal_Est (
   Max_X NUMBER(9,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id),
+    REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY(Log_Type_Id)
-     REFERENCES Log_Type(Log_Type_Id)
+     REFERENCES Log_Type(Log_Type_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE PDF_Est (
@@ -200,7 +200,7 @@ CREATE TABLE PDF_Est (
   Num INTEGER  NOT NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
+    REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Min_Max_Pref_Est (
@@ -213,7 +213,7 @@ CREATE TABLE Min_Max_Pref_Est (
   Pref_Prob NUMBER(9,3) NULL,
   PRIMARY KEY(Est_Id),
   FOREIGN KEY(Est_Id)
-    REFERENCES Est_Instances(Est_Id)
+    REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 
@@ -225,7 +225,7 @@ CREATE TABLE Section_Source (
   Section_Source_Name VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Section_Source_Id),
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id) 
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE
 );
 
 
@@ -263,21 +263,21 @@ CREATE TABLE Fault_Section (
   Aseismic_Slip_Factor_Est INTEGER  NOT NULL,
   PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
   FOREIGN KEY(Section_Source_Id)
-    REFERENCES Section_Source(Section_Source_Id),
+    REFERENCES Section_Source(Section_Source_Id) ON DELETE CASCADE,
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE,
   FOREIGN KEY(Ave_Long_Term_Slip_Rate_Est)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY(Ave_Dip_Est)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY(Ave_Rake_Est)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY(Ave_Upper_Depth_Est)
-     REFERENCES Est_Instances(Est_Id), 
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE, 
   FOREIGN KEY(Ave_Lower_Depth_Est)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY(Aseismic_Slip_Factor_Est)
-     REFERENCES Est_Instances(Est_Id)
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 
@@ -287,7 +287,7 @@ CREATE TABLE Fault_Model (
   Fault_Model_Name VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Fault_Model_Id),
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id) 
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE
 );
 
 
@@ -314,9 +314,9 @@ CREATE TABLE Fault_Model_Section (
   Section_Entry_Date date NOT NULL,
   PRIMARY KEY(Fault_Model_Id, Section_Id, Fault_Id, Section_Source_Id, Section_Entry_Date),
   FOREIGN KEY(Fault_Model_Id)
-     REFERENCES  Fault_Model(Fault_Model_Id),
+     REFERENCES  Fault_Model(Fault_Model_Id) ON DELETE CASCADE,
   FOREIGN KEY(Section_Id, Fault_Id, Section_Source_Id, Section_Entry_Date)
-     REFERENCES Fault_Section(Section_Id, Fault_Id, Section_Source_Id, Entry_Date)
+     REFERENCES Fault_Section(Section_Id, Fault_Id, Section_Source_Id, Entry_Date) ON DELETE CASCADE
 );
 
 
@@ -327,7 +327,7 @@ CREATE TABLE Site_Type (
   General_Comments VARCHAR(1000) NULL,
   PRIMARY KEY(Site_Type_Id),
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id)
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE
 );
 
 create sequence Site_Type_Sequence
@@ -366,9 +366,9 @@ CREATE TABLE Paleo_Site (
   Dip_Est_Id INTEGER NULL,
   PRIMARY KEY(Site_Id, Entry_Date),
   FOREIGN KEY(Dip_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY (Fault_Id)
-     REFERENCES Fault_Names(Fault_Id)
+     REFERENCES Fault_Names(Fault_Id) ON DELETE CASCADE
 );
 
 create sequence Paleo_Site_Sequence
@@ -396,15 +396,15 @@ CREATE TABLE Paleo_Site_Publications (
   Contributor_Id INTEGER  NOT NULL,
   PRIMARY KEY(Site_Id, Site_Entry_date, Reference_Id, Entry_date),
   FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
+     REFERENCES Reference(Reference_Id) ON DELETE CASCADE,
   FOREIGN KEY(Representative_Strand_Index)
-     REFERENCES Site_Representations(Site_Representation_Id),
+     REFERENCES Site_Representations(Site_Representation_Id) ON DELETE CASCADE,
   FOREIGN KEY(Site_Type_Id)
-     REFERENCES Site_Type(Site_Type_Id),
+     REFERENCES Site_Type(Site_Type_Id) ON DELETE CASCADE,
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE,
   FOREIGN KEY(Site_Id, Site_Entry_Date)
-     REFERENCES Paleo_Site(Site_Id, Entry_date)
+     REFERENCES Paleo_Site(Site_Id, Entry_date) ON DELETE CASCADE
 );
   
 
@@ -423,7 +423,7 @@ CREATE TABLE Time_Instances (
   Comments VARCHAR(1000) NULL,
   PRIMARY KEY(Time_Id),
   FOREIGN KEY(Time_Type_Id) 
-    REFERENCES Time_Type(Time_Type_Id)
+    REFERENCES Time_Type(Time_Type_Id) ON DELETE CASCADE
 );
 
 create sequence Time_Instances_Sequence
@@ -446,9 +446,9 @@ CREATE TABLE Time_Instances_References (
   Reference_Id INTEGER NOT NULL,
   PRIMARY KEY(Time_Id, Reference_Id),
   FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id),
+     REFERENCES Reference(Reference_Id) ON DELETE CASCADE,
   FOREIGN KEY(Time_Id)
-     REFERENCES Time_Instances(Time_Id)
+     REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE
 );
   
 
@@ -463,7 +463,7 @@ CREATE TABLE Exact_Time_Info (
    Era VARCHAR(2) NOT NULL,
    PRIMARY KEY(Time_Instance_Id),
    FOREIGN KEY(Time_Instance_Id) 
-      REFERENCES Time_Instances(Time_Id)
+      REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Time_Estimate_Info(
@@ -474,9 +474,9 @@ CREATE TABLE Time_Estimate_Info(
    Zero_Year INTEGER NULL,
    PRIMARY KEY(Time_Instance_Id),
    FOREIGN KEY(Time_Instance_Id) 
-      REFERENCES Time_Instances(Time_Id),
+      REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE,
    FOREIGN KEY(Time_Est_Id)
-      REFERENCES Est_Instances(Est_Id)
+      REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 
@@ -494,13 +494,13 @@ CREATE TABLE Combined_Events_Info (
   Is_Record_Deleted char(1) NOT NULL,
   PRIMARY KEY(Info_Id, Entry_Date),
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
-    REFERENCES Paleo_Site(Site_Id, Entry_Date),
+    REFERENCES Paleo_Site(Site_Id, Entry_Date) ON DELETE CASCADE,
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE,
   FOREIGN KEY(Start_Time_Id)
-     REFERENCES Time_Instances(Time_Id),
+     REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE,
   FOREIGN KEY(End_Time_Id)
-     REFERENCES Time_Instances(Time_Id)
+     REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Combined_Slip_Rate_Info (
@@ -514,13 +514,13 @@ CREATE TABLE Combined_Slip_Rate_Info (
  Measured_Slip_Comp_Qual VARCHAR(255) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
-     REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date) ON DELETE CASCADE,
  FOREIGN KEY(Slip_Rate_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
  FOREIGN KEY(Sense_of_Motion_Rake)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
  FOREIGN KEY(Slip_Aseismic_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Combined_Displacement_Info (
@@ -534,13 +534,13 @@ CREATE TABLE Combined_Displacement_Info (
  Measured_Slip_Comp_Qual VARCHAR(255) NULL,
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
-     REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date) ON DELETE CASCADE,
  FOREIGN KEY(Total_Slip_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
  FOREIGN KEY(Sense_of_Motion_Rake)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
  FOREIGN KEY(Disp_Aseismic_Est_Id)
-     REFERENCES Est_Instances(Est_Id)
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 CREATE TABLE Combined_Num_Events_Info (
@@ -550,9 +550,9 @@ CREATE TABLE Combined_Num_Events_Info (
  Num_Events_Comments VARCHAR(1000) NULL, 
  PRIMARY KEY(Info_Id, Entry_Date),
  FOREIGN KEY(Info_Id, Entry_Date)
-     REFERENCES Combined_Events_Info(Info_Id, Entry_Date),
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date) ON DELETE CASCADE,
  FOREIGN KEY(Num_Events_Est_Id)
-    REFERENCES Est_Instances(Est_Id)
+    REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
 
@@ -563,9 +563,9 @@ CREATE TABLE Combined_Events_References (
  Reference_Id INTEGER  NOT NULL,
  PRIMARY KEY (combined_Events_Id, combined_Events_Entry_Date, Reference_Id),
  FOREIGN KEY (combined_Events_Id,  combined_Events_Entry_Date)
-   REFERENCES Combined_Events_Info(Info_Id,  Entry_Date),
+   REFERENCES Combined_Events_Info(Info_Id,  Entry_Date) ON DELETE CASCADE,
  FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id)
+     REFERENCES Reference(Reference_Id) ON DELETE CASCADE
 );
 
 create sequence Combined_Events_Sequence
@@ -599,15 +599,15 @@ CREATE TABLE Paleo_Event (
   Measured_Slip_Comp_Qual VARCHAR(255) NULL,
   PRIMARY KEY(Event_Id, Entry_Date),
   FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id),
+     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE,
   FOREIGN KEY(Event_Date_Est_Id)
-     REFERENCES Time_Instances(Time_Id),
+     REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE ,
   FOREIGN KEY(Displacement_Est_Id)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id)ON DELETE CASCADE,
   FOREIGN KEY(Sense_of_Motion_Rake)
-     REFERENCES Est_Instances(Est_Id),
+     REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
   FOREIGN KEY (Site_Id, Site_Entry_Date) 
-    REFERENCES Paleo_Site(Site_Id, Entry_Date)
+    REFERENCES Paleo_Site(Site_Id, Entry_Date) ON DELETE CASCADE
 );
 
 
@@ -617,9 +617,9 @@ CREATE TABLE Paleo_Event_References (
  Reference_Id INTEGER  NOT NULL,
  PRIMARY KEY (Paleo_Event_Id, Paleo_Event_Entry_Date, Reference_Id),
  FOREIGN KEY (Paleo_Event_Id,  Paleo_Event_Entry_Date)
-   REFERENCES Paleo_Event(Event_Id, Entry_Date),
+   REFERENCES Paleo_Event(Event_Id, Entry_Date) ON DELETE CASCADE,
  FOREIGN KEY(Reference_Id)
-     REFERENCES Reference(Reference_Id)
+     REFERENCES Reference(Reference_Id) ON DELETE CASCADE
 );
 
 create sequence Paleo_Event_Sequence
@@ -647,7 +647,7 @@ CREATE TABLE Event_Sequence (
   Sequence_Probability NUMBER(9,3) NOT NULL,
   PRIMARY KEY(Sequence_Id, Entry_Date),  
   FOREIGN KEY(Info_Id, Entry_Date)
-     REFERENCES Combined_Events_Info(Info_Id, Entry_Date)
+     REFERENCES Combined_Events_Info(Info_Id, Entry_Date) ON DELETE CASCADE
 );
 
 create sequence Event_Sequence_Sequence
@@ -676,9 +676,9 @@ CREATE TABLE Event_Sequence_Event_List (
   Event_Index_In_Sequence INTEGER  NOT NULL,
   PRIMARY KEY(Sequence_Id,  Sequence_Entry_Date, Event_Index_In_Sequence),
   FOREIGN KEY(Event_Id,  Event_Entry_Date)
-   REFERENCES Paleo_Event(Event_Id,  Entry_Date),
+   REFERENCES Paleo_Event(Event_Id,  Entry_Date) ON DELETE CASCADE,
   FOREIGN KEY(Sequence_Id, Sequence_Entry_Date)
-   REFERENCES Event_Sequence(Sequence_Id, Entry_Date)  
+   REFERENCES Event_Sequence(Sequence_Id, Entry_Date) ON DELETE CASCADE
 );
 
 
