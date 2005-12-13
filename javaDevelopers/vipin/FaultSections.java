@@ -21,6 +21,7 @@ public class FaultSections {
   private final static String INPUT_FILE_NAME2 = "javaDevelopers\\ned\\NSHMP02_CA_Traces_RV.txt";
   private final static String INPUT_FILE_NAME3 = "javaDevelopers\\ned\\NSHMP02_CA_Traces_SS.txt";
   private HashMap faultTraceMapping; // fault section and their correpsonding traces
+  private final static double LAT_CUTOFF = 34.0; // any fault section have a location above this CUTOFF is neglected
 
   // load the fault sections from files
   public FaultSections() {
@@ -46,24 +47,28 @@ public class FaultSections {
     String faultName=null;
     double lon, lat, depth;
     LocationList locList=null;
+    boolean lowerThanCutoff = true;
     for(int i=0; i<fileLines.size(); ++i) {
       String line = ((String)fileLines.get(i)).trim();
       if(line.equalsIgnoreCase("")) continue;
       if(line.startsWith("#")) { // if it is new fault name
-        if(faultName!=null) faultMap.put(faultName, sort(locList));
+        if(faultName!=null && lowerThanCutoff) faultMap.put(faultName, sort(locList));
         faultName = line.substring(1);
         locList = new LocationList();
+        lowerThanCutoff = true;
       }
       else { // fault trace location on current fault
         StringTokenizer tokenizer = new StringTokenizer(line);
         lon = Double.parseDouble(tokenizer.nextToken());
         lat = Double.parseDouble(tokenizer.nextToken());
+        if(lat>this.LAT_CUTOFF) lowerThanCutoff = false;
         depth = Double.parseDouble(tokenizer.nextToken());
         locList.addLocation(new Location(lat, lon, depth));
       }
     }
-    // put the last section into the list
-    faultMap.put(faultName, sort(locList));
+    if(lowerThanCutoff)
+      // put the last section into the list
+      faultMap.put(faultName, sort(locList));
 
   }
 
