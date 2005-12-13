@@ -587,11 +587,38 @@ public class USGS_Combined_2004_AttenRel
   }
 
   /**
-   * This throws and exception because the method is not supported
+   * This returns the average rock-site stdDev.  This was implemented for
+   * so disaggregation could be conducted (not used locally).
    *
    */
   public double getStdDev() throws IMRException {
-    throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+//    throw new RuntimeException(UNSUPPORTED_METHOD_ERROR);
+    if (stdDevTypeParam.getValue().equals(STD_DEV_TYPE_NONE)) {
+      return 0;
+    }
+    else {
+      vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+
+      // set the IMT in the various relationships
+      setAttenRelsIMT();
+
+      String imt = (String) im.getName();
+      double per = ( (Double) periodParam.getValue()).doubleValue();
+      double std = 0;
+      if (imt.equals(this.SA_NAME) && (per >= 3.0)) {
+        std += as_1997_attenRel.getStdDev();
+        std += cb_2003_attenRel.getStdDev();
+        std += scemy_1997_attenRel.getStdDev();
+        return std / 3.0;
+      }
+      else {
+        std += as_1997_attenRel.getStdDev();
+        std += cb_2003_attenRel.getStdDev();
+        std += bjf_1997_attenRel.getStdDev();
+        std += scemy_1997_attenRel.getStdDev();
+        return std / 4.0;
+      }
+    }
   }
 
   /**

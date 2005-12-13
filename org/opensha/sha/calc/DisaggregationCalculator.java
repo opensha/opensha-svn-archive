@@ -32,7 +32,8 @@ import java.net.URLConnection;
  * <p>Description: This class disaggregates a hazard curve based on the
  * input parameters imr, site and eqkRupforecast.  See Bazzurro and Cornell
  * (1999, Bull. Seism. Soc. Am., 89, pp. 501-520) for a complete discussion
- * of disaggregation.  The Dbar computed here is for rupture distance.</p>
+ * of disaggregation.  The Dbar computed here is for rupture distance.  This
+ * assumes all sources in the ERF are Poissonian</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -101,7 +102,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private int currRuptures = -1;
   private int totRuptures=0;
 
-  //gets the source Disagg info
+  //stores the source Disagg info
   private String sourceDisaggInfo;
 
   //Disaggregation Plot Img Name
@@ -240,7 +241,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           // get the cond prob, mean, stdDev, and epsilon
           condProb = imr.getExceedProbability(iml);
 
-          // should the following throw and exception?
+          // should the following throw an exception?
           if(condProb == 0 && D)
               System.out.println(S + "Exceedance probability is zero! (thus the NaNs below)");
 
