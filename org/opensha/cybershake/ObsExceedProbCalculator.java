@@ -125,6 +125,11 @@ public class ObsExceedProbCalculator implements ParameterChangeWarningListener{
 
   /**
    * Calculates the Exceed Prob Vals for the given Cybershake SA vals
+   * Calculates the exceed prob. from the peak SA Vaules of Cybershake.
+   * There peak SA values are arranged in ascending order. It calculates the
+   * exced prob. using:
+   *  1 - exceed prob that does not exceed the given peak value.
+   *
    */
   private void calcObsExceedProbVals(){
     int numVals= xyVals.getNum();

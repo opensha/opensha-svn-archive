@@ -288,8 +288,12 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           Dbar += rate * dist;
           Ebar += rate * epsilon;
           sourceRate +=rate;
-          DisaggregationSourceRuptureInfo rupInfo = new DisaggregationSourceRuptureInfo(null,(float)-rate,n);
-          ((ArrayList)map.get(sourceName)).add(rupInfo);
+          double eventRate = -Math.log(1-qkProb) /
+              eqkRupForecast.getTimeSpan().getDuration();
+          DisaggregationSourceRuptureInfo rupInfo = new DisaggregationSourceRuptureInfo(null,
+              eventRate
+              , (float) - rate, n);
+          ( (ArrayList) map.get(sourceName)).add(rupInfo);
       }
       ArrayList sourceRupList = (ArrayList)map.get(sourceName);
       Collections.sort(sourceRupList,new DisaggregationSourceRuptureComparator());
@@ -298,22 +302,22 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
 
     Collections.sort(disaggSourceList,new DisaggregationSourceRuptureComparator());
-    sourceDisaggInfo = "#Source-Id , Source-Name , Source-Rate , Total-Contribution-in-%\n";
+    sourceDisaggInfo = "#Source-Id  Source-Rate  Total-Contribution-in-%  Source-Name\n";
     int size = disaggSourceList.size();
     for (int i = 0; i < size; ++i) {
       DisaggregationSourceRuptureInfo disaggInfo = (DisaggregationSourceRuptureInfo)
           disaggSourceList.get(i);
-      sourceDisaggInfo +=disaggInfo.getId() + " ,  " + disaggInfo.getName() +
-               "  , " +
-               (float)disaggInfo.getRate() + " ,  " +
-               (float)( -disaggInfo.getRate() / totalRate * 100) + "\n";
+      sourceDisaggInfo +=disaggInfo.getId() +
+               "    " +(float)disaggInfo.getRate() + "    " +
+               (float)( -disaggInfo.getRate() / totalRate * 100) +
+              "    " + disaggInfo.getName() + "\n";
     }
 
     /*try {
       FileWriter fw = new FileWriter("Source_Rupture_OpenSHA.txt");
 
       String sourceRupDisaggregationInfo =
-          "#Source-Id , Source Name, Source Rate  , Rupture-Id   ,  Rupture Rate\n";
+          "#Source-Id  Source-Rate   Rupture-Id    Rupture-Exceed-Rate Rupture-Rate  Source-Name\n";
       fw.write(sourceRupDisaggregationInfo);
       size = disaggSourceList.size();
       for (int i = 0; i < size; ++i) {
@@ -321,18 +325,16 @@ public class DisaggregationCalculator extends UnicastRemoteObject
             DisaggregationSourceRuptureInfo)
             disaggSourceList.get(i);
         String sourceName = disaggInfo.getName();
-        String sourceInfo = disaggInfo.getId() + " ,  " +
-            sourceName +
-            "  , " +
+        String sourceInfo = disaggInfo.getId() + "\t" +
             (float)disaggInfo.getRate();
         ArrayList rupList = (ArrayList) map.get(sourceName);
         int rupListSize = rupList.size();
         for (int j = 0; j < rupListSize; ++j) {
           DisaggregationSourceRuptureInfo disaggRupInfo =
               (DisaggregationSourceRuptureInfo) rupList.get(j);
-          sourceRupDisaggregationInfo = sourceInfo + " ,  "+disaggRupInfo.getId() +
-              "  ,  " +
-              (float)disaggRupInfo.getRate() + "\n";
+          sourceRupDisaggregationInfo = sourceInfo + "\t"+disaggRupInfo.getId() +
+              "\t" +(float)disaggRupInfo.getRate() +"\t"+(float)disaggRupInfo.getEventRate()
+              +"\t"+sourceName+"\n";
           fw.write(sourceRupDisaggregationInfo);
         }
       }
@@ -553,8 +555,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     try{
     String region = "-R"+MIN_MAG_plot+"/"+MAX_MAG_plot+"/"+MIN_DIST_plot+"/"+MAX_DIST_plot+
         "/"+0+"/"+maxZVal;
-    String imagePixelSize = "-JX-4i/6i";
-    String imageAngle = "-E60/30";
+    String imagePixelSize = "-JX4i/4.5i";
+    String imageAngle = "-E240/30";
     String boundarySize = "-W0.5p";
     String verticalScaling = "-JZ2.5i";
     String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 0.5i \n"+
@@ -562,7 +564,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     String img_ps_file = "DisaggregationPlot.ps";
     String img_jpg_file = DISAGGREGATION_PLOT_IMG;
 
-    String axisBoundaryTicksBounds = "-B"+deltaMag_plot+"/"+deltaDist_plot+"/"+gdZGridVal+"wsNEZ";
+    String axisBoundaryTicksBounds = "-B"+deltaMag_plot+"/"+deltaDist_plot+"/"+gdZGridVal+"WSneZ";
     String tickLabelsLines = "cat << END > temp_segments";
     ArrayList segLineList = new ArrayList();
     segLineList.add(tickLabelsLines);

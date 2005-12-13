@@ -12,6 +12,7 @@ public class DisaggregationSourceRuptureInfo {
 
   private String name;
   private double rate;
+  private double eventRate;
   private int id;
 
   public DisaggregationSourceRuptureInfo(String name, double rate, int id) {
@@ -21,6 +22,14 @@ public class DisaggregationSourceRuptureInfo {
     this.id = id;
   }
 
+
+  public DisaggregationSourceRuptureInfo(String name, double eventRate, double rate, int id) {
+
+    this.name = name;
+    this.rate = rate;
+    this.id = id;
+    this.eventRate = eventRate;
+  }
 
   public int getId(){
     return id;
@@ -35,5 +44,8 @@ public class DisaggregationSourceRuptureInfo {
     return name;
   }
 
+  public double getEventRate(){
+    return eventRate;
+  }
 
 }

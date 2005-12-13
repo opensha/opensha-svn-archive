@@ -21,10 +21,10 @@ public class ScatterPlotForDisaggregation {
     super();
     //first modify the Cybershake file for all the sources and ruptures in file to
     //be only that are contain in OpenSHA file
-    readAndModifyCyberShakeDataFile();
+    //readAndModifyCyberShakeDataFile();
     //modifying the OpenSHA file to have only those sources and ruptures that are
     //in the Cybershake file
-    readAndModifyOpenSHA_DataFile();
+    //readAndModifyOpenSHA_DataFile();
     createScatterPlotFile();
   }
 
@@ -45,7 +45,7 @@ public class ScatterPlotForDisaggregation {
         //remove the source and its rupture.
         for(int j=1;j<openshaFileSize;++j){
           String openshafileLine = (String)openshaFile.get(j);
-          StringTokenizer st1 = new StringTokenizer(openshafileLine,",");
+          StringTokenizer st1 = new StringTokenizer(openshafileLine);
           int oSourceIndex = Integer.parseInt(st1.nextToken().trim());
           //looking for the source if in OpenSHA
           if(oSourceIndex == cSourceIndex){
@@ -99,7 +99,7 @@ public class ScatterPlotForDisaggregation {
       //going over all the sources in the Cybershake file.
       for(int i=1;i<openshaFile.size();){
         String openshaFileLine = (String)openshaFile.get(i);
-        StringTokenizer st = new StringTokenizer(openshaFileLine,",");
+        StringTokenizer st = new StringTokenizer(openshaFileLine);
         int oSourceIndex = Integer.parseInt(st.nextToken().trim());
         boolean sourceFound = false;
         //going over all the file lines of the opensha and looking if source there
@@ -122,7 +122,6 @@ public class ScatterPlotForDisaggregation {
           //look for ruptures in the sources, match both Cybershake and OpenSHA
           //should have same ruptures.
           while(oSourceIndex_later == oSourceIndex){
-              st.nextToken();
               st.nextToken();
               //getting the rupture index of the Source from openSHa file
               int oRupIndex = Integer.parseInt(st.nextToken().trim());
@@ -153,7 +152,7 @@ public class ScatterPlotForDisaggregation {
                 break;
               //reading the next opensha line
               openshaFileLine = (String) openshaFile.get(i);
-              st = new StringTokenizer(openshaFileLine, ",");
+              st = new StringTokenizer(openshaFileLine);
               //getting the source index from the next liine of the OpenSHA.
               oSourceIndex_later = Integer.parseInt(st.nextToken().trim());
               if (oSourceIndex_later != oSourceIndex)
@@ -165,7 +164,7 @@ public class ScatterPlotForDisaggregation {
           while(oSourceIndex_later == oSourceIndex){
             openshaFile.remove(i);
             openshaFileLine = (String)openshaFile.get(i);
-            st = new StringTokenizer(openshaFileLine,",");
+            st = new StringTokenizer(openshaFileLine);
             oSourceIndex_later = Integer.parseInt(st.nextToken().trim());
           }
         }
@@ -190,12 +189,12 @@ public class ScatterPlotForDisaggregation {
     try {
       ArrayList cybershakeFile = FileUtils.loadFile("CyberShake_modified.txt");
       ArrayList openshaFile = FileUtils.loadFile("OpenSHA_modified.txt");
-      FileWriter fw = new FileWriter("ScatterPlotFile.txt");
+      FileWriter fw = new FileWriter("ScatterPlotFile_Ruptures.txt");
       int cybershakeFileSize = cybershakeFile.size();
       int openshaFileSize = openshaFile.size();
       //going over all the sources in the Cybershake file.
+      fw.write("#Source-Index Rup-Index  Cybershake-Rate  OpenSHA-Rate Rup-Rate Source-Name\n");
       for (int i = 1; i < cybershakeFileSize;++i) {
-        fw.write("#Source-Index CyberShake-Src-Rate  OpenSHA-Src-Rate SrcName\n");
         String cybershakeFileLine = (String) cybershakeFile.get(i);
         StringTokenizer st = new StringTokenizer(cybershakeFileLine, ",");
 
@@ -208,9 +207,8 @@ public class ScatterPlotForDisaggregation {
         double openSHASourceRate =0;
         for (int j = 1; j < openshaFileSize; ++j) {
           String openshaFileLine = (String) openshaFile.get(j);
-          StringTokenizer st1 = new StringTokenizer(openshaFileLine, ",");
+          StringTokenizer st1 = new StringTokenizer(openshaFileLine);
           oSourceIndex = Integer.parseInt(st1.nextToken().trim());
-          st1.nextToken();
 
           //looking for the source if in OpenSHA
           if (cSourceIndex == oSourceIndex) {
@@ -224,15 +222,15 @@ public class ScatterPlotForDisaggregation {
           int cSourceIndex_later = cSourceIndex;
           //look for ruptures in the sources, match both Cybershake and OpenSHA
           //should have same ruptures.
-          boolean sourceFirstOccurance = true;
+          //boolean sourceFirstOccurance = true;
           while (cSourceIndex_later == cSourceIndex) {
             String sourceName = st.nextToken().trim();
             double sourceRate = Double.parseDouble(st.nextToken().trim());
-            if(sourceFirstOccurance){
-              fw.write(cSourceIndex+"\t"+(float)sourceRate+"\t"+(float)openSHASourceRate+"\t"+sourceName+"\n");
-              fw.write("#Rup-Index  Cybershake-Rup-Rate  OpenSHA-Rup-Rate \n");
-              sourceFirstOccurance = false;
-            }
+            //if(sourceFirstOccurance){
+              //fw.write(cSourceIndex+"\t"+(float)sourceRate+"\t"+(float)openSHASourceRate+"\t"+sourceName+"\n");
+
+              //sourceFirstOccurance = false;
+            //}
             //getting the rupture index of the Source from Cybershake file
             int cRupIndex = Integer.parseInt(st.nextToken().trim());
             double cyberRupRate = Double.parseDouble(st.nextToken().trim());
@@ -243,16 +241,17 @@ public class ScatterPlotForDisaggregation {
             for (int k = sourceStartIndex;
                  cSourceIndex == oSourceIndex && k < openshaFile.size();
                  ++k) {
-              String cyberFileLine = (String) openshaFile.get(k);
-              st = new StringTokenizer(cyberFileLine,",");
+              String openshaFileLine = (String) openshaFile.get(k);
+              st = new StringTokenizer(openshaFileLine);
               oSourceIndex = Integer.parseInt(st.nextToken().trim());
-              st.nextToken();
               st.nextToken();
               int oRupIndex = Integer.parseInt(st.nextToken().trim());
               if (cRupIndex == oRupIndex) {
                 ruptureFound = true;
                 double oRupRate = Double.parseDouble(st.nextToken().trim());
-                fw.write(oRupIndex+"\t"+(float)cyberRupRate+"\t"+(float)oRupRate+"\n");
+                double rupRate = Double.parseDouble(st.nextToken().trim());
+                fw.write(cSourceIndex+"\t"+oRupIndex+"\t"+(float)cyberRupRate+
+                         "\t"+(float)oRupRate+"\t"+(float)rupRate+"\t"+sourceName+"\n");
                 break;
               }
             }
