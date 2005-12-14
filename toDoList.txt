@@ -5,7 +5,6 @@ Create a save option that creates a pdf with both an image and the metadata (pre
 
 ERF2GriddedSeisRateCalc - Ned needs to look it over.
 
-
 Work on html-based help documentation
 
 
@@ -56,8 +55,6 @@ EvenlyGriddedGeographicRegions
 		5)
 
 
-Move ERF2XML_Calc out of sha/calc and into sha/util?(Done - Nitin)
-
 Nitin has to look on how to get the OpenSHA code to the source-forge.
 
 Implement:
@@ -86,32 +83,21 @@ Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations si
 
 Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
 
-
 make a web-based tool where one can plot seismicity rate maps for any RELM forecast, where the user can choose a lower mag threshhold, a color scale, and a color scheme.
 
-
-		 
-
 Check do we really need to call it AttenuationRelationship for the GUI bean s used in the Scenarioshake map or can we just call it IMR. We need Attenuation only if Median and Std. deviation needs to be calculated. -- No it not customized or hard-coded for the AttenuationRelationships (Nitin).
-
-Set up registration for HazMapDataGenerator - Phil has good ideas about this. -- done (Nitin)
 
 Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
 
 Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
 
-Scenario ShakeMapApp - generate a pdf for viewing too
-(Can be done using the following commands:
- convert map.ps map.pdf
+Scenario ShakeMapApp - generate a pdf for viewing too(Can be done using the following commands:
+ 
+	convert map.ps map.pdf
   or
- ps2pdf map.ps map.pdf
+ 	ps2pdf map.ps map.pdf
   or
-gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=your.pdf -c save pop -f file1.ps file2.ps ) -- conversion from multiple ps files to one pdf file. 
-
-GMT_MapGenerator:
-	force use of GMT Web Service - done(Nitin)
-
-The Log Plot tester App does not work for the Linear Scale- Its working(Nitin). 
+	gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=your.pdf -c save pop -f file1.ps file2.ps ) -- conversion from multiple ps files to one pdf file. 
 
 Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).  Talk to Sue about this- Done (Nitin)
 
@@ -119,14 +105,10 @@ Revisit PEER results plotter & data submission tool.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
-
 Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But 
 Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
-
-
-
 
 Ned needs to document WG02_EqkRupForecast (Java docs).
 
@@ -150,10 +132,6 @@ Make email lists for the following (with on-line archives):
 	advisors@OpenSHA.org
 
 Figure out how to add the OpenSHA logo to shakeMaps.
-
-Standardize source definition with pathway 2?
-
-Get e-access to SCEC 2005 Consensus Geologic Fault Parameters.
 
 Peter Powers' stress chance calculator (and Jeremy's work)?
 
@@ -236,8 +214,6 @@ IMT_GuiBean - the loop over independent parameters of the chosen IMT can present
 Decide how to handle rake=NaN in each IMR (can rake-NaN in an EarthquakeRupture object?).
 
 Decide on and implement a licensing agreement.
-
-Figure out why applets don't resize with browser window size on Mac OS.
 
 Vector PSHA?
 

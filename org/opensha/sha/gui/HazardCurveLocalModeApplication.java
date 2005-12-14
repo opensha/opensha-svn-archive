@@ -15,6 +15,7 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.DisaggregationCalculator;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
+import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
 
 /**
  * <p>Title: HazardCurveLocalModeApplication</p>
@@ -45,7 +46,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   public final static String POINT_SRC_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.PointSourceERF";
   public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
   public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
-
+  public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
 
   /**
    * Initialize the ERF Gui Bean
@@ -56,6 +57,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
 
     //adding the client based ERF's to the application
     erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+    erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
     erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
     erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
     erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
