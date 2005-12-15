@@ -406,6 +406,16 @@ private ArrayList sortFaultSectionsByLocation() {
       // first select the primary link
       Node nextNode;
 
+      // first select the primary link
+      nextNode = node.getPrimaryLink();
+      if(nextNode!=null) {
+        Location loc = nextNode.getLoc();
+        nodesList.add(nextNode);
+        traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
+        nodesList.remove(nextNode);
+      }
+
+
       // access the secondary links
       ArrayList secondaryLinks = node.getSecondaryLinks();
       for(int i=0; secondaryLinks!=null && i<secondaryLinks.size(); ++i) {
@@ -415,16 +425,6 @@ private ArrayList sortFaultSectionsByLocation() {
         traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
         nodesList.remove(nextNode);
       }
-
-       // first select the primary link
-      nextNode = node.getPrimaryLink();
-      if(nextNode!=null) {
-        Location loc = nextNode.getLoc();
-        nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
-        nodesList.remove(nextNode);
-      }
-
 
     }
   }
