@@ -414,7 +414,6 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
 
     double mLow, mHigh;
 
-
     double test, test2=0;
     double magEp, wtEp;
 
