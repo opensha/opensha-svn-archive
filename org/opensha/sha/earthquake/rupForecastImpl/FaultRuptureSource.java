@@ -21,8 +21,8 @@ import org.opensha.sha.magdist.*;
  * <LI>probability (or duration)
  * </UL><p>
  * If magnitude/probability are given the source is set as non poissonian (and
- * duration is meaningless); If a mag-freq-dist and duration is given than the source
- * is assumed to be Poissonain. The entire surface ruptures for all cases (no floating
+ * duration is meaningless); If a mag-freq-dist and duration is given then the source
+ * is assumed to be Poissonian. The entire surface ruptures for all cases (no floating
  * of events).  Note that duration is the only constructor argument saved internally
  * in order to conserve memory (this is why there are no associated get/set methods
  * for anything besides duration).<p>
