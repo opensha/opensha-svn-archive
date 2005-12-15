@@ -383,9 +383,9 @@ public class PrepareTreeStructure {
   private void addToFaultSectionPrintOrder(String sectionName) {
     if(!faultSectionPrintOrder.contains(sectionName)) {
       faultSectionPrintOrder.add(sectionName);
-      for(int i=0; i<faultSectionPrintOrder.size(); ++i)
+      /*for(int i=0; i<faultSectionPrintOrder.size(); ++i)
         System.out.print(faultSectionPrintOrder.get(i)+",");
-      System.out.println("");
+      System.out.println("");*/
     }
   }
 
