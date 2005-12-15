@@ -1,7 +1,35 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Implement both timeSpan options in UCERF 1.0.  Options are 1) extend timeSpan and the editor to have a TimeDepAndIndSupported and an associated timeDep boolean (former says allow user to toggle between the two, and the latter declares the present state); 2) put the timeDepBooleanParam in with the other adjustable ERF params and if this state changes, have the ERF issue a timeSpanChange event (not just a timeSpanValueChange event) - this way the app will know to get the new timeSpan and show it in the GUI.  The 2nd option is preferred, but will require an object on the server to be able to send an event to the application; Nitin is exploring whether this will be possible.
+
 Create a save option that creates a pdf with both an image and the metadata (preserving any color coding in the latter).  This could be used for both maps and XY plots.
+
+Implement the disaggregation plotting, source ordering, and rupture ordering control panel (Nitin).
+
+Make all code Java 1.5 compliant (Nitin).
+
+Implement the deterministic calc option in the HazardCurveApps
+
+Update the HazardSpectrumApp with latest GUI beans.
+
+In the above two, make it so the EqkRupSelectorGuiBean and ERF_GuiBean can have unique lists of ERFs, but that both point to same ERF for those that are common between the two.  Do this by adding get/setCurrentERF methods to the two GUI beans, so the app can set them to the same object when one coverts from prob. to det. mode.  For now only support a single ERF being instantiated at once (to control memory bloating).  Later we can allow some number of multiple instances if memory is not a problem (this will require get/set methods for the list of instantiated ERFs).  Nitin.
+
+Add getAllSourceLocs() method to the EqkSourceAPI (returns a locationList) and implement the method in all subclasses.  Vipin (talk to Ned if there are questions of how to implement the method in any subclasses).  We need this method for visualizing sources.
+
+Explore source and rupture visualization options, including JFreeChart, GMT, GoogleEarth, and VDO.  Build the visualization of sources and/or ruptures & associated info into the applications (especially for deterministic calcs).  Also include plotting MFDs for sources.  Vipin
+
+Get feedback on CA Ref. Fault Param. Database GUI (Vipin)
+
+Continue working on the all-ruptures-in-fault-system tool (Vipin)
+
+Create ability to map rate(³M,lat,lon) and plot MFD(region) for any ERF (needed for RELM).
+
+Implement the attenuation relationship desired by UCLA.  This will require allowing an IMR to issue a supportedIMT_Change event so the applications can refresh accordingly.  This will also require an object on the server to communicate with an application if we ever distribute IMRs.
+
+UCERF 1.0 validation (Ned)
+
+Vs30 worldwide tool (Ned should talk to David Wald)
 
 ERF2GriddedSeisRateCalc - Ned needs to look it over.
 
@@ -83,30 +111,15 @@ Create an EvenlyGriddedSausageGeographicRegion (may want to compute locations si
 
 Create a GeographicRegionAroundEqkRupture subclass of GeographicRegion that takes an EqkRupture and radius and creates a polygon such that each point on the polygon is ~radius from the edge of the horizontal projection of the eqkRupture surface.  Create and EvenlyGridded version of this.
 
-make a web-based tool where one can plot seismicity rate maps for any RELM forecast, where the user can choose a lower mag threshhold, a color scale, and a color scheme.
-
-Check do we really need to call it AttenuationRelationship for the GUI bean s used in the Scenarioshake map or can we just call it IMR. We need Attenuation only if Median and Std. deviation needs to be calculated. -- No it not customized or hard-coded for the AttenuationRelationships (Nitin).
-
-Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.
+Prepare a brief documentation on the how and why I did HazardCurveServer Mode in RMI. This will also include preparing a brief documentation on RMI and webservices. This document should also include the possible flaws in the applications and what improvements are needed in the application and what's more needs to be added to generalize the application.  Nitin
 
 Work on the data file provided by NGA to get the Observed EqkRuptures from them and create the HazardCurve for these ruptures.
-
-Scenario ShakeMapApp - generate a pdf for viewing too(Can be done using the following commands:
- 
-	convert map.ps map.pdf
-  or
- 	ps2pdf map.ps map.pdf
-  or
-	gs -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=your.pdf -c save pop -f file1.ps file2.ps ) -- conversion from multiple ps files to one pdf file. 
-
-Get our GriddedSurface object plottable in LA3D (so EqkRupture surfaces can be plotted).  Talk to Sue about this- Done (Nitin)
 
 Revisit PEER results plotter & data submission tool.
 
 Investigate what proper longitude limits are with respect to RelativeLocation, 0 to 360, -180 to 180, -180 to 360, or -360 to 360.
 
-Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But 
-Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
+Distance Calculations : Approx Horizontal Distance(getApproxHorzDistance()) calculator does not calculate the correct distance if longitude is > 0. But Horizontal Distance(getHorzDistance()) always calculate the accurate distance. (Nitin tested using main() method in RelativeLocation class, one can just run the RelativeLocation class and will get to know the difference).
 
 Fix GriddedFaultApplet - horz/vert scaling - may be fixed; check it out; add java 3D.  Or should we use LA 3D?
 
@@ -137,16 +150,12 @@ Peter Powers' stress chance calculator (and Jeremy's work)?
 
 Formally test all applications before publication (this will take planning).
 
-Write user's manuals for applications.
-
 Create capability to associate IMRs to specific source types in the calculations (this will take some thought and perhaps some communication with Golden).  Ned's intitial tests on adding such fields to EqkRupture does not significantly increase memory requirements.  Possibilities:
 
 	Subduction Interface
 	Subduction IntraSlab
 	Shallow Crustal in Active Tectonic Regions
 	Shallow Crustal in Stable Tectonic Regions
-
-Make a library to represent t-surfaces (or look on internet to see if someone else has come up with a good object-oriented design).
 
 Re-calculate the PEER set2, case5 (including fractiles) and update the Excel spreadsheet (I changed the implementation and I believe it is now correct).
 
@@ -175,11 +184,6 @@ Solve Our MetaData Issues.  We need to be able to do three things: 1) inform the
 	do anything.  Note that all non primitive parameter types (e.g., MagFreqDistParam and
 	SimpleFaultParam) must contain all info needed by their respective editor to recreate the
 	object; this info is stored in their dependent parameter list.
-
-
-HazardSpectrumApplet - Look into making it so the ERF_GuiBean and EqkRupSelectorGuiBean use the same ERF instances (in cases where both have the same ERF, although sometime on or the other might have an ERF that the other one does not)?  This will take some thought because the present implementation of the GuiBeans are a subclass of ParameterEditor which leads to even worse memory problems for the first attempted solution.  Solve this once we have a better idea of exactly what Caltrans wants.  Perhaps we should merge the two GuiBeans into one?
-
-Finish STEP map making capability according to feedback from Matt and Lucy (and solve the Vs30 on water issue).
 
 SimpleListricGriddedFaultFactory has problem - run main method to find it.  Ned will look at this.
 
