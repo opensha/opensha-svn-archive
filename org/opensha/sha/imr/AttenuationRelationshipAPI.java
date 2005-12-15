@@ -22,6 +22,14 @@ import org.opensha.param.*;
 public interface AttenuationRelationshipAPI
     extends IntensityMeasureRelationshipAPI {
 
+
+    /**
+     * This returns metadata for all parameters (only showing the independent parameters
+     * relevant for the presently chosen imt)
+     * @return
+     */
+    public String getAllParamMetadata();
+
   /**
    * This method sets the user-defined distance beyond which ground motion is
    * set to effectively zero (the mean is a large negative value).
