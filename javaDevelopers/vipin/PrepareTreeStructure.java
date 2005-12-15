@@ -88,7 +88,7 @@ public class PrepareTreeStructure {
    * Sort the fault sections by lat of first location of the fault trace
    * @return
    */
- private ArrayList sortFaultSectionsByLocation() {
+/* private ArrayList sortFaultSectionsByLocation() {
    ArrayList sortedSectionNames = new ArrayList();
    ArrayList sortedLats = new ArrayList();
    Iterator it = faultTree.keySet().iterator();
@@ -119,7 +119,55 @@ public class PrepareTreeStructure {
    }
    return sortedSectionNames;
 
- }
+ }*/
+
+/**
+ * It finds the fault section closest to LOCATION. It is put first into the list
+ * Then it finds fault section nearest to previous found section and it goes on
+ *
+ * @return
+ */
+private ArrayList sortFaultSectionsByLocation() {
+  ArrayList sortedSectionNames = new ArrayList();
+  Iterator it = faultTree.keySet().iterator();
+  // save the section names and lat of first location into arraylists
+  double minDist = Double.MAX_VALUE;
+  String firstSectionName = null;
+  // find the first section that we will process
+  while(it.hasNext()) {
+    String  faultSectionName = (String) it.next();
+    sortedSectionNames.add(faultSectionName);
+    Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
+    double distance = RelativeLocation.getApproxHorzDistance(loc, LOCATION);
+    if(distance<minDist) {
+      minDist = distance;
+      firstSectionName = faultSectionName;
+    }
+  }
+  // put the first section on first location in arraylist
+  sortedSectionNames.remove(firstSectionName);
+  sortedSectionNames.add(0, firstSectionName);
+  // now find the subsequent sections based on their distance from previously found section
+  for(int i=0; i<(sortedSectionNames.size()-1); ++i) {
+    String nextSectionName = null;
+    minDist = Double.MAX_VALUE;
+    Location loc = ((Node)faultTree.get((String)sortedSectionNames.get(i))).getLoc();
+    for(int j=i+1; j<sortedSectionNames.size(); ++j) {
+      Location loc1 = ((Node)faultTree.get((String)sortedSectionNames.get(j))).getLoc();
+      double distance = RelativeLocation.getApproxHorzDistance(loc, loc1);
+      if(distance<minDist) {
+        minDist = distance;
+        nextSectionName = (String)sortedSectionNames.get(j);
+      }
+    }
+    sortedSectionNames.remove(nextSectionName);
+    sortedSectionNames.add(i+1, nextSectionName);
+  }
+
+  return sortedSectionNames;
+
+}
+
 
   private String findAllRuptures()  {
     // SORT THE FAULT SECTIONS BASED ON THE LATITUDES OF FIRST POINT of Fault trace.
@@ -144,6 +192,7 @@ public class PrepareTreeStructure {
           if(processedFaultSections.contains(faultSectionName)) continue;
           System.out.println((i++)+"\t"+faultSectionName);
           processFaultSection(faultSectionName);
+          j=0;
           processedFaultSections.add(faultSectionName);
         }
         //int endIndex = this.rupList.size();
@@ -174,21 +223,21 @@ public class PrepareTreeStructure {
       //fw.write("#Num Ruptures=" + numRups + "\n");
       int rupCount=0;
       //FileWriter fwPrintOrder = new FileWriter("SectionPrintOrder.txt");
-      for(int j=0; j<faultSectionPrintOrder.size(); ++j) {
-       String sectionName = (String)faultSectionPrintOrder.get(j);
+      //for(int j=0; j<faultSectionPrintOrder.size(); ++j) {
+       //String sectionName = (String)faultSectionPrintOrder.get(j);
        //fwPrintOrder.write(sectionName+"\n");
         for (int i = 0; i < numRups; ++i) {
           MultiSectionRupture multiSectionRup = (MultiSectionRupture)rupList.get(i);
           ArrayList nodesList = multiSectionRup.getNodesList();
-          String firstLocationSectionName = ((Node) nodesList.get(0)).getFaultSectionName();
-          if(firstLocationSectionName.equalsIgnoreCase(sectionName)) {
-            fw.write("#Rupture " + rupCount + " "+firstLocationSectionName+"\n");
+        //  String firstLocationSectionName = ((Node) nodesList.get(0)).getFaultSectionName();
+         // if(firstLocationSectionName.equalsIgnoreCase(sectionName)) {
+            fw.write("#Rupture " + rupCount + " "+/*firstLocationSectionName+*/"\n");
             ++rupCount;
             for (int k = 0; k < nodesList.size(); ++k)
               fw.write("\t" + ((Node) nodesList.get(k)).getLoc()+"\n");
-          }
+          //}
         }
-      }
+      //}
       //fwPrintOrder.close();
 
       /*if (rupList != null) numRups = rupList.size();
