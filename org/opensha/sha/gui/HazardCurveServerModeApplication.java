@@ -1036,7 +1036,7 @@ public class HazardCurveServerModeApplication extends JFrame
       //get the selected ERF instance
       forecast = erfGuiBean.getSelectedERF();
     }catch(Exception e){
-      //e.printStackTrace();
+      e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       setButtonsEnable(true);
       return;
