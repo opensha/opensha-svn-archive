@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.*;
 import org.opensha.exceptions.*;
 import org.opensha.data.Location;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: PrepareTreeStructure.java </p>
@@ -27,6 +28,7 @@ public class PrepareTreeStructure {
   private final static double RUP_OFFSET=5;
   private final static int DISCRETIZATION=5; // fault section discretization
   private final static Location LOCATION = new Location(31.5, -115.0);
+  private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
   public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
   public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_50km.txt";
@@ -128,27 +130,40 @@ public class PrepareTreeStructure {
       // now attach fault sections with other sections which are within cutoff distance
       Iterator it = sortedSectionNames.iterator();
       // do for all fault sections
+      ArrayList processedFaultSections = new ArrayList();
       int i=1;
       while (it.hasNext()) {
         String faultSectionName = (String) it.next();
-        addToFaultSectionPrintOrder(faultSectionName);
+        // if this fault section has already been processed, do not process it again
+        if(processedFaultSections.contains(faultSectionName)) continue;
         System.out.println((i++)+"\t"+faultSectionName);
-        //fw.write("#" + faultSectionName + "\n");
-        //fwRupFile.write("#" + faultSectionName + "\n");
-        addSecondaryLinks(faultSectionName, new ArrayList());
-        // find the ruptures for various rupture lengths
-        int startIndex = this.rupList.size();
-        for(rupLength=MIN_RUP_LENGTH; rupLength<=MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
-          getRuptures(faultSectionName);
-        removeSecondaryLinks();
-
-        int endIndex = this.rupList.size();
+        processFaultSection(faultSectionName);
+        processedFaultSections.add(faultSectionName);
+        for(int j=0; j< this.faultSectionPrintOrder.size(); ++j) {
+          faultSectionName = (String)faultSectionPrintOrder.get(j);
+          if(processedFaultSections.contains(faultSectionName)) continue;
+          System.out.println((i++)+"\t"+faultSectionName);
+          processFaultSection(faultSectionName);
+          processedFaultSections.add(faultSectionName);
+        }
+        //int endIndex = this.rupList.size();
         //sortRuptureList(startIndex, endIndex);
       }
     }catch(Exception e) {
       e.printStackTrace();
     }
     return (String)sortedSectionNames.get(0);
+  }
+
+  private void processFaultSection(String faultSectionName) {
+    //fw.write("#" + faultSectionName + "\n");
+    //fwRupFile.write("#" + faultSectionName + "\n");
+    addSecondaryLinks(faultSectionName, new ArrayList());
+    // find the ruptures for various rupture lengths
+    //int startIndex = this.rupList.size();
+    for(rupLength=MIN_RUP_LENGTH; rupLength<=MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
+      getRuptures(faultSectionName);
+    removeSecondaryLinks();
   }
 
   // write the ruptures to the file
@@ -158,10 +173,10 @@ public class PrepareTreeStructure {
       if (rupList != null) numRups = rupList.size();
       //fw.write("#Num Ruptures=" + numRups + "\n");
       int rupCount=0;
-      FileWriter fwPrintOrder = new FileWriter("SectionPrintOrder.txt");
+      //FileWriter fwPrintOrder = new FileWriter("SectionPrintOrder.txt");
       for(int j=0; j<faultSectionPrintOrder.size(); ++j) {
-        String sectionName = (String)faultSectionPrintOrder.get(j);
-        fwPrintOrder.write(sectionName+"\n");
+       String sectionName = (String)faultSectionPrintOrder.get(j);
+       //fwPrintOrder.write(sectionName+"\n");
         for (int i = 0; i < numRups; ++i) {
           MultiSectionRupture multiSectionRup = (MultiSectionRupture)rupList.get(i);
           ArrayList nodesList = multiSectionRup.getNodesList();
@@ -174,7 +189,7 @@ public class PrepareTreeStructure {
           }
         }
       }
-      fwPrintOrder.close();
+      //fwPrintOrder.close();
 
       /*if (rupList != null) numRups = rupList.size();
       fw.write("#Num Ruptures=" + numRups + "\n");
@@ -220,6 +235,15 @@ public class PrepareTreeStructure {
   private void getRuptures(String faultSectionName) {
     // write the nearby sections and the nearest locations into a file
     Node rootNode = (Node) faultTree.get(faultSectionName);
+    /*Node node = rootNode;
+    while(node !=null) {
+      int numSecLinks;
+      ArrayList secLinks = node.getSecondaryLinks();
+      if(secLinks==null) numSecLinks = 0;
+      else numSecLinks = secLinks.size();
+      System.out.println(node.getId()+" has "+numSecLinks+ " secondary links");
+      node = node.getPrimaryLink();
+    }*/
     traverseStartingFromRoot(rootNode);
     // traverse the fault section from the opposite side(so reverse the links)
     /*Node newRootNode = reversePrimaryLinks((Node) faultTree.get(faultSectionName));
@@ -250,15 +274,15 @@ public class PrepareTreeStructure {
       ArrayList nodesList = new ArrayList();
       nodesList.add(node);
       traverse(node, nodesList, 0.0);
-      int offsetDist=0;
+      double offsetDist=0;
       Location loc1 = node.getLoc();
       Location loc2;
       // find next node (location) based on rup offset
-      while(node !=null && offsetDist<this.RUP_OFFSET) {
+      while(node !=null && offsetDist<=this.RUP_OFFSET) {
         node = node.getPrimaryLink();
         if(node!=null) {
           loc2 = node.getLoc();
-          offsetDist += RelativeLocation.getApproxHorzDistance(loc1, loc2);
+          offsetDist = Double.parseDouble(decimalFormat.format(offsetDist + RelativeLocation.getApproxHorzDistance(loc1, loc2)));
           loc1 = loc2;
         }
       }
@@ -306,7 +330,7 @@ public class PrepareTreeStructure {
       String sectionName = (String)sectionNearestNodeMapIt.next();
       if(secondaryLinksDoneSections.contains(sectionName)) return;
       addSecondaryLinks(sectionName, secondaryLinksDoneSections);
-      addToFaultSectionPrintOrder(sectionName);
+      //addToFaultSectionPrintOrder(sectionName);
       //System.out.println("\t"+sectionName);
       SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
       sectionNodeDist.getNode().addSecondayLink(sectionNodeDist.getSectionNode());
@@ -319,6 +343,8 @@ public class PrepareTreeStructure {
     if(rupLen>=this.rupLength)  { // if rup length is found
       // check if rupture already exists in the list
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
+      for(int i=0; i<nodesList.size(); ++i)
+        this.addToFaultSectionPrintOrder(((Node)nodesList.get(i)).getFaultSectionName());
       // if rupture does not exist already, then add it
       if(!rupList.contains(multiSectionRup)) rupList.add(multiSectionRup);
      /* nodesList = new ArrayList();
@@ -329,13 +355,7 @@ public class PrepareTreeStructure {
     } else { // if more locations are required to complete the rup Length
 
       // first select the primary link
-      Node nextNode = node.getPrimaryLink();
-      if(nextNode!=null) {
-        Location loc = nextNode.getLoc();
-        nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
-        nodesList.remove(nextNode);
-      }
+      Node nextNode;
 
       // access the secondary links
       ArrayList secondaryLinks = node.getSecondaryLinks();
@@ -347,12 +367,26 @@ public class PrepareTreeStructure {
         nodesList.remove(nextNode);
       }
 
+       // first select the primary link
+      nextNode = node.getPrimaryLink();
+      if(nextNode!=null) {
+        Location loc = nextNode.getLoc();
+        nodesList.add(nextNode);
+        traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
+        nodesList.remove(nextNode);
+      }
+
+
     }
   }
 
   private void addToFaultSectionPrintOrder(String sectionName) {
-    if(!faultSectionPrintOrder.contains(sectionName))
+    if(!faultSectionPrintOrder.contains(sectionName)) {
       faultSectionPrintOrder.add(sectionName);
+      for(int i=0; i<faultSectionPrintOrder.size(); ++i)
+        System.out.print(faultSectionPrintOrder.get(i)+",");
+      System.out.println("");
+    }
   }
 
 
