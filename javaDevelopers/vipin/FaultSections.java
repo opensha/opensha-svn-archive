@@ -21,7 +21,7 @@ public class FaultSections {
   private final static String INPUT_FILE_NAME2 = "javaDevelopers\\ned\\NSHMP02_CA_Traces_RV.txt";
   private final static String INPUT_FILE_NAME3 = "javaDevelopers\\ned\\NSHMP02_CA_Traces_SS.txt";
   private HashMap faultTraceMapping; // fault section and their correpsonding traces
-  private final static double LAT_CUTOFF = 36.0; // any fault section have a location above this CUTOFF is neglected
+  private final static double LAT_CUTOFF = 34.0; // any fault section have a location above this CUTOFF is neglected
 
   // load the fault sections from files
   public FaultSections() {

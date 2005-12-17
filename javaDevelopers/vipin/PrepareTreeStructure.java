@@ -23,19 +23,19 @@ import java.text.DecimalFormat;
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
   // rupture length ranges from min to max in increments of RUP_OFFSET
-  private final static double MIN_RUP_LENGTH = 50;
-  private final static double MAX_RUP_LENGTH = 50;
-  private final static double RUP_OFFSET=5;
+  //private final static double MIN_RUP_LENGTH = 50;
+  //private final static double MAX_RUP_LENGTH = 50;
+  //private final static double RUP_OFFSET=5;
   private final static int DISCRETIZATION=5; // fault section discretization
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
   public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
-  public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_50km.txt";
+  public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_Allkm.txt";
   private HashMap faultTree ;
   private ArrayList rupList;
   private ArrayList faultSectionPrintOrder;
-  private double rupLength;
+  //private double rupLength;
   private int rupCounter =0;
 
   public PrepareTreeStructure() {
@@ -210,8 +210,8 @@ private ArrayList sortFaultSectionsByLocation() {
     addSecondaryLinks(faultSectionName, new ArrayList());
     // find the ruptures for various rupture lengths
     //int startIndex = this.rupList.size();
-    for(rupLength=MIN_RUP_LENGTH; rupLength<=MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
-      getRuptures(faultSectionName);
+    //for(rupLength=MIN_RUP_LENGTH; rupLength<=MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
+    getRuptures(faultSectionName);
     removeSecondaryLinks();
   }
 
@@ -327,14 +327,14 @@ private ArrayList sortFaultSectionsByLocation() {
       Location loc1 = node.getLoc();
       Location loc2;
       // find next node (location) based on rup offset
-      while(node !=null && offsetDist<=this.RUP_OFFSET) {
+      //while(node !=null && offsetDist<=this.RUP_OFFSET) {
         node = node.getPrimaryLink();
-        if(node!=null) {
+        /*if(node!=null) {
           loc2 = node.getLoc();
           offsetDist = Double.parseDouble(decimalFormat.format(offsetDist + RelativeLocation.getApproxHorzDistance(loc1, loc2)));
           loc1 = loc2;
         }
-      }
+      }*/
     }
   }
 
@@ -389,19 +389,19 @@ private ArrayList sortFaultSectionsByLocation() {
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, double rupLen) {
 
-    if(rupLen>=this.rupLength)  { // if rup length is found
+    //if(rupLen>=this.rupLength)  { // if rup length is found
       // check if rupture already exists in the list
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
       for(int i=0; i<nodesList.size(); ++i)
         this.addToFaultSectionPrintOrder(((Node)nodesList.get(i)).getFaultSectionName());
       // if rupture does not exist already, then add it
       if(!rupList.contains(multiSectionRup)) rupList.add(multiSectionRup);
-     /* nodesList = new ArrayList();
-      nodesList.add(node);
+        /* nodesList = new ArrayList();
+        nodesList.add(node);
       rupLen=0.0;
       traverse(node, nodesList, 0.0);
       nodesList.remove(node);*/
-    } else { // if more locations are required to complete the rup Length
+    //} else { // if more locations are required to complete the rup Length
 
       // first select the primary link
       Node nextNode;
@@ -426,7 +426,7 @@ private ArrayList sortFaultSectionsByLocation() {
         nodesList.remove(nextNode);
       }
 
-    }
+   // }
   }
 
   private void addToFaultSectionPrintOrder(String sectionName) {
