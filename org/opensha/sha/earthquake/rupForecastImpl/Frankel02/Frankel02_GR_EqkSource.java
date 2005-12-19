@@ -221,4 +221,19 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
     }
 
   }
+
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+  public LocationList getAllSourceLocs() {
+    LocationList locList = new LocationList();
+    Iterator it = this.surface.getAllByRowsIterator();
+    while(it.hasNext()) locList.addLocation((Location)it.next());
+    return locList;
+  }
+
 }

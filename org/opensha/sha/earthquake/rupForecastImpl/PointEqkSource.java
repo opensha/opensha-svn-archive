@@ -44,7 +44,7 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
   private double minMag = Double.NaN;
 
   // to hold the non-zero mags and rates
-  ArrayList mags, rates;
+  private ArrayList mags, rates;
 
 
   /**
@@ -114,6 +114,20 @@ public class PointEqkSource extends ProbEqkSource implements java.io.Serializabl
     probEqkRupture.setAveRake(aveRake);
     probEqkRupture.setProbability(probability);
   }
+
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+ public LocationList getAllSourceLocs() {
+   LocationList locList = new LocationList();
+   locList.addLocation(this.location);
+   return locList;
+ }
+
 
 
   /**

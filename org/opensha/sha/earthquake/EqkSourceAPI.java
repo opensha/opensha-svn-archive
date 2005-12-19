@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 import org.opensha.data.NamedObjectAPI;
+import org.opensha.data.LocationList;
 
 /**
  * <p>Title: EqkSourceAPI</p>
@@ -63,7 +64,13 @@ public interface EqkSourceAPI extends NamedObjectAPI{
    */
   public ArrayList getRuptureList();
 
-
-
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+   public LocationList getAllSourceLocs();
 
 }

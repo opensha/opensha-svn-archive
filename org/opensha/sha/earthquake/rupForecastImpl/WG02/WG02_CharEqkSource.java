@@ -124,6 +124,18 @@ public class WG02_CharEqkSource extends ProbEqkSource {
 
   }
 
+  /**
+  * It returns a list of all the locations which make up the surface for this
+  * source.
+  *
+  * @return LocationList - List of all the locations which constitute the surface
+  * of this source
+  */
+  public LocationList getAllSourceLocs() {
+    return this.rupSurface.getLocationList();
+  }
+
+
 
  /**
   * @return the total num of rutures for the mag which is 1 for the char type fault

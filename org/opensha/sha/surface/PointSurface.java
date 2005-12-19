@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.opensha.util.FaultUtils;
 import org.opensha.data.Location;
 import org.opensha.exceptions.InvalidRangeException;
+import org.opensha.data.LocationList;
 
 /**
  * <b>Title:</b> PointSurface<p>
@@ -190,6 +191,18 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
         v.add( ( Location ) this );
         return v.listIterator();
     }
+
+    /**
+     * Put all the locations of this surface into a location list
+     *
+     * @return
+     */
+    public LocationList getLocationList() {
+      LocationList locList = new LocationList();
+      locList.addLocation(this);
+      return locList;
+    }
+
 
 
      /** return getLocationsIterator() */

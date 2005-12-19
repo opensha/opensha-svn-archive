@@ -29,7 +29,8 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
    */
   private static final String C = new String("Frankel96_CharEqkSource");
 
-  boolean D = false;
+  private boolean D = false;
+  private EvenlyGriddedSurface surface;
 
 
   /**
@@ -47,6 +48,7 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
                                 String faultName) {
 
       this.rate = rate;
+      this.surface = surface;
       probEqkRupture = new ProbEqkRupture();
       this.rate  = rate;
       probEqkRupture.setAveRake(rake);
@@ -54,6 +56,18 @@ public class Frankel96_CharEqkSource extends ProbEqkSource {
       probEqkRupture.setRuptureSurface(surface);
       this.name = faultName+" Char";
   }
+
+  /**
+  * It returns a list of all the locations which make up the surface for this
+  * source.
+  *
+  * @return LocationList - List of all the locations which constitute the surface
+  * of this source
+  */
+  public LocationList getAllSourceLocs() {
+    return this.surface.getLocationList();
+  }
+
 
 
 

@@ -65,6 +65,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
   private ArrayList ruptureList;
   private ArrayList faultCornerLocations = new ArrayList();   // used for the getMinDistance(Site) method
   private double timeSpan;
+  private EvenlyGriddedSurface faultSurface;
 
   /* Note that none of the input objects are saved after the ruptureList is created
      by the constructor.  This is deliberate to save memory.  A setName() method was
@@ -94,6 +95,7 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
                                   double minMag) {
 
       this.timeSpan = timeSpan;
+      this.faultSurface = faultSurface;
 
       if (D) {
         System.out.println(magDist.getName());
@@ -235,6 +237,16 @@ public class FloatingPoissonFaultSource extends ProbEqkSource {
     }
   }
 
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+   public LocationList getAllSourceLocs() {
+     return this.faultSurface.getLocationList();
+   }
 
   /**
    * @return the total num of rutures for all magnitudes

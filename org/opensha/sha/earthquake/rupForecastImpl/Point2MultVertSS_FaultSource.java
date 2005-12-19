@@ -37,10 +37,10 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
   private boolean D = false;
 
   double rupLength, upperSeisDepth, lowerSeisDepth;
-  Location loc;
-  ArrayList faultTraces = new ArrayList();
-  ProbEqkRupture probEqkRupture;
-  FrankelGriddedFaultFactory frankelFaultFactory  = new FrankelGriddedFaultFactory();;
+  private Location loc;
+  private ArrayList faultTraces = new ArrayList();
+  private ProbEqkRupture probEqkRupture;
+  private FrankelGriddedFaultFactory frankelFaultFactory  = new FrankelGriddedFaultFactory();;
 
   /**
    * The Constructor
@@ -141,6 +141,18 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
     probEqkRupture.setRuptureSurface(frankelFaultFactory.getGriddedSurface());
     return probEqkRupture;
   }
+
+  /**
+  * It returns a list of all the locations which make up the surface for this
+  * source.
+  *
+  * @return LocationList - List of all the locations which constitute the surface
+  * of this source
+  */
+  public LocationList getAllSourceLocs() {
+    return null;
+  }
+
 
 
      /**

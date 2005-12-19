@@ -185,6 +185,20 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
         return this.listIterator();
     }
 
+    /**
+     * Put all the locations of this surface into a location list
+     *
+     * @return
+     */
+    public LocationList getLocationList() {
+      LocationList locList = new LocationList();
+      Iterator it = this.getLocationsIterator();
+      locList.addLocation((Location)it.next());
+      return locList;
+    }
+
+
+
 
     /** Proxy method that returns the number of rows in the main GriddedSurface. */
     public int getMainNumRows() {

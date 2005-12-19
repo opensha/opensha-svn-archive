@@ -54,8 +54,8 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   private double duration;
   private MagLengthRelationship magLengthRelationship;
   private double magCutOff;
-  PointSurface ptSurface;
-  GriddedSurfaceAPI finiteFault;
+  private PointSurface ptSurface;
+  private GriddedSurfaceAPI finiteFault;
 
   // to hold the non-zero mags, rates, and rupture surfaces
 //  ArrayList mags, rates, rupSurfaces;
@@ -175,6 +175,19 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       finiteFault = frankelFaultFactory.getGriddedSurface();
     }
   }
+
+  /**
+  * It returns a list of all the locations which make up the surface for this
+  * source.
+  *
+  * @return LocationList - List of all the locations which constitute the surface
+  * of this source
+  */
+  public LocationList getAllSourceLocs() {
+    if(this.finiteFault!=null) return finiteFault.getLocationList();
+    else return ptSurface.getLocationList();
+  }
+
 
 
 

@@ -54,10 +54,10 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
   private double duration;
   private MagLengthRelationship magLengthRelationship;
   private double magCutOff;
-  PointSurface ptSurface;
+  private PointSurface ptSurface;
 
   // to hold the non-zero mags, rates, and rupture surfaces
-  ArrayList mags, rates, rupSurfaces;
+  private ArrayList mags, rates, rupSurfaces;
 
  /**
    * The Full Constructor
@@ -193,6 +193,16 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
     }
   }
 
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+  public LocationList getAllSourceLocs() {
+    throw new UnsupportedOperationException("getAllSourceLocs() is not supported by OLD_Point2Vert_SS_FaultPoisSource");
+  }
 
 
   /**

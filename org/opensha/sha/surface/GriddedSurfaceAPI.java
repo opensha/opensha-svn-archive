@@ -78,6 +78,13 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
     /** Does same thing as listIterator() in super Interface */
     public ListIterator getLocationsIterator();
 
+    /**
+     * Put all the locations of this surface into a location list
+     *
+     * @return
+     */
+    public LocationList getLocationList();
+
     /** Common debug string that most Java classes implement */
     public String toString();
 

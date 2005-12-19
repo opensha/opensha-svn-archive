@@ -100,6 +100,18 @@ public class Frankel96_GR_EqkSource extends ProbEqkSource {
    */
   public int getNumRuptures() { return totNumRups; }
 
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+   public LocationList getAllSourceLocs() {
+     return this.surface.getLocationList();
+   }
+
+
 
   /**
    * This method sets the probability of the different rupture surface for different mag

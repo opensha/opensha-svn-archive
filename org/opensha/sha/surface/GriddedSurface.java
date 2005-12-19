@@ -170,6 +170,19 @@ public class GriddedSurface
     /** Does same thing as listIterator() in super Interface */
     public ListIterator getLocationsIterator() { return super.listIterator(); }
 
+    /**
+     * Put all the locations of this surface into a location list
+     *
+     * @return
+     */
+    public LocationList getLocationList() {
+      LocationList locList = new LocationList();
+      Iterator it = this.getLocationsIterator();
+      locList.addLocation((Location)it.next());
+      return locList;
+    }
+
+
 
     /** FIX *** Needs to be implemented */
     public double computeAveStrike() { return Double.NaN; }

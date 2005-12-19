@@ -41,7 +41,7 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
   private double minMag = 0.0;
 
   // to hold the non-zero mags and rates
-  ArrayList mags, rates;
+  private ArrayList mags, rates;
 
 
   /**
@@ -84,6 +84,18 @@ public class GriddedRegionPoissonEqkSource extends ProbEqkSource implements java
     this( region,  magFreqDist, duration, aveRake,  aveDip, 0.0);
 
   }
+
+  /**
+   * It returns a list of all the locations which make up the surface for this
+   * source.
+   *
+   * @return LocationList - List of all the locations which constitute the surface
+   * of this source
+   */
+   public LocationList getAllSourceLocs() {
+     return this.region.getGridLocationsList();
+   }
+
 
 
   /**

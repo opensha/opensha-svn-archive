@@ -95,6 +95,21 @@ public class FaultRuptureSource extends ProbEqkSource {
     return ( (ProbEqkRupture) ruptureList.get(0)).getRuptureSurface();
   }
 
+  /**
+  * It returns a list of all the locations which make up the surface for this
+  * source.
+  *
+  * @return LocationList - List of all the locations which constitute the surface
+  * of this source
+  */
+ public LocationList getAllSourceLocs() {
+   LocationList locList = new LocationList();
+   Iterator it = ((EvenlyGriddedSurface)getSourceSurface()).getAllByRowsIterator();
+   while(it.hasNext()) locList.addLocation((Location)it.next());
+   return locList;
+ }
+
+
 
   /**
    * Constructor - this produces a separate rupture for each mag in the mag-freq-dist.
