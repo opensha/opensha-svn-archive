@@ -52,7 +52,8 @@ public class FaultSections {
       String line = ((String)fileLines.get(i)).trim();
       if(line.equalsIgnoreCase("")) continue;
       if(line.startsWith("#")) { // if it is new fault name
-        if(faultName!=null && lowerThanCutoff) faultMap.put(faultName, sort(locList));
+        //if(faultName!=null && lowerThanCutoff) faultMap.put(faultName, sort(locList));
+        if(faultName!=null && lowerThanCutoff) faultMap.put(faultName, locList);
         faultName = line.substring(1);
         locList = new LocationList();
         lowerThanCutoff = true;
@@ -68,7 +69,8 @@ public class FaultSections {
     }
     if(lowerThanCutoff)
       // put the last section into the list
-      faultMap.put(faultName, sort(locList));
+      //faultMap.put(faultName, sort(locList));
+      faultMap.put(faultName, locList);
 
   }
 
@@ -78,7 +80,7 @@ public class FaultSections {
    *
    * @param locList
    */
-  private LocationList sort(LocationList locList) {
+  /*private LocationList sort(LocationList locList) {
     int numLocs = locList.size();
     if(numLocs>1) {
       double lat1 = locList.getLocationAt(0).getLatitude();
@@ -86,7 +88,7 @@ public class FaultSections {
       if(lat2<lat1) locList.reverse();
     }
     return locList;
-  }
+  }*/
 
   /**
    * Get all the fault sections

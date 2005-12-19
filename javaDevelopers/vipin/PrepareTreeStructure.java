@@ -231,10 +231,12 @@ private ArrayList sortFaultSectionsByLocation() {
           ArrayList nodesList = multiSectionRup.getNodesList();
         //  String firstLocationSectionName = ((Node) nodesList.get(0)).getFaultSectionName();
          // if(firstLocationSectionName.equalsIgnoreCase(sectionName)) {
-            fw.write("#Rupture " + rupCount + " "+/*firstLocationSectionName+*/"\n");
+            fw.write("#Rupture " + rupCount + " "+multiSectionRup.getLength()+"\n");
             ++rupCount;
-            for (int k = 0; k < nodesList.size(); ++k)
-              fw.write("\t" + ((Node) nodesList.get(k)).getLoc()+"\n");
+            for (int k = 0; k < nodesList.size(); ++k) {
+              Node node = (Node) nodesList.get(k);
+              fw.write("\t" + node.getLoc() + ","+node.getFaultSectionName()+","+node.getId()+"\n");
+            }
           //}
         }
       //}
@@ -294,12 +296,31 @@ private ArrayList sortFaultSectionsByLocation() {
       node = node.getPrimaryLink();
     }*/
     traverseStartingFromRoot(rootNode);
+    // reverse the links for all other fault sections and traverse again
+    //reversePrimaryLinksForSectionsExcept(faultSectionName);
+    //traverseStartingFromRoot(rootNode);
+    // reverse the links for all other fault sections
+    //reversePrimaryLinksForSectionsExcept(faultSectionName);
     // traverse the fault section from the opposite side(so reverse the links)
     /*Node newRootNode = reversePrimaryLinks((Node) faultTree.get(faultSectionName));
     traverseStartingFromRoot(newRootNode);
     // reverse the links back to original
     reversePrimaryLinks(newRootNode);*/
   }
+
+  private void reversePrimaryLinksForSectionsExcept(String faultSectionName) {
+    // reverse the links for all other fault sections and traverse again
+    Iterator it = faultTree.keySet().iterator();
+    while(it.hasNext()) {
+      String sectionName = (String) it.next();
+      // do not reverse links for the current section
+      if(sectionName.equalsIgnoreCase(faultSectionName)) continue;
+      Node rNode  = (Node)faultTree.get(sectionName);
+      Node newRootNode = this.reversePrimaryLinks(rNode);
+      faultTree.put(sectionName, newRootNode);
+    }
+  }
+
 
   /**
    * Reverse the locations ordering for a fault section
@@ -363,21 +384,24 @@ private ArrayList sortFaultSectionsByLocation() {
     if(secondaryLinksDoneSections.contains(faultSectionName)) return;
     secondaryLinksDoneSections.add(faultSectionName);
     Node node = (Node) faultTree.get(faultSectionName);
+    Node prevNode = null;
     // first find the nearby sections
     while (node != null) { // loop over all locations on this fault section
+      if(prevNode!=null) node.addSecondayLink(prevNode);
      /* get a list of section names and their distance near this location.
      Only include sections which are within FAULT_JUMP_CUTOFF_DIST of the location*/
       HashMap sectionNameAndDist = getAdjacentFaultSectionNode(node);
       // If same section is near to more than 1 node, then find the nearest node
       compareSectionsWithPreviousNodes(sectionNearestNodeMap, sectionNameAndDist);
       // next location on this fault section
+      prevNode = node;
       node = node.getPrimaryLink();
     }
     // add links to nearby section
     Iterator sectionNearestNodeMapIt= sectionNearestNodeMap.keySet().iterator();
     while(sectionNearestNodeMapIt.hasNext()) {
       String sectionName = (String)sectionNearestNodeMapIt.next();
-      if(secondaryLinksDoneSections.contains(sectionName)) return;
+      if(secondaryLinksDoneSections.contains(sectionName)) continue;
       addSecondaryLinks(sectionName, secondaryLinksDoneSections);
       //addToFaultSectionPrintOrder(sectionName);
       //System.out.println("\t"+sectionName);
@@ -388,10 +412,10 @@ private ArrayList sortFaultSectionsByLocation() {
 
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, double rupLen) {
-
     //if(rupLen>=this.rupLength)  { // if rup length is found
       // check if rupture already exists in the list
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
+      multiSectionRup.setLength(rupLen);
       for(int i=0; i<nodesList.size(); ++i)
         this.addToFaultSectionPrintOrder(((Node)nodesList.get(i)).getFaultSectionName());
       // if rupture does not exist already, then add it
@@ -408,7 +432,7 @@ private ArrayList sortFaultSectionsByLocation() {
 
       // first select the primary link
       nextNode = node.getPrimaryLink();
-      if(nextNode!=null) {
+      if(nextNode!=null && !nodesList.contains(nextNode)) {
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
         traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
@@ -420,9 +444,10 @@ private ArrayList sortFaultSectionsByLocation() {
       ArrayList secondaryLinks = node.getSecondaryLinks();
       for(int i=0; secondaryLinks!=null && i<secondaryLinks.size(); ++i) {
         nextNode = (Node)secondaryLinks.get(i);
+        if(nodesList.contains(nextNode)) continue;
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
+        traverse(nextNode, nodesList, rupLen);
         nodesList.remove(nextNode);
       }
 

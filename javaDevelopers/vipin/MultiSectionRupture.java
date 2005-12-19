@@ -13,13 +13,50 @@ import java.util.ArrayList;
 
 public class MultiSectionRupture {
   private ArrayList nodeList;
+  private double length;
+
 
   public MultiSectionRupture(ArrayList nodesList) {
     this.nodeList = nodesList;
   }
 
+  /**
+   * Get the nodes which make up this rupture
+   * @return
+   */
   public ArrayList getNodesList() {
     return this.nodeList;
+  }
+
+  /**
+   * Set the length of the rupture
+   * @param len
+   */
+  public void setLength(double len) {
+    this.length = len;
+  }
+
+  /**
+   * Get the length of this rupture
+   * @return
+   */
+  public double getLength() {
+    return this.length;
+  }
+
+  /**
+   * Finds whether a section is contained within this rupture
+   *
+   * @param sectionName
+   * @return
+   */
+  public boolean isSectionContained(String sectionName) {
+    if(this.nodeList==null) return false;
+    for(int i=0; i<nodeList.size(); ++i) {
+      Node node = (Node)nodeList.get(i);
+      if(node.getFaultSectionName().equalsIgnoreCase(sectionName)) return true;
+    }
+    return false;
   }
 
   /**
@@ -46,6 +83,5 @@ public class MultiSectionRupture {
     }
     return true;
   }
-
 
 }
