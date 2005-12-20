@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  * <p>Title: FaultSections.java </p>
- * <p>Description: </p>
+ * <p>Description: It loads the fault sections from text files.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable

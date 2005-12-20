@@ -21,6 +21,8 @@ import org.opensha.exceptions.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -32,11 +34,9 @@ import java.util.ArrayList;
  * @version 1.0
  */
 
-public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runnable {
+public class RuptureAnimationGUI extends JFrame implements  ActionListener, ChangeListener, Runnable {
   private JPanel displayPanel = new JPanel();
-  private JButton showRupsButton = new JButton();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private JButton playButton = new JButton();
   private final static String FAULT_SECTION_FILE_NAME = PrepareTreeStructure.FAULT_SECTIONS_OUT_FILENAME;
   private final static String X_AXIS_LABEL = "Longitude (deg.)";
   private final static String Y_AXIS_LABEL = "Latitude (deg.)";
@@ -51,6 +51,24 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
   private  int faultSectionCounter=0;
   private ArrayList rupList; // list of all ruptures from the file
   private ChartPanel chartPanel;
+  private JSplitPane controlSplitPane = new JSplitPane();
+  private JSplitPane filterSplitPane = new JSplitPane();
+  private JPanel filterParamsPanel = new JPanel();
+  private JPanel buttonPanel = new JPanel();
+  private JButton stopButton = new JButton();
+  private JSlider ruptureSlider = new JSlider();
+  private JButton prevButton = new JButton();
+  private JButton nextButton = new JButton();
+  private GridBagLayout gridBagLayout1 = new GridBagLayout();
+  private GridBagLayout gridBagLayout2 = new GridBagLayout();
+  private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private GridBagLayout gridBagLayout4 = new GridBagLayout();
+  private final static int WIDTH  = 900;
+  private final static int HEIGHT  = 800;
+  private int rupIndex=0;
+  private final static String PLAY = "Play";
+  private final static String PAUSE = "Pause";
+  private boolean playStatus;
 
   //static initializer for setting look & feel
   static {
@@ -67,14 +85,29 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
       jbInit();
       loadFaultSections(); // load the fault sections
       addGraphPanel(); // show the fault sections using JFreechart
-      this.showRupsButton.addActionListener(this);
       rupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.RUP_OUT_FILENAME);
-      pack();
+      setRuptureSliderLimits();
+      this.setSize(WIDTH, HEIGHT);
+      setTitle(TITLE);
+      controlSplitPane.setDividerLocation(660);
+      filterSplitPane.setDividerLocation(700);
+      this.setLocationRelativeTo(null);
       show();
     }
     catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Set the limits of the rupture slider
+   */
+  private void setRuptureSliderLimits() {
+    int numRups = rupList.size();
+    ruptureSlider.setMinimum(0);
+    ruptureSlider.setMaximum(rupList.size()-1);
+    ruptureSlider.setMajorTickSpacing(numRups/10);
+    ruptureSlider.setValue(0);
   }
 
 
@@ -84,7 +117,36 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
    */
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
-    if(source == this.showRupsButton) showRuptures();
+    if(source == this.playButton)  {
+      // if play button is clicked
+      if(playButton.getText().equalsIgnoreCase(PLAY)) {
+        playButton.setText(PAUSE);
+        playStatus = true;
+        showRuptures();
+      }
+      // if pause button is clicked
+      else if(playButton.getText().equalsIgnoreCase(PAUSE)) {
+        playButton.setText(PLAY);
+        playStatus = false;
+      }
+    }
+    else if(source==this.prevButton) --rupIndex; // show previous rupture
+    else if(source==this.nextButton) ++rupIndex; // show next rupture
+    else if(source==this.stopButton) {
+      playStatus = false;
+      rupIndex=0;
+      playButton.setText(PLAY);
+    }
+    this.ruptureSlider.setValue(rupIndex);
+
+  }
+
+  /**
+   * Whenuser clicks on JSlider, update the rupture index to display
+   * @param event
+   */
+  public void stateChanged(ChangeEvent event) {
+    this.rupIndex = this.ruptureSlider.getValue();
   }
 
   /**
@@ -99,9 +161,9 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
    * Thread runs this to create a animation  for ruptures
    */
   public void run() {
-    for(int rupCount=0; rupCount<this.rupList.size(); ++rupCount) {
+    for( ; rupIndex<this.rupList.size() && playStatus; ++rupIndex) {
       // get the next rupture from the list
-      MultiSectionRupture rupture = (MultiSectionRupture) rupList.get(rupCount);
+      MultiSectionRupture rupture = (MultiSectionRupture) rupList.get(rupIndex);
       // put all the locations of this rupture into location list
       ArrayList nodesList = rupture.getNodesList();
       LocationList locList = new LocationList();
@@ -110,6 +172,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
         // add the location list to be plotted in JFreeChart
       addLocationListToPlot(locList, faultSectionCounter);
       addRendererForRupture(faultSectionCounter); // add renderer to ruptures
+      ruptureSlider.setValue(rupIndex);
       this.addGraphPanel();
       try {
         Thread.sleep(TIME_DELAY);
@@ -228,12 +291,42 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
    * @throws java.lang.Exception
    */
   private void jbInit() throws Exception {
-    this.getContentPane().setLayout(gridBagLayout2);
-    displayPanel.setLayout(gridBagLayout1);
-    showRupsButton.setText("Show Ruptures");
-    this.getContentPane().add(displayPanel,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 3, 0, 3), 453, 308));
-    this.getContentPane().add(showRupsButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 183, 3, 150), 15, 6));
+    this.getContentPane().setLayout(gridBagLayout3);
+    displayPanel.setLayout(gridBagLayout4);
+    playButton.setText(PLAY);
+    controlSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    controlSplitPane.setLastDividerLocation(375);
+    filterParamsPanel.setLayout(gridBagLayout2);
+    buttonPanel.setLayout(gridBagLayout1);
+    stopButton.setText("Stop");
+    prevButton.setText("Prev");
+    nextButton.setText("Next");
+    this.getContentPane().add(controlSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 7, 3, 4), 0, 374));
+    controlSplitPane.add(filterSplitPane, JSplitPane.TOP);
+    filterSplitPane.add(displayPanel, JSplitPane.LEFT);
+    filterSplitPane.add(filterParamsPanel, JSplitPane.RIGHT);
+    controlSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+    buttonPanel.add(ruptureSlider,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 7, 0, 13), 334, 1));
+    buttonPanel.add(prevButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 19, 10, 0), 10, 8));
+    buttonPanel.add(stopButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 10, 0), 10, 8));
+    buttonPanel.add(playButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 104, 10, 0), 12, 8));
+    buttonPanel.add(nextButton,  new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 131, 10, 27), 10, 8));
+    ruptureSlider.setPaintTicks(true);
+    ruptureSlider.setFocusable(false);
+    ruptureSlider.setPaintLabels(true);
+    ruptureSlider.setPaintTrack(true);
+    // add action listeners
+    ruptureSlider.addChangeListener(this);
+    stopButton.addActionListener(this);
+    prevButton.addActionListener(this);
+    nextButton.addActionListener(this);
+    this.playButton.addActionListener(this);
+
   }
 }
