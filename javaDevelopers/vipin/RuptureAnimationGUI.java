@@ -43,6 +43,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
   private final static String TITLE = "Fault Sections & Ruptures";
   // light blue color
   private final static Color lightBlue = new Color( 200, 200, 230 );
+  private final static Color buttonColor = new Color( 80, 80, 133 );
   private NumberAxis yAxis = new NumberAxis( Y_AXIS_LABEL );
   private NumberAxis xAxis = new NumberAxis( X_AXIS_LABEL );
   private final static int TIME_DELAY = 200;
@@ -57,8 +58,6 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
   private JPanel buttonPanel = new JPanel();
   private JButton stopButton = new JButton();
   private JSlider ruptureSlider = new JSlider();
-  private JButton prevButton = new JButton();
-  private JButton nextButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
   private GridBagLayout gridBagLayout3 = new GridBagLayout();
@@ -69,6 +68,8 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
   private final static String PLAY = "Play";
   private final static String PAUSE = "Pause";
   private boolean playStatus;
+  private JLabel currentRupLabel= new JLabel("Rupture Index:");
+  private JLabel rupValLabel = new JLabel();
 
   //static initializer for setting look & feel
   static {
@@ -92,6 +93,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
       controlSplitPane.setDividerLocation(660);
       filterSplitPane.setDividerLocation(700);
       this.setLocationRelativeTo(null);
+      this.setDefaultCloseOperation(EXIT_ON_CLOSE);
       show();
     }
     catch(Exception e) {
@@ -130,8 +132,6 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
         playStatus = false;
       }
     }
-    else if(source==this.prevButton) --rupIndex; // show previous rupture
-    else if(source==this.nextButton) ++rupIndex; // show next rupture
     else if(source==this.stopButton) {
       playStatus = false;
       rupIndex=0;
@@ -147,6 +147,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
    */
   public void stateChanged(ChangeEvent event) {
     this.rupIndex = this.ruptureSlider.getValue();
+    rupValLabel.setText(rupIndex+" of "+(this.rupList.size()-1));
   }
 
   /**
@@ -299,24 +300,32 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
     filterParamsPanel.setLayout(gridBagLayout2);
     buttonPanel.setLayout(gridBagLayout1);
     stopButton.setText("Stop");
-    prevButton.setText("Prev");
-    nextButton.setText("Next");
+    // set the colors
+    this.playButton.setForeground(buttonColor);
+    this.stopButton.setForeground(buttonColor);
+    this.ruptureSlider.setForeground(buttonColor);
+    this.currentRupLabel.setForeground(buttonColor);
+    this.rupValLabel.setForeground(buttonColor);
+
     this.getContentPane().add(controlSplitPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 7, 3, 4), 0, 374));
     controlSplitPane.add(filterSplitPane, JSplitPane.TOP);
     filterSplitPane.add(displayPanel, JSplitPane.LEFT);
     filterSplitPane.add(filterParamsPanel, JSplitPane.RIGHT);
     controlSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(ruptureSlider,  new GridBagConstraints(0, 0, 4, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 7, 0, 13), 334, 1));
-    buttonPanel.add(prevButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 19, 10, 0), 10, 8));
-    buttonPanel.add(stopButton,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 10, 0), 10, 8));
-    buttonPanel.add(playButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 104, 10, 0), 12, 8));
-    buttonPanel.add(nextButton,  new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 131, 10, 27), 10, 8));
+    buttonPanel.add(ruptureSlider,  new GridBagConstraints(0, 0, 5, 1, 1.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 7, 0, 13), 334, 1));
+
+    buttonPanel.add(playButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 104, 10, 0), 12, 8));
+    buttonPanel.add(stopButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 10, 0), 10, 8));
+
+    buttonPanel.add(this.currentRupLabel,  new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 15, 10, 0), 0, 8));
+    buttonPanel.add(this.rupValLabel,  new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 2, 10, 0), 10, 8));
+    // set the properties for rupture slider
     ruptureSlider.setPaintTicks(true);
     ruptureSlider.setFocusable(false);
     ruptureSlider.setPaintLabels(true);
@@ -324,9 +333,8 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
     // add action listeners
     ruptureSlider.addChangeListener(this);
     stopButton.addActionListener(this);
-    prevButton.addActionListener(this);
-    nextButton.addActionListener(this);
     this.playButton.addActionListener(this);
+
 
   }
 }
