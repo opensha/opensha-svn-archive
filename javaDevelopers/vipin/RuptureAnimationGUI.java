@@ -20,6 +20,7 @@ import org.opensha.data.LocationList;
 import org.opensha.exceptions.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -48,9 +49,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
    // build the plot
   private  XYPlot plot = new XYPlot(null, xAxis, yAxis, new StandardXYItemRenderer());
   private  int faultSectionCounter=0;
-  private  int rupCount=0;
-  private FileReader frRups;
-  private BufferedReader brRups;
+  private ArrayList rupList; // list of all ruptures from the file
   private ChartPanel chartPanel;
 
   //static initializer for setting look & feel
@@ -69,9 +68,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
       loadFaultSections(); // load the fault sections
       addGraphPanel(); // show the fault sections using JFreechart
       this.showRupsButton.addActionListener(this);
-      frRups = new FileReader(PrepareTreeStructure.RUP_OUT_FILENAME);
-      brRups = new BufferedReader(frRups); // buffered reader
-      brRups.readLine(); // skip first line as it just contains number of ruptures
+      rupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.RUP_OUT_FILENAME);
       pack();
       show();
     }
@@ -102,38 +99,31 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Runn
    * Thread runs this to create a animation  for ruptures
    */
   public void run() {
-    try {
-      LocationList locList=null;
-      String line = brRups.readLine().trim();
-      double lat, lon;
-      while(line!=null) {
-        line=line.trim();
-        if(!line.equalsIgnoreCase("")) { // if line is not a blank line
-          if(line.startsWith("#"))  { // this is new rupture name
-            if(rupCount>0)  {
-              System.out.println("Rupture#"+rupCount+","+locList.toString());
-              addLocationListToPlot(locList, faultSectionCounter);
-              addRendererForRupture(faultSectionCounter); // add renderer to ruptures
-              this.addGraphPanel();
-              Thread.sleep(TIME_DELAY);
-            }
-            locList = new LocationList();
-            rupCount++;
-          } else { // location on a rupture
-            StringTokenizer tokenizer = new StringTokenizer(line,",");
-            lat = Double.parseDouble(tokenizer.nextToken());
-            lon = Double.parseDouble(tokenizer.nextToken());
-            locList.addLocation(new Location(lat,lon,0.0));
-          }
-        }
-        line=brRups.readLine();
+    for(int rupCount=0; rupCount<this.rupList.size(); ++rupCount) {
+      // get the next rupture from the list
+      MultiSectionRupture rupture = (MultiSectionRupture) rupList.get(rupCount);
+      // put all the locations of this rupture into location list
+      ArrayList nodesList = rupture.getNodesList();
+      LocationList locList = new LocationList();
+      for (int i = 0; i < nodesList.size(); ++i)
+        locList.addLocation( ( (Node) nodesList.get(i)).getLoc());
+        // add the location list to be plotted in JFreeChart
+      addLocationListToPlot(locList, faultSectionCounter);
+      addRendererForRupture(faultSectionCounter); // add renderer to ruptures
+      this.addGraphPanel();
+      try {
+        Thread.sleep(TIME_DELAY);
       }
-    }catch(Exception e) {
-      e.printStackTrace();
+      catch (InterruptedException ex) {
+        ex.printStackTrace();
+      }
     }
   }
 
-
+  /**
+   * Set the black rendered color to draw a rupture
+   * @param index
+   */
    private void addRendererForRupture(int index) {
     StandardXYItemRenderer xyItemRenderer = new StandardXYItemRenderer();
     xyItemRenderer.setPaint(Color.black);

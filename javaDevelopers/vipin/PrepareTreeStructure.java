@@ -22,15 +22,11 @@ import java.text.DecimalFormat;
 
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
-  // rupture length ranges from min to max in increments of RUP_OFFSET
-  //private final static double MIN_RUP_LENGTH = 50;
-  //private final static double MAX_RUP_LENGTH = 50;
-  //private final static double RUP_OFFSET=5;
   private final static int DISCRETIZATION=5; // fault section discretization
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
-  public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSectionsConnect.txt";
+  public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSections.txt";
   public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_Allkm.txt";
   private HashMap faultTree ;
   private ArrayList rupList;
@@ -84,89 +80,54 @@ public class PrepareTreeStructure {
 
   }
 
+
+
   /**
-   * Sort the fault sections by lat of first location of the fault trace
+   * It finds the fault section closest to LOCATION. It is put first into the list
+   * Then it finds fault section nearest to previous found section and it goes on
+   *
    * @return
    */
-/* private ArrayList sortFaultSectionsByLocation() {
-   ArrayList sortedSectionNames = new ArrayList();
-   ArrayList sortedLats = new ArrayList();
-   Iterator it = faultTree.keySet().iterator();
-   // save the section names and lat of first location into arraylists
-   while(it.hasNext()) {
-     String  faultSectionName = (String) it.next();
-     sortedSectionNames.add(faultSectionName);
-     Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
-     double distance = RelativeLocation.getApproxHorzDistance(loc, LOCATION);
-     sortedLats.add(new Double(distance));
-   }
-   // now sort the lat arrayList and change fault names simulataneously
-   for(int i=0; i<sortedLats.size(); ++i) {
-     double minLat = ((Double)sortedLats.get(i)).doubleValue();
-     int index = i;
-     for(int j=i+1; j<sortedLats.size();++j)  {
-       double lat = ((Double)sortedLats.get(j)).doubleValue();
-       if(lat<minLat) {
-         index = j;
-         minLat=lat;
-       }
-     }
-     // swap for sorting
-     Object obj = sortedLats.remove(index);
-     sortedLats.add(i, obj);
-     String faultName = (String)sortedSectionNames.remove(index);
-     sortedSectionNames.add(i, faultName);
-   }
-   return sortedSectionNames;
-
- }*/
-
-/**
- * It finds the fault section closest to LOCATION. It is put first into the list
- * Then it finds fault section nearest to previous found section and it goes on
- *
- * @return
- */
-private ArrayList sortFaultSectionsByLocation() {
-  ArrayList sortedSectionNames = new ArrayList();
-  Iterator it = faultTree.keySet().iterator();
-  // save the section names and lat of first location into arraylists
-  double minDist = Double.MAX_VALUE;
-  String firstSectionName = null;
-  // find the first section that we will process
-  while(it.hasNext()) {
-    String  faultSectionName = (String) it.next();
-    sortedSectionNames.add(faultSectionName);
-    Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
-    double distance = RelativeLocation.getApproxHorzDistance(loc, LOCATION);
-    if(distance<minDist) {
-      minDist = distance;
-      firstSectionName = faultSectionName;
-    }
-  }
-  // put the first section on first location in arraylist
-  sortedSectionNames.remove(firstSectionName);
-  sortedSectionNames.add(0, firstSectionName);
-  // now find the subsequent sections based on their distance from previously found section
-  for(int i=0; i<(sortedSectionNames.size()-1); ++i) {
-    String nextSectionName = null;
-    minDist = Double.MAX_VALUE;
-    Location loc = ((Node)faultTree.get((String)sortedSectionNames.get(i))).getLoc();
-    for(int j=i+1; j<sortedSectionNames.size(); ++j) {
-      Location loc1 = ((Node)faultTree.get((String)sortedSectionNames.get(j))).getLoc();
-      double distance = RelativeLocation.getApproxHorzDistance(loc, loc1);
+  private ArrayList sortFaultSectionsByLocation() {
+    ArrayList sortedSectionNames = new ArrayList();
+    Iterator it = faultTree.keySet().iterator();
+    // save the section names and lat of first location into arraylists
+    double minDist = Double.MAX_VALUE;
+    String firstSectionName = null;
+    // find the first section that we will process
+    while(it.hasNext()) {
+      String  faultSectionName = (String) it.next();
+      sortedSectionNames.add(faultSectionName);
+      Location loc = ((Node)faultTree.get(faultSectionName)).getLoc();
+      double distance = RelativeLocation.getApproxHorzDistance(loc, LOCATION);
       if(distance<minDist) {
         minDist = distance;
-        nextSectionName = (String)sortedSectionNames.get(j);
+        firstSectionName = faultSectionName;
       }
     }
-    sortedSectionNames.remove(nextSectionName);
-    sortedSectionNames.add(i+1, nextSectionName);
+    // put the first section on first location in arraylist
+    sortedSectionNames.remove(firstSectionName);
+    sortedSectionNames.add(0, firstSectionName);
+    // now find the subsequent sections based on their distance from previously found section
+    for(int i=0; i<(sortedSectionNames.size()-1); ++i) {
+      String nextSectionName = null;
+      minDist = Double.MAX_VALUE;
+      Location loc = ((Node)faultTree.get((String)sortedSectionNames.get(i))).getLoc();
+      for(int j=i+1; j<sortedSectionNames.size(); ++j) {
+        Location loc1 = ((Node)faultTree.get((String)sortedSectionNames.get(j))).getLoc();
+        double distance = RelativeLocation.getApproxHorzDistance(loc, loc1);
+        if(distance<minDist) {
+          minDist = distance;
+          nextSectionName = (String)sortedSectionNames.get(j);
+        }
+      }
+      sortedSectionNames.remove(nextSectionName);
+      sortedSectionNames.add(i+1, nextSectionName);
+    }
+
+    return sortedSectionNames;
+
   }
-
-  return sortedSectionNames;
-
-}
 
 
   private String findAllRuptures()  {
@@ -195,8 +156,6 @@ private ArrayList sortFaultSectionsByLocation() {
           j=0;
           processedFaultSections.add(faultSectionName);
         }
-        //int endIndex = this.rupList.size();
-        //sortRuptureList(startIndex, endIndex);
       }
     }catch(Exception e) {
       e.printStackTrace();
@@ -205,37 +164,15 @@ private ArrayList sortFaultSectionsByLocation() {
   }
 
   private void processFaultSection(String faultSectionName) {
-    //fw.write("#" + faultSectionName + "\n");
-    //fwRupFile.write("#" + faultSectionName + "\n");
+    // add the links to nearby fault sections
     addSecondaryLinks(faultSectionName, new ArrayList());
-    // find the ruptures for various rupture lengths
-    //int startIndex = this.rupList.size();
-    //for(rupLength=MIN_RUP_LENGTH; rupLength<=MAX_RUP_LENGTH; rupLength+=RUP_OFFSET)
+    // get all the ruptures
     getRuptures(faultSectionName);
+    // remove the secondary links
     removeSecondaryLinks();
   }
 
 
-
-  // write the ruptures to the file
-  /*private void writeRupsToFile(FileWriter fw, String faultSectionName) {
-    try {
-      for (int i = 0; i < this.rupList.size(); ) {
-        MultiSectionRupture multiSectionRup = (MultiSectionRupture)rupList.get(i);
-        ArrayList nodesList = multiSectionRup.getNodesList();
-        boolean found = false;
-        for (int j = 0; j < nodesList.size() && !found; ++j) {
-          Node node = (Node) nodesList.get(j);
-          if(node.getFaultSectionName().equalsIgnoreCase(faultSectionName))
-            found = true;
-          fw.write("\t" + ( (Node) nodesList.get(j)).getLoc() + "\n");
-          fw.write("#Rupture " + rupCounter + "\n");
-        }
-      }
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
-  }*/
 
   /**
    * traverse the tree to get the ruptures
@@ -245,62 +182,18 @@ private ArrayList sortFaultSectionsByLocation() {
    * @return
    */
   private void getRuptures(String faultSectionName) {
-    // write the nearby sections and the nearest locations into a file
+    // get the first node and start finding ruptures recursively
     Node rootNode = (Node) faultTree.get(faultSectionName);
-    /*Node node = rootNode;
-    while(node !=null) {
-      int numSecLinks;
-      ArrayList secLinks = node.getSecondaryLinks();
-      if(secLinks==null) numSecLinks = 0;
-      else numSecLinks = secLinks.size();
-      System.out.println(node.getId()+" has "+numSecLinks+ " secondary links");
-      node = node.getPrimaryLink();
-    }*/
     traverseStartingFromRoot(rootNode);
-    // reverse the links for all other fault sections and traverse again
-    //reversePrimaryLinksForSectionsExcept(faultSectionName);
-    //traverseStartingFromRoot(rootNode);
-    // reverse the links for all other fault sections
-    //reversePrimaryLinksForSectionsExcept(faultSectionName);
-    // traverse the fault section from the opposite side(so reverse the links)
-    /*Node newRootNode = reversePrimaryLinks((Node) faultTree.get(faultSectionName));
-    traverseStartingFromRoot(newRootNode);
-    // reverse the links back to original
-    reversePrimaryLinks(newRootNode);*/
   }
-
-  private void reversePrimaryLinksForSectionsExcept(String faultSectionName) {
-    // reverse the links for all other fault sections and traverse again
-    Iterator it = faultTree.keySet().iterator();
-    while(it.hasNext()) {
-      String sectionName = (String) it.next();
-      // do not reverse links for the current section
-      if(sectionName.equalsIgnoreCase(faultSectionName)) continue;
-      Node rNode  = (Node)faultTree.get(sectionName);
-      Node newRootNode = this.reversePrimaryLinks(rNode);
-      faultTree.put(sectionName, newRootNode);
-    }
-  }
-
 
   /**
-   * Reverse the locations ordering for a fault section
-   * @param rootNode
+   * Find the ruptures starting from each location on this fault section
+   * @param node
    */
-  private Node reversePrimaryLinks(Node rootNode) {
-    Node prevNode = null;
-    Node currNode = rootNode;
-    Node nextNode;
-    while(currNode!=null) {
-      nextNode = currNode.getPrimaryLink();
-      currNode.setPrimaryLink(prevNode);
-      prevNode = currNode;
-      currNode = nextNode;
-    }
-    return prevNode;
-  }
-
   private void traverseStartingFromRoot(Node node) {
+    /* loop over all locations on this faultsection to find the ruptures which
+    start from each location*/
     while(node!=null) {
       ArrayList nodesList = new ArrayList();
       nodesList.add(node);
@@ -308,15 +201,7 @@ private ArrayList sortFaultSectionsByLocation() {
       double offsetDist=0;
       Location loc1 = node.getLoc();
       Location loc2;
-      // find next node (location) based on rup offset
-      //while(node !=null && offsetDist<=this.RUP_OFFSET) {
-        node = node.getPrimaryLink();
-        /*if(node!=null) {
-          loc2 = node.getLoc();
-          offsetDist = Double.parseDouble(decimalFormat.format(offsetDist + RelativeLocation.getApproxHorzDistance(loc1, loc2)));
-          loc1 = loc2;
-        }
-      }*/
+      node = node.getPrimaryLink();
     }
   }
 
@@ -348,6 +233,7 @@ private ArrayList sortFaultSectionsByLocation() {
     Node prevNode = null;
     // first find the nearby sections
     while (node != null) { // loop over all locations on this fault section
+      // add a link to the previous location as well to make a bi-directional tree
       if(prevNode!=null) node.addSecondayLink(prevNode);
      /* get a list of section names and their distance near this location.
      Only include sections which are within FAULT_JUMP_CUTOFF_DIST of the location*/
@@ -364,8 +250,6 @@ private ArrayList sortFaultSectionsByLocation() {
       String sectionName = (String)sectionNearestNodeMapIt.next();
       if(secondaryLinksDoneSections.contains(sectionName)) continue;
       addSecondaryLinks(sectionName, secondaryLinksDoneSections);
-      //addToFaultSectionPrintOrder(sectionName);
-      //System.out.println("\t"+sectionName);
       SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
       sectionNodeDist.getNode().addSecondayLink(sectionNodeDist.getSectionNode());
     }
@@ -373,20 +257,17 @@ private ArrayList sortFaultSectionsByLocation() {
 
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, float rupLen) {
-    //if(rupLen>=this.rupLength)  { // if rup length is found
+
       // check if rupture already exists in the list
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
-      multiSectionRup.setLength(rupLen);
-      for(int i=0; i<nodesList.size(); ++i)
-        this.addToFaultSectionPrintOrder(((Node)nodesList.get(i)).getFaultSectionName());
       // if rupture does not exist already, then add it
-      if(!rupList.contains(multiSectionRup)) rupList.add(multiSectionRup);
-        /* nodesList = new ArrayList();
-        nodesList.add(node);
-      rupLen=0.0;
-      traverse(node, nodesList, 0.0);
-      nodesList.remove(node);*/
-    //} else { // if more locations are required to complete the rup Length
+      if(!rupList.contains(multiSectionRup)) {
+        multiSectionRup.setLength(rupLen);
+        // add the section names involved in this rupture to a list so that these sections can be processed next
+        for(int i=0; i<nodesList.size(); ++i)
+          this.addToFaultSectionPrintOrder(((Node)nodesList.get(i)).getFaultSectionName());
+        rupList.add(multiSectionRup);
+      }
 
       // first select the primary link
       Node nextNode;
@@ -400,7 +281,6 @@ private ArrayList sortFaultSectionsByLocation() {
         nodesList.remove(nextNode);
       }
 
-
       // access the secondary links
       ArrayList secondaryLinks = node.getSecondaryLinks();
       for(int i=0; secondaryLinks!=null && i<secondaryLinks.size(); ++i) {
@@ -409,25 +289,31 @@ private ArrayList sortFaultSectionsByLocation() {
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
         float dist = 0.0f;
+        // calculate distance only if locations lie on same fault section
         if(node.getFaultSectionName().equalsIgnoreCase(nextNode.getFaultSectionName()))
            dist = (float)RelativeLocation.getApproxHorzDistance(loc, node.getLoc());
         traverse(nextNode, nodesList, rupLen+dist);
         nodesList.remove(nextNode);
       }
-
-   // }
   }
 
+  /**
+   * List maintaining the ordering according to which fault sections will be processed
+   * @param sectionName
+   */
   private void addToFaultSectionPrintOrder(String sectionName) {
     if(!faultSectionPrintOrder.contains(sectionName)) {
       faultSectionPrintOrder.add(sectionName);
-      /*for(int i=0; i<faultSectionPrintOrder.size(); ++i)
-        System.out.print(faultSectionPrintOrder.get(i)+",");
-      System.out.println("");*/
     }
   }
 
-
+  /**
+   * Divide each section to subsections after sub sampling.
+   * Also create a tree for each section
+   *
+   * @param faultTraceMapping
+   * @throws InvalidRangeException
+   */
   private void createTreesForFaultSections(HashMap faultTraceMapping) throws
       InvalidRangeException {
     Iterator it = faultTraceMapping.keySet().iterator();
@@ -477,23 +363,6 @@ private ArrayList sortFaultSectionsByLocation() {
     }
   }
 
-  /**
-   * Write nearby sections to file
-   *
-   * @param fw
-   * @param sectionNearestNodeMap
-   * @throws IOException
-   */
-  private void writeNearbySectionsToFile(FileWriter fw,
-                                         HashMap sectionNearestNodeMap) throws IOException {
-    // write the nearby sections and the nearest locations into a file
-    Iterator sectionNearestNodeMapIt= sectionNearestNodeMap.keySet().iterator();
-    while(sectionNearestNodeMapIt.hasNext()) {
-      String sectionName = (String)sectionNearestNodeMapIt.next();
-      SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
-      fw.write("\t"+sectionName+" at "+sectionNodeDist.getNode().getLoc()+"\n");
-    }
-  }
 
   /**
    * Get all the faults within interFaultCutOffDistance kms of the location loc
