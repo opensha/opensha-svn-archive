@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class MultiSectionRupture {
   private ArrayList nodeList;
-  private double length;
+  private float length;
 
 
   public MultiSectionRupture(ArrayList nodesList) {
@@ -32,7 +32,7 @@ public class MultiSectionRupture {
    * Set the length of the rupture
    * @param len
    */
-  public void setLength(double len) {
+  public void setLength(float len) {
     this.length = len;
   }
 
@@ -40,7 +40,7 @@ public class MultiSectionRupture {
    * Get the length of this rupture
    * @return
    */
-  public double getLength() {
+  public float getLength() {
     return this.length;
   }
 

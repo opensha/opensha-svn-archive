@@ -50,7 +50,7 @@ public class PrepareTreeStructure {
       // write ruptures to file
       FileWriter fwRupFile = new FileWriter(RUP_OUT_FILENAME);
       fwRupFile.write("#Num Ruptures=" + rupList.size() + "\n");
-      writeRupsToFile(fwRupFile);
+      RuptureFileReaderWriter.writeRupsToFile(fwRupFile, rupList);
       fwRupFile.close();
       // write fault sections to file
       FileWriter fw = new FileWriter(FAULT_SECTIONS_OUT_FILENAME);
@@ -215,46 +215,7 @@ private ArrayList sortFaultSectionsByLocation() {
     removeSecondaryLinks();
   }
 
-  // write the ruptures to the file
-  private void writeRupsToFile(FileWriter fw) {
-    try {
-      int numRups = 0;
-      if (rupList != null) numRups = rupList.size();
-      //fw.write("#Num Ruptures=" + numRups + "\n");
-      int rupCount=0;
-      //FileWriter fwPrintOrder = new FileWriter("SectionPrintOrder.txt");
-      //for(int j=0; j<faultSectionPrintOrder.size(); ++j) {
-       //String sectionName = (String)faultSectionPrintOrder.get(j);
-       //fwPrintOrder.write(sectionName+"\n");
-        for (int i = 0; i < numRups; ++i) {
-          MultiSectionRupture multiSectionRup = (MultiSectionRupture)rupList.get(i);
-          ArrayList nodesList = multiSectionRup.getNodesList();
-        //  String firstLocationSectionName = ((Node) nodesList.get(0)).getFaultSectionName();
-         // if(firstLocationSectionName.equalsIgnoreCase(sectionName)) {
-            fw.write("#Rupture " + rupCount + " "+multiSectionRup.getLength()+"\n");
-            ++rupCount;
-            for (int k = 0; k < nodesList.size(); ++k) {
-              Node node = (Node) nodesList.get(k);
-              fw.write("\t" + node.getLoc() + ","+node.getFaultSectionName()+","+node.getId()+"\n");
-            }
-          //}
-        }
-      //}
-      //fwPrintOrder.close();
 
-      /*if (rupList != null) numRups = rupList.size();
-      fw.write("#Num Ruptures=" + numRups + "\n");
-      for (int i = 0; i < numRups; ++i) {
-        fw.write("#Rupture " + i + "\n");
-        MultiSectionRupture multiSectionRup = (MultiSectionRupture)rupList.get(i);
-        ArrayList nodesList = multiSectionRup.getNodesList();
-        for (int j = 0; j < nodesList.size(); ++j)
-          fw.write("\t" + ((Node) nodesList.get(j)).getLoc()+"\n");
-      }*/
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
-  }
 
   // write the ruptures to the file
   /*private void writeRupsToFile(FileWriter fw, String faultSectionName) {
@@ -343,7 +304,7 @@ private ArrayList sortFaultSectionsByLocation() {
     while(node!=null) {
       ArrayList nodesList = new ArrayList();
       nodesList.add(node);
-      traverse(node, nodesList, 0.0);
+      traverse(node, nodesList, 0.0f);
       double offsetDist=0;
       Location loc1 = node.getLoc();
       Location loc2;
@@ -411,7 +372,7 @@ private ArrayList sortFaultSectionsByLocation() {
   }
 
   // traverse the tree to find ruptures
-  private void traverse(Node node, ArrayList nodesList, double rupLen) {
+  private void traverse(Node node, ArrayList nodesList, float rupLen) {
     //if(rupLen>=this.rupLength)  { // if rup length is found
       // check if rupture already exists in the list
       MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
@@ -435,7 +396,7 @@ private ArrayList sortFaultSectionsByLocation() {
       if(nextNode!=null && !nodesList.contains(nextNode)) {
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen+RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
+        traverse(nextNode, nodesList, rupLen+(float)RelativeLocation.getApproxHorzDistance(loc, node.getLoc()));
         nodesList.remove(nextNode);
       }
 
@@ -447,7 +408,10 @@ private ArrayList sortFaultSectionsByLocation() {
         if(nodesList.contains(nextNode)) continue;
         Location loc = nextNode.getLoc();
         nodesList.add(nextNode);
-        traverse(nextNode, nodesList, rupLen);
+        float dist = 0.0f;
+        if(node.getFaultSectionName().equalsIgnoreCase(nextNode.getFaultSectionName()))
+           dist = (float)RelativeLocation.getApproxHorzDistance(loc, node.getLoc());
+        traverse(nextNode, nodesList, rupLen+dist);
         nodesList.remove(nextNode);
       }
 
