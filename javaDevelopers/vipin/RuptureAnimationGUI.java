@@ -23,6 +23,10 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
+import org.opensha.param.IntegerParameter;
+import org.opensha.param.editor.IntegerParameterEditor;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -34,7 +38,8 @@ import javax.swing.event.ChangeEvent;
  * @version 1.0
  */
 
-public class RuptureAnimationGUI extends JFrame implements  ActionListener, ChangeListener, Runnable {
+public class RuptureAnimationGUI extends JFrame implements  ActionListener,
+    ChangeListener, Runnable, ParameterChangeListener {
   private JPanel displayPanel = new JPanel();
   private JButton playButton = new JButton();
   private final static String FAULT_SECTION_FILE_NAME = PrepareTreeStructure.FAULT_SECTIONS_OUT_FILENAME;
@@ -50,13 +55,15 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
    // build the plot
   private  XYPlot plot = new XYPlot(null, xAxis, yAxis, new StandardXYItemRenderer());
   private  int faultSectionCounter=0;
-  private ArrayList rupList; // list of all ruptures from the file
+  private ArrayList masterRupList; // list of all ruptures from the file
+  private ArrayList displayRupList;
   private ChartPanel chartPanel;
   private JSplitPane controlSplitPane = new JSplitPane();
   private JSplitPane filterSplitPane = new JSplitPane();
   private JPanel filterParamsPanel = new JPanel();
   private JPanel buttonPanel = new JPanel();
   private JButton stopButton = new JButton();
+  private JButton filterButton = new JButton("Filter");
   private JSlider ruptureSlider = new JSlider();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -70,6 +77,10 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
   private boolean playStatus;
   private JLabel currentRupLabel= new JLabel("Rupture Index:");
   private JLabel rupValLabel = new JLabel();
+  private RuptureFilterGuiBean rupFilterGuiBean;
+  private final static String TIME_DELAY_PARAM_NAME = "Time Delay";
+  private int timeDelayVal = TIME_DELAY;
+  private IntegerParameter timeDelayParam = new IntegerParameter(TIME_DELAY_PARAM_NAME, "milliseconds",new Integer(timeDelayVal));
 
 
   //static initializer for setting look & feel
@@ -84,11 +95,14 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
 
   public RuptureAnimationGUI() {
     try {
+      ArrayList sectionNames = loadFaultSections(); // load the fault sections
+      rupFilterGuiBean = new RuptureFilterGuiBean(sectionNames);
       jbInit();
-      loadFaultSections(); // load the fault sections
       addGraphPanel(); // show the fault sections using JFreechart
-      rupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.RUP_OUT_FILENAME);
-      setRuptureSliderLimits();
+      masterRupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.RUP_OUT_FILENAME);
+      timeDelayParam.addParameterChangeListener(this);
+      this.displayRupList = masterRupList;
+      setRuptureSlider();
       this.setSize(WIDTH, HEIGHT);
       setTitle(TITLE);
       controlSplitPane.setDividerLocation(660);
@@ -102,15 +116,32 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
     }
   }
 
+  public void parameterChange(ParameterChangeEvent event) {
+    if(event.getParameterName().equalsIgnoreCase(this.TIME_DELAY_PARAM_NAME))
+      this.timeDelayVal = ((Integer)this.timeDelayParam.getValue()).intValue();
+  }
+
   /**
    * Set the limits of the rupture slider
    */
-  private void setRuptureSliderLimits() {
-    int numRups = rupList.size();
+  private void setRuptureSlider() {
+    if(ruptureSlider!=null) buttonPanel.remove(ruptureSlider);
+    ruptureSlider = new JSlider();
+    int numRups = this.displayRupList.size();
+    // set the properties for rupture slider
     ruptureSlider.setMinimum(0);
-    ruptureSlider.setMaximum(rupList.size()-1);
+    ruptureSlider.setMaximum(displayRupList.size()-1);
     ruptureSlider.setMajorTickSpacing(numRups/10);
+
+    ruptureSlider.setPaintTicks(true);
+    ruptureSlider.setFocusable(false);
+    ruptureSlider.setPaintLabels(true);
+    ruptureSlider.setPaintTrack(true);
+    // add action listeners
+    ruptureSlider.addChangeListener(this);
     ruptureSlider.setValue(0);
+    buttonPanel.add(ruptureSlider,  new GridBagConstraints(0, 0, 5, 1, 1.0, 0.0
+        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 7, 0, 13), 334, 1));
   }
 
 
@@ -133,14 +164,35 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
         playStatus = false;
       }
     }
+    // stop the animation
     else if(source==this.stopButton) {
       playStatus = false;
       rupIndex=0;
       playButton.setText(PLAY);
+      this.ruptureSlider.setValue(rupIndex);
     }
-    this.ruptureSlider.setValue(rupIndex);
-
+    // filter the ruptures
+    else if(source==this.filterButton) {
+      String selectedSectionName = this.rupFilterGuiBean.getSelectedSectionName();
+      double minLength = rupFilterGuiBean.getMinRupLength();
+      double maxLength = rupFilterGuiBean.getMaxRupLength();
+      filter(selectedSectionName, minLength, maxLength, rupFilterGuiBean.areOnlyMultiSectionRuptures());
+      rupIndex=0;
+    }
   }
+
+  /**
+   *
+   * @param selectedSectionName
+   * @param minRupLen
+   * @param maxRupLen
+   */
+  private void filter(String selectedSectionName, double minRupLen, double maxRupLen, boolean onlyMutliSectionRups) {
+    this.displayRupList  = RuptureFilter.getRupturesForLengthAndSection(this.masterRupList, selectedSectionName, minRupLen, maxRupLen, onlyMutliSectionRups);
+    this.setRuptureSlider();
+  }
+
+
 
   /**
    * Whenuser clicks on JSlider, update the rupture index to display
@@ -148,7 +200,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
    */
   public void stateChanged(ChangeEvent event) {
     this.rupIndex = this.ruptureSlider.getValue();
-    rupValLabel.setText(rupIndex+" of "+(this.rupList.size()-1));
+    rupValLabel.setText(rupIndex+" of "+(this.displayRupList.size()-1));
   }
 
   /**
@@ -163,9 +215,9 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
    * Thread runs this to create a animation  for ruptures
    */
   public void run() {
-    for( ; rupIndex<this.rupList.size() && playStatus; ++rupIndex) {
+    for( ; rupIndex<this.displayRupList.size() && playStatus; ++rupIndex) {
       // get the next rupture from the list
-      MultiSectionRupture rupture = (MultiSectionRupture) rupList.get(rupIndex);
+      MultiSectionRupture rupture = (MultiSectionRupture) displayRupList.get(rupIndex);
       // put all the locations of this rupture into location list
       ArrayList nodesList = rupture.getNodesList();
       LocationList locList = new LocationList();
@@ -177,7 +229,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
       ruptureSlider.setValue(rupIndex);
       this.addGraphPanel();
       try {
-        Thread.sleep(TIME_DELAY);
+        Thread.sleep(timeDelayVal);
       }
       catch (InterruptedException ex) {
         ex.printStackTrace();
@@ -230,8 +282,9 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
   /**
    * Load the fault sections to be displayed in the window
    */
-  private void  loadFaultSections() {
-   try {
+  private ArrayList  loadFaultSections() {
+    ArrayList sectionNames = new ArrayList();
+    try {
       LocationList locList=null;
       // read from fault sections file
       FileReader fr = new FileReader(FAULT_SECTION_FILE_NAME);
@@ -245,6 +298,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
         if(!line.equalsIgnoreCase("")) { // if line is not a blank line
           if(line.startsWith("#"))  { // this is new fault section name
             col=0;
+            sectionNames.add(line.substring(1));
             if(faultSectionCounter>=0)  addLocationListToPlot(locList, faultSectionCounter);
             locList = new LocationList();
             faultSectionCounter++;
@@ -265,6 +319,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
     }catch(Exception e) {
       e.printStackTrace();
     }
+    return sectionNames;
   }
 
   /**
@@ -312,10 +367,8 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 7, 3, 4), 0, 374));
     controlSplitPane.add(filterSplitPane, JSplitPane.TOP);
     filterSplitPane.add(displayPanel, JSplitPane.LEFT);
-    filterSplitPane.add(filterParamsPanel, JSplitPane.RIGHT);
+    filterSplitPane.add(this.filterParamsPanel, JSplitPane.RIGHT);
     controlSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
-    buttonPanel.add(ruptureSlider,  new GridBagConstraints(0, 0, 5, 1, 1.0, 0.0
-        ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(7, 7, 0, 13), 334, 1));
 
     buttonPanel.add(playButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 104, 10, 0), 12, 8));
@@ -326,15 +379,18 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 15, 10, 0), 0, 8));
     buttonPanel.add(this.rupValLabel,  new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0
         ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 2, 10, 0), 10, 8));
-    // set the properties for rupture slider
-    ruptureSlider.setPaintTicks(true);
-    ruptureSlider.setFocusable(false);
-    ruptureSlider.setPaintLabels(true);
-    ruptureSlider.setPaintTrack(true);
+
+    filterParamsPanel.add(this.rupFilterGuiBean,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 3, 0, 3), 0, 0));
+    filterParamsPanel.add(this.filterButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(2, 3, 0, 3), 0, 0));
+    IntegerParameterEditor timeDelayParamEditor = new IntegerParameterEditor(timeDelayParam);
+    filterParamsPanel.add(timeDelayParamEditor,  new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(2, 3, 0, 3), 0, 0));
     // add action listeners
-    ruptureSlider.addChangeListener(this);
     stopButton.addActionListener(this);
     this.playButton.addActionListener(this);
+    filterButton.addActionListener(this);
 
 
   }

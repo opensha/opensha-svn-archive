@@ -21,6 +21,7 @@ public class RuptureFilter {
    * @return
    */
   public static ArrayList getRupturesListForSection(ArrayList masterRupList, String sectionName) {
+    if(sectionName==null) return masterRupList;
     ArrayList rupSubList = new ArrayList();
     // loop over all ruptures
     for(int i=0; i<masterRupList.size(); ++i) {
@@ -39,7 +40,14 @@ public class RuptureFilter {
    * @param maxLength
    * @return
    */
-  public static ArrayList getRupturesForLength(ArrayList masterRupList, float minLength, float maxLength) {
+  public static ArrayList getRupturesForLength(ArrayList masterRupList, double minLength, double maxLength) {
+    // no filtering
+    if(Double.isNaN(minLength) && Double.isNaN(maxLength)) return masterRupList;
+    // only filter for max length
+    if(Double.isNaN(minLength)) minLength=0;
+    // only filter for min length
+    if(Double.isNaN(maxLength)) maxLength=Double.MAX_VALUE;
+
     ArrayList rupSubList = new ArrayList();
     float length;
    // loop over all ruptures
@@ -52,6 +60,25 @@ public class RuptureFilter {
    return rupSubList;
   }
 
+  /**
+   * Return the rupture list which contains ruptures involving more than 1 section
+   *
+   * @param masterRupList
+   * @param sectionName
+   * @return
+   */
+  public static ArrayList getRupturesSpanningMultipleSections(ArrayList masterRupList) {
+    ArrayList rupSubList = new ArrayList();
+    // loop over all ruptures
+    for(int i=0; i<masterRupList.size(); ++i) {
+      MultiSectionRupture multiSectionRup = (MultiSectionRupture)masterRupList.get(i);
+      // if this rupture contains the section, add it to sub list
+      if(multiSectionRup.isMultiSection()) rupSubList.add(multiSectionRup);
+    }
+    return rupSubList;
+  }
+
+
 
   /**
    * Returns the ruptures for specific length range on a particular section
@@ -63,8 +90,18 @@ public class RuptureFilter {
    * @return
    */
   public static ArrayList getRupturesForLengthAndSection(ArrayList masterRupList,
-      String sectionName, float minLength, float maxLength) {
+      String sectionName, double minLength, double maxLength, boolean isMultiSection) {
     ArrayList rupSubList = new ArrayList();
+    // filter based on whether rupture spans across multiple sections
+    if(isMultiSection) masterRupList = getRupturesSpanningMultipleSections(masterRupList);
+    // no filtering
+    if(sectionName==null && Double.isNaN(minLength) && Double.isNaN(maxLength))
+      return masterRupList;
+    // only filter based on rup length
+    if(sectionName==null) return getRupturesForLength(masterRupList, minLength, maxLength);
+    // only filter based on section name
+    if(Double.isNaN(minLength) && Double.isNaN(maxLength)) return getRupturesListForSection(masterRupList, sectionName);
+
     float length;
    // loop over all ruptures
    for(int i=0; i<masterRupList.size(); ++i) {

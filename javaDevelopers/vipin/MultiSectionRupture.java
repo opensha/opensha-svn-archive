@@ -60,6 +60,20 @@ public class MultiSectionRupture {
   }
 
   /**
+   * Finds whether this rupture spans more than 1 section
+   *
+   * @return
+   */
+  public boolean isMultiSection() {
+    if(this.nodeList==null) return false;
+    String sectionName = ((Node)nodeList.get(0)).getFaultSectionName();
+    for(int i=1; i<nodeList.size(); ++i) {
+      if(!sectionName.equalsIgnoreCase(((Node)nodeList.get(i)).getFaultSectionName())) return true;
+    }
+    return false;
+  }
+
+  /**
    * Finds whether 2 ruptures are same or not. It checks:
    *  1. number of points on both ruptures are same.
    *  2. the locations on 1 rupture also exist for the second rupture
