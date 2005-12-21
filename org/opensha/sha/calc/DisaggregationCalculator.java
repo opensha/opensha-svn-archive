@@ -51,41 +51,18 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected double MAX_DISTANCE = 250;
 
-  // disaggregation stuff - MIN and MAX are centers of first and last bins
   private double MIN_MAG = 5.0;
   private double MAX_MAG = 9.0;
-  private int NUM_MAG = 41;
-  private double deltaMag = (MAX_MAG-MIN_MAG)/(NUM_MAG-1);
+  private double deltaMag = 0.5;
+  private int NUM_MAG = (int)((MAX_MAG - MIN_MAG)/deltaMag +1);
 
-  private double MIN_DIST = 5;
-  private double MAX_DIST = 295;
-  private int NUM_DIST = 30;
-  private double deltaDist = (MAX_DIST-MIN_DIST)/(NUM_DIST-1);
+  private double deltaDist = 10;
+  private double MIN_DIST = 0;
+  private double MAX_DIST = 110;
+  private int NUM_DIST = (int)((MAX_DIST - MIN_DIST)/deltaDist +1);
 
-  private double MIN_E = -5.0;
-  private double MAX_E = 5;
-  private int NUM_E = 53;
-  private double deltaE = (MAX_E-MIN_E)/(NUM_E-3);
-  // Note: the last two bins here are for -infinity & infinity (if stdDev = 0)
-
-  private double[][][] pmf = new double[NUM_MAG][NUM_DIST][NUM_E];
-
-  private double MIN_MAG_plot = 5.0;
-  private double MAX_MAG_plot = 9.0;
-  private double deltaMag_plot = 0.5;
-  private int NUM_MAG_plot = (int)((MAX_MAG_plot-MIN_MAG_plot)/deltaMag_plot +1);
-
-  private double deltaDist_plot = 10;
-  private double MIN_DIST_plot = 0;
-  private double MAX_DIST_plot = 110;
-  private int NUM_DIST_plot = (int)((MAX_DIST_plot - MIN_DIST_plot)/deltaDist_plot +1);
-
-  private int NUM_E_plot = 8;
-  private double[][][] disaggr_plt = new double[NUM_MAG_plot][NUM_DIST_plot][NUM_E_plot];
-  //indices for plot
-  private int iMag_plt,iDist_plt, iEpsilon_plt;
-  private boolean withinBoundsForPlt;
-
+  private int NUM_E = 8;
+  private double[][][] disaggr_plt = new double[NUM_MAG][NUM_DIST][NUM_E];
   private double maxContrEpsilonForDisaggrPlot;
 
 
@@ -94,10 +71,12 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private boolean withinBounds;
 
   private double Mbar, Dbar, Ebar;
-  private double M_mode1D, D_mode1D, E_mode1D;
-  private double M_mode3D, D_mode3D, E_mode3D;
+  private double M_mode3D, D_mode3D; //E_mode3D;
 
-  private double iml, prob, totalRate;
+  //gets the Epsilon Range
+  private String epsilonRangeString;
+
+  private double totalRate;
 
   private int currRuptures = -1;
   private int totRuptures=0;
@@ -126,9 +105,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    *
    * @param distance: the maximum distance in km
    */
-  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
-    MAX_DISTANCE = distance;
-  }
+  //public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+    //MAX_DISTANCE = distance;
+  //}
 
 
   /**
@@ -153,7 +132,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     if( D ) System.out.println(S + "iml = " + iml);
 
-    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
+//    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
 
     ArrayList disaggSourceList = new ArrayList();
 
@@ -196,11 +175,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     for(int i=0; i<NUM_MAG; i++)
       for(int j=0; j<NUM_DIST; j++)
         for(int k=0; k<NUM_E; k++)
-          pmf[i][j][k] = 0;
-
-    for(int i=0; i<NUM_MAG_plot; i++)
-      for(int j=0; j<NUM_DIST_plot; j++)
-        for(int k=0; k<NUM_E_plot; k++)
           disaggr_plt[i][j][k] = 0;
 
 
@@ -256,7 +230,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           mag = rupture.getMag();
 
           // get the equiv. Poisson rate over the time interval
-          rate = condProb * Math.log(1-qkProb);
+          rate = - condProb * Math.log(1-qkProb);
 
           /*
           if( D ) System.out.println("disaggregation():" + " rupture #" + currRuptures +
@@ -270,19 +244,15 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 */
           // set the 3D array indices & check that all are in bounds
           setIndices();
-          setIndicesForPlot();
           if (withinBounds)
-              pmf[iMag][iDist][iEpsilon] += rate;
+              disaggr_plt[iMag][iDist][iEpsilon] += rate;
           else
               if( D ) System.out.println("disaggregation(): Some bin is out of range");
 
-          if(withinBoundsForPlt)
-            this.disaggr_plt[iMag_plt][iDist_plt][iEpsilon_plt] +=rate;
 
 //          if( D ) System.out.println("disaggregation(): bins: " + iMag + "; " + iDist + "; " + iEpsilon);
 
           totalRate += rate;
-
 
           Mbar += rate * mag;
           Dbar += rate * dist;
@@ -292,12 +262,12 @@ public class DisaggregationCalculator extends UnicastRemoteObject
               eqkRupForecast.getTimeSpan().getDuration();
           DisaggregationSourceRuptureInfo rupInfo = new DisaggregationSourceRuptureInfo(null,
               eventRate
-              , (float) - rate, n);
+              , (float) rate, n);
           ( (ArrayList) map.get(sourceName)).add(rupInfo);
       }
       ArrayList sourceRupList = (ArrayList)map.get(sourceName);
       Collections.sort(sourceRupList,new DisaggregationSourceRuptureComparator());
-      DisaggregationSourceRuptureInfo disaggInfo = new DisaggregationSourceRuptureInfo(sourceName, (float)-sourceRate,i);
+      DisaggregationSourceRuptureInfo disaggInfo = new DisaggregationSourceRuptureInfo(sourceName, (float)sourceRate,i);
       disaggSourceList.add(disaggInfo);
     }
 
@@ -309,7 +279,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           disaggSourceList.get(i);
       sourceDisaggInfo +=disaggInfo.getId() +
                "    " +(float)disaggInfo.getRate() + "    " +
-               (float)( -disaggInfo.getRate() / totalRate * 100) +
+               (float)( disaggInfo.getRate() / totalRate * 100) +
               "    " + disaggInfo.getName() + "\n";
     }
 
@@ -352,15 +322,14 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     if( D ) System.out.println(S + "Dbar = " + Dbar);
     if( D ) System.out.println(S + "Ebar = " + Ebar);
 
-
-    double maxRate = -1;
+    maxContrEpsilonForDisaggrPlot = -1;
     int modeMagBin=-1, modeDistBin=-1, modeEpsilonBin=-1;
     for(int i=0; i<NUM_MAG; i++) {
       for(int j=0; j<NUM_DIST; j++) {
         for(int k=0; k<NUM_E; k++) {
-          pmf[i][j][k] /= totalRate;
-          if(pmf[i][j][k] > maxRate) {
-              maxRate = pmf[i][j][k];
+          disaggr_plt[i][j][k] = disaggr_plt[i][j][k]/totalRate *100;
+          if(disaggr_plt[i][j][k] > maxContrEpsilonForDisaggrPlot) {
+              maxContrEpsilonForDisaggrPlot = disaggr_plt[i][j][k] ;
               modeMagBin = i;
               modeDistBin = j;
               modeEpsilonBin = k;
@@ -368,27 +337,15 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         }
       }
     }
-    maxContrEpsilonForDisaggrPlot =0;
-    //creating the rate array for the diassgregation for ploting purposes
-    for(int i=0;i<NUM_MAG_plot;++i)
-      for(int j=0; j<NUM_DIST_plot; j++)
-        for(int k=0; k<NUM_E_plot; k++) {
-          disaggr_plt[i][j][k] = (float) (disaggr_plt[i][j][k] * 100.0 / totalRate);
-          //if some of the Array elements are zero then there must be negative
-          //sign in front of them, so removing the negative sign.
-          if(disaggr_plt[i][j][k] == -0)
-            disaggr_plt[i][j][k] = 0;
-          if(disaggr_plt[i][j][k] > maxContrEpsilonForDisaggrPlot)
-            maxContrEpsilonForDisaggrPlot = disaggr_plt[i][j][k];
-        }
-
+    System.out.println("Total Rate="+totalRate+",%Rate="+maxContrEpsilonForDisaggrPlot);
     M_mode3D = mag(modeMagBin);
     D_mode3D = dist(modeDistBin);
-    E_mode3D = eps(modeEpsilonBin);
+    epsilonRangeString = this.getEpsilonRange(modeEpsilonBin);
+    //E_mode3D = eps(modeEpsilonBin);
 
     if( D ) System.out.println(S + "MagMode = "  + M_mode3D + "; binNum = " + modeMagBin);
     if( D ) System.out.println(S + "DistMode = " + D_mode3D + "; binNum = " + modeDistBin);
-    if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
+    //if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
     createGMTScriptForDisaggregationPlot();
 
   }
@@ -409,10 +366,33 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     return sourceDisaggInfo;
   }
 
+  /**
+   * Setting up the Mag Range
+   * @param minMag double
+   * @param numMags int
+   * @param deltaMag double
+   */
+  public void setMagRange(double minMag, int numMags, double deltaMag) throws
+      java.rmi.RemoteException {
+    MIN_MAG = minMag;
+    NUM_MAG = numMags;
+    this.deltaMag = deltaMag;
+    MAX_MAG = MIN_MAG + (NUM_MAG-1) * deltaMag;
+  }
 
-
-
-
+  /**
+   * Setting up the Distance Range
+   * @param minDist double
+   * @param numDist int
+   * @param deltaDist double
+   */
+  public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
+      java.rmi.RemoteException {
+    MIN_DIST = minDist;
+    NUM_DIST = numDist;
+    this.deltaDist = deltaDist;
+    MAX_DIST = MIN_DIST + (NUM_DIST-1) * deltaDist;
+  }
 
   /**
    * gets the number of current rupture being processed
@@ -452,8 +432,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     float mm_u = (float) (M_mode3D+deltaMag/2.0);
     float dm_l = (float) (D_mode3D-deltaDist/2.0);
     float dm_u = (float) (D_mode3D+deltaDist/2.0);
-    float em_l = (float) (E_mode3D-deltaE/2.0);
-    float em_u = (float) (E_mode3D+deltaE/2.0);
+    //float em_l = (float) (E_mode3D-deltaE/2.0);
+    //float em_u = (float) (E_mode3D+deltaE/2.0);
 
     results = "Disaggregation Results:\n" +
               "\n  Mbar = " + (float) Mbar +
@@ -461,10 +441,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
               "\n  Ebar = " + (float) Ebar + "\n" +
               "\n  " + mm_l+" � Mmode < " + mm_u +
               "\n  " + dm_l+" � Dmode < " + dm_u;
-    if( E_mode3D == Double.NEGATIVE_INFINITY || E_mode3D == Double.POSITIVE_INFINITY)
+    /*if( E_mode3D == Double.NEGATIVE_INFINITY || E_mode3D == Double.POSITIVE_INFINITY)
       results += "\n  Emode = " + E_mode3D;
     else
-      results += "\n  " + em_l+" � Emode < " + em_u;
+      results += "\n  " + em_l+" � Emode < " + em_u;*/
+    results += "\n"+epsilonRangeString;
 
     if(totalRate == 0.0)
       results += "\n\nNote:\n" +
@@ -482,52 +463,64 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
   }
 
+
   private void setIndices() {
-      withinBounds = true;
-      iMag     =  Math.round( (float) ((mag-MIN_MAG)/deltaMag) );
-      iDist    =  Math.round((float) ((dist-MIN_DIST)/deltaDist));
-      if(epsilon == Double.POSITIVE_INFINITY)
-          iEpsilon = NUM_E-1;
-      else if (epsilon == Double.NEGATIVE_INFINITY)
-          iEpsilon = NUM_E-2;
-      else {
-          iEpsilon = Math.round((float) ((epsilon-MIN_E)/deltaE));
-          // check to make sure it didn't fall onto the last two bins here
-          if(iEpsilon == NUM_E-1 || iEpsilon == NUM_E-2)
-              iEpsilon = NUM_E + 1;  // make it fall outside
-      }
-
-      if( iMag < 0 || iMag >= NUM_MAG ) withinBounds = false;
-      if( iDist < 0 || iDist >= NUM_DIST ) withinBounds = false;
-      if( iEpsilon < 0 || iEpsilon >= NUM_E ) withinBounds = false;
-  }
-
-
-  private void setIndicesForPlot() {
-    withinBoundsForPlt = true;
-    iMag_plt     =  Math.round( (float) ((mag-MIN_MAG_plot)/deltaMag_plot) );
-    iDist_plt    =  Math.round((float) ((dist-MIN_DIST_plot)/deltaDist_plot));
-    if (epsilon >= -40 && epsilon <= -2)
-      iEpsilon_plt = 0;
+    withinBounds= true;
+    iMag     =  Math.round((float)((mag-MIN_MAG)/deltaMag) );
+    iDist    =  Math.round((float) ((dist-MIN_DIST)/deltaDist));
+    if (epsilon <= -2)
+      iEpsilon = 0;
     else if (epsilon > -2 && epsilon <= -1)
-      iEpsilon_plt = 1;
+      iEpsilon = 1;
     else if (epsilon > -1 && epsilon <= -0.5)
-      iEpsilon_plt = 2;
+      iEpsilon = 2;
     else if (epsilon > -0.5 && epsilon <= 0)
-      iEpsilon_plt = 3;
+      iEpsilon = 3;
     else if (epsilon > 0 && epsilon <= 0.5)
-      iEpsilon_plt = 4;
+      iEpsilon = 4;
     else if (epsilon > 0.5 && epsilon <= 1.0)
-      iEpsilon_plt = 5;
+      iEpsilon = 5;
     else if (epsilon > 1.0 && epsilon <= 2.0)
-      iEpsilon_plt = 6;
-    else if (epsilon > 2.0 && epsilon <= 40.0)
-      iEpsilon_plt = 7;
+      iEpsilon = 6;
+    else if (epsilon > 2.0)
+      iEpsilon = 7;
 
-    if( iMag_plt < 0 || iMag_plt >= NUM_MAG_plot ) withinBoundsForPlt = false;
-    if( iDist_plt < 0 || iDist_plt >= NUM_DIST_plot ) withinBoundsForPlt = false;
-    if( iEpsilon_plt < 0 || iEpsilon_plt >= NUM_E_plot ) withinBoundsForPlt = false;
+    if( iMag < 0 || iMag >= NUM_MAG) withinBounds= false;
+    if( iDist < 0 || iDist >= NUM_DIST) withinBounds = false;
+    if( iEpsilon < 0 || iEpsilon >= NUM_E) withinBounds = false;
   }
+
+
+  /**
+   * Gets the Epsilon range String based on the index of the epsilon
+   * @param iEpsilon int
+   * @return String
+   */
+  private String getEpsilonRange(int iEpsilon){
+
+    switch (iEpsilon){
+      case 0:
+        return "Emode <= -2";
+      case 1:
+        return "-2 < Emode <= -1";
+      case 2:
+        return "-1 < Emode <= -0.5";
+      case 3:
+        return "-0.5 < Emode <= 0.0";
+      case 4:
+        return "0.0 < Emode <= 0.5";
+      case 5:
+        return "0.5 < Emode <= 1.0";
+      case 6:
+        return "1.0 < Emode <= 2.0";
+      case 7:
+        return "2.0 < Emode ";
+      default:
+        return "Incorrect Index";
+    }
+  }
+
+
 
 
   /**
@@ -552,11 +545,12 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     double gdZGridVal = Double.parseDouble(format.format(maxContrEpsilonForDisaggrPlot/(numTicksToDrawForZAxis)));
     double maxZVal = Double.parseDouble(format.format(gdZGridVal * numTicksToDrawForZAxis));
     ArrayList gmtScriptLines = new ArrayList();
+
     try{
-    String region = "-R"+MIN_MAG_plot+"/"+MAX_MAG_plot+"/"+MIN_DIST_plot+"/"+MAX_DIST_plot+
-        "/"+0+"/"+maxZVal;
-    String imagePixelSize = "-JX4i/4.5i";
-    String imageAngle = "-E240/30";
+    String region = "-R"+MIN_DIST+"/"+MAX_DIST+
+        "/"+MIN_MAG+"/"+MAX_MAG+"/"+0+"/"+maxZVal;
+    String imagePixelSize = "-JX4.5i/4i";
+    String imageAngle = "-E150/30";
     String boundarySize = "-W0.5p";
     String verticalScaling = "-JZ2.5i";
     String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 0.5i \n"+
@@ -564,21 +558,21 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     String img_ps_file = "DisaggregationPlot.ps";
     String img_jpg_file = DISAGGREGATION_PLOT_IMG;
 
-    String axisBoundaryTicksBounds = "-B"+deltaMag_plot+"/"+deltaDist_plot+"/"+gdZGridVal+"WSneZ";
+    String axisBoundaryTicksBounds = "-B"+deltaDist+"/"+deltaMag+"/"+gdZGridVal+"WSNEZ";
     String tickLabelsLines = "cat << END > temp_segments";
     ArrayList segLineList = new ArrayList();
     segLineList.add(tickLabelsLines);
     //creating the grid lines on Z axis.
     for (double k = gdZGridVal; k <= maxZVal; k += gdZGridVal) {
-      segLineList.add(">\n" + MIN_MAG_plot+" "+MIN_DIST_plot+"  "+k);
-      segLineList.add(+ MAX_MAG_plot+" "+MIN_DIST_plot+"  "+k);
-      segLineList.add(">\n" + MAX_MAG_plot+" "+MIN_DIST_plot+"  "+k);
-      segLineList.add(+ MAX_MAG_plot+" "+MAX_DIST_plot+"  "+k);
+      segLineList.add(">\n" +MIN_DIST+"  "+ MIN_MAG+" "+k);
+      segLineList.add(MIN_DIST+"  "+MAX_MAG+"  "+k);
+      segLineList.add(">\n" +MIN_DIST+"  "+ MAX_MAG+"  "+k);
+      segLineList.add(+MAX_DIST+"   "+MAX_MAG+"  "+k);
     }
-    segLineList.add(">\n " + MAX_MAG_plot + " " + MIN_DIST_plot + "  " + 0);
-    segLineList.add( +MAX_MAG_plot + " " + MIN_DIST_plot + "  " + maxZVal);
-    segLineList.add(">\n" + MAX_MAG_plot + " " + MAX_DIST_plot + "  " + 0);
-    segLineList.add( +MAX_MAG_plot + " " + MAX_DIST_plot + "  " + maxZVal);
+    segLineList.add(">\n " + MIN_DIST +"   "+ MAX_MAG+"  " + 0);
+    segLineList.add( MIN_DIST + "  "+MAX_MAG + " " + maxZVal);
+    segLineList.add(">\n"+ MAX_DIST + "  "+ MAX_MAG + " "  + 0);
+    segLineList.add(  + MAX_DIST + "  " +MAX_MAG+ " "+ maxZVal);
     segLineList.add("END\n");
 
     //creating the GMT_Script for the plot
@@ -590,12 +584,12 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     //creating the data array
     ArrayList dataArray = new ArrayList();
-    float x = (float)(MIN_MAG_plot + (float)deltaMag_plot/2);
-    for(int i= 0 ;i< NUM_MAG_plot ;++i){
-      double y = (float)(MIN_DIST_plot + (float)this.deltaDist_plot/2);
-      for (int j = 0; j < NUM_DIST_plot; ++j) {
+    float x = (float)(MIN_MAG + (float)deltaMag/2);
+    for(int i= 0 ;i< NUM_MAG ;++i){
+      double y = (float)(MIN_DIST + (float)this.deltaDist/2);
+      for (int j = 0; j < NUM_DIST; ++j) {
         boolean rateZero = true;
-        for (int k = 0; k < NUM_E_plot; ++k) {
+        for (int k = 0; k < NUM_E; ++k) {
           if (disaggr_plt[i][j][k] != 0)
             rateZero = false;
           if(disaggr_plt[i][j][k] ==0 && k!=0)
@@ -608,16 +602,16 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         if(rateZero){
           //as items in the arraylist are added to the end so removing it from
           //zero contribution from the end.
-          for (int k = 0; k < NUM_E_plot; ++k)
+          for (int k = 0; k < NUM_E; ++k)
             dataArray.remove(dataArray.size()-1);
         }
-        y +=deltaDist_plot;
+        y +=deltaDist;
       }
-      x += deltaMag_plot;
+      x += deltaMag;
     }
 
     int size = dataArray.size();
-    for(int i= size -1;i>=0;i -=NUM_E_plot){
+    for(int i= size -1;i>=0;i -=NUM_E){
       String data = (String)dataArray.get(i);
 
       gmtScriptLines.add("echo "+"\""+(String)dataArray.get(i)+"\""+" > junk_data ; psxyz junk_data "
@@ -681,17 +675,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }catch(Exception e){
       e.printStackTrace();
     }
-    /*FileWriter fw = null;
-    try {
-      fw = new FileWriter("OpenSHA_disaggrePlot");
-      int size = gmtScriptLines.size();
-      for(int i=0;i<size;++i)
-        fw.write(gmtScriptLines.get(i)+"\n");
-      fw.close();
-    }
-    catch (IOException ex) {
-      ex.printStackTrace();
-    }*/
+
     return gmtScriptLines;
   }
 
@@ -775,18 +759,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   }
 
   private double dist(int iDist) {
-      if( iDist >=0 && iDist <= NUM_DIST)
-          return  MIN_DIST + iDist*deltaDist;
-      else return Double.NaN;
-      }
-
-  private double eps(int iEpsilon) {
-      if(iEpsilon >= 0 && iEpsilon < NUM_E) {
-          if(iEpsilon == NUM_E-1) return Double.POSITIVE_INFINITY;
-          else if(iEpsilon == NUM_E-2) return Double.NEGATIVE_INFINITY;
-          else return  MIN_E + iEpsilon*deltaE;
-      }
-      else return Double.NaN;
+    if (iDist >= 0 && iDist <= NUM_DIST)
+      return MIN_DIST + iDist * deltaDist;
+    else return Double.NaN;
   }
 
 

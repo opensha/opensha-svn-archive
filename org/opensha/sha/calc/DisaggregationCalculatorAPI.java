@@ -40,7 +40,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
    *
    * @param distance: the maximum distance in km
    */
-  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
+  //public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException;
 
   /**
    *
@@ -87,7 +87,23 @@ public interface DisaggregationCalculatorAPI extends Remote{
   public String getDisaggregationPlotUsingServlet(String metadata) throws java.
       rmi.RemoteException;
 
+  /**
+   * Setting up the Mag Range
+   * @param minMag double
+   * @param numMags int
+   * @param deltaMag double
+   */
+  public void setMagRange(double minMag, int numMags, double deltaMag) throws
+      java.rmi.RemoteException ;
 
+  /**
+   * Setting up the Distance Range
+   * @param minDist double
+   * @param numDist int
+   * @param deltaDist double
+   */
+  public void setDistanceRange(double minDist, int numDist, double deltaDist) throws
+      java.rmi.RemoteException;
 
   /**
    *

@@ -864,7 +864,8 @@ public class HazardCurveServerModeApplication extends JFrame
       // you can show warning messages now
      imrGuiBean.showWarningMessages(true);
      addGraphPanel();
-     setButtonsEnable(true);
+     if(!disaggregationFlag)
+       setButtonsEnable(true);
     }
 
     /**
@@ -1147,7 +1148,7 @@ public class HazardCurveServerModeApplication extends JFrame
         disaggProgressClass.displayProgressBar();
         disaggTimer.start();
       }
-      try{
+      /*try{
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
       }catch(Exception e){
         setButtonsEnable(true);
@@ -1155,10 +1156,26 @@ public class HazardCurveServerModeApplication extends JFrame
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
-      }
+      }*/
       int num = hazFunction.getNum();
       double disaggregationVal = disaggregationControlPanel.getDisaggregationVal();
       String disaggregationParamVal = disaggregationControlPanel.getDisaggregationParamValue();
+      double minMag = disaggregationControlPanel.getMinMag();
+      double deltaMag = disaggregationControlPanel.getdeltaMag();
+      int numMag = disaggregationControlPanel.getNumMag();
+      double minDist= disaggregationControlPanel.getMinDist();
+      double deltaDist= disaggregationControlPanel.getdeltaDist();
+      int numDist = disaggregationControlPanel.getNumDist();
+      try{
+        disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
+        disaggCalc.setMagRange(minMag, numMag, deltaMag);
+      }catch(Exception e){
+        setButtonsEnable(true);
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+        bugWindow.show();
+        bugWindow.pack();
+        e.printStackTrace();
+      }
       double imlForDisaggregation = 0;
       try{
       if(disaggregationParamVal.equals(disaggregationControlPanel.DISAGGREGATE_USING_PROB)){
@@ -1199,6 +1216,8 @@ public class HazardCurveServerModeApplication extends JFrame
         }
       //}
     }
+    System.out.println("Disaggregation Control :"+disaggregationString);
+    setButtonsEnable(true);
     //displays the disaggregation string in the pop-up window
     if(disaggregationString !=null) {
       HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, this, disaggregationString);

@@ -44,6 +44,18 @@ public class DisaggregationControlPanel extends JFrame
   public final static String DISAGGREGATE_USING_IML = "IML";
 
 
+  //sets the Mag Range for Disaggregation calculation
+  private DoubleParameter minMagParam = new DoubleParameter("Min Mag",0,10,new Double(5));
+  private IntegerParameter numMagParam = new IntegerParameter("Num Mags",new Integer(9));
+  private DoubleParameter deltaMagParam = new DoubleParameter("Delta Mag",new Double(0.5));
+
+  //sets the Dist range for Disaggregation calculation
+  private DoubleParameter minDistParam = new DoubleParameter("Min Dist",new Double(0));
+  private IntegerParameter numDistParam = new IntegerParameter("Num Dist",new Integer(12));
+  private DoubleParameter deltaDistParam = new DoubleParameter("Delta Dist",new Double(10));
+
+
+
   private ParameterListEditor paramListEditor;
 
   private boolean isDisaggregationSelected;
@@ -74,13 +86,19 @@ public class DisaggregationControlPanel extends JFrame
       paramList.addParameter(disaggregationParameter);
       paramList.addParameter(disaggregationProbParam);
       paramList.addParameter(disaggregationIMLParam);
+      paramList.addParameter(minMagParam);
+      paramList.addParameter(numMagParam);
+      paramList.addParameter(deltaMagParam);
+      paramList.addParameter(minDistParam);
+      paramList.addParameter(numDistParam);
+      paramList.addParameter(deltaDistParam);
+
 
       paramListEditor = new ParameterListEditor(paramList);
       setParamsVisible((String)disaggregationParameter.getValue());
       jbInit();
       // show the window at center of the parent component
-      this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,
-                     parentComponent.getY()+parentComponent.getHeight()/2);
+      this.setLocation(parentComponent.getX()+parentComponent.getWidth()/2,0);
       parent.setDisaggregationSelected(isDisaggregationSelected);
 
     }
@@ -99,7 +117,7 @@ public class DisaggregationControlPanel extends JFrame
         new Insets(2, 2, 2, 2), 0, 0));
     this.setTitle("Disaggregation Control Panel");
     paramListEditor.setTitle("Set Disaggregation Params");
-    this.setSize(300,200);
+    this.setSize(300,500);
   }
 
 
@@ -135,6 +153,7 @@ public class DisaggregationControlPanel extends JFrame
 
   }
 
+
   /**
    *
    * @param e ParameterChangeEvent
@@ -146,8 +165,53 @@ public class DisaggregationControlPanel extends JFrame
   }
 
 
+  /**
+   * Returns the mininum Magnitude
+   * @return double
+   */
+  public double getMinMag(){
+    return ((Double)minMagParam.getValue()).doubleValue();
+  }
 
+  /**
+   * Returns the number of magnitude intervals
+   * @return double
+   */
+  public int getNumMag(){
+    return ((Integer)numMagParam.getValue()).intValue();
+  }
 
+  /**
+   * Returns the Mag range Discritization. It is evenly discretized.
+   * @return double
+   */
+  public double getdeltaMag(){
+    return ((Double)deltaMagParam.getValue()).doubleValue();
+  }
+
+  /**
+   * Returns the minimum Distance
+   * @return double
+   */
+  public double getMinDist(){
+    return ((Double)minDistParam.getValue()).doubleValue();
+  }
+
+  /**
+   * Returns the number of Distance intervals
+   * @return double
+   */
+  public int getNumDist(){
+    return ((Integer)numDistParam.getValue()).intValue();
+  }
+
+  /**
+   * Returns the Distance range Discritization. It is evenly discretized.
+   * @return double
+   */
+  public double getdeltaDist(){
+    return ((Double)deltaDistParam.getValue()).doubleValue();
+  }
 
   /**
    * Makes the parameters visible based on the choice of the user for Disaggregation
