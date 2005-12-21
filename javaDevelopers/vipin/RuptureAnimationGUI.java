@@ -71,6 +71,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener, Chan
   private JLabel currentRupLabel= new JLabel("Rupture Index:");
   private JLabel rupValLabel = new JLabel();
 
+
   //static initializer for setting look & feel
   static {
     String osName = System.getProperty("os.name");
