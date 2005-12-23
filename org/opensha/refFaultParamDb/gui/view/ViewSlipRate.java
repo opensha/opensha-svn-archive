@@ -69,12 +69,17 @@ public class ViewSlipRate extends LabeledBoxPanel {
   */
  public void setInfo(CombinedSlipRateInfo combinedSlipRateInfo) {
    if(combinedSlipRateInfo ==null) setInfo(null, null, null, null, null, null);
-   else setInfo(combinedSlipRateInfo.getSlipRateEstimate().getEstimate(),
-                combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip().getEstimate(),
-                combinedSlipRateInfo.getSlipRateComments(),
-                combinedSlipRateInfo.getSenseOfMotionRake(),
-                combinedSlipRateInfo.getSenseOfMotionQual(),
-                combinedSlipRateInfo.getMeasuredComponentQual());
+   else {
+     EstimateInstances aseismicSlipEstInstance = combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip();
+     Estimate aseismicSlipEst = null;
+     if(aseismicSlipEstInstance!=null) aseismicSlipEst = aseismicSlipEstInstance.getEstimate();
+     setInfo(combinedSlipRateInfo.getSlipRateEstimate().getEstimate(),
+             aseismicSlipEst,
+             combinedSlipRateInfo.getSlipRateComments(),
+             combinedSlipRateInfo.getSenseOfMotionRake(),
+             combinedSlipRateInfo.getSenseOfMotionQual(),
+             combinedSlipRateInfo.getMeasuredComponentQual());
+   }
  }
 
   /**

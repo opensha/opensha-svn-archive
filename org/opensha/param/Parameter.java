@@ -157,7 +157,7 @@ public abstract class Parameter
      * @throws  ConstraintException  Thrown if the object value is not allowed.
      */
     public void setValue( Object value ) throws ConstraintException, ParameterException {
-        String S = C + ": setValue(): ";
+        String S = getName() + ": setValue(): ";
 
         if ( !isAllowed( value ) ) {
             throw new ConstraintException( S + "Value is not allowed: " + value.toString() );

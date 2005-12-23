@@ -461,6 +461,7 @@ CREATE TABLE Exact_Time_Info (
    Minute INTEGER NOT NULL,
    Second INTEGER NOT NULL,
    Era VARCHAR(2) NOT NULL,
+   Is_Now char(1) NULL,
    PRIMARY KEY(Time_Instance_Id),
    FOREIGN KEY(Time_Instance_Id) 
       REFERENCES Time_Instances(Time_Id) ON DELETE CASCADE

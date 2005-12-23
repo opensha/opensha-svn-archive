@@ -166,9 +166,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
         CombinedEventsInfo combinedEventsInfo = (CombinedEventsInfo)combinedEventsInfoList.get(i);
         ArrayList referenceList  = combinedEventsInfo.getReferenceList();
 
-        timeSpansList.add((i+1)+". "+"(Start Time="+
-                          getTimeString(combinedEventsInfo.getStartTime())+") "+
-                          "(End Time="+getTimeString(combinedEventsInfo.getEndTime())+")");
+        timeSpansList.add(getTimeString(combinedEventsInfo.getStartTime())+" to "+
+                          getTimeString(combinedEventsInfo.getEndTime()));
       }
     }
     return timeSpansList;
@@ -224,7 +223,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     viewTimeSpanInfo(combinedEventsInfo);
   }
 
-
   /**
    * Get the timespan as a string value which can be displayed in the StringParameter
    * @param startTime
@@ -232,6 +230,51 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    * @return
    */
   private String getTimeString(TimeAPI time) {
+    String timeString="";
+    if(time instanceof ExactTime) { // if it is exact time
+      ExactTime exactTime = (ExactTime)time;
+      if(exactTime.getIsNow()) timeString+="Now";
+      else timeString+=exactTime.getYear()+exactTime.getEra();
+    } else if(time instanceof TimeEstimate) { // if it is time estimate
+      TimeEstimate timeEstimate = (TimeEstimate) time;
+      Estimate estimate = timeEstimate.getEstimate();
+        // for normal estimate, mean is displayed
+      if (estimate instanceof NormalEstimate)
+        timeString+=estimate.getMean();
+        // if estimate is of log normal type, linear median is displayed
+      else if(estimate instanceof LogNormalEstimate)
+        timeString+=((LogNormalEstimate)estimate).getLinearMedian();
+        // point of highest prob is displayed
+      else if (estimate instanceof DiscretizedFuncEstimate) {
+        DiscretizedFunc func = ( (DiscretizedFuncEstimate) estimate).getValues();
+        timeString +=func.getFirstInterpolatedX(func.getMaxY());
+      }
+      // try to display pref value, then maximum and then minimum
+     else if (estimate instanceof MinMaxPrefEstimate) {
+        MinMaxPrefEstimate minMaxPrefEst =  (MinMaxPrefEstimate) estimate;
+        if(!Double.isNaN(minMaxPrefEst.getPreferredX()))
+          timeString +=  minMaxPrefEst.getPreferredX();
+        else if(!Double.isNaN(minMaxPrefEst.getMaximumX()))
+          timeString +=   minMaxPrefEst.getMaximumX();
+        else if(!Double.isNaN(minMaxPrefEst.getMinimumX()))
+          timeString +=   minMaxPrefEst.getMinimumX();
+      }
+      if (timeEstimate.isKaSelected()) // if user entered ka values
+        timeString += "ka";
+      else  timeString += timeEstimate.getEra();
+
+    }
+    return timeString;
+  }
+
+
+  /**
+   * Get the timespan as a string value which can be displayed in the StringParameter
+   * @param startTime
+   * @param endTime
+   * @return
+   */
+  /*private String getTimeString(TimeAPI time) {
     String timeString="";
     if(time instanceof ExactTime) { // if it is exact time
       ExactTime exactTime = (ExactTime)time;
@@ -266,16 +309,16 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       } else if (estimate instanceof MinMaxPrefEstimate) {
         MinMaxPrefEstimate minMaxPrefEst =  (MinMaxPrefEstimate) estimate;
         timeString += minMaxPrefEst.getName() + ":";
-        if(!Double.isNaN(minMaxPrefEst.getMinX()))
-          timeString +=   "Min="+minMaxPrefEst.getMinX()+",";
-        if(!Double.isNaN(minMaxPrefEst.getMaxX()))
-          timeString +=   "Max="+minMaxPrefEst.getMaxX()+",";
-        if(!Double.isNaN(minMaxPrefEst.getPrefX()))
-          timeString +=  "Pref="+minMaxPrefEst.getPrefX()+",";
+        if(!Double.isNaN(minMaxPrefEst.getMinimumX()))
+          timeString +=   "Min="+minMaxPrefEst.getMinimumX()+",";
+        if(!Double.isNaN(minMaxPrefEst.getMaximumX()))
+          timeString +=   "Max="+minMaxPrefEst.getMaximumX()+",";
+        if(!Double.isNaN(minMaxPrefEst.getPreferredX()))
+          timeString +=  "Pref="+minMaxPrefEst.getPreferredX()+",";
       }
     }
     return timeString;
-  }
+  }*/
 
 
   /**
@@ -500,7 +543,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   private void viewTimeSpanInfo(CombinedEventsInfo combinedEventsInfo) {
     if (isTestSite()) {
       // FAKE DATA FOR TEST SITE
-      ExactTime endTime = new ExactTime(1857, 1, 15, 10, 56, 21, TimeAPI.AD);
+      ExactTime endTime = new ExactTime(1857, 1, 15, 10, 56, 21, TimeAPI.AD, false);
       TimeEstimate startTime = new TimeEstimate();
       startTime.setForKaUnits(new NormalEstimate(1000, 50), 1950);
       String comments = "Summary of Dating techniques and dated features ";

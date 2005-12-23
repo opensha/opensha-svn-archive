@@ -48,7 +48,6 @@ public class CombinedDisplacementInfoDB_DAO {
    */
   public void addDisplacementInfo(int infoId, String entryDate,
                                   CombinedDisplacementInfo combinedDispInfo) {
-    int aSeisId = estimateInstancesDAO.addEstimateInstance(combinedDispInfo.getASeismicSlipFactorEstimateForDisp());
     int displacementId =  estimateInstancesDAO.addEstimateInstance(combinedDispInfo.getDisplacementEstimate());
     String comments = combinedDispInfo.getDisplacementComments();
     if(comments==null) comments="";
@@ -61,19 +60,29 @@ public class CombinedDisplacementInfoDB_DAO {
       int rakeEstId = estimateInstancesDAO.addEstimateInstance(somRake);
       colVals += rakeEstId+",";
     }
-
+    // check whether sense of motion qualitative has been entered
     if(somQual!=null) {
       colNames+=this.SENSE_OF_MOTION_QUAL+",";
       colVals += "'"+somQual+"',";
     }
+    // check whether measured component qualitative has been entered
     if(measuredCompQual!=null) {
       colNames += this.MEASURED_SLIP_COMP_QUAL+",";
       colVals +="'"+measuredCompQual+"',";
     }
+    // check whether aseismic slip factor has been added
+    // check whether aseismic slip factor has been provided
+   EstimateInstances aseismicSlipEst = combinedDispInfo.getASeismicSlipFactorEstimateForDisp();
+   if(aseismicSlipEst!=null) {
+     int aSeisId = estimateInstancesDAO.addEstimateInstance(aseismicSlipEst);
+     colNames+=this.DISP_ASEISMIC_SLIP_FACTOR_EST_ID+",";
+     colVals +=""+aSeisId+",";
+   }
+
 
     String sql = "insert into "+TABLE_NAME+"("+TOTAL_SLIP_EST_ID+","+
-        colNames+DISP_ASEISMIC_SLIP_FACTOR_EST_ID+","+TOTAL_SLIP_COMMENTS+","+
-        INFO_ID+","+ENTRY_DATE+") values ("+displacementId+","+colVals+aSeisId+",'"+
+        colNames+TOTAL_SLIP_COMMENTS+","+
+        INFO_ID+","+ENTRY_DATE+") values ("+displacementId+","+colVals+"'"+
         comments+"',"+infoId+",'"+entryDate+"')";
     try {
       dbAccess.insertUpdateOrDeleteData(sql);
@@ -101,16 +110,22 @@ public class CombinedDisplacementInfoDB_DAO {
          combinedDisplacementInfo = new CombinedDisplacementInfo();
          combinedDisplacementInfo.setDisplacementComments(rs.getString(TOTAL_SLIP_COMMENTS));
          combinedDisplacementInfo.setDisplacementEstimate(estimateInstancesDAO.getEstimateInstance(rs.getInt(TOTAL_SLIP_EST_ID)));
-         combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(estimateInstancesDAO.getEstimateInstance(rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID)));
-         // sense of motion
+         // aseismic slip factor
+         EstimateInstances aseismicSlipFactorEst = null;
+         int aseismicSlipFactorEstId = rs.getInt(DISP_ASEISMIC_SLIP_FACTOR_EST_ID);
+         if(!rs.wasNull()) aseismicSlipFactorEst = estimateInstancesDAO.getEstimateInstance(aseismicSlipFactorEstId);
+         // sense of motion rake
          int senseOfMotionRakeId = rs.getInt(SENSE_OF_MOTION_RAKE);
          EstimateInstances senseOfMotionRake =null;
          if(!rs.wasNull()) senseOfMotionRake=this.estimateInstancesDAO.getEstimateInstance(senseOfMotionRakeId);
+         // sense of motion qualitative
          String senseOfMotionQual = rs.getString(SENSE_OF_MOTION_QUAL);
          if(rs.wasNull()) senseOfMotionQual=null;
          //measured component of slip
          String measuedCompQual = rs.getString(this.MEASURED_SLIP_COMP_QUAL);
          if(rs.wasNull()) measuedCompQual=null;
+
+         combinedDisplacementInfo.setASeismicSlipFactorEstimateForDisp(aseismicSlipFactorEst);
          combinedDisplacementInfo.setSenseOfMotionRake(senseOfMotionRake);
          combinedDisplacementInfo.setSenseOfMotionQual(senseOfMotionQual);
          combinedDisplacementInfo.setMeasuredComponentQual(measuedCompQual);

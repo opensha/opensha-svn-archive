@@ -49,7 +49,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private CommentsParameterEditor biblioParameterEditor;
   private IntegerParameterEditor yearParamEditor;
   private final static String NEW_SITE_TYPE_LABEL="Add Reference";
-  private JButton okButton = new JButton("OK");
+  private JButton okButton = new JButton("Submit");
   private JButton cancelButton = new JButton("Cancel");
   private JButton viewAllRefsButton = new JButton("View All References");
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);

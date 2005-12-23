@@ -11,8 +11,9 @@ import java.util.GregorianCalendar;
  */
 
 public class ExactTime extends TimeAPI {
-  int year, month, day, hour, minute, second;
+  private int year, month, day, hour, minute, second;
   private String era;
+  private boolean isNow;
 
   /**
    *
@@ -24,10 +25,28 @@ public class ExactTime extends TimeAPI {
    * @param second
    * @param era
    */
-  public ExactTime(int year, int month, int day, int hour, int minute, int second, String era) {
+  public ExactTime(int year, int month, int day, int hour, int minute, int second, String era,
+                   boolean isNow) {
     // adjust month as gregorian calendar months go from 0 to 11
-    this(year, month, day, hour, minute, second);
+    this(year, month, day, hour, minute, second,isNow);
     setEra(era);
+  }
+
+  /**
+   * Set whether this represents NOW
+   * @param isNow
+   */
+  public void setIsNow(boolean isNow) {
+    this.isNow = isNow;
+  }
+
+  /**
+   * If this represesent NOW.
+   * Returns true if it represents NOW
+   * @return
+   */
+  public boolean getIsNow() {
+    return this.isNow;
   }
 
   public String toString() {
@@ -37,6 +56,7 @@ public class ExactTime extends TimeAPI {
         "Hour="+hour+"\n"+
         "Minute="+minute+"\n"+
         "Second="+second+"\n"+
+        "IsNow="+this.isNow+"\n"+
         super.toString();
   }
 
@@ -50,13 +70,14 @@ public class ExactTime extends TimeAPI {
    * @param minute
    * @param second
    */
-  public ExactTime(int year, int month, int day, int hour, int minute, int second) {
+  public ExactTime(int year, int month, int day, int hour, int minute, int second, boolean isNow) {
    this.year = year;
    this.month = month;
    this.day = day;
    this.hour = hour;
    this.minute = minute;
    this.second = second;
+   this.setIsNow(isNow);
   }
 
   public String getEra() {

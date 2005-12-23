@@ -44,8 +44,9 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private JSplitPane estimatesSplitPane = new JSplitPane();
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane detailedEventInfoSplitPane = new JSplitPane();
-  private JButton okButton = new JButton("Add Another Event");
-  private JButton cancelButton = new JButton("Close");
+  private JButton okButton = new JButton("Submit and Add Another Event");
+  private JButton doneButton = new JButton("Done");
+  private JButton cancelButton = new JButton("Cancel");
   private JPanel eventSummaryPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
@@ -80,14 +81,17 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       "The selected event set for shared displacement is invalid.\nThese events do not share same displacement";
   private final static String MSG_PALEO_EVENT_ADD_SUCCESS = "Paleo Event added successfully to the database";
   private final static String MSG_NEED_TO_SAVE_CURR_EVENT = "Do you want to save current event to database?";
-//slip rate constants
+  private final static String MSG_CURR_EVENT_NOT_SAVED = "Current Event will not be saved in database";
+  private final static String MSG_CONTACT_TO_DELETE = "events were added to database in this session. Contact perry@gps.caltech.edu to remove them";
+
+  //slip rate constants
   private final static String SLIP_UNITS = "meters";
   private final static double SLIP_MIN = 0;
   private final static double SLIP_MAX = Double.POSITIVE_INFINITY;
 
   // diplacement parameter list editor title
   private final static String DISPLACEMENT_TITLE = "Shared Slip";
-  private final static String TITLE = "Add Event";
+  private final static String TITLE = "Add Data, Individual Event(s)";
 
   // various parameter types
   private StringParameter eventNameParam;
@@ -122,6 +126,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private ArrayList referenceList;
   private SenseOfMotionPanel senseOfMotionPanel;
   private MeasuredCompPanel measuredCompPanel;
+  private static int eventToDatabaseCounter=0;
+
   public AddEditIndividualEvent(int siteId, String siteEntryDate) {
     try {
       senseOfMotionPanel = new SenseOfMotionPanel();
@@ -317,15 +323,17 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     else if(source == okButton) {
       try {
         addEventToDatabase();
+        ++eventToDatabaseCounter;
       }catch(InsertException e) {
         JOptionPane.showMessageDialog(this, e.getMessage());
       }
     }
-    else if(source == cancelButton) { // close the window
+    else if(source == doneButton) { // close the window
       int option = JOptionPane.showConfirmDialog(this,MSG_NEED_TO_SAVE_CURR_EVENT);
       if(option==JOptionPane.OK_OPTION) {// ask user whether current event need to be saved to DB
         try {
           addEventToDatabase();
+          eventToDatabaseCounter=0;
           this.dispose();
         }
         catch (InsertException e) {
@@ -334,6 +342,17 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       }else if(option == JOptionPane.NO_OPTION) {
         this.dispose();
       }
+    } else if(source==cancelButton) {
+      // if cancel button is pressed, inform the user that current event will not be
+      // saved in database. If there were previously added events, give them contact
+      // details to delete the events.
+      String msg = MSG_CURR_EVENT_NOT_SAVED;
+      if(this.eventToDatabaseCounter>0) {
+        msg = msg+"\n"+eventToDatabaseCounter+" "+this.MSG_CONTACT_TO_DELETE;
+      }
+      JOptionPane.showMessageDialog(this, msg);
+      eventToDatabaseCounter=0;
+      this.dispose();
     }
     else if(source == viewAllRefsButton) new ViewAllReferences();
   }
@@ -412,6 +431,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
    */
   private void addActionListeners() {
     okButton.addActionListener(this);
+    doneButton.addActionListener(this);
     cancelButton.addActionListener(this);
     this.addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     addNewReferenceButton.addActionListener(this);
@@ -438,19 +458,22 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     topPanel.setLayout(gridBagLayout2);
     this.getContentPane().setLayout(borderLayout1);
     eventSummaryPanel.setLayout(gridBagLayout1);
+    cancelButton.setText("Cancel");
     this.getContentPane().add(topPanel, BorderLayout.CENTER);
-    topPanel.add(mainSplitPane,  new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
+    topPanel.add(mainSplitPane,    new GridBagConstraints(0, 0, 4, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 3, 0, 2), 305, 423));
-    topPanel.add(okButton,  new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 147, 29, 0), 54, 7));
-    topPanel.add(cancelButton,  new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 23, 29, 211), 36, 7));
+    topPanel.add(okButton,         new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.SOUTHWEST, GridBagConstraints.NONE, new Insets(7, 19, 19, 0), 42, 1));
+    topPanel.add(doneButton,     new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.SOUTHWEST, GridBagConstraints.NONE, new Insets(7, 7, 22, 0), 21, 1));
+    topPanel.add(cancelButton,   new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0
+            ,GridBagConstraints.NORTHEAST, GridBagConstraints.NONE, new Insets(7, 7, 0, 0), 0, 0));
     mainSplitPane.add(detailedEventInfoSplitPane, JSplitPane.BOTTOM);
     detailedEventInfoSplitPane.add(estimatesSplitPane, JSplitPane.LEFT);
     mainSplitPane.add(eventSummaryPanel, JSplitPane.TOP);
-    estimatesSplitPane.setDividerLocation(WIDTH/3);
+    estimatesSplitPane.setDividerLocation(233);
     mainSplitPane.setDividerLocation(50);
-    detailedEventInfoSplitPane.setDividerLocation(WIDTH*2/3);
+    detailedEventInfoSplitPane.setDividerLocation(466);
   }
 
   public void dbAdditionSuccessful(DbAdditionSuccessEvent event) {

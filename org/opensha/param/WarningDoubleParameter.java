@@ -408,7 +408,7 @@ public class WarningDoubleParameter
      * @throws WarningException     Thrown if the new value is beyond the warning levels.
      */
     public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
-        String S = C + ": setValue(): ";
+        String S = getName() + ": setValue(): ";
         if(D) System.out.println(S + "Starting: ");
 
         if ( !isAllowed( value ) ) {

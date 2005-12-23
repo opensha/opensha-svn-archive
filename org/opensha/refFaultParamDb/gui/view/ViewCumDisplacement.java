@@ -64,13 +64,18 @@ public class ViewCumDisplacement extends LabeledBoxPanel  {
    */
   public void setInfo(CombinedDisplacementInfo combinedDisplacementInfo) {
     if(combinedDisplacementInfo ==null) setInfo(null, null, null, null, null, null);
-    else setInfo(combinedDisplacementInfo.getDisplacementEstimate().getEstimate(),
-                                 combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp().getEstimate(),
-                                 combinedDisplacementInfo.getDisplacementComments(),
-                                 combinedDisplacementInfo.getSenseOfMotionRake(),
-                                 combinedDisplacementInfo.getSenseOfMotionQual(),
-                                 combinedDisplacementInfo.getMeasuredComponentQual()
-                                 );
+    else {
+      EstimateInstances aseismicSlipEstInstance = combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp();
+      Estimate aseismicSlipEst = null;
+      if(aseismicSlipEstInstance!=null) aseismicSlipEst = aseismicSlipEstInstance.getEstimate();
+      setInfo(combinedDisplacementInfo.getDisplacementEstimate().getEstimate(),
+              aseismicSlipEst,
+              combinedDisplacementInfo.getDisplacementComments(),
+              combinedDisplacementInfo.getSenseOfMotionRake(),
+              combinedDisplacementInfo.getSenseOfMotionQual(),
+              combinedDisplacementInfo.getMeasuredComponentQual()
+              );
+    }
   }
   /**
    * Set the info about the displacement, aseismic slip factor, comments and references

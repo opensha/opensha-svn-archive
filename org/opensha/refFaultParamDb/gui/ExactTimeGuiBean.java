@@ -51,6 +51,11 @@ public class ExactTimeGuiBean extends ParameterListEditor{
   private void initParamsList() {
     parameterList = new ParameterList();
     yearParam = new IntegerParameter(YEAR_PARAM_NAME, yearConstraint, YEAR_PARAM_DEFAULT);
+    monthConstraint.setNullAllowed(true);
+    dayConstraint.setNullAllowed(true);
+    hourConstraint.setNullAllowed(true);
+    minuteConstraint.setNullAllowed(true);
+    secondConstraint.setNullAllowed(true);
     monthParam = new IntegerParameter(MONTH_PARAM_NAME, monthConstraint, MONTH_PARAM_DEFAULT);
     dayParam = new IntegerParameter(DAY_PARAM_NAME, dayConstraint, DAY_PARAM_DEFAULT);
     hourParam = new IntegerParameter(HOUR_PARAM_NAME, hourConstraint,HOUR_PARAM_DEFAULT);
@@ -70,12 +75,23 @@ public class ExactTimeGuiBean extends ParameterListEditor{
    */
   public ExactTime getExactTime() {
     int year =((Integer)yearParam.getValue()).intValue();
-    int month = ((Integer)monthParam.getValue()).intValue();
-    int day = ((Integer)dayParam.getValue()).intValue();
-    int hour = ((Integer)hourParam.getValue()).intValue();
-    int minute = ((Integer)minuteParam.getValue()).intValue();
-    int second = ((Integer)secondParam.getValue()).intValue();
-    ExactTime exactTime = new ExactTime(year, month, day, hour, minute, second);
+    int month=0, day=0, hour=0, minute=0, second=0;
+    // month parameter value
+    Integer monthParamVal = (Integer)monthParam.getValue();
+    if(monthParamVal!=null) month = monthParamVal.intValue();
+    // day parameter value
+    Integer dayParamVal = (Integer)dayParam.getValue();
+    if(dayParamVal!=null) day = dayParamVal.intValue();
+    // hour parameter value
+    Integer hourParamVal = (Integer)hourParam.getValue();
+    if(hourParamVal!=null) hour = hourParamVal.intValue();
+    // minute parameter value
+    Integer minuteParamVal = (Integer)minuteParam.getValue();
+    if(minuteParamVal!=null) minute = minuteParamVal.intValue();
+    // second parameter value
+    Integer secondParamVal = (Integer)secondParam.getValue();
+    if(secondParamVal!=null) second = secondParamVal.intValue();
+    ExactTime exactTime = new ExactTime(year, month, day, hour, minute, second, false);
     return exactTime;
   }
 

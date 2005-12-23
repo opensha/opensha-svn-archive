@@ -256,8 +256,10 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
       timeAPI = getTimeEstimate();
     } else { // "Now" is selected
       Integer pubYearVal = (Integer)this.publicationYearParam.getValue();
-      if(pubYearVal==null) throw new RuntimeException(publicationYearParam+" is missing");
-      timeAPI = new ExactTime(pubYearVal.intValue(), 0, 0, 0, 0, 0, AD);
+      // if publication year not available, set the current year as NOW
+      //if(pubYearVal==null) pubYearVal = new Integer(new GregorianCalendar().get(Calendar.YEAR));
+      pubYearVal = new Integer(0);
+      timeAPI = new ExactTime(pubYearVal.intValue(), 0, 0, 0, 0, 0, AD, true);
     }
     return timeAPI;
   }

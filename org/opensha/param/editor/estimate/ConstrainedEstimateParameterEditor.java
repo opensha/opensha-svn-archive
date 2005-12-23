@@ -24,6 +24,7 @@ import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import org.opensha.param.estimate.*;
 import ch.randelshofer.quaqua.QuaquaManager;
+import org.opensha.data.estimate.InvalidParamValException;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -314,12 +315,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   // set the estimate in min/max/pref estimate
   private void setMinMaxPrefVals(MinMaxPrefEstimate minMaxPrefEstimate) {
     this.chooseEstimateParam.setValue(MinMaxPrefEstimate.NAME);
-    this.minX_Param.setValue(minMaxPrefEstimate.getMinX());
-    this.prefferedX_Param.setValue(minMaxPrefEstimate.getPrefX());
-    this.maxX_Param.setValue(minMaxPrefEstimate.getMaxX());
-    this.minProbParam.setValue(minMaxPrefEstimate.getMinProb());
-    this.prefferedProbParam.setValue(minMaxPrefEstimate.getPrefProb());
-    this.maxProbParam.setValue(minMaxPrefEstimate.getMaxProb());
+    this.minX_Param.setValue(minMaxPrefEstimate.getMinimumX());
+    this.prefferedX_Param.setValue(minMaxPrefEstimate.getPreferredX());
+    this.maxX_Param.setValue(minMaxPrefEstimate.getMaximumX());
+    this.minProbParam.setValue(minMaxPrefEstimate.getMinimumProb());
+    this.prefferedProbParam.setValue(minMaxPrefEstimate.getPreferredProb());
+    this.maxProbParam.setValue(minMaxPrefEstimate.getMaximumProb());
     xValsParamListEditor.refreshParamEditor();
     probValsParamListEditor.refreshParamEditor();
 
@@ -802,8 +803,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
    if(val.getNum()==0) throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+
          this.MSG_VALUE_MISSING_SUFFIX);
-   DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
-   return estimate;
+   try {
+     DiscreteValueEstimate estimate = new DiscreteValueEstimate(val, true);
+     return estimate;
+   }catch(InvalidParamValException e) {
+     throw new RuntimeException(this.model.getName()+":"+e.getMessage());
+   }
  }
 
 
@@ -816,16 +821,27 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    ArbitrarilyDiscretizedFunc val = (ArbitrarilyDiscretizedFunc)this.arbitrarilyDiscFuncParam.getValue();
    if(val.getNum()==0)
       throw new RuntimeException(arbitrarilyDiscFuncParam.getName()+this.MSG_VALUE_MISSING_SUFFIX);
-   IntegerEstimate estimate = new IntegerEstimate(val, true);
-   return estimate;
+   try {
+     IntegerEstimate estimate = new IntegerEstimate(val, true);
+     return estimate;
+   }catch(InvalidParamValException e) {
+     throw new RuntimeException(this.model.getName()+":"+e.getMessage());
+   }
+
  }
 
  /**
   * Set the estimate paramter value to be Pdf estimate
   */
  private Estimate setPDF_Estimate() {
-   PDF_Estimate estimate = new PDF_Estimate((EvenlyDiscretizedFunc)this.evenlyDiscFuncParam.getValue(), true);
-   return estimate;
+   try {
+     PDF_Estimate estimate = new PDF_Estimate( (EvenlyDiscretizedFunc)this.
+                                              evenlyDiscFuncParam.getValue(), true);
+     return estimate;
+   }catch(InvalidParamValException e) {
+     throw new RuntimeException(this.model.getName()+":"+e.getMessage());
+   }
+
  }
 
 
@@ -850,30 +866,13 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      // check that if user entered prefX, then prefProb was also entered
      checkValidVals(prefX, prefProb, prefferedX_Param.getName(), prefferedProbParam.getName());
    }
-
-   // if min/max/pref is symmetric, ask the user whether normal distribution can be used
-   if(!(Double.isNaN(minX) || Double.isNaN(maxX) || Double.isNaN(prefX) ||
-        Double.isNaN(minProb) || Double.isNaN(maxProb) || Double.isNaN(prefProb))) { //
-     if((minX>prefX) || (minX>maxX) || (prefX>maxX))
-       throw new RuntimeException(prefferedX_Param.getName()+" should be greater than/equal to "+minX_Param.getName()+
-                                  "\n"+maxX_Param.getName()+" should be greater than/equal to "+prefferedX_Param.getName());
-     double diffX1 = prefX - minX;
-     double diffX2 = maxX - prefX;
-     double diffProb1 = prefProb - minProb;
-     double diffProb2 = prefProb - maxProb;
-     if(diffX1==diffX2 && diffProb1==diffProb2 &&
-        chooseEstimateParam.getAllowedStrings().contains(NormalEstimate.NAME)) { // it is symmetric
-        // ask the user if normal distribution can be used
-        int option = JOptionPane.showConfirmDialog(this, MSG_IS_NORMAL_OK);
-        if(option==JOptionPane.OK_OPTION) {
-          this.chooseEstimateParam.setValue(NormalEstimate.NAME);
-          throw new RuntimeException("Changing to Normal Estimate");
-        }
-     }
+   try {
+     MinMaxPrefEstimate estimate = new MinMaxPrefEstimate(minX, maxX, prefX,
+         minProb, maxProb, prefProb);
+      return estimate;
+   }catch(InvalidParamValException e) {
+     throw new RuntimeException(this.model.getName()+":"+e.getMessage());
    }
-   MinMaxPrefEstimate estimate = new MinMaxPrefEstimate(minX, maxX, prefX,
-       minProb, maxProb, prefProb);
-   return estimate;
 
  }
  /**
@@ -986,8 +985,6 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      catch(Exception e) {
      }
    }
-
-
 
  /**
   * test the parameter editor

@@ -17,9 +17,27 @@ public class MinMaxPrefEstimate extends Estimate{
   private double minX, maxX, prefX;
   private double minProb, maxProb, prefProb;
   private final static double tol = 1e-6;
+  private final static String MSG_INVALID_X_VALS = "Preferred X should be greater than/equal to Minimum X"+
+                                  "\n"+"Maximum X should be greater than/equal to Preferred X";
 
+  /**
+   * @param minX
+   * @param maxX
+   * @param prefX
+   * @param minProb
+   * @param maxProb
+   * @param prefProb
+   */
   public MinMaxPrefEstimate(double minX, double maxX, double prefX,
                             double minProb, double maxProb, double prefProb) {
+
+    // check that minX<=prefX<=maxX
+    if(!Double.isNaN(minX) && !Double.isNaN(prefX) && minX>prefX)
+      throw new InvalidParamValException(MSG_INVALID_X_VALS);
+    if(!Double.isNaN(minX) && !Double.isNaN(maxX) && minX>maxX)
+      throw new InvalidParamValException(MSG_INVALID_X_VALS);
+    if(!Double.isNaN(prefX) && !Double.isNaN(maxX) && prefX>maxX)
+      throw new InvalidParamValException(MSG_INVALID_X_VALS);
 
     /* check whether probabilites sum upto 1. check only if at least one of the
     probs is not Nan */
@@ -51,12 +69,46 @@ public class MinMaxPrefEstimate extends Estimate{
   }
 
 
-  public double getMinX() { return this.minX; }
-  public double getMaxX() { return this.maxX; }
-  public double getPrefX() { return this.prefX; }
-  public double getMinProb() { return this.minProb; }
-  public double getMaxProb() { return this.maxProb; }
-  public double getPrefProb() { return this.prefProb; }
+  public double getMinimumX() { return this.minX; }
+  public double getMaximumX() { return this.maxX; }
+  public double getPreferredX() { return this.prefX; }
+  public double getMinimumProb() { return this.minProb; }
+  public double getMaximumProb() { return this.maxProb; }
+  public double getPreferredProb() { return this.prefProb; }
+
+  /**
+   * Checks whether there exist any X values which is less than 0.
+   *
+   * @return It returns true if any x<0. If all x>=0, it returns false
+   */
+  public boolean isNegativeValuePresent() {
+    return (getMinX()<0.0);
+  }
+
+  /**
+   * Get the maximum X value
+   *
+   * @return maximum value (on X axis)
+   */
+  public double getMaxX() {
+    if(!Double.isNaN(maxX)) return maxX;
+    if(!Double.isNaN(prefX)) return prefX;
+    if(!Double.isNaN(minX)) return minX;
+    return Double.NaN;
+  }
+
+  /**
+   * Get the minimum X value
+   *
+   * @return minimum value (on X axis)
+   */
+  public double getMinX() {
+    if(!Double.isNaN(minX)) return minX;
+    if(!Double.isNaN(prefX)) return prefX;
+    if(!Double.isNaN(maxX)) return maxX;
+    return Double.NaN;
+  }
+
 
   /**
    * getMean() is not supported for MinMaxPrefEstimate

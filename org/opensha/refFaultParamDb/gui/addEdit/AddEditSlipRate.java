@@ -16,6 +16,9 @@ import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.ParameterChangeEvent;
 
 
 /**
@@ -29,7 +32,12 @@ import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
  * @version 1.0
  */
 
-public class AddEditSlipRate extends LabeledBoxPanel  {
+public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChangeListener {
+  // whether  Aseismic Slip Factor is Known/Unknown
+  private final static String ASEISMIC_AVAILABLE_PARAM_NAME="Asiesmic Slip Factor";
+  private final static String KNOWN = "Known";
+  private final static String UNKNOWN = "Unknown";
+
   // SLIP RATE
   private final static String SLIP_RATE_PARAM_NAME="Slip Rate Estimate";
   private final static String SLIP_RATE="Slip Rate";
@@ -50,10 +58,12 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
   private EstimateParameter slipRateEstimateParam;
   private EstimateParameter aSeismicSlipFactorParam;
   private StringParameter slipRateCommentsParam;
+  private StringParameter aseismicAvailableParam;
 
   // parameter editors
   private ConstrainedEstimateParameterEditor slipRateEstimateParamEditor;
   private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
+  private ConstrainedStringParameterEditor aseismicAvailableParamEditor;
   private CommentsParameterEditor slipRateCommentsParamEditor;
   private SenseOfMotionPanel senseOfMotionPanel;
   private MeasuredCompPanel measuredCompPanel;
@@ -67,6 +77,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
       measuredCompPanel = new MeasuredCompPanel();
       this.setLayout(GUI_Utils.gridBagLayout);
       this.addSlipRateInfoParameters();
+      setAseismicEditorVisibility();
       this.setMinimumSize(new Dimension(0, 0));
     }catch(Exception e) {
       e.printStackTrace();
@@ -85,6 +96,14 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
    this.slipRateEstimateParam = new EstimateParameter(this.SLIP_RATE_PARAM_NAME,
         SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
     slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true, true, SLIP_RATE);
+    // whether aseismic slip is available or not
+   ArrayList allowedVals = new ArrayList();
+   allowedVals.add(this.KNOWN);
+   allowedVals.add(this.UNKNOWN);
+   aseismicAvailableParam = new StringParameter(ASEISMIC_AVAILABLE_PARAM_NAME, allowedVals,
+                                                (String)allowedVals.get(0));
+   aseismicAvailableParamEditor = new ConstrainedStringParameterEditor(aseismicAvailableParam);
+   aseismicAvailableParam.addParameterChangeListener(this);
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
@@ -105,6 +124,13 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
                                     , GridBagConstraints.CENTER,
                                     GridBagConstraints.BOTH,
                                     new Insets(0, 0, 0, 0), 0, 0));
+
+    this.add(aseismicAvailableParamEditor,
+                 new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                        , GridBagConstraints.CENTER,
+                                        GridBagConstraints.BOTH,
+                                        new Insets(0, 0, 0, 0), 0, 0));
+
     this.add(aSeismicSlipFactorParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
@@ -137,6 +163,22 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
      return combinedSlipRateInfo;
    }
 
+   public void parameterChange(ParameterChangeEvent event) {
+     if(event.getParameterName().equalsIgnoreCase(this.ASEISMIC_AVAILABLE_PARAM_NAME))
+       setAseismicEditorVisibility();
+   }
+
+   /**
+    * Show/Hide the aseismic slip factor editor
+    */
+   private void setAseismicEditorVisibility() {
+     String aseismicSlipFactorAvailability = (String)aseismicAvailableParam.getValue();
+     if(aseismicSlipFactorAvailability.equalsIgnoreCase(this.KNOWN))
+       this.aSeismicSlipFactorParamEditor.setVisible(true);
+     else this.aSeismicSlipFactorParamEditor.setVisible(false);
+   }
+
+
    /**
     * Get the slip rate estimate along with units
     * @return
@@ -152,6 +194,8 @@ public class AddEditSlipRate extends LabeledBoxPanel  {
     * @return
     */
    private EstimateInstances getAseismicEstimate() {
+     String aseismicSlipFactorAvailability = (String)aseismicAvailableParam.getValue();
+     if(aseismicSlipFactorAvailability.equalsIgnoreCase(this.UNKNOWN)) return null;
      this.aSeismicSlipFactorParamEditor.setEstimateInParameter();
      return new EstimateInstances((Estimate)this.aSeismicSlipFactorParam.getValue(),
                                  ASEISMIC_SLIP_FACTOR_UNITS);

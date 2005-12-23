@@ -148,13 +148,14 @@ public class CommentsParameterEditor extends ParameterEditor
 
            String value = ((JTextArea) valueEditor).getText();
            try {
-
-               String d = "";
-               if( !value.equals( "" ) ) d = value;
-               setValue(d);
-               refreshParamEditor();
-               valueEditor.validate();
-               valueEditor.repaint();
+             if(value.indexOf('\'')>=0)
+               throw new ConstraintException("Single quotes are not allowed in comments field");
+             String d = "";
+             if( !value.equals( "" ) ) d = value;
+             setValue(d);
+             refreshParamEditor();
+             valueEditor.validate();
+             valueEditor.repaint();
            }
            catch (ConstraintException ee) {
                if(D) System.out.println(S + "Error = " + ee.toString());

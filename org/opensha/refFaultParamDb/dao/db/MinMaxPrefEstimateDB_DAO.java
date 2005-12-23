@@ -55,37 +55,37 @@ public class MinMaxPrefEstimateDB_DAO implements EstimateDAO_API {
     MinMaxPrefEstimate minMaxPrefEstimate = (MinMaxPrefEstimate)estimate;
     String colNames="", colVals="";
     // min X
-    double minX = minMaxPrefEstimate.getMinX();
+    double minX = minMaxPrefEstimate.getMinimumX();
     if(!Double.isNaN(minX)) {
       colNames +=MIN_X+",";
       colVals +=minX+",";
     }
     // max X
-    double maxX = minMaxPrefEstimate.getMaxX();
+    double maxX = minMaxPrefEstimate.getMaximumX();
     if(!Double.isNaN(maxX)) {
       colNames +=MAX_X+",";
       colVals +=maxX+",";
     }
     // pref X
-    double prefX = minMaxPrefEstimate.getPrefX();
+    double prefX = minMaxPrefEstimate.getPreferredX();
     if(!Double.isNaN(prefX)) {
       colNames +=PREF_X+",";
       colVals +=prefX+",";
     }
     // min Prob
-    double minProb = minMaxPrefEstimate.getMinProb();
+    double minProb = minMaxPrefEstimate.getMinimumProb();
     if(!Double.isNaN(minProb)) {
       colNames +=MIN_PROB+",";
       colVals +=minProb+",";
     }
     // max Prob
-    double maxProb = minMaxPrefEstimate.getMaxProb();
+    double maxProb = minMaxPrefEstimate.getMaximumProb();
     if(!Double.isNaN(maxProb)) {
       colNames +=MAX_PROB+",";
       colVals +=maxProb+",";
     }
     // pref prob
-    double prefProb = minMaxPrefEstimate.getPrefProb();
+    double prefProb = minMaxPrefEstimate.getPreferredProb();
     if(!Double.isNaN(prefProb)) {
       colNames +=PREF_PROB+",";
       colVals +=prefProb+",";

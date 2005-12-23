@@ -154,7 +154,7 @@ public abstract class WarningDoublePropagationEffectParameter
      */
     public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
 
-        String S = C + ": setValue(): ";
+        String S = getName() + ": setValue(): ";
         if(D) System.out.println(S + "Starting: ");
 
         if ( !isAllowed( value ) ) {

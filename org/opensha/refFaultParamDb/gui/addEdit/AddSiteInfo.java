@@ -32,8 +32,8 @@ import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
 
 public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private JSplitPane mainSplitPane = new JSplitPane();
-  private JButton okButton = new JButton();
-  private JButton cancelButton = new JButton();
+  private JButton okButton = new JButton("Submit");
+  private JButton cancelButton = new JButton("Cancel");
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private boolean isSlipVisible, isDisplacementVisible, isNumEventsVisible, isSequenceVisible;
   private ArrayList referenceList;
@@ -50,7 +50,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private final static String ATLEAT_ONE_MSG = "Atleast one of Slip, Cumulative Displacement, Num events or Sequence should be specified";
   private final static int W = 900;
   private final static int H = 650;
-  private final static String TITLE = "Add Data for this Site";
+  private final static String TITLE = "Add Data for Slip Rate, Displacement, or Number of Events";
   private final static String MSG_DB_OPERATION_SUCCESS = "Site Info successfully inserted into the database";
   private final static String MSG_NO_REFERENCE_CHOSEN = "Cannot add info to database as reference has not been chosen";
   private int siteId;
@@ -94,7 +94,9 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     show();
     // show window to get the reference
     JFrame referencesDialog = new ChooseReference(this);
+    referencesDialog.setFocusableWindowState(true);
     referencesDialog.show();
+
     //this.setEnabled(false);
 
   }
@@ -113,8 +115,13 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   public void setReference(Reference reference) {
     referenceList = new ArrayList();
     referenceList.add(reference);
-    int pubYear = Integer.parseInt(reference.getRefYear());
-    this.addEditTimeSpan.setNowYearVal(pubYear);
+    try {
+      /* sometimes year of publication is not a integer. So, it handles that condition */
+      int pubYear = Integer.parseInt(reference.getRefYear());
+      this.addEditTimeSpan.setNowYearVal(pubYear);
+    }catch( NumberFormatException e) {
+
+    }
     //this.setEnabled(true);
   }
 
@@ -206,8 +213,6 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private void jbInit(){
     this.getContentPane().setLayout(gridBagLayout1);
     mainSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-    okButton.setText("OK");
-    cancelButton.setText("Cancel");
     this.getContentPane().add(mainSplitPane,
                               new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH,

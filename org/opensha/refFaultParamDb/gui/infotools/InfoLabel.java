@@ -196,8 +196,7 @@ public class InfoLabel extends JLabel {
    * @return
    */
   private String getTextForExactTime(ExactTime exactTime) {
-    int month = exactTime.getMonth();
-    if(month!=0) { // it i not "NOW"
+    if(!exactTime.getIsNow()) { // it i not "NOW"
       return "<html><b>" + TIME + ":&nbsp;</b>Exact Time" + "<br>" +
           "<b>Year:&nbsp;</b>" + exactTime.getYear() + exactTime.getEra() +
           "<br>" +
@@ -206,9 +205,9 @@ public class InfoLabel extends JLabel {
           "<b>Hour:&nbsp;</b>" + exactTime.getHour() + "<br>" +
           "<b>Second:&nbsp;</b>" + exactTime.getSecond() + "<br></html>";
     } else { // represent "NOW"
-      return "<html><b>" + TIME + ":&nbsp;</b>Now" + "<br>" +
+      return "<html><b>" + TIME + ":&nbsp;</b>Now" /*+ "<br>" +
            "<b>Publication Year:&nbsp;</b>" + exactTime.getYear() + exactTime.getEra() +
-           "<br></html>";
+           "<br></html>"*/;
     }
   }
 
@@ -308,12 +307,12 @@ public class InfoLabel extends JLabel {
  private String getTextForMinMaxPrefEstimate(MinMaxPrefEstimate estimate,
                                              String xAxisName, String yAxisName) {
    String text =  "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>";
-   double minX = estimate.getMinX();
-   double maxX = estimate.getMaxX();
-   double prefX = estimate.getPrefX();
-   double minProb = estimate.getMinProb();
-   double maxProb = estimate.getMaxProb();
-   double prefProb = estimate.getPrefProb();
+   double minX = estimate.getMinimumX();
+   double maxX = estimate.getMaximumX();
+   double prefX = estimate.getPreferredX();
+   double minProb = estimate.getMinimumProb();
+   double maxProb = estimate.getMaximumProb();
+   double prefProb = estimate.getPreferredProb();
 
    String minXStr="", maxXStr="", prefXStr="", minProbStr="", maxProbStr="", prefProbStr="";
    // min X

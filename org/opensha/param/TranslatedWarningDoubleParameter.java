@@ -202,7 +202,7 @@ public class TranslatedWarningDoubleParameter
      * @throws  ConstraintException  Thrown if the object value is not allowed
      */
     public synchronized void setValue( Object value ) throws ConstraintException, WarningException {
-        String S = C + ": setValue(): ";
+        String S = getName() + ": setValue(): ";
         if(D) System.out.println(S + "Starting: ");
 
         if ( value == null  || !translate ||  !( value instanceof Double ) )

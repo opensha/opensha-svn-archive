@@ -16,6 +16,9 @@ import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.Estimate;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.ParameterChangeEvent;
 
 /**
  * <p>Title: AddEditCumDisplacement.java </p>
@@ -28,13 +31,18 @@ import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
  * @version 1.0
  */
 
-public class AddEditCumDisplacement extends LabeledBoxPanel{
-  // ASEISMICE SLIP FACTOR
+public class AddEditCumDisplacement extends LabeledBoxPanel implements ParameterChangeListener {
+  // whether  Aseismic Slip Factor is Known/Unknown
+  private final static String ASEISMIC_AVAILABLE_PARAM_NAME="Asiesmic Slip Factor";
+  private final static String KNOWN = "Known";
+  private final static String UNKNOWN = "Unknown";
+
+  // ASEISMIC SLIP FACTOR
   private final static String ASEISMIC_SLIP_FACTOR_PARAM_NAME="Aseismic Slip Factor Estimate(0-1, 1=all aseismic)";
-   private final static String ASEISMIC_SLIP_FACTOR_="Aseismic Slip Factor";
+  private final static String ASEISMIC_SLIP_FACTOR_="Aseismic Slip Factor";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
-   private final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
+  private final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
 
    // CUMULATIVE DISPLACEMENT
   private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Cumulative Displacement Estimate";
@@ -48,10 +56,12 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
   private EstimateParameter aSeismicSlipFactorParam;
   private EstimateParameter cumDisplacementParam;
   private StringParameter displacementCommentsParam;
+  private StringParameter aseismicAvailableParam;
 
   // parameter editors
   private ConstrainedEstimateParameterEditor aSeismicSlipFactorParamEditor;
   private ConstrainedEstimateParameterEditor cumDisplacementParamEditor;
+  private ConstrainedStringParameterEditor aseismicAvailableParamEditor;
   private CommentsParameterEditor displacementCommentsParamEditor;
   private SenseOfMotionPanel senseOfMotionPanel;
   private MeasuredCompPanel measuredCompPanel;
@@ -68,6 +78,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
      measuredCompPanel = new MeasuredCompPanel();
      setLayout(GUI_Utils.gridBagLayout);
      addCumulativeDisplacementParameters();
+     setAseismicEditorVisibility();
      this.setMinimumSize(new Dimension(0, 0));
 
    }catch(Exception e) {
@@ -89,6 +100,14 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
         CUMULATIVE_DISPLACEMENT_UNITS, CUMULATIVE_DISPLACEMENT_MIN,
         CUMULATIVE_DISPLACEMENT_MAX, allowedEstimates);
     cumDisplacementParamEditor = new ConstrainedEstimateParameterEditor(cumDisplacementParam,true, true, CUMULATIVE_DISPLACEMENT);
+    // whether aseismic slip is available or not
+    ArrayList allowedVals = new ArrayList();
+    allowedVals.add(this.KNOWN);
+    allowedVals.add(this.UNKNOWN);
+    aseismicAvailableParam = new StringParameter(ASEISMIC_AVAILABLE_PARAM_NAME, allowedVals,
+                                                 (String)allowedVals.get(0));
+    aseismicAvailableParam.addParameterChangeListener(this);
+    aseismicAvailableParamEditor = new ConstrainedStringParameterEditor(aseismicAvailableParam);
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
@@ -111,6 +130,12 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
                                     , GridBagConstraints.CENTER,
                                     GridBagConstraints.BOTH,
                                     new Insets(0, 0, 0, 0), 0, 0));
+    this.add(aseismicAvailableParamEditor,
+             new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
+                                    , GridBagConstraints.CENTER,
+                                    GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+
     this.add(aSeismicSlipFactorParamEditor,
              new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
                                     , GridBagConstraints.CENTER,
@@ -146,6 +171,20 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
  }
 
 
+ public void parameterChange(ParameterChangeEvent event) {
+   if(event.getParameterName().equalsIgnoreCase(this.ASEISMIC_AVAILABLE_PARAM_NAME))
+     setAseismicEditorVisibility();
+ }
+
+ /**
+  * Show/Hide the aseismic slip factor editor
+  */
+ private void setAseismicEditorVisibility() {
+   String aseismicSlipFactorAvailability = (String)aseismicAvailableParam.getValue();
+   if(aseismicSlipFactorAvailability.equalsIgnoreCase(this.KNOWN))
+     this.aSeismicSlipFactorParamEditor.setVisible(true);
+   else this.aSeismicSlipFactorParamEditor.setVisible(false);
+ }
 
   /**
    * Get the displacement estimate
@@ -163,6 +202,8 @@ public class AddEditCumDisplacement extends LabeledBoxPanel{
    * @return
    */
   private EstimateInstances getAseismicEstimate() {
+    String aseismicSlipFactorAvailability = (String)aseismicAvailableParam.getValue();
+    if(aseismicSlipFactorAvailability.equalsIgnoreCase(this.UNKNOWN)) return null;
     this.aSeismicSlipFactorParamEditor.setEstimateInParameter();
     return new EstimateInstances((Estimate)this.aSeismicSlipFactorParam.getValue(),
                                  ASEISMIC_SLIP_FACTOR_UNITS);

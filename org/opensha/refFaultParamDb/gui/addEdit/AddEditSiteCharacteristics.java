@@ -122,7 +122,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
 
   // various buttons in thos window
   private JButton addNewSiteButton = new JButton("Add New Site Type");
-  private JButton okButton = new JButton("OK");
+  private JButton okButton = new JButton("Submit");
   private JButton cancelButton = new JButton("Cancel");
   private JButton addNewReferenceButton = new JButton("Add New Reference");
   private final static String addNewReferenceToolTipText = "Add Reference not currently in database";

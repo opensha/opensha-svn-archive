@@ -41,7 +41,7 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
   private CommentsParameterEditor siteTypeCommentsParamEditor = null;
 
   private final static String NEW_SITE_TYPE_LABEL="Add New Site Type";
-  private JButton okButton = new JButton("OK");
+  private JButton okButton = new JButton("Submit");
   private JButton cancelButton = new JButton("Cancel");
   private final static String MSG_INSERT_SUCCESS = "Site type added sucessfully to the database";
 

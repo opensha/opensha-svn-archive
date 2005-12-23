@@ -25,6 +25,9 @@ public class ExactTimeDB_DAO {
   private final static String MINUTE = "Minute";
   private final static String SECOND = "Second";
   private final static String ERA = "Era";
+  private final static String IS_NOW = "Is_Now";
+  private final static String YES_IS_NOW = "Y";
+  private final static String NOT_IS_NOW = "N";
   private DB_AccessAPI dbAccessAPI;
   private final static String ERR_MSG = "This class just deals with Exact Times";
 
@@ -50,12 +53,15 @@ public class ExactTimeDB_DAO {
   * @throws InsertException
   */
  public void addExactTime(int timeInstanceId, ExactTime exactTime) throws InsertException {
+    String isNow = this.NOT_IS_NOW;
+    if(exactTime.getIsNow()) isNow=this.YES_IS_NOW;
     // insert into exact time info table
     String sql = "insert into "+TABLE_NAME+"("+ TIME_INSTANCE_ID+","+YEAR+","+
-        MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+")"+
+        MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+","+IS_NOW+")"+
         " values ("+timeInstanceId+","+exactTime.getYear()+","+
         exactTime.getMonth()+","+exactTime.getDay()+","+exactTime.getHour()+","+
-        exactTime.getMinute()+","+exactTime.getSecond()+",'"+exactTime.getEra()+"')";
+        exactTime.getMinute()+","+exactTime.getSecond()+",'"+exactTime.getEra()+"',"+
+        "'"+isNow+"')";
     try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
     catch(SQLException e) {
       //e.printStackTrace();
@@ -102,18 +108,21 @@ public class ExactTimeDB_DAO {
   private ArrayList query(String condition) throws QueryException {
    ArrayList exactTimeList = new ArrayList();
    String sql = "select "+TIME_INSTANCE_ID+","+YEAR+","+
-        MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+" from "+TABLE_NAME+
-        " "+condition;
+        MONTH+","+DAY+","+HOUR+","+MINUTE+","+SECOND+","+ERA+","+this.IS_NOW+
+        " from "+TABLE_NAME+" "+condition;
    try {
      ResultSet rs  = dbAccessAPI.queryData(sql);
      while(rs.next()) {
+       boolean isNow = false;
+       if(rs.getString(IS_NOW).equalsIgnoreCase(this.YES_IS_NOW)) isNow=true;
        ExactTime exactTime = new ExactTime(rs.getInt(YEAR),
                                            rs.getInt(MONTH),
                                            rs.getInt(DAY),
                                            rs.getInt(HOUR),
                                            rs.getInt(MINUTE),
                                            rs.getInt(SECOND),
-                                           rs.getString(ERA));
+                                           rs.getString(ERA),
+                                           isNow);
        exactTimeList.add(exactTime);
      }
      rs.close();
