@@ -24,7 +24,7 @@ public class ReadSitesFile {
   private final static String COMMENTS_DEFAULT = "Site Information provided by Chris Wills from Excel file";
   private final static String STRAND_DEFAULT = "Unknown";
   private final static String SITE_TYPE_DAFULT = "Unknown";
-  private final static float  SITE_ELEVATION_DEFAULT = 0.0f;
+  private final static float  SITE_ELEVATION_DEFAULT = Float.NaN;
   private final static int REFERENCE_ID_DEFAULT = 6530; // id for WGCEP-2007 reference
   private final static String NONAME_SITENAME="no name";
   public ReadSitesFile() {

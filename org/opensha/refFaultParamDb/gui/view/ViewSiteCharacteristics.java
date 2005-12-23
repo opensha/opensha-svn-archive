@@ -39,6 +39,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   // various input parameter names
   private final static String SITE_NAME_PARAM_NAME="Site Name";
   private final static String SITE_LOCATION_PARAM_NAME="Site Location";
+  private final static String SITE_ELEVATION_PARAM_NAME="Site Elevation";
   private final static String ASSOCIATED_WITH_FAULT_PARAM_NAME="Associated With Fault";
   private final static String SITE_TYPE_PARAM_NAME="Site Type";
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
@@ -76,6 +77,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private ConstrainedStringParameterEditor siteNameParamEditor;
   private ConstrainedStringParameterEditor referencesForSiteParamEditor;
   private InfoLabel siteLocationLabel = new InfoLabel();
+  private InfoLabel siteElevationLabel = new InfoLabel();
   private InfoLabel assocWithFaultLabel = new InfoLabel();
   private InfoLabel siteTypeLabel= new InfoLabel();
   private InfoLabel siteRepresentationLabel= new InfoLabel();
@@ -206,6 +208,13 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                                                 , GridBagConstraints.CENTER,
                                                 GridBagConstraints.BOTH,
                                                 new Insets(2, 2, 2, 2), 0, 0));
+    // site elevation
+    addEditSitePanel.add(this.siteElevationLabel,
+                         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                                                , GridBagConstraints.CENTER,
+                                                GridBagConstraints.BOTH,
+                                                new Insets(2, 2, 2, 2), 0, 0));
+
     // associated with fault
     addEditSitePanel.add(assocWithFaultLabel, new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER,
@@ -361,7 +370,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
     referencesForSiteParamEditor = new ConstrainedStringParameterEditor(referencesForSiteParam);
     // site references
     addEditSitePanel.add(this.referencesForSiteParamEditor,
-                        new GridBagConstraints(0, 4, 1, 1, 1.0, 1.0
+                        new GridBagConstraints(0, 5, 1, 1, 1.0, 1.0
                                                , GridBagConstraints.CENTER,
                                                GridBagConstraints.BOTH,
                                                new Insets(2, 2, 2, 2),
@@ -425,10 +434,12 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   */
   private void setSiteInfo(String siteName)  {
     String  faultName;
-    Location location;
+    float latitude, longitude, elevation;
     if(siteName.equalsIgnoreCase(this.TEST_SITE)) { // test site
       faultName = "Fault1";
-      location = new Location(34.00, -116, 0);
+      latitude = 34.0f;
+      longitude=-116.0f;
+      elevation=0.0f;
       paleoSite=null;
     }
     else { // paleo site information from the database
@@ -436,12 +447,17 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
       PaleoSiteSummary paleoSiteSummary = (PaleoSiteSummary)this.paleoSiteSummaryList.get(index);
       paleoSite = this.paleoSiteDAO.getPaleoSite(paleoSiteSummary.getSiteId());
       faultName = paleoSite.getFaultName();
-      location = new Location(paleoSite.getSiteLat1(), paleoSite.getSiteLon1(),
-                              paleoSite.getSiteElevation1());
+      latitude = paleoSite.getSiteLat1();
+      longitude = paleoSite.getSiteLon1();
+      elevation = paleoSite.getSiteElevation1();
     }
 
     siteLocationLabel.setTextAsHTML(SITE_LOCATION_PARAM_NAME,
-                                   GUI_Utils.decimalFormat.format(location.getLatitude())+","+ GUI_Utils.decimalFormat.format(location.getLongitude()));
+                                    GUI_Utils.decimalFormat.format(latitude)+","+ GUI_Utils.decimalFormat.format(longitude));
+    String elevationStr = null;
+    if(!Float.isNaN(elevation)) elevationStr = GUI_Utils.decimalFormat.format(elevation);
+    this.siteElevationLabel.setTextAsHTML(this.SITE_ELEVATION_PARAM_NAME,
+                                         elevationStr);
    //  fault with which this site is associated
     assocWithFaultLabel.setTextAsHTML(ASSOCIATED_WITH_FAULT_PARAM_NAME,faultName);
     // set the references for this site

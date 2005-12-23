@@ -75,7 +75,6 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private final static String ELEVATION_PARAM_NAME="Site Elevation";
   private final static double DEFAULT_LAT_VAL=34.00;
   private final static double DEFAULT_LON_VAL=-118.0;
-  private final static double DEFAULT_ELEVATION_VAL=2.0;
 
   private final static String TITLE = "Add/Edit Paleo Site";
   private final static String BETWEEN_LOCATIONS_SITE_TYPE = "Between Locations";
@@ -257,23 +256,24 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
 
     // location 1
     ParameterList location1ParamList = ((ParameterListParameter)siteLocationParam.getLocationParameter()).getParameter();
-    Location location1 = new Location(
-        ((Double)location1ParamList.getValue(this.LAT_PARAM_NAME)).doubleValue(),
-        ((Double)location1ParamList.getValue(this.LON_PARAM_NAME)).doubleValue(),
-        ((Double)location1ParamList.getValue(this.ELEVATION_PARAM_NAME)).doubleValue());
-    paleoSite.setSiteLat1((float)location1.getLatitude());
-    paleoSite.setSiteLon1((float)location1.getLongitude());
-    paleoSite.setSiteElevation1((float)location1.getDepth());
+    Double lat1 = (Double)location1ParamList.getValue(this.LAT_PARAM_NAME);
+    Double lon1 = (Double)location1ParamList.getValue(this.LON_PARAM_NAME);
+    Double elev1 = (Double)location1ParamList.getValue(this.ELEVATION_PARAM_NAME);
+    paleoSite.setSiteLat1((float)lat1.doubleValue());
+    paleoSite.setSiteLon1((float)lon1.doubleValue());
+    if(elev1!=null) paleoSite.setSiteElevation1((float)elev1.doubleValue());
+    else   paleoSite.setSiteElevation1(Float.NaN);
 
     //location 2
     ParameterList location2ParamList = ((ParameterListParameter)siteLocationParam2.getLocationParameter()).getParameter();
-    Location location2 = new Location(
-        ((Double)location2ParamList.getValue(this.LAT_PARAM_NAME)).doubleValue(),
-        ((Double)location2ParamList.getValue(this.LON_PARAM_NAME)).doubleValue(),
-        ((Double)location2ParamList.getValue(this.ELEVATION_PARAM_NAME)).doubleValue());
-    paleoSite.setSiteLat2((float)location2.getLatitude());
-    paleoSite.setSiteLon2((float)location2.getLongitude());
-    paleoSite.setSiteElevation2((float)location2.getDepth());
+    Double lat2 = (Double)location2ParamList.getValue(this.LAT_PARAM_NAME);
+    Double lon2 = (Double)location2ParamList.getValue(this.LON_PARAM_NAME);
+    Double elev2 = (Double)location2ParamList.getValue(this.ELEVATION_PARAM_NAME);
+    paleoSite.setSiteLat2((float)lat2.doubleValue());
+    paleoSite.setSiteLon2((float)lon2.doubleValue());
+    if(elev2!=null) paleoSite.setSiteElevation2((float)elev2.doubleValue());
+    else   paleoSite.setSiteElevation2(Float.NaN);
+
     try {
       // add the paleo site to the database
       ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new Site Characteristics to database\n"+ paleoSite.toString());
@@ -406,10 +406,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     defaultFaultName = (String)faultNamesList.get(0);
     defaultSiteRepresentation = (String)siteRepresentations.get(0);
     defaultComments = " ";
-    defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
-                                    this.DEFAULT_ELEVATION_VAL);
-    defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL,
-                                    this.DEFAULT_ELEVATION_VAL);
+    defaultLocation1 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL);
+    defaultLocation2 = new Location(this.DEFAULT_LAT_VAL, this.DEFAULT_LON_VAL);
     dipEstVal=null;
 
 
@@ -466,14 +464,15 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     DoubleParameter siteLocLonParam = new DoubleParameter(LON_PARAM_NAME,
         Location.MIN_LON,Location.MAX_LON,LAT_LON_UNITS, new Double(loc.getLongitude()));
     DoubleParameter siteLocElevationParam = new DoubleParameter(ELEVATION_PARAM_NAME,
-        Location.MIN_DEPTH, Double.MAX_VALUE, ELEVATION_UNITS, new Double(loc.getDepth()));
+        Location.MIN_DEPTH, Double.MAX_VALUE, ELEVATION_UNITS);
+    // allow null value in elevation
+    siteLocElevationParam.getConstraint().setNullAllowed(true);
     ParameterList siteLocParamList = new ParameterList();
     siteLocParamList.addParameter(siteLocLatParam);
     siteLocParamList.addParameter(siteLocLonParam);
     siteLocParamList.addParameter(siteLocElevationParam);
     Location siteLoc = new Location(loc.getLatitude(),
-                                    loc.getLongitude(),
-                                    loc.getDepth());
+                                    loc.getLongitude());
 
     // Site Location(Lat/lon/)
     return (new LocationParameter(SITE_LOCATION_PARAM_NAME,siteLocParamList,

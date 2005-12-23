@@ -109,6 +109,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
      * when using it's GUI Editor.
      */
     protected void jbInit() throws Exception {
+      focusLostProcessing = true;
       this.setLayout(GBL);
     }
 
@@ -217,28 +218,39 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
 
 
     /**
-     * Set the X values in the text area based on user specified min/max/num
+     * When user clicks in the texstarea to fill up the Y values, fill the X values
+     * automatically
+     * @param e
      */
-    private void setXValues() {
+    public void focusGained(FocusEvent e)  {
+      super.focusGained(e);
+      focusLostProcessing = false;
+      // check that user has entered min Val
       Double minVal = (Double)minParam.getValue();
       String isMissing = " is missing";
       if(minVal==null) {
         JOptionPane.showMessageDialog(this, minParam.getName()+isMissing);
+        this.editor.getParameterEditor(minParam.getName()).grabFocus();
         return;
       }
       double min = minVal.doubleValue();
+      // check that user has entered max val
       Double maxVal = (Double)maxParam.getValue();
       if(maxVal==null) {
         JOptionPane.showMessageDialog(this, maxParam.getName()+isMissing);
+        this.editor.getParameterEditor(maxParam.getName()).grabFocus();
         return;
       }
       double max = maxVal.doubleValue();
+      //check that user has entered num values
       Integer numVal = (Integer)numParam.getValue();
       if(numVal==null) {
         JOptionPane.showMessageDialog(this, numParam.getName()+isMissing);
+        this.editor.getParameterEditor(numParam.getName()).grabFocus();
         return;
       }
       int num = numVal.intValue();
+
       function.set(min, max, num);
       String xStr = "";
       String yStr = "";
@@ -249,16 +261,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       }
       xTextArea.setText(xStr);
       yTextArea.setText(yStr);
-    }
-
-
-    /**
-     * When user clicks in the texstarea to fill up the Y values, fill the X values
-     * automatically
-     * @param e
-     */
-    public void focusGained(FocusEvent e)  {
-      setXValues();
+      focusLostProcessing = true;
     }
 
     /**
@@ -273,9 +276,7 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
 
       super.focusLost(e);
 
-      focusLostProcessing = false;
-      if( keyTypeProcessing == true ) return;
-      focusLostProcessing = true;
+      if(!focusLostProcessing ) return;
 
       String str = yTextArea.getText();
       StringTokenizer st = new StringTokenizer(str,"\n");
@@ -307,7 +308,6 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
       if(yIndex!=function.getNum())
         JOptionPane.showMessageDialog(this, INCORRECT_NUM_Y_VALS);
       //refreshParamEditor();
-      focusLostProcessing = false;
       if(D) System.out.println(S + "Ending");
     }
 
