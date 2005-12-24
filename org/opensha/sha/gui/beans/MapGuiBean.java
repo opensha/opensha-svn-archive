@@ -66,14 +66,15 @@ public class MapGuiBean extends GMT_MapGuiBean {
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(String xyzVals,EqkRupture eqkRupture,String imt,String metadata){
+  public void makeMap(String xyzVals,EqkRupture eqkRupture,String imt,
+                      String metadataAsHTML){
 
     try{
       // this creates a conection with the server to generate the map on the server
       //after reading the xyz vals file from the server
       try {
         imgName = openConnectionToServerToGenerateShakeMap(xyzVals, eqkRupture,
-            imt, metadata);
+            imt, metadataAsHTML);
       }
       catch (GMT_MapException ex) {
         JOptionPane.showMessageDialog(this,ex.getMessage(),"Incorrect GMT params ",JOptionPane.INFORMATION_MESSAGE);
@@ -81,7 +82,8 @@ public class MapGuiBean extends GMT_MapGuiBean {
       }
       //webaddr where all the GMT related file for this map resides on server
       String webaddr = imgName.substring(0,imgName.lastIndexOf("/")+1);
-      metadata +="<br><p>Click:  "+"<a href=\""+webaddr+"\">"+webaddr+"</a>"+"  to download files.</p>";
+      metadataAsHTML += "<br><p>Click:  " + "<a href=\"" + webaddr +
+           "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";
     }catch(RuntimeException e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
@@ -91,7 +93,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,true);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadataAsHTML,true);
     }
     dirName = null;
   }
@@ -104,14 +106,16 @@ public class MapGuiBean extends GMT_MapGuiBean {
    *
    * @param fileName: name of the XYZ file
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals,EqkRupture eqkRupture,String imt,String metadata){
+  public void makeMap(XYZ_DataSetAPI xyzVals,EqkRupture eqkRupture,String imt,
+                      String metadataAsHTML){
 
     boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     if(gmtServerCheck){
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try{
-        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt,metadata,dirName);
-        metadata +="<br><p>Click:  "+"<a href=\""+gmtMap.getGMTFilesWebAddress()+"\">"+gmtMap.getGMTFilesWebAddress()+"</a>"+"  to download files.</p>";
+        imgName =((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapUsingServlet(xyzVals,eqkRupture,imt,metadataAsHTML,dirName);
+        metadataAsHTML += "<br><p>Click:  " + "<a href=\"" + gmtMap.getGMTFilesWebAddress() +
+           "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";
       }catch(GMT_MapException e){
         JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect GMT params ",JOptionPane.INFORMATION_MESSAGE);
         return;
@@ -124,7 +128,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     }
     else{
       try{
-        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt,metadata,dirName);
+        imgName = ((GMT_MapGeneratorForShakeMaps)gmtMap).makeMapLocally(xyzVals,eqkRupture,imt,metadataAsHTML,dirName);
       }catch(GMT_MapException e){
         JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect GMT params ",JOptionPane.INFORMATION_MESSAGE);
         return;
@@ -138,7 +142,8 @@ public class MapGuiBean extends GMT_MapGuiBean {
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadata,gmtServerCheck);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName,metadataAsHTML,
+          gmtServerCheck);
     }
     dirName = null;
   }
@@ -153,7 +158,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
    */
   public void makeHazusShapeFilesAndMap(XYZ_DataSetAPI sa03_xyzVals,XYZ_DataSetAPI sa10_xyzVals,
                       XYZ_DataSetAPI pga_xyzVals, XYZ_DataSetAPI pgv_xyzVals,
-                      EqkRupture eqkRupture,String metadata){
+                      EqkRupture eqkRupture,String metadataAsHTML){
     String[] imgNames = null;
 
     //boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
@@ -163,10 +168,9 @@ public class MapGuiBean extends GMT_MapGuiBean {
     try {
       imgNames = ( (GMT_MapGeneratorForShakeMaps) gmtMap).
           makeHazusFileSetUsingServlet(sa03_xyzVals, sa10_xyzVals, pga_xyzVals,
-                                       pgv_xyzVals, eqkRupture, metadata, dirName);
-      metadata += "<br><p>Click:  " + "<a href=\"" + gmtMap.getGMTFilesWebAddress() +
-          "\">" + gmtMap.getGMTFilesWebAddress() + "</a>" +
-          "  to download files.</p>";
+                                       pgv_xyzVals, eqkRupture, metadataAsHTML, dirName);
+      metadataAsHTML += "<br><p>Click:  " + "<a href=\"" + gmtMap.getGMTFilesWebAddress() +
+          "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";
     }
     catch (GMT_MapException e) {
       JOptionPane.showMessageDialog(this, e.getMessage(), "Incorrect GMT params ",
@@ -193,7 +197,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadataAsHTML,true);
     }
     dirName = null;
     //gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).setValue(new Boolean(gmtServerCheck));
@@ -208,13 +212,13 @@ public class MapGuiBean extends GMT_MapGuiBean {
    */
   public void makeHazusShapeFilesAndMap(String sa03_xyzVals,String sa10_xyzVals,
                       String pga_xyzVals, String pgv_xyzVals,
-                      EqkRupture eqkRupture,String metadata){
+                      EqkRupture eqkRupture,String metadataAsHTML){
     String[] imgNames = null;
     try{
       try {
         imgNames = openConnectionToServerToGenerateShakeMapForHazus(
             sa03_xyzVals, sa10_xyzVals,
-            pga_xyzVals, pgv_xyzVals, eqkRupture, metadata);
+            pga_xyzVals, pgv_xyzVals, eqkRupture, metadataAsHTML);
       }
       catch (GMT_MapException ex) {
         JOptionPane.showMessageDialog(this,ex.getMessage(),"Incorrect GMT params",JOptionPane.INFORMATION_MESSAGE);
@@ -224,7 +228,8 @@ public class MapGuiBean extends GMT_MapGuiBean {
       String webaddr = imgNames[0].substring(0,imgNames[0].lastIndexOf("/")+1);
       /*imgNames =((GMT_MapGeneratorForShakeMaps)gmtMap).makeHazusFileSetUsingServlet(sa03_xyzVals,sa10_xyzVals, pga_xyzVals,
           pgv_xyzVals,eqkRupture,metadata);*/
-      metadata +="<br><p>Click:  "+"<a href=\""+webaddr+"\">"+webaddr+"</a>"+"  to download files.</p>";
+      metadataAsHTML += "<br><p>Click:  " + "<a href=\"" + webaddr +
+          "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";
     }catch(RuntimeException e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Server Problem",JOptionPane.INFORMATION_MESSAGE);
@@ -234,7 +239,7 @@ public class MapGuiBean extends GMT_MapGuiBean {
     //checks to see if the user wants to see the Map in a seperate window or not
     if(this.showMapInSeperateWindow){
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadata,true);
+      ImageViewerWindow imgView = new ImageViewerWindow(imgNames,metadataAsHTML,true);
     }
 
     dirName = null;

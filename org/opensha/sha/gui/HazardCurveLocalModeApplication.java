@@ -105,7 +105,7 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
           disaggCalc = new DisaggregationCalculator();
     }catch(Exception e){
 
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),this.getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
  //     e.printStackTrace();

@@ -365,12 +365,12 @@ public class ERF2RuptureForSTF_Generator {
     frankelForecast.updateForecast();
     LocationList locList = new LocationList();
 
-    locList.addLocation(new Location(34.019200, -118.28600));
-    locList.addLocation(new Location(34.148427 , -118.17119));
-    locList.addLocation(new Location(34.052041, -118.25713));
-    locList.addLocation(new Location(33.754944 , -118.22300));
+    locList.addLocation(new Location(34.019200, -118.28600)); //USC
+    locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
+    locList.addLocation(new Location(34.052041, -118.25713)); //LADT
+    locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
+    locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
     locList.addLocation(new Location(33.754111 , -117.86778));
-    locList.addLocation(new Location(34.041823 , -118.06530));
     locList.addLocation(new Location(34.064986 , -117.29201));
     locList.addLocation(new Location(34.336030 , -118.50862));
     locList.addLocation(new Location(34.054884 , -118.41302));

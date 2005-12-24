@@ -7,6 +7,20 @@ import javax.swing.event.*;
 
 
 import org.opensha.util.BrowserLauncher;
+import org.opensha.util.ImageUtils;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Image;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfWriter;
+import org.opensha.util.SystemPropertiesUtils;
+
 
 /**
  * <p>Title: ImageViewerWindow</p>
@@ -27,8 +41,16 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
 
 
   private boolean gmtFromServer = true;
+  JMenuBar menuBar = new JMenuBar();
+  JMenu fileMenu = new JMenu();
 
-  private String mapInfo= new String();
+  JMenuItem fileSaveMenu = new JMenuItem();
+  JToolBar jToolBar = new JToolBar();
+
+  JButton saveButton = new JButton();
+  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+
+  private String mapInfoAsHTML,mapInfoAsString;
   private BorderLayout borderLayout1 = new BorderLayout();
   private JScrollPane mapInfoScrollPane = new JScrollPane();
   private JPanel mapPanel = new JPanel();
@@ -37,6 +59,12 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   private final static String HTML_START = "<html><body>";
   private final static String HTML_END = "</body></html>";
 
+  //gets the image file names as URL to save as PDF
+  private String[] imgFileNames;
+
+
+
+
   /**
    * Class constructor
    * @param imageFileName : Name of the image file to be shown
@@ -44,10 +72,17 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
    * @param gmtFromServer : boolean to check if map to be generated using the Server GMT
    * @throws RuntimeException
    */
-  public ImageViewerWindow(String imageFileName,String mapInfo,boolean gmtFromServer)
+  public ImageViewerWindow(String imageFileName,String mapInfoAsHTML,boolean gmtFromServer)
       throws RuntimeException{
-    this.mapInfo = mapInfo;
+    this.mapInfoAsHTML = mapInfoAsHTML;
+    String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
+    this.mapInfoAsString = mapInfoAsHTML.replaceAll("<br>",systemSpecificLineSeparator);
+    mapInfoAsString = mapInfoAsString.replaceAll("</br>","");
+    mapInfoAsString = mapInfoAsString.replaceAll("<p>",systemSpecificLineSeparator);
+    mapInfoAsString = mapInfoAsString.replaceAll("</p>","");
     this.gmtFromServer = gmtFromServer;
+    imgFileNames = new String[1];
+    imgFileNames[0] = imageFileName;
     try {
       jbInit();
     }catch(RuntimeException e) {
@@ -65,10 +100,17 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
    * @param gmtFromServer : boolean to check if map to be generated using the Server GMT
    * @throws RuntimeException
    */
-  public ImageViewerWindow(String[] imageFileNames,String mapInfo,boolean gmtFromServer)
+  public ImageViewerWindow(String[] imageFileNames,String mapInfo,
+                           boolean gmtFromServer)
       throws RuntimeException{
-    this.mapInfo = mapInfo;
+    this.mapInfoAsHTML = mapInfo;
+    String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
+    this.mapInfoAsString = mapInfoAsHTML.replaceAll("<br>",systemSpecificLineSeparator);
+    mapInfoAsString = mapInfoAsString.replaceAll("</br>","");
+    mapInfoAsString = mapInfoAsString.replaceAll("<p>",systemSpecificLineSeparator);
+    mapInfoAsString = mapInfoAsString.replaceAll("</p>","");
     this.gmtFromServer = gmtFromServer;
+    imgFileNames = imageFileNames;
     try {
       jbInit();
     }catch(RuntimeException e) {
@@ -79,17 +121,45 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   }
 
 
-  private void jbInit() throws RuntimeException {
+  protected void jbInit() throws RuntimeException {
     this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     this.setSize(W,H);
     this.setTitle(MAP_WINDOW);
     this.getContentPane().setLayout(borderLayout1);
+
+    saveButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent actionEvent) {
+        saveButton_actionPerformed(actionEvent);
+      }
+    });
+    fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            fileSaveMenu_actionPerformed(e);
+          }
+    });
+    fileSaveMenu.setText("Save");
+    fileMenu.setText("File");
+    menuBar.add(fileMenu);
+    fileMenu.add(fileSaveMenu);
+
+    setJMenuBar(menuBar);
+
+    Dimension d = saveButton.getSize();
+    jToolBar.add(saveButton);
+    saveButton.setIcon(saveFileImage);
+    saveButton.setToolTipText("Save Graph as image");
+    saveButton.setSize(d);
+    jToolBar.add(saveButton);
+    jToolBar.setFloatable(false);
+
+    this.getContentPane().add(jToolBar, BorderLayout.NORTH);
+
     mapSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 
     mapInfoScrollPane.getViewport().add(mapText, null);
 
     mapText.setContentType("text/html");
-    mapText.setText(HTML_START+mapInfo+HTML_END);
+    mapText.setText(HTML_START+mapInfoAsHTML+HTML_END);
     mapText.setEditable(false);
     mapText.setForeground(Color.blue);
     mapText.setEditable(false);
@@ -101,7 +171,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
     mapSplitPane.add(mapInfoScrollPane, JSplitPane.BOTTOM);
     mapPanel.setLayout(layout);
     mapScrollPane.getViewport().add(mapPanel, null);
-    mapSplitPane.setDividerLocation(550);
+    mapSplitPane.setDividerLocation(480);
   }
 
   /**
@@ -148,6 +218,98 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   }
 
 
+  /**
+   * Opens a file chooser and gives the user an opportunity to save the Image and Metadata
+   * in PDF format.
+   *
+   * @throws IOException if there is an I/O error.
+   */
+  protected void save() throws IOException {
+    JFileChooser fileChooser = new JFileChooser();
+    int option = fileChooser.showSaveDialog(this);
+    String fileName = null;
+    if (option == JFileChooser.APPROVE_OPTION) {
+      fileName = fileChooser.getSelectedFile().getAbsolutePath();
+      if (!fileName.endsWith(".pdf"))
+        fileName = fileName + ".pdf";
+    }
+    else {
+      return;
+    }
+    saveAsPDF(fileName);
+  }
+
+  /**
+   * Allows the user to save the image and metadata as PDF.
+   * This also allows to preserve the color coding of the metadata.
+   * @throws IOException
+   */
+  protected void saveAsPDF(String fileName) throws IOException {
+    // step 1: creation of a document-object
+    Document document = new Document();
+
+    try {
+      // step 2:
+      // we create a writer that listens to the document
+      // and directs a PDF-stream to a file
+      PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(fileName));
+      writer.setStrictImageSequence(true);
+      // step 3: we open the document
+      document.open();
+      // step 4: add the images to the
+
+      int numImages = imgFileNames.length;
+      for(int i=0;i<numImages;++i){
+        Image img = Image.getInstance(new URL(imgFileNames[i]));
+        img.setAlignment(Image.RIGHT);
+        //img.scalePercent(95);
+        document.add(img);
+      }
+      document.add(new Paragraph(mapInfoAsString));
+    }
+    catch (DocumentException de) {
+      System.err.println(de.getMessage());
+    }
+    catch (IOException ioe) {
+      System.err.println(ioe.getMessage());
+    }
+
+    // step 5: we close the document
+    document.close();
+
+  }
+
+  /**
+   * File | Save action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void saveButton_actionPerformed(ActionEvent actionEvent) {
+    try {
+      save();
+    }
+    catch (IOException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+  }
+
+  /**
+   * File | Save action performed.
+   *
+   * @param actionEvent ActionEvent
+   */
+  private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+    try {
+      save();
+    }
+    catch (IOException e) {
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Save File Error",
+                                    JOptionPane.OK_OPTION);
+      return;
+    }
+  }
 
 
   /** This method implements HyperlinkListener.  It is invoked when the user

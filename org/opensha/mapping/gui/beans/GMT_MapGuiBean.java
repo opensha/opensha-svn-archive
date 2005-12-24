@@ -173,18 +173,16 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
    * @param xyzVals : Object for the XYZ values
    * @param metadata : Associated Metadata for the values.
    */
-  public void makeMap(XYZ_DataSetAPI xyzVals, String metadata) {
+  public void makeMap(XYZ_DataSetAPI xyzVals, String metadataAsHTML) {
 
     // boolean gmtServerCheck = ((Boolean)gmtMap.getAdjustableParamsList().getParameter(gmtMap.GMT_WEBSERVICE_NAME).getValue()).booleanValue();
     boolean gmtServerCheck = true;
     if (gmtServerCheck) {
       //imgName=gmtMap.makeMapUsingWebServer(xyzVals);
       try {
-        imgName = gmtMap.makeMapUsingServlet(xyzVals, " ", metadata, dirName);
-        metadata += "<br><p>Click:  " + "<a href=\"" +
-            gmtMap.getGMTFilesWebAddress() + "\">" +
-            gmtMap.getGMTFilesWebAddress() + "</a>" +
-            "  to download files.</p>";
+        imgName = gmtMap.makeMapUsingServlet(xyzVals, " ", metadataAsHTML, dirName);
+        metadataAsHTML += "<br><p>Click:  " + "<a href=\"" + gmtMap.getGMTFilesWebAddress() +
+           "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";
       }
       catch (GMT_MapException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -201,7 +199,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     }
     else {
       try {
-        imgName = gmtMap.makeMapLocally(xyzVals, " ", metadata, dirName);
+        imgName = gmtMap.makeMapLocally(xyzVals, " ", metadataAsHTML, dirName);
       }
       catch (GMT_MapException e) {
         JOptionPane.showMessageDialog(this, e.getMessage(),
@@ -218,7 +216,7 @@ public class GMT_MapGuiBean extends ParameterListEditor implements
     //checks to see if the user wants to see the Map in a seperate window or not
     if (this.showMapInSeperateWindow) {
       //adding the image to the Panel and returning that to the applet
-      ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadata,
+      ImageViewerWindow imgView = new ImageViewerWindow(imgName, metadataAsHTML,
           gmtServerCheck);
     }
     dirName = null;

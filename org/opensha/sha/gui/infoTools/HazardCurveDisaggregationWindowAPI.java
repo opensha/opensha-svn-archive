@@ -24,7 +24,7 @@ public interface HazardCurveDisaggregationWindowAPI {
      */
     public String getDisaggregationPlot();
 
-    //gets the Parameters info for which Disaggregation generated.
-    public String getParametersInfoAsHTML();
+    //gets the Parameters info as HTML for which Disaggregation generated.
+    public String getMapParametersInfoAsHTML();
 
 }

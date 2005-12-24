@@ -43,6 +43,9 @@ public class DisaggregationControlPanel extends JFrame
   public final static String DISAGGREGATE_USING_PROB = "Probability";
   public final static String DISAGGREGATE_USING_IML = "IML";
 
+  //Shows the source disaggregation only if this parameter is selected
+  private BooleanParameter sourceDisaggregationParam = new BooleanParameter
+      ("Show Source Disaggregation List",new Boolean(false));
 
   //sets the Mag Range for Disaggregation calculation
   private DoubleParameter minMagParam = new DoubleParameter("Min Mag",0,10,new Double(5));
@@ -86,6 +89,7 @@ public class DisaggregationControlPanel extends JFrame
       paramList.addParameter(disaggregationParameter);
       paramList.addParameter(disaggregationProbParam);
       paramList.addParameter(disaggregationIMLParam);
+      paramList.addParameter(sourceDisaggregationParam);
       paramList.addParameter(minMagParam);
       paramList.addParameter(numMagParam);
       paramList.addParameter(deltaMagParam);
@@ -270,7 +274,15 @@ public class DisaggregationControlPanel extends JFrame
     return -1;
   }
 
-
+  /**
+   * Checks if Source Disaggregation needs to be calculated and shown in the window.
+   * @return boolean
+   */
+  public boolean isSourceDisaggregationSelected(){
+    if(isDisaggregationSelected)
+      return ((Boolean)sourceDisaggregationParam.getValue()).booleanValue();
+    return false;
+  }
 
 
 }

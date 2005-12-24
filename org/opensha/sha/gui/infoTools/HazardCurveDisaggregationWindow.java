@@ -131,10 +131,9 @@ public class HazardCurveDisaggregationWindow extends JFrame {
     String metadata = null;
     try {
       disaggregationPlotWebAddr = application.getDisaggregationPlot();
-      metadata = application.getParametersInfoAsHTML();
+      metadata = application.getMapParametersInfoAsHTML();
       metadata += "<br><p>Click:  " + "<a href=\"" + disaggregationPlotWebAddr +
-          "\">" + disaggregationPlotWebAddr + "</a>" +
-          "  to download files.</p>";
+           "\">" + "here" + "</a>" +" to download files. They will be deleted at midnight</p>";;
     }
     catch (RuntimeException e) {
       e.printStackTrace();

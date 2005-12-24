@@ -34,6 +34,7 @@ import org.opensha.sha.earthquake.EqkRupture;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.exceptions.RegionConstraintException;
 import org.opensha.mapping.gui.beans.*;
+import org.opensha.util.SystemPropertiesUtils;
 
 /**
  * <p>Title: ScenarioShakeMapApp</p>
@@ -645,7 +646,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     //sets the some GMT param to specific value for computation for Hazus files.
     mapGuiBean.setGMT_ParamsForHazus();
     //gets the map parameters info.
-    mapParametersInfo = getMapParametersInfo();
+    mapParametersInfo = getMapParametersInfoAsHTML();
 
     if(!calculationFromServer) //if the calc are to be done on the local system
       //creates the maps and information that goes into the Hazus.
@@ -704,7 +705,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     //get the updated EqkRupture from Rupture Gui Bean
     getEqkRupture();
     //gets the metadata as soon as the user presses the button to make map.
-    mapParametersInfo = getMapParametersInfo();
+    mapParametersInfo = getMapParametersInfoAsHTML();
 
     //sets the Gridded region Sites and the type of plot user wants to see
     //IML@Prob or Prob@IML and it value.
@@ -968,7 +969,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
    *
    * @returns the String containing the values selected for different parameters
    */
-  public String getMapParametersInfo(){
+  public String getMapParametersInfoAsHTML(){
 
     String imrMetadata = "IMR Param List:<br>\n " +
            "---------------<br>\n";
@@ -997,4 +998,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
         mapGuiBean.getVisibleParameters().getParameterListMetadataString()+"\n"+
         calculationSettingsParamsMetadata;
   }
+
+
+
 }

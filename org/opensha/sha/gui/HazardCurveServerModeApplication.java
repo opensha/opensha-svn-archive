@@ -75,6 +75,7 @@ import javax.swing.*;
 import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.HazardCurveDisaggregationWindowAPI;
+import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -97,7 +98,7 @@ import org.opensha.sha.gui.infoTools.HazardCurveDisaggregationWindowAPI;
  */
 
 public class HazardCurveServerModeApplication extends JFrame
-    implements Runnable,  ParameterChangeListener,HazardCurveDisaggregationWindowAPI,
+    implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
     ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI{
@@ -707,7 +708,7 @@ public class HazardCurveServerModeApplication extends JFrame
             System.exit(101);
             //peerResultsFile.close();
           }catch(Exception ee){
-            ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfo());
+            ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
             bugWindow.show();
             bugWindow.pack();
           }
@@ -733,7 +734,7 @@ public class HazardCurveServerModeApplication extends JFrame
         calcThread = null;
       }catch(Exception e){
         e.printStackTrace();
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.show();
         bugWindow.pack();
       }
@@ -772,7 +773,7 @@ public class HazardCurveServerModeApplication extends JFrame
           createCalcInstance();
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
@@ -803,7 +804,7 @@ public class HazardCurveServerModeApplication extends JFrame
               //e.printStackTrace();
               timer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfo());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
               bugWindow.show();
               bugWindow.pack();
             }
@@ -825,7 +826,7 @@ public class HazardCurveServerModeApplication extends JFrame
             }catch(Exception e){
               disaggTimer.stop();
               setButtonsEnable(true);
-              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfo());
+              ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
               bugWindow.show();
               bugWindow.pack();
             }
@@ -1058,7 +1059,7 @@ public class HazardCurveServerModeApplication extends JFrame
       // this function will get the selected IMT parameter and set it in IMT
       imtGuiBean.setIMT();
     } catch (Exception ex) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),getParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),getParametersInfoAsString());
       bugWindow.show();
       bugWindow.pack();
       if(D) System.out.println(C + ":Param warning caught"+ex);
@@ -1098,7 +1099,7 @@ public class HazardCurveServerModeApplication extends JFrame
       if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(Exception e){
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
       bugWindow.show();
       bugWindow.pack();
       e.printStackTrace();
@@ -1116,13 +1117,13 @@ public class HazardCurveServerModeApplication extends JFrame
       }catch(Exception e){
         e.printStackTrace();
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.show();
         bugWindow.pack();
 
       }
       hazFunction = toggleHazFuncLogValues(hazFunction);
-      hazFunction.setInfo(getParametersInfo());
+      hazFunction.setInfo(getParametersInfoAsString());
     }catch (RuntimeException e) {
       JOptionPane.showMessageDialog(this, e.getMessage(),
                                     "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
@@ -1152,7 +1153,7 @@ public class HazardCurveServerModeApplication extends JFrame
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
@@ -1166,12 +1167,15 @@ public class HazardCurveServerModeApplication extends JFrame
       double minDist= disaggregationControlPanel.getMinDist();
       double deltaDist= disaggregationControlPanel.getdeltaDist();
       int numDist = disaggregationControlPanel.getNumDist();
+      boolean sourceDisaggregationList= disaggregationControlPanel.isSourceDisaggregationSelected();
       try{
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
+        disaggCalc.generateSourceDisaggregationList(sourceDisaggregationList);
+
       }catch(Exception e){
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.show();
         bugWindow.pack();
         e.printStackTrace();
@@ -1190,6 +1194,8 @@ public class HazardCurveServerModeApplication extends JFrame
         else{
           //gets the Disaggregation data
           imlForDisaggregation= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
+          disaggCalc.disaggregate(Math.log(imlForDisaggregation),site,imr,(EqkRupForecast)forecast);
+          disaggregationString=disaggCalc.getResultsString(false,disaggregationVal);
         }
 
       }
@@ -1202,30 +1208,73 @@ public class HazardCurveServerModeApplication extends JFrame
                                         " in the Hazard Curve"),
                                         "Disaggregation error message",
                                         JOptionPane.ERROR_MESSAGE);
-        else
+        else{
           imlForDisaggregation = disaggregationVal;
+          disaggCalc.disaggregate(Math.log(imlForDisaggregation), site, imr,
+                                  (EqkRupForecast) forecast);
+          disaggregationString = disaggCalc.getResultsString(true,
+              imlForDisaggregation);
+        }
       }
-          disaggCalc.disaggregate(Math.log(imlForDisaggregation),site,imr,(EqkRupForecast)forecast);
-          disaggregationString=disaggCalc.getResultsString();
         }catch(Exception e){
           setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
           bugWindow.show();
           bugWindow.pack();
           e.printStackTrace();
         }
       //}
+      showDisaggregationResults(sourceDisaggregationList);
     }
-    System.out.println("Disaggregation Control :"+disaggregationString);
     setButtonsEnable(true);
     //displays the disaggregation string in the pop-up window
-    if(disaggregationString !=null) {
-      HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, this, disaggregationString);
-      disaggregation.pack();
-      disaggregation.show();
+    if(disaggregationFlag) {
+      //HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, this, disaggregationString);
+      //disaggregation.pack();
+      //disaggregation.show();
     }
     disaggregationString=null;
   }
+
+
+  private void showDisaggregationResults(boolean showSourceDisaggList){
+    String sourceDisaggregationListAsHTML= null;
+    if(showSourceDisaggList){
+      String sourceDisaggregationList = getSourceDisaggregationInfo();
+      sourceDisaggregationListAsHTML = sourceDisaggregationList.
+          replaceAll("\n", "<br>");
+    }
+    String disaggregationPlotWebAddr = null;
+    String metadata = null;
+    try {
+      disaggregationPlotWebAddr = getDisaggregationPlot();
+      metadata = getMapParametersInfoAsHTML();
+      metadata += "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
+          "\">" + "here" + "</a>" +
+          " to download files. They will be deleted at midnight</p>"; ;
+    }
+    catch (RuntimeException e) {
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Server Problem",
+                                    JOptionPane.INFORMATION_MESSAGE);
+      return;
+    }
+    String imgName = disaggregationPlotWebAddr +
+        DisaggregationCalculator.DISAGGREGATION_PLOT_IMG;
+    String disaggregationStringAsHTML = disaggregationString.replaceAll("\n","<br>");
+    String resultToShow = "<p>Disaggregation Results</p>"+
+        "<br>"+disaggregationStringAsHTML+"</br>";
+    resultToShow +="<br><br>Parameters Info</br>"+"<br>---------------</br>"+metadata;
+    if(showSourceDisaggList)
+      resultToShow +="<br><br>Source DisaggragtionResult</br>"+"<br>-------------</br>"+
+          "<br>"+sourceDisaggregationListAsHTML+"</br>";
+
+
+  //adding the image to the Panel and returning that to the applet
+    new ImageViewerWindow(imgName, resultToShow, true);
+
+  }
+
 
 
   /**
@@ -1257,7 +1306,7 @@ public class HazardCurveServerModeApplication extends JFrame
       if(distanceControlPanel!=null) calc.setMaxSourceDistance(distanceControlPanel.getDistance());
     }catch(Exception e){
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
       bugWindow.show();
       bugWindow.pack();
       e.printStackTrace();
@@ -1278,7 +1327,7 @@ public class HazardCurveServerModeApplication extends JFrame
           //System.out.println("Num points:" +hazFunction.toString());
         }catch(Exception e){
           setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
+          ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
           bugWindow.show();
           bugWindow.pack();
           e.printStackTrace();
@@ -1296,9 +1345,9 @@ public class HazardCurveServerModeApplication extends JFrame
     weightedFuncList.addList(erfList.getRelativeWeightsList(),hazardFuncList);
     //setting the information inside the weighted function list if adding on top of exisintg data
     if(addData)
-      weightedFuncList.setInfo(getParametersInfo());
+      weightedFuncList.setInfo(getParametersInfoAsString());
     else //setting the information inside the weighted function list if adding the data to the existing data
-      weightedFuncList.setInfo(getParametersInfo()+"\n"+"Previous List Info:\n"+
+      weightedFuncList.setInfo(getParametersInfoAsString()+"\n"+"Previous List Info:\n"+
                                "--------------------\n"+weightedFuncList.getInfo());
 
 
@@ -1867,23 +1916,9 @@ public class HazardCurveServerModeApplication extends JFrame
    *
    * @returns the String containing the values selected for different parameters
    */
-  public String getParametersInfo(){
+  public String getParametersInfoAsString(){
     String systemSpecificLineSeparator = SystemPropertiesUtils.getSystemLineSeparator();
-    return "IMR Param List:" +systemSpecificLineSeparator+
-           "---------------"+systemSpecificLineSeparator+
-        this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+systemSpecificLineSeparator+
-        "Site Param List: "+systemSpecificLineSeparator+
-        "----------------"+systemSpecificLineSeparator+
-        siteGuiBean.getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+
-        systemSpecificLineSeparator+"IMT Param List: "+systemSpecificLineSeparator+
-        "---------------"+systemSpecificLineSeparator+
-        imtGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+systemSpecificLineSeparator+
-        systemSpecificLineSeparator+"Forecast Param List: "+systemSpecificLineSeparator+
-        "--------------------"+systemSpecificLineSeparator+
-        erfGuiBean.getERFParameterList().getParameterListMetadataString()+systemSpecificLineSeparator+
-        systemSpecificLineSeparator+"TimeSpan Param List: "+systemSpecificLineSeparator+
-        "--------------------"+systemSpecificLineSeparator+
-        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString()+systemSpecificLineSeparator;
+    return getMapParametersInfoAsHTML().replaceAll("<br>",systemSpecificLineSeparator);
   }
 
 
@@ -1891,7 +1926,7 @@ public class HazardCurveServerModeApplication extends JFrame
    *
    * @returns the String containing the values selected for different parameters
    */
-  public String getParametersInfoAsHTML(){
+  public String getMapParametersInfoAsHTML(){
 
     return "<br>"+ "IMR Param List:" +"<br>"+
            "---------------"+"<br>"+
@@ -2063,7 +2098,7 @@ public class HazardCurveServerModeApplication extends JFrame
         calc.stopCalc();
         calc = null;
       }catch(RemoteException ee){
-        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfo());
+        ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
         bugWindow.show();
         bugWindow.pack();
       }
@@ -2082,13 +2117,13 @@ public class HazardCurveServerModeApplication extends JFrame
   public String getDisaggregationPlot(){
     try{
       return disaggCalc.getDisaggregationPlotUsingServlet(this.
-          getParametersInfo());
+          getParametersInfoAsString());
     }
     catch (Exception ex) {
       ex.printStackTrace();
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
-          getParametersInfo());
+          getParametersInfoAsString());
       bugWindow.show();
       bugWindow.pack();
     }
@@ -2107,7 +2142,7 @@ public class HazardCurveServerModeApplication extends JFrame
       ex.printStackTrace();
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
-          getParametersInfo());
+          getParametersInfoAsString());
       bugWindow.show();
       bugWindow.pack();
     }

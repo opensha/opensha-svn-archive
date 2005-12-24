@@ -33,6 +33,14 @@ public interface DisaggregationCalculatorAPI extends Remote{
 
 
   /**
+   * Sets the boolean to generate the Source Disaggregation list.
+   * @param isSourceList boolean
+   * @throws RemoteException
+   */
+  public void generateSourceDisaggregationList(boolean isSourceList)throws
+      java.rmi.RemoteException ;
+
+  /**
    * This sets the maximum distance of sources to be considered in the calculation
    * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
    * Sources more than this distance away are ignored.
@@ -110,5 +118,5 @@ public interface DisaggregationCalculatorAPI extends Remote{
    * @returns resultant disaggregation in a String format.
    * @throws java.rmi.RemoteException
    */
-  public String getResultsString() throws java.rmi.RemoteException;
+  public String getResultsString(boolean disaggUsingIML, double value) throws java.rmi.RemoteException;
 }
