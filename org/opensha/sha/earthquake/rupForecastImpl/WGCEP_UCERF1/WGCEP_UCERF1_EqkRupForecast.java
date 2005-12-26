@@ -23,6 +23,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
+import org.opensha.param.event.ParameterChangeEvent;
 
 
 /**
@@ -115,15 +116,10 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   public final static double RUP_OFFSET_PARAM_MAX = 100;
   DoubleParameter rupOffset_Param;
 
-  // Boolean parameter for time dep versus time ind
-  public final static String TIME_DEPENDENT_PARAM_NAME = "Time Dependent";
-  public final static String TIME_DEPENDENT_PARAM_INFO = "To specify time-dependent versus "+
-      "time-independent forecast";
-  BooleanParameter timeDependentParam;
 
   // Time-independent versus time-dependent timeSpans
-  TimeSpan timeSpanTimeInd;
-  TimeSpan timeSpanTimeDep;
+  private TimeSpan timeSpanTimeInd;
+  private TimeSpan timeSpanTimeDep;
 
   /**
    *
@@ -131,29 +127,12 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
    */
   public WGCEP_UCERF1_EqkRupForecast() {
 
-    // create the time-ind timespan object with start time and duration in years
-    timeSpanTimeInd = new TimeSpan(TimeSpan.NONE,TimeSpan.YEARS);
-    timeSpanTimeInd.addParameterChangeListener(this);
-    timeSpanTimeInd.setDuration(30);
-
-    // create the time-dep timespan object with start time and duration in years
-    timeSpanTimeDep = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
-  // set the duration constraint as a list of Doubles
-    ArrayList durationOptions = new ArrayList();
-    durationOptions.add(new Double(5));
-    durationOptions.add(new Double(30));
-    timeSpanTimeDep.setDurationConstraint(durationOptions);
-  // set the start year - hard coded at 2006
-    timeSpanTimeDep.setStartTimeConstraint(TimeSpan.START_YEAR, 2006, 2006);
-    timeSpanTimeDep.setStartTime(2006);
-    timeSpanTimeDep.setDuration(30);
-    timeSpanTimeDep.addParameterChangeListener(this);
-
-    // set the default timeSpan to the time-dep timeSpan
-    timeSpan = timeSpanTimeDep;
-
     // create and add adj params to list
     initAdjParams();
+
+    //create the timespan parameter, to allow the user to set the timespan to be
+    //time independent or time dependent.
+    setTimespanParameter();
 
 
     // add the change listener to parameters so that forecast can be updated
@@ -1310,4 +1289,52 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
     fw3.close();
 
   }
+
+
+
+  /**
+   *  This is the main function of this interface. Any time a control
+   *  paramater or independent paramater is changed by the user in a GUI this
+   *  function is called, and a paramater change event is passed in.
+   *
+   *  This sets the flag to indicate that the sources need to be updated
+   *
+   * @param  event
+   */
+  public void parameterChange(ParameterChangeEvent event) {
+    super.parameterChange(event);
+    String paramName = event.getParameterName();
+    if(paramName.equals(TIME_DEPENDENT_PARAM_NAME))
+     setTimespanParameter();
+  }
+
+
+  private void setTimespanParameter() {
+    boolean isTimeDep = ( (Boolean) timeDependentParam.getValue()).booleanValue();
+    if (isTimeDep) {
+      // create the time-dep timespan object with start time and duration in years
+      timeSpanTimeDep = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+      // set the duration constraint as a list of Doubles
+      ArrayList durationOptions = new ArrayList();
+      durationOptions.add(new Double(5));
+      durationOptions.add(new Double(30));
+      timeSpanTimeDep.setDurationConstraint(durationOptions);
+      // set the start year - hard coded at 2006
+      timeSpanTimeDep.setStartTimeConstraint(TimeSpan.START_YEAR, 2006, 2006);
+      timeSpanTimeDep.setStartTime(2006);
+      timeSpanTimeDep.setDuration(30);
+      timeSpanTimeDep.addParameterChangeListener(this);
+      //set the default timeSpan to the time-dep timeSpan
+      timeSpan = timeSpanTimeDep;
+    }
+    else {
+      // create the time-ind timespan object with start time and duration in years
+      timeSpanTimeInd = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+      timeSpanTimeInd.addParameterChangeListener(this);
+      timeSpanTimeInd.setDuration(30);
+      //set the default timeSpan to the time-indep timeSpan
+      timeSpan = timeSpanTimeInd;
+    }
+  }
+
 }

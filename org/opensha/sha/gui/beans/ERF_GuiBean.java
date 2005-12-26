@@ -23,6 +23,7 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 import java.awt.*;
 import javax.swing.*;
+import org.opensha.sha.earthquake.EqkRupForecast;
 
 
 /**
@@ -176,13 +177,6 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      String erfClassName = (String)erfClasses.get(0);
      // make the ERF objects to get their adjustable parameters
      eqkRupForecast = (ERF_API ) createERFClassInstance(erfClassName);
-     Iterator it1 = eqkRupForecast.getAdjustableParameterList().getParametersIterator();
-
-     // add the listener for the paramters in the forecast
-     while(it1.hasNext()) {
-       ParameterAPI param = (ParameterAPI)it1.next();
-       param.addParameterChangeFailListener(this);
-     }
 
      // make the forecast selection parameter
      StringParameter selectERF= new StringParameter(ERF_PARAM_NAME,
@@ -213,8 +207,13 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
     // make the parameters visible based on selected forecast
      while(it.hasNext()){
-       ParameterAPI tempParam = (ParameterAPI)it.next();
-       parameterList.addParameter(tempParam);
+       ParameterAPI param = (ParameterAPI)it.next();
+       //System.out.println("Param Name: "+param.getName());
+       if(param.getName().equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
+         param.addParameterChangeListener(this);
+       param.addParameterChangeFailListener(this);
+
+       parameterList.addParameter(param);
      }
 
      //remove the parameters if they already exists in the panel.
@@ -244,22 +243,27 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      titledBorder1.setTitle(ERF_PARAM_NAME);
      Border border1 = BorderFactory.createCompoundBorder(titledBorder1,BorderFactory.createEmptyBorder(0,0,3,0));
      panel.setBorder(border1);
-
-
-     if(timeSpanGuiBean == null)
-       // create the TimeSpan Gui Bean object
-       timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
-     else
-       erfAndTimespanPanel.remove(timeSpanGuiBean);
-     //adding the Timespan Gui panel to the ERF Gui Bean
-     timeSpanGuiBean.setTimeSpan(eqkRupForecast.getTimeSpan());
-     erfAndTimespanPanel.add(timeSpanGuiBean, new GridBagConstraints( 0, 1, 1, 1, 1.0, 1.0,
-         GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 4, 4, 4, 4 ), 0, 0 ));
-
+     createTimeSpanPanel();
      this.validate();
      this.repaint();
    }
 
+   //adds the TimeSpan panel to the Gui depending on Timespan from EqkRupForecast.
+   private void createTimeSpanPanel(){
+     if (timeSpanGuiBean == null)
+       // create the TimeSpan Gui Bean object
+       timeSpanGuiBean = new TimeSpanGuiBean(eqkRupForecast.getTimeSpan());
+     else
+       erfAndTimespanPanel.remove(timeSpanGuiBean);
+   //adding the Timespan Gui panel to the ERF Gui Bean
+     timeSpanGuiBean.setTimeSpan(eqkRupForecast.getTimeSpan());
+     erfAndTimespanPanel.add(timeSpanGuiBean,
+                             new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+                                                    GridBagConstraints.CENTER,
+                                                    GridBagConstraints.BOTH,
+                                                    new Insets(4, 4, 4, 4), 0, 0));
+
+   }
 
 
 
@@ -449,6 +453,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
      String name1 = event.getParameterName();
 
+     if(name1.equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
+       this.createTimeSpanPanel();
      // if ERF selected by the user  changes
      if( name1.equals(this.ERF_PARAM_NAME) ){
        String value = event.getNewValue().toString();
@@ -464,10 +470,11 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
        }catch(Exception e){
          e.printStackTrace();
        }
-       this.validate();
-       this.repaint();
-       //       applet.updateChosenERF();
+        //       applet.updateChosenERF();
      }
+     this.validate();
+     this.repaint();
+
    }
 
    /**

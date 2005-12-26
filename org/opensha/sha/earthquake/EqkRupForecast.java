@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.Set;
 import java.text.DecimalFormat;
 import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
+import org.opensha.param.StringParameter;
+import org.opensha.param.BooleanParameter;
+
 
 /**
  * <p>Title: </p>
@@ -42,6 +45,12 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   // it is flag which indiactes whether any parameter have changed.
   // if it is true it means that forecast needs to be updated
   protected boolean parameterChangeFlag = true;
+
+  // Boolean parameter for time dep versus time ind
+  public final static String TIME_DEPENDENT_PARAM_NAME = "Time Dependent";
+  protected final static String TIME_DEPENDENT_PARAM_INFO = "To specify time-dependent versus "+
+      "time-independent forecast";
+  protected BooleanParameter timeDependentParam;
 
 
   /**
