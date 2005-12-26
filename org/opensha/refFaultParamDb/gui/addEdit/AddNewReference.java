@@ -18,8 +18,6 @@ import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionFrame;
 import org.opensha.refFaultParamDb.gui.view.ViewAllReferences;
 import org.opensha.refFaultParamDb.gui.CommentsParameterEditor;
-import org.opensha.param.IntegerParameter;
-import org.opensha.param.editor.IntegerParameterEditor;
 import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
 import org.opensha.refFaultParamDb.gui.infotools.ConnectToEmailServlet;
 
@@ -38,23 +36,22 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private final static String BIBLIO_PARAM_NAME="Full Bibliographic Ref";
   private final static String BIBLIO_PARAM_DEFAULT="Enter full citation here";
   private final static String YEAR_PARAM_NAME="Year";
-  private final static Integer YEAR_PARAM_DEFAULT=new Integer(1998);
   private final static String MSG_AUTHOR = "Author is missing";
   private final static String MSG_FULL_BIBLIO = "Full Bibliographic Reference is missing";
   private final static String MSG_YEAR = "Year is missing";
   private StringParameter authorParam;
   private StringParameter biblioParam;
-  private IntegerParameter yearParam;
+  private StringParameter yearParam;
   private StringParameterEditor authorParameterEditor;
   private CommentsParameterEditor biblioParameterEditor;
-  private IntegerParameterEditor yearParamEditor;
+  private StringParameterEditor yearParamEditor;
   private final static String NEW_SITE_TYPE_LABEL="Add Reference";
   private JButton okButton = new JButton("Submit");
   private JButton cancelButton = new JButton("Cancel");
   private JButton viewAllRefsButton = new JButton("View All References");
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String MSG_INSERT_SUCCESS = "Reference added sucessfully to the database";
-
+  private final static String MSG_SINGLE_QUOTES_NOT_ALLOWED = "Single quotes are not allowed for author, year or full bibliographic reference";
   public AddNewReference() {
     initParamsAndEditors();
     addEditorsToGUI();
@@ -96,19 +93,31 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private void addReferenceToDatabase() {
     String author = (String)this.authorParam.getValue();
     String fullBiblio = (String)this.biblioParam.getValue();
-    int year = ((Integer)this.yearParam.getValue()).intValue();
+    String year = (String)this.yearParam.getValue();
     // check that usr has provided both short citation as well as full Biblio reference
-    if(author==null || author.trim().equalsIgnoreCase("")) {
-     JOptionPane.showMessageDialog(this, this.MSG_AUTHOR);
-     return;
-   }
-   if(fullBiblio==null || fullBiblio.trim().equalsIgnoreCase("")) {
-     JOptionPane.showMessageDialog(this, this.MSG_FULL_BIBLIO);
-     return;
-   }
+    if (author == null || author.trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_AUTHOR);
+      return;
+    }
+    // check that  full bibliographic reference has been filled
+    if (fullBiblio == null || fullBiblio.trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_FULL_BIBLIO);
+      return;
+    }
+    // check that year value has been filled
+    if (year == null || year.trim().equalsIgnoreCase("")) {
+      JOptionPane.showMessageDialog(this, this.MSG_YEAR);
+      return;
+    }
+    // single quotes are not allowed
+    if (author.indexOf("'") >= 0 || fullBiblio.indexOf("'") >= 0 ||
+        year.indexOf("'") >= 0) {
+      JOptionPane.showMessageDialog(this, this.MSG_SINGLE_QUOTES_NOT_ALLOWED);
+      return;
+    }
 
    try { // catch the insert exception
-     Reference reference = new Reference(author, ""+year, fullBiblio);
+     Reference reference = new Reference(author, year, fullBiblio);
      ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new Reference to database\n"+reference.toString());
      referenceDAO.addReference(reference);
      this.sendEventToListeners(reference);
@@ -153,13 +162,13 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
   private void initParamsAndEditors() {
     authorParam = new StringParameter(AUTHOR_PARAM_NAME, AUTHOR_PARAM_DEFAULT);
     biblioParam = new StringParameter(BIBLIO_PARAM_NAME, BIBLIO_PARAM_DEFAULT);
-    this.yearParam = new IntegerParameter(this.YEAR_PARAM_NAME, YEAR_PARAM_DEFAULT);
+    this.yearParam = new StringParameter(this.YEAR_PARAM_NAME);
     authorParameterEditor = null;
     biblioParameterEditor = null;
     try {
       authorParameterEditor = new StringParameterEditor(authorParam);
       biblioParameterEditor = new CommentsParameterEditor(biblioParam);
-      yearParamEditor = new IntegerParameterEditor(yearParam);
+      yearParamEditor = new StringParameterEditor(yearParam);
     }
     catch (Exception ex) {
       ex.printStackTrace();

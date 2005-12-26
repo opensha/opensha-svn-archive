@@ -35,13 +35,14 @@ public class ViewAllReferences extends JFrame implements ActionListener {
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String MSG_MINUTE_TO_LOAD = " May take a minute to load ........";
   private CalcProgressBar progressBar = new CalcProgressBar("Getting References", MSG_MINUTE_TO_LOAD);
-
+  private final static String TITLE = "All References";
   public ViewAllReferences() {
     try {
       progressBar.setVisible(true);
       jbInit();
       makeReferencesTable();
       addActionListeners();
+      setTitle(TITLE);
       pack();
       this.setLocationRelativeTo(null);
       show();

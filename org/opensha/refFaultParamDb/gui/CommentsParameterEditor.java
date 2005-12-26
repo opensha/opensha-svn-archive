@@ -149,7 +149,9 @@ public class CommentsParameterEditor extends ParameterEditor
            String value = ((JTextArea) valueEditor).getText();
            try {
              if(value.indexOf('\'')>=0)
-               throw new ConstraintException("Single quotes are not allowed in comments field");
+               JOptionPane.showMessageDialog(this,"Single quotes are not allowed in comments field\n"+
+                                             "Changing all single quotes to double quotes");
+             value=value.replace('\'','"');
              String d = "";
              if( !value.equals( "" ) ) d = value;
              setValue(d);

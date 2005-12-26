@@ -170,7 +170,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    */
   private EstimateInstances getNumEventsEstimate() {
      ArbitrarilyDiscretizedFunc eventProb = (ArbitrarilyDiscretizedFunc)this.eventsProbParameter.getValue();
-     IntegerEstimate numEventsEstimate = new IntegerEstimate(eventProb,false);
+     IntegerEstimate numEventsEstimate = new IntegerEstimate(eventProb,true);
      return new EstimateInstances(numEventsEstimate, this.NUM_EVENTS_UNITS);
    }
 

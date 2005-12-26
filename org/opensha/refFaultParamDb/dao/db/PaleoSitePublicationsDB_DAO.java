@@ -137,6 +137,7 @@ public class PaleoSitePublicationsDB_DAO {
           paleoSitePublication.setSiteTypeNames(siteTypeNames);
           paleoSitePublication.setReference(referenceDAO.getReference(rs.getInt(this.REFERENCE_ID)));
           paleoSitePubList.add(paleoSitePublication);
+          refIdPublicationMap.put(new Integer(rs.getInt(this.REFERENCE_ID)), paleoSitePublication);
         }
       }
       rs.close();

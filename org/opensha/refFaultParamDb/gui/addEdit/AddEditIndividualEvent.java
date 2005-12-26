@@ -122,8 +122,8 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   private String siteEntryDate; // site entry dat for which paleo event is to be added
   private AddNewReference addNewReference;
   private LabeledBoxPanel commentsReferencesPanel;
-  private ArrayList referenceSummaryList;
-  private ArrayList referenceList;
+  private  ArrayList referenceSummaryList;
+  private  ArrayList referenceList;
   private SenseOfMotionPanel senseOfMotionPanel;
   private MeasuredCompPanel measuredCompPanel;
   private static int eventToDatabaseCounter=0;
@@ -214,10 +214,14 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
   * @return
   */
  private ArrayList getAvailableReferences() {
-   this.referenceList  = referenceDAO.getAllReferenesSummary();
-   this.referenceSummaryList = new ArrayList();
-   for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
-     referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());
+   //if(referenceSummaryList==null) {
+     this.referenceList = referenceDAO.getAllReferencesSummary();
+     this.referenceSummaryList = new ArrayList();
+     for (int i = 0; referenceList != null && i < referenceList.size(); ++i)
+       referenceSummaryList.add( ( (Reference) referenceList.get(i)).
+                                getSummary());
+   //}
+
    return referenceSummaryList;
  }
 

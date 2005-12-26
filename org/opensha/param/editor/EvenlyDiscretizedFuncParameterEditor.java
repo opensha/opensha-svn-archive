@@ -250,14 +250,17 @@ public class EvenlyDiscretizedFuncParameterEditor extends ParameterEditor
         return;
       }
       int num = numVal.intValue();
-
+      double y[] = new double[function.getNum()];
+      for(int i=0; i<function.getNum(); ++i)
+        y[i] = function.getY(i);
       function.set(min, max, num);
       String xStr = "";
       String yStr = "";
       for(int i=0; i<num; ++i) {
-        function.set(i,0.0);
+        if(i<y.length) function.set(i,y[i]);
+        else function.set(i,0.0);
         xStr = xStr + function.getX(i) + "\n";
-        yStr = yStr +  "0.0 \n";
+        yStr = yStr +  function.getY(i)+" \n";
       }
       xTextArea.setText(xStr);
       yTextArea.setText(yStr);

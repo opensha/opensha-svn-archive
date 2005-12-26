@@ -524,7 +524,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
  * @return
  */
 private ArrayList getAvailableReferences() {
-  this.referenceList  = referenceDAO.getAllReferenesSummary();
+  this.referenceList  = referenceDAO.getAllReferencesSummary();
   this.referenceSummaryList = new ArrayList();
   for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
     referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());

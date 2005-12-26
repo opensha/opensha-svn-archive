@@ -70,7 +70,6 @@ public class CombinedDisplacementInfoDB_DAO {
       colNames += this.MEASURED_SLIP_COMP_QUAL+",";
       colVals +="'"+measuredCompQual+"',";
     }
-    // check whether aseismic slip factor has been added
     // check whether aseismic slip factor has been provided
    EstimateInstances aseismicSlipEst = combinedDispInfo.getASeismicSlipFactorEstimateForDisp();
    if(aseismicSlipEst!=null) {

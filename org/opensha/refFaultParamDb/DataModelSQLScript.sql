@@ -394,7 +394,7 @@ CREATE TABLE Paleo_Site_Publications (
   Representative_Strand_Index INTEGER NOT NULL,
   Reference_Id INTEGER  NOT NULL,
   Contributor_Id INTEGER  NOT NULL,
-  PRIMARY KEY(Site_Id, Site_Entry_date, Reference_Id, Entry_date),
+  PRIMARY KEY(Site_Id, Site_Entry_date, Reference_Id, Site_Type_Id, Entry_date),
   FOREIGN KEY(Reference_Id)
      REFERENCES Reference(Reference_Id) ON DELETE CASCADE,
   FOREIGN KEY(Representative_Strand_Index)

@@ -80,8 +80,11 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     }catch(RuntimeException e) {
       JOptionPane.showMessageDialog(this, e.getMessage());
       this.isSequenceVisible = false;
-      this.dispose();
-      return;
+      // show the window if any one of slip, displacement or num events needs to be visible
+      if(!(isSlipVisible || isDisplacementVisible || isNumEventsVisible)) {
+        this.dispose();
+        return;
+      }
     }
     if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
     if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
@@ -159,13 +162,23 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     CombinedEventsInfo combinedEventsInfo = new CombinedEventsInfo();
     // it is not expert opinion. this is publication info
     combinedEventsInfo.setIsExpertOpinion(false);
-    // set the time span info
-    TimeAPI startTime  = addEditTimeSpan.getStartTime();
-    startTime.setReferencesList(this.referenceList);
-    TimeAPI endTime  = addEditTimeSpan.getEndTime();
-    endTime.setReferencesList(this.referenceList);
-    combinedEventsInfo.setStartTime(startTime);
-    combinedEventsInfo.setEndTime(endTime);
+    // if there is error in user input for start time
+    try {
+      // set the time span info
+      TimeAPI startTime = addEditTimeSpan.getStartTime();
+      startTime.setReferencesList(this.referenceList);
+      combinedEventsInfo.setStartTime(startTime);
+    }catch(Exception e) {
+      throw new RuntimeException("Check Start Time\n"+e.getMessage());
+    }
+    // if there is error in user input for end time
+    try {
+      TimeAPI endTime = addEditTimeSpan.getEndTime();
+      endTime.setReferencesList(this.referenceList);
+      combinedEventsInfo.setEndTime(endTime);
+    }catch(Exception e) {
+      throw new RuntimeException("Check End Time\n"+e.getMessage());
+    }
     combinedEventsInfo.setReferenceList(referenceList);
     combinedEventsInfo.setDatedFeatureComments(addEditTimeSpan.getTimeSpanComments());
     // set the site
@@ -180,29 +193,48 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     paleoSitePub.setSiteEntryDate(siteEntryDate);
     combinedEventsInfo.setPaleoSitePublication(paleoSitePub);
 
-    // set the slip rate info
-    if (isSlipVisible) {
-      CombinedSlipRateInfo combinedSlipRateInfo = addEditSlipRate.getCombinedSlipRateInfo();
-      combinedEventsInfo.setCombinedSlipRateInfo(combinedSlipRateInfo);
+    try {// set the slip rate info
+      if (isSlipVisible) {
+        CombinedSlipRateInfo combinedSlipRateInfo = addEditSlipRate.
+            getCombinedSlipRateInfo();
+        combinedEventsInfo.setCombinedSlipRateInfo(combinedSlipRateInfo);
+      }
+    }catch(Exception e) {
+      throw new RuntimeException("Check  "+this.SLIP_RATE_TITLE+"\n"+e.getMessage());
     }
-    // set the diplacement info
+
+    try{ // set the diplacement info
     if(this.isDisplacementVisible) {
       CombinedDisplacementInfo combinedDisplacementInfo = addEditCumDisp.getCombinedDisplacementInfo();
       combinedEventsInfo.setCombinedDisplacementInfo(combinedDisplacementInfo);
     }
-    //set the num events info
-    if(this.isNumEventsVisible) {
-      CombinedNumEventsInfo combinedNumEventsInfo = addEditNumEvents.getCombinedNumEventsInfo();
-      combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
+    }catch(Exception e) {
+      throw new RuntimeException("Check "+this.DISPLACEMENT_TITLE+"\n"+e.getMessage());
     }
-    // set the sequence info
-    if(this.isSequenceVisible) {
-      combinedEventsInfo.setEventSequenceList(addEditSequence.getAllSequences());
+
+    try {//set the num events info
+      if(this.isNumEventsVisible) {
+        CombinedNumEventsInfo combinedNumEventsInfo = addEditNumEvents.getCombinedNumEventsInfo();
+        combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
+      }
+    }catch(Exception e) {
+      throw new RuntimeException("Check "+this.NUM_EVENTS_TITLE+"\n"+e.getMessage());
+  }
+
+
+    try {// set the sequence info
+      if(this.isSequenceVisible) {
+        combinedEventsInfo.setEventSequenceList(addEditSequence.getAllSequences());
+      }
+    }catch(Exception e) {
+      throw new RuntimeException("Check "+this.SEQUENCE_TITLE+ "\n"+e.getMessage());
     }
+
     ConnectToEmailServlet.sendEmail(SessionInfo.getUserName()+" trying to add new combined events info to database\n"+ combinedEventsInfo.toString());
     combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
     this.sendEventToListeners(combinedEventsInfo);
   }
+
 
 
   /**

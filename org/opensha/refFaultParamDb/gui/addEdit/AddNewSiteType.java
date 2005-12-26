@@ -33,6 +33,7 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
   private final static String SITE_TYPE_COMMENTS_PARAM_NAME="Site Type Comments";
   private final static String SITE_TYPE_NAME_PARAM_DEFAULT="Enter Name Here";
   private final static String MSG_SITE_TYPE_NAME_MISSING = "Site Type Name is Missing";
+  private final static String MSG_SINGLE_QUOTES_NOT_ALLOWED = "Single quotes are not allowed in Site type name";
   private final static String MSG_SITE_TYPE_COMMENTS_MISSING = "Site Type comments are missing";
   private StringParameter siteTypeParam;
   private StringParameter siteTypeCommentsParam;
@@ -84,10 +85,17 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
   private void addNewSiteType() {
     String siteTypeName = (String)this.siteTypeParam.getValue();
     String siteTypeComments = (String)this.siteTypeCommentsParam.getValue();
+    // check that user has entered site type name
     if(siteTypeName.trim().equalsIgnoreCase("")) {
       JOptionPane.showMessageDialog(this, MSG_SITE_TYPE_NAME_MISSING);
       return;
     }
+    // single quotes not allowed in site type name
+    if(siteTypeName.trim().indexOf("'")>=0) {
+      JOptionPane.showMessageDialog(this, MSG_SINGLE_QUOTES_NOT_ALLOWED);
+      return;
+    }
+    // check that user has entered site type comments
     if(siteTypeComments.trim().equalsIgnoreCase("")) {
       JOptionPane.showMessageDialog(this, MSG_SITE_TYPE_COMMENTS_MISSING);
       return;

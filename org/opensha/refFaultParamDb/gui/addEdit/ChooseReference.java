@@ -42,8 +42,8 @@ public class ChooseReference extends JFrame implements ActionListener,
   private JButton okButton = new JButton("OK");
   private JButton closeButton = new JButton("Close");
   private AddSiteInfo addSiteInfo;
-  private ArrayList referenceSummaryList;
-  private ArrayList referenceList;
+  private static ArrayList referenceSummaryList;
+  private static ArrayList referenceList;
   private final static String SITE_TYPE_PARAM_NAME="Site Type";
   private final static String SITE_REPRESENTATION_PARAM_NAME="How Representative is this Site";
   private StringParameter siteTypeParam;
@@ -53,8 +53,8 @@ public class ChooseReference extends JFrame implements ActionListener,
   // site type DAO
   private SiteTypeDB_DAO siteTypeDAO = new SiteTypeDB_DAO(DB_AccessAPI.dbConnection);
   // site representations DAO
- private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
-
+  private SiteRepresentationDB_DAO siteRepresentationDAO = new SiteRepresentationDB_DAO(DB_AccessAPI.dbConnection);
+  private final static String TITLE="Choose Reference";
 
   // references DAO
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
@@ -64,6 +64,7 @@ public class ChooseReference extends JFrame implements ActionListener,
     this.setDefaultCloseOperation(this.DO_NOTHING_ON_CLOSE);
     this.addSiteInfo = addSiteInfo;
     addActionListeners();
+    setTitle(TITLE);
     addNewReferenceButton.setToolTipText(this.addNewReferenceToolTipText);
     try {
       jbInit();
@@ -152,7 +153,7 @@ public class ChooseReference extends JFrame implements ActionListener,
    * @return
    */
   private ArrayList getAvailableReferences() {
-    this.referenceList  = referenceDAO.getAllReferenesSummary();
+    this.referenceList  = referenceDAO.getAllReferencesSummary();
     this.referenceSummaryList = new ArrayList();
     for(int i=0; referenceList!=null && i<referenceList.size(); ++i)
       referenceSummaryList.add(((Reference)referenceList.get(i)).getSummary());

@@ -24,6 +24,7 @@ public class ReferenceDB_DAO {
   private final static String FULL_BIBLIOGRAPHIC_REFERENCE="Full_Bibliographic_Reference";
   private final static String QFAULT_REFERENCE_ID= "QFault_Reference_Id";
   private DB_AccessAPI dbAccessAPI;
+  private static ArrayList referenceList;
 
   /**
    * Constructor.
@@ -56,7 +57,10 @@ public class ReferenceDB_DAO {
         REF_YEAR+","+this.FULL_BIBLIOGRAPHIC_REFERENCE+")"+
         " values ("+referenceId+",'"+reference.getRefAuth()+"','"+
         reference.getRefYear()+"','"+reference.getFullBiblioReference()+"')";
-    try { dbAccessAPI.insertUpdateOrDeleteData(sql); }
+    try {
+      dbAccessAPI.insertUpdateOrDeleteData(sql);
+      referenceList.add(reference); // add to cached list of references
+    }
     catch(SQLException e) {
       //e.printStackTrace();
       throw new InsertException(e.getMessage());
@@ -124,8 +128,14 @@ public class ReferenceDB_DAO {
     return query(" ");
   }
 
-  public ArrayList getAllReferenesSummary() throws QueryException {
-    ArrayList referenceList = new ArrayList();
+  /**
+   * Get a list of summary for all references
+   * @return
+   * @throws QueryException
+   */
+  public ArrayList getAllReferencesSummary() throws QueryException {
+    if(referenceList!=null) return referenceList;
+    referenceList = new ArrayList();
     String sql = "select "+REFERENCE_ID+","+this.REF_YEAR+","+
         this.REF_AUTH+" from "+TABLE_NAME+" order by "+this.REF_AUTH;
     try {
