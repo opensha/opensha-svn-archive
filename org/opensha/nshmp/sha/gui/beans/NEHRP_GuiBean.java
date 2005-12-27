@@ -109,7 +109,7 @@ public class NEHRP_GuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
 
       }
@@ -315,7 +315,7 @@ public class NEHRP_GuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
 
       }
@@ -508,7 +508,7 @@ public class NEHRP_GuiBean
             getSs(),
             dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
       }
-      siteCoefficientWindow.show();
+      siteCoefficientWindow.setVisible(true);
 
       dataGenerator.setFa(siteCoefficientWindow.getFa());
       dataGenerator.setFv(siteCoefficientWindow.getFv());
@@ -601,7 +601,7 @@ public class NEHRP_GuiBean
     ArrayList functions = dataGenerator.getFunctionsToPlotForSA(
         mapSpectrumCalculated, sdSpectrumCalculated, smSpectrumCalculated);
     GraphWindow window = new GraphWindow(functions);
-    window.show();
+    window.setVisible(true);
   }
 
 }

@@ -130,7 +130,7 @@ public class ProbabilisticHazardGui
 
   public static void main(String[] args) {
     ProbabilisticHazardGui app = new ProbabilisticHazardGui();
-    app.show();
+    app.setVisible(true);
   }
 
   private void exitButton_actionPerformed(ActionEvent actionEvent) {
@@ -140,7 +140,7 @@ public class ProbabilisticHazardGui
   private void okButton_actionPerformed(ActionEvent actionEvent) {
     this.dispose();
     ProbabilisticHazardApplication app = new ProbabilisticHazardApplication();
-    app.show();
+    app.setVisible(true);
 
   }
 

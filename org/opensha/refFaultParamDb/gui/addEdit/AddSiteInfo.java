@@ -94,11 +94,11 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     this.setSize(W,H);
     setTitle(TITLE);
     this.setLocationRelativeTo(null);
-    show();
+    this.setVisible(true);
     // show window to get the reference
     JFrame referencesDialog = new ChooseReference(this);
     referencesDialog.setFocusableWindowState(true);
-    referencesDialog.show();
+    referencesDialog.setVisible(true);
 
     //this.setEnabled(false);
 

@@ -9,7 +9,6 @@ import java.util.*;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.Thread;
-import ch.randelshofer.quaqua.QuaquaManager;
 import javax.swing.Timer;
 //import javax.help.*;
 
@@ -214,7 +213,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       step = 0;
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception during initializing the application.\n"+
           "Parameters values not yet set.");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
     }
     try{
@@ -225,7 +224,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       step = 0;
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), "Exception occured initializing the IMR with "+
           "default parameters value");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       //JOptionPane.showMessageDialog(this,"Invalid parameter value",e.getMessage(),JOptionPane.ERROR_MESSAGE);
       //return;
@@ -238,7 +237,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
           "Exception occured while initializing the  region parameters in ScenarioShakeMap application."+
           "Parameters values have not been set yet.");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
 
     }
@@ -302,14 +301,13 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     mainSplitPane.add(parameterTabbedPanel, JSplitPane.TOP);
 
 
-
     parameterTabbedPanel.addTab("Intensity-Measure Relationship", imrPanel);
     parameterTabbedPanel.addTab("Region & Site Params", gridRegionSitePanel);
     parameterTabbedPanel.addTab("Earthquake Rupture", eqkRupPanel );
     parameterTabbedPanel.addTab( "Exceedance Level/Probability", prob_IMLPanel);
     parameterTabbedPanel.addTab("Map Attributes", gmtPanel);
-    mainSplitPane.setDividerLocation(630);
 
+    mainSplitPane.setDividerLocation(630);
 
     //applet.createHelpMenu();
     this.setSize(W,H);
@@ -317,10 +315,6 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     this.setLocation((dim.width - getSize().width) / 2, (dim.height - getSize().height) / 2);
     //EXIT_ON_CLOSE == 3
     this.setDefaultCloseOperation(3);
-
-
-
-
 
     //adding the Menu to the application
     /*helpMenu.setText("Help");
@@ -347,11 +341,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
 
   //static initializer for setting look & feel
   static {
-    String osName = System.getProperty("os.name");
     try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
@@ -498,7 +488,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     catch(Exception ee){
       step = 0;
       ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),mapParametersInfo);
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       return;
     }
@@ -718,7 +708,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       step = 0;
       /*ExceptionWindow bugWindow = new ExceptionWindow(this, ee.getStackTrace(),
           mapParametersInfo);
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();*/
 
      JOptionPane.showMessageDialog(this, ee.getMessage(), "Input Error",
@@ -862,7 +852,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     if(calcParamsControl == null)
       calcParamsControl = new CalculationSettingsControlPanel(this,this);
 
-    calcParamsControl.show();
+    calcParamsControl.setVisible(true);
   }
 
 
@@ -894,7 +884,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     if(this.regionsOfInterest==null)
       regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
     regionsOfInterest.pack();
-    regionsOfInterest.show();
+    regionsOfInterest.setVisible(true);
   }
 
   /**
@@ -920,7 +910,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     if(hazusControl == null)
       hazusControl = new GenerateHazusControlPanelForSingleMultipleIMRs(this,this);
 
-    hazusControl.show();
+    hazusControl.setVisible(true);
     hazusControl.pack();
  }
 
@@ -928,7 +918,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
  private void initMapCalcMethodSelectionControl(){
    if(calcControl ==  null)
      calcControl = new CalcOptionControl(this);
-   calcControl.show();
+   calcControl.setVisible(true);
    calcControl.pack();
  }
 

@@ -1264,7 +1264,7 @@ public class HazardSpectrumApplication extends JApplet
     private void peelOffCurves(){
       graphWindow = new GraphWindow(this);
       clearPlot(true);
-      graphWindow.show();
+      graphWindow.setVisible(true);
   }
 
 
@@ -1470,7 +1470,7 @@ public class HazardSpectrumApplication extends JApplet
           imrGuiBean, siteGuiBean, imtGuiBean, erfGuiBean, timeSpanGuiBean,
           this.distanceControlPanel);
     peerTestsControlPanel.pack();
-    peerTestsControlPanel.show();
+    peerTestsControlPanel.setVisible(true);
   }*/
 
 
@@ -1482,7 +1482,7 @@ public class HazardSpectrumApplication extends JApplet
   /*private void initDisaggregationControl() {
     if(this.disaggregationControlPanel==null)
       disaggregationControlPanel = new DisaggregationControlPanel(this, this);
-    disaggregationControlPanel.show();
+    disaggregationControlPanel.setVisible(true);
   }*/
 
   /**
@@ -1493,7 +1493,7 @@ public class HazardSpectrumApplication extends JApplet
    private void initEpistemicControl() {
      if(this.epistemicControlPanel==null)
        epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
-     epistemicControlPanel.show();
+     epistemicControlPanel.setVisible(true);
   }
 
   /**
@@ -1505,7 +1505,7 @@ public class HazardSpectrumApplication extends JApplet
     if(this.distanceControlPanel==null)
       distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(this);
     distanceControlPanel.pack();
-    distanceControlPanel.show();
+    distanceControlPanel.setVisible(true);
   }
 
   /**
@@ -1516,7 +1516,7 @@ public class HazardSpectrumApplication extends JApplet
     if(this.sitesOfInterest==null)
       sitesOfInterest = new SitesOfInterestControlPanel(this, this.siteGuiBean);
     sitesOfInterest.pack();
-    sitesOfInterest.show();
+    sitesOfInterest.setVisible(true);
   }
 
   /**
@@ -1527,7 +1527,7 @@ public class HazardSpectrumApplication extends JApplet
     if(this.cvmControlPanel==null)
       cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);
     cvmControlPanel.pack();
-    cvmControlPanel.show();
+    cvmControlPanel.setVisible(true);
   }
 
 
@@ -1544,7 +1544,7 @@ public class HazardSpectrumApplication extends JApplet
     else
       xValuesPanel.setX_Values(function);
     xValuesPanel.pack();
-    xValuesPanel.show();
+    xValuesPanel.setVisible(true);
   }
 
 

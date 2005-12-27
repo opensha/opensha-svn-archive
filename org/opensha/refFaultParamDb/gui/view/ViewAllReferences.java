@@ -45,7 +45,7 @@ public class ViewAllReferences extends JFrame implements ActionListener {
       setTitle(TITLE);
       pack();
       this.setLocationRelativeTo(null);
-      show();
+      this.setVisible(true);
       progressBar.setVisible(false);
     }
     catch(Exception e) {

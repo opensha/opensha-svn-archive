@@ -146,7 +146,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
       setSharedEventVisible(((Boolean)this.displacementSharedParam.getValue()).booleanValue());
       setSize(WIDTH, HEIGHT);
       this.setLocationRelativeTo(null);
-      show();
+      this.setVisible(true);
     }
     catch(Exception e) {
       e.printStackTrace();

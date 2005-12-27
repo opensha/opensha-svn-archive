@@ -58,7 +58,7 @@ public class AddNewSiteType extends DbAdditionFrame implements ActionListener {
     this.setTitle(NEW_SITE_TYPE_LABEL);
     this.pack();
     this.setLocationRelativeTo(null);
-    this.show();
+    this.setVisible(true);
   }
 
   /**

@@ -52,7 +52,7 @@ public class SimpleFaultParameterGUI extends JDialog{
   public static void main(String[] args) {
     SimpleFaultParameter surfaceParam = new SimpleFaultParameter("Fault-1",null);
     SimpleFaultParameterGUI simpleFaultParameterGUI = new SimpleFaultParameterGUI(surfaceParam);
-    simpleFaultParameterGUI.show();
+    simpleFaultParameterGUI.setVisible(true);
     simpleFaultParameterGUI.pack();
   }
 

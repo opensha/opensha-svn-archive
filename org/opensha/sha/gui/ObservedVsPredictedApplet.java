@@ -48,7 +48,7 @@ import org.opensha.data.Site;
 import org.opensha.sha.nga.*;
 import org.opensha.sha.nga.calc.*;
 import org.opensha.data.XYZ_DataSetAPI;
-import ch.randelshofer.quaqua.*;
+
 
 
 /**
@@ -466,9 +466,6 @@ public class ObservedVsPredictedApplet extends JApplet
    static {
      String osName = System.getProperty("os.name");
      try {
-       if(osName.startsWith("Mac OS"))
-         UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-       else
          UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
      }
      catch(Exception e) {

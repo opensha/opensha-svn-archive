@@ -38,7 +38,7 @@ public class RequestUserAccount extends JFrame implements ActionListener {
       requestAccountButton.addActionListener(this);
       pack();
       this.setLocationRelativeTo(null);
-      show();
+      this.setVisible(true);
     }
     catch(Exception e) {
       e.printStackTrace();

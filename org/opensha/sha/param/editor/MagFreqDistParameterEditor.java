@@ -141,7 +141,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         });
         frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
             ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-        frame.show();
+        frame.setVisible(true);
         frame.pack();
   }
 

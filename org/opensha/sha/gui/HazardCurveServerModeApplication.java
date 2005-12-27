@@ -66,7 +66,6 @@ import org.opensha.sha.calc.DisaggregationCalculatorAPI;
 import org.opensha.sha.gui.infoTools.WeightedFuncListforPlotting;
 import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanelAPI;
 import org.opensha.sha.gui.controls.XY_ValuesControlPanel;
@@ -387,7 +386,7 @@ public class HazardCurveServerModeApplication extends JFrame
     catch(Exception e) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while creating the GUI.\n"+
           "No Parameters have been set");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       //e.printStackTrace();
     }
@@ -623,9 +622,6 @@ public class HazardCurveServerModeApplication extends JFrame
   static {
     String osName = System.getProperty("os.name");
     try {
-     // if(osName.startsWith("Mac OS"))
-       // UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      //else
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
@@ -709,7 +705,7 @@ public class HazardCurveServerModeApplication extends JFrame
             //peerResultsFile.close();
           }catch(Exception ee){
             ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
-            bugWindow.show();
+            bugWindow.setVisible(true);
             bugWindow.pack();
           }
         }
@@ -735,7 +731,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }catch(Exception e){
         e.printStackTrace();
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
       }
 
@@ -774,7 +770,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
       }
@@ -805,7 +801,7 @@ public class HazardCurveServerModeApplication extends JFrame
               timer.stop();
               setButtonsEnable(true);
               ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
-              bugWindow.show();
+              bugWindow.setVisible(true);
               bugWindow.pack();
             }
           }
@@ -827,7 +823,7 @@ public class HazardCurveServerModeApplication extends JFrame
               disaggTimer.stop();
               setButtonsEnable(true);
               ExceptionWindow bugWindow = new ExceptionWindow(getApplicationComponent(),e.getStackTrace(),getParametersInfoAsString());
-              bugWindow.show();
+              bugWindow.setVisible(true);
               bugWindow.pack();
             }
           }
@@ -1060,7 +1056,7 @@ public class HazardCurveServerModeApplication extends JFrame
       imtGuiBean.setIMT();
     } catch (Exception ex) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),getParametersInfoAsString());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       if(D) System.out.println(C + ":Param warning caught"+ex);
       ex.printStackTrace();
@@ -1100,7 +1096,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }catch(Exception e){
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
     }
@@ -1118,7 +1114,7 @@ public class HazardCurveServerModeApplication extends JFrame
         e.printStackTrace();
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
 
       }
@@ -1154,7 +1150,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
       }*/
@@ -1176,7 +1172,7 @@ public class HazardCurveServerModeApplication extends JFrame
       }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
       }
@@ -1219,7 +1215,7 @@ public class HazardCurveServerModeApplication extends JFrame
         }catch(Exception e){
           setButtonsEnable(true);
           ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-          bugWindow.show();
+          bugWindow.setVisible(true);
           bugWindow.pack();
           e.printStackTrace();
         }
@@ -1231,7 +1227,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if(disaggregationFlag) {
       //HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, this, disaggregationString);
       //disaggregation.pack();
-      //disaggregation.show();
+      //disaggregation.setVisible(true);
     }
     disaggregationString=null;
   }
@@ -1307,7 +1303,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }catch(Exception e){
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
     }
@@ -1328,7 +1324,7 @@ public class HazardCurveServerModeApplication extends JFrame
         }catch(Exception e){
           setButtonsEnable(true);
           ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-          bugWindow.show();
+          bugWindow.setVisible(true);
           bugWindow.pack();
           e.printStackTrace();
         }
@@ -1457,7 +1453,7 @@ public class HazardCurveServerModeApplication extends JFrame
      erfGuiBean = new ERF_GuiBean(erf_Classes);
    }catch(InvocationTargetException e){
      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"ERF's Initialization problem. Rest all parameters are default");
-     bugWindow.show();
+     bugWindow.setVisible(true);
      bugWindow.pack();
      //e.printStackTrace();
      //throw new RuntimeException("Connection to ERF's failed");
@@ -1527,7 +1523,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if(plotOptionControl ==  null)
       plotOptionControl = new PlottingOptionControl(this);
     plotOptionControl.pack();
-    plotOptionControl.show();
+    plotOptionControl.setVisible(true);
 
   }
 
@@ -1540,7 +1536,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if(xyPlotControl==null){
       xyPlotControl = new XY_ValuesControlPanel(this,this);
     }
-    xyPlotControl.show();
+    xyPlotControl.setVisible(true);
   }
 
 
@@ -1557,7 +1553,7 @@ public class HazardCurveServerModeApplication extends JFrame
           this.distanceControlPanel);
     if(runAllPEER_Tests == null)
       runAllPEER_Tests = new RunAll_PEER_TestCasesControlPanel(this);
-    runAllPEER_Tests.show();
+    runAllPEER_Tests.setVisible(true);
     runAllPEER_Tests.pack();
   }
 
@@ -1579,7 +1575,7 @@ public class HazardCurveServerModeApplication extends JFrame
           this.distanceControlPanel);
     peerTestsControlPanel.setPEER_XValues();
     peerTestsControlPanel.pack();
-    peerTestsControlPanel.show();
+    peerTestsControlPanel.setVisible(true);
   }
 
 
@@ -1591,7 +1587,7 @@ public class HazardCurveServerModeApplication extends JFrame
   private void initDisaggregationControl() {
     if(this.disaggregationControlPanel==null)
       disaggregationControlPanel = new DisaggregationControlPanel(this, this);
-    disaggregationControlPanel.show();
+    disaggregationControlPanel.setVisible(true);
   }
 
   /**
@@ -1602,7 +1598,7 @@ public class HazardCurveServerModeApplication extends JFrame
    private void initEpistemicControl() {
      if(this.epistemicControlPanel==null)
        epistemicControlPanel = new ERF_EpistemicListControlPanel(this,this);
-     epistemicControlPanel.show();
+     epistemicControlPanel.setVisible(true);
   }
 
   /**
@@ -1614,7 +1610,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if(this.distanceControlPanel==null)
       distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(this);
     distanceControlPanel.pack();
-    distanceControlPanel.show();
+    distanceControlPanel.setVisible(true);
   }
 
   /**
@@ -1634,7 +1630,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if(this.sitesOfInterest==null)
       sitesOfInterest = new SitesOfInterestControlPanel(this, this.siteGuiBean);
     sitesOfInterest.pack();
-    sitesOfInterest.show();
+    sitesOfInterest.setVisible(true);
   }
 
   /**
@@ -1645,7 +1641,7 @@ public class HazardCurveServerModeApplication extends JFrame
     if(this.cvmControlPanel==null)
       cvmControlPanel = new SetSiteParamsFromWebServicesControlPanel(this, this.imrGuiBean, this.siteGuiBean);
     cvmControlPanel.pack();
-    cvmControlPanel.show();
+    cvmControlPanel.setVisible(true);
   }
 
   /**
@@ -1660,7 +1656,7 @@ public class HazardCurveServerModeApplication extends JFrame
     else
       xValuesPanel.setX_Values(function);
     xValuesPanel.pack();
-    xValuesPanel.show();
+    xValuesPanel.setVisible(true);
   }
 
   /**
@@ -1963,7 +1959,7 @@ public class HazardCurveServerModeApplication extends JFrame
   private void peelOffCurves(){
     graphWindow = new GraphWindow(this);
     clearPlot(true);
-    graphWindow.show();
+    graphWindow.setVisible(true);
   }
 
 
@@ -2099,7 +2095,7 @@ public class HazardCurveServerModeApplication extends JFrame
         calc = null;
       }catch(RemoteException ee){
         ExceptionWindow bugWindow = new ExceptionWindow(this,ee.getStackTrace(),getParametersInfoAsString());
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
       }
     }
@@ -2124,7 +2120,7 @@ public class HazardCurveServerModeApplication extends JFrame
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
           getParametersInfoAsString());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
     }
     return null;
@@ -2143,7 +2139,7 @@ public class HazardCurveServerModeApplication extends JFrame
       setButtonsEnable(true);
       ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
           getParametersInfoAsString());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
     }
     return null;

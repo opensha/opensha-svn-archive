@@ -30,7 +30,6 @@ import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.mapping.gui.beans.GMT_MapGuiBean;
 
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 
 /**
@@ -133,7 +132,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
     catch(Exception e) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Problem occured "+
           "while initializing the application");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
     }
@@ -250,9 +249,6 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
   static {
     String osName = System.getProperty("os.name");
     try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
@@ -302,7 +298,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
 
     }catch (Exception e) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), getParametersInfo());
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       System.out.println("Exception in connection with servlet:" +e);
       e.printStackTrace();
@@ -557,7 +553,7 @@ public class PlotMapFromHazardDataSetApp extends JApplet {
 
      }catch (Exception e) {
        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
-       bugWindow.show();
+       bugWindow.setVisible(true);
        bugWindow.pack();
        System.out.println("Exception in connection with servlet:" +e);
        e.printStackTrace();

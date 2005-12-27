@@ -49,7 +49,6 @@ import org.opensha.util.ImageUtils;
 import org.opensha.util.SystemPropertiesUtils;
 import org.opensha.util.FileUtils;
 import org.opensha.sha.gui.infoTools.PlotCurveCharacterstics;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import java.awt.*;
 
@@ -216,7 +215,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
     catch(Exception e) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),
           "Exception occured while launching the application, not parameter value has been set yet");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
     }
@@ -373,9 +372,6 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
   static {
     String osName = System.getProperty("os.name");
     try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
@@ -655,7 +651,7 @@ public class PlotCurvesFromHazardDataSetApp extends JApplet
   private void peelOffCurves(){
     graphWindow = new GraphWindow(this);
     clearPlot(true);
-    graphWindow.show();
+    graphWindow.setVisible(true);
   }
 
 

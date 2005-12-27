@@ -808,7 +808,7 @@ public class LogPlotTesterApp extends JApplet  {
     if(((String)dataSetCombo.getSelectedItem()).equals(NEW_DATASET)){
       if(dataWindow ==null)
         dataWindow = new XYDataWindow(this,functions);
-      dataWindow.show();
+      dataWindow.setVisible(true);
       dataWindow.pack();
     }
   }

@@ -433,7 +433,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
   /*public void setAllParamButtons_actionPerformed(ActionEvent e){
     indexOfAttenRel = 0;
     //otherIMR_paramsFrame.pack();
-    otherIMR_paramsFrame.show();
+    otherIMR_paramsFrame.setVisible(true);
   }*/
 
   /**
@@ -457,7 +457,7 @@ public class AttenuationRelationshipGuiBean extends JPanel  implements
 
           //getting the AttenRel params from the AttenRel whose button was pressed
           //imrParamsFrame[i].pack();
-          imrParamsFrame[i].show();
+          imrParamsFrame[i].setVisible(true);
 
         }
       }

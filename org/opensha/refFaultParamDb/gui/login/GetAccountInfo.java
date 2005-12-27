@@ -42,7 +42,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
       emailAccountInfoButton.addActionListener(this);
       pack();
       this.setLocationRelativeTo(null);
-      show();
+      this.setVisible(true);
     }
     catch(Exception e) {
       e.printStackTrace();

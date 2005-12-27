@@ -123,7 +123,7 @@ public class HazardCurveDisaggregationWindow extends JFrame {
       dataWindow = new DisplayDataWindow(this,sourceDisaggregationList,title);
     else
       dataWindow.setDataInWindow(sourceDisaggregationList);
-    dataWindow.show();
+    dataWindow.setVisible(true);
   }
 
   public void plotButton_actionPerformed(ActionEvent actionEvent) {

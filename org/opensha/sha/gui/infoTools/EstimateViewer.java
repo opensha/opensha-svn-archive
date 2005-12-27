@@ -39,7 +39,7 @@ public class EstimateViewer implements GraphWindowAPI {
     graphWindow.setPlotLabel(estimate.getName());
     graphWindow.plotGraphUsingPlotPreferences();
     //graphWindow.pack();
-    graphWindow.show();
+    graphWindow.setVisible(true);
   }
 
   public void setXAxisLabel(String label) {

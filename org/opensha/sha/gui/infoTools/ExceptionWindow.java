@@ -74,7 +74,7 @@ public class ExceptionWindow extends JDialog {
   }
   /*public static void main(String[] args) {
     ExceptionWindow exceptionWindow = new ExceptionWindow("Hello");
-    exceptionWindow.show();
+    exceptionWindow.setVisible(true);
     exceptionWindow.pack();
   }*/
   private void jbInit() throws Exception {

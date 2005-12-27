@@ -171,7 +171,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
                                        minX,maxX,minY,maxY);
     }
     axisControlPanel.pack();
-    axisControlPanel.show();
+    axisControlPanel.setVisible(true);
   }
 
 
@@ -244,7 +244,7 @@ public class ButtonControlPanel extends JPanel implements AxisLimitsControlPanel
       plotControl = new PlotColorAndLineTypeSelectorControlPanel(this,plotFeatures);
     else
       plotControl.setPlotColorAndLineType(plotFeatures);
-      plotControl.show();
+      plotControl.setVisible(true);
   }
 
   /**

@@ -10,7 +10,6 @@ import java.net.*;
 import java.lang.reflect.InvocationTargetException;
 import javax.swing.Timer;
 
-import ch.randelshofer.quaqua.QuaquaManager;
 
 import org.opensha.sha.gui.beans.*;
 import org.opensha.sha.imr.*;
@@ -167,7 +166,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
     UserAuthorizationCheckWindow loginWin = new UserAuthorizationCheckWindow();
     while (!loginWin.isLoginSuccess()) {
       if (!loginWin.isVisible())
-        loginWin.show();
+        loginWin.setVisible(true);
     }
     loginWin.dispose();
     try {
@@ -178,7 +177,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
     catch(Exception e) {
       ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"Exception occured while initializing the application "+
           "Parameters values have not been set yet.");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
     }
     try{
@@ -194,7 +193,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
       ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),
           "Exception occured while initializing the  region parameters in Hazard Dataset Calc App"+
           " Parameters values have not been set yet.");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
 
     }
@@ -300,9 +299,6 @@ public class HazardDataSetCalcCondorApp extends JApplet
   static {
     String osName = System.getProperty("os.name");
     try {
-      if(osName.startsWith("Mac OS"))
-        UIManager.setLookAndFeel(QuaquaManager.getLookAndFeelClassName());
-      else
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
     }
     catch(Exception e) {
@@ -436,7 +432,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
     if(this.regionsOfInterest==null)
       regionsOfInterest = new RegionsOfInterestControlPanel(this, this.sitesGuiBean);
     regionsOfInterest.pack();
-    regionsOfInterest.show();
+    regionsOfInterest.setVisible(true);
   }
 
   /**
@@ -449,7 +445,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      if(!useCustomX_Values) xValuesPanel.useDefaultX_Values();
      else xValuesPanel.setX_Values(function);
      xValuesPanel.pack();
-     xValuesPanel.show();
+     xValuesPanel.setVisible(true);
    }
 
    /**
@@ -461,7 +457,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      if (this.distanceControlPanel == null)
        distanceControlPanel = new SetMinSourceSiteDistanceControlPanel(this);
      distanceControlPanel.pack();
-     distanceControlPanel.show();
+     distanceControlPanel.setVisible(true);
    }
 
    /**
@@ -473,7 +469,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
      //if (mapSubmissionMethods == null)
        //mapSubmissionMethods = new HazardMapSubmissionMethods();
     // mapSubmissionMethods.pack();
-     //mapSubmissionMethods.show();
+     //mapSubmissionMethods.setVisible(true);
    //}
 
    /**
@@ -665,7 +661,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
 
    }catch (Exception e) {
      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
-     bugWindow.show();
+     bugWindow.setVisible(true);
      bugWindow.pack();
 
    }
@@ -734,7 +730,7 @@ public class HazardDataSetCalcCondorApp extends JApplet
 
    }catch (Exception e) {
      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfo());
-     bugWindow.show();
+     bugWindow.setVisible(true);
      bugWindow.pack();
    }
  }

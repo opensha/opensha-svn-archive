@@ -1138,7 +1138,7 @@ public class AttenuationRelationshipApplet extends JApplet
     private void peelOffCurves(){
       graphWindow = new GraphWindow(this);
       clearPlot(true);
-      graphWindow.show();
+      graphWindow.setVisible(true);
   }
 
 
@@ -1383,7 +1383,7 @@ public class AttenuationRelationshipApplet extends JApplet
     if(xyNewDatasetControl == null)
       xyNewDatasetControl = new XY_ValuesControlPanel(this,this);
 
-    xyNewDatasetControl.show();
+    xyNewDatasetControl.setVisible(true);
 
   }
 

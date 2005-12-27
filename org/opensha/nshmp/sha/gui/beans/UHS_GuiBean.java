@@ -101,7 +101,7 @@ public class UHS_GuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
       }
       locationSplitPane.add(locGuiBean, JSplitPane.BOTTOM);
@@ -261,7 +261,7 @@ public class UHS_GuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
 
       }
@@ -441,7 +441,7 @@ public class UHS_GuiBean
         siteCoefficientWindow = new SiteCoefficientInfoWindow(dataGenerator.getSs(),
             dataGenerator.getSa(), dataGenerator.getSelectedSiteClass());
       }
-      siteCoefficientWindow.show();
+      siteCoefficientWindow.setVisible(true);
 
       dataGenerator.setFa(siteCoefficientWindow.getFa());
       dataGenerator.setFv(siteCoefficientWindow.getFv());
@@ -465,7 +465,7 @@ public class UHS_GuiBean
     ArrayList functions = dataGenerator.getFunctionsToPlotForSA(uhsCalculated,
         approxUHS_Calculated, sdSpectrumCalculated, smSpectrumCalculated);
     GraphWindow window = new GraphWindow(functions);
-    window.show();
+    window.setVisible(true);
   }
 
 

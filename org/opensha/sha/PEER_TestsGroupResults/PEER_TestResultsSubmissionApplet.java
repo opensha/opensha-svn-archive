@@ -517,7 +517,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
       peerOverwrite = new PEER_FileOverwriteWindow(this,fileName,false);
       peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
       peerOverwrite.pack();
-      peerOverwrite.show();
+      peerOverwrite.setVisible(true);
     }
     else{
       //if someone wants to overwrite the existing data file.
@@ -536,7 +536,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
             peerOverwrite = new PEER_FileOverwriteWindow(this,fileName,true);
             peerOverwrite.setLocation(this.getAppletXAxisCenterCoor()-60,this.getAppletYAxisCenterCoor()-50);
             peerOverwrite.pack();
-            peerOverwrite.show();
+            peerOverwrite.setVisible(true);
             overwriteFlag=true;
         }
       }
@@ -668,7 +668,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
     frame.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 290,50));
     frame.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
-    frame.show();
+    frame.setVisible(true);
     frame.setVisible(true);
     label.paintImmediately(label.getBounds());
   }
@@ -980,7 +980,7 @@ public class PEER_TestResultsSubmissionApplet extends JApplet {
      peerDelete = new PEER_FileDeleteWindow(this,testFiles);
      peerDelete.setLocation(getAppletXAxisCenterCoor()-60,getAppletYAxisCenterCoor()-50);
      peerDelete.pack();
-     peerDelete.show();
+     peerDelete.setVisible(true);
   }
 
   /**

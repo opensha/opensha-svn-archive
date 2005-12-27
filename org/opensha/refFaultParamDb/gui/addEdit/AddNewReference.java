@@ -60,7 +60,7 @@ public class AddNewReference extends DbAdditionFrame implements ActionListener {
     this.pack();
     setSize(400,400);
     this.setLocationRelativeTo(null);
-    this.show();
+    this.setVisible(true);
   }
 
   /**

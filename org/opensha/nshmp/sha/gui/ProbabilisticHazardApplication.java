@@ -391,7 +391,7 @@ public class ProbabilisticHazardApplication
     if(projectNameWindow ==null){
       projectNameWindow = new AddProjectNameDateWindow();
     }
-    projectNameWindow.show();
+    projectNameWindow.setVisible(true);
   }
 
   /**
@@ -435,7 +435,7 @@ public class ProbabilisticHazardApplication
                                        (getSize().height -
                                         analysisOptionExpFrame.getHeight()) / 3);
     analysisOptionExpFrame.setTitle("Analysis Options Explaination");
-    analysisOptionExpFrame.show();
+    analysisOptionExpFrame.setVisible(true);
   }
 
   /**
@@ -489,7 +489,7 @@ public class ProbabilisticHazardApplication
                                        (getSize().height -
                                         analysisOptionExpFrame.getHeight()) / 2);
     analysisOptionExpFrame.setTitle(heading);
-    analysisOptionExpFrame.show();
+    analysisOptionExpFrame.setVisible(true);
 
   }
 
@@ -684,7 +684,7 @@ public class ProbabilisticHazardApplication
       showSelectedAnalysisExplaination();
 
     frame.setTitle(analysisOption);
-    frame.show();
+    frame.setVisible(true);
   }
 
   /**
@@ -717,7 +717,7 @@ public class ProbabilisticHazardApplication
         mapViewFrame = new NSHMP_MapViewFrame(mapInfo, mapDataFiles);
       else
         mapViewFrame.createListofAvailableMaps(mapInfo, mapDataFiles);
-      mapViewFrame.show();
+      mapViewFrame.setVisible(true);
     }
   }
 

@@ -92,7 +92,7 @@ public class SimpleFaultParameterEditor extends ParameterEditor
    */
   public void actionPerformed(ActionEvent ae ) {
     try{
-      surfaceGUI.show();
+      surfaceGUI.setVisible(true);
       surfaceGUI.pack();
     }catch(RuntimeException e){
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);

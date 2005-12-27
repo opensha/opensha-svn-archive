@@ -139,7 +139,7 @@ public class LoginWindow extends JFrame implements ActionListener {
                                              new Insets(24, 0, 24, 45), -29, 0));*/
     pack();
     this.setLocationRelativeTo(null);
-    show();
+    this.setVisible(true);
   }
 
   /**
@@ -149,7 +149,7 @@ public class LoginWindow extends JFrame implements ActionListener {
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
     if(source==loginButton) { // if login button is clicked, save the username/passwd
-      SessionInfo.setPassword(this.passwordText.getText());
+      SessionInfo.setPassword(this.passwordText.getPassword().toString().trim());
       SessionInfo.setUserName(this.usernameText.getText());
       try {
         SessionInfo.setContributorInfo();

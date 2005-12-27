@@ -109,7 +109,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       filterSplitPane.setDividerLocation(700);
       this.setLocationRelativeTo(null);
       this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-      show();
+      this.setVisible(true);
     }
     catch(Exception e) {
       e.printStackTrace();

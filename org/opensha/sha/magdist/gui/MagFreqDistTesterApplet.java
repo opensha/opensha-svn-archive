@@ -1173,7 +1173,7 @@ public class MagFreqDistTesterApplet extends JApplet
                                       xMoMin,xMoMax,yMoMin,yMoMax);
        axisScale.setLocation(getX()+getWidth()/2,getY()+getHeight()/2);
        axisScale.pack();
-       axisScale.show();
+       axisScale.setVisible(true);
     }
   }
 

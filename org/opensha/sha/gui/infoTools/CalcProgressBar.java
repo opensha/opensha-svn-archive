@@ -58,7 +58,7 @@ public class CalcProgressBar extends JFrame {
     this.getContentPane().setLayout(new GridBagLayout());
     this.getContentPane().add(label, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(1, 2, 1, 2), 110, 10));
-    this.show();
+    this.setVisible(true);
     label.paintImmediately(label.getBounds());
   }
 
@@ -69,7 +69,7 @@ public class CalcProgressBar extends JFrame {
    */
   public void setProgressMessage(String progressMsg){
     label.setText(progressMsg);
-    //this.show();
+    //this.setVisible(true);
     label.paintImmediately(label.getBounds());
   }
 
@@ -85,7 +85,7 @@ public class CalcProgressBar extends JFrame {
     this.getContentPane().remove(label);
     this.getContentPane().validate();
     this.getContentPane().repaint();
-    //this.show();
+    //this.setVisible(true);
   }
 
   /**
@@ -144,7 +144,7 @@ public class CalcProgressBar extends JFrame {
     // update the progress bar
     //if(update == true)
     updateProgressBar((num*100)/totNum, num + "  of  " + Integer.toString(totNum) + "  Done");
-    //this.show();
+    //this.setVisible(true);
   }
 
   public void showProgress(boolean flag){

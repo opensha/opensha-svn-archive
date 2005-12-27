@@ -167,7 +167,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
                                                "Click Here </a>.</body></html>";
 
       MessageDialog messageWindow = new MessageDialog(message,"Check Login", this);
-      messageWindow.show();
+      messageWindow.setVisible(true);
       return;
     }
     if(!isUserAuthorized(username,password)){
@@ -176,7 +176,7 @@ public class UserAuthorizationCheckWindow extends JFrame {
                                                "<a href =\"http://gravity.usc.edu:8080/usermanagement\">"+
                                                "Click Here </a>.</body></html>";
       MessageDialog messageWindow = new MessageDialog(message,"Incorrect login information", this);
-      messageWindow.show();
+      messageWindow.setVisible(true);
       passwordText.setText("");
       return;
     }

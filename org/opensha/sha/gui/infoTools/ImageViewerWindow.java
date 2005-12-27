@@ -89,7 +89,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
       throw new RuntimeException(e.getMessage());
     }
     addImageToWindow(imageFileName);
-    this.show();
+    this.setVisible(true);
   }
 
   /**
@@ -117,7 +117,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
       throw new RuntimeException(e.getMessage());
     }
     addImagesToWindow(imageFileNames);
-    this.show();
+    this.setVisible(true);
   }
 
 

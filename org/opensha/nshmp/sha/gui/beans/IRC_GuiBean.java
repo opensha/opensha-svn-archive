@@ -97,7 +97,7 @@ public class IRC_GuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
 
       }
@@ -220,7 +220,7 @@ public class IRC_GuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
 
       }

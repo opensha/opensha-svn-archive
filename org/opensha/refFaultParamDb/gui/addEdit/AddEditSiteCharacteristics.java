@@ -170,7 +170,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
     this.pack();
     setSize(this.WIDTH, this.HEIGHT);
     this.setLocationRelativeTo(null);
-    this.show();
+    this.setVisible(true);
   }
 
   // add action listeners on the buttons in this window

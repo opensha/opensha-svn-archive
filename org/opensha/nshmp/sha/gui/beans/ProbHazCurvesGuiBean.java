@@ -127,7 +127,7 @@ public class ProbHazCurvesGuiBean
       ExceptionWindow bugWindow = new ExceptionWindow(this, ex1.getStackTrace(),
           "Exception occured while initializing the  region parameters in NSHMP application." +
           "Parameters values have not been set yet.");
-      bugWindow.show();
+      bugWindow.setVisible(true);
       bugWindow.pack();
 
     }
@@ -369,7 +369,7 @@ public class ProbHazCurvesGuiBean
         ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
             "Exception occured while initializing the  region parameters in NSHMP application." +
             "Parameters values have not been set yet.");
-        bugWindow.show();
+        bugWindow.setVisible(true);
         bugWindow.pack();
       }
       createIMT_PeriodsParameter();
@@ -541,7 +541,7 @@ public class ProbHazCurvesGuiBean
 
   void viewCurveButton_actionPerformed(ActionEvent e) {
     GraphWindow window = new GraphWindow(dataGenerator.getHazardCurveFunction());
-    window.show();
+    window.setVisible(true);
   }
 
   void hazCurveCalcButton_actionPerformed(ActionEvent e) {

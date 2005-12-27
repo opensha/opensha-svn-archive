@@ -878,7 +878,7 @@ public class PEER_TestResultsPlotterApplet extends JApplet implements
                                  minX,maxX,minY,maxY);
     }
     axisLimits.pack();
-    axisLimits.show();
+    axisLimits.setVisible(true);
   }
 
   /**

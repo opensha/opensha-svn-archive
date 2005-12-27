@@ -115,7 +115,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       pack();
       setSize(WIDTH, HEIGHT);
       this.setLocationRelativeTo(null);
-      show();
+      this.setVisible(true);
     }
     catch (Exception e) {
       e.printStackTrace();

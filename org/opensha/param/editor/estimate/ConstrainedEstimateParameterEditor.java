@@ -686,7 +686,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      }
    } else if (e.getSource()==this.button) {
      frame.pack();
-     this.frame.show();
+     this.frame.setVisible(true);
    }
  }
 
@@ -998,7 +998,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     frame.getContentPane().add(estimateParameterEditor, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
         , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ) );
     frame.pack();
-    frame.show();
+    frame.setVisible(true);
   }*/
 
 }
