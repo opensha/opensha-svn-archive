@@ -1,6 +1,7 @@
 package org.opensha.data.estimate;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: Estimate.java </p>
@@ -24,6 +25,7 @@ public abstract class Estimate {
   protected String comments="";
   protected double minX, maxX;
   protected String units;
+  protected final static DecimalFormat decimalFormat = new DecimalFormat("0.0####");
 
   /**
    * Get units for this estimate
@@ -174,4 +176,19 @@ public abstract class Estimate {
     return func;
   }
 
+  /**
+   * Convert this estimate into a String
+   * @return
+   */
+  public String toString() {
+    return toString("X");
+  }
+
+  /**
+   * X label is displayed instead of X .
+   * @param xLabel
+   * @param yLabel
+   * @return
+   */
+  public abstract String toString(String xLabel);
 }

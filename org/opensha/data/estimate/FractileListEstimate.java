@@ -43,10 +43,10 @@ public class FractileListEstimate extends Estimate {
      setValues(func);
    }
 
-   public String toString() {
+   public String toString(String xLabel) {
     String text =  "EstimateType="+getName()+"\n";
     for(int i=0; func!=null && i<func.getNum(); ++i)
-      text+=   func.getX(i)+"\t"+func.getY(i)+"\n";
+      text+=   decimalFormat.format(func.getX(i))+"\t"+decimalFormat.format(func.getY(i))+"\n";
     return text;
   }
 

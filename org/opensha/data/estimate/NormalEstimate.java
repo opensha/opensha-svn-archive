@@ -38,12 +38,12 @@ public class NormalEstimate extends Estimate {
   }
 
 
-  public String toString() {
+  public String toString(String xLabel) {
     return "Estimate Type="+getName()+"\n"+
-        "Mean="+ getMean()+"\n"+
-        "Standard Deviation="+ getStdDev()+"\n"+
-        "Left Truncation Sigma="+ getMinSigma()+"\n"+
-        "Right Truncation Sigma="+ getMaxSigma();
+        "Mean="+ decimalFormat.format(getMean())+"\n"+
+        "Standard Deviation="+ decimalFormat.format(getStdDev())+"\n"+
+        "Left Truncation Sigma="+ decimalFormat.format(getMinSigma())+"\n"+
+        "Right Truncation Sigma="+ decimalFormat.format(getMaxSigma());
   }
 
   /**

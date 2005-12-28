@@ -34,6 +34,17 @@ public class IntegerEstimate extends DiscreteValueEstimate{
 
  }
 
+ public String toString(String xLabel) {
+    String text =  "EstimateType="+getName()+"\n";
+    text+="Number Of Discrete values="+func.getNum();
+    for(int i=0; func!=null && i<func.getNum(); ++i) {
+      text += "\nxLabel="+func.getX(i) + "\n";
+      text+="Probability this is correct="+decimalFormat.format(func.getY(i));
+    }
+    return text;
+  }
+
+
  /**
   * It checks whether x values are indeed integers:
   *

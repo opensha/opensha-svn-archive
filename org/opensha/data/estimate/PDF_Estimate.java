@@ -69,6 +69,17 @@ public class PDF_Estimate extends DiscretizedFuncEstimate {
    return NAME;
  }
 
+ public String toString(String xLabel) {
+    String text =  "EstimateType="+getName()+"\n";
+    text+="Number Of PDF values="+func.getNum();
+    for(int i=0; func!=null && i<func.getNum(); ++i) {
+      text += "\n" + decimalFormat.format(func.getX(i)) + "\t" +
+          decimalFormat.format(func.getY(i));
+    }
+    return text;
+  }
+
+
 
   /**
   * Get the cumulative distribution function

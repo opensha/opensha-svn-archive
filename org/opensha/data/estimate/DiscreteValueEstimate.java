@@ -47,6 +47,18 @@ public class DiscreteValueEstimate extends DiscretizedFuncEstimate {
     return NAME;
   }
 
+
+  public String toString(String xLabel) {
+    String text =  "EstimateType="+getName()+"\n";
+    text+="Number Of Discrete values="+func.getNum();
+    for(int i=0; func!=null && i<func.getNum(); ++i) {
+      text += "\n"+xLabel+"="+decimalFormat.format(func.getX(i)) + "\n";
+      text+="Probability this is correct="+decimalFormat.format(func.getY(i));
+    }
+    return text;
+  }
+
+
   /**
   * Get the cumulative distribution function
   * @return

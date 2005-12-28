@@ -44,15 +44,15 @@ public class LogNormalEstimate extends Estimate {
     maxX = Double.POSITIVE_INFINITY;
   }
 
-  public String toString() {
+  public String toString(String xLabel) {
     String logBase = "E";
     if(isBase10) logBase="10";
     return "Estimate Type="+getName()+"\n"+
-        "Linear Median="+ this.getLinearMedian()+"\n"+
-        "Standard Deviation="+ getStdDev()+"\n"+
+        "Linear Median="+ decimalFormat.format(this.getLinearMedian())+"\n"+
+        "Standard Deviation="+ decimalFormat.format(getStdDev())+"\n"+
         "Log Base="+logBase+"\n"+
-        "Left Truncation Sigma="+ getMinSigma()+"\n"+
-        "Right Truncation Sigma="+ getMaxSigma();
+        "Left Truncation Sigma="+ decimalFormat.format(getMinSigma())+"\n"+
+        "Right Truncation Sigma="+ decimalFormat.format(getMaxSigma());
   }
 
 

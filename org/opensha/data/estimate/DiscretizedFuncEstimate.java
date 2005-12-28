@@ -37,14 +37,6 @@ public abstract class DiscretizedFuncEstimate extends Estimate {
   }
 
 
-  public String toString() {
-    String text =  "EstimateType="+getName()+"\n";
-    text+="Number Of values="+func.getNum()+"\n";
-    for(int i=0; func!=null && i<func.getNum(); ++i)
-      text+=   func.getX(i)+"\t"+func.getY(i)+"\n";
-    return text;
-  }
-
   /**
    * As implemented, the function passed in is cloned.
    *  MaxX and MinX are set by those in the function passed in.

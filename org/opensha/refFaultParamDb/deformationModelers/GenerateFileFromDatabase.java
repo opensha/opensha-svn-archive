@@ -16,6 +16,7 @@ import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: GenerateFileFromDatabase.java </p>
@@ -38,6 +39,7 @@ public class GenerateFileFromDatabase {
   private final static String EXACT = "Exact";
   private final static String NOW = "Now";
   private final static String KA = "ka";
+  public final static DecimalFormat decimalFormat = new DecimalFormat("0.0####");
 
   public GenerateFileFromDatabase() {
     try {
@@ -137,17 +139,21 @@ public class GenerateFileFromDatabase {
       String senseOfMotionQual, EstimateInstances rakeInstance,
       EstimateInstances aseismicSlipFactorInstance) throws IOException {
     fw.write(label+"="+ESTIMATE+"\n");
-    fw.write(slipOrDispInstance.getEstimate().toString()+"\n");
+    fw.write(slipOrDispInstance.getEstimate().toString(label)+"\n");
     fw.write(label+" Units="+slipOrDispInstance.getUnits()+"\n");
-    fw.write("Measured Component of Slip ="+measuredComp+"\n");
-    fw.write(label+" Qualitative Sense of Motion="+senseOfMotionQual+"\n");
+    // measured component
+    if(measuredComp!=null) fw.write("Measured Component of Slip ="+measuredComp+"\n");
+    else fw.write("Measured Component of Slip ="+UNKNOWN+"\n");
+    //sense of motion qual
+    if(senseOfMotionQual!=null) fw.write(label+" Qualitative Sense of Motion="+senseOfMotionQual+"\n");
+    else fw.write(label+" Qualitative Sense of Motion="+UNKNOWN+"\n");
     // rake
     if(rakeInstance==null) // if rake in unavailable
       fw.write(label+" Rake (degrees, per Aki & Richards convention)="+UNKNOWN+"\n");
     else  { // if rake estimate is present
       fw.write(label+" Rake (degrees, per Aki & Richards convention)=" +
                ESTIMATE + "\n");
-      fw.write(rakeInstance.getEstimate().toString()+"\n");
+      fw.write(rakeInstance.getEstimate().toString("Rake")+"\n");
     }
     // aseismic slip factor
     if(aseismicSlipFactorInstance==null) // if rake in unavailable
@@ -155,7 +161,7 @@ public class GenerateFileFromDatabase {
     else  { // if rake estimate is present
       fw.write("Aseismic Slip Factor=" +
                ESTIMATE + "\n");
-      fw.write(aseismicSlipFactorInstance.getEstimate().toString()+"\n");
+      fw.write(aseismicSlipFactorInstance.getEstimate().toString("Aseismic Slip Factor")+"\n");
     }
 
   }
@@ -234,7 +240,7 @@ public class GenerateFileFromDatabase {
    */
   private void writeTimeEstimate(FileWriter fw, TimeEstimate timeEstimate, String label) throws IOException {
     fw.write(label+"="+ESTIMATE+"\n");
-    fw.write(timeEstimate.getEstimate().toString()+"\n");
+    fw.write(timeEstimate.getEstimate().toString(label)+"\n");
     String units = timeEstimate.getEra();
     if(timeEstimate.isKaSelected()) units=KA;
     fw.write(label+" units="+units+"\n");
@@ -289,17 +295,17 @@ public class GenerateFileFromDatabase {
     fw.write("Site Name="+paleoSite.getSiteName()+"\n");
     fw.write("Fault Id="+faultId+"\n");
     fw.write("Fault Name="+paleoSite.getFaultName()+"\n");
-    fw.write("Site Lat(degrees)="+paleoSite.getSiteLat1()+"\n");
-    fw.write("Site Lon(degrees)="+paleoSite.getSiteLon1()+"\n");
+    fw.write("Site Lat(degrees)="+decimalFormat.format(paleoSite.getSiteLat1())+"\n");
+    fw.write("Site Lon(degrees)="+decimalFormat.format(paleoSite.getSiteLon1())+"\n");
     float elevation1 = paleoSite.getSiteElevation1();
     // check whether elevation is available or not
     if(Float.isNaN(elevation1)) fw.write("Site Elevation(m)="+UNKNOWN+"\n");
-    else fw.write("Site Elevation(m)="+elevation1+"\n");
+    else fw.write("Site Elevation(m)="+decimalFormat.format(elevation1)+"\n");
     //check that dip is available or not
     EstimateInstances dipEstInstance  = paleoSite.getDipEstimate();
     if(dipEstInstance==null) fw.write("Fault Dip(as measured at this site)="+UNKNOWN+"\n");
     else fw.write("Fault Dip(as measured at this site)="+ESTIMATE+"\n"+
-                  dipEstInstance.toString());
+                  dipEstInstance.getEstimate().toString("Dip"));
 
   }
 

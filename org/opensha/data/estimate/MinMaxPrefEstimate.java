@@ -58,14 +58,23 @@ public class MinMaxPrefEstimate extends Estimate{
     this.prefProb = prefProb;
   }
 
-  public String toString() {
+  public String toString(String xLabel) {
+    String UNKNOWN = "Unknown";
+    String minXStr=UNKNOWN, maxXStr=UNKNOWN, prefXStr=UNKNOWN;
+    String minProbStr=UNKNOWN, maxProbStr=UNKNOWN, prefProbStr=UNKNOWN;
+    if(!Double.isNaN(minX)) minXStr = decimalFormat.format(minX);
+    if(!Double.isNaN(maxX)) maxXStr = decimalFormat.format(maxX);
+    if(!Double.isNaN(prefX)) prefXStr = decimalFormat.format(prefX);
+    if(!Double.isNaN(minProb)) minProbStr = decimalFormat.format(minProb);
+    if(!Double.isNaN(maxProb)) maxProbStr = decimalFormat.format(maxProb);
+    if(!Double.isNaN(prefProb)) prefProbStr = decimalFormat.format(prefProb);
     return "Estimate Type="+getName()+"\n"+
-        "Minimum X="+minX+"\n"+
-        "Probability this minimum X is correct="+minProb+"\n"+
-        "Maximum X="+maxX+"\n"+
-        "Probability this maximum X is correct="+maxProb+"\n"+
-        "Preferred X="+prefX+"\n"+
-        "Probability this preferred X is correct="+prefProb;
+        "Minimum "+xLabel+"="+minXStr+"\n"+
+        "Probability this minimum "+xLabel+" is correct="+minProbStr+"\n"+
+        "Maximum "+xLabel+"="+maxXStr+"\n"+
+        "Probability this maximum "+xLabel+" is correct="+maxProbStr+"\n"+
+        "Preferred "+xLabel+"="+prefXStr+"\n"+
+        "Probability this preferred "+xLabel+" is correct="+prefProbStr;
   }
 
 
