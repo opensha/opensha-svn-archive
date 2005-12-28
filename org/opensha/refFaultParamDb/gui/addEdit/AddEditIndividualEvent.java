@@ -86,7 +86,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
 
   //slip rate constants
   private final static String SLIP_UNITS = "meters";
-  private final static double SLIP_MIN = 0;
+  private final static double SLIP_MIN = Double.NEGATIVE_INFINITY;
   private final static double SLIP_MAX = Double.POSITIVE_INFINITY;
 
   // diplacement parameter list editor title

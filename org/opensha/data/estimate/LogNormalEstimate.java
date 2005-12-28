@@ -45,11 +45,14 @@ public class LogNormalEstimate extends Estimate {
   }
 
   public String toString() {
+    String logBase = "E";
+    if(isBase10) logBase="10";
     return "Estimate Type="+getName()+"\n"+
         "Linear Median="+ this.getLinearMedian()+"\n"+
-        "StdDev="+ getStdDev()+"\n"+
-        "Left Truncation="+ getMinX()+"\n"+
-        "Right Truncation="+ getMaxX();
+        "Standard Deviation="+ getStdDev()+"\n"+
+        "Log Base="+logBase+"\n"+
+        "Left Truncation Sigma="+ getMinSigma()+"\n"+
+        "Right Truncation Sigma="+ getMaxSigma();
   }
 
 
@@ -218,6 +221,32 @@ public double getFractile(double prob) {
  }
 
  /**
+  * Sigma values for truncation.
+  * For left truncation, negative value of minSigma may be used
+  *
+  * @param minSigma
+  * @param maxSigma
+  */
+ public void setMinMaxSigmas(double minSigma, double maxSigma) {
+   if(maxSigma<minSigma) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+   double min, max;
+   min = getUnLogVal(getLogVal(this.linearMedian)+getLogVal(minSigma*this.stdDev));
+   max = getUnLogVal(getLogVal(this.linearMedian)+getLogVal(maxSigma*stdDev));
+   if(minX<0 || maxX<0) throw new InvalidParamValException(MSG_INVALID_MINMAX);
+   this.minX = min;
+   this.maxX = max;
+ }
+
+ public double getMinSigma() {
+   return getUnLogVal(getLogVal(minX)-getLogVal(linearMedian))/stdDev;
+ }
+
+ public double getMaxSigma() {
+   return getUnLogVal(getLogVal(maxX)-getLogVal(linearMedian))/stdDev;
+ }
+
+
+ /**
   * Get the probability density function.
   * It calculates the PDF for x values.
   * The PDF is calculated for evenly discretized X values with minX=0,
@@ -284,5 +313,11 @@ public double getFractile(double prob) {
        getStandRandVar(maxX)));
   }
 
+ public static void main(String args[]) {
+   LogNormalEstimate estimate = new LogNormalEstimate(5, 0.5);
+   estimate.setMinMaxSigmas(2,2);
+   System.out.println(estimate.getMinSigma());
+   System.out.println(estimate.getMaxSigma());
+ }
 
 }

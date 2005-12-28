@@ -82,8 +82,8 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
   private final static String ELEVATION_UNITS = "meters";
   private final static int WIDTH = 600;
   private final static int HEIGHT = 700;
-  private final static double DIP_MIN =0.0;
-  private final static double DIP_MAX =90.0;
+  private final static double DIP_MIN =Double.NEGATIVE_INFINITY;
+  private final static double DIP_MAX =Double.POSITIVE_INFINITY;
 
   // various messages
   private final static String MSG_COMMENTS_MISSING = "Please Enter Comments";
@@ -438,7 +438,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
    siteRepresentationParamEditor = new ConstrainedStringParameterEditor(siteRepresentationParam);
    // dip estimate
    ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
-   EstimateConstraint estConstraint = new EstimateConstraint(allowedEstimates);
+   EstimateConstraint estConstraint = new EstimateConstraint(DIP_MIN, DIP_MAX, allowedEstimates);
    this.dipEstParam = new EstimateParameter(DIP_PARAM_NAME,
                                             estConstraint,
                                             DIP_UNITS,

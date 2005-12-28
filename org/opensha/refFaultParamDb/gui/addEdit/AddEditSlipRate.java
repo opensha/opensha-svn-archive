@@ -44,7 +44,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
   private final static String SLIP_RATE_COMMENTS_PARAM_NAME="Slip Rate Comments";
   private final static String SLIP_RATE_REFERENCES_PARAM_NAME="Choose References";
   private final static String SLIP_RATE_UNITS = "mm/yr";
-  private final static double SLIP_RATE_MIN = 0;
+  private final static double SLIP_RATE_MIN = Double.NEGATIVE_INFINITY;
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 
   // ASEISMIC SLIP FACTOR

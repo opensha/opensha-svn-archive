@@ -41,9 +41,9 @@ public class NormalEstimate extends Estimate {
   public String toString() {
     return "Estimate Type="+getName()+"\n"+
         "Mean="+ getMean()+"\n"+
-        "StdDev="+ getStdDev()+"\n"+
-        "Left Truncation="+ getMinX()+"\n"+
-        "Right Truncation="+ getMaxX();
+        "Standard Deviation="+ getStdDev()+"\n"+
+        "Left Truncation Sigma="+ getMinSigma()+"\n"+
+        "Right Truncation Sigma="+ getMaxSigma();
   }
 
   /**
@@ -159,6 +159,27 @@ public class NormalEstimate extends Estimate {
    if(maxX < minX) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
    this.maxX = maxX;
    this.minX = minX;
+ }
+
+ /**
+  * Sigma values for truncation.
+  * For left truncation, negative value of minSigma may be used
+  *
+  * @param minSigma
+  * @param maxSigma
+  */
+ public void setMinMaxSigmas(double minSigma, double maxSigma) {
+   if(maxSigma<minSigma) throw new InvalidParamValException(EST_MSG_MAX_LT_MIN);
+   this.minX = this.mean+minSigma*this.stdDev;
+   this.maxX = this.mean+maxSigma*this.stdDev;
+ }
+
+ public double getMinSigma() {
+   return (minX-mean)/stdDev;
+ }
+
+ public double getMaxSigma() {
+   return (maxX-mean)/stdDev;
  }
 
  /**

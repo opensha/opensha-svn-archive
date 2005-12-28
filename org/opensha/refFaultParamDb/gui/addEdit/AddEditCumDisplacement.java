@@ -49,7 +49,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
   private final static String CUMULATIVE_DISPLACEMENT="Cumulative Disp";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
   private final static String CUMULATIVE_DISPLACEMENT_UNITS = "m";
-  private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
+  private final static double CUMULATIVE_DISPLACEMENT_MIN = Double.NEGATIVE_INFINITY;
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 
   // various parameters

@@ -60,12 +60,12 @@ public class MinMaxPrefEstimate extends Estimate{
 
   public String toString() {
     return "Estimate Type="+getName()+"\n"+
-        "Min X="+minX+"\n"+
-        "Prob of Min X="+minProb+"\n"+
-        "Max X="+maxX+"\n"+
-        "Prob of Max X="+maxProb+"\n"+
-        "Pref X="+prefX+"\n"+
-        "Prob of Pref X="+prefProb;
+        "Minimum X="+minX+"\n"+
+        "Probability this minimum X is correct="+minProb+"\n"+
+        "Maximum X="+maxX+"\n"+
+        "Probability this maximum X is correct="+maxProb+"\n"+
+        "Preferred X="+prefX+"\n"+
+        "Probability this preferred X is correct="+prefProb;
   }
 
 
