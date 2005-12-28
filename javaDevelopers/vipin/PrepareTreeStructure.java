@@ -26,35 +26,93 @@ public class PrepareTreeStructure {
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
-  public final static String FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSections.txt";
-  public final static String RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_Allkm.txt";
+  public final static String DEFAULT_FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSections.txt";
+  public final static String DEFAULT_RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_Allkm.txt";
+  public String rupOutFilename = DEFAULT_RUP_OUT_FILENAME;
+  public String faultSectionsOutFilename = DEFAULT_FAULT_SECTIONS_OUT_FILENAME;
   private HashMap faultTree ;
   private ArrayList rupList;
   private ArrayList faultSectionPrintOrder;
   //private double rupLength;
   private int rupCounter =0;
+  private boolean doOneSection= false; // whether we need to do just a particular section
+  private int sectionIndex=-1;
+  private String faultSectionFilename1, faultSectionFilename2, faultSectionFilename3;
+  private boolean writeSectionsToFile = true;
 
   public PrepareTreeStructure() {
-    rupList = new ArrayList();
-    faultSectionPrintOrder = new ArrayList();
-    FaultSections faultSections = new FaultSections();
-    HashMap faultTraceMapping = faultSections.getAllFaultSections(); // get all the fault sections
-    createTreesForFaultSections(faultTraceMapping); // discretize the section in 5km
-    String firstSection = findAllRuptures();
-    System.out.println("Total ruptures="+rupList.size());
+  }
+
+  public void doProcessing()  {
     try {
+      rupList = new ArrayList();
+      faultSectionPrintOrder = new ArrayList();
+      FaultSections faultSections;
+      if(faultSectionFilename1==null) faultSections = new FaultSections();
+      else faultSections = new FaultSections(faultSectionFilename1, faultSectionFilename2, faultSectionFilename3);
+      HashMap faultTraceMapping = faultSections.getAllFaultSections(); // get all the fault sections
+      createTreesForFaultSections(faultTraceMapping); // discretize the section in 5km
+      findAllRuptures();
+      System.out.println("Total ruptures="+rupList.size());
+
       // write ruptures to file
-      FileWriter fwRupFile = new FileWriter(RUP_OUT_FILENAME);
+      FileWriter fwRupFile = new FileWriter(rupOutFilename);
       fwRupFile.write("#Num Ruptures=" + rupList.size() + "\n");
       RuptureFileReaderWriter.writeRupsToFile(fwRupFile, rupList);
       fwRupFile.close();
       // write fault sections to file
-      FileWriter fw = new FileWriter(FAULT_SECTIONS_OUT_FILENAME);
-      writeFaultSectionsToFile(fw, faultTraceMapping);
-      fw.close();
+      if(writeSectionsToFile) {
+        FileWriter fw = new FileWriter(faultSectionsOutFilename);
+        writeFaultSectionsToFile(fw, faultTraceMapping);
+        fw.close();
+      }
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Whether we need to write sections to file or not
+   *
+   * @param isWriteSection
+   */
+  public void writeSectionsToFile(boolean isWriteSection) {
+    this.writeSectionsToFile = isWriteSection;
+  }
+
+  /**
+   * Set the filename where output ruptures will be saved
+   *
+   * @param filename
+   */
+  public void setRupOutputFilename(String filename) {
+    this.rupOutFilename = filename;
+  }
+
+  /**
+   * Output file where sub sampled sections will be saved
+   *
+   * @param filename
+   */
+  public void setSectionsOutputFilename(String filename) {
+    this.faultSectionsOutFilename = filename;
+  }
+
+  public void doForTheSectionIndex(int sectionIndex) {
+    this.sectionIndex = sectionIndex;
+    this.doOneSection = true;
+  }
+
+  /**
+   * Set file names so that fault sections can be loaded
+   * @param file1
+   * @param file2
+   * @param file3
+   */
+  public void setFaultSectionFilenames(String file1, String file2, String file3) {
+    faultSectionFilename1 = file1;
+    faultSectionFilename2= file2;
+    faultSectionFilename3=file3;
   }
 
   /**
@@ -130,7 +188,7 @@ public class PrepareTreeStructure {
   }
 
 
-  private String findAllRuptures()  {
+  private void findAllRuptures()  {
     // SORT THE FAULT SECTIONS BASED ON THE LATITUDES OF FIRST POINT of Fault trace.
     // It will help in better visualization so that there are few jumps in viz
     ArrayList sortedSectionNames = sortFaultSectionsByLocation();
@@ -140,18 +198,21 @@ public class PrepareTreeStructure {
       Iterator it = sortedSectionNames.iterator();
       // do for all fault sections
       ArrayList processedFaultSections = new ArrayList();
-      int i=1;
+      int i=0;
       while (it.hasNext()) {
         String faultSectionName = (String) it.next();
         // if this fault section has already been processed, do not process it again
         if(processedFaultSections.contains(faultSectionName)) continue;
-        System.out.println((i++)+"\t"+faultSectionName);
+        // if we  want this to process just one fault section
+        System.out.println((++i)+"\t"+faultSectionName);
+        if(i!=this.sectionIndex && this.doOneSection) continue;
+        System.out.println("Processing "+faultSectionName+" .........");
         processFaultSection(faultSectionName);
         processedFaultSections.add(faultSectionName);
-        for(int j=0; j< this.faultSectionPrintOrder.size(); ++j) {
+        for(int j=0; j< this.faultSectionPrintOrder.size() && !doOneSection; ++j) {
           faultSectionName = (String)faultSectionPrintOrder.get(j);
           if(processedFaultSections.contains(faultSectionName)) continue;
-          System.out.println((i++)+"\t"+faultSectionName);
+          System.out.println((++i)+"\t"+faultSectionName);
           processFaultSection(faultSectionName);
           j=0;
           processedFaultSections.add(faultSectionName);
@@ -160,7 +221,6 @@ public class PrepareTreeStructure {
     }catch(Exception e) {
       e.printStackTrace();
     }
-    return (String)sortedSectionNames.get(0);
   }
 
   private void processFaultSection(String faultSectionName) {
@@ -397,8 +457,34 @@ public class PrepareTreeStructure {
     return adjacentSectionsAndDist;
   }
 
+
+  /**
+   * It either accepts 6 arguments or no arguments at all.
+   * If 3 arguments are provided :
+   * 1. Name of Rupture output file
+   * 2. Name of Sections output file
+   * 3. Whether we need to write sections to the file
+   * 4. Index of Fault Section to process
+   * 5. Filename1 for fault section
+   * 6. Filename2 for fault section
+   * 7. Filename3 for fault section
+   * @param args
+   */
   public static void main(String args[]) {
-    new PrepareTreeStructure();
+    PrepareTreeStructure prepareTreeStruct= new PrepareTreeStructure();
+    if(args.length!=0){
+      prepareTreeStruct.setRupOutputFilename(args[0]); // rupture output file name
+      prepareTreeStruct.setSectionsOutputFilename(args[1]); // section output file
+      // whether we need to write sections to a file
+      prepareTreeStruct.writeSectionsToFile(Boolean.valueOf(args[2]).booleanValue());
+      // section index for which processing needs to be done, if -1, we do for all sections
+      int sectionIndex = Integer.parseInt(args[3]);
+      if(sectionIndex!=-1)
+        prepareTreeStruct.doForTheSectionIndex(Integer.parseInt(args[3]));
+      // filenames to read the intial fault sections
+      prepareTreeStruct.setFaultSectionFilenames(args[4], args[5], args[6]);
+    }
+    prepareTreeStruct.doProcessing();
   }
 }
 

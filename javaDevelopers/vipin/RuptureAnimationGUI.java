@@ -42,7 +42,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
     ChangeListener, Runnable, ParameterChangeListener {
   private JPanel displayPanel = new JPanel();
   private JButton playButton = new JButton();
-  private final static String FAULT_SECTION_FILE_NAME = PrepareTreeStructure.FAULT_SECTIONS_OUT_FILENAME;
+  private final static String FAULT_SECTION_FILE_NAME = PrepareTreeStructure.DEFAULT_FAULT_SECTIONS_OUT_FILENAME;
   private final static String X_AXIS_LABEL = "Longitude (deg.)";
   private final static String Y_AXIS_LABEL = "Latitude (deg.)";
   private final static String TITLE = "Fault Sections & Ruptures";
@@ -99,7 +99,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       rupFilterGuiBean = new RuptureFilterGuiBean(sectionNames);
       jbInit();
       addGraphPanel(); // show the fault sections using JFreechart
-      masterRupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.RUP_OUT_FILENAME);
+      masterRupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.DEFAULT_RUP_OUT_FILENAME);
       timeDelayParam.addParameterChangeListener(this);
       this.displayRupList = masterRupList;
       setRuptureSlider();
