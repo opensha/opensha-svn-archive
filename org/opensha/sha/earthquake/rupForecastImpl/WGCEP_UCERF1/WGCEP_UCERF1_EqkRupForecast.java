@@ -1291,21 +1291,16 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   }
 
 
-
   /**
-   *  This is the main function of this interface. Any time a control
-   *  paramater or independent paramater is changed by the user in a GUI this
-   *  function is called, and a paramater change event is passed in.
+   * return the time span object.
+   * In addition to returning the timespan it checks for the type of timeSpan,
+   * which can be time-dependent or time-independent.
    *
-   *  This sets the flag to indicate that the sources need to be updated
-   *
-   * @param  event
+   * @return : time span object is returned which contains start time and duration
    */
-  public void parameterChange(ParameterChangeEvent event) {
-    super.parameterChange(event);
-    String paramName = event.getParameterName();
-    if(paramName.equals(TIME_DEPENDENT_PARAM_NAME))
-     setTimespanParameter();
+  public TimeSpan getTimeSpan() {
+    setTimespanParameter();
+    return this.timeSpan;
   }
 
 

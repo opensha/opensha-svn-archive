@@ -47,17 +47,8 @@ public class RemoteERF_Client extends EqkRupForecast implements
       ListIterator it = adjustableParams.getParametersIterator();
       while(it.hasNext())
         ((ParameterAPI)it.next()).addParameterChangeListener(this);
-      //getting the timespan and adjustable params
-      timeSpan =erfServer.getTimeSpan();
-      //if timespan is not null then add the change listeners to its parameters.
-      //we are again adding listeners here becuase they are transient and cannot be serialized.
-      if(timeSpan !=null){
-        timeSpan.addParameterChangeListener(this);
-        ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
-        it = timeSpanParamList.getParametersIterator();
-        while(it.hasNext())
-          ((ParameterAPI)it.next()).addParameterChangeListener(timeSpan);
-      }
+      //getting the timespan object and adding the parameterchange listener obejct to it
+      getTimeSpan();
     }
     catch (NotBoundException n) {
       n.printStackTrace();
@@ -328,6 +319,17 @@ public class RemoteERF_Client extends EqkRupForecast implements
    */
   public TimeSpan getTimeSpan() {
     try {
+      //getting the timespan and adjustable params
+      timeSpan = erfServer.getTimeSpan();
+      //if timespan is not null then add the change listeners to its parameters.
+      //we are again adding listeners here becuase they are transient and cannot be serialized.
+      if (timeSpan != null) {
+        timeSpan.addParameterChangeListener(this);
+        ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
+        ListIterator it = timeSpanParamList.getParametersIterator();
+        while (it.hasNext())
+          ( (ParameterAPI) it.next()).addParameterChangeListener(timeSpan);
+      }
       return timeSpan;
     }
     catch (Exception e) {
@@ -335,6 +337,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
     }
     return null;
   }
+
 
 
   /* (non-Javadoc)

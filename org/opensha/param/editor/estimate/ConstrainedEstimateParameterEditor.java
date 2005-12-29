@@ -23,7 +23,6 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import org.opensha.param.estimate.*;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.data.estimate.InvalidParamValException;
 
 /**

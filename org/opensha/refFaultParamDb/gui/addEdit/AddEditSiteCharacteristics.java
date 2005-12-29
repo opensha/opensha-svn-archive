@@ -8,7 +8,6 @@ import org.opensha.param.editor.*;
 import java.awt.Container;
 import org.opensha.data.Location;
 import java.awt.*;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
