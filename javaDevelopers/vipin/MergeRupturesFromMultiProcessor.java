@@ -18,6 +18,7 @@ import java.io.FileWriter;
 public class MergeRupturesFromMultiProcessor {
   private String ruptureFilePrefix, outputFilename;
   private int startIndex, endIndex;
+  private final static String STATUS_FILE_NAME = "MergeStatus.txt";
 
   public MergeRupturesFromMultiProcessor() {
   }
@@ -25,18 +26,23 @@ public class MergeRupturesFromMultiProcessor {
 
   public void doMerge() {
     ArrayList masterRuptureList = new ArrayList();
-    //loop over all files
-    for(int i=startIndex; i<=endIndex; ++i) {
-      String rupFileName = ruptureFilePrefix+"_"+i+".txt";
-      ArrayList rupList = RuptureFileReaderWriter.loadRupturesFromFile(rupFileName);
-      // loop over each rupture in that file
-      for(int k=0; k<rupList.size(); ++k) {
-        MultiSectionRupture rup = (MultiSectionRupture)rupList.get(k);
-        // if it is not a duplicate rupture, add it to list
-        if(masterRuptureList.contains(rup)) masterRuptureList.add(rup);
-      }
-    }
     try {
+      //loop over all files
+      for(int i=startIndex; i<=endIndex; ++i) {
+        String rupFileName = ruptureFilePrefix+"_"+i+".txt";
+        FileWriter statusFile = new FileWriter(STATUS_FILE_NAME,true);
+        statusFile.write(rupFileName+"\n");
+        statusFile.close();
+        System.out.println(rupFileName);
+        ArrayList rupList = RuptureFileReaderWriter.loadRupturesFromFile(rupFileName);
+        // loop over each rupture in that file
+        for(int k=0; k<rupList.size(); ++k) {
+          MultiSectionRupture rup = (MultiSectionRupture)rupList.get(k);
+          // if it is not a duplicate rupture, add it to list
+          if(masterRuptureList.contains(rup)) masterRuptureList.add(rup);
+        }
+      }
+
       FileWriter fw = new FileWriter(outputFilename);
       RuptureFileReaderWriter.writeRupsToFile(fw, masterRuptureList);
       fw.close();
