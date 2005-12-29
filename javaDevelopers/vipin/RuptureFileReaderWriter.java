@@ -19,7 +19,38 @@ import org.opensha.data.Location;
 
 public class RuptureFileReaderWriter {
 
+  // Rupture File Readers
+  private FileReader frRups;
+  private BufferedReader brRups;
+  private ArrayList nodesList=null; // it will hold the list of alocation/sectionanme/id for each location on a rupture
+  private float rupLen=0.0f; // rupture length
 
+
+  /**
+   * This constructor needs to be used only when try to read ruptures from a file
+   * @param fileName
+   */
+  public RuptureFileReaderWriter(String fileName) {
+    try {
+      frRups = new FileReader(fileName);
+      brRups = new BufferedReader(frRups); // buffered reader
+      brRups.readLine(); // skip first line as it just contains number of ruptures
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * Close the files
+   */
+  public void close() {
+    try {
+      brRups.close();
+      frRups.close();
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
 
   /**
    * write the ruptures to the file. For each rupture, it writes:
@@ -51,31 +82,30 @@ public class RuptureFileReaderWriter {
  }
 
  /**
-  * It reads a text file and loads all the ruptures into an ArrayList
+  * Get. next rupture from the file.
+  * Returns null if there are no more ruptures in the file
   *
-  * @param fileName Text file containing information about all the ruptures
   * @return
   */
- public static ArrayList loadRupturesFromFile(String fileName) {
+ public MultiSectionRupture getNextRupture() {
    try {
-     FileReader frRups = new FileReader(fileName);
-     BufferedReader brRups = new BufferedReader(frRups); // buffered reader
-     brRups.readLine(); // skip first line as it just contains number of ruptures
-     String line = brRups.readLine().trim();
+     String line = brRups.readLine();
+     if(line==null) return null;
+     line = line.trim();
      double lat, lon;
-     ArrayList nodesList=null; // it will hold the list of alocation/sectionanme/id for each location on a rupture
-     ArrayList rupturesList = new ArrayList(); // list of ruptures
-     float rupLen=0.0f;
+     //int k=0;
      while(line!=null) {
        line=line.trim();
        if(!line.equalsIgnoreCase("")) { // if line is not a blank line
          if(line.startsWith("#"))  { // this is new rupture name
-
            if(nodesList!=null) { // add the rupture to the list of all ruptures
              MultiSectionRupture multiSectionRup = new MultiSectionRupture(
-                 nodesList);
+                  nodesList);
              multiSectionRup.setLength(rupLen);
-             rupturesList.add(multiSectionRup);
+             return multiSectionRup;
+             //FileWriter fw = new FileWriter("RupReaderStatus.txt", true);
+             //fw.write((++k)+"\n");
+             //fw.close();
            }
            // initalize for start of next rupture
            StringTokenizer tokenizer = new StringTokenizer(line);
@@ -97,19 +127,34 @@ public class RuptureFileReaderWriter {
        }
        line=brRups.readLine();
      }
-     // add the last rupture to the list
+     // return the last rupture
      MultiSectionRupture multiSectionRup = new MultiSectionRupture(
           nodesList);
      multiSectionRup.setLength(rupLen);
-     rupturesList.add(multiSectionRup);
-     // close the files
-     brRups.close();
-     frRups.close();
-     return rupturesList;
+     return multiSectionRup;
+
    }catch(Exception e) {
      e.printStackTrace();
    }
    return null;
+ }
+
+
+
+ /**
+  * It reads a text file and loads all the ruptures into an ArrayList
+  *
+  * @param fileName Text file containing information about all the ruptures
+  * @return
+  */
+ public ArrayList loadRuptures() {
+   ArrayList rupturesList = new ArrayList(); // list of ruptures
+   MultiSectionRupture rup = getNextRupture();
+   while(rup!=null) {
+     rupturesList.add(rup);
+     rup = getNextRupture();
+   }
+   return rupturesList;
  }
 
 }

@@ -30,17 +30,27 @@ public class MergeRupturesFromMultiProcessor {
       //loop over all files
       for(int i=startIndex; i<=endIndex; ++i) {
         String rupFileName = ruptureFilePrefix+"_"+i+".txt";
-        FileWriter statusFile = new FileWriter(STATUS_FILE_NAME,true);
-        statusFile.write(rupFileName+"\n");
-        statusFile.close();
+        writeToStatusFile("Pocessing "+rupFileName+".......\n");
         System.out.println(rupFileName);
-        ArrayList rupList = RuptureFileReaderWriter.loadRupturesFromFile(rupFileName);
+        RuptureFileReaderWriter rupFileReader = new RuptureFileReaderWriter(rupFileName);
+        /*MultiSectionRupture rup = rupFileReader.getNextRupture();
         // loop over each rupture in that file
-        for(int k=0; k<rupList.size(); ++k) {
-          MultiSectionRupture rup = (MultiSectionRupture)rupList.get(k);
+        int k=0;
+        while(rup!=null) {
+          writeToStatusFile("Processing Rupture "+(++k)+"\n");
           // if it is not a duplicate rupture, add it to list
-          if(masterRuptureList.contains(rup)) masterRuptureList.add(rup);
+          if(!masterRuptureList.contains(rup)) masterRuptureList.add(rup);
+          rup = rupFileReader.getNextRupture();
+        }*/
+        // load all the ruptures from the file
+        ArrayList rupList = rupFileReader.loadRuptures();
+        rupFileReader.close();
+        for(int j=0; j<rupList.size(); ++j) {
+          MultiSectionRupture rup = (MultiSectionRupture)rupList.get(j);
+          if(!masterRuptureList.contains(rup)) masterRuptureList.add(rup);
         }
+
+        writeToStatusFile("Num Ruptures in master list="+masterRuptureList.size()+"\n");
       }
 
       FileWriter fw = new FileWriter(outputFilename);
@@ -49,6 +59,21 @@ public class MergeRupturesFromMultiProcessor {
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Write to status file
+   * @param s
+   */
+  private void writeToStatusFile(String s) {
+    try {
+      FileWriter statusFile = new FileWriter(STATUS_FILE_NAME, true);
+      statusFile.write(s);
+      statusFile.close();
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+
   }
   /**
    * File prefix for the files to be read

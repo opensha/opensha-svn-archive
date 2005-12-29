@@ -99,7 +99,9 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       rupFilterGuiBean = new RuptureFilterGuiBean(sectionNames);
       jbInit();
       addGraphPanel(); // show the fault sections using JFreechart
-      masterRupList = RuptureFileReaderWriter.loadRupturesFromFile(PrepareTreeStructure.DEFAULT_RUP_OUT_FILENAME);
+      RuptureFileReaderWriter rupFileReader = new RuptureFileReaderWriter(PrepareTreeStructure.DEFAULT_RUP_OUT_FILENAME);
+      masterRupList = rupFileReader.loadRuptures();
+      rupFileReader.close();
       timeDelayParam.addParameterChangeListener(this);
       this.displayRupList = masterRupList;
       setRuptureSlider();
