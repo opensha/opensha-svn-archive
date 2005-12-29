@@ -69,6 +69,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
   private JPanel erfAndTimespanPanel = new JPanel();
   private GridBagLayout gridBagLayout2 = new GridBagLayout();
 
+  //checks to see if this a new ERF instance has been given by application to this Gui Bean.
+  private boolean isNewERF_Instance;
 
 
   /**
@@ -456,7 +458,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      if(name1.equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
        this.createTimeSpanPanel();
      // if ERF selected by the user  changes
-     if( name1.equals(this.ERF_PARAM_NAME) ){
+     if( name1.equals(this.ERF_PARAM_NAME) && !isNewERF_Instance){
        String value = event.getNewValue().toString();
        int size = this.erfNamesVector.size();
        try{
@@ -551,6 +553,30 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
    public ParameterListEditor getERFParameterListEditor(){
      return listEditor;
    }
+
+
+   /**
+    * Sets the EqkRupForecast in the ERF_GuiBean
+    */
+   public void setERF(ERF_API eqkRupForecast){
+     this.eqkRupForecast = eqkRupForecast;
+     isNewERF_Instance = true;
+     String erfName = eqkRupForecast.getName();
+     int size = erfNamesVector.size();
+     for(int i=0;i<size;++i){
+       if(erfName.equalsIgnoreCase( (String) erfNamesVector.get(i))) {
+         try{
+           listEditor.getParameterEditor(this.ERF_PARAM_NAME).setValue(erfName);
+           setParamsInForecast(erfName);
+         }catch(Exception e){
+           e.printStackTrace();
+         }
+         isNewERF_Instance = false;
+         break;
+       }
+     }
+   }
+
 
    /**
     *

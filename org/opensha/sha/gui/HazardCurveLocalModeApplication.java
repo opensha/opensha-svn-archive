@@ -16,6 +16,8 @@ import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.calc.DisaggregationCalculator;
 import org.opensha.sha.gui.infoTools.ExceptionWindow;
 import org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.earthquake.ERF_API;
 
 /**
  * <p>Title: HazardCurveLocalModeApplication</p>
@@ -47,49 +49,110 @@ public class HazardCurveLocalModeApplication extends HazardCurveServerModeApplic
   public final static String POINT2MULT_VSS_FORECAST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF";
   public final static String POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
   public final static String WGCEP_UCERF1_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WGCEP_UCERF1.WGCEP_UCERF1_EqkRupForecast";
+  public final static String WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.WG02.WG02_EqkRupForecast";
 
   /**
    * Initialize the ERF Gui Bean
    */
   protected void initERF_GuiBean() {
-    // create the ERF Gui Bean object
-    ArrayList erf_Classes = new ArrayList();
 
-    //adding the client based ERF's to the application
-    erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
-    erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
-    erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-    erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-    erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
-    erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
-    erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
-    erf_Classes.add(STEP_FORECAST_CLASS_NAME);
-    erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
-    erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
-    erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
-    erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-    erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
-    erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
-    erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
-    erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
-    try{
-      erfGuiBean = new ERF_GuiBean(erf_Classes);
-    }catch(InvocationTargetException e){
+    if(erfGuiBean == null){
+      // create the ERF Gui Bean object
+      ArrayList erf_Classes = new ArrayList();
 
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(), "Problem occured "+
-          "during initialization the ERF's. All parameters are set to default.");
-      bugWindow.setVisible(true);
-      bugWindow.pack();
-      //e.printStackTrace();
-      //throw new RuntimeException("Connection to ERF's failed");
+      //adding the client based ERF's to the application
+      erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+      erf_Classes.add(WGCEP_UCERF1_CLASS_NAME);
+      erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_LOGIC_TREE_FORECAST_CLASS_NAME);
+      erf_Classes.add(FRANKEL_FORECAST_CLASS_NAME);
+      erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+      erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+      erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+      erf_Classes.add(SIMPLE_FAULT_ERF_CLASS_NAME);
+      erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(WG02_ERF_LIST_CLASS_NAME);
+      erf_Classes.add(POINT_SRC_FORECAST_CLASS_NAME);
+      erf_Classes.add(POINT2MULT_VSS_FORECAST_CLASS_NAME);
+      erf_Classes.add(POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
+      try {
+        erfGuiBean = new ERF_GuiBean(erf_Classes);
+        erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
+            addParameterChangeListener(this);
+      }
+      catch (InvocationTargetException e) {
+
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+            "Problem occured " +
+            "during initialization the ERF's. All parameters are set to default.");
+        bugWindow.setVisible(true);
+        bugWindow.pack();
+        //e.printStackTrace();
+        //throw new RuntimeException("Connection to ERF's failed");
+      }
     }
-    erfPanel.setLayout(gridBagLayout5);
+    else{
+      boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
+      if(!isCustomRupture){
+        ERF_API eqkRupForecast = erfRupSelectorGuiBean.getSelectedEqkRupForecastModel();
+        erfGuiBean.setERF(eqkRupForecast);
+      }
+    }
+    erfPanel.removeAll();
     erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
         GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-    erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
-
+    erfPanel.updateUI();
   }
 
+
+  /**
+   * Initialize the ERF Rup Selector Gui Bean
+   */
+  protected void initERFSelector_GuiBean() {
+
+    ERF_API erf = null;
+    try {
+      erf = erfGuiBean.getSelectedERF();
+    }
+    catch (InvocationTargetException ex) {
+      ex.printStackTrace();
+    }
+    if(erfRupSelectorGuiBean == null){
+      // create the ERF Gui Bean object
+      ArrayList erf_Classes = new ArrayList();
+
+      /**
+       *  The object class names for all the supported Eqk Rup Forecasts
+       */
+      erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+      erf_Classes.add(FRANKEL_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(STEP_FORECAST_CLASS_NAME);
+      erf_Classes.add(STEP_ALASKA_ERF_CLASS_NAME);
+      erf_Classes.add(POISSON_FAULT_ERF_CLASS_NAME);
+      erf_Classes.add(FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_AREA_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+      erf_Classes.add(PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+      erf_Classes.add(WG02_ERF_CLASS_NAME);
+
+      try {
+
+        erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,erf_Classes);
+      }
+      catch (InvocationTargetException e) {
+        throw new RuntimeException("Connection to ERF's failed");
+      }
+    }
+    else
+      erfRupSelectorGuiBean.setEqkRupForecastModel(erf);
+   erfPanel.removeAll();
+   //erfGuiBean = null;
+   erfPanel.add(erfRupSelectorGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
+                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
+   erfPanel.updateUI();
+  }
 
   /**
    * This method creates the HazardCurveCalc and Disaggregation Calc(if selected) instances.

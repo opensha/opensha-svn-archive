@@ -30,8 +30,7 @@ import org.opensha.sha.calc.HazardCurveCalculatorAPI;
  * @version 1.0
  */
 
-public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObject
-    implements HazardCurveCalculatorAPI{
+public class HazardCurveCalcForCybershakeVerification extends UnicastRemoteObject{
 
   protected final static String C = "HazardCurveCalculator";
   protected final static boolean D = false;

@@ -360,6 +360,8 @@ public class EqkRuptureCreationPanel
     this.repaint();
   }
 
+
+
   /**
    *
    * @returns the panel which allows user to select Eqk rupture from existing

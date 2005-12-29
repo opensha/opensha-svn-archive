@@ -75,6 +75,8 @@ import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.HazardCurveDisaggregationWindowAPI;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -128,6 +130,12 @@ public class HazardCurveServerModeApplication extends JFrame
   public final static String RMI_WG02_ERF_LIST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_FortranWrappedERF_EpistemicListClient";
   public final static String RMI_PEER_LOGIC_TREE_ERF_LIST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_LogicTreeERF_ListClient";
   public final static String RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.Point2MultVertSS_Fault.Point2MultVertSS_FaultERF_List";
+  public final static String RMI_WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
+
+
+  //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
+  protected final static String PROBABILISTIC = "Probabilistic";
+  protected final static String DETERMINISTIC = "Deterministic";
 
 
   // instances of the GUI Beans which will be shown in this applet
@@ -135,6 +143,8 @@ public class HazardCurveServerModeApplication extends JFrame
   private IMR_GuiBean imrGuiBean;
   private IMT_GuiBean imtGuiBean;
   private Site_GuiBean siteGuiBean;
+  protected EqkRupSelectorGuiBean erfRupSelectorGuiBean;
+
 
   //instance for the ButtonControlPanel
   ButtonControlPanel buttonControlPanel;
@@ -232,10 +242,7 @@ public class HazardCurveServerModeApplication extends JFrame
   private boolean customAxis = false;
 
 
-  private GridBagLayout gridBagLayout4 = new GridBagLayout();
-  private GridBagLayout gridBagLayout6 = new GridBagLayout();
-  private GridBagLayout gridBagLayout7 = new GridBagLayout();
-  private GridBagLayout gridBagLayout3 = new GridBagLayout();
+  private JComboBox probDeterSelection = new JComboBox();
 
 
 
@@ -247,13 +254,17 @@ public class HazardCurveServerModeApplication extends JFrame
   protected boolean disaggregationFlag= false;
   private String disaggregationString;
 
+
+
+  //checks if Deterministic or Probabilistic Calculations
+  private boolean isProbCurve = true;
+
+
   // PEER Test Cases
   private String TITLE = new String("Hazard Curves");
 
   // light blue color
   private Color lightBlue = new Color( 200, 200, 230 );
-
-
 
   private boolean graphOn = false;
   private GridBagLayout gridBagLayout11 = new GridBagLayout();
@@ -366,7 +377,8 @@ public class HazardCurveServerModeApplication extends JFrame
 
       // initialize the control pick list
       initControlList();
-
+      //initialise the list to make selection whether to show ERF_GUIBean or ERF_RupSelectorGuiBean
+      initProbOrDeterList();
       // initialize the GUI components
       jbInit();
 
@@ -492,8 +504,6 @@ public class HazardCurveServerModeApplication extends JFrame
       }
     });
 
-    buttonPanel.setAlignmentX((float) 0.0);
-    buttonPanel.setAlignmentY((float) 0.0);
     buttonPanel.setMinimumSize(new Dimension(568, 20));
     buttonPanel.setLayout(flowLayout1);
 
@@ -538,7 +548,11 @@ public class HazardCurveServerModeApplication extends JFrame
     chartSplit.setLeftComponent(panel);
     chartSplit.setRightComponent(paramsTabbedPane);
 
-
+    probDeterSelection.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            probDeterSelection_actionPerformed(e);
+          }
+    });
 
     peelOffButton.setText("Peel Off");
     peelOffButton.addActionListener(new java.awt.event.ActionListener() {
@@ -566,15 +580,15 @@ public class HazardCurveServerModeApplication extends JFrame
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
 
-
-    buttonPanel.add(controlComboBox, 0);
-    buttonPanel.add(addButton, 1);
-    buttonPanel.add(cancelCalcButton, 2);
-    buttonPanel.add(clearButton, 3);
-    buttonPanel.add(peelOffButton, 4);
-    buttonPanel.add(progressCheckBox, 5);
-    buttonPanel.add(buttonControlPanel, 6);
-    buttonPanel.add(imgLabel, 7);
+    buttonPanel.add(probDeterSelection, 0);
+    buttonPanel.add(controlComboBox, 1);
+    buttonPanel.add(addButton, 2);
+    buttonPanel.add(cancelCalcButton, 3);
+    buttonPanel.add(clearButton, 4);
+    buttonPanel.add(peelOffButton, 5);
+    buttonPanel.add(progressCheckBox, 6);
+    buttonPanel.add(buttonControlPanel, 7);
+    buttonPanel.add(imgLabel, 8);
 
     //making the cancel button not visible until user has started to do the calculation
     cancelCalcButton.setVisible(false);
@@ -593,6 +607,7 @@ public class HazardCurveServerModeApplication extends JFrame
     imrSplitPane.setDividerLocation(300);
 
     controlsSplit.setDividerLocation(230);
+    erfPanel.setLayout(gridBagLayout5);
     erfPanel.validate();
     erfPanel.repaint();
     chartSplit.setDividerLocation(590);
@@ -1027,12 +1042,18 @@ public class HazardCurveServerModeApplication extends JFrame
     isHazardCalcDone= false;
 
     ERF_API forecast = null;
-    // whether to show progress bar in case of update forecast
-    erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
+    ProbEqkRupture rupture = null;
+    if(!this.isProbCurve)
+      rupture = (ProbEqkRupture)this.erfRupSelectorGuiBean.getRupture();
+
     // get the selected forecast model
     try{
-      //get the selected ERF instance
-      forecast = erfGuiBean.getSelectedERF();
+      if(this.isProbCurve){
+        // whether to show progress bar in case of update forecast
+        erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
+        //get the selected ERF instance
+        forecast = erfGuiBean.getSelectedERF();
+      }
     }catch(Exception e){
       e.printStackTrace();
       JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
@@ -1064,7 +1085,7 @@ public class HazardCurveServerModeApplication extends JFrame
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
     boolean isEqkForecastList = false;
-    if(forecast instanceof ERF_List)  {
+    if(forecast instanceof ERF_List  && isProbCurve)  {
       //if add on top get the name of ERF List forecast
       if(addData)
         prevSelectedERF_List = forecast.getName();
@@ -1085,8 +1106,6 @@ public class HazardCurveServerModeApplication extends JFrame
 
     //making the previuos selected ERF List to be null
     prevSelectedERF_List = null;
-
-
 
     // this is not a eqk list
     this.isEqkList = false;
@@ -1109,7 +1128,10 @@ public class HazardCurveServerModeApplication extends JFrame
       // calculate the hazard curve
       //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
       try{
-        hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
+        if(isProbCurve)
+          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
+        else
+          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, rupture);
       }catch(Exception e){
         e.printStackTrace();
         setButtonsEnable(true);
@@ -1378,6 +1400,36 @@ public class HazardCurveServerModeApplication extends JFrame
   }
 
 
+
+  /**
+   * This function is to whether to plot ERF_GuiBean or ERF_RupSelectorGuiBean
+   * @param e
+   */
+  protected void probDeterSelection_actionPerformed(ActionEvent e) {
+    String selectedControl = this.probDeterSelection.getSelectedItem().toString();
+    if(selectedControl.equalsIgnoreCase(this.PROBABILISTIC)){
+     try{
+       this.initERF_GuiBean();
+       isProbCurve = true;
+     }catch(RuntimeException ee){
+      JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
+    }
+    else if(selectedControl.equalsIgnoreCase(this.DETERMINISTIC)){
+     try{
+       this.initERFSelector_GuiBean();
+       isProbCurve = false;
+     }catch(RuntimeException ee){
+      JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
+                                    JOptionPane.OK_OPTION);
+      System.exit(0);
+      }
+    }
+  }
+
+
   /**
    * Initialize the IMR Gui Bean
    */
@@ -1427,43 +1479,105 @@ public class HazardCurveServerModeApplication extends JFrame
   }
 
 
- /**
+  /**
    * Initialize the ERF Gui Bean
    */
   protected void initERF_GuiBean() {
-     // create the ERF Gui Bean object
-   ArrayList erf_Classes = new ArrayList();
-   //adding the RMI based ERF's to the application
-   erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
-   erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
-   erf_Classes.add(RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME);
-   erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
-   erf_Classes.add(RMI_PEER_LOGIC_TREE_ERF_LIST_CLASS_NAME);
-   erf_Classes.add(RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
+
+    if (erfGuiBean == null) {
+      try {
+        // create the ERF Gui Bean object
+        ArrayList erf_Classes = new ArrayList();
+        //adding the RMI based ERF's to the application
+        erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
+        erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
+        erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
+        erf_Classes.add(RMI_POINT2MULT_VSS_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_WG02_ERF_LIST_CLASS_NAME);
+        erf_Classes.add(RMI_PEER_LOGIC_TREE_ERF_LIST_CLASS_NAME);
+        erf_Classes.add(RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME);
+
+        erfGuiBean = new ERF_GuiBean(erf_Classes);
+        erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).
+            addParameterChangeListener(this);
+      }
+      catch (InvocationTargetException e) {
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+            "ERF's Initialization problem. Rest all parameters are default");
+        bugWindow.setVisible(true);
+        bugWindow.pack();
+        //e.printStackTrace();
+        //throw new RuntimeException("Connection to ERF's failed");
+      }
+    }
+    else {
+      boolean isCustomRupture = erfRupSelectorGuiBean.isCustomRuptureSelected();
+      if (!isCustomRupture) {
+        ERF_API eqkRupForecast = erfRupSelectorGuiBean.
+            getSelectedEqkRupForecastModel();
+        erfGuiBean.setERF(eqkRupForecast);
+      }
+    }
+    erfPanel.removeAll();
+    erfPanel.add(erfGuiBean, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+        GridBagConstraints.CENTER, GridBagConstraints.BOTH, defaultInsets, 0, 0));
+
+    erfPanel.updateUI();
+
+  }
 
 
-   try{
-     erfGuiBean = new ERF_GuiBean(erf_Classes);
-   }catch(InvocationTargetException e){
-     ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),"ERF's Initialization problem. Rest all parameters are default");
-     bugWindow.setVisible(true);
-     bugWindow.pack();
-     //e.printStackTrace();
-     //throw new RuntimeException("Connection to ERF's failed");
-   }
-   erfPanel.setLayout(gridBagLayout5);
-   erfPanel.add(erfGuiBean, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0,
-                GridBagConstraints.CENTER,GridBagConstraints.BOTH, defaultInsets, 0, 0 ));
-   erfGuiBean.getParameter(erfGuiBean.ERF_PARAM_NAME).addParameterChangeListener(this);
-   erfPanel.updateUI();
+  /**
+   * Initialize the ERF Rup Selector Gui Bean
+   */
+  protected void initERFSelector_GuiBean() {
 
+    ERF_API erf = null;
+    try {
+      erf = erfGuiBean.getSelectedERF();
+    }
+    catch (InvocationTargetException ex) {
+      ex.printStackTrace();
+    }
+    if(erfRupSelectorGuiBean == null){
+      // create the ERF Gui Bean object
+      ArrayList erf_Classes = new ArrayList();
+
+      /**
+       *  The object class names for all the supported Eqk Rup Forecasts
+       */
+      erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
+      erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
+      erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
+      erf_Classes.add(RMI_FRANKEL02_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_PEER_AREA_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_PEER_NON_PLANAR_FAULT_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_PEER_MULTI_SOURCE_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_WG02_ERF_CLASS_NAME);
+
+      try {
+        erfRupSelectorGuiBean = new EqkRupSelectorGuiBean(erf,erf_Classes);
+      }
+      catch (InvocationTargetException e) {
+        throw new RuntimeException("Connection to ERF's failed");
+      }
+    }
+    erfPanel.removeAll();
+    //erfGuiBean = null;
+    erfPanel.add(erfRupSelectorGuiBean,
+                 new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0,
+                                        GridBagConstraints.CENTER,
+                                        GridBagConstraints.BOTH, defaultInsets, 0,
+                                        0));
+    erfPanel.updateUI();
   }
 
 
@@ -1657,6 +1771,14 @@ public class HazardCurveServerModeApplication extends JFrame
       xValuesPanel.setX_Values(function);
     xValuesPanel.pack();
     xValuesPanel.setVisible(true);
+  }
+
+  /**
+   * Initialise the item to be added to the Prob and Deter Selection
+   */
+  private void initProbOrDeterList(){
+    this.probDeterSelection.addItem(PROBABILISTIC);
+    this.probDeterSelection.addItem(DETERMINISTIC);
   }
 
   /**

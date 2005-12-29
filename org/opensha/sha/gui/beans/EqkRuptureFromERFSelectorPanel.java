@@ -38,6 +38,7 @@ import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.earthquake.EqkRupture;
 import java.awt.event.ActionListener;
 import org.opensha.param.LocationParameter;
+import org.opensha.sha.earthquake.ERF_API;
 
 /**
  * <p>Title: EqkRuptureFromERFSelectorPanel</p>
@@ -130,10 +131,66 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   //step keeps track what message to display to the user in the progress bar.
   private int step ;
 
+  //List of supported ERF's from which we can get the single rupture
+  private ArrayList supportedERFClassNames;
+
+  //checks to see if it is new instance of the GuiBean.
+  private boolean firstTime = true;
+
   /**
-  * Constructor : It accepts the classNames of the ERFs to be shown in the editor
-  * @param erfClassNames
-  */
+   * If Application  has already created the ERF Gui Bean then give that to this
+   * Gui Bean. This will allow it to extract the ERF from that GuiBean.
+   * @param erfGuiBean ERF_GuiBean
+   */
+  public EqkRuptureFromERFSelectorPanel(ERF_API erf,ArrayList erfClassNames) {
+    supportedERFClassNames = erfClassNames;
+    parameterList = new ParameterList();
+    try {
+
+      //gets the instance of the selected ERF
+      this.erf = (EqkRupForecastAPI)erf;
+      String erfName = this.erf.getClass().getName();
+      boolean isERFSupported = isSupportedERF_Name(erfName);
+
+      // create the instance of ERFs
+
+      progress = new CalcProgressBar("Updating Ruptures",
+                                     "Please wait while ruptures are being updated ...");
+
+      if (isERFSupported)
+        addERFNameToFirstIndex(erfName);
+
+      else{
+        step = 1;
+        erf = null;
+        this.startProgressBarTimer();
+      }
+
+      erfGuiBean = new ERF_GuiBean(supportedERFClassNames);
+      erfGuiBean.showProgressBar(false);
+      setSelectedERF();
+      setSourceFromSelectedERF(0);
+      setRuptureForSelectedSource(0);
+      getHypocenterLocationsForSelectedRupture();
+      listEditor = new ParameterListEditor(parameterList);
+      // now make the editor based on the parameter list
+      listEditor.setTitle(TITLE);
+      setHypocenterLocationInRupture(false);
+      if(!isERFSupported)
+        stopProgressBarTimer();
+      jbInit();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    firstTime = false;
+  }
+
+
+  /**
+   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
+   * @param erfClassNames
+   */
  public EqkRuptureFromERFSelectorPanel(ArrayList erfClassNames) throws InvocationTargetException{
 
    // create the instance of ERFs
@@ -161,7 +218,33 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
     catch(Exception e) {
       e.printStackTrace();
     }
+    firstTime = false;
  }
+
+
+
+ /**
+  * Checks the if the given ERF Name is within the list of the supported ERF from
+  * which single rupture can be generated.
+  * @param erfName String
+  * @return boolean
+  */
+ private boolean isSupportedERF_Name(String erfName){
+   if(supportedERFClassNames.contains(erfName))
+     return true;
+   return false;
+ }
+
+ // adds the ERF Name to the first place in the list of Strings
+ private void addERFNameToFirstIndex(String erfName) {
+   supportedERFClassNames.remove(erfName);
+   int size = supportedERFClassNames.size();
+   for(int i=size-1;i>=0;--i)
+     supportedERFClassNames.add(i+1,supportedERFClassNames.get(i));
+   supportedERFClassNames.add(0,erfName);
+ }
+
+
 
  /**
   * creates the selected ERF based on the selected ERF Name
@@ -171,19 +254,33 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    startProgressBarTimer();
 
 
-   if(erf == null){
+   if(firstTime){
      // add the select forecast parameter
      ParameterAPI chooseERF_Param = erfGuiBean.getERFParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
      chooseERF_Param.addParameterChangeListener(this);
      parameterList.addParameter(chooseERF_Param);
    }
-   try{
-     //gets the instance of the selected ERF
-     erf = (EqkRupForecastAPI)erfGuiBean.getSelectedERF();
-   }catch(Exception e){
-     e.printStackTrace();
+   if(erf == null){
+     try {
+       //gets the instance of the selected ERF
+       erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+     }
+     catch (Exception e) {
+       e.printStackTrace();
+     }
    }
    stopProgressBarTimer();
+ }
+
+ /**
+  * Sets the selected ERF in the ERF GuiBean
+  * @param erf EqkRupForecastAPI
+  */
+ public void setEqkRupForecast(ERF_API erf){
+   showAllAdjustableParamForERF = false;
+   this.erf = (EqkRupForecastAPI)erf;
+   erfGuiBean.setERF(erf);
+   showAllAdjustableParamForERF = true;
  }
 
  /**
@@ -591,10 +688,11 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   }
 
 
+
   /**
-    *
-    * @returns the EqkRupforecast model
-    */
+   *
+   * @returns the EqkRupforecast model
+   */
    public EqkRupForecastAPI getSelectedERF_Instance() {
      EqkRupForecastAPI erfAPI=null;
      try{

@@ -6,6 +6,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.Site;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
+import org.opensha.sha.earthquake.ProbEqkRupture;
 
 
 /**
@@ -43,6 +44,24 @@ public interface HazardCurveCalculatorAPI extends Remote{
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI hazFunction,
                              Site site, AttenuationRelationshipAPI imr, EqkRupForecastAPI eqkRupForecast)
       throws java.rmi.RemoteException ;
+
+
+
+  /**
+   * This function computes a hazard curve for the given Site, IMR, and ProbEqkrupture.  The curve
+   * in place in the passed in hazFunction (with the X-axis values being the IMLs for which
+   * exceedance probabilites are desired).
+   * @param hazFunction: This function is where the hazard curve is placed
+   * @param site: site object
+   * @param imr: selected IMR object
+   * @param rupture: Single Earthquake Rupture
+   * @return
+   */
+  public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI
+      hazFunction,
+      Site site, AttenuationRelationshipAPI imr, ProbEqkRupture rupture) throws
+      java.rmi.RemoteException;
+
 
 
   //gets the current rupture that is being processed

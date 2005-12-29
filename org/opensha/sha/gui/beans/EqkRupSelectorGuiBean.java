@@ -22,6 +22,7 @@ import org.opensha.data.Location;
 import org.opensha.param.editor.ParameterEditor;
 import org.opensha.param.ParameterList;
 import org.opensha.param.editor.ParameterListEditor;
+import org.opensha.sha.earthquake.ERF_API;
 
 
 /**
@@ -72,10 +73,27 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   //supported ERF classes
   private ArrayList supportedERF_Classes;
 
+  private ERF_API eqkRupForecast;
+
+
+  public EqkRupSelectorGuiBean(ERF_API erf,ArrayList erfClassNames )throws InvocationTargetException{
+    eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(erf, erfClassNames);
+    eqkRupForecast = erf;
+    supportedERF_Classes = erfClassNames;
+    eqkRupturePanel = eqkRupturePanelFromERF;
+    try {
+      jbInit();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+    toggleRuptureSelectionMethods();
+  }
+
   /**
-  * Constructor : It accepts the classNames of the ERFs to be shown in the editor
-  * @param erfClassNames
-  */
+   * Constructor : It accepts the classNames of the ERFs to be shown in the editor
+   * @param erfClassNames
+   */
  public EqkRupSelectorGuiBean(ArrayList erfClassNames) throws InvocationTargetException{
    supportedERF_Classes = erfClassNames;
    isUserCreatedEqkRupture = false;
@@ -101,7 +119,15 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     catch(Exception e) {
       e.printStackTrace();
     }
-    toggleRuptureSelectionMethods();
+    rupturePanel.add( (JPanel) eqkRupturePanel.getEqkRuptureSelectorPanel(),
+                     new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
+                                            , GridBagConstraints.CENTER,
+                                            GridBagConstraints.BOTH,
+                                            new Insets(4, 4, 4, 4), 0, 0));
+
+    this.validate();
+    this.repaint();
+
   }
 
 
@@ -163,6 +189,17 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
 
   }
 
+  /**
+   * Sets the forecast model from the application inside
+   * this ERF_RupSelectorGuiBean to get the rupture.
+   * @param forecast EqkRupForecastAPI
+   */
+  public void setEqkRupForecastModel(ERF_API forecast){
+    this.eqkRupForecast = forecast;
+    if(!isUserCreatedEqkRupture)
+      ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).setEqkRupForecast(forecast);
+  }
+
 
   /**
    * Toggles between the visible panel for selecting the rupture from existing ERF
@@ -174,8 +211,12 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
     if (!isUserCreatedEqkRupture) {
       //if user has chosen to select eqk rupture from already existing ERF model
       if (eqkRupturePanelFromERF == null)
-        eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(
-            supportedERF_Classes);
+        if(eqkRupForecast == null)
+          eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(
+              supportedERF_Classes);
+        else
+          eqkRupturePanelFromERF = new EqkRuptureFromERFSelectorPanel(
+              eqkRupForecast,supportedERF_Classes);
       eqkRupturePanel = eqkRupturePanelFromERF;
     }
     else { //if user has chosen to create his own rupture.
@@ -268,6 +309,23 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
    */
   public EqkRupSelectorGuiBeanAPI getEqkRuptureSelectorPanel(){
     return eqkRupturePanel;
+  }
+
+  /**
+   * Checks if custom rupture is selected
+   * @return boolean
+   */
+  public boolean isCustomRuptureSelected(){
+    return isUserCreatedEqkRupture;
+  }
+
+  /**
+   * Returns the instance of the EqkRupForecast from EqkRupFromERFSelector Panel
+   *
+   * @return ERF_API
+   */
+  public ERF_API getSelectedEqkRupForecastModel(){
+    return ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).getSelectedERF_Instance();
   }
 
   /**
