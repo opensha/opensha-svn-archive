@@ -33,7 +33,7 @@ public class MergeRupturesFromMultiProcessor {
         writeToStatusFile("Pocessing "+rupFileName+".......\n");
         System.out.println(rupFileName);
         RuptureFileReaderWriter rupFileReader = new RuptureFileReaderWriter(rupFileName);
-        /*MultiSectionRupture rup = rupFileReader.getNextRupture();
+        MultiSectionRupture rup = rupFileReader.getNextRupture();
         // loop over each rupture in that file
         int k=0;
         while(rup!=null) {
@@ -41,14 +41,14 @@ public class MergeRupturesFromMultiProcessor {
           // if it is not a duplicate rupture, add it to list
           if(!masterRuptureList.contains(rup)) masterRuptureList.add(rup);
           rup = rupFileReader.getNextRupture();
-        }*/
+        }
         // load all the ruptures from the file
-        ArrayList rupList = rupFileReader.loadRuptures();
+        /*ArrayList rupList = rupFileReader.loadRuptures();
         rupFileReader.close();
         for(int j=0; j<rupList.size(); ++j) {
           MultiSectionRupture rup = (MultiSectionRupture)rupList.get(j);
           if(!masterRuptureList.contains(rup)) masterRuptureList.add(rup);
-        }
+        }*/
 
         writeToStatusFile("Num Ruptures in master list="+masterRuptureList.size()+"\n");
       }

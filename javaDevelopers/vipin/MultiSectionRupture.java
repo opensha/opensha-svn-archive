@@ -76,7 +76,9 @@ public class MultiSectionRupture {
   /**
    * Finds whether 2 ruptures are same or not. It checks:
    *  1. number of points on both ruptures are same.
-   *  2. the locations on 1 rupture also exist for the second rupture
+   *  2. It checks that length of the ruptures are same
+   *  3. It checks that end points are same on the rupture
+   *  4. the locations on 1 rupture also exist for the second rupture
    * @param rup
    * @return
    */
@@ -84,13 +86,30 @@ public class MultiSectionRupture {
     if(! (obj instanceof MultiSectionRupture)) return false;
     MultiSectionRupture rup = (MultiSectionRupture) obj;
     ArrayList rupNodesList = rup.getNodesList();
+    int rupNodesListSize = rupNodesList.size();
+    int nodesListSize = nodeList.size();
     // check that number of points in both ruptures are same
-    if(this.nodeList.size()!=rupNodesList.size()) return false;
+    if(nodesListSize!=rupNodesListSize) return false;
+    //check the length of ruptures are withn tolerance
+    if(Math.abs(length-rup.getLength())>1e-6) return false;
+
+    // check the end points are same
+    Node node = (Node)nodeList.get(0);
+    if(node.getId()!=((Node)rupNodesList.get(0)).getId() &&
+       node.getId()!=((Node)rupNodesList.get(rupNodesListSize-1)).getId()) {
+      return false;
+    }
+    node = (Node)nodeList.get(nodesListSize-1);
+    if(node.getId()!=((Node)rupNodesList.get(0)).getId() &&
+       node.getId()!=((Node)rupNodesList.get(rupNodesListSize-1)).getId()) {
+      return false;
+    }
+
     // check that locations on one ruptures also exist on other rupture
-    for(int i=0; i<nodeList.size(); ++i) {
-      Node node = (Node)nodeList.get(i);
+    for(int i=1; i<nodesListSize; ++i) {
+       node = (Node)nodeList.get(i);
       boolean found = false;
-      for(int j=0; j<rupNodesList.size() && !found; ++j) {
+      for(int j=0; j<rupNodesListSize && !found; ++j) {
         if(node.getId()==((Node)rupNodesList.get(j)).getId()) found = true;
       }
       if(!found) return false;

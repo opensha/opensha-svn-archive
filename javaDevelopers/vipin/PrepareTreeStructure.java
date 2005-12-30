@@ -318,15 +318,19 @@ public class PrepareTreeStructure {
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, float rupLen) {
 
-      // check if rupture already exists in the list
-      MultiSectionRupture multiSectionRup = new MultiSectionRupture((ArrayList)nodesList.clone());
-      // if rupture does not exist already, then add it
-      if(!rupList.contains(multiSectionRup)) {
-        multiSectionRup.setLength(rupLen);
-        // add the section names involved in this rupture to a list so that these sections can be processed next
-        for(int i=0; i<nodesList.size(); ++i)
-          this.addToFaultSectionPrintOrder(((Node)nodesList.get(i)).getFaultSectionName());
-        rupList.add(multiSectionRup);
+    if(nodesList.size()>1) { // sinle location ruptures are excluded
+        // check if rupture already exists in the list
+        MultiSectionRupture multiSectionRup = new MultiSectionRupture( (ArrayList)
+            nodesList.clone());
+        // if rupture does not exist already, then add it
+        if (!rupList.contains(multiSectionRup)) {
+          multiSectionRup.setLength(rupLen);
+          // add the section names involved in this rupture to a list so that these sections can be processed next
+          for (int i = 0; i < nodesList.size(); ++i)
+            this.addToFaultSectionPrintOrder( ( (Node) nodesList.get(i)).
+                                             getFaultSectionName());
+          rupList.add(multiSectionRup);
+        }
       }
 
       // first select the primary link

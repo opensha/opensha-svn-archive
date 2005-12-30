@@ -91,21 +91,18 @@ public class RuptureFileReaderWriter {
    try {
      String line = brRups.readLine();
      if(line==null) return null;
-     line = line.trim();
      double lat, lon;
      //int k=0;
+     MultiSectionRupture multiSectionRup=null;
      while(line!=null) {
        line=line.trim();
        if(!line.equalsIgnoreCase("")) { // if line is not a blank line
          if(line.startsWith("#"))  { // this is new rupture name
+
            if(nodesList!=null) { // add the rupture to the list of all ruptures
-             MultiSectionRupture multiSectionRup = new MultiSectionRupture(
+              multiSectionRup = new MultiSectionRupture(
                   nodesList);
              multiSectionRup.setLength(rupLen);
-             return multiSectionRup;
-             //FileWriter fw = new FileWriter("RupReaderStatus.txt", true);
-             //fw.write((++k)+"\n");
-             //fw.close();
            }
            // initalize for start of next rupture
            StringTokenizer tokenizer = new StringTokenizer(line);
@@ -113,6 +110,7 @@ public class RuptureFileReaderWriter {
            tokenizer.nextToken(); // rupture counter
            rupLen = Float.parseFloat(tokenizer.nextToken()); // rupture length
            nodesList = new ArrayList();
+           if(multiSectionRup!=null) return multiSectionRup;
          } else {
            // get the lat/lon, sectionName and locationId for each location on this rupture
            StringTokenizer tokenizer = new StringTokenizer(line,",");
@@ -128,7 +126,7 @@ public class RuptureFileReaderWriter {
        line=brRups.readLine();
      }
      // return the last rupture
-     MultiSectionRupture multiSectionRup = new MultiSectionRupture(
+      multiSectionRup = new MultiSectionRupture(
           nodesList);
      multiSectionRup.setLength(rupLen);
      return multiSectionRup;
