@@ -37,7 +37,7 @@ public class MergeRupturesFromMultiProcessor {
         // loop over each rupture in that file
         int k=0;
         while(rup!=null) {
-          writeToStatusFile("Processing Rupture "+(++k)+"\n");
+          //writeToStatusFile("Processing Rupture "+(++k)+"\n");
           // if it is not a duplicate rupture, add it to list
           if(!masterRuptureList.contains(rup)) masterRuptureList.add(rup);
           rup = rupFileReader.getNextRupture();

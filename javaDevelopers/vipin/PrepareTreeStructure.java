@@ -320,17 +320,31 @@ public class PrepareTreeStructure {
 
     if(nodesList.size()>1) { // sinle location ruptures are excluded
         // check if rupture already exists in the list
-        MultiSectionRupture multiSectionRup = new MultiSectionRupture( (ArrayList)
-            nodesList.clone());
+        //MultiSectionRupture multiSectionRup = new MultiSectionRupture( (ArrayList)
+         //   nodesList.clone());
+        Location startLoc = ( (Node) nodesList.get(0)).getLoc();
+        Location endLoc = ( (Node) nodesList.get(nodesList.size()-1)).getLoc();
+
+        // strategy to eliminate duplcate ruptures
+        if((endLoc.getLatitude()>startLoc.getLatitude()) ||
+           (endLoc.getLatitude()==startLoc.getLatitude() && endLoc.getLongitude()>startLoc.getLongitude())) {
+           MultiSectionRupture multiSectionRup = new MultiSectionRupture( (ArrayList)nodesList.clone());
+           multiSectionRup.setLength(rupLen);
+           rupList.add(multiSectionRup);
+           for (int i = 0; i < nodesList.size() && !this.doOneSection; ++i)
+            this.addToFaultSectionPrintOrder( ( (Node) nodesList.get(i)).
+                                             getFaultSectionName());
+        }
+
         // if rupture does not exist already, then add it
-        if (!rupList.contains(multiSectionRup)) {
+        /*if (!rupList.contains(multiSectionRup)) {
           multiSectionRup.setLength(rupLen);
           // add the section names involved in this rupture to a list so that these sections can be processed next
           for (int i = 0; i < nodesList.size(); ++i)
             this.addToFaultSectionPrintOrder( ( (Node) nodesList.get(i)).
                                              getFaultSectionName());
           rupList.add(multiSectionRup);
-        }
+        }*/
       }
 
       // first select the primary link
