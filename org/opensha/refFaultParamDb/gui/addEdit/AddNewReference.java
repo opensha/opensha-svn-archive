@@ -6,7 +6,6 @@ import org.opensha.param.editor.StringParameterEditor;
 import org.opensha.param.ParameterList;
 import org.opensha.param.StringParameter;
 import java.awt.*;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.refFaultParamDb.gui.infotools.GUI_Utils;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;

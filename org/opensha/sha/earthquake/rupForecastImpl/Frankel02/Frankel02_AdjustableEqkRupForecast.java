@@ -29,7 +29,8 @@ import java.io.FileWriter;
  * <p>Title: Frankel02_AdjustableEqkRupForecast</p>
  * <p>Description:Frankel 2002 Earthquake Rupture Forecast. This class
  * creates the USGS/CGS 2002 California ERF.
- * This does not yet include any C zones.
+ * This does not yet include any subduction-zone events, but does include the four
+ * type C (shear) zones.
  * </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>

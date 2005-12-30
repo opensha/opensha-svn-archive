@@ -7,7 +7,6 @@ import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
 import org.opensha.param.editor.*;
 import java.util.ArrayList;
 import org.opensha.param.estimate.EstimateConstraint;
-import ch.randelshofer.quaqua.QuaquaManager;
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.data.*;
 import org.opensha.data.estimate.*;

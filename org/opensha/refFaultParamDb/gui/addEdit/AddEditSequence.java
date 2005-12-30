@@ -2,7 +2,6 @@ package org.opensha.refFaultParamDb.gui.addEdit;
 
 import javax.swing.*;
 import java.awt.*;
-import ch.randelshofer.quaqua.QuaquaManager;
 import java.awt.event.*;
 import java.util.ArrayList;
 import org.opensha.param.*;
