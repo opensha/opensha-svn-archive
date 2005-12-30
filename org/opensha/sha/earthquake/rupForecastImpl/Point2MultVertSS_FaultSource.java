@@ -135,11 +135,20 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    * This makes and returns the nth probEqkRupture for this source.
    */
   public ProbEqkRupture getRupture(int nthRupture){
+    // set the rupture surface in the eqkRupture
+    probEqkRupture.setRuptureSurface(getRuptureSurface(nthRupture));
+    return probEqkRupture;
+  }
+
+  /**
+   * This makes the surface for nth rupture
+   * @param nthRupture
+   * @return
+   */
+  private GriddedSurfaceAPI getRuptureSurface(int nthRupture) {
     // set the parameters for the fault factory
     frankelFaultFactory.setAll((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
-    // set the rupture surface in the eqkRupture
-    probEqkRupture.setRuptureSurface(frankelFaultFactory.getGriddedSurface());
-    return probEqkRupture;
+    return frankelFaultFactory.getGriddedSurface();
   }
 
   /**
@@ -150,7 +159,16 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
   * of this source
   */
   public LocationList getAllSourceLocs() {
-    return null;
+    int numRuptures= this.getNumRuptures();
+    LocationList locList = new LocationList(); //master location list
+    // get location list of all possible ruptures
+    for(int i=0; i<numRuptures; ++i) {
+      LocationList rupLocList = getRuptureSurface(i).getLocationList();
+      // add all locations in a rupture to the master location list
+      for(int j=0; j<rupLocList.size(); ++j)
+        locList.addLocation(rupLocList.getLocationAt(j));
+    }
+    return locList;
   }
 
 
