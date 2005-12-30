@@ -167,6 +167,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
       }
 
       erfGuiBean = new ERF_GuiBean(supportedERFClassNames);
+      setEqkRupForecast(erf);
       erfGuiBean.showProgressBar(false);
       setSelectedERF();
       setSourceFromSelectedERF(0);
@@ -259,16 +260,17 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      ParameterAPI chooseERF_Param = erfGuiBean.getERFParameterList().getParameter(erfGuiBean.ERF_PARAM_NAME);
      chooseERF_Param.addParameterChangeListener(this);
      parameterList.addParameter(chooseERF_Param);
-   }
-   if(erf == null){
-     try {
-       //gets the instance of the selected ERF
-       erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+     if(erf == null){
+       try {
+         //gets the instance of the selected ERF
+         erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+       }
+       catch (Exception e) {
+         e.printStackTrace();
+       }
      }
-     catch (Exception e) {
-       e.printStackTrace();
-     }
    }
+
    stopProgressBarTimer();
  }
 
@@ -277,10 +279,12 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * @param erf EqkRupForecastAPI
   */
  public void setEqkRupForecast(ERF_API erf){
-   showAllAdjustableParamForERF = false;
-   this.erf = (EqkRupForecastAPI)erf;
-   erfGuiBean.setERF(erf);
-   showAllAdjustableParamForERF = true;
+   if(erf !=null){
+     showAllAdjustableParamForERF = false;
+     this.erf = (EqkRupForecastAPI) erf;
+     erfGuiBean.setERF(erf);
+     showAllAdjustableParamForERF = true;
+   }
  }
 
  /**
@@ -659,7 +663,11 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
     frame.dispose();
     Thread t = new Thread(new Runnable() {
       public void run() {
-        setSelectedERF();
+        try {
+          erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+        }
+        catch (InvocationTargetException ex) {
+        }
         setSourceFromSelectedERF(0);
         setRuptureForSelectedSource(0);
         getHypocenterLocationsForSelectedRupture();
