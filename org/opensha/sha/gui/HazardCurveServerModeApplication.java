@@ -3,7 +3,7 @@ package org.opensha.sha.gui;
 import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
+
 import java.util.ArrayList;
 import java.rmi.RemoteException;
 
@@ -11,19 +11,17 @@ import java.rmi.RemoteException;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import java.io.*;
-import java.net.*;
+
 
 import org.jfree.data.Range;
 import org.opensha.data.Site;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.function.DiscretizedFuncList;
-import org.opensha.gui.plot.jfreechart.DiscretizedFunctionXYDataSet;
+
 import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.sha.calc.DisaggregationCalculator;
-import org.opensha.calc.FractileCurveCalculator;
-import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.earthquake.ERF_List;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
@@ -31,7 +29,6 @@ import org.opensha.sha.gui.beans.ERF_GuiBean;
 import org.opensha.sha.gui.beans.IMR_GuiBean;
 import org.opensha.sha.gui.beans.IMT_GuiBean;
 import org.opensha.sha.gui.beans.Site_GuiBean;
-import org.opensha.sha.gui.beans.TimeSpanGuiBean;
 import org.opensha.sha.gui.controls.DisaggregationControlPanel;
 import org.opensha.sha.gui.controls.DisaggregationControlPanelAPI;
 import org.opensha.sha.gui.controls.ERF_EpistemicListControlPanel;
@@ -52,13 +49,11 @@ import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphPanelAPI;
 import org.opensha.sha.gui.infoTools.GraphWindow;
 import org.opensha.sha.gui.infoTools.GraphWindowAPI;
-import org.opensha.sha.gui.infoTools.HazardCurveDisaggregationWindow;
 import org.opensha.sha.gui.infoTools.IMT_Info;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
 import org.opensha.util.ImageUtils;
 import org.opensha.util.SystemPropertiesUtils;
-import org.opensha.util.FileUtils;
-import org.opensha.sha.gui.controls.CalcOptionControl;
+
 import org.opensha.sha.calc.remoteCalc.RemoteHazardCurveClient;
 import org.opensha.sha.calc.remoteCalc.RemoteDisaggregationCalcClient;
 import org.opensha.sha.calc.HazardCurveCalculatorAPI;
@@ -73,7 +68,6 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.HazardCurveDisaggregationWindowAPI;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -847,13 +841,6 @@ public class HazardCurveServerModeApplication extends JFrame
         calcThread = new Thread(this);
         calcThread.start();
       }
-      //if it is ERF List but no progress bar is selected,
-      //so we want to show curve as they are being drawn on the chart.
-      else if(isEqkList && !progressCheckBox.isSelected()){
-        calcThread = new Thread(this);
-        calcThread.start();
-        drawGraph();
-      }
       else {
         this.computeHazardCurve();
         this.drawGraph();
@@ -1130,8 +1117,14 @@ public class HazardCurveServerModeApplication extends JFrame
       try{
         if(isProbCurve)
           hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
-        else
-          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, rupture);
+        else{
+          progressCheckBox.setSelected(false);
+          progressCheckBox.setEnabled(false);
+          hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
+              hazFunction, site, imr, rupture);
+          progressCheckBox.setSelected(true);
+          progressCheckBox.setEnabled(true);
+        }
       }catch(Exception e){
         e.printStackTrace();
         setButtonsEnable(true);

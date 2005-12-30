@@ -246,26 +246,13 @@ public class HazardCurveCalculator extends UnicastRemoteObject
       Site site, AttenuationRelationshipAPI imr, ProbEqkRupture rupture) throws
       java.rmi.RemoteException {
 
-    //initializing for the purposes of progress bar, else has  no significance
-    currRuptures =0;
-    sourceIndex = -1;
-    numSources = 0;
-    ArbitrarilyDiscretizedFunc condProbFunc = (ArbitrarilyDiscretizedFunc)
-        hazFunction.deepClone();
+
     //resetting the Parameter change Listeners on the AttenuationRelationship
     //parameters. This allows the Server version of our application to listen to the
     //parameter changes.
     ( (AttenuationRelationship) imr).resetParameterEventListeners();
 
     //System.out.println("hazFunction: "+hazFunction.toString());
-
-    // declare some varibles used in the calculation
-    double qkProb;
-    int k;
-
-    // get the number of points
-    int numPoints = hazFunction.getNum();
-
 
     // initialize the hazard function to 1.0
     initDiscretizeValues(hazFunction, 1.0);
@@ -275,24 +262,14 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
     if (D) System.out.println(C + ": starting hazard curve calculation");
 
-    // get the rupture probability
-    qkProb = rupture.getProbability();
-
     // set the EqkRup in the IMR
     imr.setEqkRupture(rupture);
 
     // get the conditional probability of exceedance from the IMR
-    condProbFunc = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
-      condProbFunc);
+    hazFunction = (ArbitrarilyDiscretizedFunc) imr.getExceedProbabilities(
+      hazFunction);
 
-    for (k = 0; k < numPoints; k++)
-      hazFunction.set(k,
-                      hazFunction.getY(k) *
-                      Math.pow(1 - qkProb, condProbFunc.getY(k)));
-    sourceIndex = 0;
-    int i;
-    for (i = 0; i < numPoints; ++i)
-      hazFunction.set(i, 1 - hazFunction.getY(i));
+
     if (D) System.out.println(C + "hazFunction.toString" + hazFunction.toString());
     return hazFunction;
     // double tempVal = -1.0*Math.log(1.0-hazFunction.getY(1));
