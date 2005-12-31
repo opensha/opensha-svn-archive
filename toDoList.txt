@@ -1,23 +1,19 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Implement both timeSpan options in UCERF 1.0.  Options are 1) extend timeSpan and the editor to have a TimeDepAndIndSupported and an associated timeDep boolean (former says allow user to toggle between the two, and the latter declares the present state); 2) put the timeDepBooleanParam in with the other adjustable ERF params and if this state changes, have the ERF issue a timeSpanChange event (not just a timeSpanValueChange event) - this way the app will know to get the new timeSpan and show it in the GUI.  The 2nd option is preferred, but will require an object on the server to be able to send an event to the application; Nitin is exploring whether this will be possible.
+Implement time-dep and time-ind options in UCERF 1.0 using one of the following two solutions.  1) extend timeSpan and the editor to have a TimeDepAndIndSupported and an associated timeDep boolean (former says allow user to toggle between the two, and the latter declares the present state); 2) put the timeDepBooleanParam in with the other adjustable ERF params and if this state changes, have the ERF issue a timeSpanChange event (not just a timeSpanValueChange event) - this way the app will know to get the new timeSpan and show it in the GUI.  The 2nd option is preferred, but will require an object on the server to be able to send an event to the application; Nitin is exploring whether this will be possible.
 
-Create a save option that creates a pdf with both an image and the metadata (preserving any color coding in the latter).  This could be used for both maps and XY plots.
+In save PDF image option, take out empty line before the "__________", and change mouse over to "Save graph and metadata as PDF".
 
-Implement the disaggregation plotting, source ordering, and rupture ordering control panel (Nitin).
+Validate & polish the disaggregation plotting (Nitin & Ned together).
 
-Make all code Java 1.5 compliant (Nitin).
+Implement Java 1.5 in Jbuilders.
 
-Implement the deterministic calc option in the HazardCurveApps
+Validate the deterministic calc option in the HazardCurveApps (and Ned should look at new method in calculator).
 
 Update the HazardSpectrumApp with latest GUI beans.
 
-In the above two, make it so the EqkRupSelectorGuiBean and ERF_GuiBean can have unique lists of ERFs, but that both point to same ERF for those that are common between the two.  Do this by adding get/setCurrentERF methods to the two GUI beans, so the app can set them to the same object when one coverts from prob. to det. mode.  For now only support a single ERF being instantiated at once (to control memory bloating).  Later we can allow some number of multiple instances if memory is not a problem (this will require get/set methods for the list of instantiated ERFs).  Nitin.
-
-Add getAllSourceLocs() method to the EqkSourceAPI (returns a locationList) and implement the method in all subclasses.  Vipin (talk to Ned if there are questions of how to implement the method in any subclasses).  We need this method for visualizing sources.
-
-Explore source and rupture visualization options, including JFreeChart, GMT, GoogleEarth, and VDO.  Build the visualization of sources and/or ruptures & associated info into the applications (especially for deterministic calcs).  Also include plotting MFDs for sources.  Vipin
+Explore source and rupture visualization options, including JFreeChart, GMT, GoogleEarth, and VDO.  Build the visualization of sources (we added a getAllSourceLocs() method to all sources) and/or ruptures & associated info into the applications (especially for deterministic calcs).  Also include plotting MFDs for sources.  Vipin
 
 Get feedback on CA Ref. Fault Param. Database GUI (Vipin)
 
@@ -191,6 +187,9 @@ Should we create an AjustableParametersAPI for all objects that have a list of a
 
 **************** LONG TERM (LOWER PRIORITY): ****************
 -------------------------------------------------------------
+
+
+Relax the single ERF instance at one time in the ERF and RupFroERF GUI beans if needed and memory is not an issue.
 
 Implement NGA relationships when ready.
 
