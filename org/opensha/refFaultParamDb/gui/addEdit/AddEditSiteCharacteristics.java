@@ -442,7 +442,7 @@ public class AddEditSiteCharacteristics extends DbAdditionFrame implements Actio
                                             estConstraint,
                                             DIP_UNITS,
                                             dipEstVal);
-   dipEstParamEditor  = new ConstrainedEstimateParameterEditor(dipEstParam, true, true, DIP_NAME);
+   dipEstParamEditor  = new ConstrainedEstimateParameterEditor(dipEstParam, true,  DIP_NAME);
    // user comments
    this.commentsParam = new StringParameter(COMMENTS_PARAM_NAME,defaultComments);
    this.commentsParamEditor = new CommentsParameterEditor(commentsParam);

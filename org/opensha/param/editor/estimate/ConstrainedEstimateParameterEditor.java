@@ -87,25 +87,24 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     * These are used for testing purposes. These  parameters may be removed
     * when we deploy this.
     */
-   private DoubleParameter minNormalEstimateParam;
-   private final static String NORMAL_MIN_X_PARAM_NAME="Normal Lower Truncation(# of sigmas)";
-   private final static Double DEFAULT_NORMAL_MIN_X_PARAM_VAL=new Double(Double.NEGATIVE_INFINITY);
-   private DoubleParameter minLogNormalEstimateParam;
-   private final static String LOGNORMAL_MIN_X_PARAM_NAME="LogNormal Lower Truncation(# of sigmas)";
-   private final static Double DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL=new Double(0);
-   private final static DoubleConstraint LOGNORMAL_MIN_X_PARAM_CONSTRAINT = new DoubleConstraint(0, Double.POSITIVE_INFINITY);
-   private DoubleParameter maxNormalEstimateParam ;
-   private final static String NORMAL_MAX_X_PARAM_NAME="Normal Upper Truncation(# of sigmas)";
-   private final static Double DEFAULT_NORMAL_MAX_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
-   private DoubleParameter maxLogNormalEstimateParam ;
-   private final static String LOGNORMAL_MAX_X_PARAM_NAME="LogNormal Upper Truncation(# of sigmas)";
-   private final static Double DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL=new Double(Double.POSITIVE_INFINITY);
-   private final static String NORMAL_TRUNCATION_TYPE_PARAM_NAME = "Normal Truncation Type";
-   private final static String LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME = "LogNormal Truncation Type";
+   private DoubleParameter sigmaLowerTruncationParam;
+   private final static String LOWER_SIGMA_PARAM_NAME="Lower Truncation(# of sigmas)";
+   private DoubleParameter sigmaUpperTruncationParam ;
+   private final static String UPPER_SIGMA_PARAM_NAME="Upper Truncation(# of sigmas)";
+   private DoubleParameter absoluteLowerTruncationParam;
+   private final static String ABOLUTE_LOWER_PARAM_NAME = "Absolute Lower Truncation";
+   private DoubleParameter absoluteUpperTruncationParam;
+   private final static String ABOLUTE_UPPER_PARAM_NAME = "Absolute Upper Truncation";
+
+   /**
+    * Truncation type parameter
+    */
+   private final static String TRUNCATION_TYPE_PARAM_NAME = "Truncation Type";
    private final static String TRUNCATION_NONE = "None";
-   private final static String TRUNCATED = "Truncated";
-   private StringParameter normalTruncationTypeParam;
-   private StringParameter lognormalTruncationTypeParam;
+   private final static String TRUNCATED_ABSOLUTE = "Truncated(absolute limits)";
+   private final static String TRUNCATED_NUM_SIGMAS = "Truncated(number of sigmas)";
+   private StringParameter truncationTypeParam;
+
    /**
     * Log Base param for log normal distribution
     */
@@ -114,7 +113,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private final static String LOG_BASE_10_NAME="10";
    private final static String NATURAL_LOG_NAME="E";
 
- // for X and Y vlaues for Discrete Value estimate and Min/Max/Preferred Estimate
+   // for X and Y vlaues for Discrete Value estimate and Min/Max/Preferred Estimate
    private ArbitrarilyDiscretizedFuncParameter arbitrarilyDiscFuncParam;
    private final static String XY_PARAM_NAME_SUFFIX = " Values";
    private String xyParamName;
@@ -176,10 +175,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    private EstimateConstraint estimateConstraint;
    private String xAxisName;
 
-   /**
-    * Whether to show the min/max cut off parameters for normal/log normal estimates
-    */
-   private boolean showMinMaxTruncationParams=true;
+
 
    private final static String MSG_VALUE_MISSING_SUFFIX = " value is missing ";
    private String paramNamesPrefix;
@@ -187,19 +183,17 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    }
 
     public ConstrainedEstimateParameterEditor(ParameterAPI model) {
-      this(model, false, true, null);
+      this(model, false, null);
     }
 
    //constructor taking the Parameter as the input argument
    public ConstrainedEstimateParameterEditor(ParameterAPI model,
                                              boolean showEditorAsPanel,
-                                             boolean showMinMaxTruncationParams,
                                              String xAxisName){
      this.model = model;
      this.showEditorAsPanel = showEditorAsPanel;
      this.paramNamesPrefix  = paramNamesPrefix;
      this.xAxisName = xAxisName;
-     this.showMinMaxTruncationParams = showMinMaxTruncationParams;
      try {
        this.jbInit();
        setParameter(model);
@@ -283,17 +277,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.chooseEstimateParam.setValue(NormalEstimate.NAME);
     this.meanParam.setValue(normalEstimate.getMean());
     this.stdDevParam.setValue(normalEstimate.getStdDev());
-    this.minNormalEstimateParam.setValue(normalEstimate.getMinX());
-    this.maxNormalEstimateParam.setValue(normalEstimate.getMaxX());
+    this.absoluteLowerTruncationParam.setValue(normalEstimate.getMinX());
+    this.absoluteUpperTruncationParam.setValue(normalEstimate.getMaxX());
+    this.sigmaLowerTruncationParam.setValue(normalEstimate.getMinSigma());
+    this.sigmaUpperTruncationParam.setValue(normalEstimate.getMaxSigma());
   }
+
 
   // set the parameter value in log normal estimate
   private void setLogNormalEstimateVals(LogNormalEstimate logNormalEstimate) {
     this.chooseEstimateParam.setValue(LogNormalEstimate.NAME);
     this.linearMedianParam.setValue(logNormalEstimate.getLinearMedian());
     this.stdDevParam.setValue(logNormalEstimate.getStdDev());
-    this.minLogNormalEstimateParam.setValue(logNormalEstimate.getMinX());
-    this.maxLogNormalEstimateParam.setValue(logNormalEstimate.getMaxX());
+    this.absoluteLowerTruncationParam.setValue(logNormalEstimate.getMinX());
+    this.absoluteUpperTruncationParam.setValue(logNormalEstimate.getMaxX());
+    this.sigmaLowerTruncationParam.setValue(logNormalEstimate.getMinSigma());
+    this.sigmaUpperTruncationParam.setValue(logNormalEstimate.getMaxSigma());
     if(logNormalEstimate.getIsBase10())
       this.logBaseParam.setValue(this.LOG_BASE_10_NAME);
     else logBaseParam.setValue(this.NATURAL_LOG_NAME);
@@ -420,8 +419,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     parameterList.addParameter(this.arbitrarilyDiscFuncParam);
     parameterList.addParameter(evenlyDiscFuncParam);
 
-    if(this.showMinMaxTruncationParams) // whether to show min/max truncation params
-      addMinMaxTruncationParams(estimateConstraint);
+   // whether to show min/max truncation params
+   addMinMaxTruncationParams(estimateConstraint);
 
     this.editor = new ParameterListEditor(parameterList);
 
@@ -489,29 +488,29 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      * when we deploy this.
      */
     ArrayList truncationTypeList = new ArrayList();
-    truncationTypeList.add(this.TRUNCATED);
     truncationTypeList.add(this.TRUNCATION_NONE);
+    truncationTypeList.add(this.TRUNCATED_ABSOLUTE);
+    truncationTypeList.add(this.TRUNCATED_NUM_SIGMAS);
 
-    this.normalTruncationTypeParam= new StringParameter(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME,
+    this.truncationTypeParam= new StringParameter(this.TRUNCATION_TYPE_PARAM_NAME,
         truncationTypeList, (String)truncationTypeList.get(0));
-    normalTruncationTypeParam.addParameterChangeListener(this);
-    this.lognormalTruncationTypeParam= new StringParameter(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME,
-        truncationTypeList, (String)truncationTypeList.get(0));
-    lognormalTruncationTypeParam.addParameterChangeListener(this);
-    minNormalEstimateParam = new DoubleParameter(NORMAL_MIN_X_PARAM_NAME,
-                                                 this.DEFAULT_NORMAL_MIN_X_PARAM_VAL);
-    minLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MIN_X_PARAM_NAME,
-        LOGNORMAL_MIN_X_PARAM_CONSTRAINT, this.DEFAULT_LOGNORMAL_MIN_X_PARAM_VAL);
-    maxNormalEstimateParam = new DoubleParameter(NORMAL_MAX_X_PARAM_NAME,
-                                           this.DEFAULT_NORMAL_MAX_X_PARAM_VAL);
-    maxLogNormalEstimateParam = new DoubleParameter(LOGNORMAL_MAX_X_PARAM_NAME,
-                                                  this.DEFAULT_LOGNORMAL_MAX_X_PARAM_VAL);
-    parameterList.addParameter(normalTruncationTypeParam);
-    parameterList.addParameter(lognormalTruncationTypeParam);
-    parameterList.addParameter(minNormalEstimateParam);
-    parameterList.addParameter(minLogNormalEstimateParam);
-    parameterList.addParameter(maxNormalEstimateParam);
-    parameterList.addParameter(maxLogNormalEstimateParam);
+    truncationTypeParam.addParameterChangeListener(this);
+
+    // left and right sigma levels
+    this.sigmaLowerTruncationParam = new DoubleParameter(LOWER_SIGMA_PARAM_NAME);
+    this.sigmaUpperTruncationParam = new DoubleParameter(this.UPPER_SIGMA_PARAM_NAME);
+
+    // left and right absolute truncation point
+    this.absoluteLowerTruncationParam = new DoubleParameter(this.ABOLUTE_LOWER_PARAM_NAME,
+        estimateConstraint.getMin());
+    this.absoluteUpperTruncationParam = new DoubleParameter(this.ABOLUTE_UPPER_PARAM_NAME,
+                                           estimateConstraint.getMax());
+
+    parameterList.addParameter(truncationTypeParam);
+    parameterList.addParameter(sigmaLowerTruncationParam);
+    parameterList.addParameter(sigmaUpperTruncationParam);
+    parameterList.addParameter(absoluteLowerTruncationParam);
+    parameterList.addParameter(absoluteUpperTruncationParam);
   }
 
 
@@ -531,10 +530,8 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
       setEstimateParams( (String) chooseEstimateParam.getValue());
       editor.refreshParamEditor();
       this.updateUI();
-    } else if(paramName.equalsIgnoreCase(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME)) {
-      this.setNormalTruncationParamsVisibility();
-    }else if(paramName.equalsIgnoreCase(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME)) {
-      this.setLogNormalTruncationParamsVisibility();
+    } else if(paramName.equalsIgnoreCase(this.TRUNCATION_TYPE_PARAM_NAME)) {
+      this.setTruncationParamsVisibility();
     }
   }
 
@@ -580,18 +577,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
     editor.setParameterVisible(meanParamName, false);
     editor.setParameterVisible(stdDevParamName, false);
-    editor.setParameterVisible(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
-    editor.setParameterVisible(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
+    editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, false);
     editor.setParameterVisible(linearMedianParamName, false);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
     editor.setParameterVisible(this.pdfParamName, false);
     editor.setParameterVisible(this.xyParamName, false);
-     if(this.showMinMaxTruncationParams) {
-       editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-       editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-       editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-       editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
-     }
+    setTruncationParamsVisibility();
     xValsParamListEditor.setVisible(true);
     probValsParamListEditor.setVisible(true);
     viewEstimateButton.setVisible(false);
@@ -604,17 +595,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
    editor.setParameterVisible(meanParamName, true);
    editor.setParameterVisible(stdDevParamName, true);
-   editor.setParameterVisible(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME, true);
-   editor.setParameterVisible(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
+   editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, true);
    editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(pdfParamName, false);
    editor.setParameterVisible(xyParamName, false);
-   if(this.showMinMaxTruncationParams) {
-     setNormalTruncationParamsVisibility();
-     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-     editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
-   }
+   setTruncationParamsVisibility();
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -623,29 +609,27 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   /**
    * Visible/Invisible the params for normal estimate
    */
-  private void setNormalTruncationParamsVisibility() {
-    String normalTruncationType = (String)this.normalTruncationTypeParam.getValue();
+  private void setTruncationParamsVisibility() {
+    String truncationType = (String)this.truncationTypeParam.getValue();
     String chosenEstimateName = (String)chooseEstimateParam.getValue();
-    boolean truncParamVisble = false;
-    if(normalTruncationType.equalsIgnoreCase(this.TRUNCATED) &&
-       chosenEstimateName.equalsIgnoreCase(NormalEstimate.NAME))
-      truncParamVisble = true;
-    editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, truncParamVisble);
-    editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, truncParamVisble);
-  }
+    editor.setParameterVisible(this.sigmaLowerTruncationParam.getName(), false);
+    editor.setParameterVisible(this.sigmaUpperTruncationParam.getName(), false);
+    editor.setParameterVisible(this.absoluteLowerTruncationParam.getName(), false);
+    editor.setParameterVisible(this.absoluteUpperTruncationParam.getName(), false);
+    // see if selectec estimate is normal/lognormal
+    if(chosenEstimateName.equalsIgnoreCase(NormalEstimate.NAME) ||
+       chosenEstimateName.equalsIgnoreCase(LogNormalEstimate.NAME)) {
+      // if absolue truncation parameters need to be visible
+      if(truncationType.equalsIgnoreCase(this.TRUNCATED_ABSOLUTE)) {
+         editor.setParameterVisible(this.absoluteLowerTruncationParam.getName(), true);
+         editor.setParameterVisible(this.absoluteUpperTruncationParam.getName(), true);
+      } else if(truncationType.equalsIgnoreCase(this.TRUNCATED_NUM_SIGMAS)) {
+        editor.setParameterVisible(this.sigmaLowerTruncationParam.getName(), true);
+        editor.setParameterVisible(this.sigmaUpperTruncationParam.getName(), true);
+      }
+    }
 
-  /**
-   * Visible/Invisible the params for Log-normal estimate
-   */
-  private void setLogNormalTruncationParamsVisibility() {
-    String lognormalTruncationType = (String)this.lognormalTruncationTypeParam.getValue();
-    String chosenEstimateName = (String)chooseEstimateParam.getValue();
-    boolean truncParamVisble = false;
-    if(lognormalTruncationType.equalsIgnoreCase(this.TRUNCATED) &&
-       chosenEstimateName.equalsIgnoreCase(LogNormalEstimate.NAME))
-      truncParamVisble = true;
-    editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, truncParamVisble);
-    editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, truncParamVisble);
+
   }
 
 
@@ -658,15 +642,10 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     editor.setParameterVisible(stdDevParamName, true);
     editor.setParameterVisible(linearMedianParamName, true);
     editor.setParameterVisible(LOG_BASE_PARAM_NAME, true);
-    editor.setParameterVisible(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
-    editor.setParameterVisible(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME, true);
+    editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, true);
     editor.setParameterVisible(pdfParamName, false);
     editor.setParameterVisible(xyParamName, false);
-    if(this.showMinMaxTruncationParams) {
-      editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-      editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-      setLogNormalTruncationParamsVisibility();
-    }
+    setTruncationParamsVisibility();
     xValsParamListEditor.setVisible(false);
     probValsParamListEditor.setVisible(false);
     viewEstimateButton.setVisible(true);
@@ -680,17 +659,11 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(meanParamName, false);
    editor.setParameterVisible(stdDevParamName, false);
    editor.setParameterVisible(linearMedianParamName, false);
-   editor.setParameterVisible(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
-   editor.setParameterVisible(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
+   editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(pdfParamName, true);
    editor.setParameterVisible(xyParamName, false);
-   if(this.showMinMaxTruncationParams) {
-     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-     editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-     editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
-   }
+   setTruncationParamsVisibility();
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -715,18 +688,12 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    editor.setParameterVisible(CHOOSE_ESTIMATE_PARAM_NAME, true);
    editor.setParameterVisible(meanParamName, false);
    editor.setParameterVisible(stdDevParamName, false);
-   editor.setParameterVisible(this.NORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
-   editor.setParameterVisible(this.LOGNORMAL_TRUNCATION_TYPE_PARAM_NAME, false);
+   editor.setParameterVisible(this.TRUNCATION_TYPE_PARAM_NAME, false);
    editor.setParameterVisible(linearMedianParamName, false);
    editor.setParameterVisible(LOG_BASE_PARAM_NAME, false);
    editor.setParameterVisible(pdfParamName, false);
    editor.setParameterVisible(xyParamName, true);
-   if(this.showMinMaxTruncationParams) {
-     editor.setParameterVisible(NORMAL_MIN_X_PARAM_NAME, false);
-     editor.setParameterVisible(LOGNORMAL_MIN_X_PARAM_NAME, false);
-     editor.setParameterVisible(NORMAL_MAX_X_PARAM_NAME, false);
-     editor.setParameterVisible(LOGNORMAL_MAX_X_PARAM_NAME, false);
-   }
+   setTruncationParamsVisibility();
    xValsParamListEditor.setVisible(false);
    probValsParamListEditor.setVisible(false);
    viewEstimateButton.setVisible(true);
@@ -799,15 +766,27 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
    double stdDev = stdDevVal.doubleValue();
    // create Normal(Gaussian) estimate
    NormalEstimate estimate = new NormalEstimate(mean, stdDev);
-   if(this.showMinMaxTruncationParams) {
-     double minX = ( (Double)this.minNormalEstimateParam.getValue()).
-         doubleValue();
-     double maxX = ( (Double)this.maxNormalEstimateParam.getValue()).
-         doubleValue();
-     estimate.setMinMaxSigmas(minX, maxX);
+   String truncationType = (String)this.truncationTypeParam.getValue();
+   if(truncationType.equalsIgnoreCase(this.TRUNCATED_NUM_SIGMAS)) {
+     Double lowerSigma =  (Double)this.sigmaLowerTruncationParam.getValue();
+     // check that lower sigma value is present
+     if(lowerSigma==null)
+       throw new RuntimeException(sigmaLowerTruncationParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+     // check that upper sigma value is present
+     Double upperSigma = (Double)this.sigmaUpperTruncationParam.getValue();
+     if(upperSigma==null)
+       throw new RuntimeException(this.sigmaUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
+     estimate.setMinMaxSigmas(lowerSigma.doubleValue(), upperSigma.doubleValue());
    } else {
-     estimate.setMinMaxSigmas(estimateConstraint.getMin().doubleValue(),
-                         estimateConstraint.getMax().doubleValue());
+     Double absoluteMin =  (Double)this.absoluteLowerTruncationParam.getValue();
+     // check that lower truncation value is present
+     if(absoluteMin==null)
+       throw new RuntimeException(absoluteLowerTruncationParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+     // check that upper truncation value is present
+     Double absoluteMax = (Double)this.absoluteUpperTruncationParam.getValue();
+     if(absoluteMax==null)
+       throw new RuntimeException(this.absoluteUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
+     estimate.setMinMaxX(absoluteMin.doubleValue(), absoluteMax.doubleValue());
    }
    return estimate;
  }
@@ -835,16 +814,30 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
      estimate.setIsBase10(true);
    else   estimate.setIsBase10(false);
 
-   if(this.showMinMaxTruncationParams) {
-     double minX = ( (Double)this.minLogNormalEstimateParam.getValue()).
-         doubleValue();
-     double maxX = ( (Double)this.maxLogNormalEstimateParam.getValue()).
-         doubleValue();
-     estimate.setMinMaxSigmas(minX, maxX);
-   }else {
-     estimate.setMinMaxSigmas(estimateConstraint.getMin().doubleValue(),
-                         estimateConstraint.getMax().doubleValue());
+     // set truncation
+   String truncationType = (String)this.truncationTypeParam.getValue();
+   if(truncationType.equalsIgnoreCase(this.TRUNCATED_NUM_SIGMAS)) {
+     Double lowerSigma =  (Double)this.sigmaLowerTruncationParam.getValue();
+     // check that lower sigma value is present
+     if(lowerSigma==null)
+       throw new RuntimeException(sigmaLowerTruncationParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+     // check that upper sigma value is present
+     Double upperSigma = (Double)this.sigmaUpperTruncationParam.getValue();
+     if(upperSigma==null)
+       throw new RuntimeException(this.sigmaUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
+     estimate.setMinMaxSigmas(lowerSigma.doubleValue(), upperSigma.doubleValue());
+   } else {
+     Double absoluteMin =  (Double)this.absoluteLowerTruncationParam.getValue();
+     // check that lower truncation value is present
+     if(absoluteMin==null)
+       throw new RuntimeException(absoluteLowerTruncationParam.getName()+MSG_VALUE_MISSING_SUFFIX);
+     // check that upper truncation value is present
+     Double absoluteMax = (Double)this.absoluteUpperTruncationParam.getValue();
+     if(absoluteMax==null)
+       throw new RuntimeException(this.absoluteUpperTruncationParam.getValue()+MSG_VALUE_MISSING_SUFFIX);
+     estimate.setMinMaxX(absoluteMin.doubleValue(), absoluteMax.doubleValue());
    }
+
 
    return estimate;
  }

@@ -114,9 +114,9 @@ public class ChangePassword extends JFrame implements ActionListener {
 
   public void actionPerformed(ActionEvent event) {
     String userName = this.userNameText.getText().trim();
-    String oldPwd = this.oldPwdText.getPassword().toString().trim();
-    String newPwd = this.newPwdText.getPassword().toString().trim();
-    String confirmNewPwdText = this.confirmNewPwdText.getPassword().toString().trim();
+    String oldPwd = this.oldPwdText.getText().toString().trim();
+    String newPwd = this.newPwdText.getText().toString().trim();
+    String confirmNewPwdText = this.confirmNewPwdText.getText().toString().trim();
     // check that username has been entered
     if(userName.equalsIgnoreCase("")) {
       JOptionPane.showMessageDialog(this, this.MSG_USERNAME_MISSING);

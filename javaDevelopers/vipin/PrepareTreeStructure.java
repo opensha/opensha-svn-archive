@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
-  private final static int DISCRETIZATION=5; // fault section discretization
+  private final static int DISCRETIZATION=10; // fault section discretization
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 

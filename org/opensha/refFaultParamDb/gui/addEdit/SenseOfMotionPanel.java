@@ -93,7 +93,7 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
       // rake for sense of motion
       ArrayList allowedEstimates = getAllowedEstimatesForRake();
       somRakeEstParam = new EstimateParameter(SOM_RAKE_PARAM_NAME, RAKE_MIN, RAKE_MAX, allowedEstimates);
-      somRakeEstParamEditor = new ConstrainedEstimateParameterEditor(somRakeEstParam, true, false, SOM_RAKE_PARAM_NAME);
+      somRakeEstParamEditor = new ConstrainedEstimateParameterEditor(somRakeEstParam, true,  SOM_RAKE_PARAM_NAME);
     }catch(Exception e) {
       e.printStackTrace();
     }

@@ -86,7 +86,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
 
   //slip rate constants
   private final static String SLIP_UNITS = "meters";
-  private final static double SLIP_MIN = Double.NEGATIVE_INFINITY;
+  private final static double SLIP_MIN = 0;
   private final static double SLIP_MAX = Double.POSITIVE_INFINITY;
 
   // diplacement parameter list editor title
@@ -173,7 +173,7 @@ public class AddEditIndividualEvent extends DbAdditionFrame implements Parameter
     ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
     this.slipEstParam = new EstimateParameter(this.SLIP_ESTIMATE_PARAM_NAME,
       SLIP_UNITS, SLIP_MIN, SLIP_MAX, allowedEstimates);
-    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true,false, SLIP);
+    slipEstParamEditor = new ConstrainedEstimateParameterEditor(slipEstParam, true, SLIP);
 
     // whether displacement is shared with other events
     this.displacementSharedParam = new BooleanParameter(this.DISPLACEMENT_SHARED_PARAM_NAME, new Boolean(false));

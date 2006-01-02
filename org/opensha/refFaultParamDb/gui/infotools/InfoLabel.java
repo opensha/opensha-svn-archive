@@ -245,8 +245,10 @@ public class InfoLabel extends JLabel {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Mean:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMean())+"<br>"+
         "<b>StdDev:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getStdDev())+"<br>"+
-        "<b>Left Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
-        "<b>Right Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX());
+        "<b>Lower Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
+        "<b>Upper Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX())+"<br>"+
+        "<b>Lower Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinSigma())+"<br>"+
+        "<b>Upper Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
   }
 
   /**
@@ -259,8 +261,10 @@ public class InfoLabel extends JLabel {
     return "<b>"+ESTIMATE_TYPE+":&nbsp;</b>"+estimate.getName()+"<br>"+
         "<b>Linear Median:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getLinearMedian())+"<br>"+
         "<b>StdDev:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getStdDev())+"<br>"+
-        "<b>Left Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
-        "<b>right Truncation:&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX());
+        "<b>Lower Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinX())+"<br>"+
+        "<b>Upper Truncation(absolute):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxX())+"<br>"+
+        "<b>Lower Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMinSigma())+"<br>"+
+        "<b>Upper Truncation(# of sigmas):&nbsp;</b>"+ GUI_Utils.decimalFormat.format(estimate.getMaxSigma());
 
   }
 

@@ -149,7 +149,7 @@ public class LoginWindow extends JFrame implements ActionListener {
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
     if(source==loginButton) { // if login button is clicked, save the username/passwd
-      SessionInfo.setPassword(this.passwordText.getPassword().toString().trim());
+      SessionInfo.setPassword(this.passwordText.getText().toString().trim());
       SessionInfo.setUserName(this.usernameText.getText());
       try {
         SessionInfo.setContributorInfo();
@@ -158,7 +158,8 @@ public class LoginWindow extends JFrame implements ActionListener {
           return;
         }
       }catch(DBConnectException connectException) {
-        JOptionPane.showMessageDialog(this,"Invalid username/password");
+        //connectException.printStackTrace();
+        JOptionPane.showMessageDialog(this,MSG_INVALID_USERNAME_PWD);
         return;
       }
       PaleoSiteApp2 paleoSiteApp = new PaleoSiteApp2();

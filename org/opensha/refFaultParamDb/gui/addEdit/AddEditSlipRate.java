@@ -44,7 +44,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
   private final static String SLIP_RATE_COMMENTS_PARAM_NAME="Slip Rate Comments";
   private final static String SLIP_RATE_REFERENCES_PARAM_NAME="Choose References";
   private final static String SLIP_RATE_UNITS = "mm/yr";
-  private final static double SLIP_RATE_MIN = Double.NEGATIVE_INFINITY;
+  private final static double SLIP_RATE_MIN = 0;
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 
   // ASEISMIC SLIP FACTOR
@@ -95,7 +95,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
    ArrayList allowedEstimates = EstimateConstraint.createConstraintForPositiveDoubleValues();
    this.slipRateEstimateParam = new EstimateParameter(this.SLIP_RATE_PARAM_NAME,
         SLIP_RATE_UNITS, SLIP_RATE_MIN, SLIP_RATE_MAX, allowedEstimates);
-    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true, true, SLIP_RATE);
+    slipRateEstimateParamEditor = new ConstrainedEstimateParameterEditor(slipRateEstimateParam, true,  SLIP_RATE);
     // whether aseismic slip is available or not
    ArrayList allowedVals = new ArrayList();
    allowedVals.add(this.KNOWN);
@@ -107,7 +107,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
         ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
-    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, true, ASEISMIC_SLIP_FACTOR);
+    aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true,  ASEISMIC_SLIP_FACTOR);
     // slip rate comments
     slipRateCommentsParam = new StringParameter(this.SLIP_RATE_COMMENTS_PARAM_NAME);
     slipRateCommentsParamEditor = new CommentsParameterEditor(slipRateCommentsParam);
