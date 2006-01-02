@@ -24,8 +24,8 @@ public interface DB_AccessAPI {
   public static final String INSERT_UPDATE_SPATIAL = "insert/update spatial";
   public static final String SELECT_QUERY = "select query";
   public static final String SELECT_QUERY_SPATIAL = "select query spatial";
-  public static final DB_AccessAPI dbConnection = new DB_ConnectionPool();
-  //public static final DB_AccessAPI dbConnection = new ServerDB_Access();
+  //public static final DB_AccessAPI dbConnection = new DB_ConnectionPool();
+  public static final DB_AccessAPI dbConnection = new ServerDB_Access();
 
   /**
    * Gets the next unique sequence number to be insertd in the table.
