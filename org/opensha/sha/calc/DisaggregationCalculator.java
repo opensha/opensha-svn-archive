@@ -51,18 +51,19 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
   protected double MAX_DISTANCE = 250;
 
+  // disaggregation stuff - MIN and MAX are centers of first and last bins
   private double MIN_MAG = 5.0;
   private double MAX_MAG = 9.0;
   private double deltaMag = 0.5;
   private int NUM_MAG = (int)((MAX_MAG - MIN_MAG)/deltaMag +1);
 
   private double deltaDist = 10;
-  private double MIN_DIST = 0;
-  private double MAX_DIST = 110;
+  private double MIN_DIST = 5;
+  private double MAX_DIST = 105;
   private int NUM_DIST = (int)((MAX_DIST - MIN_DIST)/deltaDist +1);
 
   private int NUM_E = 8;
-  private double[][][] disaggr_plt = new double[NUM_DIST][NUM_MAG][NUM_E];
+  private double[][][] disaggr_plt;
   private double maxContrEpsilonForDisaggrPlot;
 
 
@@ -87,9 +88,21 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private String sourceDisaggInfo;
 
   //Disaggregation Plot Img Name
-  public static final String DISAGGREGATION_PLOT_IMG = "DisaggregationPlot.jpg";
+  public static final String DISAGGREGATION_PLOT_IMG = "DisaggregationPlot.tiff";
   //Address to the disaggregation plot img
   private String disaggregationPlotImgWebAddr;
+
+
+  String[] epsilonColors = {
+      "-G215/38/3",
+      "-G252/94/62",
+      "-G252/180/158",
+      "-G254/220/210",
+      "-G217/217/255",
+      "-G151/151/255",
+      "-G0/0/255",
+      "-G0/0/170"};
+
 
   /**
    * creates the DisaggregationCalculator object
@@ -125,6 +138,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) throws java.rmi.RemoteException{
 
     double rate, mean, stdDev, condProb;
+
+    disaggr_plt = new double[NUM_DIST][NUM_MAG][NUM_E];
 
     DistanceRupParameter distRup = new DistanceRupParameter();
 
@@ -391,7 +406,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
   /**
    * Setting up the Mag Range
-   * @param minMag double
+   * @param minMag double - this is the center of the first bin
    * @param numMags int
    * @param deltaMag double
    */
@@ -405,7 +420,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
   /**
    * Setting up the Distance Range
-   * @param minDist double
+   * @param minDist double - this is the center of the first bin
    * @param numDist int
    * @param deltaDist double
    */
@@ -514,7 +529,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     if( iMag < 0 || iMag >= NUM_MAG) withinBounds= false;
     if( iDist < 0 || iDist >= NUM_DIST) withinBounds = false;
-    if( iEpsilon < 0 || iEpsilon >= NUM_E) withinBounds = false;
 
   }
 
@@ -568,40 +582,46 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    * Creates the GMT_Script lines
    */
   private ArrayList createGMTScriptForDisaggregationPlot(){
+
     int numTicksToDrawForZAxis = 5;
     DecimalFormat format = new DecimalFormat("0.0");
+    // compute z-axis tick spacing & max z value
     double gdZGridVal = Double.parseDouble(format.format(maxContrEpsilonForDisaggrPlot/(numTicksToDrawForZAxis)));
     double maxZVal = Double.parseDouble(format.format(gdZGridVal * numTicksToDrawForZAxis));
     ArrayList gmtScriptLines = new ArrayList();
 
+    float min_dist = (float) (MIN_DIST - deltaDist/2);
+    float max_dist = (float) (MAX_DIST + deltaDist/2);
+    float min_mag = (float) (MIN_MAG - deltaMag/2);
+    float max_mag = (float) (MAX_MAG + deltaMag/2);
+
     try{
-    String region = "-R"+MIN_DIST+"/"+MAX_DIST+
-        "/"+MIN_MAG+"/"+MAX_MAG+"/"+0+"/"+maxZVal;
+    String region = "-R"+min_dist+"/"+max_dist+
+        "/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
     String imagePixelSize = "-JX4.5i/4i";
     String imageAngle = "-E150/30";
-    String boundarySize = "-W0.5p";
+    String boundarySize = "-W0.5p";  // pen width for drawing boxes
     String verticalScaling = "-JZ2.5i";
     String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
         "gmtset Y_ORIGIN 1.0i\n";
     String img_ps_file = "DisaggregationPlot.ps";
-    String img_jpg_file = DISAGGREGATION_PLOT_IMG;
 
     String axisBoundaryTicksBounds = "-B"+deltaDist+":Distance:"+"/"+deltaMag+":Magnitude:"+
-        "/"+gdZGridVal+":%Contribution:"+"WSNEZ";
-    String tickLabelsLines = "cat << END > temp_segments";
+        "/"+gdZGridVal+":%Contribution:"+"wSnEZ";
+    String gridLines = "cat << END > temp_segments";
     ArrayList segLineList = new ArrayList();
-    segLineList.add(tickLabelsLines);
+    segLineList.add(gridLines);
     //creating the grid lines on Z axis.
     for (double k = gdZGridVal; k <= maxZVal; k += gdZGridVal) {
-      segLineList.add(">\n" +MIN_DIST+"  "+ MIN_MAG+" "+k);
-      segLineList.add(MIN_DIST+"  "+MAX_MAG+"  "+k);
-      segLineList.add(">\n" +MIN_DIST+"  "+ MAX_MAG+"  "+k);
-      segLineList.add(+MAX_DIST+"   "+MAX_MAG+"  "+k);
+      segLineList.add(">\n" +min_dist+"  "+ min_mag+" "+k);
+      segLineList.add(min_dist+"  "+max_mag+"  "+k);
+      segLineList.add(">\n" +min_dist+"  "+ max_mag+"  "+k);
+      segLineList.add(+max_dist+"   "+max_mag+"  "+k);
     }
-    segLineList.add(">\n" + MIN_DIST +"   "+ MAX_MAG+"  " + 0);
-    segLineList.add( MIN_DIST + "  "+MAX_MAG + "  " + maxZVal);
-    segLineList.add(">\n"+ MAX_DIST + "  "+ MAX_MAG + " "  + 0);
-    segLineList.add(  + MAX_DIST + "  " +MAX_MAG+ " "+ maxZVal);
+    segLineList.add(">\n" + min_dist +"   "+ max_mag+"  " + 0);
+    segLineList.add( min_dist + "  "+max_mag + "  " + maxZVal);
+    segLineList.add(">\n"+ max_dist + "  "+ max_mag + " "  + 0);
+    segLineList.add(  + max_dist + "  " +max_mag+ " "+ maxZVal);
     segLineList.add("END\n");
 
     //creating the GMT_Script for the plot
@@ -613,94 +633,43 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     //creating the data array
     ArrayList dataArray = new ArrayList();
-    float x = (float) (MIN_DIST + (float) deltaDist / 2);
+
+    float contribution, base, top;
+    float d = (float) MIN_DIST;
     for (int i = 0; i < NUM_DIST; ++i) {
-      double y = (float) (MAX_MAG - (float)this.deltaMag / 2);
+      double m = (float) MAX_MAG;
       for (int j = NUM_MAG - 1; j >= 0; --j) {
-        boolean rateZero = true;
+        base = 0;
+        top = 0;
         for (int k = 0; k < NUM_E; ++k) {
-          if (disaggr_plt[i][j][k] != 0)
-            rateZero = false;
-          if (disaggr_plt[i][j][k] == 0 && k != 0)
-            dataArray.add(x + " " + y + " " + (float) disaggr_plt[i][j][k - 1]);
-          else
-            dataArray.add(x + " " + y + " " + (float) disaggr_plt[i][j][k]);
+          contribution = (float) disaggr_plt[i][j][k];
+          top = base + contribution;
+          if (contribution > 0.0) {
+            gmtScriptLines.add("echo " + "\"" + d + " " + m + " " + top +
+                               "\"" +
+                               " > junk_data ; psxyz junk_data "
+                               + "-P " + region + " " + imagePixelSize + " " +
+                               verticalScaling + " -So0.3ib" + base +
+                               " -K -O " + epsilonColors[k] + "  " +
+                               imageAngle +
+                               "  " + boundarySize + " >> " + img_ps_file);
+            base = top;
+          }
 
         }
-        //If the rate of all Epsilon is zero then put the no need to plot that
-        if (rateZero) {
-          //as items in the arraylist are added to the end so removing it from
-          //zero contribution from the end.
-          for (int k = 0; k < NUM_E; ++k)
-            dataArray.remove(dataArray.size() - 1);
-        }
-        y -= deltaMag;
+        m -= deltaMag;
       }
-      x += deltaDist;
+      d += deltaDist;
     }
 
-    int size = dataArray.size();
-    for(int i= 0;i<size;i +=NUM_E){
-      String data = (String)dataArray.get(i);
+    gmtScriptLines.add("echo " + "\"3.85 3.6 18 0.0 1 11 Label\"" +
+                                 " | pstext " + " -P " + region + " " + imagePixelSize + " " +
+                                 " -O " + " >> " + img_ps_file);
 
-      gmtScriptLines.add("echo "+"\""+(String)dataArray.get(i)+"\""+" > junk_data ; psxyz junk_data "
-                         +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib0"+
-          " -K -O -G0/0/170 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-      double barHt = getBarWidth(data);
+    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=tiff24nc -sOutputFile=temp.tiff"+" -");
 
-      data = (String)dataArray.get(i+1);
-      gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                         +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-          " -K -O -G0/0/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-
-      barHt = getBarWidth(data);
-
-      data = (String)dataArray.get(i+2);
-      gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                         +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-          " -K -O  -G151/151/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-
-      barHt = getBarWidth(data);
-
-      data = (String)dataArray.get(i+3);
-      gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                         +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-          " -K -O  -G217/217/255 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-
-      barHt = getBarWidth(data);
-
-      data = (String)dataArray.get(i+4);
-            gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                               +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                " -K -O  -G254/220/210 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-
-      barHt = getBarWidth(data);
-
-      data = (String)dataArray.get(i+5);
-      gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                         +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                         " -K -O  -G252/180/158 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-      barHt = getBarWidth(data);
-
-      data = (String)dataArray.get(i+6);
-      gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                         +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                         " -K -O  -G252/94/62 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-      barHt = getBarWidth(data);
-
-      data = (String)dataArray.get(i+7);
-      if(i+7 == size-1)//we don't have to add the "-O" option in the last line of GMT script.
-        gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                           +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                           " -O -G215/38/3 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-      else
-        gmtScriptLines.add("echo "+"\""+data+"\""+" > junk_data ; psxyz junk_data "
-                           +"-P "+region+" "+imagePixelSize+" "+verticalScaling+ " -So0.3ib"+barHt+
-                           " -K -O -G215/38/3 "+imageAngle+"  "+boundarySize+" >> "+img_ps_file);
-    }
-
-    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
-    gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG);
+//    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
+    gmtScriptLines.add("convert -crop 0x0 temp.tiff "+DISAGGREGATION_PLOT_IMG);
     gmtScriptLines.add("rm junk_data temp_segments");
     }catch(Exception e){
       e.printStackTrace();
@@ -774,13 +743,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     return webaddr;
   }
 
-
-  private double getBarWidth(String data){
-    StringTokenizer st = new StringTokenizer(data);
-    st.nextToken();
-    st.nextToken();
-    return Double.parseDouble(st.nextToken().trim());
-  }
 
   private double mag(int iMag) {
       if( iMag >=0 && iMag <= NUM_MAG)

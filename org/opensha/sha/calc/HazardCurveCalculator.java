@@ -142,7 +142,6 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     if (D) System.out.println(C+": starting hazard curve calculation");
 
     // loop over sources
-    sourceIndex =0;
     for(sourceIndex=0;sourceIndex < numSources ;sourceIndex++) {
 
       // get the ith source
@@ -232,7 +231,7 @@ public class HazardCurveCalculator extends UnicastRemoteObject
 
 
   /**
-   * This function computes a hazard curve for the given Site, IMR, and ProbEqkrupture.  The curve
+   * This function computes a deterministic exceedance curve for the given Site, IMR, and ProbEqkrupture.  The curve
    * in place in the passed in hazFunction (with the X-axis values being the IMLs for which
    * exceedance probabilites are desired).
    * @param hazFunction: This function is where the hazard curve is placed
@@ -253,9 +252,6 @@ public class HazardCurveCalculator extends UnicastRemoteObject
     ( (AttenuationRelationship) imr).resetParameterEventListeners();
 
     //System.out.println("hazFunction: "+hazFunction.toString());
-
-    // initialize the hazard function to 1.0
-    initDiscretizeValues(hazFunction, 1.0);
 
     // set the Site in IMR
     imr.setSite(site);
