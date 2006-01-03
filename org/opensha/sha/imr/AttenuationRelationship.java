@@ -240,7 +240,7 @@ public abstract class AttenuationRelationship
   protected final static Double PGA_MAX = new Double(Double.MAX_VALUE);
   protected final static Double PGA_WARN_MIN = new Double(Math.log(Double.
       MIN_VALUE));
-  protected final static Double PGA_WARN_MAX = new Double(Math.log(2.0));
+  protected final static Double PGA_WARN_MAX = new Double(Math.log(2.5));
 
   /**
    * PGV parameter, reserved for the natural log of the "Peak Ground Velocity" Intensity-
@@ -277,7 +277,7 @@ public abstract class AttenuationRelationship
   protected final static Double SA_MAX = new Double(Double.MAX_VALUE);
   protected final static Double SA_WARN_MIN = new Double(Math.log(Double.
       MIN_VALUE));
-  protected final static Double SA_WARN_MAX = new Double(Math.log(2));
+  protected final static Double SA_WARN_MAX = new Double(Math.log(3.0));
 
   /**
    * Period parameter, reserved for the oscillator period that Spectral
