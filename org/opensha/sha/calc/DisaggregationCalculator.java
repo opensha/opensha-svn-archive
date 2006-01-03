@@ -262,13 +262,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           Ebar += rate * epsilon;
           sourceRate +=rate;
 
+          // note that these rates are over the entire duration, not annualized
           if(calcSourceDissaggList){
-            double eventRate = -Math.log(1 - qkProb) /
-                eqkRupForecast.getTimeSpan().getDuration();
+            double eventRate = -Math.log(1 - qkProb); // / eqkRupForecast.getTimeSpan().getDuration();
             DisaggregationSourceRuptureInfo rupInfo = new
-                DisaggregationSourceRuptureInfo(null,
-                                                eventRate
-                                                , (float) rate, n);
+                DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n);
             ( (ArrayList) map.get(sourceName)).add(rupInfo);
           }
       }
@@ -344,8 +342,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           disaggr_plt[i][j][k] = disaggr_plt[i][j][k]/totalRate *100;
           if(disaggr_plt[i][j][k] > maxContrEpsilonForDisaggrPlot) {
               maxContrEpsilonForDisaggrPlot = disaggr_plt[i][j][k] ;
-              modeMagBin = i;
-              modeDistBin = j;
+              modeDistBin = i;
+              modeMagBin = j;
               modeEpsilonBin = k;
           }
         }
@@ -359,7 +357,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     if( D ) System.out.println(S + "MagMode = "  + M_mode3D + "; binNum = " + modeMagBin);
     if( D ) System.out.println(S + "DistMode = " + D_mode3D + "; binNum = " + modeDistBin);
     //if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
-    createGMTScriptForDisaggregationPlot();
   }
 
 
