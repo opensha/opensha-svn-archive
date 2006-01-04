@@ -296,6 +296,10 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     public double getFirstInterpolatedX(double y){
       // finds the size of the point array
       int max=points.size();
+      //if Size of the function is 1 and Y value is equal to Y val of function
+      //return the only X value
+      if (max == 1 && y == getY(0))
+        return getX(0);
       double y1=Double.NaN;
       double y2=Double.NaN;
       int i;
@@ -342,6 +346,11 @@ public class ArbitrarilyDiscretizedFunc extends DiscretizedFunc
     public double getFirstInterpolatedX_inLogXLogYDomain(double y){
       // finds the size of the point array
       int max=points.size();
+      //if Size of the function is 1 and Y value is equal to Y val of function
+      //return the only X value
+      if (max == 1 && y == getY(0))
+        return getX(0);
+
       double y1=Double.NaN;
       double y2=Double.NaN;
       int i;

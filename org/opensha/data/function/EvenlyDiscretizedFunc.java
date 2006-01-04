@@ -346,6 +346,12 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
          double y2=Double.NaN;
          int i;
 
+
+         //if Size of the function is 1 and Y value is equal to Y val of function
+         //return the only X value
+         if(num == 1 && y == getY(0))
+           return getX(0);
+
          boolean found = false; // this boolean hold whether the passed y value lies within range
 
          //finds the Y values within which the the given y value lies
@@ -389,6 +395,12 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
          double y1=Double.NaN;
          double y2=Double.NaN;
          int i;
+
+         //if Size of the function is 1 and Y value is equal to Y val of function
+         //return the only X value
+         if(num == 1 && y == getY(0))
+           return getX(0);
+
 
          boolean found = false; // this boolean hold whether the passed y value lies within range
 
