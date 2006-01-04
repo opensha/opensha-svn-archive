@@ -88,7 +88,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private String sourceDisaggInfo;
 
   //Disaggregation Plot Img Name
-  public static final String DISAGGREGATION_PLOT_IMG = "DisaggregationPlot.tiff";
+  public static final String DISAGGREGATION_PLOT_IMG = "DisaggregationPlot.jpg";
   //Address to the disaggregation plot img
   private String disaggregationPlotImgWebAddr;
 
@@ -351,17 +351,23 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     maxContrEpsilonForDisaggrPlot = -1;
     int modeMagBin=-1, modeDistBin=-1, modeEpsilonBin=-1;
+    double maxContrBinRate =-1;
     for(int i=0; i<NUM_DIST; i++) {
       for(int j=0; j<NUM_MAG; j++) {
+        double contrEpsilonSum =0;
         for(int k=0; k<NUM_E; k++) {
           disaggr_plt[i][j][k] = disaggr_plt[i][j][k]/totalRate *100;
-          if(disaggr_plt[i][j][k] > maxContrEpsilonForDisaggrPlot) {
-              maxContrEpsilonForDisaggrPlot = disaggr_plt[i][j][k] ;
+          //summing over all the contributing Epsilon for a given dist and Mag.
+          contrEpsilonSum +=disaggr_plt[i][j][k];
+          if(disaggr_plt[i][j][k] > maxContrBinRate) {
+              maxContrBinRate = disaggr_plt[i][j][k] ;
               modeDistBin = i;
               modeMagBin = j;
               modeEpsilonBin = k;
           }
         }
+        if(contrEpsilonSum > maxContrEpsilonForDisaggrPlot)
+          maxContrEpsilonForDisaggrPlot = contrEpsilonSum;
       }
     }
     M_mode3D = mag(modeMagBin);
@@ -586,8 +592,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     int numTicksToDrawForZAxis = 5;
     DecimalFormat format = new DecimalFormat("0.0");
     // compute z-axis tick spacing & max z value
-    double gdZGridVal = Double.parseDouble(format.format(maxContrEpsilonForDisaggrPlot/(numTicksToDrawForZAxis)));
-    double maxZVal = Double.parseDouble(format.format(gdZGridVal * numTicksToDrawForZAxis));
+    double gdZGridVal = Double.parseDouble(format.format(maxContrEpsilonForDisaggrPlot/(numTicksToDrawForZAxis )));
+    double maxZVal = Double.parseDouble(format.format(gdZGridVal * (numTicksToDrawForZAxis +1)));
     ArrayList gmtScriptLines = new ArrayList();
 
     float min_dist = (float) (MIN_DIST - deltaDist/2);
@@ -631,9 +637,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
                        region+" -M  " +imagePixelSize +"  "+verticalScaling+" -K -G0/0/0 "+
                        imageAngle + "  "+boundarySize+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
 
-    //creating the data array
-    ArrayList dataArray = new ArrayList();
-
     float contribution, base, top;
     float d = (float) MIN_DIST;
     for (int i = 0; i < NUM_DIST; ++i) {
@@ -666,11 +669,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
                                  " | pstext " + " -P " + region + " " + imagePixelSize + " " +
                                  " -O " + " >> " + img_ps_file);
 
-    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=tiff24nc -sOutputFile=temp.tiff"+" -");
-
-//    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
-    gmtScriptLines.add("convert -crop 0x0 temp.tiff "+DISAGGREGATION_PLOT_IMG);
-    gmtScriptLines.add("rm junk_data temp_segments");
+    gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
+    gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG);
+    gmtScriptLines.add("rm junk_data temp.jpg temp_segments");
     }catch(Exception e){
       e.printStackTrace();
     }
