@@ -93,6 +93,18 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   //Address to the disaggregation plot img
   private String disaggregationPlotImgWebAddr;
 
+  /**
+   * This sets the maximum distance of sources to be considered in the calculation
+   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
+   * Sources more than this distance away are ignored.
+   * Default value is 250 km.
+   *
+   * @param distance: the maximum distance in km
+   */
+  public void setMaxSourceDistance(double distance) throws java.rmi.RemoteException{
+    MAX_DISTANCE = distance;
+  }
+
 
   String[] epsilonColors = {
       "-G215/38/3",

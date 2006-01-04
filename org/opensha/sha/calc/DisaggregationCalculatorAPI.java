@@ -20,6 +20,17 @@ import org.opensha.sha.imr.AttenuationRelationshipAPI;
 public interface DisaggregationCalculatorAPI extends Remote{
 
   /**
+   * This sets the maximum distance of sources to be considered in the calculation
+   * (as determined by the getMinDistance(Site) method of ProbEqkSource subclasses).
+   * Sources more than this distance away are ignored.
+   * Default value is 250 km.
+   *
+   * @param distance: the maximum distance in km
+   */
+  public void setMaxSourceDistance(double distance) throws java.rmi.
+      RemoteException;
+
+  /**
    * this function performs the disaggregation
    *
    * @param iml: the intensity measure level to disaggregate

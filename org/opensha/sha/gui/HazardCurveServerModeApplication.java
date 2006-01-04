@@ -1180,6 +1180,8 @@ public class HazardCurveServerModeApplication extends JFrame
       int numDist = disaggregationControlPanel.getNumDist();
       boolean sourceDisaggregationList= disaggregationControlPanel.isSourceDisaggregationSelected();
       try{
+        if(distanceControlPanel!=null)
+          disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
         disaggCalc.generateSourceDisaggregationList(sourceDisaggregationList);
