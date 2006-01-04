@@ -311,18 +311,20 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     // sort the disaggSourceList according to contribution
     if(calcSourceDissaggList){
       Collections.sort(disaggSourceList, new DisaggregationSourceRuptureComparator());
+      // make a string of the sorted list info
       sourceDisaggInfo =
-          "Source#\tTotExceedRate\t% Contribution\tSourceName\n";
+          "Source#    TotExceedRate    % Contribution    SourceName\n";
       int size = disaggSourceList.size();
-      size = 100;  // overide to only give the top 100 sources (otherwise can be to big and cause crash)
+      if(size > 100)
+        size = 100;  // overide to only give the top 100 sources (otherwise can be to big and cause crash)
       for (int i = 0; i < size; ++i) {
         DisaggregationSourceRuptureInfo disaggInfo = (
             DisaggregationSourceRuptureInfo)
             disaggSourceList.get(i);
         sourceDisaggInfo += disaggInfo.getId() +
-            "\t" + (float) disaggInfo.getRate() + "\t" +
+            "    " + (float) disaggInfo.getRate() + "    " +
             (float) (disaggInfo.getRate()/totalRate * 100) +
-            "\t" + disaggInfo.getName() + "\n";
+            "    " + disaggInfo.getName() + "\n";
       }
     }
     /*try {
@@ -395,6 +397,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     if( D ) System.out.println(S + "EpsMode = "  + epsilonRangeString + "; binNum = " + modeEpsilonBin);
     //if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
 
+/* this was a debugging check
     // check the final pdf
     double testSum = 0;
     for(int i=0; i<NUM_DIST; i++)
@@ -404,7 +407,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           System.out.println(dist(i)+"\t"+mag(j)+"\t"+k+"\t"+pdf3D[i][j][k]);
         }
     System.out.println("TestSum = "+testSum+"; should = "+ (100*(totalRate-outOfBoundsRate)/totalRate));
-
+*/
 
   }
 
@@ -617,36 +620,47 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    */
   private ArrayList createGMTScriptForDisaggregationPlot(){
 
-    int numTicksToDrawForZAxis = 5;
-    DecimalFormat format = new DecimalFormat("0.0");
-    // compute z-axis tick spacing & max z value
-    double gdZGridVal = Double.parseDouble(format.format(maxContrEpsilonForDisaggrPlot/(numTicksToDrawForZAxis )));
-    double maxZVal = Double.parseDouble(format.format(gdZGridVal * (numTicksToDrawForZAxis +1)));
-    ArrayList gmtScriptLines = new ArrayList();
+    double x_axis_length = 4.5; // in inches
+    double y_axis_length = 4.0; // in inches
+    double z_axis_length = 2.5; // in inches
 
+    int numTicksToDrawForZAxis = 5;
+    // compute z-axis tick spacing & max z value
+    double z_tick = Math.ceil(maxContrEpsilonForDisaggrPlot/numTicksToDrawForZAxis);
+    double maxZVal = z_tick * numTicksToDrawForZAxis;
+    ArrayList gmtScriptLines = new ArrayList();
+//System.out.println(maxContrEpsilonForDisaggrPlot+"\t"+z_grid+"\t"+maxZVal);
     float min_dist = (float) (MIN_DIST - deltaDist/2);
     float max_dist = (float) (MAX_DIST + deltaDist/2);
     float min_mag = (float) (MIN_MAG - deltaMag/2);
     float max_mag = (float) (MAX_MAG + deltaMag/2);
 
+    double x_tick = deltaDist;
+    double y_tick = deltaMag;
+    if(NUM_DIST > 11) x_tick*=2;
+    if(NUM_MAG > 9) y_tick*=2;
+
+    double box_x_width = x_axis_length/NUM_DIST - 0.05; // lst term leaves some space
+    double box_y_width = y_axis_length/NUM_MAG  - 0.05;
+    String symbol = " -So"+box_x_width+"i/"+box_y_width+"ib";
+
     try{
-    String region = "-R"+min_dist+"/"+max_dist+
-        "/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
-    String imagePixelSize = "-JX4.5i/4i";
-    String imageAngle = "-E150/30";
-    String boundarySize = "-W0.5p";  // pen width for drawing boxes
-    String verticalScaling = "-JZ2.5i";
+    String region = "-R"+min_dist+"/"+max_dist+"/"+min_mag+"/"+max_mag+"/"+0+"/"+maxZVal;
+    String projection = "-JX"+x_axis_length+"i/"+y_axis_length+"i";
+    String viewAngle = "-E150/30";
+    String boxPenWidth = "-W0.5p";  // pen width for drawing boxes
+    String verticalScaling = "-JZ"+z_axis_length+"i";
     String gmt_const_comands = "gmtset PAGE_COLOR 180/180/180 \n gmtset X_ORIGIN 1.0i \n"+
-        "gmtset Y_ORIGIN 1.0i\n";
+        "gmtset Y_ORIGIN 2.0i\n";
     String img_ps_file = "DisaggregationPlot.ps";
 
-    String axisBoundaryTicksBounds = "-B"+deltaDist+":Distance:"+"/"+deltaMag+":Magnitude:"+
-        "/"+gdZGridVal+":%Contribution:"+"wSnEZ";
+    String axisBoundaryTicksBounds = "-B"+x_tick+":Distance:"+"/"+y_tick+":Magnitude:"+
+        "/"+z_tick+":%Contribution:"+"wSnEZ";
     String gridLines = "cat << END > temp_segments";
     ArrayList segLineList = new ArrayList();
     segLineList.add(gridLines);
     //creating the grid lines on Z axis.
-    for (double k = gdZGridVal; k <= maxZVal; k += gdZGridVal) {
+    for (double k = z_tick; k <= maxZVal; k += z_tick) {
       segLineList.add(">\n" +min_dist+"  "+ min_mag+" "+k);
       segLineList.add(min_dist+"  "+max_mag+"  "+k);
       segLineList.add(">\n" +min_dist+"  "+ max_mag+"  "+k);
@@ -662,14 +676,14 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     gmtScriptLines.add(gmt_const_comands);
     gmtScriptLines.addAll(segLineList);
     gmtScriptLines.add("psxyz temp_segments -P "+
-                       region+" -M  " +imagePixelSize +"  "+verticalScaling+" -K -G0/0/0 "+
-                       imageAngle + "  "+boundarySize+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
+                       region+" -M  " +projection +"  "+verticalScaling+" -K -G0/0/0 "+
+                       viewAngle + "  "+boxPenWidth+"  "+axisBoundaryTicksBounds +" >  "+img_ps_file);
 
     float contribution, base, top;
     float d = (float) MIN_DIST;
     for (int i = 0; i < NUM_DIST; ++i) {
       double m = (float) MAX_MAG;
-      for (int j = NUM_MAG - 1; j >= 0; --j) {
+      for (int j = NUM_MAG - 1; j >= 0; --j) {   // ordering here is important
         base = 0;
         top = 0;
         for (int k = 0; k < NUM_E; ++k) {
@@ -679,11 +693,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
             gmtScriptLines.add("echo " + "\"" + d + " " + m + " " + top +
                                "\"" +
                                " > junk_data ; psxyz junk_data "
-                               + "-P " + region + " " + imagePixelSize + " " +
-                               verticalScaling + " -So0.3ib" + base +
+                               + "-P " + region + " " + projection + " " +
+                               verticalScaling + symbol + base +
                                " -K -O " + epsilonColors[k] + "  " +
-                               imageAngle +
-                               "  " + boundarySize + " >> " + img_ps_file);
+                               viewAngle +
+                               "  " + boxPenWidth + " >> " + img_ps_file);
             base = top;
           }
 
@@ -693,9 +707,39 @@ public class DisaggregationCalculator extends UnicastRemoteObject
       d += deltaDist;
     }
 
-    gmtScriptLines.add("echo " + "\"3.85 3.6 18 0.0 1 11 Label\"" +
-                                 " | pstext " + " -P " + region + " " + imagePixelSize + " " +
-                                 " -O " + " >> " + img_ps_file);
+
+    // add the legend
+    // 1st legent box has origin offset in Y by -2 inches (and X by minus some too)
+    gmtScriptLines.add("echo " + "\"" + MAX_DIST + " " + MIN_MAG + " " + (0.8*z_tick) +
+                       "\"" + " > junk_data ; psxyz junk_data " + "-P -Y-1.25i -X-4.2i " +
+                       region + " " +
+                       projection + " " + verticalScaling + " -So0.3ib0 " +
+                       " -K -O " +
+                       epsilonColors[0] + "  " + viewAngle + "  " + boxPenWidth +
+                       " >> " + img_ps_file);
+
+    // each now has origin offset in the X direction
+    for (int k = 1; k < NUM_E; ++k) {
+      gmtScriptLines.add("echo " + "\"" + MAX_DIST + " " + MIN_MAG + " " + (0.8*z_tick) +
+                         "\"" + " > junk_data ; psxyz junk_data " + "-P -X0.9i " +
+                         region + " " +
+                         projection + " " + verticalScaling + " -So0.3ib0 " + "0" +
+                         " -K -O " +
+                         epsilonColors[k] + "  " + viewAngle + "  " + boxPenWidth +
+                         " >> " + img_ps_file);
+    }
+
+
+
+    gmtScriptLines.add("echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
+    gmtScriptLines.add("echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
+    gmtScriptLines.add("echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
+    gmtScriptLines.add("echo " + "\"2.7 0.75 13 0.0 12 CB -0.5<e<0\" >> temp_label");
+    gmtScriptLines.add("echo " + "\"3.6 0.75 13 0.0 12 CB 0<e<0.5\" >> temp_label");
+    gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
+    gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
+    gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
+    gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.45 -P -O >> " + img_ps_file);
 
     gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
     gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG);

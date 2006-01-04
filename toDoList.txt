@@ -5,9 +5,18 @@ Implement time-dep and time-ind options in UCERF 1.0 using one of the following 
 
 In save PDF image option, take out empty line before the "__________", and change mouse over to "Save graph and metadata as PDF".
 
-DisaggregationCalculator - user defined MAX_DISTANCE is not being set (in fact the set method is commented out).  Only the default is used regardless of what the user selects in the control panel.
+DisaggregationCalculator:
 
-Validate & polish the disaggregation plotting (Nitin & Ned together).  Do the boxes sum to 1?
+	make source disagg. list in nicer format (tabs are multi-spaces converted to single space)
+
+	In the control panel, hide all but the first parameter until the first parmater != "No Disaggregation"
+	Also hide the "Num Sources in List" parameter if the "Show Source Disagg ..." param is false
+
+	Make it so the "Num Sources in List" parameter sets the number listed in the calculator
+
+	Add a pdf version of the plot in the remote dir, and make the first line of the metadata file say:
+	"click here for a nice (non pixelated) version of this plot: [pdf link]"
+	
 
 For the deterministic calc option in the HazardCurveApps, make it so the IRM parameters in the metadata include the eqkRup and propEffect params from the IMR (so users can reproduce the results using the attenuation-relationship application). Ned should also look at the new method for this in the calculator.  Also, turn disaggregation off if one has chosen determinitistic.
 

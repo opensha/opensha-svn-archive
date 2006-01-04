@@ -46,15 +46,16 @@ public class DisaggregationControlPanel extends JFrame
   //Shows the source disaggregation only if this parameter is selected
   private BooleanParameter sourceDisaggregationParam = new BooleanParameter
       ("Show Source Disaggregation List",new Boolean(false));
+  private IntegerParameter numSourcesToShow = new IntegerParameter("Num Sources in List",new Integer(100));
 
   //sets the Mag Range for Disaggregation calculation
-  private DoubleParameter minMagParam = new DoubleParameter("Min Mag",0,10,new Double(5));
-  private IntegerParameter numMagParam = new IntegerParameter("Num Mags",new Integer(9));
+  private DoubleParameter minMagParam = new DoubleParameter("Min Mag (bin center)",0,10,new Double(5));
+  private IntegerParameter numMagParam = new IntegerParameter("Num Mags",new Integer(8));
   private DoubleParameter deltaMagParam = new DoubleParameter("Delta Mag",new Double(0.5));
 
   //sets the Dist range for Disaggregation calculation
-  private DoubleParameter minDistParam = new DoubleParameter("Min Dist",new Double(0));
-  private IntegerParameter numDistParam = new IntegerParameter("Num Dist",new Integer(12));
+  private DoubleParameter minDistParam = new DoubleParameter("Min Dist (bin center)",new Double(5));
+  private IntegerParameter numDistParam = new IntegerParameter("Num Dist",new Integer(11));
   private DoubleParameter deltaDistParam = new DoubleParameter("Delta Dist",new Double(10));
 
 
@@ -70,6 +71,22 @@ public class DisaggregationControlPanel extends JFrame
 
   public DisaggregationControlPanel(DisaggregationControlPanelAPI parent,
                                     Component parentComponent) {
+
+    // set info strings for parameters
+    minMagParam.setInfo("The center of the first magnitude bin (for histogram & mode calcs)");
+    minDistParam.setInfo("The center of the first distance bin (for histogram & mode calcs)");
+
+    numMagParam.setInfo("The number of magnitude bins (for histogram & mode calcs)");
+    numDistParam.setInfo("The number of distance bins (for histogram & mode calcs)");
+
+    deltaMagParam.setInfo("The width of magnitude bins (for histogram & mode calcs)");
+    deltaDistParam.setInfo("The width of distance bins (for histogram & mode calcs)");
+
+    sourceDisaggregationParam.setInfo("To show a list of sources in descending order"+
+                                     " of their contribution to the hazard");
+
+    numSourcesToShow.setInfo("The number of sources to show in the list");
+
     try {
 
       this.parent= parent;
@@ -90,6 +107,7 @@ public class DisaggregationControlPanel extends JFrame
       paramList.addParameter(disaggregationProbParam);
       paramList.addParameter(disaggregationIMLParam);
       paramList.addParameter(sourceDisaggregationParam);
+      paramList.addParameter(numSourcesToShow);
       paramList.addParameter(minMagParam);
       paramList.addParameter(numMagParam);
       paramList.addParameter(deltaMagParam);
