@@ -15,6 +15,7 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import net.jini.core.event.RemoteEventListener;
 
 
 /**
@@ -69,6 +70,15 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
    *
    */
   public ProbEqkSource getSourceClone(int iSource) throws RemoteException;
+
+
+  /**
+   * adds the listener obj to list. When the change events come, all
+   * listeners added to it are notified of it.
+   * @param obj Object
+   */
+   public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj)
+       throws RemoteException;
 
 
   /**
