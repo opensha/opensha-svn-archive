@@ -486,7 +486,8 @@ public class USGS_Combined_2004_AttenRel
   }
 
   /**
-   * This sets the standard deviation type for all the attenuation relations.
+   * This sets the standard deviation type, truncation, and truncation level
+   * for all the attenuation relations.
    */
   private void setAttenRelsStdDevTypes() {
 
@@ -504,6 +505,19 @@ public class USGS_Combined_2004_AttenRel
       cb_2003_attenRel.getParameter(STD_DEV_TYPE_NAME).setValue(
           STD_DEV_TYPE_NONE);
     }
+    /*
+    String truncType = (String) sigmaTruncTypeParam.getValue();
+    as_1997_attenRel.getParameter(SIGMA_TRUNC_TYPE_NAME).setValue(truncType);
+    scemy_1997_attenRel.getParameter(SIGMA_TRUNC_TYPE_NAME).setValue(truncType);
+    bjf_1997_attenRel.getParameter(SIGMA_TRUNC_TYPE_NAME).setValue(truncType);
+    cb_2003_attenRel.getParameter(SIGMA_TRUNC_TYPE_NAME).setValue(truncType);
+
+    Double truncLevel = (Double) sigmaTruncLevelParam.getValue();
+    as_1997_attenRel.getParameter(SIGMA_TRUNC_LEVEL_NAME).setValue(truncLevel);
+    scemy_1997_attenRel.getParameter(SIGMA_TRUNC_LEVEL_NAME).setValue(truncLevel);
+    bjf_1997_attenRel.getParameter(SIGMA_TRUNC_LEVEL_NAME).setValue(truncLevel);
+    cb_2003_attenRel.getParameter(SIGMA_TRUNC_LEVEL_NAME).setValue(truncLevel);
+*/
   }
 
   /**
@@ -587,8 +601,8 @@ public class USGS_Combined_2004_AttenRel
   }
 
   /**
-   * This returns the average rock-site stdDev.  This was implemented for
-   * so disaggregation could be conducted (not used locally).
+   * This returns the average rock-site stdDev.  This was implemented
+   * so disaggregation could be conducted (not used locally in this class).
    *
    */
   public double getStdDev() throws IMRException {

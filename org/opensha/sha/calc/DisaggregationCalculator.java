@@ -49,7 +49,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
 
   // maximum permitted distance between fault and site to consider source in hazard analysis for that site
-  protected double MAX_DISTANCE = 250;
+  protected double MAX_DISTANCE = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
+
 
   // disaggregation stuff - MIN and MAX are centers of first and last bins
   private double MIN_MAG = 5.0;
@@ -63,7 +64,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private int NUM_DIST = (int)((MAX_DIST - MIN_DIST)/deltaDist +1);
 
   private int NUM_E = 8;
-  private double[][][] disaggr_plt;
+  private double[][][] pdf3D;
   private double maxContrEpsilonForDisaggrPlot;
 
 
@@ -77,7 +78,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   //gets the Epsilon Range
   private String epsilonRangeString;
 
-  private double totalRate;
+  private double totalRate, outOfBoundsRate;
 
   private int currRuptures = -1;
   private int totRuptures=0;
@@ -139,7 +140,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     double rate, mean, stdDev, condProb;
 
-    disaggr_plt = new double[NUM_DIST][NUM_MAG][NUM_E];
+    pdf3D = new double[NUM_DIST][NUM_MAG][NUM_E];
 
     DistanceRupParameter distRup = new DistanceRupParameter();
 
@@ -157,15 +158,15 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     //parameters. This allows the Server version of our application to listen to the
     //parameter changes.
     ((AttenuationRelationship)imr).resetParameterEventListeners();
+
     // set the maximum distance in the attenuation relationship
      // (Note- other types of IMRs may not have this method so we should really check type here)
      imr.setUserMaxDistance(MAX_DISTANCE);
 
-
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
-    HashMap map = new HashMap();
 
+    HashMap sourceDissaggMap = new HashMap();
 
     // compute the total number of ruptures for updating the progress bar
     totRuptures = 0;
@@ -188,11 +189,13 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     Mbar = 0;
     Dbar = 0;
     totalRate = 0;
+    outOfBoundsRate= 0;
 
+    // initialize the PDF
     for(int i=0; i<NUM_DIST; i++)
       for(int j=0; j<NUM_MAG; j++)
         for(int k=0; k<NUM_E; k++)
-          disaggr_plt[i][j][k] = 0;
+          pdf3D[i][j][k] = 0;
 
 
     for(int i=0;i < numSources ;i++) {
@@ -200,26 +203,25 @@ public class DisaggregationCalculator extends UnicastRemoteObject
       double sourceRate = 0;
       // get source and get its distance from the site
       ProbEqkSource source = eqkRupForecast.getSource(i);
-      double distance = source.getMinDistance(site);
+
       String sourceName = source.getName();
-      // for each source, get the number of ruptures
       int numRuptures = eqkRupForecast.getNumRuptures(i);
 
-      // if source is greater than the MAX_DISTANCE, ignore the source
+      // check the distance of the source
+      double distance = source.getMinDistance(site);
       if(distance > MAX_DISTANCE) {
-       this.currRuptures+=numRuptures;
+       currRuptures+=numRuptures;
         continue;
       }
 
       if(calcSourceDissaggList)
-        map.put(sourceName,new ArrayList());
+        sourceDissaggMap.put(sourceName,new ArrayList());
 
       // loop over ruptures
       for(int n=0; n < numRuptures ; n++,++currRuptures) {
 
           // get the rupture
           ProbEqkRupture rupture = source.getRupture(n);
-
 
           double qkProb = rupture.getProbability();
 
@@ -230,24 +232,21 @@ public class DisaggregationCalculator extends UnicastRemoteObject
             System.out.println("Parameter change warning caught");
           }
 
-          // get the cond prob, mean, stdDev, and epsilon
+          // get the cond prob
           condProb = imr.getExceedProbability(iml);
-
           // should the following throw an exception?
           if(condProb == 0 && D)
               System.out.println(S + "Exceedance probability is zero! (thus the NaNs below)");
 
-
+          // get the mean, stdDev, epsilon, dist, and mag
           mean = imr.getMean();
           stdDev = imr.getStdDev();
           epsilon = (iml-mean)/stdDev;
-
           distRup.setValue(rupture,site);
           dist = ((Double) distRup.getValue()).doubleValue();
-
           mag = rupture.getMag();
 
-          // get the equiv. Poisson rate over the time interval
+          // get the equiv. Poisson rate over the time interval (not annualized)
           rate = - condProb * Math.log(1-qkProb);
 
           /*
@@ -263,10 +262,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           // set the 3D array indices & check that all are in bounds
           setIndices();
           if (withinBounds)
-              disaggr_plt[iDist][iMag][iEpsilon] += rate;
-          else
-              if( D ) System.out.println("disaggregation(): Some bin is out of range");
-
+              pdf3D[iDist][iMag][iEpsilon] += rate;
+          else {
+            if (D) System.out.println("disaggregation(): Some bin is out of range");
+            outOfBoundsRate += rate;
+          }
 
 //          if( D ) System.out.println("disaggregation(): bins: " + iMag + "; " + iDist + "; " + iEpsilon);
 
@@ -277,37 +277,40 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           Ebar += rate * epsilon;
           sourceRate +=rate;
 
-          // note that these rates are over the entire duration, not annualized
+          // create and add rupture info to source list
           if(calcSourceDissaggList){
-            double eventRate = -Math.log(1 - qkProb); // / eqkRupForecast.getTimeSpan().getDuration();
+            double eventRate = -Math.log(1 - qkProb);  // this event rate is not annualized!
             DisaggregationSourceRuptureInfo rupInfo = new
                 DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n);
-            ( (ArrayList) map.get(sourceName)).add(rupInfo);
+            ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
           }
       }
       if(calcSourceDissaggList){
-        ArrayList sourceRupList = (ArrayList) map.get(sourceName);
+        // sort the ruptures in this source according to contribution
+        ArrayList sourceRupList = (ArrayList) sourceDissaggMap.get(sourceName);
         Collections.sort(sourceRupList,
                          new DisaggregationSourceRuptureComparator());
+        // create the total rate info for this source
         DisaggregationSourceRuptureInfo disaggInfo = new
             DisaggregationSourceRuptureInfo(sourceName, (float) sourceRate, i);
         disaggSourceList.add(disaggInfo);
       }
     }
-
+    // sort the disaggSourceList according to contribution
     if(calcSourceDissaggList){
       Collections.sort(disaggSourceList, new DisaggregationSourceRuptureComparator());
       sourceDisaggInfo =
-          "#Source-Id  Source-Rate  Total-Contribution-in-%  Source-Name\n";
+          "Source#\tTotExceedRate\t% Contribution\tSourceName\n";
       int size = disaggSourceList.size();
+      size = 100;  // overide to only give the top 100 sources (otherwise can be to big and cause crash)
       for (int i = 0; i < size; ++i) {
         DisaggregationSourceRuptureInfo disaggInfo = (
             DisaggregationSourceRuptureInfo)
             disaggSourceList.get(i);
         sourceDisaggInfo += disaggInfo.getId() +
-            "    " + (float) disaggInfo.getRate() + "    " +
-            (float) (disaggInfo.getRate() / totalRate * 100) +
-            "    " + disaggInfo.getName() + "\n";
+            "\t" + (float) disaggInfo.getRate() + "\t" +
+            (float) (disaggInfo.getRate()/totalRate * 100) +
+            "\t" + disaggInfo.getName() + "\n";
       }
     }
     /*try {
@@ -324,7 +327,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         String sourceName = disaggInfo.getName();
         String sourceInfo = disaggInfo.getId() + "\t" +
             (float)disaggInfo.getRate();
-        ArrayList rupList = (ArrayList) map.get(sourceName);
+        ArrayList rupList = (ArrayList) sourceDissaggMap.get(sourceName);
         int rupListSize = rupList.size();
         for (int j = 0; j < rupListSize; ++j) {
           DisaggregationSourceRuptureInfo disaggRupInfo =
@@ -356,11 +359,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
       for(int j=0; j<NUM_MAG; j++) {
         double contrEpsilonSum =0;
         for(int k=0; k<NUM_E; k++) {
-          disaggr_plt[i][j][k] = disaggr_plt[i][j][k]/totalRate *100;
+          pdf3D[i][j][k] = pdf3D[i][j][k]/totalRate*100;  // convert to
           //summing over all the contributing Epsilon for a given dist and Mag.
-          contrEpsilonSum +=disaggr_plt[i][j][k];
-          if(disaggr_plt[i][j][k] > maxContrBinRate) {
-              maxContrBinRate = disaggr_plt[i][j][k] ;
+          contrEpsilonSum +=pdf3D[i][j][k];
+          if(pdf3D[i][j][k] > maxContrBinRate) {
+              maxContrBinRate = pdf3D[i][j][k] ;
               modeDistBin = i;
               modeMagBin = j;
               modeEpsilonBin = k;
@@ -377,7 +380,20 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     if( D ) System.out.println(S + "MagMode = "  + M_mode3D + "; binNum = " + modeMagBin);
     if( D ) System.out.println(S + "DistMode = " + D_mode3D + "; binNum = " + modeDistBin);
+    if( D ) System.out.println(S + "EpsMode = "  + epsilonRangeString + "; binNum = " + modeEpsilonBin);
     //if( D ) System.out.println(S + "EpsMode = "  + E_mode3D + "; binNum = " + modeEpsilonBin);
+
+    // check the final pdf
+    double testSum = 0;
+    for(int i=0; i<NUM_DIST; i++)
+      for(int j=0; j<NUM_MAG; j++)
+        for(int k=0; k<NUM_E; k++) {
+          testSum += pdf3D[i][j][k];
+          System.out.println(dist(i)+"\t"+mag(j)+"\t"+k+"\t"+pdf3D[i][j][k]);
+        }
+    System.out.println("TestSum = "+testSum+"; should = "+ (100*(totalRate-outOfBoundsRate)/totalRate));
+
+
   }
 
 
@@ -645,7 +661,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         base = 0;
         top = 0;
         for (int k = 0; k < NUM_E; ++k) {
-          contribution = (float) disaggr_plt[i][j][k];
+          contribution = (float) pdf3D[i][j][k];
           top = base + contribution;
           if (contribution > 0.0) {
             gmtScriptLines.add("echo " + "\"" + d + " " + m + " " + top +
