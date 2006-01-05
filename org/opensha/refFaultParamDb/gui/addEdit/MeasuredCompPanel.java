@@ -56,6 +56,7 @@ public class MeasuredCompPanel extends JPanel  {
    * @param value
    */
   public void setMeasuredCompVal(String value) {
+    if(value==null) value=this.UNKNOWN;
     measuredCompParam.setValue(value);
     measuredCompParamEditor.refreshParamEditor();
   }

@@ -23,6 +23,10 @@ import org.opensha.refFaultParamDb.gui.event.DbAdditionListener;
 import org.opensha.refFaultParamDb.gui.event.DbAdditionSuccessEvent;
 import org.opensha.refFaultParamDb.vo.Reference;
 import org.opensha.refFaultParamDb.vo.PaleoSitePublication;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
+import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
+import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
+import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 
 /**
  * <p>Title: ViewPaleoSites.java </p>
@@ -56,6 +60,15 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private final static String ENTRY_DATE_PARAM_NAME = "Last Updated on";
   private final static String MSG_ADD_DATA_ALREADY_OPEN = "Add Data window is already open";
   private final static String MSG_EVENT_ALREADY_OPEN = "Add Events Data window is already open";
+  private final static String TOOLTIP_EDIT_COMBINED_INFO = "Edit Data for this reference for selected timespan";
+  private final static String MSG_NO_DATA_TO_EDIT = "Cannot edit data as timespan has not been selected";
+  private final static String MSG_NEED_DISPLACEMENT = "Displacement data does not exist for this timespan.\n"+
+      "Do you want to add that?";
+  private final static String MSG_NEED_SLIP_RATE = "Slip Rate data does not exist for this timespan.\n"+
+      "Do you want to add that?";
+  private final static String MSG_NEED_NUM_EVENTS = "Num Events data does not exist for this timespan.\n"+
+      "Do you want to add that?";
+  private final static String EDIT_INFO = "Edit Data";
 
   // various types of information that can be provided by the user
   private JCheckBox slipRateCheckBox, cumDispCheckBox, numEventsCheckBox,
@@ -89,6 +102,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   // various buttons in thos window
   private String ADD_SITE = "Add New Site";
   private JButton editSiteButton = new JButton("Edit");
+  private JButton editCombinedInfoButton = new JButton("Edit Data");
   private JButton qFaultsEntriesButton = new JButton("Show QFault entries");
   private JButton eventSequenceButton = new JButton("Events and Seq.");
   private JButton addInfoButton = new JButton("Add Data");
@@ -256,15 +270,20 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
                               GridBagConstraints.BOTH, new Insets(2, 2, 2, 2),
                               0, 0));
 
+    // Edit Combined Info Button
+    addEditSitePanel.add(this.editCombinedInfoButton,
+       new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
+                              , GridBagConstraints.CENTER,
+                              GridBagConstraints.NONE, new Insets(2, 2, 2, 2),
+                              0, 0));
 
-
+    editCombinedInfoButton.setToolTipText(TOOLTIP_EDIT_COMBINED_INFO);
     // QFault entries for this site
     addEditSitePanel.add(qFaultsEntriesButton,
         new GridBagConstraints(0, siteYPos++, 1, 1, 1.0, 1.0
                                , GridBagConstraints.CENTER,
                                GridBagConstraints.NONE, new Insets(2, 2, 2, 2),
                                0, 0));
-
 
   }
 
@@ -274,6 +293,7 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
   private void addActionListeners() {
     editSiteButton.addActionListener(this);
     addInfoButton.addActionListener(this);
+    editCombinedInfoButton.addActionListener(this);
   }
 
   /**
@@ -283,49 +303,123 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
  public void actionPerformed(ActionEvent event) {
    // if it is "Add New Site" request, pop up another window to fill the new site type
    Object source = event.getSource();
-    if(source==this.editSiteButton) {// edit the paleo site
-      if(paleoSite!=null) {
-        //addEditSiteChars = new AddEditSiteCharacteristics(true, this.paleoSite);
-        addEditSiteChars.addDbAdditionSuccessListener(this);
-      }else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
-    }
-    else if(source == this.addInfoButton) {
-     try {
-        if(paleoSite!=null) {
-          if(slipRateCheckBox.isSelected() ||
-             this.cumDispCheckBox.isSelected() ||
-             numEventsCheckBox.isSelected()||
-             this.sequenceCheckBox.isSelected()) {
-             if(addSiteInfo!=null && addSiteInfo.isVisible()) {
-               JOptionPane.showMessageDialog(this, MSG_ADD_DATA_ALREADY_OPEN);
-               return;
-             }
-             addSiteInfo = new AddSiteInfo(this.paleoSite.getSiteId(),
-                            this.paleoSite.getEntryDate(),
-                            this.slipRateCheckBox.isSelected(),
-                            this.cumDispCheckBox.isSelected(),
-                            this.numEventsCheckBox.isSelected(),
-                            this.sequenceCheckBox.isSelected());
-            addSiteInfo.addDbAdditionSuccessListener(this);
-          }
-          if(this.individualEventsCheckBox.isSelected()) {
-            if(addEditIndividualEvent!=null && addEditIndividualEvent.isVisible()) {
-              JOptionPane.showMessageDialog(this, MSG_EVENT_ALREADY_OPEN);
-              return;
-            }
-           showIndividualEventWindow();
-          }
-        }
-     else JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
-     }catch(Exception e) {
+   try {
+     if (paleoSite == null) { //  if it is test site
+       JOptionPane.showMessageDialog(this, MSG_TEST_SITE_NOT_EDITABLE);
+       return;
+     }
+
+     // EDIT THE SITE CHARACTERISTICS
+     if (source == this.editSiteButton) { // edit the paleo site
+       //addEditSiteChars = new AddEditSiteCharacteristics(true, this.paleoSite);
+       addEditSiteChars.addDbAdditionSuccessListener(this);
+     }
+
+     // ADD NEW COMBINED INFO FOR SITE
+     else if (source == this.addInfoButton) { // add new combined events info
+       addNewCombinedInfo();// if it is a valid site, NOT a test site
+     }
+
+     // EDIT COMBINED INFO FOR SITE
+     else if (source == this.editCombinedInfoButton) {
+       editCombinedInfo();
+     }
+
+   } catch(Exception e) {
        e.printStackTrace();
        JOptionPane.showMessageDialog(this, e.getMessage());
      }
-    }
+
  }
 
+ /**
+  * Edit the combined info
+  */
+ private void editCombinedInfo() {
+   CombinedEventsInfo combinedInfo  = this.siteSelectionListener.getSelectedCombinedInfo();
+   if(combinedInfo==null)  { // if there is no data displayed in window to edit
+     JOptionPane.showMessageDialog(this, MSG_NO_DATA_TO_EDIT);
+     return;
+   }
 
-  /**
+   // do not show window if already open
+   if(addSiteInfo!=null && addSiteInfo.isVisible()) {
+     JOptionPane.showMessageDialog(this, MSG_ADD_DATA_ALREADY_OPEN);
+     return;
+   }
+
+   boolean isDispVisible=false, isSlipRateVisible=false, isNumEventsVisible=false;
+
+   // check whether combined displacement panel needs to be shown
+   CombinedDisplacementInfo combinedDisplacementInfo = combinedInfo.getCombinedDisplacementInfo();
+   if(combinedDisplacementInfo!=null) isDispVisible = true;
+   else {
+     int option = JOptionPane.showConfirmDialog(this, MSG_NEED_DISPLACEMENT, EDIT_INFO, JOptionPane.YES_NO_OPTION);
+     if(option==JOptionPane.YES_OPTION) isDispVisible = true;
+   }
+
+   // check whether slip rate panel needs to be shown
+   CombinedSlipRateInfo combinedSlipRateInfo = combinedInfo.getCombinedSlipRateInfo();
+   if(combinedSlipRateInfo!=null) isSlipRateVisible = true;
+   else {
+     int option = JOptionPane.showConfirmDialog(this, MSG_NEED_SLIP_RATE, EDIT_INFO, JOptionPane.YES_NO_OPTION);
+     if(option==JOptionPane.YES_OPTION) isSlipRateVisible = true;
+   }
+
+
+   // check whether num events panel needs to be shown
+   CombinedNumEventsInfo combinedNumEventsInfo = combinedInfo.getCombinedNumEventsInfo();
+   if(combinedNumEventsInfo!=null) isNumEventsVisible = true;
+   else {
+     int option = JOptionPane.showConfirmDialog(this, MSG_NEED_NUM_EVENTS, EDIT_INFO, JOptionPane.YES_NO_OPTION);
+     if(option==JOptionPane.YES_OPTION) isNumEventsVisible = true;
+   }
+    combinedInfo.setPaleoSitePublication(getPaleoSitePublication((String)this.referencesForSiteParam.getValue()));
+    // show window to enter data
+    addSiteInfo = new AddSiteInfo(this.paleoSite.getSiteId(),
+                                  this.paleoSite.getEntryDate(),
+                                  isSlipRateVisible,
+                                  isDispVisible,
+                                  isNumEventsVisible,
+                                  false, combinedInfo);
+    addSiteInfo.addDbAdditionSuccessListener(this);
+ }
+
+ /**
+  * Add new combined info for a site
+  */
+ private void addNewCombinedInfo() {
+   // make sure one of slip rate/cim dip/num evennts and sequence are selected
+   if(slipRateCheckBox.isSelected() ||
+      this.cumDispCheckBox.isSelected() ||
+      numEventsCheckBox.isSelected()||
+      this.sequenceCheckBox.isSelected()) {
+     // do not show window if already open
+     if(addSiteInfo!=null && addSiteInfo.isVisible()) {
+       JOptionPane.showMessageDialog(this, MSG_ADD_DATA_ALREADY_OPEN);
+       return;
+     }
+     // show window to enter data
+     addSiteInfo = new AddSiteInfo(this.paleoSite.getSiteId(),
+                                   this.paleoSite.getEntryDate(),
+                                   this.slipRateCheckBox.isSelected(),
+                                   this.cumDispCheckBox.isSelected(),
+                                   this.numEventsCheckBox.isSelected(),
+                                   this.sequenceCheckBox.isSelected());
+
+     addSiteInfo.addDbAdditionSuccessListener(this);
+   }
+   // whether to show individual event window
+   if(this.individualEventsCheckBox.isSelected()) {
+     if(addEditIndividualEvent!=null && addEditIndividualEvent.isVisible()) {
+       JOptionPane.showMessageDialog(this, MSG_EVENT_ALREADY_OPEN);
+       return;
+     }
+     showIndividualEventWindow();
+   }
+ }
+
+ /**
   * Initialize all the parameters and the editors
   */
  private void initSiteNamesParameterAndEditor() throws Exception {
@@ -394,25 +488,16 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
      lastUpdatedBy="Test";
    }
    else { // if it is a real site
-     ArrayList paleoSitePubList = paleoSite.getPaleoSitePubList();
-     ArrayList pubNames = new ArrayList();
-     for (int i = 0; i < paleoSitePubList.size(); ++i) {
-       PaleoSitePublication paleoSitePub = (PaleoSitePublication)
-           paleoSitePubList.get(i);
-       String summary = paleoSitePub.getReference().getSummary();
-       if (summary.equalsIgnoreCase(refName)) {
-         refId = paleoSitePub.getReference().getReferenceId();
-         ArrayList studyTypes = paleoSitePub.getSiteTypeNames();
-         siteType = "";
-         for (int j = 0; j < studyTypes.size(); ++j)
-           siteType += studyTypes.get(j) + ",";
-         siteRepresentation = paleoSitePub.getRepresentativeStrandName();
-         lastEntryDate = paleoSitePub.getEntryDate();
-         lastUpdatedBy = paleoSitePub.getContributorName();
-       }
-     }
+     PaleoSitePublication paleoSitePub = getPaleoSitePublication(refName);
+     refId = paleoSitePub.getReference().getReferenceId();
+     ArrayList studyTypes = paleoSitePub.getSiteTypeNames();
+     siteType = "";
+     for (int j = 0; j < studyTypes.size(); ++j)
+       siteType += studyTypes.get(j) + ",";
+     siteRepresentation = paleoSitePub.getRepresentativeStrandName();
+     lastEntryDate = paleoSitePub.getEntryDate();
+     lastUpdatedBy = paleoSitePub.getContributorName();
    }
-
    // site type for this site
    siteTypeLabel.setTextAsHTML(SITE_TYPE_PARAM_NAME,siteType);
    // Site representation
@@ -426,6 +511,23 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
 
  }
 
+ /**
+  * Get paleo site publication based on ref name
+  * @param refName
+  * @return
+  */
+ private PaleoSitePublication getPaleoSitePublication(String refName) {
+   ArrayList paleoSitePubList = paleoSite.getPaleoSitePubList();
+   for (int i = 0; i < paleoSitePubList.size(); ++i) {
+     PaleoSitePublication paleoSitePub = (PaleoSitePublication)
+         paleoSitePubList.get(i);
+     String summary = paleoSitePub.getReference().getSummary();
+     if (summary.equalsIgnoreCase(refName)) {
+       return paleoSitePub;
+     }
+   }
+   return null;
+ }
 
 
  /**

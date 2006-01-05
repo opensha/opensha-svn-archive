@@ -74,6 +74,24 @@ public class ChooseReference extends JFrame implements ActionListener,
     pack();
   }
 
+
+  /**
+   * Set the values to be shown here
+   *
+   * @param siteType
+   * @param representativeStrandIndex
+   * @param reference
+   */
+  public void setParameters(String siteType, String representativeStrandIndex,
+                            Reference reference) {
+    siteTypeParam.setValue(siteType);
+    siteTypeParamEditor.refreshParamEditor();
+    siteRepresentationParam.setValue(representativeStrandIndex);
+    siteRepresentationParamEditor.refreshParamEditor();
+    referencesParam.setValue(reference.getSummary());
+    referencesParamEditor.refreshParamEditor();
+  }
+
   /**
    * Add action listeners to the buttons
    */

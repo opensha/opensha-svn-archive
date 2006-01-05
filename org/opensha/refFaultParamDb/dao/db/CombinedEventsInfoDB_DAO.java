@@ -206,10 +206,10 @@ public class CombinedEventsInfoDB_DAO {
         // get the contributor info
         combinedEventsInfo.setContributorName(this.contributorDAO.getContributor(rs.getInt(this.CONTRIBUTOR_ID)).getName());
         if(rs.getString(IS_EXPERT_OPINION).equalsIgnoreCase(YES))
-         combinedEventsInfo.setIsExpertOpinion(true);
+          combinedEventsInfo.setIsExpertOpinion(true);
        else combinedEventsInfo.setIsExpertOpinion(false);
 
-        combinedInfoList.add(combinedEventsInfo);
+       combinedInfoList.add(combinedEventsInfo);
       }
       rs.close();
     } catch(SQLException e) {

@@ -152,6 +152,7 @@ public class EstimateInstancesDB_DAO {
       Estimate estimate = estimateDAO_API.getEstimate(rs.getInt(EST_ID));
       estimate.setComments(rs.getString(COMMENTS));
       estimateInstances.setEstimate(estimate);
+      estimate.setUnits(estimateInstances.getUnits());
       estimateInstancesList.add(estimateInstances);
     }
     rs.close();

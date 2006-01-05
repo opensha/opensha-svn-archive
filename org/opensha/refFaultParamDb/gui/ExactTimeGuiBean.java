@@ -45,6 +45,50 @@ public class ExactTimeGuiBean extends ParameterListEditor{
     this.setTitle(title);
   }
 
+
+  /**
+   * Set the parameters for exact time
+   * @param exactTime
+   */
+  public void setTime(ExactTime exactTime) {
+    int year = exactTime.getYear();
+    int month=exactTime.getMonth();
+    int day=exactTime.getDay();
+    int hour=exactTime.getHour();
+    int minute=exactTime.getMinute();
+    int second = exactTime.getSecond();
+
+    // set year
+    yearParam.setValue(new Integer(exactTime.getYear()));
+    getParameterEditor(yearParam.getName()).refreshParamEditor();
+    //set month
+    if(month!=0){
+      monthParam.setValue(new Integer(month));
+      getParameterEditor(monthParam.getName()).refreshParamEditor();
+    }
+    //set day
+    if(day!=0){
+      dayParam.setValue(new Integer(day));
+      getParameterEditor(dayParam.getName()).refreshParamEditor();
+    }
+    //set hour
+    if(hour!=0){
+      hourParam.setValue(new Integer(hour));
+      getParameterEditor(hourParam.getName()).refreshParamEditor();
+    }
+    //set minute
+    if(minute!=0){
+      minuteParam.setValue(new Integer(minute));
+      getParameterEditor(minuteParam.getName()).refreshParamEditor();
+    }
+     //set second
+    if(second!=0){
+      secondParam.setValue(new Integer(second));
+      getParameterEditor(secondParam.getName()).refreshParamEditor();
+    }
+
+  }
+
   /**
    * Initialize the parameters
    */

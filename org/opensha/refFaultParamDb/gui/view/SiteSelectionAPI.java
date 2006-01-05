@@ -1,6 +1,7 @@
 package org.opensha.refFaultParamDb.gui.view;
 
 import org.opensha.refFaultParamDb.vo.PaleoSite;
+import org.opensha.refFaultParamDb.vo.CombinedEventsInfo;
 
 /**
  * <p>Title: SiteSelectionAPI.java </p>
@@ -18,4 +19,10 @@ public interface SiteSelectionAPI {
    * @param siteId
    */
   public void siteSelected(PaleoSite paleoSite, int referenceId);
+
+  /**
+   * Get the CombinedInfo which is currently displayed/selected by the user
+   * @return
+   */
+  public CombinedEventsInfo getSelectedCombinedInfo();
 }

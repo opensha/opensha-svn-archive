@@ -96,6 +96,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    private ViewSequences sequencesPanel = new ViewSequences();
 
    private ArrayList combinedEventsInfoList;
+   private CombinedEventsInfo combinedEventsInfo ;
    private PaleoSite paleoSite;
    private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 
@@ -214,7 +215,6 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     ArrayList allowedStrings = timeSpanParam.getAllowedStrings();
     String timeSpan = (String)timeSpanParam.getValue();
     int index = allowedStrings.indexOf(timeSpan);
-    CombinedEventsInfo combinedEventsInfo ;
     if(this.isValidSiteAndInfoAvailable())
        combinedEventsInfo = (CombinedEventsInfo)this.combinedEventsInfoList.get(index);
     else combinedEventsInfo = null;
@@ -378,6 +378,14 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     }
     catch(Exception e) {
     }
+  }
+
+  /**
+   * Get the currently displayed data in the window
+   * @return
+   */
+  public CombinedEventsInfo getSelectedCombinedInfo() {
+    return combinedEventsInfo;
   }
 
   /**

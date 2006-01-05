@@ -90,7 +90,8 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
    */
   public AddEditSlipRate(CombinedSlipRateInfo combinedSlipRateInfo) {
     this();
-    setValuesInParameters(combinedSlipRateInfo);
+    if(combinedSlipRateInfo!=null)
+      setValuesInParameters(combinedSlipRateInfo);
   }
 
 
@@ -101,7 +102,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
 
     // set aseismic slip factor
     EstimateInstances aseismicSlipFactor  = combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip();
-    if(aseismicSlipFactor!=null) { // if aseismic slip factor is known
+    if(aseismicSlipFactor==null) { // if aseismic slip factor is known
       aseismicAvailableParam.setValue(this.UNKNOWN);
     } else { // aseismic slip factor is known
       aseismicAvailableParam.setValue(this.KNOWN);
@@ -148,7 +149,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
    aseismicAvailableParam.addParameterChangeListener(this);
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
-        ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
+        ASEISMIC_SLIP_FACTOR_UNITS, ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
     aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true,  ASEISMIC_SLIP_FACTOR);
     // slip rate comments
     slipRateCommentsParam = new StringParameter(this.SLIP_RATE_COMMENTS_PARAM_NAME);

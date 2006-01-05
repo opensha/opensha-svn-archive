@@ -15,6 +15,8 @@ import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.data.estimate.Estimate;
 import java.util.GregorianCalendar;
 import java.util.Calendar;
+import org.opensha.exceptions.*;
+import org.opensha.exceptions.*;
 
 /**
  * <p>Title: TimeGuiBean.java </p>
@@ -32,19 +34,27 @@ import java.util.Calendar;
 public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListener {
   // parameters for Date Estimate
   private StringParameter yearUnitsParam;
+  private IntegerParameter zeroYearParam;
+  private StringParameter eraParam;
+  private IntegerParameter publicationYearParam;
+  // various parameters
+  private EstimateParameter estimateParameter;
+  private StringParameter timeOptionsParam;
+
+
   private final static String YEAR_UNITS_PARAM_NAME="Year Units";
   private final static String CALENDAR_YEAR = "Calendar Year";
   private final static String ZERO_YEAR_PARAM_NAME = "Zero Year";
-  private IntegerParameter zeroYearParam;
+
   private final static String CALENDAR_ERA_PARAM_NAME="Era";
   private final static String AD = "AD";
   private final static String BC = "BC";
   private final static String KA = "ka";
   private final static Integer YEAR1950 = new Integer(1950);
-  private StringParameter eraParam;
+
   private final static String YEARS = "Years";
   private final static String PUBLICATION_YEAR_PARAM_NAME = "Publication Year";
-  private IntegerParameter publicationYearParam;
+  private final static int DEFAULT_PUB_YEAR_VAL = 0;
 
   // editors
   private ConstrainedStringParameterEditor yearUnitsParamEditor;
@@ -61,14 +71,11 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
   // GUI bean to provide the exact time
   private ExactTimeGuiBean exactTimeGuiBean;
 
-  // various parameters
-  private EstimateParameter estimateParameter;
-  private StringParameter timeOptionsParam;
-
   // parameter editors
   private ConstrainedEstimateParameterEditor estimateParamEditor;
   private ConstrainedStringParameterEditor timeOptionsParamEditor;
   private boolean isNowAllowed; // whether "Now" is allowed
+
   public TimeGuiBean(String title, boolean isNowAllowed) {
     try {
       this.isNowAllowed = isNowAllowed;
@@ -85,6 +92,73 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     }
   }
 
+  /**
+   * Set the time values in editor
+   *
+   * @param time
+   */
+  public void setTime(TimeAPI time) {
+    if(time instanceof ExactTime) { // if it is exact time
+      ExactTime exactTime = (ExactTime)time;
+      // now
+      if(exactTime.getIsNow()) { // NOW
+        setParametersForNow(exactTime);
+      }
+      else   { // exact time
+        timeOptionsParam.setValue(EXACT);
+        exactTimeGuiBean.setTime(exactTime);
+      }
+    } else { // if it is time estimate
+      setParametersForTimeEstimate(time);
+    }
+    timeOptionsParamEditor.refreshParamEditor();
+
+  }
+
+  /**
+   * Set parameters for now
+   * @param exactTime
+   * @throws ParameterException
+   * @throws ConstraintException
+   */
+  private void setParametersForNow(ExactTime exactTime) throws
+      ParameterException, ConstraintException {
+    timeOptionsParam.setValue(NOW);
+    int year = exactTime.getYear();
+    if(year!=DEFAULT_PUB_YEAR_VAL){
+      this.publicationYearParam.setValue(new Integer(year));
+      publicationYearParamEditor.refreshParamEditor();
+    }
+  }
+
+  /**
+   * Set parameters for time estimate
+   * @param time
+   * @throws ParameterException
+   * @throws ConstraintException
+   */
+  private void setParametersForTimeEstimate(TimeAPI time) throws
+      ParameterException, ConstraintException {
+    timeOptionsParam.setValue(ESTIMATE);
+    TimeEstimate timeEstimate = (TimeEstimate)time;
+    timeEstimate.getEstimate().setUnits(null);
+    estimateParameter.setValue(timeEstimate.getEstimate());
+    estimateParamEditor.refreshParamEditor();
+
+    eraParam.setValue(timeEstimate.getEra());
+    eraParamEditor.refreshParamEditor();
+    if(timeEstimate.isKaSelected()) {
+      this.yearUnitsParam.setValue(KA);
+      zeroYearParam.setValue(new Integer(timeEstimate.getZeroYear()));
+      zeroYearParamEditor.refreshParamEditor();
+    } else yearUnitsParam.setValue(this.CALENDAR_YEAR);
+     yearUnitsParamEditor.refreshParamEditor();
+  }
+
+  /**
+   * Set the publication year for "Now"
+   * @param year
+   */
   public void setNowYearVal(int year) {
     this.publicationYearParam.setValue(new Integer(year));
     this.publicationYearParamEditor.refreshParamEditor();
@@ -257,8 +331,8 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     } else { // "Now" is selected
       Integer pubYearVal = (Integer)this.publicationYearParam.getValue();
       // if publication year not available, set the current year as NOW
-      //if(pubYearVal==null) pubYearVal = new Integer(new GregorianCalendar().get(Calendar.YEAR));
-      pubYearVal = new Integer(0);
+      if(pubYearVal==null) //pubYearVal = new Integer(new GregorianCalendar().get(Calendar.YEAR));
+        pubYearVal = new Integer(DEFAULT_PUB_YEAR_VAL);
       timeAPI = new ExactTime(pubYearVal.intValue(), 0, 0, 0, 0, 0, AD, true);
     }
     return timeAPI;

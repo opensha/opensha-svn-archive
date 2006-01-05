@@ -92,7 +92,8 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
    */
   public AddEditCumDisplacement(CombinedDisplacementInfo combinedDisplacementInfo) {
     this();
-    setValuesInParameters(combinedDisplacementInfo);
+    if(combinedDisplacementInfo!=null)
+      setValuesInParameters(combinedDisplacementInfo);
   }
 
 
@@ -103,7 +104,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
 
     // set aseismic slip factor
     EstimateInstances aseismicSlipFactor  = combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp();
-    if(aseismicSlipFactor!=null) { // if aseismic slip factor is known
+    if(aseismicSlipFactor==null) { // if aseismic slip factor is known
       aseismicAvailableParam.setValue(this.UNKNOWN);
     } else { // aseismic slip factor is known
       aseismicAvailableParam.setValue(this.KNOWN);
@@ -152,7 +153,7 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
     aseismicAvailableParamEditor = new ConstrainedStringParameterEditor(aseismicAvailableParam);
     //aseismic slip factor
     this.aSeismicSlipFactorParam = new EstimateParameter(this.ASEISMIC_SLIP_FACTOR_PARAM_NAME,
-        ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
+        ASEISMIC_SLIP_FACTOR_UNITS, ASEISMIC_SLIP_FACTOR_MIN, ASEISMIC_SLIP_FACTOR_MAX, allowedEstimates);
     aSeismicSlipFactorParamEditor = new ConstrainedEstimateParameterEditor(aSeismicSlipFactorParam, true, ASEISMIC_SLIP_FACTOR_);
     // comments parameter editor
     displacementCommentsParam = new StringParameter(this.

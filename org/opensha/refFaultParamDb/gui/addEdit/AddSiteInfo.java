@@ -59,11 +59,37 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
   private ArrayList siteTypes;
   private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 
+
+  /**
+   * This constructor can be used for adding new site info
+   * @param siteId
+   * @param siteEntryDate
+   * @param isSlipVisible
+   * @param isDisplacementVisible
+   * @param isNumEventsVisible
+   * @param isSequenceVisible
+   */
   public AddSiteInfo(int siteId, String siteEntryDate,
                      boolean isSlipVisible, boolean isDisplacementVisible,
                      boolean isNumEventsVisible, boolean isSequenceVisible)  {
+    this(siteId, siteEntryDate, isSlipVisible, isDisplacementVisible, isNumEventsVisible, isSequenceVisible, null);
+  }
 
-
+  /**
+   * This constructor is useful when editing existing data
+   *
+   * @param siteId
+   * @param siteEntryDate
+   * @param isSlipVisible
+   * @param isDisplacementVisible
+   * @param isNumEventsVisible
+   * @param isSequenceVisible
+   * @param combinedInfo
+   */
+  public AddSiteInfo(int siteId, String siteEntryDate,
+                     boolean isSlipVisible, boolean isDisplacementVisible,
+                     boolean isNumEventsVisible, boolean isSequenceVisible,
+                     CombinedEventsInfo combinedInfo) {
     this.siteId = siteId;
     // user should provide info about at least one of slip, cum disp or num events
     if(!isSlipVisible && !isDisplacementVisible && !isNumEventsVisible && !isSequenceVisible)
@@ -86,23 +112,54 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
         return;
       }
     }
-    if(isSlipVisible) this.addEditSlipRate = new AddEditSlipRate();
-    if(isDisplacementVisible) this.addEditCumDisp = new AddEditCumDisplacement();
-    if(isNumEventsVisible) this.addEditNumEvents = new AddEditNumEvents();
+
+    // if slip is visible
+    if(isSlipVisible) {
+      CombinedSlipRateInfo combinedSlipRateInfo = null;
+      if(combinedInfo!=null) combinedSlipRateInfo = combinedInfo.getCombinedSlipRateInfo();
+      this.addEditSlipRate = new AddEditSlipRate(combinedSlipRateInfo);
+    }
+
+    // if displacement is visible
+    if(isDisplacementVisible) {
+      CombinedDisplacementInfo combinedDispInfo = null;
+      if(combinedInfo!=null) combinedDispInfo = combinedInfo.getCombinedDisplacementInfo();
+      this.addEditCumDisp = new AddEditCumDisplacement(combinedDispInfo);
+    }
+
+    // if num events are visible
+    if(isNumEventsVisible) {
+      CombinedNumEventsInfo combinedEventsInfo = null;
+      if(combinedInfo!=null) combinedEventsInfo = combinedInfo.getCombinedNumEventsInfo();
+      this.addEditNumEvents = new AddEditNumEvents(combinedEventsInfo);
+    }
+
+    // make timespan
+    if(combinedInfo!=null) {
+      addEditTimeSpan = new AddEditTimeSpan(combinedInfo.getStartTime(), combinedInfo.getEndTime(), combinedInfo.getDatedFeatureComments());
+    } else  addEditTimeSpan = new AddEditTimeSpan();
+
+
     jbInit();
     addActionListeners();
     this.setSize(W,H);
     setTitle(TITLE);
     this.setLocationRelativeTo(null);
     this.setVisible(true);
+
     // show window to get the reference
-    JFrame referencesDialog = new ChooseReference(this);
+    ChooseReference referencesDialog = new ChooseReference(this);
     referencesDialog.setFocusableWindowState(true);
     referencesDialog.setVisible(true);
-
-    //this.setEnabled(false);
-
+    if(combinedInfo!=null) {
+      PaleoSitePublication paleoSitePub = combinedInfo.getPaleoSitePublication();
+      referencesDialog.setParameters((String)paleoSitePub.getSiteTypeNames().get(0),
+                                     paleoSitePub.getRepresentativeStrandName(),
+                                     paleoSitePub.getReference());
+    }
   }
+
+
 
   // site type as given in the publication
   public void setSiteType(String siteType) {
@@ -258,7 +315,7 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
         new Insets(0, 22, 11, 175), 8, 0));
     String constraints = "";
-    addEditTimeSpan = new AddEditTimeSpan();
+
     mainSplitPane.add(addEditTimeSpan, JSplitPane.LEFT);
     mainSplitPane.add(this.tabbedPane, JSplitPane.RIGHT);
     if (this.isSlipVisible) // if slip rate estimate is visible

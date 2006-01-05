@@ -50,6 +50,7 @@ public class AddEditTimeSpan extends JPanel  {
   private JPanel commentsPanel = new JPanel();
 
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
+
   public AddEditTimeSpan() {
     try {
       jbInit();
@@ -59,6 +60,26 @@ public class AddEditTimeSpan extends JPanel  {
       ex.printStackTrace();
     }
     this.setVisible(true);
+  }
+
+  /**
+   * Set values in the editor
+   * @param startTime
+   * @param endTime
+   * @param comments
+   */
+  public AddEditTimeSpan(TimeAPI startTime, TimeAPI endTime,
+                         String comments) {
+    this();
+    setValuesInParameters(startTime, endTime, comments);
+  }
+
+  private void setValuesInParameters(TimeAPI startTime, TimeAPI endTime,
+                         String comments) {
+    startTimeBean.setTime(startTime);
+    endTimeBean.setTime(endTime);
+    timeSpanCommentsParam.setValue(comments);
+    timeSpanCommentsParamEditor.refreshParamEditor();
   }
 
   public void setNowYearVal(int nowYearVal) {

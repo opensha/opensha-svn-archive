@@ -21,6 +21,7 @@ import java.awt.event.ActionEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.IntegerEstimate;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.data.function.DiscretizedFunc;
 
 /**
  * <p>Title: AddEditNumEvents.java </p>
@@ -68,6 +69,36 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * set the values in the editor
+   * @param combinedNumEventsInfo
+   */
+  public AddEditNumEvents(CombinedNumEventsInfo combinedNumEventsInfo) {
+    this();
+    if(combinedNumEventsInfo!=null)
+      setParameterValues(combinedNumEventsInfo);
+  }
+
+
+  private void setParameterValues(CombinedNumEventsInfo combinedNumEventsInfo) {
+    // num events comments
+    numEventsCommentsParam.setValue(combinedNumEventsInfo.getNumEventsComments());
+    numEventsCommentsParamEditor.refreshParamEditor();
+    // num events estimate
+    IntegerEstimate estimate  = (IntegerEstimate)combinedNumEventsInfo.getNumEventsEstimate().getEstimate();
+    DiscretizedFunc func = estimate.getValues();
+    // min events param
+    minEventsParam.setValue(new Integer((int)func.getMinX()));
+    minEventsParamEditor.refreshParamEditor();
+    // max events param
+    maxEventsParam.setValue(new Integer((int)func.getMaxX()));
+    maxEventsParamEditor.refreshParamEditor();
+    // events probabilities
+    eventsProbParameter.setValue((ArbitrarilyDiscretizedFunc)func);
+    eventsProbParameterEditor.refreshParamEditor();
+
   }
 
 
