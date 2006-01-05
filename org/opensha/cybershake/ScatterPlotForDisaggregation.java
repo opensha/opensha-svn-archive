@@ -21,10 +21,10 @@ public class ScatterPlotForDisaggregation {
     super();
     //first modify the Cybershake file for all the sources and ruptures in file to
     //be only that are contain in OpenSHA file
-    //readAndModifyCyberShakeDataFile();
+    readAndModifyCyberShakeDataFile();
     //modifying the OpenSHA file to have only those sources and ruptures that are
     //in the Cybershake file
-    //readAndModifyOpenSHA_DataFile();
+    readAndModifyOpenSHA_DataFile();
     createScatterPlotFile();
   }
 
