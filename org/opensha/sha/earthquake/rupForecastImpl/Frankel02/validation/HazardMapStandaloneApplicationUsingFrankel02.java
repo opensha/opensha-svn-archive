@@ -1,7 +1,7 @@
 package org.opensha.sha.earthquake.rupForecastImpl.Frankel02.validation;
 
 
-import ch.randelshofer.quaqua.QuaquaManager;
+
 import java.util.ArrayList;
 import java.net.*;
 import java.io.*;
