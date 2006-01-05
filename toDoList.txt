@@ -12,7 +12,8 @@ DisaggregationCalculator:
 	In the control panel, hide all but the first parameter until the first parmater != "No Disaggregation"
 	Also hide the "Num Sources in List" parameter if the "Show Source Disagg ..." param is false
 
-	Make it so the "Num Sources in List" parameter sets the number listed in the calculator
+	Make it so the "Num Sources in List" parameter sets the number listed in the calculator; note I don't
+	think this actually solved the freezing problem.
 
 	Add a pdf version of the plot in the remote dir, and make the first line of the metadata file say:
 	"click here for a nice (non pixelated) version of this plot: [pdf link]"
