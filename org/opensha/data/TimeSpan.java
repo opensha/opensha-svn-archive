@@ -1051,7 +1051,7 @@ public class TimeSpan implements ParameterChangeListener, Serializable {
       for ( int i = 0; i < numListeners; i++ ) {
         TimeSpanChangeListener listener =
                     ( TimeSpanChangeListener ) changeListeners.get( i );
-        listener.parameterChange( event );
+        listener.timeSpanChange( event );
       }
     }
 }

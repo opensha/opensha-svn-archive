@@ -8,6 +8,16 @@ import java.util.*;
 import java.util.ListIterator;
 import java.util.EventObject;
 
+import net.jini.jeri.BasicILFactory;
+import net.jini.jeri.BasicJeriExporter;
+import net.jini.jeri.tcp.TcpServerEndpoint;
+import net.jini.export.Exporter;
+import java.rmi.*;
+
+import net.jini.core.event.RemoteEventListener;
+import net.jini.core.event.RemoteEvent;
+import net.jini.core.event.UnknownEventException;
+
 import org.opensha.data.TimeSpan;
 import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterAPI;
@@ -20,6 +30,7 @@ import org.opensha.data.Location;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import java.rmi.server.*;
 
 /**
  *
@@ -30,25 +41,40 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
  * @author Nitin Gupta and Vipin Gupta
  * @version 1.0
  */
-public class RemoteERF_Client extends EqkRupForecast implements
-    ParameterChangeListener,TimeSpanChangeListener {
+public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListener,
+    ParameterChangeListener,TimeSpanChangeListener{
 
   private RemoteEqkRupForecastAPI erfServer = null;
 
 
+  //adds the listeners to this list
+  private ArrayList listenerList = new ArrayList();
+
+  //creates the EventObject to send to the listeners for parameter change
+  //and timespan change
+  private EventObject eventObj;
+
+  //checks if within the notify function
+  private boolean withinNotify = false;
+
   /**
    * Get the reference to the remote ERF
    */
-  protected void getRemoteERF(String className, String rmiRemoteRegistrationName) throws RemoteException{
+  protected void getRemoteERF(String className,
+                              String rmiRemoteRegistrationName) throws
+      RemoteException {
     try {
-      RemoteERF_FactoryAPI remoteERF_Factory= (RemoteERF_FactoryAPI) Naming.lookup(rmiRemoteRegistrationName);
+      RemoteERF_FactoryAPI remoteERF_Factory = (RemoteERF_FactoryAPI) Naming.
+          lookup(rmiRemoteRegistrationName);
       erfServer = remoteERF_Factory.getRemoteERF(className);
       adjustableParams = erfServer.getAdjustableParameterList();
       ListIterator it = adjustableParams.getParametersIterator();
-      while(it.hasNext())
-        ((ParameterAPI)it.next()).addParameterChangeListener(this);
+      while (it.hasNext())
+        ( (ParameterAPI) it.next()).addParameterChangeListener(this);
       //getting the timespan object and adding the parameterchange listener obejct to it
-      getTimeSpan();
+      //getting the timespan and adjustable params
+      timeSpan = erfServer.getTimeSpan();
+      addListenersToTimeSpan();
     }
     catch (NotBoundException n) {
       n.printStackTrace();
@@ -59,8 +85,32 @@ public class RemoteERF_Client extends EqkRupForecast implements
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();
     }
+    //Make a proxy of myself to pass to the server/filter
+    Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+                                              new BasicILFactory());
+    try {
+      RemoteEventListener proxy = (RemoteEventListener) exporter.export(this);
+      erfServer.addParameterAndTimeSpanChangeListener(proxy);
+    }
+    catch (ExportException ex) {
+      ex.printStackTrace();
+    }
+
   }
 
+
+  //add the listeners to the timespan parameters
+  private void addListenersToTimeSpan() {
+    //if timespan is not null then add the change listeners to its parameters.
+    //we are again adding listeners here becuase they are transient and cannot be serialized.
+    if (timeSpan != null) {
+      timeSpan.addParameterChangeListener(this);
+      ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
+      ListIterator it = timeSpanParamList.getParametersIterator();
+      while (it.hasNext())
+        ( (ParameterAPI) it.next()).addParameterChangeListener(timeSpan);
+    }
+  }
 
   /**
    * @param paramArrays: Object array of the arguments used to create the argument
@@ -87,6 +137,17 @@ public class RemoteERF_Client extends EqkRupForecast implements
     catch (java.rmi.UnmarshalException u) {
       u.printStackTrace();
     }
+    //Make a proxy of myself to pass to the server/filter
+    Exporter exporter = new BasicJeriExporter(TcpServerEndpoint.getInstance(0),
+                                              new BasicILFactory());
+    try {
+      RemoteEventListener proxy = (RemoteEventListener) exporter.export(this);
+      erfServer.addParameterAndTimeSpanChangeListener(proxy);
+    }
+    catch (ExportException ex) {
+      ex.printStackTrace();
+    }
+
   }
 
 
@@ -150,9 +211,32 @@ public class RemoteERF_Client extends EqkRupForecast implements
   /* (non-Javadoc)
    * @see org.opensha.param.event.ParameterChangeListener#parameterChange(org.opensha.param.event.ParameterChangeEvent)
    */
-  public void parameterChange(EventObject event) {
-    setParameterChangeFlag(true);
+  public void parameterChange(ParameterChangeEvent event) {
+    try {
+
+      erfServer.setParameter(event.getParameterName(), event.getNewValue());
+    }
+    catch (RemoteException ex) {
+      ex.printStackTrace();
+    }
   }
+
+  /**
+   *  Function that must be implemented by all Timespan Listeners for
+   *  ParameterChangeEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void timeSpanChange(EventObject event) {
+    try {
+      ParameterChangeEvent chgEvent = ((ParameterChangeEvent)event);
+      erfServer.setParameter(chgEvent.getParameterName(), chgEvent.getNewValue());
+    }
+    catch (RemoteException ex) {
+      ex.printStackTrace();
+    }
+  }
+
 
   /**
    * This function finds whether a particular location lies in applicable
@@ -275,7 +359,7 @@ public class RemoteERF_Client extends EqkRupForecast implements
   public void updateForecast() {
     try {
       if(parameterChangeFlag){
-        erfServer.updateForecast(adjustableParams, timeSpan);
+        erfServer.updateForecast();
         setParameterChangeFlag(false);
       }
     }
@@ -319,17 +403,6 @@ public class RemoteERF_Client extends EqkRupForecast implements
    */
   public TimeSpan getTimeSpan() {
     try {
-      //getting the timespan and adjustable params
-      timeSpan = erfServer.getTimeSpan();
-      //if timespan is not null then add the change listeners to its parameters.
-      //we are again adding listeners here becuase they are transient and cannot be serialized.
-      if (timeSpan != null) {
-        timeSpan.addParameterChangeListener(this);
-        ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
-        ListIterator it = timeSpanParamList.getParametersIterator();
-        while (it.hasNext())
-          ( (ParameterAPI) it.next()).addParameterChangeListener(timeSpan);
-      }
       return timeSpan;
     }
     catch (Exception e) {
@@ -476,6 +549,42 @@ public class RemoteERF_Client extends EqkRupForecast implements
 
   }
 
+  /**
+   * adds the listener obj to list. When the change events come, all
+   * listeners added to it are notified of it.
+   * @param obj Object
+   */
+  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
+    listenerList.add(obj);
+  }
+
+  /**
+   * This method is called from the remote event is received from the Server by the client.
+   * @param remoteEvent RemoteEvent
+   * @throws UnknownEventException
+   * @throws RemoteException
+   */
+  public void notify(RemoteEvent remoteEvent) throws UnknownEventException,
+      RemoteException {
+    withinNotify = true;
+    Object obj = remoteEvent.getSource();
+    eventObj = new EventObject(obj);
+    if(obj instanceof ParameterAPI){
+      ParameterAPI param = (ParameterAPI)obj;
+      adjustableParams.getParameter(param.getName()).setValue(param.getValue());
+    }
+    else if(obj instanceof TimeSpan){
+      timeSpan = (TimeSpan)obj;
+      addListenersToTimeSpan();
+    }
+
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      ParameterAndTimeSpanChangeListener listener = (ParameterAndTimeSpanChangeListener)listenerList.get(i);
+      listener.parameterOrTimeSpanChange(eventObj);
+    }
+    withinNotify = false;
+  }
 
   /**
    * This function returns the ArbDiscrEmpirical object that holds the

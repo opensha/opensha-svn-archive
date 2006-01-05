@@ -7,6 +7,7 @@ import org.opensha.data.Location;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.NamedObjectAPI;
 import java.util.ListIterator;
+import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
 
 
 /**
@@ -60,6 +61,23 @@ public interface ERF_API extends NamedObjectAPI{
    */
   public TimeSpan getTimeSpan();
 
+  /**
+   * adds the listener obj to list. When the change events come, all
+   * listeners added to it are notified of it.
+   * @param obj Object
+   */
+  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj);
+
+
+  /**
+   * Loops over all the adjustable parameters and set parameter with the given
+   * name to the given value.
+   * @param name String Name of the Adjustable Parameter
+   * @param value Object Parameeter Value
+   * @return boolean boolean to see if it was successful in setting the parameter
+   * value.
+   */
+  public boolean setParameter(String name, Object value);
 
   /**
    * get the adjustable parameters for this forecast

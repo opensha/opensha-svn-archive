@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.param.StringParameter;
 import org.opensha.param.BooleanParameter;
+import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
 
 
 /**
@@ -46,12 +47,8 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   // if it is true it means that forecast needs to be updated
   protected boolean parameterChangeFlag = true;
 
-  // Boolean parameter for time dep versus time ind
-  public final static String TIME_DEPENDENT_PARAM_NAME = "Time Dependent";
-  protected final static String TIME_DEPENDENT_PARAM_INFO = "To specify time-dependent versus "+
-      "time-independent forecast";
-  protected BooleanParameter timeDependentParam;
 
+  private ArrayList listenerList = new ArrayList();
 
   /**
    * get the adjustable parameters for this forecast
@@ -112,13 +109,54 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
   }
 
   /**
+   * adds the listener obj to list. When the change events come, all
+   * listeners added to it are notified of it.
+   * @param obj Object
+   */
+  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
+    listenerList.add(obj);
+  }
+
+
+  /**
+    * Loops over all the adjustable parameters and set parameter with the given
+    * name to the given value.
+    * First checks if the parameter is contained within the ERF adjustable parameter
+    * list or TimeSpan adjustable parameters list. If not then return false.
+    * @param name String Name of the Adjustable Parameter
+    * @param value Object Parameeter Value
+    * @return boolean boolean to see if it was successful in setting the parameter
+    * value.
+    */
+   public boolean setParameter(String name, Object value){
+    if(getAdjustableParameterList().containsParameter(name)){
+      getAdjustableParameterList().getParameter(name).setValue(value);
+      return true;
+    }
+    else if(timeSpan.getAdjustableParams().containsParameter(name)){
+      timeSpan.getAdjustableParams().getParameter(name).setValue(value);
+      return true;
+    }
+    return false;
+   }
+
+
+
+
+
+  /**
    *  Function that must be implemented by all Timespan Listeners for
    *  ParameterChangeEvents.
    *
    * @param  event  The Event which triggered this function call
    */
-  public void parameterChange(EventObject event) {
+  public void timeSpanChange(EventObject event) {
     this.parameterChangeFlag = true;
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+      listener.parameterOrTimeSpanChange(new EventObject(timeSpan));
+    }
   }
 
   /**
@@ -132,6 +170,11 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    */
   public void parameterChange(ParameterChangeEvent event) {
     parameterChangeFlag = true;
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+      listener.parameterOrTimeSpanChange(event);
+    }
   }
 
   /**

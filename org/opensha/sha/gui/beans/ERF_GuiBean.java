@@ -24,7 +24,8 @@ import org.opensha.sha.param.editor.SimpleFaultParameterEditor;
 import java.awt.*;
 import javax.swing.*;
 import org.opensha.sha.earthquake.EqkRupForecast;
-
+import java.util.EventObject;
+import org.opensha.data.TimeSpan;
 
 /**
  * <p>Title: ERF_GuiBean </p>
@@ -36,7 +37,7 @@ import org.opensha.sha.earthquake.EqkRupForecast;
  */
 
 public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
-    ParameterChangeListener{
+    ParameterChangeListener, ParameterAndTimeSpanChangeListener{
 
   private final static String C = "ERF_GuiBean";
 
@@ -171,8 +172,10 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      //removing the erf's from the erfClasses ArrayList which could not be instantiated
      if(erfFailed.size() >0){
        int size =erfFailed.size();
-       for(int i=0;i<size;++i)
+       for(int i=0;i<size;++i){
+         System.out.println("Failed ERF Name:"+erfFailed.get(i));
          erfClasses.remove(erfFailed.get(i));
+       }
      }
 
      //Name of the first ERF class that is to be shown as the default ERF in the ERF Pick List
@@ -211,8 +214,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      while(it.hasNext()){
        ParameterAPI param = (ParameterAPI)it.next();
        //System.out.println("Param Name: "+param.getName());
-       if(param.getName().equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
-         param.addParameterChangeListener(this);
+       //if(param.getName().equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
+         //param.addParameterChangeListener(this);
        param.addParameterChangeFailListener(this);
 
        parameterList.addParameter(param);
@@ -455,8 +458,6 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
 
      String name1 = event.getParameterName();
 
-     if(name1.equals(EqkRupForecast.TIME_DEPENDENT_PARAM_NAME))
-       this.createTimeSpanPanel();
      // if ERF selected by the user  changes
      if( name1.equals(this.ERF_PARAM_NAME) && !isNewERF_Instance){
        String value = event.getNewValue().toString();
@@ -465,6 +466,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
          for(int i=0;i<size;++i){
            if(value.equalsIgnoreCase((String)erfNamesVector.get(i))){
              eqkRupForecast = (ERF_API)this.createERFClassInstance((String)erfClasses.get(i));
+             eqkRupForecast.addParameterAndTimeSpanChangeListener(this);
              break;
            }
          }
@@ -610,6 +612,23 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     this.add(erfScrollPane,  new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
             ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 6, 4, 5),0, 0));
     erfScrollPane.getViewport().add(erfAndTimespanPanel, null);
+  }
+
+  /**
+   *
+   * @param obj EventObject
+   */
+  public void parameterOrTimeSpanChange(EventObject eventObj) {
+    Object obj = eventObj.getSource();
+    if(obj instanceof ParameterAPI){
+      ParameterAPI param = (ParameterAPI)obj;
+      listEditor.getParameterEditor(param.getName()).refreshParamEditor();
+    }
+    else if(obj instanceof TimeSpan){
+      createTimeSpanPanel();
+      this.validate();
+      this.repaint();
+    }
   }
 
 }

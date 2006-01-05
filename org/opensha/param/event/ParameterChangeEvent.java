@@ -1,6 +1,7 @@
 package org.opensha.param.event;
 
 import java.util.EventObject;
+import org.opensha.param.ParameterAPI;
 
 /**
  *  <b>Title:</b> ParameterChangeEvent<p>
@@ -73,6 +74,14 @@ public class ParameterChangeEvent extends EventObject {
      */
     public Object getOldValue() {
         return oldValue;
+    }
+
+    /**
+     * Returns the Parameter Object that caused the Event to be fired.
+     * @return ParameterAPI
+     */
+    public ParameterAPI getParameter(){
+      return (ParameterAPI)this.getSource();
     }
 
 }

@@ -12,6 +12,7 @@ import org.opensha.data.TimeSpan;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.param.ParameterList;
 import org.opensha.param.ParameterAPI;
+import net.jini.core.event.RemoteEventListener;
 
 /**
  * <p>Title: RemoteERF_API</p>
@@ -40,7 +41,28 @@ public interface RemoteERF_API  extends Remote{
    * the middle of the loop.  This approach is also faster.
    * @return
    */
-   public void updateForecast(ParameterList list, TimeSpan timeSpan) throws RemoteException ;
+   public void updateForecast() throws RemoteException ;
+
+   /**
+    * Loops over all the adjustable parameters and set parameter with the given
+    * name to the given value.
+    * First checks if the parameter is contained within the ERF adjustable parameter
+    * list or TimeSpan adjustable parameters list. If not then return false.
+    * @param name String Name of the Adjustable Parameter
+    * @param value Object Parameeter Value
+    * @return boolean boolean to see if it was successful in setting the parameter
+    * value.
+    */
+   public boolean setParameter(String name, Object value) throws RemoteException;
+
+
+   /**
+    * adds the listener obj to list. When the change events come, all
+    * listeners added to it are notified of it.
+    * @param obj Object
+    */
+    public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj)
+        throws RemoteException;
 
    /**
     * save the forecast in a file

@@ -86,7 +86,7 @@ public class PEER_LogicTreeServerBasedERF_List extends PEER_LogicTreeERF_List {
           eqkRupForecast.getParameter(SIGMA_PARAM_NAME).setValue(lengthSigmaParam.getValue());
           eqkRupForecast.getParameter(FAULT_MODEL_NAME).setValue(faultModelParam.getValue());
           eqkRupForecast.getTimeSpan().setDuration(timeSpan.getDuration());
-          eqkRupForecast.updateForecast(eqkRupForecast.getAdjustableParameterList(),eqkRupForecast.getTimeSpan());
+          eqkRupForecast.updateForecast();
         }catch(RemoteException e){
           e.printStackTrace();
         }

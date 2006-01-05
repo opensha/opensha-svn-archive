@@ -19,9 +19,9 @@ public interface TimeSpanChangeListener {
 
   /**
    *  Function that must be implemented by all Timespan Listeners for
-   *  ParameterChangeEvents.
+   *  timeChangeEvents.
    *
    * @param  event  The Event which triggered this function call
    */
-    public void parameterChange( EventObject event );
+    public void timeSpanChange( EventObject event );
 }

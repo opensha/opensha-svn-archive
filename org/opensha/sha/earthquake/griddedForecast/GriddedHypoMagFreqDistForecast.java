@@ -8,6 +8,9 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import java.util.ListIterator;
 import org.opensha.sha.earthquake.ERF_API;
 import org.opensha.data.region.GeographicRegion;
+import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
+import java.util.EventObject;
+import java.util.ArrayList;
 
 /**
  * <p>Title: GriddedHypoMagFreqForecast</p>
@@ -41,6 +44,7 @@ public abstract  class GriddedHypoMagFreqDistForecast
   protected EvenlyGriddedGeographicRegionAPI region;
 
 
+  private ArrayList listenerList = new ArrayList();
 
   /**
    * This function finds whether a particular location lies in applicable
@@ -116,6 +120,29 @@ public abstract  class GriddedHypoMagFreqDistForecast
     return region.getNumGridLocs();
   }
 
+  /**
+   * adds the listener obj to list. When the change events come, all
+   * listeners added to it are notified of it.
+   * @param obj Object
+   */
+  public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
+    listenerList.add(obj);
+  }
+
+  /**
+   *  Function that must be implemented by all Timespan Listeners for
+   *  ParameterChangeEvents.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void timeSpanChange(EventObject event) {
+    this.parameterChangeFlag = true;
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+      listener.parameterOrTimeSpanChange(new EventObject(timeSpan));
+    }
+  }
 
   /**
    *  This is the main function of this interface. Any time a control
@@ -127,9 +154,13 @@ public abstract  class GriddedHypoMagFreqDistForecast
    * @param  event
    */
   public void parameterChange(ParameterChangeEvent event) {
-      parameterChangeFlag = true;
+    parameterChangeFlag = true;
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+      listener.parameterOrTimeSpanChange(event);
+    }
   }
-
   /**
    * Allows the user to get the Timespan for this GriddedHypoMagFreqDistForecast
    * @return TimeSpan
@@ -137,6 +168,30 @@ public abstract  class GriddedHypoMagFreqDistForecast
   public TimeSpan getTimeSpan() {
     return timeSpan;
   }
+
+
+  /**
+    * Loops over all the adjustable parameters and set parameter with the given
+    * name to the given value.
+    * First checks if the parameter is contained within the ERF adjustable parameter
+    * list or TimeSpan adjustable parameters list. If not then return false.
+    * @param name String Name of the Adjustable Parameter
+    * @param value Object Parameeter Value
+    * @return boolean boolean to see if it was successful in setting the parameter
+    * value.
+    */
+   public boolean setParameter(String name, Object value){
+    if(getAdjustableParameterList().containsParameter(name)){
+      getAdjustableParameterList().getParameter(name).setValue(value);
+      return true;
+    }
+    else if(timeSpan.getAdjustableParams().containsParameter(name)){
+      timeSpan.getAdjustableParams().getParameter(name).setValue(value);
+      return true;
+    }
+    return false;
+   }
+
 
   /**
    * Allows the user to set the Timespan for this GriddedHypoMagFreqDistForecast

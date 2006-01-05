@@ -36,6 +36,7 @@ public abstract class ERF_List implements ERF_ListAPI,
   protected ParameterList adjustableParams = new ParameterList();
   // time span param
   protected TimeSpan timeSpan;
+  private ArrayList listenerList = new ArrayList();
 
 
   /**
@@ -159,28 +160,50 @@ public abstract class ERF_List implements ERF_ListAPI,
    return this.timeSpan;
  }
 
+
+ /**
+  * adds the listener obj to list. When the change events come, all
+  * listeners added to it are notified of it.
+  * @param obj Object
+  */
+ public void addParameterAndTimeSpanChangeListener(ParameterAndTimeSpanChangeListener obj) {
+   listenerList.add(obj);
+ }
+
+
+
  /**
   *  Function that must be implemented by all Timespan Listeners for
   *  ParameterChangeEvents.
   *
   * @param  event  The Event which triggered this function call
   */
- public void parameterChange( EventObject event ) {
+ public void timeSpanChange(EventObject event) {
    this.parameterChangeFlag = true;
+   int size = listenerList.size();
+   for(int i=0;i<size;++i){
+     ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+     listener.parameterOrTimeSpanChange(new EventObject(timeSpan));
+   }
  }
-
 
  /**
-  * this function is called whenever any parameter changes in the
-  * adjustable parameter list
-  * @param e
+  *  This is the main function of this interface. Any time a control
+  *  paramater or independent paramater is changed by the user in a GUI this
+  *  function is called, and a paramater change event is passed in.
+  *
+  *  This sets the flag to indicate that the sources need to be updated
+  *
+  * @param  event
   */
- public void parameterChange(ParameterChangeEvent e) {
-   // set the parameter change flag to indicate that forecast needs to be updated
-   this.parameterChangeFlag = true;
-
- }
-
+ public void parameterChange(ParameterChangeEvent event) {
+   parameterChangeFlag = true;
+   int size = listenerList.size();
+   for(int i=0;i<size;++i){
+     ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+     listener.parameterOrTimeSpanChange(event);
+   }
+  }
 
  /**
   * sets the value for the parameter change flag
@@ -207,6 +230,30 @@ public abstract class ERF_List implements ERF_ListAPI,
   public ParameterAPI getParameter(String paramName) {
     return adjustableParams.getParameter(paramName);
   }
+
+  /**
+    * Loops over all the adjustable parameters and set parameter with the given
+    * name to the given value.
+    * First checks if the parameter is contained within the ERF adjustable parameter
+    * list or TimeSpan adjustable parameters list. If not then return false.
+    * @param name String Name of the Adjustable Parameter
+    * @param value Object Parameeter Value
+    * @return boolean boolean to see if it was successful in setting the parameter
+    * value.
+    */
+   public boolean setParameter(String name, Object value){
+    if(getAdjustableParameterList().containsParameter(name)){
+      getAdjustableParameterList().getParameter(name).setValue(value);
+      return true;
+    }
+    else if(timeSpan.getAdjustableParams().containsParameter(name)){
+      timeSpan.getAdjustableParams().getParameter(name).setValue(value);
+      return true;
+    }
+    return false;
+   }
+
+
 
   /**
    *

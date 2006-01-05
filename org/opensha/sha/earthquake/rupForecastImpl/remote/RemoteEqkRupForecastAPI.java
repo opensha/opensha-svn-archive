@@ -72,13 +72,6 @@ public interface RemoteEqkRupForecastAPI extends RemoteERF_API {
   public ProbEqkSource getSourceClone(int iSource) throws RemoteException;
 
 
-  /**
-   * adds the listener obj to list. When the change events come, all
-   * listeners added to it are notified of it.
-   * @param obj Object
-   */
-   public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj)
-       throws RemoteException;
 
 
   /**

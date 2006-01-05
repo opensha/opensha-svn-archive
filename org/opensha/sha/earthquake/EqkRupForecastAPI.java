@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import org.opensha.data.region.GeographicRegion;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
 
 
 /**
@@ -63,6 +64,8 @@ public interface EqkRupForecastAPI extends ERF_API{
       */
      public ProbEqkRupture getRupture(int iSource,int nRupture);
 
+
+
      /**
       * This function returns the total probability of events above a given magnitude
       * within the given geographic region.  The calcuated Rates depend on the  ERF
@@ -73,6 +76,9 @@ public interface EqkRupForecastAPI extends ERF_API{
       * @return double : Total Rate for the region
       */
      public double getTotalProbAbove(double minMag, GeographicRegion region);
+
+
+
 
      /**
       * This function returns the total Rate above a given magnitude ,
