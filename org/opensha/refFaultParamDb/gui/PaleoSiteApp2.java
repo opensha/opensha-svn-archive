@@ -33,6 +33,7 @@ import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
 import org.opensha.refFaultParamDb.vo.EventSequence;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.sha.gui.infoTools.CalcProgressBar;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -99,6 +100,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
 
    private final static String NOT_AVAILABLE = "Not Available";
+   private CalcProgressBar progressBar = new CalcProgressBar("Retrieving data", "Retrieving data from database....");
+   private final static String MSG_ERROR_RETRIEVING_DATA = "Error Retrieving data for the site";
 
   /**
    * Constructor.
@@ -233,7 +236,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
     if(time instanceof ExactTime) { // if it is exact time
       ExactTime exactTime = (ExactTime)time;
       if(exactTime.getIsNow()) timeString+="Now";
-      else timeString+=exactTime.getYear()+exactTime.getEra();
+      else timeString+=exactTime.getYear()+" "+exactTime.getEra();
     } else if(time instanceof TimeEstimate) { // if it is time estimate
       TimeEstimate timeEstimate = (TimeEstimate) time;
       Estimate estimate = timeEstimate.getEstimate();
@@ -260,7 +263,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
       }
       if (timeEstimate.isKaSelected()) // if user entered ka values
         timeString += "ka";
-      else  timeString += timeEstimate.getEra();
+      else  timeString += " "+timeEstimate.getEra();
 
     }
     return timeString;
@@ -523,16 +526,23 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
   public void siteSelected(PaleoSite paleoSite, int referenceId) {
     this.paleoSite = paleoSite;
     String siteName;
-    if(paleoSite==null) { // for test site
-      siteName = ViewSiteCharacteristics.TEST_SITE;
-      combinedEventsInfoList = null;
+    progressBar.setVisible(true);
+    try {
+      if (paleoSite == null) { // for test site
+        siteName = ViewSiteCharacteristics.TEST_SITE;
+        combinedEventsInfoList = null;
+      }
+      else { // for actual sites from database
+        siteName = paleoSite.getSiteName();
+        this.combinedEventsInfoList = combinedEventsInfoDAO.
+            getCombinedEventsInfoList(paleoSite.getSiteId(), referenceId);
+      }
+      makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
+      this.individualEventPanel.setSite(paleoSite); // view the events for this site
+    }catch(Exception e) {
+      JOptionPane.showMessageDialog(this, MSG_ERROR_RETRIEVING_DATA);
     }
-    else { // for actual sites from database
-      siteName = paleoSite.getSiteName();
-      this.combinedEventsInfoList = combinedEventsInfoDAO.getCombinedEventsInfoList(paleoSite.getSiteId(), referenceId);
-    }
-    makeTimeSpanParamAndEditor(); // get a list of all the timespans for which data is available for this site
-    this.individualEventPanel.setSite(paleoSite); // view the events for this site
+    progressBar.setVisible(false);
   }
 
 

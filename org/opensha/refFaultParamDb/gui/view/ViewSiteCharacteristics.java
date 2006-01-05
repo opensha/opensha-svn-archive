@@ -524,7 +524,10 @@ public class ViewSiteCharacteristics extends JPanel implements ActionListener,
        e.printStackTrace();
      }
    }
-   else this.setSiteInfo(siteName);
+   else {
+
+     this.setSiteInfo(siteName);
+   }
  }
 
  private void showIndividualEventWindow() {

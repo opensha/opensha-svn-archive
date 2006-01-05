@@ -198,7 +198,7 @@ public class InfoLabel extends JLabel {
   private String getTextForExactTime(ExactTime exactTime) {
     if(!exactTime.getIsNow()) { // it i not "NOW"
       return "<html><b>" + TIME + ":&nbsp;</b>Exact Time" + "<br>" +
-          "<b>Year:&nbsp;</b>" + exactTime.getYear() + exactTime.getEra() +
+          "<b>Year:&nbsp;</b>" + exactTime.getYear() + " "+exactTime.getEra() +
           "<br>" +
           "<b>Month:&nbsp;</b>" + exactTime.getMonth() + "<br>" +
           "<b>Date:&nbsp;</b>" + exactTime.getDay() + "<br>" +
@@ -224,7 +224,7 @@ public class InfoLabel extends JLabel {
     if(isKaSelected) { // if KA is selected
       text = "<html><b>"+TIME+":&nbsp;</b>Time Estimate"+"<br>"+
           "<html><b>Units:&nbsp;</b>ka"+"<br>"+
-          "<b>Zero Year:&nbsp;</b>"+timeEstimate.getZeroYear()+"AD<br>"+
+          "<b>Zero Year:&nbsp;</b>"+timeEstimate.getZeroYear()+" AD<br>"+
           getTextForEstimate(timeEstimate.getEstimate(), TIME_VAL, PROB)+"</html>";
     } else { // if calendar year is selected for estimate
       text = "<html><b>"+TIME+":&nbsp;</b>Time Estimate"+"<br>"+

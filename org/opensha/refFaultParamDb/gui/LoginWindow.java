@@ -149,7 +149,8 @@ public class LoginWindow extends JFrame implements ActionListener {
   public void actionPerformed(ActionEvent event) {
     Object source = event.getSource();
     if(source==loginButton) { // if login button is clicked, save the username/passwd
-      SessionInfo.setPassword(this.passwordText.getText().toString().trim());
+      SessionInfo.setPassword(new String(passwordText.getPassword()).trim());
+
       SessionInfo.setUserName(this.usernameText.getText());
       try {
         SessionInfo.setContributorInfo();
