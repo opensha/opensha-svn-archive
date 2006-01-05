@@ -19,6 +19,10 @@ import org.opensha.sha.earthquake.rupForecastImpl.remote.RemoteEqkRupForecastAPI
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
+import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
+import net.jini.core.event.RemoteEvent;
+import net.jini.core.event.RemoteEventListener;
+import net.jini.core.event.*;
 
 /**
  *
@@ -31,10 +35,13 @@ import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
  */
 public class RemoteEqkRupForecast_Impl
 	extends UnicastRemoteObject
-	implements RemoteEqkRupForecastAPI {
+	implements RemoteEqkRupForecastAPI,ParameterAndTimeSpanChangeListener {
 
    private EqkRupForecast eqkRupForecast = null;
    private static final boolean D = false;
+
+   private ArrayList listenerList = new ArrayList();
+
 
    /**
     * creates the EqkRupForecast object based on received className
@@ -46,6 +53,7 @@ public class RemoteEqkRupForecast_Impl
    public RemoteEqkRupForecast_Impl(String className)
        throws java.rmi.RemoteException, IOException {
      eqkRupForecast = (EqkRupForecast)org.opensha.util.ClassUtils.createNoArgConstructorClassInstance(className);
+     eqkRupForecast.addParameterAndTimeSpanChangeListener(this);
    }
 
    /**
@@ -58,24 +66,37 @@ public class RemoteEqkRupForecast_Impl
    public RemoteEqkRupForecast_Impl(ArrayList params,ArrayList paramTypes,String className)
        throws java.rmi.RemoteException, IOException {
      eqkRupForecast = (EqkRupForecast)org.opensha.util.ClassUtils.createNoArgConstructorClassInstance(params,paramTypes,className);;
+     eqkRupForecast.addParameterAndTimeSpanChangeListener(this);
    }
 
    /* (non-Javadoc)
     * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
     */
-   public void updateForecast(ParameterList list, TimeSpan timeSpan) throws
+   public void updateForecast() throws
        RemoteException {
-     eqkRupForecast.setParameterChangeFlag(true);
-     Iterator it = list.getParametersIterator();
-     while (it.hasNext()) {
-       ParameterAPI param = (ParameterAPI) it.next();
-       eqkRupForecast.getParameter(param.getName()).setValue(param.getValue());
-       if(D) System.out.println("Param Name:"+param.getName()+",value="+param.getValue());
-     }
-     eqkRupForecast.setTimeSpan(timeSpan);
      eqkRupForecast.updateForecast();
      // TODO Auto-generated method stub
    }
+
+
+
+   /**
+     * Loops over all the adjustable parameters and set parameter with the given
+     * name to the given value.
+     * First checks if the parameter is contained within the ERF adjustable parameter
+     * list or TimeSpan adjustable parameters list. If not then return false.
+     * @param name String Name of the Adjustable Parameter
+     * @param value Object Parameeter Value
+     * @return boolean boolean to see if it was successful in setting the parameter
+     * value.
+     */
+    public boolean setParameter(String name, Object value) throws
+       RemoteException{
+      return eqkRupForecast.setParameter(name,value);
+    }
+
+
+
 
    /* (non-Javadoc)
     * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#updateForecast()
@@ -90,6 +111,17 @@ public class RemoteEqkRupForecast_Impl
                                               eqkRupForecast);
      return parentDir + subDir + fileName;
    }
+
+
+   /**
+    * adds the listener obj to list. When the change events come, all
+    * listeners added to it are notified of it.
+    * @param obj Object
+    */
+   public void addParameterAndTimeSpanChangeListener(RemoteEventListener obj)
+       throws RemoteException{
+     listenerList.add(obj);
+  }
 
    /* (non-Javadoc)
     * @see org.opensha.sha.earthquake.rupForecastImpl.Frankel02.ERFFrankel02Server#getName()
@@ -320,6 +352,26 @@ public class RemoteEqkRupForecast_Impl
        GeographicRegion region) throws RemoteException {
      return eqkRupForecast.getMagRateDistForRegion(minMag, region);
    }
+
+   /**
+    * Notifys the Client when any parameter or Timespan changes on the Remote ERF Server
+    * @param eventObj EventObject
+    */
+   public void parameterOrTimeSpanChange(EventObject eventObj) {
+    Object obj = eventObj.getSource();
+    RemoteEvent event = new RemoteEvent(obj, 0, 0, null);
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      RemoteEventListener listener =(RemoteEventListener)listenerList.get(i);
+      try {
+        listener.notify(event);
+      }
+      catch (RemoteException ex) {
+      }
+      catch (UnknownEventException ex) {
+      }
+    }
+  }
 
 }
 
