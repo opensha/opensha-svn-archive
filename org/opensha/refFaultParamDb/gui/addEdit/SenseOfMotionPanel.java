@@ -77,6 +77,29 @@ public class SenseOfMotionPanel extends JPanel implements ParameterChangeListene
     setSOM_RakeParamVisibility();
   }
 
+  /**
+   * Set the values to be shown in sense of motion panel
+   *
+   * @param somQual
+   * @param somRake
+   */
+  public void setSenseOfMotion(String somQual, Estimate somRake) {
+    if(somQual==null && somRake!=null) { // quantitative sense of motion
+      somParam.setValue(QUANTITATIVE);
+      somRakeEstParam.setValue(somRake);
+      somRakeEstParamEditor.refreshParamEditor();
+    }
+    if(somRake==null && somQual!=null) { // qualitative sense of motion
+      somParam.setValue(QUANTITATIVE);
+      somQualParam.setValue(somQual);
+      somQualParamEditor.refreshParamEditor();
+    } else { // unknown
+      somParam.setValue(UNKNOWN);
+    }
+    somParamEditor.refreshParamEditor();
+  }
+
+
   private void initParamListAndEditor() {
     try {
       // sense of motion

@@ -86,6 +86,48 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
    }
   }
 
+  /**
+   * Set the values in the editor
+   * @param combinedDisplacementInfo
+   */
+  public AddEditCumDisplacement(CombinedDisplacementInfo combinedDisplacementInfo) {
+    this();
+    setValuesInParameters(combinedDisplacementInfo);
+  }
+
+
+  private void setValuesInParameters(CombinedDisplacementInfo combinedDisplacementInfo) {
+    // set cumulative displacement
+    cumDisplacementParam.setValue(combinedDisplacementInfo.getDisplacementEstimate().getEstimate());
+    cumDisplacementParamEditor.refreshParamEditor();
+
+    // set aseismic slip factor
+    EstimateInstances aseismicSlipFactor  = combinedDisplacementInfo.getASeismicSlipFactorEstimateForDisp();
+    if(aseismicSlipFactor!=null) { // if aseismic slip factor is known
+      aseismicAvailableParam.setValue(this.UNKNOWN);
+    } else { // aseismic slip factor is known
+      aseismicAvailableParam.setValue(this.KNOWN);
+      aSeismicSlipFactorParam.setValue(aseismicSlipFactor.getEstimate());
+      aSeismicSlipFactorParamEditor.refreshParamEditor();
+    }
+    aseismicAvailableParamEditor.refreshParamEditor();
+
+    // set comments
+    this.displacementCommentsParam.setValue(combinedDisplacementInfo.getDisplacementComments());
+    displacementCommentsParamEditor.refreshParamEditor();
+
+    // measured component of slip
+    measuredCompPanel.setMeasuredCompVal(combinedDisplacementInfo.getMeasuredComponentQual());
+
+    // sense of motion
+    EstimateInstances somQuan = combinedDisplacementInfo.getSenseOfMotionRake();
+    Estimate rake = null;
+    if(somQuan!=null) rake = somQuan.getEstimate();
+    senseOfMotionPanel.setSenseOfMotion(combinedDisplacementInfo.getSenseOfMotionQual(),
+                                        rake);
+
+  }
+
 
   /**
    * Add the input parameters if user provides the cumulative displacement

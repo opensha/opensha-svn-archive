@@ -82,8 +82,50 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Set the values in the editor
+   * @param combinedDisplacementInfo
+   */
+  public AddEditSlipRate(CombinedSlipRateInfo combinedSlipRateInfo) {
+    this();
+    setValuesInParameters(combinedSlipRateInfo);
+  }
+
+
+  private void setValuesInParameters(CombinedSlipRateInfo combinedSlipRateInfo) {
+    // set cumulative displacement
+    slipRateEstimateParam.setValue(combinedSlipRateInfo.getSlipRateEstimate().getEstimate());
+    slipRateEstimateParamEditor.refreshParamEditor();
+
+    // set aseismic slip factor
+    EstimateInstances aseismicSlipFactor  = combinedSlipRateInfo.getASeismicSlipFactorEstimateForSlip();
+    if(aseismicSlipFactor!=null) { // if aseismic slip factor is known
+      aseismicAvailableParam.setValue(this.UNKNOWN);
+    } else { // aseismic slip factor is known
+      aseismicAvailableParam.setValue(this.KNOWN);
+      aSeismicSlipFactorParam.setValue(aseismicSlipFactor.getEstimate());
+      aSeismicSlipFactorParamEditor.refreshParamEditor();
+    }
+    aseismicAvailableParamEditor.refreshParamEditor();
+
+    // set comments
+    this.slipRateCommentsParam.setValue(combinedSlipRateInfo.getSlipRateComments());
+    slipRateCommentsParamEditor.refreshParamEditor();
+
+    // measured component of slip
+    measuredCompPanel.setMeasuredCompVal(combinedSlipRateInfo.getMeasuredComponentQual());
+
+    // sense of motion
+    EstimateInstances somQuan = combinedSlipRateInfo.getSenseOfMotionRake();
+    Estimate rake = null;
+    if(somQuan!=null) rake = somQuan.getEstimate();
+    senseOfMotionPanel.setSenseOfMotion(combinedSlipRateInfo.getSenseOfMotionQual(),
+                                        rake);
 
   }
+
 
 
 

@@ -50,6 +50,16 @@ public class MeasuredCompPanel extends JPanel  {
     }
   }
 
+  /**
+   * Set the value for measured component of slip
+   *
+   * @param value
+   */
+  public void setMeasuredCompVal(String value) {
+    measuredCompParam.setValue(value);
+    measuredCompParamEditor.refreshParamEditor();
+  }
+
   private void addEditorsToGUI() {
     int yPos=0;
     this.add(measuredCompParamEditor,new GridBagConstraints(0, yPos++, 1, 1, 1.0, 1.0
