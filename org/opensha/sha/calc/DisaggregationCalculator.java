@@ -730,7 +730,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
 
 
-
     gmtScriptLines.add("echo " + "\"0.0 0.75 13 0.0 12 CB e<-2\" > temp_label");
     gmtScriptLines.add("echo " + "\"0.9 0.75 13 0.0 12 CB -2<e<-1\" >> temp_label");
     gmtScriptLines.add("echo " + "\"1.8 0.75 13 0.0 12 CB -1<e<-0.5\" >> temp_label");
@@ -739,7 +738,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
     gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
     gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
-    gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.45 -P -O >> " + img_ps_file);
+    gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.44 -P -O >> " + img_ps_file);
 
     gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
     gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG);
