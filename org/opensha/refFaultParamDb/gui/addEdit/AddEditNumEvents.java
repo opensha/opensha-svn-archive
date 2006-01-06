@@ -77,8 +77,11 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
    */
   public AddEditNumEvents(CombinedNumEventsInfo combinedNumEventsInfo) {
     this();
-    if(combinedNumEventsInfo!=null)
+    if(combinedNumEventsInfo!=null) {
+      minEventsParam.removeParameterChangeListener(this);
       setParameterValues(combinedNumEventsInfo);
+      minEventsParam.addParameterChangeListener(this);
+    }
   }
 
 

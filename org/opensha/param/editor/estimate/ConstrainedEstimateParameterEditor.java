@@ -316,12 +316,25 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
   // set the estimate in min/max/pref estimate
   private void setMinMaxPrefVals(MinMaxPrefEstimate minMaxPrefEstimate) {
     this.chooseEstimateParam.setValue(MinMaxPrefEstimate.NAME);
-    this.minX_Param.setValue(minMaxPrefEstimate.getMinimumX());
-    this.prefferedX_Param.setValue(minMaxPrefEstimate.getPreferredX());
-    this.maxX_Param.setValue(minMaxPrefEstimate.getMaximumX());
-    this.minProbParam.setValue(minMaxPrefEstimate.getMinimumProb());
-    this.prefferedProbParam.setValue(minMaxPrefEstimate.getPreferredProb());
-    this.maxProbParam.setValue(minMaxPrefEstimate.getMaximumProb());
+    // min X
+    double minX = minMaxPrefEstimate.getMinimumX();
+    if(!Double.isNaN(minX))  this.minX_Param.setValue(minX);
+    // pref X
+    double prefX = minMaxPrefEstimate.getPreferredX();
+    if(!Double.isNaN(prefX)) prefferedX_Param.setValue(prefX);
+    //max X
+    double maxX = minMaxPrefEstimate.getMaximumX();
+    if(!Double.isNaN(maxX)) maxX_Param.setValue(maxX);
+    //min Prob
+    double minProb = minMaxPrefEstimate.getMinimumProb();
+    if(!Double.isNaN(minProb)) minProbParam.setValue(minProb);
+    // pref prob
+    double prefProb = minMaxPrefEstimate.getPreferredProb();
+    if(!Double.isNaN(prefProb)) this.prefferedProbParam.setValue(prefProb);
+    // max prob
+    double maxProb = minMaxPrefEstimate.getMaximumProb();
+    if(!Double.isNaN(maxProb)) this.maxProbParam.setValue(maxProb);
+
     xValsParamListEditor.refreshParamEditor();
     probValsParamListEditor.refreshParamEditor();
 

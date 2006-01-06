@@ -152,10 +152,14 @@ public class AddSiteInfo extends DbAdditionFrame implements ActionListener{
     referencesDialog.setFocusableWindowState(true);
     referencesDialog.setVisible(true);
     if(combinedInfo!=null) {
+      // set paleo site publication
       PaleoSitePublication paleoSitePub = combinedInfo.getPaleoSitePublication();
       referencesDialog.setParameters((String)paleoSitePub.getSiteTypeNames().get(0),
                                      paleoSitePub.getRepresentativeStrandName(),
                                      paleoSitePub.getReference());
+      setSiteType((String)paleoSitePub.getSiteTypeNames().get(0));
+      setSiteRepresentativeStrandIndex(paleoSitePub.getRepresentativeStrandName());
+      setReference(paleoSitePub.getReference());
     }
   }
 
