@@ -42,13 +42,13 @@ import java.rmi.server.*;
  * @version 1.0
  */
 public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListener,
-    ParameterChangeListener,TimeSpanChangeListener{
+    ParameterChangeListener{
 
   private RemoteEqkRupForecastAPI erfServer = null;
 
 
   //adds the listeners to this list
-  private ArrayList listenerList = new ArrayList();
+  private transient ArrayList listenerList = new ArrayList();
 
   //creates the EventObject to send to the listeners for parameter change
   //and timespan change
@@ -110,7 +110,7 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
       ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
       ListIterator it = timeSpanParamList.getParametersIterator();
       while (it.hasNext())
-        ( (ParameterAPI) it.next()).addParameterChangeListener(timeSpan);
+        ( (ParameterAPI) it.next()).addParameterChangeListener(this);
     }
   }
 
@@ -192,7 +192,7 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     // TODO Auto-generated method stub
     try {
       ProbEqkSource source = erfServer.getSource(iSource);
-      int numRupturesForSource = source.getNumRuptures();
+      //int numRupturesForSource = source.getNumRuptures();
       //System.out.println("NumRuptureForSource :"+numRupturesForSource);
       return source;
     }
@@ -225,22 +225,6 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
       String eventParamName = event.getParameterName();
       if(!(withinNotify && eventParamName.equals(changedParameterName)))
         erfServer.setParameter(event.getParameterName(), event.getNewValue());
-    }
-    catch (RemoteException ex) {
-      ex.printStackTrace();
-    }
-  }
-
-  /**
-   *  Function that must be implemented by all Timespan Listeners for
-   *  ParameterChangeEvents.
-   *
-   * @param  event  The Event which triggered this function call
-   */
-  public void timeSpanChange(EventObject event) {
-    try {
-      ParameterChangeEvent chgEvent = ((ParameterChangeEvent)event);
-      erfServer.setParameter(chgEvent.getParameterName(), chgEvent.getNewValue());
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
@@ -372,10 +356,7 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
    */
   public void updateForecast() {
     try {
-      if(parameterChangeFlag){
         erfServer.updateForecast();
-        setParameterChangeFlag(false);
-      }
     }
     catch (Exception e) {
       e.printStackTrace();

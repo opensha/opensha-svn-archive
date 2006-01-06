@@ -11,7 +11,6 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.param.event.*;
 import org.opensha.param.*;
 import org.opensha.data.TimeSpan;
-import org.opensha.data.Location;
 import org.opensha.data.region.GeographicRegion;
 import net.jini.core.event.RemoteEvent;
 import net.jini.core.event.UnknownEventException;
@@ -32,11 +31,11 @@ import net.jini.jeri.tcp.TcpServerEndpoint;
  */
 
 public class RemoteERF_ListClient extends ERF_List implements
-    RemoteEventListener,TimeSpanChangeListener{
+    RemoteEventListener{
 
   private RemoteERF_ListAPI erfListServer = null;
   //adds the listeners to this list
-  private ArrayList listenerList = new ArrayList();
+  private transient ArrayList listenerList = new ArrayList();
 
   //creates the EventObject to send to the listeners for parameter change
   //and timespan change
@@ -96,7 +95,7 @@ public class RemoteERF_ListClient extends ERF_List implements
       ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
       ListIterator it = timeSpanParamList.getParametersIterator();
       while (it.hasNext())
-        ( (ParameterAPI) it.next()).addParameterChangeListener(timeSpan);
+        ( (ParameterAPI) it.next()).addParameterChangeListener(this);
     }
   }
 
@@ -218,21 +217,7 @@ public class RemoteERF_ListClient extends ERF_List implements
   }
 
 
-  /**
-   *  Function that must be implemented by all Timespan Listeners for
-   *  ParameterChangeEvents.
-   *
-   * @param  event  The Event which triggered this function call
-   */
-  public void timeSpanChange(EventObject event) {
-    try {
-      ParameterChangeEvent chgEvent = ((ParameterChangeEvent)event);
-      erfListServer.setParameter(chgEvent.getParameterName(), chgEvent.getNewValue());
-    }
-    catch (RemoteException ex) {
-      ex.printStackTrace();
-    }
-  }
+
  /**
   *
   * @returns the adjustable ParameterList for the ERF
@@ -307,12 +292,10 @@ public class RemoteERF_ListClient extends ERF_List implements
   * update the list of the ERFs based on the new parameters
   */
  public void updateForecast() {
-   System.out.println("ParameterChange Flag: "+parameterChangeFlag);
+
    try{
-     if(this.parameterChangeFlag) {
        erfListServer.updateForecast();
-       setParameterChangeFlag(false);
-     }
+
    }catch(RemoteException e){
      e.printStackTrace();
    }

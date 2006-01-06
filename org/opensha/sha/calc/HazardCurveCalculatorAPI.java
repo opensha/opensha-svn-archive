@@ -6,7 +6,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.Site;
 import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.imr.AttenuationRelationshipAPI;
-import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.earthquake.EqkRupture;
 
 
 /**
@@ -59,7 +59,7 @@ public interface HazardCurveCalculatorAPI extends Remote{
    */
   public DiscretizedFuncAPI getHazardCurve(DiscretizedFuncAPI
       hazFunction,
-      Site site, AttenuationRelationshipAPI imr, ProbEqkRupture rupture) throws
+      Site site, AttenuationRelationshipAPI imr, EqkRupture rupture) throws
       java.rmi.RemoteException;
 
 

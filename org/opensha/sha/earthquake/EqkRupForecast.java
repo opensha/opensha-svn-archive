@@ -155,7 +155,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
     int size = listenerList.size();
     for(int i=0;i<size;++i){
       ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
-      listener.parameterOrTimeSpanChange(new EventObject(timeSpan));
+      listener.parameterOrTimeSpanChange(event);
     }
   }
 

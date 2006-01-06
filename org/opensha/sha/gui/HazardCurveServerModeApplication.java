@@ -71,6 +71,7 @@ import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 import org.opensha.sha.gui.infoTools.ImageViewerWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.ProbEqkRupture;
+import org.opensha.sha.calc.HazardCurveCalculator;
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -752,7 +753,7 @@ public class HazardCurveServerModeApplication extends JFrame
      */
     protected void createCalcInstance(){
       if(calc == null)
-      calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+        calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
       if(disaggregationFlag)
         if(disaggCalc == null)
           disaggCalc = (new RemoteDisaggregationCalcClient()).getRemoteDisaggregationCalc();
