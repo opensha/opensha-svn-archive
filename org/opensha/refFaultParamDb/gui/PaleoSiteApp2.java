@@ -170,7 +170,8 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
         ArrayList referenceList  = combinedEventsInfo.getReferenceList();
 
         timeSpansList.add(getTimeString(combinedEventsInfo.getStartTime())+" to "+
-                          getTimeString(combinedEventsInfo.getEndTime()));
+                          getTimeString(combinedEventsInfo.getEndTime()) +
+                          "     (Entry Date:"+combinedEventsInfo.getEntryDate()+")");
       }
     }
     return timeSpansList;
