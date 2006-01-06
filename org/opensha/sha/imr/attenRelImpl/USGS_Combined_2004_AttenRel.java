@@ -602,6 +602,7 @@ public class USGS_Combined_2004_AttenRel
 
       // set the IMT in the various relationships
       setAttenRelsIMT();
+      setAttenRelsStdDevTypes();
 
       String imt = (String) im.getName();
       double per = ( (Double) periodParam.getValue()).doubleValue();

@@ -20,6 +20,8 @@ DisaggregationCalculator:
 
 	Ned needs to think about eBar computation when truncation has been invoked; very large Ebars are sometime reported
 	e.g., USGS2002 calc for 34.1, -118.2
+
+	app freezes if there are no exceedances (e.g., BJF97 at 34, -117 with background only)
 	
 
 For the deterministic calc option in the HazardCurveApps, make it so the IRM parameters in the metadata include the eqkRup and propEffect params from the IMR (so users can reproduce the results using the attenuation-relationship application). Ned should also look at the new method for this in the calculator.  Also, turn disaggregation off if one has chosen determinitistic.
