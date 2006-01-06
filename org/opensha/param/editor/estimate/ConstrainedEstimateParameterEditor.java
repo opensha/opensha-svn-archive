@@ -24,6 +24,7 @@ import org.opensha.data.function.DiscretizedFunc;
 import org.opensha.sha.gui.infoTools.EstimateViewer;
 import org.opensha.param.estimate.*;
 import org.opensha.data.estimate.InvalidParamValException;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: EstimateParameterEditor.java </p>
@@ -174,6 +175,7 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
 
    private EstimateConstraint estimateConstraint;
    private String xAxisName;
+   private final static DecimalFormat decimalFormat = new DecimalFormat("0.###");
 
 
 
@@ -336,22 +338,22 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.chooseEstimateParam.setValue(MinMaxPrefEstimate.NAME);
     // min X
     double minX = minMaxPrefEstimate.getMinimumX();
-    if(!Double.isNaN(minX))  this.minX_Param.setValue(minX);
+    if(!Double.isNaN(minX))  this.minX_Param.setValue(new Double(decimalFormat.format(minX)));
     // pref X
     double prefX = minMaxPrefEstimate.getPreferredX();
-    if(!Double.isNaN(prefX)) prefferedX_Param.setValue(prefX);
+    if(!Double.isNaN(prefX)) prefferedX_Param.setValue(new Double(decimalFormat.format(prefX)));
     //max X
     double maxX = minMaxPrefEstimate.getMaximumX();
-    if(!Double.isNaN(maxX)) maxX_Param.setValue(maxX);
+    if(!Double.isNaN(maxX)) maxX_Param.setValue(new Double(decimalFormat.format(maxX)));
     //min Prob
     double minProb = minMaxPrefEstimate.getMinimumProb();
-    if(!Double.isNaN(minProb)) minProbParam.setValue(minProb);
+    if(!Double.isNaN(minProb)) minProbParam.setValue(new Double(decimalFormat.format(minProb)));
     // pref prob
     double prefProb = minMaxPrefEstimate.getPreferredProb();
-    if(!Double.isNaN(prefProb)) this.prefferedProbParam.setValue(prefProb);
+    if(!Double.isNaN(prefProb)) this.prefferedProbParam.setValue(new Double(decimalFormat.format(prefProb)));
     // max prob
     double maxProb = minMaxPrefEstimate.getMaximumProb();
-    if(!Double.isNaN(maxProb)) this.maxProbParam.setValue(maxProb);
+    if(!Double.isNaN(maxProb)) this.maxProbParam.setValue(new Double(decimalFormat.format(maxProb)));
 
     xValsParamListEditor.refreshParamEditor();
     probValsParamListEditor.refreshParamEditor();
