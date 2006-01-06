@@ -175,7 +175,9 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
    */
   public int getNumSources() {
     try {
-      return erfServer.getNumSources();
+      int numSources= erfServer.getNumSources();
+      //System.out.println("NumSources :"+numSources);
+      return numSources;
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -189,7 +191,10 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
   public ProbEqkSource getSource(int iSource) {
     // TODO Auto-generated method stub
     try {
-      return erfServer.getSource(iSource);
+      ProbEqkSource source = erfServer.getSource(iSource);
+      int numRupturesForSource = source.getNumRuptures();
+      //System.out.println("NumRuptureForSource :"+numRupturesForSource);
+      return source;
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -202,7 +207,9 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
    */
   public ArrayList getSourceList() {
     try {
-      return erfServer.getSourceList();
+      ArrayList list = erfServer.getSourceList();
+      //System.out.println("SourceList size :"+list.size());
+      return list;
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -281,7 +288,9 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     */
    public int getNumRuptures(int iSource){
      try {
-       return erfServer.getNumRuptures(iSource);
+       int numRupsForSource = erfServer.getNumRuptures(iSource);
+       //System.out.println("Num ruptures for a given source :"+numRupsForSource);
+       return numRupsForSource;
      }
      catch (Exception e) {
        e.printStackTrace();
@@ -302,7 +311,9 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     */
    public ProbEqkRupture getRupture(int iSource, int nRupture) {
      try {
-       return erfServer.getRupture(iSource,nRupture);
+       ProbEqkRupture rupture = erfServer.getRupture(iSource,nRupture);
+       //System.out.println(rupture.getInfo());
+       return rupture;
      }
      catch (Exception e) {
        e.printStackTrace();
