@@ -83,16 +83,21 @@ public class DB_AccessServlet extends HttpServlet{
         String usrName = (String)inputFromApp.readObject();
         // get the password
         String passwd = (String)inputFromApp.readObject();
-        // if this is a valid contributor
-        if(contributorDAO.isContributorValid(usrName, passwd)==null) {
+        //receiving the name of the Function to be performed
+        String functionToPerform = (String) inputFromApp.readObject();
+
+        // if this is a valid contributor (do not check if it is reset password)
+        if(contributorDAO.isContributorValid(usrName, passwd)==null &&
+           !functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD) &&
+           !functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY) &&
+           !functionToPerform.equalsIgnoreCase(DB_AccessAPI.SELECT_QUERY_SPATIAL)) {
           inputFromApp.close();
           DBConnectException exception =  new DBConnectException(CONNECT_FAILURE_MSG);
           outputToApp.writeObject(exception);
           outputToApp.close();
           return;
         }
-        //receiving the name of the Function to be performed
-        String functionToPerform = (String) inputFromApp.readObject();
+
         //receiving the query
         String query = (String)inputFromApp.readObject();
 
@@ -127,6 +132,11 @@ public class DB_AccessServlet extends HttpServlet{
           SpatialQueryResult resultSet= myBroker.queryData(query,
               sqlWithNoSaptialColumnNames, geomteryObjectList);
           outputToApp.writeObject(resultSet);
+        }
+        // reset the password
+        else if(functionToPerform.equalsIgnoreCase(DB_AccessAPI.RESET_PASSWORD)) {
+          int key = myBroker.insertUpdateOrDeleteData(query);
+          outputToApp.writeObject(new Integer(key));
         }
         inputFromApp.close();
         outputToApp.close();

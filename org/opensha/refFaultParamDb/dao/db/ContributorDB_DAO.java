@@ -107,18 +107,19 @@ public class ContributorDB_DAO  {
    * reset the password for a contributor in the database
    * @throws UpdateException
    */
-  public String resetPassword(String userName) throws UpdateException {
+  public String resetPasswordByEmail(String email) throws UpdateException {
     String randomPass = getRandomPassword();
     String sql = "update "+TABLE_NAME+" set "+PASSWORD+"= '"+
-        getEnryptedPassword(randomPass)+"' where "+this.CONTRIBUTOR_NAME+"='"+
-        userName+"'";
+        getEnryptedPassword(randomPass)+"' where "+this.EMAIL+"='"+
+        email+"'";
     try {
-      int numRows = dbAccessAPI.insertUpdateOrDeleteData(sql);
+      int numRows = dbAccessAPI.resetPasswordByEmail(sql);
       if(numRows==1) return randomPass;
     }
     catch(SQLException e) { throw new UpdateException(e.getMessage()); }
     return null;
   }
+
 
   private int rand(int lo, int hi, Random rn) {
     int n = hi - lo + 1;

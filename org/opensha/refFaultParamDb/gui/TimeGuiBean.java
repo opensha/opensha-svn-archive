@@ -177,7 +177,7 @@ public class TimeGuiBean extends LabeledBoxPanel implements ParameterChangeListe
     exactTimeGuiBean = new ExactTimeGuiBean(" ");
     // param and editor to allow user to fill the time estimate values
     ArrayList allowedDateEstimates  = EstimateConstraint.createConstraintForDateEstimates();
-    estimateParameter = new EstimateParameter(" ", Double.NEGATIVE_INFINITY,
+    estimateParameter = new EstimateParameter(" ", 0,
                                               Double.POSITIVE_INFINITY, allowedDateEstimates);
     estimateParamEditor = new ConstrainedEstimateParameterEditor(estimateParameter,true, YEARS);
     /**

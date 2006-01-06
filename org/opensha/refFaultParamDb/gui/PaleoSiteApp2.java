@@ -34,6 +34,7 @@ import org.opensha.refFaultParamDb.vo.EventSequence;
 import org.opensha.refFaultParamDb.vo.PaleoEvent;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
+import java.text.DecimalFormat;
 
 /**
  * <p>Title: PaleoSiteApp2.java </p>
@@ -164,7 +165,7 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
           // this is a valid site but info available for this
       timeSpansList.add(this.NOT_AVAILABLE);
     } else {
-      for(int i=0; i<combinedEventsInfoList.size(); ++i) {
+      for(int i=combinedEventsInfoList.size()-1; i>=0; --i) {
         // valid site and info available for the site
         CombinedEventsInfo combinedEventsInfo = (CombinedEventsInfo)combinedEventsInfoList.get(i);
         ArrayList referenceList  = combinedEventsInfo.getReferenceList();
@@ -234,33 +235,41 @@ public class PaleoSiteApp2 extends JFrame implements SiteSelectionAPI, Parameter
    */
   private String getTimeString(TimeAPI time) {
     String timeString="";
+    DecimalFormat yearFormat = new DecimalFormat("0");
+    DecimalFormat kaFormat = new DecimalFormat("0.##");
+    DecimalFormat format;
+
     if(time instanceof ExactTime) { // if it is exact time
       ExactTime exactTime = (ExactTime)time;
       if(exactTime.getIsNow()) timeString+="Now";
       else timeString+=exactTime.getYear()+" "+exactTime.getEra();
     } else if(time instanceof TimeEstimate) { // if it is time estimate
       TimeEstimate timeEstimate = (TimeEstimate) time;
+      if (timeEstimate.isKaSelected()) // if user entered ka values
+        format = kaFormat;
+      else format = yearFormat;
+
       Estimate estimate = timeEstimate.getEstimate();
         // for normal estimate, mean is displayed
       if (estimate instanceof NormalEstimate)
-        timeString+=estimate.getMean();
+        timeString+=format.format(estimate.getMean());
         // if estimate is of log normal type, linear median is displayed
       else if(estimate instanceof LogNormalEstimate)
-        timeString+=((LogNormalEstimate)estimate).getLinearMedian();
+        timeString+=format.format(((LogNormalEstimate)estimate).getLinearMedian());
         // point of highest prob is displayed
       else if (estimate instanceof DiscretizedFuncEstimate) {
         DiscretizedFunc func = ( (DiscretizedFuncEstimate) estimate).getValues();
-        timeString +=func.getFirstInterpolatedX(func.getMaxY());
+        timeString +=format.format(func.getFirstInterpolatedX(func.getMaxY()));
       }
       // try to display pref value, then maximum and then minimum
      else if (estimate instanceof MinMaxPrefEstimate) {
         MinMaxPrefEstimate minMaxPrefEst =  (MinMaxPrefEstimate) estimate;
         if(!Double.isNaN(minMaxPrefEst.getPreferredX()))
-          timeString +=  minMaxPrefEst.getPreferredX();
+          timeString +=  format.format(minMaxPrefEst.getPreferredX());
         else if(!Double.isNaN(minMaxPrefEst.getMaximumX()))
-          timeString +=   minMaxPrefEst.getMaximumX();
+          timeString +=   format.format(minMaxPrefEst.getMaximumX());
         else if(!Double.isNaN(minMaxPrefEst.getMinimumX()))
-          timeString +=   minMaxPrefEst.getMinimumX();
+          timeString +=   format.format(minMaxPrefEst.getMinimumX());
       }
       if (timeEstimate.isKaSelected()) // if user entered ka values
         timeString += "ka";

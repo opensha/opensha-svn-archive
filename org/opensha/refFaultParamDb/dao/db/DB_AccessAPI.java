@@ -24,6 +24,7 @@ public interface DB_AccessAPI {
   public static final String INSERT_UPDATE_SPATIAL = "insert/update spatial";
   public static final String SELECT_QUERY = "select query";
   public static final String SELECT_QUERY_SPATIAL = "select query spatial";
+  public static final String RESET_PASSWORD = "reset password";
   //public static final DB_AccessAPI dbConnection = new DB_ConnectionPool();
   public static final DB_AccessAPI dbConnection = new ServerDB_Access();
 
@@ -53,6 +54,15 @@ public interface DB_AccessAPI {
   public SpatialQueryResult queryData(String sqlWithSpatialColumnNames,
                                      String  sqlWithNoSpatialColumnNames,
                                      ArrayList spatialColumnNames) throws java.sql.SQLException;
+
+ /**
+  * Reset the password in the database for the provided email address
+  *
+  * @param sql
+  * @param email
+  * @return
+  */
+  public int resetPasswordByEmail(String sql) throws java.sql.SQLException;
 
 
   /**

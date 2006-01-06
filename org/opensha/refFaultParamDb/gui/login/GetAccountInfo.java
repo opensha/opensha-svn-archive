@@ -91,7 +91,7 @@ public class GetAccountInfo extends JFrame implements ActionListener {
       return;
     }
     // reset the password
-    String password = contributorDAO.resetPassword(contributor.getName());
+    String password = contributorDAO.resetPasswordByEmail(email);
     // email account info to the user
     String message = "Account info - "+"\n"+
         "user name:"+contributor.getName()+"\n"+

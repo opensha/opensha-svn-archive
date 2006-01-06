@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.opensha.refFaultParamDb.dao.db.ContributorDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import org.opensha.refFaultParamDb.gui.infotools.SessionInfo;
+import org.opensha.refFaultParamDb.dao.exception.DBConnectException;
+import org.opensha.refFaultParamDb.gui.LoginWindow;
 
 /**
  * <p>Title: ChangePassword.java </p>
@@ -135,6 +138,21 @@ public class ChangePassword extends JFrame implements ActionListener {
     // check that new passwords in both fields are same
     if(!newPwd.equalsIgnoreCase(confirmNewPwdText)) {
       JOptionPane.showMessageDialog(this, this.MSG_NEW_PWDS_DIFFERENT);
+      return;
+    }
+    // check that user has entered the correct current username/password
+    SessionInfo.setUserName(userName);
+    SessionInfo.setPassword(oldPwd);
+    SessionInfo.setContributorInfo();
+    try {
+      SessionInfo.setContributorInfo();
+      if(SessionInfo.getContributor()==null)  {
+        JOptionPane.showMessageDialog(this, LoginWindow.MSG_INVALID_USERNAME_PWD);
+        return;
+      }
+    }catch(DBConnectException connectException) {
+      //connectException.printStackTrace();
+      JOptionPane.showMessageDialog(this,LoginWindow.MSG_INVALID_USERNAME_PWD);
       return;
     }
     boolean success =  contributorDAO.updatePassword(userName, oldPwd, newPwd);

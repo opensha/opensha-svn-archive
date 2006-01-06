@@ -279,6 +279,15 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.stdDevParam.setValue(normalEstimate.getStdDev());
     this.absoluteLowerTruncationParam.setValue(normalEstimate.getMinX());
     this.absoluteUpperTruncationParam.setValue(normalEstimate.getMaxX());
+    Double estimateConstraintMin = this.estimateConstraint.getMin();
+    Double estimateConstraintMax = this.estimateConstraint.getMax();
+    // set truncation type parameter
+    if(estimateConstraintMin!=null && estimateConstraintMax!=null &&
+       (normalEstimate.getMinX()!=estimateConstraintMin.doubleValue() ||
+        normalEstimate.getMaxX()!=estimateConstraintMax.doubleValue())) {
+      this.truncationTypeParam.setValue(this.TRUNCATED_ABSOLUTE);
+    }
+
     this.sigmaLowerTruncationParam.setValue(normalEstimate.getMinSigma());
     this.sigmaUpperTruncationParam.setValue(normalEstimate.getMaxSigma());
   }
@@ -291,6 +300,15 @@ public class ConstrainedEstimateParameterEditor  extends ParameterEditor
     this.stdDevParam.setValue(logNormalEstimate.getStdDev());
     this.absoluteLowerTruncationParam.setValue(logNormalEstimate.getMinX());
     this.absoluteUpperTruncationParam.setValue(logNormalEstimate.getMaxX());
+    Double estimateConstraintMin = this.estimateConstraint.getMin();
+    Double estimateConstraintMax = this.estimateConstraint.getMax();
+    // set truncation type parameter
+    if(estimateConstraintMin!=null && estimateConstraintMax!=null &&
+       (logNormalEstimate.getMinX()!=estimateConstraintMin.doubleValue() ||
+        logNormalEstimate.getMaxX()!=estimateConstraintMax.doubleValue())) {
+      this.truncationTypeParam.setValue(this.TRUNCATED_ABSOLUTE);
+    }
+
     this.sigmaLowerTruncationParam.setValue(logNormalEstimate.getMinSigma());
     this.sigmaUpperTruncationParam.setValue(logNormalEstimate.getMaxSigma());
     if(logNormalEstimate.getIsBase10())

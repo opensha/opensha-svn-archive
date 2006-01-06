@@ -712,6 +712,17 @@ public class DB_ConnectionPool implements Runnable, DB_AccessAPI {
 
 
     /**
+     * Reset the password in the database for the provided email address
+     *
+     * @param sql
+     * @param email
+     * @return
+     */
+    public int resetPasswordByEmail(String sql) throws java.sql.SQLException {
+      return insertUpdateOrDeleteData(sql);
+    }
+
+    /**
      * Inserts  the data into the database
      * @param query
      */

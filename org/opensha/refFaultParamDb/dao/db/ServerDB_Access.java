@@ -160,6 +160,26 @@ public class ServerDB_Access
 
    }
 
+   /**
+    * Reset the password in the database for the provided email address
+    *
+    * @param sql
+    * @param email
+    * @return
+    */
+   public int resetPasswordByEmail(String sql) throws java.sql.SQLException {
+     Object dataFromServlet = openServletConnection(DB_AccessAPI.RESET_PASSWORD,
+           sql, null, null);
+      if (dataFromServlet instanceof SQLException) {
+        throw (SQLException) dataFromServlet;
+      }
+      else {
+        int key = ( (Integer) dataFromServlet).intValue();
+        return key;
+      }
+
+   }
+
 
   /**
    * This function allows to establish connection with the DB existing on a

@@ -41,7 +41,7 @@ public class LoginWindow extends JFrame implements ActionListener {
   private JButton changePassButton = new JButton();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private BorderLayout borderLayout1 = new BorderLayout();
-  private final static String MSG_INVALID_USERNAME_PWD = "Invalid username/password";
+  public final static String MSG_INVALID_USERNAME_PWD = "Invalid username/password";
 
   public LoginWindow(){
     init();
