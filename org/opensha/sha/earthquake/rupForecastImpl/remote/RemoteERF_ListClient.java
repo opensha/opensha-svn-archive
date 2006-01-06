@@ -43,6 +43,11 @@ public class RemoteERF_ListClient extends ERF_List implements
   private EventObject eventObj;
 
 
+  //checks if within the notify function
+  private boolean withinNotify = false;
+  //named of the parameter whose value is being changed
+  private String changedParameterName;
+
 
   /**
    * Get the reference to the remote ERF
@@ -57,15 +62,7 @@ public class RemoteERF_ListClient extends ERF_List implements
         ((ParameterAPI)it.next()).addParameterChangeListener(this);
       //getting the timespan and adjustable params
       timeSpan =erfListServer.getTimeSpan();
-      //if timespan is not null then add the change listeners to its parameters.
-      //we are again adding listeners here becuase they are transient and cannot be serialized.
-      if(timeSpan !=null){
-        timeSpan.addParameterChangeListener(this);
-        ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
-        it = timeSpanParamList.getParametersIterator();
-        while(it.hasNext())
-          ((ParameterAPI)it.next()).addParameterChangeListener(timeSpan);
-      }
+      addListenersToTimeSpan();
     }catch (NotBoundException n) {
       n.printStackTrace();
     }
@@ -87,6 +84,20 @@ public class RemoteERF_ListClient extends ERF_List implements
       ex.printStackTrace();
     }
 
+  }
+
+
+  //add the listeners to the timespan parameters
+  private void addListenersToTimeSpan() {
+    //if timespan is not null then add the change listeners to its parameters.
+    //we are again adding listeners here becuase they are transient and cannot be serialized.
+    if (timeSpan != null) {
+      timeSpan.addParameterChangeListener(this);
+      ParameterList timeSpanParamList = timeSpan.getAdjustableParams();
+      ListIterator it = timeSpanParamList.getParametersIterator();
+      while (it.hasNext())
+        ( (ParameterAPI) it.next()).addParameterChangeListener(timeSpan);
+    }
   }
 
 
@@ -197,12 +208,15 @@ public class RemoteERF_ListClient extends ERF_List implements
    */
   public void parameterChange(ParameterChangeEvent event) {
     try {
-      erfListServer.setParameter(event.getParameterName(), event.getNewValue());
+      String eventParamName = event.getParameterName();
+      if(!(withinNotify && eventParamName.equals(changedParameterName)))
+        erfListServer.setParameter(event.getParameterName(), event.getNewValue());
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
     }
   }
+
 
   /**
    *  Function that must be implemented by all Timespan Listeners for
@@ -242,6 +256,8 @@ public class RemoteERF_ListClient extends ERF_List implements
    listenerList.add(obj);
  }
 
+
+
  /**
   * This method is called from the remote event is received from the Server by the client.
   * @param remoteEvent RemoteEvent
@@ -250,15 +266,25 @@ public class RemoteERF_ListClient extends ERF_List implements
   */
  public void notify(RemoteEvent remoteEvent) throws UnknownEventException,
      RemoteException {
-
+   withinNotify = true;
    Object obj = remoteEvent.getSource();
    eventObj = new EventObject(obj);
+   if(obj instanceof ParameterAPI){
+     ParameterAPI param = (ParameterAPI)obj;
+     changedParameterName = param.getName();
+     adjustableParams.getParameter(param.getName()).setValue(param.getValue());
+   }
+   else if(obj instanceof TimeSpan){
+     timeSpan = (TimeSpan)obj;
+     addListenersToTimeSpan();
+   }
+
    int size = listenerList.size();
-   for (int i = 0; i < size; ++i) {
-     ParameterAndTimeSpanChangeListener listener = (
-         ParameterAndTimeSpanChangeListener) listenerList.get(i);
+   for(int i=0;i<size;++i){
+     ParameterAndTimeSpanChangeListener listener = (ParameterAndTimeSpanChangeListener)listenerList.get(i);
      listener.parameterOrTimeSpanChange(eventObj);
    }
+   withinNotify = false;
  }
 
 

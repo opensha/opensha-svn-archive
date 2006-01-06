@@ -56,6 +56,8 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
 
   //checks if within the notify function
   private boolean withinNotify = false;
+  //named of the parameter whose value is being changed
+  private String changedParameterName;
 
   /**
    * Get the reference to the remote ERF
@@ -213,8 +215,9 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
    */
   public void parameterChange(ParameterChangeEvent event) {
     try {
-
-      erfServer.setParameter(event.getParameterName(), event.getNewValue());
+      String eventParamName = event.getParameterName();
+      if(!(withinNotify && eventParamName.equals(changedParameterName)))
+        erfServer.setParameter(event.getParameterName(), event.getNewValue());
     }
     catch (RemoteException ex) {
       ex.printStackTrace();
@@ -571,6 +574,7 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     eventObj = new EventObject(obj);
     if(obj instanceof ParameterAPI){
       ParameterAPI param = (ParameterAPI)obj;
+      changedParameterName = param.getName();
       adjustableParams.getParameter(param.getName()).setValue(param.getValue());
     }
     else if(obj instanceof TimeSpan){

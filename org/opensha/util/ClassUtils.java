@@ -56,6 +56,7 @@ public class ClassUtils {
             System.out.println(S + e.toString());
             throw new RuntimeException( S + e.toString() );
         } catch ( InvocationTargetException e ) {
+          e.printStackTrace();
             System.out.println(S + e.toString());
             throw new RuntimeException( S + e.toString() );
         } catch ( IllegalAccessException e ) {

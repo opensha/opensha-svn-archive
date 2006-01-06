@@ -125,9 +125,11 @@ public class HazardCurveServerModeApplication extends JFrame
   public final static String RMI_PEER_LOGIC_TREE_ERF_LIST_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.PEER_LogicTreeERF_ListClient";
   public final static String RMI_POINT2MULT_VSS_ERF_LIST_CLASS_NAME="org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.Point2MultVertSS_FaultERF_ListClient";
   public final static String RMI_WG02_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WG02_EqkRupForecastClient";
+  public final static String RMI_WGCEP_UCERF1_ERF_CLASS_NAME = "org.opensha.sha.earthquake.rupForecastImpl.remoteERF_Clients.WGCEP_UCERF1_EqkRupForecastClient";
 
 
-  //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
+
+   //Strings for choosing ERFGuiBean or ERF_RupSelectorGUIBean
   protected final static String PROBABILISTIC = "Probabilistic";
   protected final static String DETERMINISTIC = "Deterministic";
 
@@ -261,16 +263,12 @@ public class HazardCurveServerModeApplication extends JFrame
   private Color lightBlue = new Color( 200, 200, 230 );
 
   private boolean graphOn = false;
-  private GridBagLayout gridBagLayout11 = new GridBagLayout();
   private JPanel jPanel1 = new JPanel();
-  private GridBagLayout gridBagLayout2 = new GridBagLayout();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private Border border2;
   private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
   private final static Dimension BUTTON_DIM = new Dimension( 80, 20 );
   private Border border3;
   private Border border4;
-  private GridBagLayout gridBagLayout16 = new GridBagLayout();
   private Border border5;
   private Border border6;
   private Border border7;
@@ -1485,6 +1483,7 @@ public class HazardCurveServerModeApplication extends JFrame
         ArrayList erf_Classes = new ArrayList();
         //adding the RMI based ERF's to the application
         erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+        erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
         erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
         erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
         erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
@@ -1549,6 +1548,7 @@ public class HazardCurveServerModeApplication extends JFrame
        */
       erf_Classes.add(RMI_POISSON_FAULT_ERF_CLASS_NAME);
       erf_Classes.add(RMI_FRANKEL_ADJ_FORECAST_CLASS_NAME);
+      erf_Classes.add(RMI_WGCEP_UCERF1_ERF_CLASS_NAME);
       erf_Classes.add(RMI_STEP_FORECAST_CLASS_NAME);
       erf_Classes.add(RMI_STEP_ALASKA_ERF_CLASS_NAME);
       erf_Classes.add(RMI_FLOATING_POISSON_FAULT_ERF_CLASS_NAME);
