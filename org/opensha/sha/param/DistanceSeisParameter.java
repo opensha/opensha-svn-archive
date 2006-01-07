@@ -7,6 +7,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
 import org.opensha.calc.RelativeLocation;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
 
 /**
  * <b>Title:</b> DistanceSeisParameter<p>
@@ -17,7 +18,10 @@ import org.opensha.calc.RelativeLocation;
  * thickness (seisDepth); this depth is currently hardwired at 3 km, but we can add
  * setSeisDepth() and getSeisDepth() methods if desired (the setter will have to create
  * a new constraint with seisDepth as the lower bound, which can be done even if the
- * parameter has been set as non editable). <p>
+ * parameter has been set as non editable).  Note that if the earthquake rupture is a
+ * zero-depth point source (the rupture surface only has one point), the depth is
+ * set as seisDepth (e.g., for grid based forecast where all sources are put at
+ * zero depth) <p>
  *
  * @see DistanceRupParameter
  * @see DistanceJBParameter
@@ -93,10 +97,16 @@ public class DistanceSeisParameter
         if( ( this.site != null ) && ( this.eqkRupture != null ) ){
 
           Location loc1 = site.getLocation();
-          double minDistance = 999999;
+          double minDistance = Double.MAX_VALUE;
           double totalDist, horzDist, vertDist;
 
-          ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
+
+          GriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+
+          // determine if this is a point surface
+          int numSurfacePoints = rupSurf.getNumCols()*rupSurf.getNumRows();
+
+          ListIterator it = rupSurf.getLocationsIterator();
           while( it.hasNext() ){
 
               Location loc2 = (Location)it.next();
@@ -107,6 +117,13 @@ public class DistanceSeisParameter
                   totalDist = horzDist * horzDist + vertDist * vertDist;
                   if( totalDist < minDistance )  minDistance = totalDist;
               }
+              // put a zero-depth point source at the seisDepth
+              else if (numSurfacePoints == 1) {
+                horzDist = RelativeLocation.getHorzDistance(loc1, loc2);
+                totalDist = horzDist * horzDist + seisDepth * seisDepth;
+                if( totalDist < minDistance )  minDistance = totalDist;
+              }
+
           }
           // take square root before returning
           // Steve- is this effiecient?

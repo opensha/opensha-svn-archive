@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.text.DecimalFormat;
 
 import org.opensha.data.function.*;
+import org.opensha.param.Parameter;
 import org.opensha.data.Site;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.earthquake.*;
@@ -210,6 +211,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           pdf3D[i][j][k] = 0;
 
 
+    int testNum = 0;
+
     for(int i=0;i < numSources ;i++) {
 
       double sourceRate = 0;
@@ -261,16 +264,26 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           // get the equiv. Poisson rate over the time interval (not annualized)
           rate = - condProb * Math.log(1-qkProb);
 
-          /*
-          if( D ) System.out.println("disaggregation():" + " rupture #" + currRuptures +
-                                         " qkProb=" + qkProb +
-                                         " condProb=" + condProb +
-                                         " mean=" + mean +
-                                         " stdDev=" + stdDev +
-                                         " epsilon=" + epsilon +
-                                         " dist=" + dist +
-                                         " rate=" + rate);
-*/
+          /* */
+          if( epsilon > 100 && testNum < 10 && rate > 0.0 ) {
+            System.out.println("srcName = " + sourceName +
+                               " src#=" + i +
+                               " rup#=" + n +
+                               " qkProb=" + (float)qkProb +
+                               " condProb=" + (float)condProb +
+                               " mean=" + (float)mean +
+                               " stdDev=" + (float)stdDev +
+                               " epsilon=" + (float)epsilon +
+                               " dist=" + (float)dist +
+                               " rate=" + (float)rate);
+            System.out.println(rupture.getMag()+"  "+rupture.getRuptureSurface().get(0,0).toString());
+//            Iterator it = imr.getMeanIndependentParamsIterator();
+//            while(it.hasNext())
+//              System.out.println( ((Parameter)it.next()).getMetadataString() );
+            testNum += 1;
+          }
+
+
           // set the 3D array indices & check that all are in bounds
           setIndices();
           if (withinBounds)

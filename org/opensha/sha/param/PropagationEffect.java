@@ -9,6 +9,7 @@ import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
 
 
 /**
@@ -27,6 +28,9 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
     private boolean APPROX_HORZ_DIST = true;
     private boolean POINT_SRC_CORR = true;
+
+    // Seis depth
+    double seisDepth = DistanceSeisParameter.seisDepth;
 
     // Approx Horz Dist Parameter
     public final static String APPROX_DIST_PARAM_NAME = "Use Approximate Distance";
@@ -184,9 +188,14 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
           distanceSeis = Double.MAX_VALUE;
           distanceRup = Double.MAX_VALUE;
 
-          double horzDist, vertDist, rupDist, jbDist, seisDist;
+          double horzDist, vertDist, rupDist;
 
-          ListIterator it = eqkRupture.getRuptureSurface().getLocationsIterator();
+          GriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+
+          // determine if this is a point surface
+          int numSurfacePoints = rupSurf.getNumCols()*rupSurf.getNumRows();
+
+          ListIterator it = rupSurf.getLocationsIterator();
           while( it.hasNext() ){
 
             Location loc2 = (Location) it.next();
@@ -219,9 +228,16 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
             rupDist = horzDist * horzDist + vertDist * vertDist;
             if(rupDist < distanceRup) distanceRup = rupDist;
 
-            if (loc2.getDepth() >= DistanceSeisParameter.seisDepth)
-              if(rupDist < distanceSeis)
+            if (loc2.getDepth() >= seisDepth) {
+              if (rupDist < distanceSeis)
                 distanceSeis = rupDist;
+            }
+            // take care of point source case
+            else if(numSurfacePoints == 1) {
+              rupDist = horzDist * horzDist + seisDepth * seisDepth;
+              if (rupDist < distanceSeis)
+                distanceSeis = rupDist;
+            }
           }
 
           distanceRup = Math.pow(distanceRup,0.5);

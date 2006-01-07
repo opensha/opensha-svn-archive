@@ -13,6 +13,7 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.imr.*;
 import org.opensha.sha.imr.attenRelImpl.calc.*;
 import org.opensha.sha.param.*;
+import org.opensha.sha.surface.PointSurface;
 
 /**
  * <b>Title:</b> USGS_Combined_2004_AttenRel<p>
@@ -979,6 +980,16 @@ public class USGS_Combined_2004_AttenRel
   // this is temporary for testing purposes
   public static void main(String[] args) {
     USGS_Combined_2004_AttenRel ar = new USGS_Combined_2004_AttenRel(null);
+    ar.setParamDefaults();
+    Site site = new Site(new Location(34,-117,0));
+    site.addParameter(ar.getParameter(ar.VS30_NAME));
+    ProbEqkRupture qk = new ProbEqkRupture(6.35, 0, 8.27442E-4, new PointSurface(34.153834,-117.035474,0.0), null);
+    ar.setEqkRupture(qk);
+    ar.setSite(site);
+    ar.setIntensityMeasure(ar.PGA_NAME);
+    System.out.println(ar.getMean());
+    System.out.println(ar.getStdDev());
+
   }
 
 }
