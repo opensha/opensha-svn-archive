@@ -59,12 +59,12 @@ public class ViewGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME, new Double(region.getMinGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
-
+    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
 
     try {
       String metadata = "Rate Above magnitude " + mag;
-      String imageFileName = mapGenerator.makeMapUsingWebServer(xyzData, "Rates",
-                                         metadata);
+      String imageFileName = mapGenerator.makeMapUsingServlet(xyzData, "Rates",
+                                         metadata, null);
       new ImageViewerWindow(imageFileName, metadata, true);
     }catch(Exception e) {
       e.printStackTrace();
@@ -81,15 +81,17 @@ public class ViewGriddedHypoMFD_Forecast {
   public static void main(String[] args) {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
+    /*
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+    */
     eqkRupForecast.updateForecast();
     try {
       // region to view the rates
       EvenlyGriddedGeographicRegion evenlyGriddedRegion =
-          new EvenlyGriddedRectangularGeographicRegion(33, 34, -118, -117, 0.1);
+          new EvenlyGriddedRectangularGeographicRegion(33, 35, -119, -117.5, 0.05);
       // min mag. maxMag, numMag
       double minMag=5, maxMag=9;
       int numMag = 9;
