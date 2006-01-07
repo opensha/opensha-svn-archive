@@ -383,7 +383,7 @@ public class ERF2GriddedSeisRatesCalc {
           //continue if location not in the region
           if(locIndex < 0)
             continue;
-          String magString = magFormat.format(minMagnitude);
+          String magString = magFormat.format(mag);
           funcs[locIndex].set(Double.parseDouble(magString), ptRate);        }
       }
     }
