@@ -10,6 +10,7 @@ import java.util.ListIterator;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.exceptions.DataPoint2DException;
 
 /**
  * <p>Title: ERF_ToGriddedHypoMagFreqDistForecast.java </p>
@@ -103,9 +104,11 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
               locIndex].getMagFreqDist()[0];
           double delta = incrMagFreqDist.getDelta();
           // check if rupture magnitude is within range
-          if ((incrMagFreqDist.getMinX()-delta/2)<=rupMag && rupMag<=(incrMagFreqDist.getMaxX()+delta/2)) {
+          try {
             int index = incrMagFreqDist.getXIndex(rupMag);
             incrMagFreqDist.set(index, incrMagFreqDist.getY(index)+ptRate);
+          }catch(DataPoint2DException dataPointException) {
+            // do not do anything if this mag is not allowed
           }
         }
       }
