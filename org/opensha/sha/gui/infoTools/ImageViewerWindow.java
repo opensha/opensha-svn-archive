@@ -62,9 +62,6 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   //gets the image file names as URL to save as PDF
   private String[] imgFileNames;
 
-
-
-
   /**
    * Class constructor
    * @param imageFileName : Name of the image file to be shown
@@ -80,6 +77,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
     mapInfoAsString = mapInfoAsString.replaceAll("</br>","");
     mapInfoAsString = mapInfoAsString.replaceAll("<p>",systemSpecificLineSeparator);
     mapInfoAsString = mapInfoAsString.replaceAll("</p>","");
+    mapInfoAsString = mapInfoAsString.replaceAll("&nbsp;","  ");
     this.gmtFromServer = gmtFromServer;
     imgFileNames = new String[1];
     imgFileNames[0] = imageFileName;
@@ -109,6 +107,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
     mapInfoAsString = mapInfoAsString.replaceAll("</br>","");
     mapInfoAsString = mapInfoAsString.replaceAll("<p>",systemSpecificLineSeparator);
     mapInfoAsString = mapInfoAsString.replaceAll("</p>","");
+    mapInfoAsString = mapInfoAsString.replaceAll("&nbsp;","  ");
     this.gmtFromServer = gmtFromServer;
     imgFileNames = imageFileNames;
     try {

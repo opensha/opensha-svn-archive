@@ -167,9 +167,13 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     if( D ) System.out.println(S + "iml = " + iml);
 
 //    if( D )System.out.println(S + "deltaMag = " + deltaMag + "; deltaDist = " + deltaDist + "; deltaE = " + deltaE);
-
-    ArrayList disaggSourceList = new ArrayList();
-
+    ArrayList disaggSourceList = null;
+    DisaggregationSourceRuptureComparator srcRupComparator = null;
+    if(this.numSourcesToShow >0){
+      disaggSourceList = new ArrayList();
+      srcRupComparator = new
+          DisaggregationSourceRuptureComparator();
+    }
     //resetting the Parameter change Listeners on the AttenuationRelationship
     //parameters. This allows the Server version of our application to listen to the
     //parameter changes.
@@ -213,8 +217,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         for(int k=0; k<NUM_E; k++)
           pdf3D[i][j][k] = 0;
 
-
-    int testNum = 0;
 
     for(int i=0;i < numSources ;i++) {
 
@@ -312,18 +314,17 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           sourceRate +=rate;
 
           // create and add rupture info to source list
-          if(numSourcesToShow >0 && (i < numSources)){
+          /*if(numSourcesToShow >0){
             double eventRate = -Math.log(1 - qkProb);  // this event rate is not annualized!
             DisaggregationSourceRuptureInfo rupInfo = new
                 DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n);
             ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
-          }
+          }*/
       }
-      if(numSourcesToShow >0 && (i < numSources)){
+      if(numSourcesToShow >0){
         // sort the ruptures in this source according to contribution
-        ArrayList sourceRupList = (ArrayList) sourceDissaggMap.get(sourceName);
-        Collections.sort(sourceRupList,
-                         new DisaggregationSourceRuptureComparator());
+        //ArrayList sourceRupList = (ArrayList) sourceDissaggMap.get(sourceName);
+        //Collections.sort(sourceRupList,srcRupComparator);
         // create the total rate info for this source
         DisaggregationSourceRuptureInfo disaggInfo = new
             DisaggregationSourceRuptureInfo(sourceName, (float) sourceRate, i);
@@ -332,21 +333,22 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
     // sort the disaggSourceList according to contribution
     if(numSourcesToShow >0){
-      Collections.sort(disaggSourceList, new DisaggregationSourceRuptureComparator());
+      Collections.sort(disaggSourceList,srcRupComparator);
       // make a string of the sorted list info
       sourceDisaggInfo =
-          "Source#    TotExceedRate    % Contribution    SourceName\n";
+          "Source#\tTotExceedRate\t% Contribution\tSourceName\n";
       int size = disaggSourceList.size();
-      if(size > 100)
-        size = 100;  // overide to only give the top 100 sources (otherwise can be to big and cause crash)
+      if(size > numSourcesToShow)
+         size = numSourcesToShow;
+      // overide to only give the top 100 sources (otherwise can be to big and cause crash)
       for (int i = 0; i < size; ++i) {
         DisaggregationSourceRuptureInfo disaggInfo = (
             DisaggregationSourceRuptureInfo)
             disaggSourceList.get(i);
         sourceDisaggInfo += disaggInfo.getId() +
-            "    " + (float) disaggInfo.getRate() + "    " +
+            "\t" + (float) disaggInfo.getRate() + "\t" +
             (float) (disaggInfo.getRate()/totalRate * 100) +
-            "    " + disaggInfo.getName() + "\n";
+            "\t" + disaggInfo.getName() + "\n";
       }
     }
     /*try {

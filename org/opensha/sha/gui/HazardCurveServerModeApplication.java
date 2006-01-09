@@ -1259,6 +1259,8 @@ public class HazardCurveServerModeApplication extends JFrame
       String sourceDisaggregationList = getSourceDisaggregationInfo();
       sourceDisaggregationListAsHTML = sourceDisaggregationList.
           replaceAll("\n", "<br>");
+      sourceDisaggregationListAsHTML = sourceDisaggregationListAsHTML.
+          replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
     }
     String disaggregationPlotWebAddr = null;
     String metadata = null;
@@ -2045,10 +2047,16 @@ public class HazardCurveServerModeApplication extends JFrame
    * @returns the String containing the values selected for different parameters
    */
   public String getMapParametersInfoAsHTML(){
+    String imrMetadata;
+    if(this.isProbCurve) //if Probabilistic calculation then only add the metadata
+      //for visible parameters
+      imrMetadata = imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString();
+    else //if deterministic calculations then add all IMR params metadata.
+      imrMetadata = imrGuiBean.getSelectedIMR_Instance().getAllParamMetadata();
 
     return "<br>"+ "IMR Param List:" +"<br>"+
            "---------------"+"<br>"+
-        this.imrGuiBean.getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
+         imrMetadata+"<br><br>"+
         "Site Param List: "+"<br>"+
         "----------------"+"<br>"+
         siteGuiBean.getParameterListEditor().getVisibleParametersCloned().getParameterListMetadataString()+"<br><br>"+
