@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
+import org.opensha.data.region.EvenlyGriddedRELM_Region;
 
 /**
  * <p>Title: ViewGriddedHypoMFD_Forecast.java </p>
@@ -110,7 +111,7 @@ public class ViewGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
     mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
-    //mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+    mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
 
     try {
       String metadata = "Rate Above magnitude " + mag;
@@ -134,17 +135,17 @@ public class ViewGriddedHypoMFD_Forecast {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
 
-    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
-                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
-    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
-                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+    //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
+    //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+    //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
+    //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
 
     eqkRupForecast.updateForecast();
     try {
       // region to view the rates
-      EvenlyGriddedGeographicRegion evenlyGriddedRegion =
-          new EvenlyGriddedRectangularGeographicRegion(32, 35, -119.5, -117.5, 0.05);
-
+      //EvenlyGriddedGeographicRegion evenlyGriddedRegion =
+      //    new EvenlyGriddedRectangularGeographicRegion(32, 35, -119.5, -117.5, 0.05);
+      EvenlyGriddedRELM_Region evenlyGriddedRegion  =new EvenlyGriddedRELM_Region();
       // min mag, maxMag, These are Centers of first and last bin
       double minMag=5, maxMag=9;
       int numMag = 9; // number of Mag bins
@@ -159,7 +160,7 @@ public class ViewGriddedHypoMFD_Forecast {
       // NOW VIEW THE MAP
       ViewGriddedHypoMFD_Forecast viewRates = new ViewGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
       viewRates.makeMap(5.5);
-      //viewRates.makeFileInRELM_Format("testrelm.txt");
+      viewRates.makeFileInRELM_Format("testrelm.txt");
     }catch(Exception e) {
       e.printStackTrace();
     }
