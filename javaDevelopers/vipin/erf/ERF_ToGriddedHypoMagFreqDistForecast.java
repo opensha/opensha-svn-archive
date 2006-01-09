@@ -58,14 +58,14 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
     }
 
     // calculate mag-freq dist for each location within the provided region
-    calculateHypoMagFreDistForEachLocation();
+    calculateHypoMagFreqDistForEachLocation();
   }
 
 
   /*
    * computes the Mag-Rate distribution for each location within the provided region.
    */
-  private void calculateHypoMagFreDistForEachLocation() {
+  private void calculateHypoMagFreqDistForEachLocation() {
     int numLocations = region.getNumGridLocs();
     // get all sources with this ERF
     int numSources = eqkRupForecast.getNumSources();
@@ -102,7 +102,6 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
           double rupMag = rupture.getMag();
           IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[
               locIndex].getMagFreqDist()[0];
-          double delta = incrMagFreqDist.getDelta();
           // check if rupture magnitude is within range
           try {
             int index = incrMagFreqDist.getXIndex(rupMag);

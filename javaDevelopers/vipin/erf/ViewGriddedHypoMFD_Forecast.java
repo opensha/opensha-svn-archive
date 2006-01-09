@@ -29,8 +29,8 @@ public class ViewGriddedHypoMFD_Forecast {
   private final static double DEPTH_MIN = 0;
   private final static double DEPTH_MAX = 30;
   private final static int MASK = 1;
-  private final static String BEGIN_FORECAST = "begin_forecast";
-  private final static String END_FORECAST = "end_forecast";
+  public final static String BEGIN_FORECAST = "begin_forecast";
+  public final static String END_FORECAST = "end_forecast";
 
   /**
    * constructor accepts GriddedHypoMagFreqDistForecast
@@ -38,7 +38,7 @@ public class ViewGriddedHypoMFD_Forecast {
    */
   public ViewGriddedHypoMFD_Forecast(
       GriddedHypoMagFreqDistForecast griddedHypoMagFreqDistForecast) {
-    this.griddedHypoMFD = griddedHypoMagFreqDistForecast;
+    setGriddedHypoMagFreqDistForecast( griddedHypoMagFreqDistForecast);
   }
 
   /**
@@ -47,6 +47,7 @@ public class ViewGriddedHypoMFD_Forecast {
    */
   public void setGriddedHypoMagFreqDistForecast(
       GriddedHypoMagFreqDistForecast griddedHypoMagFreqDistForecast) {
+    this.griddedHypoMFD = griddedHypoMagFreqDistForecast;
   }
 
   /**
@@ -149,6 +150,9 @@ public class ViewGriddedHypoMFD_Forecast {
       GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
           new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
           minMag, maxMag, numMag);
+      /*GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
+          new ReadRELM_FileIntoGriddedHypoMFD_Forecast("alm.forecast", evenlyGriddedRegion,
+          minMag, maxMag, numMag);*/
       // NOW VIEW THE MAP
       ViewGriddedHypoMFD_Forecast viewRates = new ViewGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
       viewRates.makeMap(5.0);
