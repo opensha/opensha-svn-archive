@@ -134,11 +134,11 @@ public class ViewGriddedHypoMFD_Forecast {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
 
-    /*eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
+    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
-        */
+
     eqkRupForecast.updateForecast();
     try {
       // region to view the rates
@@ -158,7 +158,7 @@ public class ViewGriddedHypoMFD_Forecast {
       */
       // NOW VIEW THE MAP
       ViewGriddedHypoMFD_Forecast viewRates = new ViewGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-      viewRates.makeMap(5.0);
+      viewRates.makeMap(5.5);
       //viewRates.makeFileInRELM_Format("testrelm.txt");
     }catch(Exception e) {
       e.printStackTrace();
