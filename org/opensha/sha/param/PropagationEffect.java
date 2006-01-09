@@ -192,8 +192,10 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
           GriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
 
-          // determine if this is a point surface
-          int numSurfacePoints = rupSurf.getNumCols()*rupSurf.getNumRows();
+          // flag to project to seisDepth if only one row and depth is below seisDepth
+          boolean projectToDepth = false;
+          if (rupSurf.getNumRows() == 1 && rupSurf.getLocation(0,0).getDepth() < seisDepth)
+            projectToDepth = true;
 
           ListIterator it = rupSurf.getLocationsIterator();
           while( it.hasNext() ){
@@ -232,8 +234,8 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
               if (rupDist < distanceSeis)
                 distanceSeis = rupDist;
             }
-            // take care of point source case
-            else if(numSurfacePoints == 1) {
+            // take care of shallow line or point source case
+            else if(projectToDepth) {
               rupDist = horzDist * horzDist + seisDepth * seisDepth;
               if (rupDist < distanceSeis)
                 distanceSeis = rupDist;

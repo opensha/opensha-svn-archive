@@ -983,10 +983,15 @@ public class USGS_Combined_2004_AttenRel
     ar.setParamDefaults();
     Site site = new Site(new Location(34,-117,0));
     site.addParameter(ar.getParameter(ar.VS30_NAME));
-    ProbEqkRupture qk = new ProbEqkRupture(6.35, 0, 8.27442E-4, new PointSurface(34.153834,-117.035474,0.0), null);
+    ProbEqkRupture qk = new ProbEqkRupture(6.25, 0, 8.27442E-4, new PointSurface(34.0,-117,0.0), null);
     ar.setEqkRupture(qk);
     ar.setSite(site);
     ar.setIntensityMeasure(ar.PGA_NAME);
+    System.out.println(ar.getMean());
+    System.out.println(ar.getStdDev());
+    PropagationEffect pe = new PropagationEffect();
+    pe.setAll(qk,site);
+    System.out.println(pe.getParamValue(DistanceSeisParameter.NAME));
     System.out.println(ar.getMean());
     System.out.println(ar.getStdDev());
 

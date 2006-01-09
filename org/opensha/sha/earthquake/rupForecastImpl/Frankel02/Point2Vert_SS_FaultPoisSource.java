@@ -171,7 +171,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
       FaultTrace fault = new FaultTrace("");
       fault.addLocation(loc1);
       fault.addLocation(loc2);
-      frankelFaultFactory.setAll(fault,aveDip,0.0,0.0,1.0);
+      frankelFaultFactory.setAll(fault,aveDip,loc.getDepth(),loc.getDepth(),1.0);
       finiteFault = frankelFaultFactory.getGriddedSurface();
     }
   }

@@ -26,6 +26,8 @@ import org.opensha.calc.RelativeLocation;
 import java.net.URL;
 import org.opensha.data.XYZ_DataSetAPI;
 import java.net.URLConnection;
+import org.opensha.sha.param.DistanceSeisParameter;
+import org.opensha.sha.param.PropagationEffect;
 
 
 /**
@@ -264,8 +266,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           // get the equiv. Poisson rate over the time interval (not annualized)
           rate = - condProb * Math.log(1-qkProb);
 
-          /* */
-          if( epsilon > 100 && testNum < 10 && rate > 0.0 ) {
+          /*
+          if( epsilon > 100 && testNum < 1 && rate > 0.0 ) {
             System.out.println("srcName = " + sourceName +
                                " src#=" + i +
                                " rup#=" + n +
@@ -277,12 +279,18 @@ public class DisaggregationCalculator extends UnicastRemoteObject
                                " dist=" + (float)dist +
                                " rate=" + (float)rate);
             System.out.println(rupture.getMag()+"  "+rupture.getRuptureSurface().get(0,0).toString());
-//            Iterator it = imr.getMeanIndependentParamsIterator();
-//            while(it.hasNext())
-//              System.out.println( ((Parameter)it.next()).getMetadataString() );
+            System.out.println(rupture.getRuptureSurface().getNumCols()+"  "+rupture.getRuptureSurface().getNumRows());
+            System.out.println(site.getLocation().toString());
+            Iterator it = site.getParametersIterator();
+            while(it.hasNext())
+              System.out.println( ((Parameter)it.next()).getMetadataString() );
+            PropagationEffect pe = new PropagationEffect();
+            pe.setAll(rupture,site);
+            System.out.println(pe.getParamValue(DistanceSeisParameter.NAME));
+
             testNum += 1;
           }
-
+          */
 
           // set the 3D array indices & check that all are in bounds
           setIndices();

@@ -56,6 +56,8 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
   private String FAULTING_STYLE_R = "2";
   private String FAULTING_STYLE_N = "3";
 
+  public final static double BACK_SEIS_DEPTH = 5.0;
+
   /**
    * used for error checking
    */
@@ -259,6 +261,9 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
 //    String tempName = (String)faultFileParam.getValue();
 //    makeGridSources(tempName,1.0,null,0.0);
 
+      // test 22
+      // makeGridSources("CAmapC_OpenSHA", 1, null, 0.0);
+/**/
     makeGridSources("CAmapC_OpenSHA", 0.667, "CAmapG_OpenSHA", 0.333);
     makeGridSources("EXTmapC_OpenSHA", 0.5, "EXTmapGW_OpenSHA", 0.5);
     makeGridSources("WUSmapC_OpenSHA", 0.5, "WUSmapG_OpenSHA", 0.5);
@@ -916,7 +921,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
       lat =  Double.parseDouble(st.nextToken());
       rateAtZeroMag = Double.parseDouble(st.nextToken());
       aVal = 0.434294*Math.log(rateAtZeroMag);
-      loc = new Location(lat,lon);
+      loc = new Location(lat,lon,BACK_SEIS_DEPTH);
 
       // get max-mag element(s) if necessary
       if(maxmat == 1) {
