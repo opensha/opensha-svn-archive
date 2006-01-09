@@ -44,11 +44,11 @@ public interface DisaggregationCalculatorAPI extends Remote{
 
 
   /**
-   * Sets the boolean to generate the Source Disaggregation list.
-   * @param isSourceList boolean
+   * Sets the number of sources to be shown in the Disaggregation.
+   * @param numSources int
    * @throws RemoteException
    */
-  public void generateSourceDisaggregationList(boolean isSourceList)throws
+  public void setNumSourcestoShow(int numSources)throws
       java.rmi.RemoteException ;
 
   /**

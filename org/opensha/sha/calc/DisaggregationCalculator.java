@@ -86,7 +86,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private int currRuptures = -1;
   private int totRuptures=0;
 
-  private boolean calcSourceDissaggList = false;
+  //gets the number of sources to be shown in the disaggregation window
+  private int numSourcesToShow = 0;
 
   //stores the source Disagg info
   private String sourceDisaggInfo;
@@ -231,7 +232,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         continue;
       }
 
-      if(calcSourceDissaggList)
+      if(numSourcesToShow > 0)
         sourceDissaggMap.put(sourceName,new ArrayList());
 
       // loop over ruptures
@@ -311,14 +312,14 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           sourceRate +=rate;
 
           // create and add rupture info to source list
-          if(calcSourceDissaggList){
+          if(numSourcesToShow >0 && (i < numSources)){
             double eventRate = -Math.log(1 - qkProb);  // this event rate is not annualized!
             DisaggregationSourceRuptureInfo rupInfo = new
                 DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n);
             ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
           }
       }
-      if(calcSourceDissaggList){
+      if(numSourcesToShow >0 && (i < numSources)){
         // sort the ruptures in this source according to contribution
         ArrayList sourceRupList = (ArrayList) sourceDissaggMap.get(sourceName);
         Collections.sort(sourceRupList,
@@ -330,7 +331,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
       }
     }
     // sort the disaggSourceList according to contribution
-    if(calcSourceDissaggList){
+    if(numSourcesToShow >0){
       Collections.sort(disaggSourceList, new DisaggregationSourceRuptureComparator());
       // make a string of the sorted list info
       sourceDisaggInfo =
@@ -445,22 +446,14 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    * @throws RemoteException
    */
   public String getDisaggregationSourceInfo() throws java.rmi.RemoteException{
-    if(calcSourceDissaggList)
+    if(numSourcesToShow >0)
       return sourceDisaggInfo;
     return "";
   }
 
 
 
-  /**
-   * Sets the boolean to generate the Source Disaggregation list.
-   * @param isSourceList boolean
-   * @throws RemoteException
-   */
-  public void generateSourceDisaggregationList(boolean isSourceList)throws
-      java.rmi.RemoteException {
-    calcSourceDissaggList = isSourceList;
-  }
+
 
   /**
    * Setting up the Mag Range
@@ -849,5 +842,14 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     else return Double.NaN;
   }
 
+
+  /**
+   * Sets the number of sources to be shown in the Disaggregation.
+   * @param numSources int
+   * @throws RemoteException
+   */
+  public void setNumSourcestoShow(int numSources) throws RemoteException {
+    numSourcesToShow = numSources;
+  }
 
 }

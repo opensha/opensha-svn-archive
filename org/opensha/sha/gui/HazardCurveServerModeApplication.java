@@ -1177,13 +1177,13 @@ public class HazardCurveServerModeApplication extends JFrame
       double minDist= disaggregationControlPanel.getMinDist();
       double deltaDist= disaggregationControlPanel.getdeltaDist();
       int numDist = disaggregationControlPanel.getNumDist();
-      boolean sourceDisaggregationList= disaggregationControlPanel.isSourceDisaggregationSelected();
+      int numSourcesForDisag= disaggregationControlPanel.getNumSourcesForDisagg();
       try{
         if(distanceControlPanel!=null)
           disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
-        disaggCalc.generateSourceDisaggregationList(sourceDisaggregationList);
+        disaggCalc.setNumSourcestoShow(numSourcesForDisag);
 
       }catch(Exception e){
         setButtonsEnable(true);
@@ -1236,7 +1236,7 @@ public class HazardCurveServerModeApplication extends JFrame
           e.printStackTrace();
         }
       //}
-      showDisaggregationResults(sourceDisaggregationList);
+      showDisaggregationResults(numSourcesForDisag);
     }
     setButtonsEnable(true);
     //displays the disaggregation string in the pop-up window
@@ -1249,9 +1249,13 @@ public class HazardCurveServerModeApplication extends JFrame
   }
 
 
-  private void showDisaggregationResults(boolean showSourceDisaggList){
+  /**
+   *
+   * @param numSourceToShow int : Number of sources to show for the disaggregation
+   */
+  private void showDisaggregationResults(int numSourceToShow){
     String sourceDisaggregationListAsHTML= null;
-    if(showSourceDisaggList){
+    if(numSourceToShow >0){
       String sourceDisaggregationList = getSourceDisaggregationInfo();
       sourceDisaggregationListAsHTML = sourceDisaggregationList.
           replaceAll("\n", "<br>");
@@ -1277,7 +1281,7 @@ public class HazardCurveServerModeApplication extends JFrame
     String resultToShow = "<p>Disaggregation Results</p>"+
         "<br>"+disaggregationStringAsHTML+"</br>";
     resultToShow +="<br><br>Parameters Info</br>"+"<br>---------------</br>"+metadata;
-    if(showSourceDisaggList)
+    if(numSourceToShow >0)
       resultToShow +="<br><br>Source DisaggragtionResult</br>"+"<br>-------------</br>"+
           "<br>"+sourceDisaggregationListAsHTML+"</br>";
 

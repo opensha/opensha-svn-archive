@@ -44,19 +44,27 @@ public class DisaggregationControlPanel extends JFrame
   public final static String DISAGGREGATE_USING_IML = "IML";
 
   //Shows the source disaggregation only if this parameter is selected
+  private final static String SOURCE_DISAGGR_PARAM_NAME = "Show Source Disaggregation List";
   private BooleanParameter sourceDisaggregationParam = new BooleanParameter
-      ("Show Source Disaggregation List",new Boolean(false));
-  private IntegerParameter numSourcesToShow = new IntegerParameter("Num Sources in List",new Integer(100));
+      (SOURCE_DISAGGR_PARAM_NAME,new Boolean(false));
+  private final static String NUM_SOURCE_PARAM_NAME = "Num Sources in List";
+  private IntegerParameter numSourcesToShow = new IntegerParameter(NUM_SOURCE_PARAM_NAME,new Integer(100));
 
   //sets the Mag Range for Disaggregation calculation
-  private DoubleParameter minMagParam = new DoubleParameter("Min Mag (bin center)",0,10,new Double(5));
-  private IntegerParameter numMagParam = new IntegerParameter("Num Mags",new Integer(8));
-  private DoubleParameter deltaMagParam = new DoubleParameter("Delta Mag",new Double(0.5));
+  private static final String MIN_MAG_PARAM_NAME = "Min Mag (bin center)";
+  private static final String NUM_MAG_PARAM_NAME = "Max Mag";
+  private static final String DELTA_MAG_PARAM_NAME = "Delta Mag";
+  private DoubleParameter minMagParam = new DoubleParameter(MIN_MAG_PARAM_NAME,0,10,new Double(5));
+  private IntegerParameter numMagParam = new IntegerParameter(NUM_MAG_PARAM_NAME,new Integer(8));
+  private DoubleParameter deltaMagParam = new DoubleParameter(DELTA_MAG_PARAM_NAME,new Double(0.5));
 
   //sets the Dist range for Disaggregation calculation
-  private DoubleParameter minDistParam = new DoubleParameter("Min Dist (bin center)",new Double(5));
-  private IntegerParameter numDistParam = new IntegerParameter("Num Dist",new Integer(11));
-  private DoubleParameter deltaDistParam = new DoubleParameter("Delta Dist",new Double(10));
+  private static final String MIN_DIST_PARAM_NAME = "Min Dist (bin center)";
+  private static final String NUM_DIST_PARAM_NAME = "Max Dist";
+  private static final String DELTA_DIST_PARAM_NAME = "Delta Dist";
+  private DoubleParameter minDistParam = new DoubleParameter(MIN_DIST_PARAM_NAME,new Double(5));
+  private IntegerParameter numDistParam = new IntegerParameter(NUM_DIST_PARAM_NAME,new Integer(11));
+  private DoubleParameter deltaDistParam = new DoubleParameter(DELTA_DIST_PARAM_NAME,new Double(10));
 
 
 
@@ -101,6 +109,7 @@ public class DisaggregationControlPanel extends JFrame
       disaggregationParameter.addParameterChangeListener(this);
       disaggregationProbParam.addParameterChangeFailListener(this);
       disaggregationIMLParam.addParameterChangeFailListener(this);
+      sourceDisaggregationParam.addParameterChangeListener(this);
 
       ParameterList paramList = new ParameterList();
       paramList.addParameter(disaggregationParameter);
@@ -139,7 +148,7 @@ public class DisaggregationControlPanel extends JFrame
         new Insets(2, 2, 2, 2), 0, 0));
     this.setTitle("Disaggregation Control Panel");
     paramListEditor.setTitle("Set Disaggregation Params");
-    this.setSize(300,500);
+    this.setSize(300,200);
   }
 
 
@@ -175,6 +184,16 @@ public class DisaggregationControlPanel extends JFrame
 
   }
 
+  /**
+   * shows the num sources to be shown for the disaggregation passed in
+   * argument is true.
+   * @param paramToShow boolean
+   */
+  private void showNumSourcesParam(boolean paramToShow){
+    paramListEditor.getParameterEditor(NUM_SOURCE_PARAM_NAME).setVisible(paramToShow);
+  }
+
+
 
   /**
    *
@@ -184,6 +203,8 @@ public class DisaggregationControlPanel extends JFrame
     String paramName = e.getParameterName();
     if(paramName.equals(DISAGGREGATION_PARAM_NAME))
       setParamsVisible((String)disaggregationParameter.getValue());
+    if(paramName.equals(SOURCE_DISAGGR_PARAM_NAME))
+      showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
   }
 
 
@@ -245,22 +266,43 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
           setVisible(false);
       isDisaggregationSelected = false;
-    }
-    else if(paramValue.equals(DISAGGREGATE_USING_PROB)){
-      paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
-          setVisible(true);
-      paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
-          setVisible(false);
-      isDisaggregationSelected = true;
-    }
-    else if(paramValue.equals(DISAGGREGATE_USING_IML)){
-      paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
-          setVisible(false);
-      paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
-          setVisible(true);
-      isDisaggregationSelected = true;
-    }
+      paramListEditor.getParameterEditor(MIN_MAG_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(NUM_MAG_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(DELTA_MAG_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(MIN_DIST_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(NUM_DIST_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(false);
+      showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
 
+    }
+    else{
+      if (paramValue.equals(DISAGGREGATE_USING_PROB)) {
+        paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
+            setVisible(true);
+        paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
+            setVisible(false);
+        isDisaggregationSelected = true;
+      }
+      else if (paramValue.equals(DISAGGREGATE_USING_IML)) {
+        paramListEditor.getParameterEditor(DISAGGREGATION_PROB_PARAM_NAME).
+            setVisible(false);
+        paramListEditor.getParameterEditor(DISAGGREGATION_IML_PARAM_NAME).
+            setVisible(true);
+        isDisaggregationSelected = true;
+      }
+      paramListEditor.getParameterEditor(MIN_MAG_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(NUM_MAG_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(DELTA_MAG_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(MIN_DIST_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(NUM_DIST_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(true);
+      showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
+      this.setSize(300,500);
+    }
+    this.repaint();
+    this.validate();
     parent.setDisaggregationSelected(isDisaggregationSelected);
   }
 
@@ -302,5 +344,13 @@ public class DisaggregationControlPanel extends JFrame
     return false;
   }
 
-
+  /**
+   * Returns the number of sources to show in Disaggregation.
+   * @return int
+   */
+  public int getNumSourcesForDisagg(){
+    if(isDisaggregationSelected)
+      return ((Integer)numSourcesToShow.getValue()).intValue();
+    return 0;
+  }
 }
