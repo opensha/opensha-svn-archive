@@ -352,7 +352,7 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
       EvenlyGriddedGeographicRegionAPI region) {
 
     ERF2GriddedSeisRatesCalc seisRates = new ERF2GriddedSeisRatesCalc();
-    return seisRates.getMagRateDistForEachLocationInRegion(minMag,this,region);
+    return seisRates.calcCumMFD_ForGriddedRegion(minMag,this,region);
   }
 
 

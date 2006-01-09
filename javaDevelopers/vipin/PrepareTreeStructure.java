@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 
 public class PrepareTreeStructure {
   private final static double FAULT_JUMP_CUTOFF_DIST = 6;
-  private final static int DISCRETIZATION=10; // fault section discretization
+  private final static int DISCRETIZATION=5; // fault section discretization
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
@@ -39,6 +39,10 @@ public class PrepareTreeStructure {
   private int sectionIndex=-1;
   private String faultSectionFilename1, faultSectionFilename2, faultSectionFilename3;
   private boolean writeSectionsToFile = true;
+  // whether we need ruptures above a specified length
+  private final static boolean isMinRupLenCutOff = true;
+  // minimum rup length in case we want to just view ruptures greater than a specific length
+  private final static double MIN_RUP_LEN = 100;
 
   public PrepareTreeStructure() {
   }
@@ -317,8 +321,9 @@ public class PrepareTreeStructure {
 
   // traverse the tree to find ruptures
   private void traverse(Node node, ArrayList nodesList, float rupLen) {
-
-    if(nodesList.size()>1) { // sinle location ruptures are excluded
+    // sinle location ruptures are excluded
+    if(nodesList.size()>1 &&
+       (!isMinRupLenCutOff || (isMinRupLenCutOff && rupLen>MIN_RUP_LEN))) {
         // check if rupture already exists in the list
         //MultiSectionRupture multiSectionRup = new MultiSectionRupture( (ArrayList)
          //   nodesList.clone());

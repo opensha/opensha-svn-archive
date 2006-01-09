@@ -110,6 +110,7 @@ public class ViewGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
     mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
+    //mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
 
     try {
       String metadata = "Rate Above magnitude " + mag;
@@ -142,7 +143,7 @@ public class ViewGriddedHypoMFD_Forecast {
     try {
       // region to view the rates
       EvenlyGriddedGeographicRegion evenlyGriddedRegion =
-          new EvenlyGriddedRectangularGeographicRegion(33, 35, -119, -117.5, 0.01);
+          new EvenlyGriddedRectangularGeographicRegion(32, 35, -119.5, -117.5, 0.05);
 
       // min mag, maxMag, These are Centers of first and last bin
       double minMag=5, maxMag=9;
@@ -150,13 +151,15 @@ public class ViewGriddedHypoMFD_Forecast {
       GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
           new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
           minMag, maxMag, numMag);
+
       /*GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
           new ReadRELM_FileIntoGriddedHypoMFD_Forecast("alm.forecast", evenlyGriddedRegion,
-          minMag, maxMag, numMag);*/
+          minMag, maxMag, numMag);
+      */
       // NOW VIEW THE MAP
       ViewGriddedHypoMFD_Forecast viewRates = new ViewGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
       viewRates.makeMap(5.0);
-      viewRates.makeFileInRELM_Format("testrelm.txt");
+      //viewRates.makeFileInRELM_Format("testrelm.txt");
     }catch(Exception e) {
       e.printStackTrace();
     }

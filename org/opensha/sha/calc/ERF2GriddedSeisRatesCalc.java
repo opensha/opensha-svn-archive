@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.
     Frankel02_AdjustableEqkRupForecast;
+import org.opensha.sha.magdist.IncrementalMagFreqDist;
 
 
 /**
@@ -65,6 +66,62 @@ public class ERF2GriddedSeisRatesCalc {
    */
   public ERF2GriddedSeisRatesCalc() {}
 
+
+  /**
+   * This class creates a IncrementalMagFreqDist for each location in the provided
+   * region. Each element of the arraylist contains a IncrementalMagFreqDist object
+   * and the number of elements in the arraylist are equal to number of locations
+   * in the gridded region
+   *
+   * @param minMag - Center of first mag bin
+   * @param maxMag - center of last mag bin
+   * @param numMagBins
+   * @param eqkRupForecast
+   * @param region - region for which the rates need to be calculated
+   * @return
+   */
+  public ArrayList calcMFD_ForGriddedRegion(double minMag, double maxMag,
+                                            int numMagBins, EqkRupForecastAPI eqkRupForecast,
+                                            EvenlyGriddedGeographicRegionAPI region) {
+    double delta = (maxMag-minMag)/(numMagBins-1);
+    ArrayList cumMFDList  = calcCumMFD_ForGriddedRegion(minMag-delta, eqkRupForecast, region);
+    // number of locations in this region
+    int numLocs = cumMFDList.size();
+    // list to save the mag freq dist for each location
+    ArrayList mfdList = new ArrayList();
+    double cumRate2, cumRate1, mag;
+    for(int i=0; i<numLocs; ++i) {
+      // incremental mag freq dist for each location
+      IncrementalMagFreqDist magFreqDist = new IncrementalMagFreqDist(minMag, maxMag, numMagBins);
+      mfdList.add(magFreqDist);
+      ArbitrarilyDiscretizedFunc cumFunc = (ArbitrarilyDiscretizedFunc)cumMFDList.get(i);
+      if(cumFunc==null) continue;
+      for(int j=0; j<magFreqDist.getNum(); ++j ) {
+        mag = magFreqDist.getX(j);
+        // get interpolated rate
+        cumRate1 = getRateForMag(cumFunc, mag - delta);
+        // get interpolated rate for the mag. If mag does not exist,
+        cumRate2 = getRateForMag(cumFunc, mag + delta);
+        // set the rate in Incremental Mag Freq Dist
+        magFreqDist.set(mag, cumRate1-cumRate2);
+      }
+    }
+    return mfdList;
+  }
+
+  /**
+   * Get the rate based on mag
+   *
+   * @param func
+   * @param mag
+   * @return
+   */
+  private double getRateForMag(ArbitrarilyDiscretizedFunc func, double mag) {
+    if(mag<func.getMinX()) return func.getY(0);
+    if(mag>func.getMaxX()) return 0.0;
+    return func.getInterpolatedY(mag);
+  }
+
   /**
    * This function computes the rates above the given Magnitude for each rupture
    * location. Once computed , magnitude-rate distribution is stored for each
@@ -85,7 +142,7 @@ public class ERF2GriddedSeisRatesCalc {
    * Note : We will have to think of returning the actual Mag-Freq dist. , which
    * can done, but just have to get the user input for discretization.
    */
-  public ArrayList getMagRateDistForEachLocationInRegion(double minMag,
+  public ArrayList calcCumMFD_ForGriddedRegion(double minMag,
       EqkRupForecastAPI eqkRupForecast,
       EvenlyGriddedGeographicRegionAPI region) {
     minMagnitude = minMag;
@@ -108,7 +165,8 @@ public class ERF2GriddedSeisRatesCalc {
 
       if (numEmpDistElemnents == 0) {
         //System.out.println(region.getGridLocation(i));
-        continue;
+        //continue;
+        magRateDist.add(null);
       }
       else {
         ArbitrarilyDiscretizedFunc func = funcs[i].getCumDist();
@@ -193,8 +251,8 @@ public class ERF2GriddedSeisRatesCalc {
         //getting the rate at each Point on the rupture( calculated by first
         //getting the rate of the rupture and then dividing by number of points
         //on that rupture.
-        double ptRate = ( -Math.log(1 - rupture.getProbability()) /
-                         eqkRupForecast.getTimeSpan().getDuration()) / numPts;
+        double ptRate  = this.getRupturePtRate(eqkRupForecast, rupture,
+                                               numPts);
 
         //getting the iterator for all points on the rupture
         ListIterator it = rupSurface.getAllByRowsIterator();
@@ -345,7 +403,7 @@ public class ERF2GriddedSeisRatesCalc {
 
     int numLocations = region.getNumGridLocs();
     ArbDiscrEmpiricalDistFunc[] funcs = new ArbDiscrEmpiricalDistFunc[numLocations];
-
+    for(int i=0; i<numLocations; ++i) funcs[i] = new ArbDiscrEmpiricalDistFunc();
     //Going over each and every source in the forecast
     for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
       // get the ith source

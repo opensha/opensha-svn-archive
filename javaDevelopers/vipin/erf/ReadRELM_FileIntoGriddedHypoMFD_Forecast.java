@@ -100,7 +100,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
               locIndex].getMagFreqDist()[0];
           try {
             int index = incrMagFreqDist.getXIndex(mag);
-            incrMagFreqDist.set(index, incrMagFreqDist.getY(index) + rate);
+            incrMagFreqDist.set(mag, incrMagFreqDist.getY(index) + rate);
           }
           catch (DataPoint2DException dataPointException) {
             // do not do anything if this mag is not allowed

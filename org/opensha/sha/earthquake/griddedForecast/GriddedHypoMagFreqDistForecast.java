@@ -240,7 +240,7 @@ public abstract  class GriddedHypoMagFreqDistForecast
         rateAboveMag = magFreqDist.getCumRate(mag);
       }catch(DataPoint2DException dataPointException) {
         // if magnitude is less than least magnitude in this Mag-Freq dist
-        if(mag>magFreqDist.getMinX()) rateAboveMag = magFreqDist.getTotalIncrRate();
+        if(mag<magFreqDist.getMinX()) rateAboveMag = magFreqDist.getTotalIncrRate();
         // if this mag is above highest mag in this MagFreqDist
         else rateAboveMag = 0.0;
       }
