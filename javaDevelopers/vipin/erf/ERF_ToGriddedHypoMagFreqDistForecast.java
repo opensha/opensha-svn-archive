@@ -11,6 +11,8 @@ import org.opensha.data.Location;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.exceptions.DataPoint2DException;
+import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
+import java.util.ArrayList;
 
 /**
  * <p>Title: ERF_ToGriddedHypoMagFreqDistForecast.java </p>
@@ -47,70 +49,15 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
     this.eqkRupForecast = eqkRupForecast;
     this.region = griddedRegion;
 
+    ERF2GriddedSeisRatesCalc erfToGriddedSeisRatesCalc = new ERF2GriddedSeisRatesCalc();
+    ArrayList incrementalMFD_List  = erfToGriddedSeisRatesCalc.calcMFD_ForGriddedRegion(minMag, maxMag, numMagBins,
+        eqkRupForecast, region);
     // make HypoMagFreqDist for each location in the region
     magFreqDistForLocations = new HypoMagFreqDistAtLoc[this.getNumHypoLocs()];
     for(int i=0; i<magFreqDistForLocations.length; ++i ) {
-      IncrementalMagFreqDist magFreqDist = new IncrementalMagFreqDist(minMag, maxMag, numMagBins);
-      magFreqDist.setTolerance(magFreqDist.getDelta()/2);
-      IncrementalMagFreqDist []magFreqDistArray = new IncrementalMagFreqDist[1];
-      magFreqDistArray[0] = magFreqDist;
+      IncrementalMagFreqDist[] magFreqDistArray = new IncrementalMagFreqDist[1];
+      magFreqDistArray[0] = (IncrementalMagFreqDist)incrementalMFD_List.get(i);
       magFreqDistForLocations[i] = new HypoMagFreqDistAtLoc(magFreqDistArray,griddedRegion.getGridLocation(i));
-    }
-
-    // calculate mag-freq dist for each location within the provided region
-    calculateHypoMagFreqDistForEachLocation();
-  }
-
-
-  /*
-   * computes the Mag-Rate distribution for each location within the provided region.
-   */
-  private void calculateHypoMagFreqDistForEachLocation() {
-    int numLocations = region.getNumGridLocs();
-    // get all sources with this ERF
-    int numSources = eqkRupForecast.getNumSources();
-
-    //Going over each source within ERF
-    for (int sourceIndex = 0; sourceIndex < numSources; ++sourceIndex) {
-      // get the ith source
-      ProbEqkSource source = eqkRupForecast.getSource(sourceIndex);
-      int numRuptures = source.getNumRuptures();
-      //going over all the ruptures wiithin the source
-      for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
-        ProbEqkRupture rupture = source.getRupture(rupIndex);
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
-        long numPts = rupSurface.size();
-
-        //getting the rate at each Point on the rupture( calculated by first
-        //getting the rate of the rupture and then dividing by number of points
-        //on that rupture.
-        double ptRate = getRupturePtRate(eqkRupForecast, rupture, numPts);
-
-        //getting the iterator for all points on the rupture
-        ListIterator it = rupSurface.getAllByRowsIterator();
-
-        //looping over all the rupture pt location and finding the nearest location
-        //to them in the Geographical Region.
-        while (it.hasNext()) {
-          Location ptLoc = (Location) it.next();
-          //discard the pt location on the rupture if outside the region polygon
-          int locIndex = 0;
-          //returns -1 if location not in the region
-          locIndex = region.getNearestLocationIndex(ptLoc);
-          //continue if location not in the region
-          if (locIndex < 0) continue;
-          double rupMag = rupture.getMag();
-          IncrementalMagFreqDist incrMagFreqDist = magFreqDistForLocations[
-              locIndex].getMagFreqDist()[0];
-          // check if rupture magnitude is within range
-          try {
-            int index = incrMagFreqDist.getXIndex(rupMag);
-            incrMagFreqDist.set(index, incrMagFreqDist.getY(index)+ptRate);
-          }catch(DataPoint2DException dataPointException) {
-            // do not do anything if this mag is not allowed
-          }
-        }
-      }
     }
   }
 
@@ -126,19 +73,4 @@ public class ERF_ToGriddedHypoMagFreqDistForecast  extends GriddedHypoMagFreqDis
   public HypoMagFreqDistAtLoc getHypoMagFreqDistAtLoc(int ithLocation) {
     return magFreqDistForLocations[ithLocation];
   }
-
-
-  /*
-   * Computing the Rate for each location on the rupture
-   * @param eqkRupForecast EqkRupForecastAPI
-   * @param rupture ProbEqkRupture
-   * @param numPts long
-   * @return double
-   */
-  private double getRupturePtRate(EqkRupForecast eqkRupForecast,
-                                  ProbEqkRupture rupture, long numPts) {
-    return ( -Math.log(1 - rupture.getProbability()) /
-             eqkRupForecast.getTimeSpan().getDuration()) / numPts;
- }
-
 }
