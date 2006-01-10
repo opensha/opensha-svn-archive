@@ -127,9 +127,6 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   private BooleanParameter timeDependentParam;
 
 
-  // Time-independent versus time-dependent timeSpans
-  private TimeSpan timeSpanTimeInd;
-  private TimeSpan timeSpanTimeDep;
 
   /**
    *
@@ -1330,31 +1327,30 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   }
 
 
+  /**
+   * Creates the timespan object based on if it is time dependent or time independent model.
+   */
   private void setTimespanParameter() {
     boolean isTimeDep = ( (Boolean) timeDependentParam.getValue()).booleanValue();
     if (isTimeDep) {
       // create the time-dep timespan object with start time and duration in years
-      timeSpanTimeDep = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
+      timeSpan = new TimeSpan(TimeSpan.YEARS, TimeSpan.YEARS);
       // set the duration constraint as a list of Doubles
       ArrayList durationOptions = new ArrayList();
       durationOptions.add(new Double(5));
       durationOptions.add(new Double(30));
-      timeSpanTimeDep.setDurationConstraint(durationOptions);
+      timeSpan.setDurationConstraint(durationOptions);
       // set the start year - hard coded at 2006
-      timeSpanTimeDep.setStartTimeConstraint(TimeSpan.START_YEAR, 2006, 2006);
-      timeSpanTimeDep.setStartTime(2006);
-      timeSpanTimeDep.setDuration(30);
-      timeSpanTimeDep.addParameterChangeListener(this);
-      //set the default timeSpan to the time-dep timeSpan
-      timeSpan = timeSpanTimeDep;
+      timeSpan.setStartTimeConstraint(TimeSpan.START_YEAR, 2006, 2006);
+      timeSpan.setStartTime(2006);
+      timeSpan.setDuration(30);
+      timeSpan.addParameterChangeListener(this);
     }
     else {
       // create the time-ind timespan object with start time and duration in years
-      timeSpanTimeInd = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
-      timeSpanTimeInd.addParameterChangeListener(this);
-      timeSpanTimeInd.setDuration(30);
-      //set the default timeSpan to the time-indep timeSpan
-      timeSpan = timeSpanTimeInd;
+      timeSpan = new TimeSpan(TimeSpan.NONE, TimeSpan.YEARS);
+      timeSpan.addParameterChangeListener(this);
+      timeSpan.setDuration(30);
     }
   }
 
