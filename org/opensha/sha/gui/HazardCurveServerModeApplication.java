@@ -1152,8 +1152,8 @@ public class HazardCurveServerModeApplication extends JFrame
 
     isHazardCalcDone = true;
     disaggregationString=null;
-    //checking the disAggregation flag
-    if(this.disaggregationFlag) {
+    //checking the disAggregation flag and probability curve is being plotted.
+    if(disaggregationFlag && isProbCurve) {
       if(this.progressCheckBox.isSelected())  {
         disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
         disaggProgressClass.displayProgressBar();
@@ -1240,11 +1240,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }
     setButtonsEnable(true);
     //displays the disaggregation string in the pop-up window
-    if(disaggregationFlag) {
-      //HazardCurveDisaggregationWindow disaggregation=new HazardCurveDisaggregationWindow(this, this, disaggregationString);
-      //disaggregation.pack();
-      //disaggregation.setVisible(true);
-    }
+
     disaggregationString=null;
   }
 
@@ -1263,13 +1259,19 @@ public class HazardCurveServerModeApplication extends JFrame
           replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
     }
     String disaggregationPlotWebAddr = null;
-    String metadata = null;
+    String metadata ;
+    String pdfImageLink;
     try {
       disaggregationPlotWebAddr = getDisaggregationPlot();
-      metadata = getMapParametersInfoAsHTML();
+      pdfImageLink = "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr+
+          DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME +
+          "\">" + "here" + "</a>" +
+          " to view the non-pixelated version of the image. This will be deleted at midnight</p>"; ;
+
+      metadata = "<p>"+getMapParametersInfoAsHTML()+"</p>";
       metadata += "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
           "\">" + "here" + "</a>" +
-          " to download files. They will be deleted at midnight</p>"; ;
+          " to download files. They will be deleted at midnight</p>";
     }
     catch (RuntimeException e) {
       e.printStackTrace();
@@ -1278,9 +1280,10 @@ public class HazardCurveServerModeApplication extends JFrame
       return;
     }
     String imgName = disaggregationPlotWebAddr +
-        DisaggregationCalculator.DISAGGREGATION_PLOT_IMG;
+        DisaggregationCalculator.DISAGGREGATION_PLOT_IMG_NAME;
     String disaggregationStringAsHTML = disaggregationString.replaceAll("\n","<br>");
-    String resultToShow = "<p>Disaggregation Results</p>"+
+    String resultToShow = pdfImageLink+
+        "<p>Disaggregation Results</p>"+
         "<br>"+disaggregationStringAsHTML+"</br>";
     resultToShow +="<br><br>Parameters Info</br>"+"<br>---------------</br>"+metadata;
     if(numSourceToShow >0)

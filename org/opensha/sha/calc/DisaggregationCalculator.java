@@ -93,7 +93,10 @@ public class DisaggregationCalculator extends UnicastRemoteObject
   private String sourceDisaggInfo;
 
   //Disaggregation Plot Img Name
-  public static final String DISAGGREGATION_PLOT_IMG = "DisaggregationPlot.jpg";
+  public static final String DISAGGREGATION_PLOT_NAME = "DisaggregationPlot";
+  public static final String DISAGGREGATION_PLOT_IMG_NAME = DISAGGREGATION_PLOT_NAME +".jpg";
+  public static final String DISAGGREGATION_PLOT_PDF_NAME = DISAGGREGATION_PLOT_NAME +".pdf";
+
   //Address to the disaggregation plot img
   private String disaggregationPlotImgWebAddr;
 
@@ -615,9 +618,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
   }
 
-
-
-
   /**
    * Gets the plot image for the Disaggregation
    * @param metadata String
@@ -629,6 +629,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     disaggregationPlotImgWebAddr = openServletConnection(gmtScriptLines, metadata);
     return disaggregationPlotImgWebAddr;
   }
+
 
 
   /**
@@ -757,7 +758,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.44 -P -O >> " + img_ps_file);
 
     gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
-    gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG);
+    gmtScriptLines.add("ps2pdf "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);
+    gmtScriptLines.add("convert -crop 0x0 temp.jpg "+DISAGGREGATION_PLOT_IMG_NAME);
     gmtScriptLines.add("rm junk_data temp.jpg temp_segments");
     }catch(Exception e){
       e.printStackTrace();
@@ -830,6 +832,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
     return webaddr;
   }
+
 
 
   private double mag(int iMag) {

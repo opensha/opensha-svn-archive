@@ -106,6 +106,7 @@ public interface DisaggregationCalculatorAPI extends Remote{
   public String getDisaggregationPlotUsingServlet(String metadata) throws java.
       rmi.RemoteException;
 
+
   /**
    * Setting up the Mag Range
    * @param minMag double
