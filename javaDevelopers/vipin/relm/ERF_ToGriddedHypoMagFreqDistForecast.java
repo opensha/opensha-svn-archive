@@ -1,4 +1,4 @@
-package javaDevelopers.vipin.erf;
+package javaDevelopers.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;

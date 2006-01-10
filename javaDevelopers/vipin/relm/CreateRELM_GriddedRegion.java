@@ -1,4 +1,4 @@
-package javaDevelopers.vipin.erf;
+package javaDevelopers.vipin.relm;
 
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -8,10 +8,11 @@ import java.util.Collections;
 import java.util.ArrayList;
 import java.io.FileWriter;
 
+
 /**
  * <p>Title: CreateRELM_GriddedRegion.java </p>
- * <p>Description: This class reads  the RELM ouput file format and makes a evenly gridded
- * region from that. </p>
+ * <p>Description: This class reads  the RELM ouput file format and creates a ouput file
+ * which can be read to make RELM_EvenlyGriddedRegion object </p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author not attributable
@@ -32,7 +33,7 @@ public class CreateRELM_GriddedRegion {
       BufferedReader br = new BufferedReader(fr);
       String line = br.readLine();
      // go upto the line which says "begin_forecast"
-     while(line!=null && !line.equalsIgnoreCase(ViewGriddedHypoMFD_Forecast.BEGIN_FORECAST)) {
+     while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.BEGIN_FORECAST)) {
        line = br.readLine();
      }
      // if it end of file, return
@@ -45,7 +46,7 @@ public class CreateRELM_GriddedRegion {
      int locIndex;
      // calculate min and max lon for each lat in the region
      HashMap minLonsForLats = new HashMap(), maxLonsForLats = new HashMap();
-     while(line!=null && !line.equalsIgnoreCase(ViewGriddedHypoMFD_Forecast.END_FORECAST)) {
+     while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.END_FORECAST)) {
        StringTokenizer tokenizer = new StringTokenizer(line);
        lon1= Double.parseDouble(tokenizer.nextToken());
        lon2 =  Double.parseDouble(tokenizer.nextToken());
@@ -64,13 +65,13 @@ public class CreateRELM_GriddedRegion {
      // write the min lon for each lat first.
      FileWriter fw = new FileWriter(GRIDDED_REGION_OUT_FILENAME);
      for(int i=0; i<latList.size(); ++i) {
-       fw.write(((Double)latList.get(i)).doubleValue()+"\t"+
-                ((Double)minLonsForLats.get(latList.get(i))).doubleValue()+"\n");
+       fw.write("locList.addLocation(new Location("+((Double)latList.get(i)).doubleValue()+","+
+                ((Double)minLonsForLats.get(latList.get(i))).doubleValue()+"));\n");
      }
      // now write the max lon for each lat
      for(int i=latList.size()-1; i>=0; --i) {
-       fw.write(((Double)latList.get(i)).doubleValue()+"\t"+
-                ((Double)maxLonsForLats.get(latList.get(i))).doubleValue()+"\n");
+       fw.write("locList.addLocation(new Location("+((Double)latList.get(i)).doubleValue()+","+
+                ((Double)maxLonsForLats.get(latList.get(i))).doubleValue()+"));\n");
      }
      fw.close();
     }catch(Exception e) {

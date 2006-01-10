@@ -1,4 +1,4 @@
-package javaDevelopers.vipin.erf;
+package javaDevelopers.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.exceptions.DataPoint2DException;
+
 
 /**
  * <p>Title: ReadRELM_FileIntoGriddedHypoMFD_Forecast.java </p>
@@ -63,7 +64,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
       BufferedReader br = new BufferedReader(fr);
       String line = br.readLine();
       // go upto the line which says "begin_forecast"
-      while(line!=null && !line.equalsIgnoreCase(ViewGriddedHypoMFD_Forecast.BEGIN_FORECAST)) {
+      while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.BEGIN_FORECAST)) {
         line = br.readLine();
       }
       // if it end of file, return
@@ -76,7 +77,7 @@ public class ReadRELM_FileIntoGriddedHypoMFD_Forecast extends GriddedHypoMagFreq
       double mag1, mag2, mag;
       double rate;
       int locIndex;
-      while(line!=null && !line.equalsIgnoreCase(ViewGriddedHypoMFD_Forecast.END_FORECAST)) {
+      while(line!=null && !line.equalsIgnoreCase(WriteRELM_FileFromGriddedHypoMFD_Forecast.END_FORECAST)) {
         StringTokenizer tokenizer = new StringTokenizer(line);
         lon1= Double.parseDouble(tokenizer.nextToken());
         lon2 =  Double.parseDouble(tokenizer.nextToken());

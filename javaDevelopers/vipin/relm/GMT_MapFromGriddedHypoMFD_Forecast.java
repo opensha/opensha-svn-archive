@@ -1,4 +1,4 @@
-package javaDevelopers.vipin.erf;
+package javaDevelopers.vipin.relm;
 
 import org.opensha.sha.earthquake.griddedForecast.GriddedHypoMagFreqDistForecast;
 import org.opensha.data.XYZ_DataSetAPI;
@@ -15,6 +15,7 @@ import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
 
+
 /**
  * <p>Title: ViewGriddedHypoMFD_Forecast.java </p>
  * <p>Description: This class accepts Gridded Hypo Mag Freq Dist forecast and makes
@@ -25,19 +26,15 @@ import org.opensha.data.region.EvenlyGriddedRELM_Region;
  * @version 1.0
  */
 
-public class ViewGriddedHypoMFD_Forecast {
+public class GMT_MapFromGriddedHypoMFD_Forecast {
   private GriddedHypoMagFreqDistForecast griddedHypoMFD;
-  private final static double DEPTH_MIN = 0;
-  private final static double DEPTH_MAX = 30;
-  private final static int MASK = 1;
-  public final static String BEGIN_FORECAST = "begin_forecast";
-  public final static String END_FORECAST = "end_forecast";
+
 
   /**
    * constructor accepts GriddedHypoMagFreqDistForecast
    * @param griddedHypoMagFreqDistForecast
    */
-  public ViewGriddedHypoMFD_Forecast(
+  public GMT_MapFromGriddedHypoMFD_Forecast(
       GriddedHypoMagFreqDistForecast griddedHypoMagFreqDistForecast) {
     setGriddedHypoMagFreqDistForecast( griddedHypoMagFreqDistForecast);
   }
@@ -51,46 +48,6 @@ public class ViewGriddedHypoMFD_Forecast {
     this.griddedHypoMFD = griddedHypoMagFreqDistForecast;
   }
 
-  /**
-   * Writes the GriddedHypoMagFreqDistForecast into an output file. The format
-   * of the output file is in RELM format
-   */
-  public void makeFileInRELM_Format(String outputFileName) {
-    try {
-      FileWriter fw = new FileWriter(outputFileName);
-      // TODO: Write the header lines
-
-
-      // write the data lines
-      fw.write(BEGIN_FORECAST+"\n");
-      EvenlyGriddedGeographicRegionAPI region  = griddedHypoMFD.getEvenlyGriddedGeographicRegion();
-      int numLocs  = region.getNumGridLocs();
-      double lat1, lat2, lon1, lon2;
-      double mag1, mag2;
-      double gridSpacing = region.getGridSpacing();
-      // Iterrate over all locations and write Magnitude frequency distribution for each location
-      for(int i=0; i<numLocs; ++i ) {
-        HypoMagFreqDistAtLoc hypoMFD_AtLoc = griddedHypoMFD.getHypoMagFreqDistAtLoc(i);
-        Location loc = hypoMFD_AtLoc.getLocation();
-        lat1 = loc.getLatitude()-gridSpacing/2;
-        lat2 = loc.getLatitude()+gridSpacing/2;
-        lon1 = loc.getLongitude()-gridSpacing/2;
-        lon2 = loc.getLongitude()+gridSpacing/2;
-        // write magnitude frequency distribution for each location
-        IncrementalMagFreqDist incrementalMFD = hypoMFD_AtLoc.getMagFreqDist()[0];
-        for(int j=0; j<incrementalMFD.getNum(); ++j) {
-          mag1  = incrementalMFD.getX(j)-incrementalMFD.getDelta()/2;
-          mag2  = incrementalMFD.getX(j)+incrementalMFD.getDelta()/2;
-          fw.write((float)lon1+" "+(float)lon2+" "+(float)lat1+" "+(float)lat2+" "+DEPTH_MIN+" "+
-                   DEPTH_MAX+" "+mag1+" "+mag2+" "+incrementalMFD.getIncrRate(j)+ " "+MASK+"\n");
-        }
-      }
-      fw.write(END_FORECAST+"\n");
-      fw.close();
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
-  }
 
   /**
    * Calculate the rates above the specified magnitude for each location
@@ -134,21 +91,18 @@ public class ViewGriddedHypoMFD_Forecast {
   public static void main(String[] args) {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
-
     //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
     //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
     //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
-
     eqkRupForecast.updateForecast();
     try {
       // region to view the rates
-      //EvenlyGriddedGeographicRegion evenlyGriddedRegion =
-      //    new EvenlyGriddedRectangularGeographicRegion(32, 35, -119.5, -117.5, 0.05);
-      EvenlyGriddedRELM_Region evenlyGriddedRegion  =new EvenlyGriddedRELM_Region();
+      EvenlyGriddedRELM_Region evenlyGriddedRegion  = new EvenlyGriddedRELM_Region();
       // min mag, maxMag, These are Centers of first and last bin
       double minMag=5, maxMag=9;
       int numMag = 9; // number of Mag bins
+      // make GriddedHypoMFD Forecast from the EqkRupForecast
       GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
           new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
           minMag, maxMag, numMag);
@@ -157,10 +111,19 @@ public class ViewGriddedHypoMFD_Forecast {
           new ReadRELM_FileIntoGriddedHypoMFD_Forecast("alm.forecast", evenlyGriddedRegion,
           minMag, maxMag, numMag);
       */
-      // NOW VIEW THE MAP
-      ViewGriddedHypoMFD_Forecast viewRates = new ViewGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+
+      // Make GMT map of rates
+      GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
       viewRates.makeMap(5.5);
-      viewRates.makeFileInRELM_Format("testrelm.txt");
+
+      // write into RELM formatted file
+      WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
+      writeRELM_File.setModelVersionAuthor("NSHMP-2002", "OpenSHA version", "Rewritten by Field in Java");
+      writeRELM_File.setIssueDate(2006, 0,0,0,0,0,0);
+      writeRELM_File.setForecastStartDate(2002, 0,0,0,0,0,0);
+      writeRELM_File.setDuration(1, "years");
+      writeRELM_File.makeFileInRELM_Format("testrelm.txt");
+
     }catch(Exception e) {
       e.printStackTrace();
     }
