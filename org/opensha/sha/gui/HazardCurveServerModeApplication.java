@@ -1287,7 +1287,7 @@ public class HazardCurveServerModeApplication extends JFrame
         "<br>"+disaggregationStringAsHTML+"</br>";
     resultToShow +="<br><br>Parameters Info</br>"+"<br>---------------</br>"+metadata;
     if(numSourceToShow >0)
-      resultToShow +="<br><br>Source DisaggragtionResult</br>"+"<br>-------------</br>"+
+      resultToShow +="<br><br>Source DisaggregationResult</br>"+"<br>-------------</br>"+
           "<br>"+sourceDisaggregationListAsHTML+"</br>";
 
 
