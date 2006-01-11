@@ -190,10 +190,12 @@ public class ScatterPlotForDisaggregation {
       ArrayList cybershakeFile = FileUtils.loadFile("CyberShake_modified.txt");
       ArrayList openshaFile = FileUtils.loadFile("OpenSHA_modified.txt");
       FileWriter fw = new FileWriter("ScatterPlotFile_Ruptures.txt");
+      //FileWriter fw = new FileWriter("ScatterPlotFile_Sources.txt");
       int cybershakeFileSize = cybershakeFile.size();
       int openshaFileSize = openshaFile.size();
       //going over all the sources in the Cybershake file.
       fw.write("#Source-Index Rup-Index  Cybershake-Rate  OpenSHA-Rate Rup-Rate Source-Name\n");
+      //fw.write("#Source-Index Cybershake-Rate  OpenSHA-Rate Source-Name\n");
       for (int i = 1; i < cybershakeFileSize;++i) {
         String cybershakeFileLine = (String) cybershakeFile.get(i);
         StringTokenizer st = new StringTokenizer(cybershakeFileLine, ",");
