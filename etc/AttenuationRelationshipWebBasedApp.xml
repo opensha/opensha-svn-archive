@@ -12,7 +12,7 @@
   <property name="dest" value="../classes.ant"/>
   <property name="JUnit.home" value="${jbuilder.home}/thirdparty/junit3.8"/>
   <property name="Unit.Test.home" value="${jbuilder.home}/lib"/>
-  <property name="Required.Libraries.home" value="lib"/>
+  <property name="Required.Libraries.home" value="../lib"/>
   <property name="Tomcat.4.1.Servlet.home" value="${jbuilder.home}/thirdparty/jakarta-tomcat-4.1.30/common/lib"/>
   <property name="src" value="../."/>
   <path id="project.class.path">
@@ -20,6 +20,7 @@
     <pathelement location="${JUnit.home}/junit.jar"/>
     <pathelement location="${Unit.Test.home}/unittest.jar"/>
     <pathelement location="${Tomcat.4.1.Servlet.home}/servlet.jar"/>
+    <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/dt.jar"/>
@@ -89,19 +90,22 @@
       </fileset>
     </copy>
   </target>
+  <target name="unjarfiles">
+    <unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
+  </target>
   <target depends="javacompile" name="compile"/>
-  <target depends="compile,package" name="make" />
+  <target depends="compile" name="make" />
   <target depends="resource" name="package" />
   <target depends="precompilecleanup" name="postcompile" />
   <target name="init">
     <mkdir dir="${dest}"/>
   </target>
-  <target name="jarfile" depends="precompilecleanup,init,make,package">
+  <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiless">
     <jar destfile="AttenRelApp.jar" basedir="${dest}" manifest="AttenRelWebBased_MANIFEST.MF">
       <include name="org/**"/>
-      <include name="com/**"/>
+      <include name="com/lowagie/**"/>
+      <include name="com/keypoint/**"/>
       <include name="img/**"/>
-      <include name="ch/**"/>
     </jar>
     <antcall target="postcompile" />
   </target>

@@ -12,7 +12,7 @@
   <property name="dest" value="../classes.ant"/>
   <property name="JUnit.home" value="${jbuilder.home}/thirdparty/junit3.8"/>
   <property name="Unit.Test.home" value="${jbuilder.home}/lib"/>
-  <property name="Required.Libraries.home" value="lib"/>
+  <property name="Required.Libraries.home" value="../lib"/>
   <property name="Tomcat.4.1.Servlet.home" value="${jbuilder.home}/thirdparty/jakarta-tomcat-4.1.30/common/lib"/>
   <property name="src" value="../"/>
   <path id="project.class.path">
@@ -41,6 +41,9 @@
     <pathelement location="${Required.Libraries.home}/saaj-impl.jar"/>
     <pathelement location="${Required.Libraries.home}/saaj-api.jar"/>
     <pathelement location="${Required.Libraries.home}/dom4j.jar"/>
+    <pathelement location="${Required.Libraries.home}/jini-core.jar"/>
+    <pathelement location="${Required.Libraries.home}/jsk-platform.jar"/>
+    <pathelement location="${Required.Libraries.home}/itext-1.3.jar"/>
     <pathelement location="${Tomcat.4.1.Servlet.home}/servlet.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/charsets.jar"/>
     <pathelement location="/System/Library/Frameworks/JavaVM.framework/Versions/1.4.2/Classes/classes.jar"/>
@@ -82,9 +85,8 @@
       target="1.2"
       failonerror="yes"
       verbose="no"
-      classpath="${dest}:${Required.Libraries.home}/SRBDrop.jar">
+      classpath="${dest}">
       <src path="${src}"/>
-      <include name="ch/**" />
       <include name="org/opensha/sha/gui/PlotCurvesFromHazardDataSetApp.java"/>
       <include name="org/opensha/param/**"/>
       <include name="org/jfree/resources/**"/>
@@ -108,30 +110,23 @@
         <include name="**/*.properties"/>
       </fileset>
     </copy>
-    <copy todir="${dest}/ch">
-      <fileset dir="${src}/ch">
-        <include name="**/*.jpe"/>
-        <include name="**/*.jpeg"/>
-        <include name="**/*.gif"/>
-        <include name="**/*.png"/>
-        <include name="**/*.jpg"/>
-        <include name="**/*.properties"/>
-      </fileset>
-    </copy>
   </target>
   <target depends="javacompile" name="compile"/>
-  <target depends="compile,package" name="make"/>
+  <target depends="compile" name="make"/>
   <target depends="resource" name="package"/>
   <target depends="precompilecleanup" name="postcompile"/>
   <target name="init">
     <mkdir dir="${dest}"/>
   </target>
-  <target name="jarfile" depends="precompilecleanup,init,make,package">
+  <target name="unjarfiles">
+    <unjar src="${Required.Libraries.home}/itext-1.3.jar" dest="${dest}" />
+  </target>
+  <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
     <jar destfile="PlotCurvesFromHazardDataSet.jar" basedir="${dest}" manifest="PlotCurvesFromHazardDataSetApp_MANIFEST.MF">
       <include name="org/**"/>
-      <include name="com/**"/>
+      <include name="com/lowagie/**"/>
+      <include name="com/keypoint/**"/>
       <include name="img/**"/>
-      <include name="ch/**"/>
     </jar>
     <antcall target="postcompile" />
   </target>
