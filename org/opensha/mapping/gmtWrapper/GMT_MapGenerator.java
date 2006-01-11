@@ -41,6 +41,10 @@ public class GMT_MapGenerator implements Serializable{
   protected String PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
   protected final static String DEFAULT_JPG_FILE_NAME = "map.jpg";
   protected String JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
+  protected final static String DEFAULT_PDF_FILE_NAME = "map.pdf";
+  protected String PDF_FILE_NAME = DEFAULT_PDF_FILE_NAME;
+
+
   protected String SCALE_LABEL; // what's used to label the color scale
   protected int DPI = 70;
 
@@ -48,6 +52,7 @@ public class GMT_MapGenerator implements Serializable{
   protected String GMT_PATH;
   protected String GS_PATH;
   protected String CONVERT_PATH;
+  protected String PS2PDF_PATH;
   protected static String COMMAND_PATH = "/bin/";
 
   // this is the path where general data (e.g., topography) are found:
@@ -293,6 +298,7 @@ public class GMT_MapGenerator implements Serializable{
     // CURRENTLY HARD CODED FOR Ned and Nitin's Macs
     GMT_PATH="/sw/bin/";
     GS_PATH="/sw/bin/gs";
+    PS2PDF_PATH = "/sw/bin/ps2pdf";
     CONVERT_PATH="/sw/bin/convert";
 
     // The color scale label
@@ -336,6 +342,7 @@ public class GMT_MapGenerator implements Serializable{
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
     GS_PATH="/usr/local/bin/gs";
+    PS2PDF_PATH = "/usr/local/bin/ps2pdf";
     CONVERT_PATH="/usr/bin/convert";
 
     // The color scale label
@@ -374,6 +381,7 @@ public class GMT_MapGenerator implements Serializable{
     // Set paths for the SCEC server (where the Servlet is)
     GMT_PATH="/opt/install/gmt/bin/";
     GS_PATH="/usr/local/bin/gs";
+    PS2PDF_PATH = "/usr/local/bin/ps2pdf";
     CONVERT_PATH="/usr/bin/convert";
 
     // The color scale label
@@ -637,18 +645,21 @@ public class GMT_MapGenerator implements Serializable{
    * @param scaleLabel - a string for the label (with no spaces!)
    * @return - the name of the jpg file
    */
-  public void makeMapForCME(String xyzFileName, String psFileName, String jpgFileName, String scaleLabel) throws
+  public void makeMapForCME(String xyzFileName, String pdfFileName,
+                            String psFileName, String jpgFileName, String scaleLabel) throws
       GMT_MapException{
 
     XYZ_FILE_NAME = xyzFileName;
     PS_FILE_NAME = psFileName;
     JPG_FILE_NAME = jpgFileName;
+    PDF_FILE_NAME = pdfFileName;
 
     // THESE SHOULD BE SET DYNAMICALLY
     // CURRENTLY HARD CODED FOR gravity AT SCEC (for Vipin)
     // IF THIS CAN BE DONE WE CAN GENERALIZE THIS METHOD NAME
     GMT_PATH="/opt/install/gmt/bin/";
     GS_PATH="/usr/local/bin/gs";
+    PS2PDF_PATH = "/usr/local/bin/ps2pdf";
     CONVERT_PATH="/usr/bin/convert";
 
     // The color scale label
@@ -932,6 +943,8 @@ public class GMT_MapGenerator implements Serializable{
       gmtCommandLines.add(commandLine+"\n");
     }
 
+    commandLine = PS2PDF_PATH+"  "+PS_FILE_NAME+"  "+PDF_FILE_NAME;
+    gmtCommandLines.add(commandLine+"\n");
     // clean out temp files
     commandLine = COMMAND_PATH+"rm temp1.jpg temp2.jpg "+fileName+".grd "+fileName+
                   ".cpt "+fileName+"HiResData.grd "+fileName+"Inten.grd ";

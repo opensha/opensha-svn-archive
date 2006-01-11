@@ -56,8 +56,8 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
   private JPanel mapPanel = new JPanel();
   private GridBagLayout layout = new GridBagLayout();
   private JTextPane mapText = new JTextPane();
-  private final static String HTML_START = "<html><body>";
-  private final static String HTML_END = "</body></html>";
+  //private final static String HTML_START = "<html><body>";
+  //private final static String HTML_END = "</body></html>";
 
   //gets the image file names as URL to save as PDF
   private String[] imgFileNames;
@@ -158,7 +158,7 @@ public class ImageViewerWindow extends JFrame implements HyperlinkListener{
     mapInfoScrollPane.getViewport().add(mapText, null);
 
     mapText.setContentType("text/html");
-    mapText.setText(HTML_START+mapInfoAsHTML+HTML_END);
+    mapText.setText(mapInfoAsHTML);
     mapText.setEditable(false);
     mapText.setForeground(Color.blue);
     mapText.setEditable(false);

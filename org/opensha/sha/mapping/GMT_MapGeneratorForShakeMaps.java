@@ -94,6 +94,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       //METADATA_FILE_NAME = prefix+"_"+DEFAULT_METADATA_FILE_NAME;
       PS_FILE_NAME = prefix+"_"+DEFAULT_PS_FILE_NAME;
       JPG_FILE_NAME = prefix+"_"+DEFAULT_JPG_FILE_NAME;
+      PDF_FILE_NAME = prefix+"_"+DEFAULT_PDF_FILE_NAME;
       HAZUS_FILE_PREFIX = prefix+"_"+DEFAULT_HAZUS_FILE_PREFIX;
     }
     else {
@@ -102,6 +103,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       METADATA_FILE_NAME = DEFAULT_METADATA_FILE_NAME;
       PS_FILE_NAME = DEFAULT_PS_FILE_NAME;
       JPG_FILE_NAME = DEFAULT_JPG_FILE_NAME;
+      PDF_FILE_NAME = DEFAULT_PDF_FILE_NAME;
       HAZUS_FILE_PREFIX = DEFAULT_HAZUS_FILE_PREFIX;
     }
   }
@@ -128,6 +130,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     GMT_PATH="/sw/bin/";
     GS_PATH="/sw/bin/gs";
+    PS2PDF_PATH = "/sw/bin/ps2pdf";
     CONVERT_PATH="/sw/bin/convert";
 
     ArrayList gmtLines = new ArrayList();
@@ -206,6 +209,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
 
     GMT_PATH="/opt/install/gmt/bin/";
     GS_PATH="/usr/local/bin/gs";
+    PS2PDF_PATH = "/usr/local/bin/ps2pdf";
     CONVERT_PATH="/usr/bin/convert";
 
     ArrayList gmtLines = new ArrayList();
@@ -425,6 +429,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
     scriptLines.add(commandLine+"\n");
     commandLine = COMMAND_PATH+"mv "+GMT_SCRIPT_NAME+" "+XYZ_FILE_NAME+" "+
                   METADATA_FILE_NAME+" "+PS_FILE_NAME+" "+JPG_FILE_NAME+" "+
+                  PDF_FILE_NAME+"  "+
                   HAZUS_FILE_PREFIX+".shp "+HAZUS_FILE_PREFIX+".shx "+
                   HAZUS_FILE_PREFIX+".dbf "+ dirName;
     scriptLines.add(commandLine+"\n");

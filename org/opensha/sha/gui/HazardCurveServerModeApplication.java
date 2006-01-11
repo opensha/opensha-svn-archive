@@ -1283,7 +1283,7 @@ public class HazardCurveServerModeApplication extends JFrame
         DisaggregationCalculator.DISAGGREGATION_PLOT_IMG_NAME;
     String disaggregationStringAsHTML = disaggregationString.replaceAll("\n","<br>");
     String resultToShow = pdfImageLink+
-        "<p>Disaggregation Results</p>"+
+        "<br>Disaggregation Results : </br>"+
         "<br>"+disaggregationStringAsHTML+"</br>";
     resultToShow +="<br><br>Parameters Info</br>"+"<br>---------------</br>"+metadata;
     if(numSourceToShow >0)
