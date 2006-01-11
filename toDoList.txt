@@ -15,12 +15,6 @@ DisaggregationCalculator:
 	Make it so the "Num Sources in List" parameter sets the number listed in the calculator; note I don't
 	think this actually solved the freezing problem.
 
-	Add a pdf version of the plot in the remote dir, and make the first line of the metadata file say:
-	"click here for a nice (non pixelated) version of this plot: [pdf link]"
-
-	Ned needs to think about eBar computation when truncation has been invoked; very large Ebars are sometime reported
-	e.g., USGS2002 calc for 34.1, -118.2
-
 	app freezes if there are no exceedances (e.g., BJF97 at 34, -117 with background only)
 	
 

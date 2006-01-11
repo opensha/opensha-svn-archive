@@ -52,7 +52,7 @@ public class DisaggregationControlPanel extends JFrame
 
   //sets the Mag Range for Disaggregation calculation
   private static final String MIN_MAG_PARAM_NAME = "Min Mag (bin center)";
-  private static final String NUM_MAG_PARAM_NAME = "Max Mag";
+  private static final String NUM_MAG_PARAM_NAME = "Num Mag";
   private static final String DELTA_MAG_PARAM_NAME = "Delta Mag";
   private DoubleParameter minMagParam = new DoubleParameter(MIN_MAG_PARAM_NAME,0,10,new Double(5));
   private IntegerParameter numMagParam = new IntegerParameter(NUM_MAG_PARAM_NAME,new Integer(8));
@@ -60,7 +60,7 @@ public class DisaggregationControlPanel extends JFrame
 
   //sets the Dist range for Disaggregation calculation
   private static final String MIN_DIST_PARAM_NAME = "Min Dist (bin center)";
-  private static final String NUM_DIST_PARAM_NAME = "Max Dist";
+  private static final String NUM_DIST_PARAM_NAME = "Num Dist";
   private static final String DELTA_DIST_PARAM_NAME = "Delta Dist";
   private DoubleParameter minDistParam = new DoubleParameter(MIN_DIST_PARAM_NAME,new Double(5));
   private IntegerParameter numDistParam = new IntegerParameter(NUM_DIST_PARAM_NAME,new Integer(11));

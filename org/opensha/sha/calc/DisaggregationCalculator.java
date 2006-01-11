@@ -529,9 +529,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     //float em_u = (float) (E_mode3D+deltaE/2.0);
     String results;
     if(disaggUsingIML)
-      results = "Disaggregation Results for IML@"+value;
+      results = "Disaggregation Results for IML = "+value;
     else
-      results = "Disaggregation Results for Prob@"+value;
+      results = "Disaggregation Results for Prob = "+value;
     results += "\n" +
               "\n  Mbar = " + (float) Mbar +
               "\n  Dbar = " + (float) Dbar +
@@ -671,7 +671,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         "gmtset Y_ORIGIN 2.0i\n";
     String img_ps_file = "DisaggregationPlot.ps";
 
-    String axisBoundaryTicksBounds = "-B"+x_tick+":Distance:"+"/"+y_tick+":Magnitude:"+
+    String axisBoundaryTicksBounds = "-B"+x_tick+":\"Distance (km)\":"+"/"+y_tick+":Magnitude:"+
         "/"+z_tick+":%Contribution:"+"wSnEZ";
     String gridLines = "cat << END > temp_segments";
     ArrayList segLineList = new ArrayList();
@@ -755,7 +755,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     gmtScriptLines.add("echo " + "\"4.5 0.75 13 0.0 12 CB 0.5<e<1\" >> temp_label");
     gmtScriptLines.add("echo " + "\"5.4 0.75 13 0.0 12 CB 1<e<2\" >> temp_label");
     gmtScriptLines.add("echo " + "\"6.3 0.75 13 0.0 12 CB 2<e\" >> temp_label");
-    gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.44 -P -O >> " + img_ps_file);
+    gmtScriptLines.add("pstext temp_label -R0/8.5/0/11 -N -Jx1i -X-2.45 -P -O >> " + img_ps_file);
 
     gmtScriptLines.add("cat "+img_ps_file+ " |"+ "gs -sDEVICE=jpeg -sOutputFile=temp.jpg"+" -");
     gmtScriptLines.add("ps2pdf "+img_ps_file+"  "+DISAGGREGATION_PLOT_PDF_NAME);

@@ -58,6 +58,9 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
   private String FAULTING_STYLE_R = "2";
   private String FAULTING_STYLE_N = "3";
 
+  public final static double BACK_SEIS_DEPTH = 5.0;
+
+
   /**
    * used for error checking
    */
@@ -943,7 +946,7 @@ public class WGCEP_UCERF1_EqkRupForecast extends EqkRupForecast{
       lat =  Double.parseDouble(st.nextToken());
       rateAtZeroMag = Double.parseDouble(st.nextToken());
       aVal = 0.434294*Math.log(rateAtZeroMag);
-      loc = new Location(lat,lon);
+      loc = new Location(lat,lon,BACK_SEIS_DEPTH);
 
       // get max-mag element(s) if necessary
       if(maxmat == 1) {
