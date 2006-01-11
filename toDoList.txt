@@ -1,24 +1,26 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-Implement time-dep and time-ind options in UCERF 1.0 using one of the following two solutions.  1) extend timeSpan and the editor to have a TimeDepAndIndSupported and an associated timeDep boolean (former says allow user to toggle between the two, and the latter declares the present state); 2) put the timeDepBooleanParam in with the other adjustable ERF params and if this state changes, have the ERF issue a timeSpanChange event (not just a timeSpanValueChange event) - this way the app will know to get the new timeSpan and show it in the GUI.  The 2nd option is preferred, but will require an object on the server to be able to send an event to the application; Nitin is exploring whether this will be possible.
-
-In save PDF image option, take out empty line before the "__________", and change mouse over to "Save graph and metadata as PDF".
-
 DisaggregationCalculator:
 
 	make source disagg. list in nicer format (tabs are multi-spaces converted to single space)
 
-	In the control panel, hide all but the first parameter until the first parmater != "No Disaggregation"
-	Also hide the "Num Sources in List" parameter if the "Show Source Disagg ..." param is false
+	app freezes if there are no exceedances (e.g., BJF97 at 34, -117 with background only; IML=2.13)  
+	Fix: ave disagg function return boolean stating whether totalRate>0 (successful calc); give message
+	if failure occurs.
 
-	Make it so the "Num Sources in List" parameter sets the number listed in the calculator; note I don't
-	think this actually solved the freezing problem.
+	If prob selected, show IML in parentheses (or likewise if IML selected); this will require changing
+	the existing method.
 
-	app freezes if there are no exceedances (e.g., BJF97 at 34, -117 with background only)
-	
+	Add binned data as an option.
 
-For the deterministic calc option in the HazardCurveApps, make it so the IRM parameters in the metadata include the eqkRup and propEffect params from the IMR (so users can reproduce the results using the attenuation-relationship application). Ned should also look at the new method for this in the calculator.  Also, turn disaggregation off if one has chosen determinitistic.
+	Add tabs for selecting what to show below plot:
+
+		Mean/Mode (default)
+		Metatdata
+		Source List (if option chosen)
+		Binned data (if option chosen)
+
 
 Update the HazardSpectrumApp with latest GUI beans.
 
