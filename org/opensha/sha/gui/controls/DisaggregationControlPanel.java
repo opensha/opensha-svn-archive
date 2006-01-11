@@ -273,7 +273,7 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(NUM_DIST_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(false);
-      showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
+      showNumSourcesParam(false);
 
     }
     else{
