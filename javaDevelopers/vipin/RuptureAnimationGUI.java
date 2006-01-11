@@ -27,6 +27,11 @@ import org.opensha.param.IntegerParameter;
 import org.opensha.param.editor.IntegerParameterEditor;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
+import java.io.File;
+import java.net.URLConnection;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: Show all the ruptures as a animation using JFreechart</p>
@@ -109,7 +114,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       setTitle(TITLE);
       controlSplitPane.setDividerLocation(660);
       filterSplitPane.setDividerLocation(700);
-      this.setLocationRelativeTo(null);
+      //this.setLocationRelativeTo(null);
       this.setDefaultCloseOperation(EXIT_ON_CLOSE);
       this.setVisible(true);
     }
@@ -136,7 +141,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
     ruptureSlider.setMajorTickSpacing(numRups/10);
 
     ruptureSlider.setPaintTicks(true);
-    ruptureSlider.setFocusable(false);
+    //ruptureSlider.setFocusable(false);
     ruptureSlider.setPaintLabels(true);
     ruptureSlider.setPaintTrack(true);
     // add action listeners
@@ -288,9 +293,17 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
     ArrayList sectionNames = new ArrayList();
     try {
       LocationList locList=null;
-      // read from fault sections file
-      FileReader fr = new FileReader(FAULT_SECTION_FILE_NAME);
-      BufferedReader br = new BufferedReader(fr);
+      File file = new File(FAULT_SECTION_FILE_NAME);
+      BufferedReader br;
+      if(file.exists()) { // load file without jar file
+        // read from fault sections file
+        FileReader fr = new FileReader(FAULT_SECTION_FILE_NAME);
+        br = new BufferedReader(fr);
+      } else { // load file from jar file
+        URLConnection uc = FileUtils.class.getResource("/"+FAULT_SECTION_FILE_NAME).openConnection();
+        br =
+            new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
+      }
       String line = br.readLine().trim();
       double lat, lon;
       int col=0;
@@ -317,7 +330,6 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
       // add the last fault section to the plot
       addLocationListToPlot(locList, faultSectionCounter++);
       br.close();
-      fr.close();
     }catch(Exception e) {
       e.printStackTrace();
     }

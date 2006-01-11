@@ -18,9 +18,7 @@ public class CreateScriptsForMultiProcessor {
   private String masterScriptFilename;
   private String faultSectionFilename1, faultSectionFilename2, faultSectionFilename3;
 
-  public CreateScriptsForMultiProcessor() {
-
-  }
+  public CreateScriptsForMultiProcessor() {}
 
   /**
    * Create pbs scripts and master script to submit the pbs scripts

@@ -26,8 +26,8 @@ public class PrepareTreeStructure {
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
-  public final static String DEFAULT_FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers\\vipin\\FaultSections.txt";
-  public final static String DEFAULT_RUP_OUT_FILENAME = "javaDevelopers\\vipin\\Ruptures_Allkm.txt";
+  public final static String DEFAULT_FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers/vipin/FaultSections.txt";
+  public final static String DEFAULT_RUP_OUT_FILENAME = "javaDevelopers/vipin/Ruptures_Allkm.txt";
   public String rupOutFilename = DEFAULT_RUP_OUT_FILENAME;
   public String faultSectionsOutFilename = DEFAULT_FAULT_SECTIONS_OUT_FILENAME;
   private HashMap faultTree ;

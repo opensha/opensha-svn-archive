@@ -6,6 +6,11 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.util.StringTokenizer;
 import org.opensha.data.Location;
+import java.io.File;
+import java.net.URLConnection;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+import org.opensha.util.FileUtils;
 
 /**
  * <p>Title: RuptureFileReaderWriter.java </p>
@@ -20,7 +25,6 @@ import org.opensha.data.Location;
 public class RuptureFileReaderWriter {
 
   // Rupture File Readers
-  private FileReader frRups;
   private BufferedReader brRups;
   private ArrayList nodesList=null; // it will hold the list of alocation/sectionanme/id for each location on a rupture
   private float rupLen=0.0f; // rupture length
@@ -32,8 +36,18 @@ public class RuptureFileReaderWriter {
    */
   public RuptureFileReaderWriter(String fileName) {
     try {
-      frRups = new FileReader(fileName);
-      brRups = new BufferedReader(frRups); // buffered reader
+      File file = new File(fileName);
+      if(file.exists()) { // load file without jar file
+       // read from rupture file
+       FileReader frRups = new FileReader(fileName);
+       brRups = new BufferedReader(frRups);
+     } else { // load file from jar file
+       URLConnection uc = FileUtils.class.getResource("/"+fileName).openConnection();
+       brRups =
+           new BufferedReader(new InputStreamReader((InputStream) uc.getContent()));
+     }
+
+
       brRups.readLine(); // skip first line as it just contains number of ruptures
     }catch(Exception e) {
       e.printStackTrace();
@@ -46,7 +60,6 @@ public class RuptureFileReaderWriter {
   public void close() {
     try {
       brRups.close();
-      frRups.close();
     }catch(Exception e) {
       e.printStackTrace();
     }
