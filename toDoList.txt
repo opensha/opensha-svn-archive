@@ -1,18 +1,10 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+
+Include "Max Source-Site Distance" (from control panel) in metadata for hazard curves.
+
 DisaggregationCalculator:
-
-	make source disagg. list in nicer format (tabs are multi-spaces converted to single space)
-
-	app freezes if there are no exceedances (e.g., BJF97 at 34, -117 with background only; IML=2.13)  
-	Fix: ave disagg function return boolean stating whether totalRate>0 (successful calc); give message
-	if failure occurs.
-
-	If prob selected, show IML in parentheses (or likewise if IML selected); this will require changing
-	the existing method.
-
-	Add binned data as an option.
 
 	Add tabs for selecting what to show below plot:
 
@@ -20,6 +12,10 @@ DisaggregationCalculator:
 		Metatdata
 		Source List (if option chosen)
 		Binned data (if option chosen)
+
+	(make the data format better now that it's text rather than html)
+
+	show the pdf rather than the jpeg since it's nicer (will require open-src pdf viewer)
 
 
 Update the HazardSpectrumApp with latest GUI beans.

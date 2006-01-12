@@ -1337,7 +1337,7 @@ public class HazardCurveServerModeApplication extends JFrame
           disaggregationPlotWebAddr +
           DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME +
           "\">" + "here" + "</a>" +
-          " to view the non-pixelated version of the image. This will be deleted at midnight</p>";
+          " to view a PDF (non-pixelated) version of the image (this will be deleted at midnight).</p>";
 
       metadata = "<p>" + getMapParametersInfoAsHTML() + "</p>";
       metadata += "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
