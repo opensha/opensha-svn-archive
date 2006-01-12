@@ -100,7 +100,7 @@
   <target name="init">
     <mkdir dir="${dest}"/>
   </target>
-  <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiless">
+  <target name="jarfile" depends="precompilecleanup,init,make,package,unjarfiles">
     <jar destfile="AttenRelApp.jar" basedir="${dest}" manifest="AttenRelWebBased_MANIFEST.MF">
       <include name="org/**"/>
       <include name="com/lowagie/**"/>
