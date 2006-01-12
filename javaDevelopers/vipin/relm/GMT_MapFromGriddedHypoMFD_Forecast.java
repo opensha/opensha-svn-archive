@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 
 /**
- * <p>Title: ViewGriddedHypoMFD_Forecast.java </p>
+ * <p>Title: GMT_MapFromGriddedHypoMFD_Forecast.java </p>
  * <p>Description: This class accepts Gridded Hypo Mag Freq Dist forecast and makes
  * a map or generates a file in RELM format</p>
  * <p>Copyright: Copyright (c) 2002</p>
@@ -112,6 +112,8 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
   public static void main(String[] args) {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
+    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.RUP_OFFSET_PARAM_NAME,
+                                new Double(1.0));
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
@@ -157,7 +159,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       writeRELM_File.setIssueDate(2006, 0,0,0,0,0,0);
       writeRELM_File.setForecastStartDate(2002, 0,0,0,0,0,0);
       writeRELM_File.setDuration(1, "years");
-      writeRELM_File.makeFileInRELM_Format("testrelm.txt");
+      writeRELM_File.makeFileInRELM_Format("Frankel02AnnualRates.txt");
 
     }catch(Exception e) {
       e.printStackTrace();
