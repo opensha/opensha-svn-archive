@@ -47,8 +47,17 @@ public class DisaggregationControlPanel extends JFrame
   private final static String SOURCE_DISAGGR_PARAM_NAME = "Show Source Disaggregation List";
   private BooleanParameter sourceDisaggregationParam = new BooleanParameter
       (SOURCE_DISAGGR_PARAM_NAME,new Boolean(false));
+
   private final static String NUM_SOURCE_PARAM_NAME = "Num Sources in List";
   private IntegerParameter numSourcesToShow = new IntegerParameter(NUM_SOURCE_PARAM_NAME,new Integer(100));
+
+
+  //show the bin data only if this parameter is selected
+  private final static String SHOW_DISAGGR_BIN_RATE_PARAM_NAME = "Show Disaggregation Bin Rate Data";
+  private BooleanParameter binRateDisaggregationParam = new BooleanParameter
+      (SHOW_DISAGGR_BIN_RATE_PARAM_NAME,new Boolean(false));
+
+
 
   //sets the Mag Range for Disaggregation calculation
   private static final String MIN_MAG_PARAM_NAME = "Min Mag (bin center)";
@@ -117,6 +126,7 @@ public class DisaggregationControlPanel extends JFrame
       paramList.addParameter(disaggregationIMLParam);
       paramList.addParameter(sourceDisaggregationParam);
       paramList.addParameter(numSourcesToShow);
+      paramList.addParameter(binRateDisaggregationParam);
       paramList.addParameter(minMagParam);
       paramList.addParameter(numMagParam);
       paramList.addParameter(deltaMagParam);
@@ -273,6 +283,7 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(NUM_DIST_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(false);
       paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(false);
+      paramListEditor.getParameterEditor(SHOW_DISAGGR_BIN_RATE_PARAM_NAME).setVisible(false);
       showNumSourcesParam(false);
       this.setSize(300,200);
     }
@@ -298,6 +309,7 @@ public class DisaggregationControlPanel extends JFrame
       paramListEditor.getParameterEditor(NUM_DIST_PARAM_NAME).setVisible(true);
       paramListEditor.getParameterEditor(DELTA_DIST_PARAM_NAME).setVisible(true);
       paramListEditor.getParameterEditor(SOURCE_DISAGGR_PARAM_NAME).setVisible(true);
+      paramListEditor.getParameterEditor(SHOW_DISAGGR_BIN_RATE_PARAM_NAME).setVisible(true);
       showNumSourcesParam(((Boolean)sourceDisaggregationParam.getValue()).booleanValue());
       this.setSize(300,500);
     }
@@ -352,5 +364,13 @@ public class DisaggregationControlPanel extends JFrame
     if(isDisaggregationSelected)
       return ((Integer)numSourcesToShow.getValue()).intValue();
     return 0;
+  }
+
+  /**
+   * Returns if Disaggregation Bin Rate Data is to be selected
+   * @return boolean
+   */
+  public boolean isShowDisaggrBinDataSelected(){
+    return ((Boolean)binRateDisaggregationParam.getValue()).booleanValue();
   }
 }

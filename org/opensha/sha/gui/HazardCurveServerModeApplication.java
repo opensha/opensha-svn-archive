@@ -169,7 +169,7 @@ public class HazardCurveServerModeApplication extends JFrame
   private final static String RUN_ALL_PEER_TESTS = "Run all PEER Test Cases";
   //private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   private final static String PLOTTING_OPTION = "Set new dataset plotting option";
-  private final static String XY_Values_Control = "Set new XY dataset";
+  private final static String XY_Values_Control = "Set external XY dataset";
 
 
   // objects for control panels
@@ -1025,29 +1025,32 @@ public class HazardCurveServerModeApplication extends JFrame
   private void computeHazardCurve() {
 
     //starting the calculation
-    isHazardCalcDone= false;
+    isHazardCalcDone = false;
 
     ERF_API forecast = null;
     ProbEqkRupture rupture = null;
-    if(!this.isProbCurve)
+    if (!this.isProbCurve)
       rupture = (ProbEqkRupture)this.erfRupSelectorGuiBean.getRupture();
 
     // get the selected forecast model
-    try{
-      if(this.isProbCurve){
+    try {
+      if (this.isProbCurve) {
         // whether to show progress bar in case of update forecast
         erfGuiBean.showProgressBar(this.progressCheckBox.isSelected());
         //get the selected ERF instance
         forecast = erfGuiBean.getSelectedERF();
       }
-    }catch(Exception e){
+    }
+    catch (Exception e) {
       e.printStackTrace();
-      JOptionPane.showMessageDialog(this,e.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(this, e.getMessage(), "Incorrect Values",
+                                    JOptionPane.ERROR_MESSAGE);
       setButtonsEnable(true);
       return;
     }
-    if(this.progressCheckBox.isSelected())  {
-      progressClass = new CalcProgressBar("Hazard-Curve Calc Status", "Beginning Calculation ");
+    if (this.progressCheckBox.isSelected()) {
+      progressClass = new CalcProgressBar("Hazard-Curve Calc Status",
+                                          "Beginning Calculation ");
       progressClass.displayProgressBar();
       timer.start();
     }
@@ -1056,36 +1059,40 @@ public class HazardCurveServerModeApplication extends JFrame
     AttenuationRelationshipAPI imr = imrGuiBean.getSelectedIMR_Instance();
 
     // make a site object to pass to IMR
-    Site site =  siteGuiBean.getSite();
+    Site site = siteGuiBean.getSite();
 
     try {
       // this function will get the selected IMT parameter and set it in IMT
       imtGuiBean.setIMT();
-    } catch (Exception ex) {
-      ExceptionWindow bugWindow = new ExceptionWindow(this,ex.getStackTrace(),getParametersInfoAsString());
+    }
+    catch (Exception ex) {
+      ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+          getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
-      if(D) System.out.println(C + ":Param warning caught"+ex);
+      if (D) System.out.println(C + ":Param warning caught" + ex);
       ex.printStackTrace();
     }
     // check whether this forecast is a Forecast List
     // if this is forecast list , handle it differently
     boolean isEqkForecastList = false;
-    if(forecast instanceof ERF_List  && isProbCurve)  {
+    if (forecast instanceof ERF_List && isProbCurve) {
       //if add on top get the name of ERF List forecast
-      if(addData)
+      if (addData)
         prevSelectedERF_List = forecast.getName();
 
-      if(!prevSelectedERF_List.equals(forecast.getName()) && !addData){
-        JOptionPane.showMessageDialog(this,"Cannot add to existing without selecting same ERF Epistemic list",
-                                      "Input Error",JOptionPane.INFORMATION_MESSAGE);
+      if (!prevSelectedERF_List.equals(forecast.getName()) && !addData) {
+        JOptionPane.showMessageDialog(this,
+            "Cannot add to existing without selecting same ERF Epistemic list",
+                                      "Input Error",
+                                      JOptionPane.INFORMATION_MESSAGE);
         return;
       }
       this.isEqkList = true; // set the flag to indicate thatwe are dealing with Eqk list
       handleForecastList(site, imr, forecast);
       //initializing the counters for ERF List to 0, for other ERF List calculations
-      currentERFInEpistemicListForHazardCurve =0;
-      numERFsInEpistemicList =0;
+      currentERFInEpistemicListForHazardCurve = 0;
+      numERFsInEpistemicList = 0;
       isHazardCalcDone = true;
       return;
     }
@@ -1096,11 +1103,14 @@ public class HazardCurveServerModeApplication extends JFrame
     // this is not a eqk list
     this.isEqkList = false;
     // calculate the hazard curve
-    try{
-      if(distanceControlPanel!=null)  calc.setMaxSourceDistance(distanceControlPanel.getDistance());
-    }catch(Exception e){
+    try {
+      if (distanceControlPanel != null) calc.setMaxSourceDistance(
+          distanceControlPanel.getDistance());
+    }
+    catch (Exception e) {
       setButtonsEnable(true);
-      ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+      ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+          getParametersInfoAsString());
       bugWindow.setVisible(true);
       bugWindow.pack();
       e.printStackTrace();
@@ -1113,10 +1123,11 @@ public class HazardCurveServerModeApplication extends JFrame
     try {
       // calculate the hazard curve
       //eqkRupForecast = (EqkRupForecastAPI)FileUtils.loadObject("erf.obj");
-      try{
-        if(isProbCurve)
-          hazFunction = (ArbitrarilyDiscretizedFunc)calc.getHazardCurve(hazFunction, site, imr, (EqkRupForecastAPI)forecast);
-        else{
+      try {
+        if (isProbCurve)
+          hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
+              hazFunction, site, imr, (EqkRupForecastAPI) forecast);
+        else {
           progressCheckBox.setSelected(false);
           progressCheckBox.setEnabled(false);
           hazFunction = (ArbitrarilyDiscretizedFunc) calc.getHazardCurve(
@@ -1124,151 +1135,210 @@ public class HazardCurveServerModeApplication extends JFrame
           progressCheckBox.setSelected(true);
           progressCheckBox.setEnabled(true);
         }
-      }catch(Exception e){
+      }
+      catch (Exception e) {
         e.printStackTrace();
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+            getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
 
       }
       hazFunction = toggleHazFuncLogValues(hazFunction);
       hazFunction.setInfo(getParametersInfoAsString());
-    }catch (RuntimeException e) {
+    }
+    catch (RuntimeException e) {
       JOptionPane.showMessageDialog(this, e.getMessage(),
-                                    "Parameters Invalid", JOptionPane.INFORMATION_MESSAGE);
+                                    "Parameters Invalid",
+                                    JOptionPane.INFORMATION_MESSAGE);
       //e.printStackTrace();
       setButtonsEnable(true);
       return;
     }
 
-
     // add the function to the function list
     functionList.add(hazFunction);
     // set the X-axis label
     String imt = imtGuiBean.getSelectedIMT();
-    xAxisName = imt + " ("+imr.getParameter(imt).getUnits()+")";
+    xAxisName = imt + " (" + imr.getParameter(imt).getUnits() + ")";
     yAxisName = "Probability of Exceedance";
 
     isHazardCalcDone = true;
-    disaggregationString=null;
+    disaggregationString = null;
     //checking the disAggregation flag and probability curve is being plotted.
-    if(disaggregationFlag && isProbCurve) {
-      if(this.progressCheckBox.isSelected())  {
-        disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status", "Beginning Disaggregation ");
+    if (disaggregationFlag && isProbCurve) {
+      if (this.progressCheckBox.isSelected()) {
+        disaggProgressClass = new CalcProgressBar("Disaggregation Calc Status",
+                                                  "Beginning Disaggregation ");
         disaggProgressClass.displayProgressBar();
         disaggTimer.start();
       }
       /*try{
         if(distanceControlPanel!=null)  disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
-      }catch(Exception e){
+             }catch(Exception e){
         setButtonsEnable(true);
         ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
-      }*/
+             }*/
       int num = hazFunction.getNum();
-      double disaggregationVal = disaggregationControlPanel.getDisaggregationVal();
-      String disaggregationParamVal = disaggregationControlPanel.getDisaggregationParamValue();
+      //checks if successfully disaggregated.
+      boolean disaggSuccessFlag = false;
+      boolean disaggrAtIML = false;
+      double disaggregationVal = disaggregationControlPanel.
+          getDisaggregationVal();
+      String disaggregationParamVal = disaggregationControlPanel.
+          getDisaggregationParamValue();
       double minMag = disaggregationControlPanel.getMinMag();
       double deltaMag = disaggregationControlPanel.getdeltaMag();
       int numMag = disaggregationControlPanel.getNumMag();
-      double minDist= disaggregationControlPanel.getMinDist();
-      double deltaDist= disaggregationControlPanel.getdeltaDist();
+      double minDist = disaggregationControlPanel.getMinDist();
+      double deltaDist = disaggregationControlPanel.getdeltaDist();
       int numDist = disaggregationControlPanel.getNumDist();
-      int numSourcesForDisag= disaggregationControlPanel.getNumSourcesForDisagg();
-      try{
-        if(distanceControlPanel!=null)
+      int numSourcesForDisag = disaggregationControlPanel.
+          getNumSourcesForDisagg();
+      try {
+        if (distanceControlPanel != null)
           disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
         disaggCalc.setNumSourcestoShow(numSourcesForDisag);
 
-      }catch(Exception e){
+      }
+      catch (Exception e) {
         setButtonsEnable(true);
-        ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+            getParametersInfoAsString());
         bugWindow.setVisible(true);
         bugWindow.pack();
         e.printStackTrace();
       }
       double imlForDisaggregation = 0;
-      try{
-      if(disaggregationParamVal.equals(disaggregationControlPanel.DISAGGREGATE_USING_PROB)){
-          //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
-        if(disaggregationVal > hazFunction.getY(0) || disaggregationVal < hazFunction.getY(num-1))
-          JOptionPane.showMessageDialog(this,
-                                        new String("Chosen Probability is not"+
-                                        " within the range of the min and max prob."+
-                                        " in the Hazard Curve"),
-                                        "Disaggregation error message",
-                                        JOptionPane.ERROR_MESSAGE);
-        else{
-          //gets the Disaggregation data
-          imlForDisaggregation= hazFunction.getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
-          disaggCalc.disaggregate(Math.log(imlForDisaggregation),site,imr,(EqkRupForecast)forecast);
-          disaggregationString=disaggCalc.getResultsString(false,disaggregationVal);
-        }
+      try {
 
-      }
-      else if(disaggregationParamVal.equals(disaggregationControlPanel.DISAGGREGATE_USING_IML)){
+        if (disaggregationParamVal.equals(disaggregationControlPanel.
+                                          DISAGGREGATE_USING_PROB)) {
+          disaggrAtIML = false;
+          //if selected Prob is not within the range of the Exceed. prob of Hazard Curve function
+          if (disaggregationVal > hazFunction.getY(0) ||
+              disaggregationVal < hazFunction.getY(num - 1))
+            JOptionPane.showMessageDialog(this,
+                                          new String(
+                "Chosen Probability is not" +
+                " within the range of the min and max prob." +
+                " in the Hazard Curve"),
+                                          "Disaggregation error message",
+                                          JOptionPane.ERROR_MESSAGE);
+          else
+            //gets the Disaggregation data
+            imlForDisaggregation = hazFunction.
+                getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
+
+        }
+        else if (disaggregationParamVal.equals(disaggregationControlPanel.
+                                               DISAGGREGATE_USING_IML)) {
+          disaggrAtIML = true;
           //if selected IML is not within the range of the IML values chosen for Hazard Curve function
-        if(disaggregationVal < hazFunction.getX(0) || disaggregationVal > hazFunction.getX(num-1))
-          JOptionPane.showMessageDialog(this,
-                                        new String("Chosen IML is not"+
-                                        " within the range of the min and max IML values"+
-                                        " in the Hazard Curve"),
-                                        "Disaggregation error message",
-                                        JOptionPane.ERROR_MESSAGE);
-        else{
-          imlForDisaggregation = disaggregationVal;
-          disaggCalc.disaggregate(Math.log(imlForDisaggregation), site, imr,
-                                  (EqkRupForecast) forecast);
-          disaggregationString = disaggCalc.getResultsString(true,
-              imlForDisaggregation);
+          if (disaggregationVal < hazFunction.getX(0) ||
+              disaggregationVal > hazFunction.getX(num - 1))
+            JOptionPane.showMessageDialog(this,
+                                          new String("Chosen IML is not" +
+                " within the range of the min and max IML values" +
+                " in the Hazard Curve"),
+                                          "Disaggregation error message",
+                                          JOptionPane.ERROR_MESSAGE);
+          else
+            imlForDisaggregation = disaggregationVal;
+
         }
+        disaggSuccessFlag = disaggCalc.disaggregate(Math.log(
+            imlForDisaggregation), site, imr, (EqkRupForecast) forecast);
+        disaggregationString = disaggCalc.getMeanAndModeInfo();
       }
-        }catch(Exception e){
-          setButtonsEnable(true);
-          ExceptionWindow bugWindow = new ExceptionWindow(this,e.getStackTrace(),getParametersInfoAsString());
-          bugWindow.setVisible(true);
-          bugWindow.pack();
-          e.printStackTrace();
-        }
+      catch (Exception e) {
+        setButtonsEnable(true);
+        ExceptionWindow bugWindow = new ExceptionWindow(this, e.getStackTrace(),
+            getParametersInfoAsString());
+        bugWindow.setVisible(true);
+        bugWindow.pack();
+        e.printStackTrace();
+      }
       //}
-      showDisaggregationResults(numSourcesForDisag);
+      if (disaggSuccessFlag)
+        showDisaggregationResults(numSourcesForDisag,disaggrAtIML,imlForDisaggregation,disaggregationVal);
+      else
+        JOptionPane.showMessageDialog(this,
+                                      "Disaggregation failed because there is" +
+                                      "no exceedance above \n " +
+                                      "the given IML(or that interpolated from the chosen probability)",
+                                      "Disaggregation Message",
+                                      JOptionPane.OK_OPTION);
     }
     setButtonsEnable(true);
     //displays the disaggregation string in the pop-up window
 
-    disaggregationString=null;
+    disaggregationString = null;
   }
 
 
   /**
    *
+   *
    * @param numSourceToShow int : Number of sources to show for the disaggregation
+   * @param imlBasedDisaggr boolean Disaggregation is done based on chosen IML
+   * @param imlVal double iml value for the disaggregation
+   * @param probVal double if disaggregation is done based on prob. then its value
    */
-  private void showDisaggregationResults(int numSourceToShow){
-    String sourceDisaggregationListAsHTML= null;
-    if(numSourceToShow >0){
+  private void showDisaggregationResults(int numSourceToShow,
+                                         boolean imlBasedDisaggr,
+                                         double imlVal, double probVal) {
+    String sourceDisaggregationListAsHTML = null;
+    if (numSourceToShow > 0) {
       String sourceDisaggregationList = getSourceDisaggregationInfo();
       sourceDisaggregationListAsHTML = sourceDisaggregationList.
           replaceAll("\n", "<br>");
       sourceDisaggregationListAsHTML = sourceDisaggregationListAsHTML.
           replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
     }
+    String binDataAsHTML = null;
+    boolean binDataToShow = disaggregationControlPanel.
+        isShowDisaggrBinDataSelected();
+    if(binDataToShow){
+      try {
+        binDataAsHTML = disaggCalc.getBinData();
+        binDataAsHTML = binDataAsHTML.replaceAll("\n", "<br>");
+        binDataAsHTML = binDataAsHTML.replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
+      }
+      catch (RemoteException ex) {
+        setButtonsEnable(true);
+        ExceptionWindow bugWindow = new ExceptionWindow(this, ex.getStackTrace(),
+            getParametersInfoAsString());
+        bugWindow.setVisible(true);
+        bugWindow.pack();
+        ex.printStackTrace();
+      }
+    }
+    String modeString = "";
+    if (imlBasedDisaggr)
+      modeString = "Disaggregation Results for IML = " + imlVal;
+    else
+      modeString = "Disaggregation Results for Prob = " + probVal +
+          " (for IML = " + imlVal + ")";
+
     String disaggregationPlotWebAddr = null;
-    String metadata ;
+    String metadata;
     String pdfImageLink;
     try {
       disaggregationPlotWebAddr = getDisaggregationPlot();
-      pdfImageLink = "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr+
+      pdfImageLink = "<br><p>Click  " + "<a href=\"" +
+          disaggregationPlotWebAddr +
           DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME +
           "\">" + "here" + "</a>" +
-          " to view the non-pixelated version of the image. This will be deleted at midnight</p>"; ;
+          " to view the non-pixelated version of the image. This will be deleted at midnight</p>";
 
-      metadata = "<p>"+getMapParametersInfoAsHTML()+"</p>";
+      metadata = "<p>" + getMapParametersInfoAsHTML() + "</p>";
       metadata += "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
           "\">" + "here" + "</a>" +
           " to download files. They will be deleted at midnight</p>";
@@ -1281,17 +1351,22 @@ public class HazardCurveServerModeApplication extends JFrame
     }
     String imgName = disaggregationPlotWebAddr +
         DisaggregationCalculator.DISAGGREGATION_PLOT_IMG_NAME;
-    String disaggregationStringAsHTML = disaggregationString.replaceAll("\n","<br>");
-    String resultToShow = pdfImageLink+
-        "<br>Disaggregation Results : </br>"+
-        "<br>"+disaggregationStringAsHTML+"</br>";
-    resultToShow +="<br><br>Parameters Info</br>"+"<br>---------------</br>"+metadata;
-    if(numSourceToShow >0)
-      resultToShow +="<br><br>Source DisaggregationResult</br>"+"<br>-------------</br>"+
-          "<br>"+sourceDisaggregationListAsHTML+"</br>";
+    String disaggregationStringAsHTML = modeString +
+        disaggregationString.replaceAll("\n", "<br>");
+    String resultToShow = pdfImageLink +
+        "<br>Disaggregation Results : </br>" +
+        "<br>" + disaggregationStringAsHTML + "</br>";
+    resultToShow += "<br><br>Parameters Info</br>" + "<br>---------------</br>" +
+        metadata;
+    if (numSourceToShow > 0)
+      resultToShow += "<br><br>Source DisaggregationResult</br>" +
+          "<br>-------------</br>" +
+          "<br>" + sourceDisaggregationListAsHTML + "</br>";
+    if(binDataToShow)
+      resultToShow += "<br><br>Bin Data Info</br>" + "<br>-------------</br>" +
+          "<br>" + binDataAsHTML + "</br>";
 
-
-  //adding the image to the Panel and returning that to the applet
+    //adding the image to the Panel and returning that to the applet
     new ImageViewerWindow(imgName, resultToShow, true);
 
   }

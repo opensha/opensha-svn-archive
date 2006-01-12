@@ -31,17 +31,20 @@ public interface DisaggregationCalculatorAPI extends Remote{
       RemoteException;
 
   /**
-   * this function performs the disaggregation
+   * this function performs the disaggregation.
+   * Returns true if it was succesfully able to disaggregate above
+   * a given IML else return false
    *
    * @param iml: the intensity measure level to disaggregate
    * @param site: site parameter
    * @param imr: selected IMR object
    * @param eqkRupForecast: selected Earthquake rup forecast
-   * @return
+   * @return boolean
    */
-  public void disaggregate(double iml, Site site,
-        AttenuationRelationshipAPI imr, EqkRupForecast eqkRupForecast) throws java.rmi.RemoteException;
-
+  public boolean disaggregate(double iml, Site site,
+                              AttenuationRelationshipAPI imr,
+                              EqkRupForecast eqkRupForecast) throws java.rmi.
+      RemoteException;
 
   /**
    * Sets the number of sources to be shown in the Disaggregation.
@@ -126,9 +129,16 @@ public interface DisaggregationCalculatorAPI extends Remote{
       java.rmi.RemoteException;
 
   /**
+   * Returns the Bin Data in the String format
+   * @return String
+   * @throws RemoteException
+   */
+  public String getBinData()throws java.rmi.RemoteException;
+
+  /**
    *
    * @returns resultant disaggregation in a String format.
    * @throws java.rmi.RemoteException
    */
-  public String getResultsString(boolean disaggUsingIML, double value) throws java.rmi.RemoteException;
+  public String getMeanAndModeInfo() throws java.rmi.RemoteException;
 }
