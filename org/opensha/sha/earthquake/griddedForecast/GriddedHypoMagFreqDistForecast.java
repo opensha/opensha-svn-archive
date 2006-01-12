@@ -227,7 +227,7 @@ public abstract  class GriddedHypoMagFreqDistForecast
     ArrayList yVals = new ArrayList();
     ArrayList zVals = new ArrayList();
     // iterate over all locations.
-    double rateAboveMag, totalIncrRate;
+    double rateAboveMag=0.0, totalIncrRate;
     int numLocs = this.getNumHypoLocs();
     for(int i=0; i<numLocs; ++i) {
       HypoMagFreqDistAtLoc hypoMagFreqDistAtLoc = this.getHypoMagFreqDistAtLoc(i);
@@ -242,7 +242,8 @@ public abstract  class GriddedHypoMagFreqDistForecast
         // if magnitude is less than least magnitude in this Mag-Freq dist
         if(mag<magFreqDist.getMinX()) rateAboveMag = magFreqDist.getTotalIncrRate();
         // if this mag is above highest mag in this MagFreqDist
-        else rateAboveMag = 0.0;
+        else if(mag>magFreqDist.getMaxX()) rateAboveMag = 0.0;
+        else dataPointException.printStackTrace();
       }
       zVals.add(new Double(rateAboveMag));
     }

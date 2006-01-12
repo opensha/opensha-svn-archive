@@ -14,6 +14,7 @@ import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;
 import org.opensha.data.Location;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.region.EvenlyGriddedRELM_Region;
+import java.util.ArrayList;
 
 
 /**
@@ -67,7 +68,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MIN_LON_PARAM_NAME, new Double(region.getMinGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
-    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(false));
+    mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(true));
     mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
 
     try {
@@ -92,16 +93,20 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
     //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
-    //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+    //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_ONLY);
+    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
+                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
+                                Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
-    //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
+      //                          Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
     eqkRupForecast.updateForecast();
     try {
       // region to view the rates
       EvenlyGriddedRELM_Region evenlyGriddedRegion  = new EvenlyGriddedRELM_Region();
       // min mag, maxMag, These are Centers of first and last bin
-      double minMag=5, maxMag=9;
-      int numMag = 9; // number of Mag bins
+      double minMag=5.0, maxMag=9.00;
+      int numMag = 41; // number of Mag bins
       // make GriddedHypoMFD Forecast from the EqkRupForecast
       GriddedHypoMagFreqDistForecast griddedHypoMagFeqDistForecast =
           new ERF_ToGriddedHypoMagFreqDistForecast(eqkRupForecast, evenlyGriddedRegion,
@@ -114,11 +119,20 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
 
       // Make GMT map of rates
       GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-      viewRates.makeMap(5.5);
+      viewRates.makeMap(5.0);
+      /*XYZ_DataSetAPI xyzData = griddedHypoMagFeqDistForecast.getXYZ_DataAboveMag(5.0);
+      FileWriter fw = new FileWriter("GriddedHypoFrankel02.txt");
+      ArrayList xVals = xyzData.getX_DataSet();
+      ArrayList yVals = xyzData.getY_DataSet();
+      ArrayList zVals = xyzData.getZ_DataSet();
+      for(int i=0; i<xVals.size(); ++i) {
+        fw.write(xVals.get(i)+" "+yVals.get(i)+" "+zVals.get(i)+"\n");
+      }
+      fw.close();*/
 
       // write into RELM formatted file
       WriteRELM_FileFromGriddedHypoMFD_Forecast writeRELM_File = new WriteRELM_FileFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
-      writeRELM_File.setModelVersionAuthor("NSHMP-2002", "OpenSHA version", "Rewritten by Field in Java");
+      writeRELM_File.setModelVersionAuthor("NSHMP-2002", "OpenSHA version", "Rewritten by Ned Field in Java");
       writeRELM_File.setIssueDate(2006, 0,0,0,0,0,0);
       writeRELM_File.setForecastStartDate(2002, 0,0,0,0,0,0);
       writeRELM_File.setDuration(1, "years");
