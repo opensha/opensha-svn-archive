@@ -2134,6 +2134,12 @@ public class HazardCurveServerModeApplication extends JFrame
     else //if deterministic calculations then add all IMR params metadata.
       imrMetadata = imrGuiBean.getSelectedIMR_Instance().getAllParamMetadata();
 
+    double maxSourceSiteDistance;
+    if (distanceControlPanel != null)
+      maxSourceSiteDistance = distanceControlPanel.getDistance();
+    else
+      maxSourceSiteDistance = HazardCurveCalculator.MAX_DISTANCE_DEFAULT;
+
     return "<br>"+ "IMR Param List:" +"<br>"+
            "---------------"+"<br>"+
          imrMetadata+"<br><br>"+
@@ -2148,7 +2154,9 @@ public class HazardCurveServerModeApplication extends JFrame
         erfGuiBean.getERFParameterList().getParameterListMetadataString()+"<br><br>"+
         "TimeSpan Param List: "+"<br>"+
         "--------------------"+"<br>"+
-        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString();
+        erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString()+"<br><br>"+
+        "Max. Source-Site Distance = "+maxSourceSiteDistance+;
+
   }
 
  /**

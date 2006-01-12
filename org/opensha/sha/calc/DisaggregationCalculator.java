@@ -586,8 +586,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         "-----------\t-----------\t------------\t------------\t-----------\n";
     float d = (float) MIN_DIST;
     for (int i = 0; i < NUM_DIST; ++i) {
-      double m = (float) MAX_MAG;
-      for (int j = NUM_MAG - 1; j >= 0; --j) {
+      float m = (float) MIN_MAG;
+      for (int j = 0; j < NUM_MAG; ++j) {
         binInfo +=d+"\t\t"+m+"\t\t";
         String E_String ="";
         for (int k = 0; k < NUM_E; ++k) {
@@ -596,7 +596,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
           E_String += rate+"\t\t\t";
         }
         binInfo +=E_String+"\n";
-        m -= deltaMag;
+        m += deltaMag;
       }
       d += deltaDist;
     }
