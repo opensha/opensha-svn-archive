@@ -2155,7 +2155,7 @@ public class HazardCurveServerModeApplication extends JFrame
         "TimeSpan Param List: "+"<br>"+
         "--------------------"+"<br>"+
         erfGuiBean.getSelectedERFTimespanGuiBean().getParameterListMetadataString()+"<br><br>"+
-        "Max. Source-Site Distance = "+maxSourceSiteDistance+;
+        "Max. Source-Site Distance = "+maxSourceSiteDistance;
 
   }
 
