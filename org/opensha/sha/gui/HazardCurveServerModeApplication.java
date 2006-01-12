@@ -1325,7 +1325,7 @@ public class HazardCurveServerModeApplication extends JFrame
       modeString = "Disaggregation Results for IML = " + imlVal;
     else
       modeString = "Disaggregation Results for Prob = " + probVal +
-          " (for IML = " + imlVal + ")";
+          " (for IML = " + (float)imlVal + ")";
 
     String disaggregationPlotWebAddr = null;
     String metadata;
