@@ -472,10 +472,6 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     return "";
   }
 
-
-
-
-
   /**
    * Setting up the Mag Range
    * @param minMag double - this is the center of the first bin
