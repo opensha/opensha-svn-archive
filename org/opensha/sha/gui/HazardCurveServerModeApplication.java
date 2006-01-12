@@ -1285,7 +1285,8 @@ public class HazardCurveServerModeApplication extends JFrame
 
   /**
    *
-   *
+   * This function allows showing the disaggregation result in the HMTL to be shown
+   * in the dissaggregation plot window.
    * @param numSourceToShow int : Number of sources to show for the disaggregation
    * @param imlBasedDisaggr boolean Disaggregation is done based on chosen IML
    * @param imlVal double iml value for the disaggregation
