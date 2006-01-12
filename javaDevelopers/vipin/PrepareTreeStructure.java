@@ -40,7 +40,7 @@ public class PrepareTreeStructure {
   private String faultSectionFilename1, faultSectionFilename2, faultSectionFilename3;
   private boolean writeSectionsToFile = true;
   // whether we need ruptures above a specified length
-  private final static boolean isMinRupLenCutOff = true;
+  private final static boolean isMinRupLenCutOff = false;
   // minimum rup length in case we want to just view ruptures greater than a specific length
   private final static double MIN_RUP_LEN = 100;
 
