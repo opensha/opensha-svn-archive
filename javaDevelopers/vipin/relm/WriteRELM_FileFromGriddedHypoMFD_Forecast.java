@@ -174,6 +174,7 @@ public class WriteRELM_FileFromGriddedHypoMFD_Forecast {
        for(int j=0; j<incrementalMFD.getNum(); ++j) {
          mag1  = incrementalMFD.getX(j)-incrementalMFD.getDelta()/2;
          mag2  = incrementalMFD.getX(j)+incrementalMFD.getDelta()/2;
+         if(j==incrementalMFD.getNum()-1) mag2=10.0;
          fw.write((float)lon1+"\t"+(float)lon2+"\t"+(float)lat1+"\t"+(float)lat2+"\t"+DEPTH_MIN+"\t"+
                   DEPTH_MAX+"\t"+(float)mag1+"\t"+(float)mag2+"\t"+(float)incrementalMFD.getIncrRate(j)+"\t"+MASK+"\n");
        }

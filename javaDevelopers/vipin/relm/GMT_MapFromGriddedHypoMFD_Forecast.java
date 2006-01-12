@@ -69,7 +69,12 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
     mapGenerator.setParameter(GMT_MapGenerator.MAX_LON_PARAM_NAME, new Double(region.getMaxGridLon()));
     mapGenerator.setParameter(GMT_MapGenerator.GRID_SPACING_PARAM_NAME, new Double(region.getGridSpacing()));
     mapGenerator.setParameter(GMT_MapGenerator.LOG_PLOT_NAME, new Boolean(true));
+    mapGenerator.setParameter(GMT_MapGenerator.COAST_PARAM_NAME, GMT_MapGenerator.COAST_DRAW);
     mapGenerator.setParameter(GMT_MapGenerator.TOPO_RESOLUTION_PARAM_NAME, GMT_MapGenerator.TOPO_RESOLUTION_NONE);
+    //manual color scale
+    //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MODE_NAME, GMT_MapGenerator.COLOR_SCALE_MODE_MANUALLY);
+    //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MIN_PARAM_NAME, new Double(-6.0));
+    //mapGenerator.setParameter(GMT_MapGenerator.COLOR_SCALE_MAX_PARAM_NAME, new Double(-2.0));
 
     try {
       String metadata = "Rate Above magnitude " + mag;
@@ -86,18 +91,34 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
   /**
    * This test will make Frankel02 ERF, convert it into GriddedHypoMagFreqDistForecast and
    * then view it.
+   * This function was tested for Frankel02 ERF.
+   * Following testing procedure was applied(Region used was RELM Gridded region and
+   *  min mag=5, max Mag=9, Num mags=41):
+   * 1. Choose an arbitrary location say 31.5, -117.2
+   * 2. Make Frankel02 ERF with Background only sources
+   * 3. Modify Frankel02 ERF for testing purposes to use ONLY CAmapC_OpenSHA input file
+   * 4. Now print the Magnitude Frequency distribution in Frankel02 ERF for that location
+   * 5. Using the same ERF settings, get the Magnitude Frequency distribution using
+   * this function and it should be same as we printed out in ERF.
+   * 6. In another test, we printed out cum dist above Mag 5.0 for All locations.
+   * The cum dist from Frankel02 ERF and from MFD retured from this function should
+   * be same.
+   * 7. Another test done was to make 3 files: One with only background, another with
+   * only foregound and another with both. The rates in the "both file" was sum of
+   * background and foreground
    *
    * @param args
    */
   public static void main(String[] args) {
     EqkRupForecast eqkRupForecast = new Frankel02_AdjustableEqkRupForecast();
     // include background sources as point sources
-    //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
-    //                            Frankel02_AdjustableEqkRupForecast.BACK_SEIS_ONLY);
-    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
-                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
     eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
                                 Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
+    eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
+                               Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_POINT);
+
+    //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_NAME,
+      //                          Frankel02_AdjustableEqkRupForecast.BACK_SEIS_INCLUDE);
     //eqkRupForecast.setParameter(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME,
       //                          Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_FINITE);
     eqkRupForecast.updateForecast();
@@ -121,7 +142,7 @@ public class GMT_MapFromGriddedHypoMFD_Forecast {
       GMT_MapFromGriddedHypoMFD_Forecast viewRates = new GMT_MapFromGriddedHypoMFD_Forecast(griddedHypoMagFeqDistForecast);
       viewRates.makeMap(5.0);
       /*XYZ_DataSetAPI xyzData = griddedHypoMagFeqDistForecast.getXYZ_DataAboveMag(5.0);
-      FileWriter fw = new FileWriter("GriddedHypoFrankel02.txt");
+      FileWriter fw = new FileWriter("FG_GriddedHypoFrankel02.txt");
       ArrayList xVals = xyzData.getX_DataSet();
       ArrayList yVals = xyzData.getY_DataSet();
       ArrayList zVals = xyzData.getZ_DataSet();

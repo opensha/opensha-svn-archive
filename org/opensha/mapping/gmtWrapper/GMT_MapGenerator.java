@@ -104,9 +104,9 @@ public class GMT_MapGenerator implements Serializable{
   StringParameter cptFileParam;
 
   public final static String COAST_PARAM_NAME = "Coast";
-  private final static String COAST_DRAW = "Draw Boundary";
-  private final static String COAST_FILL = "Draw & Fill";
-  private final static String COAST_NONE = "Draw Nothing";
+  public final static String COAST_DRAW = "Draw Boundary";
+  public final static String COAST_FILL = "Draw & Fill";
+  public final static String COAST_NONE = "Draw Nothing";
   private final static String COAST_DEFAULT = COAST_FILL;
   private final static String COAST_PARAM_INFO = "Specifies how bodies of water are drawn";
   StringParameter coastParam;
