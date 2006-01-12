@@ -1199,13 +1199,13 @@ public class HazardCurveServerModeApplication extends JFrame
       int numDist = disaggregationControlPanel.getNumDist();
       int numSourcesForDisag = disaggregationControlPanel.
           getNumSourcesForDisagg();
+      double imlVal=0,probVal=0;
       try {
         if (distanceControlPanel != null)
           disaggCalc.setMaxSourceDistance(distanceControlPanel.getDistance());
         disaggCalc.setDistanceRange(minDist, numDist, deltaDist);
         disaggCalc.setMagRange(minMag, numMag, deltaMag);
         disaggCalc.setNumSourcestoShow(numSourcesForDisag);
-
       }
       catch (Exception e) {
         setButtonsEnable(true);
@@ -1215,7 +1215,6 @@ public class HazardCurveServerModeApplication extends JFrame
         bugWindow.pack();
         e.printStackTrace();
       }
-      double imlForDisaggregation = 0;
       try {
 
         if (disaggregationParamVal.equals(disaggregationControlPanel.
@@ -1231,11 +1230,12 @@ public class HazardCurveServerModeApplication extends JFrame
                 " in the Hazard Curve"),
                                           "Disaggregation error message",
                                           JOptionPane.ERROR_MESSAGE);
-          else
+          else{
             //gets the Disaggregation data
-            imlForDisaggregation = hazFunction.
+            imlVal = hazFunction.
                 getFirstInterpolatedX_inLogXLogYDomain(disaggregationVal);
-
+            probVal = disaggregationVal;
+          }
         }
         else if (disaggregationParamVal.equals(disaggregationControlPanel.
                                                DISAGGREGATE_USING_IML)) {
@@ -1249,12 +1249,13 @@ public class HazardCurveServerModeApplication extends JFrame
                 " in the Hazard Curve"),
                                           "Disaggregation error message",
                                           JOptionPane.ERROR_MESSAGE);
-          else
-            imlForDisaggregation = disaggregationVal;
-
+          else{
+            imlVal = disaggregationVal;
+            probVal = hazFunction.getInterpolatedY_inLogXLogYDomain(disaggregationVal);
+          }
         }
         disaggSuccessFlag = disaggCalc.disaggregate(Math.log(
-            imlForDisaggregation), site, imr, (EqkRupForecast) forecast);
+            imlVal), site, imr, (EqkRupForecast) forecast);
         disaggregationString = disaggCalc.getMeanAndModeInfo();
       }
       catch (Exception e) {
@@ -1267,12 +1268,12 @@ public class HazardCurveServerModeApplication extends JFrame
       }
       //}
       if (disaggSuccessFlag)
-        showDisaggregationResults(numSourcesForDisag,disaggrAtIML,imlForDisaggregation,disaggregationVal);
+        showDisaggregationResults(numSourcesForDisag,disaggrAtIML,imlVal,probVal);
       else
         JOptionPane.showMessageDialog(this,
-                                      "Disaggregation failed because there is" +
+                                      "Disaggregation failed because there is " +
                                       "no exceedance above \n " +
-                                      "the given IML(or that interpolated from the chosen probability)",
+                                      "the given IML (or that interpolated from the chosen probability).",
                                       "Disaggregation Message",
                                       JOptionPane.OK_OPTION);
     }
@@ -1323,7 +1324,8 @@ public class HazardCurveServerModeApplication extends JFrame
     }
     String modeString = "";
     if (imlBasedDisaggr)
-      modeString = "Disaggregation Results for IML = " + imlVal;
+      modeString = "Disaggregation Results for IML = " + imlVal+
+          " (for Prob = " + (float)probVal + ")";
     else
       modeString = "Disaggregation Results for Prob = " + probVal +
           " (for IML = " + (float)imlVal + ")";
@@ -1355,7 +1357,6 @@ public class HazardCurveServerModeApplication extends JFrame
     String disaggregationStringAsHTML = modeString +
         disaggregationString.replaceAll("\n", "<br>");
     String resultToShow = pdfImageLink +
-        "<br>Disaggregation Results : </br>" +
         "<br>" + disaggregationStringAsHTML + "</br>";
     resultToShow += "<br><br>Parameters Info</br>" + "<br>---------------</br>" +
         metadata;
