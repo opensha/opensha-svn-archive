@@ -69,6 +69,9 @@ public class ScatterPlotForDisaggregation {
           int cSourceIndex_later = cSourceIndex;
           while(cSourceIndex_later == cSourceIndex){
             cybershakeFile.remove(i);
+            int fileSize = cybershakeFile.size();
+            if(i>=fileSize)
+              break;
             cybershakeFileLine = (String)cybershakeFile.get(i);
             st = new StringTokenizer(cybershakeFileLine,",");
             cSourceIndex_later = Integer.parseInt(st.nextToken().trim());
@@ -163,6 +166,9 @@ public class ScatterPlotForDisaggregation {
           int oSourceIndex_later = oSourceIndex;
           while(oSourceIndex_later == oSourceIndex){
             openshaFile.remove(i);
+            int fileSize = openshaFile.size();
+            if(i>=fileSize)
+              break;
             openshaFileLine = (String)openshaFile.get(i);
             st = new StringTokenizer(openshaFileLine);
             oSourceIndex_later = Integer.parseInt(st.nextToken().trim());
