@@ -228,6 +228,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         for (int k = 0; k < NUM_E; k++)
           pdf3D[i][j][k] = 0;
 
+    int testNum = 0;
     for (int i = 0; i < numSources; i++) {
 
       double sourceRate = 0;
@@ -281,8 +282,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         // get the equiv. Poisson rate over the time interval (not annualized)
         rate = -condProb * Math.log(1 - qkProb);
 
-        /*
-                   if( epsilon > 100 && testNum < 1 && rate > 0.0 ) {
+
+        /**/
+                   if( Double.isNaN(epsilon) && testNum < 1 && rate > 0.0 ) {
           System.out.println("srcName = " + sourceName +
                              " src#=" + i +
                              " rup#=" + n +
@@ -305,7 +307,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
           testNum += 1;
                    }
-         */
+
 
         // set the 3D array indices & check that all are in bounds
         setIndices();
