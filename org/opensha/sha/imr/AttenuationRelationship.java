@@ -614,7 +614,7 @@ public abstract class AttenuationRelationship
     }
 
     // Calculate the standardized random variable
-    double iml = ( (Double) ( (ParameterAPI) im).getValue()).doubleValue();
+    double iml = ((Double) im.getValue()).doubleValue();
     double stdDev = getStdDev();
     double mean = getMean();
 
@@ -639,6 +639,32 @@ public abstract class AttenuationRelationship
     im.setValue(new Double(iml));
 
     return getExceedProbability();
+  }
+
+
+  /**
+   * This returns (iml-mean)/stdDev, ignoring any truncation.  This gets the iml
+   * from the value in the Intensity-Measure Parameter.  SHOULD THIS THROW AN
+   * EXCEPTION LIKE GetExceedProbabilityY()?
+   * @return double
+   */
+  public double getEpsilon(){
+    double iml = ((Double) im.getValue()).doubleValue();
+    return (iml - getMean())/getStdDev();
+  }
+
+
+  /**
+   * This returns (iml-mean)/stdDev, ignoring any truncation.
+   *
+   * @param iml double
+   * @return double
+   */
+  public double getEpsilon(double iml){
+    // set the im parameter in order to verify that it's a permitted value
+    im.setValue(new Double(iml));
+
+    return getEpsilon();
   }
 
   /**

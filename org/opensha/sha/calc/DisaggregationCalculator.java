@@ -190,6 +190,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     // (Note- other types of IMRs may not have this method so we should really check type here)
     imr.setUserMaxDistance(MAX_DISTANCE);
 
+    // set iml in imr
+    imr.setIntensityMeasureLevel(new Double(iml));
+
     // get total number of sources
     int numSources = eqkRupForecast.getNumSources();
 
@@ -261,7 +264,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         }
 
         // get the cond prob
-        condProb = imr.getExceedProbability(iml);
+        condProb = imr.getExceedProbability();
         // should the following throw an exception?
         if (condProb == 0 && D)
           System.out.println(S +
@@ -270,7 +273,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         // get the mean, stdDev, epsilon, dist, and mag
         mean = imr.getMean();
         stdDev = imr.getStdDev();
-        epsilon = (iml - mean) / stdDev;
+        epsilon = imr.getEpsilon();
         distRup.setValue(rupture, site);
         dist = ( (Double) distRup.getValue()).doubleValue();
         mag = rupture.getMag();

@@ -122,6 +122,22 @@ public interface AttenuationRelationshipAPI
   public double getExceedProbability(double iml);
 
   /**
+   * This returns (iml-mean)/stdDev, ignoring any truncation.  This gets the iml
+   * from the value in the Intensity-Measure Parameter.
+   * @return double
+   */
+  public double getEpsilon();
+
+
+  /**
+   * This returns (iml-mean)/stdDev, ignoring any truncation.
+   *
+   * @param iml double
+   * @return double
+   */
+  public double getEpsilon(double iml);
+
+  /**
    *  Returns an iterator over all the Parameters that the Mean calculation depends upon.
    *  (not including the intensity-measure related paramters and their internal,
    *  independent parameters).

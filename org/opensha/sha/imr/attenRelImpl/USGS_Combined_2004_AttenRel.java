@@ -378,6 +378,24 @@ public class USGS_Combined_2004_AttenRel
 
   }
 
+
+  /**
+ * This assumes that vs30 has been set, and that the setAttenRelsStdDevTypes()
+ * and setAttenRelsIMT() methods have already been called.
+ * @param attenRel
+ * @param iml
+ * @return
+ */
+private double getEpsilon(AttenuationRelationship attenRel,
+                                    double iml) {
+
+  double mean = getMean(attenRel);
+  double stdDev = attenRel.getStdDev();
+  return (iml-mean)/stdDev;
+
+}
+
+
   /**
    * This returns the mean for the given attenuation relationship after assigning
    * the Borcherdt amplification factor.  This assumes that vs30 has been set and that
@@ -653,6 +671,47 @@ public class USGS_Combined_2004_AttenRel
     }
   }
 
+
+  /**
+   * This calculates the combined epsilon given iml (weighted by prob).
+   * This assumes that vs30 has been set, and that the setAttenRelsStdDevTypes()
+   * and setAttenRelsIMT() methods have already been called.
+   *
+   * @return                         The exceedProbability value
+   * @exception  ParameterException  Description of the Exception
+   * @exception  IMRException        Description of the Exception
+   */
+  private double getCombinedEpsilon(double iml) throws
+      ParameterException, IMRException {
+
+    double per = ( (Double) periodParam.getValue()).doubleValue();
+    double prob;
+    double wt = 0, epsilon=0;
+
+    prob = getExceedProbability(as_1997_attenRel, iml);
+    epsilon += prob * getEpsilon(as_1997_attenRel, iml);
+    wt += prob;
+    prob = getExceedProbability(cb_2003_attenRel, iml);
+    epsilon += prob * getEpsilon(cb_2003_attenRel, iml);
+    wt += prob;
+    prob = getExceedProbability(scemy_1997_attenRel, iml);
+    epsilon += prob * getEpsilon(scemy_1997_attenRel, iml);
+    wt += prob;
+
+    if (im.getName().equals(SA_NAME) && (per >= 3.0)) {
+      return epsilon / wt;
+    }
+    else {
+      prob = getExceedProbability(bjf_1997_attenRel, iml);
+      epsilon += prob * getEpsilon(bjf_1997_attenRel, iml);
+      wt += prob;
+
+      return epsilon / wt;
+    }
+  }
+
+
+
   /**
    *  This calculates the probability that the intensity-measure level
    *  (the value in the Intensity-Measure Parameter) will be exceeded
@@ -683,6 +742,40 @@ public class USGS_Combined_2004_AttenRel
 
     return getCombinedExceedProbability( ( (Double) im.getValue()).doubleValue());
   }
+
+
+
+
+  /**
+ *  This calculates a weighted average epsilon for the iml value in the Intensity-
+ * Measure Parameter).
+ *
+ * @return                         The epsilon value
+ * @exception  ParameterException  Description of the Exception
+ * @exception  IMRException        Description of the Exception
+ */
+public double getEpsilon() {
+
+  // throw exception if MMI was chosen
+  if (im.getName().equals(MMI_NAME)) {
+    throw new RuntimeException(MMI_ERROR_STRING);
+  }
+
+  // set vs30
+  vs30 = ( (Double) vs30Param.getValue()).doubleValue();
+
+  // set the standard deviation types
+  setAttenRelsStdDevTypes();
+
+  // set the IMT in the various relationships
+  setAttenRelsIMT();
+
+  return this.getCombinedEpsilon(((Double) im.getValue()).doubleValue());
+}
+
+
+
+
 
   /**
    *  This fills in the exceedance probability for multiple intensityMeasure
