@@ -1,6 +1,7 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+Things Ned has done while Guptas gone (i.e., not in on-line applications)
 
 Include "Max Source-Site Distance" (from control panel) in metadata for hazard curves.
 
