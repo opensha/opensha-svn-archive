@@ -163,6 +163,9 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
     double rate, mean, stdDev, condProb;
 
+    DecimalFormat f1 = new DecimalFormat("000000");
+    DecimalFormat f2 = new DecimalFormat("00.00");
+
     pdf3D = new double[NUM_DIST][NUM_MAG][NUM_E];
 
     DistanceRupParameter distRup = new DistanceRupParameter();
@@ -360,7 +363,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
       Collections.sort(disaggSourceList, srcRupComparator);
       // make a string of the sorted list info
       sourceDisaggInfo =
-          "Source#\tTotExceedRate\t% Contribution\tSourceName\n";
+          "Source#\t% Contribution\tTotExceedRate\tSourceName\n";
       int size = disaggSourceList.size();
       if (size > numSourcesToShow)
         size = numSourcesToShow;
@@ -369,10 +372,11 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         DisaggregationSourceRuptureInfo disaggInfo = (
             DisaggregationSourceRuptureInfo)
             disaggSourceList.get(i);
-        sourceDisaggInfo += disaggInfo.getId() +
-            "\t" + (float) disaggInfo.getRate() + "\t" +
-            (float) (disaggInfo.getRate() / totalRate * 100) +
+        sourceDisaggInfo += f1.format(disaggInfo.getId()) + "\t" +
+            f2.format(100*disaggInfo.getRate()/totalRate) +
+            "\t" + (float) disaggInfo.getRate() +
             "\t" + disaggInfo.getName() + "\n";
+//System.out.println(f2.format(100*disaggInfo.getRate()/totalRate));
       }
     }
     /*try {
@@ -585,27 +589,33 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    * @throws RemoteException
    */
   public String getBinData() throws java.rmi.RemoteException {
-    String binInfo = "Distance\tMagnitude\tE²2\t-2²E&lt;-1\t" +
-        "-0.5>=E>-1\t0>=E>-0.5\t0.5>=E>0\t1>=E>0.5\t2>=E>1\tE>2\n";
+
+    DecimalFormat f1 = new DecimalFormat("0.00");
+    DecimalFormat f2 = new DecimalFormat("00.00");
+    DecimalFormat f3 = new DecimalFormat("000.00");
+    double totPercent, percent;
+
+    String binInfo = "Distance\t\tMag\t\tE²2\t\t-2²E&lt;-1\t-1²E&lt;-0.5\t" +
+        "-0.5²E&lt;-0\t0²E&lt;0.5\t\t0.5²E&lt;1\t1²E&lt;2\t\t\t2&lt;E\t\t\tall E\n";
     binInfo += "--------\t---------\t-----------\t----------\t-----------\t" +
         "-----------\t-----------\t------------\t------------\t-----------\n";
     float d = (float) MIN_DIST;
     for (int i = 0; i < NUM_DIST; ++i) {
       float m = (float) MIN_MAG;
       for (int j = 0; j < NUM_MAG; ++j) {
-        binInfo +=d+"\t\t"+m+"\t\t";
+        binInfo +=f3.format(d)+"\t\t"+f1.format(m)+"\t\t";
         String E_String ="";
+        totPercent = 0;
         for (int k = 0; k < NUM_E; ++k) {
-          float contribution = (float) pdf3D[i][j][k];
-          float rate= (float)(contribution/100.0 * totalRate);
-          E_String += rate+"\t\t\t";
+          percent = pdf3D[i][j][k];
+          E_String += f2.format(percent)+"\t\t\t";
+          totPercent += percent;
         }
-        binInfo +=E_String+"\n";
+        binInfo +=E_String+f2.format(totPercent)+"\n";
         m += deltaMag;
       }
       d += deltaDist;
     }
-
     return binInfo;
   }
 
