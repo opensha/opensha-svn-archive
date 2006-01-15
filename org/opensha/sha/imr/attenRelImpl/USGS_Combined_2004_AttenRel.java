@@ -748,7 +748,7 @@ private double getEpsilon(AttenuationRelationship attenRel,
 
   /**
  *  This calculates a weighted average epsilon for the iml value in the Intensity-
- * Measure Parameter).
+ * Measure Parameter). Note that this returns NaN if the prob. of exceedance is zero.
  *
  * @return                         The epsilon value
  * @exception  ParameterException  Description of the Exception

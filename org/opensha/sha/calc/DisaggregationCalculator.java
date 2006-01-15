@@ -283,8 +283,8 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         rate = -condProb * Math.log(1 - qkProb);
 
 
-        /**/
-                   if( Double.isNaN(epsilon) && testNum < 1 && rate > 0.0 ) {
+        /*
+                   if( Double.isNaN(epsilon) && testNum < 1) {
           System.out.println("srcName = " + sourceName +
                              " src#=" + i +
                              " rup#=" + n +
@@ -307,34 +307,38 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
           testNum += 1;
                    }
+         */
 
+        // proceed only if rate is greater than zero (avoids NaN epsilons & is faster)
+        if( rate > 0.0) {
+          // set the 3D array indices & check that all are in bounds
+          setIndices();
+          if (withinBounds)
+            pdf3D[iDist][iMag][iEpsilon] += rate;
+          else {
+            if (D) System.out.println(
+                "disaggregation(): Some bin is out of range");
+            outOfBoundsRate += rate;
+          }
 
-        // set the 3D array indices & check that all are in bounds
-        setIndices();
-        if (withinBounds)
-          pdf3D[iDist][iMag][iEpsilon] += rate;
-        else {
-          if (D) System.out.println(
-              "disaggregation(): Some bin is out of range");
-          outOfBoundsRate += rate;
+        //          if( D ) System.out.println("disaggregation(): bins: " + iMag + "; " + iDist + "; " + iEpsilon);
+
+          totalRate += rate;
+
+          Mbar += rate * mag;
+          Dbar += rate * dist;
+          Ebar += rate * epsilon;
+          sourceRate += rate;
+
         }
+          // create and add rupture info to source list
+          /*if(numSourcesToShow >0){
+           double eventRate = -Math.log(1 - qkProb);  // this event rate is not annualized!
+            DisaggregationSourceRuptureInfo rupInfo = new
+           DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n);
+            ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
+                     }*/
 
-//          if( D ) System.out.println("disaggregation(): bins: " + iMag + "; " + iDist + "; " + iEpsilon);
-
-        totalRate += rate;
-
-        Mbar += rate * mag;
-        Dbar += rate * dist;
-        Ebar += rate * epsilon;
-        sourceRate += rate;
-
-        // create and add rupture info to source list
-        /*if(numSourcesToShow >0){
-         double eventRate = -Math.log(1 - qkProb);  // this event rate is not annualized!
-          DisaggregationSourceRuptureInfo rupInfo = new
-         DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n);
-          ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
-                   }*/
       }
       if (numSourcesToShow > 0) {
         // sort the ruptures in this source according to contribution
@@ -581,7 +585,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
    * @throws RemoteException
    */
   public String getBinData() throws java.rmi.RemoteException {
-    String binInfo = "Distance\tMagnitude\tE<=2\tE=1\t-1>=E>-2\t" +
+    String binInfo = "Distance\tMagnitude\tE²2\t-2²E&lt;-1\t" +
         "-0.5>=E>-1\t0>=E>-0.5\t0.5>=E>0\t1>=E>0.5\t2>=E>1\tE>2\n";
     binInfo += "--------\t---------\t-----------\t----------\t-----------\t" +
         "-----------\t-----------\t------------\t------------\t-----------\n";
