@@ -36,7 +36,7 @@ import org.opensha.sha.param.PropagationEffect;
  * input parameters imr, site and eqkRupforecast.  See Bazzurro and Cornell
  * (1999, Bull. Seism. Soc. Am., 89, pp. 501-520) for a complete discussion
  * of disaggregation.  The Dbar computed here is for rupture distance.  This
- * assumes all sources in the ERF are Poissonian</p>
+ * assumes all sources in the ERF are Poissonian.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author Ned Field
@@ -730,7 +730,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
         "gmtset Y_ORIGIN 2.0i\n";
     String img_ps_file = "DisaggregationPlot.ps";
 
-    String axisBoundaryTicksBounds = "-B"+x_tick+":\"Distance (km)\":"+"/"+y_tick+":Magnitude:"+
+    String axisBoundaryTicksBounds = "-B"+x_tick+":\"Rupture Distance (km)\":"+"/"+y_tick+":Magnitude:"+
         "/"+z_tick+":%Contribution:"+"wSnEZ";
     String gridLines = "cat << END > temp_segments";
     ArrayList segLineList = new ArrayList();
