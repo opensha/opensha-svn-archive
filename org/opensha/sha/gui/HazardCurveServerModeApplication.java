@@ -68,7 +68,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
-import org.opensha.sha.gui.infoTools.ImageViewerWindow;
+import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.calc.HazardCurveCalculator;
@@ -1296,22 +1296,23 @@ public class HazardCurveServerModeApplication extends JFrame
   private void showDisaggregationResults(int numSourceToShow,
                                          boolean imlBasedDisaggr,
                                          double imlVal, double probVal) {
-    String sourceDisaggregationListAsHTML = null;
+    //String sourceDisaggregationListAsHTML = null;
+    String sourceDisaggregationList = null;
     if (numSourceToShow > 0) {
-      String sourceDisaggregationList = getSourceDisaggregationInfo();
-      sourceDisaggregationListAsHTML = sourceDisaggregationList.
-          replaceAll("\n", "<br>");
-      sourceDisaggregationListAsHTML = sourceDisaggregationListAsHTML.
-          replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
+      sourceDisaggregationList = getSourceDisaggregationInfo();
+      //sourceDisaggregationListAsHTML = sourceDisaggregationList.
+        //  replaceAll("\n", "<br>");
+      //sourceDisaggregationListAsHTML = sourceDisaggregationListAsHTML.
+        //  replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
     }
-    String binDataAsHTML = null;
+    String binData = null;
     boolean binDataToShow = disaggregationControlPanel.
         isShowDisaggrBinDataSelected();
     if(binDataToShow){
       try {
-        binDataAsHTML = disaggCalc.getBinData();
-        binDataAsHTML = binDataAsHTML.replaceAll("\n", "<br>");
-        binDataAsHTML = binDataAsHTML.replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
+        binData = disaggCalc.getBinData();
+        //binDataAsHTML = binDataAsHTML.replaceAll("\n", "<br>");
+        //binDataAsHTML = binDataAsHTML.replaceAll("\t", "&nbsp;&nbsp;&nbsp;");
       }
       catch (RemoteException ex) {
         setButtonsEnable(true);
@@ -1329,22 +1330,23 @@ public class HazardCurveServerModeApplication extends JFrame
     else
       modeString = "Disaggregation Results for Prob = " + probVal +
           " (for IML = " + (float)imlVal + ")";
+    modeString += "\n"+disaggregationString;
 
     String disaggregationPlotWebAddr = null;
     String metadata;
     String pdfImageLink;
     try {
       disaggregationPlotWebAddr = getDisaggregationPlot();
-      pdfImageLink = "<br><p>Click  " + "<a href=\"" +
+      pdfImageLink = "<br>Click  " + "<a href=\"" +
           disaggregationPlotWebAddr +
           DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME +
           "\">" + "here" + "</a>" +
-          " to view a PDF (non-pixelated) version of the image (this will be deleted at midnight).</p>";
+          " to view a PDF (non-pixelated) version of the image (this will be deleted at midnight).";
 
-      metadata = "<p>" + getMapParametersInfoAsHTML() + "</p>";
-      metadata += "<br><p>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
+      metadata = pdfImageLink+"<br>" + getMapParametersInfoAsHTML();
+      metadata += "<br><br>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
           "\">" + "here" + "</a>" +
-          " to download files. They will be deleted at midnight</p>";
+          " to download files. They will be deleted at midnight";
     }
     catch (RuntimeException e) {
       e.printStackTrace();
@@ -1354,22 +1356,11 @@ public class HazardCurveServerModeApplication extends JFrame
     }
     String imgName = disaggregationPlotWebAddr +
         DisaggregationCalculator.DISAGGREGATION_PLOT_IMG_NAME;
-    String disaggregationStringAsHTML = modeString +
-        disaggregationString.replaceAll("\n", "<br>");
-    String resultToShow = pdfImageLink +
-        "<br>" + disaggregationStringAsHTML + "</br>";
-    resultToShow += "<br><br>Parameters Info</br>" + "<br>---------------</br>" +
-        metadata;
-    if (numSourceToShow > 0)
-      resultToShow += "<br><br>Source DisaggregationResult</br>" +
-          "<br>-------------</br>" +
-          "<br>" + sourceDisaggregationListAsHTML + "</br>";
-    if(binDataToShow)
-      resultToShow += "<br><br>Bin Data Info</br>" + "<br>-------------</br>" +
-          "<br>" + binDataAsHTML + "</br>";
+
 
     //adding the image to the Panel and returning that to the applet
-    new ImageViewerWindow(imgName, resultToShow, true);
+    new DisaggregationPlotViewerWindow(imgName,true,modeString,
+                                       metadata,binData,sourceDisaggregationList);
 
   }
 

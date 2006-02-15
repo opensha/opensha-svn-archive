@@ -595,20 +595,20 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     DecimalFormat f3 = new DecimalFormat("000.00");
     double totPercent, percent;
 
-    String binInfo = "Distance\t\tMag\t\tE²2\t\t-2²E&lt;-1\t-1²E&lt;-0.5\t" +
-        "-0.5²E&lt;-0\t0²E&lt;0.5\t\t0.5²E&lt;1\t1²E&lt;2\t\t\t2&lt;E\t\t\tall E\n";
-    binInfo += "--------\t---------\t-----------\t----------\t-----------\t" +
-        "-----------\t-----------\t------------\t------------\t-----------\n";
+    String binInfo = "Dist\tMag\tE²-2\t-2<E²-1\t-1<E²-0.5\t "+
+        "-0.5>E²0\t 0<E²0.5\t 0.5<E²1\t 1<E²2\t 2>E \n";
+    binInfo += "-----\t----\t------\t------\t-------\t" +
+        "-------\t-------\t-------\t-------\t------\n";
     float d = (float) MIN_DIST;
     for (int i = 0; i < NUM_DIST; ++i) {
       float m = (float) MIN_MAG;
       for (int j = 0; j < NUM_MAG; ++j) {
-        binInfo +=f3.format(d)+"\t\t"+f1.format(m)+"\t\t";
+        binInfo +=f3.format(d)+" \t "+f1.format(m)+" \t ";
         String E_String ="";
         totPercent = 0;
         for (int k = 0; k < NUM_E; ++k) {
           percent = pdf3D[i][j][k];
-          E_String += f2.format(percent)+"\t\t\t";
+          E_String += f2.format(percent)+" \t ";
           totPercent += percent;
         }
         binInfo +=E_String+f2.format(totPercent)+"\n";
