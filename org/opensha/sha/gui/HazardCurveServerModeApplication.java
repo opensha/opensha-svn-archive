@@ -260,10 +260,7 @@ public class HazardCurveServerModeApplication extends JFrame
   // PEER Test Cases
   private String TITLE = new String("Hazard Curves");
 
-  // light blue color
-  private Color lightBlue = new Color( 200, 200, 230 );
 
-  private boolean graphOn = false;
   private JPanel jPanel1 = new JPanel();
   private Border border2;
   private final static Dimension COMBO_DIM = new Dimension( 180, 30 );
@@ -1361,7 +1358,6 @@ public class HazardCurveServerModeApplication extends JFrame
     //adding the image to the Panel and returning that to the applet
     new DisaggregationPlotViewerWindow(imgName,true,modeString,
                                        metadata,binData,sourceDisaggregationList);
-
   }
 
 
