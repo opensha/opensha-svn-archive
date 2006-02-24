@@ -161,7 +161,7 @@ public class ERF2RuptureForSTF_Generator {
       siteFw.write(siteString+"\n\n");
       siteFw.write("# Below are the Source and Ruptures that within the cutt-off "+
           "distance from the Site for the ERF\n\n");
-      siteFw.write("#SourceIndex   RuptureIndex    Probability\n");
+      siteFw.write("#SourceIndex   RuptureIndex    Probability    Magnitude\n");
 
       int numSources = eqkRupForecast.getNumSources();
       //Going over each and every source in the forecast
@@ -188,7 +188,8 @@ public class ERF2RuptureForSTF_Generator {
             //the site then include that rupture.
             if(region.isLocationInside(ptLoc)) {
               //writing the source rupture index for the Site in the Site file
-              siteFw.write(sourceIndex+"    "+rupIndex+"    "+ (float)rupture.getProbability()+"\n");
+              siteFw.write(sourceIndex+"    "+rupIndex+"    "+ (float)rupture.getProbability()+
+                           "    "+(float)rupture.getMag()+"\n");
               //creating the rupture file if it already does not exists else go to the next rupture.
               String ruptureFileName = directoryPath+sourceIndex+"_"+rupIndex+".txt";
               f = new File(ruptureFileName);
@@ -365,16 +366,16 @@ public class ERF2RuptureForSTF_Generator {
     frankelForecast.updateForecast();
     LocationList locList = new LocationList();
 
-    locList.addLocation(new Location(34.019200, -118.28600)); //USC
+    //locList.addLocation(new Location(34.019200, -118.28600)); //USC
     locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
-    locList.addLocation(new Location(34.052041, -118.25713)); //LADT
+    /*locList.addLocation(new Location(34.052041, -118.25713)); //LADT
     locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
     locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
     locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
     locList.addLocation(new Location(34.064986 , -117.29201));
     locList.addLocation(new Location(34.336030 , -118.50862));
     locList.addLocation(new Location(34.054884 , -118.41302));
-    locList.addLocation(new Location(34.009092 , -118.48939));
+    locList.addLocation(new Location(34.009092 , -118.48939));*/
 
     ListIterator it = locList.listIterator();
    /* FileWriter fw = null;
