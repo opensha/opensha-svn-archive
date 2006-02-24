@@ -749,8 +749,19 @@ public class HazardCurveServerModeApplication extends JFrame
      * calculations are performed on the user's own machine.
      */
     protected void createCalcInstance(){
-      if(calc == null)
+      if(calc == null && isProbCurve)
         calc = (new RemoteHazardCurveClient()).getRemoteHazardCurveCalc();
+      else if(calc == null && !isProbCurve){
+        try {
+          calc = new HazardCurveCalculator();
+        }
+        catch (Exception ex) {
+          ExceptionWindow bugWindow = new ExceptionWindow(this,
+              ex.getStackTrace(), this.getParametersInfoAsString());
+          bugWindow.setVisible(true);
+          bugWindow.pack();
+        }
+      }
       if(disaggregationFlag)
         if(disaggCalc == null)
           disaggCalc = (new RemoteDisaggregationCalcClient()).getRemoteDisaggregationCalc();
@@ -1358,7 +1369,11 @@ public class HazardCurveServerModeApplication extends JFrame
     //adding the image to the Panel and returning that to the applet
     new DisaggregationPlotViewerWindow(imgName,true,modeString,
                                        metadata,binData,sourceDisaggregationList);
+      //new DisaggregationPlotViewerWindow(disaggregationPlotWebAddr +
+        //  DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME,true,modeString,
+          //                             metadata,binData,sourceDisaggregationList);
   }
+
 
 
 
@@ -1474,6 +1489,7 @@ public class HazardCurveServerModeApplication extends JFrame
    */
   protected void probDeterSelection_actionPerformed(ActionEvent e) {
     String selectedControl = this.probDeterSelection.getSelectedItem().toString();
+
     if(selectedControl.equalsIgnoreCase(this.PROBABILISTIC)){
      try{
        this.initERF_GuiBean();
@@ -1494,6 +1510,9 @@ public class HazardCurveServerModeApplication extends JFrame
       System.exit(0);
       }
     }
+
+    calc = null;
+    createCalcInstance();
   }
 
 

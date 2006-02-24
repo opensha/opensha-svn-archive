@@ -19,7 +19,9 @@ import com.lowagie.text.DocumentException;
 import com.lowagie.text.Image;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
-import org.opensha.util.SystemPropertiesUtils;
+
+//import org.jpedal.PdfDecoder;
+//import org.jpedal.exception.PdfException;
 
 
 /**
@@ -131,6 +133,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
       throw new RuntimeException(e.getMessage());
     }
     addImageToWindow(imageFileName);
+    //addPdfImageToWindow(imageFileName);
     this.setVisible(true);
   }
 
@@ -217,6 +220,34 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
     mapPanel.add(mapLabel,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
         ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 3, 5, 5), 0, 0));
   }
+
+  /**
+   * Displays the PDF file to the user in the window
+   * @param fileName String URL to the PDF filename
+   */
+  /*private void addPdfImageToWindow(String fileName){
+    int currentPage = 1;
+    PdfDecoder pdfDecoder = new PdfDecoder();
+
+    try {
+      //this opens the PDF and reads its internal details
+      pdfDecoder.openPdfFileFromURL(fileName);
+
+      //these 2 lines opens page 1 at 100% scaling
+      pdfDecoder.decodePage(currentPage);
+      pdfDecoder.setPageParameters(1, 1); //values scaling (1=100%). page number
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    //setup our GUI display
+    Container cPane = getContentPane();
+    cPane.setLayout(new BorderLayout());
+    JScrollPane currentScroll = new JScrollPane();
+    currentScroll.setViewportView(pdfDecoder);
+    cPane.add(currentScroll,BorderLayout.CENTER);
+  }*/
 
 
   /**
