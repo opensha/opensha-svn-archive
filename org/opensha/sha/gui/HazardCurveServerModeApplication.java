@@ -1342,16 +1342,16 @@ public class HazardCurveServerModeApplication extends JFrame
 
     String disaggregationPlotWebAddr = null;
     String metadata;
-    String pdfImageLink;
+    //String pdfImageLink;
     try {
       disaggregationPlotWebAddr = getDisaggregationPlot();
-      pdfImageLink = "<br>Click  " + "<a href=\"" +
+      /*pdfImageLink = "<br>Click  " + "<a href=\"" +
           disaggregationPlotWebAddr +
           DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME +
           "\">" + "here" + "</a>" +
-          " to view a PDF (non-pixelated) version of the image (this will be deleted at midnight).";
+          " to view a PDF (non-pixelated) version of the image (this will be deleted at midnight).";*/
 
-      metadata = pdfImageLink+"<br>" + getMapParametersInfoAsHTML();
+      metadata = getMapParametersInfoAsHTML();
       metadata += "<br><br>Click  " + "<a href=\"" + disaggregationPlotWebAddr +
           "\">" + "here" + "</a>" +
           " to download files. They will be deleted at midnight";
@@ -1367,11 +1367,11 @@ public class HazardCurveServerModeApplication extends JFrame
 
 
     //adding the image to the Panel and returning that to the applet
-    new DisaggregationPlotViewerWindow(imgName,true,modeString,
+    //new DisaggregationPlotViewerWindow(imgName,true,modeString,
+      //                                 metadata,binData,sourceDisaggregationList);
+      new DisaggregationPlotViewerWindow(disaggregationPlotWebAddr +
+          DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME,true,modeString,
                                        metadata,binData,sourceDisaggregationList);
-      //new DisaggregationPlotViewerWindow(disaggregationPlotWebAddr +
-        //  DisaggregationCalculator.DISAGGREGATION_PLOT_PDF_NAME,true,modeString,
-          //                             metadata,binData,sourceDisaggregationList);
   }
 
 

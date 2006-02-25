@@ -10,18 +10,18 @@ import org.opensha.util.BrowserLauncher;
 import org.opensha.util.ImageUtils;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.io.*;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
-import com.lowagie.text.Image;
+
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
 
-//import org.jpedal.PdfDecoder;
-//import org.jpedal.exception.PdfException;
+import org.jpedal.PdfDecoder;
+import org.jpedal.exception.PdfException;
+import com.lowagie.text.pdf.*;
 
 
 /**
@@ -132,8 +132,8 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
       e.printStackTrace();
       throw new RuntimeException(e.getMessage());
     }
-    addImageToWindow(imageFileName);
-    //addPdfImageToWindow(imageFileName);
+    //addImageToWindow(imageFileName);
+    addPdfImageToWindow(imageFileName);
     this.setVisible(true);
   }
 
@@ -225,7 +225,7 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
    * Displays the PDF file to the user in the window
    * @param fileName String URL to the PDF filename
    */
-  /*private void addPdfImageToWindow(String fileName){
+  private void addPdfImageToWindow(String fileName){
     int currentPage = 1;
     PdfDecoder pdfDecoder = new PdfDecoder();
 
@@ -242,12 +242,8 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
     }
 
     //setup our GUI display
-    Container cPane = getContentPane();
-    cPane.setLayout(new BorderLayout());
-    JScrollPane currentScroll = new JScrollPane();
-    currentScroll.setViewportView(pdfDecoder);
-    cPane.add(currentScroll,BorderLayout.CENTER);
-  }*/
+    mapScrollPane.setViewportView(pdfDecoder);
+  }
 
 
   /**
@@ -279,29 +275,78 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
   protected void saveAsPDF(String fileName) throws IOException {
     // step 1: creation of a document-object
     Document document = new Document();
-
+    //document for temporary storing the metadata as pdf-file
+    Document document_temp = new Document();
+    //String array to store the 2 pdfs
+    String[] pdfFiles = new String[2];
     try {
-      // step 2:
-      // we create a writer that listens to the document
-      // and directs a PDF-stream to a file
-      PdfWriter writer = PdfWriter.getInstance(document,
-                                               new FileOutputStream(fileName));
-      writer.setStrictImageSequence(true);
-      // step 3: we open the document
-      document.open();
-      // step 4: add the images to the
-
-
-      Image img = Image.getInstance(new URL(imgFileName));
-      img.setAlignment(Image.RIGHT);
-      //img.scalePercent(95);
-      document.add(img);
 
       String disaggregationInfoString = "Mean/Mode Metadata :\n"+meanModeText+
           "\n\n"+"Disaggregation Plot Parameters Info :\n"+
-           metadataText+"\n\n"+"Disaggregation Bin Data :\n"+binDataText+"\n\n"+
+          metadataText+"\n\n"+"Disaggregation Bin Data :\n"+binDataText+"\n\n"+
           "Disaggregation Source List Info:\n"+sourceDataText;
-      document.add(new Paragraph(disaggregationInfoString));
+
+      pdfFiles[0] = imgFileName;
+      pdfFiles[1] = fileName+".tmp";
+      //creating the temp data pdf for the Metadata
+      PdfWriter.getInstance(document_temp,
+                                               new FileOutputStream(pdfFiles[1]));
+      document_temp.open();
+      document_temp.add(new Paragraph(disaggregationInfoString));
+      document_temp.close();
+
+      //concating the PDF files, one is the temporary pdf file that was created
+      //for storing the metadata, other is the Disaggregation plot image pdf file
+      //which is read as URL.
+      int pageOffset = 0;
+      ArrayList master = new ArrayList();
+      int f = 0;
+
+      PdfCopy writer = null;
+      while (f < pdfFiles.length) {
+        // we create a reader for a certain document
+        PdfReader reader = null;
+        if(f ==0)
+          reader = new PdfReader(new URL(pdfFiles[f]));
+        else
+          reader = new PdfReader(pdfFiles[f]);
+
+        reader.consolidateNamedDestinations();
+        // we retrieve the total number of pages
+        int n = reader.getNumberOfPages();
+        java.util.List bookmarks = SimpleBookmark.getBookmark(reader);
+        if (bookmarks != null) {
+          if (pageOffset != 0)
+            SimpleBookmark.shiftPageNumbers(bookmarks, pageOffset, null);
+          master.addAll(bookmarks);
+        }
+        pageOffset += n;
+
+        if (f == 0) {
+          // step 1: creation of a document-object
+          document = new Document(reader.getPageSizeWithRotation(1));
+          // step 2: we create a writer that listens to the document
+          writer = new PdfCopy(document, new FileOutputStream(fileName));
+          // step 3: we open the document
+          document.open();
+        }
+        // step 4: we add content
+        PdfImportedPage page;
+        for (int i = 0; i < n; ) {
+          ++i;
+          page = writer.getImportedPage(reader, i);
+          writer.addPage(page);
+        }
+        PRAcroForm form = reader.getAcroForm();
+        if (form != null)
+          writer.copyAcroForm(reader);
+        f++;
+      }
+      if (master.size() > 0)
+        writer.setOutlines(master);
+      // step 5: we close the document
+      document.close();
+
     }
     catch (DocumentException de) {
       System.err.println(de.getMessage());
@@ -310,9 +355,9 @@ public class DisaggregationPlotViewerWindow extends JFrame implements HyperlinkL
       System.err.println(ioe.getMessage());
     }
 
-    // step 5: we close the document
-    document.close();
-
+    //deleting the temporary PDF file that was created for storing the metadata
+    File f = new File(pdfFiles[1]);
+    f.delete();
   }
 
   /**
