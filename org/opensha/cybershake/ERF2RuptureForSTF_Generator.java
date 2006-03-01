@@ -349,7 +349,7 @@ public class ERF2RuptureForSTF_Generator {
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-                                 BACK_SEIS_INCLUDE);
+                                 BACK_SEIS_EXCLUDE);
 
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
@@ -366,8 +366,12 @@ public class ERF2RuptureForSTF_Generator {
     frankelForecast.updateForecast();
     LocationList locList = new LocationList();
 
+    /**
+     * Site List for Cybershake
+     */
+
     //locList.addLocation(new Location(34.019200, -118.28600)); //USC
-    locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
+    //locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
     /*locList.addLocation(new Location(34.052041, -118.25713)); //LADT
     locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
     locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
