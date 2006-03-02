@@ -23,7 +23,7 @@ public class ReadSitesFile {
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private final static String COMMENTS_DEFAULT = "Site Information provided by Chris Wills from Excel file";
   private final static String STRAND_DEFAULT = "Unknown";
-  private final static String SITE_TYPE_DAFULT = "Unknown";
+  private final static String SITE_TYPE_DEFAULT = "Unknown";
   private final static float  SITE_ELEVATION_DEFAULT = Float.NaN;
   private final static int REFERENCE_ID_DEFAULT = 6530; // id for WGCEP-2007 reference
   private final static String NONAME_SITENAME="no name";
@@ -51,7 +51,7 @@ public class ReadSitesFile {
        paleoSite.setSiteElevation2(SITE_ELEVATION_DEFAULT);
        paleoSite.setGeneralComments(COMMENTS_DEFAULT);
        ArrayList siteTypeNames = new ArrayList();
-       siteTypeNames.add(SITE_TYPE_DAFULT);
+       siteTypeNames.add(SITE_TYPE_DEFAULT);
        PaleoSitePublication paleoSitePub = new PaleoSitePublication();
        paleoSitePub.setRepresentativeStrandName(STRAND_DEFAULT);
        paleoSitePub.setSiteTypeNames(siteTypeNames);

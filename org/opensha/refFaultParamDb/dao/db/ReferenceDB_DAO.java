@@ -102,6 +102,22 @@ public class ReferenceDB_DAO {
     return reference;
   }
 
+
+  /**
+   * Get reference corresponding to Qfault_Reference_Id
+   * @param qfaultReferenceId
+   * @return
+   * @throws QueryException
+   */
+  public Reference getReferenceByQfaultId(int qfaultReferenceId) throws QueryException {
+    Reference reference=null;
+    String condition  =  " where "+QFAULT_REFERENCE_ID+"="+qfaultReferenceId;
+    ArrayList referenceList = query(condition);
+    if(referenceList.size()>0) reference = (Reference)referenceList.get(0);
+    return reference;
+  }
+
+
   /**
    * Remove a reference from the table
    *
