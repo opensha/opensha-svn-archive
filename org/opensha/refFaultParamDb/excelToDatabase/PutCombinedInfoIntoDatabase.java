@@ -71,6 +71,7 @@ public class PutCombinedInfoIntoDatabase {
       HSSFSheet sheet = wb.getSheetAt(0);
       // read data for each row
       for(int r = MIN_ROW; r<=MAX_ROW; ++r) {
+        //System.out.println("Processing Row:"+(r+1));
         HSSFRow row = sheet.getRow(r);
 
         // in case new paleo site needs to be entered into database
@@ -97,15 +98,25 @@ public class PutCombinedInfoIntoDatabase {
         // start time and end time
         startTime = new TimeEstimate();
         endTime = new TimeEstimate();
-
-        // get value of each column in the row
-        for(int c=MIN_COL; c<=MAX_COL; ++c) {
-          HSSFCell cell = row.getCell( (short) c);
-          System.out.println(c);
-          String value=null;
-          if(cell!=null && !(cell.getCellType()==HSSFCell.CELL_TYPE_BLANK))
-            value = cell.getStringCellValue().trim();
-          process(c, value, paleoSite, combinedEventsInfo, paleoSitePub);
+        try {
+          // get value of each column in the row
+          for (int c = MIN_COL; c <= MAX_COL; ++c) {
+            HSSFCell cell = row.getCell( (short) c);
+            String value = null;
+            if (cell != null &&
+                ! (cell.getCellType() == HSSFCell.CELL_TYPE_BLANK)) {
+              if(cell.getCellType() == HSSFCell.CELL_TYPE_STRING)
+                value = cell.getStringCellValue().trim();
+              else value = ""+cell.getNumericCellValue();
+            }
+            process(c, value, paleoSite, combinedEventsInfo, paleoSitePub);
+          }
+        }catch(InvalidRowException e) {
+          System.out.println("Row "+(r+1)+":"+e.getMessage());
+          continue;
+        }catch(RuntimeException ex) {
+          ex.printStackTrace();
+          System.exit(0);
         }
 
         // set the start and end time
@@ -148,7 +159,7 @@ public class PutCombinedInfoIntoDatabase {
                        PaleoSitePublication paleoSitePub) {
     switch (columnNumber) {
       case 1: // fault Id
-        paleoSite.setFaultName(faultDAO.getFault(Integer.parseInt(value)).getFaultName());
+        paleoSite.setFaultName(faultDAO.getFault((int)Double.parseDouble(value)).getFaultName());
         break;
       case 2: // TODO, NEO-KINEMA FAULT ID
         break;
@@ -168,10 +179,14 @@ public class PutCombinedInfoIntoDatabase {
         paleoSite.setSiteName(value);
         break;
       case 8: // Site longitude
+        if(value==null) throw new InvalidRowException("Site Longitude is missing");
         paleoSite.setSiteLon1(Float.parseFloat(value));
+        paleoSite.setSiteLon2(Float.parseFloat(value));
         break;
       case 9: // Site latitude
+        if(value==null) throw new InvalidRowException("Site latitude is missing");
         paleoSite.setSiteLat1(Float.parseFloat(value));
+        paleoSite.setSiteLat2(Float.parseFloat(value));
         if(paleoSite.getSiteName().equalsIgnoreCase(""))
           paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
         break;
@@ -184,7 +199,7 @@ public class PutCombinedInfoIntoDatabase {
         refSummary = value;
         break;
       case 12: // reference Id in qfaults
-        if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId(Integer.parseInt(value)));
+        if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId((int)Double.parseDouble(value)));
         else paleoSitePub.setReference(addReferenceToDatabase(refSummary));
         break;
       case 13: // combined info comments
@@ -279,6 +294,7 @@ public class PutCombinedInfoIntoDatabase {
         break;
       case 29:  // start time units
         if(value!=null) startTimeUnits = value;
+        else startTimeUnits="";
         break;
       case 30: // No need to migrate (start time error)
         break;
@@ -289,18 +305,21 @@ public class PutCombinedInfoIntoDatabase {
       case 32: // min start time
         if(value==null) this.min = Double.NaN;
         else min = Double.parseDouble(value);
-        // swap min/max in case of ka/BC/MA
-        if(!startTimeUnits.equalsIgnoreCase(TimeAPI.AD)) {
-          double temp = min;
-          min=max;
-          max=temp;
-        }
-        // if units are MA
+        if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
+           throw new InvalidRowException("Start Time is missing");
+         if(startTimeUnits.equalsIgnoreCase("")) throw new InvalidRowException("Start Time units are missing");
+         // if units are MA
         if(startTimeUnits.equalsIgnoreCase(MA)) {
           min = min*1000;
           max=max*1000;
           pref=pref*1000;
           startTimeUnits = KA;
+        }
+        // swap min/max in case of AD/BC
+        if(!startTimeUnits.equalsIgnoreCase(KA)) {
+          double temp = min;
+          min=max;
+          max=temp;
         }
 
         // set the start time
@@ -329,15 +348,11 @@ public class PutCombinedInfoIntoDatabase {
         break;
       case 36: // end time units
         if(value!=null) endTimeUnits = value;
+        else   endTimeUnits="";
         if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
           endTime = new ExactTime(Integer.parseInt(paleoSitePub.getReference().getRefYear()), 0, 0, 0, 0, 0, TimeAPI.AD, true);
         else {
-          // swap min/max in case of ka/BC/MA
-          if(!endTimeUnits.equalsIgnoreCase(TimeAPI.AD)) {
-            double temp = min;
-            min=max;
-            max=temp;
-          }
+          if(endTimeUnits.equalsIgnoreCase("")) throw new InvalidRowException("End Time units are missing");
           // if units are MA
           if(endTimeUnits.equalsIgnoreCase(MA)) {
             min = min*1000;
@@ -345,6 +360,14 @@ public class PutCombinedInfoIntoDatabase {
             pref=pref*1000;
             endTimeUnits = KA;
           }
+
+          // swap min/max in case of AD/BC
+          if(!endTimeUnits.equalsIgnoreCase(KA)) {
+            double temp = min;
+            min=max;
+            max=temp;
+          }
+
 
           // set the end time
           Estimate endTimeEst = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
@@ -414,13 +437,21 @@ public class PutCombinedInfoIntoDatabase {
     int index = referenceSummary.indexOf("(");
     ref.setRefAuth(referenceSummary.substring(0,index));
     ref.setRefYear(referenceSummary.substring(index+1,referenceSummary.indexOf(")")));
-    int id = this.referenceDAO.addReference(ref);
+    //int id = this.referenceDAO.addReference(ref);
+    int id=-1;
     ref.setReferenceId(id);
     return ref;
   }
 
   public static void main(String[] args) {
     PutCombinedInfoIntoDatabase putCombinedInfoIntoDatabase1 = new PutCombinedInfoIntoDatabase();
+    //System.out.println(Integer.parseInt("5760"));
   }
 
+}
+
+class InvalidRowException extends RuntimeException {
+  public InvalidRowException(String msg) {
+    super(msg);
+  }
 }
