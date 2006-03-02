@@ -43,7 +43,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
   private final static String SLIP_RATE="Slip Rate";
   private final static String SLIP_RATE_COMMENTS_PARAM_NAME="Slip Rate Comments";
   private final static String SLIP_RATE_REFERENCES_PARAM_NAME="Choose References";
-  private final static String SLIP_RATE_UNITS = "mm/yr";
+  public final static String SLIP_RATE_UNITS = "mm/yr";
   private final static double SLIP_RATE_MIN = 0;
   private final static double SLIP_RATE_MAX = Double.POSITIVE_INFINITY;
 
@@ -52,7 +52,7 @@ public class AddEditSlipRate extends LabeledBoxPanel  implements ParameterChange
   private final static String ASEISMIC_SLIP_FACTOR="Aseismic Slip Factor";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
-  private final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";
+  public final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";
 
   // parameters
   private EstimateParameter slipRateEstimateParam;

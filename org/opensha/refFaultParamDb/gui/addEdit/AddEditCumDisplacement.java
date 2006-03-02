@@ -42,13 +42,13 @@ public class AddEditCumDisplacement extends LabeledBoxPanel implements Parameter
   private final static String ASEISMIC_SLIP_FACTOR_="Aseismic Slip Factor";
   private final static double ASEISMIC_SLIP_FACTOR_MIN=0;
   private final static double ASEISMIC_SLIP_FACTOR_MAX=1;
-  private final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
+  public final static String ASEISMIC_SLIP_FACTOR_UNITS=" ";
 
    // CUMULATIVE DISPLACEMENT
   private final static String CUMULATIVE_DISPLACEMENT_PARAM_NAME="Cumulative Displacement Estimate";
   private final static String CUMULATIVE_DISPLACEMENT="Cumulative Disp";
   private final static String CUMULATIVE_DISPLACEMENT_COMMENTS_PARAM_NAME="Cumulative Displacement Comments";
-  private final static String CUMULATIVE_DISPLACEMENT_UNITS = "m";
+  public final static String CUMULATIVE_DISPLACEMENT_UNITS = "m";
   private final static double CUMULATIVE_DISPLACEMENT_MIN = 0;
   private final static double CUMULATIVE_DISPLACEMENT_MAX = Double.POSITIVE_INFINITY;
 

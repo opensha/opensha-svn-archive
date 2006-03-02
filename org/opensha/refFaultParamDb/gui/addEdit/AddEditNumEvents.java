@@ -43,7 +43,7 @@ public class AddEditNumEvents extends LabeledBoxPanel implements ParameterChange
   private final static String EVENT_PROB_PARAM_NAME= "Events Prob";
   private final static int NUM_EVENTS_MIN=0;
   private final static int NUM_EVENTS_MAX=Integer.MAX_VALUE;
-  private final static String NUM_EVENTS_UNITS=" ";
+  public final static String NUM_EVENTS_UNITS=" ";
 
 
   // various parameters

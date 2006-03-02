@@ -17,6 +17,16 @@ import java.util.ArrayList;
 import org.opensha.refFaultParamDb.vo.CombinedDisplacementInfo;
 import org.opensha.refFaultParamDb.vo.CombinedSlipRateInfo;
 import org.opensha.refFaultParamDb.vo.CombinedNumEventsInfo;
+import org.opensha.refFaultParamDb.vo.Reference;
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
+import org.opensha.data.estimate.MinMaxPrefEstimate;
+import org.opensha.data.estimate.Estimate;
+import org.opensha.refFaultParamDb.gui.addEdit.AddEditCumDisplacement;
+import org.opensha.refFaultParamDb.gui.addEdit.AddEditNumEvents;
+import org.opensha.refFaultParamDb.gui.addEdit.AddEditSlipRate;
+import org.opensha.refFaultParamDb.data.TimeEstimate;
+import org.opensha.refFaultParamDb.data.TimeAPI;
+import org.opensha.refFaultParamDb.data.ExactTime;
 
 /**
  * <p>Title: PutCombinedInfoIntoDatabase.java </p>
@@ -40,11 +50,18 @@ public class PutCombinedInfoIntoDatabase {
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
   private final static String UNKNOWN = "Unknown";
+  private final static String MA = "MA";
+  private final static String KA = "ka";
+  private final static int ZERO_YEAR=1950;
   private String measuredComponent, senseOfMotion;
   private CombinedDisplacementInfo combinedDispInfo;
   private CombinedSlipRateInfo combinedSlipRateInfo;
   private CombinedNumEventsInfo combinedNumEventsInfo;
   private boolean isDisp, isSlipRate, isNumEvents;
+  private double min, max, pref;
+  private String refSummary;
+  private TimeAPI startTime, endTime;
+  private String startTimeUnits, endTimeUnits;
 
   public PutCombinedInfoIntoDatabase() {
     try {
@@ -62,6 +79,7 @@ public class PutCombinedInfoIntoDatabase {
         CombinedEventsInfo combinedEventsInfo = new CombinedEventsInfo();
         // paleo site publication
         PaleoSitePublication paleoSitePub = new PaleoSitePublication();
+        combinedEventsInfo.setPaleoSitePublication(paleoSitePub);
         // site types
         ArrayList siteTypeNames = new ArrayList();
         siteTypeNames.add(UNKNOWN);
@@ -76,6 +94,10 @@ public class PutCombinedInfoIntoDatabase {
         isSlipRate=false;
         isNumEvents=false;
 
+        // start time and end time
+        startTime = new TimeEstimate();
+        endTime = new TimeEstimate();
+
         // get value of each column in the row
         for(int c=MIN_COL; c<=MAX_COL; ++c) {
           HSSFCell cell = row.getCell( (short) c);
@@ -85,6 +107,10 @@ public class PutCombinedInfoIntoDatabase {
             value = cell.getStringCellValue().trim();
           process(c, value, paleoSite, combinedEventsInfo, paleoSitePub);
         }
+
+        // set the start and end time
+        combinedEventsInfo.setStartTime(this.startTime);
+        combinedEventsInfo.setEndTime(this.endTime);
 
         // set displacement in combined events info
         if(isDisp) {
@@ -131,6 +157,7 @@ public class PutCombinedInfoIntoDatabase {
       case 4: // Peter Bird Reference category
         break;
       case 5: // fault name
+              // no need to migrate as names here differ somewhat from database names
         break;
       case 6: // qfault Site-Id
         paleoSite.setOldSiteId(value);
@@ -145,6 +172,8 @@ public class PutCombinedInfoIntoDatabase {
         break;
       case 9: // Site latitude
         paleoSite.setSiteLat1(Float.parseFloat(value));
+        if(paleoSite.getSiteName().equalsIgnoreCase(""))
+          paleoSite.setSiteName(paleoSite.getSiteLat1()+","+paleoSite.getSiteLon1());
         break;
       case 10: // Site Elevation
         if(value!=null)
@@ -152,9 +181,11 @@ public class PutCombinedInfoIntoDatabase {
          else  paleoSite.setSiteElevation1(Float.NaN);
         break;
       case 11: // reference summary
+        refSummary = value;
         break;
       case 12: // reference Id in qfaults
         if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId(Integer.parseInt(value)));
+        else paleoSitePub.setReference(addReferenceToDatabase(refSummary));
         break;
       case 13: // combined info comments
         if(value==null) value="";
@@ -173,62 +204,219 @@ public class PutCombinedInfoIntoDatabase {
         this.senseOfMotion = value;
         break;
       case 17: //aseismic slip factor for displacement
-         // No need to handle this at this time as this needs to be an estimate
+         if(value!=null) {
+           Estimate estimate = new MinMaxPrefEstimate(Double.NaN,Double.NaN,Double.parseDouble(value),Double.NaN, Double.NaN, Double.NaN);
+           combinedDispInfo.setASeismicSlipFactorEstimateForDisp(new EstimateInstances(estimate, AddEditCumDisplacement.ASEISMIC_SLIP_FACTOR_UNITS));
+         }
          break;
       case 18: // preferred displacement
+        if(value==null) this.pref = Double.NaN;
+        else {
+          this.isDisp = true;
+          this.pref = Double.parseDouble(value);
+        }
         break;
       case 19: // No need to migrate (offset error)
         break;
       case 20: // min displacement
+        if(value==null) this.min = Double.NaN;
+        else {
+          this.isDisp = true;
+          this.min = Double.parseDouble(value);
+        }
         break;
       case 21: // max displacement
+        if(value==null) this.max = Double.NaN;
+        else {
+          this.isDisp = true;
+          this.max = Double.parseDouble(value);
+        }
+        if(isDisp) {
+          Estimate estimate = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+          combinedDispInfo.setDisplacementEstimate(new EstimateInstances(estimate, AddEditCumDisplacement.CUMULATIVE_DISPLACEMENT_UNITS));
+        }
         break;
       case 22: // diplacement comments
+        if(value==null) value="";
+        combinedDispInfo.setDisplacementComments(value);
         break;
       case 23 : // preferred num events
+        if(value==null) this.pref = Double.NaN;
+        else {
+          this.isNumEvents = true;
+          this.pref = Double.parseDouble(value);
+        }
         break;
       case 24 : //min num events
+        if(value==null) this.min = Double.NaN;
+        else {
+          this.isNumEvents = true;
+          this.min = Double.parseDouble(value);
+        }
         break;
       case 25: // max num events
+        if(value==null) this.max = Double.NaN;
+        else {
+          this.isNumEvents = true;
+          this.max = Double.parseDouble(value);
+        }
+        if(isNumEvents) {
+          Estimate estimate = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+          this.combinedNumEventsInfo.setNumEventsEstimate(new EstimateInstances(estimate, AddEditNumEvents.NUM_EVENTS_UNITS));
+        }
         break;
       case 26: // num events comments
+        if(value==null) value="";
+        this.combinedNumEventsInfo.setNumEventsComments(value);
         break;
       case 27: // timespan comments
+        if(value==null) value="";
+        combinedEventsInfo.setDatedFeatureComments(combinedEventsInfo.getDatedFeatureComments()+"\n"+value);
         break;
-      case 28: // preffered start time
+      case 28: // preferred start time
+        if(value==null) this.pref = Double.NaN;
+        else pref = Double.parseDouble(value);
         break;
-      case 29:  // start time units (NEED to handle MA here)
+      case 29:  // start time units
+        if(value!=null) startTimeUnits = value;
         break;
       case 30: // No need to migrate (start time error)
         break;
-      case 31: // max start time (NEED to handle for earliest)
+      case 31: // max start time
+        if(value==null) this.max = Double.NaN;
+        else max = Double.parseDouble(value);
         break;
       case 32: // min start time
+        if(value==null) this.min = Double.NaN;
+        else min = Double.parseDouble(value);
+        // swap min/max in case of ka/BC/MA
+        if(!startTimeUnits.equalsIgnoreCase(TimeAPI.AD)) {
+          double temp = min;
+          min=max;
+          max=temp;
+        }
+        // if units are MA
+        if(startTimeUnits.equalsIgnoreCase(MA)) {
+          min = min*1000;
+          max=max*1000;
+          pref=pref*1000;
+          startTimeUnits = KA;
+        }
+
+        // set the start time
+        Estimate est = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+        if(!startTimeUnits.equalsIgnoreCase(TimeAPI.BC))  startTimeUnits = TimeAPI.AD;
+        if(startTimeUnits.equalsIgnoreCase(KA))
+          ((TimeEstimate)startTime).setForKaUnits(est, ZERO_YEAR);
+        else ((TimeEstimate)startTime).setForCalendarYear(est, startTimeUnits);
+
+        // set reference in start time
+        ArrayList refList = new ArrayList();
+        refList.add(paleoSitePub.getReference());
+        startTime.setReferencesList(refList);
         break;
       case 33: // max end time
+        if(value==null) this.max = Double.NaN;
+        else max = Double.parseDouble(value);
         break;
       case 34: // pref end time
+        if(value==null) this.pref = Double.NaN;
+        else pref = Double.parseDouble(value);
         break;
       case 35: // min end time
+        if(value==null) this.min = Double.NaN;
+        else min  = Double.parseDouble(value);
         break;
       case 36: // end time units
+        if(value!=null) endTimeUnits = value;
+        if(Double.isNaN(min) && Double.isNaN(max) && Double.isNaN(pref))
+          endTime = new ExactTime(Integer.parseInt(paleoSitePub.getReference().getRefYear()), 0, 0, 0, 0, 0, TimeAPI.AD, true);
+        else {
+          // swap min/max in case of ka/BC/MA
+          if(!endTimeUnits.equalsIgnoreCase(TimeAPI.AD)) {
+            double temp = min;
+            min=max;
+            max=temp;
+          }
+          // if units are MA
+          if(endTimeUnits.equalsIgnoreCase(MA)) {
+            min = min*1000;
+            max=max*1000;
+            pref=pref*1000;
+            endTimeUnits = KA;
+          }
+
+          // set the end time
+          Estimate endTimeEst = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+          if(!endTimeUnits.equalsIgnoreCase(TimeAPI.BC))  endTimeUnits = TimeAPI.AD;
+          if(endTimeUnits.equalsIgnoreCase(KA))
+            ((TimeEstimate)endTime).setForKaUnits(endTimeEst, ZERO_YEAR);
+          else ((TimeEstimate)endTime).setForCalendarYear(endTimeEst, endTimeUnits);
+        }
+        // set reference in start time
+        ArrayList refList1 = new ArrayList();
+        refList1.add(paleoSitePub.getReference());
+        endTime.setReferencesList(refList1);
         break;
       case 37: // dated feature comments
+        if(value==null) value ="";
+        combinedEventsInfo.setDatedFeatureComments(combinedEventsInfo.getDatedFeatureComments()+"\n"+value);
         break;
       case 38: // aseismic slip factor for Slip Rate
-         // No need to handle this at this time as this needs to be an estimate
+        if(value!=null) {
+          Estimate estimate = new MinMaxPrefEstimate(Double.NaN,Double.NaN,Double.parseDouble(value),Double.NaN, Double.NaN, Double.NaN);
+          combinedSlipRateInfo.setASeismicSlipFactorEstimateForSlip(new EstimateInstances(estimate, AddEditSlipRate.ASEISMIC_SLIP_FACTOR_UNITS));
+        }
         break;
       case 39: // preferred slip rate
+        if(value==null) this.pref = Double.NaN;
+        else {
+          this.isSlipRate = true;
+          this.pref = Double.parseDouble(value);
+        }
         break;
       case 40: // no need to migrate (slip rate error)
         break;
       case 41: // min slip rate
+        if(value==null) this.min = Double.NaN;
+        else {
+          this.isSlipRate = true;
+          this.min = Double.parseDouble(value);
+        }
         break;
       case 42: // max slip rate
+        if(value==null) this.max = Double.NaN;
+        else {
+          this.isSlipRate = true;
+          this.max = Double.parseDouble(value);
+        }
+        if(isSlipRate) {
+         Estimate estimate = new MinMaxPrefEstimate(min,max,pref,Double.NaN, Double.NaN, Double.NaN);
+         this.combinedSlipRateInfo.setSlipRateEstimate(new EstimateInstances(estimate, AddEditSlipRate.SLIP_RATE_UNITS));
+       }
         break;
       case 43: // slip rate comments
+        if(value==null) value="";
+        this.combinedSlipRateInfo.setSlipRateComments(value);
         break;
     }
+  }
+
+  /**
+   * Add reference to the database
+   *
+   * @param referenceSummary
+   * @return
+   */
+  private Reference addReferenceToDatabase(String referenceSummary) {
+    Reference ref = new Reference();
+    ref.setFullBiblioReference("");
+    int index = referenceSummary.indexOf("(");
+    ref.setRefAuth(referenceSummary.substring(0,index));
+    ref.setRefYear(referenceSummary.substring(index+1,referenceSummary.indexOf(")")));
+    int id = this.referenceDAO.addReference(ref);
+    ref.setReferenceId(id);
+    return ref;
   }
 
   public static void main(String[] args) {
