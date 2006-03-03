@@ -15,7 +15,7 @@ import org.opensha.refFaultParamDb.vo.Contributor;
  */
 
 public class AddContributorForDatabase {
-  private final static DB_AccessAPI dbConn= new DB_ConnectionPool();;
+  private final static DB_AccessAPI dbConn= new DB_ConnectionPool();
 
   public static void main(String[] args) {
     ContributorDB_DAO contributorDAO = new ContributorDB_DAO(dbConn);

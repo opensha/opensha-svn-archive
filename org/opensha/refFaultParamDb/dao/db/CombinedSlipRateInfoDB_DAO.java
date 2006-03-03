@@ -80,7 +80,7 @@ public class CombinedSlipRateInfoDB_DAO {
         colNames+SLIP_RATE_COMMENTS+","+
         INFO_ID+","+ENTRY_DATE+") values ("+slipRateId+","+colVals+"'"+
         comments+"',"+infoId+",'"+entryDate+"')";
-    System.out.println(sql);
+    //System.out.println(sql);
     try {
       dbAccess.insertUpdateOrDeleteData(sql);
     }catch(SQLException e) {

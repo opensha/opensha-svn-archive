@@ -29,6 +29,7 @@ public class CombinedEventsInfo {
   private boolean isExpertOpinion=false;
   private PaleoSitePublication paleoSitePublication;
   private ArrayList referenceList;
+  private String neokinemaFaultNumber="";
 
   public String toString() {
     String startTimeStr=null, endTimeStr=null, combinedSlipRateInfoStr=null;
@@ -58,6 +59,14 @@ public class CombinedEventsInfo {
         "Event Sequence="+eventSequenceListStr+"\n"+
         "Is expert opinion="+isExpertOpinion+"\n"+
         "Publication = "+paleoSitePubStr;
+  }
+
+
+  public String getNeokinemaFaultNumber() {
+    return this.neokinemaFaultNumber;
+  }
+  public void setNeokinemaFaultNumber(String faultNumber) {
+    this.neokinemaFaultNumber = faultNumber;
   }
 
   /*

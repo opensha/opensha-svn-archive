@@ -33,6 +33,7 @@ public class CombinedEventsInfoDB_DAO {
   private final static String START_TIME_ID = "Start_Time_Id";
   private final static String END_TIME_ID="End_Time_Id";
   private final static String DATED_FEATURE_COMMENTS = "Dated_Feature_Comments";
+  private final static String NEOKINEMA_FAULT_NUMBER = "NeoKinema_Fault_Number";
   //table for references
   private final static String REFERENCES_TABLE_NAME = "Combined_Events_References";
   private final static String COMBINED_EVENTS_ID = "Combined_Events_Id";
@@ -95,12 +96,13 @@ public class CombinedEventsInfoDB_DAO {
     String sql = "insert into "+TABLE_NAME+"("+INFO_ID+","+SITE_ID+","+
         SITE_ENTRY_DATE+","+ENTRY_DATE+","+CONTRIBUTOR_ID+","+
         START_TIME_ID+","+END_TIME_ID+","+
-        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+","+this.IS_RECORD_DELETED+") "+
+        DATED_FEATURE_COMMENTS+","+IS_EXPERT_OPINION+","+this.IS_RECORD_DELETED+","+
+        NEOKINEMA_FAULT_NUMBER+") "+
         "values ("+infoId+","+combinedEventsInfo.getSiteId()+",'"+
         combinedEventsInfo.getSiteEntryDate()+"','"+systemDate+"',"+
         SessionInfo.getContributor().getId()+","+startTimeId+","+endTimeId+",'"+
         combinedEventsInfo.getDatedFeatureComments()+"','"+expertOpinion+"','"+
-        this.NO+"')";
+        this.NO+"','"+combinedEventsInfo.getNeokinemaFaultNumber()+"')";
 
     try {
      dbAccess.insertUpdateOrDeleteData(sql);
@@ -160,7 +162,7 @@ public class CombinedEventsInfoDB_DAO {
     String sql =  "select "+INFO_ID+","+SITE_ID+",to_char("+SITE_ENTRY_DATE+") as "+SITE_ENTRY_DATE+","+
         "to_char("+ENTRY_DATE+") as "+ENTRY_DATE+","+
         START_TIME_ID+","+END_TIME_ID+","+this.CONTRIBUTOR_ID+","+DATED_FEATURE_COMMENTS+
-        ","+IS_EXPERT_OPINION+" from "+this.TABLE_NAME+condition;
+        ","+IS_EXPERT_OPINION+","+this.NEOKINEMA_FAULT_NUMBER+" from "+this.TABLE_NAME+condition;
     try {
       ResultSet rs  = dbAccess.queryData(sql);
       int estId;
@@ -191,6 +193,7 @@ public class CombinedEventsInfoDB_DAO {
         combinedEventsInfo.setStartTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(START_TIME_ID)));
         combinedEventsInfo.setEndTime(this.timeInstanceDAO.getTimeInstance(rs.getInt(END_TIME_ID)));
         combinedEventsInfo.setDatedFeatureComments(rs.getString(DATED_FEATURE_COMMENTS));
+        combinedEventsInfo.setNeokinemaFaultNumber(rs.getString(this.NEOKINEMA_FAULT_NUMBER));
         // set displacement
         combinedEventsInfo.setCombinedDisplacementInfo(
             this.combinedDispInfoDB_DAO.getDisplacementInfo(rs.getInt(INFO_ID), rs.getString(ENTRY_DATE)));

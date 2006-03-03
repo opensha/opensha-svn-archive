@@ -60,7 +60,7 @@ public class SiteRepresentationDB_DAO  {
    */
   public SiteRepresentation getSiteRepresentation(String siteRepresentationName) {
     SiteRepresentation siteRepresentation=null;
-   String condition = " where "+this.SITE_REPRESENTATION_NAME+"='"+siteRepresentationName+"'";
+   String condition = " where upper("+this.SITE_REPRESENTATION_NAME+")=upper('"+siteRepresentationName+"')";
    ArrayList siteRepresentationList=query(condition);
    if(siteRepresentationList.size()>0) siteRepresentation = (SiteRepresentation)siteRepresentationList.get(0);
    return siteRepresentation;

@@ -27,6 +27,7 @@ import org.opensha.refFaultParamDb.gui.addEdit.AddEditSlipRate;
 import org.opensha.refFaultParamDb.data.TimeEstimate;
 import org.opensha.refFaultParamDb.data.TimeAPI;
 import org.opensha.refFaultParamDb.data.ExactTime;
+import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 
 /**
  * <p>Title: PutCombinedInfoIntoDatabase.java </p>
@@ -49,6 +50,7 @@ public class PutCombinedInfoIntoDatabase {
   private PaleoSiteDB_DAO paleoSiteDAO = new PaleoSiteDB_DAO(DB_AccessAPI.dbConnection);
   private ReferenceDB_DAO referenceDAO = new ReferenceDB_DAO(DB_AccessAPI.dbConnection);
   private FaultDB_DAO faultDAO = new FaultDB_DAO(DB_AccessAPI.dbConnection);
+  private CombinedEventsInfoDB_DAO combinedEventsInfoDAO = new CombinedEventsInfoDB_DAO(DB_AccessAPI.dbConnection);
   private final static String UNKNOWN = "Unknown";
   private final static String MA = "MA";
   private final static String KA = "ka";
@@ -71,7 +73,7 @@ public class PutCombinedInfoIntoDatabase {
       HSSFSheet sheet = wb.getSheetAt(0);
       // read data for each row
       for(int r = MIN_ROW; r<=MAX_ROW; ++r) {
-        //System.out.println("Processing Row:"+(r+1));
+        System.out.println("Processing Row:"+(r+1));
         HSSFRow row = sheet.getRow(r);
 
         // in case new paleo site needs to be entered into database
@@ -81,6 +83,10 @@ public class PutCombinedInfoIntoDatabase {
         // paleo site publication
         PaleoSitePublication paleoSitePub = new PaleoSitePublication();
         combinedEventsInfo.setPaleoSitePublication(paleoSitePub);
+        // set publication in paleo site
+        ArrayList pubList = new ArrayList();
+        pubList.add(paleoSitePub);
+        paleoSite.setPaleoSitePubList(pubList);
         // site types
         ArrayList siteTypeNames = new ArrayList();
         siteTypeNames.add(UNKNOWN);
@@ -116,12 +122,15 @@ public class PutCombinedInfoIntoDatabase {
           continue;
         }catch(RuntimeException ex) {
           ex.printStackTrace();
-          System.exit(0);
+          continue;
         }
 
         // set the start and end time
         combinedEventsInfo.setStartTime(this.startTime);
         combinedEventsInfo.setEndTime(this.endTime);
+        ArrayList refList = new ArrayList();
+        refList.add(paleoSitePub.getReference());
+        combinedEventsInfo.setReferenceList(refList);
 
         // set displacement in combined events info
         if(isDisp) {
@@ -140,6 +149,21 @@ public class PutCombinedInfoIntoDatabase {
         // set num events in combined events info
         if(isNumEvents) combinedEventsInfo.setCombinedNumEventsInfo(combinedNumEventsInfo);
 
+        // site in DB
+        PaleoSite siteInDB = this.paleoSiteDAO.getPaleoSite(paleoSite.getSiteName());
+
+        if(siteInDB==null) { // site does not exist in database
+          paleoSiteDAO.addPaleoSite(paleoSite);
+          siteInDB = paleoSiteDAO.getPaleoSite(paleoSite.getSiteName());
+        }
+        paleoSitePub.setSiteEntryDate(siteInDB.getEntryDate());
+        paleoSitePub.setSiteId(siteInDB.getSiteId());
+        combinedEventsInfo.setIsExpertOpinion(false);
+        combinedEventsInfo.setSiteId(siteInDB.getSiteId());
+        combinedEventsInfo.setSiteEntryDate(siteInDB.getEntryDate());
+
+        // add combined events info to database
+        combinedEventsInfoDAO.addCombinedEventsInfo(combinedEventsInfo);
       }
     }catch(Exception e) {
       e.printStackTrace();
@@ -161,7 +185,8 @@ public class PutCombinedInfoIntoDatabase {
       case 1: // fault Id
         paleoSite.setFaultName(faultDAO.getFault((int)Double.parseDouble(value)).getFaultName());
         break;
-      case 2: // TODO, NEO-KINEMA FAULT ID
+      case 2: //  NEO-KINEMA FAULT ID
+        if(value!=null) combinedEventsInfo.setNeokinemaFaultNumber(value);
         break;
       case 3: // NEO-KINEMA Fault name
         break;
@@ -201,6 +226,7 @@ public class PutCombinedInfoIntoDatabase {
       case 12: // reference Id in qfaults
         if(value!=null) paleoSitePub.setReference(referenceDAO.getReferenceByQfaultId((int)Double.parseDouble(value)));
         else paleoSitePub.setReference(addReferenceToDatabase(refSummary));
+
         break;
       case 13: // combined info comments
         if(value==null) value="";
@@ -437,17 +463,11 @@ public class PutCombinedInfoIntoDatabase {
     int index = referenceSummary.indexOf("(");
     ref.setRefAuth(referenceSummary.substring(0,index));
     ref.setRefYear(referenceSummary.substring(index+1,referenceSummary.indexOf(")")));
-    //int id = this.referenceDAO.addReference(ref);
-    int id=-1;
+    int id = this.referenceDAO.addReference(ref);
+    //int id=-1;
     ref.setReferenceId(id);
     return ref;
   }
-
-  public static void main(String[] args) {
-    PutCombinedInfoIntoDatabase putCombinedInfoIntoDatabase1 = new PutCombinedInfoIntoDatabase();
-    //System.out.println(Integer.parseInt("5760"));
-  }
-
 }
 
 class InvalidRowException extends RuntimeException {

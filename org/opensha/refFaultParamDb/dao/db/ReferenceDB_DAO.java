@@ -59,7 +59,8 @@ public class ReferenceDB_DAO {
         reference.getRefYear()+"','"+reference.getFullBiblioReference()+"')";
     try {
       dbAccessAPI.insertUpdateOrDeleteData(sql);
-      referenceList.add(reference); // add to cached list of references
+      if(referenceList!=null)
+        referenceList.add(reference); // add to cached list of references
     }
     catch(SQLException e) {
       //e.printStackTrace();

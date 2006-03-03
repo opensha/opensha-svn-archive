@@ -21,7 +21,8 @@ public class PutTestDataInDatabase {
     SessionInfo.setContributorInfo();
     //new ReadReferencesFile(); // put references in the database
     new PutFaultNamesIntoDB(); // put fault names into database
-    new ReadSitesFile(); // put sites data in the database
+    //new ReadSitesFile(); // put sites data in the database
+    new PutCombinedInfoIntoDatabase();
     System.exit(0);
   }
 

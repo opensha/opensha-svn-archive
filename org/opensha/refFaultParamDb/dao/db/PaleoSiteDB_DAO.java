@@ -156,6 +156,21 @@ public class PaleoSiteDB_DAO  {
   }
 
   /**
+  * Get paleo site data based on paleoSiteName
+  * @param paleoSiteName
+  * @return
+  * @throws QueryException
+  */
+ public PaleoSite getPaleoSite(String paleoSiteName) throws QueryException {
+   String condition = " where "+SITE_NAME+"='"+paleoSiteName+"'";
+   ArrayList paleoSiteList = query(condition);
+   PaleoSite paleoSite = null;
+   if(paleoSiteList.size()>0) paleoSite = (PaleoSite)paleoSiteList.get(0);
+   return paleoSite;
+ }
+
+
+  /**
   * It returns a list of PaleoSiteSummary objects. Each such object has a name
   * and id. If there is no name corresponding to paleo site in the database,
   * then this function gets the references for the paleo site and sets it as the name
