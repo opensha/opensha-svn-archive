@@ -8,7 +8,7 @@ import org.opensha.sha.surface.GriddedSurfaceAPI;
 import java.util.ListIterator;
 import org.opensha.param.ParameterAPI;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
-
+import org.opensha.sha.surface.PointSurface;
 
 /**
  * <p>Title:ProbEqkRupture </p>
@@ -21,8 +21,13 @@ import org.opensha.sha.surface.EvenlyGriddedSurface;
 
 public class ProbEqkRupture extends EqkRupture{
 
+
   protected double probability;
 
+  //index of rupture for a given source as defined by a ERF
+  private int rupIndex,srcIndex;
+  //name of the source of which this rupture is a part.
+  private String srcName;
 
 
   /* **********************/
@@ -104,6 +109,71 @@ public class ProbEqkRupture extends EqkRupture{
      return info1 + info2;
    }
 
+
+   /**
+    * Sets the rupture index from given source.
+    * @param sourceIndex int source of the rupture
+    * @param sourceName String Name of the Source
+    * @param ruptureIndex int rupture index of the given source
+    *
+    */
+   public void setRuptureIndexAndSourceInfo(int sourceIndex,String sourceName,
+                                            int ruptureIndex){
+     srcIndex = sourceIndex;
+     srcName = sourceName;
+     rupIndex = ruptureIndex;
+   }
+
+
+   /**
+    * Returns the rupture index as defined by the Source
+    * @return int
+    */
+   public int getRuptureIndex(){
+     return rupIndex;
+   }
+
+
+
+   /**
+    * Returns the Metadata for the rupture of a given source. Following information
+    * is represented as a single line for the rupture.
+    * <ul>
+    *   <li>Source Index
+    *   <li>Rupture Index
+    *   <li>Magnitude
+    *   <li>Probablity
+    *   <li>Ave. Rake
+    *  <p>If rupture surface is a point surface then point surface locations are
+    *  included in it.So the next 3 elements are :</p>
+    *   <li>Point Surface Latitude
+    *   <li>Point Surface Longitude
+    *   <li>Point Surface Depth
+    *   <li>Source Name
+    * </ul>
+    *
+    * Each element in the single line is seperated by a tab ("\t").
+    * @return String
+    */
+   public String getRuptureMetadata(){
+     //rupture Metadata
+     String ruptureMetadata;
+     ruptureMetadata = srcIndex + "\t";
+     ruptureMetadata += rupIndex + "\t";
+     ruptureMetadata += (float)mag + "\t";
+     ruptureMetadata += (float)probability + "\t";
+     ruptureMetadata += (float)aveRake + "\t";
+
+     if(ruptureSurface instanceof PointSurface){
+       Location loc= ruptureSurface.getLocation(0,0);
+       ruptureMetadata += (float)loc.getLatitude() + "\t";
+       ruptureMetadata += (float)loc.getLongitude() + "\t";
+       ruptureMetadata += (float)loc.getDepth() + "\t";
+     }
+     ruptureMetadata += srcName;
+     return ruptureMetadata;
+
+   }
 
    /**
     * Clones the eqk rupture and returns the new cloned object

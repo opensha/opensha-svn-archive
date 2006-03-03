@@ -111,7 +111,10 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
     public double getSurfaceWidth() ;
 
 
-
-
+    /**
+     * Returns the Metadata for the surface
+     * @return String
+     */
+    public String getSurfaceMetadata();
 
 }

@@ -37,8 +37,8 @@ public interface EqkSourceAPI extends NamedObjectAPI{
   /**
    * Get the ith rupture for this source
    * This is a handle(or reference) to existing class variable. If this function
-   *  is called again, then output from previous function call will not remain valid
-   *  because of passing by reference
+   * is called again, then output from previous function call will not remain valid
+   * because of passing by reference.
    * It is a secret, fast but dangerous method
    *
    * @param i  ith rupture

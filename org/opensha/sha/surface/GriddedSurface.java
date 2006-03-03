@@ -9,6 +9,7 @@ import org.opensha.util.FaultUtils;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.exceptions.LocationException;
 import org.opensha.data.*;
+import org.opensha.calc.RelativeLocation;
 
 
 /**
@@ -230,6 +231,18 @@ public class GriddedSurface
       return Double.NaN;
     }
 
+    /**
+     * Returns the gridspacing between the first 2 locations on the surface
+     * @return double
+     */
+    public double getGridSpacing() {
+
+      Location loc1 = this.getLocation(0, 0);
+      Location loc2 = this.getLocation(0, 1);
+      return RelativeLocation.getHorzDistance(loc1, loc2);
+    }
+
+
 
     /**
      * Returns the grid centered location on each grid surface.
@@ -265,4 +278,46 @@ public class GriddedSurface
       }
       return surface;
     }
-  }
+
+
+    /**
+     * Returns the Surface Metadata with the following info:
+     * <ul>
+     * <li>AveDip
+     * <li>Surface length
+     * <li>Surface DownDipWidth
+     * <li>GridSpacing
+     * <li>NumRows
+     * <li>NumCols
+     * <li>Number of locations on surface
+     * <p>Each of these elements are represented in Single line with tab("\t") delimitation.
+     * <br>Then follows the location of each point on the surface with the comment String
+     * defining how locations are represented.</p>
+     * <li>#Surface locations (Lat Lon Depth)
+     * <p>Then until surface locations are done each line is the point location on the surface.
+     *
+     * </ul>
+     * @return String
+     */
+    public String getSurfaceMetadata() {
+      String surfaceMetadata;
+      surfaceMetadata = (float)aveDip + "\t";
+      surfaceMetadata += (float)getSurfaceLength() + "\t";
+      surfaceMetadata += (float)getSurfaceWidth() + "\t";
+      surfaceMetadata += (float)getGridSpacing() + "\t";
+      int numRows = getNumRows();
+      int numCols = getNumCols();
+      surfaceMetadata += numRows + "\t";
+      surfaceMetadata += numCols + "\t";
+      surfaceMetadata += (numRows * numCols) + "\n";
+      surfaceMetadata += "#Surface locations (Lat Lon Depth) \n";
+      ListIterator it = getLocationsIterator();
+      while (it.hasNext()) {
+        Location loc = (Location) it.next();
+        surfaceMetadata += (float)loc.getLatitude()+"\t";
+        surfaceMetadata += (float)loc.getLongitude()+"\t";
+        surfaceMetadata += (float)loc.getDepth()+"\n";
+      }
+      return surfaceMetadata;
+    }
+}

@@ -8,6 +8,7 @@ import org.opensha.data.Location;
 import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.LocationList;
 
+
 /**
  * <b>Title:</b> PointSurface<p>
  *
@@ -32,6 +33,10 @@ import org.opensha.data.LocationList;
  * @version    1.0
  */
 public class PointSurface extends Location implements GriddedSurfaceAPI {
+
+
+  private final static double DEFAULT_GRID_SPACING_FOR_POINT_SURFACE = 1.0;
+
 
     /**
      * The average strike of this surface on the Earth. Even though this is a
@@ -336,12 +341,58 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
       return 0;
     }
 
+
+    /**
+     * Returns the gridspacing between the 2 locations on the surface
+     * @return double
+     */
+    public double getGridSpacing() {
+      return DEFAULT_GRID_SPACING_FOR_POINT_SURFACE;
+    }
+
+
     /**
      * This returns the surface width (down dip)
      * @return double
      */
     public double getSurfaceWidth() {
       return 0;
+    }
+
+    /**
+     * Returns the Surface Metadata with the following info:
+     * <ul>
+     * <li>AveDip
+     * <li>Surface length
+     * <li>Surface DownDipWidth
+     * <li>GridSpacing
+     * <li>NumRows
+     * <li>NumCols
+     * <li>Number of locations on surface
+     * <p>Each of these elements are represented in Single line with tab("\t") delimitation.
+     * <br>Then follows the location of each point on the surface with the comment String
+     * defining how locations are represented.</p>
+     * <li>#Surface locations (Lat Lon Depth)
+     * <p>Then until surface locations are done each line is the point location on the surface.
+     *
+     * </ul>
+     * @return String
+     */
+    public String getSurfaceMetadata() {
+      String surfaceMetadata;
+      surfaceMetadata = (float)aveDip + "\t";
+      surfaceMetadata += (float)getSurfaceLength() + "\t";
+      surfaceMetadata += (float)getSurfaceWidth() + "\t";
+      surfaceMetadata += (float)getGridSpacing() + "\t";
+      surfaceMetadata += "1" + "\t";
+      surfaceMetadata += "1" + "\t";
+      surfaceMetadata += "1" + "\n";
+      surfaceMetadata += "#Surface locations (Lat Lon Depth) \n";
+      surfaceMetadata += (float) getLatitude() + "\t";
+      surfaceMetadata += (float) getLongitude() + "\t";
+      surfaceMetadata += (float) getDepth();
+
+      return surfaceMetadata;
     }
 
 }

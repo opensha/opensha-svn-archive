@@ -28,6 +28,9 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    */
   protected ProbEqkRupture probEqkRupture;
 
+  //index of the source as defined by the Earthquake Rupture Forecast
+  private int sourceIndex;
+
 
   /**
    * This boolean tells whether the source is Poissonian, which will influence the
@@ -58,6 +61,23 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
   public Iterator getRupturesIterator() {
    ArrayList v= getRuptureList();
    return v.iterator();
+  }
+
+
+  /**
+   * Returns the source index
+   * @return int
+   */
+  public int getSourceIndex() {
+    return sourceIndex;
+  }
+
+  /**
+   * Sets the source index for the source
+   * @param index int
+   */
+  public void setSourceIndex(int index){
+    sourceIndex = index;
   }
 
 
@@ -148,8 +168,35 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
    * @return
    */
   public String getInfo() {
-    return new String(this.info);
+    return info;
   }
+
+
+  /**
+   * Returns the Source Metadata.
+   * Source Metadata provides info. about the following :
+   * <ul>
+   * <li>source index - As defined in ERF
+   * <li>Num of Ruptures  in the given source
+   * <li>Is source poisson - true or false
+   * <li>Total Prob. of the source
+   * <li>Name of the source
+   * </ul>
+   * All this source info is represented as String in one line with each element
+   * seperated by a tab ("\t").
+   * @return String
+   */
+  public String getSourceMetadata() {
+    //source Metadata
+    String sourceMetadata;
+    sourceMetadata = sourceIndex+"\t";
+    sourceMetadata += getNumRuptures()+"\t";
+    sourceMetadata += isPoissonian+"\t";
+    sourceMetadata += (float)computeTotalProb()+"\t";
+    sourceMetadata += getName();
+    return sourceMetadata;
+  }
+
 
 
   /**

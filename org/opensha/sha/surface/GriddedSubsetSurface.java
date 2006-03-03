@@ -5,6 +5,7 @@ import org.opensha.exceptions.LocationException;
 import org.opensha.sha.fault.*;
 import org.opensha.data.Location;
 import org.opensha.data.*;
+import org.opensha.calc.RelativeLocation;
 
 /**
  * <b>Title:</b> GriddedSubsetSurface<p>
@@ -197,6 +198,15 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
       return locList;
     }
 
+    /**
+     * Returns the gridspacing between the first 2 locations on the surface
+     * @return double
+     */
+    public double getGridSpacing() {
+        Location loc1 = getLocation(0, 0);
+        Location loc2 = getLocation(0, 1);
+        return RelativeLocation.getHorzDistance(loc1,loc2);
+    }
 
 
 
@@ -320,5 +330,31 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      return Double.NaN;
 
     }
+
+    /**
+     * Returns the Surface Metadata with the following info:
+     * <ul>
+     * <li>AveDip
+     * <li>Surface length
+     * <li>Surface DownDipWidth
+     * <li>GridSpacing
+     * <li>NumRows
+     * <li>NumCols
+     * <li>Number of locations on surface
+     * <p>Each of these elements are represented in Single line with tab("\t") delimitation.
+     * <br>Then follows the location of each point on the surface with the comment String
+     * defining how locations are represented.</p>
+     * <li>#Surface locations (Lat Lon Depth)
+     * <p>Then until surface locations are done each line is the point location on the surface.
+     *
+     * </ul>
+     * @return String
+     */
+    public String getSurfaceMetadata() {
+      if(data instanceof EvenlyGriddedSurface)
+       return ((EvenlyGriddedSurface)data).getSurfaceMetadata();
+     return null;
+    }
+
 
 }
