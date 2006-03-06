@@ -163,14 +163,8 @@ public class ProbEqkRupture extends EqkRupture{
      ruptureMetadata += (float)mag + "\t";
      ruptureMetadata += (float)probability + "\t";
      ruptureMetadata += (float)aveRake + "\t";
-
-     if(ruptureSurface instanceof PointSurface){
-       Location loc= ruptureSurface.getLocation(0,0);
-       ruptureMetadata += (float)loc.getLatitude() + "\t";
-       ruptureMetadata += (float)loc.getLongitude() + "\t";
-       ruptureMetadata += (float)loc.getDepth() + "\t";
-     }
-     ruptureMetadata += srcName;
+     ruptureMetadata += (float)ruptureSurface.getAveDip()+"\t";
+     ruptureMetadata += "\""+srcName+"\"";
      return ruptureMetadata;
 
    }

@@ -373,22 +373,35 @@ public class ERF2RuptureForSTF_Generator {
     //locList.addLocation(new Location(34.019200, -118.28600)); //USC
     //locList.addLocation(new Location(34.148427 , -118.17119)); //PAS
     /*locList.addLocation(new Location(34.052041, -118.25713)); //LADT
-    locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
-    locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
-    locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
-    locList.addLocation(new Location(34.064986 , -117.29201));
-    locList.addLocation(new Location(34.336030 , -118.50862));
-    locList.addLocation(new Location(34.054884 , -118.41302));
-    locList.addLocation(new Location(34.009092 , -118.48939));*/
+         locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
+         locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
+         locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
+         locList.addLocation(new Location(34.064986 , -117.29201));
+         locList.addLocation(new Location(34.336030 , -118.50862));
+         locList.addLocation(new Location(34.054884 , -118.41302));
+         locList.addLocation(new Location(34.009092 , -118.48939));*/
+
+    //2nd set of sites for Cybershake
+    locList.addLocation(new Location(34.1977, -118.3566)); //Burbank Airport
+    locList.addLocation(new Location(34.2356, -118.5275)); //Northridge CSUN Campus
+    locList.addLocation(new Location(34.00742,-118.239326 )); //Vernon
+    locList.addLocation(new Location(33.957493,-118.22975)); //SouthGate
+    locList.addLocation(new Location(33.92221,-118.223104 )); //North Compton
+    locList.addLocation(new Location(33.866282,-118.211689 )); //Dominquez Hills
+    locList.addLocation(new Location(33.98750,-117.46211));//Pedley-1
+    locList.addLocation(new Location(34.39545,-118.0801));//Gleason Road
+    locList.addLocation(new Location(34.4202,-118.0967 ));//Aliso Canyon
+    locList.addLocation(new Location(34.5895,-117.8481 ));//Lovejoy Buttes
+
 
     ListIterator it = locList.listIterator();
-   /* FileWriter fw = null;
+    FileWriter fw = null;
     try {
-      fw = new FileWriter("SiteDistanceBounds.txt");
+      fw = new FileWriter("Sites_2_DistanceBounds_Cybershake.txt");
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
-    }*/
+    }
     while (it.hasNext()) {
       Location loc = (Location) it.next();
 
@@ -398,8 +411,8 @@ public class ERF2RuptureForSTF_Generator {
       ERF2RuptureForSTF_Generator calc = new ERF2RuptureForSTF_Generator(frankelForecast, site, 200.0);
 
       //calling the function to generate the rupture files with directory name.
-      calc.getEqkRupturesAsStringNearSite("Temp");
-      /*RectangularGeographicRegion region = null;
+      //calc.getEqkRupturesAsStringNearSite("Temp");
+      RectangularGeographicRegion region = null;
       try {
         region = calc.getSiteRegionBounds();
         double maxDepth = calc.getMaxDepthForRuptureInRegionBounds();
@@ -435,14 +448,14 @@ public class ERF2RuptureForSTF_Generator {
       }
       catch (IOException ex4) {
         ex4.printStackTrace() ;
-      }*/
+      }
     }
-    /*try {
+    try {
       fw.close();
     }
     catch (IOException ex3) {
       ex3.printStackTrace();
-    }*/
+    }
   }
 
   /**

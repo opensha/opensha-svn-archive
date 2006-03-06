@@ -193,7 +193,7 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
     sourceMetadata += getNumRuptures()+"\t";
     sourceMetadata += isPoissonian+"\t";
     sourceMetadata += (float)computeTotalProb()+"\t";
-    sourceMetadata += getName();
+    sourceMetadata += "\""+getName()+"\"";
     return sourceMetadata;
   }
 
