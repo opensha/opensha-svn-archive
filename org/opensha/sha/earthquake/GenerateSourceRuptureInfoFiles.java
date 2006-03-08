@@ -20,12 +20,8 @@ public class GenerateSourceRuptureInfoFiles {
 
 
 
-
-
-
   public GenerateSourceRuptureInfoFiles() {
     super();
-
   }
 
 
@@ -49,7 +45,9 @@ public class GenerateSourceRuptureInfoFiles {
    * @param forecast EqkRupForecast : Eqk Rup Forecast
    */
   public void createERF_MetadataFile(String directoryPath,EqkRupForecast forecast){
-    String forecastMetadata = forecast.adjustableParams.getParameterListMetadataString();
+
+    String forecastMetadata = "EqkRupForecast Name= "+forecast.getName()+"\n";
+    forecastMetadata += forecast.adjustableParams.getParameterListMetadataString();
     String timeSpanMetadata = forecast.getTimeSpan().getAdjustableParams().getParameterListMetadataString();
     FileWriter fw = null;
     try {
@@ -80,9 +78,9 @@ public class GenerateSourceRuptureInfoFiles {
       fw_rupture = new FileWriter(directoryPath+"/ruptureList.txt");
       int numSources = forecast.getNumSources();
       //System.out.println("NumSources ="+numSources);
-      fw.write("#Source-Index   NumRuptures    IsPoission    Total-Prob.   Src-Name\n");
-      fw_rupture.write(
-          "#Src-Index  Rup-Index  Mag  Prob.  Ave.Rake   Ave. dip   \"Source-Name\"\n");
+      //fw.write("#Source-Index   NumRuptures    IsPoission    Total-Prob.   Src-Name\n");
+      //fw_rupture.write(
+        //  "#Src-Index  Rup-Index  Mag  Prob.  Ave.Rake   Ave. dip   \"Source-Name\"\n");
       for(int i=0;i<numSources;++i){
         ProbEqkSource source = forecast.getSource(i);
         source.setSourceIndex(i);
@@ -138,9 +136,9 @@ public class GenerateSourceRuptureInfoFiles {
     FileWriter fw = null;
     try{
       fw = new FileWriter(sourceDir+"/"+rupture.getRuptureIndex()+".txt");
-      fw.write(
-          "#Ave-Dip  RupSurface-Length  Rup-DownDipWidth  GridSpacing "+
-         "NumRows   NumCols   NumPoints \n");
+     // fw.write(
+       //   "#Ave-Dip  RupSurface-Length  Rup-DownDipWidth  GridSpacing "+
+        // "NumRows   NumCols   NumPoints \n");
       fw.write(rupture.getRuptureSurface().getSurfaceMetadata());
       fw.close();
 
@@ -214,25 +212,16 @@ public class GenerateSourceRuptureInfoFiles {
           "otherwise it just write out the point surface locations of the rupture "+
           "in the \"ruptureList.txt\" file.");*/
 
-      fw.write(
-          "This file explains how source and rupture files have been structured.\n");
-     fw.write(
-         "It also tells user what information is contained in each file.\n");
-     fw.write(
-         "The program used to create these source rupture files takes the directory " +
-         "name as the command line input where all the source and ruptures file will " +
-         "be created, also referred to as root level directory. \nAt the same level as this Readme file, it has 3 other files:\n");
-     fw.write("1) ERF_Metadata.txt - This file contains the information about the  Earthquake Rupture Forecast (ERF), what were parameters value for which this ERF was instantiated.");
-     fw.write("2)sourceList.txt - This file contains information about each source in the Earthquake Rupture Forecast model. \n" +
-              "Each source information is contained in single line  in the file. \n" +
-              "Each line(tab delimited) with first line being the comment line contains following information:\n");
-     fw.write(
-         "\t\tSource-Index   NumRuptures    IsPoission    Total-Prob.   Src-Name.\n");
-     fw.write("3)ruptureList.txt - Rupture information for each source is listed in file named \"ruptureList.txt\".\n" +
-              "This rupture list file for each source contains the following information about each rupture defined on the given source :\n");
-     fw.write(
-         "\t\t#Src-Index  Rup-Index  Mag  Prob.  Ave.Rake  Ave. Dip  \"Source-Name\"\n\n");
-     fw.write("This file that contains \"#\" refers to comment line in the file that describes the contents of the file below that line.");
+      fw.write("This file explains the information contained in each of the other files here.\n"+
+               "1) ERF_Metadata.txt - The gives the name of the Earthquake Rupture Forecast (ERF) and "+
+               "how any adjustable parameters were set.\n"+
+               "2) sourceList.txt - This contains information about each source in the Earthquake Rupture Forecast.  "+
+               "After a header line, the info for each source is on a separate line as follows (tab delimited):\n\n"+
+               "\t\tSource-Index   NumRuptures    IsPoission    Total-Prob.   Src-Name. \n\n"+
+               "3) ruptureList.txt - This contains the following information for each rupture (tab delimited):\n"+
+               "\t\tSrc-Index  Rup-Index  Mag  Prob.  Ave.Rake  Ave. Dip  \"Source-Name\" \n\n"+
+              "We don't yet include the rupture surfaces because it is not yet clear how users want "+
+              "this represented (there are several options, most of which consume a great deal of disk space).\n");
      fw.close();
 
     }catch(IOException e){
@@ -248,7 +237,7 @@ public class GenerateSourceRuptureInfoFiles {
   public static void main(String[] args) {
     GenerateSourceRuptureInfoFiles generatesourceruptureinfofiles = new
         GenerateSourceRuptureInfoFiles();
-    String directoryPath = generatesourceruptureinfofiles.createDirectory("WGCEP_UCERF_30yrs");
+    String directoryPath = generatesourceruptureinfofiles.createDirectory("WGCEP_UCERF_5yrs");
     if(directoryPath !=null || !directoryPath.trim().equals("")){
       WGCEP_UCERF1_EqkRupForecast ucerf = null;
 
@@ -271,7 +260,7 @@ public class GenerateSourceRuptureInfoFiles {
           WGCEP_UCERF1_EqkRupForecast.RUP_OFFSET_PARAM_NAME).setValue(
               new Double(5.0));
 
-      ucerf.getTimeSpan().setDuration(30.0);
+      ucerf.getTimeSpan().setDuration(5.0);
       ucerf.updateForecast();
 
       generatesourceruptureinfofiles.createERF_MetadataFile(directoryPath,

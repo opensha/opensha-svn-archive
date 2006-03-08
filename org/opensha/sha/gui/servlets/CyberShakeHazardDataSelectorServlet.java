@@ -16,6 +16,7 @@ import org.opensha.sha.gui.beans.IMLorProbSelectorGuiBean;
 import org.opensha.param.ParameterList;
 import org.opensha.data.XYZ_DataSetAPI;
 import org.opensha.data.ArbDiscretizedXYZ_DataSet;
+import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.util.FileUtils;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.gui.servlets.*;
@@ -36,6 +37,7 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
 
   public static final String GET_SITES_AND_SA_PERIODS = "SA Period for Cybershake Sites";
   public static final String GET_HAZARD_DATA = "Read the CyberShake Hazard Data";
+  public static final String GET_DETERMINISTIC_DATA = "Read the deterministic data";
   public static final String CYBERSHAKE_HAZARD_DATASET = "/opt/install/jakarta-tomcat-4.1.24/webapps/OpenSHA/CyberShake/";
   private static final String hazardDataFilesStartString = "hazcurve_";
 
@@ -58,12 +60,26 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
       else if(functionDesired.equalsIgnoreCase(GET_HAZARD_DATA)) {
         String siteName = (String)inputFromApplet.readObject();
         String saPeriod = (String)inputFromApplet.readObject();
-        ArrayList fileData = readHazardDataSet(siteName,saPeriod);
+        DiscretizedFuncAPI fileData = readHazardDataSet(siteName,saPeriod);
         ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
         // report to the user whether the operation was successful or not
         // get an ouput stream from the applet
         outputToApplet.writeObject(fileData);
         outputToApplet.close();
+      }
+      else if(functionDesired.equalsIgnoreCase(GET_DETERMINISTIC_DATA)){
+        String siteName = (String)inputFromApplet.readObject();
+        String saPeriod = (String)inputFromApplet.readObject();
+        Double srcIndex = (Double)inputFromApplet.readObject();
+        Double rupIndex = (Double)inputFromApplet.readObject();
+
+        DiscretizedFuncAPI fileData = readDeterministicDataSet(siteName,saPeriod,srcIndex,rupIndex);
+        ObjectOutputStream outputToApplet = new ObjectOutputStream(response.getOutputStream());
+        // report to the user whether the operation was successful or not
+        // get an ouput stream from the applet
+        outputToApplet.writeObject(fileData);
+        outputToApplet.close();
+
       }
     }catch(Exception e) {
       e.printStackTrace();
@@ -84,10 +100,11 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
    * @param saPeriod String SA period for which hazard data needs to be read.
    * @return ArrayList
    */
-  public ArrayList readHazardDataSet(String siteName,String saPeriod){
+  public DiscretizedFuncAPI readHazardDataSet(String siteName,String saPeriod){
     String saPeriodFile = hazardDataFilesStartString+saPeriod;
     String fileToRead = this.CYBERSHAKE_HAZARD_DATASET+siteName+"/"+saPeriodFile;
     ArrayList fileLines = null;
+    DiscretizedFuncAPI func = null;
     try {
       fileLines = FileUtils.loadFile(fileToRead);
     }
@@ -97,7 +114,29 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
     catch (IOException ex) {
       ex.printStackTrace();
     }
-    return fileLines;
+    func = new ArbitrarilyDiscretizedFunc();
+    int size = fileLines.size();
+    for(int i=0;i<size;++i){
+      StringTokenizer st = new StringTokenizer((String)fileLines.get(i));
+      func.set(Double.parseDouble(st.nextToken()),Double.parseDouble(st.nextToken()));
+    }
+    return func;
+  }
+
+
+  /**
+   * This method reads the seismogram files for each rupture with all variations
+   * computed in Cybershake and returns the curve data for it.
+   * @param siteName String Site Name
+   * @param saPeriod String SA Period
+   * @param srcIndex Double Src Index
+   * @param rupIndex Double Rup Index
+   * @return ArrayList of data read from seismogram file.
+   */
+
+  public DiscretizedFuncAPI readDeterministicDataSet(String siteName,String saPeriod,
+                                            Double srcIndex,Double rupIndex){
+    return null;
   }
 
 
