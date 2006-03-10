@@ -21,13 +21,17 @@ import java.text.DecimalFormat;
  */
 
 public class PrepareTreeStructure {
-  private final static double FAULT_JUMP_CUTOFF_DIST = 6;
+  private final static double FAULT_JUMP_CUTOFF_DIST = 10;
   private final static int DISCRETIZATION=5; // fault section discretization
   private final static Location LOCATION = new Location(31.5, -115.0);
   private final static DecimalFormat decimalFormat = new DecimalFormat("0.00###");
 
   public final static String DEFAULT_FAULT_SECTIONS_OUT_FILENAME = "javaDevelopers/vipin/FaultSections.txt";
   public final static String DEFAULT_RUP_OUT_FILENAME = "javaDevelopers/vipin/Ruptures_Allkm.txt";
+  public final static String NEARBY_SECTIONS_FILENAME1="NearbySections1.txt";
+  public final static String NEARBY_SECTIONS_FILENAME2="NearbySections2.txt";
+  private FileWriter fwNearBySections1, fwNearBySections2;
+  private ArrayList doneSections = new ArrayList();
   public String rupOutFilename = DEFAULT_RUP_OUT_FILENAME;
   public String faultSectionsOutFilename = DEFAULT_FAULT_SECTIONS_OUT_FILENAME;
   private HashMap faultTree ;
@@ -49,6 +53,8 @@ public class PrepareTreeStructure {
 
   public void doProcessing()  {
     try {
+      fwNearBySections1 = new FileWriter(NEARBY_SECTIONS_FILENAME1);
+      fwNearBySections2 = new FileWriter(NEARBY_SECTIONS_FILENAME2);
       rupList = new ArrayList();
       faultSectionPrintOrder = new ArrayList();
       FaultSections faultSections;
@@ -70,6 +76,8 @@ public class PrepareTreeStructure {
         writeFaultSectionsToFile(fw, faultTraceMapping);
         fw.close();
       }
+      fwNearBySections1.close();
+      fwNearBySections2.close();
     }catch(Exception e) {
       e.printStackTrace();
     }
@@ -231,10 +239,49 @@ public class PrepareTreeStructure {
     // add the links to nearby fault sections
     addSecondaryLinks(faultSectionName, new ArrayList());
     // get all the ruptures
-    getRuptures(faultSectionName);
+    //getRuptures(faultSectionName);
+    Node node = (Node) faultTree.get(faultSectionName);
+    try {
+      double dist;
+      while (node != null) { // print the nearby Sections
+        ArrayList secLinks = node.getSecondaryLinks();
+        for (int i = 0; secLinks != null && i < secLinks.size(); ++i) {
+          Node secNode = (Node) secLinks.get(i);
+          if(secNode.getFaultSectionName().equalsIgnoreCase(node.getFaultSectionName()))
+            continue;
+          // remove duplicates
+          if(doneSections.contains(secNode.getFaultSectionName()+"_"+node.getFaultSectionName()))
+             continue;
+          // needed to remove duplicates
+          doneSections.add(node.getFaultSectionName()+"_"+secNode.getFaultSectionName());
+          // write nearby sections in 2 different file formats
+          dist = RelativeLocation.getApproxHorzDistance(node.
+                                 getLoc(), secNode.getLoc()) ;
+          fwNearBySections1.write(node.getFaultSectionName() + "\t" +
+                                 getLocationAsString(node.getLoc())+"\t"+
+                                 secNode.getFaultSectionName() + "\t" +
+                                 getLocationAsString(secNode.getLoc())+"\t"+
+                                 dist + "\n");
+          fwNearBySections2.write("#\""+node.getFaultSectionName()+"\"\t\""+
+                                  secNode.getFaultSectionName()+"\"\t"+
+                                  dist+"\n");
+          fwNearBySections2.write(getLocationAsString(node.getLoc())+"\n");
+          fwNearBySections2.write(getLocationAsString(secNode.getLoc())+"\n");
+        }
+        node = node.getPrimaryLink();
+      }
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+
     // remove the secondary links
     removeSecondaryLinks();
   }
+
+  private String getLocationAsString(Location loc) {
+    return loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth();
+  }
+
 
 
 
@@ -291,29 +338,34 @@ public class PrepareTreeStructure {
    */
   private void addSecondaryLinks(String faultSectionName, ArrayList secondaryLinksDoneSections) {
     HashMap sectionNearestNodeMap = new HashMap();
-    if(secondaryLinksDoneSections.contains(faultSectionName)) return;
+    if (secondaryLinksDoneSections.contains(faultSectionName))
+      return;
     secondaryLinksDoneSections.add(faultSectionName);
     Node node = (Node) faultTree.get(faultSectionName);
     Node prevNode = null;
-    // first find the nearby sections
-    while (node != null) { // loop over all locations on this fault section
-      // add a link to the previous location as well to make a bi-directional tree
-      if(prevNode!=null) node.addSecondayLink(prevNode);
-     /* get a list of section names and their distance near this location.
-     Only include sections which are within FAULT_JUMP_CUTOFF_DIST of the location*/
-      HashMap sectionNameAndDist = getAdjacentFaultSectionNode(node);
-      // If same section is near to more than 1 node, then find the nearest node
-      compareSectionsWithPreviousNodes(sectionNearestNodeMap, sectionNameAndDist);
-      // next location on this fault section
+    // add a link to the previous location as well to make a bi-directional tree
+    while(node!=null) {
+      if (prevNode != null) node.addSecondayLink(prevNode);
       prevNode = node;
       node = node.getPrimaryLink();
+    }
+    node = (Node) faultTree.get(faultSectionName);
+    Iterator it = faultTree.keySet().iterator();
+    // loop over every fault section and find nearest point to that section
+    while(it.hasNext()) {
+      String sectionName = (String)it.next();
+      if(sectionName.equalsIgnoreCase(faultSectionName)) continue;
+      Node locationNode = (Node)this.faultTree.get(sectionName);
+      SectionNodeDist sectionNodeDist = getAdjacentFaultSectionNode(node, locationNode);
+      if(sectionNodeDist!=null) sectionNearestNodeMap.put(sectionName, sectionNodeDist);
     }
     // add links to nearby section
     Iterator sectionNearestNodeMapIt= sectionNearestNodeMap.keySet().iterator();
     while(sectionNearestNodeMapIt.hasNext()) {
       String sectionName = (String)sectionNearestNodeMapIt.next();
-      if(secondaryLinksDoneSections.contains(sectionName)) continue;
-      addSecondaryLinks(sectionName, secondaryLinksDoneSections);
+      if(!secondaryLinksDoneSections.contains(sectionName)) {
+        addSecondaryLinks(sectionName, secondaryLinksDoneSections);
+      }
       SectionNodeDist sectionNodeDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
       sectionNodeDist.getNode().addSecondayLink(sectionNodeDist.getSectionNode());
     }
@@ -424,27 +476,6 @@ public class PrepareTreeStructure {
     }
   }
 
-  /**
-   * If same section is near more than 1 node, then find the nearest node
-   *
-   * @param sectionNearestNodeMap
-   * @param sectionNameAndDist
-   */
-  private void compareSectionsWithPreviousNodes(HashMap sectionNearestNodeMap,
-                                                HashMap sectionNameAndDist) {
-    Iterator sectionNameDistIt = sectionNameAndDist.keySet().iterator();
-    while(sectionNameDistIt.hasNext()) {
-      String sectionName = (String)sectionNameDistIt.next();
-      SectionNodeDist currentNodeSectionDist = (SectionNodeDist)sectionNameAndDist.get(sectionName);
-      if(!sectionNearestNodeMap.containsKey(sectionName))
-        sectionNearestNodeMap.put(sectionName, currentNodeSectionDist);
-      else {
-        SectionNodeDist previousNodeSectionDist = (SectionNodeDist)sectionNearestNodeMap.get(sectionName);
-        if(previousNodeSectionDist.getDistance()>currentNodeSectionDist.getDistance())
-          sectionNearestNodeMap.put(sectionName, currentNodeSectionDist);
-      }
-    }
-  }
 
 
   /**
@@ -454,30 +485,28 @@ public class PrepareTreeStructure {
    * @param interFaultCutOffDistance
    * @param adjacentFaultNames
    */
-  private HashMap getAdjacentFaultSectionNode(Node node) {
+  private SectionNodeDist getAdjacentFaultSectionNode(Node node1, Node node2) {
     Iterator it = faultTree.keySet().iterator();
     HashMap adjacentSectionsAndDist = new HashMap();
-    while(it.hasNext()) {
-      String sectionName = (String)it.next();
-      if(sectionName.equalsIgnoreCase(node.getFaultSectionName())) continue;
-      Node locationNode = (Node)this.faultTree.get(sectionName);
-      double minDist= Double.MAX_VALUE;
-      Node minNode = null;
-      // loop over all locations of this section to find nearest location
-      while(locationNode!=null) {
-        double currDistance = RelativeLocation.getApproxHorzDistance(node.getLoc(), locationNode.getLoc());
+    double minDist= Double.MAX_VALUE;
+    Node minNode1 = null, minNode2 = null;
+    while(node1!=null) {
+      Node n = node2;
+      while(n!=null) {
+        double currDistance = RelativeLocation.getApproxHorzDistance(node1.getLoc(), n.getLoc());
         if(currDistance<=FAULT_JUMP_CUTOFF_DIST && currDistance<minDist) {
           minDist = currDistance;
-          minNode = locationNode;
+          minNode1 = node1;
+          minNode2 = n;
         }
-        locationNode = locationNode.getPrimaryLink();
+        n = n.getPrimaryLink();
       }
-      // if there is atleast on location on this section which is near, then put it in hashmap
-      if(minDist<Double.MAX_VALUE) {
-        adjacentSectionsAndDist.put(sectionName,  new SectionNodeDist(sectionName, minNode, node, minDist));
-      }
+      node1 = node1.getPrimaryLink();
     }
-    return adjacentSectionsAndDist;
+    if(minDist<Double.MAX_VALUE) {
+      return new SectionNodeDist(minNode2.getFaultSectionName(), minNode2, minNode1, minDist);
+    }
+    return null;
   }
 
 

@@ -6,6 +6,9 @@ import org.opensha.data.LocationList;
 import java.util.StringTokenizer;
 import org.opensha.util.FileUtils;
 import java.util.ArrayList;
+import java.io.FileWriter;
+import org.opensha.exceptions.*;
+import java.io.*;
 
 /**
  * <p>Title: FaultSections.java </p>
@@ -21,7 +24,8 @@ public class FaultSections {
   private final static String INPUT_FILE_NAME2 = "javaDevelopers/ned/NSHMP02_CA_Traces_RV.txt";
   private final static String INPUT_FILE_NAME3 = "javaDevelopers/ned/NSHMP02_CA_Traces_SS.txt";
   private HashMap faultTraceMapping; // fault section and their correpsonding traces
-  private final static double LAT_CUTOFF = 34.0; // any fault section have a location above this CUTOFF is neglected
+  private final static double LAT_CUTOFF = 45.0; // any fault section have a location above this CUTOFF is neglected
+  private FileWriter fw;
 
   // load the fault sections from files
   public FaultSections() {
@@ -30,10 +34,16 @@ public class FaultSections {
   }
 
   public FaultSections(String fileName1, String fileName2, String fileName3) {
-    faultTraceMapping = new HashMap();
-    loadFaultSections(fileName1, faultTraceMapping);
-    loadFaultSections(fileName2, faultTraceMapping);
-    loadFaultSections(fileName3, faultTraceMapping);
+    try {
+      fw = new FileWriter("FaultSectionEndPoints.txt");
+      faultTraceMapping = new HashMap();
+      loadFaultSections(fileName1, faultTraceMapping);
+      loadFaultSections(fileName2, faultTraceMapping);
+      loadFaultSections(fileName3, faultTraceMapping);
+      fw.close();
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -48,32 +58,55 @@ public class FaultSections {
     }catch(Exception e) {
       e.printStackTrace();
     }
-    // parse the fault section file to load the fault trace locations in LocationList
-    String faultName=null;
-    double lon, lat, depth;
-    LocationList locList=null;
-    boolean lowerThanCutoff = true;
-    for(int i=0; i<fileLines.size(); ++i) {
-      String line = ((String)fileLines.get(i)).trim();
-      if(line.equalsIgnoreCase("")) continue;
-      if(line.startsWith("#")) { // if it is new fault name
-        if(faultName!=null && lowerThanCutoff) faultMap.put(faultName, locList);
-        faultName = line.substring(1);
-        locList = new LocationList();
-        lowerThanCutoff = true;
-      }
-      else { // fault trace location on current fault
-        StringTokenizer tokenizer = new StringTokenizer(line);
-        lon = Double.parseDouble(tokenizer.nextToken());
-        lat = Double.parseDouble(tokenizer.nextToken());
-        if(lat>this.LAT_CUTOFF) lowerThanCutoff = false;
-        depth = Double.parseDouble(tokenizer.nextToken());
-        locList.addLocation(new Location(lat, lon, depth));
-      }
-    }
-    if(lowerThanCutoff)
-      faultMap.put(faultName, locList);
+    try {
 
+      // parse the fault section file to load the fault trace locations in LocationList
+      String faultName = null;
+      double lon, lat, depth;
+      LocationList locList = null;
+      boolean lowerThanCutoff = true;
+      for (int i = 0; i < fileLines.size(); ++i) {
+        String line = ( (String) fileLines.get(i)).trim();
+        if (line.equalsIgnoreCase(""))
+          continue;
+        if (line.startsWith("#")) { // if it is new fault name
+          if (faultName != null && lowerThanCutoff) {
+            saveSection(faultMap,  faultName, locList);
+          }
+          faultName = line.substring(1);
+          locList = new LocationList();
+          lowerThanCutoff = true;
+        }
+        else { // fault trace location on current fault
+          StringTokenizer tokenizer = new StringTokenizer(line);
+          lon = Double.parseDouble(tokenizer.nextToken());
+          lat = Double.parseDouble(tokenizer.nextToken());
+          if (lat > this.LAT_CUTOFF)
+            lowerThanCutoff = false;
+          depth = Double.parseDouble(tokenizer.nextToken());
+          locList.addLocation(new Location(lat, lon, depth));
+        }
+      }
+
+      if (lowerThanCutoff) {
+        saveSection(faultMap,  faultName, locList);
+      }
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void saveSection(HashMap faultMap,  String faultName,
+                           LocationList locList) throws InvalidRangeException,
+      IOException {
+    faultMap.put(faultName, locList);
+    fw.write("#" + faultName + "\n");
+    fw.write(getLocationAsString(locList.getLocationAt(0)) + "\n");
+    fw.write(getLocationAsString(locList.getLocationAt(locList.size() - 1)) + "\n");
+  }
+
+  private String getLocationAsString(Location loc) {
+    return loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+loc.getDepth();
   }
 
 

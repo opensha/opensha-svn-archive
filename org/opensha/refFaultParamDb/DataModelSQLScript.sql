@@ -259,8 +259,9 @@ CREATE TABLE Fault_Section (
   Name VARCHAR(255) NOT NULL,
   Entry_Date date NOT NULL,
   Comments VARCHAR(1000) NULL,
-  Fault_Trace VARCHAR(255) NOT NULL,
-  Aseismic_Slip_Factor_Est INTEGER  NOT NULL,
+  Fault_Section_Trace VARCHAR(255) NOT NULL,
+  Dip_Direction NUMBER(9,3) NOT NULL,
+  Average_Aseismic_Slip_Est INTEGER  NOT NULL,
   PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
   FOREIGN KEY(Section_Source_Id)
     REFERENCES Section_Source(Section_Source_Id) ON DELETE CASCADE,

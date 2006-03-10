@@ -21,24 +21,27 @@ import org.opensha.data.Location;
 
 public class Read2002FaultSections {
   private FaultSection2002DB_DAO faultSection2002DAO = new FaultSection2002DB_DAO(DB_AccessAPI.dbConnection);
-  private final static String OUT_FILENAME = "FaultSections2002.txt";
-  private final static String DIP_FILENAME = "DipForFaultSections2002.txt";
+  private final static String SECTION_TRACE_OUT_FILENAME = "FaultSections_Trace2002.txt";
+  private final static String SECTION_NAMES_FILENAME="FaultSections_Name2002.txt";
+  //private final static String DIP_FILENAME = "DipForFaultSections2002.txt";
   public Read2002FaultSections() {
     ArrayList faultSections  = faultSection2002DAO.getAllFaultSections();
     try {
-      FileWriter fw = new FileWriter(OUT_FILENAME);
-      FileWriter fwDip = new FileWriter(DIP_FILENAME);
+      FileWriter fwTrace = new FileWriter(SECTION_TRACE_OUT_FILENAME);
+      FileWriter fwNames = new FileWriter(SECTION_NAMES_FILENAME);
+      //FileWriter fwDip = new FileWriter(DIP_FILENAME);
       for (int i = 0; i < faultSections.size(); ++i) {
         FaultSection2002 faultSection = (FaultSection2002) faultSections.get(i);
-       fw.write("#"+faultSection.getSectionName()+"\n");
+        fwTrace.write("#"+faultSection.getSectionName()+"\n");
+        fwNames.write("#"+faultSection.getSectionName()+"\n");
         FaultTrace faultTrace = faultSection.getFaultTrace();
         int numFaultTraceLocations = faultTrace.getNumLocations();
         double upperSeisDepth = faultSection.getAveUpperSeisDepth();
         for(int j=0; j<numFaultTraceLocations; ++j) {
           Location loc = faultTrace.getLocationAt(j);
-          fw.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+upperSeisDepth+"\n");
+          fwTrace.write(loc.getLongitude()+"\t"+loc.getLatitude()+"\t"+upperSeisDepth+"\n");
         }
-        fwDip.write(faultSection.getSectionName()+","+faultSection.getAveDip()+"\n");
+       // fwDip.write(faultSection.getSectionName()+","+faultSection.getAveDip()+"\n");
 /*
         fw.write("Section Name=" + faultSection.getSectionName() + "\n");
         fw.write("\tFaultId=" + faultSection.getFaultId() +
@@ -55,8 +58,9 @@ public class Read2002FaultSections {
         fw.write("\tFault Trace=" + faultSection.getFaultTrace().toString() +
                  "\n\n\n");*/
       }
-      fw.close();
-      fwDip.close();
+      fwTrace.close();
+      fwNames.close();
+     // fwDip.close();
     }catch(Exception e) {
       e.printStackTrace();
     }
