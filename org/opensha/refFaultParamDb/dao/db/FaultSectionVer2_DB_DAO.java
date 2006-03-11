@@ -36,11 +36,14 @@ public class FaultSectionVer2_DB_DAO {
   private final static String FAULT_TRACE = "Fault_Trace";
   private final static String ASEISMIC_SLIP_FACTOR_EST = "Aseismic_Slip_Factor_Est";
   private final static String DIP_DIRECTION = "Dip_Direction";
+  private final static String SECTION_SOURCE_ID = "Section_Source_Id";
   private DB_AccessAPI dbAccess;
    // estimate instance DAO
    private EstimateInstancesDB_DAO estimateInstancesDAO;
    // fault DAO
    private FaultDB_DAO faultDAO;
+   //section source DAO
+   private SectionSourceDB_DAO sectionSourceDAO;
    // SRID
    private final static int SRID=8307;
 
@@ -56,6 +59,7 @@ public class FaultSectionVer2_DB_DAO {
     this.dbAccess = dbAccess;
     estimateInstancesDAO = new EstimateInstancesDB_DAO(dbAccess);
     faultDAO = new FaultDB_DAO(dbAccess);
+    sectionSourceDAO = new SectionSourceDB_DAO(dbAccess);
   }
 
   /**
@@ -87,7 +91,7 @@ public class FaultSectionVer2_DB_DAO {
     int aveUpperDepthEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveUpperDepthEst());
     int aveLowerDepthEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveLowerDepthEst());
     int aseismicSlipFactorEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAseismicSlipFactorEst());
-
+    int sectionSourceId = this.sectionSourceDAO.getSectionSource(faultSection.getSource()).getSourceId();
     // insert the fault section into the database
     ArrayList geomteryObjectList = new ArrayList();
     geomteryObjectList.add(faultSectionTraceGeom);
@@ -95,12 +99,14 @@ public class FaultSectionVer2_DB_DAO {
         AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+
         AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+AVE_LOWER_DEPTH_EST+","+
         CONTRIBUTOR_ID+","+SECTION_NAME+","+ENTRY_DATE+","+COMMENTS+","+
-        FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+","+DIP_DIRECTION+") values ("+
+        FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+","+DIP_DIRECTION+","+
+        SECTION_SOURCE_ID+") values ("+
         faultSectionId+","+faultId+","+aveLongTermSlipRateEstId+","+
         aveDipEst+","+aveRakeEst+","+aveUpperDepthEst+","+aveLowerDepthEst+","+
         SessionInfo.getContributor().getId()+",'"+faultSection.getSectionName()+"','"+
         systemDate+"','"+faultSection.getComments()+"',?,"+
-        aseismicSlipFactorEst+","+faultSection.getDipDirection()+")";
+        aseismicSlipFactorEst+","+faultSection.getDipDirection()+","+
+        sectionSourceId+")";
     try {
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
       return faultSectionId;

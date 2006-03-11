@@ -23,6 +23,7 @@ public class FaultSectionVer2 {
   private EstimateInstances aveLowerDepthEst;
   private EstimateInstances aseismicSlipFactorEst;
   private String entryDate;
+  private String source;
   private String comments="";
   private FaultTrace faultTrace;
   private float dipDirection;
@@ -108,6 +109,12 @@ public class FaultSectionVer2 {
   }
   public void setAseismicSlipFactorEst(EstimateInstances aseismicSlipFactorEst) {
     this.aseismicSlipFactorEst = aseismicSlipFactorEst;
+  }
+  public String getSource() {
+    return source;
+  }
+  public void setSource(String source) {
+    this.source = source;
   }
 
 }

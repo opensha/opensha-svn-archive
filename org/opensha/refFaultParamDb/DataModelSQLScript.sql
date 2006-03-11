@@ -221,28 +221,9 @@ CREATE TABLE Min_Max_Pref_Est (
 
 CREATE TABLE Section_Source (
   Section_Source_Id INTEGER NOT NULL,
-  Contributor_Id INTEGER NOT NULL,
   Section_Source_Name VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY(Section_Source_Id),
-  FOREIGN KEY(Contributor_Id)
-     REFERENCES Contributors(Contributor_Id) ON DELETE CASCADE
 );
-
-
-create sequence Section_Source_Sequence
-start with 1
-increment by 1
-nomaxvalue;
-
-create trigger Section_Source_Trigger
-before insert on Section_Source 
-for each row
-begin
-if :new.Section_Source_Id  is null then
-select  Section_Source_Sequence.nextval into :new.Section_Source_Id  from dual;
-end if;
-end;
-/
 
 
 
@@ -280,6 +261,22 @@ CREATE TABLE Fault_Section (
   FOREIGN KEY(Aseismic_Slip_Factor_Est)
      REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
+
+create sequence Fault_Section_Sequence
+start with 1
+increment by 1
+nomaxvalue;
+
+create trigger Fault_Section_Trigger
+before insert on Fault_Section 
+for each row
+begin
+if :new.Section_Id  is null then
+select  Fault_Section_Sequence.nextval into :new.Section_Id  from dual;
+end if;
+end;
+/
+
 
 
 CREATE TABLE Fault_Model (
@@ -721,6 +718,8 @@ insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'U
 insert into Time_Type values (1, 'Exact Time', sysdate);
 insert into Time_Type values (2, 'Time Estimate', sysdate);
 
+insert into Section_Source values (1, 'CFM');
+insert into Section_Source values (2, '2002');
 
 
 INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference, QFault_Reference_Id)
