@@ -71,12 +71,19 @@ public class PutFaultSectionsIntoDatabase {
     // fault section name
     faultSection.setSectionName(line.substring(1, index));
     System.out.println(faultSection.getSectionName());
-    StringTokenizer tokenizer = new StringTokenizer(line.substring(index+2),",");
+    String line2 = line.substring(index+2);
+    index = line2.indexOf("\",\"");
+    //System.out.println(line2);
+    //System.out.println(index);
+
     //used only when 2 incompatible models exist, lists which model includes this fault
-    String model = removeQuotes(tokenizer.nextToken().trim());
+    String model = removeQuotes(line2.substring(0, index+1));
+    //System.out.println(model);
+    //System.exit(0);
     if(!model.equalsIgnoreCase("")) {
       comments = comments + "Model="+model+"\n";
     }
+    StringTokenizer tokenizer = new StringTokenizer(line2.substring(index+2),",");
     //2002 or CFM
     faultSection.setSource(removeQuotes(tokenizer.nextToken().trim()));
     //from 2002 model, text representation of rake, blank if not available
