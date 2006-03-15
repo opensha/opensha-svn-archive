@@ -10,6 +10,12 @@ import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.data.estimate.NormalEstimate;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.data.estimate.DiscreteValueEstimate;
+import org.opensha.sha.fault.FaultTrace;
+import org.opensha.data.Location;
+import org.opensha.refFaultParamDb.dao.db.FaultSectionVer2_DB_DAO;
+import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
+import java.io.FileWriter;
+import org.opensha.calc.RelativeLocation;
 
 /**
  * <p>Title: PutFaultSectionsIntoDatabase.java </p>
@@ -35,6 +41,29 @@ public class PutFaultSectionsIntoDatabase {
   private final static String RAKE_UNITS = "degrees";
   private final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";
 
+  // default values for missing fields
+  private final static double DEFAULT_AVE_RAKE = 0;
+  private final static double DEFAULT_AVE_SLIP_RATE=0;
+  private final static double DEFAULT_AVE_SLIP_UNCERT=0;
+  private final static double DEFAULT_AVE_DIP_EST=0;
+  private final static double DEFAULT_UPPER_DEPTH=0;
+  private final static double DEFAULT_LOWER_DEPTH=0;
+
+  // Strings that mark the start and end of each fault trace in the file
+  private final static String PLINE = "Pline";
+  private final static String  PEN = "Pen";
+
+  // fault section trace file
+  private ArrayList faultSectionTraceLines;
+  private int nextTraceStartIndex=0;
+
+  // DAO to put fault sections to database
+  private FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
+
+  // filename to compare the dips
+  private final static String DIP_FILENAME = "DipComparisons.txt";
+  private FileWriter fwDip;
+
   /**
    * Put fault sections into the database
    */
@@ -42,19 +71,69 @@ public class PutFaultSectionsIntoDatabase {
     try {
       ArrayList fileLines1 = FileUtils.loadFile(INPUT_FILE1);
       ArrayList faultSectionsList = new ArrayList();
-      // load all the fault sections
+      // load fault trace
+      faultSectionTraceLines = FileUtils.loadFile(INPUT_FILE2);
+
+      fwDip = new FileWriter(this.DIP_FILENAME);
+      // load all the fault sections and their properties (except Fault Trace)
       for(int i=0; i<fileLines1.size(); ++i) {
         try {
-          faultSectionsList.add(getFaultSection( (String) fileLines1.get(i)));
+          FaultTrace faultSectionTrace = getNextTrace("temp");
+          FaultSectionVer2 faultSection = getFaultSection( (String) fileLines1.get(i));
+          faultSectionTrace.setName(faultSection.getSectionName());
+          faultSectionsList.add(faultSection);
+          faultSection.setFaultTrace(faultSectionTrace);
+          double dipDirection = 90+RelativeLocation.getDirection(faultSectionTrace.getLocationAt(0),
+              faultSectionTrace.getLocationAt(faultSectionTrace.getNumLocations()-1)).getAzimuth();
+          if(dipDirection<0) dipDirection+=360;
+          else if(dipDirection>360) dipDirection-=360;
+          fwDip.write(dipDirection+"\n");
+          // add fault section to the database
+          //faultSectionDAO.addFaultSection(faultSection);
         }catch(Exception e) {
-          System.out.println("Problem "+ e.getMessage());
+          e.printStackTrace();
+          //System.exit(0);
+          //System.out.println("Problem "+ e.getMessage());
         }
       }
-      ArrayList fileLines2 = FileUtils.loadFile(INPUT_FILE2);
-
+      fwDip.close();
+      fileLines1 = null;
+      faultSectionTraceLines = null;
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Get next fault trace from the file
+   * @param fileLines ArrayList
+   * @param startIndex int
+   * @return FaultTrace
+   */
+  private FaultTrace getNextTrace(String faultSectionName) {
+    boolean found = false;
+    double lat=0, lon;
+    FaultTrace sectionTrace = new FaultTrace(faultSectionName);
+    for(; !found ;++nextTraceStartIndex) {
+      String line = ((String)faultSectionTraceLines.get(nextTraceStartIndex)).trim();
+      if(line.startsWith(PLINE)) {
+        found = true;
+        String locString = ((String)faultSectionTraceLines.get(++nextTraceStartIndex)).trim();
+        while(!locString.startsWith(PEN)) {
+          StringTokenizer tokenizer = new StringTokenizer(locString);
+          lon = Double.parseDouble(tokenizer.nextToken());
+          try {
+            lat = Double.parseDouble(tokenizer.nextToken());
+          }catch(Exception e) {
+            System.out.println(locString);
+            //System.exit(0);
+          }
+          sectionTrace.addLocation(new Location(lat,lon));
+          locString = ((String)faultSectionTraceLines.get(++nextTraceStartIndex)).trim();
+        }
+      }
+    }
+    return sectionTrace;
   }
 
 
@@ -92,19 +171,49 @@ public class PutFaultSectionsIntoDatabase {
       comments = comments+"FaultType="+faultType+"\n";
     }
     //converted from sense of movement field in 2002 model using Aki and Richards convention, blank if not available
-    faultSection.setAveRakeEst(this.getMinMaxPrefEstimateInstance(removeQuotes(tokenizer.nextToken().trim()), this.RAKE_UNITS));
+    String rake = tokenizer.nextToken().trim();
+    // set rake to default if it is not present
+    if(rake.equalsIgnoreCase("") || rake.equalsIgnoreCase("\"\"")) {
+      System.out.println("Default rake set for "+faultSection.getSectionName());
+      rake = "\"" + this.DEFAULT_AVE_RAKE+"\"";
+    }
+    faultSection.setAveRakeEst(this.getMinMaxPrefEstimateInstance(
+          removeQuotes(rake), this.RAKE_UNITS));
+
+
+
     //from CFM when available, 2002 if not, average of dips of "panels" in CFM-R
-    faultSection.setAveDipEst(this.getMinMaxPrefEstimateInstance(removeQuotes(tokenizer.nextToken().trim()), this.DIP_UNITS));
+    String dip = removeQuotes(tokenizer.nextToken().trim());
+    if(dip.equalsIgnoreCase("")) {
+      System.out.println("Default Dip set for "+faultSection.getSectionName());
+      dip = "" + this.DEFAULT_AVE_DIP_EST;
+    }
+    faultSection.setAveDipEst(this.getMinMaxPrefEstimateInstance(dip, this.DIP_UNITS));
+
     // from CFM when available, 2002 if not
     String dipDirection = removeQuotes(tokenizer.nextToken().trim());
     if(!dipDirection.equalsIgnoreCase("")) {
       comments = comments+"Dip Direction="+dipDirection+"\n";
     }
-
+    try {
+      fwDip.write(faultSection.getSectionName() + ";" + dip+";"+dipDirection + ";");
+    }catch(Exception e) {
+      e.printStackTrace();
+    }
     //from 2002 model, blank if not available
     String slipRate = removeQuotes(tokenizer.nextToken().trim());
+    if(slipRate.equalsIgnoreCase(""))  {
+      System.out.println("Default slip rate set for "+faultSection.getSectionName());
+      slipRate = "" + this.DEFAULT_AVE_SLIP_RATE;
+    }
+
     //from 2002 model, blank if not available
     String slipRateUncert = removeQuotes(tokenizer.nextToken().trim());
+    if(slipRateUncert.equalsIgnoreCase("")) {
+      System.out.println("Default slip rate Uncertainity set for "+faultSection.getSectionName());
+      slipRateUncert = "" + this.DEFAULT_AVE_SLIP_UNCERT;
+    }
+
     Estimate slipRateEst = new NormalEstimate(Double.parseDouble(slipRate),
         Double.parseDouble(slipRateUncert));
     faultSection.setAveLongTermSlipRateEst(new EstimateInstances(slipRateEst, this.SLIP_RATE_UNITS));
@@ -115,9 +224,21 @@ public class PutFaultSectionsIntoDatabase {
       comments=comments+"Rank="+rank+"\n";
     }
     //from CFM when available, 2002 if not
-    faultSection.setAveUpperDepthEst(getMinMaxPrefEstimateInstance(removeQuotes(tokenizer.nextToken().trim()), this.DEPTH_UNITS));
+    String upperDepth = removeQuotes(tokenizer.nextToken().trim());
+    if(upperDepth.equalsIgnoreCase("")) {
+      System.out.println("Default upper depth set for "+faultSection.getSectionName());
+      upperDepth=""+this.DEFAULT_UPPER_DEPTH;
+    }
+    faultSection.setAveUpperDepthEst(getMinMaxPrefEstimateInstance(upperDepth, this.DEPTH_UNITS));
+
     //from CFM when available, 2002 if not
-    faultSection.setAveLowerDepthEst(getMinMaxPrefEstimateInstance(removeQuotes(tokenizer.nextToken().trim()), this.DEPTH_UNITS));
+    String lowerDepth = removeQuotes(tokenizer.nextToken().trim());
+    if(lowerDepth.equalsIgnoreCase("")) {
+      System.out.println("Default lower depth set for "+faultSection.getSectionName());
+      lowerDepth=""+this.DEFAULT_LOWER_DEPTH;
+    }
+    faultSection.setAveLowerDepthEst(getMinMaxPrefEstimateInstance(lowerDepth, this.DEPTH_UNITS));
+
     // calculated from dip and top and bottom depths
     String width = removeQuotes(tokenizer.nextToken().trim());
     if( !width.equalsIgnoreCase("")) {
@@ -209,9 +330,9 @@ public class PutFaultSectionsIntoDatabase {
     return new EstimateInstances(estimate, units);
   }
 
-
   public static void main(String[] args) {
-    PutFaultSectionsIntoDatabase putFaultSectionsIntoDatabase1 = new PutFaultSectionsIntoDatabase();
+     new PutFaultSectionsIntoDatabase();
   }
+
 
 }
