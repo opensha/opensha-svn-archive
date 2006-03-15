@@ -240,7 +240,7 @@ CREATE TABLE Fault_Section (
   Name VARCHAR(255) NOT NULL,
   Entry_Date date NOT NULL,
   Comments VARCHAR(1000) NULL,
-  Fault_Section_Trace VARCHAR(255) NOT NULL,
+  Fault_Section_Trace MDSYS.SDO_GEOMETRY,
   Dip_Direction NUMBER(9,3) NOT NULL,
   Average_Aseismic_Slip_Est INTEGER  NOT NULL,
   PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
@@ -718,7 +718,7 @@ insert into Site_Type(Contributor_Id, Site_Type, General_Comments) values (1, 'U
 insert into Time_Type values (1, 'Exact Time', sysdate);
 insert into Time_Type values (2, 'Time Estimate', sysdate);
 
-insert into Section_Source values (1, 'CFM');
+insert into Section_Source values (1, 'CFM-R');
 insert into Section_Source values (2, '2002');
 
 

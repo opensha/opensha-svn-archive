@@ -74,7 +74,7 @@ public class PutFaultSectionsIntoDatabase {
       // load fault trace
       faultSectionTraceLines = FileUtils.loadFile(INPUT_FILE2);
 
-      fwDip = new FileWriter(this.DIP_FILENAME);
+      fwDip = new FileWriter(PutFaultSectionsIntoDatabase.DIP_FILENAME);
       // load all the fault sections and their properties (except Fault Trace)
       for(int i=0; i<fileLines1.size(); ++i) {
         try {
@@ -89,10 +89,10 @@ public class PutFaultSectionsIntoDatabase {
           else if(dipDirection>360) dipDirection-=360;
           fwDip.write(dipDirection+"\n");
           // add fault section to the database
-          //faultSectionDAO.addFaultSection(faultSection);
+          faultSectionDAO.addFaultSection(faultSection);
         }catch(Exception e) {
           e.printStackTrace();
-          //System.exit(0);
+          System.exit(0);
           //System.out.println("Problem "+ e.getMessage());
         }
       }
@@ -246,6 +246,7 @@ public class PutFaultSectionsIntoDatabase {
     }
     //from 2002 model
     String fileName = removeQuotes(tokenizer.nextToken().trim());
+    faultSection.setFaultName(fileName);
     if(!fileName.equalsIgnoreCase("")) {
       comments=comments+"FileName="+fileName+"\n";
     }

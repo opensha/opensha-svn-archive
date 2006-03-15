@@ -15,14 +15,15 @@ public class PutTestDataInDatabase {
   }
 
   public static void main(String[] args) {
-    PutTestDataInDatabase putTestDataInDatabase1 = new PutTestDataInDatabase();
+    //PutTestDataInDatabase putTestDataInDatabase1 = new PutTestDataInDatabase();
     SessionInfo.setUserName(args[0]);
     SessionInfo.setPassword(args[1]);
     SessionInfo.setContributorInfo();
     //new ReadReferencesFile(); // put references in the database
-    new PutFaultNamesIntoDB(); // put fault names into database
+    //new PutFaultNamesIntoDB(); // put fault names into database
     //new ReadSitesFile(); // put sites data in the database
-    new PutCombinedInfoIntoDatabase();
+    //new PutCombinedInfoIntoDatabase();
+    new PutFaultSectionsIntoDatabase();
     System.exit(0);
   }
 
