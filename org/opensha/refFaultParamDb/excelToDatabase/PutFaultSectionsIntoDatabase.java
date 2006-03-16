@@ -125,7 +125,9 @@ public class PutFaultSectionsIntoDatabase {
           try {
             lat = Double.parseDouble(tokenizer.nextToken());
           }catch(Exception e) {
-            System.out.println(locString);
+            //System.out.println(locString);
+        	  locString = ((String)faultSectionTraceLines.get(++nextTraceStartIndex)).trim();
+        	  continue;
             //System.exit(0);
           }
           sectionTrace.addLocation(new Location(lat,lon));
