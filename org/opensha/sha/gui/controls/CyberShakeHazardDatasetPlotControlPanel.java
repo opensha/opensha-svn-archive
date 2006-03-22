@@ -36,7 +36,7 @@ public class CyberShakeHazardDatasetPlotControlPanel
 
 
 
-  private static final boolean D = true;
+  private static final boolean D = false;
   public static final String SITE_SELECTOR_PARAM = "CyberShake Site";
   public static final String SA_PERIOD_SELECTOR_PARAM = "SA Period";
   private HashMap siteSA_PeriodMap;
@@ -147,6 +147,7 @@ public class CyberShakeHazardDatasetPlotControlPanel
   public void parameterChange (ParameterChangeEvent e){
     String paramName = e.getParameterName();
     if(paramName.equals(siteSelectionParam.getName())){
+      siteSA_PeriodMap = getSiteAndSAPeriod();
       initSA_PeriodParam();
       listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam );
       listEditor.refreshParamEditor();
@@ -277,7 +278,7 @@ public class CyberShakeHazardDatasetPlotControlPanel
     DiscretizedFuncAPI hazardData = getHazardData(cyberShakeSite,saPeriod);
     String name = "Cybershake hazard curve";
     String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
-        "\t; SA-Period = "+(String)saPeriodParam.getValue();
+        "; SA-Period = "+(String)saPeriodParam.getValue();
     hazardData.setName(name);
     hazardData.setInfo(infoString);
     application.addCybershakeCurveData(hazardData);

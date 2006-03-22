@@ -31,7 +31,7 @@ public class CyberShakeDeterministicPlotControlPanel
     extends JFrame implements ParameterChangeListener{
 
 
-  private static final boolean D = true;
+  private static final boolean D = false;
   public static final String SITE_SELECTOR_PARAM = "CyberShake Site";
   public static final String SA_PERIOD_SELECTOR_PARAM = "SA Period";
   public static final String SRC_INDEX_PARAM = "Source Index";
@@ -180,8 +180,9 @@ public class CyberShakeDeterministicPlotControlPanel
   public void parameterChange (ParameterChangeEvent e){
     String paramName = e.getParameterName();
     if(paramName.equals(siteSelectionParam.getName())){
+      getSiteInfoForDeterministicCalc();
       initSA_PeriodParam();
-      initSA_PeriodParam();
+      initSrcIndexParam();
       listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam );
       listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
       listEditor.refreshParamEditor();
@@ -330,8 +331,8 @@ public class CyberShakeDeterministicPlotControlPanel
         imlVals);
     String name = "Cybershake deterministic curve";
     String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
-        "\t; SA-Period = "+(String)saPeriodParam.getValue()+"\t; SourceIndex = "+(String)srcIndexParam.getValue()+
-        "\t; RuptureIndex = "+((Integer)rupIndexParam.getValue()).intValue();
+        "; SA-Period = "+(String)saPeriodParam.getValue()+"; SourceIndex = "+(String)srcIndexParam.getValue()+
+        "; RuptureIndex = "+((Integer)rupIndexParam.getValue()).intValue();
     deterministicData.setName(name);
     deterministicData.setInfo(infoString);
     application.addCybershakeCurveData(deterministicData);

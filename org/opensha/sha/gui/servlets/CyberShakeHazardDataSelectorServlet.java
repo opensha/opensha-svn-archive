@@ -177,7 +177,6 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
                           srcIndex + "  " + ((Integer)rupIndex).intValue() + "   " + fileName + " " +
                           siteName + " " + saPeriod});
 
-      this.wait(400);
       func = new ArbitrarilyDiscretizedFunc();
       ArrayList fileLines = FileUtils.loadFile(CYBERSHAKE_HAZARD_DATASET+siteName+"/"+
           "Deterministic_File_Pd_"+saPeriod);
@@ -236,10 +235,10 @@ public class CyberShakeHazardDataSelectorServlet  extends HttpServlet {
               }
               if(fileName.endsWith("bsa") && isDeterministic){
                 String srcRupfileName = fileName.substring(fileName.indexOf("_")+1);
-                System.out.println("Substring fileName:"+srcRupfileName);
+                //System.out.println("Substring fileName:"+srcRupfileName);
                 int firstIndex = srcRupfileName.indexOf("_")+1;
                 int lastIndex = srcRupfileName.lastIndexOf("_");
-                System.out.println("FirstIndex = "+firstIndex+" LastIndex = "+lastIndex);
+                //System.out.println("FirstIndex = "+firstIndex+" LastIndex = "+lastIndex);
                 String srcIndex = srcRupfileName.substring(firstIndex,
                     lastIndex);
                 srcIndexList.add(new Integer(srcIndex));

@@ -603,7 +603,7 @@ public class GraphPanel extends JPanel {
       int totalNumofFunctions = funcList.size();
       legendString = new ArrayList();
       //getting the metadata associated with each function in the list
-      for(int i=0,plotPrefIndex=0;i<totalNumofFunctions;++i,++plotPrefIndex){
+      for(int i=0,plotPrefIndex=0;i<totalNumofFunctions;++i){
         String legend=null;
         //setting the font style for the legend
         setLegend =new SimpleAttributeSet();
@@ -681,6 +681,7 @@ public class GraphPanel extends JPanel {
           Color color = ((PlotCurveCharacterstics)this.curvePlottingCharacterstics.get(plotPrefIndex)).getCurveColor();
           StyleConstants.setForeground(setLegend,color);
           doc.insertString(doc.getLength(),legend,setLegend);
+          ++plotPrefIndex;
         }
       }
     } catch (BadLocationException e) {
