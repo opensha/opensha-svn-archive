@@ -65,6 +65,12 @@ public class CyberShakeHazardDatasetPlotControlPanel
     catch (Exception exception) {
       exception.printStackTrace();
     }
+    this.pack();
+    Component parent = (Component)app;
+    // show the window at center of the parent component
+    this.setLocation(parent.getX()+parent.getWidth()/2,
+                   parent.getY());
+
   }
 
   private void jbInit() throws Exception {
@@ -84,14 +90,14 @@ public class CyberShakeHazardDatasetPlotControlPanel
         new Insets(2, 2, 2, 2), 0, 0));
     guiPanel.add(submitButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(197, 127, 35, 134), 53, 0));
+        new Insets(4, 4, 4, 4), 53, 0));
     this.getContentPane().add(guiPanel, java.awt.BorderLayout.CENTER);
     submitButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         submitButton_actionPerformed(e);
       }
     });
-    this.setSize(300,400);
+    this.setSize(100,200);
   }
 
 
@@ -107,11 +113,13 @@ public class CyberShakeHazardDatasetPlotControlPanel
     while(it.hasNext())
       siteList.add((String)it.next());
 
+
     siteSelectionParam = new StringParameter(SITE_SELECTOR_PARAM,
                                              siteList,(String)siteList.get(0));
-    initSA_PeriodParam();
+
 
     paramList = new ParameterList();
+    initSA_PeriodParam();
     paramList.addParameter(siteSelectionParam);
     paramList.addParameter(saPeriodParam);
     siteSelectionParam.addParameterChangeListener(this);
@@ -125,7 +133,7 @@ public class CyberShakeHazardDatasetPlotControlPanel
    * SA Period for a given site for which hazard data needs to be plotted.
    */
   private void initSA_PeriodParam(){
-    String siteName = (String)paramList.getParameter(SITE_SELECTOR_PARAM).getValue();
+    String siteName = (String)siteSelectionParam.getValue();
     ArrayList saPeriods = (ArrayList)siteSA_PeriodMap.get(siteName);
     saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
         saPeriods,(String)saPeriods.get(0));
@@ -183,7 +191,7 @@ public class CyberShakeHazardDatasetPlotControlPanel
 
 
       //sending the ArrayList of the gmt Script Lines
-      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.GET_SITES_AND_SA_PERIODS);
+      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.GET_CYBERSHAKE_INFO_PROB_CURVE);
 
 
       outputToServlet.flush();
@@ -191,18 +199,11 @@ public class CyberShakeHazardDatasetPlotControlPanel
 
       // Receive the "actual webaddress of all the gmt related files"
      // from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
+      ObjectInputStream outputFromServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      Object messageFromServlet = inputToServlet.readObject();
-      inputToServlet.close();
-      if(messageFromServlet instanceof ArrayList)
-        siteAndSA_PeriodList = (HashMap) messageFromServlet;
-      else
-        throw (RuntimeException)messageFromServlet;
-    }catch(RuntimeException e){
-      e.printStackTrace();
-     throw new RuntimeException(e.getMessage());
+      siteAndSA_PeriodList = (HashMap)outputFromServlet.readObject();
+      outputFromServlet.close();
     }catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
@@ -262,13 +263,7 @@ public class CyberShakeHazardDatasetPlotControlPanel
 
       Object messageFromServlet = inputToServlet.readObject();
       inputToServlet.close();
-      if(messageFromServlet instanceof ArrayList)
-        cyberShakeHazardData = (DiscretizedFuncAPI) messageFromServlet;
-      else
-        throw (RuntimeException)messageFromServlet;
-    }catch(RuntimeException e){
-      e.printStackTrace();
-     throw new RuntimeException(e.getMessage());
+      cyberShakeHazardData = (DiscretizedFuncAPI) messageFromServlet;
     }catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
@@ -280,6 +275,11 @@ public class CyberShakeHazardDatasetPlotControlPanel
     String cyberShakeSite = (String)siteSelectionParam.getValue();
     String saPeriod = (String)saPeriodParam.getValue();
     DiscretizedFuncAPI hazardData = getHazardData(cyberShakeSite,saPeriod);
+    String name = "Cybershake hazard curve";
+    String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
+        "\t; SA-Period = "+(String)saPeriodParam.getValue();
+    hazardData.setName(name);
+    hazardData.setInfo(infoString);
     application.addCybershakeCurveData(hazardData);
   }
 

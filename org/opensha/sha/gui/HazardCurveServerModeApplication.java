@@ -72,6 +72,10 @@ import org.opensha.sha.gui.infoTools.DisaggregationPlotViewerWindow;
 import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.calc.HazardCurveCalculator;
+import org.opensha.sha.gui.controls.CyberShakePlotControlPanelAPI;
+import org.opensha.sha.gui.controls.CyberShakeDeterministicPlotControlPanel;
+import org.opensha.sha.gui.controls.CyberShakeHazardDatasetPlotControlPanel;
+
 
 /**
  * <p>Title: HazardCurveServerModeApplication</p>
@@ -97,7 +101,8 @@ public class HazardCurveServerModeApplication extends JFrame
     implements Runnable,  ParameterChangeListener,
     DisaggregationControlPanelAPI, ERF_EpistemicListControlPanelAPI ,
     X_ValuesInCurveControlPanelAPI, PEER_TestCaseSelectorControlPanelAPI,
-    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI{
+    ButtonControlPanelAPI,GraphPanelAPI,GraphWindowAPI,XY_ValuesControlPanelAPI,
+    CyberShakePlotControlPanelAPI{
 
   /**
    * Name of the class
@@ -170,6 +175,8 @@ public class HazardCurveServerModeApplication extends JFrame
   //private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   private final static String PLOTTING_OPTION = "Set new dataset plotting option";
   private final static String XY_Values_Control = "Set external XY dataset";
+  private final static String PLOT_CYBERSHAKE_HAZARD_DATASET_CONTROL = "Plot Cybershake hazard data";
+  private final static String PLOT_CYBERSHAKE_DETER_DATASET_CONTROL = "Plot Cybershake deterministic data";
 
 
   // objects for control panels
@@ -183,7 +190,8 @@ public class HazardCurveServerModeApplication extends JFrame
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
   private PlottingOptionControl plotOptionControl;
   private XY_ValuesControlPanel xyPlotControl;
-
+  private CyberShakeDeterministicPlotControlPanel cyberDeterControlPanel;
+  private CyberShakeHazardDatasetPlotControlPanel cyberHazardControlPanel;
 
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
@@ -1673,16 +1681,18 @@ public class HazardCurveServerModeApplication extends JFrame
    * Initialize the items to be added to the control list
    */
   private void initControlList() {
-    this.controlComboBox.addItem(CONTROL_PANELS);
-    this.controlComboBox.addItem(PEER_TEST_CONTROL);
-    this.controlComboBox.addItem(DISAGGREGATION_CONTROL);
-    this.controlComboBox.addItem(DISTANCE_CONTROL);
-    this.controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
-    this.controlComboBox.addItem(CVM_CONTROL);
-    this.controlComboBox.addItem(X_VALUES_CONTROL);
-    this.controlComboBox.addItem(RUN_ALL_PEER_TESTS);
+    controlComboBox.addItem(CONTROL_PANELS);
+    controlComboBox.addItem(PEER_TEST_CONTROL);
+    controlComboBox.addItem(DISAGGREGATION_CONTROL);
+    controlComboBox.addItem(DISTANCE_CONTROL);
+    controlComboBox.addItem(SITES_OF_INTEREST_CONTROL);
+    controlComboBox.addItem(CVM_CONTROL);
+    controlComboBox.addItem(X_VALUES_CONTROL);
+    controlComboBox.addItem(RUN_ALL_PEER_TESTS);
+    controlComboBox.addItem(PLOT_CYBERSHAKE_DETER_DATASET_CONTROL);
+    controlComboBox.addItem(PLOT_CYBERSHAKE_HAZARD_DATASET_CONTROL);
     //this.controlComboBox.addItem(MAP_CALC_CONTROL);
-    this.controlComboBox.addItem(PLOTTING_OPTION);
+    controlComboBox.addItem(PLOTTING_OPTION);
     controlComboBox.addItem(XY_Values_Control);
   }
 
@@ -1709,10 +1719,15 @@ public class HazardCurveServerModeApplication extends JFrame
       initX_ValuesControl();
     else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_PEER_TESTS))
       initRunALL_PEER_TestCases();
+    else if(selectedControl.equalsIgnoreCase(PLOT_CYBERSHAKE_DETER_DATASET_CONTROL))
+      initCyberShakeDeterministicControlPanel();
+    else if(selectedControl.equalsIgnoreCase(PLOT_CYBERSHAKE_HAZARD_DATASET_CONTROL))
+      initCyberShakeHazardDatasetControlPanel();
     else if(selectedControl.equalsIgnoreCase(PLOTTING_OPTION))
       initPlotSelectionControl();
     else if(selectedControl.equalsIgnoreCase(XY_Values_Control))
       this.initXYPlotSelectionControl();
+
     controlComboBox.setSelectedItem(this.CONTROL_PANELS);
   }
 
@@ -1739,6 +1754,27 @@ public class HazardCurveServerModeApplication extends JFrame
       xyPlotControl = new XY_ValuesControlPanel(this,this);
     }
     xyPlotControl.setVisible(true);
+  }
+
+
+  /**
+   * This function allows the user to plot the Cybershake Deterministic curve
+   * from the Cybershake hazard data set
+   */
+  private void initCyberShakeDeterministicControlPanel(){
+    if(cyberDeterControlPanel == null)
+      cyberDeterControlPanel = new CyberShakeDeterministicPlotControlPanel(this);
+    cyberDeterControlPanel.setVisible(true);
+  }
+
+  /**
+   * This function allows the user to plot the Cybershake Hazard curve from the
+   * Cybershake hazard data set.
+   */
+  private void initCyberShakeHazardDatasetControlPanel(){
+    if(cyberHazardControlPanel == null)
+      cyberHazardControlPanel = new CyberShakeHazardDatasetPlotControlPanel(this);
+    cyberHazardControlPanel.setVisible(true);
   }
 
 
@@ -2367,5 +2403,38 @@ public class HazardCurveServerModeApplication extends JFrame
       bugWindow.pack();
     }
     return null;
+  }
+
+  /**
+   * Adding the Cybershake curve to the list of plots
+   * @param function DiscretizedFuncAPI
+   */
+  public void addCybershakeCurveData(DiscretizedFuncAPI function) {
+    functionList.add(function);
+    ArrayList plotFeaturesList = getPlottingFeatures();
+    plotFeaturesList.add(new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+        Color.BLACK,1.0,1));
+    addGraphPanel();
+  }
+
+
+  /**
+   * Returns the IML values being used by the application
+   * @return ArrayList
+   */
+  public ArrayList getIML_Values() {
+
+    ArrayList imlList = new ArrayList();
+    ArbitrarilyDiscretizedFunc func = null;
+    if(function != null)
+      func = function;
+    else
+      func = imtInfo.getDefaultHazardCurve(imtGuiBean.getSelectedIMT());
+
+    int size = func.getNum();
+    for (int i = 0; i < size; ++i)
+      imlList.add(new Double(func.getX(i)));
+
+    return imlList;
   }
 }

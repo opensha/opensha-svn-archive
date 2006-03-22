@@ -15,7 +15,6 @@ import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.opensha.data.function.DiscretizedFuncAPI;
-import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: CyberShakeDeterministicPlotControlPanel </p>
@@ -38,7 +37,6 @@ public class CyberShakeDeterministicPlotControlPanel
   public static final String SRC_INDEX_PARAM = "Source Index";
   public static final String RUP_INDEX_PARAM = "Rupture Index";
 
-  private HashMap siteSA_PeriodMap;
   JPanel guiPanel = new JPanel();
   JButton submitButton = new JButton();
   JLabel controlPanelLabel = new JLabel();
@@ -51,27 +49,41 @@ public class CyberShakeDeterministicPlotControlPanel
   private StringParameter saPeriodParam;
 
   //source index parameter
-  private DoubleParameter srcIndexParam;
+  private StringParameter srcIndexParam;
 
   //rupture index parameter
-  private DoubleParameter rupIndexParam;
+  private IntegerParameter rupIndexParam;
 
   //Editor to show the parameters in the panel
   private ParameterListEditor listEditor;
   //list to show the parameters
   private ParameterList paramList;
 
+  //handle to the application using this control panel
   private CyberShakePlotControlPanelAPI application;
+
+  //list for getting the SA Period for the selected Site
+  private HashMap siteAndSA_PeriodList=null;
+  //list for getting the sources for the selected site
+  private HashMap siteAndSrcListMap = null;
+
+
 
   public CyberShakeDeterministicPlotControlPanel(CyberShakePlotControlPanelAPI app) {
     application = app;
     try {
-      siteSA_PeriodMap = getSiteAndSAPeriod();
+      getSiteInfoForDeterministicCalc();
       jbInit();
     }
     catch (Exception exception) {
       exception.printStackTrace();
     }
+    this.pack();
+    Component parent = (Component)app;
+    // show the window at center of the parent component
+    this.setLocation(parent.getX()+parent.getWidth()/2,
+                     parent.getY());
+
   }
 
   private void jbInit() throws Exception {
@@ -91,14 +103,14 @@ public class CyberShakeDeterministicPlotControlPanel
         new Insets(2, 2, 2, 2), 0, 0));
     guiPanel.add(submitButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
         , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(197, 127, 35, 134), 53, 0));
+        new Insets(2, 2, 2, 2), 53, 0));
     this.getContentPane().add(guiPanel, java.awt.BorderLayout.CENTER);
     submitButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         submitButton_actionPerformed(e);
       }
     });
-    this.setSize(300,500);
+    this.setSize(100,200);
   }
 
 
@@ -109,18 +121,21 @@ public class CyberShakeDeterministicPlotControlPanel
    */
   private void initCyberShakeControlPanel(){
     ArrayList siteList  = new ArrayList();
-    Set set = siteSA_PeriodMap.keySet();
+    Set set = siteAndSA_PeriodList.keySet();
     Iterator it = set.iterator();
     while(it.hasNext())
       siteList.add((String)it.next());
 
-    siteSelectionParam = new StringParameter(SITE_SELECTOR_PARAM,
-                                             siteList,(String)siteList.get(0));
-    srcIndexParam = new DoubleParameter(SRC_INDEX_PARAM);
-    rupIndexParam = new DoubleParameter(RUP_INDEX_PARAM);
-    initSA_PeriodParam();
+
 
     paramList = new ParameterList();
+
+    siteSelectionParam = new StringParameter(SITE_SELECTOR_PARAM,
+                                             siteList,(String)siteList.get(0));
+    initSA_PeriodParam();
+    initSrcIndexParam();
+    rupIndexParam = new IntegerParameter(RUP_INDEX_PARAM);
+
     paramList.addParameter(siteSelectionParam);
     paramList.addParameter(saPeriodParam);
     paramList.addParameter(srcIndexParam);
@@ -136,10 +151,25 @@ public class CyberShakeDeterministicPlotControlPanel
    * SA Period for a given site for which hazard data needs to be plotted.
    */
   private void initSA_PeriodParam(){
-    String siteName = (String)paramList.getParameter(SITE_SELECTOR_PARAM).getValue();
-    ArrayList saPeriods = (ArrayList)siteSA_PeriodMap.get(siteName);
+    String siteName = (String)siteSelectionParam.getValue();
+    ArrayList saPeriods = (ArrayList)siteAndSA_PeriodList.get(siteName);
     saPeriodParam = new StringParameter(this.SA_PERIOD_SELECTOR_PARAM,
         saPeriods,(String)saPeriods.get(0));
+  }
+
+
+  /**
+   * Creates the parameters displaying all the src index for a given Cybershake
+   * site for which deterministic calculations can be done.
+   */
+  private void initSrcIndexParam(){
+    String siteName = (String)siteSelectionParam.getValue();
+    TreeSet srcIndexSet = (TreeSet)siteAndSrcListMap.get(siteName);
+    Iterator it =srcIndexSet.iterator();
+    ArrayList srcIndexList = new ArrayList();
+    while(it.hasNext())
+      srcIndexList.add(((Integer)it.next()).toString());
+    srcIndexParam = new StringParameter(SRC_INDEX_PARAM,srcIndexList,(String)srcIndexList.get(0));
   }
 
 
@@ -151,12 +181,12 @@ public class CyberShakeDeterministicPlotControlPanel
     String paramName = e.getParameterName();
     if(paramName.equals(siteSelectionParam.getName())){
       initSA_PeriodParam();
+      initSA_PeriodParam();
       listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam );
+      listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
       listEditor.refreshParamEditor();
     }
   }
-
-
 
 
   /**
@@ -166,9 +196,8 @@ public class CyberShakeDeterministicPlotControlPanel
    * of SA periods for which hazard has been computed.
    * @throws RuntimeException
    */
-  private HashMap getSiteAndSAPeriod() throws RuntimeException{
+  private void getSiteInfoForDeterministicCalc() throws RuntimeException{
 
-    HashMap siteAndSA_PeriodList=null;
     try{
 
       if(D) System.out.println("starting to make connection with servlet");
@@ -194,7 +223,7 @@ public class CyberShakeDeterministicPlotControlPanel
 
 
       //sending the ArrayList of the gmt Script Lines
-      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.GET_SITES_AND_SA_PERIODS);
+      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.GET_CYBERSHAKE_INFO_DETER_CURVE);
 
 
       outputToServlet.flush();
@@ -202,23 +231,17 @@ public class CyberShakeDeterministicPlotControlPanel
 
       // Receive the "actual webaddress of all the gmt related files"
      // from the servlet after it has received all the data
-      ObjectInputStream inputToServlet = new
+      ObjectInputStream outputFromServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      Object messageFromServlet = inputToServlet.readObject();
-      inputToServlet.close();
-      if(messageFromServlet instanceof ArrayList)
-        siteAndSA_PeriodList = (HashMap) messageFromServlet;
-      else
-        throw (RuntimeException)messageFromServlet;
-    }catch(RuntimeException e){
-      e.printStackTrace();
-     throw new RuntimeException(e.getMessage());
-    }catch (Exception e) {
+      siteAndSA_PeriodList = (HashMap)outputFromServlet.readObject();
+      siteAndSrcListMap  = (HashMap)outputFromServlet.readObject();
+      outputFromServlet.close();
+    }
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
-    return siteAndSA_PeriodList;
   }
 
 
@@ -230,34 +253,39 @@ public class CyberShakeDeterministicPlotControlPanel
    * @throws RuntimeException
    */
   private DiscretizedFuncAPI getDeterministicData(String cybershakeSite,
-                                  String saPeriod,Double srcIndex,Double rupIndex)
-      throws RuntimeException{
+                                                  String saPeriod,
+                                                  String srcIndex,
+                                                  Integer rupIndex,
+                                                  ArrayList imlVals) throws
+      RuntimeException {
     DiscretizedFuncAPI cyberShakeDeterminicticHazardCurve = null;
-    try{
+    try {
 
-      if(D) System.out.println("starting to make connection with servlet");
+      if (D) System.out.println("starting to make connection with servlet");
       URL cybershakeDataServlet = new
-                             URL("http://gravity.usc.edu/OpenSHA/servlet/CyberShakeHazardDataSelectorServlet");
-
+          URL(
+          "http://gravity.usc.edu/OpenSHA/servlet/CyberShakeHazardDataSelectorServlet");
 
       URLConnection servletConnection = cybershakeDataServlet.openConnection();
-      if(D) System.out.println("connection established");
+      if (D) System.out.println("connection established");
 
       // inform the connection that we will send output and accept input
       servletConnection.setDoInput(true);
       servletConnection.setDoOutput(true);
 
       // Don't use a cached version of URL connection.
-      servletConnection.setUseCaches (false);
-      servletConnection.setDefaultUseCaches (false);
+      servletConnection.setUseCaches(false);
+      servletConnection.setDefaultUseCaches(false);
       // Specify the content type that we will send binary data
-      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+      servletConnection.setRequestProperty("Content-Type",
+                                           "application/octet-stream");
 
       ObjectOutputStream outputToServlet = new
           ObjectOutputStream(servletConnection.getOutputStream());
 
       //sending the input parameters to the servlet
-      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.GET_DETERMINISTIC_DATA);
+      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.
+                                  GET_DETERMINISTIC_DATA);
       //sending the cybershake site
       outputToServlet.writeObject(cybershakeSite);
       //sending the sa period
@@ -269,24 +297,22 @@ public class CyberShakeDeterministicPlotControlPanel
       //sending the rupture index
       outputToServlet.writeObject(rupIndex);
 
+      //sending the rupture index
+      outputToServlet.writeObject(imlVals);
+
       outputToServlet.flush();
       outputToServlet.close();
 
       // Receive the "actual webaddress of all the gmt related files"
-     // from the servlet after it has received all the data
+      // from the servlet after it has received all the data
       ObjectInputStream inputToServlet = new
           ObjectInputStream(servletConnection.getInputStream());
 
-      Object messageFromServlet = inputToServlet.readObject();
+      cyberShakeDeterminicticHazardCurve = (DiscretizedFuncAPI) inputToServlet.
+          readObject();
       inputToServlet.close();
-      if(messageFromServlet instanceof ArrayList)
-        cyberShakeDeterminicticHazardCurve = (DiscretizedFuncAPI) messageFromServlet;
-      else
-        throw (RuntimeException)messageFromServlet;
-    }catch(RuntimeException e){
-      e.printStackTrace();
-     throw new RuntimeException(e.getMessage());
-    }catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException("Server is down , please try again later");
     }
@@ -296,9 +322,18 @@ public class CyberShakeDeterministicPlotControlPanel
   public void submitButton_actionPerformed(ActionEvent actionEvent) {
     String cyberShakeSite = (String)siteSelectionParam.getValue();
     String saPeriod = (String)saPeriodParam.getValue();
-    Double srcIndex = (Double)srcIndexParam.getValue();
-    Double rupIndex = (Double)rupIndexParam.getValue();
-    DiscretizedFuncAPI deterministicData = getDeterministicData(cyberShakeSite,saPeriod,srcIndex,rupIndex);
+    String srcIndex = (String)srcIndexParam.getValue();
+    Integer rupIndex = (Integer)rupIndexParam.getValue();
+    ArrayList imlVals = application.getIML_Values();
+    DiscretizedFuncAPI deterministicData = getDeterministicData(cyberShakeSite,
+        saPeriod, srcIndex, rupIndex,
+        imlVals);
+    String name = "Cybershake deterministic curve";
+    String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
+        "\t; SA-Period = "+(String)saPeriodParam.getValue()+"\t; SourceIndex = "+(String)srcIndexParam.getValue()+
+        "\t; RuptureIndex = "+((Integer)rupIndexParam.getValue()).intValue();
+    deterministicData.setName(name);
+    deterministicData.setInfo(infoString);
     application.addCybershakeCurveData(deterministicData);
   }
 

@@ -1,6 +1,8 @@
 package org.opensha.sha.gui.controls;
 
 import org.opensha.data.function.DiscretizedFuncAPI;
+import java.util.ArrayList;
+
 /**
  * <p>Title: CyberShakePlotControlPanelAPI</p>
  *
@@ -16,4 +18,9 @@ public interface CyberShakePlotControlPanelAPI {
      * @return DiscretizedFuncAPI
      */
     public void addCybershakeCurveData(DiscretizedFuncAPI function);
+
+    /**
+     * Returns the IML values to the application.
+     */
+    public ArrayList getIML_Values();
 }
