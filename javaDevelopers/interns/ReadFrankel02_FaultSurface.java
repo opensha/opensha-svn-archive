@@ -6,7 +6,6 @@ import java.io.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
 import org.opensha.sha.surface.GriddedSurfaceAPI;
-import org.opensha.data.Location;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.param.StringConstraint;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -46,7 +45,7 @@ public class ReadFrankel02_FaultSurface {
         Frankel02_AdjustableEqkRupForecast.
         RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
     frankelForecast.getTimeSpan().setDuration(50.0);
-    setFaultModelInFrankelForecast(frankelForecast.FAULT_MODEL_STIRLING);
+    setFaultModelInFrankelForecast(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
   }
 
 

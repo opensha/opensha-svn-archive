@@ -1,8 +1,8 @@
 package org.opensha.refFaultParamDb.dao.db;
 
+import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.Fault;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
-import org.opensha.refFaultParamDb.vo.PaleoSite;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -99,29 +99,55 @@ public class FaultSectionVer2_DB_DAO {
     JGeometry faultSectionTraceGeom =  getGeomtery(faultSection.getFaultTrace());
 
     // various estimate ids
-    int aveLongTermSlipRateEstId = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveLongTermSlipRateEst());
+    
     int aveDipEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveDipEst());
-    int aveRakeEst =  this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveRakeEst());
     int aveUpperDepthEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveUpperDepthEst());
     int aveLowerDepthEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAveLowerDepthEst());
     int aseismicSlipFactorEst = this.estimateInstancesDAO.addEstimateInstance(faultSection.getAseismicSlipFactorEst());
     int sectionSourceId = this.sectionSourceDAO.getSectionSource(faultSection.getSource()).getSourceId();
+    
+    String columnNames="";
+    String columnVals = "";
+    
+    // check if slip rate is present for this fault section
+    EstimateInstances slipRateEst = faultSection.getAveLongTermSlipRateEst();
+    if(slipRateEst!=null) { // if slip rate estimate is present
+    	int aveLongTermSlipRateEstId = this.estimateInstancesDAO.addEstimateInstance(slipRateEst);
+    	columnNames+=AVE_LONG_TERM_SLIP_RATE_EST+",";
+    	columnVals+=aveLongTermSlipRateEstId+",";
+    }
+    
+    // check if rake is present for this section
+    EstimateInstances aveRakeEst = faultSection.getAveRakeEst();
+    if(aveRakeEst!=null) {
+    	int aveRakeEstId =  this.estimateInstancesDAO.addEstimateInstance(aveRakeEst);
+    	columnNames+=AVE_RAKE_EST+",";
+    	columnVals+=aveRakeEstId+",";
+    }
+    
+    // check if dip direction is present for this section. Dip direction is not available wherever dip=90 degrees
+    float dipDirection  = faultSection.getDipDirection();
+    if(!Float.isNaN(dipDirection)) {
+    	columnNames+=DIP_DIRECTION+",";
+    	columnVals+=dipDirection+",";
+    }
+    
     // insert the fault section into the database
     ArrayList geomteryObjectList = new ArrayList();
     geomteryObjectList.add(faultSectionTraceGeom);
     String sql = "insert into "+TABLE_NAME+"("+ SECTION_ID+","+FAULT_ID+","+
-        AVE_LONG_TERM_SLIP_RATE_EST+","+AVE_DIP_EST+","+
-        AVE_RAKE_EST+","+AVE_UPPER_DEPTH_EST+","+AVE_LOWER_DEPTH_EST+","+
+        columnNames+AVE_DIP_EST+","+AVE_UPPER_DEPTH_EST+","+AVE_LOWER_DEPTH_EST+","+
         CONTRIBUTOR_ID+","+SECTION_NAME+","+ENTRY_DATE+","+COMMENTS+","+
-        FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+","+DIP_DIRECTION+","+
+        FAULT_TRACE+","+ASEISMIC_SLIP_FACTOR_EST+","+
         SECTION_SOURCE_ID+") values ("+
-        faultSectionId+","+faultId+","+aveLongTermSlipRateEstId+","+
-        aveDipEst+","+aveRakeEst+","+aveUpperDepthEst+","+aveLowerDepthEst+","+
+        faultSectionId+","+faultId+","+columnVals+
+        aveDipEst+","+aveUpperDepthEst+","+aveLowerDepthEst+","+
         SessionInfo.getContributor().getId()+",'"+faultSection.getSectionName()+"','"+
         systemDate+"','"+faultSection.getComments()+"',?,"+
-        aseismicSlipFactorEst+","+faultSection.getDipDirection()+","+
-        sectionSourceId+")";
+        aseismicSlipFactorEst+","+ sectionSourceId+")";
     try {
+      System.out.println(sql);
+      //System.exit(0);
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
       return faultSectionId;
     }
@@ -179,16 +205,28 @@ public class FaultSectionVer2_DB_DAO {
 			  faultSection.setSectionId(rs.getInt(SECTION_ID));
 			  faultSection.setFaultName(this.faultDAO.getFault(rs.getInt(FAULT_ID)).getFaultName());
 			  faultSection.setComments(rs.getString(COMMENTS));
-			  faultSection.setDipDirection(rs.getFloat(this.DIP_DIRECTION));
+			  
 			  faultSection.setEntryDate(rs.getString(ENTRY_DATE));
 			  faultSection.setSectionName(rs.getString(SECTION_NAME));
 			  faultSection.setSource(this.sectionSourceDAO.getSectionSource(rs.getInt(SECTION_SOURCE_ID)).getSectionSourceName());
-			  faultSection.setAseismicSlipFactorEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(this.ASEISMIC_SLIP_FACTOR_EST)));
-			  faultSection.setAveDipEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(this.AVE_DIP_EST)));
-			  faultSection.setAveLongTermSlipRateEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(this.AVE_LONG_TERM_SLIP_RATE_EST)));
-			  faultSection.setAveLowerDepthEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(this.AVE_LOWER_DEPTH_EST)));
-			  faultSection.setAveRakeEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(this.AVE_RAKE_EST)));
-			  faultSection.setAveUpperDepthEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(this.AVE_UPPER_DEPTH_EST)));
+			  faultSection.setAseismicSlipFactorEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.ASEISMIC_SLIP_FACTOR_EST)));
+			  faultSection.setAveDipEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.AVE_DIP_EST)));
+			  
+			  // get slip rate estimate if slip rate is provided for this fault section
+			  int slipRateEstId= rs.getInt(FaultSectionVer2_DB_DAO.AVE_LONG_TERM_SLIP_RATE_EST);
+			  if(!rs.wasNull()) faultSection.setAveLongTermSlipRateEst(this.estimateInstancesDAO.getEstimateInstance(slipRateEstId));
+			  
+			  // get rake estimate if rake is provided for this fault section
+			  int rakeEstId= rs.getInt(FaultSectionVer2_DB_DAO.AVE_RAKE_EST);
+			  if(!rs.wasNull()) faultSection.setAveRakeEst(this.estimateInstancesDAO.getEstimateInstance(rakeEstId));
+			  
+			  float dipDirection = rs.getFloat(FaultSectionVer2_DB_DAO.DIP_DIRECTION);
+			  if(rs.wasNull()) dipDirection = Float.NaN;
+			  faultSection.setDipDirection(dipDirection);
+			  
+			  faultSection.setAveLowerDepthEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.AVE_LOWER_DEPTH_EST)));
+			  faultSection.setAveUpperDepthEst(this.estimateInstancesDAO.getEstimateInstance(rs.getInt(FaultSectionVer2_DB_DAO.AVE_UPPER_DEPTH_EST)));
+			  
 		      // fault trace
 			  ArrayList geometries = spatialQueryResult.getGeometryObjectsList(i++);
 			  JGeometry faultSectionGeom =(JGeometry) geometries.get(0);

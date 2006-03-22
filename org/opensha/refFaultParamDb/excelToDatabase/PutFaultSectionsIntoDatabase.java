@@ -35,19 +35,10 @@ public class PutFaultSectionsIntoDatabase {
   private final static String INPUT_FILE2 = "2006_fault_sections.MIF";
   // units for various paramaters
   private final static String DIP_UNITS = "degrees";
-  private final static String DIP_DIRECTION_UNITS = "degrees";
   private final static String SLIP_RATE_UNITS = "mm/yr";
   private final static String DEPTH_UNITS = "km";
   private final static String RAKE_UNITS = "degrees";
   private final static String ASEISMIC_SLIP_FACTOR_UNITS = " ";
-
-  // default values for missing fields
-  private final static double DEFAULT_AVE_RAKE = 0;
-  private final static double DEFAULT_AVE_SLIP_RATE=0;
-  private final static double DEFAULT_AVE_SLIP_UNCERT=0;
-  private final static double DEFAULT_AVE_DIP_EST=0;
-  private final static double DEFAULT_UPPER_DEPTH=0;
-  private final static double DEFAULT_LOWER_DEPTH=0;
 
   // Strings that mark the start and end of each fault trace in the file
   private final static String PLINE = "Pline";
@@ -122,14 +113,7 @@ public class PutFaultSectionsIntoDatabase {
         while(!locString.startsWith(PEN)) {
           StringTokenizer tokenizer = new StringTokenizer(locString);
           lon = Double.parseDouble(tokenizer.nextToken());
-          try {
-            lat = Double.parseDouble(tokenizer.nextToken());
-          }catch(Exception e) {
-            //System.out.println(locString);
-        	  locString = ((String)faultSectionTraceLines.get(++nextTraceStartIndex)).trim();
-        	  continue;
-            //System.exit(0);
-          }
+          lat = Double.parseDouble(tokenizer.nextToken());
           sectionTrace.addLocation(new Location(lat,lon));
           locString = ((String)faultSectionTraceLines.get(++nextTraceStartIndex)).trim();
         }
@@ -173,24 +157,16 @@ public class PutFaultSectionsIntoDatabase {
       comments = comments+"FaultType="+faultType+"\n";
     }
     //converted from sense of movement field in 2002 model using Aki and Richards convention, blank if not available
-    String rake = tokenizer.nextToken().trim();
+    String rake = removeQuotes(tokenizer.nextToken().trim());
     // set rake to default if it is not present
-    if(rake.equalsIgnoreCase("") || rake.equalsIgnoreCase("\"\"")) {
-      System.out.println("Default rake set for "+faultSection.getSectionName());
-      rake = "\"" + this.DEFAULT_AVE_RAKE+"\"";
+    if(!rake.equalsIgnoreCase("")) {
+    	faultSection.setAveRakeEst(this.getMinMaxPrefEstimateInstance(
+    	          removeQuotes(rake), PutFaultSectionsIntoDatabase.RAKE_UNITS));
     }
-    faultSection.setAveRakeEst(this.getMinMaxPrefEstimateInstance(
-          removeQuotes(rake), this.RAKE_UNITS));
-
-
 
     //from CFM when available, 2002 if not, average of dips of "panels" in CFM-R
     String dip = removeQuotes(tokenizer.nextToken().trim());
-    if(dip.equalsIgnoreCase("")) {
-      System.out.println("Default Dip set for "+faultSection.getSectionName());
-      dip = "" + this.DEFAULT_AVE_DIP_EST;
-    }
-    faultSection.setAveDipEst(this.getMinMaxPrefEstimateInstance(dip, this.DIP_UNITS));
+    faultSection.setAveDipEst(this.getMinMaxPrefEstimateInstance(dip, PutFaultSectionsIntoDatabase.DIP_UNITS));
 
     // from CFM when available, 2002 if not
     String dipDirection = removeQuotes(tokenizer.nextToken().trim());
@@ -204,22 +180,14 @@ public class PutFaultSectionsIntoDatabase {
     }
     //from 2002 model, blank if not available
     String slipRate = removeQuotes(tokenizer.nextToken().trim());
-    if(slipRate.equalsIgnoreCase(""))  {
-      System.out.println("Default slip rate set for "+faultSection.getSectionName());
-      slipRate = "" + this.DEFAULT_AVE_SLIP_RATE;
-    }
-
     //from 2002 model, blank if not available
     String slipRateUncert = removeQuotes(tokenizer.nextToken().trim());
-    if(slipRateUncert.equalsIgnoreCase("")) {
-      System.out.println("Default slip rate Uncertainity set for "+faultSection.getSectionName());
-      slipRateUncert = "" + this.DEFAULT_AVE_SLIP_UNCERT;
+    if(!slipRate.equalsIgnoreCase("")) {	
+    	Estimate slipRateEst = new NormalEstimate(Double.parseDouble(slipRate),
+    			Double.parseDouble(slipRateUncert));
+    	faultSection.setAveLongTermSlipRateEst(new EstimateInstances(slipRateEst, PutFaultSectionsIntoDatabase.SLIP_RATE_UNITS));
     }
-
-    Estimate slipRateEst = new NormalEstimate(Double.parseDouble(slipRate),
-        Double.parseDouble(slipRateUncert));
-    faultSection.setAveLongTermSlipRateEst(new EstimateInstances(slipRateEst, this.SLIP_RATE_UNITS));
-
+    
     // from 2002 model
     String rank = removeQuotes(tokenizer.nextToken().trim());
     if( !rank.equalsIgnoreCase("")) {
@@ -227,19 +195,11 @@ public class PutFaultSectionsIntoDatabase {
     }
     //from CFM when available, 2002 if not
     String upperDepth = removeQuotes(tokenizer.nextToken().trim());
-    if(upperDepth.equalsIgnoreCase("")) {
-      System.out.println("Default upper depth set for "+faultSection.getSectionName());
-      upperDepth=""+this.DEFAULT_UPPER_DEPTH;
-    }
-    faultSection.setAveUpperDepthEst(getMinMaxPrefEstimateInstance(upperDepth, this.DEPTH_UNITS));
+    faultSection.setAveUpperDepthEst(getMinMaxPrefEstimateInstance(upperDepth, PutFaultSectionsIntoDatabase.DEPTH_UNITS));
 
     //from CFM when available, 2002 if not
     String lowerDepth = removeQuotes(tokenizer.nextToken().trim());
-    if(lowerDepth.equalsIgnoreCase("")) {
-      System.out.println("Default lower depth set for "+faultSection.getSectionName());
-      lowerDepth=""+this.DEFAULT_LOWER_DEPTH;
-    }
-    faultSection.setAveLowerDepthEst(getMinMaxPrefEstimateInstance(lowerDepth, this.DEPTH_UNITS));
+    faultSection.setAveLowerDepthEst(getMinMaxPrefEstimateInstance(lowerDepth, PutFaultSectionsIntoDatabase.DEPTH_UNITS));
 
     // calculated from dip and top and bottom depths
     String width = removeQuotes(tokenizer.nextToken().trim());
@@ -282,7 +242,7 @@ public class PutFaultSectionsIntoDatabase {
     rfactor3Wt = Double.parseDouble(str);
 
     faultSection.setAseismicSlipFactorEst(getAsesmicEstimate(rfactor1, rfactor1Wt,
-        rfactor2, rfactor2Wt, rfactor3, rfactor3Wt, this.ASEISMIC_SLIP_FACTOR_UNITS));
+        rfactor2, rfactor2Wt, rfactor3, rfactor3Wt, PutFaultSectionsIntoDatabase.ASEISMIC_SLIP_FACTOR_UNITS));
     return faultSection;
   }
 
