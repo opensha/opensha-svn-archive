@@ -32,9 +32,9 @@ drop table Fault_Model_Section;
 drop trigger Fault_Model_Trigger;
 drop sequence Fault_Model_Sequence;
 drop table Fault_Model;
+drop trigger Fault_Section_Trigger;
+drop sequence Fault_Section_Sequence;
 drop table Fault_Section;
-drop trigger Section_Source_Trigger;
-drop sequence Section_Source_Sequence;
 drop table Section_Source;
 drop table Min_Max_Pref_Est;
 drop table PDF_Est;
@@ -222,7 +222,7 @@ CREATE TABLE Min_Max_Pref_Est (
 CREATE TABLE Section_Source (
   Section_Source_Id INTEGER NOT NULL,
   Section_Source_Name VARCHAR(255) NOT NULL UNIQUE,
-  PRIMARY KEY(Section_Source_Id),
+  PRIMARY KEY(Section_Source_Id)
 );
 
 
@@ -231,9 +231,9 @@ CREATE TABLE Fault_Section (
   Section_Id INTEGER  NOT NULL,
   Fault_Id INTEGER  NOT NULL,
   Section_Source_Id INTEGER  NOT NULL,
-  Ave_Long_Term_Slip_Rate_Est INTEGER  NOT NULL,
+  Ave_Long_Term_Slip_Rate_Est INTEGER NULL,
   Ave_Dip_Est INTEGER  NOT NULL,
-  Ave_Rake_Est INTEGER  NOT NULL,
+  Ave_Rake_Est INTEGER  NULL,
   Ave_Upper_Depth_Est INTEGER  NOT NULL,
   Ave_Lower_Depth_Est INTEGER  NOT NULL,
   Contributor_Id INTEGER NOT NULL,
@@ -241,7 +241,7 @@ CREATE TABLE Fault_Section (
   Entry_Date date NOT NULL,
   Comments VARCHAR(1000) NULL,
   Fault_Section_Trace MDSYS.SDO_GEOMETRY,
-  Dip_Direction NUMBER(9,3) NOT NULL,
+  Dip_Direction NUMBER(9,3)  NULL,
   Average_Aseismic_Slip_Est INTEGER  NOT NULL,
   PRIMARY KEY(Section_Id, Fault_Id, Section_Source_Id, Entry_Date),
   FOREIGN KEY(Section_Source_Id)
@@ -258,7 +258,7 @@ CREATE TABLE Fault_Section (
      REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE, 
   FOREIGN KEY(Ave_Lower_Depth_Est)
      REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE,
-  FOREIGN KEY(Aseismic_Slip_Factor_Est)
+  FOREIGN KEY(Average_Aseismic_Slip_Est)
      REFERENCES Est_Instances(Est_Id) ON DELETE CASCADE
 );
 
@@ -720,6 +720,7 @@ insert into Time_Type values (2, 'Time Estimate', sysdate);
 
 insert into Section_Source values (1, 'CFM-R');
 insert into Section_Source values (2, '2002');
+insert into Section_Source values (3, 'WGCEP2006');
 
 
 INSERT into Reference ( Ref_Auth, Ref_Year,Full_Bibliographic_Reference, QFault_Reference_Id)

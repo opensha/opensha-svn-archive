@@ -54,6 +54,7 @@ public class PutFaultSectionsIntoDatabase {
   // filename to compare the dips
   private final static String DIP_FILENAME = "DipComparisons.txt";
   private FileWriter fwDip;
+  private String dipDirectionFromFile;
 
   /**
    * Put fault sections into the database
@@ -74,13 +75,11 @@ public class PutFaultSectionsIntoDatabase {
           faultSectionTrace.setName(faultSection.getSectionName());
           faultSectionsList.add(faultSection);
           faultSection.setFaultTrace(faultSectionTrace);
-          double dipDirection = 90+RelativeLocation.getDirection(faultSectionTrace.getLocationAt(0),
-              faultSectionTrace.getLocationAt(faultSectionTrace.getNumLocations()-1)).getAzimuth();
-          if(dipDirection<0) dipDirection+=360;
-          else if(dipDirection>360) dipDirection-=360;
-          fwDip.write(dipDirection+"\n");
+          calculateDipDirection(faultSection);
+          
+          //fwDip.write(dipDirection+"\n");
           // add fault section to the database
-          faultSectionDAO.addFaultSection(faultSection);
+          //faultSectionDAO.addFaultSection(faultSection);
         }catch(Exception e) {
           e.printStackTrace();
           System.exit(0);
@@ -93,6 +92,54 @@ public class PutFaultSectionsIntoDatabase {
     }catch(Exception e) {
       e.printStackTrace();
     }
+  }
+  
+  /**
+   * Calculate dip direction from OpenSHA and compare it with dip direction from Chris's file.
+   * 
+   * @param faultSection
+   */
+  private void calculateDipDirection(FaultSectionVer2 faultSection) {
+	  double dip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
+	  // there is no dip direction if dip is 90 degrees
+	  if(dip==90) {
+		  faultSection.setDipDirection(Float.NaN);
+		  return;
+	  }
+	  // calculate dip direction from OpenSHA
+	  FaultTrace faultSectionTrace = faultSection.getFaultTrace();
+	  double dipDirectionFromOpenSHA = 90+RelativeLocation.getDirection(faultSectionTrace.getLocationAt(0),
+              faultSectionTrace.getLocationAt(faultSectionTrace.getNumLocations()-1)).getAzimuth();
+	  if(dipDirectionFromOpenSHA<0) dipDirectionFromOpenSHA+=360;
+	  else if(dipDirectionFromOpenSHA>360) dipDirectionFromOpenSHA-=360;
+	  faultSection.setDipDirection((float)dipDirectionFromOpenSHA);
+	  
+	  //calculate numerical dip direction based on String values from Chris Will's file
+	  if(this.dipDirectionFromFile.equalsIgnoreCase("") || dipDirectionFromFile.equalsIgnoreCase("n/a")) {
+		  System.out.println("Dip direction not available for section:"+faultSection.getSectionName()+" with dip "+dip);
+		  return;
+	  }
+	  
+	  double dipDirFromString=0; 
+	  if(dipDirectionFromFile.equalsIgnoreCase("N")) dipDirFromString=0;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("NE")) dipDirFromString=45;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("E")) dipDirFromString=90;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("SE")) dipDirFromString=135;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("S")) dipDirFromString=180;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("SW")) dipDirFromString=225;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("W")) dipDirFromString=270;
+	  else if(dipDirectionFromFile.equalsIgnoreCase("NW")) dipDirFromString=315;
+	  
+	  double dipDirectionDiff = Math.abs(dipDirectionFromOpenSHA-dipDirFromString);
+	  // reverse the location points
+	  if(dipDirectionDiff>=135 && dipDirectionDiff<=225) {
+		  faultSectionTrace.reverse();
+		  System.out.println("Locations reversed for section:"+faultSection.getSectionName()+" with dip "+dip);
+	  }
+	  else if((dipDirectionDiff>45 && dipDirectionDiff<135) || (dipDirectionDiff>225 && dipDirectionDiff<315)) {
+		  System.out.println("Please check the section:"+faultSection.getSectionName()+" as difference in dip direction is "+dipDirectionDiff);
+	  }
+	  
   }
 
   /**
@@ -135,7 +182,7 @@ public class PutFaultSectionsIntoDatabase {
     int index = line.indexOf("\",\"");
     // fault section name
     faultSection.setSectionName(line.substring(1, index));
-    System.out.println(faultSection.getSectionName());
+    //System.out.println(faultSection.getSectionName());
     String line2 = line.substring(index+2);
     index = line2.indexOf("\",\"");
     //System.out.println(line2);
@@ -169,15 +216,8 @@ public class PutFaultSectionsIntoDatabase {
     faultSection.setAveDipEst(this.getMinMaxPrefEstimateInstance(dip, PutFaultSectionsIntoDatabase.DIP_UNITS));
 
     // from CFM when available, 2002 if not
-    String dipDirection = removeQuotes(tokenizer.nextToken().trim());
-    if(!dipDirection.equalsIgnoreCase("")) {
-      comments = comments+"Dip Direction="+dipDirection+"\n";
-    }
-    try {
-      fwDip.write(faultSection.getSectionName() + ";" + dip+";"+dipDirection + ";");
-    }catch(Exception e) {
-      e.printStackTrace();
-    }
+    dipDirectionFromFile = removeQuotes(tokenizer.nextToken().trim());
+   
     //from 2002 model, blank if not available
     String slipRate = removeQuotes(tokenizer.nextToken().trim());
     //from 2002 model, blank if not available
