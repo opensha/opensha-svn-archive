@@ -27,7 +27,7 @@ import org.opensha.data.function.DiscretizedFuncAPI;
  * @since March 7,2006
  * @version 1.0
  */
-public class CyberShakeDeterministicPlotControlPanel
+public class CyberShakePlotControlPanel
     extends JFrame implements ParameterChangeListener{
 
 
@@ -37,11 +37,18 @@ public class CyberShakeDeterministicPlotControlPanel
   public static final String SRC_INDEX_PARAM = "Source Index";
   public static final String RUP_INDEX_PARAM = "Rupture Index";
 
+  private static final String DETER_PROB_SELECTOR_PARAM = "Curve Type";
+  private static final String PROB_CURVE = "Probabilistic Curve";
+  private static final String DETER_CURVE = "Deterministic Curve";
+
   JPanel guiPanel = new JPanel();
   JButton submitButton = new JButton();
   JLabel controlPanelLabel = new JLabel();
   GridBagLayout gridBagLayout1 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
+
+  //Curve type selector param
+  private StringParameter curveTypeSelectorParam;
 
   //Site selection param
   private StringParameter siteSelectionParam;
@@ -67,12 +74,14 @@ public class CyberShakeDeterministicPlotControlPanel
   //list for getting the sources for the selected site
   private HashMap siteAndSrcListMap = null;
 
+  //if deterministic curve needs to be plotted
+  private boolean isDeterministic ;
 
 
-  public CyberShakeDeterministicPlotControlPanel(CyberShakePlotControlPanelAPI app) {
+  public CyberShakePlotControlPanel(CyberShakePlotControlPanelAPI app) {
     application = app;
     try {
-      getSiteInfoForDeterministicCalc();
+      getSiteInfoForCalc();
       jbInit();
     }
     catch (Exception exception) {
@@ -92,7 +101,7 @@ public class CyberShakeDeterministicPlotControlPanel
     submitButton.setText("OK");
     controlPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
     controlPanelLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-    controlPanelLabel.setText("Cybershake Deterministic Curve Control");
+    controlPanelLabel.setText("Cybershake Hazard Data Plot Control");
     guiPanel.add(controlPanelLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
         , GridBagConstraints.WEST, GridBagConstraints.NONE,
         new Insets(6, 10, 0, 12), 367, 23));
@@ -110,7 +119,7 @@ public class CyberShakeDeterministicPlotControlPanel
         submitButton_actionPerformed(e);
       }
     });
-    this.setSize(100,200);
+    this.setSize(100,250);
   }
 
 
@@ -126,7 +135,14 @@ public class CyberShakeDeterministicPlotControlPanel
     while(it.hasNext())
       siteList.add((String)it.next());
 
+    ArrayList supportedCurvesType = new ArrayList();
+    supportedCurvesType.add(PROB_CURVE);
+    supportedCurvesType.add(DETER_CURVE);
 
+    curveTypeSelectorParam = new StringParameter(this.DETER_PROB_SELECTOR_PARAM,
+                                                 supportedCurvesType,
+                                                 (String)
+                                                 supportedCurvesType.get(0));
 
     paramList = new ParameterList();
 
@@ -134,15 +150,17 @@ public class CyberShakeDeterministicPlotControlPanel
                                              siteList,(String)siteList.get(0));
     initSA_PeriodParam();
     initSrcIndexParam();
-    rupIndexParam = new IntegerParameter(RUP_INDEX_PARAM);
-
+    rupIndexParam = new IntegerParameter(RUP_INDEX_PARAM, new Integer(0));
+    paramList.addParameter(curveTypeSelectorParam);
     paramList.addParameter(siteSelectionParam);
     paramList.addParameter(saPeriodParam);
     paramList.addParameter(srcIndexParam);
     paramList.addParameter(rupIndexParam);
     siteSelectionParam.addParameterChangeListener(this);
+    curveTypeSelectorParam.addParameterChangeListener(this);
     listEditor = new ParameterListEditor(paramList);
-    listEditor.setTitle("Cybershake Site and SA Period Selector");
+    listEditor.setTitle("Set Params for Cybershake Curve");
+    makeParamVisible();
   }
 
 
@@ -157,6 +175,21 @@ public class CyberShakeDeterministicPlotControlPanel
         saPeriods,(String)saPeriods.get(0));
   }
 
+
+  /**
+   * Makes the parameters visible or invisible based on if it is deterministic
+   * or prob. curve.
+   */
+  private void makeParamVisible() {
+    String curveType = (String)curveTypeSelectorParam.getValue();
+    if(curveType.equals(PROB_CURVE))
+      this.isDeterministic = false;
+    else
+      this.isDeterministic = true;
+
+    listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
+    listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
+  }
 
   /**
    * Creates the parameters displaying all the src index for a given Cybershake
@@ -179,15 +212,80 @@ public class CyberShakeDeterministicPlotControlPanel
    */
   public void parameterChange (ParameterChangeEvent e){
     String paramName = e.getParameterName();
-    if(paramName.equals(siteSelectionParam.getName())){
-      getSiteInfoForDeterministicCalc();
+    if(paramName.equals(SITE_SELECTOR_PARAM)){
+      getSiteInfoForCalc();
       initSA_PeriodParam();
       initSrcIndexParam();
       listEditor.replaceParameterForEditor(SA_PERIOD_SELECTOR_PARAM,saPeriodParam );
       listEditor.replaceParameterForEditor(SRC_INDEX_PARAM,srcIndexParam);
-      listEditor.refreshParamEditor();
     }
+    if(paramName.equals(DETER_PROB_SELECTOR_PARAM)){
+      this.makeParamVisible();
+    }
+    listEditor.refreshParamEditor();
   }
+
+
+
+
+  /**
+   * Gets the hazard data from the Cybershake site for the given SA period.
+   * @param cybershakeSite String Cybershake Site
+   * @param saPeriod String SA period for which hazard file needs to be read.
+   * @return ArrayList Hazard Data
+   * @throws RuntimeException
+   */
+  private DiscretizedFuncAPI getHazardData(String cybershakeSite, String saPeriod) throws RuntimeException{
+    DiscretizedFuncAPI cyberShakeHazardData=null;
+    try{
+
+      if(D) System.out.println("starting to make connection with servlet");
+      URL cybershakeDataServlet = new
+                             URL("http://gravity.usc.edu/OpenSHA/servlet/CyberShakeHazardDataSelectorServlet");
+
+
+      URLConnection servletConnection = cybershakeDataServlet.openConnection();
+      if(D) System.out.println("connection established");
+
+      // inform the connection that we will send output and accept input
+      servletConnection.setDoInput(true);
+      servletConnection.setDoOutput(true);
+
+      // Don't use a cached version of URL connection.
+      servletConnection.setUseCaches (false);
+      servletConnection.setDefaultUseCaches (false);
+      // Specify the content type that we will send binary data
+      servletConnection.setRequestProperty ("Content-Type","application/octet-stream");
+
+      ObjectOutputStream outputToServlet = new
+          ObjectOutputStream(servletConnection.getOutputStream());
+
+
+      //sending the input parameters to the servlet
+      outputToServlet.writeObject(CyberShakeHazardDataSelectorServlet.GET_HAZARD_DATA);
+      //sending the cybershake site
+      outputToServlet.writeObject(cybershakeSite);
+      //sending the sa period
+      outputToServlet.writeObject(saPeriod);
+
+
+      outputToServlet.flush();
+      outputToServlet.close();
+
+      // Receive the "actual webaddress of all the gmt related files"
+     // from the servlet after it has received all the data
+      ObjectInputStream inputToServlet = new
+          ObjectInputStream(servletConnection.getInputStream());
+
+      cyberShakeHazardData = (DiscretizedFuncAPI) inputToServlet.readObject();
+      inputToServlet.close();
+    }catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Server is down , please try again later");
+    }
+    return cyberShakeHazardData;
+  }
+
 
 
   /**
@@ -197,7 +295,7 @@ public class CyberShakeDeterministicPlotControlPanel
    * of SA periods for which hazard has been computed.
    * @throws RuntimeException
    */
-  private void getSiteInfoForDeterministicCalc() throws RuntimeException{
+  private void getSiteInfoForCalc() throws RuntimeException{
 
     try{
 
@@ -326,16 +424,28 @@ public class CyberShakeDeterministicPlotControlPanel
     String srcIndex = (String)srcIndexParam.getValue();
     Integer rupIndex = (Integer)rupIndexParam.getValue();
     ArrayList imlVals = application.getIML_Values();
-    DiscretizedFuncAPI deterministicData = getDeterministicData(cyberShakeSite,
-        saPeriod, srcIndex, rupIndex,
-        imlVals);
-    String name = "Cybershake deterministic curve";
-    String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
-        "; SA-Period = "+(String)saPeriodParam.getValue()+"; SourceIndex = "+(String)srcIndexParam.getValue()+
-        "; RuptureIndex = "+((Integer)rupIndexParam.getValue()).intValue();
-    deterministicData.setName(name);
-    deterministicData.setInfo(infoString);
-    application.addCybershakeCurveData(deterministicData);
+    DiscretizedFuncAPI curveData = null;
+    if(isDeterministic){
+      curveData = getDeterministicData(cyberShakeSite,
+                                       saPeriod, srcIndex, rupIndex,
+                                       imlVals);
+      String name = "Cybershake deterministic curve";
+      String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
+          "; SA-Period = "+(String)saPeriodParam.getValue()+"; SourceIndex = "+(String)srcIndexParam.getValue()+
+          "; RuptureIndex = "+((Integer)rupIndexParam.getValue()).intValue();
+      curveData.setName(name);
+      curveData.setInfo(infoString);
+      application.addCybershakeCurveData(curveData);
+    }
+    else{
+      curveData = this.getHazardData(cyberShakeSite, saPeriod);
+      String name = "Cybershake hazard curve";
+      String infoString = "Site = "+ (String)siteSelectionParam.getValue()+
+          "; SA-Period = "+(String)saPeriodParam.getValue();
+      curveData.setName(name);
+      curveData.setInfo(infoString);
+      application.addCybershakeCurveData(curveData);
+    }
   }
 
 }

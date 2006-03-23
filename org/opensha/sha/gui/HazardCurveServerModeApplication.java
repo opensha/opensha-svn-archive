@@ -73,8 +73,8 @@ import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.controls.CyberShakePlotControlPanelAPI;
-import org.opensha.sha.gui.controls.CyberShakeDeterministicPlotControlPanel;
-import org.opensha.sha.gui.controls.CyberShakeHazardDatasetPlotControlPanel;
+import org.opensha.sha.gui.controls.CyberShakePlotControlPanel;
+
 
 
 /**
@@ -175,8 +175,7 @@ public class HazardCurveServerModeApplication extends JFrame
   //private final static String MAP_CALC_CONTROL = "Select Map Calcution Method";
   private final static String PLOTTING_OPTION = "Set new dataset plotting option";
   private final static String XY_Values_Control = "Set external XY dataset";
-  private final static String PLOT_CYBERSHAKE_HAZARD_DATASET_CONTROL = "Plot Cybershake hazard data";
-  private final static String PLOT_CYBERSHAKE_DETER_DATASET_CONTROL = "Plot Cybershake deterministic data";
+  private final static String PLOT_CYBERSHAKE_DATASET_CONTROL = "Plot Cybershake data";
 
 
   // objects for control panels
@@ -190,9 +189,7 @@ public class HazardCurveServerModeApplication extends JFrame
   private RunAll_PEER_TestCasesControlPanel runAllPEER_Tests;
   private PlottingOptionControl plotOptionControl;
   private XY_ValuesControlPanel xyPlotControl;
-  private CyberShakeDeterministicPlotControlPanel cyberDeterControlPanel;
-  private CyberShakeHazardDatasetPlotControlPanel cyberHazardControlPanel;
-
+  private CyberShakePlotControlPanel cyberControlPanel;
 
   private Insets plotInsets = new Insets( 4, 10, 4, 4 );
 
@@ -1689,8 +1686,7 @@ public class HazardCurveServerModeApplication extends JFrame
     controlComboBox.addItem(CVM_CONTROL);
     controlComboBox.addItem(X_VALUES_CONTROL);
     controlComboBox.addItem(RUN_ALL_PEER_TESTS);
-    controlComboBox.addItem(PLOT_CYBERSHAKE_DETER_DATASET_CONTROL);
-    controlComboBox.addItem(PLOT_CYBERSHAKE_HAZARD_DATASET_CONTROL);
+    controlComboBox.addItem(PLOT_CYBERSHAKE_DATASET_CONTROL);
     //this.controlComboBox.addItem(MAP_CALC_CONTROL);
     controlComboBox.addItem(PLOTTING_OPTION);
     controlComboBox.addItem(XY_Values_Control);
@@ -1719,10 +1715,8 @@ public class HazardCurveServerModeApplication extends JFrame
       initX_ValuesControl();
     else if(selectedControl.equalsIgnoreCase(this.RUN_ALL_PEER_TESTS))
       initRunALL_PEER_TestCases();
-    else if(selectedControl.equalsIgnoreCase(PLOT_CYBERSHAKE_DETER_DATASET_CONTROL))
+    else if(selectedControl.equalsIgnoreCase(PLOT_CYBERSHAKE_DATASET_CONTROL))
       initCyberShakeDeterministicControlPanel();
-    else if(selectedControl.equalsIgnoreCase(PLOT_CYBERSHAKE_HAZARD_DATASET_CONTROL))
-      initCyberShakeHazardDatasetControlPanel();
     else if(selectedControl.equalsIgnoreCase(PLOTTING_OPTION))
       initPlotSelectionControl();
     else if(selectedControl.equalsIgnoreCase(XY_Values_Control))
@@ -1762,19 +1756,9 @@ public class HazardCurveServerModeApplication extends JFrame
    * from the Cybershake hazard data set
    */
   private void initCyberShakeDeterministicControlPanel(){
-    if(cyberDeterControlPanel == null)
-      cyberDeterControlPanel = new CyberShakeDeterministicPlotControlPanel(this);
-    cyberDeterControlPanel.setVisible(true);
-  }
-
-  /**
-   * This function allows the user to plot the Cybershake Hazard curve from the
-   * Cybershake hazard data set.
-   */
-  private void initCyberShakeHazardDatasetControlPanel(){
-    if(cyberHazardControlPanel == null)
-      cyberHazardControlPanel = new CyberShakeHazardDatasetPlotControlPanel(this);
-    cyberHazardControlPanel.setVisible(true);
+    if(cyberControlPanel == null)
+      cyberControlPanel = new CyberShakePlotControlPanel(this);
+    cyberControlPanel.setVisible(true);
   }
 
 
