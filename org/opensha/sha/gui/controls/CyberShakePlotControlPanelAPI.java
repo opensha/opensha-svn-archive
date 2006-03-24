@@ -23,4 +23,11 @@ public interface CyberShakePlotControlPanelAPI {
      * Returns the IML values to the application.
      */
     public ArrayList getIML_Values();
+
+    /**
+     * Sets the application with the curve type chosen by the Cybershake application
+     * @param isDeterministic boolean :If deterministic calculation then make the
+     * applicaton to plot deterministic curves.
+     */
+    public void setCurveType(boolean isDeterministic);
 }

@@ -189,6 +189,7 @@ public class CyberShakePlotControlPanel
 
     listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
     listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
+    application.setCurveType(isDeterministic);
   }
 
   /**

@@ -543,9 +543,9 @@ public class HazardCurveServerModeApplication extends JFrame
     chartSplit.setLeftComponent(panel);
     chartSplit.setRightComponent(paramsTabbedPane);
 
-    probDeterSelection.addActionListener(new java.awt.event.ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            probDeterSelection_actionPerformed(e);
+    probDeterSelection.addItemListener(new java.awt.event.ItemListener() {
+          public void itemStateChanged(ItemEvent e) {
+            probDeterSelection_itemStateChanged(e);
           }
     });
 
@@ -1492,7 +1492,7 @@ public class HazardCurveServerModeApplication extends JFrame
    * This function is to whether to plot ERF_GuiBean or ERF_RupSelectorGuiBean
    * @param e
    */
-  protected void probDeterSelection_actionPerformed(ActionEvent e) {
+  protected void probDeterSelection_itemStateChanged(ItemEvent e) {
     String selectedControl = this.probDeterSelection.getSelectedItem().toString();
 
     if(selectedControl.equalsIgnoreCase(this.PROBABILISTIC)){
@@ -1500,6 +1500,7 @@ public class HazardCurveServerModeApplication extends JFrame
        this.initERF_GuiBean();
        isProbCurve = true;
      }catch(RuntimeException ee){
+       ee.printStackTrace();
       JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
       System.exit(0);
@@ -1510,6 +1511,7 @@ public class HazardCurveServerModeApplication extends JFrame
        this.initERFSelector_GuiBean();
        isProbCurve = false;
      }catch(RuntimeException ee){
+       ee.printStackTrace();
       JOptionPane.showMessageDialog(this,"Connection to ERF failed","Internet Connection Problem",
                                     JOptionPane.OK_OPTION);
       System.exit(0);
@@ -2400,6 +2402,19 @@ public class HazardCurveServerModeApplication extends JFrame
         Color.BLACK,1.0,1));
     addGraphPanel();
   }
+
+
+  /**
+   * Sets the application with the curve type chosen by the Cybershake application
+   * @param isDeterministic boolean :If deterministic calculation then make the
+   * applicaton to plot deterministic curves.
+   */
+    public void setCurveType(boolean isDeterministic){
+       if(!isDeterministic)
+        probDeterSelection.setSelectedItem(PROBABILISTIC);
+      else
+        probDeterSelection.setSelectedItem(DETERMINISTIC);
+    }
 
 
   /**
