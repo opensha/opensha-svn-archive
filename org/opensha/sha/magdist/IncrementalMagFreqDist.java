@@ -81,7 +81,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
 
 
     /**
-     * This function finds the cumulative Rate at a specified index
+     * This function finds the cumulative Rate at a specified index (including that index)
      * @param index
      * @return
      */
