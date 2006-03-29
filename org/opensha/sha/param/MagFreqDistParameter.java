@@ -31,7 +31,6 @@ public class MagFreqDistParameter
     /**
      * the string for the distribution choice parameter
      */
-    //public final static String DISTRIBUTION_NAME="Choose Distribution";
     public final static String DISTRIBUTION_NAME="Distribution Type";
 
     /**
@@ -230,7 +229,7 @@ public class MagFreqDistParameter
 
         if ( !(constraint instanceof MagFreqDistConstraint )) {
             throw new ParameterException( S +
-                "This parameter only accepts DoubleConstraints, unable to set the constraint."
+                "This parameter only accepts a MagFreqDistConstraint, unable to set the constraint."
             );
         }
         else super.setConstraint( constraint );
@@ -238,7 +237,7 @@ public class MagFreqDistParameter
     }
 
     /**
-     *  Gets the min value of the constraint object.
+     *  Gets array list of allowed MagFreqDists.
      *
      * @return                ArrayList of allowed Mag Dists
      */
@@ -335,8 +334,7 @@ public class MagFreqDistParameter
     }
 
     /**
-     * Creates the adjustable params for the MagFreqDistParameter based on the
-     * selected distribution.
+     * Creates the adjustable params for the MagFreqDistParameter.
      * @return
      */
     private void initAdjustableParams() {
@@ -469,7 +467,7 @@ public class MagFreqDistParameter
 
 
     /**
-     * return the IncrementalMagFreqDist object based on parameters given
+     * set the IncrementalMagFreqDist object based on parameters given
      * @param parameterList
      * @return
      */

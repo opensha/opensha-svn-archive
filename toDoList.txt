@@ -1,5 +1,25 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
+MagFreqDistParamEditor
+
+	Change "Update Mag ..." button to "Done"
+
+	Add a pick-list that always says "Show Dist", but there the selectable options are
+	"Incremental" "Cumulative or" "Moment Rate", pop a plot up including the metadata,
+	and also include whether it's "Incremental" "Cumulative or" "Moment Rate"
+
+	Create similar MagPDF_ParamEditor
+
+New MagFreqDistTesterApplet:
+
+	1) does not show all three plots at once, but does have peel-off capability
+	2) hide the "Done" and "Show Dist" options in the param editor
+	3) toggle between "Incremental" "Cumulative" and "Moment Rate" 
+	   (revert to auto scale when changed, and maintain plot preferences)
+	4) include the summed dist option (but only if all x-axis values the same)
+
+
+
 
 Things Ned has done while Guptas gone (i.e., not in on-line applications)
 
