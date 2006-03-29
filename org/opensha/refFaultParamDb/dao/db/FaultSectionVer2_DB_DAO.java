@@ -3,6 +3,7 @@ package org.opensha.refFaultParamDb.dao.db;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.Fault;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
+import org.opensha.refFaultParamDb.vo.FaultSectionVer2Summary;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -146,7 +147,7 @@ public class FaultSectionVer2_DB_DAO {
         systemDate+"','"+faultSection.getComments()+"',?,"+
         aseismicSlipFactorEst+","+ sectionSourceId+")";
     try {
-      System.out.println(sql);
+      //System.out.println(sql);
       //System.exit(0);
       dbAccess.insertUpdateOrDeleteData(sql, geomteryObjectList);
       return faultSectionId;
@@ -177,6 +178,22 @@ public class FaultSectionVer2_DB_DAO {
 	  return query(" ");
   }
   
+  public ArrayList getAllFaultSectionsSummary() {
+	  ArrayList faultSectionsSummaryList = new ArrayList();
+	  String sql =  "select "+SECTION_ID+","+SECTION_NAME+" from "+TABLE_NAME+" order by ("+SECTION_NAME+")";
+
+	  try {
+		  ResultSet rs  = dbAccess.queryData(sql);
+		  while(rs.next())  {
+			  FaultSectionVer2Summary faultSectionSummary = new FaultSectionVer2Summary();
+			  faultSectionSummary.setSectionId(rs.getInt(SECTION_ID));
+			  faultSectionSummary.setSectionName(rs.getString(SECTION_NAME));
+			  faultSectionsSummaryList.add(faultSectionSummary);
+		  }
+		  rs.close();
+	  } catch(SQLException e) { throw new QueryException(e.getMessage()); }
+	  	return faultSectionsSummaryList;
+  }
   /**
    * Get the fault sections based on some filter parameter
    * @param condition

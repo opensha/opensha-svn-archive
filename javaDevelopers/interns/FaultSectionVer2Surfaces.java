@@ -12,6 +12,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
 import org.opensha.sha.fault.FrankelGriddedFaultFactory;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.fault.StirlingGriddedFaultFactory;
+import org.opensha.sha.surface.GriddedSurfaceAPI;
 
 /**
  * This class reads the fault sections ver2 from the database. It makes gridded suface using the fault trace.
@@ -21,60 +22,74 @@ import org.opensha.sha.fault.StirlingGriddedFaultFactory;
  *
  */
 public class FaultSectionVer2Surfaces {
-	private ArrayList frankelGriddedSurfaceList = new ArrayList();
-	private ArrayList stirlingGriddedSurfaceList = new ArrayList();
-	private ArrayList faultSectionNames = new ArrayList();
-	private final static double GRID_SPACING = 0.1;
+
+	private final static double GRID_SPACING = 1.0;
+	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
 	
-	public FaultSectionVer2Surfaces() {
-		// read the fault sections from the database
-		FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-		// get all the fault sections from the database
-		ArrayList faultSections  = faultSectionDAO.getAllFaultSections();
-		int numSections = faultSections.size();
-		// iterate over all the fault sections and write them to the file
-		for(int i=0; i<numSections; ++i) {
-			// make SimpleFaultData object to get the surface
-			FaultSectionVer2 faultSection = (FaultSectionVer2)faultSections.get(i);
-			faultSectionNames.add(faultSection.getSectionName());
-			double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
-			double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX();
-			double prefLowerDepth = ((MinMaxPrefEstimate)faultSection.getAveLowerDepthEst().getEstimate()).getPreferredX();
-			SimpleFaultData simpleFaultData = new SimpleFaultData(prefDip, prefLowerDepth, prefUpperDepth, faultSection.getFaultTrace());
-			// frankel fault factory
-			FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-			frankelGriddedSurfaceList.add(frankelGriddedFaultFactory.getGriddedSurface());
-			// stirling fault factory
-			StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-			stirlingGriddedSurfaceList.add(stirlingGriddedFaultFactory.getGriddedSurface());
-		}
-	}
- 
-   /**
-    * Get the names of the fault sections
-    * @return
-    */
-   public ArrayList getFaultSectionNames() {
-	   return this.faultSectionNames;
-   }
+	public FaultSectionVer2Surfaces() {}
 	
 	/**
-	 * ArrayList of GriddedSurfaceAPI objects
+	 * Get the names and id of all fault sections
 	 * @return
 	 */
-  public ArrayList getFrankelGriddedSurfaceList() {
-	  return frankelGriddedSurfaceList;
-  }
-  
-  /**
-   * Arraylist of GriddedSurfaceAPI objects
-   * @return
-   */
-  public ArrayList getStirlingGriddedSurfaceList() {
-	  return this.stirlingGriddedSurfaceList;
-  }
-  
-  public static void main(String args[]) {
-	  new FaultSectionVer2Surfaces();
-  }
+	public ArrayList getAllFaultSections() {
+		return this.faultSectionDAO.getAllFaultSectionsSummary();
+	}
+
+	/**
+	 * Get the Gridded surface based on Frankel's method for a Fault Section ID
+	 * @param faultSectionId
+	 * @return
+	 */
+	public GriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
+		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
+		return getFrankelSurface(faultSection);
+	}
+	
+	/**
+	 * Get the Gridded surface based on Frankel's method for a Fault Section object
+	 * @param faultSection
+	 * @return
+	 */
+	public GriddedSurfaceAPI getFrankelSurface(FaultSectionVer2 faultSection) {
+		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+//		 frankel fault factory
+		FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
+		return frankelGriddedFaultFactory.getGriddedSurface();
+	}
+	
+	/**
+	 * Get the Gridded surface based on Stirling's method for a Fault Section object
+	 * @param faultSection
+	 * @return
+	 */
+	public GriddedSurfaceAPI getStirlingSurface(FaultSectionVer2 faultSection) {
+		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+		// stirling fault factory
+		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
+		return stirlingGriddedFaultFactory.getGriddedSurface();		
+	}
+	
+	/**
+	 * Get the Gridded surface based on Stirling's method for a Fault Section Id
+	 * @param faultSectionId
+	 * @return
+	 */
+	public GriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
+		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
+		return getStirlingSurface(faultSection);
+	}
+	
+	private SimpleFaultData getSimpleFaultData(FaultSectionVer2 faultSection) {
+		double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
+		double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX();
+		double prefLowerDepth = ((MinMaxPrefEstimate)faultSection.getAveLowerDepthEst().getEstimate()).getPreferredX();
+		SimpleFaultData simpleFaultData = new SimpleFaultData(prefDip, prefLowerDepth, prefUpperDepth, faultSection.getFaultTrace());
+		return simpleFaultData;
+	}
+	
+	// get the fault section based on fault section Id
+	public FaultSectionVer2 getFaultSection(int faultSectionId) {
+		return faultSectionDAO.getFaultSection(faultSectionId);
+	}
 }

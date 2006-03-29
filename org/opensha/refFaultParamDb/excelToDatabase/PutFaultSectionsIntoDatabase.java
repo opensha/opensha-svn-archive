@@ -79,7 +79,7 @@ public class PutFaultSectionsIntoDatabase {
           
           //fwDip.write(dipDirection+"\n");
           // add fault section to the database
-          //faultSectionDAO.addFaultSection(faultSection);
+          faultSectionDAO.addFaultSection(faultSection);
         }catch(Exception e) {
           e.printStackTrace();
           System.exit(0);
@@ -116,7 +116,7 @@ public class PutFaultSectionsIntoDatabase {
 	  
 	  //calculate numerical dip direction based on String values from Chris Will's file
 	  if(this.dipDirectionFromFile.equalsIgnoreCase("") || dipDirectionFromFile.equalsIgnoreCase("n/a")) {
-		  System.out.println("Dip direction not available for section:"+faultSection.getSectionName()+" with dip "+dip);
+		 // System.out.println("Dip direction not available for section:"+faultSection.getSectionName()+" with dip "+dip);
 		  return;
 	  }
 	  
@@ -134,10 +134,10 @@ public class PutFaultSectionsIntoDatabase {
 	  // reverse the location points
 	  if(dipDirectionDiff>=135 && dipDirectionDiff<=225) {
 		  faultSectionTrace.reverse();
-		  System.out.println("Locations reversed for section:"+faultSection.getSectionName()+" with dip "+dip);
+		  //System.out.println("Locations reversed for section:"+faultSection.getSectionName()+" with dip "+dip);
 	  }
 	  else if((dipDirectionDiff>45 && dipDirectionDiff<135) || (dipDirectionDiff>225 && dipDirectionDiff<315)) {
-		  System.out.println("Please check the section:"+faultSection.getSectionName()+" as difference in dip direction is "+dipDirectionDiff);
+		 // System.out.println("Please check the section:"+faultSection.getSectionName()+" as difference in dip direction is "+dipDirectionDiff);
 	  }
 	  
   }
