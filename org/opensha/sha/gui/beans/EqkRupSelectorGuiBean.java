@@ -28,7 +28,7 @@ import org.opensha.sha.earthquake.ERF_API;
 /**
  * <p>Title: Eqk Rupture Selector GuiBean</p>
  * <p>Description: This class will show ERF and its parameters. It will
- * also allow the user to select a particular rupture for scenario maps </p>
+ * also allow the user to select a particular rupture for scenario maps.</p>
  * <p>Copyright: Copyright (c) 2002</p>
  * <p>Company: </p>
  * @author : Nitin Gupta and Vipin Gupta

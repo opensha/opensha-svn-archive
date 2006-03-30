@@ -74,6 +74,9 @@ import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.calc.HazardCurveCalculator;
 import org.opensha.sha.gui.controls.CyberShakePlotControlPanelAPI;
 import org.opensha.sha.gui.controls.CyberShakePlotControlPanel;
+import org.opensha.sha.gui.beans.TimeSpanGuiBean;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBeanAPI;
+import org.opensha.sha.gui.beans.EqkRuptureFromERFSelectorPanel;
 
 
 
@@ -2417,6 +2420,7 @@ public class HazardCurveServerModeApplication extends JFrame
     }
 
 
+
   /**
    * Returns the IML values being used by the application
    * @return ArrayList
@@ -2435,5 +2439,42 @@ public class HazardCurveServerModeApplication extends JFrame
       imlList.add(new Double(func.getX(i)));
 
     return imlList;
+  }
+
+  /**
+   * This returns the Earthquake Forecast GuiBean which allows the the cybershake
+   * control panel to set the forecast parameters from cybershake control panel,
+   * similar to what they are set when calculating cybershaks curves.
+   */
+  public ERF_GuiBean getEqkRupForecastGuiBeanInstance(){
+    return erfGuiBean;
+
+  }
+
+  /**
+   * This returns instance to the EqkRupSelectorGuiBean, this allows the cybershake
+   * control panel to set the forecast parameters and select the same source
+   * and rupture as in the cybershake control panel.
+   */
+  public EqkRupSelectorGuiBean getEqkSrcRupSelectorGuiBeanInstance() {
+    return erfRupSelectorGuiBean;
+  }
+
+  /**
+   * This returns the Site Guibean using which allows to set the site locations
+   * in the OpenSHA application from cybershake control panel.
+   */
+  public Site_GuiBean getSiteGuiBeanInstance() {
+    return siteGuiBean;
+  }
+
+
+  /**
+   * It returns the IMT Gui bean, which allows the Cybershake control panel
+   * to set the same SA period value in the main application
+   * similar to selected for Cybershake.
+   */
+  public IMT_GuiBean getIMTGuiBeanInstance() {
+    return imtGuiBean;
   }
 }

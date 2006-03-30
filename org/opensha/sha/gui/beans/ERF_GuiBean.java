@@ -64,7 +64,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
   private ParameterListEditor listEditor;
 
   //TimeSpanGui Bean
-  TimeSpanGuiBean timeSpanGuiBean;
+  private TimeSpanGuiBean timeSpanGuiBean;
   private JScrollPane erfScrollPane = new JScrollPane();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
   private JPanel erfAndTimespanPanel = new JPanel();

@@ -21,11 +21,11 @@ import org.opensha.sha.gui.infoTools.IMT_Info;
 public class X_ValuesInCurveControlPanel extends JFrame {
 
   //static Strings for the Different X Vlaues that the user can choose from.
-  private final static String PEER_X_VALUES = "PEER Test-Case Values";
-  private final static String USGS_PGA_X_VALUES = "USGS-2002 PGA Values";
-  private final static String CUSTOM_VALUES = "Custom Values";
-  private final static String DEFAULT = "DEFAULT";
-  private final static String MIN_MAX_NUM = "Enter Min, Max and Num";
+  public final static String PEER_X_VALUES = "PEER Test-Case Values";
+  public final static String USGS_PGA_X_VALUES = "USGS-2002 PGA Values";
+  public final static String CUSTOM_VALUES = "Custom Values";
+  public final static String DEFAULT = "DEFAULT";
+  public final static String MIN_MAX_NUM = "Enter Min, Max and Num";
 
 
   private JPanel jPanel1 = new JPanel();
@@ -250,6 +250,8 @@ public class X_ValuesInCurveControlPanel extends JFrame {
     }
 
   }
+
+
 
   /**
    * Sets the Control Panel to show the Defualt X values based on the selecetd IMT

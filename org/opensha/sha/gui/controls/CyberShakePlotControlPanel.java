@@ -15,6 +15,11 @@ import org.opensha.sha.gui.servlets.CyberShakeHazardDataSelectorServlet;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.opensha.data.function.DiscretizedFuncAPI;
+import org.opensha.sha.gui.beans.*;
+import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import java.lang.reflect.*;
+import org.opensha.sha.earthquake.EqkRupForecastAPI;
 
 /**
  * <p>Title: CyberShakeDeterministicPlotControlPanel </p>
@@ -43,8 +48,8 @@ public class CyberShakePlotControlPanel
 
   JPanel guiPanel = new JPanel();
   JButton submitButton = new JButton();
+  JButton paramSettingButton = new JButton();
   JLabel controlPanelLabel = new JLabel();
-  GridBagLayout gridBagLayout1 = new GridBagLayout();
   BorderLayout borderLayout1 = new BorderLayout();
 
   //Curve type selector param
@@ -76,7 +81,7 @@ public class CyberShakePlotControlPanel
 
   //if deterministic curve needs to be plotted
   private boolean isDeterministic ;
-
+  GridBagLayout gridBagLayout1 = new GridBagLayout();
 
   public CyberShakePlotControlPanel(CyberShakePlotControlPanelAPI app) {
     application = app;
@@ -92,34 +97,46 @@ public class CyberShakePlotControlPanel
     // show the window at center of the parent component
     this.setLocation(parent.getX()+parent.getWidth()/2,
                      parent.getY());
-
   }
 
   private void jbInit() throws Exception {
     getContentPane().setLayout(borderLayout1);
     guiPanel.setLayout(gridBagLayout1);
     submitButton.setText("OK");
+    paramSettingButton.setText("Set Pathway-1 params");
+    paramSettingButton.setToolTipText("Sets the same parameters in the Pathway-1\n "+
+        "application as in Cybershake calculations.");
     controlPanelLabel.setHorizontalAlignment(SwingConstants.CENTER);
     controlPanelLabel.setHorizontalTextPosition(SwingConstants.CENTER);
     controlPanelLabel.setText("Cybershake Hazard Data Plot Control");
-    guiPanel.add(controlPanelLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-        , GridBagConstraints.WEST, GridBagConstraints.NONE,
-        new Insets(6, 10, 0, 12), 367, 23));
     //creating the Site and SA Period selection for the Cybershake control panel
     initCyberShakeControlPanel();
-    guiPanel.add(listEditor, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
-        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-        new Insets(2, 2, 2, 2), 0, 0));
-    guiPanel.add(submitButton, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
-        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
-        new Insets(2, 2, 2, 2), 53, 0));
     this.getContentPane().add(guiPanel, java.awt.BorderLayout.CENTER);
+    guiPanel.add(controlPanelLabel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0
+        , GridBagConstraints.WEST, GridBagConstraints.NONE,
+        new Insets(6, 10, 0, 12), 145, 23));
+    guiPanel.add(listEditor, new GridBagConstraints(0, 1, 2, 1, 1.0, 1.0
+        , GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+        new Insets(0, 2, 0, 2), 386, 210));
+    guiPanel.add(submitButton, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0
+        , GridBagConstraints.CENTER, GridBagConstraints.NONE,
+        new Insets(0, 17, 1, 114), 20, 0));
+    guiPanel.add(paramSettingButton,
+                 new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0
+                                        , GridBagConstraints.CENTER,
+                                        GridBagConstraints.NONE,
+                                        new Insets(0, 72, 1, 0), 5, 0));
     submitButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         submitButton_actionPerformed(e);
       }
     });
-    this.setSize(100,250);
+    paramSettingButton.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        paramSettingButton_actionPerformed(e);
+      }
+    });
+    this.setSize(80,300);
   }
 
 
@@ -186,10 +203,9 @@ public class CyberShakePlotControlPanel
       this.isDeterministic = false;
     else
       this.isDeterministic = true;
-
+    application.setCurveType(isDeterministic);
     listEditor.getParameterEditor(SRC_INDEX_PARAM).setVisible(isDeterministic);
     listEditor.getParameterEditor(RUP_INDEX_PARAM).setVisible(isDeterministic);
-    application.setCurveType(isDeterministic);
   }
 
   /**
@@ -225,8 +241,6 @@ public class CyberShakePlotControlPanel
     }
     listEditor.refreshParamEditor();
   }
-
-
 
 
   /**
@@ -419,13 +433,38 @@ public class CyberShakePlotControlPanel
     return cyberShakeDeterminicticHazardCurve;
   }
 
-  public void submitButton_actionPerformed(ActionEvent actionEvent) {
+
+  /**
+   * Sets the parameters in the OpenSHA application similar to what
+   * is required  by the Cybershake.
+   * @param actionEvent ActionEvent
+   */
+  private void paramSettingButton_actionPerformed(ActionEvent actionEvent) {
+    setSiteParams();
+    boolean imtSet = setIMT_Params();
+
+    if(!imtSet)
+      return;
+    application.setX_ValuesForHazardCurve(createUSGS_PGA_Function());
+
+    if(isDeterministic)
+      setEqkSrcRupSelectorParams();
+    else
+      setEqkRupForecastParams();
+  }
+
+  /**
+   * Retreives the Cybershake data and plots it in the application.
+   * @param actionEvent ActionEvent
+   */
+  private void submitButton_actionPerformed(ActionEvent actionEvent) {
     String cyberShakeSite = (String)siteSelectionParam.getValue();
     String saPeriod = (String)saPeriodParam.getValue();
     String srcIndex = (String)srcIndexParam.getValue();
     Integer rupIndex = (Integer)rupIndexParam.getValue();
     ArrayList imlVals = application.getIML_Values();
     DiscretizedFuncAPI curveData = null;
+
     if(isDeterministic){
       curveData = getDeterministicData(cyberShakeSite,
                                        saPeriod, srcIndex, rupIndex,
@@ -446,7 +485,181 @@ public class CyberShakePlotControlPanel
       curveData.setName(name);
       curveData.setInfo(infoString);
       application.addCybershakeCurveData(curveData);
+
     }
+  }
+
+
+  /**
+   * This sets the site parameters in the OpenSHA application
+   * based on the chosen Cybershake site
+   */
+  private void setSiteParams(){
+    Site_GuiBean site = application.getSiteGuiBeanInstance();
+    String cyberShakeSite = (String)siteSelectionParam.getValue();
+    if(cyberShakeSite.equalsIgnoreCase("USC")){// Setting the Site for USC
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.019200));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.28600));
+    }
+    else if(cyberShakeSite.equalsIgnoreCase("PAS")){ //Setting the site for PAS
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.148427));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.17119));
+    }else if(cyberShakeSite.equalsIgnoreCase("CCP")){ // Setting the site for CCP
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.054884));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.41302));
+    }else if(cyberShakeSite.equalsIgnoreCase("FFI")){ //Setting the site for FFI
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.336030));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.50862));
+    }else if(cyberShakeSite.equalsIgnoreCase("LADT")){ //Setting the site for LADT
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.052041));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.25713));
+    }else if(cyberShakeSite.equalsIgnoreCase("LBP")){ //Setting the site for LBP
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(33.754944));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.22300));
+    }else if(cyberShakeSite.equalsIgnoreCase("WNGC")){ //setting the site for WNGC
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.041823));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.06530));
+    }else if(cyberShakeSite.equalsIgnoreCase("SBSM")){ //setting the site for SBSM
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.064986));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-117.29201));
+    }else if(cyberShakeSite.equalsIgnoreCase("SABD")){ //setting the site for SABD
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(33.754111));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-117.86778));
+    }else if(cyberShakeSite.equalsIgnoreCase("SMCA")){ //setting the site for SMCA
+      site.getParameterListEditor().getParameterEditor(site.LATITUDE).setValue(new Double(34.009092));
+      site.getParameterListEditor().getParameterEditor(site.LONGITUDE).setValue(new Double(-118.48939));
+    }
+
+    site.getParameterListEditor().refreshParamEditor();
+  }
+
+  /**
+   * Set the Eqk Rup Forecast in the OpenSHA application similar to eqk forecast
+   * params used to do the cybershake calculations.
+   */
+  private void setEqkRupForecastParams(){
+    ERF_GuiBean gui = application.getEqkRupForecastGuiBeanInstance();
+    gui.getERFParameterListEditor().getParameterEditor(gui.ERF_PARAM_NAME).setValue(Frankel02_AdjustableEqkRupForecast.NAME);
+    gui.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
+        FAULT_MODEL_NAME).setValue(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
+    gui.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
+        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
+    gui.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
+        RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
+
+    TimeSpanGuiBean timespan = gui.getSelectedERFTimespanGuiBean();
+    timespan.getTimeSpan().setDuration(1.0);
+    gui.getERFParameterListEditor().refreshParamEditor();
+    timespan.getParameterListEditor().refreshParamEditor();
+  }
+
+  /**
+   * Select the same source and rupture in the OpenSHA application for deterministic calculations,
+   * similar to eqk forecast params used to do the cybershake calculations.
+   */
+  private void setEqkSrcRupSelectorParams(){
+    EqkRupSelectorGuiBean erfRupSelectorGuiBean = application.getEqkSrcRupSelectorGuiBeanInstance();
+    erfRupSelectorGuiBean.getParameterEditor(erfRupSelectorGuiBean.RUPTURE_SELECTOR_PARAM_NAME).
+        setValue(erfRupSelectorGuiBean.RUPTURE_FROM_EXISTING_ERF);
+
+    EqkRupSelectorGuiBeanAPI erfRupSelGuiBean = erfRupSelectorGuiBean.getEqkRuptureSelectorPanel();
+    EqkRuptureFromERFSelectorPanel rupGuiBean = (EqkRuptureFromERFSelectorPanel)erfRupSelGuiBean;
+    rupGuiBean.showAllParamsForForecast(false);
+    rupGuiBean.getParameterListEditor().getParameterEditor(rupGuiBean.ERF_PARAM_NAME).
+        setValue(Frankel02_AdjustableEqkRupForecast.NAME);
+    ERF_GuiBean erfGuiBean = rupGuiBean.getERF_ParamEditor();
+
+    erfGuiBean.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
+        FAULT_MODEL_NAME).setValue(Frankel02_AdjustableEqkRupForecast.FAULT_MODEL_STIRLING);
+    erfGuiBean.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
+        BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.BACK_SEIS_EXCLUDE);
+    erfGuiBean.getERFParameterListEditor().getParameterEditor(Frankel02_AdjustableEqkRupForecast.
+        RUP_OFFSET_PARAM_NAME).setValue(new Double(5.0));
+
+    TimeSpanGuiBean timespan = erfGuiBean.getSelectedERFTimespanGuiBean();
+    timespan.getTimeSpan().setDuration(1.0);
+    erfGuiBean.getERFParameterListEditor().refreshParamEditor();
+    timespan.getParameterListEditor().refreshParamEditor();
+    //rupGuiBean.updateERFAndSourceRupList();
+    //rupGuiBean.getParameterListEditor().refreshParamEditor();
+    try {
+      EqkRupForecastAPI erf = (EqkRupForecastAPI) erfGuiBean.getSelectedERF();
+      rupGuiBean.setEqkRupForecast(erf);
+    }
+    catch (InvocationTargetException ex) {
+    }
+    String srcIndex = (String)srcIndexParam.getValue();
+    int srcNum = Integer.parseInt(srcIndex.trim());
+    Integer rupIndex = (Integer)rupIndexParam.getValue();
+    rupGuiBean.setSourceFromSelectedERF(srcNum);
+    rupGuiBean.setRuptureForSelectedSource(rupIndex.intValue());
+    rupGuiBean.showAllParamsForForecast(true);
+  }
+
+  /**
+   * Select the IMT and SA Period in the OpenSHA application similar to that chosen
+   * in Cybershake control panel.
+   */
+  private boolean setIMT_Params(){
+    IMT_GuiBean imtGui = application.getIMTGuiBeanInstance();
+    imtGui.getParameterEditor(imtGui.IMT_PARAM_NAME).setValue("SA");
+    String saPeriodString = (String)saPeriodParam.getValue();
+    double saPeriod = Double.parseDouble(saPeriodString.trim());
+    DoubleDiscreteParameter saPeriodParam = (DoubleDiscreteParameter)imtGui.getParameterEditor("SA Period").getParameter();
+    ArrayList allowedVals = saPeriodParam.getAllowedDoubles();
+    int size = allowedVals.size();
+    double minSaVal = ((Double)allowedVals.get(0)).doubleValue();
+    double maxSaVal = ((Double)allowedVals.get(size -1)).doubleValue();
+    if ( (saPeriod < minSaVal) || (saPeriod > maxSaVal)) {
+      JOptionPane.showMessageDialog(this,
+                                    "This attenuation does not support the SA Period\n " +
+                                    "selected in cybershake control panel. Either choose a \n different Attenuation " +
+                                    "Relationship or a different SA Period");
+      return false;
+    }
+    else {
+      for (int i = 0; i < size-1; ++i) {
+        double saVal_first = ((Double)allowedVals.get(i)).doubleValue();
+        double saVal_second = ((Double)allowedVals.get(i+1)).doubleValue();
+        if(saPeriod > saVal_first && saPeriod <saVal_second){
+          if((saPeriod - saVal_first) <= (saVal_second - saPeriod))
+            imtGui.getParameterEditor("SA Period").setValue((Double)allowedVals.get(i));
+          else
+            imtGui.getParameterEditor("SA Period").setValue((Double)allowedVals.get(i+1));
+          break;
+        }
+      }
+    }
+    imtGui.refreshParamEditor();
+    return true;
+  }
+
+  /**
+   * initialises the function with the x and y values if the user has chosen the USGS-PGA X Vals
+   * the y values are modified with the values entered by the user
+   */
+  private ArbitrarilyDiscretizedFunc createUSGS_PGA_Function() {
+    ArbitrarilyDiscretizedFunc function = new ArbitrarilyDiscretizedFunc();
+    function.set(.005, 1);
+    function.set(.007, 1);
+    function.set(.0098, 1);
+    function.set(.0137, 1);
+    function.set(.0192, 1);
+    function.set(.0269, 1);
+    function.set(.0376, 1);
+    function.set(.0527, 1);
+    function.set(.0738, 1);
+    function.set(.103, 1);
+    function.set(.145, 1);
+    function.set(.203, 1);
+    function.set(.284, 1);
+    function.set(.397, 1);
+    function.set(.556, 1);
+    function.set(.778, 1);
+    function.set(1.09, 1);
+    function.set(1.52, 1);
+    function.set(2.13, 1);
+    return function;
   }
 
 }

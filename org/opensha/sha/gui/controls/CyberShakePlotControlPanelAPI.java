@@ -2,6 +2,12 @@ package org.opensha.sha.gui.controls;
 
 import org.opensha.data.function.DiscretizedFuncAPI;
 import java.util.ArrayList;
+import org.opensha.sha.gui.beans.EqkRupSelectorGuiBean;
+import org.opensha.sha.gui.beans.IMT_GuiBean;
+import org.opensha.sha.gui.beans.Site_GuiBean;
+import org.opensha.sha.gui.beans.ERF_GuiBean;
+import org.opensha.sha.gui.beans.TimeSpanGuiBean;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 
 /**
  * <p>Title: CyberShakePlotControlPanelAPI</p>
@@ -30,4 +36,39 @@ public interface CyberShakePlotControlPanelAPI {
      * applicaton to plot deterministic curves.
      */
     public void setCurveType(boolean isDeterministic);
+
+
+    /**
+     * This returns the Earthquake Forecast GuiBean which allows the the cybershake
+     * control panel to set the forecast parameters from cybershake control panel,
+     * similar to what they are set when calculating cybershaks curves.
+     */
+    public ERF_GuiBean getEqkRupForecastGuiBeanInstance();
+
+    /**
+     * This returns instance to the EqkRupSelectorGuiBean, this allows the cybershake
+     * control panel to set the forecast parameters and select the same source
+     * and rupture as in the cybershake control panel.
+     */
+    public EqkRupSelectorGuiBean getEqkSrcRupSelectorGuiBeanInstance();
+
+    /**
+     * This returns the Site Guibean using which allows to set the site locations
+     * in the OpenSHA application from cybershake control panel.
+     */
+    public Site_GuiBean getSiteGuiBeanInstance();
+
+    /**
+     * It returns the IMT Gui bean, which allows the Cybershake control panel
+     * to set the same SA period value in the main application
+     * similar to selected for Cybershake.
+     */
+    public IMT_GuiBean getIMTGuiBeanInstance();
+
+    /**
+     * Sets the hazard curve x-axis values (if user wants custom values x-axis values).
+     * Note that what's passed in is not cloned (the y-axis values will get modified).
+     * @param func
+     */
+    public void setX_ValuesForHazardCurve(ArbitrarilyDiscretizedFunc func);
 }

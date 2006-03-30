@@ -341,7 +341,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    step =4;
    startProgressBarTimer();
    int numRuptures = erf.getNumRuptures(sourceValue);
-
    //creating the rupture parameter
    ruptureParam = new IntegerParameter(RUPTURE_PARAM_NAME,0,numRuptures-1,new Integer(ruptureIndex));
    ruptureParam.addParameterChangeListener(this);
@@ -661,6 +660,14 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
 
   void button_actionPerformed(ActionEvent e) {
     frame.dispose();
+    updateERFAndSourceRupList();
+  }
+
+
+  /**
+   * Updates the ERF and Source Rupture list in the Rupture from ERF selector
+   */
+  private void updateERFAndSourceRupList(){
     Thread t = new Thread(new Runnable() {
       public void run() {
         try {

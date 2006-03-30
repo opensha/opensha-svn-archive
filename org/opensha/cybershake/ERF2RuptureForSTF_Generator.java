@@ -349,7 +349,7 @@ public class ERF2RuptureForSTF_Generator {
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.
         BACK_SEIS_NAME).setValue(Frankel02_AdjustableEqkRupForecast.
-                                 BACK_SEIS_INCLUDE);
+                                 BACK_SEIS_EXCLUDE);
 
     frankelForecast.getAdjustableParameterList().getParameter(
         Frankel02_AdjustableEqkRupForecast.BACK_SEIS_RUP_NAME).
