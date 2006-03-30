@@ -63,6 +63,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
     //Instance for the framee to show the all parameters in this editor
     protected JDialog frame;
+    //instance for the
+    protected JComboBox comboBox;
 
 
     // String Constraints
@@ -131,7 +133,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
 
         //Adding Button to update the forecast
         JButton button = new JButton();
-        button.setText("Update "+magDistParam.getName());
+        button.setText("Done");
         button.setForeground(new Color(80,80,133));
         button.setBackground(new Color(200,200,230));
         button.addActionListener(new java.awt.event.ActionListener() {

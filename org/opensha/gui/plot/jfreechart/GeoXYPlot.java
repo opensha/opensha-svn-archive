@@ -4,7 +4,7 @@ import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.event.*;
-import org.jfree.chart.tooltips.*;
+
 import org.jfree.data.*;
 import org.jfree.chart.plot.*;
 import org.jfree.ui.RectangleEdge;

@@ -11,7 +11,7 @@ import javax.swing.text.*;
 
 import org.jfree.chart.*;
 import org.jfree.chart.axis.*;
-import org.jfree.chart.tooltips.*;
+
 import org.jfree.data.*;
 import org.jfree.chart.labels.*;
 

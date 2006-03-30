@@ -11,7 +11,7 @@ import javax.swing.border.*;
 import org.opensha.gui.*;
 
 import org.jfree.chart.*;
-import org.jfree.chart.tooltips.*;
+
 
 import org.opensha.gui.*;
 import org.opensha.param.*;

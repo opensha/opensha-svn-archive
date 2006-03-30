@@ -1,7 +1,7 @@
 package org.opensha.gui;
 
 import org.jfree.chart.*;
-import org.jfree.chart.tooltips.*;
+
 
 
 import java.awt.Graphics2D;

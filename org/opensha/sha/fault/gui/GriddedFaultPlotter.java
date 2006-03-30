@@ -11,7 +11,6 @@ import org.opensha.gui.*;
 import org.opensha.gui.plot.jfreechart.*;
 import org.jfree.chart.*;
 import org.jfree.chart.plot.*;
-import org.jfree.chart.tooltips.*;
 import org.jfree.data.*;
 import org.jfree.chart.renderer.*;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
