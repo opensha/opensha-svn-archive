@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.FileReader;
 import java.io.BufferedReader;
-import org.opensha.sha.surface.GriddedSurface;
+import org.opensha.sha.surface.EvenlyGriddedSurface;
 import java.util.StringTokenizer;
 import org.opensha.data.Location;
 import org.opensha.gui.plot.jfreechart.GriddedSurfaceXYDataSet;
@@ -349,7 +349,7 @@ public class RuptureAnimationGUI extends JFrame implements  ActionListener,
    private void addLocationListToPlot(LocationList locList,
                                      int index) throws
       InvalidRangeException, ClassCastException, ArrayIndexOutOfBoundsException {
-    GriddedSurface griddedSurface = new GriddedSurface(1, locList.size());
+    EvenlyGriddedSurface griddedSurface = new EvenlyGriddedSurface(1, locList.size(),1.0);
     for (int i = 0; i < locList.size(); ++i)
       griddedSurface.set(0, i, locList.getLocationAt(i));
     GriddedSurfaceXYDataSet griddedDataSet = new GriddedSurfaceXYDataSet(griddedSurface);

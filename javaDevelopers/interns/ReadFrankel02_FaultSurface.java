@@ -5,7 +5,7 @@ import java.io.*;
 
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
 import org.opensha.sha.earthquake.rupForecastImpl.FaultRuptureSource;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.param.ParameterConstraintAPI;
 import org.opensha.param.StringConstraint;
 import org.opensha.sha.earthquake.ProbEqkRupture;
@@ -156,7 +156,7 @@ public class ReadFrankel02_FaultSurface {
         //going over all the ruptures in the source
         for (int rupIndex = 0; rupIndex < numRuptures; ++rupIndex) {
           ProbEqkRupture rupture = source.getRupture(rupIndex);
-          GriddedSurfaceAPI surface = rupture.getRuptureSurface();
+          EvenlyGriddedSurfaceAPI surface = rupture.getRuptureSurface();
           String loc1 = surface.getLocation(0,0).toString().replaceAll(",", "  ");
           String loc2 = surface.getLocation(0,surface.getNumCols()-1).toString().replaceAll(",", "  ");
           fw.write(sourceIndex+","+rupIndex+","+source.getName()+","+

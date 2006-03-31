@@ -32,7 +32,7 @@ import org.opensha.data.LocationList;
  * @created    February 26, 2002
  * @version    1.0
  */
-public class PointSurface extends Location implements GriddedSurfaceAPI {
+public class PointSurface extends Location implements EvenlyGriddedSurfaceAPI {
 
 
     /**
@@ -295,7 +295,7 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
      * row and col then the original surface. It averages the 4 corner location
      * on each grid surface to get the grid centered location.
      */
-    public GriddedSurfaceAPI getGridCenteredSurface() {
+    public EvenlyGriddedSurfaceAPI getGridCenteredSurface() {
       return this;
     }
 
@@ -381,6 +381,16 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
       surfaceMetadata += (float) getDepth();
 
       return surfaceMetadata;
+    }
+
+
+    /**
+     * returns the grid spacing
+     *
+     * @return
+     */
+    public double getGridSpacing() {
+      return Double.NaN;
     }
 
 }

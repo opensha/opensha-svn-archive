@@ -259,7 +259,7 @@ public class Abrahamson_2000_AttenRel
    */
   protected void setDirectivityParams() {
 
-    GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+    EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
     Location siteLoc = site.getLocation();
     Location hypLoc = eqkRupture.getHypocenterLocation();
     if (hypLoc == null) {

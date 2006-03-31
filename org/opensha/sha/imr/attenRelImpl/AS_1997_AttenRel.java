@@ -306,7 +306,7 @@ public class AS_1997_AttenRel
     // be converted to ints without losing info.
     double toIntFactor = 1.0e7; // makes results accurate to ~cm.
 
-    GriddedSurfaceAPI surface = this.eqkRupture.getRuptureSurface();
+    EvenlyGriddedSurfaceAPI surface = this.eqkRupture.getRuptureSurface();
     int numCols = surface.getNumCols();
 
     int[] xVals = new int[numCols + 2];

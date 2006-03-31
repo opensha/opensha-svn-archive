@@ -35,7 +35,7 @@ import org.opensha.data.*;
  * @created    February 26, 2002
  * @version    1.0
  */
-public interface GriddedSurfaceAPI extends Container2DAPI {
+public interface EvenlyGriddedSurfaceAPI extends Container2DAPI {
 
     /** Returns the average dip of this surface into the Earth.  */
     public double getAveDip();
@@ -94,7 +94,7 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
      * row and col then the original surface. It averages the 4 corner location
      * on each grid surface to get the grid centered location.
      */
-    public GriddedSurfaceAPI getGridCenteredSurface() ;
+    public EvenlyGriddedSurfaceAPI getGridCenteredSurface() ;
 
 
     /**
@@ -116,5 +116,13 @@ public interface GriddedSurfaceAPI extends Container2DAPI {
      * @return String
      */
     public String getSurfaceMetadata();
+
+    /**
+     * returns the grid spacing
+     *
+     * @return
+     */
+    public  double getGridSpacing() ;
+
 
 }

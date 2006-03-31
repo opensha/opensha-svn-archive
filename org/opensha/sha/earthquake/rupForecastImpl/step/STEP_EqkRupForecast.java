@@ -16,7 +16,7 @@ import org.opensha.util.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import org.opensha.data.Location;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.TimeSpan;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;

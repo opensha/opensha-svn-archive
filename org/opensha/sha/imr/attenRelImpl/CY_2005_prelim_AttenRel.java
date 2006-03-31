@@ -185,7 +185,7 @@ public class CY_2005_prelim_AttenRel
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     rakeParam.setValue(eqkRupture.getAveRake());
-    GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+    EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
     dipParam.setValue(surface.getAveDip());
     double depth = surface.getLocation(0, 0).getDepth();
     rupTopDepthParam.setValue(depth);

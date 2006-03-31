@@ -26,7 +26,7 @@ import org.opensha.calc.RelativeLocation;
  * @created    February 26, 2002
  * @version    1.0
  */
-public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSurfaceAPI {
+public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGriddedSurfaceAPI {
 
     /**
      *  Constructor for the GriddedSubsetSurface object
@@ -55,7 +55,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * @exception  ArrayIndexOutOfBoundsException  Thrown if window indexes exceed the
      * main GriddedSurface indexes.
      */
-    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, GriddedSurfaceAPI data )
+    public GriddedSubsetSurface( int numRows, int numCols, int startRow, int startCol, EvenlyGriddedSurfaceAPI data )
              throws ArrayIndexOutOfBoundsException {
         super( numRows, numCols, startRow, startCol, ( Container2DAPI ) data );
     }
@@ -127,14 +127,14 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      *
      * @param  gs  The new newMainSurface value
      */
-    public void setNewMainSurface( GriddedSurface gs ) {
+    public void setNewMainSurface( EvenlyGriddedSurface gs ) {
         super.setContainer2D( ( Container2D ) gs );
     }
 
 
     /** Sets the aveStrike attribute of the GriddedSubsetSurface object. */
     public void setAveStrike( double aveStrike ) {
-        ( ( GriddedSurface ) data ).setAveStrike( aveStrike );
+        ( ( EvenlyGriddedSurface ) data ).setAveStrike( aveStrike );
     }
 
 
@@ -143,7 +143,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
     /** Sets the aveDip attribute of the GriddedSubsetSurface object */
     public void setAveDip( double aveDip ) {
-        ( ( GriddedSurface ) data ).setAveDip( aveDip );
+        ( ( EvenlyGriddedSurface ) data ).setAveDip( aveDip );
     }
 
 
@@ -220,7 +220,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * @return    The aveStrike value
      */
     public double getAveStrike() {
-        return ( ( GriddedSurface ) data ).getAveStrike();
+        return ( ( EvenlyGriddedSurface ) data ).getAveStrike();
     }
 
 
@@ -235,7 +235,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * @return    The aveDip value
      */
     public double getAveDip() {
-        return ( ( GriddedSurface ) data ).getAveDip();
+        return ( ( EvenlyGriddedSurface ) data ).getAveDip();
     }
 
     /** Debug string to represent a tab. Used by toString().  */
@@ -246,9 +246,9 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
 
         StringBuffer b = new StringBuffer();
         b.append( C + '\n');
-        if ( data != null ) b.append( "Ave. Strike = " + ( ( GriddedSurface ) data ).getAveStrike() + '\n' );
-        if ( data != null ) b.append( "Ave. Dip = " + ( ( GriddedSurface ) data ).getAveDip() + '\n' );
-        if ( data != null ) b.append( "Surface Area = " +  ( ( GriddedSurface ) data ).getSurfaceArea() + '\n' );
+        if ( data != null ) b.append( "Ave. Strike = " + ( ( EvenlyGriddedSurface ) data ).getAveStrike() + '\n' );
+        if ( data != null ) b.append( "Ave. Dip = " + ( ( EvenlyGriddedSurface ) data ).getAveDip() + '\n' );
+        if ( data != null ) b.append( "Surface Area = " +  ( ( EvenlyGriddedSurface ) data ).getSurfaceArea() + '\n' );
 
         b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
 
@@ -268,33 +268,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * row and col then the original surface. It averages the 4 corner location
      * on each grid surface to get the grid centered location.
      */
-    public GriddedSurfaceAPI getGridCenteredSurface() {
-
-      int numRows = getNumRows() -1;
-      int numCols = getNumCols() -1 ;
-      //System.out.println("NumRows:"+numRows+" NumCols:"+numCols);
-      GriddedSurfaceAPI surface = new GriddedSurface(numRows,
-          numCols);
-      for (int i = 0; i < numRows; ++i) {
-        for (int j = 0; j < numCols; ++j) {
-          Location loc;
-          Location loc1 = getLocation(i, j);
-          Location loc2 = getLocation(i, j + 1);
-          Location loc3 = getLocation(i + 1, j);
-          Location loc4 = getLocation(i + 1, j + 1);
-          double locLat = (loc1.getLatitude() + loc2.getLatitude() +
-                           loc3.getLatitude() +
-                           loc4.getLatitude()) / 4;
-          double locLon = (loc1.getLongitude() + loc2.getLongitude() +
-                           loc3.getLongitude() +
-                           loc4.getLongitude()) / 4;
-          double locDepth = (loc1.getDepth() + loc2.getDepth() + loc3.getDepth() +
-                             loc4.getDepth()) / 4;
-          loc = new Location(locLat,locLon,locDepth);
-          surface.set(i,j,loc);
-        }
-      }
-      return surface;
+    public EvenlyGriddedSurfaceAPI getGridCenteredSurface() {
+      return ( ( EvenlyGriddedSurface ) data ).getGridCenteredSurface();
     }
 
     /**
@@ -302,9 +277,8 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * @return double
      */
     public double getSurfaceLength() {
-      if(data instanceof EvenlyGriddedSurface)
-        return ((EvenlyGriddedSurface)data).getGridSpacing() * (getNumCols()-1);
-      return Double.NaN;
+        return ((EvenlyGriddedSurface)data).getSurfaceLength();
+
     }
 
     /**
@@ -312,11 +286,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * @return double
      */
     public double getSurfaceWidth() {
-
-     if(data instanceof EvenlyGriddedSurface)
-       return ((EvenlyGriddedSurface)data).getGridSpacing() * (getNumRows()-1);
-     return Double.NaN;
-
+       return ((EvenlyGriddedSurface)data).getSurfaceWidth();
     }
 
     /**
@@ -339,10 +309,18 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
      * @return String
      */
     public String getSurfaceMetadata() {
-      if(data instanceof EvenlyGriddedSurface)
+
        return ((EvenlyGriddedSurface)data).getSurfaceMetadata();
-     return null;
     }
 
+
+    /**
+     * returns the grid spacing
+     *
+     * @return
+     */
+    public double getGridSpacing() {
+      return ((EvenlyGriddedSurface)data).getGridSpacing();
+    }
 
 }

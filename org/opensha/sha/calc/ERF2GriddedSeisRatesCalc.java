@@ -7,7 +7,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.data.region.*;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.Location;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
@@ -260,7 +260,7 @@ public class ERF2GriddedSeisRatesCalc {
         if (mag < minMag)
           continue;
 
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -319,7 +319,7 @@ public class ERF2GriddedSeisRatesCalc {
         if (mag < minMag)
           continue;
 
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -382,7 +382,7 @@ public class ERF2GriddedSeisRatesCalc {
         if (mag < minMagnitude)
           continue;
 
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -434,7 +434,7 @@ public class ERF2GriddedSeisRatesCalc {
         if (mag < minMagnitude)
           continue;
 
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
         long numPts = rupSurface.size();
 
         //getting the rate at each Point on the rupture( calculated by first
@@ -504,7 +504,7 @@ public class ERF2GriddedSeisRatesCalc {
         if (rupture.getMag() < minMag)
           continue;
 
-        GriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
+        EvenlyGriddedSurfaceAPI rupSurface = rupture.getRuptureSurface();
         double ptProb = rupture.getProbability() / rupSurface.size();
 
         //getting the iterator for all points on the rupture

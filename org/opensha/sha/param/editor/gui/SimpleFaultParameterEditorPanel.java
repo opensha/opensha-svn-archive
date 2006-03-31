@@ -20,7 +20,7 @@ import org.opensha.data.Location;
 /**
  * <p>Title: SimpleFaultParameterEditorPanel</p>
  * <p>Description: It is a more general parameter than just a Simple Fault Parameter
- * Editor because actually inside it creates an object of the EvenlyGriddedSurface.</p>
+ * Editor because actually inside it creates an object of the EvenlyGriddedSurface1EvenlyGriddedSurface1.</p>
  * @author : Edward Field, Nitin Gupta and Vipin Gupta
  * @created : July 31, 2003
  * @version 1.0

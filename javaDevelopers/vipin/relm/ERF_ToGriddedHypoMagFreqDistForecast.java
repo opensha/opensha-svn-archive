@@ -5,7 +5,7 @@ import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.sha.earthquake.EqkRupForecast;
 import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.sha.earthquake.ProbEqkRupture;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import java.util.ListIterator;
 import org.opensha.data.Location;
 import org.opensha.sha.earthquake.griddedForecast.HypoMagFreqDistAtLoc;

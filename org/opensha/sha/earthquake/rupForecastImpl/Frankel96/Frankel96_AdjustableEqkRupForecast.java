@@ -16,7 +16,7 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
 import org.opensha.sha.fault.GriddedFaultFactory;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -312,7 +312,7 @@ private void initAdjParams() {
             factory = new StirlingGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
                                                    lowerSeismoDepth, GRID_SPACING);
           }
-          GriddedSurfaceAPI surface = factory.getGriddedSurface();
+          EvenlyGriddedSurfaceAPI surface = factory.getGriddedSurface();
 
           // Now make the source(s)
           if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){

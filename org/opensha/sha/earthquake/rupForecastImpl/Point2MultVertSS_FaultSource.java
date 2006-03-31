@@ -145,7 +145,7 @@ public class Point2MultVertSS_FaultSource extends ProbEqkSource implements java.
    * @param nthRupture
    * @return
    */
-  private GriddedSurfaceAPI getRuptureSurface(int nthRupture) {
+  private EvenlyGriddedSurfaceAPI getRuptureSurface(int nthRupture) {
     // set the parameters for the fault factory
     frankelFaultFactory.setAll((FaultTrace)faultTraces.get(nthRupture),90,upperSeisDepth,lowerSeisDepth,1.0);
     return frankelFaultFactory.getGriddedSurface();

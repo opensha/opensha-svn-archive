@@ -208,7 +208,7 @@ public class GriddedFaultApplet
     NumericTextField offsetTextField = new NumericTextField();
 
     GriddedFaultPlotter plotter = new GriddedFaultPlotter();
-    GriddedSurfaceAPI surface = null;
+    EvenlyGriddedSurfaceAPI surface = null;
     double currentGridSpacing = -1;
 
     //VisadPlotter plotter3D = new VisadPlotter();
@@ -379,7 +379,7 @@ public class GriddedFaultApplet
 
 
 
-    private GriddedSurfaceAPI getFaultGriddedSurface(String faultName){
+    private EvenlyGriddedSurfaceAPI getFaultGriddedSurface(String faultName){
 
       String S = C + " ; getFaultGriddedSurface(): ";
       if( D ) System.out.println(S + "Starting");
@@ -387,7 +387,7 @@ public class GriddedFaultApplet
       String selectedFaultSource = (String)this.customFrankelComboBox.getSelectedItem();
 
       SimpleFaultData faultData = null;
-      GriddedSurfaceAPI surface = null;
+      EvenlyGriddedSurfaceAPI surface = null;
 
       // get the factory based on the selected Fault source
       //if the fault source is the frankel fault source

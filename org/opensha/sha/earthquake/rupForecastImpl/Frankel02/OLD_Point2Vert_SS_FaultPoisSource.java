@@ -9,7 +9,7 @@ import org.opensha.sha.fault.FaultTrace;
 import org.opensha.sha.fault.FrankelGriddedFaultFactory;
 import org.opensha.calc.magScalingRelations.MagLengthRelationship;
 import org.opensha.sha.surface.PointSurface;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 // temp for testing
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
@@ -227,7 +227,7 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
     probEqkRupture.setProbability(prob);
 
     // set the rupture surface
-    probEqkRupture.setRuptureSurface((GriddedSurfaceAPI) rupSurfaces.get(nthRupture));
+    probEqkRupture.setRuptureSurface((EvenlyGriddedSurfaceAPI) rupSurfaces.get(nthRupture));
 
     // return the ProbEqkRupture
     return probEqkRupture;

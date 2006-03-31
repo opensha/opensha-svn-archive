@@ -55,7 +55,7 @@ public class Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements java
   private MagLengthRelationship magLengthRelationship;
   private double magCutOff;
   private PointSurface ptSurface;
-  private GriddedSurfaceAPI finiteFault;
+  private EvenlyGriddedSurfaceAPI finiteFault;
 
   // to hold the non-zero mags, rates, and rupture surfaces
 //  ArrayList mags, rates, rupSurfaces;

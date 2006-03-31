@@ -35,7 +35,7 @@ public class EqkRupture implements java.io.Serializable {
 
 
     /** object to specify Rupture distribution and AveDip */
-    protected GriddedSurfaceAPI ruptureSurface = null;
+    protected EvenlyGriddedSurfaceAPI ruptureSurface = null;
 
     /** object to contain arbitrary parameters */
     protected ParameterList otherParams ;
@@ -55,7 +55,7 @@ public class EqkRupture implements java.io.Serializable {
     public EqkRupture(
         double mag,
         double aveRake,
-	GriddedSurfaceAPI ruptureSurface,
+	EvenlyGriddedSurfaceAPI ruptureSurface,
 	Location hypocenterLocation) throws InvalidRangeException{
       this.mag = mag;
       FaultUtils.assertValidRake(aveRake);
@@ -111,14 +111,14 @@ public class EqkRupture implements java.io.Serializable {
     }
 
 
-    public GriddedSurfaceAPI getRuptureSurface() { return ruptureSurface; }
+    public EvenlyGriddedSurfaceAPI getRuptureSurface() { return ruptureSurface; }
 
 
     /**
      * Note: Since this takes a GriddedSurfaceAPI both a
      * PointSurface and GriddedSurface can be set here
      */
-    public void setRuptureSurface(GriddedSurfaceAPI r) { ruptureSurface = r; }
+    public void setRuptureSurface(EvenlyGriddedSurfaceAPI r) { ruptureSurface = r; }
 
     public Location getHypocenterLocation() { return hypocenterLocation; }
     public void setHypocenterLocation(Location h) { hypocenterLocation = h; }

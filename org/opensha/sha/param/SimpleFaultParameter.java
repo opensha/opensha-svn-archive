@@ -19,7 +19,7 @@ import org.opensha.data.Location;
  * class because we want to make all the functionality available to the user if
  * he does not want to use the GUI components.
  * This is a more general parameter than the simple fault.
- * Actually it creates an object for the EvenlyGriddedSurface</p>
+ * Actually it creates an object for the EvenlyGriddedSurfaceEvenlyGriddedSurface</p>
  * @author : Ned Field, Nitin Gupta and Vipin Gupta
  * @version 1.0
  */

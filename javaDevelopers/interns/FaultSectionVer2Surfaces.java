@@ -12,7 +12,7 @@ import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
 import org.opensha.sha.fault.FrankelGriddedFaultFactory;
 import org.opensha.sha.fault.SimpleFaultData;
 import org.opensha.sha.fault.StirlingGriddedFaultFactory;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
  * This class reads the fault sections ver2 from the database. It makes gridded suface using the fault trace.
@@ -41,7 +41,7 @@ public class FaultSectionVer2Surfaces {
 	 * @param faultSectionId
 	 * @return
 	 */
-	public GriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
+	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
 		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
 		return getFrankelSurface(faultSection);
 	}
@@ -51,7 +51,7 @@ public class FaultSectionVer2Surfaces {
 	 * @param faultSection
 	 * @return
 	 */
-	public GriddedSurfaceAPI getFrankelSurface(FaultSectionVer2 faultSection) {
+	public EvenlyGriddedSurfaceAPI getFrankelSurface(FaultSectionVer2 faultSection) {
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 //		 frankel fault factory
 		FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
@@ -63,7 +63,7 @@ public class FaultSectionVer2Surfaces {
 	 * @param faultSection
 	 * @return
 	 */
-	public GriddedSurfaceAPI getStirlingSurface(FaultSectionVer2 faultSection) {
+	public EvenlyGriddedSurfaceAPI getStirlingSurface(FaultSectionVer2 faultSection) {
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		// stirling fault factory
 		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
@@ -75,7 +75,7 @@ public class FaultSectionVer2Surfaces {
 	 * @param faultSectionId
 	 * @return
 	 */
-	public GriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
+	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
 		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
 		return getStirlingSurface(faultSection);
 	}

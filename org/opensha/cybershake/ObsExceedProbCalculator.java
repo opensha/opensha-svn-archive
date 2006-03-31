@@ -22,7 +22,7 @@ import org.opensha.param.ParameterAPI;
 import org.opensha.data.LocationList;
 import org.opensha.sha.gui.infoTools.ConnectToCVM;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.Frankel02_AdjustableEqkRupForecast;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.function.DiscretizedFuncAPI;
 import org.opensha.data.Site;
 import org.opensha.sha.earthquake.ProbEqkRupture;

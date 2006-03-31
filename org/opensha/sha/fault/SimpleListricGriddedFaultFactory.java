@@ -13,7 +13,7 @@ import org.opensha.data.*;
 import org.opensha.util.FaultUtils;
 
 /**
- * <b>Title:</b> SimpleListricGriddedFaultFactory.  This creates an EvenlyGriddedSurface
+ * <b>Title:</b> SimpleListricGriddedFaultFactory.  This creates an EvenlyGriddedSurface1EvenlyGriddedSurface1
  * for a listric fault (a fault where dip changes with depth).  As with the
  * StirlingGriddedFaultFactory, grid points are projected down at an angle perpendicular
  * to the end points of the faultTrace.<br>
@@ -87,7 +87,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
      * @return
      * @throws FaultException
      */
-    public GriddedSurfaceAPI getGriddedSurface() throws FaultException {
+    public EvenlyGriddedSurfaceAPI getGriddedSurface() throws FaultException {
 
         String S = C + ": getGriddedSurface():";
 
@@ -326,7 +326,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
                                         depths,
                                         1.0 );
 
-         GriddedSurfaceAPI surface = test.getGriddedSurface();
+         EvenlyGriddedSurfaceAPI surface = test.getGriddedSurface();
 
          Iterator it = surface.getLocationsIterator();
          Location loc;

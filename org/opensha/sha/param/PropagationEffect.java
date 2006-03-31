@@ -9,7 +9,7 @@ import org.opensha.param.event.*;
 import org.opensha.sha.earthquake.*;
 import org.opensha.calc.RelativeLocation;
 import org.opensha.sha.param.WarningDoublePropagationEffectParameter;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 
 /**
@@ -190,7 +190,7 @@ public class PropagationEffect implements java.io.Serializable, ParameterChangeL
 
           double horzDist, vertDist, rupDist;
 
-          GriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+          EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
 
           // flag to project to seisDepth if only one row and depth is below seisDepth
           boolean projectToDepth = false;

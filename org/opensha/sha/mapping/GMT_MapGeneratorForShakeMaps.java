@@ -562,7 +562,7 @@ public class GMT_MapGeneratorForShakeMaps extends GMT_MapGenerator{
       String commandLine;
 
       // Get the surface and associated info
-      GriddedSurfaceAPI surface = eqkRup.getRuptureSurface();
+      EvenlyGriddedSurfaceAPI surface = eqkRup.getRuptureSurface();
       ArrayList fileLines = new ArrayList();
       Location loc;
       int rows = surface.getNumRows();

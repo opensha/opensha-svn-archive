@@ -97,7 +97,7 @@ public final class DistDecayFromRupCalc {
     else {
       // this is a rupture surface.  get  the sum squared distance from
       // all grid nodes to the rupture surface.
-      GriddedSurfaceAPI ruptureSurface = mainshock.getRuptureSurface();
+      EvenlyGriddedSurfaceAPI ruptureSurface = mainshock.getRuptureSurface();
 
       while (zoneIT.hasNext()) {
         nodeDistFromFault[ind++] = getRupDist(ruptureSurface,
@@ -123,7 +123,7 @@ public final class DistDecayFromRupCalc {
   /**
    * getRupDist
    */
-  private static double getRupDist(GriddedSurfaceAPI ruptureSurface, Location gridLoc) {
+  private static double getRupDist(EvenlyGriddedSurfaceAPI ruptureSurface, Location gridLoc) {
     int ind = 0;
     double nodeDistFromRup, minDistFromRup = 0;
     ListIterator rupIT = ruptureSurface.listIterator();

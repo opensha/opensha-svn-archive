@@ -52,7 +52,7 @@ public class FrankelGriddedFaultFactory extends SimpleGriddedFaultFactory {
     }
 
 
-    public GriddedSurfaceAPI getGriddedSurface() throws FaultException {
+    public EvenlyGriddedSurfaceAPI getGriddedSurface() throws FaultException {
 
         String S = C + ": getGriddedSurface():";
         if( D ) System.out.println(S + "Starting");

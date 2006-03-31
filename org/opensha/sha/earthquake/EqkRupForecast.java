@@ -13,7 +13,7 @@ import org.opensha.param.ParameterList;
 import org.opensha.param.event.TimeSpanChangeListener;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.event.ParameterChangeEvent;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.region.EvenlyGriddedGeographicRegionAPI;
 import org.opensha.data.function.ArbDiscrEmpiricalDistFunc;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;

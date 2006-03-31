@@ -14,7 +14,7 @@ import org.opensha.calc.magScalingRelations.magScalingRelImpl.WC1994_MagLengthRe
 import org.opensha.util.*;
 import org.opensha.data.Location;
 import org.opensha.sha.fault.*;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.magdist.*;
 import org.opensha.exceptions.FaultException;
 import org.opensha.sha.surface.EvenlyGriddedSurface;
@@ -381,7 +381,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     double test, test2=0;
     double magEp, wtEp;
 
-    GriddedSurfaceAPI surface;
+    EvenlyGriddedSurfaceAPI surface;
 
     // get adjustable parameters values
     String faultModel = (String) faultModelParam.getValue();
@@ -1163,7 +1163,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     FileWriter fw2 = new FileWriter(filename2);
     FileWriter fw3 = new FileWriter(filename3);
     ProbEqkSource src;
-    GriddedSurfaceAPI surf;
+    EvenlyGriddedSurfaceAPI surf;
     Location loc;
     double rake;
     int i,n;

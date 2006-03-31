@@ -4,7 +4,7 @@ import java.util.ListIterator;
 import java.io.*;
 
 import org.opensha.sha.surface.GriddedSurfaceFactoryAPI;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
 import org.opensha.exceptions.*;
@@ -15,7 +15,7 @@ import org.opensha.util.FaultUtils;
 
 /**
  * <b>Title:</b> SimpleGriddedFaultFactory.  This is the abstract class of any
- * object that creates a gridded surface (actually an EvenlyGriddedSurface)
+ * object that creates a gridded surface (actually an EvenlyGriddedSurface1EvenlyGriddedSurface1)
  * using SimpleFaultData (plus a grid spacing)<p>
  * <b>Description:</b> <p>
  *

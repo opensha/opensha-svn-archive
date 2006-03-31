@@ -119,7 +119,7 @@ public class EqkRuptureCreationPanel
   private ArrayList hypocenterList;
 
   //gridded rupture surface
-  private GriddedSurfaceAPI ruptureSurface = null;
+  private EvenlyGriddedSurfaceAPI ruptureSurface = null;
 
   public EqkRuptureCreationPanel() {
 
@@ -219,7 +219,7 @@ public class EqkRuptureCreationPanel
       }
       else if (ruptureType.equals(this.FINITE_SRC_NAME)) {
         faultParam.setEvenlyGriddedSurfaceFromParams();
-        ruptureSurface = (GriddedSurfaceAPI) faultParam.getValue();
+        ruptureSurface = (EvenlyGriddedSurfaceAPI) faultParam.getValue();
       }
 
       // The first row of all the rupture surfaces is the list of their hypocenter locations

@@ -231,7 +231,7 @@ public class AS_2005_prelim_AttenRel
 
     magParam.setValueIgnoreWarning(new Double(eqkRupture.getMag()));
     rakeParam.setValue(eqkRupture.getAveRake());
-    GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+    EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
     dipParam.setValue(surface.getAveDip());
     double depth = surface.getLocation(0, 0).getDepth();
     rupTopDepthParam.setValue(depth);
@@ -286,7 +286,7 @@ public class AS_2005_prelim_AttenRel
 
       // set the srcSiteAngle parameter (could make a subclass of
       // PropagationEffectParameter later if others use this
-      GriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
+      EvenlyGriddedSurfaceAPI surface = eqkRupture.getRuptureSurface();
       Location fltLoc1 = surface.getLocation(0, 0);
       Location fltLoc2 = surface.getLocation(0, surface.getNumCols() - 1);
       double angle1 = RelativeLocation.getAzimuth(fltLoc1, fltLoc2);

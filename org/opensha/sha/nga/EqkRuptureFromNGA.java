@@ -60,7 +60,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
    * @param hypocenterLocation
    */
   public EqkRuptureFromNGA(double mag,double aveRake,
-        GriddedSurfaceAPI ruptureSurface,
+        EvenlyGriddedSurfaceAPI ruptureSurface,
 	Location hypocenterLocation){
     super(mag,aveRake,ruptureSurface,hypocenterLocation);
   }
@@ -76,7 +76,7 @@ public class EqkRuptureFromNGA extends EqkRupture {
    * @param hypocenterLocation
    */
   public EqkRuptureFromNGA(String eqkId, String eqkName,double mag,double aveRake,
-        GriddedSurfaceAPI ruptureSurface,
+        EvenlyGriddedSurfaceAPI ruptureSurface,
 	Location hypocenterLocation){
     super(mag,aveRake,ruptureSurface,hypocenterLocation);
     this.eqkId = eqkId;

@@ -12,7 +12,7 @@ import org.opensha.data.function.*;
 import org.opensha.data.*;
 
 /**
- * <b>Title:</b> StirlingGriddedFaultFactory.  This creates and EvenlyGriddedSurface
+ * <b>Title:</b> StirlingGriddedFaultFactory.  This creates and EvenlyGriddedSurfaceEvenlyGriddedSurface
  * representation of the fault using a scheme described by Mark Stirling
  * to Ned Field in 2001, where grid points are projected down dip at
  * an angle perpendicular to the end-points of the faultTrace.  Use the setAveDipDir()
@@ -55,7 +55,7 @@ public class StirlingGriddedFaultFactory extends SimpleGriddedFaultFactory {
     }
 
 
-    public GriddedSurfaceAPI getGriddedSurface() throws FaultException {
+    public EvenlyGriddedSurfaceAPI getGriddedSurface() throws FaultException {
 
         String S = C + ": getGriddedSurface():";
         if( D ) System.out.println(S + "Starting");

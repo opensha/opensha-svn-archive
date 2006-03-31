@@ -21,7 +21,7 @@ import org.opensha.sha.calc.sort.DisaggregationSourceRuptureComparator;
 import java.io.FileWriter;
 import java.io.*;
 import org.opensha.data.Location;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.calc.RelativeLocation;
 import java.net.URL;
 import org.opensha.data.XYZ_DataSetAPI;

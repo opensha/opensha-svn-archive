@@ -7,7 +7,7 @@ import org.opensha.exceptions.*;
 import org.opensha.param.*;
 import org.opensha.sha.calc.*;
 import org.opensha.calc.RelativeLocation;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 /**
  * <b>Title:</b> DistanceSeisParameter<p>
@@ -101,7 +101,7 @@ public class DistanceSeisParameter
           double totalDist, horzDist, vertDist;
 
 
-          GriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
+          EvenlyGriddedSurfaceAPI rupSurf = eqkRupture.getRuptureSurface();
 
           // flag to project to seisDepth if only one row and depth is below seisDepth
           boolean projectToDepth = false;

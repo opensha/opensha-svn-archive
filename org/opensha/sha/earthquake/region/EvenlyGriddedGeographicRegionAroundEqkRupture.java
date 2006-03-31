@@ -2,7 +2,7 @@ package org.opensha.sha.earthquake.region;
 
 import org.opensha.sha.earthquake.*;
 import org.opensha.data.region.*;
-import org.opensha.sha.surface.GriddedSurfaceAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.data.*;
 
 /**
@@ -37,7 +37,7 @@ public class EvenlyGriddedGeographicRegionAroundEqkRupture
      */
     public EvenlyGriddedGeographicRegionAroundEqkRupture(EqkRupture rupture, double radius,
       double gridSpacing){
-    GriddedSurfaceAPI surface = rupture.getRuptureSurface();
+    EvenlyGriddedSurfaceAPI surface = rupture.getRuptureSurface();
     LocationList locList = new LocationList();
     locList.addLocation(surface.getLocation(0,0));
     locList.addLocation(surface.getLocation(0,surface.getNumCols()-1));
