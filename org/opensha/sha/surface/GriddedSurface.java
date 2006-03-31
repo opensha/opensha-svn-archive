@@ -232,19 +232,6 @@ public class GriddedSurface
     }
 
     /**
-     * Returns the gridspacing between the first 2 locations on the surface
-     * @return double
-     */
-    public double getGridSpacing() {
-
-      Location loc1 = this.getLocation(0, 0);
-      Location loc2 = this.getLocation(0, 1);
-      return RelativeLocation.getHorzDistance(loc1, loc2);
-    }
-
-
-
-    /**
      * Returns the grid centered location on each grid surface.
      * @return GriddedSurfaceAPI returns a Surface that has one less
      * row and col then the original surface. It averages the 4 corner location
@@ -304,7 +291,7 @@ public class GriddedSurface
       surfaceMetadata = (float)aveDip + "\t";
       surfaceMetadata += (float)getSurfaceLength() + "\t";
       surfaceMetadata += (float)getSurfaceWidth() + "\t";
-      surfaceMetadata += (float)getGridSpacing() + "\t";
+      surfaceMetadata += (float)Double.NaN + "\t";
       int numRows = getNumRows();
       int numCols = getNumCols();
       surfaceMetadata += numRows + "\t";

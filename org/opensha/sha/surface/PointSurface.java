@@ -35,9 +35,6 @@ import org.opensha.data.LocationList;
 public class PointSurface extends Location implements GriddedSurfaceAPI {
 
 
-  private final static double DEFAULT_GRID_SPACING_FOR_POINT_SURFACE = 1.0;
-
-
     /**
      * The average strike of this surface on the Earth. Even though this is a
      * point source, an average strike can be assigned to it to assist with
@@ -343,15 +340,6 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
 
 
     /**
-     * Returns the gridspacing between the 2 locations on the surface
-     * @return double
-     */
-    public double getGridSpacing() {
-      return DEFAULT_GRID_SPACING_FOR_POINT_SURFACE;
-    }
-
-
-    /**
      * This returns the surface width (down dip)
      * @return double
      */
@@ -383,7 +371,7 @@ public class PointSurface extends Location implements GriddedSurfaceAPI {
       surfaceMetadata = (float)aveDip + "\t";
       surfaceMetadata += (float)getSurfaceLength() + "\t";
       surfaceMetadata += (float)getSurfaceWidth() + "\t";
-      surfaceMetadata += (float)getGridSpacing() + "\t";
+      surfaceMetadata += (float)Double.NaN + "\t";
       surfaceMetadata += "1" + "\t";
       surfaceMetadata += "1" + "\t";
       surfaceMetadata += "1" + "\n";

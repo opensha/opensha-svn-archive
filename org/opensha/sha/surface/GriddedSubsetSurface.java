@@ -198,18 +198,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements GriddedSu
       return locList;
     }
 
-    /**
-     * Returns the gridspacing between the first 2 locations on the surface
-     * @return double
-     */
-    public double getGridSpacing() {
-        Location loc1 = getLocation(0, 0);
-        Location loc2 = getLocation(0, 1);
-        return RelativeLocation.getHorzDistance(loc1,loc2);
-    }
-
-
-
     /** Proxy method that returns the number of rows in the main GriddedSurface. */
     public int getMainNumRows() {
         return data.getNumRows();
