@@ -1,5 +1,16 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
+
+GriddedSurface:
+
+	Should we get rid of GriddedSurface and GriddedSurfaceAPI (changing the 
+	latter to EvenlyGriddedSurfaceAPI)? We don't think GriddedSurface is actually
+	used anywhere, except as a parent of EvenlyGriddedSurface.  It's hard to image
+	GriddedSurface ever being used (T-surfs should have their own class), and problems
+	might arise if people are using the GriddedSurfaceAPI with some presumptions of
+	even gridding (e.g., for GriddedSubsetSurface, or in computing propagation effects).
+
+
 MagFreqDistParamEditor
 
 	Change "Update Mag ..." button to "Done"
