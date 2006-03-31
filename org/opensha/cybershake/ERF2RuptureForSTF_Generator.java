@@ -538,14 +538,13 @@ public class ERF2RuptureForSTF_Generator {
    * @return double
    */
   private double getGridSpacing(EvenlyGriddedSurfaceAPI surface) {
-    if(surface instanceof EvenlyGriddedSurface)
-      return ((EvenlyGriddedSurface)surface).getGridSpacing();
-    else if(surface instanceof PointSurface) return DEFAULT_GRID_SPACING_FOR_POINT_SURFACE;
-    else{
-      Location loc1 = surface.getLocation(0, 0);
-      Location loc2 = surface.getLocation(0, 1);
-      return RelativeLocation.getHorzDistance(loc1,loc2);
-    }
+
+    double gridSpacing = surface.getGridSpacing();
+    if(Double.isNaN(gridSpacing))
+      return this.DEFAULT_GRID_SPACING_FOR_POINT_SURFACE;
+
+    return gridSpacing;
+
   }
 
 
