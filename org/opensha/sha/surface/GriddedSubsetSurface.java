@@ -134,7 +134,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
 
     /** Sets the aveStrike attribute of the GriddedSubsetSurface object. */
     public void setAveStrike( double aveStrike ) {
-        ( ( EvenlyGriddedSurface ) data ).setAveStrike( aveStrike );
+        ( ( EvenlyGriddedSurfaceAPI) data ).setAveStrike( aveStrike );
     }
 
 
@@ -143,7 +143,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
 
     /** Sets the aveDip attribute of the GriddedSubsetSurface object */
     public void setAveDip( double aveDip ) {
-        ( ( EvenlyGriddedSurface ) data ).setAveDip( aveDip );
+        ( ( EvenlyGriddedSurfaceAPI) data ).setAveDip( aveDip );
     }
 
 
@@ -220,7 +220,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * @return    The aveStrike value
      */
     public double getAveStrike() {
-        return ( ( EvenlyGriddedSurface ) data ).getAveStrike();
+        return ( ( EvenlyGriddedSurfaceAPI) data ).getAveStrike();
     }
 
 
@@ -269,7 +269,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * on each grid surface to get the grid centered location.
      */
     public EvenlyGriddedSurfaceAPI getGridCenteredSurface() {
-      return ( ( EvenlyGriddedSurface ) data ).getGridCenteredSurface();
+      return ((EvenlyGriddedSurfaceAPI)data).getGridCenteredSurface();
     }
 
     /**
@@ -277,7 +277,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * @return double
      */
     public double getSurfaceLength() {
-        return ((EvenlyGriddedSurface)data).getSurfaceLength();
+        return ((EvenlyGriddedSurfaceAPI)data).getSurfaceLength();
 
     }
 
@@ -286,7 +286,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * @return double
      */
     public double getSurfaceWidth() {
-       return ((EvenlyGriddedSurface)data).getSurfaceWidth();
+       return ((EvenlyGriddedSurfaceAPI)data).getSurfaceWidth();
     }
 
     /**
@@ -310,7 +310,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      */
     public String getSurfaceMetadata() {
 
-       return ((EvenlyGriddedSurface)data).getSurfaceMetadata();
+       return ((EvenlyGriddedSurfaceAPI)data).getSurfaceMetadata();
     }
 
 
@@ -320,7 +320,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * @return
      */
     public double getGridSpacing() {
-      return ((EvenlyGriddedSurface)data).getGridSpacing();
+      return ((EvenlyGriddedSurfaceAPI)data).getGridSpacing();
     }
 
 }

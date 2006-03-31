@@ -91,7 +91,7 @@ public class FaultRuptureSource extends ProbEqkSource {
    * is similar to Rupture Surface.
    * @return GriddedSurfaceAPI
    */
-  public GriddedSurfaceAPI getSourceSurface() {
+  public EvenlyGriddedSurfaceAPI getSourceSurface() {
     return ( (ProbEqkRupture) ruptureList.get(0)).getRuptureSurface();
   }
 
