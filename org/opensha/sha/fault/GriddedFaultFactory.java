@@ -1,6 +1,6 @@
 package org.opensha.sha.fault;
 
-import org.opensha.sha.surface.GriddedSurfaceFactoryAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceFactoryAPI;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 // Fix - Needs more comments
@@ -13,7 +13,7 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
  * @version 1.0
  */
 
-public abstract class GriddedFaultFactory implements GriddedSurfaceFactoryAPI {
+public abstract class GriddedFaultFactory implements EvenlyGriddedSurfaceFactoryAPI {
 
     public abstract EvenlyGriddedSurfaceAPI getGriddedSurface();
 

@@ -12,4 +12,4 @@ package org.opensha.sha.surface;
  * @version 1.0
  */
 
-public interface GriddedSurfaceFactoryAPI { public EvenlyGriddedSurfaceAPI getGriddedSurface(); }
+public interface EvenlyGriddedSurfaceFactoryAPI { public EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface(); }

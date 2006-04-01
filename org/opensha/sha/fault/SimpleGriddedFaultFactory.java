@@ -3,7 +3,7 @@ package org.opensha.sha.fault;
 import java.util.ListIterator;
 import java.io.*;
 
-import org.opensha.sha.surface.GriddedSurfaceFactoryAPI;
+import org.opensha.sha.surface.EvenlyGriddedSurfaceFactoryAPI;
 import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 import org.opensha.sha.fault.FaultTrace;
 import org.opensha.data.Location;
