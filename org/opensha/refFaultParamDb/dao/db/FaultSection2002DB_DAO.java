@@ -54,7 +54,7 @@ public class FaultSection2002DB_DAO {
    * @return
    */
   public ArrayList getAllFaultSections() {
-    String condition = " ";
+    String condition = " order by "+SECTION_NAME;
     return query(condition);
   }
 

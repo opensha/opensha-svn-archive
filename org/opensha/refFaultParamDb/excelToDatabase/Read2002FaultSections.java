@@ -29,10 +29,12 @@ public class Read2002FaultSections {
     try {
       FileWriter fwTrace = new FileWriter(SECTION_TRACE_OUT_FILENAME);
       FileWriter fwNames = new FileWriter(SECTION_NAMES_FILENAME);
+      fwTrace.write("#SectionName,AvgUppeSeisDepth, AvgLowerSeisDepth, AveDip\n");
       //FileWriter fwDip = new FileWriter(DIP_FILENAME);
       for (int i = 0; i < faultSections.size(); ++i) {
         FaultSection2002 faultSection = (FaultSection2002) faultSections.get(i);
-        fwTrace.write("#"+faultSection.getSectionName()+"\n");
+        fwTrace.write("#"+faultSection.getSectionName()+","+faultSection.getAveUpperSeisDepth()+","+
+        		faultSection.getAveLowerSeisDepth()+","+faultSection.getAveDip()+"\n");
         fwNames.write("#"+faultSection.getSectionName()+"\n");
         FaultTrace faultTrace = faultSection.getFaultTrace();
         int numFaultTraceLocations = faultTrace.getNumLocations();
@@ -66,9 +68,9 @@ public class Read2002FaultSections {
     }
   }
   public static void main(String[] args) {
-    SessionInfo.setUserName(args[0]);
-    SessionInfo.setPassword(args[1]);
-    SessionInfo.setContributorInfo();
+   // SessionInfo.setUserName("vipin");
+   // SessionInfo.setPassword("vip");
+   // SessionInfo.setContributorInfo();
     Read2002FaultSections read2002FaultSections1 = new Read2002FaultSections();
   }
 

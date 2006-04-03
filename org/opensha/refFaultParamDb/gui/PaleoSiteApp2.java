@@ -2,22 +2,19 @@ package org.opensha.refFaultParamDb.gui;
 
 import javax.swing.*;
 import java.awt.*;
-import org.opensha.param.estimate.EstimateParameter;
-import org.opensha.param.editor.estimate.ConstrainedEstimateParameterEditor;
+
 import org.opensha.param.editor.*;
 import java.util.ArrayList;
-import org.opensha.param.estimate.EstimateConstraint;
+
 import org.opensha.gui.LabeledBoxPanel;
 import org.opensha.refFaultParamDb.data.*;
 import org.opensha.data.estimate.*;
-import javax.swing.border.*;
-import org.opensha.refFaultParamDb.gui.infotools.InfoLabel;
+
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.param.StringParameter;
-import org.opensha.gui.TitledBorderPanel;
+
 import org.opensha.refFaultParamDb.gui.view.*;
 import org.opensha.refFaultParamDb.gui.view.ViewSlipRate;
-import java.awt.event.*;
 import org.opensha.refFaultParamDb.vo.PaleoSite;
 import org.opensha.refFaultParamDb.dao.db.CombinedEventsInfoDB_DAO;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
