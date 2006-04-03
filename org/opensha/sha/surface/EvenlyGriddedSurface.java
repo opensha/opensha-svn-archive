@@ -58,9 +58,6 @@ public class EvenlyGriddedSurface
     /** The average dip of this surface into the Earth.  */
     protected double aveDip=Double.NaN;
 
-    /** The surface area that this GriddedSurface covers in KM**2 */
-    protected double surfaceArea=Double.NaN;
-
     /**
      * @todo Variables
      */
@@ -165,10 +162,6 @@ public class EvenlyGriddedSurface
     /** Returns the average dip of this surface into the Earth.  */
     public double getAveDip() { return aveDip; }
 
-    /** Returns the surface area that this GriddedSurface covers in KM**2 */
-    public double getSurfaceArea() { return surfaceArea; }
-
-
 
     /** Does same thing as listIterator() in super Interface */
     public ListIterator getLocationsIterator() { return super.listIterator(); }
@@ -187,16 +180,6 @@ public class EvenlyGriddedSurface
 
 
 
-    /** FIX *** Needs to be implemented */
-    public double computeAveStrike() { return Double.NaN; }
-
-    /** FIX *** Needs to be implemented */
-    public double computeAveDip() { return Double.NaN; }
-
-    /** FIX *** Needs to be implemented */
-    public double computeSurfaceArea() { return Double.NaN; }
-
-
     final static char TAB = '\t';
     /** Prints out each location and fault information for debugging */
     public String toString(){
@@ -205,7 +188,6 @@ public class EvenlyGriddedSurface
         b.append( C + '\n');
         if ( aveStrike != Double.NaN ) b.append( "Ave. Strike = " + aveStrike + '\n' );
         if ( aveDip != Double.NaN ) b.append( "Ave. Dip = " + aveDip + '\n' );
-        if ( surfaceArea != Double.NaN ) b.append( "Surface Area = " + surfaceArea + '\n' );
 
         b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
 

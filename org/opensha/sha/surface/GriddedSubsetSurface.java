@@ -132,23 +132,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
     }
 
 
-    /** Sets the aveStrike attribute of the GriddedSubsetSurface object. */
-    public void setAveStrike( double aveStrike ) {
-        ( ( EvenlyGriddedSurfaceAPI) data ).setAveStrike( aveStrike );
-    }
-
-
-
-
-
-    /** Sets the aveDip attribute of the GriddedSubsetSurface object */
-    public void setAveDip( double aveDip ) {
-        ( ( EvenlyGriddedSurfaceAPI) data ).setAveDip( aveDip );
-    }
-
-
-
-
     /**
      *  Get a Location to the grid, unless it doesn't exist. Note
      *  these points are translated to the real grid. FOr example
@@ -248,7 +231,6 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
         b.append( C + '\n');
         if ( data != null ) b.append( "Ave. Strike = " + ( ( EvenlyGriddedSurface ) data ).getAveStrike() + '\n' );
         if ( data != null ) b.append( "Ave. Dip = " + ( ( EvenlyGriddedSurface ) data ).getAveDip() + '\n' );
-        if ( data != null ) b.append( "Surface Area = " +  ( ( EvenlyGriddedSurface ) data ).getSurfaceArea() + '\n' );
 
         b.append( "Row" + TAB + "Col" + TAB + "Latitude" + TAB + "Longitude" + TAB + "Depth");
 

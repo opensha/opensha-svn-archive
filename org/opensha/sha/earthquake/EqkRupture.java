@@ -132,13 +132,13 @@ public class EqkRupture implements java.io.Serializable {
 
     public void setPointSurface(Location location, double aveDip ){
         setPointSurface(location);
-        ruptureSurface.setAveDip(aveDip);
+        ((PointSurface)ruptureSurface).setAveDip(aveDip);
     }
 
     public void setPointSurface(Location location, double aveStrike, double aveDip){
         setPointSurface(location);
-        ruptureSurface.setAveStrike(aveStrike);
-        ruptureSurface.setAveDip(aveDip);
+        ((PointSurface)ruptureSurface).setAveStrike(aveStrike);
+        ((PointSurface)ruptureSurface).setAveDip(aveDip);
     }
 
     public void setPointSurface(PointSurface pointSurface){

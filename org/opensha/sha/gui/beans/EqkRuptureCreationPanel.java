@@ -215,7 +215,7 @@ public class EqkRuptureCreationPanel
       if (ruptureType.equals(this.POINT_SRC_NAME)) {
         ruptureSurface = new PointSurface( (Location) locationParam.getValue());
         double aveDip = ( (Double) dipParam.getValue()).doubleValue();
-        ruptureSurface.setAveDip(aveDip);
+        ((PointSurface)ruptureSurface).setAveDip(aveDip);
       }
       else if (ruptureType.equals(this.FINITE_SRC_NAME)) {
         faultParam.setEvenlyGriddedSurfaceFromParams();

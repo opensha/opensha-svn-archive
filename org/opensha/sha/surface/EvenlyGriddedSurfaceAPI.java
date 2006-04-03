@@ -8,12 +8,7 @@ import org.opensha.data.*;
 
 /**
  * <b>Title:</b> GriddedSurfaceAPI<p>
- * <b>Description:</b> All GriddedSurface classes must implement
- * this interface. This defines the public API that all surfaces
- * must implement. <p>
- *
- * This interface extends teh Container2DAPI so every GriddedSurface
- * class implementation will also implement that API. <p>
+ * <b>Description:</b>
  *
  * The paradigm of the GriddedSurface is that it represents a geographical
  * surface of Location objects slicing through or on the surface of the earth.
@@ -24,14 +19,11 @@ import org.opensha.data.*;
  * model, such as aveDip, aveStrike, etc. that depends on the grid objects
  * being Location objects. <p>
  *
- * The only constraint that will be imposed on these Locations is that
- * they are ordered geographcally. That means that if one Location is physically
- * next to another, those Locations will be next to each other in the grid.
- * Note this does not imply even spacing, nor a geographic straight line. This means
- * that all points along row one may not be at the same longitude. Subclasses
- * may impose further constraints. <p>
+ * There are no constraints on what locations are put where, but the usual presumption
+ * is that the the grid of locations map out the surface in some evenly space way.
+ * it is also presumed that the zeroeth row represent the top edge (or trace). <p>
  *
- * @author     Steven W. Rock
+ * @author     Steven W. Rock & others
  * @created    February 26, 2002
  * @version    1.0
  */
@@ -40,15 +32,9 @@ public interface EvenlyGriddedSurfaceAPI extends Container2DAPI {
     /** Returns the average dip of this surface into the Earth.  */
     public double getAveDip();
 
-    /** Sets the average dip of this surface into the Earth.  */
-    public void setAveDip( double aveDip ) throws InvalidRangeException;
-
 
     /** Returns the average strike of this surface on the Earth.  */
     public double getAveStrike();
-
-    /** Sets the average strike of this surface on the Earth.  */
-    public void setAveStrike( double aveStrike ) throws InvalidRangeException;
 
 
      /**
