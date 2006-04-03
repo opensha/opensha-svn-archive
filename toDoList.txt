@@ -1,14 +1,48 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
-GriddedSurface:
+GriddedSurface Classes:
+------------------------
 
-	Should we get rid of GriddedSurface and GriddedSurfaceAPI (changing the 
-	latter to EvenlyGriddedSurfaceAPI)? We don't think GriddedSurface is actually
-	used anywhere, except as a parent of EvenlyGriddedSurface.  It's hard to image
-	GriddedSurface ever being used (T-surfs should have their own class), and problems
-	might arise if people are using the GriddedSurfaceAPI with some presumptions of
-	even gridding (e.g., for GriddedSubsetSurface, or in computing propagation effects).
+EvenlyGriddedSurface - make abstract & remove setAveStrike() and setAveDip() methods.
+
+Make the following in the sha/fault directory:
+
+	EvenlyGriddedSurfFromSimpleFaultData (Abstract)
+
+		takes SimpleFaultData or those parts in the constructor, & grid spacing
+
+		has get methods for SimpleFaultData or those parts
+
+		throws exception on all set* methods 
+		(can't corrupt the surface it makes)
+
+	FrankelGriddedSurface (subclass of EvenlyGriddedSurfFromSimpleFaultData)
+
+		constructor makes that surface (get method from the factory)
+
+	StirlingGriddedSurface (subclass of EvenlyGriddedSurfFromSimpleFaultData)
+
+		add setAveDipDir to an alternative constructor and add set/get methods for this
+
+		constructor makes that surface (get method from the factory)
+
+	SimpleListricGriddedSurface (subclass of EvenlyGriddedSurface)
+
+		constructor makes that surface using method in that factory
+
+		turn off the set methods here too
+
+Remove all *FaultFactory classes.
+
+Update other classes with these new ones (do with Ned)
+
+Revise GriddedFaultApplet and compare old with new to make sure everything looks fine (test floaters too).
+
+Test all apps.
+
+
+
 
 
 MagFreqDistParamEditor
