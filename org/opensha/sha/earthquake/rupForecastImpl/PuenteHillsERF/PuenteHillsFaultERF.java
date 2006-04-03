@@ -104,7 +104,7 @@ public class PuenteHillsFaultERF extends EqkRupForecast{
 
     sourceList = new ArrayList();
     for(int mag=71; mag<=75;mag += 1) {
-      source = new FaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getGriddedSurface(), rake, 0.2);
+      source = new FaultRuptureSource((double)mag/10.0, (EvenlyGriddedSurface) faultFactory.getEvenlyGriddedSurface(), rake, 0.2);
       source.setName("mag = "+(double)mag/10.0+" PH fault source");
       sourceList.add(source);
     }

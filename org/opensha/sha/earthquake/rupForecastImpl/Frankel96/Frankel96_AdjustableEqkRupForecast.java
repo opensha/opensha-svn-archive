@@ -312,7 +312,7 @@ private void initAdjParams() {
             factory = new StirlingGriddedFaultFactory( faultTrace, dip, upperSeismoDepth,
                                                    lowerSeismoDepth, GRID_SPACING);
           }
-          EvenlyGriddedSurfaceAPI surface = factory.getGriddedSurface();
+          EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
 
           // Now make the source(s)
           if(faultClass.equalsIgnoreCase(FAULT_CLASS_B) && mag>6.5){

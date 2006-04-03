@@ -291,7 +291,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
          // make the fault surface
          factory.setAll(faultTraceAll, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         EvenlyGriddedSurfaceAPI surface = factory.getGriddedSurface();
+         EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
 
          // make the source
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
@@ -318,7 +318,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
          //make source A:
          factory.setAll(faultTraceA, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         EvenlyGriddedSurfaceAPI surface = factory.getGriddedSurface();
+         EvenlyGriddedSurfaceAPI surface = factory.getEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
@@ -326,7 +326,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
          //make source B:
          factory.setAll(faultTraceB, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getGriddedSurface();
+         surface = factory.getEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
@@ -334,7 +334,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
          //make source C:
          factory.setAll(faultTraceC, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getGriddedSurface();
+         surface = factory.getEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
@@ -342,7 +342,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
          //make source D:
          factory.setAll(faultTraceD, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getGriddedSurface();
+         surface = factory.getEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);
@@ -350,7 +350,7 @@ public class PEER_NonPlanarFaultForecast extends EqkRupForecast{
 
          //make source E:
          factory.setAll(faultTraceE, DIP, UPPER_SEISMO_DEPTH, LOWER_SEISMO_DEPTH, gridSpacing);
-         surface = factory.getGriddedSurface();
+         surface = factory.getEvenlyGriddedSurface();
          source = new FloatingPoissonFaultSource(grMagFreqDist,(EvenlyGriddedSurface)surface,
                                     magScalingRel,lengthSigma,rupAspectRatio,offset,
                                     RAKE,timeSpan.getDuration(),minMag);

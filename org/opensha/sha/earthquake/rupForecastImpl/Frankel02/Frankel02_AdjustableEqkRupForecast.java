@@ -784,12 +784,12 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
       if(faultModel.equals(FAULT_MODEL_FRANKEL)) {
         frankelFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        surface = frankelFaultFactory.getGriddedSurface();
+        surface = frankelFaultFactory.getEvenlyGriddedSurface();
       }
       else {
         stirlingFaultFactory.setAll(faultTrace, dip, upperSeismoDepth,
                                    lowerSeismoDepth, gridSpacing);
-        surface = stirlingFaultFactory.getGriddedSurface();
+        surface = stirlingFaultFactory.getEvenlyGriddedSurface();
       }
 
       if(D) {

@@ -15,6 +15,6 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
 
 public abstract class GriddedFaultFactory implements EvenlyGriddedSurfaceFactoryAPI {
 
-    public abstract EvenlyGriddedSurfaceAPI getGriddedSurface();
+    public abstract EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface();
 
 }

@@ -188,7 +188,7 @@ public class OLD_Point2Vert_SS_FaultPoisSource extends ProbEqkSource implements 
         fault.addLocation(loc1);
         fault.addLocation(loc2);
         frFltFactory.setAll(fault,aveDip,0.0,0.0,1.0);
-        rupSurfaces.add(frFltFactory.getGriddedSurface());
+        rupSurfaces.add(frFltFactory.getEvenlyGriddedSurface());
       }
     }
   }

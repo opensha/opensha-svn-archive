@@ -15,27 +15,7 @@ import org.opensha.calc.RelativeLocation;
 /**
  * <b>Title:</b> GriddedSurface<p>
  *
- * <b>Description:</b> Base implementation of the GriddedSurfaceAPI.
- * Provides all basic functionality for a GriddedSurface. Subclasses
- * will just refine specific functions. Note that this class
- * also implements a Container2DAPI so it can be used anywhere that
- * interface is expected. <p>
- *
- * The paradigm of the GriddedSurface is that it represents a geographical
- * surface of Location objects slicing through or on the surface of the earth.
- * Recall that a Container2DAPI represents a collection of Objects in
- * a matrix, or grid, accessed by row and column inedexes. All GriddedSurfaces
- * do is to constrain the object at each grid point to be a Location object.
- * There are also additional calculation methods specific to the paradigm
- * model, such as aveDip, aveStrike, etc. that depends on the grid objects
- * being Location objects. <p>
- *
- * The only constraint that will be imposed on these Locations is that
- * they are ordered geographcally. That means that if one Location is physically
- * next to another, those Locations will be next to each other in the grid.
- * Note this does not imply even spacing, nor a geographic straight line. This means
- * that all points along row one may not be at the same longitude. Subclasses
- * may impose further constraints. <p>
+ * <b>Description:</b> Base implementation of the EvenlyGriddedSurfaceAPI.
  *
  * @author     Steven W. Rock
  * @created    February 26, 2002

@@ -87,9 +87,9 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
      * @return
      * @throws FaultException
      */
-    public EvenlyGriddedSurfaceAPI getGriddedSurface() throws FaultException {
+    public EvenlyGriddedSurfaceAPI getEvenlyGriddedSurface() throws FaultException {
 
-        String S = C + ": getGriddedSurface():";
+        String S = C + ": getEvenlyGriddedSurface():";
 
         if( D ) System.out.println(S + "Starting");
 
@@ -326,7 +326,7 @@ public class SimpleListricGriddedFaultFactory extends GriddedFaultFactory {
                                         depths,
                                         1.0 );
 
-         EvenlyGriddedSurfaceAPI surface = test.getGriddedSurface();
+         EvenlyGriddedSurfaceAPI surface = test.getEvenlyGriddedSurface();
 
          Iterator it = surface.getLocationsIterator();
          Location loc;

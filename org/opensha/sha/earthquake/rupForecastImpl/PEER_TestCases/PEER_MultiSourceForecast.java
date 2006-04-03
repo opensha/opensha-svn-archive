@@ -248,14 +248,14 @@ DoubleParameter offsetParam = new DoubleParameter(OFFSET_PARAM_NAME,OFFSET_PARAM
                                                                      gridSpacing );
 
       // get the surface and make the source for Fault B
-      EvenlyGriddedSurfaceAPI surfaceB = factory.getGriddedSurface();
+      EvenlyGriddedSurfaceAPI surfaceB = factory.getEvenlyGriddedSurface();
       fltSourceB = new  FloatingPoissonFaultSource(dist_yc_B,(EvenlyGriddedSurface) surfaceB,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);
 
       // for fault C:
       factory.setFaultTrace(faultTraceC);
-      EvenlyGriddedSurfaceAPI surfaceC = factory.getGriddedSurface();
+      EvenlyGriddedSurfaceAPI surfaceC = factory.getEvenlyGriddedSurface();
       fltSourceC = new  FloatingPoissonFaultSource(dist_yc_C,(EvenlyGriddedSurface) surfaceC,
                                                  magScalingRel,lengthSigma,rupAspectRatio,offset,
                                                  RAKE,timeSpan.getDuration(),minMag);

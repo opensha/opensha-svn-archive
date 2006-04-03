@@ -400,7 +400,7 @@ public class GriddedFaultApplet
         else
           factory = new FrankelGriddedFaultFactory(faultData,
               ((Double)gridSpacingEditor.getValue()).doubleValue());
-        surface = factory.getGriddedSurface();
+        surface = factory.getEvenlyGriddedSurface();
 
       } else {   // for custom fault
         this.frankel_StirlingLabel.setVisible(false);

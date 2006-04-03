@@ -299,7 +299,7 @@ public class WG02_EqkRupForecast extends EqkRupForecast{
       nSigmaTrunc = new Double(st.nextToken()).doubleValue();
 
       faultFactory = new StirlingGriddedFaultFactory(faultTrace,dip,upperSeismoDepth,lowerSeismoDepth,gridSpacing);
-      faultSurface = (EvenlyGriddedSurface) faultFactory.getGriddedSurface();
+      faultSurface = (EvenlyGriddedSurface) faultFactory.getEvenlyGriddedSurface();
 
 
       // change the rupArea if it's one of the floating ruptures

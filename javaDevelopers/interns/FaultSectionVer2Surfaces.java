@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package javaDevelopers.interns;
 
@@ -25,9 +25,9 @@ public class FaultSectionVer2Surfaces {
 
 	private final static double GRID_SPACING = 1.0;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-	
+
 	public FaultSectionVer2Surfaces() {}
-	
+
 	/**
 	 * Get the names and id of all fault sections
 	 * @return
@@ -45,7 +45,7 @@ public class FaultSectionVer2Surfaces {
 		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
 		return getFrankelSurface(faultSection);
 	}
-	
+
 	/**
 	 * Get the Gridded surface based on Frankel's method for a Fault Section object
 	 * @param faultSection
@@ -55,9 +55,9 @@ public class FaultSectionVer2Surfaces {
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 //		 frankel fault factory
 		FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return frankelGriddedFaultFactory.getGriddedSurface();
+		return frankelGriddedFaultFactory.getEvenlyGriddedSurface();
 	}
-	
+
 	/**
 	 * Get the Gridded surface based on Stirling's method for a Fault Section object
 	 * @param faultSection
@@ -67,9 +67,9 @@ public class FaultSectionVer2Surfaces {
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 		// stirling fault factory
 		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return stirlingGriddedFaultFactory.getGriddedSurface();		
+		return stirlingGriddedFaultFactory.getEvenlyGriddedSurface();
 	}
-	
+
 	/**
 	 * Get the Gridded surface based on Stirling's method for a Fault Section Id
 	 * @param faultSectionId
@@ -79,7 +79,7 @@ public class FaultSectionVer2Surfaces {
 		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
 		return getStirlingSurface(faultSection);
 	}
-	
+
 	private SimpleFaultData getSimpleFaultData(FaultSectionVer2 faultSection) {
 		double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
 		double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX();
@@ -87,7 +87,7 @@ public class FaultSectionVer2Surfaces {
 		SimpleFaultData simpleFaultData = new SimpleFaultData(prefDip, prefLowerDepth, prefUpperDepth, faultSection.getFaultTrace());
 		return simpleFaultData;
 	}
-	
+
 	// get the fault section based on fault section Id
 	public FaultSectionVer2 getFaultSection(int faultSectionId) {
 		return faultSectionDAO.getFaultSection(faultSectionId);

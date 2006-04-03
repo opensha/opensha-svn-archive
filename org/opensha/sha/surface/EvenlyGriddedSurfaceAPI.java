@@ -7,10 +7,10 @@ import org.opensha.exceptions.InvalidRangeException;
 import org.opensha.data.*;
 
 /**
- * <b>Title:</b> GriddedSurfaceAPI<p>
+ * <b>Title:</b> EvenlyGriddedSurfaceAPI<p>
  * <b>Description:</b>
  *
- * The paradigm of the GriddedSurface is that it represents a geographical
+ * The EvenlyGriddedSurfaceAPI represents a geographical
  * surface of Location objects slicing through or on the surface of the earth.
  * Recall that a Container2DAPI represents a collection of Objects in
  * a matrix, or grid, accessed by row and column inedexes. All GriddedSurfaces

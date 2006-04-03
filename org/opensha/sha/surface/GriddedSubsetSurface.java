@@ -254,13 +254,14 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
       return ((EvenlyGriddedSurfaceAPI)data).getGridCenteredSurface();
     }
 
+
     /**
      * This returns the total length of the surface
      * @return double
      */
     public double getSurfaceLength() {
-        return ((EvenlyGriddedSurfaceAPI)data).getSurfaceLength();
 
+        return getGridSpacing() * (getNumCols()-1);
     }
 
     /**
@@ -268,7 +269,7 @@ public class GriddedSubsetSurface extends ContainerSubset2D implements EvenlyGri
      * @return double
      */
     public double getSurfaceWidth() {
-       return ((EvenlyGriddedSurfaceAPI)data).getSurfaceWidth();
+      return getGridSpacing() * (getNumRows()-1);
     }
 
     /**

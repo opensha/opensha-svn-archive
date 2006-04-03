@@ -610,10 +610,10 @@ public class SimpleFaultParameter extends DependentParameter implements Paramete
       }
       //gets the griddedsurface from the faultFactory and sets the Value for the
       //SimpleFaultParameter
-      setValue((EvenlyGriddedSurface)fltFactory.getGriddedSurface());
+      setValue((EvenlyGriddedSurface)fltFactory.getEvenlyGriddedSurface());
 
       if(D) {
-        EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getGriddedSurface();
+        EvenlyGriddedSurface surf = (EvenlyGriddedSurface)fltFactory.getEvenlyGriddedSurface();
         for(int i=0;i<surf.getNumCols();i++)
           for(int k=0;k<surf.getNumRows();k++)
             System.out.println(surf.getLocation(k,i).toString());

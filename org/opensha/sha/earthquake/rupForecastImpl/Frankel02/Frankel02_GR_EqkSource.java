@@ -208,7 +208,7 @@ public class Frankel02_GR_EqkSource extends ProbEqkSource {
     GutenbergRichterMagFreqDist gr = new GutenbergRichterMagFreqDist(6.5,3,0.5,6.5,7.5,1.0e14,1.0);
     System.out.println("cumRate="+(float)gr.getTotCumRate());
 
-    Frankel02_GR_EqkSource src = new Frankel02_GR_EqkSource(gr,(EvenlyGriddedSurface)factory.getGriddedSurface(),
+    Frankel02_GR_EqkSource src = new Frankel02_GR_EqkSource(gr,(EvenlyGriddedSurface)factory.getEvenlyGriddedSurface(),
                                                             10.0,0.0,1,"name");
     ProbEqkRupture rup;
     for(int i=0; i< src.getNumRuptures();i++) {

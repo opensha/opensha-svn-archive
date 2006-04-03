@@ -118,7 +118,7 @@ public class ReadNGA_DataFile {
         FrankelGriddedFaultFactory frankelFaultFactory = new FrankelGriddedFaultFactory(fltData,1.0);
 
         EqkRuptureFromNGA rupture = new EqkRuptureFromNGA(eqkId,eqkName,mag,this.DEFAULT_RAKE,
-            frankelFaultFactory.getGriddedSurface(),hypoLoc);
+            frankelFaultFactory.getEvenlyGriddedSurface(),hypoLoc);
         //adding the rupture to the list
         nga_ruptureList.add(rupture);
         fileLine = br.readLine();
