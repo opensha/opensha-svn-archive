@@ -137,7 +137,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
   protected final static String CONTROL_PANELS = "Control Panels";
   protected final static String REGIONS_OF_INTEREST_CONTROL = "Regions of Interest";
   //private final static String PUENTE_HILLS_TEST_CONTROL = "Set Params for Puente Hills Test";
-  protected final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
+  //protected final static String PUENTE_HILLS_CONTROL_OLD = "Set Params for Puente Hills Scenario (old)";
   protected final static String PUENTE_HILLS_CONTROL =
       "Set Params for Puente Hills Sceanrio";
   protected final static String HAZUS_CONTROL = "Generate Hazus Shape files for Scenario";
@@ -149,7 +149,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     // objects for control panels
   protected RegionsOfInterestControlPanel regionsOfInterest;
   protected PuenteHillsScenarioControlPanelUsingEqkRuptureCreation puenteHillsControlUsingEqkRupture;
-  protected PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
+  //protected PuenteHillsScenarioControlPanelForSingleMultipleAttenRel puenteHillsControl;
   protected GenerateHazusControlPanelForSingleMultipleIMRs hazusControl;
   private CalcOptionControl calcControl;
   protected CalculationSettingsControlPanel calcParamsControl;
@@ -813,7 +813,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
-    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
+    //this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(MAP_CALC_CONTROL);
@@ -834,8 +834,8 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
       initHazusScenarioControl();
     else if(selectedControl.equalsIgnoreCase(this.PUENTE_HILLS_CONTROL))
       initPuenteHillsScenarioControl();
-    else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL_OLD))
-      initPuenteHillsScenarioControlOld();
+    //else if(selectedControl.equalsIgnoreCase(PUENTE_HILLS_CONTROL_OLD))
+      //initPuenteHillsScenarioControlOld();
     //else if(selectedControl.equalsIgnoreCase(SF_BAY_CONTROL))
       //initSF_BayAreaScenarioControl();
     else if(selectedControl.equalsIgnoreCase(MAP_CALC_CONTROL))
@@ -926,7 +926,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
  /**
   * Initialize the parameter settings for Puente Hills Scenario
    */
-  protected void initPuenteHillsScenarioControlOld() {
+  /*protected void initPuenteHillsScenarioControlOld() {
     int selectedOption = JOptionPane.showConfirmDialog(this,"Are you sure to set the parameters for a Puente Hills scenario?",
                                     "Puente Hills Control Panel (old)",JOptionPane.OK_CANCEL_OPTION);
     if(selectedOption == JOptionPane.OK_OPTION){
@@ -935,7 +935,7 @@ public class ScenarioShakeMapApp extends JFrame implements ParameterChangeListen
                                                                 sitesGuiBean,mapGuiBean);
       puenteHillsControl.setParamsForPuenteHillsScenario();
     }
-  }
+  }*/
 
   /**
    *

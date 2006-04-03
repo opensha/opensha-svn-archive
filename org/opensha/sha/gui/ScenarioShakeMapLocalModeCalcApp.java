@@ -84,7 +84,7 @@ public class ScenarioShakeMapLocalModeCalcApp
     this.controlComboBox.addItem(REGIONS_OF_INTEREST_CONTROL);
     this.controlComboBox.addItem(HAZUS_CONTROL);
     //this.controlComboBox.addItem(PUENTE_HILLS_TEST_CONTROL);
-    this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
+    //this.controlComboBox.addItem(PUENTE_HILLS_CONTROL_OLD);
     this.controlComboBox.addItem(PUENTE_HILLS_CONTROL);
     //this.controlComboBox.addItem(SF_BAY_CONTROL);
     this.controlComboBox.addItem(CALC_PARAMS_CONTROL);
