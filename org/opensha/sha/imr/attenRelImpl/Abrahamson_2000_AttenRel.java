@@ -41,7 +41,6 @@ import org.opensha.util.*;
  * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
- * NOTE: setSite and setEqkRupture ARE NOT FULLY IMPLEMENTED<p>
  *
  * @author     Edward H. Field
  * @created    June, 2002

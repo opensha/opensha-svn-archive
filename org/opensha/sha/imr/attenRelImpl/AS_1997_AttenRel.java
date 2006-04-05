@@ -35,7 +35,7 @@ import org.opensha.util.*;
  * <LI>siteTypeParam - "Rock/Shallow-Soil" versus "Deep-Soil"
  * <LI>fltTypeParam - Style of faulting
  * <LI>isOnHangingWallParam - tells if site is directly over the rupture surface
- * <LI>componentParam - Component of shaking (only one)
+ * <LI>componentParam - Component of shaking
  * <LI>stdDevTypeParam - The type of standard deviation
  * </UL><p>
  *

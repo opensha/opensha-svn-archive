@@ -16,8 +16,7 @@ import org.opensha.util.*;
  * <b>Title:</b> CB_2003_AttenRel<p>
  *
  * <b>Description:</b> This implements the  Attenuation Relationship
- * developed by Campbell & Bozorgnia (2003), Bull. Seism. Soc. Am., vol 93
- * , In press)<p>
+ * developed by Campbell & Bozorgnia (2003), Bull. Seism. Soc. Am., vol 93, num 1, pp 314-331)<p>
  *
  * Supported Intensity-Measure Parameters:<p>
  * <UL>

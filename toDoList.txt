@@ -41,7 +41,7 @@ Revise GriddedFaultApplet and compare old with new to make sure everything looks
 
 Test all apps.
 
-
+-------------------------------
 
 
 
@@ -51,7 +51,8 @@ MagFreqDistParamEditor
 
 	Add a pick-list that always says "Show Dist", but there the selectable options are
 	"Incremental" "Cumulative or" "Moment Rate", pop a plot up including the metadata,
-	and also include whether it's "Incremental" "Cumulative or" "Moment Rate"
+	and also include whether it's "Incremental" "Cumulative or" "Moment Rate" in the plot.
+	Don't support more than one curve per plot
 
 	Create similar MagPDF_ParamEditor
 
@@ -62,6 +63,8 @@ New MagFreqDistTesterApplet:
 	3) toggle between "Incremental" "Cumulative" and "Moment Rate" 
 	   (revert to auto scale when changed, and maintain plot preferences)
 	4) include the summed dist option (but only if all x-axis values the same)
+	5) maintain list of curves after peel off so one can change from "Incremental" 
+	to "Cumulative" and peel off again, for example, without having to start over.
 
 
 
