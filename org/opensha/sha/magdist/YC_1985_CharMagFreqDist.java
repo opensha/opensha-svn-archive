@@ -359,19 +359,18 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
 
   /**
    * this method (defined in parent) is deactivated here (name is finalized)
-   **/
 
-  public void setName(String name) throws UnsupportedOperationException{
+  public void setName(String name) throws  UnsupportedOperationException{
     throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
 
   }
 
-  /**
-   * this method (defined in parent) is deactivated here (info is generated internally)
-   **/
-  public void setInfo(String info) throws UnsupportedOperationException{
+
+   * this method (defined in parent) is deactivated here (name is finalized)
+
+  public void setInfo(String info)throws  UnsupportedOperationException{
     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
 
-  }
+  }*/
 
 }

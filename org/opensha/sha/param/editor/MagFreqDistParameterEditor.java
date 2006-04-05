@@ -16,6 +16,10 @@ import org.opensha.exceptions.*;
 import org.opensha.param.event.*;
 import org.opensha.sha.param.*;
 import org.opensha.sha.magdist.*;
+import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
+import org.opensha.sha.magdist.*;
+import org.opensha.sha.magdist.gui.infoTools.MagFreqDistEditorPanel;
+
 
 
 /**
@@ -53,6 +57,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     private ParameterList parameterList;
 
+    //shows the parameters in a window
+    private MagFreqDistEditorPanel magDistPanel;
+
     /**
      * ParameterListEditor for holding parameters
      */
@@ -64,7 +71,12 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     //Instance for the framee to show the all parameters in this editor
     protected JDialog frame;
     //instance for the
-    protected JComboBox comboBox;
+    protected JComboBox magDistPlotListSelector;
+
+
+    private static final String SELECT_INCREMENTAL_DIST = "Incremental Dist.";
+    private static final String SELECT_MOMENT_RATE_DIST = "Moment-Rate Dist";
+    private static final String SELECT_CUMULATIVE_DIST = "Cumulative Dist";
 
 
     // String Constraints
@@ -74,6 +86,8 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     //keeps track if it has got the magdist parameter list and added listeners to it
     //Also keeps track if we have already got the parameters options for the magdist parameters
     private boolean addedListenersToParameters ;
+
+
 
 
     /**
@@ -122,30 +136,11 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      * @param ae
      */
     public void actionPerformed(ActionEvent ae ) {
-
-        frame = new JDialog();
-        frame.setModal(true);
-        frame.setSize(300,400);
-        frame.setTitle("Set "+magDistParam.getName());
-        frame.getContentPane().setLayout(new GridBagLayout());
-        frame.getContentPane().add(editor,new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(4, 4, 4, 4), 0, 0));
-
-        //Adding Button to update the forecast
-        JButton button = new JButton();
-        button.setText("Done");
-        button.setForeground(new Color(80,80,133));
-        button.setBackground(new Color(200,200,230));
-        button.addActionListener(new java.awt.event.ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            button_actionPerformed(e);
-          }
-        });
-        frame.getContentPane().add(button,new GridBagConstraints(0, 2, 1, 1, 0.0,0.0
-            ,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(4, 4, 4, 4), 0, 0));
-        frame.setVisible(true);
-        frame.pack();
-  }
+      if(magDistPanel == null)
+        magDistPanel = new MagFreqDistEditorPanel(this);
+      magDistPanel.pack();
+      magDistPanel.setVisible(true);
+    }
 
     /**
      * Checks whether you want to show the Mag Freq Dist Param Editor as button or a panel
@@ -191,6 +186,27 @@ public class MagFreqDistParameterEditor extends ParameterEditor
         JOptionPane.showMessageDialog(this,ee.getMessage(),"Incorrect Values",JOptionPane.ERROR_MESSAGE);
       }
     }
+
+
+
+
+
+
+    /**
+     * Plots the Moment Rate Dist
+     */
+    public void plotMomentRateDist(){
+
+    }
+
+
+    /**
+     * Plots the Cumulative Rate Dist
+     */
+    public void plotCumulativeRateDist(){
+
+    }
+
 
     /**
      * Called when the parameter has changed independently from

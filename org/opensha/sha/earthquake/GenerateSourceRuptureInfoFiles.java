@@ -83,12 +83,11 @@ public class GenerateSourceRuptureInfoFiles {
         //  "#Src-Index  Rup-Index  Mag  Prob.  Ave.Rake   Ave. dip   \"Source-Name\"\n");
       for(int i=0;i<numSources;++i){
         ProbEqkSource source = forecast.getSource(i);
-        source.setSourceIndex(i);
         fw.write(source.getSourceMetadata()+"\n");
         //File f = new File(directoryPath+"/"+sourceDirName + i);
         //f.mkdir();
         //create the rupture list in one big file
-        createRuptureListFile(fw_rupture,source);
+        createRuptureListFile(fw_rupture,source,i);
       }
       fw_rupture.close();
       fw.close();
@@ -106,14 +105,14 @@ public class GenerateSourceRuptureInfoFiles {
    * @param sourceDir String
    * @param source ProbEqkSource
    */
-  public void createRuptureListFile(FileWriter rupfile, ProbEqkSource source){
+  public void createRuptureListFile(FileWriter rupfile, ProbEqkSource source,int sourceIndex){
 
     int numRuptures = source.getNumRuptures();
     try{
 
       for (int i = 0; i < numRuptures; ++i) {
         ProbEqkRupture rupture = source.getRupture(i);
-        rupture.setRuptureIndexAndSourceInfo(source.getSourceIndex(),
+        rupture.setRuptureIndexAndSourceInfo(sourceIndex,
                                              source.getName(), i);
         rupfile.write(rupture.getRuptureMetadata()+"\n");
         /*GriddedSurfaceAPI surface = rupture.getRuptureSurface();

@@ -186,7 +186,7 @@ public class MagFreqDistTesterApplet extends JApplet
   DiscretizedFunctionXYDataSet toMoData = new DiscretizedFunctionXYDataSet();
 
 
-   private boolean yLog = false;
+  private boolean yLog = false;
   JCheckBox jCheckSumDist = new JCheckBox();
   private JLabel imgLabel = new JLabel();
 

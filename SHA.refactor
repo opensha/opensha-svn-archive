@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE refactor PUBLIC "-//Borland Software Corporation//Refactor 1.0//EN" "http://www.borland.com/devsupport/jbuilder/dtds/refactor_1_0.dtd">
+<refactor>
+  <rename-class id="4AP0TJK15ILEKZ12231QKH0" creation-time="Wed Apr 05 10:26:46.588 PDT 2006">
+    <old-class-name>org.opensha.sha.magdist.gui.infoTools.MagFreqDistEditorWindow</old-class-name>
+    <new-class-name>org.opensha.sha.magdist.gui.infoTools.MagFreqDistEditorPanel</new-class-name>
+  </rename-class>
+  <rename-class id="2AP0TJK15ILEKZ12231QKH0" creation-time="Wed Apr 05 10:35:52.850 PDT 2006">
+    <old-class-name>org.opensha.sha.magdist.gui.infoTools.IncrementalMagFreqDistPlotter</old-class-name>
+    <new-class-name>org.opensha.sha.magdist.gui.infoTools.MagFreqDistGraphPlotter</new-class-name>
+  </rename-class>
+</refactor>

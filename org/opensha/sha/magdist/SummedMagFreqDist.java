@@ -278,19 +278,19 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
-   * this function is for setting the name
-   **/
+   * this method (defined in parent) is deactivated here (name is finalized)
 
-  public void setName(String name) throws UnsupportedOperationException{
+  public void setName(String name) throws  UnsupportedOperationException{
     throw new UnsupportedOperationException("setName not allowed for MagFreqDist.");
+
   }
 
-  /**
-   * this function is for setting the info
-   *
-   * */
-  public void setInfo(String info) throws UnsupportedOperationException{
+
+   * this method (defined in parent) is deactivated here (name is finalized)
+
+  public void setInfo(String info)throws  UnsupportedOperationException{
     throw new UnsupportedOperationException("setInfo not allowed for MagFreqDist.");
-  }
+
+  }*/
 
 }

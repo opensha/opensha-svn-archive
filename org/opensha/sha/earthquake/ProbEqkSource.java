@@ -65,23 +65,6 @@ public abstract class ProbEqkSource implements EqkSourceAPI, NamedObjectAPI {
 
 
   /**
-   * Returns the source index
-   * @return int
-   */
-  public int getSourceIndex() {
-    return sourceIndex;
-  }
-
-  /**
-   * Sets the source index for the source
-   * @param index int
-   */
-  public void setSourceIndex(int index){
-    sourceIndex = index;
-  }
-
-
-  /**
    * Checks if the source is Poission.
    * @return boolean
    */
