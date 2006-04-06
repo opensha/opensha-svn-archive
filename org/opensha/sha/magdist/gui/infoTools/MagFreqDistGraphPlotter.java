@@ -20,7 +20,8 @@ import org.opensha.sha.gui.infoTools.GraphWindowAPI;
  */
 public class MagFreqDistGraphPlotter
     implements GraphPanelAPI,
-    ButtonControlPanelAPI, GraphWindowAPI {
+    ButtonControlPanelAPI, MagFreqDistPlotWindowAPI {
+
 
   //axis range
   private double minXValue, maxXValue,minYValue,maxYValue;
@@ -38,14 +39,20 @@ public class MagFreqDistGraphPlotter
   //instance of the GraphPanel for creating the chart
   private GraphPanel graphPanel;
 
+  //instance of application using this MagFreqDistPlotter
+  private MagFreqDistGraphPlotterAPI application;
+
+  //instance of pop up window
+  private MagFreqDistPlotWindow window;
 
   /**
    * Class constructor that plots the MagFreq. Dist in a window
    * @param functionList ArrayList
    * @param plottingFeatures ArrayList
    */
-  public MagFreqDistGraphPlotter(ArrayList functionList,ArrayList plottingFeatures) {
-
+  public MagFreqDistGraphPlotter(MagFreqDistGraphPlotterAPI api,
+                                 ArrayList functionList,ArrayList plottingFeatures) {
+    application = api;
     this.functionList = functionList;
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
@@ -63,9 +70,16 @@ public class MagFreqDistGraphPlotter
    * Shows the plot in a pop up window
    */
   public void showPlotWindow(){
-    GraphWindow window = new GraphWindow(this,graphPanel);
-    window.setPlotLabel(chartTitle);
+    window = new MagFreqDistPlotWindow(this,graphPanel);
     window.setVisible(true);
+  }
+
+  /**
+   * Returns the handle to the pop up window
+   * @return MagFreqDistPlotWindow
+   */
+  public MagFreqDistPlotWindow getPlotWindow(){
+    return window;
   }
 
 
@@ -284,5 +298,16 @@ public class MagFreqDistGraphPlotter
   public boolean isCustomAxis() {
     return customAxis;
   }
+
+
+  /**
+   * Sets in the application if the plot preferences have changed
+   * @param isChanged boolean
+   */
+  public void setPlotPreferencesChanged(boolean isChanged) {
+    application.updateMagFreqDistPlotPrefs(isChanged);
+  }
+
+
 
 }

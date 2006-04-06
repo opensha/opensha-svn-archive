@@ -19,7 +19,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
  * @version 1.0
  */
 public class MagFreqDistEditorPanel
-    extends JDialog {
+    extends JDialog implements MagFreqDistGraphPlotterAPI{
   private MagFreqDistParameterEditor magDistEditor;
   private JPanel magDistPanel = new JPanel();
   private GridBagLayout gridBagLayout1 = new GridBagLayout();
@@ -189,15 +189,15 @@ public class MagFreqDistEditorPanel
 
     if (isCumulativePlotted)
       incrPlotWindow = new
-          MagFreqDistGraphPlotter(functionList,
+          MagFreqDistGraphPlotter(this,functionList,
                                   cumPlotWindow.getPlottingFeatures());
     else if (isMomentRatePlotted)
       incrPlotWindow = new
-          MagFreqDistGraphPlotter(functionList,
+          MagFreqDistGraphPlotter(this,functionList,
                                   momentRateWindow.getPlottingFeatures());
     else
       incrPlotWindow = new
-          MagFreqDistGraphPlotter(functionList, null);
+          MagFreqDistGraphPlotter(this,functionList, null);
     incrPlotWindow.setYAxisLabel("Incr. Rate");
     return incrPlotWindow.drawGraph();
   }
@@ -212,15 +212,15 @@ public class MagFreqDistEditorPanel
     isMomentRatePlotted = true;
     if (isIncrementalPlotted)
       momentRateWindow = new
-          MagFreqDistGraphPlotter(functionList,
+          MagFreqDistGraphPlotter(this,functionList,
                                   incrPlotWindow.getPlottingFeatures());
     else if (isCumulativePlotted)
       momentRateWindow = new
-          MagFreqDistGraphPlotter(functionList,
+          MagFreqDistGraphPlotter(this,functionList,
                                   cumPlotWindow.getPlottingFeatures());
     else
       momentRateWindow = new
-          MagFreqDistGraphPlotter(functionList, null);
+          MagFreqDistGraphPlotter(this,functionList, null);
     momentRateWindow.setYAxisLabel("Moment Rate");
     return momentRateWindow.drawGraph();
   }
@@ -236,17 +236,43 @@ public class MagFreqDistEditorPanel
     isCumulativePlotted = true;
     if (isIncrementalPlotted)
       cumPlotWindow = new
-          MagFreqDistGraphPlotter(functionList,
+          MagFreqDistGraphPlotter(this,functionList,
                                   incrPlotWindow.getPlottingFeatures());
     else if (isMomentRatePlotted)
       cumPlotWindow = new
-          MagFreqDistGraphPlotter(functionList,
+          MagFreqDistGraphPlotter(this,functionList,
                                   momentRateWindow.getPlottingFeatures());
     else
       cumPlotWindow = new
-          MagFreqDistGraphPlotter(functionList, null);
+          MagFreqDistGraphPlotter(this,functionList, null);
     cumPlotWindow.setYAxisLabel("Cum. Rate");
     return cumPlotWindow.drawGraph();
+  }
+
+  /**
+   * Updates all the windows with the modified plot prefs.
+   * @param toUpdate boolean : if plot prefs updated
+   */
+  public void updateMagFreqDistPlotPrefs(boolean toUpdate){
+    if(isIncrementalPlotted){
+      incrPlotWindow.drawGraph();
+      MagFreqDistPlotWindow window= incrPlotWindow.getPlotWindow();
+      if(window !=null)
+        window.drawGraph();
+    }
+    if(isMomentRatePlotted){
+      momentRateWindow.drawGraph();
+      MagFreqDistPlotWindow window= momentRateWindow.getPlotWindow();
+      if(window !=null)
+        window.drawGraph();
+    }
+    if(isCumulativePlotted){
+      cumPlotWindow.drawGraph();
+      MagFreqDistPlotWindow window= cumPlotWindow.getPlotWindow();
+      if(window !=null)
+        window.drawGraph();
+
+    }
   }
 
 

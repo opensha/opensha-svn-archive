@@ -24,69 +24,76 @@ import java.io.IOException;
 public class GraphWindow
     extends JFrame implements ButtonControlPanelAPI, GraphPanelAPI {
 
-  private final static int W = 670;
-  private final static int H = 700;
-  private JSplitPane chartSplitPane = new JSplitPane();
-  private JPanel chartPane = new JPanel();
-  private GridBagLayout gridBagLayout1 = new GridBagLayout();
-  private BorderLayout borderLayout1 = new BorderLayout();
-  private JPanel buttonPanel = new JPanel();
-  private FlowLayout flowLayout1 = new FlowLayout();
+  protected final static int W = 670;
+  protected final static int H = 700;
+  protected JSplitPane chartSplitPane = new JSplitPane();
+  protected JPanel chartPane = new JPanel();
+  protected GridBagLayout gridBagLayout1 = new GridBagLayout();
+  protected BorderLayout borderLayout1 = new BorderLayout();
+  protected JPanel buttonPanel = new JPanel();
+  protected FlowLayout flowLayout1 = new FlowLayout();
 
   //boolean parameters for the Axis to check for log
-  private boolean xLog = false;
-  private boolean yLog = false;
+  protected boolean xLog = false;
+  protected boolean yLog = false;
 
   //boolean parameter to check for range of the axis
-  private boolean customAxis = false;
+  protected boolean customAxis = false;
 
-  private static int windowNumber = 1;
+  protected static int windowNumber = 1;
 
-  private final static String TITLE = "Plot Window - ";
+  protected final static String TITLE = "Plot Window - ";
 
   private String plotTitle = "Hazard Curves";
 
-  private double minXValue, maxXValue, minYValue, maxYValue;
+  protected double minXValue, maxXValue, minYValue, maxYValue;
 
   //instance for the ButtonControlPanel
-  private ButtonControlPanel buttonControlPanel;
+  protected ButtonControlPanel buttonControlPanel;
 
   //instance of the application implementing the Graph Window class
-  private GraphWindowAPI application;
+  protected GraphWindowAPI application;
 
   //instance of the GraphPanel class
-  private GraphPanel graphPanel;
+  protected GraphPanel graphPanel;
 
   /**
    * List of ArbitrarilyDiscretized functions and Weighted funstions
    */
-  private ArrayList functionList;
+  protected ArrayList functionList;
 
   //X and Y Axis  when plotting tha Curves Name
-  private String xAxisName;
-  private String yAxisName;
+  protected String xAxisName;
+  protected String yAxisName;
 
   /**
    * for Y-log, 0 values will be converted to this small value
    */
-  private double Y_MIN_VAL = 1e-16;
+  protected double Y_MIN_VAL = 1e-16;
 
-  JMenuBar menuBar = new JMenuBar();
-  JMenu fileMenu = new JMenu();
+  protected JMenuBar menuBar = new JMenuBar();
+  protected JMenu fileMenu = new JMenu();
 
-  JMenuItem fileExitMenu = new JMenuItem();
-  JMenuItem fileSaveMenu = new JMenuItem();
-  JMenuItem filePrintMenu = new JCheckBoxMenuItem();
-  JToolBar jToolBar = new JToolBar();
+  protected JMenuItem fileExitMenu = new JMenuItem();
+  protected JMenuItem fileSaveMenu = new JMenuItem();
+  protected JMenuItem filePrintMenu = new JCheckBoxMenuItem();
+  protected JToolBar jToolBar = new JToolBar();
 
-  JButton closeButton = new JButton();
-  ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
+  protected JButton closeButton = new JButton();
+  protected ImageIcon closeFileImage = new ImageIcon(ImageUtils.loadImage("closeFile.png"));
 
-  JButton printButton = new JButton();
-  ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
+  protected JButton printButton = new JButton();
+  protected ImageIcon printFileImage = new ImageIcon(ImageUtils.loadImage("printFile.jpg"));
 
-  JButton saveButton = new JButton();
-  ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+  protected JButton saveButton = new JButton();
+  protected ImageIcon saveFileImage = new ImageIcon(ImageUtils.loadImage("saveFile.jpg"));
+
+
+  /**
+   * Protected class constructor , that can be only be called from the class
+   * inherting this class.
+   */
+  protected GraphWindow(){}
 
   /**
    *
@@ -146,46 +153,11 @@ public class GraphWindow
       drawGraph();
   }
 
-  /**
-   *
-   * @param api : Instance of this application using this object.
-   */
- public GraphWindow(GraphWindowAPI api,GraphPanel graphPanel) {
-   application = api;
-   this.graphPanel = graphPanel;
-   this.functionList = api.getCurveFunctionList();
-   xAxisName = api.getXAxisLabel();
-   yAxisName = api.getYAxisLabel();
 
-   try {
-      jbInit();
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-
-   //increasing the window number corresponding to the new window.
-   ++windowNumber;
-   /**
-    * Recreating the chart with all the default settings that existed in the main application.
-    */
-   xLog = api.getXLog();
-   yLog = api.getYLog();
-   customAxis = api.isCustomAxis();
-   if (customAxis)
-     buttonControlPanel.setAxisRange(api.getMinX(), api.getMaxX(), api.getMinY(),
-                                     api.getMaxY());
-   if (xLog)
-     buttonControlPanel.setXLog(xLog);
-   if (yLog)
-     buttonControlPanel.setYLog(yLog);
-   if (!xLog && !yLog)
-     drawGraph();
- }
 
 
   //function to create the GUI component.
-  private void jbInit() throws Exception {
+  protected void jbInit() throws Exception {
     this.setSize(W, H);
     this.getContentPane().setLayout(borderLayout1);
     fileMenu.setText("File");
@@ -269,7 +241,7 @@ public class GraphWindow
    *
    * @param actionEvent ActionEvent
    */
-  private void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
+  protected  void fileExitMenu_actionPerformed(ActionEvent actionEvent) {
     this.dispose();
   }
 
@@ -278,7 +250,7 @@ public class GraphWindow
    *
    * @param actionEvent ActionEvent
    */
-  private void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
+  protected  void fileSaveMenu_actionPerformed(ActionEvent actionEvent) {
     try {
       save();
     }
@@ -294,19 +266,19 @@ public class GraphWindow
    *
    * @param actionEvent ActionEvent
    */
-  private void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
+  protected  void filePrintMenu_actionPerformed(ActionEvent actionEvent) {
     print();
   }
 
-  public void closeButton_actionPerformed(ActionEvent actionEvent) {
+  protected  void closeButton_actionPerformed(ActionEvent actionEvent) {
     this.dispose();
   }
 
-  public void printButton_actionPerformed(ActionEvent actionEvent) {
+  protected  void printButton_actionPerformed(ActionEvent actionEvent) {
     print();
   }
 
-  public void saveButton_actionPerformed(ActionEvent actionEvent) {
+  protected  void saveButton_actionPerformed(ActionEvent actionEvent) {
     try {
       save();
     }
@@ -399,7 +371,7 @@ public class GraphWindow
   /**
    * to draw the graph
    */
-  private void drawGraph() {
+  protected void drawGraph() {
     graphPanel.drawGraphPanel(xAxisName, yAxisName, functionList, xLog, yLog,
                               customAxis, plotTitle, buttonControlPanel);
     togglePlot();
