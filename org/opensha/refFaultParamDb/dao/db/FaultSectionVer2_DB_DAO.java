@@ -3,7 +3,7 @@ package org.opensha.refFaultParamDb.dao.db;
 import org.opensha.refFaultParamDb.vo.EstimateInstances;
 import org.opensha.refFaultParamDb.vo.Fault;
 import org.opensha.refFaultParamDb.vo.FaultSectionVer2;
-import org.opensha.refFaultParamDb.vo.FaultSectionVer2Summary;
+import org.opensha.refFaultParamDb.vo.FaultSectionSummary;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -185,7 +185,7 @@ public class FaultSectionVer2_DB_DAO {
 	  try {
 		  ResultSet rs  = dbAccess.queryData(sql);
 		  while(rs.next())  {
-			  FaultSectionVer2Summary faultSectionSummary = new FaultSectionVer2Summary();
+			  FaultSectionSummary faultSectionSummary = new FaultSectionSummary();
 			  faultSectionSummary.setSectionId(rs.getInt(SECTION_ID));
 			  faultSectionSummary.setSectionName(rs.getString(SECTION_NAME));
 			  faultSectionsSummaryList.add(faultSectionSummary);

@@ -79,7 +79,8 @@ public class PutFaultSectionsIntoDatabase {
           
           //fwDip.write(dipDirection+"\n");
           // add fault section to the database
-          faultSectionDAO.addFaultSection(faultSection);
+          //faultSectionDAO.addFaultSection(faultSection);
+          System.out.println(faultSection.getSectionName());
         }catch(Exception e) {
           e.printStackTrace();
           System.exit(0);

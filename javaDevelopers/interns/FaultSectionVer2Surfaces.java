@@ -1,9 +1,8 @@
-/**
- *
- */
+
 package javaDevelopers.interns;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.opensha.data.estimate.MinMaxPrefEstimate;
 import org.opensha.refFaultParamDb.dao.db.DB_AccessAPI;
@@ -21,18 +20,19 @@ import org.opensha.sha.surface.EvenlyGriddedSurfaceAPI;
  * @author vipingupta
  *
  */
-public class FaultSectionVer2Surfaces {
+public class FaultSectionVer2Surfaces implements FaultSectionSurfaces {
 
 	private final static double GRID_SPACING = 1.0;
 	private final FaultSectionVer2_DB_DAO faultSectionDAO = new FaultSectionVer2_DB_DAO(DB_AccessAPI.dbConnection);
-
+	private HashMap faultSectionsMap = new HashMap();
+	
 	public FaultSectionVer2Surfaces() {}
-
+	
 	/**
 	 * Get the names and id of all fault sections
 	 * @return
 	 */
-	public ArrayList getAllFaultSections() {
+	public ArrayList getAllFaultSectionsSummary() {
 		return this.faultSectionDAO.getAllFaultSectionsSummary();
 	}
 
@@ -42,54 +42,52 @@ public class FaultSectionVer2Surfaces {
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getFrankelSurface(int faultSectionId) {
-		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
-		return getFrankelSurface(faultSection);
-	}
-
-	/**
-	 * Get the Gridded surface based on Frankel's method for a Fault Section object
-	 * @param faultSection
-	 * @return
-	 */
-	public EvenlyGriddedSurfaceAPI getFrankelSurface(FaultSectionVer2 faultSection) {
+		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
 		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
 //		 frankel fault factory
 		FrankelGriddedFaultFactory frankelGriddedFaultFactory = new FrankelGriddedFaultFactory(simpleFaultData, GRID_SPACING);
 		return frankelGriddedFaultFactory.getEvenlyGriddedSurface();
 	}
-
-	/**
-	 * Get the Gridded surface based on Stirling's method for a Fault Section object
-	 * @param faultSection
-	 * @return
-	 */
-	public EvenlyGriddedSurfaceAPI getStirlingSurface(FaultSectionVer2 faultSection) {
-		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
-		// stirling fault factory
-		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
-		return stirlingGriddedFaultFactory.getEvenlyGriddedSurface();
-	}
-
+	
 	/**
 	 * Get the Gridded surface based on Stirling's method for a Fault Section Id
 	 * @param faultSectionId
 	 * @return
 	 */
 	public EvenlyGriddedSurfaceAPI getStirlingSurface(int faultSectionId) {
-		FaultSectionVer2 faultSection = faultSectionDAO.getFaultSection(faultSectionId);
-		return getStirlingSurface(faultSection);
+		FaultSectionVer2 faultSection = getFaultSection(faultSectionId);
+		SimpleFaultData simpleFaultData = getSimpleFaultData(faultSection);
+		// stirling fault factory
+		StirlingGriddedFaultFactory stirlingGriddedFaultFactory = new StirlingGriddedFaultFactory(simpleFaultData, GRID_SPACING);
+		return stirlingGriddedFaultFactory.getEvenlyGriddedSurface();	
 	}
 
+	/**
+	 * Get fault section based on section Id. Also Cache the fault section in case it is needed for future references
+	 * @param faultSectionId
+	 * @return
+	 */
+	private FaultSectionVer2 getFaultSection(int faultSectionId) {
+		FaultSectionVer2 faultSection  = (FaultSectionVer2) faultSectionsMap.get(new Integer(faultSectionId));
+		if(faultSection==null) {
+			faultSection = faultSectionDAO.getFaultSection(faultSectionId);
+			this.faultSectionsMap.put(new Integer(faultSectionId), faultSection);
+		}
+		return faultSection;
+	}
+	
+	/**
+	 * Make simple fault data from faulSection. It assumes that all estimates are Min/Max/Pref Estimates. so, we just
+	 * get Preffered values from these estimates
+	 * 
+	 * @param faultSection
+	 * @return
+	 */
 	private SimpleFaultData getSimpleFaultData(FaultSectionVer2 faultSection) {
 		double prefDip = ((MinMaxPrefEstimate)faultSection.getAveDipEst().getEstimate()).getPreferredX();
 		double prefUpperDepth = ((MinMaxPrefEstimate)faultSection.getAveUpperDepthEst().getEstimate()).getPreferredX();
 		double prefLowerDepth = ((MinMaxPrefEstimate)faultSection.getAveLowerDepthEst().getEstimate()).getPreferredX();
 		SimpleFaultData simpleFaultData = new SimpleFaultData(prefDip, prefLowerDepth, prefUpperDepth, faultSection.getFaultTrace());
 		return simpleFaultData;
-	}
-
-	// get the fault section based on fault section Id
-	public FaultSectionVer2 getFaultSection(int faultSectionId) {
-		return faultSectionDAO.getFaultSection(faultSectionId);
 	}
 }

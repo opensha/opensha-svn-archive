@@ -8,9 +8,18 @@ package org.opensha.refFaultParamDb.vo;
  * @author vipingupta
  *
  */
-public class FaultSectionVer2Summary {
+public class FaultSectionSummary {
 	private int sectionId;
 	private String sectionName;
+	
+	public FaultSectionSummary() { 
+	}
+	
+	public FaultSectionSummary(int sectionId, String sectionName) {
+		setSectionId(sectionId);
+		setSectionName(sectionName);
+	}
+	
 	public int getSectionId() {
 		return sectionId;
 	}
