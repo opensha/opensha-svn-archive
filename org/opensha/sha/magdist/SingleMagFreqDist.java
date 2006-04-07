@@ -125,7 +125,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
    *
    * @return the name of the class which was invoked by the user
    */
- public String getName() {
+ public String getDefaultName() {
    return NAME;
  }
 
@@ -133,7 +133,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   *
   * @return the total information stored in the class in form of a string
   */
- public String getInfo() {
+ public String getDefaultInfo() {
    double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
    return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
  }
@@ -143,8 +143,7 @@ public class SingleMagFreqDist extends IncrementalMagFreqDist {
   * @return the total information stored in the class in form of a string
   */
  public String toString() {
-   double totMoRate= this.rate * MomentMagCalc.getMoment(this.mag);
-   return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mag="+(float) mag+"; rate="+(float)rate+"; totMoRate="+(float)totMoRate;
+   return getInfo();
  }
 
  /**

@@ -20,7 +20,8 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
     //for Debug purposes
     private boolean D = false;
 
-
+    protected String defaultInfo;
+    protected String defaultName;
 
     /**
      * todo constructors
@@ -271,6 +272,50 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
         double scaleIncrRate=newRate/temp;
         for(int i=0;i<num;++i)
             super.set(i,scaleIncrRate*getIncrRate(i));
+    }
+
+    /**
+     * Returns the default Info String for the Distribution
+     * @return String
+     */
+    public String getDefaultInfo(){
+      return defaultInfo;
+    }
+
+    /**
+     * Returns the default Name for the Distribution
+     * @return String
+     */
+    public String getDefaultName(){
+      defaultName = "Incremental Mag Freq Dist";
+      return defaultName;
+    }
+
+    /**
+     * Returns the Name of the Distribution that user has set from outside,
+     * if it is null then it returns the default Name from the distribution.
+     * Makes the call to the parent "getName()" method to get the metadata
+     * set outside the application.
+     * @return String
+     */
+    public String getName(){
+      if(name !=null || name.trim().equals(""))
+        return super.getName();
+      return getDefaultName();
+    }
+
+
+    /**
+     * Returns the info of the distribution that user has set from outside,
+     * if it is null then it returns the default info from the distribution.
+     * Makes the call to the parent "getInfo()" method to get the metadata
+     * set outside the application.
+     * @return String
+     */
+    public String getInfo(){
+      if(info !=null || info.trim().equals(""))
+        return super.getInfo();
+      return getDefaultInfo();
     }
 
 

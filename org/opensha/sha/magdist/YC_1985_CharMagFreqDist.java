@@ -325,7 +325,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    * @return
    */
 
-  public String getName() {
+  public String getDefaultName() {
      return NAME;
   }
 
@@ -335,7 +335,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    * this function returns String for drawing Legen in JFreechart
    * @return : returns the String which is needed for Legend in graph
    */
-  public String getInfo() {
+  public String getDefaultInfo() {
     return ("minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; magLower="+magLower+"; magUpper="+
             magUpper+"; deltaMagChar="+this.getDeltaMagChar()+
         "; magPrime="+this.getMagPrime()+"; deltaMagPrime="+getDeltaMagPrime()+
@@ -349,11 +349,7 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
    * @return : returns the String for info about the parameters in this Mag Freq dist
    */
   public String toString() {
-    return ("minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; magLower="+magLower+"; magUpper="+
-            magUpper+"; deltaMagChar="+this.getDeltaMagChar()+
-            "; magPrime="+this.getMagPrime()+"; deltaMagPrime="+getDeltaMagPrime()+
-            " bValue="+bValue+"; totMoRate="+(float)this.getTotalMomentRate()+
-            "; totCumRate="+(float)getCumRate(magLower));
+    return getInfo();
 
   }
 

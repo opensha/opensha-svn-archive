@@ -253,7 +253,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    * @return
    */
 
-  public String getName() {
+  public String getDefaultName() {
     return NAME;
   }
 
@@ -265,7 +265,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    * @return : returns the String which is needed for Legend in graph
    */
 
-  public String getInfo() {
+  public String getDefaultInfo() {
     return ("Sum of these Incremental Mag-Freq Dists");
   }
 
@@ -274,7 +274,7 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
    */
 
   public String toString() {
-    return ("Sum of these Incremental Mag-Freq Dists");
+    return getInfo();
   }
 
   /**

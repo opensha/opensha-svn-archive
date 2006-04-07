@@ -31,7 +31,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
   private double truncLevel = Double.NaN;
 
   /**
-    * truncType = 0 for none, = 1 for upper only, and = 2 for double sided
+   * truncType = 0 for none, = 1 for upper only, and = 2 for double sided
    */
   private int truncType =0  ;
 
@@ -266,7 +266,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * returns the name of the class
    * @return
    */
-  public String getName() {
+  public String getDefaultName() {
     return NAME;
   }
 
@@ -275,7 +275,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    * return the info stored in the class in form of a String
    * @return
    */
-  public String getInfo() {
+  public String getDefaultInfo() {
 
     return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mean="+mean+"; stdDev="+stdDev+"; totMoRate="+(float)getTotalMomentRate()+
            "; totCumRate="+(float)this.getCumRate(0)+"; truncType="+
@@ -289,9 +289,7 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
    */
   public String toString() {
 
-    return "minMag="+minX+"; maxMag="+maxX+"; numMag="+num+"; mean="+mean+"; stdDev="+stdDev+"; totMoRate="+(float)getTotalMomentRate()+
-        "; totCumRate="+(float)this.getCumRate(0)+"; truncType="+
-        truncType+"; truncLevel="+truncLevel;
+    return getInfo();
 
   }
 
