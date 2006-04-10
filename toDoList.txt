@@ -1,6 +1,17 @@
 **************** SHORT TERM (HIGH PRIORITY): ****************
 -------------------------------------------------------------
 
+All applications:
+
+	Check whether new version exists when application is launched and
+	notify user (option to download?).  It not internet access 
+	available skip this check.
+
+Attenuation Relationship Plotter
+
+	Buttons at the bottom right disappear if window is too narrow
+
+
 GriddedSurface Classes:
 ------------------------
 

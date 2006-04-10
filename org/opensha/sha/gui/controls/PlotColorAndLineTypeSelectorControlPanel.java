@@ -218,7 +218,7 @@ public class PlotColorAndLineTypeSelectorControlPanel extends JFrame implements
     jLabel1.setFont(new java.awt.Font("Arial", 0, 18));
     jLabel1.setHorizontalAlignment(SwingConstants.CENTER);
     jLabel1.setHorizontalTextPosition(SwingConstants.CENTER);
-    jLabel1.setText("Plot Characterstics Settings Control Panel");
+    jLabel1.setText("Plot Settings");
     applyButton.setText("Apply");
     applyButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {

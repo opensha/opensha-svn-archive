@@ -980,7 +980,7 @@ public class AttenuationRelationshipGuiBean
 
         // Now make the Editor for the list
         controlsEditor = new ParameterListEditor( controlsParamList);
-        controlsEditor.setTitle( "Graph Controls" );
+        controlsEditor.setTitle( "Plot Choices" );
 
         // update the im choice in the attenRel
         attenRel.setIntensityMeasure( getGraphControlsParamValue( IM ) );
@@ -1097,7 +1097,7 @@ public class AttenuationRelationshipGuiBean
 
         // Build editor list
         independentsEditor = new ParameterListEditor( independentParams);
-        independentsEditor.setTitle( "Independent Variables" );
+        independentsEditor.setTitle( "Adjustable Parameters" );
 
         // All done
         if ( D )

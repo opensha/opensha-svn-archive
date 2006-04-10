@@ -111,7 +111,7 @@ public class AttenuationRelationshipWebBasedApplet
         xyDatasetButton_actionPerformed(e);
       }
     });
-    peelOffButton.setText("Peel-Off");
+    peelOffButton.setText("Peel Off");
     peelOffButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         peelOffButton_actionPerformed(e);
