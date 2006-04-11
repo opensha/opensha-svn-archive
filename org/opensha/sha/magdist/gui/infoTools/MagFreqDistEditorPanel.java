@@ -4,7 +4,6 @@ import java.awt.*;
 import javax.swing.*;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
 import org.opensha.sha.magdist.IncrementalMagFreqDist;
 import java.util.ArrayList;
 import org.opensha.sha.gui.infoTools.GraphPanel;
@@ -128,7 +127,8 @@ public class MagFreqDistEditorPanel
     magDistEditor.setMagDistFromParams();
     IncrementalMagFreqDist incrFunc = (IncrementalMagFreqDist) magDistEditor.
         getParameter().getValue();
-    String magDistMetadata = magDistEditor.getMagFreDistParameterEditor().getParameterList().getParameterListMetadataString();
+    String magDistMetadata = "";
+        magDistEditor.getMagFreDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
 
     if (selectedText.equals(SELECT_INCREMENTAL_DIST)){
       ArrayList functionList = new ArrayList();

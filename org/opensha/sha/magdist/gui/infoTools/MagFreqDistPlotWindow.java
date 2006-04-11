@@ -1,6 +1,12 @@
 package org.opensha.sha.magdist.gui.infoTools;
 
 import org.opensha.sha.gui.infoTools.*;
+import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import javax.swing.JSplitPane;
+import java.awt.event.ActionListener;
+import java.awt.Dimension;
+import javax.swing.JTabbedPane;
 
 /**
  * <p>Title:MagFreqDistPlotWindow </p>
@@ -20,6 +26,10 @@ public class MagFreqDistPlotWindow
 
   private String plotTitle = "Mag.Freq.Dist.";
   private MagFreqDistPlotWindowAPI application;
+  private JTabbedPane tabPane;
+
+
+
     /**
      *
      * @param api : Instance of this application using this object.
@@ -55,6 +65,86 @@ public class MagFreqDistPlotWindow
        buttonControlPanel.setYLog(yLog);
      if (!xLog && !yLog)
        drawGraph();
+ }
+
+
+ //function to create the GUI component.
+ protected void jbInit() throws Exception {
+   this.setSize(W, H);
+   this.getContentPane().setLayout(borderLayout1);
+   fileMenu.setText("File");
+   fileExitMenu.setText("Exit");
+   fileSaveMenu.setText("Save");
+   filePrintMenu.setText("Print");
+
+   fileExitMenu.addActionListener(new java.awt.event.ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+       fileExitMenu_actionPerformed(e);
+     }
+   });
+
+   fileSaveMenu.addActionListener(new java.awt.event.ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+       fileSaveMenu_actionPerformed(e);
+     }
+   });
+
+   filePrintMenu.addActionListener(new java.awt.event.ActionListener() {
+     public void actionPerformed(ActionEvent e) {
+       filePrintMenu_actionPerformed(e);
+     }
+   });
+
+   closeButton.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent actionEvent) {
+       closeButton_actionPerformed(actionEvent);
+     }
+   });
+   printButton.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent actionEvent) {
+       printButton_actionPerformed(actionEvent);
+     }
+   });
+   saveButton.addActionListener(new ActionListener() {
+     public void actionPerformed(ActionEvent actionEvent) {
+       saveButton_actionPerformed(actionEvent);
+     }
+   });
+
+   menuBar.add(fileMenu);
+   fileMenu.add(fileSaveMenu);
+   fileMenu.add(filePrintMenu);
+   fileMenu.add(fileExitMenu);
+
+   setJMenuBar(menuBar);
+   closeButton.setIcon(closeFileImage);
+   closeButton.setToolTipText("Close Window");
+   Dimension d = closeButton.getSize();
+   jToolBar.add(closeButton);
+   printButton.setIcon(printFileImage);
+   printButton.setToolTipText("Print Graph");
+   printButton.setSize(d);
+   jToolBar.add(printButton);
+   saveButton.setIcon(saveFileImage);
+   saveButton.setToolTipText("Save Graph as image");
+   saveButton.setSize(d);
+   jToolBar.add(saveButton);
+   jToolBar.setFloatable(false);
+
+   this.getContentPane().add(jToolBar, BorderLayout.NORTH);
+
+   chartSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+   chartPane.setLayout(gridBagLayout1);
+   buttonPanel.setLayout(flowLayout1);
+   this.getContentPane().add(chartSplitPane, BorderLayout.CENTER);
+   chartSplitPane.add(chartPane, JSplitPane.TOP);
+   chartSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+   chartSplitPane.setDividerLocation(580);
+   //object for the ButtonControl Panel
+   buttonControlPanel = new ButtonControlPanel(this);
+   buttonPanel.add(buttonControlPanel, null);
+   togglePlot();
+   this.setTitle(TITLE + windowNumber);
  }
 
 

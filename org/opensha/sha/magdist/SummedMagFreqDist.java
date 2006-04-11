@@ -16,8 +16,6 @@ import org.opensha.exceptions.*;
  * @version 1.0
  */
 
-
-
 public class SummedMagFreqDist extends IncrementalMagFreqDist {
 
   private boolean saveMagFreqDists=false;     // whether you want to store each distribution
@@ -26,8 +24,6 @@ public class SummedMagFreqDist extends IncrementalMagFreqDist {
   private ArrayList savedInfoList;     // to save the info strings only
 
   private static String NAME = "Summed Dist";
-
-
 
 
   /**

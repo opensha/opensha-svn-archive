@@ -200,7 +200,7 @@ public class ScatterPlotForDisaggregation {
       int cybershakeFileSize = cybershakeFile.size();
       int openshaFileSize = openshaFile.size();
       //going over all the sources in the Cybershake file.
-      fw.write("#Source-Index Rup-Index  Cybershake-Rate  OpenSHA-Rate Rup-Rate Source-Name\n");
+      fw.write("#Source-Index Rup-Index  Mag  Rup-Distance  Cybershake-Rate  OpenSHA-Rate Rup-Rate Source-Name\n");
       //fw.write("#Source-Index Cybershake-Rate  OpenSHA-Rate Source-Name\n");
       for (int i = 1; i < cybershakeFileSize;++i) {
         String cybershakeFileLine = (String) cybershakeFile.get(i);
@@ -256,10 +256,13 @@ public class ScatterPlotForDisaggregation {
               int oRupIndex = Integer.parseInt(st.nextToken().trim());
               if (cRupIndex == oRupIndex) {
                 ruptureFound = true;
+                double mag = Double.parseDouble(st.nextToken().trim());
+                double distance = Double.parseDouble(st.nextToken().trim());
                 double oRupRate = Double.parseDouble(st.nextToken().trim());
                 double rupRate = Double.parseDouble(st.nextToken().trim());
-                fw.write(cSourceIndex+"\t"+oRupIndex+"\t"+(float)cyberRupRate+
-                         "\t"+(float)oRupRate+"\t"+(float)rupRate+"\t"+sourceName+"\n");
+                fw.write(cSourceIndex+"\t"+oRupIndex+"\t"+(float)mag+"\t"+(float)distance+
+                         "\t"+(float)cyberRupRate+"\t"+(float)oRupRate+"\t"+
+                         (float)rupRate+"\t"+sourceName+"\n");
                 break;
               }
             }
