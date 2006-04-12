@@ -19,7 +19,6 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.jfree.data.Range;
-import org.opensha.data.function.DiscretizedFuncList;
 
 /**
  * <p>Title:MagFreqDistApp </p>

@@ -299,7 +299,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      * @return String
      */
     public String getName(){
-      if(name !=null || name.trim().equals(""))
+      if(name !=null && !(name.trim().equals("")))
         return super.getName();
       return getDefaultName();
     }
@@ -313,7 +313,7 @@ public class IncrementalMagFreqDist extends EvenlyDiscretizedFunc
      * @return String
      */
     public String getInfo(){
-      if(info !=null || info.trim().equals(""))
+      if(info !=null && !(info.trim().equals("")))
         return super.getInfo();
       return getDefaultInfo();
     }
