@@ -381,6 +381,8 @@ public class MagFreqDistApp
     incrRateGraphPanel.togglePlot(buttonControlPanel);
     cumRateGraphPanel.togglePlot(buttonControlPanel);
     momentRateGraphPanel.togglePlot(buttonControlPanel);
+    momentRateGraphPanel.validate();
+    momentRateGraphPanel.repaint();
     incrRatePlotPanel.add(incrRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
     incrRatePlotPanel.validate();
@@ -411,7 +413,9 @@ public class MagFreqDistApp
       cumRateFunctionList.add(summedMagFreqDist.getCumRateDist());
       momentRateFunctionList.add(summedMagFreqDist.getMomentRateDist());
       addGraphPanel();
-
+       //adding the plotting features to the sum distribution because this will
+       //allow to create the default color scheme first then can change for the
+       //sum distribution
       ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
       ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
       ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
@@ -566,6 +570,10 @@ public class MagFreqDistApp
       incrRateGraphPanel.removeChartAndMetadata();
       cumRateGraphPanel.removeChartAndMetadata();
       momentRateGraphPanel.removeChartAndMetadata();
+      incrRatePlotPanel.removeAll();
+      cumRatePlotPanel.removeAll();
+      momentRatePlotPanel.removeAll();
+
       //panel.removeAll();
       incrRateFunctionList.clear();
       cumRateFunctionList.clear();
