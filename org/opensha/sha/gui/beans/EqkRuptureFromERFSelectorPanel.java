@@ -36,6 +36,7 @@ import org.opensha.sha.earthquake.EqkRupForecastAPI;
 import org.opensha.sha.earthquake.ProbEqkRupture;
 import org.opensha.sha.gui.infoTools.CalcProgressBar;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import java.awt.event.ActionListener;
 import org.opensha.param.LocationParameter;
 import org.opensha.sha.earthquake.ERF_API;
@@ -724,6 +725,10 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    */
   public EqkRupture getRupture(){
     return probEqkRupture;
+  }
+  
+  public ProbEqkSource getSource() {
+	  return this.erf.getSource(this.sourceValue);
   }
 
   /**

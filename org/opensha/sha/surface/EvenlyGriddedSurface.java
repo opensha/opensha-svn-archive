@@ -154,7 +154,7 @@ public class EvenlyGriddedSurface
     public LocationList getLocationList() {
       LocationList locList = new LocationList();
       Iterator it = this.getLocationsIterator();
-      locList.addLocation((Location)it.next());
+      while(it.hasNext()) locList.addLocation((Location)it.next());
       return locList;
     }
 

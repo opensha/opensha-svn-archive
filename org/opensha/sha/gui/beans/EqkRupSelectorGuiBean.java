@@ -18,6 +18,7 @@ import org.opensha.param.event.ParameterChangeEvent;
 import org.opensha.param.event.ParameterChangeListener;
 import org.opensha.param.editor.ConstrainedStringParameterEditor;
 import org.opensha.sha.earthquake.EqkRupture;
+import org.opensha.sha.earthquake.ProbEqkSource;
 import org.opensha.data.Location;
 import org.opensha.param.editor.ParameterEditor;
 import org.opensha.param.ParameterList;
@@ -251,8 +252,19 @@ public class EqkRupSelectorGuiBean extends JPanel implements ParameterChangeList
   public EqkRupture getRupture(){
     return eqkRupturePanel.getRupture();
   }
+  
+  /**
+   *  This method has been added to view the selected source in Geo3D project.
+   *  Source is only available from ERF. If user is making a custom rupture, source is not available.
+   * 
+   * @return ProbEqkSource object
+   */
+  public ProbEqkSource getSource() {
+	  if(eqkRupturePanel instanceof EqkRuptureFromERFSelectorPanel) return ((EqkRuptureFromERFSelectorPanel)eqkRupturePanel).getSource();
+	  else return null;
+  }
 
-
+ 
   /**
    *
    * @returns the timespan Metadata for the selected Rupture.
