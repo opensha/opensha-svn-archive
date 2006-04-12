@@ -19,6 +19,7 @@ import org.opensha.data.function.EvenlyDiscretizedFunc;
 import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.jfree.data.Range;
+import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
 
 /**
  * <p>Title:MagFreqDistApp </p>
@@ -33,7 +34,7 @@ import org.jfree.data.Range;
  * @version 1.0
  */
 public class MagFreqDistApp
-    extends JFrame implements GraphPanelAPI,ButtonControlPanelAPI {
+    extends JFrame implements GraphPanelAPI,ButtonControlPanelAPI,GraphWindowAPI {
 
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane plotSplitPane = new JSplitPane();
@@ -52,6 +53,8 @@ public class MagFreqDistApp
   private BorderLayout borderLayout1 = new BorderLayout();
   private JButton addButton = new JButton();
 
+  protected final static int W = 870;
+  protected final static int H = 750;
 
   private final boolean D = false;
 
@@ -65,11 +68,11 @@ public class MagFreqDistApp
   private GraphWindow graphWindow;
 
   //X and Y Axis  when plotting the Curves Name
-  private String incrRateXAxisName = "Incremental-Rate", incrRateYAxisName = "Magnitude";
+  private String incrRateXAxisName = "Magnitude", incrRateYAxisName = "Incremental-Rate";
   //X and Y Axis  when plotting the Curves Name
-  private String cumRateXAxisName = "Cumulative-Rate", cumRateYAxisName = "Magnitude";
+  private String cumRateXAxisName = "Magnitude" , cumRateYAxisName = "Cumulative-Rate";
   //X and Y Axis  when plotting the Curves Name
-  private String momentRateXAxisName = "Moment-Rate", momentRateYAxisName = "Magnitude";
+  private String momentRateXAxisName = "Magnitude", momentRateYAxisName =  "Moment-Rate";
 
   private boolean isIncrRatePlot,isMomentRatePlot,isCumRatePlot;
 
@@ -118,11 +121,17 @@ public class MagFreqDistApp
 
 
   //list for storing all types of Mag Freq. dist. (incremental, cumulative and momentRate).
-  private ArrayList incrRateFunctionList,cumRateFunctionList,momentRateFunctionList;
+  private ArrayList incrRateFunctionList = new ArrayList();
+  private ArrayList cumRateFunctionList =  new ArrayList();
+  private ArrayList momentRateFunctionList = new ArrayList();
   //summed distribution
   private SummedMagFreqDist summedMagFreqDist;
 
   private String incrRatePlotTitle="",cumRatePlotTitle="",momentRatePlotTitle="";
+
+  //checks to see if summed distribution has been added, then this number will be
+  //one less then the number of plotted disctributions.
+  private int numFunctionsWithoutSumDist;
 
 
   public MagFreqDistApp() {
@@ -139,7 +148,7 @@ public class MagFreqDistApp
 
 
 
-    addButton.setText("Add Dist");
+    addButton.setText("Add-Dist");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
@@ -149,14 +158,14 @@ public class MagFreqDistApp
     //object for the ButtonControl Panel
     buttonControlPanel = new ButtonControlPanel(this);
 
-    peelOffButton.setText("Peel Off");
+    peelOffButton.setText("Peel-Off");
     peelOffButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         peelOffButton_actionPerformed(e);
       }
     });
 
-    clearButton.setText("Clear Plot");
+    clearButton.setText("Clear-Plot");
     clearButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         clearButton_actionPerformed(e);
@@ -227,18 +236,20 @@ public class MagFreqDistApp
     this.getContentPane().add(jToolBar, BorderLayout.NORTH);
 
     mainSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+    plotSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     editorPanel.setLayout(gridBagLayout1);
     buttonPanel.setLayout(flowLayout1);
-    plotSplitPane.add(plotTabPane, JSplitPane.TOP);
-    plotSplitPane.add(editorPanel, JSplitPane.BOTTOM);
-    mainSplitPane.add(buttonPanel, JSplitPane.RIGHT);
-    mainSplitPane.add(plotSplitPane, JSplitPane.LEFT);
+    plotSplitPane.add(plotTabPane, JSplitPane.LEFT);
+    mainSplitPane.add(plotSplitPane, JSplitPane.TOP);
+    plotSplitPane.add(editorPanel, JSplitPane.RIGHT);
+    mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
+
     this.getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    plotSplitPane.setDividerLocation(400);
-    mainSplitPane.setDividerLocation(530);
-    incrRatePlotPanel.setLayout(borderLayout1);
-    momentRatePlotPanel.setLayout(borderLayout1);
-    cumRatePlotPanel.setLayout(borderLayout1);
+    plotSplitPane.setDividerLocation(480);
+    mainSplitPane.setDividerLocation(590);
+    incrRatePlotPanel.setLayout(gridBagLayout1);
+    momentRatePlotPanel.setLayout(gridBagLayout1);
+    cumRatePlotPanel.setLayout(gridBagLayout1);
     plotTabPane.add("Incremental-Rate", incrRatePlotPanel);
     plotTabPane.add("Cumulative-Rate", cumRatePlotPanel);
     plotTabPane.add("Moment-Rate", momentRatePlotPanel);
@@ -248,7 +259,7 @@ public class MagFreqDistApp
       }
     });
     jCheckSumDist.setBackground(Color.white);
-    jCheckSumDist.setForeground(Color.red);
+    jCheckSumDist.setForeground(Color.black);
     jCheckSumDist.setText("Summed Dist");
     jCheckSumDist.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
@@ -261,6 +272,16 @@ public class MagFreqDistApp
     buttonPanel.add(peelOffButton, 3);
     buttonPanel.add(buttonControlPanel, 4);
     buttonPanel.add(imgLabel, 5);
+
+    incrRateGraphPanel = new GraphPanel(this);
+    cumRateGraphPanel = new GraphPanel(this);
+    momentRateGraphPanel = new GraphPanel(this);
+
+    this.setSize( W, H );
+    Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
+    setLocation( ( dm.width - this.getSize().width ) / 2, ( dm.height - this.getSize().height ) / 2 );
+    this.setVisible( true );
+
   }
 
 
@@ -292,7 +313,6 @@ public class MagFreqDistApp
       double min = magDistEditor.getMin();
       double max = magDistEditor.getMax();
       int num = magDistEditor.getNum();
-
       // make the new object of summed distribution
       summedMagFreqDist = new  SummedMagFreqDist(min,max,num);
 
@@ -317,9 +337,16 @@ public class MagFreqDistApp
     // if summed distribution needs to be removed
    else {
      // remove the summed distribution and related moment rate and cumulative rate
-     incrRateFunctionList.remove(0);
-     cumRateFunctionList.remove(0);
-     momentRateFunctionList.remove(0);
+     incrRateFunctionList.remove(incrRateFunctionList.size() -1);
+     cumRateFunctionList.remove(cumRateFunctionList.size() -1);
+     momentRateFunctionList.remove(momentRateFunctionList.size() -1);
+     //removing the plotting features from the plot prefs. for the summed distribution
+     ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
+     ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
+     ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
+     incrPlotFeaturesList.remove(incrPlotFeaturesList.size()-1);
+     cumPlotFeaturesList.remove(cumPlotFeaturesList.size()-1);
+     momentPlotFeaturesList.remove(momentPlotFeaturesList.size()-1);
    }
     addGraphPanel();
 
@@ -337,10 +364,10 @@ public class MagFreqDistApp
      incrRateGraphPanel.drawGraphPanel(incrRateXAxisName,incrRateYAxisName,
                                        incrRateFunctionList,xLog,yLog,incrCustomAxis,
                                        incrRatePlotTitle,buttonControlPanel);
-     incrRateGraphPanel.drawGraphPanel(cumRateXAxisName,cumRateYAxisName,
+     cumRateGraphPanel.drawGraphPanel(cumRateXAxisName,cumRateYAxisName,
                                        cumRateFunctionList,xLog,yLog,cumCustomAxis,
                                        cumRatePlotTitle,buttonControlPanel);
-     incrRateGraphPanel.drawGraphPanel(momentRateXAxisName,momentRateYAxisName,
+     momentRateGraphPanel.drawGraphPanel(momentRateXAxisName,momentRateYAxisName,
                                        momentRateFunctionList,xLog,yLog,momentCustomAxis,
                                        momentRatePlotTitle,buttonControlPanel);
      togglePlot();
@@ -379,12 +406,22 @@ public class MagFreqDistApp
    *
    */
   private void insertSummedDistribution() {
+      // add the summed distribution to the list
+      incrRateFunctionList.add(summedMagFreqDist);
+      cumRateFunctionList.add(summedMagFreqDist.getCumRateDist());
+      momentRateFunctionList.add(summedMagFreqDist.getMomentRateDist());
+      addGraphPanel();
 
-    // add the summed distribution to the list
-    incrRateFunctionList.add(summedMagFreqDist);
-    cumRateFunctionList.add(summedMagFreqDist.getCumRateDist());
-    momentRateFunctionList.add(summedMagFreqDist.getMomentRateDist());
-
+      ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
+      ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
+      ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
+      incrPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+          Color.BLACK,1.0,1));
+      cumPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+          Color.BLACK,1.0,1));
+      momentPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+          Color.BLACK,1.0,1));
+      addGraphPanel();
   }
 
   /**
@@ -429,7 +466,7 @@ public class MagFreqDistApp
      *
      * @param  e  The feature to be added to the Button_mouseClicked attribute
      */
-    protected void addButton(){
+    private void addButton(){
 
         if ( D ) System.out.println("Starting" );
 
@@ -443,39 +480,45 @@ public class MagFreqDistApp
           // get the cumulative rate and moment rate distributions for this function
           cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
           moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+          int size = incrRateFunctionList.size();
+          //if the number of functions is 1 more then numFunctionsWithoutSumDist
+          //then summed has been added ealier so needs to be removed
+          if(size ==numFunctionsWithoutSumDist+1){
+            incrRateFunctionList.remove(incrRateFunctionList.size() - 1);
+            cumRateFunctionList.remove(cumRateFunctionList.size() - 1);
+            momentRateFunctionList.remove(momentRateFunctionList.size() - 1);
 
-
-        if(!this.jCheckSumDist.isSelected()) {
-          // add the functions to the functionlist
-          incrRateFunctionList.add((EvenlyDiscretizedFunc)function);
-          cumRateFunctionList.add(cumRate);
-          momentRateFunctionList.add(moRate);
-        } else { // if summed distribution is selected, add to summed distribution
-             try {
-               // add this distribution to summed distribution
-               summedMagFreqDist.addIncrementalMagFreqDist(function);
-
-               // previous sum is invalid in the function lists. so remove that
-               incrRateFunctionList.remove(incrRateFunctionList.size()-1);
-               cumRateFunctionList.remove(cumRateFunctionList.size()-1);
-               momentRateFunctionList.remove(momentRateFunctionList.size()-1);
-
-               // add the functions to the functionlist
-               incrRateFunctionList.add((EvenlyDiscretizedFunc)function);
-               cumRateFunctionList.add(cumRate);
-               momentRateFunctionList.add(moRate);
-               // this function will insert summed distribution at top of function list
-               insertSummedDistribution();
-             }catch(Exception ex) {
-               JOptionPane.showMessageDialog(this,
-                                     "min, max, and num must be the same to sum the distributions."+
-                                     "\n To add this distribution first deselect the Summed Dist option"
-                                     );
-               return;
-             }
+            //removing the plotting features from the plot prefs. for the summed distribution
+            ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
+            ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
+            ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
+            incrPlotFeaturesList.remove(incrPlotFeaturesList.size()-1);
+            cumPlotFeaturesList.remove(cumPlotFeaturesList.size()-1);
+            momentPlotFeaturesList.remove(momentPlotFeaturesList.size()-1);
           }
 
+          // add the functions to the functionlist
+          incrRateFunctionList.add( (EvenlyDiscretizedFunc) function);
+          cumRateFunctionList.add(cumRate);
+          momentRateFunctionList.add(moRate);
+          numFunctionsWithoutSumDist = momentRateFunctionList.size();
 
+          if (jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
+            try {
+              // add this distribution to summed distribution
+              summedMagFreqDist.addIncrementalMagFreqDist(function);
+
+              // this function will insert summed distribution at top of function list
+              insertSummedDistribution();
+            }
+            catch (Exception ex) {
+              JOptionPane.showMessageDialog(this,
+                                            "min, max, and num must be the same to sum the distributions." +
+                                            "\n To add this distribution first deselect the Summed Dist option"
+                  );
+              return;
+            }
+          }
           // draw the graph
           addGraphPanel();
 
@@ -599,7 +642,7 @@ public class MagFreqDistApp
    * window. The current plot just shows empty window.
    */
   private void peelOffCurves(){
-    //graphWindow = new GraphWindow(this);
+    graphWindow = new GraphWindow(this);
     graphWindow.setVisible(true);
   }
 
@@ -863,5 +906,32 @@ public class MagFreqDistApp
       cumRatePlotTitle = plotTitle;
     else
       momentRatePlotTitle = plotTitle;
+  }
+
+  public ArrayList getCurveFunctionList() {
+    if(isIncrRatePlot)
+      return incrRateFunctionList;
+    else if(isCumRatePlot)
+      return cumRateFunctionList;
+    else
+      return momentRateFunctionList;
+
+  }
+
+  public boolean getXLog() {
+    return xLog;
+  }
+
+  public boolean getYLog() {
+    return yLog;
+  }
+
+  public boolean isCustomAxis() {
+    if(isIncrRatePlot)
+      return incrCustomAxis;
+    else if(isCumRatePlot)
+      return cumCustomAxis;
+    else
+      return momentCustomAxis;
   }
 }

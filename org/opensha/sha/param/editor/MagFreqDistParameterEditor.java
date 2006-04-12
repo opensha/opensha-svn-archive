@@ -19,6 +19,7 @@ import org.opensha.sha.magdist.*;
 import org.opensha.data.function.ArbitrarilyDiscretizedFunc;
 import org.opensha.sha.magdist.*;
 import org.opensha.sha.magdist.gui.infoTools.MagFreqDistEditorPanel;
+import org.opensha.sha.magdist.gui.MagFreqDistApp;
 
 
 
@@ -58,7 +59,7 @@ public class MagFreqDistParameterEditor extends ParameterEditor
     private ParameterList parameterList;
 
     //shows the parameters in a window
-    private MagFreqDistEditorPanel magDistPanel;
+    private MagFreqDistApp magDistPanel;
 
     /**
      * ParameterListEditor for holding parameters
@@ -137,8 +138,9 @@ public class MagFreqDistParameterEditor extends ParameterEditor
      */
     public void actionPerformed(ActionEvent ae ) {
       if(magDistPanel == null)
-        magDistPanel = new MagFreqDistEditorPanel(this);
-      magDistPanel.pack();
+        magDistPanel = new MagFreqDistApp();
+      magDistPanel.setMagDistEditor(this);
+      //magDistPanel.pack();
       magDistPanel.setVisible(true);
     }
 
