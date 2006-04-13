@@ -356,16 +356,20 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    ruptureValue = ((Integer)ruptureParam.getValue()).intValue();
 
    //getting the selected rupture for the source
-   probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
+   //probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
    stopProgressBarTimer();
  }
 
  /**
+  * First gets the rupture with given index from the source as selected in the
+  * GUI Bean, so that hypocenter parameter always shows the locations for the
+  * selected rupture index in the GUI.
   * gets the hypocenter locations for the selected rupture and adds those to the
   * hypocenter location parameter.
   */
- public void getHypocenterLocationsForSelectedRupture(){
-
+ public void getHypocenterLocationsForSelectedRupture() {
+   //getting the selected rupture for the source
+   probEqkRupture = erf.getRupture(sourceValue, ruptureValue);
 
    //getting the surface of the rupture
    ArrayList locations = new ArrayList();
@@ -376,7 +380,6 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
    while (hypoLocationsIt.hasNext())
      //getting the object of Location from the HypocenterLocations and formatting its string to 3 placees of decimal
      locations.add(hypoLocationsIt.next());
-
 
    hypoCenterLocationParam = new LocationParameter(
        RUPTURE_HYPOLOCATIONS_PARAM_NAME,
@@ -437,11 +440,13 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   * location parameter visible or invisible.
   */
  private void setHypocenterLocationInRupture(boolean visible) {
-   if(!visible)
-     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(false);
-   else
-     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).setVisible(true);
 
+   if (!visible)
+     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).
+         setVisible(false);
+   else
+     listEditor.getParameterEditor(this.RUPTURE_HYPOLOCATIONS_PARAM_NAME).
+         setVisible(true);
 
    //getting the HypoCenterLocation Object and setting the Rupture HypocenterLocation
    probEqkRupture.setHypocenterLocation(getHypocenterLocation());
@@ -499,7 +504,7 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
      hypoCentreCheck.setSelected(false);
      getHypocenterLocationsForSelectedRupture();
      //getting the selected rupture for the source
-     probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
+     //probEqkRupture = erf.getRupture(sourceValue,ruptureValue);
      listEditor.refreshParamEditor();
    }
 
@@ -576,17 +581,23 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   }
 
   /**
-   *
+   * First gets the selected index rupture from the source, so that user
+   * gets the metadata for the rupture selected in this GUI bean.
    * @returns the Metadata String of parameters that constitute the making of this
    * ERF_RupSelectorGUI  bean.
    */
-  public String getParameterListMetadataString(){
-    erfGuiBean.getERFParameterListEditor().getParameterEditor(erfGuiBean.ERF_PARAM_NAME).setVisible(false);
+  public String getParameterListMetadataString() {
+    //getting the selected rupture for the source
+    probEqkRupture = erf.getRupture(sourceValue, ruptureValue);
+    erfGuiBean.getERFParameterListEditor().getParameterEditor(erfGuiBean.
+        ERF_PARAM_NAME).setVisible(false);
     String metadata = "<br><br>Forecast Param List: <br>\n" +
         "-------------------------<br>\n" +
-        getParameterListEditor().getVisibleParameters().getParameterListMetadataString()+";"+
-                      erfGuiBean.getERFParameterListEditor().getVisibleParameters().getParameterListMetadataString()+"<br>"+
-                      "<br>\nRupture Info: "+probEqkRupture.getInfo();
+        getParameterListEditor().getVisibleParameters().
+        getParameterListMetadataString() + ";" +
+        erfGuiBean.getERFParameterListEditor().getVisibleParameters().
+        getParameterListMetadataString() + "<br>" +
+        "<br>\nRupture Info: " + probEqkRupture.getInfo();
     return metadata;
   }
 
@@ -720,15 +731,21 @@ public class EqkRuptureFromERFSelectorPanel extends JPanel
   }
 
   /**
-   *
+   * We are getting the rupture with rupIndex from the source with sourceIndex,
+   * that user has input in GUI bean always. This way if someone has got the
+   * handle to the source from outside then looped over all the rupture then
+   * also this GUI bean will return the rupture with ith index from the source
+   * as given in GUI bean.
    * @returns the ProbEqkRupture Object
    */
-  public EqkRupture getRupture(){
+  public EqkRupture getRupture() {
+    //getting the selected rupture for the source
+    probEqkRupture = erf.getRupture(sourceValue, ruptureValue);
     return probEqkRupture;
   }
-  
+
   public ProbEqkSource getSource() {
-	  return this.erf.getSource(this.sourceValue);
+    return this.erf.getSource(this.sourceValue);
   }
 
   /**
