@@ -20,6 +20,11 @@ import org.opensha.sha.param.editor.MagFreqDistParameterEditor;
 import org.opensha.sha.magdist.SummedMagFreqDist;
 import org.jfree.data.Range;
 import org.opensha.sha.gui.controls.PlotColorAndLineTypeSelectorControlPanel;
+import org.opensha.sha.magdist.SingleMagFreqDist;
+import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
+import org.opensha.sha.magdist.GaussianMagFreqDist;
+import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
+import org.opensha.sha.param.MagFreqDistParameter;
 
 /**
  * <p>Title:MagFreqDistApp </p>
@@ -245,8 +250,8 @@ public class MagFreqDistApp
     mainSplitPane.add(buttonPanel, JSplitPane.BOTTOM);
 
     this.getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
-    plotSplitPane.setDividerLocation(480);
-    mainSplitPane.setDividerLocation(590);
+    plotSplitPane.setDividerLocation(600);
+    mainSplitPane.setDividerLocation(620);
     incrRatePlotPanel.setLayout(gridBagLayout1);
     momentRatePlotPanel.setLayout(gridBagLayout1);
     cumRatePlotPanel.setLayout(gridBagLayout1);
@@ -295,6 +300,8 @@ public class MagFreqDistApp
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.BOTH,
                                            new Insets(4, 4, 4, 4), 0, 0));
+    editorPanel.validate();
+    editorPanel.repaint();
   }
 
 
@@ -381,8 +388,7 @@ public class MagFreqDistApp
     incrRateGraphPanel.togglePlot(buttonControlPanel);
     cumRateGraphPanel.togglePlot(buttonControlPanel);
     momentRateGraphPanel.togglePlot(buttonControlPanel);
-    momentRateGraphPanel.validate();
-    momentRateGraphPanel.repaint();
+
     incrRatePlotPanel.add(incrRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
            , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
     incrRatePlotPanel.validate();
@@ -393,8 +399,11 @@ public class MagFreqDistApp
     cumRatePlotPanel.validate();
     cumRatePlotPanel.repaint();
 
-    momentRatePlotPanel.add(momentRateGraphPanel, new GridBagConstraints( 0, 0, 1, 1, 1.0, 1.0
-           , GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets( 0, 0, 0, 0 ), 0, 0 ));
+    momentRatePlotPanel.add(momentRateGraphPanel,
+                            new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                                   , GridBagConstraints.CENTER,
+                                                   GridBagConstraints.BOTH,
+                                                   new Insets(0, 0, 0, 0), 0, 0));
     momentRatePlotPanel.validate();
     momentRatePlotPanel.repaint();
   }
@@ -476,14 +485,23 @@ public class MagFreqDistApp
 
         try{
           this.magDistEditor.setMagDistFromParams();
+
+          String magDistMetadata = magDistEditor.getMagFreDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
+
           IncrementalMagFreqDist function= (IncrementalMagFreqDist)this.magDistEditor.getParameter().getValue();
+          function.setInfo(magDistMetadata);
+          function.setName("Mag - Incremental Rate Dist.");
           if(D) System.out.println(" after getting mag dist from editor");
-          EvenlyDiscretizedFunc cumRate;
-          EvenlyDiscretizedFunc moRate;
+          EvenlyDiscretizedFunc cumRateFunction;
+          EvenlyDiscretizedFunc moRateFunction;
 
           // get the cumulative rate and moment rate distributions for this function
-          cumRate=(EvenlyDiscretizedFunc)function.getCumRateDist();
-          moRate=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+          cumRateFunction=(EvenlyDiscretizedFunc)function.getCumRateDist();
+          cumRateFunction.setInfo(magDistMetadata);
+          cumRateFunction.setName("Mag - Cumulative Rate Dist.");
+          moRateFunction=(EvenlyDiscretizedFunc)function.getMomentRateDist();
+          moRateFunction.setInfo(magDistMetadata);
+          moRateFunction.setName("Mag - Moment Rate Dist.");
           int size = incrRateFunctionList.size();
           //if the number of functions is 1 more then numFunctionsWithoutSumDist
           //then summed has been added ealier so needs to be removed
@@ -503,8 +521,8 @@ public class MagFreqDistApp
 
           // add the functions to the functionlist
           incrRateFunctionList.add( (EvenlyDiscretizedFunc) function);
-          cumRateFunctionList.add(cumRate);
-          momentRateFunctionList.add(moRate);
+          cumRateFunctionList.add(cumRateFunction);
+          momentRateFunctionList.add(moRateFunction);
           numFunctionsWithoutSumDist = momentRateFunctionList.size();
 
           if (jCheckSumDist.isSelected()) {// if summed distribution is selected, add to summed distribution
@@ -761,7 +779,21 @@ public class MagFreqDistApp
 
 
   public static void main(String[] args) {
-    MagFreqDistApp magfreqdistapp = new MagFreqDistApp();
+
+    String MAG_DIST_PARAM_NAME = "Mag Dist Param";
+    // make  the mag dist parameter
+    ArrayList distNames = new ArrayList();
+    distNames.add(SingleMagFreqDist.NAME);
+    distNames.add(GutenbergRichterMagFreqDist.NAME);
+    distNames.add(GaussianMagFreqDist.NAME);
+    distNames.add(YC_1985_CharMagFreqDist.NAME);
+    MagFreqDistParameter magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
+    MagFreqDistParameterEditor magDistEditor = new MagFreqDistParameterEditor();
+    magDistEditor.setParameter(magDist);
+    // make the magdist param button invisible instead display it as the panel in the window
+    magDistEditor.setMagFreqDistParamButtonVisible(false);
+    MagFreqDistApp magFreqDistApp = new MagFreqDistApp();
+    magFreqDistApp.setMagDistEditor(magDistEditor);
   }
 
 

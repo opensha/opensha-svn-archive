@@ -345,15 +345,6 @@ public class YC_1985_CharMagFreqDist extends IncrementalMagFreqDist {
   }
 
   /**
-   * this function returns String for info about the parameters in this Mag Freq dist
-   * @return : returns the String for info about the parameters in this Mag Freq dist
-   */
-  public String toString() {
-    return getInfo();
-
-  }
-
-  /**
    * this method (defined in parent) is deactivated here (name is finalized)
 
   public void setName(String name) throws  UnsupportedOperationException{

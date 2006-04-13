@@ -589,35 +589,39 @@ public class EvenlyDiscretizedFunc extends DiscretizedFunc{
 
     }
 
-    /** Useful for debugging - prints out all points, one per line */
+    /**
+     * Standard java function, usually used for debugging, prints out
+     * the state of the list, such as number of points, the value of each point, etc.
+     * @return
+     */
     public String toString(){
+      StringBuffer b = new StringBuffer();
+      Iterator it2 = this.getPointsIterator();
 
-        StringBuffer b = new StringBuffer();
-
-        b.append("X, Y\n");
-        Iterator it = getPointsIterator();
-        b.append(getMetadataString()+ '\n');
-        return b.toString();
-
+      b.append("Name: " + getName() + '\n');
+      b.append("Num Points: " + getNum() + '\n');
+      b.append("Info: " + getInfo() + "\n\n");
+      b.append("X, Y Data:" + '\n');
+      b.append(getMetadataString()+ '\n');
+      return b.toString();
     }
 
-
     /**
-      *
-      * @returns value of each point in the function in String format
-      */
-     public String getMetadataString(){
-       StringBuffer b = new StringBuffer();
-       Iterator it2 = this.getPointsIterator();
+     *
+     * @returns value of each point in the function in String format
+     */
+    public String getMetadataString(){
+      StringBuffer b = new StringBuffer();
+      Iterator it2 = this.getPointsIterator();
 
-       while(it2.hasNext()){
+      while(it2.hasNext()){
 
-         DataPoint2D point = (DataPoint2D)it2.next();
-         double x = point.getX();
-         double y = point.getY();
-         b.append((float) x + " , " + (float) y + '\n');
-       }
-       return b.toString();
+        DataPoint2D point = (DataPoint2D)it2.next();
+        double x = point.getX();
+        double y = point.getY();
+        b.append((float) x + "\t  " + (float) y + '\n');
+      }
+      return b.toString();
     }
 
     /**

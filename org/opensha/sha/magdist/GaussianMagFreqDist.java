@@ -283,16 +283,6 @@ public class GaussianMagFreqDist extends IncrementalMagFreqDist {
 
   }
 
-  /**
-   * return the info stored in the class in form of a String
-   * @return
-   */
-  public String toString() {
-
-    return getInfo();
-
-  }
-
 
   /**
    * Throws the exception if the set functions are called from outside the class
