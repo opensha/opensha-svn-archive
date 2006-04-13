@@ -153,7 +153,7 @@ public class MagFreqDistApp
 
 
 
-    addButton.setText("Add-Dist");
+    addButton.setText("Plot-Dist");
     addButton.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(ActionEvent e) {
         addButton_actionPerformed(e);
@@ -263,7 +263,6 @@ public class MagFreqDistApp
         plotTabPane_stateChanged(e);
       }
     });
-    jCheckSumDist.setBackground(Color.white);
     jCheckSumDist.setForeground(Color.black);
     jCheckSumDist.setText("Summed Dist");
     jCheckSumDist.addActionListener(new java.awt.event.ActionListener() {
@@ -271,6 +270,7 @@ public class MagFreqDistApp
         jCheckSumDist_actionPerformed(e);
       }
     });
+    jCheckSumDist.setVisible(false);
     buttonPanel.add(jCheckSumDist,0);
     buttonPanel.add(addButton, 1);
     buttonPanel.add(clearButton, 2);
@@ -285,8 +285,9 @@ public class MagFreqDistApp
     this.setSize( W, H );
     Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
     setLocation( ( dm.width - this.getSize().width ) / 2, ( dm.height - this.getSize().height ) / 2 );
+    this.setDefaultCloseOperation(3);
+    this.setTitle("Magnitude Frequency Distribution Application");
     this.setVisible( true );
-
   }
 
 
@@ -304,6 +305,17 @@ public class MagFreqDistApp
     editorPanel.repaint();
   }
 
+
+  /**
+   * Makes the Summed Dist. option visible or invisible based on the passed in
+   * argument to the function. By default Summed Distribution option is not visible.
+   * Once this method is called it makes the Summed Dist. option available
+   * to user.
+   * @param toShow boolean
+   */
+  public void makeSumDistVisible(boolean toShow){
+    this.jCheckSumDist.setVisible(toShow);
+  }
 
 
   /**
@@ -428,11 +440,11 @@ public class MagFreqDistApp
       ArrayList incrPlotFeaturesList = incrRateGraphPanel.getCurvePlottingCharacterstic();
       ArrayList cumPlotFeaturesList = cumRateGraphPanel.getCurvePlottingCharacterstic();
       ArrayList momentPlotFeaturesList = momentRateGraphPanel.getCurvePlottingCharacterstic();
-      incrPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+      incrPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
           Color.BLACK,1.0,1));
-      cumPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+      cumPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
           Color.BLACK,1.0,1));
-      momentPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.LINE_AND_CIRCLES,
+      momentPlotFeaturesList.set(incrPlotFeaturesList.size() -1,new PlotCurveCharacterstics(PlotColorAndLineTypeSelectorControlPanel.SOLID_LINE,
           Color.BLACK,1.0,1));
       addGraphPanel();
   }
@@ -793,6 +805,7 @@ public class MagFreqDistApp
     // make the magdist param button invisible instead display it as the panel in the window
     magDistEditor.setMagFreqDistParamButtonVisible(false);
     MagFreqDistApp magFreqDistApp = new MagFreqDistApp();
+    magFreqDistApp.makeSumDistVisible(true);
     magFreqDistApp.setMagDistEditor(magDistEditor);
   }
 
