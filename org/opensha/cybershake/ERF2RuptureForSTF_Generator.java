@@ -376,10 +376,10 @@ public class ERF2RuptureForSTF_Generator {
          locList.addLocation(new Location(33.754944 , -118.22300)); //LBP
          locList.addLocation(new Location(34.041823 , -118.06530)); //WNGC
          locList.addLocation(new Location(33.754111 , -117.86778)); //SABD
-         locList.addLocation(new Location(34.064986 , -117.29201));
-         locList.addLocation(new Location(34.336030 , -118.50862));
-         locList.addLocation(new Location(34.054884 , -118.41302));
-         locList.addLocation(new Location(34.009092 , -118.48939));*/
+         locList.addLocation(new Location(34.064986 , -117.29201)); //SBSM
+         locList.addLocation(new Location(34.336030 , -118.50862));//FFI
+         locList.addLocation(new Location(34.054884 , -118.41302));//CCP
+         locList.addLocation(new Location(34.009092 , -118.48939));//SMCA */
 
     //2nd set of sites for Cybershake
     locList.addLocation(new Location(34.1977, -118.3566)); //Burbank Airport

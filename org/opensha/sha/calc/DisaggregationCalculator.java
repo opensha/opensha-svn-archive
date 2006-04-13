@@ -335,13 +335,13 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 
         }
           // create and add rupture info to source list
-          if (numSourcesToShow > 0) {
+          /*if (numSourcesToShow > 0) {
             double eventRate = -Math.log(1 - qkProb); // this event rate is not annualized!
             DisaggregationSourceRuptureInfo rupInfo = new
                 DisaggregationSourceRuptureInfo(null, eventRate, (float) rate, n,
                 mag,dist);
             ( (ArrayList) sourceDissaggMap.get(sourceName)).add(rupInfo);
-          }
+          }*/
 
       }
       if (numSourcesToShow > 0) {
@@ -380,7 +380,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
 //System.out.println(f2.format(100*disaggInfo.getRate()/totalRate));
       }
     }
-    try {
+    /*try {
       FileWriter fw = new FileWriter("Source_Rupture_OpenSHA.txt");
       String sourceRupDisaggregationInfo =
           "#Source-Id  Source-Rate   Rupture-Id   Mag   Distance   Rupture-Exceed-Rate Rupture-Rate  Source-Name\n";
@@ -411,7 +411,7 @@ public class DisaggregationCalculator extends UnicastRemoteObject
     }
     catch (IOException ex1) {
       ex1.printStackTrace();
-    }
+    }*/
 
     Mbar /= totalRate;
     Dbar /= totalRate;
