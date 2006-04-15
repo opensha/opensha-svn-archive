@@ -9,6 +9,7 @@ import javax.swing.event.*;
 import java.util.ArrayList;
 
 
+
 import org.opensha.sha.gui.infoTools.ButtonControlPanel;
 import org.opensha.sha.gui.infoTools.GraphPanel;
 import org.opensha.sha.gui.infoTools.GraphWindow;
@@ -25,6 +26,13 @@ import org.opensha.sha.magdist.YC_1985_CharMagFreqDist;
 import org.opensha.sha.magdist.GaussianMagFreqDist;
 import org.opensha.sha.magdist.GutenbergRichterMagFreqDist;
 import org.opensha.sha.param.MagFreqDistParameter;
+import org.opensha.sha.param.editor.MagDistParameterEditorAPI;
+import org.opensha.param.StringParameter;
+import org.opensha.param.editor.ConstrainedStringParameterEditor;
+import org.opensha.param.event.ParameterChangeListener;
+import org.opensha.param.event.ParameterChangeEvent;
+import org.opensha.sha.param.editor.MagPDF_ParameterEditor;
+import org.opensha.sha.param.MagPDF_Parameter;
 
 /**
  * <p>Title:MagFreqDistApp </p>
@@ -39,7 +47,8 @@ import org.opensha.sha.param.MagFreqDistParameter;
  * @version 1.0
  */
 public class MagFreqDistApp
-    extends JFrame implements GraphPanelAPI,ButtonControlPanelAPI,GraphWindowAPI {
+    extends JFrame implements GraphPanelAPI,ButtonControlPanelAPI,GraphWindowAPI,
+    ParameterChangeListener{
 
   private JSplitPane mainSplitPane = new JSplitPane();
   private JSplitPane plotSplitPane = new JSplitPane();
@@ -120,7 +129,9 @@ public class MagFreqDistApp
 
 
   //instance of the MagDist Editor
-  private MagFreqDistParameterEditor magDistEditor;
+  private MagDistParameterEditorAPI magDistEditor;
+  private MagFreqDistParameterEditor magFreqDistEditor;
+  private MagPDF_ParameterEditor magPDF_Editor ;
 
   private JCheckBox jCheckSumDist = new JCheckBox();
 
@@ -134,9 +145,14 @@ public class MagFreqDistApp
 
   private String incrRatePlotTitle="",cumRatePlotTitle="",momentRatePlotTitle="";
 
+
   //checks to see if summed distribution has been added, then this number will be
   //one less then the number of plotted disctributions.
   private int numFunctionsWithoutSumDist;
+  private static final String MAG_DIST_PARAM_SELECTOR_NAME = "Mag. Dist. Type";
+  private static final String MAG_FREQ_DIST = "Mag. Freq. Dist";
+  private static final String MAG_PDF_PARAM = "Mag. PDF";
+  private StringParameter stParam;
 
 
   public MagFreqDistApp() {
@@ -290,14 +306,84 @@ public class MagFreqDistApp
     this.setVisible( true );
   }
 
+  /**
+   *
+   */
+  private void initMagParamEditor() {
+    ArrayList magParamTypes = new ArrayList();
+    magParamTypes.add(this.MAG_FREQ_DIST);
+    magParamTypes.add(this.MAG_PDF_PARAM);
+    stParam = new StringParameter(this.
+                                  MAG_DIST_PARAM_SELECTOR_NAME,
+                                  magParamTypes,
+                                  (String) magParamTypes.get(0));
+    ConstrainedStringParameterEditor stParamEditor = new
+        ConstrainedStringParameterEditor(stParam);
+    stParam.addParameterChangeListener(this);
+    editorPanel.add(stParamEditor,
+                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                                           , GridBagConstraints.NORTH,
+                                           GridBagConstraints.BOTH,
+                                           new Insets(1, 1, 1, 1), 0, 0));
+    editorPanel.validate();
+    editorPanel.repaint();
+  }
+
+  private void createMagParam(){
+    String magTypeSelected = (String)stParam.getValue();
+    if(magTypeSelected.equals(MAG_FREQ_DIST)){
+      if(magFreqDistEditor == null){
+        ArrayList distNames = new ArrayList();
+        distNames.add(SingleMagFreqDist.NAME);
+        distNames.add(GutenbergRichterMagFreqDist.NAME);
+        distNames.add(GaussianMagFreqDist.NAME);
+        distNames.add(YC_1985_CharMagFreqDist.NAME);
+
+        String MAG_DIST_PARAM_NAME = "Mag Dist Param";
+        // make  the mag dist parameter
+        MagFreqDistParameter magDist = new MagFreqDistParameter(
+            MAG_DIST_PARAM_NAME, distNames);
+        magFreqDistEditor = new MagFreqDistParameterEditor();
+        magFreqDistEditor.setParameter(magDist);
+        // make the magdist param button invisible instead display it as the panel in the window
+        magFreqDistEditor.setMagFreqDistParamButtonVisible(false);
+
+      }
+      else
+        editorPanel.remove(magDistEditor.getMagFreDistParameterEditor());
+      magDistEditor = magFreqDistEditor;
+    }
+    else{
+      if(magPDF_Editor == null){
+        String MAG_DIST_PARAM_NAME = "Mag Dist Param";
+        // make  the mag dist parameter
+        ArrayList distNames = new ArrayList();
+        distNames.add(SingleMagFreqDist.NAME);
+        distNames.add(GutenbergRichterMagFreqDist.NAME);
+        distNames.add(GaussianMagFreqDist.NAME);
+        distNames.add(YC_1985_CharMagFreqDist.NAME);
+        MagPDF_Parameter magDist = new MagPDF_Parameter(
+            MAG_DIST_PARAM_NAME, distNames);
+        magPDF_Editor = new MagPDF_ParameterEditor();
+        magPDF_Editor.setParameter(magDist);
+        // make the magdist param button invisible instead display it as the panel in the window
+        magPDF_Editor.setMagFreqDistParamButtonVisible(false);
+      }
+      else
+        editorPanel.remove(magDistEditor.getMagFreDistParameterEditor());
+      magDistEditor = magPDF_Editor;
+    }
+    magDistEditor.refreshParamEditor();
+    setMagDistEditor(magDistEditor);
+  }
 
   /**
    *
    */
-  public void setMagDistEditor(MagFreqDistParameterEditor magDistEditor) {
+  public void setMagDistEditor(MagDistParameterEditorAPI magDistEditor) {
     this.magDistEditor = magDistEditor;
     editorPanel.add(magDistEditor.getMagFreDistParameterEditor(),
-                    new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0
+                    new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.BOTH,
                                            new Insets(4, 4, 4, 4), 0, 0));
@@ -572,10 +658,6 @@ public class MagFreqDistApp
     }
 
 
-
-
-
-
   /**
    * this function is called when "clear plot" is selected
    *
@@ -790,23 +872,16 @@ public class MagFreqDistApp
   }
 
 
+  /**
+   * Main function to run this as an application
+   * @param args String[]
+   */
   public static void main(String[] args) {
 
-    String MAG_DIST_PARAM_NAME = "Mag Dist Param";
-    // make  the mag dist parameter
-    ArrayList distNames = new ArrayList();
-    distNames.add(SingleMagFreqDist.NAME);
-    distNames.add(GutenbergRichterMagFreqDist.NAME);
-    distNames.add(GaussianMagFreqDist.NAME);
-    distNames.add(YC_1985_CharMagFreqDist.NAME);
-    MagFreqDistParameter magDist =  new MagFreqDistParameter(MAG_DIST_PARAM_NAME, distNames);
-    MagFreqDistParameterEditor magDistEditor = new MagFreqDistParameterEditor();
-    magDistEditor.setParameter(magDist);
-    // make the magdist param button invisible instead display it as the panel in the window
-    magDistEditor.setMagFreqDistParamButtonVisible(false);
     MagFreqDistApp magFreqDistApp = new MagFreqDistApp();
+    magFreqDistApp.initMagParamEditor();
+    magFreqDistApp.createMagParam();
     magFreqDistApp.makeSumDistVisible(true);
-    magFreqDistApp.setMagDistEditor(magDistEditor);
   }
 
 
@@ -986,5 +1061,12 @@ public class MagFreqDistApp
       return cumCustomAxis;
     else
       return momentCustomAxis;
+  }
+
+  public void parameterChange(ParameterChangeEvent event) {
+    String paramName = event.getParameterName();
+    if(paramName.equals(this.MAG_DIST_PARAM_SELECTOR_NAME)){
+      createMagParam();
+    }
   }
 }
