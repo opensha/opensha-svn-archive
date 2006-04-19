@@ -42,7 +42,7 @@ public interface MagDistParameterEditorAPI {
      * button.
      * @return
      */
-    public ParameterListEditor getMagFreDistParameterEditor();
+    public ParameterListEditor getMagFreqDistParameterEditor();
 
     /**
      * Called when the parameter has changed independently from

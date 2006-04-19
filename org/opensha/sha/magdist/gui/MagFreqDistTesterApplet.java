@@ -424,7 +424,7 @@ public class MagFreqDistTesterApplet extends JApplet
     magDistEditor.setParameter(magDist);
     // make the magdist param button invisible instead display it as the panel in the window
     magDistEditor.setMagFreqDistParamButtonVisible(false);
-    ParameterListEditor magDistPanel =  magDistEditor.getMagFreDistParameterEditor();
+    ParameterListEditor magDistPanel =  magDistEditor.getMagFreqDistParameterEditor();
 
     mainSplitPane.setBottomComponent( magDistPanel );
     mainSplitPane.setTopComponent( plotPanel );

@@ -102,8 +102,6 @@ public class EvenlyGriddedSurface
 
 
 
-
-
     /**
      * Sets the average dip of this surface into the Earth. An InvalidRangeException
      * is thrown if the ave strike is not a valid value, i.e. must be > 0, etc.
@@ -112,7 +110,6 @@ public class EvenlyGriddedSurface
         FaultUtils.assertValidDip( aveDip );
         this.aveDip = aveDip ;
     }
-
 
 
 

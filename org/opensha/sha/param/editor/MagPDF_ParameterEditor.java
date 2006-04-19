@@ -134,7 +134,7 @@ public class MagPDF_ParameterEditor
    * button.
    * @return
    */
-  public ParameterListEditor getMagFreDistParameterEditor() {
+  public ParameterListEditor getMagFreqDistParameterEditor() {
     return editor;
   }
 

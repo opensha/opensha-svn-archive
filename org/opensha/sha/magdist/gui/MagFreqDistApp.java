@@ -267,7 +267,7 @@ public class MagFreqDistApp
 
     this.getContentPane().add(mainSplitPane, java.awt.BorderLayout.CENTER);
     plotSplitPane.setDividerLocation(600);
-    mainSplitPane.setDividerLocation(620);
+    mainSplitPane.setDividerLocation(570);
     incrRatePlotPanel.setLayout(gridBagLayout1);
     momentRatePlotPanel.setLayout(gridBagLayout1);
     cumRatePlotPanel.setLayout(gridBagLayout1);
@@ -347,13 +347,13 @@ public class MagFreqDistApp
         magFreqDistEditor.setParameter(magDist);
         // make the magdist param button invisible instead display it as the panel in the window
         magFreqDistEditor.setMagFreqDistParamButtonVisible(false);
-
       }
       else
-        editorPanel.remove(magDistEditor.getMagFreDistParameterEditor());
-      magDistEditor = magFreqDistEditor;
+        editorPanel.remove(magDistEditor.getMagFreqDistParameterEditor());
+      setMagDistEditor(magFreqDistEditor);
     }
     else{
+      editorPanel.remove(magDistEditor.getMagFreqDistParameterEditor());
       if(magPDF_Editor == null){
         String MAG_DIST_PARAM_NAME = "Mag Dist Param";
         // make  the mag dist parameter
@@ -369,12 +369,9 @@ public class MagFreqDistApp
         // make the magdist param button invisible instead display it as the panel in the window
         magPDF_Editor.setMagFreqDistParamButtonVisible(false);
       }
-      else
-        editorPanel.remove(magDistEditor.getMagFreDistParameterEditor());
-      magDistEditor = magPDF_Editor;
+      setMagDistEditor(magPDF_Editor);
     }
     magDistEditor.refreshParamEditor();
-    setMagDistEditor(magDistEditor);
   }
 
   /**
@@ -382,13 +379,13 @@ public class MagFreqDistApp
    */
   public void setMagDistEditor(MagDistParameterEditorAPI magDistEditor) {
     this.magDistEditor = magDistEditor;
-    editorPanel.add(magDistEditor.getMagFreDistParameterEditor(),
+    editorPanel.add(magDistEditor.getMagFreqDistParameterEditor(),
                     new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0
                                            , GridBagConstraints.NORTH,
                                            GridBagConstraints.BOTH,
-                                           new Insets(4, 4, 4, 4), 0, 0));
-    editorPanel.validate();
-    editorPanel.repaint();
+                                           new Insets(2, 2, 2, 2), 0, 0));
+   editorPanel.validate();
+   editorPanel.repaint();
   }
 
 
@@ -584,7 +581,7 @@ public class MagFreqDistApp
         try{
           this.magDistEditor.setMagDistFromParams();
 
-          String magDistMetadata = magDistEditor.getMagFreDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
+          String magDistMetadata = magDistEditor.getMagFreqDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
 
           IncrementalMagFreqDist function= (IncrementalMagFreqDist)this.magDistEditor.getParameter().getValue();
           function.setInfo(magDistMetadata);

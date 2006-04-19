@@ -54,7 +54,7 @@ public class MagFreqDistEditorPanel
 
     magDistPanel.setLayout(gridBagLayout1);
     this.getContentPane().add(magDistPanel, java.awt.BorderLayout.CENTER);
-    magDistPanel.add(magDistEditor.getMagFreDistParameterEditor(),
+    magDistPanel.add(magDistEditor.getMagFreqDistParameterEditor(),
                      new GridBagConstraints(0, 0, 2, 1, 1.0, 1.0
                                             , GridBagConstraints.CENTER,
                                             GridBagConstraints.BOTH,
@@ -128,7 +128,7 @@ public class MagFreqDistEditorPanel
     IncrementalMagFreqDist incrFunc = (IncrementalMagFreqDist) magDistEditor.
         getParameter().getValue();
     String magDistMetadata = "";
-        magDistEditor.getMagFreDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
+        magDistEditor.getMagFreqDistParameterEditor().getVisibleParametersCloned().getParameterListMetadataString();
 
     if (selectedText.equals(SELECT_INCREMENTAL_DIST)){
       ArrayList functionList = new ArrayList();

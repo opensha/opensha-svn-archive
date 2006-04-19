@@ -152,7 +152,7 @@ public class MagFreqDistParameterEditor
    * button.
    * @return
    */
-  public ParameterListEditor getMagFreDistParameterEditor() {
+  public ParameterListEditor getMagFreqDistParameterEditor() {
     return editor;
   }
 
