@@ -24,6 +24,7 @@ import org.opensha.sha.calc.ERF2GriddedSeisRatesCalc;
 import org.opensha.param.StringParameter;
 import org.opensha.param.BooleanParameter;
 import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
+import org.opensha.param.event.ParameterListChangeListener;
 
 
 /**
@@ -36,7 +37,7 @@ import org.opensha.param.event.ParameterAndTimeSpanChangeListener;
  */
 
 public abstract class EqkRupForecast implements EqkRupForecastAPI,
-    TimeSpanChangeListener,ParameterChangeListener {
+    TimeSpanChangeListener,ParameterChangeListener,ParameterListChangeListener {
 
   // adjustable params for each forecast
   protected ParameterList adjustableParams = new ParameterList();
@@ -140,10 +141,6 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
     return false;
    }
 
-
-
-
-
   /**
    *  Function that must be implemented by all Timespan Listeners for
    *  ParameterChangeEvents.
@@ -151,7 +148,23 @@ public abstract class EqkRupForecast implements EqkRupForecastAPI,
    * @param  event  The Event which triggered this function call
    */
   public void timeSpanChange(EventObject event) {
-    this.parameterChangeFlag = true;
+    parameterChangeFlag = true;
+    int size = listenerList.size();
+    for(int i=0;i<size;++i){
+      ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);
+      listener.parameterOrTimeSpanChange(event);
+    }
+  }
+
+
+  /**
+   *  Function that must be implemented by all ParameterList Listeners for
+   *  ParameterList change events.
+   *
+   * @param  event  The Event which triggered this function call
+   */
+  public void parameterListChange(EventObject event){
+    parameterChangeFlag = true;
     int size = listenerList.size();
     for(int i=0;i<size;++i){
       ParameterAndTimeSpanChangeListener listener =(ParameterAndTimeSpanChangeListener)listenerList.get(i);

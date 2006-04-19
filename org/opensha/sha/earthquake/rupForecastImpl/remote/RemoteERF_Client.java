@@ -69,13 +69,13 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
       RemoteERF_FactoryAPI remoteERF_Factory = (RemoteERF_FactoryAPI) Naming.
           lookup(rmiRemoteRegistrationName);
       erfServer = remoteERF_Factory.getRemoteERF(className);
+      //adding the listeners to the parameters
       adjustableParams = erfServer.getAdjustableParameterList();
-      ListIterator it = adjustableParams.getParametersIterator();
-      while (it.hasNext())
-        ( (ParameterAPI) it.next()).addParameterChangeListener(this);
+      addListenersToParameters();
       //getting the timespan object and adding the parameterchange listener obejct to it
       //getting the timespan and adjustable params
       timeSpan = erfServer.getTimeSpan();
+
       addListenersToTimeSpan();
     }
     catch (NotBoundException n) {
@@ -97,7 +97,16 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     catch (ExportException ex) {
       ex.printStackTrace();
     }
+  }
 
+  /**
+   * Adding the change Listeners to the Parameters
+   */
+  private void addListenersToParameters(){
+
+      ListIterator it = adjustableParams.getParametersIterator();
+      while (it.hasNext())
+        ((ParameterAPI)it.next()).addParameterChangeListener(this);
   }
 
 
@@ -572,6 +581,10 @@ public class RemoteERF_Client extends EqkRupForecast implements RemoteEventListe
     else if(obj instanceof TimeSpan){
       timeSpan = (TimeSpan)obj;
       addListenersToTimeSpan();
+    }
+    else if(obj instanceof ParameterList){
+      adjustableParams = (ParameterList)obj;
+      addListenersToParameters();
     }
 
     int size = listenerList.size();

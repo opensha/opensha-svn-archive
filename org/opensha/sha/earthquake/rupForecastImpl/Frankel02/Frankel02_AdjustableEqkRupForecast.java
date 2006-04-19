@@ -23,6 +23,8 @@ import org.opensha.sha.earthquake.*;
 import org.opensha.sha.earthquake.rupForecastImpl.Frankel02.*;
 import org.opensha.sha.earthquake.rupForecastImpl.*;
 import java.io.FileWriter;
+import org.opensha.param.event.ParameterChangeEvent;
+import java.util.EventObject;
 
 
 /**
@@ -182,7 +184,7 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
     adjustableParams.addParameter(faultModelParam);
     adjustableParams.addParameter(rupOffset_Param);
     adjustableParams.addParameter(backSeisParam);
-    adjustableParams.addParameter(backSeisRupParam);
+    //adjustableParams.addParameter(backSeisRupParam);
 
 /*
 // this was for testing:
@@ -1101,6 +1103,48 @@ public class Frankel02_AdjustableEqkRupForecast extends EqkRupForecast{
      }
      return mo;
    }
+
+
+   /**
+    *  This is the main function of this interface. Any time a control
+    *  paramater or independent paramater is changed by the user in a GUI this
+    *  function is called, and a paramater change event is passed in.
+    *
+    *  This sets the flag to indicate that the sources need to be updated
+    *
+    * @param  event
+    */
+   public void parameterChange(ParameterChangeEvent event) {
+     super.parameterChange(event);
+     String paramName = event.getParameterName();
+
+     /**
+      * If change is made to the Back Seis param then
+      * remove/add the backSeisParam from the list of
+      * adjustable parameters and send that event to
+      * listening class for the changes in the
+      * parameter list.
+      */
+     if(paramName.equals(BACK_SEIS_NAME)){
+       String paramValue = (String)event.getNewValue();
+       if(paramValue.equals(this.BACK_SEIS_EXCLUDE)){
+         adjustableParams.removeParameter(backSeisRupParam);
+         parameterListChange(new EventObject(adjustableParams));
+       }
+       else{
+         //only add the parameter in the parameter list if it does not already exists
+         if(!adjustableParams.containsParameter(backSeisRupParam)){
+           adjustableParams.addParameter(backSeisRupParam);
+           parameterListChange(new EventObject(adjustableParams));
+         }
+       }
+
+     }
+  }
+
+
+
+
 
 
    // this is temporary for testing purposes

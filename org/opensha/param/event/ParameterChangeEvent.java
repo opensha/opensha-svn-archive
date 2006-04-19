@@ -27,7 +27,7 @@ public class ParameterChangeEvent extends EventObject {
 
 
     /**
-     *  Constructor for the ParameterChangeEvent object.
+     * Constructor for the ParameterChangeEvent object.
      *
      * @param  reference      Object which created this event
      * @param  parameterName  Name of Parameter being changed

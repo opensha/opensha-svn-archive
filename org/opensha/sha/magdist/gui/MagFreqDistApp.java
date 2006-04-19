@@ -301,7 +301,6 @@ public class MagFreqDistApp
     this.setSize( W, H );
     Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
     setLocation( ( dm.width - this.getSize().width ) / 2, ( dm.height - this.getSize().height ) / 2 );
-    this.setDefaultCloseOperation(3);
     this.setTitle("Magnitude Frequency Distribution Application");
     this.setVisible( true );
   }
@@ -327,6 +326,8 @@ public class MagFreqDistApp
                                            new Insets(1, 1, 1, 1), 0, 0));
     editorPanel.validate();
     editorPanel.repaint();
+    this.setDefaultCloseOperation(3);
+
   }
 
   private void createMagParam(){

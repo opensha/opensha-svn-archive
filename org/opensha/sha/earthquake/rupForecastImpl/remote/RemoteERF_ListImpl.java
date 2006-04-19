@@ -193,7 +193,8 @@ public class RemoteERF_ListImpl
   }
 
   /**
-   * Notifys the Client when any parameter or Timespan changes on the Remote ERF Server
+   * Notifys the Client when any parameter, parameterList or Timespan changes
+   * on the Remote ERF Server.
    * @param eventObj EventObject
    */
   public void parameterOrTimeSpanChange(EventObject eventObj) {
@@ -206,8 +207,10 @@ public class RemoteERF_ListImpl
         listener.notify(event);
       }
       catch (RemoteException ex) {
+        ex.printStackTrace();
       }
       catch (UnknownEventException ex) {
+        ex.printStackTrace();
       }
     }
   }

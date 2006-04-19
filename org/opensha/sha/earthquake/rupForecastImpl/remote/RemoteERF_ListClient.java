@@ -56,9 +56,7 @@ public class RemoteERF_ListClient extends ERF_List implements
       RemoteERF_ListFactoryAPI remoteERF_ListFactory= (RemoteERF_ListFactoryAPI) Naming.lookup(rmiRemoteRegistrationName);
       erfListServer = remoteERF_ListFactory.getRemoteERF_List(className);
       adjustableParams = erfListServer.getAdjustableParameterList();
-      ListIterator it = adjustableParams.getParametersIterator();
-      while(it.hasNext())
-        ((ParameterAPI)it.next()).addParameterChangeListener(this);
+      addListenersToParamaters();
       //getting the timespan and adjustable params
       timeSpan =erfListServer.getTimeSpan();
       addListenersToTimeSpan();
@@ -85,6 +83,15 @@ public class RemoteERF_ListClient extends ERF_List implements
 
   }
 
+
+  /**
+   * Adding the change Listeners to the Parameters
+   */
+  private void addListenersToParamaters() {
+    ListIterator it = adjustableParams.getParametersIterator();
+    while (it.hasNext())
+      ( (ParameterAPI) it.next()).addParameterChangeListener(this);
+  }
 
   //add the listeners to the timespan parameters
   private void addListenersToTimeSpan() {
@@ -262,6 +269,10 @@ public class RemoteERF_ListClient extends ERF_List implements
    else if(obj instanceof TimeSpan){
      timeSpan = (TimeSpan)obj;
      addListenersToTimeSpan();
+   }
+   else if(obj instanceof ParameterList){
+     adjustableParams = (ParameterList)obj;
+     addListenersToParamaters();
    }
 
    int size = listenerList.size();

@@ -91,7 +91,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     // create the instance of ERFs
     init_erf_IndParamListAndEditor();
     // forecast 1  is selected initially
-    setParamsInForecast((String)erfNamesVector.get(0));
+    setParamsInForecast();
   }
 
 
@@ -195,9 +195,8 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     * this function is called to add the paramters based on the forecast
     * selected by the user. Based on the selected Forecast it also creates
     * timespan and add that to the same panel window that shows the ERF parameters.
-    * @param forecast
     */
-   private void setParamsInForecast(String selectedForecast) throws InvocationTargetException{
+   private void setParamsInForecast() throws InvocationTargetException{
 
      ParameterAPI chooseERF_Param = parameterList.getParameter(this.ERF_PARAM_NAME);
      parameterList = new ParameterList();
@@ -470,7 +469,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
              break;
            }
          }
-         setParamsInForecast(value);
+         setParamsInForecast();
        }catch(Exception e){
          e.printStackTrace();
        }
@@ -506,7 +505,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
      // create the instance of ERFs
      erfNamesVector.clear();
      init_erf_IndParamListAndEditor();
-     setParamsInForecast(getSelectedERF_Name());
+     setParamsInForecast();
    }
 
    /**
@@ -537,7 +536,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
     // create the instance of ERFs
     erfNamesVector.clear();
     init_erf_IndParamListAndEditor();
-    setParamsInForecast(getSelectedERF_Name());
+    setParamsInForecast();
    }
 
    /**
@@ -569,7 +568,7 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
        if(erfName.equalsIgnoreCase( (String) erfNamesVector.get(i))) {
          try{
            listEditor.getParameterEditor(this.ERF_PARAM_NAME).setValue(erfName);
-           setParamsInForecast(erfName);
+           setParamsInForecast();
          }catch(Exception e){
            e.printStackTrace();
          }
@@ -629,6 +628,17 @@ public class ERF_GuiBean extends JPanel implements ParameterChangeFailListener,
       this.validate();
       this.repaint();
     }
+    else if(obj instanceof ParameterList){
+      try {
+        this.setParamsInForecast();
+      }
+      catch (InvocationTargetException ex) {
+        ex.printStackTrace();
+      }
+      this.validate();
+      this.repaint();
+    }
+
   }
 
 }
